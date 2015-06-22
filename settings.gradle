@@ -1,0 +1,1 @@
+include ':qabellauncher', ':libqabellauncher', ':qabeldropchatexample'

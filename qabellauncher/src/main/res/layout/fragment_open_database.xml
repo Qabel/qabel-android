@@ -1,0 +1,42 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="de.qabel.qabel_platform.fragments.OpenDatabaseFragment">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="center_horizontal|top">
+
+        <Button
+            style="?android:attr/buttonStyleSmall"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/open"
+            android:id="@+id/buttonOpen"
+            android:layout_gravity="right|center_vertical"
+            android:layout_marginTop="42dp"
+            android:layout_below="@+id/editTextPassword"
+            android:layout_centerHorizontal="true" />
+
+        <EditText
+            android:layout_width="285dp"
+            android:layout_height="wrap_content"
+            android:inputType="textPassword"
+            android:ems="10"
+            android:id="@+id/editTextPassword"
+            android:layout_gravity="center"
+            android:layout_below="@+id/textViewEnterPassword"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="32dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:text="@string/enter_password_header"
+            android:id="@+id/textViewEnterPassword"
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true" />
+    </RelativeLayout>
+</FrameLayout>

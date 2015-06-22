@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="de.qabel.qabellauncher" >
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <permission android:name="de.qabel.qabellauncher.QABELSERVICE" android:label="Use QabelService" android:protectionLevel="dangerous" />
+
+    <permission android:name="de.qabel.qabellauncher.QABEL_READ_RESOURCES" android:label="Read Qabel Resources" android:protectionLevel="dangerous" />
+    <permission android:name="de.qabel.qabellauncher.QABEL_WRITE_RESOURCES" android:label="Write Qabel Resources" android:protectionLevel="dangerous" />
+
+    <permission android:name="de.qabel.qabellauncher.QABEL_READ_CONTACTS" android:label="Read Qabel Contacts" android:protectionLevel="dangerous" />
+    <permission android:name="de.qabel.qabellauncher.QABEL_WRITE_CONTACTS" android:label="Write Qabel Contacts" android:protectionLevel="dangerous" />
+
+    <permission android:name="de.qabel.qabellauncher.QABEL_READ_IDENTITIES" android:label="Read Qabel Identities" android:protectionLevel="dangerous" />
+    <permission android:name="de.qabel.qabellauncher.QABEL_WRITE_IDENTITIES" android:label="Write Qabel Identities" android:protectionLevel="dangerous" />
+
+    <application
+        android:name="de.qabel.qabellauncher.QabelLauncherApplication"
+        android:allowBackup="true"
+        android:icon="@drawable/qabel_logo"
+        android:label="@string/app_name"
+        android:supportsRtl="true"
+        android:theme="@style/AppTheme" >
+        <activity
+            android:name="de.qabel.qabellauncher.MainActivity"
+            android:label="@string/app_name"
+            android:theme="@style/AppTheme.NoActionBar" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <service
+            android:name="de.qabel.qabellauncher.service.QabelService"
+            android:enabled="true"
+            android:exported="true"
+            android:permission="de.qabel.qabellauncher.QABELSERVICE" >
+            <intent-filter>
+                <action android:name="de.qabel.qabellauncher.service.QabelService" >
+                </action>
+            </intent-filter>
+        </service>
+
+        <provider
+            android:authorities="de.qabel.qabellauncher.service.QabelContentProvider"
+            android:name="de.qabel.qabellauncher.service.QabelContentProvider"
+            android:exported="true"
+            android:readPermission="de.qabel.qabellauncher.QABEL_READ_RESOURCES"
+            android:writePermission="de.qabel.qabellauncher.QABEL_WRITE_RESOURCES" >
+            <path-permission
+                android:path="/contacts"
+                android:readPermission="de.qabel.qabellauncher.QABEL_READ_CONTACTS" />
+            <path-permission
+                android:path="/identities"
+                android:readPermission="de.qabel.qabellauncher.QABEL_READ_IDENTITIES" />
+        </provider>
+
+    </application>
+
+</manifest>

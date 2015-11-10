@@ -246,8 +246,8 @@ public class MainActivity extends AppCompatActivity
                     try {
                         InputStream inputStream = boxNavigation.download((BoxFile) boxObject);
                         Log.d("MainActivity", "Downloaded");
-                        File file = new File(getExternalFilesDir(null), boxObject.name + "_downloaded");
-                        Log.d("MainActivity", "Saving to: " + getExternalFilesDir(null).toString() + '/' + boxObject.name + "_downloaded");
+                        File file = new File(getExternalFilesDir(null), boxObject.name);
+                        Log.d("MainActivity", "Saving to: " + getExternalFilesDir(null).toString() + '/' + boxObject.name);
                         FileOutputStream fileOutputStream = new FileOutputStream(file);
                         IOUtils.copy(inputStream, fileOutputStream);
                         inputStream.close();

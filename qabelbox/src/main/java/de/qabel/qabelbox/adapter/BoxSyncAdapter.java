@@ -19,12 +19,10 @@ public class BoxSyncAdapter extends AbstractThreadedSyncAdapter {
 
         this.context = context;
         mContentResolver = context.getContentResolver();
-        Log.wtf("asd", "asdasd");
 
     }
 
     @Override
     public void onPerformSync(Account account, Bundle extras, String authority, ContentProviderClient provider, SyncResult syncResult) {
-        Log.wtf("asd", "syyyyyyyyyyyyyyyyyyyyyyyyyyyyync");
     }
 }

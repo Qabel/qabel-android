@@ -40,3 +40,4 @@ log/
 .DS_Store
 /build
 /captures
+*awsCredentials.xml

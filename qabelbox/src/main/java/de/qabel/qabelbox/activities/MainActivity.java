@@ -2,18 +2,14 @@ package de.qabel.qabelbox.activities;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
-import android.app.NotificationManager;
-import android.content.ComponentName;
 import android.content.ContentResolver;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.StrictMode;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
-import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
@@ -27,35 +23,41 @@ import android.view.MenuItem;
 
 import com.amazonaws.auth.AWSCredentials;
 
+import org.apache.commons.io.IOUtils;
 import org.spongycastle.util.encoders.Hex;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Random;
-import java.util.UUID;
 
-import de.qabel.ServiceConstants;
-import de.qabel.core.crypto.CryptoUtils;
 import de.qabel.core.crypto.QblECKeyPair;
 import de.qabel.core.exceptions.QblStorageException;
+import de.qabel.core.storage.AndroidBoxVolume;
+import de.qabel.core.storage.BoxFile;
+import de.qabel.core.storage.BoxFolder;
 import de.qabel.core.storage.BoxNavigation;
+import de.qabel.core.storage.BoxObject;
 import de.qabel.core.storage.BoxVolume;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.adapter.FilesAdapter;
 import de.qabel.qabelbox.filesystem.BoxContentObserver;
-import de.qabel.qabelbox.filesystem.BoxFile;
-import de.qabel.qabelbox.filesystem.BoxFolder;
-import de.qabel.qabelbox.filesystem.BoxObject;
 import de.qabel.qabelbox.fragments.FilesFragment;
+import de.qabel.qabelbox.fragments.NewFolderFragment;
 import de.qabel.qabelbox.fragments.SelectUploadFolderFragment;
 import de.qabel.qabelbox.providers.BoxContentProvider;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,
-                    SelectUploadFolderFragment.OnSelectedUploadFolderListener {
+                    SelectUploadFolderFragment.OnSelectedUploadFolderListener,
+                        NewFolderFragment.OnFragmentInteractionListener {
 
     private Account boxAccount;
     private BoxVolume boxVolume;
+    private BoxNavigation boxNavigation;
 
     private Cursor getFolder(int folderID) {
         return getContentResolver().query(
@@ -66,57 +68,17 @@ public class MainActivity extends AppCompatActivity
                 null);
     }
 
-    private ArrayList<BoxObject> parseFolder(Cursor folderCursor) {
-        ArrayList<BoxObject> boxObjects = new ArrayList<>();
-
-        if (folderCursor.moveToFirst()) {
-            do {
-                BoxObject boxObject;
-                String type = folderCursor.getString(1);
-                switch (type) {
-                    case BoxContentProvider.TYPE_FILE:
-                        boxObject = new BoxFile();
-                        break;
-                    case BoxContentProvider.TYPE_FOLDER:
-                        boxObject = new BoxFolder();
-                        break;
-                    default:
-                        continue;
-                }
-                boxObject.setId(folderCursor.getInt(0));
-                boxObject.setName(folderCursor.getString(2));
-                boxObjects.add(boxObject);
-            } while (folderCursor.moveToNext());
-        }
-        return boxObjects;
-    }
-
-    private void genDemoBoxContent() {
-        Random random = new Random();
-        for (int i = 0; i < 50; i++) {
-            ContentValues contentValues = new ContentValues();
-            if (random.nextBoolean()) {
-                contentValues.put(BoxContentProvider.ROW_TYPE, BoxContentProvider.TYPE_FILE);
-            } else {
-                contentValues.put(BoxContentProvider.ROW_TYPE, BoxContentProvider.TYPE_FOLDER);
-            }
-            contentValues.put(BoxContentProvider.ROW_ID, i);
-            contentValues.put(BoxContentProvider.ROW_NAME, UUID.randomUUID().toString());
-            if (random.nextBoolean()) {
-                contentValues.put(BoxContentProvider.ROW_PARENT, 0);
-            } else {
-                contentValues.put(BoxContentProvider.ROW_PARENT, i + 1 - random.nextInt(i + 1));
-            }
-            getContentResolver().insert(Uri.parse(BoxContentProvider.PREFIX_CONTENT + BoxContentProvider.AUTHORITY + BoxContentProvider.SUFFIX_FILE), contentValues);
-        }
-    }
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        // TODO: Move network operations into another thread
+        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder()
+                .permitAll().build();
+        StrictMode.setThreadPolicy(policy);
 
         AWSCredentials credentials = new AWSCredentials() {
             @Override
@@ -130,29 +92,28 @@ public class MainActivity extends AppCompatActivity
             }
         };
 
-        CryptoUtils cryptoUtils = new CryptoUtils();
+        // TODO: Remove hardcoded key pair
         QblECKeyPair testKey = new QblECKeyPair(Hex.decode("77076d0a7318a57d3c16c17251b26645df4c2f87ebc0992ab177fba51db92c2a"));
 
-        boxVolume = new BoxVolume("qabel", "boxtest", credentials, testKey, cryptoUtils.getRandomBytes(16));
-        try {
-            boxVolume.createIndex("qabel", "boxtest");
-        } catch (QblStorageException e) {
-            e.printStackTrace();
-        }
+        // TODO: Remove hardcoded bucket, prefix and deviceID
+        boxVolume = new AndroidBoxVolume("qabel", "boxtest", credentials, testKey, new byte[] {0x01, 0x02, 0x03, 0x04, 0x05, 0x06}, getCacheDir());
 
+        // Try to navigate to root folder. Create new index if operations fails.
+        // TODO: Handle exceptions
         try {
-            BoxNavigation boxNavigation = boxVolume.navigate();
-            de.qabel.core.storage.BoxFolder folder = boxNavigation.createFolder("asd");
-
+            boxNavigation = boxVolume.navigate();
         } catch (QblStorageException e) {
-            e.printStackTrace();
+            try {
+                boxVolume.createIndex("qabel", "boxtest");
+                boxNavigation = boxVolume.navigate();
+            } catch (QblStorageException e1) {
+                e.printStackTrace();
+            }
         }
 
         boxAccount = createSyncAccount(this);
 
         setupContentProvider();
-
-        genDemoBoxContent();
 
         requestManualSync();
 
@@ -160,8 +121,10 @@ public class MainActivity extends AppCompatActivity
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+                getFragmentManager().beginTransaction()
+                        .replace(R.id.fragment_container, new NewFolderFragment())
+                        .addToBackStack(null)
+                        .commit();
             }
         });
 
@@ -174,6 +137,8 @@ public class MainActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
+
+        // Check if activity is started with ACTION_SEND or ACTION_SEND_MULTIPLE
         Intent intent = getIntent();
         String action = intent.getAction();
         String type = intent.getType();
@@ -182,7 +147,7 @@ public class MainActivity extends AppCompatActivity
             Uri imageUri = intent.getParcelableExtra(Intent.EXTRA_STREAM);
             if (imageUri != null) {
                 getFragmentManager().beginTransaction()
-                        .replace(R.id.fragment_container, genRandomUploadFragment(imageUri))
+                        .replace(R.id.fragment_container, genUploadFragment(null, imageUri))
                         .addToBackStack(null)
                         .commit();
             }
@@ -190,14 +155,14 @@ public class MainActivity extends AppCompatActivity
             ArrayList<Uri> imageUris = intent.getParcelableArrayListExtra(Intent.EXTRA_STREAM);
             if (imageUris != null) {
                 for (Uri imageUri : imageUris) {
-                    Log.wtf("asd", imageUri.toString());
+                    // TODO: Implement multi upload
                 }
             }
         } else {
-            getFragmentManager().beginTransaction()
-                    .replace(R.id.fragment_container, genRandomFragment(0))
-                    .addToBackStack(null)
-                    .commit();
+           getFragmentManager().beginTransaction()
+                   .replace(R.id.fragment_container, genFilesFragment(null))
+                   .addToBackStack(null)
+                   .commit();
         }
     }
 
@@ -219,13 +184,13 @@ public class MainActivity extends AppCompatActivity
     }
 
     public static Account createSyncAccount(Context context) {
+        // TODO: Remove hardcoded account name
         Account newAccount = new Account("Box", BoxContentProvider.ACCOUNT_TYPE);
         AccountManager accountManager = (AccountManager) context.getSystemService(ACCOUNT_SERVICE);
 
+        // TODO: Handle error case
         if (accountManager.addAccountExplicitly(newAccount, null, null)) {
-
         } else {
-
         }
 
         return  newAccount;
@@ -245,20 +210,56 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    private FilesFragment genRandomFragment(int id) {
-        final ArrayList<BoxObject> boxObjects = parseFolder(getFolder(id));
+    private FilesFragment genFilesFragment(final BoxFolder navigateTo) {
+        final ArrayList<BoxObject> boxObjects = new ArrayList<>();
+        try {
+            if (navigateTo != null) {
+                boxNavigation = boxNavigation.navigate(navigateTo);
+            }
+            for (BoxFolder boxFolder : boxNavigation.listFolders()){
+                Log.d("MainActivity", "Adding folder: " + boxFolder.name);
+                boxObjects.add(boxFolder);
+            }
+            for (BoxFile boxFile : boxNavigation.listFiles()) {
+                Log.d("MainActivity", "Adding file: " + boxFile.name);
+                boxObjects.add(boxFile);
+            }
+        } catch (QblStorageException e) {
+            e.printStackTrace();
+        }
 
         Collections.sort(boxObjects);
 
         FilesFragment filesFragment = new FilesFragment();
+
         final FilesAdapter filesAdapter = new FilesAdapter(this, boxObjects);
         filesAdapter.setOnItemClickListener(new FilesAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(View view, int position) {
-                getFragmentManager().beginTransaction()
-                        .replace(R.id.fragment_container, genRandomFragment(boxObjects.get(position).getId()))
-                        .addToBackStack(null)
-                        .commit();
+                BoxObject boxObject = boxObjects.get(position);
+                if (boxObject instanceof BoxFolder) {
+                    getFragmentManager().beginTransaction()
+                            .replace(R.id.fragment_container, genFilesFragment(((BoxFolder) boxObject)))
+                                    .addToBackStack(null)
+                                    .commit();
+                } else if (boxObject instanceof BoxFile){
+                    try {
+                        InputStream inputStream = boxNavigation.download((BoxFile) boxObject);
+                        Log.d("MainActivity", "Downloaded");
+                        File file = new File(getExternalFilesDir(null), boxObject.name + "_downloaded");
+                        Log.d("MainActivity", "Saving to: " + getExternalFilesDir(null).toString() + '/' + boxObject.name + "_downloaded");
+                        FileOutputStream fileOutputStream = new FileOutputStream(file);
+                        IOUtils.copy(inputStream, fileOutputStream);
+                        inputStream.close();
+                        fileOutputStream.close();
+                    } catch (QblStorageException e) {
+                        e.printStackTrace();
+                    } catch (FileNotFoundException e) {
+                        e.printStackTrace();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
             }
         });
 
@@ -266,32 +267,44 @@ public class MainActivity extends AppCompatActivity
         return filesFragment;
     }
 
-    private SelectUploadFolderFragment genRandomUploadFragment(final Uri uri) {
-        Random random = new Random();
-        final ArrayList<BoxObject> files = new ArrayList<>();
-        for (int i = 0; i < 5; i++) {
-            BoxObject fileItem = new BoxObject();
-            fileItem.setName(UUID.randomUUID().toString());
-            fileItem.setShareCount(random.nextInt(5));
-            files.add(fileItem);
+    // TODO: This method is almost equal to genFilesFragment, extract to new method.
+    private SelectUploadFolderFragment genUploadFragment(final BoxFolder navigateTo, final Uri uri) {
+        final ArrayList<BoxObject> boxObjects = new ArrayList<>();
+        try {
+            if (navigateTo != null) {
+                boxNavigation = boxNavigation.navigate(navigateTo);
+            }
+            for (BoxFolder boxFolder : boxNavigation.listFolders()){
+                Log.d("MainActivity", "Adding folder: " + boxFolder.name);
+                boxObjects.add(boxFolder);
+            }
+            for (BoxFile boxFile : boxNavigation.listFiles()) {
+                Log.d("MainActivity", "Adding file: " + boxFile.name);
+                boxObjects.add(boxFile);
+            }
+        } catch (QblStorageException e) {
+            e.printStackTrace();
         }
 
-        Collections.sort(files);
+        Collections.sort(boxObjects);
 
         SelectUploadFolderFragment filesFragment = new SelectUploadFolderFragment();
-        final FilesAdapter filesAdapter = new FilesAdapter(this, files);
+        filesFragment.setUri(uri);
+        final FilesAdapter filesAdapter = new FilesAdapter(this, boxObjects);
         filesAdapter.setOnItemClickListener(new FilesAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(View view, int position) {
-                getFragmentManager().beginTransaction()
-                        .replace(R.id.fragment_container, genRandomUploadFragment(uri))
-                        .addToBackStack("uploadFragment")
-                        .commit();
+                BoxObject boxObject = boxObjects.get(position);
+                if (boxObject instanceof BoxFolder) {
+                    getFragmentManager().beginTransaction()
+                            .replace(R.id.fragment_container, genUploadFragment(((BoxFolder) boxObject), uri))
+                            .addToBackStack(null)
+                            .commit();
+                }
             }
         });
 
         filesFragment.setAdapter(filesAdapter);
-        filesFragment.setUri(uri);
         return filesFragment;
     }
 
@@ -345,44 +358,63 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onFolderSelected(Uri uri) {
-        Intent uploadFileIntent = new Intent();
-        uploadFileIntent.setComponent(
-                new ComponentName(ServiceConstants.SERVICE_PACKAGE_NAME, "de.qabel.qabellauncher.MainActivity"));
-        uploadFileIntent.setAction(ServiceConstants.ACTION_UPLOAD_FILE);
-        uploadFileIntent.putExtra("uploadURI", uri.toString());
-        startActivity(uploadFileIntent);
 
-        final int id = 1;
-        final NotificationManager mNotifyManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        final NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this);
-        mBuilder.setContentTitle("Uploading " + uri.getLastPathSegment())
-                .setContentText("Upload in progress")
-                .setSmallIcon(R.drawable.notification_template_icon_bg);
-        new Thread(
-                new Runnable() {
-                    @Override
-                    public void run() {
-                        int incr;
-                        for (incr = 0; incr <= 100; incr+=5) {
-                            mBuilder.setProgress(100, incr, false);
-                            mNotifyManager.notify(id, mBuilder.build());
-                            try {
-                                Thread.sleep(1000);
-                            } catch (InterruptedException e) {
-                                Log.d("asd", "asd");
-                            }
-                        }
-                        mBuilder.setContentText("Upload complete")
-                                .setProgress(0,0,false);
-                        mNotifyManager.notify(id, mBuilder.build());
-                    }
-                }
-        ).start();
+        String name = uri.getLastPathSegment();
+
+        try {
+            boxNavigation.upload(name, new File(uri.getPath()));
+            boxNavigation.commit();
+        } catch (QblStorageException e) {
+            e.printStackTrace();
+        }
+
         finish();
+
+//        final int id = 1;
+//        final NotificationManager mNotifyManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+//        final NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this);
+//        mBuilder.setContentTitle("Uploading " + uri.getLastPathSegment())
+//                .setContentText("Upload in progress")
+//                .setSmallIcon(R.drawable.notification_template_icon_bg);
+//        new Thread(
+//                new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        int incr;
+//                        for (incr = 0; incr <= 100; incr+=5) {
+//                            mBuilder.setProgress(100, incr, false);
+//                            mNotifyManager.notify(id, mBuilder.build());
+//                            try {
+//                                Thread.sleep(1000);
+//                            } catch (InterruptedException e) {
+//                                Log.d("asd", "asd");
+//                            }
+//                        }
+//                        mBuilder.setContentText("Upload complete")
+//                                .setProgress(0,0,false);
+//                        mNotifyManager.notify(id, mBuilder.build());
+//                    }
+//                }
+//        ).start();
+//        finish();
     }
 
     @Override
     public void onAbort() {
 
+    }
+
+    @Override
+    public void onCreateFolder(String name) {
+        try {
+            boxNavigation.createFolder(name);
+            boxNavigation.commit();
+        } catch (QblStorageException e) {
+            e.printStackTrace();
+        }
+        getFragmentManager().beginTransaction()
+                .replace(R.id.fragment_container, genFilesFragment(null))
+                .addToBackStack(null)
+                .commit();
     }
 }

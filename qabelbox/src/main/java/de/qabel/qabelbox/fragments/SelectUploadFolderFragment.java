@@ -3,7 +3,6 @@ package de.qabel.qabelbox.fragments;
 import android.app.Activity;
 import android.net.Uri;
 import android.os.Bundle;
-import android.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -14,7 +13,7 @@ import android.widget.Button;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.adapter.FilesAdapter;
 
-public class SelectUploadFolderFragment extends Fragment {
+public class SelectUploadFolderFragment extends FilesFragment {
 
     private RecyclerView filesListRecyclerView;
     private FilesAdapter filesAdapter;

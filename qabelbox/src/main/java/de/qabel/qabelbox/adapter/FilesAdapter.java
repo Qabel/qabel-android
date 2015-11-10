@@ -8,10 +8,11 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+
 import java.util.List;
 
-import de.qabel.qabelbox.filesystem.BoxFile;
-import de.qabel.qabelbox.filesystem.BoxObject;
+import de.qabel.core.storage.BoxFolder;
+import de.qabel.core.storage.BoxObject;
 import de.qabel.qabelbox.R;
 
 public class FilesAdapter extends RecyclerView.Adapter<FilesAdapter.FilesViewHolder> {
@@ -71,12 +72,12 @@ public class FilesAdapter extends RecyclerView.Adapter<FilesAdapter.FilesViewHol
     @Override
     public void onBindViewHolder(FilesViewHolder holder, int position) {
         BoxObject boxObject = boxObjects.get(position);
-        holder.mTextViewFolderName.setText(boxObject.getName());
-        if (boxObject.getShareCount() > 0) {
-            holder.mTextViewFolderDetails.setText(context.getResources().getQuantityString(
-                    R.plurals.sharedWith, boxObject.getShareCount(), boxObject.getShareCount()));
-        }
-        if (boxObject instanceof BoxFile) {
+        holder.mTextViewFolderName.setText(boxObject.name);
+//        if (boxObject.getShareCount() > 0) {
+//            holder.mTextViewFolderDetails.setText(context.getResources().getQuantityString(
+//                    R.plurals.sharedWith, boxObject.getShareCount(), boxObject.getShareCount()));
+//        }
+        if (boxObject instanceof BoxFolder) {
             holder.mImageView.setImageResource(R.drawable.ic_folder_black_24dp);
         }
         else {

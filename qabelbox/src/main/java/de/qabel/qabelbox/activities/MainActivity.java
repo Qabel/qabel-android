@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.ParcelFileDescriptor;
 import android.os.StrictMode;
 import android.support.design.widget.FloatingActionButton;
 import android.util.Log;
@@ -360,9 +361,17 @@ public class MainActivity extends AppCompatActivity
     public void onFolderSelected(Uri uri) {
 
         String name = uri.getLastPathSegment();
+        ParcelFileDescriptor inputPFD;
+        try {
+            inputPFD = getContentResolver().openFileDescriptor(uri, "r");
+        } catch (FileNotFoundException e) {
+            Log.e("BOX", "File not found: " + name);
+            return;
+        }
 
         try {
-            boxNavigation.upload(name, new File(uri.getPath()));
+            InputStream content = new ParcelFileDescriptor.AutoCloseInputStream(inputPFD);
+            boxNavigation.upload(name, content);
             boxNavigation.commit();
         } catch (QblStorageException e) {
             e.printStackTrace();

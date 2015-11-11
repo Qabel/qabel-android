@@ -48,4 +48,5 @@ dependencies {
     compile project(':libqabellauncher')
     compile 'com.madgag.spongycastle:core:1.52.0.0'
     compile 'org.sqldroid:sqldroid:1.0.3'
+    androidTestCompile 'junit:junit:4.12'
 }

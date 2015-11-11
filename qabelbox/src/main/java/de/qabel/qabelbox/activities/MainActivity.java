@@ -10,6 +10,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.ParcelFileDescriptor;
 import android.os.StrictMode;
+import android.provider.OpenableColumns;
 import android.support.design.widget.FloatingActionButton;
 import android.util.Log;
 import android.view.View;
@@ -360,12 +361,19 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onFolderSelected(Uri uri) {
 
-        String name = uri.getLastPathSegment();
         ParcelFileDescriptor inputPFD;
+        String name;
         try {
             inputPFD = getContentResolver().openFileDescriptor(uri, "r");
+            Cursor returnCursor =
+                    getContentResolver().query(uri, null, null, null, null);
+            int nameIndex = returnCursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
+            returnCursor.close();
+            returnCursor.moveToFirst();
+            name = returnCursor.getString(nameIndex);
+
         } catch (FileNotFoundException e) {
-            Log.e("BOX", "File not found: " + name);
+            Log.e("BOX", "File not found: " + uri);
             return;
         }
 

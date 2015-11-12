@@ -1,12 +1,16 @@
 package de.qabel.core.storage;
 
-import com.amazonaws.auth.AWSCredentials;
+import com.amazonaws.mobileconnectors.s3.transferutility.TransferListener;
+import com.amazonaws.mobileconnectors.s3.transferutility.TransferObserver;
+import com.amazonaws.mobileconnectors.s3.transferutility.TransferState;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferUtility;
 
 import de.qabel.core.crypto.CryptoUtils;
 import de.qabel.core.crypto.DecryptedPlaintext;
 import de.qabel.core.crypto.QblECKeyPair;
 import de.qabel.core.exceptions.QblStorageException;
+import de.qabel.core.exceptions.QblStorageNotFound;
+
 import org.apache.commons.io.IOUtils;
 import org.spongycastle.crypto.InvalidCipherTextException;
 import org.slf4j.Logger;
@@ -19,6 +23,8 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.UUID;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.locks.Lock;
 
 public class BoxVolume {
 
@@ -44,14 +50,97 @@ public class BoxVolume {
 		this.tempDir = tempDir;
 	}
 
-	private InputStream blockingDownload(String name) {
-		return null;
+	private InputStream blockingDownload(String name) throws QblStorageNotFound {
+		File tmp = createTempFile();
+		TransferObserver download = transferUtility.download(bucket, name, tmp);
+		final Semaphore semaphore = new Semaphore(0);
+		download.setTransferListener(new TransferListener() {
+			@Override
+			public void onStateChanged(int id, TransferState state) {
+				logger.info("State change: " + id + ": " + state);
+				if (state == TransferState.COMPLETED) {
+					semaphore.release();
+				}
+			}
+
+			@Override
+			public void onProgressChanged(int id, long bytesCurrent, long bytesTotal) {
+				logger.info("Progress change: " + id + ": " + bytesCurrent + " / " + bytesTotal);
+			}
+
+			@Override
+			public void onError(int id, Exception ex) {
+				logger.error("Error :" + id, ex);
+				semaphore.release();
+			}
+		});
+		try {
+			semaphore.acquire();
+			logger.info("Download state: " + download.getState());
+		} catch (InterruptedException e) {
+			throw new QblStorageNotFound("Download failed");
+		}
+		if (download.getState() == TransferState.COMPLETED) {
+			try {
+				return new FileInputStream(tmp);
+			} catch (FileNotFoundException e) {
+				throw new QblStorageNotFound("Download failed");
+			}
+		} else {
+			throw new QblStorageNotFound("Download failed");
+		}
+	}
+
+	private File createTempFile() {
+		try {
+			return File.createTempFile("download", "", tempDir);
+		} catch (IOException e) {
+			throw new RuntimeException("Could not create tempfile");
+		}
 	}
 
 
-	private void blockingUpload(String rootRef,
-								ByteArrayInputStream byteArrayInputStream, long length) {
-		return;
+	private void blockingUpload(String name,
+								InputStream inputStream, long length) throws QblStorageException {
+		File tmp = createTempFile();
+		try {
+			FileOutputStream fileOutputStream = new FileOutputStream(tmp);
+			IOUtils.copy(inputStream, fileOutputStream);
+		} catch (FileNotFoundException e) {
+			throw new QblStorageException(e);
+		} catch (IOException e) {
+			throw new QblStorageException(e);
+		}
+		TransferObserver upload = transferUtility.upload(bucket, name, tmp);
+		final Semaphore semaphore = new Semaphore(0);
+		upload.setTransferListener(new TransferListener() {
+			@Override
+			public void onStateChanged(int id, TransferState state) {
+				logger.info("State change: " + id + ": " + state);
+				if (state == TransferState.COMPLETED) {
+					semaphore.release();
+				}
+			}
+
+			@Override
+			public void onProgressChanged(int id, long bytesCurrent, long bytesTotal) {
+				logger.info("Progress change: " + id + ": " + bytesCurrent + " / " + bytesTotal);
+			}
+
+			@Override
+			public void onError(int id, Exception ex) {
+				logger.error("Error :" + id, ex);
+				semaphore.release();
+			}
+		});
+		try {
+			semaphore.acquire();
+			logger.info("Upload state: " + upload.getState());
+		} catch (InterruptedException e) {
+		}
+		if (upload.getState() != TransferState.COMPLETED) {
+			throw new QblStorageException("Upload failed");
+		}
 	}
 
 
@@ -62,6 +151,9 @@ public class BoxVolume {
 		File tmp;
 		try {
 			byte[] encrypted = IOUtils.toByteArray(indexDl);
+			if (encrypted.length == 0) {
+				throw new QblStorageException("FUCK");
+			}
 			DecryptedPlaintext plaintext = cryptoUtils.readBox(keyPair, encrypted);
 			// Should work fine for the small metafiles
 			tmp = File.createTempFile("dir", "db", tempDir);

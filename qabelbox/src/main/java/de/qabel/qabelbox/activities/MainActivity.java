@@ -33,6 +33,9 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Collections;
 
@@ -254,6 +257,11 @@ public class MainActivity extends AppCompatActivity
                         IOUtils.copy(inputStream, fileOutputStream);
                         inputStream.close();
                         fileOutputStream.close();
+                        Intent viewIntent = new Intent();
+                        Uri uriToFile = Uri.fromFile(file);
+                        viewIntent.setDataAndType(Uri.fromFile(file),
+                                URLConnection.guessContentTypeFromName(uriToFile.toString()));
+                        startActivity(Intent.createChooser(viewIntent, "Open with"));
                     } catch (QblStorageException e) {
                         e.printStackTrace();
                     } catch (FileNotFoundException e) {
@@ -368,9 +376,9 @@ public class MainActivity extends AppCompatActivity
             Cursor returnCursor =
                     getContentResolver().query(uri, null, null, null, null);
             int nameIndex = returnCursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
-            returnCursor.close();
             returnCursor.moveToFirst();
             name = returnCursor.getString(nameIndex);
+            returnCursor.close();
 
         } catch (FileNotFoundException e) {
             Log.e("BOX", "File not found: " + uri);

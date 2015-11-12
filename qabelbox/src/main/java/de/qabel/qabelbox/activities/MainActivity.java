@@ -24,6 +24,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.amazonaws.auth.AWSCredentials;
+import com.amazonaws.mobileconnectors.s3.transferutility.TransferUtility;
+import com.amazonaws.services.s3.AmazonS3Client;
 
 import org.apache.commons.io.IOUtils;
 import org.spongycastle.util.encoders.Hex;
@@ -33,15 +35,12 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Collections;
 
 import de.qabel.core.crypto.QblECKeyPair;
 import de.qabel.core.exceptions.QblStorageException;
-import de.qabel.core.storage.AndroidBoxVolume;
 import de.qabel.core.storage.BoxFile;
 import de.qabel.core.storage.BoxFolder;
 import de.qabel.core.storage.BoxNavigation;
@@ -100,8 +99,12 @@ public class MainActivity extends AppCompatActivity
         // TODO: Remove hardcoded key pair
         QblECKeyPair testKey = new QblECKeyPair(Hex.decode("77076d0a7318a57d3c16c17251b26645df4c2f87ebc0992ab177fba51db92c2a"));
 
+        TransferUtility transferUtility = new TransferUtility(
+                new AmazonS3Client(credentials),
+                getApplicationContext());
         // TODO: Remove hardcoded bucket, prefix and deviceID
-        boxVolume = new AndroidBoxVolume("qabel", "boxtest", credentials, testKey, new byte[] {0x01, 0x02, 0x03, 0x04, 0x05, 0x06}, getCacheDir());
+        boxVolume = new BoxVolume(transferUtility, testKey, "qabel", "boxtest",
+                new byte[] {0x01, 0x02, 0x03, 0x04, 0x05, 0x06}, getCacheDir());
 
         // Try to navigate to root folder. Create new index if operations fails.
         // TODO: Handle exceptions

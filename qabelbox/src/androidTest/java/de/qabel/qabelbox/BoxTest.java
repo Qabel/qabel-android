@@ -7,17 +7,14 @@ package de.qabel.qabelbox;
 import android.test.AndroidTestCase;
 
 import com.amazonaws.auth.AWSCredentials;
-import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
+import com.amazonaws.mobileconnectors.s3.transferutility.TransferUtility;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.DeleteObjectsRequest;
 import com.amazonaws.services.s3.model.ObjectListing;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
 import com.amazonaws.util.IOUtils;
 
-import org.junit.After;
 import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,7 +35,6 @@ import de.qabel.core.crypto.QblECKeyPair;
 import de.qabel.core.exceptions.QblStorageException;
 import de.qabel.core.exceptions.QblStorageNameConflict;
 import de.qabel.core.exceptions.QblStorageNotFound;
-import de.qabel.core.storage.AndroidBoxVolume;
 import de.qabel.core.storage.BoxFile;
 import de.qabel.core.storage.BoxFolder;
 import de.qabel.core.storage.BoxNavigation;
@@ -99,9 +95,10 @@ public class BoxTest extends AndroidTestCase {
         assertNotNull(awsCredentials.getAWSSecretKey());
 
         QblECKeyPair keyPair = new QblECKeyPair();
-        volume = new AndroidBoxVolume(bucket, prefix, awsCredentials, keyPair, deviceID,
+        TransferUtility transfer = new TransferUtility(s3Client, getContext());
+        volume = new BoxVolume(transfer, keyPair, bucket, prefix, deviceID,
                 new File(System.getProperty("java.io.tmpdir")));
-        volume2 = new AndroidBoxVolume(bucket, prefix, awsCredentials, keyPair, deviceID2,
+        volume2 = new BoxVolume(transfer, keyPair, bucket, prefix, deviceID2,
                 new File(System.getProperty("java.io.tmpdir")));
 
         volume.createIndex(bucket, prefix);

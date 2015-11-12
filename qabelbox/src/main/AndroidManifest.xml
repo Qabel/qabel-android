@@ -57,7 +57,9 @@
                 android:name="android.accounts.AccountAuthenticator"
                 android:resource="@xml/authenticator" />
         </service>
-
+        <service
+            android:name="com.amazonaws.mobileconnectors.s3.transferutility.TransferService"
+            android:enabled="true" />
         <provider
             android:authorities="de.qabel.qabelbox.providers.BoxContentProvider"
             android:name=".providers.BoxContentProvider"

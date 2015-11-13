@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.ParcelFileDescriptor;
 import android.os.StrictMode;
@@ -25,6 +26,8 @@ import android.view.MenuItem;
 
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferUtility;
+import com.amazonaws.regions.Region;
+import com.amazonaws.regions.Regions;
 import com.amazonaws.services.s3.AmazonS3Client;
 
 import org.apache.commons.io.IOUtils;
@@ -79,11 +82,6 @@ public class MainActivity extends AppCompatActivity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        // TODO: Move network operations into another thread
-        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder()
-                .permitAll().build();
-        StrictMode.setThreadPolicy(policy);
-
         AWSCredentials credentials = new AWSCredentials() {
             @Override
             public String getAWSAccessKeyId() {
@@ -99,25 +97,36 @@ public class MainActivity extends AppCompatActivity
         // TODO: Remove hardcoded key pair
         QblECKeyPair testKey = new QblECKeyPair(Hex.decode("77076d0a7318a57d3c16c17251b26645df4c2f87ebc0992ab177fba51db92c2a"));
 
+        AmazonS3Client amazonS3Client = new AmazonS3Client(credentials);
         TransferUtility transferUtility = new TransferUtility(
-                new AmazonS3Client(credentials),
+                amazonS3Client,
                 getApplicationContext());
         // TODO: Remove hardcoded bucket, prefix and deviceID
         boxVolume = new BoxVolume(transferUtility, credentials, testKey, "qabel", "boxtest",
                 new byte[] {0x01, 0x02, 0x03, 0x04, 0x05, 0x06}, getCacheDir());
 
-        // Try to navigate to root folder. Create new index if operations fails.
-        // TODO: Handle exceptions
-        try {
-            boxNavigation = boxVolume.navigate();
-        } catch (QblStorageException e) {
-            try {
-                boxVolume.createIndex("qabel", "boxtest");
-                boxNavigation = boxVolume.navigate();
-            } catch (QblStorageException e1) {
-                e.printStackTrace();
+        new AsyncTask<BoxVolume, Void, BoxNavigation>() {
+
+            @Override
+            protected BoxNavigation doInBackground(BoxVolume... params) {
+                // Try to navigate to root folder. Create new index if operations fails.
+                // TODO: Handle exceptions
+                BoxNavigation boxNavigation = null;
+                try {
+                    boxNavigation = boxVolume.navigate();
+                } catch (QblStorageException e) {
+                    try {
+                        boxVolume.createIndex("qabel", "boxtest");
+                        boxNavigation = boxVolume.navigate();
+                    } catch (QblStorageException e1) {
+                        e.printStackTrace();
+                    }
+                }
+                return boxNavigation;
+
             }
-        }
+
+        }.execute(boxVolume);
 
         boxAccount = createSyncAccount(this);
 
@@ -167,10 +176,10 @@ public class MainActivity extends AppCompatActivity
                 }
             }
         } else {
-           getFragmentManager().beginTransaction()
-                   .replace(R.id.fragment_container, genFilesFragment(null))
-                   .addToBackStack(null)
-                   .commit();
+           //getFragmentManager().beginTransaction()
+           //        .replace(R.id.fragment_container, genFilesFragment(null))
+           //        .addToBackStack(null)
+           //        .commit();
         }
     }
 

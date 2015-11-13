@@ -117,10 +117,13 @@ class DirectoryMetadata {
 	static DirectoryMetadata openDatabase(File path, byte[] deviceId, String fileName, File tempDir) throws QblStorageException {
 		Connection connection;
 		try {
+			Class.forName(JDBC_CLASS);
 			connection = DriverManager.getConnection(JDBC_PREFIX + path.getAbsolutePath());
 			connection.setAutoCommit(true);
 		} catch (SQLException e) {
 			throw new RuntimeException("Cannot open database!", e);
+		} catch (ClassNotFoundException e) {
+			throw new QblStorageException(e);
 		}
 		return new DirectoryMetadata(connection, deviceId, path, fileName, tempDir);
 	}

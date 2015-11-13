@@ -16,18 +16,19 @@ public class IndexNavigation extends AbstractNavigation {
 
 	private static final Logger logger = LoggerFactory.getLogger(IndexNavigation.class.getName());
 
-	public IndexNavigation(DirectoryMetadata dm, QblECKeyPair keyPair, byte[] deviceId, TransferUtility transferUtility) {
-		super(dm, keyPair, deviceId, transferUtility);
+	public IndexNavigation(DirectoryMetadata dm, QblECKeyPair keyPair, byte[] deviceId,
+						   TransferManager transferManager) {
+		super(dm, keyPair, deviceId, transferManager);
 	}
 
 	@Override
 	protected DirectoryMetadata reloadMetadata() throws QblStorageException {
 		// TODO: duplicate with BoxVoume.navigate()
 		String rootRef = dm.getFileName();
-		InputStream indexDl = blockingDownload(rootRef);
+		File indexDl = blockingDownload(rootRef);
 		File tmp;
 		try {
-			byte[] encrypted = IOUtils.toByteArray(indexDl);
+			byte[] encrypted = IOUtils.toByteArray(new FileInputStream(indexDl));
 			DecryptedPlaintext plaintext = cryptoUtils.readBox(keyPair, encrypted);
 			tmp = File.createTempFile("dir", "db", dm.getTempDir());
 			logger.info("Using " + tmp.toString() + " for the metadata file");
@@ -45,9 +46,11 @@ public class IndexNavigation extends AbstractNavigation {
 		try {
 			byte[] plaintext = IOUtils.toByteArray(new FileInputStream(dm.path));
 			byte[] encrypted = cryptoUtils.createBox(keyPair, keyPair.getPub(), plaintext, 0);
-			blockingUpload(dm.getFileName(), new ByteArrayInputStream(encrypted),
-					(long) encrypted.length);
-			logger.info("Uploading metadata file with name " + dm.getFileName());
+			File tmp = transferManager.createTempFile();
+			FileOutputStream fileOutputStream = new FileOutputStream(tmp);
+			fileOutputStream.write(encrypted);
+			fileOutputStream.close();
+			blockingUpload(dm.getFileName(), tmp);
 		} catch (IOException | InvalidKeyException e) {
 			throw new QblStorageException(e);
 		}

@@ -19,7 +19,7 @@ public class FolderNavigation extends AbstractNavigation {
 
 	private final byte[] key;
 
-	public FolderNavigation(DirectoryMetadata dm, QblECKeyPair keyPair, byte[] key, byte[] deviceId, TransferUtility transferUtility) {
+	public FolderNavigation(DirectoryMetadata dm, QblECKeyPair keyPair, byte[] key, byte[] deviceId, TransferManager transferUtility) {
 		super(dm, keyPair, deviceId, transferUtility);
 		this.key = key;
 	}
@@ -40,10 +40,11 @@ public class FolderNavigation extends AbstractNavigation {
 		logger.info("Reloading directory metadata");
 		// duplicate of navigate()
 		try {
-			InputStream indexDl = blockingDownload(dm.getFileName());
+			File indexDl = blockingDownload(dm.getFileName());
 			File tmp = File.createTempFile("dir", "db", dm.getTempDir());
 			SecretKey key = makeKey(this.key);
-			if (cryptoUtils.decryptFileAuthenticatedSymmetricAndValidateTag(indexDl, tmp, key)) {
+			if (cryptoUtils.decryptFileAuthenticatedSymmetricAndValidateTag(
+					new FileInputStream(indexDl), tmp, key)) {
 				return DirectoryMetadata.openDatabase(tmp, deviceId, dm.getFileName(), dm.getTempDir());
 			} else {
 				throw new QblStorageNotFound("Invalid key");

@@ -450,14 +450,13 @@ class DirectoryMetadata {
 		Statement statement = null;
 		try {
 			statement = connection.createStatement();
-			try (ResultSet rs = statement.executeQuery(
-					"SELECT ref, name, key FROM folders")) {
-				List<BoxFolder> folders = new ArrayList<>();
-				while (rs.next()) {
-					folders.add(new BoxFolder(rs.getString(1), rs.getString(2), rs.getBytes(3)));
-				}
-				return folders;
-			}
+			ResultSet rs = statement.executeQuery(
+					"SELECT ref, name, key FROM folders");
+            List<BoxFolder> folders = new ArrayList<>();
+            while (rs.next()) {
+                folders.add(new BoxFolder(rs.getString(1), rs.getString(2), rs.getBytes(3)));
+            }
+            return folders;
 		} catch (SQLException e) {
 			throw new QblStorageException(e);
 		} finally {

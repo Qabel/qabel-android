@@ -1,9 +1,11 @@
 package de.qabel.core.storage;
 
+import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferListener;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferObserver;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferState;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferUtility;
+import com.amazonaws.services.s3.AmazonS3Client;
 
 import de.qabel.core.crypto.CryptoUtils;
 import de.qabel.core.crypto.DecryptedPlaintext;
@@ -37,9 +39,10 @@ public class BoxVolume {
 	private byte[] deviceId;
 	private CryptoUtils cryptoUtils;
 	private File tempDir;
+	private final TransferManager transferManager;
 
-	public BoxVolume(TransferUtility transferUtility, QblECKeyPair keyPair,
-					 String bucket, String prefix,
+	public BoxVolume(TransferUtility transferUtility, AWSCredentials credentials,
+					 QblECKeyPair keyPair, String bucket, String prefix,
 					 byte[] deviceId, File tempDir) {
 		this.transferUtility = transferUtility;
 		this.keyPair = keyPair;
@@ -48,39 +51,14 @@ public class BoxVolume {
 		this.deviceId = deviceId;
 		cryptoUtils = new CryptoUtils();
 		this.tempDir = tempDir;
+		AmazonS3Client awsClient = new AmazonS3Client(credentials);
+		transferManager = new TransferManager(transferUtility, awsClient, bucket, prefix, tempDir);
 	}
 
 	private InputStream blockingDownload(String name) throws QblStorageNotFound {
-		File tmp = createTempFile();
-		TransferObserver download = transferUtility.download(bucket, name, tmp);
-		final Semaphore semaphore = new Semaphore(0);
-		download.setTransferListener(new TransferListener() {
-			@Override
-			public void onStateChanged(int id, TransferState state) {
-				logger.info("State change: " + id + ": " + state);
-				if (state == TransferState.COMPLETED) {
-					semaphore.release();
-				}
-			}
-
-			@Override
-			public void onProgressChanged(int id, long bytesCurrent, long bytesTotal) {
-				logger.info("Progress change: " + id + ": " + bytesCurrent + " / " + bytesTotal);
-			}
-
-			@Override
-			public void onError(int id, Exception ex) {
-				logger.error("Error :" + id, ex);
-				semaphore.release();
-			}
-		});
-		try {
-			semaphore.acquire();
-			logger.info("Download state: " + download.getState());
-		} catch (InterruptedException e) {
-			throw new QblStorageNotFound("Download failed");
-		}
-		if (download.getState() == TransferState.COMPLETED) {
+		File tmp = transferManager.createTempFile();
+		int id = transferManager.download(name, tmp);
+		if (transferManager.waitFor(id)) {
 			try {
 				return new FileInputStream(tmp);
 			} catch (FileNotFoundException e) {
@@ -91,54 +69,16 @@ public class BoxVolume {
 		}
 	}
 
-	private File createTempFile() {
-		try {
-			return File.createTempFile("download", "", tempDir);
-		} catch (IOException e) {
-			throw new RuntimeException("Could not create tempfile");
-		}
-	}
-
-
 	private void blockingUpload(String name,
-								InputStream inputStream, long length) throws QblStorageException {
-		File tmp = createTempFile();
+								InputStream inputStream) throws QblStorageException {
+		File tmp = transferManager.createTempFile();
 		try {
-			FileOutputStream fileOutputStream = new FileOutputStream(tmp);
-			IOUtils.copy(inputStream, fileOutputStream);
-		} catch (FileNotFoundException e) {
-			throw new QblStorageException(e);
+			IOUtils.copy(inputStream, new FileOutputStream(tmp));
 		} catch (IOException e) {
 			throw new QblStorageException(e);
 		}
-		TransferObserver upload = transferUtility.upload(bucket, name, tmp);
-		final Semaphore semaphore = new Semaphore(0);
-		upload.setTransferListener(new TransferListener() {
-			@Override
-			public void onStateChanged(int id, TransferState state) {
-				logger.info("State change: " + id + ": " + state);
-				if (state == TransferState.COMPLETED) {
-					semaphore.release();
-				}
-			}
-
-			@Override
-			public void onProgressChanged(int id, long bytesCurrent, long bytesTotal) {
-				logger.info("Progress change: " + id + ": " + bytesCurrent + " / " + bytesTotal);
-			}
-
-			@Override
-			public void onError(int id, Exception ex) {
-				logger.error("Error :" + id, ex);
-				semaphore.release();
-			}
-		});
-		try {
-			semaphore.acquire();
-			logger.info("Upload state: " + upload.getState());
-		} catch (InterruptedException e) {
-		}
-		if (upload.getState() != TransferState.COMPLETED) {
+		int id = transferManager.upload(name, tmp);
+		if (!transferManager.waitFor(id)) {
 			throw new QblStorageException("Upload failed");
 		}
 	}
@@ -164,7 +104,7 @@ public class BoxVolume {
 			throw new QblStorageException(e);
 		}
 		DirectoryMetadata dm = DirectoryMetadata.openDatabase(tmp, deviceId, rootRef, tempDir);
-		return new IndexNavigation(dm, keyPair, deviceId, transferUtility);
+		return new IndexNavigation(dm, keyPair, deviceId, transferManager);
 	}
 
 	public String getRootRef() throws QblStorageException {
@@ -192,7 +132,7 @@ public class BoxVolume {
 		try {
 			byte[] plaintext = IOUtils.toByteArray(new FileInputStream(dm.path));
 			byte[] encrypted = cryptoUtils.createBox(keyPair, keyPair.getPub(), plaintext, 0);
-			blockingUpload(rootRef, new ByteArrayInputStream(encrypted), (long) encrypted.length);
+			blockingUpload(rootRef, new ByteArrayInputStream(encrypted));
 		} catch (IOException e) {
 			throw new QblStorageException(e);
 		} catch (InvalidKeyException e) {

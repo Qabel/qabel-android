@@ -25,7 +25,7 @@ public abstract class AbstractNavigation implements BoxNavigation {
 	DirectoryMetadata dm;
 	final QblECKeyPair keyPair;
 	final byte[] deviceId;
-	final TransferUtility transferUtility;
+	protected TransferManager transferManager;
 	final CryptoUtils cryptoUtils;
 
 	private final Set<String> deleteQueue = new HashSet<>();
@@ -33,33 +33,43 @@ public abstract class AbstractNavigation implements BoxNavigation {
 
 
 
-	public AbstractNavigation(DirectoryMetadata dm, QblECKeyPair keyPair, byte[] deviceId, TransferUtility transferUtility) {
+	public AbstractNavigation(DirectoryMetadata dm, QblECKeyPair keyPair, byte[] deviceId,
+							  TransferManager transferManager) {
 		this.dm = dm;
 		this.keyPair = keyPair;
 		this.deviceId = deviceId;
-		this.transferUtility = transferUtility;
+		this.transferManager = transferManager;
 		cryptoUtils = new CryptoUtils();
 	}
 
-	protected InputStream blockingDownload(String name) {
-		return null;
+	protected File blockingDownload(String name) throws QblStorageNotFound {
+		File file = transferManager.createTempFile();
+		int id = transferManager.download(name, file);
+		if (transferManager.waitFor(id)) {
+			return file;
+		} else {
+			throw new QblStorageNotFound("File not found");
+		}
 	}
 
 
-	protected Long blockingUpload(String rootRef,
-								  InputStream byteArrayInputStream, long length) {
-		return null;
+	protected Long blockingUpload(String name,
+								  File file) {
+		int id = transferManager.upload(name, file);
+		transferManager.waitFor(id);
+		return file.length();
 	}
 	@Override
 	public BoxNavigation navigate(BoxFolder target) throws QblStorageException {
 		try {
-			InputStream indexDl = blockingDownload(target.ref);
+			File indexDl = blockingDownload(target.ref);
 			File tmp = File.createTempFile("dir", "db", dm.getTempDir());
 			SecretKey key = makeKey(target.key);
-			if (cryptoUtils.decryptFileAuthenticatedSymmetricAndValidateTag(indexDl, tmp, key)) {
+			if (cryptoUtils.decryptFileAuthenticatedSymmetricAndValidateTag(
+					new FileInputStream(indexDl), tmp, key)) {
 				DirectoryMetadata dm = DirectoryMetadata.openDatabase(
 						tmp, deviceId, target.ref, this.dm.getTempDir());
-				return new FolderNavigation(dm, keyPair, target.key, deviceId, transferUtility);
+				return new FolderNavigation(dm, keyPair, target.key, deviceId, transferManager);
 			} else {
 				throw new QblStorageNotFound("Invalid key");
 			}
@@ -105,6 +115,7 @@ public abstract class AbstractNavigation implements BoxNavigation {
 	}
 
 	protected void blockingDelete(String ref) {
+		transferManager.delete(ref);
 
 	}
 
@@ -189,7 +200,7 @@ public abstract class AbstractNavigation implements BoxNavigation {
 			}
 			outputStream.flush();
 			Long size = tempFile.length();
-			Long mtime = blockingUpload(block, new FileInputStream(tempFile), size);
+			Long mtime = blockingUpload(block, tempFile);
 			return new SimpleEntry<>(mtime, size);
 		} catch (IOException | InvalidKeyException e) {
 			throw new QblStorageException(e);
@@ -198,12 +209,12 @@ public abstract class AbstractNavigation implements BoxNavigation {
 
 	@Override
 	public InputStream download(BoxFile boxFile) throws QblStorageException {
-		InputStream download = blockingDownload("blocks/" + boxFile.block);
-		File temp;
+		File download = blockingDownload("blocks/" + boxFile.block);
 		SecretKey key = makeKey(boxFile.key);
 		try {
-			temp = File.createTempFile("upload", "down", dm.getTempDir());
-			if (!cryptoUtils.decryptFileAuthenticatedSymmetricAndValidateTag(download, temp, key)) {
+			File temp = File.createTempFile("upload", "down", dm.getTempDir());
+			if (!cryptoUtils.decryptFileAuthenticatedSymmetricAndValidateTag(
+					new FileInputStream(download), temp, key)) {
 				throw new QblStorageException("Decryption failed");
 			}
 			return new FileInputStream(temp);
@@ -219,7 +230,7 @@ public abstract class AbstractNavigation implements BoxNavigation {
 		BoxFolder folder = new BoxFolder(dm.getFileName(), name, secretKey.getEncoded());
 		this.dm.insertFolder(folder);
 		BoxNavigation newFolder = new FolderNavigation(dm, keyPair, secretKey.getEncoded(),
-				deviceId, transferUtility);
+				deviceId, transferManager);
 		newFolder.commit();
 		return folder;
 	}

@@ -103,7 +103,7 @@ public class MainActivity extends AppCompatActivity
                 new AmazonS3Client(credentials),
                 getApplicationContext());
         // TODO: Remove hardcoded bucket, prefix and deviceID
-        boxVolume = new BoxVolume(transferUtility, testKey, "qabel", "boxtest",
+        boxVolume = new BoxVolume(transferUtility, credentials, testKey, "qabel", "boxtest",
                 new byte[] {0x01, 0x02, 0x03, 0x04, 0x05, 0x06}, getCacheDir());
 
         // Try to navigate to root folder. Create new index if operations fails.
@@ -385,6 +385,7 @@ public class MainActivity extends AppCompatActivity
 
         } catch (FileNotFoundException e) {
             Log.e("BOX", "File not found: " + uri);
+            finish();
             return;
         }
 
@@ -393,7 +394,7 @@ public class MainActivity extends AppCompatActivity
             boxNavigation.upload(name, content);
             boxNavigation.commit();
         } catch (QblStorageException e) {
-            e.printStackTrace();
+            Log.e("BOX", "Upload failed", e);
         }
 
         finish();

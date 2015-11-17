@@ -39,7 +39,7 @@ public class DocumentIdParserTest extends TestCase {
         pub = "8520f0098930a754748b7ddcb43ef75a0dbf3a0d26381af4eba4a98eaa9b4e6a";
         prefix = "D7A75A70-8D28-11E5-A8EB-280369A460B9";
         bucket = "qabel";
-        rootId = pub + "::::" + bucket + "::::" + prefix + "::::";
+        rootId = pub + "::::" + bucket + "::::" + prefix;
     }
 
     @Test
@@ -76,13 +76,22 @@ public class DocumentIdParserTest extends TestCase {
     }
     @Test
     public void testExtractFilePath() throws FileNotFoundException {
-        assertThat(p.getFilePath(rootId + filePath + fileName), is(filePath + fileName));
+        assertThat(p.getFilePath(rootId + "::::" + filePath + fileName), is(filePath + fileName));
 
     }
 
     @Test(expected = FileNotFoundException.class)
     public void testNoFilePath() throws FileNotFoundException {
         p.getFilePath(rootId);
+    }
+
+    @Test
+    public void testBuildId() {
+        assertThat(p.buildId(pub, bucket, prefix, filePath), is(rootId + "::::" + filePath));
+        assertThat(p.buildId(pub, bucket, prefix, null), is(rootId));
+        assertThat(p.buildId(pub, bucket, null, null), is(pub + "::::" + bucket));
+        assertThat(p.buildId(pub, null, null, null), is(pub));
+        assertNull(p.buildId(null, null, null, null));
     }
 
 }

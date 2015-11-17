@@ -42,4 +42,18 @@ public class DocumentIdParser {
         }
         throw new FileNotFoundException("Could not find file path in document id");
     }
+
+
+    public String buildId(String identity, String bucket, String prefix, String filePath) {
+        if (bucket != null && prefix != null && filePath != null) {
+            return identity + DOCID_SEPERATOR + bucket
+                    + DOCID_SEPERATOR + prefix + DOCID_SEPERATOR + filePath;
+        } else if (bucket != null && prefix != null) {
+            return identity + DOCID_SEPERATOR + bucket + DOCID_SEPERATOR + prefix;
+        } else if (bucket != null) {
+            return identity + DOCID_SEPERATOR + bucket;
+        } else {
+            return identity;
+        }
+    }
 }

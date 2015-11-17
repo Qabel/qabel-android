@@ -7,7 +7,6 @@
     <uses-permission android:name="android.permission.WRITE_SYNC_SETTINGS"/>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-
     <uses-permission android:name="android.permission.AUTHENTICATE_ACCOUNTS"/>
     <application
         android:allowBackup="true"
@@ -65,6 +64,18 @@
             android:authorities="de.qabel.qabelbox.providers.BoxContentProvider"
             android:name=".providers.BoxContentProvider"
             android:exported="true" >
+        </provider>
+        <provider
+            android:authorities="de.qabel.qabelbox.providers.BoxProvider"
+            android:name=".providers.BoxProvider"
+            android:exported="true"
+            android:grantUriPermissions="true"
+            android:permission="android.permission.MANAGE_DOCUMENTS"
+            android:enabled="true">
+            <intent-filter>
+                <action android:name="android.content.action.DOCUMENTS_PROVIDER" />
+            </intent-filter>
+
         </provider>
     </application>
 

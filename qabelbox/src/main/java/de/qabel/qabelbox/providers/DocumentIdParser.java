@@ -1,6 +1,7 @@
 package de.qabel.qabelbox.providers;
 
 import java.io.FileNotFoundException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -46,8 +47,8 @@ public class DocumentIdParser {
     }
 
     public List<String> splitPath(String filePath) {
-        List<String> strings = Arrays.asList(filePath.split("/"));
-        return strings;
+        ArrayList<String> list = new ArrayList<>(Arrays.asList(filePath.split("/")));
+        return list;
     }
 
 

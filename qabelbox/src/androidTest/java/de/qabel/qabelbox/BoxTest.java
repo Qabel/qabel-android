@@ -43,7 +43,6 @@ import de.qabel.core.storage.BoxVolume;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.startsWith;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 
 public class BoxTest extends AndroidTestCase {

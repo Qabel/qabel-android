@@ -2,6 +2,7 @@ package de.qabel.qabelbox.activities;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
+import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
@@ -62,6 +63,8 @@ public class MainActivity extends AppCompatActivity
                     SelectUploadFolderFragment.OnSelectedUploadFolderListener,
                         NewFolderFragment.OnFragmentInteractionListener {
 
+    private static final String TAG = "BoxMainActivity";
+    public static final int REQUEST_CODE_OPEN = 11;
     private Account boxAccount;
     private BoxVolume boxVolume;
     private BoxNavigation boxNavigation;
@@ -76,11 +79,43 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == REQUEST_CODE_OPEN && resultCode == Activity.RESULT_OK) {
+            Uri uri = null;
+            if (data != null) {
+                uri = data.getData();
+                Log.i(TAG, "Uri: " + uri.toString());
+                Intent viewIntent = new Intent();
+                viewIntent.setDataAndType(uri,
+                        URLConnection.guessContentTypeFromName(uri.toString()));
+                startActivity(Intent.createChooser(viewIntent, "Open with"));
+            }
+
+        }
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        // ACTION_OPEN_DOCUMENT is the intent to choose a file via the system's file
+        // browser.
+        Intent intentOpen = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+
+        // Filter to only show results that can be "opened", such as a
+        // file (as opposed to a list of contacts or timezones)
+        intentOpen.addCategory(Intent.CATEGORY_OPENABLE);
+
+        // Filter to show only images, using the image MIME data type.
+        // If one wanted to search for ogg vorbis files, the type would be "audio/ogg".
+        // To search for all documents available via installed storage providers,
+        // it would be "*/*".
+        intentOpen.setType("*/*");
+
+        startActivityForResult(intentOpen, REQUEST_CODE_OPEN);
 
 
         boxAccount = createSyncAccount(this);

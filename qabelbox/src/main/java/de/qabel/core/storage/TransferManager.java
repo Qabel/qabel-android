@@ -95,6 +95,10 @@ public class TransferManager implements TransferListener {
         }
     }
 
+    public boolean cancel(int id) {
+        return transferUtility.cancel(id);
+    }
+
     @Override
     public void onStateChanged(int id, TransferState state) {
         logger.info("State changed " + id + ": " + state);

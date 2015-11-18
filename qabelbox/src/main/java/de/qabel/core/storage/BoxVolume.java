@@ -34,8 +34,6 @@ public class BoxVolume {
 
 	private TransferUtility transferUtility;
 	private QblECKeyPair keyPair;
-	private String bucket;
-	private String prefix;
 	private byte[] deviceId;
 	private CryptoUtils cryptoUtils;
 	private File tempDir;
@@ -46,8 +44,6 @@ public class BoxVolume {
 					 byte[] deviceId, File tempDir) {
 		this.transferUtility = transferUtility;
 		this.keyPair = keyPair;
-		this.bucket = bucket;
-		this.prefix = prefix;
 		this.deviceId = deviceId;
 		cryptoUtils = new CryptoUtils();
 		this.tempDir = tempDir;

@@ -1,5 +1,7 @@
 package de.qabel.qabelbox;
 
+import android.support.test.runner.AndroidJUnit4;
+
 import junit.framework.TestCase;
 
 import org.junit.Before;
@@ -14,9 +16,6 @@ import de.qabel.qabelbox.providers.DocumentIdParser;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
-
-import android.support.test.runner.AndroidJUnit4;
-import android.support.test.runner.AndroidJUnitRunner;
 
 
 @RunWith(AndroidJUnit4.class)

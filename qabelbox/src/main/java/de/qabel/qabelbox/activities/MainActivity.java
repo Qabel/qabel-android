@@ -82,51 +82,6 @@ public class MainActivity extends AppCompatActivity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        AWSCredentials credentials = new AWSCredentials() {
-            @Override
-            public String getAWSAccessKeyId() {
-                return getResources().getString(R.string.aws_user);
-            }
-
-            @Override
-            public String getAWSSecretKey() {
-                return getResources().getString(R.string.aws_password);
-            }
-        };
-
-        // TODO: Remove hardcoded key pair
-        QblECKeyPair testKey = new QblECKeyPair(Hex.decode("77076d0a7318a57d3c16c17251b26645df4c2f87ebc0992ab177fba51db92c2a"));
-
-        AmazonS3Client amazonS3Client = new AmazonS3Client(credentials);
-        TransferUtility transferUtility = new TransferUtility(
-                amazonS3Client,
-                getApplicationContext());
-        // TODO: Remove hardcoded bucket, prefix and deviceID
-        boxVolume = new BoxVolume(transferUtility, credentials, testKey, "qabel", "boxtest",
-                new byte[] {0x01, 0x02, 0x03, 0x04, 0x05, 0x06}, getCacheDir());
-
-        new AsyncTask<BoxVolume, Void, BoxNavigation>() {
-
-            @Override
-            protected BoxNavigation doInBackground(BoxVolume... params) {
-                // Try to navigate to root folder. Create new index if operations fails.
-                // TODO: Handle exceptions
-                BoxNavigation boxNavigation = null;
-                try {
-                    boxNavigation = boxVolume.navigate();
-                } catch (QblStorageException e) {
-                    try {
-                        boxVolume.createIndex("qabel", "boxtest");
-                        boxNavigation = boxVolume.navigate();
-                    } catch (QblStorageException e1) {
-                        e.printStackTrace();
-                    }
-                }
-                return boxNavigation;
-
-            }
-
-        }.execute(boxVolume);
 
         boxAccount = createSyncAccount(this);
 

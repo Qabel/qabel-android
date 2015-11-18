@@ -1,6 +1,8 @@
 package de.qabel.qabelbox.providers;
 
 import java.io.FileNotFoundException;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Document IDs are built like this:
@@ -41,6 +43,11 @@ public class DocumentIdParser {
             return split[3];
         }
         throw new FileNotFoundException("Could not find file path in document id");
+    }
+
+    public List<String> splitPath(String filePath) {
+        List<String> strings = Arrays.asList(filePath.split("/"));
+        return strings;
     }
 
 

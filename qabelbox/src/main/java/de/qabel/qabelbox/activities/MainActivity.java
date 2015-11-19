@@ -70,25 +70,31 @@ public class MainActivity extends AppCompatActivity
             return;
         }
         if (requestCode == REQUEST_CODE_UPLOAD_FILE && resultCode == Activity.RESULT_OK && data != null) {
-            Cursor cursor = getContentResolver().query(data.getData(), null, null, null, null);
-            if (cursor == null) {
-                Log.e(TAG, "No valid url for uploading" + data.getData());
-                return;
-            }
-            cursor.moveToFirst();
-            String displayName = cursor.getString(
-                    cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
-            Log.i(TAG, "Displayname: " + displayName);
-            Uri uri = DocumentsContract.buildDocumentUri(BoxProvider.AUTHORITY, HARDCODED_ROOT + displayName);
-            try {
-                OutputStream outputStream = getContentResolver().openOutputStream(uri, "w");
-                InputStream inputStream = getContentResolver().openInputStream(data.getData());
-                IOUtils.copy(inputStream, outputStream);
-            } catch (IOException e) {
-                Log.e(TAG, "Error opening output stream for upload", e);
-            }
+            uri = data.getData();
+            uploadUri(uri);
             return;
         }
+    }
+
+    private boolean uploadUri(Uri uri) {
+        Cursor cursor = getContentResolver().query(uri, null, null, null, null);
+        if (cursor == null) {
+            Log.e(TAG, "No valid url for uploading" + uri);
+            return true;
+        }
+        cursor.moveToFirst();
+        String displayName = cursor.getString(
+                cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
+        Log.i(TAG, "Displayname: " + displayName);
+        Uri uploadUri = DocumentsContract.buildDocumentUri(BoxProvider.AUTHORITY, HARDCODED_ROOT + displayName);
+        try {
+            OutputStream outputStream = getContentResolver().openOutputStream(uploadUri, "w");
+            InputStream inputStream = getContentResolver().openInputStream(uri);
+            IOUtils.copy(inputStream, outputStream);
+        } catch (IOException e) {
+            Log.e(TAG, "Error opening output stream for upload", e);
+        }
+        return false;
     }
 
     @Override

@@ -2,7 +2,9 @@ package de.qabel.qabelbox.providers;
 
 import android.database.Cursor;
 import android.database.MatrixCursor;
+import android.os.AsyncTask;
 import android.os.CancellationSignal;
+import android.os.Handler;
 import android.os.ParcelFileDescriptor;
 import android.provider.DocumentsContract.Document;
 import android.provider.DocumentsContract.Root;
@@ -19,6 +21,7 @@ import org.spongycastle.util.encoders.Hex;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -291,8 +294,65 @@ public class BoxProvider extends DocumentsProvider {
             throws FileNotFoundException {
 
         Log.d(TAG, "Open document: " + documentId);
-        
-        final Future<ParcelFileDescriptor> future = mThreadPoolExecutor.submit(new Callable<ParcelFileDescriptor>() {
+        final boolean isWrite = (mode.indexOf('w') != -1);
+
+        if (isWrite) {
+            // Attach a close listener if the document is opened in write mode.
+            try {
+                Handler handler = new Handler(getContext().getMainLooper());
+                final File tmp = File.createTempFile("upload", "", getContext().getExternalCacheDir());
+                return ParcelFileDescriptor.open(tmp, ParcelFileDescriptor.parseMode(mode), handler,
+                        new ParcelFileDescriptor.OnCloseListener() {
+                            @Override
+                            public void onClose(IOException e) {
+                                // Update the file with the cloud server.  The client is done writing.
+                                Log.i(TAG, "A file with id " + documentId + " has been closed!  Time to " +
+                                        "update the server.");
+                                if (e != null) {
+                                    Log.e(TAG, "IOException in onClose", e);
+                                    return;
+                                }
+                                // in another thread!
+                                new AsyncTask<Void, Void, String>() {
+                                    @Override
+                                    protected String doInBackground(Void... params) {
+                                        uploadFile(documentId, tmp);
+                                        return documentId;
+                                    }
+                                }.execute();
+                            }
+
+                        });
+            } catch (IOException e) {
+                throw new FileNotFoundException();
+            }
+        }
+        else {
+            return downloadFile(documentId, mode, signal);
+        }
+    }
+
+    private void uploadFile(String documentId, File tmp) {
+        try {
+            BoxVolume volume = getVolumeForId(documentId);
+            List<String> splitPath = mDocumentIdParser.splitPath(
+                    mDocumentIdParser.getFilePath(documentId));
+            String basename = splitPath.remove(splitPath.size() - 1);
+            Log.i(TAG, "Navigating to folder");
+            BoxNavigation navigation = traverseToFolder(volume, splitPath);
+            Log.i(TAG, "Starting upload");
+            navigation.upload(basename, new FileInputStream(tmp));
+            navigation.commit();
+        } catch (FileNotFoundException e1) {
+            Log.e(TAG, "Upload failed", e1);
+        } catch (QblStorageException e1) {
+            Log.e(TAG, "Upload failed", e1);
+        }
+    }
+
+    private ParcelFileDescriptor downloadFile(final String documentId, final String mode, final CancellationSignal signal) throws FileNotFoundException {
+        final Future<ParcelFileDescriptor> future
+                = mThreadPoolExecutor.submit(new Callable<ParcelFileDescriptor>() {
 
             @Override
             public ParcelFileDescriptor call() throws Exception {
@@ -303,7 +363,6 @@ public class BoxProvider extends DocumentsProvider {
                 return makeParcelFileDescriptor(f, mode);
             }
         });
-
         if (signal != null) {
             signal.setOnCancelListener(new CancellationSignal.OnCancelListener() {
                 @Override

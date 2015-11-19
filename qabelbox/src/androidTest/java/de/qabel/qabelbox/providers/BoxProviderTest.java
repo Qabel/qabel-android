@@ -27,6 +27,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -178,6 +179,29 @@ public class BoxProviderTest extends ProviderTestCase2<BoxProvider>{
         InputStream inputStream = mContentResolver.openInputStream(documentUri);
         byte[] dl = IOUtils.toByteArray(inputStream);
         File file = new File(testFileName);
+        byte[] content = IOUtils.toByteArray(new FileInputStream(file));
+        assertThat(dl, is(content));
+    }
+
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+    public void testOpenDocumentForWrite() throws IOException, QblStorageException, InterruptedException {
+        Uri parentUri = DocumentsContract.buildDocumentUri(BoxProvider.AUTHORITY, ROOT_DOC_ID);
+        Uri document = DocumentsContract.createDocument(mContentResolver, parentUri,
+                "image/png",
+                "testfile");
+        OutputStream outputStream = mContentResolver.openOutputStream(document);
+        assertNotNull(outputStream);
+        File file = new File(testFileName);
+        IOUtils.copy(new FileInputStream(file), outputStream);
+        outputStream.close();
+
+        // wait for the upload in the background
+        // TODO: actually wait for it.
+        Thread.sleep(10000l);
+
+        InputStream inputStream = mContentResolver.openInputStream(document);
+        assertNotNull(inputStream);
+        byte[] dl = IOUtils.toByteArray(inputStream);
         byte[] content = IOUtils.toByteArray(new FileInputStream(file));
         assertThat(dl, is(content));
     }

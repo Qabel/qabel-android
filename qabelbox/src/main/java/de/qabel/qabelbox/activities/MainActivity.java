@@ -8,42 +8,35 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.ParcelFileDescriptor;
-import android.os.StrictMode;
+import android.provider.DocumentsContract;
 import android.provider.OpenableColumns;
 import android.support.design.widget.FloatingActionButton;
-import android.util.Log;
-import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-
-import com.amazonaws.auth.AWSCredentials;
-import com.amazonaws.mobileconnectors.s3.transferutility.TransferUtility;
-import com.amazonaws.regions.Region;
-import com.amazonaws.regions.Regions;
-import com.amazonaws.services.s3.AmazonS3Client;
+import android.view.View;
+import android.widget.Button;
 
 import org.apache.commons.io.IOUtils;
-import org.spongycastle.util.encoders.Hex;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Collections;
 
-import de.qabel.core.crypto.QblECKeyPair;
 import de.qabel.core.exceptions.QblStorageException;
 import de.qabel.core.storage.BoxFile;
 import de.qabel.core.storage.BoxFolder;
@@ -57,6 +50,7 @@ import de.qabel.qabelbox.fragments.FilesFragment;
 import de.qabel.qabelbox.fragments.NewFolderFragment;
 import de.qabel.qabelbox.fragments.SelectUploadFolderFragment;
 import de.qabel.qabelbox.providers.BoxContentProvider;
+import de.qabel.qabelbox.providers.BoxProvider;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,
@@ -65,8 +59,9 @@ public class MainActivity extends AppCompatActivity
 
     private static final String TAG = "BoxMainActivity";
     public static final int REQUEST_CODE_OPEN = 11;
+    private static final int REQUEST_CODE_UPLOAD_FILE = 12;
+    public static final String HARDCODED_ROOT = "8520f0098930a754748b7ddcb43ef75a0dbf3a0d26381af4eba4a98eaa9b4e6a::::qabel::::boxtest::::/";
     private Account boxAccount;
-    private BoxVolume boxVolume;
     private BoxNavigation boxNavigation;
 
     private Cursor getFolder(int folderID) {
@@ -80,17 +75,34 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == REQUEST_CODE_OPEN && resultCode == Activity.RESULT_OK) {
-            Uri uri = null;
-            if (data != null) {
-                uri = data.getData();
-                Log.i(TAG, "Uri: " + uri.toString());
-                Intent viewIntent = new Intent();
-                viewIntent.setDataAndType(uri,
-                        URLConnection.guessContentTypeFromName(uri.toString()));
-                startActivity(Intent.createChooser(viewIntent, "Open with"));
+        if (requestCode == REQUEST_CODE_OPEN && resultCode == Activity.RESULT_OK && data != null) {
+            Uri uri = data.getData();
+            Log.i(TAG, "Uri: " + uri.toString());
+            Intent viewIntent = new Intent();
+            viewIntent.setDataAndType(uri,
+                    URLConnection.guessContentTypeFromName(uri.toString()));
+            startActivity(Intent.createChooser(viewIntent, "Open with"));
+            return;
+        }
+        if (requestCode == REQUEST_CODE_UPLOAD_FILE && resultCode == Activity.RESULT_OK && data != null) {
+            Cursor cursor = getContentResolver().query(data.getData(), null, null, null, null);
+            if (cursor == null) {
+                Log.e(TAG, "No valid url for uploading" + data.getData());
+                return;
             }
-
+            cursor.moveToFirst();
+            String displayName = cursor.getString(
+                    cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
+            Log.i(TAG, "Displayname: " + displayName);
+            Uri uri = DocumentsContract.buildDocumentUri(BoxProvider.AUTHORITY, HARDCODED_ROOT + displayName);
+            try {
+                OutputStream outputStream = getContentResolver().openOutputStream(uri, "w");
+                InputStream inputStream = getContentResolver().openInputStream(data.getData());
+                IOUtils.copy(inputStream, outputStream);
+            } catch (IOException e) {
+                Log.e(TAG, "Error opening output stream for upload", e);
+            }
+            return;
         }
     }
 
@@ -101,22 +113,38 @@ public class MainActivity extends AppCompatActivity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        // ACTION_OPEN_DOCUMENT is the intent to choose a file via the system's file
-        // browser.
-        Intent intentOpen = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+        Button open = (Button) findViewById(R.id.open);
+        open.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intentOpen = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+                intentOpen.addCategory(Intent.CATEGORY_OPENABLE);
+                intentOpen.setType("*/*");
+                startActivityForResult(intentOpen, REQUEST_CODE_OPEN);
+            }
+        });
 
-        // Filter to only show results that can be "opened", such as a
-        // file (as opposed to a list of contacts or timezones)
-        intentOpen.addCategory(Intent.CATEGORY_OPENABLE);
+        Button upload = (Button) findViewById(R.id.upload);
+        upload.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intentOpen = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+                intentOpen.addCategory(Intent.CATEGORY_OPENABLE);
+                intentOpen.setType("*/*");
+                startActivityForResult(intentOpen, REQUEST_CODE_UPLOAD_FILE);
+            }
+        });
 
-        // Filter to show only images, using the image MIME data type.
-        // If one wanted to search for ogg vorbis files, the type would be "audio/ogg".
-        // To search for all documents available via installed storage providers,
-        // it would be "*/*".
-        intentOpen.setType("*/*");
-
-        startActivityForResult(intentOpen, REQUEST_CODE_OPEN);
-
+        Button delete = (Button) findViewById(R.id.delete);
+        delete.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intentOpen = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+                intentOpen.addCategory(Intent.CATEGORY_OPENABLE);
+                intentOpen.setType("*/*");
+                startActivityForResult(intentOpen, REQUEST_CODE_UPLOAD_FILE);
+            }
+        });
 
         boxAccount = createSyncAccount(this);
 

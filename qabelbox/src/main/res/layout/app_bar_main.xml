@@ -27,6 +27,38 @@
                  android:id="@+id/fragment_container"
                  android:layout_width="match_parent"
                  android:layout_height="match_parent" >
+
+        <Button
+            style="?android:attr/buttonStyleSmall"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Open file"
+            android:id="@+id/open"
+            android:layout_gravity="left|top"/>
+
+        <Button
+            style="?android:attr/buttonStyleSmall"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Delete"
+            android:id="@+id/delete"
+            android:layout_gravity="right|top"/>
+
+        <Button
+            style="?android:attr/buttonStyleSmall"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Rename"
+            android:id="@+id/rename"
+            android:layout_gravity="center"/>
+
+        <Button
+            style="?android:attr/buttonStyleSmall"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Upload File"
+            android:id="@+id/upload"
+            android:layout_gravity="center_horizontal|top"/>
     </FrameLayout>
 
     <android.support.design.widget.FloatingActionButton

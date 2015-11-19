@@ -41,3 +41,5 @@ log/
 /build
 /captures
 *awsCredentials.xml
+*.iml
+/qabelbox/local.properties

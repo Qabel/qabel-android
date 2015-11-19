@@ -1,11 +1,15 @@
 package de.qabel.qabelbox.providers;
 
 import android.annotation.TargetApi;
+import android.content.ContentResolver;
+import android.content.pm.ProviderInfo;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
 import android.provider.DocumentsContract;
 import android.test.ProviderTestCase2;
+import android.test.mock.MockContentResolver;
+import android.util.Log;
 
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferUtility;
@@ -41,24 +45,30 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 public class BoxProviderTest extends ProviderTestCase2<BoxProvider>{
 
-    private BoxVolume volume;
+    public static final String HARDCODED_ROOT = "8520f0098930a754748b7ddcb43ef75a0dbf3a0d26381af4eba4a98eaa9b4e6a::::qabel::::boxtest::::/";
+    private static BoxVolume volume;
     final String bucket = "qabel";
     final String prefix = UUID.randomUUID().toString();
     public static String ROOT_DOC_ID;
     private String testFileName;
-    private AmazonS3Client s3Client;
+    private static AmazonS3Client s3Client;
+    private ContentResolver mContentResolver;
+
+    private static final String TAG = "BoxProviderTest";
+    private BoxProvider mProvider;
 
     public BoxProviderTest(Class<BoxProvider> providerClass, String providerAuthority) {
         super(providerClass, providerAuthority);
     }
 
     public BoxProviderTest() {
-        this(BoxProvider.class, "de.qabel.qabelbox.providers.BoxProvider");
+        this(BoxProvider.class, BoxProvider.AUTHORITY);
     }
 
     @Override
     protected void setUp() throws Exception {
         super.setUp();
+        Log.d(TAG, "setUp");
         CryptoUtils utils = new CryptoUtils();
         byte[] deviceID = utils.getRandomBytes(16);
 
@@ -67,25 +77,27 @@ public class BoxProviderTest extends ProviderTestCase2<BoxProvider>{
         ROOT_DOC_ID = "8520f0098930a754748b7ddcb43ef75a0dbf3a0d26381af4eba4a98eaa9b4e6a::::qabel::::"
                 +prefix+"::::/";
 
-        AWSCredentials awsCredentials = new AWSCredentials() {
-            @Override
-            public String getAWSAccessKeyId() {
-                return getContext().getResources().getString(R.string.aws_user);
-            }
+        if (volume == null) {
+            AWSCredentials awsCredentials = new AWSCredentials() {
+                @Override
+                public String getAWSAccessKeyId() {
+                    return getContext().getResources().getString(R.string.aws_user);
+                }
 
-            @Override
-            public String getAWSSecretKey() {
-                return getContext().getString(R.string.aws_password);
-            }
-        };
-        AWSCredentials credentials = awsCredentials;
-        s3Client = new AmazonS3Client(credentials);
-        assertNotNull(awsCredentials.getAWSAccessKeyId());
-        assertNotNull(awsCredentials.getAWSSecretKey());
+                @Override
+                public String getAWSSecretKey() {
+                    return getContext().getString(R.string.aws_password);
+                }
+            };
+            AWSCredentials credentials = awsCredentials;
+            s3Client = new AmazonS3Client(credentials);
+            assertNotNull(awsCredentials.getAWSAccessKeyId());
+            assertNotNull(awsCredentials.getAWSSecretKey());
 
-        TransferUtility transfer = new TransferUtility(s3Client, getContext());
-        volume = new BoxVolume(transfer, credentials, keyPair, bucket, prefix, deviceID,
-                new File(System.getProperty("java.io.tmpdir")));
+            TransferUtility transfer = new TransferUtility(s3Client, getContext());
+            volume = new BoxVolume(transfer, credentials, keyPair, bucket, prefix, deviceID,
+                    new File(System.getProperty("java.io.tmpdir")));
+        }
         volume.createIndex(bucket, prefix);
 
         File tmpDir = new File(System.getProperty("java.io.tmpdir"));
@@ -99,9 +111,15 @@ public class BoxProviderTest extends ProviderTestCase2<BoxProvider>{
         outputStream.close();
         testFileName = file.getAbsolutePath();
 
+        mContentResolver = getContext().getContentResolver();
+        mProvider = getProvider();
+
     }
 
-    public void tearDown() throws IOException {
+    @Override
+    public void tearDown() throws Exception {
+        super.tearDown();
+        Log.d(TAG, "tearDown");
         ObjectListing listing = s3Client.listObjects(bucket, prefix);
         List<DeleteObjectsRequest.KeyVersion> keys = new ArrayList<>();
         for (S3ObjectSummary summary : listing.getObjectSummaries()) {
@@ -113,11 +131,6 @@ public class BoxProviderTest extends ProviderTestCase2<BoxProvider>{
         DeleteObjectsRequest deleteObjectsRequest = new DeleteObjectsRequest(bucket);
         deleteObjectsRequest.setKeys(keys);
         s3Client.deleteObjects(deleteObjectsRequest);
-    }
-
-    public void testInit() {
-        assertThat(getProvider().getClass().getName(),
-                is("de.qabel.qabelbox.providers.BoxProvider"));
     }
 
     public void testTraverseToFolder() throws QblStorageException {
@@ -147,7 +160,7 @@ public class BoxProviderTest extends ProviderTestCase2<BoxProvider>{
         assertThat(cursor.getCount(), is(1));
         cursor.moveToFirst();
         String documentId = cursor.getString(6);
-        assertThat(documentId, is(ROOT_DOC_ID));
+        assertThat(documentId, is(HARDCODED_ROOT));
 
     }
 
@@ -159,10 +172,10 @@ public class BoxProviderTest extends ProviderTestCase2<BoxProvider>{
         String testDocId = ROOT_DOC_ID + "testfile";
         Uri documentUri = DocumentsContract.buildDocumentUri(BoxProvider.AUTHORITY, testDocId);
         assertNotNull("Could not build document URI", documentUri);
-        Cursor query = getMockContentResolver().query(documentUri, null, null, null, null);
+        Cursor query = mContentResolver.query(documentUri, null, null, null, null);
         assertNotNull("Document query failed: " + documentUri.toString(), query);
         assertTrue(query.moveToFirst());
-        InputStream inputStream = getContext().getContentResolver().openInputStream(documentUri);
+        InputStream inputStream = mContentResolver.openInputStream(documentUri);
         byte[] dl = IOUtils.toByteArray(inputStream);
         File file = new File(testFileName);
         byte[] content = IOUtils.toByteArray(new FileInputStream(file));
@@ -175,13 +188,14 @@ public class BoxProviderTest extends ProviderTestCase2<BoxProvider>{
         Uri parentDocumentUri = DocumentsContract.buildDocumentUri(BoxProvider.AUTHORITY, ROOT_DOC_ID);
         Uri documentUri = DocumentsContract.buildDocumentUri(BoxProvider.AUTHORITY, testDocId);
         assertNotNull("Could not build document URI", documentUri);
-        Cursor query = getContext().getContentResolver().query(documentUri, null, null, null, null);
+        Cursor query = mContentResolver.query(documentUri, null, null, null, null);
         assertNull("Document already there: " + documentUri.toString(), query);
-        Uri document = DocumentsContract.createDocument(getContext().getContentResolver(), parentDocumentUri,
+        Uri document = DocumentsContract.createDocument(mContentResolver, parentDocumentUri,
                 "image/png",
                 "testfile.png");
+        assertNotNull(document);
         assertThat(document.toString(), is(documentUri.toString()));
-        query = getContext().getContentResolver().query(documentUri, null, null, null, null);
+        query = mContentResolver.query(documentUri, null, null, null, null);
         assertNotNull("Document not created:" + documentUri.toString(), query);
     }
 
@@ -191,14 +205,15 @@ public class BoxProviderTest extends ProviderTestCase2<BoxProvider>{
         Uri parentDocumentUri = DocumentsContract.buildDocumentUri(BoxProvider.AUTHORITY, ROOT_DOC_ID);
         Uri documentUri = DocumentsContract.buildDocumentUri(BoxProvider.AUTHORITY, testDocId);
         assertNotNull("Could not build document URI", documentUri);
-        Cursor query = getContext().getContentResolver().query(documentUri, null, null, null, null);
+        Cursor query = mContentResolver.query(documentUri, null, null, null, null);
         assertNull("Document already there: " + documentUri.toString(), query);
-        Uri document = DocumentsContract.createDocument(getContext().getContentResolver(), parentDocumentUri,
+        Uri document = DocumentsContract.createDocument(mContentResolver, parentDocumentUri,
                 "image/png",
                 "testfile.png");
-        DocumentsContract.deleteDocument(getContext().getContentResolver(), document);
+        assertNotNull(document);
+        DocumentsContract.deleteDocument(mContentResolver, document);
         assertThat(document.toString(), is(documentUri.toString()));
-        query = getContext().getContentResolver().query(documentUri, null, null, null, null);
+        query = mContentResolver.query(documentUri, null, null, null, null);
         assertNull("Document not deleted:" + documentUri.toString(), query);
     }
 
@@ -208,18 +223,20 @@ public class BoxProviderTest extends ProviderTestCase2<BoxProvider>{
         Uri parentDocumentUri = DocumentsContract.buildDocumentUri(BoxProvider.AUTHORITY, ROOT_DOC_ID);
         Uri documentUri = DocumentsContract.buildDocumentUri(BoxProvider.AUTHORITY, testDocId);
         assertNotNull("Could not build document URI", documentUri);
-        Cursor query = getContext().getContentResolver().query(documentUri, null, null, null, null);
+        Cursor query = mContentResolver.query(documentUri, null, null, null, null);
         assertNull("Document already there: " + documentUri.toString(), query);
         Uri document = DocumentsContract.createDocument(
-                getContext().getContentResolver(), parentDocumentUri,
+                mContentResolver, parentDocumentUri,
                 "image/png",
                 "testfile.png");
-        Uri renamed = DocumentsContract.renameDocument(getContext().getContentResolver(),
+        assertNotNull(document);
+        Uri renamed = DocumentsContract.renameDocument(mContentResolver,
                 document, "testfile2.png");
+        assertNotNull(renamed);
         assertThat(renamed.toString(), is(parentDocumentUri.toString() + "testfile2.png"));
-        query = getContext().getContentResolver().query(documentUri, null, null, null, null);
+        query = mContentResolver.query(documentUri, null, null, null, null);
         assertNull("Document not renamed:" + documentUri.toString(), query);
-        query = getContext().getContentResolver().query(renamed, null, null, null, null);
+        query = mContentResolver.query(renamed, null, null, null, null);
         assertNotNull("Document not renamed:" + documentUri.toString(), query);
     }
 

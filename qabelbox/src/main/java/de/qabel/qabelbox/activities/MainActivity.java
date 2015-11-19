@@ -1,10 +1,7 @@
 package de.qabel.qabelbox.activities;
 
 import android.accounts.Account;
-import android.accounts.AccountManager;
 import android.app.Activity;
-import android.content.ContentResolver;
-import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
@@ -42,14 +39,11 @@ import de.qabel.core.storage.BoxFile;
 import de.qabel.core.storage.BoxFolder;
 import de.qabel.core.storage.BoxNavigation;
 import de.qabel.core.storage.BoxObject;
-import de.qabel.core.storage.BoxVolume;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.adapter.FilesAdapter;
-import de.qabel.qabelbox.filesystem.BoxContentObserver;
 import de.qabel.qabelbox.fragments.FilesFragment;
 import de.qabel.qabelbox.fragments.NewFolderFragment;
 import de.qabel.qabelbox.fragments.SelectUploadFolderFragment;
-import de.qabel.qabelbox.providers.BoxContentProvider;
 import de.qabel.qabelbox.providers.BoxProvider;
 
 public class MainActivity extends AppCompatActivity
@@ -61,22 +55,13 @@ public class MainActivity extends AppCompatActivity
     public static final int REQUEST_CODE_OPEN = 11;
     private static final int REQUEST_CODE_UPLOAD_FILE = 12;
     public static final String HARDCODED_ROOT = "8520f0098930a754748b7ddcb43ef75a0dbf3a0d26381af4eba4a98eaa9b4e6a::::qabel::::boxtest::::/";
-    private Account boxAccount;
     private BoxNavigation boxNavigation;
-
-    private Cursor getFolder(int folderID) {
-        return getContentResolver().query(
-                Uri.parse(BoxContentProvider.PREFIX_CONTENT + BoxContentProvider.AUTHORITY + BoxContentProvider.SUFFIX_FOLDER),
-                new String[]{BoxContentProvider.ROW_ID, BoxContentProvider.ROW_TYPE, BoxContentProvider.ROW_NAME},
-                BoxContentProvider.ROW_PARENT + " = ?",
-                new String[]{String.valueOf(folderID)},
-                null);
-    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        Uri uri;
         if (requestCode == REQUEST_CODE_OPEN && resultCode == Activity.RESULT_OK && data != null) {
-            Uri uri = data.getData();
+            uri = data.getData();
             Log.i(TAG, "Uri: " + uri.toString());
             Intent viewIntent = new Intent();
             viewIntent.setDataAndType(uri,
@@ -146,12 +131,6 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
-        boxAccount = createSyncAccount(this);
-
-        setupContentProvider();
-
-        requestManualSync();
-
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -178,57 +157,21 @@ public class MainActivity extends AppCompatActivity
         String action = intent.getAction();
         String type = intent.getType();
 
+        Log.i(TAG, "Intent action: " + action);
+
        if (Intent.ACTION_SEND.equals(action) && type != null) {
-            Uri imageUri = intent.getParcelableExtra(Intent.EXTRA_STREAM);
-            if (imageUri != null) {
-                getFragmentManager().beginTransaction()
-                        .replace(R.id.fragment_container, genUploadFragment(null, imageUri))
-                        .addToBackStack(null)
-                        .commit();
-            }
+           Log.i(TAG, "Action send in main activity");
+           Uri imageUri = intent.getParcelableExtra(Intent.EXTRA_STREAM);
+           if (imageUri != null) {
+               uploadUri(imageUri);
+           }
         } else if (Intent.ACTION_SEND_MULTIPLE.equals(action) && type != null) {
-            ArrayList<Uri> imageUris = intent.getParcelableArrayListExtra(Intent.EXTRA_STREAM);
-            if (imageUris != null) {
-                for (Uri imageUri : imageUris) {
-                    // TODO: Implement multi upload
-                }
-            }
-        } else {
-           //getFragmentManager().beginTransaction()
-           //        .replace(R.id.fragment_container, genFilesFragment(null))
-           //        .addToBackStack(null)
-           //        .commit();
-        }
-    }
-
-    private void requestManualSync() {
-        Bundle settingsBundle = new Bundle();
-        settingsBundle.putBoolean(
-                ContentResolver.SYNC_EXTRAS_MANUAL, true);
-        settingsBundle.putBoolean(
-                ContentResolver.SYNC_EXTRAS_EXPEDITED, true);
-
-        ContentResolver.requestSync(boxAccount, BoxContentProvider.AUTHORITY, settingsBundle);
-    }
-
-    private void setupContentProvider() {
-        ContentResolver contentResolver = getContentResolver();
-        ContentResolver.setSyncAutomatically(boxAccount, BoxContentProvider.AUTHORITY, true);
-        contentResolver.registerContentObserver(Uri.parse(BoxContentProvider.PREFIX_CONTENT + BoxContentProvider.AUTHORITY), true, new BoxContentObserver(null));
-        contentResolver.notifyChange(Uri.parse(BoxContentProvider.PREFIX_CONTENT + BoxContentProvider.AUTHORITY), null);
-    }
-
-    public static Account createSyncAccount(Context context) {
-        // TODO: Remove hardcoded account name
-        Account newAccount = new Account("Box", BoxContentProvider.ACCOUNT_TYPE);
-        AccountManager accountManager = (AccountManager) context.getSystemService(ACCOUNT_SERVICE);
-
-        // TODO: Handle error case
-        if (accountManager.addAccountExplicitly(newAccount, null, null)) {
+           ArrayList<Uri> imageUris = intent.getParcelableArrayListExtra(Intent.EXTRA_STREAM);
+           for (Uri image: imageUris) {
+               uploadUri(image);
+           }
         } else {
         }
-
-        return  newAccount;
     }
 
     @Override

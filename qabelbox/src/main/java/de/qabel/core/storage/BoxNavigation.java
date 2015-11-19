@@ -33,4 +33,8 @@ public interface BoxNavigation {
 	void delete(BoxFolder folder) throws QblStorageException;
 	void delete(BoxExternal external) throws QblStorageException;
 
+	BoxFile rename(BoxFile file, String name) throws QblStorageException;
+	BoxFolder rename(BoxFolder folder, String name) throws QblStorageException;
+	BoxExternal rename(BoxExternal external, String name) throws QblStorageException;
+
 }

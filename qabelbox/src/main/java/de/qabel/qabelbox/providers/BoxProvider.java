@@ -14,8 +14,10 @@ import com.amazonaws.mobileconnectors.s3.transferutility.TransferUtility;
 import com.amazonaws.services.s3.AmazonS3Client;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.spongycastle.util.encoders.Hex;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -159,10 +161,7 @@ public class BoxProvider extends DocumentsProvider {
 
         String filePath = mDocumentIdParser.getFilePath(documentId);
 
-        BoxVolume volume = getVolumeForRoot(
-                mDocumentIdParser.getIdentity(documentId),
-                mDocumentIdParser.getBucket(documentId),
-                mDocumentIdParser.getPrefix(documentId));
+        BoxVolume volume = getVolumeForId(documentId);
 
         if (filePath.equals(PATH_SEP)) {
             // root id
@@ -178,10 +177,17 @@ public class BoxProvider extends DocumentsProvider {
             Log.d(TAG, "Inserting basename " + basename);
             insertFileByName(cursor, navigation, documentId, basename);
         } catch (QblStorageException e) {
-            Log.e(TAG, "Could not navigate", e);
+            Log.i(TAG, "Could not find document " + documentId, e);
             throw new FileNotFoundException("Failed navigating the volume");
         }
         return cursor;
+    }
+
+    private BoxVolume getVolumeForId(String documentId) throws FileNotFoundException {
+        return getVolumeForRoot(
+                    mDocumentIdParser.getIdentity(documentId),
+                    mDocumentIdParser.getBucket(documentId),
+                    mDocumentIdParser.getPrefix(documentId));
     }
 
     void insertFileByName(MatrixCursor cursor, BoxNavigation navigation,
@@ -219,10 +225,7 @@ public class BoxProvider extends DocumentsProvider {
         MatrixCursor cursor = new MatrixCursor(
                 reduceProjection(projection, DEFAULT_DOCUMENT_PROJECTION));
 
-        BoxVolume volume = getVolumeForRoot(
-                mDocumentIdParser.getIdentity(parentDocumentId),
-                mDocumentIdParser.getBucket(parentDocumentId),
-                mDocumentIdParser.getPrefix(parentDocumentId));
+        BoxVolume volume = getVolumeForId(parentDocumentId);
         try {
             BoxNavigation navigation =
                     traverseToFolder(volume, mDocumentIdParser.splitPath(
@@ -333,10 +336,7 @@ public class BoxProvider extends DocumentsProvider {
         String path = mDocumentIdParser.getFilePath(documentId);
         List<String> strings = mDocumentIdParser.splitPath(path);
         String basename = strings.remove(strings.size() - 1);
-        BoxVolume volume = getVolumeForRoot(
-                mDocumentIdParser.getIdentity(documentId),
-                mDocumentIdParser.getBucket(documentId),
-                mDocumentIdParser.getPrefix(documentId));
+        BoxVolume volume = getVolumeForId(documentId);
 
         BoxNavigation navigation = traverseToFolder(volume, strings);
         BoxFile file = findFileinList(basename, navigation);
@@ -359,4 +359,105 @@ public class BoxProvider extends DocumentsProvider {
         throw new FileNotFoundException();
     }
 
+    @Override
+    public String createDocument (String parentDocumentId, String mimeType, String displayName) throws FileNotFoundException {
+        Log.d(TAG, "createDocument: " + parentDocumentId + "; " + mimeType + "; " + displayName);
+
+        String parentPath = mDocumentIdParser.getFilePath(parentDocumentId);
+        BoxVolume volume = getVolumeForId(parentDocumentId);
+
+        try {
+
+            BoxNavigation navigation = traverseToFolder(volume, mDocumentIdParser.splitPath(parentPath));
+
+            if (mimeType.equals(Document.MIME_TYPE_DIR)) {
+                navigation.createFolder(displayName);
+            } else {
+                navigation.upload(displayName, new ByteArrayInputStream(new byte[0]));
+            }
+            navigation.commit();
+
+            return parentDocumentId + displayName;
+
+        } catch (QblStorageException e) {
+            Log.e(TAG, "could not create file", e);
+            throw new FileNotFoundException();
+        }
+    }
+
+    @Override
+    public void deleteDocument(String documentId) throws FileNotFoundException {
+        Log.d(TAG, "deleteDocument: " + documentId);
+
+        String path = mDocumentIdParser.getFilePath(documentId);
+        BoxVolume volume = getVolumeForId(documentId);
+
+        try {
+            List<String> splitPath = mDocumentIdParser.splitPath(path);
+            String basename = splitPath.remove(splitPath.size()-1);
+            BoxNavigation navigation = traverseToFolder(volume, splitPath);
+
+            for (BoxFile file: navigation.listFiles()) {
+                if (file.name.equals(basename)) {
+                    navigation.delete(file);
+                    navigation.commit();
+                    return;
+                }
+            }
+            for (BoxFolder folder: navigation.listFolders()) {
+                if (folder.name.equals(basename)) {
+                    navigation.delete(folder);
+                    navigation.commit();
+                    return;
+                }
+            }
+
+
+        } catch (QblStorageException e) {
+            Log.e(TAG, "could not create file", e);
+            throw new FileNotFoundException();
+        }
+    }
+
+    @Override
+    public String renameDocument(String documentId, String displayName) throws FileNotFoundException {
+        Log.d(TAG, "renameDocument: " + documentId + " to " + displayName);
+
+        String path = mDocumentIdParser.getFilePath(documentId);
+        BoxVolume volume = getVolumeForId(documentId);
+
+        try {
+            List<String> splitPath = mDocumentIdParser.splitPath(path);
+            String basename = splitPath.remove(splitPath.size()-1);
+            BoxNavigation navigation = traverseToFolder(volume, splitPath);
+            splitPath.add(PATH_SEP + displayName);
+            String newPath = StringUtils.join(splitPath, "");
+            String renamedId = mDocumentIdParser.buildId(
+                    mDocumentIdParser.getIdentity(documentId),
+                    mDocumentIdParser.getBucket(documentId),
+                    mDocumentIdParser.getPrefix(documentId),
+                    newPath);
+
+            for (BoxFile file: navigation.listFiles()) {
+                if (file.name.equals(basename)) {
+                    navigation.rename(file, displayName);
+                    navigation.commit();
+                    return renamedId;
+                }
+            }
+            for (BoxFolder folder: navigation.listFolders()) {
+                if (folder.name.equals(basename)) {
+                    navigation.rename(folder, displayName);
+                    navigation.commit();
+                    return renamedId;
+                }
+            }
+            throw new FileNotFoundException();
+
+
+        } catch (QblStorageException e) {
+            Log.e(TAG, "could not create file", e);
+            throw new FileNotFoundException();
+        }
+    }
 }

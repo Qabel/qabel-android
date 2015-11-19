@@ -52,13 +52,13 @@ public abstract class AbstractNavigation implements BoxNavigation {
 		}
 	}
 
-
 	protected Long blockingUpload(String name,
 								  File file) {
 		int id = transferManager.upload(name, file);
 		transferManager.waitFor(id);
 		return file.length();
 	}
+
 	@Override
 	public BoxNavigation navigate(BoxFolder target) throws QblStorageException {
 		try {
@@ -260,6 +260,30 @@ public abstract class AbstractNavigation implements BoxNavigation {
 	@Override
 	public void delete(BoxExternal external) throws QblStorageException {
 
+	}
+
+	@Override
+	public BoxFile rename(BoxFile file, String name) throws QblStorageException {
+		dm.deleteFile(file);
+		file.name = name;
+		dm.insertFile(file);
+		return file;
+	}
+
+	@Override
+	public BoxFolder rename(BoxFolder folder, String name) throws QblStorageException {
+		dm.deleteFolder(folder);
+		folder.name = name;
+		dm.insertFolder(folder);
+		return folder;
+	}
+
+	@Override
+	public BoxExternal rename(BoxExternal external, String name) throws QblStorageException {
+		dm.deleteExternal(external);
+		external.name = name;
+		dm.insertExternal(external);
+		return external;
 	}
 
 	private static class FileUpdate {

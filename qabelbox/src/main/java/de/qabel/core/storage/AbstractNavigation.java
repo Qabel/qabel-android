@@ -259,7 +259,7 @@ public abstract class AbstractNavigation implements BoxNavigation {
 
 	@Override
 	public void delete(BoxExternal external) throws QblStorageException {
-
+		throw new NotImplementedException("Externals are not yet implemented!");
 	}
 
 	@Override

@@ -11,10 +11,8 @@ import java.util.List;
  */
 public class DocumentIdParser {
 
-    private static final String DOCID_SEPERATOR = "::::";
-
     public String getIdentity(String documentId) throws FileNotFoundException {
-        String[] split = documentId.split(DOCID_SEPERATOR, 2);
+        String[] split = documentId.split(BoxProvider.DOCID_SEPARATOR, 2);
         if (split.length > 1) {
             return split[0];
         }
@@ -22,7 +20,7 @@ public class DocumentIdParser {
     }
 
     public String getBucket(String documentId) throws FileNotFoundException {
-        String[] split = documentId.split(DOCID_SEPERATOR, 4);
+        String[] split = documentId.split(BoxProvider.DOCID_SEPARATOR, 4);
         if (split.length > 2) {
             return split[1];
         }
@@ -30,7 +28,7 @@ public class DocumentIdParser {
     }
 
     public String getPrefix(String documentId) throws FileNotFoundException {
-        String[] split = documentId.split(DOCID_SEPERATOR, 4);
+        String[] split = documentId.split(BoxProvider.DOCID_SEPARATOR, 4);
         if (split.length > 2) {
             return split[2];
         }
@@ -39,7 +37,7 @@ public class DocumentIdParser {
 
 
     public String getFilePath(String documentId) throws FileNotFoundException {
-        String[] split = documentId.split(DOCID_SEPERATOR, 4);
+        String[] split = documentId.split(BoxProvider.DOCID_SEPARATOR, 4);
         if (split.length > 3 && split[3] != "") {
             return split[3];
         }
@@ -54,12 +52,12 @@ public class DocumentIdParser {
 
     public String buildId(String identity, String bucket, String prefix, String filePath) {
         if (bucket != null && prefix != null && filePath != null) {
-            return identity + DOCID_SEPERATOR + bucket
-                    + DOCID_SEPERATOR + prefix + DOCID_SEPERATOR + filePath;
+            return identity + BoxProvider.DOCID_SEPARATOR + bucket
+                    + BoxProvider.DOCID_SEPARATOR + prefix + BoxProvider.DOCID_SEPARATOR + filePath;
         } else if (bucket != null && prefix != null) {
-            return identity + DOCID_SEPERATOR + bucket + DOCID_SEPERATOR + prefix;
+            return identity + BoxProvider.DOCID_SEPARATOR + bucket + BoxProvider.DOCID_SEPARATOR + prefix;
         } else if (bucket != null) {
-            return identity + DOCID_SEPERATOR + bucket;
+            return identity + BoxProvider.DOCID_SEPARATOR + bucket;
         } else {
             return identity;
         }

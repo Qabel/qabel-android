@@ -52,9 +52,11 @@ public class MainActivity extends AppCompatActivity
                         NewFolderFragment.OnFragmentInteractionListener {
 
     private static final String TAG = "BoxMainActivity";
-    public static final int REQUEST_CODE_OPEN = 11;
+    private static final int REQUEST_CODE_OPEN = 11;
     private static final int REQUEST_CODE_UPLOAD_FILE = 12;
-    public static final String HARDCODED_ROOT = "8520f0098930a754748b7ddcb43ef75a0dbf3a0d26381af4eba4a98eaa9b4e6a::::qabel::::boxtest::::/";
+    public static final String HARDCODED_ROOT = BoxProvider.PUB_KEY
+            + BoxProvider.DOCID_SEPARATOR + BoxProvider.BUCKET + BoxProvider.DOCID_SEPARATOR
+            + BoxProvider.PREFIX + BoxProvider.DOCID_SEPARATOR + BoxProvider.PATH_SEP;
     private BoxNavigation boxNavigation;
 
     @Override
@@ -86,7 +88,8 @@ public class MainActivity extends AppCompatActivity
         String displayName = cursor.getString(
                 cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
         Log.i(TAG, "Displayname: " + displayName);
-        Uri uploadUri = DocumentsContract.buildDocumentUri(BoxProvider.AUTHORITY, HARDCODED_ROOT + displayName);
+        Uri uploadUri = DocumentsContract.buildDocumentUri(
+                BoxProvider.AUTHORITY, HARDCODED_ROOT + displayName);
         try {
             OutputStream outputStream = getContentResolver().openOutputStream(uploadUri, "w");
             InputStream inputStream = getContentResolver().openInputStream(uri);

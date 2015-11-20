@@ -52,11 +52,6 @@ public class BoxProvider extends DocumentsProvider {
 
     private static final String TAG = "BoxProvider";
 
-
-    public static final String AUTHORITY = "de.qabel.qabelbox.providers.documents";
-
-    private static final String PATH_SEP= "/";
-
     public static final String[] DEFAULT_ROOT_PROJECTION = new
             String[]{Root.COLUMN_ROOT_ID, Root.COLUMN_MIME_TYPES,
                     Root.COLUMN_FLAGS, Root.COLUMN_ICON, Root.COLUMN_TITLE,
@@ -67,12 +62,25 @@ public class BoxProvider extends DocumentsProvider {
             Document.COLUMN_DISPLAY_NAME, Document.COLUMN_LAST_MODIFIED,
             Document.COLUMN_FLAGS, Document.COLUMN_SIZE,};
 
+
+    public static final String AUTHORITY = "de.qabel.qabelbox.providers.documents";
+    public static final String PATH_SEP= "/";
+    public static final String DOCID_SEPARATOR = "::::";
+
+    public static final String PUB_KEY = "8520f0098930a754748b7ddcb43ef75a0dbf3a0d26381af4eba4a98eaa9b4e6a";
+    public static final String BUCKET = "qabel";
+    public static final String PREFIX = "boxtest";
+    public static final String PRIVATE_KEY = "77076d0a7318a57d3c16c17251b26645df4c2f87ebc0992ab177fba51db92c2a";
+    public static final byte[] DEVICE_ID = new byte[]{0x01, 0x02, 0x03, 0x04, 0x05, 0x06};
+
     DocumentIdParser mDocumentIdParser;
-    BoxVolume mBoxVolume;
     private ThreadPoolExecutor mThreadPoolExecutor;
 
     private static final int KEEP_ALIVE_TIME = 1;
     private static final TimeUnit KEEP_ALIVE_TIME_UNIT = TimeUnit.SECONDS;
+    TransferUtility transferUtility;
+    AmazonS3Client amazonS3Client;
+    AWSCredentials awsCredentials;
 
     @Override
     public boolean onCreate() {
@@ -85,7 +93,27 @@ public class BoxProvider extends DocumentsProvider {
                 KEEP_ALIVE_TIME_UNIT,
                 new LinkedBlockingDeque<Runnable>());
 
+        awsCredentials = new AWSCredentials() {
+            @Override
+            public String getAWSAccessKeyId() {
+                return getContext().getResources().getString(R.string.aws_user);
+            }
+
+            @Override
+            public String getAWSSecretKey() {
+                return getContext().getResources().getString(R.string.aws_password);
+            }
+        };
+        amazonS3Client = new AmazonS3Client(awsCredentials);
         return true;
+    }
+
+    private void setUpTransferUtility() {
+        if (transferUtility == null) {
+            transferUtility = new TransferUtility(
+                    amazonS3Client,
+                    getContext().getApplicationContext());
+        }
     }
 
     @Override
@@ -93,14 +121,13 @@ public class BoxProvider extends DocumentsProvider {
         String[] netProjection = reduceProjection(projection, DEFAULT_ROOT_PROJECTION);
 
         MatrixCursor result = new MatrixCursor(netProjection);
-        String publicKey = "8520f0098930a754748b7ddcb43ef75a0dbf3a0d26381af4eba4a98eaa9b4e6a";
         final MatrixCursor.RowBuilder row = result.newRow();
         row.add(Root.COLUMN_ROOT_ID,
-                mDocumentIdParser.buildId(publicKey,
-                        "qabel", "boxtest", null));
+                mDocumentIdParser.buildId(PUB_KEY,
+                        BUCKET, PREFIX, null));
         row.add(Root.COLUMN_DOCUMENT_ID,
-                mDocumentIdParser.buildId(publicKey,
-                        "qabel", "boxtest", "/"));
+                mDocumentIdParser.buildId(PUB_KEY,
+                        BUCKET, PREFIX, "/"));
         row.add(Root.COLUMN_ICON, R.drawable.qabel_logo);
         row.add(Root.COLUMN_FLAGS, Root.FLAG_SUPPORTS_CREATE);
         row.add(Root.COLUMN_TITLE, "Qabel Box Test2");
@@ -124,35 +151,16 @@ public class BoxProvider extends DocumentsProvider {
 
     BoxVolume getVolumeForRoot(String identity, String bucket, String prefix) {
         if (bucket == null) {
-            bucket = "qabel";
+            bucket = BUCKET;
         }
         if (prefix == null) {
-            prefix = "boxtest";
+            prefix = PREFIX;
         }
-        QblECKeyPair testKey = new QblECKeyPair(Hex.decode(
-                "77076d0a7318a57d3c16c17251b26645df4c2f87ebc0992ab177fba51db92c2a"));
+        QblECKeyPair testKey = new QblECKeyPair(Hex.decode(PRIVATE_KEY));
 
-        if (mBoxVolume == null) {
-            AWSCredentials credentials = new AWSCredentials() {
-                @Override
-                public String getAWSAccessKeyId() {
-                    return getContext().getResources().getString(R.string.aws_user);
-                }
-
-                @Override
-                public String getAWSSecretKey() {
-                    return getContext().getResources().getString(R.string.aws_password);
-                }
-            };
-
-            AmazonS3Client amazonS3Client = new AmazonS3Client(credentials);
-            TransferUtility transferUtility = new TransferUtility(
-                    amazonS3Client,
-                    getContext().getApplicationContext());
-            mBoxVolume = new BoxVolume(transferUtility, credentials, testKey, bucket, prefix,
-                    new byte[]{0x01, 0x02, 0x03, 0x04, 0x05, 0x06}, getContext().getCacheDir());
-        }
-        return mBoxVolume;
+        setUpTransferUtility();
+        return new BoxVolume(transferUtility, awsCredentials, testKey, bucket, prefix,
+                    DEVICE_ID, getContext().getCacheDir());
     }
 
     @Override
@@ -343,9 +351,7 @@ public class BoxProvider extends DocumentsProvider {
             Log.i(TAG, "Starting upload");
             navigation.upload(basename, new FileInputStream(tmp));
             navigation.commit();
-        } catch (FileNotFoundException e1) {
-            Log.e(TAG, "Upload failed", e1);
-        } catch (QblStorageException e1) {
+        } catch (FileNotFoundException | QblStorageException e1) {
             Log.e(TAG, "Upload failed", e1);
         }
     }

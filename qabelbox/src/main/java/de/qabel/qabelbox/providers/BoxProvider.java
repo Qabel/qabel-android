@@ -45,6 +45,7 @@ import de.qabel.core.storage.BoxFile;
 import de.qabel.core.storage.BoxFolder;
 import de.qabel.core.storage.BoxNavigation;
 import de.qabel.core.storage.BoxVolume;
+import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
 
 
@@ -105,6 +106,7 @@ public class BoxProvider extends DocumentsProvider {
             }
         };
         amazonS3Client = new AmazonS3Client(awsCredentials);
+        QabelBoxApplication.boxProvider = this;
         return true;
     }
 

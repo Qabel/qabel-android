@@ -1,7 +1,7 @@
 package de.qabel.qabelbox.activities;
 
-import android.accounts.Account;
 import android.app.Activity;
+import android.app.LoaderManager;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
@@ -34,12 +34,17 @@ import java.io.OutputStream;
 import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import java.util.concurrent.FutureTask;
 
 import de.qabel.core.exceptions.QblStorageException;
 import de.qabel.core.storage.BoxFile;
 import de.qabel.core.storage.BoxFolder;
 import de.qabel.core.storage.BoxNavigation;
 import de.qabel.core.storage.BoxObject;
+import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.adapter.FilesAdapter;
 import de.qabel.qabelbox.fragments.FilesFragment;
@@ -59,17 +64,21 @@ public class MainActivity extends AppCompatActivity
             + BoxProvider.DOCID_SEPARATOR + BoxProvider.BUCKET + BoxProvider.DOCID_SEPARATOR
             + BoxProvider.PREFIX + BoxProvider.DOCID_SEPARATOR + BoxProvider.PATH_SEP;
     private static final int REQUEST_CODE_DELETE_FILE = 13;
+    public static final int DIRECTORY_LOADER = 0;
     private BoxNavigation boxNavigation;
+    private BoxProvider provider;
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        Uri uri;
+        final Uri uri;
         if (requestCode == REQUEST_CODE_OPEN && resultCode == Activity.RESULT_OK && data != null) {
             uri = data.getData();
             Log.i(TAG, "Uri: " + uri.toString());
             Intent viewIntent = new Intent();
-            viewIntent.setDataAndType(uri,
-                    URLConnection.guessContentTypeFromName(uri.toString()));
+            String type = URLConnection.guessContentTypeFromName(uri.toString());
+            Log.i(TAG, "Mime type: " + type);
+            viewIntent.setDataAndType(uri, type);
+            viewIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
             startActivity(Intent.createChooser(viewIntent, "Open with"));
             return;
         }
@@ -106,8 +115,16 @@ public class MainActivity extends AppCompatActivity
                 BoxProvider.AUTHORITY, HARDCODED_ROOT + displayName);
         try {
             OutputStream outputStream = getContentResolver().openOutputStream(uploadUri, "w");
+            if (outputStream == null) {
+                return false;
+            }
             InputStream inputStream = getContentResolver().openInputStream(uri);
+            if (inputStream == null) {
+                return false;
+            }
             IOUtils.copy(inputStream, outputStream);
+            outputStream.close();
+            inputStream.close();
         } catch (IOException e) {
             Log.e(TAG, "Error opening output stream for upload", e);
         }
@@ -120,6 +137,18 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        provider = ((QabelBoxApplication) getApplication()).getProvider();
+        Log.i(TAG, "Provider: " + provider);
+
+        Button browse = (Button) findViewById(R.id.browse);
+        browse.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Bundle bundle = new Bundle();
+                bundle.putString("dir", HARDCODED_ROOT);
+                getLoaderManager().initLoader(DIRECTORY_LOADER, bundle, null);
+            }
+        });
 
         Button open = (Button) findViewById(R.id.open);
         open.setOnClickListener(new View.OnClickListener() {
@@ -439,4 +468,5 @@ public class MainActivity extends AppCompatActivity
                 .addToBackStack(null)
                 .commit();
     }
+
 }

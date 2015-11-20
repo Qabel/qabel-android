@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.ParcelFileDescriptor;
 import android.provider.DocumentsContract;
@@ -57,6 +58,7 @@ public class MainActivity extends AppCompatActivity
     public static final String HARDCODED_ROOT = BoxProvider.PUB_KEY
             + BoxProvider.DOCID_SEPARATOR + BoxProvider.BUCKET + BoxProvider.DOCID_SEPARATOR
             + BoxProvider.PREFIX + BoxProvider.DOCID_SEPARATOR + BoxProvider.PATH_SEP;
+    private static final int REQUEST_CODE_DELETE_FILE = 13;
     private BoxNavigation boxNavigation;
 
     @Override
@@ -74,6 +76,18 @@ public class MainActivity extends AppCompatActivity
         if (requestCode == REQUEST_CODE_UPLOAD_FILE && resultCode == Activity.RESULT_OK && data != null) {
             uri = data.getData();
             uploadUri(uri);
+            return;
+        }
+        if (requestCode == REQUEST_CODE_DELETE_FILE && resultCode == Activity.RESULT_OK && data != null) {
+            uri = data.getData();
+            Log.i(TAG, "Deleting file: " + uri.toString());
+            new AsyncTask<Uri, Void, Boolean>() {
+
+                @Override
+                protected Boolean doInBackground(Uri... params) {
+                    return DocumentsContract.deleteDocument(getContentResolver(), params[0]);
+                }
+            }.execute(uri);
             return;
         }
     }
@@ -136,7 +150,7 @@ public class MainActivity extends AppCompatActivity
                 Intent intentOpen = new Intent(Intent.ACTION_OPEN_DOCUMENT);
                 intentOpen.addCategory(Intent.CATEGORY_OPENABLE);
                 intentOpen.setType("*/*");
-                startActivityForResult(intentOpen, REQUEST_CODE_UPLOAD_FILE);
+                startActivityForResult(intentOpen, REQUEST_CODE_DELETE_FILE);
             }
         });
 

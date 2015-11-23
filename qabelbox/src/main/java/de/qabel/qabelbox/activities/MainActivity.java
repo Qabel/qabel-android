@@ -231,7 +231,7 @@ public class MainActivity extends AppCompatActivity
                                     .commit();
                 } else if (boxObject instanceof BoxFile){
                     try {
-                        InputStream inputStream = boxNavigation.download((BoxFile) boxObject);
+                        InputStream inputStream = boxNavigation.download((BoxFile) boxObject, null);
                         Log.d("MainActivity", "Downloaded");
                         File file = new File(getExternalFilesDir(null), boxObject.name);
                         Log.d("MainActivity", "Saving to: " + getExternalFilesDir(null).toString() + '/' + boxObject.name);
@@ -370,41 +370,13 @@ public class MainActivity extends AppCompatActivity
 
         try {
             InputStream content = new ParcelFileDescriptor.AutoCloseInputStream(inputPFD);
-            boxNavigation.upload(name, content);
+            boxNavigation.upload(name, content, null);
             boxNavigation.commit();
         } catch (QblStorageException e) {
             Log.e("BOX", "Upload failed", e);
         }
 
         finish();
-
-//        final int id = 1;
-//        final NotificationManager mNotifyManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-//        final NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this);
-//        mBuilder.setContentTitle("Uploading " + uri.getLastPathSegment())
-//                .setContentText("Upload in progress")
-//                .setSmallIcon(R.drawable.notification_template_icon_bg);
-//        new Thread(
-//                new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        int incr;
-//                        for (incr = 0; incr <= 100; incr+=5) {
-//                            mBuilder.setProgress(100, incr, false);
-//                            mNotifyManager.notify(id, mBuilder.build());
-//                            try {
-//                                Thread.sleep(1000);
-//                            } catch (InterruptedException e) {
-//                                Log.d("asd", "asd");
-//                            }
-//                        }
-//                        mBuilder.setContentText("Upload complete")
-//                                .setProgress(0,0,false);
-//                        mNotifyManager.notify(id, mBuilder.build());
-//                    }
-//                }
-//        ).start();
-//        finish();
     }
 
     @Override

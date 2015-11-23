@@ -1,5 +1,7 @@
 package de.qabel.core.storage;
 
+import android.support.annotation.Nullable;
+
 import de.qabel.core.exceptions.QblStorageException;
 
 import java.io.File;
@@ -24,8 +26,8 @@ public interface BoxNavigation {
 	List<BoxFolder> listFolders() throws QblStorageException;
 	List<BoxExternal> listExternals() throws QblStorageException;
 
-	BoxFile upload(String name, InputStream content) throws QblStorageException;
-	InputStream download(BoxFile file) throws QblStorageException;
+	BoxFile upload(String name, InputStream content, @Nullable TransferManager.BoxTransferListener boxTransferListener) throws QblStorageException;
+	InputStream download(BoxFile file, @Nullable TransferManager.BoxTransferListener boxTransferListener) throws QblStorageException;
 
 	BoxFolder createFolder(String name) throws QblStorageException;
 

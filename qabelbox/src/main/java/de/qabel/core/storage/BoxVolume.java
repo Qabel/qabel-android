@@ -53,7 +53,7 @@ public class BoxVolume {
 
 	private InputStream blockingDownload(String name) throws QblStorageNotFound {
 		File tmp = transferManager.createTempFile();
-		int id = transferManager.download(name, tmp);
+		int id = transferManager.download(name, tmp, null);
 		if (transferManager.waitFor(id)) {
 			try {
 				return new FileInputStream(tmp);
@@ -73,7 +73,7 @@ public class BoxVolume {
 		} catch (IOException e) {
 			throw new QblStorageException(e);
 		}
-		int id = transferManager.upload(name, tmp);
+		int id = transferManager.upload(name, tmp, null);
 		if (!transferManager.waitFor(id)) {
 			throw new QblStorageException("Upload failed");
 		}

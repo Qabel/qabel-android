@@ -145,7 +145,7 @@ public class BoxProviderTest extends ProviderTestCase2<BoxProvider>{
 
     public void testOpenDocument() throws IOException, QblStorageException {
         BoxNavigation rootNav = volume.navigate();
-        rootNav.upload("testfile", new FileInputStream(new File(testFileName)));
+        rootNav.upload("testfile", new FileInputStream(new File(testFileName)), null);
         rootNav.commit();
         assertThat(rootNav.listFiles().size(), is(1));
         String testDocId = ROOT_DOC_ID + "testfile";

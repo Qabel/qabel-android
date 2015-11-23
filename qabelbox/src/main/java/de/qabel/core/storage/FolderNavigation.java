@@ -29,7 +29,7 @@ public class FolderNavigation extends AbstractNavigation {
 		logger.info("Uploading directory metadata");
 		SecretKey secretKey = new SecretKeySpec(key, "AES");
 		try {
-			uploadEncrypted(new FileInputStream(dm.getPath()), secretKey, dm.getFileName());
+			uploadEncrypted(new FileInputStream(dm.getPath()), secretKey, dm.getFileName(), null);
 		} catch (FileNotFoundException e) {
 			throw new QblStorageException(e);
 		}
@@ -40,7 +40,7 @@ public class FolderNavigation extends AbstractNavigation {
 		logger.info("Reloading directory metadata");
 		// duplicate of navigate()
 		try {
-			File indexDl = blockingDownload(dm.getFileName());
+			File indexDl = blockingDownload(dm.getFileName(), null);
 			File tmp = File.createTempFile("dir", "db", dm.getTempDir());
 			SecretKey key = makeKey(this.key);
 			if (cryptoUtils.decryptFileAuthenticatedSymmetricAndValidateTag(

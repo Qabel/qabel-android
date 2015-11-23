@@ -28,6 +28,7 @@ We are using [pull requests](https://help.github.com/articles/using-pull-request
 * Force push `git push -f` only when asked for by an integrator. Rebasing should only be done if it is needed or really useful.
 * Push additional (fix) commits to your pull request to incorporate changes (e.g. which are needed due to the review of the pull request).
 * Never abandon a pull request and create a new one for the same thing unless you are asked for by an integrator. When doing so, always reference these pull requests to one another.
+* You can open a pull request at any point during your development process: when you have little or no code, but want to share an explicit idea. When you need advice, or just want someone to review your code to make sure that you are on the right track.
 
 #### Merging
 Prior merging a pull request, the following conditions must be met.

@@ -1,9 +1,6 @@
 package de.qabel.core.storage;
 
-import android.support.annotation.NonNull;
-
 import com.amazonaws.mobileconnectors.s3.transferutility.*;
-import com.amazonaws.mobileconnectors.s3.transferutility.TransferObserver;
 import com.amazonaws.services.s3.AmazonS3Client;
 
 import org.slf4j.Logger;

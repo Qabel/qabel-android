@@ -1,10 +1,9 @@
 package de.qabel.core.storage;
 
-import android.net.NetworkInfo;
-
 import de.qabel.core.crypto.QblECPublicKey;
 import de.qabel.core.exceptions.QblStorageException;
 import de.qabel.core.exceptions.QblStorageNameConflict;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spongycastle.util.encoders.Hex;
@@ -34,36 +33,36 @@ class DirectoryMetadata {
 	private static final int TYPE_FOLDER = 1;
 	private static final int TYPE_EXTERNAL = 2;
 
-    private final String[] initSql = {
+	private final String[] initSql = {
 			"CREATE TABLE meta (" +
-			" name VARCHAR(24) PRIMARY KEY," +
-			" value TEXT )",
+					" name VARCHAR(24) PRIMARY KEY," +
+					" value TEXT )",
 			"CREATE TABLE spec_version (" +
-			" version INTEGER PRIMARY KEY )",
+					" version INTEGER PRIMARY KEY )",
 			"CREATE TABLE version (" +
-			" id INTEGER PRIMARY KEY," +
-			" version BLOB NOT NULL," +
-			" time LONG NOT NULL )",
+					" id INTEGER PRIMARY KEY," +
+					" version BLOB NOT NULL," +
+					" time LONG NOT NULL )",
 			"CREATE TABLE shares (" +
-			" id INTEGER PRIMARY KEY," +
-			" ref VARCHAR(255) NOT NULL," +
-			" recipient BLOB NOT NULL," +
-			" type INTEGER NOT NULL )",
+					" id INTEGER PRIMARY KEY," +
+					" ref VARCHAR(255) NOT NULL," +
+					" recipient BLOB NOT NULL," +
+					" type INTEGER NOT NULL )",
 			"CREATE TABLE files (" +
-			" block VARCHAR(255) NOT NULL," +
-			" name VARCHAR(255) NULL PRIMARY KEY," +
-			" size LONG NOT NULL," +
-			" mtime LONG NOT NULL," +
-			" key BLOB NOT NULL )",
+					" block VARCHAR(255) NOT NULL," +
+					" name VARCHAR(255) NULL PRIMARY KEY," +
+					" size LONG NOT NULL," +
+					" mtime LONG NOT NULL," +
+					" key BLOB NOT NULL )",
 			"CREATE TABLE folders (" +
-			" ref VARCHAR(255)NOT NULL," +
-			" name VARCHAR(255)NOT NULL PRIMARY KEY," +
-			" key BLOB NOT NULL )",
+					" ref VARCHAR(255)NOT NULL," +
+					" name VARCHAR(255)NOT NULL PRIMARY KEY," +
+					" key BLOB NOT NULL )",
 			"CREATE TABLE externals (" +
-			" owner BLOB NOT NULL," +
-			" name VARCHAR(255)NOT NULL PRIMARY KEY," +
-			" key BLOB NOT NULL," +
-			" url TEXT NOT NULL )",
+					" owner BLOB NOT NULL," +
+					" name VARCHAR(255)NOT NULL PRIMARY KEY," +
+					" key BLOB NOT NULL," +
+					" url TEXT NOT NULL )",
 			"INSERT INTO spec_version (version) VALUES(0)"
 	};
 	private final File tempDir;
@@ -137,7 +136,7 @@ class DirectoryMetadata {
 	}
 
 	private void initDatabase() throws SQLException, QblStorageException {
-		for (String q: initSql) {
+		for (String q : initSql) {
 			Statement statement = null;
 			try {
 				statement = connection.createStatement();
@@ -169,8 +168,8 @@ class DirectoryMetadata {
 	private void setRoot(String root) throws SQLException {
 		PreparedStatement statement = null;
 		try {
-			 statement = connection.prepareStatement(
-					 "INSERT OR REPLACE INTO meta (name, value) VALUES ('root', ?)");
+			statement = connection.prepareStatement(
+					"INSERT OR REPLACE INTO meta (name, value) VALUES ('root', ?)");
 			statement.setString(1, root);
 			statement.executeUpdate();
 		} finally {
@@ -185,16 +184,15 @@ class DirectoryMetadata {
 		try {
 			statement = connection.createStatement();
 			ResultSet rs = statement.executeQuery(
-                "SELECT value FROM meta WHERE name='root'");
-            if (rs.next()) {
-                return rs.getString(1);
-            } else {
-                throw new QblStorageException("No root found!");
-            }
+					"SELECT value FROM meta WHERE name='root'");
+			if (rs.next()) {
+				return rs.getString(1);
+			} else {
+				throw new QblStorageException("No root found!");
+			}
 		} catch (SQLException e) {
 			throw new QblStorageException(e);
-		}
-		finally {
+		} finally {
 			try {
 				if (statement != null) {
 					statement.close();
@@ -210,11 +208,11 @@ class DirectoryMetadata {
 			statement = connection.createStatement();
 			ResultSet rs = statement.executeQuery(
 					"SELECT version FROM spec_version");
-            if (rs.next()) {
-                return rs.getInt(1);
-            } else {
-                throw new QblStorageException("No version found!");
-            }
+			if (rs.next()) {
+				return rs.getInt(1);
+			} else {
+				throw new QblStorageException("No version found!");
+			}
 		} catch (SQLException e) {
 			throw new QblStorageException(e);
 		} finally {
@@ -249,12 +247,12 @@ class DirectoryMetadata {
 			statement = connection.createStatement();
 			ResultSet rs = statement.executeQuery(
 					"SELECT value FROM meta WHERE name='last_change_by'");
-            if (rs.next()) {
-                String lastChanged = rs.getString(1);
-                return Hex.decode(lastChanged);
-            } else {
-                throw new QblStorageException("No version found!");
-            }
+			if (rs.next()) {
+				String lastChanged = rs.getString(1);
+				return Hex.decode(lastChanged);
+			} else {
+				throw new QblStorageException("No version found!");
+			}
 		} catch (SQLException e) {
 			throw new QblStorageException(e);
 		} finally {
@@ -285,11 +283,11 @@ class DirectoryMetadata {
 			statement = connection.createStatement();
 			ResultSet rs = statement.executeQuery(
 					"SELECT version FROM version ORDER BY id DESC LIMIT 1");
-            if (rs.next()) {
-                return rs.getBytes(1);
-            } else {
-                throw new QblStorageException("No version found!");
-            }
+			if (rs.next()) {
+				return rs.getBytes(1);
+			} else {
+				throw new QblStorageException("No version found!");
+			}
 		} catch (SQLException e) {
 			throw new QblStorageException(e);
 		} finally {
@@ -343,12 +341,12 @@ class DirectoryMetadata {
 			statement = connection.createStatement();
 			ResultSet rs = statement.executeQuery(
 					"SELECT block, name, size, mtime, key FROM files");
-            List<BoxFile> files = new ArrayList<>();
-            while (rs.next()) {
-                files.add(new BoxFile(rs.getString(1),
-                        rs.getString(2), rs.getLong(3), rs.getLong(4), rs.getBytes(5)));
-            }
-            return files;
+			List<BoxFile> files = new ArrayList<>();
+			while (rs.next()) {
+				files.add(new BoxFile(rs.getString(1),
+						rs.getString(2), rs.getLong(3), rs.getLong(4), rs.getBytes(5)));
+			}
+			return files;
 		} catch (SQLException e) {
 			throw new QblStorageException(e);
 		} finally {
@@ -366,7 +364,8 @@ class DirectoryMetadata {
 		int type = isA(file.name);
 		if ((type != TYPE_NONE) && (type != TYPE_FILE)) {
 			throw new QblStorageNameConflict(file.name);
-		};
+		}
+		;
 		PreparedStatement st = null;
 		try {
 			st = connection.prepareStatement(
@@ -455,11 +454,11 @@ class DirectoryMetadata {
 			statement = connection.createStatement();
 			ResultSet rs = statement.executeQuery(
 					"SELECT ref, name, key FROM folders");
-            List<BoxFolder> folders = new ArrayList<>();
-            while (rs.next()) {
-                folders.add(new BoxFolder(rs.getString(1), rs.getString(2), rs.getBytes(3)));
-            }
-            return folders;
+			List<BoxFolder> folders = new ArrayList<>();
+			while (rs.next()) {
+				folders.add(new BoxFolder(rs.getString(1), rs.getString(2), rs.getBytes(3)));
+			}
+			return folders;
 		} catch (SQLException e) {
 			throw new QblStorageException(e);
 		} finally {
@@ -502,7 +501,7 @@ class DirectoryMetadata {
 	}
 
 	void deleteExternal(BoxExternal external) throws QblStorageException {
-		PreparedStatement st  =null;
+		PreparedStatement st = null;
 		try {
 			st = connection.prepareStatement(
 					"DELETE FROM externals WHERE name=?");
@@ -513,14 +512,14 @@ class DirectoryMetadata {
 
 		} catch (SQLException e) {
 			throw new QblStorageException(e);
-        } finally {
-		try {
-			if (st != null) {
-				st.close();
+		} finally {
+			try {
+				if (st != null) {
+					st.close();
+				}
+			} catch (SQLException e) {
 			}
-		} catch (SQLException e) {
 		}
-	}
 	}
 
 	List<BoxExternal> listExternals() throws QblStorageException {
@@ -529,12 +528,12 @@ class DirectoryMetadata {
 			statement = connection.createStatement();
 			ResultSet rs = statement.executeQuery(
 					"SELECT url, name, owner, key FROM externals");
-            List<BoxExternal> externals = new ArrayList<>();
-            while (rs.next()) {
-                externals.add(new BoxExternal(rs.getString(1), rs.getString(2),
-                        new QblECPublicKey(rs.getBytes(3)), rs.getBytes(4)));
-            }
-            return externals;
+			List<BoxExternal> externals = new ArrayList<>();
+			while (rs.next()) {
+				externals.add(new BoxExternal(rs.getString(1), rs.getString(2),
+						new QblECPublicKey(rs.getBytes(3)), rs.getBytes(4)));
+			}
+			return externals;
 		} catch (SQLException e) {
 			throw new QblStorageException(e);
 		} finally {
@@ -554,11 +553,11 @@ class DirectoryMetadata {
 					"SELECT block, name, size, mtime, key FROM files WHERE name=?");
 			statement.setString(1, name);
 			ResultSet rs = statement.executeQuery();
-            if (rs.next()) {
-                return new BoxFile(rs.getString(1),
-                        rs.getString(2), rs.getLong(3), rs.getLong(4), rs.getBytes(5));
-            }
-            return null;
+			if (rs.next()) {
+				return new BoxFile(rs.getString(1),
+						rs.getString(2), rs.getLong(3), rs.getLong(4), rs.getBytes(5));
+			}
+			return null;
 		} catch (SQLException e) {
 			throw new QblStorageException(e);
 		} finally {
@@ -576,13 +575,13 @@ class DirectoryMetadata {
 		for (int type = 0; type < 3; type++) {
 			PreparedStatement statement = null;
 			try {
-                statement = connection.prepareStatement(
-					"SELECT name FROM " + types[type] + " WHERE name=?");
+				statement = connection.prepareStatement(
+						"SELECT name FROM " + types[type] + " WHERE name=?");
 				statement.setString(1, name);
 				ResultSet rs = statement.executeQuery();
-                if (rs.next()) {
-                    return type;
-                }
+				if (rs.next()) {
+					return type;
+				}
 			} catch (SQLException e) {
 				throw new QblStorageException(e);
 			} finally {

@@ -1,0 +1,21 @@
+<resources>
+    <string name="app_name">Qabel Box</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <string name="action_settings">Settings</string>
+    <string name="persons">persons</string>
+
+    <plurals name="sharedWith">
+        <item quantity="one">shared with %d person.</item>
+        <item quantity="other">shared with %d persons.</item>
+    </plurals>
+
+<!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="upload">Upload</string>
+    <string name="abort">Abort</string>
+    <string name="Delete">Delete</string>
+    <string name="Share">Share</string>
+</resources>

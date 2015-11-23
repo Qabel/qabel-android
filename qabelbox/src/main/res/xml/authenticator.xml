@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<account-authenticator
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:accountType="de.qabel"
+    android:icon="@drawable/qabel_logo"
+    android:smallIcon="@drawable/qabel_logo"
+    android:label="@string/app_name"/>

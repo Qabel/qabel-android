@@ -1,5 +1,7 @@
 package de.qabel.qabelbox.providers;
 
+import android.app.NotificationManager;
+import android.content.Context;
 import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.os.AsyncTask;
@@ -9,6 +11,7 @@ import android.os.ParcelFileDescriptor;
 import android.provider.DocumentsContract.Document;
 import android.provider.DocumentsContract.Root;
 import android.provider.DocumentsProvider;
+import android.support.v7.app.NotificationCompat;
 import android.util.Log;
 
 import com.amazonaws.auth.AWSCredentials;
@@ -45,6 +48,8 @@ import de.qabel.core.storage.BoxFile;
 import de.qabel.core.storage.BoxFolder;
 import de.qabel.core.storage.BoxNavigation;
 import de.qabel.core.storage.BoxVolume;
+import de.qabel.core.storage.TransferManager;
+import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
 
 
@@ -105,6 +110,7 @@ public class BoxProvider extends DocumentsProvider {
             }
         };
         amazonS3Client = new AmazonS3Client(awsCredentials);
+        QabelBoxApplication.boxProvider = this;
         return true;
     }
 
@@ -305,6 +311,15 @@ public class BoxProvider extends DocumentsProvider {
         final boolean isWrite = (mode.indexOf('w') != -1);
 
         if (isWrite) {
+            final int id = 1;
+            final NotificationManager mNotifyManager = (NotificationManager) getContext().getSystemService(Context.NOTIFICATION_SERVICE);
+            final NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(getContext());
+            mBuilder.setContentTitle("Uploading " + mDocumentIdParser.getBaseName(documentId))
+                    .setContentText("Upload in progress")
+                    .setSmallIcon(R.drawable.notification_template_icon_bg);
+            mBuilder.setProgress(100, 0, false);
+            mNotifyManager.notify(id, mBuilder.build());
+
             // Attach a close listener if the document is opened in write mode.
             try {
                 Handler handler = new Handler(getContext().getMainLooper());
@@ -324,7 +339,28 @@ public class BoxProvider extends DocumentsProvider {
                                 new AsyncTask<Void, Void, String>() {
                                     @Override
                                     protected String doInBackground(Void... params) {
-                                        uploadFile(documentId, tmp);
+                                        uploadFile(documentId, tmp, new TransferManager.BoxTransferListener() {
+                                            @Override
+                                            public void onProgressChanged(long bytesCurrent, long bytesTotal) {
+                                                mBuilder.setProgress(100, (int) (100 * bytesCurrent / bytesTotal), false);
+                                                mNotifyManager.notify(id, mBuilder.build());
+                                            }
+
+                                            @Override
+                                            public void onFinished() {
+                                                String filename;
+                                                try {
+                                                    filename = mDocumentIdParser.getBaseName(documentId);
+                                                } catch (FileNotFoundException e) {
+                                                    filename = documentId;
+                                                }
+                                                mBuilder.setContentTitle("Uploading " + filename)
+                                                        .setContentText("Upload complete")
+                                                        .setSmallIcon(R.drawable.notification_template_icon_bg);
+                                                mBuilder.setProgress(100, 100, false);
+                                                mNotifyManager.notify(id, mBuilder.build());
+                                            }
+                                        });
                                         return documentId;
                                     }
                                 }.execute();
@@ -340,7 +376,7 @@ public class BoxProvider extends DocumentsProvider {
         }
     }
 
-    private void uploadFile(String documentId, File tmp) {
+    private void uploadFile(String documentId, File tmp, TransferManager.BoxTransferListener boxTransferListener) {
         try {
             BoxVolume volume = getVolumeForId(documentId);
             List<String> splitPath = mDocumentIdParser.splitPath(
@@ -349,7 +385,7 @@ public class BoxProvider extends DocumentsProvider {
             Log.i(TAG, "Navigating to folder");
             BoxNavigation navigation = traverseToFolder(volume, splitPath);
             Log.i(TAG, "Starting upload");
-            navigation.upload(basename, new FileInputStream(tmp));
+            navigation.upload(basename, new FileInputStream(tmp), boxTransferListener);
             navigation.commit();
         } catch (FileNotFoundException | QblStorageException e1) {
             Log.e(TAG, "Upload failed", e1);
@@ -396,8 +432,18 @@ public class BoxProvider extends DocumentsProvider {
         return ParcelFileDescriptor.open(f, accessMode);
     }
 
-    private File getFile(CancellationSignal signal, String documentId)
+    private File getFile(CancellationSignal signal, final String documentId)
             throws IOException, QblStorageException {
+        final int id = 2;
+        final NotificationManager mNotifyManager = (NotificationManager) getContext().getSystemService(Context.NOTIFICATION_SERVICE);
+        final NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(getContext());
+        mBuilder.setContentTitle("Downloading " + mDocumentIdParser.getBaseName(documentId))
+                .setContentText("Download in progress")
+                .setSmallIcon(R.drawable.notification_template_icon_bg);
+        mBuilder.setProgress(100, 0, false);
+        mNotifyManager.notify(id, mBuilder.build());
+
+
         String path = mDocumentIdParser.getFilePath(documentId);
         List<String> strings = mDocumentIdParser.splitPath(path);
         String basename = strings.remove(strings.size() - 1);
@@ -405,7 +451,28 @@ public class BoxProvider extends DocumentsProvider {
 
         BoxNavigation navigation = traverseToFolder(volume, strings);
         BoxFile file = findFileinList(basename, navigation);
-        InputStream inputStream = navigation.download(file);
+        InputStream inputStream = navigation.download(file, new TransferManager.BoxTransferListener() {
+            @Override
+            public void onProgressChanged(long bytesCurrent, long bytesTotal) {
+                mBuilder.setProgress(100, (int) (100 * bytesCurrent / bytesTotal), false);
+                mNotifyManager.notify(id, mBuilder.build());
+            }
+
+            @Override
+            public void onFinished() {
+                String filename;
+                try {
+                    filename = mDocumentIdParser.getBaseName(documentId);
+                } catch (FileNotFoundException e) {
+                    filename = documentId;
+                }
+                mBuilder.setContentTitle("Downloading " + filename)
+                        .setContentText("Download complete")
+                        .setSmallIcon(R.drawable.notification_template_icon_bg);
+                mBuilder.setProgress(100, 100, false);
+                mNotifyManager.notify(id, mBuilder.build());
+            }
+        });
         File out = new File(getContext().getExternalCacheDir(), basename);
         FileOutputStream fileOutputStream = new FileOutputStream(out);
         IOUtils.copy(inputStream, fileOutputStream);
@@ -438,7 +505,7 @@ public class BoxProvider extends DocumentsProvider {
             if (mimeType.equals(Document.MIME_TYPE_DIR)) {
                 navigation.createFolder(displayName);
             } else {
-                navigation.upload(displayName, new ByteArrayInputStream(new byte[0]));
+                navigation.upload(displayName, new ByteArrayInputStream(new byte[0]), null);
             }
             navigation.commit();
 

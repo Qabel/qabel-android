@@ -1,5 +1,7 @@
 package de.qabel.core.storage;
 
+import android.support.annotation.Nullable;
+
 import com.amazonaws.mobileconnectors.s3.transferutility.*;
 import com.amazonaws.services.s3.AmazonS3Client;
 
@@ -8,9 +10,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Semaphore;
@@ -25,9 +25,9 @@ public class TransferManager implements TransferListener {
     private File tempDir;
     private final TransferUtility transferUtility;
 
-    private final Map<Integer, List<Runnable>> callbacks;
     private final Map<Integer, Semaphore> semaphores;
     private final Map<Integer, Exception> errors;
+    private final Map<Integer, BoxTransferListener> transferListeners;
 
     public TransferManager(TransferUtility transferUtility, AmazonS3Client awsClient,
                            String bucket, String prefix, File tempDir) {
@@ -36,9 +36,14 @@ public class TransferManager implements TransferListener {
         this.bucket = bucket;
         this.prefix = prefix;
         this.tempDir = tempDir;
-        callbacks = new ConcurrentHashMap<>();
         semaphores = new ConcurrentHashMap<>();
         errors = new HashMap<>();
+        transferListeners = new ConcurrentHashMap<>();
+    }
+
+    public interface BoxTransferListener {
+        void onProgressChanged(long bytesCurrent, long bytesTotal);
+        void onFinished();
     }
 
     private String getKey(String name) {
@@ -54,28 +59,28 @@ public class TransferManager implements TransferListener {
     }
 
 
-    public int upload(String name, File file) {
+    public int upload(String name, File file, @Nullable BoxTransferListener boxTransferListener) {
         TransferObserver upload = transferUtility.upload(bucket, getKey(name), file);
         int id = upload.getId();
         logger.info("Uploading " + name + " id " + id);
-        callbacks.put(id, new ArrayList<Runnable>());
         semaphores.put(id, new Semaphore(0));
+        if (boxTransferListener != null) {
+            transferListeners.put(id, boxTransferListener);
+        }
         upload.setTransferListener(this);
         return upload.getId();
     }
 
-    public int download(String name, File file) {
+    public int download(String name, File file, @Nullable BoxTransferListener boxTransferListener) {
         TransferObserver download = transferUtility.download(bucket, getKey(name), file);
         int id = download.getId();
         logger.info("Downloading " + name + " id " + id);
-        callbacks.put(id, new ArrayList<Runnable>());
         semaphores.put(id, new Semaphore(0));
+        if (boxTransferListener != null) {
+            transferListeners.put(id, boxTransferListener);
+        }
         download.setTransferListener(this);
         return id;
-    }
-
-    public void afterCompletion(int id, Runnable callback) {
-        callbacks.get(id).add(callback);
     }
 
     public boolean waitFor(int id) {
@@ -101,15 +106,19 @@ public class TransferManager implements TransferListener {
         logger.info("State changed " + id + ": " + state);
         if (state == TransferState.COMPLETED) {
             semaphores.get(id).release();
-            for (Runnable callback : callbacks.get(id)) {
-                callback.run();
+            BoxTransferListener boxTransferListener = transferListeners.get(id);
+            if (boxTransferListener != null) {
+                boxTransferListener.onFinished();
             }
         }
     }
 
     @Override
     public void onProgressChanged(int id, long bytesCurrent, long bytesTotal) {
-
+        BoxTransferListener boxTransferListener = transferListeners.get(id);
+        if (boxTransferListener != null) {
+            boxTransferListener.onProgressChanged(bytesCurrent, bytesTotal);
+        }
     }
 
     @Override

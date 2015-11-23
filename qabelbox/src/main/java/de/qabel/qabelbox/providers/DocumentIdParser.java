@@ -49,6 +49,11 @@ public class DocumentIdParser {
         return list;
     }
 
+    public String getBaseName(String documentID) throws FileNotFoundException {
+        String filepath = getFilePath(documentID);
+        return filepath.substring(filepath.lastIndexOf('/') + 1, filepath.length());
+    }
+
 
     public String buildId(String identity, String bucket, String prefix, String filePath) {
         if (bucket != null && prefix != null && filePath != null) {

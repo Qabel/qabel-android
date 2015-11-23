@@ -1,5 +1,7 @@
 package de.qabel.core.storage;
 
+import android.support.annotation.Nullable;
+
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferUtility;
 
 import de.qabel.core.crypto.CryptoUtils;
@@ -42,9 +44,9 @@ public abstract class AbstractNavigation implements BoxNavigation {
 		cryptoUtils = new CryptoUtils();
 	}
 
-	protected File blockingDownload(String name) throws QblStorageNotFound {
+	protected File blockingDownload(String name, TransferManager.BoxTransferListener boxTransferListener) throws QblStorageNotFound {
 		File file = transferManager.createTempFile();
-		int id = transferManager.download(name, file);
+		int id = transferManager.download(name, file, boxTransferListener);
 		if (transferManager.waitFor(id)) {
 			return file;
 		} else {
@@ -53,8 +55,8 @@ public abstract class AbstractNavigation implements BoxNavigation {
 	}
 
 	protected Long blockingUpload(String name,
-								  File file) {
-		int id = transferManager.upload(name, file);
+								  File file, @Nullable TransferManager.BoxTransferListener boxTransferListener) {
+		int id = transferManager.upload(name, file, boxTransferListener);
 		transferManager.waitFor(id);
 		return file.length();
 	}
@@ -62,7 +64,7 @@ public abstract class AbstractNavigation implements BoxNavigation {
 	@Override
 	public BoxNavigation navigate(BoxFolder target) throws QblStorageException {
 		try {
-			File indexDl = blockingDownload(target.ref);
+			File indexDl = blockingDownload(target.ref, null);
 			File tmp = File.createTempFile("dir", "db", dm.getTempDir());
 			SecretKey key = makeKey(target.key);
 			if (cryptoUtils.decryptFileAuthenticatedSymmetricAndValidateTag(
@@ -173,11 +175,12 @@ public abstract class AbstractNavigation implements BoxNavigation {
 	}
 
 	@Override
-	public BoxFile upload(String name, InputStream content) throws QblStorageException {
+	public BoxFile upload(String name, InputStream content,
+						  @Nullable TransferManager.BoxTransferListener boxTransferListener) throws QblStorageException {
 		SecretKey key = cryptoUtils.generateSymmetricKey();
 		String block = UUID.randomUUID().toString();
 		BoxFile boxFile = new BoxFile(block, name, null, 0L, key.getEncoded());
-		SimpleEntry<Long, Long> mtimeAndSize = uploadEncrypted(content, key, "blocks/" + block);
+		SimpleEntry<Long, Long> mtimeAndSize = uploadEncrypted(content, key, "blocks/" + block, boxTransferListener);
 		boxFile.mtime = mtimeAndSize.getKey();
 		boxFile.size = mtimeAndSize.getValue();
 		// Overwrite = delete old file, upload new file
@@ -191,7 +194,9 @@ public abstract class AbstractNavigation implements BoxNavigation {
 		return boxFile;
 	}
 
-	protected SimpleEntry<Long, Long> uploadEncrypted(InputStream content, SecretKey key, String block) throws QblStorageException {
+	protected SimpleEntry<Long, Long> uploadEncrypted(
+			InputStream content, SecretKey key, String block,
+			@Nullable TransferManager.BoxTransferListener boxTransferListener) throws QblStorageException {
 		try {
 			File tempFile = File.createTempFile("upload", "up", dm.getTempDir());
 			OutputStream outputStream = new FileOutputStream(tempFile);
@@ -200,7 +205,7 @@ public abstract class AbstractNavigation implements BoxNavigation {
 			}
 			outputStream.flush();
 			Long size = tempFile.length();
-			Long mtime = blockingUpload(block, tempFile);
+			Long mtime = blockingUpload(block, tempFile, boxTransferListener);
 			return new SimpleEntry<>(mtime, size);
 		} catch (IOException | InvalidKeyException e) {
 			throw new QblStorageException(e);
@@ -208,8 +213,9 @@ public abstract class AbstractNavigation implements BoxNavigation {
 	}
 
 	@Override
-	public InputStream download(BoxFile boxFile) throws QblStorageException {
-		File download = blockingDownload("blocks/" + boxFile.block);
+	public InputStream download(BoxFile boxFile,
+								@Nullable TransferManager.BoxTransferListener boxTransferListener) throws QblStorageException {
+		File download = blockingDownload("blocks/" + boxFile.block, boxTransferListener);
 		SecretKey key = makeKey(boxFile.key);
 		try {
 			File temp = File.createTempFile("upload", "down", dm.getTempDir());

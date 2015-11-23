@@ -25,7 +25,7 @@ public class IndexNavigation extends AbstractNavigation {
 	protected DirectoryMetadata reloadMetadata() throws QblStorageException {
 		// TODO: duplicate with BoxVoume.navigate()
 		String rootRef = dm.getFileName();
-		File indexDl = blockingDownload(rootRef);
+		File indexDl = blockingDownload(rootRef, null);
 		File tmp;
 		try {
 			byte[] encrypted = IOUtils.toByteArray(new FileInputStream(indexDl));
@@ -50,7 +50,7 @@ public class IndexNavigation extends AbstractNavigation {
 			FileOutputStream fileOutputStream = new FileOutputStream(tmp);
 			fileOutputStream.write(encrypted);
 			fileOutputStream.close();
-			blockingUpload(dm.getFileName(), tmp);
+			blockingUpload(dm.getFileName(), tmp, null);
 		} catch (IOException | InvalidKeyException e) {
 			throw new QblStorageException(e);
 		}

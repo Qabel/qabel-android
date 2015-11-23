@@ -137,7 +137,7 @@ public class BoxTest extends AndroidTestCase {
         nav.delete(boxFile);
         nav.commit();
         try {
-            nav.download(boxFile);
+            nav.download(boxFile, null);
         } catch (QblStorageNotFound e) {
             return;
         }
@@ -146,7 +146,7 @@ public class BoxTest extends AndroidTestCase {
 
     private BoxFile uploadFile(BoxNavigation nav) throws QblStorageException, IOException {
         File file = new File(testFileName);
-        BoxFile boxFile = nav.upload("foobar", new FileInputStream(file));
+        BoxFile boxFile = nav.upload("foobar", new FileInputStream(file), null);
         nav.commit();
         BoxNavigation nav_new = volume.navigate();
         checkFile(boxFile, nav_new);
@@ -154,7 +154,7 @@ public class BoxTest extends AndroidTestCase {
     }
 
     private void checkFile(BoxFile boxFile, BoxNavigation nav) throws QblStorageException, IOException {
-        InputStream dlStream = nav.download(boxFile);
+        InputStream dlStream = nav.download(boxFile, null);
         assertNotNull("Download stream is null", dlStream);
         byte[] dl = IOUtils.toByteArray(dlStream);
         File file = new File(testFileName);
@@ -201,7 +201,7 @@ public class BoxTest extends AndroidTestCase {
 
     private void checkDeleted(BoxFolder boxFolder, BoxFolder subfolder, BoxFile boxFile, BoxNavigation nav) throws QblStorageException {
         try {
-            nav.download(boxFile);
+            nav.download(boxFile, null);
             fail("Could download file in deleted folder");
         } catch (QblStorageNotFound e) { }
         try {
@@ -227,8 +227,8 @@ public class BoxTest extends AndroidTestCase {
         BoxNavigation nav = volume.navigate();
         BoxNavigation nav2 = volume2.navigate();
         File file = new File(testFileName);
-        nav.upload("foobar", new FileInputStream(file));
-        nav2.upload("foobar", new FileInputStream(file));
+        nav.upload("foobar", new FileInputStream(file), null);
+        nav2.upload("foobar", new FileInputStream(file), null);
         nav2.commit();
         nav.commit();
         assertThat(nav.listFiles().size(), is(2));
@@ -239,7 +239,7 @@ public class BoxTest extends AndroidTestCase {
         BoxNavigation nav = volume.navigate();
         nav.createFolder("foobar");
         try {
-            nav.upload("foobar", new FileInputStream(new File(testFileName)));
+            nav.upload("foobar", new FileInputStream(new File(testFileName)), null);
         } catch (QblStorageNameConflict e) {
             return;
         }
@@ -249,7 +249,7 @@ public class BoxTest extends AndroidTestCase {
     @Test
     public void testFolderNameConflict() throws QblStorageException, FileNotFoundException {
         BoxNavigation nav = volume.navigate();
-        nav.upload("foobar", new FileInputStream(new File(testFileName)));
+        nav.upload("foobar", new FileInputStream(new File(testFileName)), null);
         try {
             nav.createFolder("foobar");
         } catch (QblStorageNameConflict e) {
@@ -263,7 +263,7 @@ public class BoxTest extends AndroidTestCase {
         BoxNavigation nav = volume.navigate();
         BoxNavigation nav2 = volume2.navigate();
         File file = new File(testFileName);
-        nav.upload("foobar", new FileInputStream(file));
+        nav.upload("foobar", new FileInputStream(file), null);
         nav2.createFolder("foobar");
         nav2.commit();
         nav.commit();
@@ -300,6 +300,6 @@ public class BoxTest extends AndroidTestCase {
             outputStream.write(testData);
         }
         outputStream.close();
-        nav.upload("large file", new FileInputStream(file));
+        nav.upload("large file", new FileInputStream(file), null);
     }
 }

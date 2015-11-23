@@ -65,7 +65,7 @@ public class DocumentIdParserTest extends TestCase {
     public void testExtractBucket() throws FileNotFoundException {
         assertThat(p.getBucket(rootId), is(bucket));
         assertThat(p.getBucket(rootId+filePath), is(bucket));
-        assertThat(p.getBucket(rootId+filePath+fileName), is(bucket));
+        assertThat(p.getBucket(rootId + filePath + fileName), is(bucket));
     }
 
     @Test(expected = FileNotFoundException.class)
@@ -77,6 +77,11 @@ public class DocumentIdParserTest extends TestCase {
     public void testExtractFilePath() throws FileNotFoundException {
         assertThat(p.getFilePath(rootId + "::::" + filePath + fileName), is(filePath + fileName));
 
+    }
+
+    @Test
+    public void testExtractBaseName() throws FileNotFoundException {
+        assertThat(p.getBaseName(rootId + "::::" + filePath + fileName), is(fileName));
     }
 
     @Test(expected = FileNotFoundException.class)

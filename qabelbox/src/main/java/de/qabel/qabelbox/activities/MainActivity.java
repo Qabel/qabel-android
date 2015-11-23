@@ -1,10 +1,11 @@
 package de.qabel.qabelbox.activities;
 
-import android.accounts.Account;
 import android.app.Activity;
+import android.app.LoaderManager;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.ParcelFileDescriptor;
 import android.provider.DocumentsContract;
@@ -33,12 +34,17 @@ import java.io.OutputStream;
 import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import java.util.concurrent.FutureTask;
 
 import de.qabel.core.exceptions.QblStorageException;
 import de.qabel.core.storage.BoxFile;
 import de.qabel.core.storage.BoxFolder;
 import de.qabel.core.storage.BoxNavigation;
 import de.qabel.core.storage.BoxObject;
+import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.adapter.FilesAdapter;
 import de.qabel.qabelbox.fragments.FilesFragment;
@@ -57,23 +63,40 @@ public class MainActivity extends AppCompatActivity
     public static final String HARDCODED_ROOT = BoxProvider.PUB_KEY
             + BoxProvider.DOCID_SEPARATOR + BoxProvider.BUCKET + BoxProvider.DOCID_SEPARATOR
             + BoxProvider.PREFIX + BoxProvider.DOCID_SEPARATOR + BoxProvider.PATH_SEP;
+    private static final int REQUEST_CODE_DELETE_FILE = 13;
+    public static final int DIRECTORY_LOADER = 0;
     private BoxNavigation boxNavigation;
+    private BoxProvider provider;
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        Uri uri;
+        final Uri uri;
         if (requestCode == REQUEST_CODE_OPEN && resultCode == Activity.RESULT_OK && data != null) {
             uri = data.getData();
             Log.i(TAG, "Uri: " + uri.toString());
             Intent viewIntent = new Intent();
-            viewIntent.setDataAndType(uri,
-                    URLConnection.guessContentTypeFromName(uri.toString()));
+            String type = URLConnection.guessContentTypeFromName(uri.toString());
+            Log.i(TAG, "Mime type: " + type);
+            viewIntent.setDataAndType(uri, type);
+            viewIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
             startActivity(Intent.createChooser(viewIntent, "Open with"));
             return;
         }
         if (requestCode == REQUEST_CODE_UPLOAD_FILE && resultCode == Activity.RESULT_OK && data != null) {
             uri = data.getData();
             uploadUri(uri);
+            return;
+        }
+        if (requestCode == REQUEST_CODE_DELETE_FILE && resultCode == Activity.RESULT_OK && data != null) {
+            uri = data.getData();
+            Log.i(TAG, "Deleting file: " + uri.toString());
+            new AsyncTask<Uri, Void, Boolean>() {
+
+                @Override
+                protected Boolean doInBackground(Uri... params) {
+                    return DocumentsContract.deleteDocument(getContentResolver(), params[0]);
+                }
+            }.execute(uri);
             return;
         }
     }
@@ -92,8 +115,16 @@ public class MainActivity extends AppCompatActivity
                 BoxProvider.AUTHORITY, HARDCODED_ROOT + displayName);
         try {
             OutputStream outputStream = getContentResolver().openOutputStream(uploadUri, "w");
+            if (outputStream == null) {
+                return false;
+            }
             InputStream inputStream = getContentResolver().openInputStream(uri);
+            if (inputStream == null) {
+                return false;
+            }
             IOUtils.copy(inputStream, outputStream);
+            outputStream.close();
+            inputStream.close();
         } catch (IOException e) {
             Log.e(TAG, "Error opening output stream for upload", e);
         }
@@ -106,6 +137,18 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        provider = ((QabelBoxApplication) getApplication()).getProvider();
+        Log.i(TAG, "Provider: " + provider);
+
+        Button browse = (Button) findViewById(R.id.browse);
+        browse.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Bundle bundle = new Bundle();
+                bundle.putString("dir", HARDCODED_ROOT);
+                getLoaderManager().initLoader(DIRECTORY_LOADER, bundle, null);
+            }
+        });
 
         Button open = (Button) findViewById(R.id.open);
         open.setOnClickListener(new View.OnClickListener() {
@@ -136,7 +179,7 @@ public class MainActivity extends AppCompatActivity
                 Intent intentOpen = new Intent(Intent.ACTION_OPEN_DOCUMENT);
                 intentOpen.addCategory(Intent.CATEGORY_OPENABLE);
                 intentOpen.setType("*/*");
-                startActivityForResult(intentOpen, REQUEST_CODE_UPLOAD_FILE);
+                startActivityForResult(intentOpen, REQUEST_CODE_DELETE_FILE);
             }
         });
 
@@ -231,7 +274,7 @@ public class MainActivity extends AppCompatActivity
                                     .commit();
                 } else if (boxObject instanceof BoxFile){
                     try {
-                        InputStream inputStream = boxNavigation.download((BoxFile) boxObject);
+                        InputStream inputStream = boxNavigation.download((BoxFile) boxObject, null);
                         Log.d("MainActivity", "Downloaded");
                         File file = new File(getExternalFilesDir(null), boxObject.name);
                         Log.d("MainActivity", "Saving to: " + getExternalFilesDir(null).toString() + '/' + boxObject.name);
@@ -370,41 +413,13 @@ public class MainActivity extends AppCompatActivity
 
         try {
             InputStream content = new ParcelFileDescriptor.AutoCloseInputStream(inputPFD);
-            boxNavigation.upload(name, content);
+            boxNavigation.upload(name, content, null);
             boxNavigation.commit();
         } catch (QblStorageException e) {
             Log.e("BOX", "Upload failed", e);
         }
 
         finish();
-
-//        final int id = 1;
-//        final NotificationManager mNotifyManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-//        final NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this);
-//        mBuilder.setContentTitle("Uploading " + uri.getLastPathSegment())
-//                .setContentText("Upload in progress")
-//                .setSmallIcon(R.drawable.notification_template_icon_bg);
-//        new Thread(
-//                new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        int incr;
-//                        for (incr = 0; incr <= 100; incr+=5) {
-//                            mBuilder.setProgress(100, incr, false);
-//                            mNotifyManager.notify(id, mBuilder.build());
-//                            try {
-//                                Thread.sleep(1000);
-//                            } catch (InterruptedException e) {
-//                                Log.d("asd", "asd");
-//                            }
-//                        }
-//                        mBuilder.setContentText("Upload complete")
-//                                .setProgress(0,0,false);
-//                        mNotifyManager.notify(id, mBuilder.build());
-//                    }
-//                }
-//        ).start();
-//        finish();
     }
 
     @Override
@@ -425,4 +440,5 @@ public class MainActivity extends AppCompatActivity
                 .addToBackStack(null)
                 .commit();
     }
+
 }

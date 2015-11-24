@@ -1,7 +1,6 @@
 package de.qabel.qabelbox.activities;
 
 import android.app.Activity;
-import android.app.LoaderManager;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
@@ -34,10 +33,6 @@ import java.io.OutputStream;
 import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
-import java.util.concurrent.FutureTask;
 
 import de.qabel.core.exceptions.QblStorageException;
 import de.qabel.core.storage.BoxFile;
@@ -139,49 +134,6 @@ public class MainActivity extends AppCompatActivity
         setSupportActionBar(toolbar);
         provider = ((QabelBoxApplication) getApplication()).getProvider();
         Log.i(TAG, "Provider: " + provider);
-
-        Button browse = (Button) findViewById(R.id.browse);
-        browse.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Bundle bundle = new Bundle();
-                bundle.putString("dir", HARDCODED_ROOT);
-                getLoaderManager().initLoader(DIRECTORY_LOADER, bundle, null);
-            }
-        });
-
-        Button open = (Button) findViewById(R.id.open);
-        open.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intentOpen = new Intent(Intent.ACTION_OPEN_DOCUMENT);
-                intentOpen.addCategory(Intent.CATEGORY_OPENABLE);
-                intentOpen.setType("*/*");
-                startActivityForResult(intentOpen, REQUEST_CODE_OPEN);
-            }
-        });
-
-        Button upload = (Button) findViewById(R.id.upload);
-        upload.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intentOpen = new Intent(Intent.ACTION_OPEN_DOCUMENT);
-                intentOpen.addCategory(Intent.CATEGORY_OPENABLE);
-                intentOpen.setType("*/*");
-                startActivityForResult(intentOpen, REQUEST_CODE_UPLOAD_FILE);
-            }
-        });
-
-        Button delete = (Button) findViewById(R.id.delete);
-        delete.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intentOpen = new Intent(Intent.ACTION_OPEN_DOCUMENT);
-                intentOpen.addCategory(Intent.CATEGORY_OPENABLE);
-                intentOpen.setType("*/*");
-                startActivityForResult(intentOpen, REQUEST_CODE_DELETE_FILE);
-            }
-        });
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -365,24 +317,30 @@ public class MainActivity extends AppCompatActivity
         return super.onOptionsItemSelected(item);
     }
 
-    @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-        if (id == R.id.nav_camara) {
-            // Handle the camera action
-        } else if (id == R.id.nav_gallery) {
-
-        } else if (id == R.id.nav_slideshow) {
-
-        } else if (id == R.id.nav_manage) {
-
-        } else if (id == R.id.nav_share) {
-
-        } else if (id == R.id.nav_send) {
-
+        if (id == R.id.nav_browse) {
+            Bundle bundle = new Bundle();
+            bundle.putString("dir", HARDCODED_ROOT);
+            getLoaderManager().initLoader(DIRECTORY_LOADER, bundle, null);
+        } else if (id == R.id.nav_open) {
+            Intent intentOpen = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+            intentOpen.addCategory(Intent.CATEGORY_OPENABLE);
+            intentOpen.setType("*/*");
+            startActivityForResult(intentOpen, REQUEST_CODE_OPEN);
+        } else if (id == R.id.nav_upload) {
+            Intent intentOpen = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+            intentOpen.addCategory(Intent.CATEGORY_OPENABLE);
+            intentOpen.setType("*/*");
+            startActivityForResult(intentOpen, REQUEST_CODE_UPLOAD_FILE);
+        } else if (id == R.id.nav_delete) {
+            Intent intentOpen = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+            intentOpen.addCategory(Intent.CATEGORY_OPENABLE);
+            intentOpen.setType("*/*");
+            startActivityForResult(intentOpen, REQUEST_CODE_DELETE_FILE);
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);

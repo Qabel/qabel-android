@@ -9,6 +9,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 
+import java.util.Collections;
 import java.util.List;
 
 import de.qabel.core.storage.BoxFolder;
@@ -17,13 +18,11 @@ import de.qabel.qabelbox.R;
 
 public class FilesAdapter extends RecyclerView.Adapter<FilesAdapter.FilesViewHolder> {
     private final List<BoxObject> boxObjects;
-    private final Context context;
     private OnItemClickListener onItemClickListener;
     private int longClickedPosition;
 
-    public FilesAdapter(Context context, List<BoxObject> BoxObject) {
+    public FilesAdapter(List<BoxObject> BoxObject) {
         boxObjects = BoxObject;
-        this.context = context;
     }
 
     class FilesViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener {
@@ -92,5 +91,17 @@ public class FilesAdapter extends RecyclerView.Adapter<FilesAdapter.FilesViewHol
 
     public int getLongClickedPosition() {
         return longClickedPosition;
+    }
+
+    public boolean add(BoxObject boxObject) {
+        return boxObjects.add(boxObject);
+    }
+
+    public BoxObject get(int position) {
+        return boxObjects.get(position);
+    }
+
+    public void sort() {
+        Collections.sort(boxObjects);
     }
 }

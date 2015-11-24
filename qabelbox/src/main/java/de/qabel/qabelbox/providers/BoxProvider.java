@@ -155,7 +155,7 @@ public class BoxProvider extends DocumentsProvider {
         return result.toArray(projection);
     }
 
-    BoxVolume getVolumeForRoot(String identity, String bucket, String prefix) {
+    public BoxVolume getVolumeForRoot(String identity, String bucket, String prefix) {
         if (bucket == null) {
             bucket = BUCKET;
         }

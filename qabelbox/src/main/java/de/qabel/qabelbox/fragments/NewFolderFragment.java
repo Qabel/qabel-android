@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 
+import de.qabel.core.storage.BoxNavigation;
 import de.qabel.qabelbox.R;
 
 public class NewFolderFragment extends Fragment {
@@ -16,6 +17,7 @@ public class NewFolderFragment extends Fragment {
     private OnFragmentInteractionListener mListener;
     private EditText editTextNewFolder;
     private Button buttonAddFolder;
+    private BoxNavigation boxNavigation;
 
     public NewFolderFragment() {
         // Required empty public constructor
@@ -34,7 +36,7 @@ public class NewFolderFragment extends Fragment {
         buttonAddFolder.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mListener.onCreateFolder(editTextNewFolder.getText().toString());
+                mListener.onCreateFolder(editTextNewFolder.getText().toString(), boxNavigation);
             }
         });
 
@@ -58,8 +60,12 @@ public class NewFolderFragment extends Fragment {
         mListener = null;
     }
 
+    public void setBoxNavigation(BoxNavigation boxNavigation) {
+        this.boxNavigation = boxNavigation;
+    }
+
     public interface OnFragmentInteractionListener {
-        void onCreateFolder(String name);
+        void onCreateFolder(String name, BoxNavigation boxNavigation);
     }
 
 }

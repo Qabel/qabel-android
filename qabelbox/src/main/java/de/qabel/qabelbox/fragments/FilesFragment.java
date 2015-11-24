@@ -13,12 +13,14 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
+import de.qabel.core.storage.BoxNavigation;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.adapter.FilesAdapter;
 
 
 public class FilesFragment extends Fragment {
 
+    protected BoxNavigation boxNavigation;
     private RecyclerView filesListRecyclerView;
     private FilesAdapter filesAdapter;
     private RecyclerView.LayoutManager recyclerViewLayoutManager;
@@ -72,4 +74,8 @@ public class FilesFragment extends Fragment {
         filesAdapter = adapter;
     }
 
+    //TODO: Workaround for navigation
+    public void setBoxNavigation(BoxNavigation boxNavigation) {
+        this.boxNavigation = boxNavigation;
+    }
 }

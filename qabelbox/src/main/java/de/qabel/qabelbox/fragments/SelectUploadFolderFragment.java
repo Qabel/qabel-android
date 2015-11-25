@@ -10,6 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
+import de.qabel.core.storage.BoxNavigation;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.adapter.FilesAdapter;
 
@@ -46,7 +47,7 @@ public class SelectUploadFolderFragment extends FilesFragment {
         buttonUpload.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mListener.onFolderSelected(uri);
+                mListener.onFolderSelected(uri, boxNavigation);
             }
         });
 
@@ -91,7 +92,7 @@ public class SelectUploadFolderFragment extends FilesFragment {
     }
 
     public interface OnSelectedUploadFolderListener {
-        void onFolderSelected(Uri uri);
+        void onFolderSelected(Uri uri, BoxNavigation boxNavigation);
         void onAbort();
     }
 

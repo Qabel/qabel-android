@@ -1,7 +1,6 @@
 package de.qabel.qabelbox.activities;
 
 import android.app.Activity;
-import android.app.LoaderManager;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
@@ -21,7 +20,6 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
 
 import org.apache.commons.io.IOUtils;
 
@@ -34,16 +32,13 @@ import java.io.OutputStream;
 import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
-import java.util.concurrent.FutureTask;
 
 import de.qabel.core.exceptions.QblStorageException;
 import de.qabel.core.storage.BoxFile;
 import de.qabel.core.storage.BoxFolder;
 import de.qabel.core.storage.BoxNavigation;
 import de.qabel.core.storage.BoxObject;
+import de.qabel.core.storage.BoxVolume;
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.adapter.FilesAdapter;
@@ -65,8 +60,36 @@ public class MainActivity extends AppCompatActivity
             + BoxProvider.PREFIX + BoxProvider.DOCID_SEPARATOR + BoxProvider.PATH_SEP;
     private static final int REQUEST_CODE_DELETE_FILE = 13;
     public static final int DIRECTORY_LOADER = 0;
-    private BoxNavigation boxNavigation;
+    private BoxVolume boxVolume;
     private BoxProvider provider;
+    private FloatingActionButton fab;
+
+    private AsyncTask<BoxObject, Void, Void> downloadAndOpenFile = new AsyncTask<BoxObject, Void, Void>() {
+        @Override
+        protected Void doInBackground(BoxObject... boxObjects) {
+            try {
+                BoxNavigation boxNavigation = boxVolume.navigate();
+                InputStream inputStream = boxNavigation.download((BoxFile) boxObjects[0], null);
+                Log.d("MainActivity", "Downloaded");
+                File file = new File(getExternalFilesDir(null), boxObjects[0].name);
+                Log.d("MainActivity", "Saving to: " + getExternalFilesDir(null).toString() + '/' + boxObjects[0].name);
+                FileOutputStream fileOutputStream = new FileOutputStream(file);
+                IOUtils.copy(inputStream, fileOutputStream);
+                inputStream.close();
+                fileOutputStream.close();
+                Intent viewIntent = new Intent();
+                Uri uriToFile = Uri.fromFile(file);
+                viewIntent.setDataAndType(Uri.fromFile(file),
+                        URLConnection.guessContentTypeFromName(uriToFile.toString()));
+                startActivity(Intent.createChooser(viewIntent, "Open with"));
+            } catch (QblStorageException | FileNotFoundException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+    };
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -139,60 +162,9 @@ public class MainActivity extends AppCompatActivity
         setSupportActionBar(toolbar);
         provider = ((QabelBoxApplication) getApplication()).getProvider();
         Log.i(TAG, "Provider: " + provider);
+        boxVolume = provider.getVolumeForRoot(null, null, null);
 
-        Button browse = (Button) findViewById(R.id.browse);
-        browse.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Bundle bundle = new Bundle();
-                bundle.putString("dir", HARDCODED_ROOT);
-                getLoaderManager().initLoader(DIRECTORY_LOADER, bundle, null);
-            }
-        });
-
-        Button open = (Button) findViewById(R.id.open);
-        open.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intentOpen = new Intent(Intent.ACTION_OPEN_DOCUMENT);
-                intentOpen.addCategory(Intent.CATEGORY_OPENABLE);
-                intentOpen.setType("*/*");
-                startActivityForResult(intentOpen, REQUEST_CODE_OPEN);
-            }
-        });
-
-        Button upload = (Button) findViewById(R.id.upload);
-        upload.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intentOpen = new Intent(Intent.ACTION_OPEN_DOCUMENT);
-                intentOpen.addCategory(Intent.CATEGORY_OPENABLE);
-                intentOpen.setType("*/*");
-                startActivityForResult(intentOpen, REQUEST_CODE_UPLOAD_FILE);
-            }
-        });
-
-        Button delete = (Button) findViewById(R.id.delete);
-        delete.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intentOpen = new Intent(Intent.ACTION_OPEN_DOCUMENT);
-                intentOpen.addCategory(Intent.CATEGORY_OPENABLE);
-                intentOpen.setType("*/*");
-                startActivityForResult(intentOpen, REQUEST_CODE_DELETE_FILE);
-            }
-        });
-
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                getFragmentManager().beginTransaction()
-                        .replace(R.id.fragment_container, new NewFolderFragment())
-                        .addToBackStack(null)
-                        .commit();
-            }
-        });
+        fab = (FloatingActionButton) findViewById(R.id.fab);
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -202,7 +174,6 @@ public class MainActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
-
 
         // Check if activity is started with ACTION_SEND or ACTION_SEND_MULTIPLE
         Intent intent = getIntent();
@@ -215,14 +186,13 @@ public class MainActivity extends AppCompatActivity
            Log.i(TAG, "Action send in main activity");
            Uri imageUri = intent.getParcelableExtra(Intent.EXTRA_STREAM);
            if (imageUri != null) {
-               uploadUri(imageUri);
+               browseTo(null, imageUri);
            }
         } else if (Intent.ACTION_SEND_MULTIPLE.equals(action) && type != null) {
            ArrayList<Uri> imageUris = intent.getParcelableArrayListExtra(Intent.EXTRA_STREAM);
-           for (Uri image: imageUris) {
-               uploadUri(image);
-           }
+           //TODO: Implement
         } else {
+           browseTo(null, null);
         }
     }
 
@@ -240,107 +210,96 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    private FilesFragment genFilesFragment(final BoxFolder navigateTo) {
-        final ArrayList<BoxObject> boxObjects = new ArrayList<>();
-        try {
-            if (navigateTo != null) {
-                boxNavigation = boxNavigation.navigate(navigateTo);
-            }
-            for (BoxFolder boxFolder : boxNavigation.listFolders()){
-                Log.d("MainActivity", "Adding folder: " + boxFolder.name);
-                boxObjects.add(boxFolder);
-            }
-            for (BoxFile boxFile : boxNavigation.listFiles()) {
-                Log.d("MainActivity", "Adding file: " + boxFile.name);
-                boxObjects.add(boxFile);
-            }
-        } catch (QblStorageException e) {
-            e.printStackTrace();
-        }
+    private void browseTo(final BoxFolder navigateTo, final Uri uploadURI) {
+        new AsyncTask<Void, Void, Void>() {
+            FilesFragment filesFragment;
+            FilesAdapter filesAdapter;
+            BoxNavigation boxNavigation;
 
-        Collections.sort(boxObjects);
-
-        FilesFragment filesFragment = new FilesFragment();
-
-        final FilesAdapter filesAdapter = new FilesAdapter(this, boxObjects);
-        filesAdapter.setOnItemClickListener(new FilesAdapter.OnItemClickListener() {
             @Override
-            public void onItemClick(View view, int position) {
-                BoxObject boxObject = boxObjects.get(position);
-                if (boxObject instanceof BoxFolder) {
-                    getFragmentManager().beginTransaction()
-                            .replace(R.id.fragment_container, genFilesFragment(((BoxFolder) boxObject)))
-                                    .addToBackStack(null)
-                                    .commit();
-                } else if (boxObject instanceof BoxFile){
-                    try {
-                        InputStream inputStream = boxNavigation.download((BoxFile) boxObject, null);
-                        Log.d("MainActivity", "Downloaded");
-                        File file = new File(getExternalFilesDir(null), boxObject.name);
-                        Log.d("MainActivity", "Saving to: " + getExternalFilesDir(null).toString() + '/' + boxObject.name);
-                        FileOutputStream fileOutputStream = new FileOutputStream(file);
-                        IOUtils.copy(inputStream, fileOutputStream);
-                        inputStream.close();
-                        fileOutputStream.close();
-                        Intent viewIntent = new Intent();
-                        Uri uriToFile = Uri.fromFile(file);
-                        viewIntent.setDataAndType(Uri.fromFile(file),
-                                URLConnection.guessContentTypeFromName(uriToFile.toString()));
-                        startActivity(Intent.createChooser(viewIntent, "Open with"));
-                    } catch (QblStorageException e) {
-                        e.printStackTrace();
-                    } catch (FileNotFoundException e) {
-                        e.printStackTrace();
-                    } catch (IOException e) {
-                        e.printStackTrace();
+            protected void onPreExecute() {
+                super.onPreExecute();
+                if (uploadURI != null) {
+                    filesFragment = new SelectUploadFolderFragment();
+                    ((SelectUploadFolderFragment)filesFragment).setUri(uploadURI);
+                } else {
+                    filesFragment = new FilesFragment();
+                }
+                filesAdapter = new FilesAdapter(new ArrayList<BoxObject>());
+                filesFragment.setAdapter(filesAdapter);
+                getFragmentManager().beginTransaction()
+                        .replace(R.id.fragment_container, filesFragment)
+                        .addToBackStack(null)
+                        .commit();
+            }
+
+            @Override
+            protected Void doInBackground(Void... voids) {
+                try {
+                    boxNavigation = boxVolume.navigate();
+                    if (navigateTo != null) {
+                        boxNavigation = boxNavigation.navigate(navigateTo);
                     }
+                    filesFragment.setBoxNavigation(boxNavigation);
+                    for (BoxFolder boxFolder : boxNavigation.listFolders()){
+                        Log.d("MainActivity", "Adding folder: " + boxFolder.name);
+                        filesAdapter.add(boxFolder);
+                    }
+                    if (uploadURI == null) {
+                        for (BoxFile boxFile : boxNavigation.listFiles()) {
+                            Log.d("MainActivity", "Adding file: " + boxFile.name);
+                            filesAdapter.add(boxFile);
+                        }
+                    }
+                    filesAdapter.sort();
+
+                    filesAdapter.setOnItemClickListener(new FilesAdapter.OnItemClickListener() {
+                        @Override
+                        public void onItemClick(View view, int position) {
+                            final BoxObject boxObject = filesAdapter.get(position);
+                            if (boxObject instanceof BoxFolder) {
+                                browseTo(((BoxFolder) boxObject), uploadURI);
+                            } else if (boxObject instanceof BoxFile) {
+                                downloadAndOpenFile.execute(boxObject);
+                            }
+                        }
+                    });
+                } catch (QblStorageException e) {
+                    e.printStackTrace();
                 }
+                return null;
             }
-        });
 
-        filesFragment.setAdapter(filesAdapter);
-        return filesFragment;
-    }
-
-    // TODO: This method is almost equal to genFilesFragment, extract to new method.
-    private SelectUploadFolderFragment genUploadFragment(final BoxFolder navigateTo, final Uri uri) {
-        final ArrayList<BoxObject> boxObjects = new ArrayList<>();
-        try {
-            if (navigateTo != null) {
-                boxNavigation = boxNavigation.navigate(navigateTo);
-            }
-            for (BoxFolder boxFolder : boxNavigation.listFolders()){
-                Log.d("MainActivity", "Adding folder: " + boxFolder.name);
-                boxObjects.add(boxFolder);
-            }
-            for (BoxFile boxFile : boxNavigation.listFiles()) {
-                Log.d("MainActivity", "Adding file: " + boxFile.name);
-                boxObjects.add(boxFile);
-            }
-        } catch (QblStorageException e) {
-            e.printStackTrace();
-        }
-
-        Collections.sort(boxObjects);
-
-        SelectUploadFolderFragment filesFragment = new SelectUploadFolderFragment();
-        filesFragment.setUri(uri);
-        final FilesAdapter filesAdapter = new FilesAdapter(this, boxObjects);
-        filesAdapter.setOnItemClickListener(new FilesAdapter.OnItemClickListener() {
             @Override
-            public void onItemClick(View view, int position) {
-                BoxObject boxObject = boxObjects.get(position);
-                if (boxObject instanceof BoxFolder) {
-                    getFragmentManager().beginTransaction()
-                            .replace(R.id.fragment_container, genUploadFragment(((BoxFolder) boxObject), uri))
-                            .addToBackStack(null)
-                            .commit();
-                }
-            }
-        });
+            protected void onPostExecute(Void aVoid) {
+                super.onPostExecute(aVoid);
 
-        filesFragment.setAdapter(filesAdapter);
-        return filesFragment;
+                fab.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        final NewFolderFragment newFolderFragment = new NewFolderFragment();
+                        new AsyncTask<Void, Void, Void>() {
+
+                            @Override
+                            protected Void doInBackground(Void... params) {
+                                newFolderFragment.setBoxNavigation(boxNavigation);
+                                return null;
+                            }
+
+                            @Override
+                            protected void onPostExecute(Void aVoid) {
+                                super.onPostExecute(aVoid);
+                                getFragmentManager().beginTransaction()
+                                        .replace(R.id.fragment_container, newFolderFragment)
+                                        .addToBackStack(null)
+                                        .commit();
+                            }
+                        }.execute();
+                    }
+                });
+                filesAdapter.notifyDataSetChanged();
+            }
+        }.execute();
     }
 
     @Override
@@ -365,24 +324,30 @@ public class MainActivity extends AppCompatActivity
         return super.onOptionsItemSelected(item);
     }
 
-    @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-        if (id == R.id.nav_camara) {
-            // Handle the camera action
-        } else if (id == R.id.nav_gallery) {
-
-        } else if (id == R.id.nav_slideshow) {
-
-        } else if (id == R.id.nav_manage) {
-
-        } else if (id == R.id.nav_share) {
-
-        } else if (id == R.id.nav_send) {
-
+        if (id == R.id.nav_browse) {
+            Bundle bundle = new Bundle();
+            bundle.putString("dir", HARDCODED_ROOT);
+            getLoaderManager().initLoader(DIRECTORY_LOADER, bundle, null);
+        } else if (id == R.id.nav_open) {
+            Intent intentOpen = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+            intentOpen.addCategory(Intent.CATEGORY_OPENABLE);
+            intentOpen.setType("*/*");
+            startActivityForResult(intentOpen, REQUEST_CODE_OPEN);
+        } else if (id == R.id.nav_upload) {
+            Intent intentOpen = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+            intentOpen.addCategory(Intent.CATEGORY_OPENABLE);
+            intentOpen.setType("*/*");
+            startActivityForResult(intentOpen, REQUEST_CODE_UPLOAD_FILE);
+        } else if (id == R.id.nav_delete) {
+            Intent intentOpen = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+            intentOpen.addCategory(Intent.CATEGORY_OPENABLE);
+            intentOpen.setType("*/*");
+            startActivityForResult(intentOpen, REQUEST_CODE_DELETE_FILE);
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -392,33 +357,37 @@ public class MainActivity extends AppCompatActivity
 
 
     @Override
-    public void onFolderSelected(Uri uri) {
+    public void onFolderSelected(final Uri uri, final BoxNavigation boxNavigation) {
+        new AsyncTask<Void, Void, Void>() {
+            @Override
+            protected Void doInBackground(Void... params) {
+                ParcelFileDescriptor inputPFD;
+                String name;
+                try {
+                    inputPFD = getContentResolver().openFileDescriptor(uri, "r");
+                    Cursor returnCursor =
+                            getContentResolver().query(uri, null, null, null, null);
+                    int nameIndex = returnCursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
+                    returnCursor.moveToFirst();
+                    name = returnCursor.getString(nameIndex);
+                    returnCursor.close();
 
-        ParcelFileDescriptor inputPFD;
-        String name;
-        try {
-            inputPFD = getContentResolver().openFileDescriptor(uri, "r");
-            Cursor returnCursor =
-                    getContentResolver().query(uri, null, null, null, null);
-            int nameIndex = returnCursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
-            returnCursor.moveToFirst();
-            name = returnCursor.getString(nameIndex);
-            returnCursor.close();
+                } catch (FileNotFoundException e) {
+                    Log.e("BOX", "File not found: " + uri);
+                    finish();
+                    return null;
+                }
 
-        } catch (FileNotFoundException e) {
-            Log.e("BOX", "File not found: " + uri);
-            finish();
-            return;
-        }
-
-        try {
-            InputStream content = new ParcelFileDescriptor.AutoCloseInputStream(inputPFD);
-            boxNavigation.upload(name, content, null);
-            boxNavigation.commit();
-        } catch (QblStorageException e) {
-            Log.e("BOX", "Upload failed", e);
-        }
-
+                try {
+                    InputStream content = new ParcelFileDescriptor.AutoCloseInputStream(inputPFD);
+                    boxNavigation.upload(name, content, null);
+                    boxNavigation.commit();
+                } catch (QblStorageException e) {
+                    Log.e("BOX", "Upload failed", e);
+                }
+                return null;
+            }
+        }.execute();
         finish();
     }
 
@@ -428,17 +397,23 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void onCreateFolder(String name) {
-        try {
-            boxNavigation.createFolder(name);
-            boxNavigation.commit();
-        } catch (QblStorageException e) {
-            e.printStackTrace();
-        }
-        getFragmentManager().beginTransaction()
-                .replace(R.id.fragment_container, genFilesFragment(null))
-                .addToBackStack(null)
-                .commit();
+    public void onCreateFolder(final String name, final BoxNavigation boxNavigation) {
+        new AsyncTask<Void, Void, Void>() {
+            @Override
+            protected Void doInBackground(Void... params) {
+                try {
+                    boxNavigation.createFolder(name);
+                    boxNavigation.commit();
+                } catch (QblStorageException e) {
+                    e.printStackTrace();
+                }
+                return null;
+            }
+            @Override
+            protected void onPostExecute(Void aVoid) {
+                super.onPostExecute(aVoid);
+                browseTo(null, null);
+            }
+        }.execute();
     }
-
 }

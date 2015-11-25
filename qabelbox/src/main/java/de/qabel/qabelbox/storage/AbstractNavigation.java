@@ -1,14 +1,12 @@
-package de.qabel.core.storage;
+package de.qabel.qabelbox.storage;
 
 import android.support.annotation.Nullable;
 
-import com.amazonaws.mobileconnectors.s3.transferutility.TransferUtility;
-
 import de.qabel.core.crypto.CryptoUtils;
 import de.qabel.core.crypto.QblECKeyPair;
-import de.qabel.core.exceptions.QblStorageException;
-import de.qabel.core.exceptions.QblStorageNameConflict;
-import de.qabel.core.exceptions.QblStorageNotFound;
+import de.qabel.qabelbox.exceptions.QblStorageException;
+import de.qabel.qabelbox.exceptions.QblStorageNameConflict;
+import de.qabel.qabelbox.exceptions.QblStorageNotFound;
 import org.apache.commons.lang3.NotImplementedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,8 +16,6 @@ import java.io.*;
 import java.security.InvalidKeyException;
 import java.util.*;
 import java.util.AbstractMap.SimpleEntry;
-
-import javax.crypto.SecretKey;
 
 public abstract class AbstractNavigation implements BoxNavigation {
 

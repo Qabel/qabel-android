@@ -1,8 +1,8 @@
-package de.qabel.core.storage;
+package de.qabel.qabelbox.storage;
 
 import de.qabel.core.crypto.QblECPublicKey;
-import de.qabel.core.exceptions.QblStorageException;
-import de.qabel.core.exceptions.QblStorageNameConflict;
+import de.qabel.qabelbox.exceptions.QblStorageException;
+import de.qabel.qabelbox.exceptions.QblStorageNameConflict;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

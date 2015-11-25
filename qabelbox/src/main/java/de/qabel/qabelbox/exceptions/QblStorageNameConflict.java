@@ -1,4 +1,4 @@
-package de.qabel.core.exceptions;
+package de.qabel.qabelbox.exceptions;
 
 public class QblStorageNameConflict extends QblStorageException {
 	public QblStorageNameConflict(Throwable e) {

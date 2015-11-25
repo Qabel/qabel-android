@@ -1,4 +1,4 @@
-package de.qabel.core.storage;
+package de.qabel.qabelbox.storage;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,8 +11,8 @@ import java.io.IOException;
 import java.security.InvalidKeyException;
 
 import de.qabel.core.crypto.QblECKeyPair;
-import de.qabel.core.exceptions.QblStorageException;
-import de.qabel.core.exceptions.QblStorageNotFound;
+import de.qabel.qabelbox.exceptions.QblStorageException;
+import de.qabel.qabelbox.exceptions.QblStorageNotFound;
 
 public class FolderNavigation extends AbstractNavigation {
 

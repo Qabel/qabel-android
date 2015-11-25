@@ -42,13 +42,13 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import de.qabel.core.crypto.QblECKeyPair;
-import de.qabel.core.exceptions.QblStorageException;
-import de.qabel.core.exceptions.QblStorageNotFound;
-import de.qabel.core.storage.BoxFile;
-import de.qabel.core.storage.BoxFolder;
-import de.qabel.core.storage.BoxNavigation;
-import de.qabel.core.storage.BoxVolume;
-import de.qabel.core.storage.TransferManager;
+import de.qabel.qabelbox.exceptions.QblStorageException;
+import de.qabel.qabelbox.exceptions.QblStorageNotFound;
+import de.qabel.qabelbox.storage.BoxFile;
+import de.qabel.qabelbox.storage.BoxFolder;
+import de.qabel.qabelbox.storage.BoxNavigation;
+import de.qabel.qabelbox.storage.BoxVolume;
+import de.qabel.qabelbox.storage.TransferManager;
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
 

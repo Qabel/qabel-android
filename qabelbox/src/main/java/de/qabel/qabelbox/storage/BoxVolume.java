@@ -1,17 +1,14 @@
-package de.qabel.core.storage;
+package de.qabel.qabelbox.storage;
 
 import com.amazonaws.auth.AWSCredentials;
-import com.amazonaws.mobileconnectors.s3.transferutility.TransferListener;
-import com.amazonaws.mobileconnectors.s3.transferutility.TransferObserver;
-import com.amazonaws.mobileconnectors.s3.transferutility.TransferState;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferUtility;
 import com.amazonaws.services.s3.AmazonS3Client;
 
 import de.qabel.core.crypto.CryptoUtils;
 import de.qabel.core.crypto.DecryptedPlaintext;
 import de.qabel.core.crypto.QblECKeyPair;
-import de.qabel.core.exceptions.QblStorageException;
-import de.qabel.core.exceptions.QblStorageNotFound;
+import de.qabel.qabelbox.exceptions.QblStorageException;
+import de.qabel.qabelbox.exceptions.QblStorageNotFound;
 
 import org.apache.commons.io.IOUtils;
 import org.spongycastle.crypto.InvalidCipherTextException;
@@ -25,8 +22,6 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.UUID;
-import java.util.concurrent.Semaphore;
-import java.util.concurrent.locks.Lock;
 
 public class BoxVolume {
 

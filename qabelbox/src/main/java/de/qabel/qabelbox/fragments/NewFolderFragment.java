@@ -9,7 +9,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 
-import de.qabel.core.storage.BoxNavigation;
+import de.qabel.qabelbox.storage.BoxNavigation;
 import de.qabel.qabelbox.R;
 
 public class NewFolderFragment extends Fragment {

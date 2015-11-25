@@ -1,17 +1,18 @@
 package de.qabel.core.storage;
 
-import com.amazonaws.mobileconnectors.s3.transferutility.TransferUtility;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.spongycastle.crypto.params.KeyParameter;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.security.InvalidKeyException;
 
 import de.qabel.core.crypto.QblECKeyPair;
 import de.qabel.core.exceptions.QblStorageException;
 import de.qabel.core.exceptions.QblStorageNotFound;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.crypto.SecretKey;
-import javax.crypto.spec.SecretKeySpec;
-import java.io.*;
-import java.security.InvalidKeyException;
 
 public class FolderNavigation extends AbstractNavigation {
 
@@ -27,9 +28,9 @@ public class FolderNavigation extends AbstractNavigation {
 	@Override
 	protected void uploadDirectoryMetadata() throws QblStorageException {
 		logger.info("Uploading directory metadata");
-		SecretKey secretKey = new SecretKeySpec(key, "AES");
 		try {
-			uploadEncrypted(new FileInputStream(dm.getPath()), secretKey, dm.getFileName(), null);
+			uploadEncrypted(new FileInputStream(dm.getPath()), new KeyParameter(key),
+					dm.getFileName(), null);
 		} catch (FileNotFoundException e) {
 			throw new QblStorageException(e);
 		}
@@ -42,9 +43,8 @@ public class FolderNavigation extends AbstractNavigation {
 		try {
 			File indexDl = blockingDownload(dm.getFileName(), null);
 			File tmp = File.createTempFile("dir", "db", dm.getTempDir());
-			SecretKey key = makeKey(this.key);
 			if (cryptoUtils.decryptFileAuthenticatedSymmetricAndValidateTag(
-					new FileInputStream(indexDl), tmp, key)) {
+					new FileInputStream(indexDl), tmp, new KeyParameter(key))) {
 				return DirectoryMetadata.openDatabase(tmp, deviceId, dm.getFileName(), dm.getTempDir());
 			} else {
 				throw new QblStorageNotFound("Invalid key");

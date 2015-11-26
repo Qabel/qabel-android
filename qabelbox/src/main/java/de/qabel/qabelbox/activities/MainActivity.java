@@ -342,29 +342,30 @@ public class MainActivity extends AppCompatActivity
         new AsyncTask<Void, Void, Void>() {
             @Override
             protected Void doInBackground(Void... params) {
-                ParcelFileDescriptor inputPFD;
-                String name;
-                try {
-                    inputPFD = getContentResolver().openFileDescriptor(uri, "r");
-                    Cursor returnCursor =
-                            getContentResolver().query(uri, null, null, null, null);
-                    int nameIndex = returnCursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
-                    returnCursor.moveToFirst();
-                    name = returnCursor.getString(nameIndex);
-                    returnCursor.close();
-
-                } catch (FileNotFoundException e) {
-                    Log.e("BOX", "File not found: " + uri);
-                    finish();
-                    return null;
-                }
+				Cursor returnCursor =
+						getContentResolver().query(uri, null, null, null, null);
+				int nameIndex = returnCursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
+				returnCursor.moveToFirst();
+				String name = returnCursor.getString(nameIndex);
+				returnCursor.close();
 
                 try {
-                    InputStream content = new ParcelFileDescriptor.AutoCloseInputStream(inputPFD);
-                    boxNavigation.upload(name, content, null);
-                    boxNavigation.commit();
-                } catch (QblStorageException e) {
-                    Log.e("BOX", "Upload failed", e);
+                    String path = boxNavigation.getPath();
+                    String folderId = boxVolume.getDocumentId(path);
+                    Uri uploadUri = DocumentsContract.buildDocumentUri(
+                            BoxProvider.AUTHORITY, folderId + BoxProvider.PATH_SEP + name);
+
+                    InputStream content = getContentResolver().openInputStream(uri);
+                    OutputStream upload = getContentResolver().openOutputStream(uploadUri, "w");
+                    if (upload == null || content == null) {
+                        finish();
+                        return null;
+                    }
+                    IOUtils.copy(content, upload);
+                    content.close();
+                    upload.close();
+                } catch (IOException e) {
+                    Log.e(TAG, "Upload failed", e);
                 }
                 return null;
             }

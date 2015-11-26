@@ -9,6 +9,9 @@ import de.qabel.core.crypto.QblECKeyPair;
 import de.qabel.core.exceptions.QblStorageException;
 import de.qabel.core.exceptions.QblStorageNameConflict;
 import de.qabel.core.exceptions.QblStorageNotFound;
+import de.qabel.qabelbox.providers.BoxProvider;
+import de.qabel.qabelbox.providers.DocumentIdParser;
+
 import org.apache.commons.lang3.NotImplementedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,15 +36,26 @@ public abstract class AbstractNavigation implements BoxNavigation {
 	private final Set<String> deleteQueue = new HashSet<>();
 	private final Set<FileUpdate> updatedFiles = new HashSet<>();
 
+	private final String path;
+
 
 
 	public AbstractNavigation(DirectoryMetadata dm, QblECKeyPair keyPair, byte[] deviceId,
-							  TransferManager transferManager) {
+	                          TransferManager transferManager, String path) {
 		this.dm = dm;
 		this.keyPair = keyPair;
 		this.deviceId = deviceId;
 		this.transferManager = transferManager;
+		this.path = path;
 		cryptoUtils = new CryptoUtils();
+	}
+
+	public String getPath() {
+		return path;
+	}
+
+	public String getPath(BoxObject object) {
+		return path + object.name;
 	}
 
 	protected File blockingDownload(String name, TransferManager.BoxTransferListener boxTransferListener) throws QblStorageNotFound {
@@ -71,7 +85,8 @@ public abstract class AbstractNavigation implements BoxNavigation {
 					new FileInputStream(indexDl), tmp, key)) {
 				DirectoryMetadata dm = DirectoryMetadata.openDatabase(
 						tmp, deviceId, target.ref, this.dm.getTempDir());
-				return new FolderNavigation(dm, keyPair, target.key, deviceId, transferManager);
+				return new FolderNavigation(dm, keyPair, target.key, deviceId, transferManager,
+						path + BoxProvider.PATH_SEP + target.name);
 			} else {
 				throw new QblStorageNotFound("Invalid key");
 			}
@@ -236,7 +251,7 @@ public abstract class AbstractNavigation implements BoxNavigation {
 		BoxFolder folder = new BoxFolder(dm.getFileName(), name, secretKey.getEncoded());
 		this.dm.insertFolder(folder);
 		BoxNavigation newFolder = new FolderNavigation(dm, keyPair, secretKey.getEncoded(),
-				deviceId, transferManager);
+				deviceId, transferManager, path + BoxProvider.PATH_SEP + folder.name);
 		newFolder.commit();
 		return folder;
 	}

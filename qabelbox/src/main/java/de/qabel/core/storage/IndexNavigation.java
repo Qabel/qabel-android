@@ -1,6 +1,5 @@
 package de.qabel.core.storage;
 
-import com.amazonaws.mobileconnectors.s3.transferutility.TransferUtility;
 import com.amazonaws.util.IOUtils;
 import de.qabel.core.crypto.DecryptedPlaintext;
 import de.qabel.core.crypto.QblECKeyPair;
@@ -18,7 +17,7 @@ public class IndexNavigation extends AbstractNavigation {
 
 	public IndexNavigation(DirectoryMetadata dm, QblECKeyPair keyPair, byte[] deviceId,
 						   TransferManager transferManager) {
-		super(dm, keyPair, deviceId, transferManager);
+		super(dm, keyPair, deviceId, transferManager, "/");
 	}
 
 	@Override

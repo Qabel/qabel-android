@@ -35,6 +35,7 @@ import java.util.UUID;
 import de.qabel.core.crypto.CryptoUtils;
 import de.qabel.core.crypto.QblECKeyPair;
 import de.qabel.core.exceptions.QblStorageException;
+import de.qabel.core.storage.BoxFile;
 import de.qabel.core.storage.BoxFolder;
 import de.qabel.core.storage.BoxNavigation;
 import de.qabel.core.storage.BoxVolume;
@@ -241,6 +242,17 @@ public class BoxProviderTest extends ProviderTestCase2<BoxProvider>{
         assertNull("Document not renamed:" + documentUri.toString(), query);
         query = mContentResolver.query(renamed, null, null, null, null);
         assertNotNull("Document not renamed:" + documentUri.toString(), query);
+    }
+
+    public void testGetDocumentId() throws QblStorageException {
+        assertThat(volume.getDocumentId("/"), is(ROOT_DOC_ID));
+        BoxNavigation navigate = volume.navigate();
+        assertThat(volume.getDocumentId(navigate.getPath()), is(ROOT_DOC_ID));
+        BoxFolder folder = navigate.createFolder("testfolder");
+        assertThat(navigate.getPath(folder), is("/testfolder"));
+        navigate.commit();
+        BoxNavigation testFolderNav = navigate.navigate(folder);
+        assertThat(volume.getDocumentId(testFolderNav.getPath()), is(ROOT_DOC_ID + "/testfolder"));
     }
 
 }

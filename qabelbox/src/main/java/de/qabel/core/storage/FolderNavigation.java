@@ -1,7 +1,5 @@
 package de.qabel.core.storage;
 
-import com.amazonaws.mobileconnectors.s3.transferutility.TransferUtility;
-
 import de.qabel.core.crypto.QblECKeyPair;
 import de.qabel.core.exceptions.QblStorageException;
 import de.qabel.core.exceptions.QblStorageNotFound;
@@ -19,8 +17,9 @@ public class FolderNavigation extends AbstractNavigation {
 
 	private final byte[] key;
 
-	public FolderNavigation(DirectoryMetadata dm, QblECKeyPair keyPair, byte[] key, byte[] deviceId, TransferManager transferUtility) {
-		super(dm, keyPair, deviceId, transferUtility);
+	public FolderNavigation(DirectoryMetadata dm, QblECKeyPair keyPair, byte[] key, byte[] deviceId,
+	                        TransferManager transferUtility, String path) {
+		super(dm, keyPair, deviceId, transferUtility, path);
 		this.key = key;
 	}
 

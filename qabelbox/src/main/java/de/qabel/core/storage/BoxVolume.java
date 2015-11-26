@@ -12,6 +12,8 @@ import de.qabel.core.crypto.DecryptedPlaintext;
 import de.qabel.core.crypto.QblECKeyPair;
 import de.qabel.core.exceptions.QblStorageException;
 import de.qabel.core.exceptions.QblStorageNotFound;
+import de.qabel.qabelbox.providers.BoxProvider;
+import de.qabel.qabelbox.providers.DocumentIdParser;
 
 import org.apache.commons.io.IOUtils;
 import org.spongycastle.crypto.InvalidCipherTextException;
@@ -31,6 +33,7 @@ import java.util.concurrent.locks.Lock;
 public class BoxVolume {
 
 	private static final Logger logger = LoggerFactory.getLogger(BoxVolume.class.getName());
+	private final String rootId;
 
 	private TransferUtility transferUtility;
 	private QblECKeyPair keyPair;
@@ -48,7 +51,17 @@ public class BoxVolume {
 		cryptoUtils = new CryptoUtils();
 		this.tempDir = tempDir;
 		AmazonS3Client awsClient = new AmazonS3Client(credentials);
+		this.rootId = new DocumentIdParser().buildId(
+				keyPair.getPub().getReadableKeyIdentifier(), bucket, prefix, null);
 		transferManager = new TransferManager(transferUtility, awsClient, bucket, prefix, tempDir);
+	}
+
+	public String getRootId() {
+		return rootId;
+	}
+
+	public String getDocumentId(String path) {
+		return rootId + BoxProvider.DOCID_SEPARATOR + path;
 	}
 
 	private InputStream blockingDownload(String name) throws QblStorageNotFound {

@@ -8,6 +8,15 @@
         android:layout_height="match_parent"
         android:layout_gravity="left|top">
 
+        <ProgressBar
+            android:id="@+id/loadingSpinner"
+            style="?android:attr/progressBarStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_centerHorizontal="true"
+            android:visibility="invisible"/>
+
         <android.support.v7.widget.RecyclerView
             android:id="@+id/files_list"
             android:scrollbars="vertical"

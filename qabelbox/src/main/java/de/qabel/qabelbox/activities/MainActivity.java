@@ -224,6 +224,7 @@ public class MainActivity extends AppCompatActivity
                 } else {
                     filesFragment = new FilesFragment();
                 }
+                filesFragment.setLoadingSpinner(true);
                 filesAdapter = new FilesAdapter(new ArrayList<BoxObject>());
                 filesFragment.setAdapter(filesAdapter);
                 getFragmentManager().beginTransaction()
@@ -296,6 +297,7 @@ public class MainActivity extends AppCompatActivity
                         }.execute();
                     }
                 });
+                filesFragment.setLoadingSpinner(false);
                 filesAdapter.notifyDataSetChanged();
             }
         }.execute();

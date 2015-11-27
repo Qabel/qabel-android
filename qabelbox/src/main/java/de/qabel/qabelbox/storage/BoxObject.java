@@ -10,10 +10,13 @@ public class BoxObject implements Comparable<BoxObject>  {
 		if (this instanceof BoxFile && another instanceof BoxFile) {
 			return this.name.compareTo(another.name);
 		}
-		if (this instanceof BoxFolder && another instanceof BoxFolder) {
+		if (this instanceof BoxFolder && (another instanceof BoxFolder || another instanceof BoxExternal)) {
 			return this.name.compareTo(another.name);
 		}
-		if (this instanceof BoxFolder) {
+		if (this instanceof BoxExternal && (another instanceof BoxFolder || another instanceof BoxExternal)) {
+			return this.name.compareTo(another.name);
+		}
+		if (this instanceof BoxFolder || this instanceof BoxExternal) {
 			return -1;
 		}
 		return 1;

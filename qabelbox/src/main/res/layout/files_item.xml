@@ -26,7 +26,7 @@
                   android:layout_toEndOf="@+id/fileFolderIcon"
                   android:layout_width="match_parent"
                   android:layout_height="wrap_content"
-                  android:paddingLeft="16dp"
+                  android:paddingLeft="5dp"
                   android:paddingRight="16dp"
                   android:orientation="horizontal" >
         <TextView

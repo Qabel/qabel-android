@@ -240,4 +240,15 @@ public class BoxProviderTest extends ProviderTestCase2<BoxProvider>{
         assertNotNull("Document not renamed:" + documentUri.toString(), query);
     }
 
+    public void testGetDocumentId() throws QblStorageException {
+        assertThat(volume.getDocumentId("/"), is(ROOT_DOC_ID));
+        BoxNavigation navigate = volume.navigate();
+        assertThat(volume.getDocumentId(navigate.getPath()), is(ROOT_DOC_ID));
+        BoxFolder folder = navigate.createFolder("testfolder");
+        assertThat(navigate.getPath(folder), is("/testfolder"));
+        navigate.commit();
+        BoxNavigation testFolderNav = navigate.navigate(folder);
+        assertThat(volume.getDocumentId(testFolderNav.getPath()), is(ROOT_DOC_ID + "/testfolder"));
+    }
+
 }

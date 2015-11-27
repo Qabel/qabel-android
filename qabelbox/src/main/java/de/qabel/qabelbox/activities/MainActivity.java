@@ -23,9 +23,7 @@ import android.view.View;
 
 import org.apache.commons.io.IOUtils;
 
-import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -63,32 +61,6 @@ public class MainActivity extends AppCompatActivity
     private BoxProvider provider;
     private FloatingActionButton fab;
 
-    private AsyncTask<BoxObject, Void, Void> downloadAndOpenFile = new AsyncTask<BoxObject, Void, Void>() {
-        @Override
-        protected Void doInBackground(BoxObject... boxObjects) {
-            try {
-                BoxNavigation boxNavigation = boxVolume.navigate();
-                InputStream inputStream = boxNavigation.download((BoxFile) boxObjects[0], null);
-                Log.d("MainActivity", "Downloaded");
-                File file = new File(getExternalFilesDir(null), boxObjects[0].name);
-                Log.d("MainActivity", "Saving to: " + getExternalFilesDir(null).toString() + '/' + boxObjects[0].name);
-                FileOutputStream fileOutputStream = new FileOutputStream(file);
-                IOUtils.copy(inputStream, fileOutputStream);
-                inputStream.close();
-                fileOutputStream.close();
-                Intent viewIntent = new Intent();
-                Uri uriToFile = Uri.fromFile(file);
-                viewIntent.setDataAndType(Uri.fromFile(file),
-                        URLConnection.guessContentTypeFromName(uriToFile.toString()));
-                startActivity(Intent.createChooser(viewIntent, "Open with"));
-            } catch (QblStorageException | FileNotFoundException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            return null;
-        }
-    };
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -242,12 +214,12 @@ public class MainActivity extends AppCompatActivity
                     }
                     filesFragment.setBoxNavigation(boxNavigation);
                     for (BoxFolder boxFolder : boxNavigation.listFolders()){
-                        Log.d("MainActivity", "Adding folder: " + boxFolder.name);
+                        Log.d(TAG, "Adding folder: " + boxFolder.name);
                         filesAdapter.add(boxFolder);
                     }
                     if (uploadURI == null) {
                         for (BoxFile boxFile : boxNavigation.listFiles()) {
-                            Log.d("MainActivity", "Adding file: " + boxFile.name);
+                            Log.d(TAG, "Adding file: " + boxFile.name);
                             filesAdapter.add(boxFile);
                         }
                     }
@@ -260,12 +232,22 @@ public class MainActivity extends AppCompatActivity
                             if (boxObject instanceof BoxFolder) {
                                 browseTo(((BoxFolder) boxObject), uploadURI);
                             } else if (boxObject instanceof BoxFile) {
-                                downloadAndOpenFile.execute(boxObject);
+                                // Open
+                                String path = boxNavigation.getPath(boxObject);
+                                String documentId = boxVolume.getDocumentId(path);
+                                Uri uri = DocumentsContract.buildDocumentUri(
+                                        BoxProvider.AUTHORITY, documentId);
+                                Intent viewIntent = new Intent();
+                                String type = URLConnection.guessContentTypeFromName(uri.toString());
+                                Log.i(TAG, "Mime type: " + type);
+                                viewIntent.setDataAndType(uri, type);
+                                viewIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                                startActivity(Intent.createChooser(viewIntent, "Open with"));
                             }
                         }
                     });
                 } catch (QblStorageException e) {
-                    e.printStackTrace();
+                    Log.e(TAG, "browseTo failed", e);
                 }
                 return null;
             }
@@ -362,29 +344,30 @@ public class MainActivity extends AppCompatActivity
         new AsyncTask<Void, Void, Void>() {
             @Override
             protected Void doInBackground(Void... params) {
-                ParcelFileDescriptor inputPFD;
-                String name;
-                try {
-                    inputPFD = getContentResolver().openFileDescriptor(uri, "r");
-                    Cursor returnCursor =
-                            getContentResolver().query(uri, null, null, null, null);
-                    int nameIndex = returnCursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
-                    returnCursor.moveToFirst();
-                    name = returnCursor.getString(nameIndex);
-                    returnCursor.close();
-
-                } catch (FileNotFoundException e) {
-                    Log.e("BOX", "File not found: " + uri);
-                    finish();
-                    return null;
-                }
+				Cursor returnCursor =
+						getContentResolver().query(uri, null, null, null, null);
+				int nameIndex = returnCursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
+				returnCursor.moveToFirst();
+				String name = returnCursor.getString(nameIndex);
+				returnCursor.close();
 
                 try {
-                    InputStream content = new ParcelFileDescriptor.AutoCloseInputStream(inputPFD);
-                    boxNavigation.upload(name, content, null);
-                    boxNavigation.commit();
-                } catch (QblStorageException e) {
-                    Log.e("BOX", "Upload failed", e);
+                    String path = boxNavigation.getPath();
+                    String folderId = boxVolume.getDocumentId(path);
+                    Uri uploadUri = DocumentsContract.buildDocumentUri(
+                            BoxProvider.AUTHORITY, folderId + BoxProvider.PATH_SEP + name);
+
+                    InputStream content = getContentResolver().openInputStream(uri);
+                    OutputStream upload = getContentResolver().openOutputStream(uploadUri, "w");
+                    if (upload == null || content == null) {
+                        finish();
+                        return null;
+                    }
+                    IOUtils.copy(content, upload);
+                    content.close();
+                    upload.close();
+                } catch (IOException e) {
+                    Log.e(TAG, "Upload failed", e);
                 }
                 return null;
             }

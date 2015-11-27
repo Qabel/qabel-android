@@ -1,20 +1,17 @@
-package de.qabel.core.storage;
+package de.qabel.qabelbox.storage;
 
 import android.support.annotation.Nullable;
 
-import com.amazonaws.mobileconnectors.s3.transferutility.TransferUtility;
-
 import de.qabel.core.crypto.CryptoUtils;
 import de.qabel.core.crypto.QblECKeyPair;
-import de.qabel.core.exceptions.QblStorageException;
-import de.qabel.core.exceptions.QblStorageNameConflict;
-import de.qabel.core.exceptions.QblStorageNotFound;
+import de.qabel.qabelbox.exceptions.QblStorageException;
+import de.qabel.qabelbox.exceptions.QblStorageNameConflict;
+import de.qabel.qabelbox.exceptions.QblStorageNotFound;
 import org.apache.commons.lang3.NotImplementedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.spongycastle.crypto.params.KeyParameter;
 
-import javax.crypto.SecretKey;
-import javax.crypto.spec.SecretKeySpec;
 import java.io.*;
 import java.security.InvalidKeyException;
 import java.util.*;
@@ -66,9 +63,9 @@ public abstract class AbstractNavigation implements BoxNavigation {
 		try {
 			File indexDl = blockingDownload(target.ref, null);
 			File tmp = File.createTempFile("dir", "db", dm.getTempDir());
-			SecretKey key = makeKey(target.key);
+			KeyParameter keyParameter = new KeyParameter(target.key);
 			if (cryptoUtils.decryptFileAuthenticatedSymmetricAndValidateTag(
-					new FileInputStream(indexDl), tmp, key)) {
+					new FileInputStream(indexDl), tmp, keyParameter)) {
 				DirectoryMetadata dm = DirectoryMetadata.openDatabase(
 						tmp, deviceId, target.ref, this.dm.getTempDir());
 				return new FolderNavigation(dm, keyPair, target.key, deviceId, transferManager);
@@ -81,10 +78,6 @@ public abstract class AbstractNavigation implements BoxNavigation {
 	}
 
 	protected abstract DirectoryMetadata reloadMetadata() throws QblStorageException;
-
-	protected SecretKey makeKey(byte[] key2) {
-		return new SecretKeySpec(key2, "AES");
-	}
 
 	@Override
 	public void commit() throws QblStorageException {
@@ -177,9 +170,9 @@ public abstract class AbstractNavigation implements BoxNavigation {
 	@Override
 	public BoxFile upload(String name, InputStream content,
 						  @Nullable TransferManager.BoxTransferListener boxTransferListener) throws QblStorageException {
-		SecretKey key = cryptoUtils.generateSymmetricKey();
+		KeyParameter key = cryptoUtils.generateSymmetricKey();
 		String block = UUID.randomUUID().toString();
-		BoxFile boxFile = new BoxFile(block, name, null, 0L, key.getEncoded());
+		BoxFile boxFile = new BoxFile(block, name, null, 0L, key.getKey());
 		SimpleEntry<Long, Long> mtimeAndSize = uploadEncrypted(content, key, "blocks/" + block, boxTransferListener);
 		boxFile.mtime = mtimeAndSize.getKey();
 		boxFile.size = mtimeAndSize.getValue();
@@ -195,7 +188,7 @@ public abstract class AbstractNavigation implements BoxNavigation {
 	}
 
 	protected SimpleEntry<Long, Long> uploadEncrypted(
-			InputStream content, SecretKey key, String block,
+			InputStream content, KeyParameter key, String block,
 			@Nullable TransferManager.BoxTransferListener boxTransferListener) throws QblStorageException {
 		try {
 			File tempFile = File.createTempFile("upload", "up", dm.getTempDir());
@@ -216,7 +209,7 @@ public abstract class AbstractNavigation implements BoxNavigation {
 	public InputStream download(BoxFile boxFile,
 								@Nullable TransferManager.BoxTransferListener boxTransferListener) throws QblStorageException {
 		File download = blockingDownload("blocks/" + boxFile.block, boxTransferListener);
-		SecretKey key = makeKey(boxFile.key);
+		KeyParameter key = new KeyParameter(boxFile.key);
 		try {
 			File temp = File.createTempFile("upload", "down", dm.getTempDir());
 			if (!cryptoUtils.decryptFileAuthenticatedSymmetricAndValidateTag(
@@ -232,10 +225,10 @@ public abstract class AbstractNavigation implements BoxNavigation {
 	@Override
 	public BoxFolder createFolder(String name) throws QblStorageException {
 		DirectoryMetadata dm = DirectoryMetadata.newDatabase(null, deviceId, this.dm.getTempDir());
-		SecretKey secretKey = cryptoUtils.generateSymmetricKey();
-		BoxFolder folder = new BoxFolder(dm.getFileName(), name, secretKey.getEncoded());
+		KeyParameter secretKey = cryptoUtils.generateSymmetricKey();
+		BoxFolder folder = new BoxFolder(dm.getFileName(), name, secretKey.getKey());
 		this.dm.insertFolder(folder);
-		BoxNavigation newFolder = new FolderNavigation(dm, keyPair, secretKey.getEncoded(),
+		BoxNavigation newFolder = new FolderNavigation(dm, keyPair, secretKey.getKey(),
 				deviceId, transferManager);
 		newFolder.commit();
 		return folder;

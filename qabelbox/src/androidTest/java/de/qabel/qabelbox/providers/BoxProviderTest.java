@@ -2,7 +2,6 @@ package de.qabel.qabelbox.providers;
 
 import android.annotation.TargetApi;
 import android.content.ContentResolver;
-import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
@@ -10,9 +9,7 @@ import android.provider.DocumentsContract;
 import android.test.ProviderTestCase2;
 import android.util.Log;
 
-import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferUtility;
-import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.DeleteObjectsRequest;
 import com.amazonaws.services.s3.model.ObjectListing;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
@@ -34,10 +31,10 @@ import java.util.UUID;
 
 import de.qabel.core.crypto.CryptoUtils;
 import de.qabel.core.crypto.QblECKeyPair;
-import de.qabel.core.exceptions.QblStorageException;
-import de.qabel.core.storage.BoxFolder;
-import de.qabel.core.storage.BoxNavigation;
-import de.qabel.core.storage.BoxVolume;
+import de.qabel.qabelbox.exceptions.QblStorageException;
+import de.qabel.qabelbox.storage.BoxFolder;
+import de.qabel.qabelbox.storage.BoxNavigation;
+import de.qabel.qabelbox.storage.BoxVolume;
 import de.qabel.qabelbox.activities.MainActivity;
 
 import static org.hamcrest.CoreMatchers.is;

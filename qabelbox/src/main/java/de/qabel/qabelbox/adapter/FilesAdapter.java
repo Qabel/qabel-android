@@ -1,6 +1,5 @@
 package de.qabel.qabelbox.adapter;
 
-import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,8 +11,8 @@ import android.widget.TextView;
 import java.util.Collections;
 import java.util.List;
 
-import de.qabel.core.storage.BoxFolder;
-import de.qabel.core.storage.BoxObject;
+import de.qabel.qabelbox.storage.BoxFolder;
+import de.qabel.qabelbox.storage.BoxObject;
 import de.qabel.qabelbox.R;
 
 public class FilesAdapter extends RecyclerView.Adapter<FilesAdapter.FilesViewHolder> {

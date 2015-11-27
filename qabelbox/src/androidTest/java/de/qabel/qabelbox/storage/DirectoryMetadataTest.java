@@ -1,12 +1,14 @@
-package de.qabel.core.storage;
+package de.qabel.qabelbox.storage;
 
 import junit.framework.TestCase;
 
-import de.qabel.core.crypto.CryptoUtils;
 import de.qabel.core.crypto.QblECKeyPair;
-import de.qabel.core.crypto.QblECPublicKey;
-import de.qabel.core.exceptions.QblStorageException;
-import org.junit.Before;
+import de.qabel.qabelbox.exceptions.QblStorageException;
+import de.qabel.qabelbox.storage.BoxExternal;
+import de.qabel.qabelbox.storage.BoxFile;
+import de.qabel.qabelbox.storage.BoxFolder;
+import de.qabel.qabelbox.storage.DirectoryMetadata;
+
 import org.junit.Test;
 
 import java.io.File;

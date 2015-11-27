@@ -1,10 +1,9 @@
-package de.qabel.core.storage;
+package de.qabel.qabelbox.storage;
 
-import com.amazonaws.mobileconnectors.s3.transferutility.TransferUtility;
 import com.amazonaws.util.IOUtils;
 import de.qabel.core.crypto.DecryptedPlaintext;
 import de.qabel.core.crypto.QblECKeyPair;
-import de.qabel.core.exceptions.QblStorageException;
+import de.qabel.qabelbox.exceptions.QblStorageException;
 import org.spongycastle.crypto.InvalidCipherTextException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

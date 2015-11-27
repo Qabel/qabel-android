@@ -1,4 +1,4 @@
-package de.qabel.qabelbox;
+package de.qabel.qabelbox.storage;
 
 
 
@@ -32,13 +32,10 @@ import java.util.UUID;
 
 import de.qabel.core.crypto.CryptoUtils;
 import de.qabel.core.crypto.QblECKeyPair;
-import de.qabel.core.exceptions.QblStorageException;
-import de.qabel.core.exceptions.QblStorageNameConflict;
-import de.qabel.core.exceptions.QblStorageNotFound;
-import de.qabel.core.storage.BoxFile;
-import de.qabel.core.storage.BoxFolder;
-import de.qabel.core.storage.BoxNavigation;
-import de.qabel.core.storage.BoxVolume;
+import de.qabel.qabelbox.R;
+import de.qabel.qabelbox.exceptions.QblStorageException;
+import de.qabel.qabelbox.exceptions.QblStorageNameConflict;
+import de.qabel.qabelbox.exceptions.QblStorageNotFound;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;

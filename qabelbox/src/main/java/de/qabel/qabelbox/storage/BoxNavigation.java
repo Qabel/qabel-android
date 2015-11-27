@@ -1,10 +1,9 @@
-package de.qabel.core.storage;
+package de.qabel.qabelbox.storage;
 
 import android.support.annotation.Nullable;
 
-import de.qabel.core.exceptions.QblStorageException;
+import de.qabel.qabelbox.exceptions.QblStorageException;
 
-import java.io.File;
 import java.io.InputStream;
 import java.util.List;
 

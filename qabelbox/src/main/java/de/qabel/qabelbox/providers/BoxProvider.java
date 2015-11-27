@@ -76,7 +76,6 @@ public class BoxProvider extends DocumentsProvider {
     public static final String BUCKET = "qabel";
     public static final String PREFIX = "boxtest";
     public static final String PRIVATE_KEY = "77076d0a7318a57d3c16c17251b26645df4c2f87ebc0992ab177fba51db92c2a";
-    public static final byte[] DEVICE_ID = new byte[]{0x01, 0x02, 0x03, 0x04, 0x05, 0x06};
 
     DocumentIdParser mDocumentIdParser;
     private ThreadPoolExecutor mThreadPoolExecutor;
@@ -165,8 +164,9 @@ public class BoxProvider extends DocumentsProvider {
         QblECKeyPair testKey = new QblECKeyPair(Hex.decode(PRIVATE_KEY));
 
         setUpTransferUtility();
+
         return new BoxVolume(transferUtility, awsCredentials, testKey, bucket, prefix,
-                    DEVICE_ID, getContext().getCacheDir());
+                    QabelBoxApplication.getDeviceID(), getContext().getCacheDir());
     }
 
     @Override

@@ -4,15 +4,14 @@ import de.qabel.core.crypto.QblECPublicKey;
 
 import java.util.Arrays;
 
-public class BoxExternal {
+public class BoxExternal extends BoxObject {
 	public String url;
-	public String name;
 	public QblECPublicKey owner;
 	public byte[] key;
 
 	public BoxExternal(String url, String name, QblECPublicKey owner, byte[] key) {
+		super(name);
 		this.url = url;
-		this.name = name;
 		this.owner = owner;
 		this.key = key;
 	}

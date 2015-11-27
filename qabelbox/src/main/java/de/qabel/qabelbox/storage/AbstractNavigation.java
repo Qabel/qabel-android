@@ -176,8 +176,7 @@ public abstract class AbstractNavigation implements BoxNavigation {
 
 	@Override
 	public List<BoxExternal> listExternals() throws QblStorageException {
-		//return dm.listExternals();
-		throw new NotImplementedException("Externals are not yet implemented!");
+		return dm.listExternals();
 	}
 
 	@Override

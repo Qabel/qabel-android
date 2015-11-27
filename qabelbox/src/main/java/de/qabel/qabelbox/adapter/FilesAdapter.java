@@ -15,6 +15,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
+import de.qabel.qabelbox.storage.BoxExternal;
 import de.qabel.qabelbox.storage.BoxFile;
 import de.qabel.qabelbox.storage.BoxFolder;
 import de.qabel.qabelbox.storage.BoxObject;
@@ -87,6 +88,11 @@ public class FilesAdapter extends RecyclerView.Adapter<FilesAdapter.FilesViewHol
 //        }
         if (boxObject instanceof BoxFolder) {
             holder.mImageView.setImageResource(R.drawable.ic_folder_black_24dp);
+        } else if (boxObject instanceof BoxExternal) {
+            BoxExternal boxExternal = (BoxExternal) boxObject;
+            holder.mImageView.setImageResource(R.drawable.ic_folder_shared_black_24dp);
+            // TODO: Only show a part of the key identifier until owner name is implemented
+            holder.mTextViewFolderDetailsLeft.setText("Owner: " + boxExternal.owner.getReadableKeyIdentifier().substring(0, 6));
         }
         else if (boxObject instanceof BoxFile) {
             BoxFile boxFile = (BoxFile) boxObject;

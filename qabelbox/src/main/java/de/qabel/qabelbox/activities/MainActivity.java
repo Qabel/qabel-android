@@ -33,6 +33,7 @@ import java.net.URLConnection;
 import java.util.ArrayList;
 
 import de.qabel.qabelbox.exceptions.QblStorageException;
+import de.qabel.qabelbox.storage.BoxExternal;
 import de.qabel.qabelbox.storage.BoxFile;
 import de.qabel.qabelbox.storage.BoxFolder;
 import de.qabel.qabelbox.storage.BoxNavigation;
@@ -243,6 +244,10 @@ public class MainActivity extends AppCompatActivity
                     for (BoxFolder boxFolder : boxNavigation.listFolders()){
                         Log.d("MainActivity", "Adding folder: " + boxFolder.name);
                         filesAdapter.add(boxFolder);
+                    }
+                    for (BoxExternal boxExternal : boxNavigation.listExternals()){
+                        Log.d("MainActivity", "Adding external: " + boxExternal.name);
+                        filesAdapter.add(boxExternal);
                     }
                     if (uploadURI == null) {
                         for (BoxFile boxFile : boxNavigation.listFiles()) {

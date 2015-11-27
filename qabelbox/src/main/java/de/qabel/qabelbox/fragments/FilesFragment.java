@@ -12,6 +12,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
 
 import de.qabel.qabelbox.storage.BoxNavigation;
 import de.qabel.qabelbox.R;
@@ -24,6 +25,8 @@ public class FilesFragment extends Fragment {
     private RecyclerView filesListRecyclerView;
     private FilesAdapter filesAdapter;
     private RecyclerView.LayoutManager recyclerViewLayoutManager;
+    private ProgressBar loadingSpinner;
+    private boolean showLoadingSpinner;
 
 
     @Override
@@ -58,6 +61,14 @@ public class FilesFragment extends Fragment {
 
         View view = inflater.inflate(R.layout.fragment_files, container, false);
 
+        loadingSpinner = (ProgressBar) view.findViewById(R.id.loadingSpinner);
+        if (showLoadingSpinner) {
+            loadingSpinner.setVisibility(View.VISIBLE);
+        }
+        else {
+            loadingSpinner.setVisibility(View.INVISIBLE);
+        }
+
         filesListRecyclerView = (RecyclerView) view.findViewById(R.id.files_list);
         filesListRecyclerView.setHasFixedSize(true);
 
@@ -68,6 +79,24 @@ public class FilesFragment extends Fragment {
         registerForContextMenu(filesListRecyclerView);
 
         return view;
+    }
+
+    /**
+     * Sets visibility of loading spinner. Visibility is stored if method is invoked
+     * before onCreateView() has completed.
+     * @param isVisible
+     */
+    public void setLoadingSpinner(boolean isVisible) {
+        showLoadingSpinner = isVisible;
+        if (loadingSpinner == null) {
+            return;
+        }
+        if (isVisible) {
+            loadingSpinner.setVisibility(View.VISIBLE);
+        }
+        else {
+            loadingSpinner.setVisibility(View.INVISIBLE);
+        }
     }
 
     public void setAdapter(FilesAdapter adapter) {

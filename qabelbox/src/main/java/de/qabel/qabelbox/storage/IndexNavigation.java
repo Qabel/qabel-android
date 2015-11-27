@@ -17,7 +17,7 @@ public class IndexNavigation extends AbstractNavigation {
 
 	public IndexNavigation(DirectoryMetadata dm, QblECKeyPair keyPair, byte[] deviceId,
 						   TransferManager transferManager) {
-		super(dm, keyPair, deviceId, transferManager);
+		super(dm, keyPair, deviceId, transferManager, "/");
 	}
 
 	@Override

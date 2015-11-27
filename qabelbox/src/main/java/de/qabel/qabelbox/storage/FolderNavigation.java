@@ -1,5 +1,6 @@
 package de.qabel.qabelbox.storage;
 
+import de.qabel.core.crypto.QblECKeyPair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spongycastle.crypto.params.KeyParameter;
@@ -10,7 +11,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.security.InvalidKeyException;
 
-import de.qabel.core.crypto.QblECKeyPair;
 import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.exceptions.QblStorageNotFound;
 
@@ -20,8 +20,9 @@ public class FolderNavigation extends AbstractNavigation {
 
 	private final byte[] key;
 
-	public FolderNavigation(DirectoryMetadata dm, QblECKeyPair keyPair, byte[] key, byte[] deviceId, TransferManager transferUtility) {
-		super(dm, keyPair, deviceId, transferUtility);
+	public FolderNavigation(DirectoryMetadata dm, QblECKeyPair keyPair, byte[] key, byte[] deviceId,
+	                        TransferManager transferUtility, String path) {
+		super(dm, keyPair, deviceId, transferUtility, path);
 		this.key = key;
 	}
 

@@ -8,9 +8,14 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 
+import org.apache.commons.io.FileUtils;
+
+import java.text.DateFormat;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
+import de.qabel.qabelbox.storage.BoxFile;
 import de.qabel.qabelbox.storage.BoxFolder;
 import de.qabel.qabelbox.storage.BoxObject;
 import de.qabel.qabelbox.R;
@@ -19,6 +24,7 @@ public class FilesAdapter extends RecyclerView.Adapter<FilesAdapter.FilesViewHol
     private final List<BoxObject> boxObjects;
     private OnItemClickListener onItemClickListener;
     private int longClickedPosition;
+    private DateFormat dateFormat = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT);
 
     public FilesAdapter(List<BoxObject> BoxObject) {
         boxObjects = BoxObject;
@@ -26,7 +32,9 @@ public class FilesAdapter extends RecyclerView.Adapter<FilesAdapter.FilesViewHol
 
     class FilesViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener {
         public final TextView mTextViewFolderName;
-        public final TextView mTextViewFolderDetails;
+        public final TextView mTextViewFolderDetailsLeft;
+        public final TextView mTextViewFolderDetailsMiddle;
+        public final TextView mTextViewFolderDetailsRight;
         public final ImageView mImageView;
 
         public FilesViewHolder(View v) {
@@ -34,7 +42,9 @@ public class FilesAdapter extends RecyclerView.Adapter<FilesAdapter.FilesViewHol
             v.setOnClickListener(this);
             v.setOnLongClickListener(this);
             mTextViewFolderName = (TextView) v.findViewById(R.id.textViewFolderName);
-            mTextViewFolderDetails = (TextView) v.findViewById(R.id.textViewFolderDetail);
+            mTextViewFolderDetailsLeft = (TextView) v.findViewById(R.id.textViewFolderDetailLeft);
+            mTextViewFolderDetailsMiddle = (TextView) v.findViewById(R.id.textViewFolderDetailMiddle);
+            mTextViewFolderDetailsRight = (TextView) v.findViewById(R.id.textViewFolderDetailRight);
             mImageView = (ImageView) v.findViewById(R.id.fileFolderIcon);
         }
 
@@ -72,13 +82,16 @@ public class FilesAdapter extends RecyclerView.Adapter<FilesAdapter.FilesViewHol
         BoxObject boxObject = boxObjects.get(position);
         holder.mTextViewFolderName.setText(boxObject.name);
 //        if (boxObject.getShareCount() > 0) {
-//            holder.mTextViewFolderDetails.setText(context.getResources().getQuantityString(
+//            holder.mTextViewFolderDetailsLeft.setText(context.getResources().getQuantityString(
 //                    R.plurals.sharedWith, boxObject.getShareCount(), boxObject.getShareCount()));
 //        }
         if (boxObject instanceof BoxFolder) {
             holder.mImageView.setImageResource(R.drawable.ic_folder_black_24dp);
         }
-        else {
+        else if (boxObject instanceof BoxFile) {
+            BoxFile boxFile = (BoxFile) boxObject;
+            holder.mTextViewFolderDetailsLeft.setText(dateFormat.format(new Date(boxFile.mtime)));
+            holder.mTextViewFolderDetailsRight.setText(FileUtils.byteCountToDisplaySize(boxFile.size));
             holder.mImageView.setImageResource(R.drawable.ic_insert_drive_file_black_24dp);
         }
     }

@@ -21,12 +21,35 @@
         android:layout_toRightOf="@+id/fileFolderIcon"
         android:layout_marginLeft="5dp"/>
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/textViewFolderDetail"
-        android:layout_below="@+id/textViewFolderName"
-        android:layout_toRightOf="@+id/fileFolderIcon"
-        android:layout_toEndOf="@+id/fileFolderIcon"
-        android:layout_marginLeft="5dp"/>
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                  android:layout_below="@+id/textViewFolderName"
+                  android:layout_toEndOf="@+id/fileFolderIcon"
+                  android:layout_width="match_parent"
+                  android:layout_height="wrap_content"
+                  android:paddingLeft="16dp"
+                  android:paddingRight="16dp"
+                  android:orientation="horizontal" >
+        <TextView
+            android:layout_width="0dp"
+            android:layout_weight="2"
+            android:layout_height="wrap_content"
+            android:textSize="@dimen/abc_text_size_small_material"
+            android:id="@+id/textViewFolderDetailLeft" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_weight="2"
+            android:layout_height="wrap_content"
+            android:textSize="@dimen/abc_text_size_small_material"
+            android:id="@+id/textViewFolderDetailMiddle" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:textSize="@dimen/abc_text_size_small_material"
+            android:gravity="right"
+            android:textAlignment="gravity"
+            android:id="@+id/textViewFolderDetailRight" />
+    </LinearLayout>
 </RelativeLayout>

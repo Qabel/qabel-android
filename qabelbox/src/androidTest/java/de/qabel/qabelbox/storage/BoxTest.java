@@ -254,6 +254,25 @@ public class BoxTest extends AndroidTestCase {
     }
 
     @Test
+    public void testNavigateToIndirectSubfolder() throws QblStorageException {
+        BoxNavigation nav = volume.navigate();
+        BoxFolder boxFolder = nav.createFolder("foobdir");
+        nav.commit();
+
+        nav.navigate(boxFolder);
+        BoxFolder subfolder = nav.createFolder("subfolder");
+        nav.commit();
+
+        nav = volume.navigate();
+        try {
+            nav.delete(subfolder);
+        } catch (QblStorageNotFound e) {
+            return;
+        }
+        fail("Expected QblStorageNotFound");
+    }
+
+    @Test
     public void testNameConflictOnDifferentClients() throws QblStorageException, IOException {
         BoxNavigation nav = volume.navigate();
         BoxNavigation nav2 = volume2.navigate();

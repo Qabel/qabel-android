@@ -72,8 +72,23 @@ public abstract class AbstractNavigation implements BoxNavigation {
 		return file.length();
 	}
 
+    /**
+     * Navigates to a direct subfolder.
+     * @param target Subfolder to navigate to
+     * @throws QblStorageException
+     */
 	@Override
 	public void navigate(BoxFolder target) throws QblStorageException {
+        boolean isSubfolder = false;
+        for (BoxFolder boxFolder : listFolders()) {
+            if (boxFolder.ref.equals(target.ref)) {
+                isSubfolder = true;
+                break;
+            }
+        }
+        if (!isSubfolder) {
+            throw new QblStorageNotFound(target.name + " is not a direct subfolder");
+        }
 		try {
 			File indexDl = blockingDownload(target.ref, null);
 			File tmp = File.createTempFile("dir", "db", dm.getTempDir());

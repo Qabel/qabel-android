@@ -167,7 +167,6 @@ public class BoxTest extends AndroidTestCase {
         nav.navigate(boxFolder);
         BoxFile boxFile = uploadFile(nav);
 
-        nav.navigate(boxFolder);
         checkFile(boxFile, nav);
 
         BoxNavigation nav_new = volume.navigate();

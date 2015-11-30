@@ -145,8 +145,7 @@ public class BoxTest extends AndroidTestCase {
         File file = new File(testFileName);
         BoxFile boxFile = nav.upload("foobar", new FileInputStream(file), null);
         nav.commit();
-        BoxNavigation nav_new = volume.navigate();
-        checkFile(boxFile, nav_new);
+        checkFile(boxFile, nav);
         return boxFile;
     }
 
@@ -165,12 +164,11 @@ public class BoxTest extends AndroidTestCase {
         BoxFolder boxFolder = nav.createFolder("foobdir");
         nav.commit();
 
-        BoxNavigation folder = nav.navigate(boxFolder);
-        assertNotNull(folder);
-        BoxFile boxFile = uploadFile(folder);
+        nav.navigate(boxFolder);
+        BoxFile boxFile = uploadFile(nav);
 
-        BoxNavigation folder_new = nav.navigate(boxFolder);
-        checkFile(boxFile, folder_new);
+        nav.navigate(boxFolder);
+        checkFile(boxFile, nav);
 
         BoxNavigation nav_new = volume.navigate();
         List<BoxFolder> folders = nav_new.listFolders();
@@ -184,11 +182,12 @@ public class BoxTest extends AndroidTestCase {
         BoxFolder boxFolder = nav.createFolder("foobdir");
         nav.commit();
 
-        BoxNavigation folder = nav.navigate(boxFolder);
-        BoxFile boxFile = uploadFile(folder);
-        BoxFolder subfolder = folder.createFolder("subfolder");
-        folder.commit();
+        nav.navigate(boxFolder);
+        BoxFile boxFile = uploadFile(nav);
+        BoxFolder subfolder = nav.createFolder("subfolder");
+        nav.commit();
 
+        nav = volume.navigate();
         nav.delete(boxFolder);
         nav.commit();
         BoxNavigation nav_after = volume.navigate();

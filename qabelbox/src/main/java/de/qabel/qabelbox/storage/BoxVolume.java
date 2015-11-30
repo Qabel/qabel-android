@@ -28,6 +28,7 @@ import java.util.UUID;
 public class BoxVolume {
 
 	private static final Logger logger = LoggerFactory.getLogger(BoxVolume.class.getName());
+	private static final String PATH_ROOT = "/";
 	private final String rootId;
 
 	private TransferUtility transferUtility;
@@ -108,7 +109,7 @@ public class BoxVolume {
 			throw new QblStorageException(e);
 		}
 		DirectoryMetadata dm = DirectoryMetadata.openDatabase(tmp, deviceId, rootRef, tempDir);
-		return new IndexNavigation(dm, keyPair, deviceId, transferManager);
+		return new FolderNavigation(dm, keyPair, null, deviceId, transferManager, PATH_ROOT);
 	}
 
 	public String getRootRef() throws QblStorageException {

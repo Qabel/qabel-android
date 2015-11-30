@@ -18,7 +18,7 @@ public interface BoxNavigation {
 	 */
 	void commit() throws QblStorageException;
 
-	BoxNavigation navigate(BoxFolder target) throws QblStorageException;
+	void navigate(BoxFolder target) throws QblStorageException;
 	BoxNavigation navigate(BoxExternal target);
 
 	List<BoxFile> listFiles() throws QblStorageException;
@@ -28,9 +28,9 @@ public interface BoxNavigation {
 	BoxFile upload(String name, InputStream content, @Nullable TransferManager.BoxTransferListener boxTransferListener) throws QblStorageException;
 	InputStream download(BoxFile file, @Nullable TransferManager.BoxTransferListener boxTransferListener) throws QblStorageException;
 
-	BoxFolder createFolder(String name) throws QblStorageException;
-
 	void delete(BoxFile file) throws QblStorageException;
+
+	BoxFolder createFolder(String name) throws QblStorageException;
 	void delete(BoxFolder folder) throws QblStorageException;
 	void delete(BoxExternal external) throws QblStorageException;
 

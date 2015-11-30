@@ -293,7 +293,7 @@ public class BoxProvider extends DocumentsProvider {
             for (BoxFolder folder: navigation.listFolders()) {
                 Log.i(TAG, "Part: " + part + " Folder: " + folder.name);
                 if (part.equals(folder.name)) {
-                    navigation = navigation.navigate(folder);
+                    navigation.navigate(folder);
                     continue PARTS;
                 }
             }

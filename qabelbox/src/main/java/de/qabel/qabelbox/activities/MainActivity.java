@@ -94,6 +94,8 @@ public class MainActivity extends AppCompatActivity
             + BoxProvider.DOCID_SEPARATOR + BoxProvider.BUCKET + BoxProvider.DOCID_SEPARATOR
             + BoxProvider.PREFIX + BoxProvider.DOCID_SEPARATOR + BoxProvider.PATH_SEP;
     private static final int REQUEST_CODE_DELETE_FILE = 13;
+    private static final int REQUEST_CODE_CHOOSE_EXPORT = 14;
+    private static final String FALLBACK_MIMETYPE = "application/octet-stream";
     private Identity activeIdentity;
     private ResourceActor resourceActor;
     private ProviderActor providerActor;
@@ -106,6 +108,10 @@ public class MainActivity extends AppCompatActivity
     private TextView textViewSelectedIdentity;
     private Activity self;
     private View appBarMain;
+
+    // Used to save the document uri that should exported while waiting for the result
+    // of the create document intent.
+    private Uri exportUri;
 
     class ProviderActor extends EventActor implements EventListener {
         public ProviderActor() {
@@ -213,6 +219,32 @@ public class MainActivity extends AppCompatActivity
             }.execute(uri);
             return;
         }
+        if (requestCode == REQUEST_CODE_CHOOSE_EXPORT && resultCode == Activity.RESULT_OK && data != null) {
+            uri = data.getData();
+            Log.i(TAG, "Export uri chosen: "+ uri.toString());
+            new AsyncTask<Void, Void, Void>() {
+
+                @Override
+                protected Void doInBackground(Void... params) {
+                    try {
+                        InputStream inputStream = getContentResolver().openInputStream(exportUri);
+                        OutputStream outputStream = getContentResolver().openOutputStream(uri);
+                        if (inputStream == null || outputStream == null) {
+                            Log.e(TAG, "could not open streams");
+                            return null;
+                        }
+                        IOUtils.copy(inputStream, outputStream);
+                        inputStream.close();
+                        outputStream.close();
+                    } catch (IOException e) {
+                        Log.e(TAG, "Failed to export file", e);
+                    }
+                    return null;
+                }
+            }.execute();
+            return;
+        }
+
     }
 
     private boolean uploadUri(Uri uri) {
@@ -684,5 +716,31 @@ public class MainActivity extends AppCompatActivity
         } else {
             fab.show();
         }
+    }
+
+    @Override
+    /**
+     * Handle an export request sent from the FilesFragment
+     */
+    public void onExport(BoxNavigation boxNavigation, BoxObject boxObject) {
+        String path = boxNavigation.getPath(boxObject);
+        String documentId = boxVolume.getDocumentId(path);
+        Uri uri = DocumentsContract.buildDocumentUri(
+                BoxProvider.AUTHORITY, documentId);
+        exportUri = uri;
+
+        // Chose a suitable place for this file, determined by the mime type
+        String type = URLConnection.guessContentTypeFromName(uri.toString());
+        if (type == null) {
+            type = FALLBACK_MIMETYPE;
+        }
+        Log.i(TAG, "Mime type: " + type);
+        Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT)
+                .addCategory(Intent.CATEGORY_OPENABLE)
+                .putExtra(Intent.EXTRA_TITLE, boxObject.name);
+        intent.setDataAndType(uri, type);
+        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        // the activity result will handle the actual file copy
+        startActivityForResult(intent, REQUEST_CODE_CHOOSE_EXPORT);
     }
 }

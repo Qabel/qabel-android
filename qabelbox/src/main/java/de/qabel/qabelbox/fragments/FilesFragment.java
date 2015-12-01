@@ -14,10 +14,13 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
+import android.widget.Toast;
 
+import de.qabel.qabelbox.storage.BoxFolder;
 import de.qabel.qabelbox.storage.BoxNavigation;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.adapter.FilesAdapter;
+import de.qabel.qabelbox.storage.BoxObject;
 
 
 public class FilesFragment extends Fragment {
@@ -45,6 +48,16 @@ public class FilesFragment extends Fragment {
                 Snackbar.make(filesListRecyclerView, "Pos " + filesAdapter.getLongClickedPosition(), Snackbar.LENGTH_SHORT).show();
                 return true;
             case R.id.delete:
+                return true;
+            case R.id.export:
+                // Export handled in the MainActivity
+                BoxObject boxObject = filesAdapter.get(filesAdapter.getLongClickedPosition());
+                if (boxObject instanceof BoxFolder) {
+                    Toast.makeText(getActivity(), R.string.folder_export_not_implemented,
+                            Toast.LENGTH_SHORT).show();
+                    return true;
+                }
+                mListener.onExport(boxNavigation, boxObject);
                 return true;
             default:
                 return super.onContextItemSelected(item);
@@ -136,5 +149,6 @@ public class FilesFragment extends Fragment {
 
     public interface FilesListListener {
         void onScrolledToBottom(boolean scrolledToBottom);
+        void onExport(BoxNavigation boxNavigation, BoxObject object);
     }
 }

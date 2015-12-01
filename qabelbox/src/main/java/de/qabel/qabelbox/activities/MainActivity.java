@@ -11,6 +11,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.DocumentsContract;
 import android.provider.OpenableColumns;
+import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
@@ -343,7 +344,7 @@ public class MainActivity extends AppCompatActivity
                     Log.i(TAG, "Action send in main activity");
                     Uri imageUri = intent.getParcelableExtra(Intent.EXTRA_STREAM);
                     if (imageUri != null) {
-                        browseTo(null, imageUri);
+                        browseTo(null, null, imageUri);
                     }
                 }
                 break;
@@ -354,7 +355,7 @@ public class MainActivity extends AppCompatActivity
                 }
                 break;
             default:
-                browseTo(null, null);
+                browseTo(null, null, null);
                 break;
         }
 
@@ -376,11 +377,10 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    private void browseTo(final BoxFolder navigateTo, final Uri uploadURI) {
+    private void browseTo(@Nullable final BoxNavigation boxNavigation, final BoxFolder navigateTo, final Uri uploadURI) {
         new AsyncTask<Void, Void, Void>() {
             FilesFragment filesFragment;
             FilesAdapter filesAdapter;
-            BoxNavigation boxNavigation;
 
             @Override
             protected void onPreExecute() {
@@ -404,22 +404,27 @@ public class MainActivity extends AppCompatActivity
 
             @Override
             protected Void doInBackground(Void... voids) {
+                final BoxNavigation navigation;
                 try {
-                    boxNavigation = boxVolume.navigate();
-                    if (navigateTo != null) {
-                        boxNavigation.navigate(navigateTo);
+                    if (boxNavigation == null) {
+                        navigation = boxVolume.navigate();
+                    } else {
+                        navigation = boxNavigation;
                     }
-                    filesFragment.setBoxNavigation(boxNavigation);
-                    for (BoxFolder boxFolder : boxNavigation.listFolders()){
+                    if (navigateTo != null) {
+                        navigation.navigate(navigateTo);
+                    }
+                    filesFragment.setBoxNavigation(navigation);
+                    for (BoxFolder boxFolder : navigation.listFolders()){
                         Log.d(TAG, "Adding folder: " + boxFolder.name);
                         filesAdapter.add(boxFolder);
                     }
-                    for (BoxExternal boxExternal : boxNavigation.listExternals()){
+                    for (BoxExternal boxExternal : navigation.listExternals()){
                         Log.d("MainActivity", "Adding external: " + boxExternal.name);
                         filesAdapter.add(boxExternal);
                     }
                     if (uploadURI == null) {
-                        for (BoxFile boxFile : boxNavigation.listFiles()) {
+                        for (BoxFile boxFile : navigation.listFiles()) {
                             Log.d(TAG, "Adding file: " + boxFile.name);
                             filesAdapter.add(boxFile);
                         }
@@ -431,10 +436,10 @@ public class MainActivity extends AppCompatActivity
                         public void onItemClick(View view, int position) {
                             final BoxObject boxObject = filesAdapter.get(position);
                             if (boxObject instanceof BoxFolder) {
-                                browseTo(((BoxFolder) boxObject), uploadURI);
+                                browseTo(navigation, ((BoxFolder) boxObject), uploadURI);
                             } else if (boxObject instanceof BoxFile) {
                                 // Open
-                                String path = boxNavigation.getPath(boxObject);
+                                String path = navigation.getPath(boxObject);
                                 String documentId = boxVolume.getDocumentId(path);
                                 Uri uri = DocumentsContract.buildDocumentUri(
                                         BoxProvider.AUTHORITY, documentId);
@@ -519,7 +524,7 @@ public class MainActivity extends AppCompatActivity
         } else if (id == R.id.nav_identities) {
             selectIdentityFragment();
         } else if (id == R.id.nav_browse) {
-            browseTo(null, null);
+            browseTo(null, null, null);
         } else if (id == R.id.nav_open) {
             Intent intentOpen = new Intent(Intent.ACTION_OPEN_DOCUMENT);
             intentOpen.addCategory(Intent.CATEGORY_OPENABLE);
@@ -600,7 +605,7 @@ public class MainActivity extends AppCompatActivity
             @Override
             protected void onPostExecute(Void aVoid) {
                 super.onPostExecute(aVoid);
-                browseTo(null, null);
+                browseTo(null, null, null);
             }
         }.execute();
     }

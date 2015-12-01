@@ -14,7 +14,9 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
+import android.widget.Toast;
 
+import de.qabel.qabelbox.storage.BoxFolder;
 import de.qabel.qabelbox.storage.BoxNavigation;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.adapter.FilesAdapter;
@@ -50,6 +52,11 @@ public class FilesFragment extends Fragment {
             case R.id.export:
                 // Export handled in the MainActivity
                 BoxObject boxObject = filesAdapter.get(filesAdapter.getLongClickedPosition());
+                if (boxObject instanceof BoxFolder) {
+                    Toast.makeText(getActivity(), R.string.folder_export_not_implemented,
+                            Toast.LENGTH_SHORT).show();
+                    return true;
+                }
                 mListener.onExport(boxNavigation, boxObject);
                 return true;
             default:

@@ -48,4 +48,5 @@
     <string name="Share">Share</string>
     <string name="folderListingUpdateError">Failed to updated folder listing</string>
     <string name="Export">Export</string>
+    <string name="folder_export_not_implemented">Exporting folders is not implemented</string>
 </resources>

@@ -4,11 +4,11 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-    <uses-permission android:name="de.qabel.qabellauncher.QABELSERVICE" />
-    <uses-permission android:name="de.qabel.qabellauncher.QABEL_ACCESS_CONTACTS" />
+    <uses-permission android:name="de.qabel.qabelbox.QABELSERVICE" />
+    <uses-permission android:name="de.qabel.qabelbox.QABEL_ACCESS_CONTACTS" />
 
-    <uses-permission android:name="de.qabel.qabellauncher.QABEL_READ_CONTACTS" />
-    <uses-permission android:name="de.qabel.qabellauncher.QABEL_READ_IDENTITIES" />
+    <uses-permission android:name="de.qabel.qabelbox.QABEL_READ_CONTACTS" />
+    <uses-permission android:name="de.qabel.qabelbox.QABEL_READ_IDENTITIES" />
 
     <application
         android:allowBackup="true"

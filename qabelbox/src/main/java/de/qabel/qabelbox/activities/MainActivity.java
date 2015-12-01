@@ -211,7 +211,7 @@ public class MainActivity extends AppCompatActivity
                 try {
                     boxNavigation = boxVolume.navigate();
                     if (navigateTo != null) {
-                        boxNavigation = boxNavigation.navigate(navigateTo);
+                        boxNavigation.navigate(navigateTo);
                     }
                     filesFragment.setBoxNavigation(boxNavigation);
                     for (BoxFolder boxFolder : boxNavigation.listFolders()){

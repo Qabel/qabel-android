@@ -121,13 +121,13 @@ public class BoxProviderTest extends ProviderTestCase2<BoxProvider>{
         path.add("");
         BoxNavigation navigation = provider.traverseToFolder(volume, path);
         assertThat(boxFolders, is(navigation.listFolders()));
-        BoxNavigation nav1 = rootNav.navigate(folder);
-        nav1.createFolder("blub");
-        nav1.commit();
+        rootNav.navigate(folder);
+        rootNav.createFolder("blub");
+        rootNav.commit();
         path.add("foobar");
         navigation = provider.traverseToFolder(volume, path);
         assertThat("Could not navigate to /foobar/",
-                nav1.listFolders(), is(navigation.listFolders()));
+                rootNav.listFolders(), is(navigation.listFolders()));
 
     }
 
@@ -247,8 +247,8 @@ public class BoxProviderTest extends ProviderTestCase2<BoxProvider>{
         BoxFolder folder = navigate.createFolder("testfolder");
         assertThat(navigate.getPath(folder), is("/testfolder"));
         navigate.commit();
-        BoxNavigation testFolderNav = navigate.navigate(folder);
-        assertThat(volume.getDocumentId(testFolderNav.getPath()), is(ROOT_DOC_ID + "/testfolder"));
+        navigate.navigate(folder);
+        assertThat(volume.getDocumentId(navigate.getPath()), is(ROOT_DOC_ID + "/testfolder"));
     }
 
 }

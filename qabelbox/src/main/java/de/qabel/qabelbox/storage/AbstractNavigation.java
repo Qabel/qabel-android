@@ -22,26 +22,28 @@ import java.util.AbstractMap.SimpleEntry;
 public abstract class AbstractNavigation implements BoxNavigation {
 
 	private static final Logger logger = LoggerFactory.getLogger(AbstractNavigation.class.getName());
+	protected byte[] dmKey;
 
-	DirectoryMetadata dm;
-	final QblECKeyPair keyPair;
-	final byte[] deviceId;
+	protected DirectoryMetadata dm;
+	protected final QblECKeyPair keyPair;
+	protected final byte[] deviceId;
 	protected TransferManager transferManager;
-	final CryptoUtils cryptoUtils;
+	protected final CryptoUtils cryptoUtils;
 
 	private final Set<String> deleteQueue = new HashSet<>();
 	private final Set<FileUpdate> updatedFiles = new HashSet<>();
 
-	private final String path;
+	protected String path;
 
 
-	public AbstractNavigation(DirectoryMetadata dm, QblECKeyPair keyPair, byte[] deviceId,
-	                          TransferManager transferManager, String path) {
+	public AbstractNavigation(DirectoryMetadata dm, QblECKeyPair keyPair, byte[] dmKey, byte[] deviceId,
+							  TransferManager transferManager, String path) {
 		this.dm = dm;
 		this.keyPair = keyPair;
 		this.deviceId = deviceId;
 		this.transferManager = transferManager;
 		this.path = path;
+        this.dmKey = dmKey;
 		cryptoUtils = new CryptoUtils();
 	}
 
@@ -71,17 +73,17 @@ public abstract class AbstractNavigation implements BoxNavigation {
 	}
 
 	@Override
-	public BoxNavigation navigate(BoxFolder target) throws QblStorageException {
+	public void navigate(BoxFolder target) throws QblStorageException {
 		try {
 			File indexDl = blockingDownload(target.ref, null);
 			File tmp = File.createTempFile("dir", "db", dm.getTempDir());
 			KeyParameter keyParameter = new KeyParameter(target.key);
 			if (cryptoUtils.decryptFileAuthenticatedSymmetricAndValidateTag(
 					new FileInputStream(indexDl), tmp, keyParameter)) {
-				DirectoryMetadata dm = DirectoryMetadata.openDatabase(
+				dm = DirectoryMetadata.openDatabase(
 						tmp, deviceId, target.ref, this.dm.getTempDir());
-				return new FolderNavigation(dm, keyPair, target.key, deviceId, transferManager,
-						path + BoxProvider.PATH_SEP + target.name);
+				path = path + BoxProvider.PATH_SEP + target.name;
+				dmKey = target.key;
 			} else {
 				throw new QblStorageNotFound("Invalid key");
 			}
@@ -254,16 +256,18 @@ public abstract class AbstractNavigation implements BoxNavigation {
 
 	@Override
 	public void delete(BoxFolder folder) throws QblStorageException {
-		BoxNavigation folderNav = navigate(folder);
-		for (BoxFile file: folderNav.listFiles()) {
+        //TODO: Store current folder to navigate back to originating dir without the new deleteNavigate
+		BoxNavigation deleteNavigate = new FolderNavigation(dm, keyPair, dmKey, deviceId, transferManager, path);
+        deleteNavigate.navigate(folder);
+		for (BoxFile file: deleteNavigate.listFiles()) {
 			logger.info("Deleting file " + file.name);
-			folderNav.delete(file);
+            deleteNavigate.delete(file);
 		}
-		for (BoxFolder subFolder: folderNav.listFolders()) {
+		for (BoxFolder subFolder: deleteNavigate.listFolders()) {
 			logger.info("Deleting folder " + folder.name);
-			folderNav.delete(subFolder);
+            deleteNavigate.delete(subFolder);
 		}
-		folderNav.commit();
+        deleteNavigate.commit();
 		dm.deleteFolder(folder);
 		deleteQueue.add(folder.ref);
 	}

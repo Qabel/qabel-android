@@ -83,8 +83,10 @@ public class FilesFragment extends Fragment {
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
-                if (((LinearLayoutManager) recyclerViewLayoutManager).findLastCompletelyVisibleItemPosition()
-                        == filesAdapter.getItemCount() - 1) {
+                int lastCompletelyVisibleItem = ((LinearLayoutManager) recyclerViewLayoutManager).findLastCompletelyVisibleItemPosition();
+                int firstCompletelyVisibleItem = ((LinearLayoutManager) recyclerViewLayoutManager).findFirstCompletelyVisibleItemPosition();
+                if (lastCompletelyVisibleItem == filesAdapter.getItemCount() - 1
+                        && firstCompletelyVisibleItem > 0 ) {
                     mListener.onScrolledToBottom(true);
                 } else {
                     mListener.onScrolledToBottom(false);

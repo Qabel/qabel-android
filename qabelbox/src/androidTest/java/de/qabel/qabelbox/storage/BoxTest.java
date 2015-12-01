@@ -265,7 +265,7 @@ public class BoxTest extends AndroidTestCase {
 
         nav = volume.navigate();
         try {
-            nav.delete(subfolder);
+            nav.navigate(subfolder);
         } catch (QblStorageNotFound e) {
             return;
         }

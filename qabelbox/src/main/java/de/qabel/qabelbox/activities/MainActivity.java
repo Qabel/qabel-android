@@ -78,7 +78,8 @@ public class MainActivity extends AppCompatActivity
                                     AddIdentityFragment.AddIdentityListener,
                                         NewDatabasePasswordFragment.NewDatabasePasswordListener,
                                             OpenDatabaseFragment.OpenDatabaseFragmentListener,
-                                                AddContactFragment.AddContactListener {
+                                                AddContactFragment.AddContactListener,
+                                                    FilesFragment.FilesListListener{
 
     public static final String ACTION_ENTER_DB_PASSWORD = "EnterDatabasePassword";
     public static final String ACTION_ENTER_NEW_DB_PASSWORD = "EnterNewDatabasePassword";
@@ -353,9 +354,11 @@ public class MainActivity extends AppCompatActivity
             protected void onPreExecute() {
                 super.onPreExecute();
                 if (uploadURI != null) {
+                    fab.hide();
                     filesFragment = new SelectUploadFolderFragment();
                     ((SelectUploadFolderFragment)filesFragment).setUri(uploadURI);
                 } else {
+                    fab.show();
                     filesFragment = new FilesFragment();
                 }
                 filesFragment.setLoadingSpinner(true);
@@ -422,10 +425,10 @@ public class MainActivity extends AppCompatActivity
             protected void onPostExecute(Void aVoid) {
                 super.onPostExecute(aVoid);
 
-                fab.setVisibility(View.VISIBLE);
                 fab.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
+                        fab.hide();
                         final NewFolderFragment newFolderFragment = new NewFolderFragment();
                         new AsyncTask<Void, Void, Void>() {
 
@@ -574,7 +577,7 @@ public class MainActivity extends AppCompatActivity
         if (activeIdentity == null) {
             loadSelectIdentityFragment();
         } else {
-            fab.setVisibility(View.VISIBLE);
+            fab.show();
             fab.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -599,7 +602,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void loadSelectIdentityFragment() {
-        fab.setVisibility(View.VISIBLE);
+        fab.show();
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -613,7 +616,7 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void startAddContact(Identity identity) {
-        fab.setVisibility(View.INVISIBLE);
+        fab.hide();
         getFragmentManager().beginTransaction()
                 .replace(R.id.fragment_container, AddContactFragment.newInstance(identity))
                 .commit();
@@ -629,7 +632,7 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void startAddIdentity() {
-        fab.setVisibility(View.INVISIBLE);
+        fab.hide();
         getFragmentManager().beginTransaction()
                 .replace(R.id.fragment_container, new AddIdentityFragment())
                 .commit();
@@ -672,5 +675,14 @@ public class MainActivity extends AppCompatActivity
 
         Snackbar.make(appBarMain, "Added contact: " + contact.getAlias(), Snackbar.LENGTH_LONG)
                 .show();
+    }
+
+    @Override
+    public void onScrolledToBottom(boolean scrolledToBottom) {
+        if (scrolledToBottom) {
+            fab.hide();
+        } else {
+            fab.show();
+        }
     }
 }

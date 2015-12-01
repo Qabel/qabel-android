@@ -163,9 +163,11 @@ public class BoxTest extends AndroidTestCase {
         BoxNavigation nav = volume.navigate();
         BoxFolder boxFolder = nav.createFolder("foobdir");
         nav.commit();
+        assertThat(nav.getPath(boxFolder), is ("/foobdir"));
 
         nav.navigate(boxFolder);
         BoxFile boxFile = uploadFile(nav);
+        assertThat(nav.getPath(boxFile), is ("/foobdir/foobar"));
 
         checkFile(boxFile, nav);
 

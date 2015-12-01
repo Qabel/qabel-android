@@ -88,11 +88,15 @@ public class FilesAdapter extends RecyclerView.Adapter<FilesAdapter.FilesViewHol
 //        }
         if (boxObject instanceof BoxFolder) {
             holder.mImageView.setImageResource(R.drawable.ic_folder_black_24dp);
+            // Always set all ViewHolder fields, otherwise recycled views contain wrong data
+            holder.mTextViewFolderDetailsLeft.setText("");
+            holder.mTextViewFolderDetailsRight.setText("");
         } else if (boxObject instanceof BoxExternal) {
             BoxExternal boxExternal = (BoxExternal) boxObject;
             holder.mImageView.setImageResource(R.drawable.ic_folder_shared_black_24dp);
             // TODO: Only show a part of the key identifier until owner name is implemented
             holder.mTextViewFolderDetailsLeft.setText("Owner: " + boxExternal.owner.getReadableKeyIdentifier().substring(0, 6));
+            holder.mTextViewFolderDetailsRight.setText("");
         }
         else if (boxObject instanceof BoxFile) {
             BoxFile boxFile = (BoxFile) boxObject;
@@ -121,5 +125,9 @@ public class FilesAdapter extends RecyclerView.Adapter<FilesAdapter.FilesViewHol
 
     public void sort() {
         Collections.sort(boxObjects);
+    }
+
+    public void clear() {
+        boxObjects.clear();
     }
 }

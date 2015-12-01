@@ -97,7 +97,7 @@ public abstract class AbstractNavigation implements BoxNavigation {
 					new FileInputStream(indexDl), tmp, keyParameter)) {
 				dm = DirectoryMetadata.openDatabase(
 						tmp, deviceId, target.ref, this.dm.getTempDir());
-				path = path + BoxProvider.PATH_SEP + target.name;
+				path = path + target.name + BoxProvider.PATH_SEP;
 				dmKey = target.key;
 			} else {
 				throw new QblStorageNotFound("Invalid key");

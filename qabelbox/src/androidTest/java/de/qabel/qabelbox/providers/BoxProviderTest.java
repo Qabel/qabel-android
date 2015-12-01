@@ -5,6 +5,7 @@ import android.content.ContentResolver;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
+import android.os.ParcelFileDescriptor;
 import android.provider.DocumentsContract;
 import android.test.ProviderTestCase2;
 import android.util.Log;
@@ -17,6 +18,7 @@ import com.amazonaws.services.s3.model.S3ObjectSummary;
 import org.apache.commons.io.IOUtils;
 import org.spongycastle.util.encoders.Hex;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -180,6 +182,43 @@ public class BoxProviderTest extends ProviderTestCase2<BoxProvider>{
         byte[] dl = IOUtils.toByteArray(inputStream);
         byte[] content = IOUtils.toByteArray(new FileInputStream(file));
         assertThat(dl, is(content));
+    }
+
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+    public void testOpenDocumentForRW() throws IOException, QblStorageException, InterruptedException {
+        // Upload a test payload
+        BoxNavigation rootNav = volume.navigate();
+        byte[] testContent = new byte[] {0,1,2,3,4,5};
+        rootNav.upload("testfile", new ByteArrayInputStream(testContent), null);
+        rootNav.commit();
+
+        // Check if the test playload can be read
+        String testDocId = ROOT_DOC_ID + "testfile";
+        Uri documentUri = DocumentsContract.buildDocumentUri(BoxProvider.AUTHORITY, testDocId);
+        assertNotNull("Could not build document URI", documentUri);
+        ParcelFileDescriptor parcelFileDescriptor =
+                mContentResolver.openFileDescriptor(documentUri, "rw");
+        InputStream inputStream = new FileInputStream(parcelFileDescriptor.getFileDescriptor());
+        byte[] dl = IOUtils.toByteArray(inputStream);
+        assertThat(dl, is(testContent));
+
+        // Use the same file descriptor to upload new content
+        OutputStream outputStream = new FileOutputStream(parcelFileDescriptor.getFileDescriptor());
+        assertNotNull(outputStream);
+        File file = new File(testFileName);
+        IOUtils.copy(new FileInputStream(file), outputStream);
+        outputStream.close();
+
+        // wait for the upload in the background
+        // TODO: actually wait for it.
+        Thread.sleep(10000l);
+
+        // check the uploaded new content
+        InputStream dlInputStream = mContentResolver.openInputStream(documentUri);
+        assertNotNull(inputStream);
+        byte[] downloaded = IOUtils.toByteArray(dlInputStream);
+        byte[] content = IOUtils.toByteArray(new FileInputStream(file));
+        assertThat(downloaded, is(content));
     }
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)

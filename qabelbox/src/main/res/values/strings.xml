@@ -46,4 +46,5 @@
     <string name="abort">Abort</string>
     <string name="Delete">Delete</string>
     <string name="Share">Share</string>
+    <string name="folderListingUpdateError">Failed to updated folder listing</string>
 </resources>

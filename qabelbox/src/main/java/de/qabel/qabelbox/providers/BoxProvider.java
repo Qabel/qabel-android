@@ -4,13 +4,17 @@ import android.app.NotificationManager;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.MatrixCursor;
+import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Bundle;
 import android.os.CancellationSignal;
 import android.os.Handler;
 import android.os.ParcelFileDescriptor;
+import android.provider.DocumentsContract;
 import android.provider.DocumentsContract.Document;
 import android.provider.DocumentsContract.Root;
 import android.provider.DocumentsProvider;
+import android.support.annotation.NonNull;
 import android.support.v7.app.NotificationCompat;
 import android.util.Log;
 
@@ -32,8 +36,10 @@ import java.io.InputStream;
 import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -86,6 +92,9 @@ public class BoxProvider extends DocumentsProvider {
     AmazonS3Client amazonS3Client;
     AWSCredentials awsCredentials;
 
+    private Map<String, BoxCursor> folderContentCache;
+    private String currentFolder;
+
     @Override
     public boolean onCreate() {
         mDocumentIdParser = new DocumentIdParser();
@@ -110,6 +119,8 @@ public class BoxProvider extends DocumentsProvider {
         };
         amazonS3Client = new AmazonS3Client(awsCredentials);
         QabelBoxApplication.boxProvider = this;
+
+        folderContentCache = new HashMap<>();
         return true;
     }
 
@@ -173,8 +184,7 @@ public class BoxProvider extends DocumentsProvider {
     public Cursor queryDocument(String documentId, String[] projection)
             throws FileNotFoundException {
         Log.d(TAG, "Query Document: " + documentId);
-        MatrixCursor cursor = new MatrixCursor(
-                reduceProjection(projection, DEFAULT_DOCUMENT_PROJECTION));
+        MatrixCursor cursor = createCursor(projection, false);
 
         String filePath = mDocumentIdParser.getFilePath(documentId);
 
@@ -239,8 +249,38 @@ public class BoxProvider extends DocumentsProvider {
     public Cursor queryChildDocuments(String parentDocumentId, String[] projection, String sortOrder)
             throws FileNotFoundException {
         Log.d(TAG, "Query Child Documents: " + parentDocumentId);
-        MatrixCursor cursor = new MatrixCursor(
-                reduceProjection(projection, DEFAULT_DOCUMENT_PROJECTION));
+        BoxCursor cursor = folderContentCache.get(parentDocumentId);
+        boolean cacheHit = (cursor != null);
+        if (parentDocumentId.equals(currentFolder) && cacheHit) {
+            // best case: we are still in the same folder and we got a cache hit
+			Log.d(TAG, "Up to date cached data found");
+			cursor.setExtraLoading(false);
+            return cursor;
+        }
+        if (cacheHit) {
+            // we found it in the cache, but since we changed the folder, we refresh anyway
+            cursor.setExtraLoading(true);
+        } else {
+            Log.d(TAG, "Serving empty listing and refreshing");
+            cursor = createCursor(projection, true);
+        }
+		currentFolder = parentDocumentId;
+		asyncChildDocuments(parentDocumentId, projection, cursor);
+		return cursor;
+    }
+
+	/**
+     * Create and fill a new MatrixCursor
+     *
+     * The cursor can be modified to show a loading and/or an error message.
+     *
+     * @param parentDocumentId
+     * @param projection
+     * @return Fully initialized cursor with the directory listing as rows
+     * @throws FileNotFoundException
+     */
+    private BoxCursor createBoxCursor(String parentDocumentId, String[] projection) throws FileNotFoundException {
+        BoxCursor cursor = createCursor(projection, false);
 
         BoxVolume volume = getVolumeForId(parentDocumentId);
         try {
@@ -252,6 +292,45 @@ public class BoxProvider extends DocumentsProvider {
             Log.e(TAG, "Could not navigate", e);
             throw new FileNotFoundException("Failed navigating the volume");
         }
+        folderContentCache.put(parentDocumentId, cursor);
+        return cursor;
+    }
+
+	/**
+     * Query the directory listing, store the cursor in the folderContentCache and
+     * notify the original cursor of the update.
+     *
+     * @param parentDocumentId
+     * @param projection
+     * @param result Original cursor
+     */
+    private void asyncChildDocuments(final String parentDocumentId, final String[] projection,
+                                     BoxCursor result) {
+        final Uri uri = DocumentsContract.buildChildDocumentsUri(AUTHORITY, parentDocumentId);
+        // tell the original cursor how he gets notified
+        result.setNotificationUri(getContext().getContentResolver(), uri);
+
+        // create a new cursor and store it
+        mThreadPoolExecutor.execute(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    createBoxCursor(parentDocumentId, projection);
+                } catch (FileNotFoundException e) {
+                    BoxCursor cursor = createCursor(projection, false);
+                    cursor.setError(getContext().getString(R.string.folderListingUpdateError));
+                    folderContentCache.put(parentDocumentId, cursor);
+                }
+                getContext().getContentResolver().notifyChange(uri, null);
+            }
+        });
+    }
+
+    @NonNull
+    private BoxCursor createCursor(String[] projection, final boolean extraLoading) {
+        String[] reduced = reduceProjection(projection, DEFAULT_DOCUMENT_PROJECTION);
+		BoxCursor cursor = new BoxCursor(reduced);
+        cursor.setExtraLoading(extraLoading);
         return cursor;
     }
 
@@ -560,7 +639,7 @@ public class BoxProvider extends DocumentsProvider {
 
         try {
             List<String> splitPath = mDocumentIdParser.splitPath(path);
-            String basename = splitPath.remove(splitPath.size()-1);
+            String basename = splitPath.remove(splitPath.size() - 1);
             BoxNavigation navigation = traverseToFolder(volume, splitPath);
             splitPath.add(PATH_SEP + displayName);
             String newPath = StringUtils.join(splitPath, "");
@@ -570,14 +649,14 @@ public class BoxProvider extends DocumentsProvider {
                     mDocumentIdParser.getPrefix(documentId),
                     newPath);
 
-            for (BoxFile file: navigation.listFiles()) {
+            for (BoxFile file : navigation.listFiles()) {
                 if (file.name.equals(basename)) {
                     navigation.rename(file, displayName);
                     navigation.commit();
                     return renamedId;
                 }
             }
-            for (BoxFolder folder: navigation.listFolders()) {
+            for (BoxFolder folder : navigation.listFolders()) {
                 if (folder.name.equals(basename)) {
                     navigation.rename(folder, displayName);
                     navigation.commit();
@@ -590,6 +669,32 @@ public class BoxProvider extends DocumentsProvider {
         } catch (QblStorageException e) {
             Log.e(TAG, "could not create file", e);
             throw new FileNotFoundException();
+        }
+    }
+
+    class BoxCursor extends MatrixCursor {
+        private boolean extraLoading;
+        private String error;
+
+        public BoxCursor(String[] columnNames) {
+            super(columnNames);
+        }
+
+        public void setExtraLoading(boolean loading) {
+            this.extraLoading = loading;
+        }
+
+        public Bundle getExtras() {
+            Bundle bundle = new Bundle();
+            bundle.putBoolean(DocumentsContract.EXTRA_LOADING, extraLoading);
+            if (error != null) {
+                bundle.putString(DocumentsContract.EXTRA_ERROR, error);
+            }
+            return bundle;
+        }
+
+        public void setError(String error) {
+            this.error = error;
         }
     }
 }

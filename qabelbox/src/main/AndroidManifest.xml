@@ -8,6 +8,18 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.AUTHENTICATE_ACCOUNTS"/>
+
+    <permission android:name="de.qabel.qabelbox.QABELSERVICE" android:label="Use QabelService" android:protectionLevel="dangerous" />
+
+    <permission android:name="de.qabel.qabelbox.QABEL_READ_RESOURCES" android:label="Read Qabel Resources" android:protectionLevel="dangerous" />
+    <permission android:name="de.qabel.qabelbox.QABEL_WRITE_RESOURCES" android:label="Write Qabel Resources" android:protectionLevel="dangerous" />
+
+    <permission android:name="de.qabel.qabelbox.QABEL_READ_CONTACTS" android:label="Read Qabel Contacts" android:protectionLevel="dangerous" />
+    <permission android:name="de.qabel.qabelbox.QABEL_WRITE_CONTACTS" android:label="Write Qabel Contacts" android:protectionLevel="dangerous" />
+
+    <permission android:name="de.qabel.qabelbox.QABEL_READ_IDENTITIES" android:label="Read Qabel Identities" android:protectionLevel="dangerous" />
+    <permission android:name="de.qabel.qabelbox.QABEL_WRITE_IDENTITIES" android:label="Write Qabel Identities" android:protectionLevel="dangerous" />
+
     <application
         android:name="de.qabel.qabelbox.QabelBoxApplication"
         android:allowBackup="true"
@@ -39,6 +51,17 @@
         </activity>
 
         <service
+            android:name=".services.QabelService"
+            android:enabled="true"
+            android:exported="true"
+            android:permission="de.qabel.qabelbox.QABELSERVICE" >
+            <intent-filter>
+                <action android:name="de.qabel.qabelbox.service.QabelService" >
+                </action>
+            </intent-filter>
+        </service>
+
+        <service
             android:name=".services.BoxSyncService"
             android:exported="true"
             android:process=":sync">
@@ -61,6 +84,21 @@
         <service
             android:name="com.amazonaws.mobileconnectors.s3.transferutility.TransferService"
             android:enabled="true" />
+
+        <provider
+            android:authorities="de.qabel.qabelbox.services.QabelContentProvider"
+            android:name=".services.QabelContentProvider"
+            android:exported="true"
+            android:readPermission="de.qabel.qabelbox.QABEL_READ_RESOURCES"
+            android:writePermission="de.qabel.qabelbox.QABEL_WRITE_RESOURCES" >
+            <path-permission
+                android:path="/contacts"
+                android:readPermission="de.qabel.qabelbox.QABEL_READ_CONTACTS" />
+            <path-permission
+                android:path="/identities"
+                android:readPermission="de.qabel.qabelbox.QABEL_READ_IDENTITIES" />
+        </provider>
+
         <provider
             android:authorities="de.qabel.qabelbox.providers.documents"
             android:name=".providers.BoxProvider"

@@ -3,6 +3,14 @@
 
     <group android:checkableBehavior="single">
         <item
+            android:id="@+id/nav_identities"
+            android:icon="@drawable/ic_perm_identity_black_24dp"
+            android:title="@string/Identity" />
+        <item
+            android:id="@+id/nav_contacts"
+            android:icon="@drawable/ic_contacts_black_24dp"
+            android:title="@string/Contacts" />
+        <item
             android:id="@+id/nav_browse"
             android:icon="@android:drawable/ic_menu_gallery"
             android:title="Browse"/>

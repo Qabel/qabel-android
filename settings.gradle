@@ -1,1 +1,1 @@
-include ':qabellauncher', ':libqabellauncher', ':qabeldropchatexample', ':qabelbox'
+include ':libqabel', ':qabeldropchatexample', ':qabelbox'

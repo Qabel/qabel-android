@@ -92,10 +92,8 @@ public class BoxProvider extends DocumentsProvider {
     AmazonS3Client amazonS3Client;
     AWSCredentials awsCredentials;
 
-    // Flag that marks that the next request should try to serve the metadata from the cache
-    private boolean serveCachedData = true;
-
     private Map<String, BoxCursor> folderContentCache;
+    private String currentFolder;
 
     @Override
     public boolean onCreate() {
@@ -251,22 +249,23 @@ public class BoxProvider extends DocumentsProvider {
     public Cursor queryChildDocuments(String parentDocumentId, String[] projection, String sortOrder)
             throws FileNotFoundException {
         Log.d(TAG, "Query Child Documents: " + parentDocumentId);
-        BoxCursor cursor;
-        if (serveCachedData) {
-            cursor = folderContentCache.get(parentDocumentId);
-            if (cursor == null) {
-                Log.d(TAG, "Serving empty listing from cache");
-                cursor = createCursor(projection, true);
-            } else {
-                Log.d(TAG, "Serving directory listing from cache");
-                cursor.setExtraLoading(true);
-            }
-            serveCachedData = false;
-            asyncChildDocuments(parentDocumentId, projection, cursor);
-        } else {
-            cursor = createBoxCursor(parentDocumentId, projection);
-            serveCachedData = true;
+        BoxCursor cursor = folderContentCache.get(parentDocumentId);
+        boolean cacheHit = (cursor != null);
+        if (parentDocumentId.equals(currentFolder) && cacheHit) {
+            // best case: we are still in the same folder and we got a cache hit
+			Log.d(TAG, "Up to date cached data found");
+			cursor.setExtraLoading(false);
+            return cursor;
         }
+        if (cacheHit) {
+            // we found it in the cache, but since we changed the folder, we refresh anyway
+            cursor.setExtraLoading(true);
+        } else {
+            Log.d(TAG, "Serving empty listing and refreshing");
+            cursor = createCursor(projection, true);
+        }
+		currentFolder = parentDocumentId;
+		asyncChildDocuments(parentDocumentId, projection, cursor);
 		return cursor;
     }
 

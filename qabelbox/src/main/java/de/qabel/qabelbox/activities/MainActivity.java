@@ -78,7 +78,8 @@ public class MainActivity extends AppCompatActivity
                                     AddIdentityFragment.AddIdentityListener,
                                         NewDatabasePasswordFragment.NewDatabasePasswordListener,
                                             OpenDatabaseFragment.OpenDatabaseFragmentListener,
-                                                AddContactFragment.AddContactListener {
+                                                AddContactFragment.AddContactListener,
+                                                    FilesFragment.FilesListListener{
 
     public static final String ACTION_ENTER_DB_PASSWORD = "EnterDatabasePassword";
     public static final String ACTION_ENTER_NEW_DB_PASSWORD = "EnterNewDatabasePassword";
@@ -672,5 +673,14 @@ public class MainActivity extends AppCompatActivity
 
         Snackbar.make(appBarMain, "Added contact: " + contact.getAlias(), Snackbar.LENGTH_LONG)
                 .show();
+    }
+
+    @Override
+    public void onScrolledToBottom(boolean scrolledToBottom) {
+        if (scrolledToBottom) {
+            fab.hide();
+        } else {
+            fab.show();
+        }
     }
 }

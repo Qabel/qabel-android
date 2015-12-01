@@ -1,6 +1,7 @@
 package de.qabel.qabelbox.fragments;
 
 
+import android.app.Activity;
 import android.app.Fragment;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
@@ -27,7 +28,7 @@ public class FilesFragment extends Fragment {
     private RecyclerView.LayoutManager recyclerViewLayoutManager;
     private ProgressBar loadingSpinner;
     private boolean showLoadingSpinner;
-
+    private FilesListListener mListener;
 
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v,
@@ -78,7 +79,30 @@ public class FilesFragment extends Fragment {
         filesListRecyclerView.setAdapter(filesAdapter);
         registerForContextMenu(filesListRecyclerView);
 
+        filesListRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+                if (((LinearLayoutManager) recyclerViewLayoutManager).findLastCompletelyVisibleItemPosition()
+                        == filesAdapter.getItemCount() - 1) {
+                    mListener.onScrolledToBottom(true);
+                } else {
+                    mListener.onScrolledToBottom(false);
+                }
+            }
+        });
         return view;
+    }
+
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        try {
+            mListener = (FilesListListener) activity;
+        } catch (ClassCastException e) {
+            throw new ClassCastException(activity.toString()
+                    + " must implement FilesListListener");
+        }
     }
 
     /**
@@ -106,5 +130,9 @@ public class FilesFragment extends Fragment {
     //TODO: Workaround for navigation
     public void setBoxNavigation(BoxNavigation boxNavigation) {
         this.boxNavigation = boxNavigation;
+    }
+
+    public interface FilesListListener {
+        void onScrolledToBottom(boolean scrolledToBottom);
     }
 }

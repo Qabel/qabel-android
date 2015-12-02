@@ -52,7 +52,11 @@ public abstract class AbstractNavigation implements BoxNavigation {
 	}
 
 	public String getPath(BoxObject object) {
-		return path + object.name;
+		if (object instanceof BoxFolder) {
+			return path + object.name + BoxProvider.PATH_SEP;
+		} else {
+			return path + object.name;
+		}
 	}
 
 	protected File blockingDownload(String name, TransferManager.BoxTransferListener boxTransferListener) throws QblStorageNotFound {

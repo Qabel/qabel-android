@@ -566,7 +566,7 @@ public class MainActivity extends AppCompatActivity
                     String path = boxNavigation.getPath();
                     String folderId = boxVolume.getDocumentId(path);
                     Uri uploadUri = DocumentsContract.buildDocumentUri(
-                            BoxProvider.AUTHORITY, folderId + BoxProvider.PATH_SEP + name);
+                            BoxProvider.AUTHORITY, folderId + name);
 
                     InputStream content = getContentResolver().openInputStream(uri);
                     OutputStream upload = getContentResolver().openOutputStream(uploadUri, "w");

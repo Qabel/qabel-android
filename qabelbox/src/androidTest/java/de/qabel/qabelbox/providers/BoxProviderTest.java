@@ -245,10 +245,10 @@ public class BoxProviderTest extends ProviderTestCase2<BoxProvider>{
         BoxNavigation navigate = volume.navigate();
         assertThat(volume.getDocumentId(navigate.getPath()), is(ROOT_DOC_ID));
         BoxFolder folder = navigate.createFolder("testfolder");
-        assertThat(navigate.getPath(folder), is("/testfolder"));
+        assertThat(navigate.getPath(folder), is("/testfolder/"));
         navigate.commit();
         navigate.navigate(folder);
-        assertThat(volume.getDocumentId(navigate.getPath()), is(ROOT_DOC_ID + "/testfolder"));
+        assertThat(volume.getDocumentId(navigate.getPath()), is(ROOT_DOC_ID + "testfolder/"));
     }
 
 }

@@ -388,6 +388,7 @@ public class BoxProvider extends DocumentsProvider {
 
         Log.d(TAG, "Open document: " + documentId);
         final boolean isWrite = (mode.indexOf('w') != -1);
+        final boolean isRead = (mode.indexOf('r') != -1);
 
         if (isWrite) {
             final int id = 1;
@@ -402,56 +403,65 @@ public class BoxProvider extends DocumentsProvider {
             // Attach a close listener if the document is opened in write mode.
             try {
                 Handler handler = new Handler(getContext().getMainLooper());
-                final File tmp = File.createTempFile("upload", "", getContext().getExternalCacheDir());
-                return ParcelFileDescriptor.open(tmp, ParcelFileDescriptor.parseMode(mode), handler,
-                        new ParcelFileDescriptor.OnCloseListener() {
+                final File tmp;
+                if (isRead) {
+                    tmp = downloadFile(documentId, mode, signal);
+                } else {
+                    tmp = File.createTempFile("upload", "", getContext().getExternalCacheDir());
+                }
+                ParcelFileDescriptor.OnCloseListener onCloseListener = new ParcelFileDescriptor.OnCloseListener() {
+                    @Override
+                    public void onClose(IOException e) {
+                        // Update the file with the cloud server.  The client is done writing.
+                        Log.i(TAG, "A file with id " + documentId + " has been closed!  Time to " +
+                                "update the server.");
+                        if (e != null) {
+                            Log.e(TAG, "IOException in onClose", e);
+                            return;
+                        }
+                        // in another thread!
+                        new AsyncTask<Void, Void, String>() {
                             @Override
-                            public void onClose(IOException e) {
-                                // Update the file with the cloud server.  The client is done writing.
-                                Log.i(TAG, "A file with id " + documentId + " has been closed!  Time to " +
-                                        "update the server.");
-                                if (e != null) {
-                                    Log.e(TAG, "IOException in onClose", e);
-                                    return;
-                                }
-                                // in another thread!
-                                new AsyncTask<Void, Void, String>() {
+                            protected String doInBackground(Void... params) {
+                                uploadFile(documentId, tmp, new TransferManager.BoxTransferListener() {
                                     @Override
-                                    protected String doInBackground(Void... params) {
-                                        uploadFile(documentId, tmp, new TransferManager.BoxTransferListener() {
-                                            @Override
-                                            public void onProgressChanged(long bytesCurrent, long bytesTotal) {
-                                                mBuilder.setProgress(100, (int) (100 * bytesCurrent / bytesTotal), false);
-                                                mNotifyManager.notify(id, mBuilder.build());
-                                            }
-
-                                            @Override
-                                            public void onFinished() {
-                                                String filename;
-                                                try {
-                                                    filename = mDocumentIdParser.getBaseName(documentId);
-                                                } catch (FileNotFoundException e) {
-                                                    filename = documentId;
-                                                }
-                                                mBuilder.setContentTitle("Uploading " + filename)
-                                                        .setContentText("Upload complete")
-                                                        .setSmallIcon(R.drawable.notification_template_icon_bg);
-                                                mBuilder.setProgress(100, 100, false);
-                                                mNotifyManager.notify(id, mBuilder.build());
-                                            }
-                                        });
-                                        return documentId;
+                                    public void onProgressChanged(long bytesCurrent, long bytesTotal) {
+                                        mBuilder.setProgress(100, (int) (100 * bytesCurrent / bytesTotal), false);
+                                        mNotifyManager.notify(id, mBuilder.build());
                                     }
-                                }.execute();
-                            }
 
-                        });
+                                    @Override
+                                    public void onFinished() {
+                                        String filename;
+                                        try {
+                                            filename = mDocumentIdParser.getBaseName(documentId);
+                                        } catch (FileNotFoundException e) {
+                                            filename = documentId;
+                                        }
+                                        mBuilder.setContentTitle("Uploading " + filename)
+                                                .setContentText("Upload complete")
+                                                .setSmallIcon(R.drawable.notification_template_icon_bg);
+                                        mBuilder.setProgress(100, 100, false);
+                                        mNotifyManager.notify(id, mBuilder.build());
+                                    }
+                                });
+                                return documentId;
+                            }
+                        }.execute();
+                    }
+
+                };
+                return ParcelFileDescriptor.open(tmp, ParcelFileDescriptor.parseMode(mode), handler,
+                        onCloseListener);
             } catch (IOException e) {
                 throw new FileNotFoundException();
             }
         }
         else {
-            return downloadFile(documentId, mode, signal);
+            File tmp = downloadFile(documentId, mode, signal);
+			final int accessMode = ParcelFileDescriptor.parseMode(mode);
+			return ParcelFileDescriptor.open(tmp, accessMode);
+
         }
     }
 
@@ -471,17 +481,14 @@ public class BoxProvider extends DocumentsProvider {
         }
     }
 
-    private ParcelFileDescriptor downloadFile(final String documentId, final String mode, final CancellationSignal signal) throws FileNotFoundException {
-        final Future<ParcelFileDescriptor> future
-                = mThreadPoolExecutor.submit(new Callable<ParcelFileDescriptor>() {
+    private File downloadFile(final String documentId, final String mode, final CancellationSignal signal) throws FileNotFoundException {
+        final Future<File> future
+                = mThreadPoolExecutor.submit(new Callable<File>() {
 
             @Override
-            public ParcelFileDescriptor call() throws Exception {
+            public File call() throws Exception {
 
-                File f = getFile(signal, documentId);
-
-                // return the file to the client.
-                return makeParcelFileDescriptor(f, mode);
+                return getFile(signal, documentId);
             }
         });
         if (signal != null) {
@@ -503,12 +510,6 @@ public class BoxProvider extends DocumentsProvider {
             Log.d(TAG, "Execution error", e);
             throw new FileNotFoundException();
         }
-    }
-
-    private ParcelFileDescriptor makeParcelFileDescriptor(File f, String mode)
-            throws FileNotFoundException {
-        final int accessMode = ParcelFileDescriptor.parseMode(mode);
-        return ParcelFileDescriptor.open(f, accessMode);
     }
 
     private File getFile(CancellationSignal signal, final String documentId)

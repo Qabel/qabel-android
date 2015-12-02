@@ -20,6 +20,7 @@ import org.spongycastle.util.encoders.Hex;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileDescriptor;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -189,6 +190,7 @@ public class BoxProviderTest extends ProviderTestCase2<BoxProvider>{
         // Upload a test payload
         BoxNavigation rootNav = volume.navigate();
         byte[] testContent = new byte[] {0,1,2,3,4,5};
+        byte[] updatedContent = new byte[] {0,1,2,3,4,5,6};
         rootNav.upload("testfile", new ByteArrayInputStream(testContent), null);
         rootNav.commit();
 
@@ -198,27 +200,28 @@ public class BoxProviderTest extends ProviderTestCase2<BoxProvider>{
         assertNotNull("Could not build document URI", documentUri);
         ParcelFileDescriptor parcelFileDescriptor =
                 mContentResolver.openFileDescriptor(documentUri, "rw");
-        InputStream inputStream = new FileInputStream(parcelFileDescriptor.getFileDescriptor());
+        FileDescriptor fileDescriptor = parcelFileDescriptor.getFileDescriptor();
+
+        InputStream inputStream = new FileInputStream(fileDescriptor);
         byte[] dl = IOUtils.toByteArray(inputStream);
-        assertThat(dl, is(testContent));
+        assertThat("Downloaded file not correct", dl, is(testContent));
 
         // Use the same file descriptor to upload new content
-        OutputStream outputStream = new FileOutputStream(parcelFileDescriptor.getFileDescriptor());
+        OutputStream outputStream = new FileOutputStream(fileDescriptor);
         assertNotNull(outputStream);
-        File file = new File(testFileName);
-        IOUtils.copy(new FileInputStream(file), outputStream);
+        outputStream.write(6);
         outputStream.close();
+        parcelFileDescriptor.close();
 
         // wait for the upload in the background
         // TODO: actually wait for it.
-        Thread.sleep(10000l);
+        Thread.sleep(4000L);
 
         // check the uploaded new content
         InputStream dlInputStream = mContentResolver.openInputStream(documentUri);
         assertNotNull(inputStream);
         byte[] downloaded = IOUtils.toByteArray(dlInputStream);
-        byte[] content = IOUtils.toByteArray(new FileInputStream(file));
-        assertThat(downloaded, is(content));
+        assertThat("Changes to the uploaded file not found", downloaded, is(updatedContent));
     }
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)

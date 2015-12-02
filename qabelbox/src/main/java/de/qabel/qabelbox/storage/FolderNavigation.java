@@ -65,7 +65,6 @@ public class FolderNavigation extends AbstractNavigation {
 		}
 	}
 
-	@Override
 	protected DirectoryMetadata reloadMetadata() throws QblStorageException {
 		if (path.equals("/")) {
 			return reloadMetadataRoot();
@@ -109,5 +108,10 @@ public class FolderNavigation extends AbstractNavigation {
 			throw new QblStorageException(e);
 		}
 		return DirectoryMetadata.openDatabase(tmp, deviceId, rootRef, dm.getTempDir());
+	}
+
+	@Override
+	public void reload() throws QblStorageException {
+		dm = reloadMetadata();
 	}
 }

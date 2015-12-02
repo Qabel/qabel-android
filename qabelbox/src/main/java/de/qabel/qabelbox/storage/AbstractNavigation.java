@@ -107,8 +107,6 @@ public abstract class AbstractNavigation implements BoxNavigation {
 		}
 	}
 
-	protected abstract DirectoryMetadata reloadMetadata() throws QblStorageException;
-
 	@Override
 	public void commit() throws QblStorageException {
 		byte[] version = dm.getVersion();
@@ -138,6 +136,8 @@ public abstract class AbstractNavigation implements BoxNavigation {
 		deleteQueue.clear();
 		updatedFiles.clear();
 	}
+
+	protected abstract DirectoryMetadata reloadMetadata() throws QblStorageException;
 
 	protected void blockingDelete(String ref) {
 		transferManager.delete(ref);

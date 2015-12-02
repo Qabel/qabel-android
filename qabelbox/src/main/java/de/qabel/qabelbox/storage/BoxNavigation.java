@@ -38,6 +38,8 @@ public interface BoxNavigation {
 	BoxFolder rename(BoxFolder folder, String name) throws QblStorageException;
 	BoxExternal rename(BoxExternal external, String name) throws QblStorageException;
 
+	void reload() throws QblStorageException;
+
 	String getPath();
 
 	String getPath(BoxObject object);

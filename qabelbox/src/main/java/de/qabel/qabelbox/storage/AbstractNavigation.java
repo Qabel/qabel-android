@@ -87,7 +87,7 @@ public abstract class AbstractNavigation implements BoxNavigation {
             }
         }
         if (!isSubfolder) {
-            throw new QblStorageNotFound(target.name + " is not a direct subfolder");
+            throw new QblStorageNotFound(target.name + " is not a direct subfolder of " + path);
         }
 		try {
 			File indexDl = blockingDownload(target.ref, null);

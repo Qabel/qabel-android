@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.app.Fragment;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.ContextMenu;
@@ -13,7 +14,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import de.qabel.qabelbox.storage.BoxFolder;
@@ -29,9 +29,10 @@ public class FilesFragment extends Fragment {
     private RecyclerView filesListRecyclerView;
     private FilesAdapter filesAdapter;
     private RecyclerView.LayoutManager recyclerViewLayoutManager;
-    private ProgressBar loadingSpinner;
-    private boolean showLoadingSpinner;
+    private boolean isLoading;
     private FilesListListener mListener;
+    private SwipeRefreshLayout swipeRefreshLayout;
+    private FilesFragment self;
 
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v,
@@ -67,6 +68,7 @@ public class FilesFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        self = this;
     }
 
     @Override
@@ -75,13 +77,20 @@ public class FilesFragment extends Fragment {
 
         View view = inflater.inflate(R.layout.fragment_files, container, false);
 
-        loadingSpinner = (ProgressBar) view.findViewById(R.id.loadingSpinner);
-        if (showLoadingSpinner) {
-            loadingSpinner.setVisibility(View.VISIBLE);
-        }
-        else {
-            loadingSpinner.setVisibility(View.INVISIBLE);
-        }
+        swipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.swipeRefresh);
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                mListener.onDoRefresh(self, boxNavigation, filesAdapter);
+
+            }
+        });
+        swipeRefreshLayout.post(new Runnable() {
+            @Override
+            public void run() {
+                swipeRefreshLayout.setRefreshing(isLoading);
+            }
+        });
 
         filesListRecyclerView = (RecyclerView) view.findViewById(R.id.files_list);
         filesListRecyclerView.setHasFixedSize(true);
@@ -123,19 +132,19 @@ public class FilesFragment extends Fragment {
     /**
      * Sets visibility of loading spinner. Visibility is stored if method is invoked
      * before onCreateView() has completed.
-     * @param isVisible
+     * @param isLoading
      */
-    public void setLoadingSpinner(boolean isVisible) {
-        showLoadingSpinner = isVisible;
-        if (loadingSpinner == null) {
+    public void setIsLoading(final boolean isLoading) {
+        this.isLoading = isLoading;
+        if (swipeRefreshLayout == null) {
             return;
         }
-        if (isVisible) {
-            loadingSpinner.setVisibility(View.VISIBLE);
-        }
-        else {
-            loadingSpinner.setVisibility(View.INVISIBLE);
-        }
+        swipeRefreshLayout.post(new Runnable() {
+            @Override
+            public void run() {
+                swipeRefreshLayout.setRefreshing(isLoading);
+            }
+        });
     }
 
     public void setAdapter(FilesAdapter adapter) {
@@ -150,5 +159,6 @@ public class FilesFragment extends Fragment {
     public interface FilesListListener {
         void onScrolledToBottom(boolean scrolledToBottom);
         void onExport(BoxNavigation boxNavigation, BoxObject object);
+        void onDoRefresh(FilesFragment filesFragment, BoxNavigation boxNavigation, FilesAdapter filesAdapter);
     }
 }

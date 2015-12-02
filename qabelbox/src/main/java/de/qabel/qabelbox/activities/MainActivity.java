@@ -31,6 +31,7 @@ import com.google.zxing.integration.android.IntentIntegrator;
 
 import org.apache.commons.io.IOUtils;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -38,6 +39,7 @@ import java.io.Serializable;
 import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.concurrent.ExecutionException;
 
 import de.qabel.ackack.MessageInfo;
 import de.qabel.ackack.Responsible;
@@ -393,7 +395,7 @@ public class MainActivity extends AppCompatActivity
                     fab.show();
                     filesFragment = new FilesFragment();
                 }
-                filesFragment.setLoadingSpinner(true);
+                filesFragment.setIsLoading(true);
                 filesAdapter = new FilesAdapter(new ArrayList<BoxObject>());
                 filesFragment.setAdapter(filesAdapter);
                 getFragmentManager().beginTransaction()
@@ -486,7 +488,7 @@ public class MainActivity extends AppCompatActivity
                         }.execute();
                     }
                 });
-                filesFragment.setLoadingSpinner(false);
+                filesFragment.setIsLoading(false);
                 filesAdapter.notifyDataSetChanged();
             }
         }.execute();
@@ -747,5 +749,49 @@ public class MainActivity extends AppCompatActivity
         intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
         // the activity result will handle the actual file copy
         startActivityForResult(intent, REQUEST_CODE_CHOOSE_EXPORT);
+    }
+
+    @Override
+    public void onDoRefresh(final FilesFragment filesFragment, final BoxNavigation boxNavigation, final FilesAdapter filesAdapter) {
+        if (boxNavigation == null) {
+            Log.e(TAG, "Refresh failed because the boxNavigation object is null");
+            return;
+        }
+        AsyncTask<Void, Void, Void> asyncTask = new AsyncTask<Void, Void, Void>() {
+            @Override
+            protected Void doInBackground(Void... params) {
+                //TODO: Duplication with browseTo
+                filesAdapter.clear();
+                try {
+					boxNavigation.reload();
+                    for (BoxFolder boxFolder : boxNavigation.listFolders()) {
+                        Log.d(TAG, "Adding folder: " + boxFolder.name);
+                        filesAdapter.add(boxFolder);
+                    }
+                    for (BoxExternal boxExternal : boxNavigation.listExternals()) {
+                        Log.d("MainActivity", "Adding external: " + boxExternal.name);
+                        filesAdapter.add(boxExternal);
+                    }
+                    for (BoxFile boxFile : boxNavigation.listFiles()) {
+                        Log.d(TAG, "Adding file: " + boxFile.name);
+                        filesAdapter.add(boxFile);
+                    }
+                } catch (QblStorageException e) {
+                    Log.e(TAG, "refresh failed", e);
+                }
+                return null;
+            }
+
+            @Override
+            protected void onPostExecute(Void aVoid) {
+                super.onPostExecute(aVoid);
+
+                filesAdapter.sort();
+                filesAdapter.notifyDataSetChanged();
+
+                filesFragment.setIsLoading(false);
+            }
+        };
+        asyncTask.execute();
     }
 }

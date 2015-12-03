@@ -37,9 +37,7 @@ import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.exceptions.QblStorageNameConflict;
 import de.qabel.qabelbox.exceptions.QblStorageNotFound;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.startsWith;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 
 public class BoxTest extends AndroidTestCase {
@@ -143,7 +141,10 @@ public class BoxTest extends AndroidTestCase {
 
     private BoxFile uploadFile(BoxNavigation nav) throws QblStorageException, IOException {
         File file = new File(testFileName);
+        long time = System.currentTimeMillis() / 1000;
         BoxFile boxFile = nav.upload("foobar", new FileInputStream(file), null);
+        assertThat(boxFile.mtime, greaterThanOrEqualTo(time));
+        assertThat(boxFile.size, not(equalTo(boxFile.mtime)));
         nav.commit();
         checkFile(boxFile, nav);
         return boxFile;

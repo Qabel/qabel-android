@@ -105,6 +105,16 @@ public class BoxTest extends AndroidTestCase {
         return file.getAbsolutePath();
     }
 
+    public static File smallTestFile() throws IOException {
+        File tmpDir = new File(System.getProperty("java.io.tmpdir"));
+        File file = File.createTempFile("testfile", "test", tmpDir);
+        FileOutputStream outputStream = new FileOutputStream(file);
+        byte[] testData = new byte[] {1,2,3,4,5};
+		outputStream.write(testData);
+        outputStream.close();
+        return file;
+    }
+
     public void tearDown() throws IOException {
         ObjectListing listing = s3Client.listObjects(bucket, prefix);
         List<DeleteObjectsRequest.KeyVersion> keys = new ArrayList<>();
@@ -321,5 +331,30 @@ public class BoxTest extends AndroidTestCase {
         }
         outputStream.close();
         nav.upload("large file", new FileInputStream(file), null);
+    }
+
+    @Test
+    public void testCacheFailure() throws QblStorageException, IOException {
+        File file = smallTestFile();
+        BoxNavigation nav = volume.navigate();
+        BoxFile boxFile = nav.upload("foobar", new FileInputStream(file), null);
+        nav.commit();
+
+        // warm up cache
+        nav.download(boxFile, null);
+        corruptCachedFile(boxFile);
+
+        InputStream dlStream = nav.download(boxFile, null);
+        assertNotNull("Download stream is null", dlStream);
+        byte[] dl = IOUtils.toByteArray(dlStream);
+        byte[] content = IOUtils.toByteArray(new FileInputStream(file));
+        assertThat("Downloaded file is not correct", dl, is(content));
+    }
+
+    private void corruptCachedFile(BoxFile boxFile) throws IOException {
+        // corrupt the file
+        FileOutputStream outputStream = new FileOutputStream(new FileCache(getContext()).get(boxFile));
+        outputStream.write(1);
+        outputStream.close();
     }
 }

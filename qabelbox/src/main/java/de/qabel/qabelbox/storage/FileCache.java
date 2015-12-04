@@ -44,17 +44,23 @@ class FileCache extends SQLiteOpenHelper {
 		int rows = database.delete(FileEntry.TABLE_NAME, FileEntry.COL_REF + "=?",
 				new String[]{boxFile.block});
 		if (rows == 0) {
-			Log.i(TAG, "Trying to remove non existing cache entry");
+			Log.i(TAG, "Trying to remove non existing cache entry: " + boxFile.block);
 		}
 	}
 
 	public long put(BoxFile boxFile, File file) {
+		remove(boxFile);
+		Log.i(TAG, "Put into cache: " + boxFile.block);
 		ContentValues values = new ContentValues();
 		values.put(FileEntry.COL_REF, boxFile.block);
 		values.put(FileEntry.COL_PATH, file.getAbsolutePath());
 		values.put(FileEntry.COL_MTIME, boxFile.mtime);
 		values.put(FileEntry.COL_SIZE, boxFile.size);
-		return getWritableDatabase().insert(FileEntry.TABLE_NAME, null, values);
+		long id = getWritableDatabase().insert(FileEntry.TABLE_NAME, null, values);
+		if (id == -1) {
+			Log.e(TAG, "Failed putting into cache: " + boxFile.block);
+		}
+		return id;
 	}
 
 	public File get(BoxFile boxFile) {
@@ -67,8 +73,16 @@ class FileCache extends SQLiteOpenHelper {
 		cursor.moveToFirst();
 		try {
 			String path = cursor.getString(cursor.getColumnIndexOrThrow(FileEntry.COL_PATH));
-			return new File(path);
+			cursor.close();
+			File file = new File(path);
+			if (file.exists()) {
+				return file;
+			} else {
+				remove(boxFile);
+				return null;
+			}
 		} catch (CursorIndexOutOfBoundsException e) {
+			cursor.close();
 			return null;
 		}
 	}

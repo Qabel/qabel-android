@@ -70,4 +70,13 @@ public class FileCacheTest {
 		boxFile.size += 1;
 		assertNull(mHelper.get(boxFile));
 	}
+
+	@Test
+	public void testInvalidEntry() throws IOException {
+		File file = new File(BoxTest.createTestFile());
+		file.delete();
+		BoxFile boxFile = getBoxFile();
+		mHelper.put(boxFile, file);
+		assertNull(mHelper.get(boxFile));
+	}
 }

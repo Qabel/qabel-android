@@ -1,6 +1,7 @@
 package de.qabel.qabelbox.storage;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import de.qabel.core.crypto.CryptoUtils;
@@ -247,21 +248,45 @@ public abstract class AbstractNavigation implements BoxNavigation {
 	public InputStream download(BoxFile boxFile,
 								@Nullable TransferManager.BoxTransferListener boxTransferListener) throws QblStorageException {
 		File download = cache.get(boxFile);
+		cache.close();
 		if (download == null) {
-			download = blockingDownload("blocks/" + boxFile.block, boxTransferListener);
-			cache.put(boxFile, download);
+			download = refreshCache(boxFile, boxTransferListener);
 		}
+		try {
+			return openStream(boxFile, download);
+		} catch (QblStorageException e) {
+			download = refreshCache(boxFile, boxTransferListener);
+			return openStream(boxFile, download);
+		}
+	}
+
+	private File refreshCache(BoxFile boxFile, @Nullable TransferManager.BoxTransferListener boxTransferListener) throws QblStorageNotFound {
+		logger.info("Refreshing cache: "+ boxFile.block);
+		File download = blockingDownload("blocks/" + boxFile.block, boxTransferListener);
+		cache.put(boxFile, download);
+		cache.close();
+		return download;
+	}
+
+	@NonNull
+	private InputStream openStream(BoxFile boxFile, File file) throws QblStorageException {
 		KeyParameter key = new KeyParameter(boxFile.key);
 		try {
 			File temp = File.createTempFile("upload", "down", dm.getTempDir());
 			if (!cryptoUtils.decryptFileAuthenticatedSymmetricAndValidateTag(
-					new FileInputStream(download), temp, key)) {
+					new FileInputStream(file), temp, key)
+					|| checkFile(temp)) {
 				throw new QblStorageException("Decryption failed");
 			}
 			return new FileInputStream(temp);
 		} catch (IOException | InvalidKeyException e) {
 			throw new QblStorageException(e);
 		}
+	}
+
+	private boolean checkFile(File file) {
+		// because the decrypt method does not raise an exception if it fails.
+		return file.length() == 0;
 	}
 
 	@Override
@@ -280,6 +305,7 @@ public abstract class AbstractNavigation implements BoxNavigation {
 	public void delete(BoxFile file) throws QblStorageException {
 		dm.deleteFile(file);
 		cache.remove(file);
+		cache.close();
 		deleteQueue.add("blocks/" + file.block);
 	}
 

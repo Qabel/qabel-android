@@ -84,9 +84,9 @@ public class BoxTest extends AndroidTestCase {
         QblECKeyPair keyPair = new QblECKeyPair();
         TransferUtility transfer = new TransferUtility(s3Client, getContext());
         volume = new BoxVolume(transfer, credentials, keyPair, bucket, prefix, deviceID,
-                new File(System.getProperty("java.io.tmpdir")));
+                getContext());
         volume2 = new BoxVolume(transfer, credentials, keyPair, bucket, prefix, deviceID2,
-                new File(System.getProperty("java.io.tmpdir")));
+                getContext());
 
         volume.createIndex(bucket, prefix);
 

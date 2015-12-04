@@ -177,7 +177,7 @@ public class BoxProvider extends DocumentsProvider {
         setUpTransferUtility();
 
         return new BoxVolume(transferUtility, awsCredentials, testKey, bucket, prefix,
-                    QabelBoxApplication.getDeviceID(), getContext().getCacheDir());
+                    QabelBoxApplication.getDeviceID(), getContext());
     }
 
     @Override

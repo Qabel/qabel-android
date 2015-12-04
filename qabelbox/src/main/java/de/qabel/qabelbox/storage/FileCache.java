@@ -6,6 +6,7 @@ import android.database.Cursor;
 import android.database.CursorIndexOutOfBoundsException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 
 import java.io.File;
 
@@ -36,6 +37,15 @@ class FileCache extends SQLiteOpenHelper {
 	@Override
 	public void onUpgrade(SQLiteDatabase sqLiteDatabase, int from, int to) {
 		sqLiteDatabase.execSQL("DROP TABLE "+FileEntry.TABLE_NAME+";");
+	}
+
+	public void remove(BoxFile boxFile) {
+		SQLiteDatabase database = getReadableDatabase();
+		int rows = database.delete(FileEntry.TABLE_NAME, FileEntry.COL_REF + "=?",
+				new String[]{boxFile.block});
+		if (rows == 0) {
+			Log.i(TAG, "Trying to remove non existing cache entry");
+		}
 	}
 
 	public long put(BoxFile boxFile, File file) {

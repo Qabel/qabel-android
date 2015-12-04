@@ -1,5 +1,6 @@
 package de.qabel.qabelbox.storage;
 
+import android.content.Context;
 import android.support.annotation.Nullable;
 
 import de.qabel.core.crypto.CryptoUtils;
@@ -22,6 +23,8 @@ import java.util.AbstractMap.SimpleEntry;
 public abstract class AbstractNavigation implements BoxNavigation {
 
 	private static final Logger logger = LoggerFactory.getLogger(AbstractNavigation.class.getName());
+	private final FileCache cache;
+	private final Context context;
 	protected byte[] dmKey;
 
 	protected DirectoryMetadata dm;
@@ -37,13 +40,15 @@ public abstract class AbstractNavigation implements BoxNavigation {
 
 
 	public AbstractNavigation(DirectoryMetadata dm, QblECKeyPair keyPair, byte[] dmKey, byte[] deviceId,
-							  TransferManager transferManager, String path) {
+	                          TransferManager transferManager, String path, Context context) {
 		this.dm = dm;
 		this.keyPair = keyPair;
 		this.deviceId = deviceId;
 		this.transferManager = transferManager;
 		this.path = path;
         this.dmKey = dmKey;
+		this.context = context;
+		this.cache = new FileCache(context);
 		cryptoUtils = new CryptoUtils();
 	}
 
@@ -241,7 +246,11 @@ public abstract class AbstractNavigation implements BoxNavigation {
 	@Override
 	public InputStream download(BoxFile boxFile,
 								@Nullable TransferManager.BoxTransferListener boxTransferListener) throws QblStorageException {
-		File download = blockingDownload("blocks/" + boxFile.block, boxTransferListener);
+		File download = cache.get(boxFile);
+		if (download == null) {
+			download = blockingDownload("blocks/" + boxFile.block, boxTransferListener);
+			cache.put(boxFile, download);
+		}
 		KeyParameter key = new KeyParameter(boxFile.key);
 		try {
 			File temp = File.createTempFile("upload", "down", dm.getTempDir());
@@ -262,7 +271,7 @@ public abstract class AbstractNavigation implements BoxNavigation {
 		BoxFolder folder = new BoxFolder(dm.getFileName(), name, secretKey.getKey());
 		this.dm.insertFolder(folder);
 		BoxNavigation newFolder = new FolderNavigation(dm, keyPair, secretKey.getKey(),
-			deviceId, transferManager, path + BoxProvider.PATH_SEP + folder.name);
+			deviceId, transferManager, path + BoxProvider.PATH_SEP + folder.name, context);
 		newFolder.commit();
 		return folder;
 	}
@@ -270,13 +279,14 @@ public abstract class AbstractNavigation implements BoxNavigation {
 	@Override
 	public void delete(BoxFile file) throws QblStorageException {
 		dm.deleteFile(file);
+		cache.remove(file);
 		deleteQueue.add("blocks/" + file.block);
 	}
 
 	@Override
 	public void delete(BoxFolder folder) throws QblStorageException {
         //TODO: Store current folder to navigate back to originating dir without the new deleteNavigate
-		BoxNavigation deleteNavigate = new FolderNavigation(dm, keyPair, dmKey, deviceId, transferManager, path);
+		BoxNavigation deleteNavigate = new FolderNavigation(dm, keyPair, dmKey, deviceId, transferManager, path, context);
         deleteNavigate.navigate(folder);
 		for (BoxFile file: deleteNavigate.listFiles()) {
 			logger.info("Deleting file " + file.name);

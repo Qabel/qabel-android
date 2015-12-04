@@ -61,16 +61,7 @@ public class BoxTest extends AndroidTestCase {
         deviceID = utils.getRandomBytes(16);
         deviceID2 = utils.getRandomBytes(16);
 
-        File tmpDir = new File(System.getProperty("java.io.tmpdir"));
-        File file = File.createTempFile("testfile", "test", tmpDir);
-        FileOutputStream outputStream = new FileOutputStream(file);
-        byte[] testData = new byte[1024];
-        Arrays.fill(testData, (byte) 'f');
-        for (int i = 0; i < 100; i++) {
-            outputStream.write(testData);
-        }
-        outputStream.close();
-        testFileName = file.getAbsolutePath();
+        testFileName = createTestFile();
 
         keyPair = new QblECKeyPair();
 
@@ -99,6 +90,19 @@ public class BoxTest extends AndroidTestCase {
 
         volume.createIndex(bucket, prefix);
 
+    }
+
+    public static String createTestFile() throws IOException {
+        File tmpDir = new File(System.getProperty("java.io.tmpdir"));
+        File file = File.createTempFile("testfile", "test", tmpDir);
+        FileOutputStream outputStream = new FileOutputStream(file);
+        byte[] testData = new byte[1024];
+        Arrays.fill(testData, (byte) 'f');
+        for (int i = 0; i < 100; i++) {
+            outputStream.write(testData);
+        }
+        outputStream.close();
+        return file.getAbsolutePath();
     }
 
     public void tearDown() throws IOException {

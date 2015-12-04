@@ -79,10 +79,14 @@ public abstract class AbstractNavigation implements BoxNavigation {
 								  File file, @Nullable TransferManager.BoxTransferListener boxTransferListener) {
 		int id = transferManager.upload(name, file, boxTransferListener);
 		transferManager.waitFor(id);
-		return file.length();
+		return currentSecondsFromEpoch();
 	}
 
-    /**
+	private static long currentSecondsFromEpoch() {
+		return System.currentTimeMillis() / 1000;
+	}
+
+	/**
      * Navigates to a direct subfolder.
      * @param target Subfolder to navigate to
      * @throws QblStorageException

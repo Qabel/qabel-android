@@ -24,7 +24,6 @@ import de.qabel.qabelbox.R;
 public class FilesAdapter extends RecyclerView.Adapter<FilesAdapter.FilesViewHolder> {
     private final List<BoxObject> boxObjects;
     private OnItemClickListener onItemClickListener;
-    private int longClickedPosition;
     private DateFormat dateFormat = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT);
 
     public FilesAdapter(List<BoxObject> BoxObject) {
@@ -57,14 +56,18 @@ public class FilesAdapter extends RecyclerView.Adapter<FilesAdapter.FilesViewHol
         }
 
         @Override
-        public boolean onLongClick(View v) {
-            longClickedPosition = getAdapterPosition();
+        public boolean onLongClick(View view) {
+            if (onItemClickListener != null) {
+                onItemClickListener.onItemLockClick(view, getAdapterPosition());
+                return true;
+            }
             return false;
         }
     }
 
     public interface OnItemClickListener {
         void onItemClick(View view, int position);
+        void onItemLockClick(View view, int position);
     }
 
     public void setOnItemClickListener(OnItemClickListener onItemClickListener) {
@@ -109,10 +112,6 @@ public class FilesAdapter extends RecyclerView.Adapter<FilesAdapter.FilesViewHol
     @Override
     public int getItemCount() {
         return boxObjects.size();
-    }
-
-    public int getLongClickedPosition() {
-        return longClickedPosition;
     }
 
     public boolean add(BoxObject boxObject) {

@@ -28,11 +28,12 @@ public interface BoxNavigation {
 	BoxFile upload(String name, InputStream content, @Nullable TransferManager.BoxTransferListener boxTransferListener) throws QblStorageException;
 	InputStream download(BoxFile file, @Nullable TransferManager.BoxTransferListener boxTransferListener) throws QblStorageException;
 
-	void delete(BoxFile file) throws QblStorageException;
+	void delete(BoxObject boxObject) throws QblStorageException;
+	void delete(BoxFile boxFile) throws QblStorageException;
+	void delete(BoxFolder boxFolder) throws QblStorageException;
+	void delete(BoxExternal boxExternal) throws QblStorageException;
 
 	BoxFolder createFolder(String name) throws QblStorageException;
-	void delete(BoxFolder folder) throws QblStorageException;
-	void delete(BoxExternal external) throws QblStorageException;
 
 	BoxFile rename(BoxFile file, String name) throws QblStorageException;
 	BoxFolder rename(BoxFolder folder, String name) throws QblStorageException;

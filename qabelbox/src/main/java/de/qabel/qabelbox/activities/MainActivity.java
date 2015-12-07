@@ -1,6 +1,7 @@
 package de.qabel.qabelbox.activities;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -34,7 +35,6 @@ import com.google.zxing.integration.android.IntentIntegrator;
 
 import org.apache.commons.io.IOUtils;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -42,7 +42,6 @@ import java.io.Serializable;
 import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.concurrent.ExecutionException;
 
 import de.qabel.ackack.MessageInfo;
 import de.qabel.ackack.Responsible;
@@ -470,8 +469,47 @@ public class MainActivity extends AppCompatActivity
                                                         Toast.LENGTH_SHORT).show();
                                                 break;
                                             case R.id.delete:
-                                                Toast.makeText(self, R.string.not_implemented,
-                                                        Toast.LENGTH_SHORT).show();
+                                                new AlertDialog.Builder(self)
+                                                        .setTitle(R.string.confirm_delete_title)
+                                                        .setMessage(String.format(
+                                                                getResources().getString(R.string.confirm_delete_message), boxObject.name))
+                                                        .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                                                            @Override
+                                                            public void onClick(DialogInterface dialog, int which) {
+                                                                new AsyncTask<Void, Void, Void>() {
+                                                                    @Override
+                                                                    protected void onPreExecute() {
+                                                                        super.onPreExecute();
+                                                                        filesFragment.setIsLoading(true);
+                                                                    }
+
+                                                                    @Override
+                                                                    protected Void doInBackground(Void... params) {
+                                                                        try {
+                                                                            navigation.delete(boxObject);
+                                                                            navigation.commit();
+                                                                        } catch (QblStorageException e) {
+                                                                            Log.e(TAG, "Cannot delete " + boxObject.name);
+                                                                        }
+                                                                        return null;
+                                                                    }
+
+                                                                    @Override
+                                                                    protected void onPostExecute(Void aVoid) {
+                                                                        super.onPostExecute(aVoid);
+                                                                        onDoRefresh(filesFragment, navigation, filesAdapter);
+                                                                    }
+                                                                }.execute();
+                                                            }
+                                                        })
+                                                        .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                                                            @Override
+                                                            public void onClick(DialogInterface dialog, int which) {
+                                                                Toast.makeText(self, R.string.aborted,
+                                                                        Toast.LENGTH_SHORT).show();
+                                                            }
+                                                    }).create().show();
+
                                                 break;
                                             case R.id.export:
                                                 // Export handled in the MainActivity

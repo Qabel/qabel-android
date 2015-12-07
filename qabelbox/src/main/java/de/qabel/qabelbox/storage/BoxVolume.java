@@ -1,5 +1,7 @@
 package de.qabel.qabelbox.storage;
 
+import android.content.Context;
+
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferUtility;
 import com.amazonaws.services.s3.AmazonS3Client;
@@ -30,6 +32,7 @@ public class BoxVolume {
 	private static final Logger logger = LoggerFactory.getLogger(BoxVolume.class.getName());
 	private static final String PATH_ROOT = "/";
 	private final String rootId;
+	private final Context context;
 
 	private TransferUtility transferUtility;
 	private QblECKeyPair keyPair;
@@ -39,13 +42,14 @@ public class BoxVolume {
 	private final TransferManager transferManager;
 
 	public BoxVolume(TransferUtility transferUtility, AWSCredentials credentials,
-					 QblECKeyPair keyPair, String bucket, String prefix,
-					 byte[] deviceId, File tempDir) {
+	                 QblECKeyPair keyPair, String bucket, String prefix,
+	                 byte[] deviceId, Context context) {
 		this.transferUtility = transferUtility;
 		this.keyPair = keyPair;
 		this.deviceId = deviceId;
+		this.context = context;
 		cryptoUtils = new CryptoUtils();
-		this.tempDir = tempDir;
+		tempDir = context.getCacheDir();
 		AmazonS3Client awsClient = new AmazonS3Client(credentials);
 		this.rootId = new DocumentIdParser().buildId(
 				keyPair.getPub().getReadableKeyIdentifier(), bucket, prefix, null);
@@ -109,7 +113,7 @@ public class BoxVolume {
 			throw new QblStorageException(e);
 		}
 		DirectoryMetadata dm = DirectoryMetadata.openDatabase(tmp, deviceId, rootRef, tempDir);
-		return new FolderNavigation(dm, keyPair, null, deviceId, transferManager, PATH_ROOT);
+		return new FolderNavigation(dm, keyPair, null, deviceId, transferManager, PATH_ROOT, context);
 	}
 
 	public String getRootRef() throws QblStorageException {

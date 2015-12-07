@@ -177,7 +177,7 @@ public class BoxProvider extends DocumentsProvider {
         setUpTransferUtility();
 
         return new BoxVolume(transferUtility, awsCredentials, testKey, bucket, prefix,
-                    QabelBoxApplication.getDeviceID(), getContext().getCacheDir());
+                    QabelBoxApplication.getDeviceID(), getContext());
     }
 
     @Override
@@ -532,6 +532,8 @@ public class BoxProvider extends DocumentsProvider {
         BoxNavigation navigation = traverseToFolder(volume, strings);
         BoxFile file = findFileinList(basename, navigation);
         InputStream inputStream = navigation.download(file, new TransferManager.BoxTransferListener() {
+
+
             @Override
             public void onProgressChanged(long bytesCurrent, long bytesTotal) {
                 mBuilder.setProgress(100, (int) (100 * bytesCurrent / bytesTotal), false);
@@ -540,19 +542,19 @@ public class BoxProvider extends DocumentsProvider {
 
             @Override
             public void onFinished() {
-                String filename;
-                try {
-                    filename = mDocumentIdParser.getBaseName(documentId);
-                } catch (FileNotFoundException e) {
-                    filename = documentId;
-                }
-                mBuilder.setContentTitle("Downloading " + filename)
-                        .setContentText("Download complete")
-                        .setSmallIcon(R.drawable.notification_template_icon_bg);
-                mBuilder.setProgress(100, 100, false);
-                mNotifyManager.notify(id, mBuilder.build());
             }
         });
+        String filename;
+        try {
+            filename = mDocumentIdParser.getBaseName(documentId);
+        } catch (FileNotFoundException e) {
+            filename = documentId;
+        }
+        mBuilder.setContentTitle("Downloading " + filename)
+                .setContentText("Download complete")
+                .setSmallIcon(R.drawable.notification_template_icon_bg);
+        mBuilder.setProgress(100, 100, false);
+        mNotifyManager.notify(id, mBuilder.build());
         File out = new File(getContext().getExternalCacheDir(), basename);
         FileOutputStream fileOutputStream = new FileOutputStream(out);
         IOUtils.copy(inputStream, fileOutputStream);

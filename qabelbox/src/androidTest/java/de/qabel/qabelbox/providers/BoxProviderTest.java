@@ -76,8 +76,7 @@ public class BoxProviderTest extends ProviderTestCase2<BoxProvider>{
         provider.transferUtility = new TransferUtility(provider.amazonS3Client, getContext());
 
         volume = new BoxVolume(provider.transferUtility, provider.awsCredentials,
-                keyPair, bucket, prefix, deviceID,
-                new File(System.getProperty("java.io.tmpdir")));
+                keyPair, bucket, prefix, deviceID, getContext());
         volume.createIndex(bucket, prefix);
 
         File tmpDir = new File(System.getProperty("java.io.tmpdir"));

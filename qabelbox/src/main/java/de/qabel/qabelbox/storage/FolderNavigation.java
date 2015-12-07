@@ -1,5 +1,6 @@
 package de.qabel.qabelbox.storage;
 
+import android.content.Context;
 import android.support.annotation.Nullable;
 
 import com.amazonaws.util.IOUtils;
@@ -27,8 +28,8 @@ public class FolderNavigation extends AbstractNavigation {
 	private static final Logger logger = LoggerFactory.getLogger(FolderNavigation.class.getName());
 
 	public FolderNavigation(DirectoryMetadata dm, QblECKeyPair keyPair, @Nullable byte[] dmKey, byte[] deviceId,
-	                        TransferManager transferUtility, String path) {
-		super(dm, keyPair, dmKey, deviceId, transferUtility, path);
+	                        TransferManager transferUtility, String path, Context context) {
+		super(dm, keyPair, dmKey, deviceId, transferUtility, path, context);
 	}
 
 	@Override

@@ -59,16 +59,7 @@ public class BoxTest extends AndroidTestCase {
         deviceID = utils.getRandomBytes(16);
         deviceID2 = utils.getRandomBytes(16);
 
-        File tmpDir = new File(System.getProperty("java.io.tmpdir"));
-        File file = File.createTempFile("testfile", "test", tmpDir);
-        FileOutputStream outputStream = new FileOutputStream(file);
-        byte[] testData = new byte[1024];
-        Arrays.fill(testData, (byte) 'f');
-        for (int i = 0; i < 100; i++) {
-            outputStream.write(testData);
-        }
-        outputStream.close();
-        testFileName = file.getAbsolutePath();
+        testFileName = createTestFile();
 
         keyPair = new QblECKeyPair();
 
@@ -91,12 +82,35 @@ public class BoxTest extends AndroidTestCase {
         QblECKeyPair keyPair = new QblECKeyPair();
         TransferUtility transfer = new TransferUtility(s3Client, getContext());
         volume = new BoxVolume(transfer, credentials, keyPair, bucket, prefix, deviceID,
-                new File(System.getProperty("java.io.tmpdir")));
+                getContext());
         volume2 = new BoxVolume(transfer, credentials, keyPair, bucket, prefix, deviceID2,
-                new File(System.getProperty("java.io.tmpdir")));
+                getContext());
 
         volume.createIndex(bucket, prefix);
 
+    }
+
+    public static String createTestFile() throws IOException {
+        File tmpDir = new File(System.getProperty("java.io.tmpdir"));
+        File file = File.createTempFile("testfile", "test", tmpDir);
+        FileOutputStream outputStream = new FileOutputStream(file);
+        byte[] testData = new byte[1024];
+        Arrays.fill(testData, (byte) 'f');
+        for (int i = 0; i < 100; i++) {
+            outputStream.write(testData);
+        }
+        outputStream.close();
+        return file.getAbsolutePath();
+    }
+
+    public static File smallTestFile() throws IOException {
+        File tmpDir = new File(System.getProperty("java.io.tmpdir"));
+        File file = File.createTempFile("testfile", "test", tmpDir);
+        FileOutputStream outputStream = new FileOutputStream(file);
+        byte[] testData = new byte[] {1,2,3,4,5};
+		outputStream.write(testData);
+        outputStream.close();
+        return file;
     }
 
     public void tearDown() throws IOException {
@@ -318,5 +332,30 @@ public class BoxTest extends AndroidTestCase {
         }
         outputStream.close();
         nav.upload("large file", new FileInputStream(file), null);
+    }
+
+    @Test
+    public void testCacheFailure() throws QblStorageException, IOException {
+        File file = smallTestFile();
+        BoxNavigation nav = volume.navigate();
+        BoxFile boxFile = nav.upload("foobar", new FileInputStream(file), null);
+        nav.commit();
+
+        // warm up cache
+        nav.download(boxFile, null);
+        corruptCachedFile(boxFile);
+
+        InputStream dlStream = nav.download(boxFile, null);
+        assertNotNull("Download stream is null", dlStream);
+        byte[] dl = IOUtils.toByteArray(dlStream);
+        byte[] content = IOUtils.toByteArray(new FileInputStream(file));
+        assertThat("Downloaded file is not correct", dl, is(content));
+    }
+
+    private void corruptCachedFile(BoxFile boxFile) throws IOException {
+        // corrupt the file
+        FileOutputStream outputStream = new FileOutputStream(new FileCache(getContext()).get(boxFile));
+        outputStream.write(1);
+        outputStream.close();
     }
 }

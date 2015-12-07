@@ -3,6 +3,7 @@ package de.qabel.qabelbox.activities;
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.database.Cursor;
@@ -26,7 +27,9 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.cocosw.bottomsheet.BottomSheet;
 import com.google.zxing.integration.android.IntentIntegrator;
 
 import org.apache.commons.io.IOUtils;
@@ -452,6 +455,37 @@ public class MainActivity extends AppCompatActivity
                                 viewIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                                 startActivity(Intent.createChooser(viewIntent, "Open with"));
                             }
+                        }
+
+                        @Override
+                        public void onItemLockClick(View view, final int position) {
+                            final BoxObject boxObject = filesAdapter.get(position);
+                            new BottomSheet.Builder(self).title(boxObject.name).sheet(R.menu.files_bottom_sheet)
+                                .listener(new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        switch (which) {
+                                            case R.id.share:
+                                                Toast.makeText(self, R.string.not_implemented,
+                                                        Toast.LENGTH_SHORT).show();
+                                                break;
+                                            case R.id.delete:
+                                                Toast.makeText(self, R.string.not_implemented,
+                                                        Toast.LENGTH_SHORT).show();
+                                                break;
+                                            case R.id.export:
+                                                // Export handled in the MainActivity
+                                                if (boxObject instanceof BoxFolder) {
+                                                    Toast.makeText(self, R.string.folder_export_not_implemented,
+                                                            Toast.LENGTH_SHORT).show();
+                                                } else {
+                                                    onExport(navigation, boxObject);
+                                                }
+                                                break;
+                                        }
+                                    }
+                                }).show();
+
                         }
                     });
                 } catch (QblStorageException e) {

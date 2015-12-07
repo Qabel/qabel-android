@@ -43,6 +43,7 @@ public class FilesFragment extends Fragment {
     private SwipeRefreshLayout swipeRefreshLayout;
     private FilesFragment self;
     private static Executor serialExecutor = Executors.newSingleThreadExecutor();
+    private AsyncTask<Void, Void, Void> browseToTask;
 
     public static FilesFragment newInstance(final BoxVolume boxVolume) {
         final FilesFragment filesFragment = new FilesFragment();
@@ -184,12 +185,14 @@ public class FilesFragment extends Fragment {
     }
 
     public boolean browseToParent() {
+        cancelBrowseToTask();
         FutureTask<Boolean> futureHasParent =
                 new FutureTask<>(new Callable<Boolean>() {
                     public Boolean call() {
                         return boxNavigation.hasParent();
                     }
                 });
+
         serialExecutor.execute(futureHasParent);
 
         try {
@@ -201,7 +204,7 @@ public class FilesFragment extends Fragment {
             return false;
         }
 
-        new AsyncTask<Void, Void, Void>() {
+        browseToTask = new AsyncTask<Void, Void, Void>() {
             @Override
             protected void onPreExecute() {
                 super.onPreExecute();
@@ -226,7 +229,8 @@ public class FilesFragment extends Fragment {
                 setIsLoading(false);
                 filesAdapter.notifyDataSetChanged();
             }
-        }.executeOnExecutor(serialExecutor);
+        };
+        browseToTask.executeOnExecutor(serialExecutor);
         return true;
     }
 
@@ -257,21 +261,25 @@ public class FilesFragment extends Fragment {
 
     private void waitForBoxNavigation() {
         while (boxNavigation == null) {
+            Log.d(TAG, "waiting for BoxNavigation");
             try {
                 Thread.sleep(100);
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                return;
             }
         }
     }
 
     public void browseTo(final BoxFolder navigateTo) {
-        new AsyncTask<Void, Void, Void>() {
+        Log.d(TAG, "Browsing to " + navigateTo.name);
+        cancelBrowseToTask();
+        browseToTask = new AsyncTask<Void, Void, Void>() {
             @Override
             protected void onPreExecute() {
                 super.onPreExecute();
                 preBrowseTo();
             }
+
             @Override
             protected Void doInBackground(Void... voids) {
                 waitForBoxNavigation();
@@ -291,8 +299,18 @@ public class FilesFragment extends Fragment {
                 super.onPostExecute(aVoid);
                 setIsLoading(false);
                 filesAdapter.notifyDataSetChanged();
+                browseToTask = null;
             }
-        }.executeOnExecutor(serialExecutor);
+        };
+        browseToTask.executeOnExecutor(serialExecutor);
+    }
+
+    private void cancelBrowseToTask() {
+        if (browseToTask != null) {
+            Log.d(TAG, "Found a running browseToTask");
+            browseToTask.cancel(true);
+            Log.d(TAG, "Canceled browserToTask");
+        }
     }
 
 }

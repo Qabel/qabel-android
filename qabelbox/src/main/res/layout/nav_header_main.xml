@@ -9,15 +9,29 @@
               android:theme="@style/ThemeOverlay.AppCompat.Dark" android:orientation="vertical"
               android:gravity="bottom">
 
-    <ImageView android:layout_width="wrap_content" android:layout_height="wrap_content"
-               android:paddingTop="@dimen/nav_header_vertical_spacing"
-               android:src="@android:drawable/sym_def_app_icon" android:id="@+id/imageView" />
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal"
+        android:gravity="start">
 
-    <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
-              android:paddingTop="@dimen/nav_header_vertical_spacing" android:text="@string/Qabel"
-              android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
+        <ImageView android:layout_width="96dp" android:layout_height="96dp"
+                   android:src="@drawable/qabel_logo" android:id="@+id/qabelLogo" />
 
-    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-              android:id="@+id/textViewSelectedIdentity" />
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                  android:id="@+id/textViewSelectedIdentity"
+                  android:layout_alignTop="@+id/imageViewExpandIdentity"
+                  android:layout_alignBottom="@+id/imageViewExpandIdentity"
+                  android:layout_toStartOf="@+id/imageViewExpandIdentity"
+                  android:textSize="22dp"
+            />
+
+        <ImageView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                   android:src="@drawable/ic_arrow_drop_down_black_24dp"
+                   android:id="@+id/imageViewExpandIdentity"
+                   android:layout_alignParentBottom="true"
+                   android:layout_alignParentEnd="true"/>
+
+    </RelativeLayout>
 
 </LinearLayout>

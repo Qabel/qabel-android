@@ -27,6 +27,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -59,7 +60,6 @@ import de.qabel.qabelbox.fragments.AddIdentityFragment;
 import de.qabel.qabelbox.fragments.ContactFragment;
 import de.qabel.qabelbox.fragments.NewDatabasePasswordFragment;
 import de.qabel.qabelbox.fragments.OpenDatabaseFragment;
-import de.qabel.qabelbox.fragments.SelectIdentityFragment;
 import de.qabel.qabelbox.storage.BoxExternal;
 import de.qabel.qabelbox.storage.BoxFile;
 import de.qabel.qabelbox.storage.BoxFolder;
@@ -79,7 +79,6 @@ public class MainActivity extends AppCompatActivity
                     SelectUploadFolderFragment.OnSelectedUploadFolderListener,
                         NewFolderFragment.OnFragmentInteractionListener,
                             ContactFragment.ContactListListener,
-                                SelectIdentityFragment.SelectIdentityListener,
                                     AddIdentityFragment.AddIdentityListener,
                                         NewDatabasePasswordFragment.NewDatabasePasswordListener,
                                             OpenDatabaseFragment.OpenDatabaseFragmentListener,
@@ -101,6 +100,10 @@ public class MainActivity extends AppCompatActivity
     private static final int REQUEST_CODE_DELETE_FILE = 13;
     private static final int REQUEST_CODE_CHOOSE_EXPORT = 14;
     private static final String FALLBACK_MIMETYPE = "application/octet-stream";
+    private static final int NAV_GROUP_IDENTITIES = 1;
+    private static final int NAV_GROUP_IDENTITY_ACTIONS = 2;
+    private DrawerLayout drawer;
+    private ActionBarDrawerToggle toggle;
     private Identity activeIdentity;
     private ResourceActor resourceActor;
     private ProviderActor providerActor;
@@ -113,6 +116,9 @@ public class MainActivity extends AppCompatActivity
     private TextView textViewSelectedIdentity;
     private Activity self;
     private View appBarMain;
+    private Toolbar toolbar;
+    private ImageView imageViewExpandIdentity;
+    private boolean identityMenuExpanded;
 
     // Used to save the document uri that should exported while waiting for the result
     // of the create document intent.
@@ -126,11 +132,28 @@ public class MainActivity extends AppCompatActivity
             resourceActor.retrieveIdentities(this, new Responsible() {
                 @Override
                 public void onResponse(Serializable... data) {
-                    for (Identity identity : (Identity[]) data) {
+                    final Identity[] identitiesArray = (Identity[]) data;
+                    for (Identity identity : identitiesArray) {
                         if (contacts.get(identity) == null) {
                             contacts.put(identity, new Contacts());
                         }
                         identities.put(identity);
+                    }
+
+                    String lastID = QabelBoxApplication.getLastActiveIdentityID();
+                    if (!lastID.equals("")) {
+                        for (Identity identity : identities.getIdentities()) {
+                            if (identity.getPersistenceID().equals(lastID)) {
+                                activeIdentity = identity;
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        textViewSelectedIdentity.setText(activeIdentity.getAlias());
+                                    }
+                                });
+                                break;
+                            }
+                        }
                     }
                 }
             });
@@ -286,7 +309,7 @@ public class MainActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         self = this;
         provider = ((QabelBoxApplication) getApplication()).getProvider();
@@ -300,31 +323,8 @@ public class MainActivity extends AppCompatActivity
         fab.setVisibility(View.INVISIBLE);
         appBarMain = findViewById(R.id.app_bap_main);
 
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        drawer.setDrawerListener(toggle);
-        toggle.syncState();
+        initDrawer();
 
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
-        navigationView.setNavigationItemSelectedListener(this);
-
-        // Map QR-Code indent to alias textview in nav_header_main
-        textViewSelectedIdentity = (TextView) navigationView.findViewById(R.id.textViewSelectedIdentity);
-        textViewSelectedIdentity.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (activeIdentity != null) {
-                    IntentIntegrator intentIntegrator = new IntentIntegrator(self);
-                    intentIntegrator.shareText("QABELCONTACT\n"
-                            + activeIdentity.getAlias() + "\n"
-                            + activeIdentity.getDropUrls().toArray()[0].toString() + "\n"
-                            + activeIdentity.getKeyIdentifier());
-                }
-            }
-        });
-
-        // Check if activity is started with ACTION_SEND or ACTION_SEND_MULTIPLE
         Intent intent = getIntent();
         String action = intent.getAction();
         String type = intent.getType();
@@ -365,6 +365,14 @@ public class MainActivity extends AppCompatActivity
 
         LocalBroadcastManager.getInstance(this).registerReceiver(new ResourceReadyReceiver(),
                 new IntentFilter(QabelBoxApplication.RESOURCES_INITIALIZED));
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (activeIdentity != null) {
+            QabelBoxApplication.setLastActiveIdentityID(activeIdentity.getPersistenceID());
+        }
     }
 
     @Override
@@ -595,8 +603,6 @@ public class MainActivity extends AppCompatActivity
 
         if (id == R.id.nav_contacts) {
             selectContactsFragment();
-        } else if (id == R.id.nav_identities) {
-            selectIdentityFragment();
         } else if (id == R.id.nav_browse) {
             browseTo(null, null, null);
         } else if (id == R.id.nav_open) {
@@ -685,20 +691,16 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void selectContactsFragment() {
-        if (activeIdentity == null) {
-            loadSelectIdentityFragment();
-        } else {
-            fab.show();
-            fab.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    startAddContact(activeIdentity);
-                }
-            });
-            getFragmentManager().beginTransaction()
-                    .replace(R.id.fragment_container, ContactFragment.newInstance(contacts.get(activeIdentity), activeIdentity))
-                    .commit();
-        }
+        fab.show();
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startAddContact(activeIdentity);
+            }
+        });
+        getFragmentManager().beginTransaction()
+                .replace(R.id.fragment_container, ContactFragment.newInstance(contacts.get(activeIdentity), activeIdentity))
+                .commit();
     }
 
     private void selectIdentityFragment() {
@@ -707,22 +709,7 @@ public class MainActivity extends AppCompatActivity
             getFragmentManager().beginTransaction()
                     .replace(R.id.fragment_container, new AddIdentityFragment())
                     .commit();
-        } else {
-            loadSelectIdentityFragment();
         }
-    }
-
-    private void loadSelectIdentityFragment() {
-        fab.show();
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startAddIdentity();
-            }
-        });
-        getFragmentManager().beginTransaction()
-                .replace(R.id.fragment_container, SelectIdentityFragment.newInstance(identities))
-                .commit();
     }
 
     @Override
@@ -733,7 +720,6 @@ public class MainActivity extends AppCompatActivity
                 .commit();
     }
 
-    @Override
     public void selectIdentity(Identity identity) {
         activeIdentity = identity;
         selectContactsFragment();
@@ -741,7 +727,6 @@ public class MainActivity extends AppCompatActivity
         textViewSelectedIdentity.setText(identity.getAlias());
     }
 
-    @Override
     public void startAddIdentity() {
         fab.hide();
         getFragmentManager().beginTransaction()
@@ -760,18 +745,28 @@ public class MainActivity extends AppCompatActivity
 
         Snackbar.make(appBarMain, "Added identity: " + identity.getAlias(), Snackbar.LENGTH_LONG)
                 .show();
+
+        textViewSelectedIdentity.setText(activeIdentity.getAlias());
+
+        browseTo(null, null, null);
     }
 
     @Override
     public void onNewPasswordEntered(char[] newPassword) {
         ((QabelBoxApplication) getApplication()).init(newPassword);
-        selectContactsFragment();
+        setDrawerLocked(false);
+        startAddIdentity();
     }
 
     @Override
     public void onPasswordEntered(char[] password) {
         if (((QabelBoxApplication) getApplication()).init(password)) {
-            selectContactsFragment();
+            setDrawerLocked(false);
+            if (QabelBoxApplication.getLastActiveIdentityID().equals("")) {
+                startAddIdentity();
+            } else {
+                browseTo(null, null, null);
+            }
         } else {
             getFragmentManager().beginTransaction()
                     .replace(R.id.fragment_container, new OpenDatabaseFragment(), TAG_OPEN_DATABASE_FRAGMENT)
@@ -865,5 +860,121 @@ public class MainActivity extends AppCompatActivity
             }
         };
         asyncTask.execute();
+    }
+
+    private void setDrawerLocked(boolean locked) {
+        if (locked) {
+            drawer.setDrawerListener(null);
+            drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+            toggle.setDrawerIndicatorEnabled(false);
+        } else {
+            drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
+            toggle.setDrawerIndicatorEnabled(true);
+        }
+    }
+
+    private void initDrawer() {
+        drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        toggle = new ActionBarDrawerToggle(
+                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        drawer.setDrawerListener(toggle);
+        toggle.syncState();
+
+        setDrawerLocked(true);
+
+        final NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        navigationView.setNavigationItemSelectedListener(this);
+
+        // Map QR-Code indent to alias textview in nav_header_main
+        textViewSelectedIdentity = (TextView) navigationView.findViewById(R.id.textViewSelectedIdentity);
+        textViewSelectedIdentity.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (activeIdentity != null) {
+                    IntentIntegrator intentIntegrator = new IntentIntegrator(self);
+                    intentIntegrator.shareText("QABELCONTACT\n"
+                            + activeIdentity.getAlias() + "\n"
+                            + activeIdentity.getDropUrls().toArray()[0].toString() + "\n"
+                            + activeIdentity.getKeyIdentifier());
+                }
+            }
+        });
+
+        imageViewExpandIdentity = (ImageView) navigationView.findViewById(R.id.imageViewExpandIdentity);
+        imageViewExpandIdentity.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (identityMenuExpanded) {
+                    imageViewExpandIdentity.setImageResource(R.drawable.ic_arrow_drop_down_black_24dp);
+                    navigationView.getMenu().clear();
+                    navigationView.inflateMenu(R.menu.activity_main_drawer);
+                    identityMenuExpanded = false;
+                } else {
+                    imageViewExpandIdentity.setImageResource(R.drawable.ic_arrow_drop_up_black_24dp);
+                    navigationView.getMenu().clear();
+                    for (final Identity identity : identities.getIdentities()) {
+                        navigationView.getMenu()
+                                .add(NAV_GROUP_IDENTITIES, Menu.NONE, Menu.NONE, identity.getAlias())
+                                .setIcon(R.drawable.ic_perm_identity_black_24dp)
+                                .setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+                                    @Override
+                                    public boolean onMenuItemClick(MenuItem item) {
+                                        drawer.closeDrawer(GravityCompat.START);
+                                        selectIdentity(identity);
+                                        return true;
+                                    }
+                                });
+                    }
+                    navigationView.getMenu()
+                            .add(NAV_GROUP_IDENTITY_ACTIONS, Menu.NONE, Menu.NONE, R.string.add_identity)
+                            .setIcon(R.drawable.ic_add_circle_black_24dp)
+                            .setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+                                @Override
+                                public boolean onMenuItemClick(MenuItem item) {
+                                    drawer.closeDrawer(GravityCompat.START);
+                                    startAddIdentity();
+                                    return true;
+                                }
+                            });
+                    navigationView.getMenu()
+                            .add(NAV_GROUP_IDENTITY_ACTIONS, Menu.NONE, Menu.NONE, R.string.manage_identities)
+                            .setIcon(R.drawable.ic_settings_black_24dp)
+                            .setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+                                @Override
+                                public boolean onMenuItemClick(MenuItem item) {
+                                    drawer.closeDrawer(GravityCompat.START);
+                                    Toast.makeText(self, R.string.not_implemented,
+                                            Toast.LENGTH_SHORT).show();
+                                    return true;
+                                }
+                            });
+                    identityMenuExpanded = true;
+                }
+            }
+        });
+
+        drawer.setDrawerListener(new DrawerLayout.DrawerListener() {
+            @Override
+            public void onDrawerSlide(View drawerView, float slideOffset) {
+            }
+
+            @Override
+            public void onDrawerOpened(View drawerView) {
+
+            }
+
+            @Override
+            public void onDrawerClosed(View drawerView) {
+                navigationView.getMenu().clear();
+                navigationView.inflateMenu(R.menu.activity_main_drawer);
+                imageViewExpandIdentity.setImageResource(R.drawable.ic_arrow_drop_down_black_24dp);
+                identityMenuExpanded = false;
+            }
+
+            @Override
+            public void onDrawerStateChanged(int newState) {
+
+            }
+        });
     }
 }

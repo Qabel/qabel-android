@@ -23,6 +23,7 @@ import de.qabel.qabelbox.providers.BoxProvider;
 
 public class QabelBoxApplication extends Application {
     public static final String RESOURCES_INITIALIZED = "ResourcesInitialized";
+    public static final String DEFAULT_DROP_SERVER = "http://localhost";
 
     private static final String DB_NAME = "qabel-service";
     private static final int DB_VERSION = 1;
@@ -31,6 +32,7 @@ public class QabelBoxApplication extends Application {
     private static final String PREF_DEVICE_ID_CREATED = "PREF_DEVICE_ID_CREATED";
     private static final String PREF_DEVICE_ID = "PREF_DEVICE_ID";
     private static final int NUM_BYTES_DEVICE_ID = 16;
+    private static final String PREF_LAST_ACTIVE_IDENTITY = "PREF_LAST_ACTIVE_IDENTITY";
 
     public static BoxProvider boxProvider;
 
@@ -56,6 +58,16 @@ public class QabelBoxApplication extends Application {
 
     public static boolean isResourceActorInitialized() {
         return resourceActorInitialized;
+    }
+
+    public static void setLastActiveIdentityID(String identityID) {
+            sharedPreferences.edit()
+                    .putString(PREF_LAST_ACTIVE_IDENTITY, identityID)
+                    .apply();
+    }
+
+    public static String getLastActiveIdentityID() {
+        return sharedPreferences.getString(PREF_LAST_ACTIVE_IDENTITY, "");
     }
 
     public BoxProvider getProvider() {

@@ -272,6 +272,17 @@ public abstract class AbstractNavigation implements BoxNavigation {
 	}
 
 	@Override
+	public void delete(BoxObject boxObject) throws QblStorageException {
+		if (boxObject instanceof BoxFile) {
+			delete((BoxFile) boxObject);
+		} else if (boxObject instanceof BoxFolder) {
+			delete((BoxFolder) boxObject);
+		} else if (boxObject instanceof BoxExternal) {
+			delete((BoxExternal) boxObject);
+		}
+	}
+
+	@Override
 	public void delete(BoxFile file) throws QblStorageException {
 		dm.deleteFile(file);
 		deleteQueue.add("blocks/" + file.block);

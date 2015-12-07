@@ -470,8 +470,30 @@ public class MainActivity extends AppCompatActivity
                                                         Toast.LENGTH_SHORT).show();
                                                 break;
                                             case R.id.delete:
-                                                Toast.makeText(self, R.string.not_implemented,
-                                                        Toast.LENGTH_SHORT).show();
+                                                new AsyncTask<Void, Void, Void>() {
+                                                    @Override
+                                                    protected void onPreExecute() {
+                                                        super.onPreExecute();
+                                                        filesFragment.setIsLoading(true);
+                                                    }
+
+                                                    @Override
+                                                    protected Void doInBackground(Void... params) {
+                                                        try {
+                                                            navigation.delete(boxObject);
+                                                            navigation.commit();
+                                                        } catch (QblStorageException e) {
+                                                            Log.e(TAG, "Cannot delete " + boxObject.name);
+                                                        }
+                                                        return null;
+                                                    }
+
+                                                    @Override
+                                                    protected void onPostExecute(Void aVoid) {
+                                                        super.onPostExecute(aVoid);
+                                                        onDoRefresh(filesFragment, navigation, filesAdapter);
+                                                    }
+                                                }.execute();
                                                 break;
                                             case R.id.export:
                                                 // Export handled in the MainActivity

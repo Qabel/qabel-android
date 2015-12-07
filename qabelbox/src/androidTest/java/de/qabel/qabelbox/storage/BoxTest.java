@@ -290,6 +290,46 @@ public class BoxTest extends AndroidTestCase {
     }
 
     @Test
+    public void testNavigateToParent() throws QblStorageException {
+        BoxNavigation nav = volume.navigate();
+        BoxFolder boxFolder = nav.createFolder("foobdir");
+        nav.commit();
+
+        nav.navigate(boxFolder);
+        BoxFolder subfolder = nav.createFolder("subfolder");
+        nav.commit();
+
+        nav.navigate(subfolder);
+        BoxFolder subfolder2 = nav.createFolder("subfolder2");
+        nav.commit();
+
+        nav = volume.navigate();
+        nav.navigate(boxFolder);
+        nav.navigate(subfolder);
+        nav.navigate(subfolder2);
+
+        assertThat(nav.getPath(), is("/foobdir/subfolder/subfolder2/"));
+        nav.navigateToParent();
+        assertThat(nav.getPath(), is("/foobdir/subfolder/"));
+        nav.navigateToParent();
+        assertThat(nav.getPath(), is("/foobdir/"));
+        nav.navigateToParent();
+        assertThat(nav.getPath(), is("/"));
+    }
+
+    @Test
+    public void testNavigateToParentOfRoot() throws QblStorageException {
+        BoxNavigation nav = volume.navigate();
+
+        try {
+            nav.navigateToParent();
+        } catch (QblStorageException e) {
+            return;
+        }
+        fail("Expected QblStorageException");
+    }
+
+    @Test
     public void testNameConflictOnDifferentClients() throws QblStorageException, IOException {
         BoxNavigation nav = volume.navigate();
         BoxNavigation nav2 = volume2.navigate();

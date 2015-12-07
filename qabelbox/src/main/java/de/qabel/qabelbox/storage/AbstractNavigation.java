@@ -34,35 +34,56 @@ public abstract class AbstractNavigation implements BoxNavigation {
 	protected TransferManager transferManager;
 	protected final CryptoUtils cryptoUtils;
 
+	private final BoxVolume boxVolume;
 	private final Set<String> deleteQueue = new HashSet<>();
 	private final Set<FileUpdate> updatedFiles = new HashSet<>();
+	private Stack<BoxFolder> parentBoxFolders;
 
-	protected String path;
-
+	protected String currentPath;
 
 	public AbstractNavigation(DirectoryMetadata dm, QblECKeyPair keyPair, byte[] dmKey, byte[] deviceId,
-	                          TransferManager transferManager, String path, Context context) {
+							  TransferManager transferManager, BoxVolume boxVolume, String path,
+							  @Nullable Stack<BoxFolder> parentBoxFolders, Context context) {
 		this.dm = dm;
 		this.keyPair = keyPair;
 		this.deviceId = deviceId;
 		this.transferManager = transferManager;
-		this.path = path;
+		this.boxVolume = boxVolume;
+		this.currentPath = path;
         this.dmKey = dmKey;
 		this.context = context;
 		this.cache = new FileCache(context);
 		cryptoUtils = new CryptoUtils();
+		if (parentBoxFolders != null) {
+			this.parentBoxFolders = parentBoxFolders;
+		} else {
+			this.parentBoxFolders = new Stack<>();
+		}
 	}
 
 	public String getPath() {
-		return path;
+		return currentPath;
 	}
 
 	public String getPath(BoxObject object) {
 		if (object instanceof BoxFolder) {
-			return path + object.name + BoxProvider.PATH_SEP;
+			return currentPath+ object.name + BoxProvider.PATH_SEP;
 		} else {
-			return path + object.name;
+			return currentPath + object.name;
 		}
+	}
+
+	private String getParentPath() throws QblStorageException {
+		if (currentPath.equals(BoxProvider.PATH_SEP)) {
+			throw new QblStorageException("No parent path");
+		}
+		String pathWithoutTrailingSlash = currentPath.substring(0, currentPath.length() - 1);
+		return pathWithoutTrailingSlash.substring(0, pathWithoutTrailingSlash.lastIndexOf(BoxProvider.PATH_SEP) + 1);
+	}
+
+	public String getName() {
+		String filepath = getPath();
+		return filepath.substring(filepath.lastIndexOf('/') + 1, filepath.length());
 	}
 
 	protected File blockingDownload(String name, TransferManager.BoxTransferListener boxTransferListener) throws QblStorageNotFound {
@@ -86,6 +107,21 @@ public abstract class AbstractNavigation implements BoxNavigation {
 		return System.currentTimeMillis() / 1000;
 	}
 
+	@Override
+	public boolean hasParent() {
+		return parentBoxFolders.size() >= 1;
+	}
+
+	@Override
+	public void navigateToParent() throws QblStorageException {
+		if (hasParent()) {
+			BoxFolder parentBoxFolder = parentBoxFolders.pop();
+			doNavigate(parentBoxFolder, false);
+		} else {
+			throw new QblStorageException("No parent folder");
+		}
+	}
+
 	/**
      * Navigates to a direct subfolder.
      * @param target Subfolder to navigate to
@@ -101,22 +137,40 @@ public abstract class AbstractNavigation implements BoxNavigation {
             }
         }
         if (!isSubfolder) {
-            throw new QblStorageNotFound(target.name + " is not a direct subfolder of " + path);
+            throw new QblStorageNotFound(target.name + " is not a direct subfolder of " + currentPath);
         }
 		try {
-			File indexDl = blockingDownload(target.ref, null);
-			File tmp = File.createTempFile("dir", "db", dm.getTempDir());
-			KeyParameter keyParameter = new KeyParameter(target.key);
-			if (cryptoUtils.decryptFileAuthenticatedSymmetricAndValidateTag(
-					new FileInputStream(indexDl), tmp, keyParameter)) {
-				dm = DirectoryMetadata.openDatabase(
-						tmp, deviceId, target.ref, this.dm.getTempDir());
-				path = path + target.name + BoxProvider.PATH_SEP;
-				dmKey = target.key;
-			} else {
+			doNavigate(target, true);
+		} catch (QblStorageException e) {
 				throw new QblStorageNotFound("Invalid key");
+		}
+	}
+
+	private void doNavigate(BoxFolder target, boolean isChild) throws QblStorageException {
+		// Push current BoxFolder to parentBoxFolders if navigating to a child and set currentPath
+		if (isChild) {
+			parentBoxFolders.push(new BoxFolder(dm.getFileName(), getName(), dmKey));
+			currentPath = currentPath + target.name + BoxProvider.PATH_SEP;
+		} else {
+			currentPath = getParentPath();
+		}
+		try {
+			// Target is root, using DirectoryMetadata from BoxVolume
+			if (target.key == null && target.name.equals("")) {
+				dm = boxVolume.getDirectoryMetadata();
+				dmKey = null;
+			} else {
+				File indexDl = blockingDownload(target.ref, null);
+				File tmp = File.createTempFile("dir", "db", dm.getTempDir());
+				KeyParameter keyParameter = new KeyParameter(target.key);
+				if (cryptoUtils.decryptFileAuthenticatedSymmetricAndValidateTag(
+						new FileInputStream(indexDl), tmp, keyParameter)) {
+					dm = DirectoryMetadata.openDatabase(
+							tmp, deviceId, target.ref, this.dm.getTempDir());
+					dmKey = target.key;
+				}
 			}
-		} catch (IOException | InvalidKeyException e) {
+		} catch(IOException | InvalidKeyException e){
 			throw new QblStorageException(e);
 		}
 	}
@@ -300,7 +354,8 @@ public abstract class AbstractNavigation implements BoxNavigation {
 		BoxFolder folder = new BoxFolder(dm.getFileName(), name, secretKey.getKey());
 		this.dm.insertFolder(folder);
 		BoxNavigation newFolder = new FolderNavigation(dm, keyPair, secretKey.getKey(),
-			deviceId, transferManager, path + BoxProvider.PATH_SEP + folder.name, context);
+			deviceId, transferManager, boxVolume, currentPath + BoxProvider.PATH_SEP + folder.name,
+				parentBoxFolders, context);
 		newFolder.commit();
 		return folder;
 	}
@@ -326,18 +381,17 @@ public abstract class AbstractNavigation implements BoxNavigation {
 
 	@Override
 	public void delete(BoxFolder folder) throws QblStorageException {
-        //TODO: Store current folder to navigate back to originating dir without the new deleteNavigate
-		BoxNavigation deleteNavigate = new FolderNavigation(dm, keyPair, dmKey, deviceId, transferManager, path, context);
-        deleteNavigate.navigate(folder);
-		for (BoxFile file: deleteNavigate.listFiles()) {
+        navigate(folder);
+		for (BoxFile file: listFiles()) {
 			logger.info("Deleting file " + file.name);
-            deleteNavigate.delete(file);
+            delete(file);
 		}
-		for (BoxFolder subFolder: deleteNavigate.listFolders()) {
+		for (BoxFolder subFolder: listFolders()) {
 			logger.info("Deleting folder " + folder.name);
-            deleteNavigate.delete(subFolder);
+            delete(subFolder);
 		}
-        deleteNavigate.commit();
+		navigateToParent();
+		commit();
 		dm.deleteFolder(folder);
 		deleteQueue.add(folder.ref);
 	}

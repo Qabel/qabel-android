@@ -50,4 +50,9 @@
     <string name="Export">Export</string>
     <string name="folder_export_not_implemented">Exporting folders is not implemented</string>
     <string name="not_implemented">Not implemented</string>
+    <string name="confirm_delete_title">Delete?</string>
+    <string name="confirm_delete_message">Do you want to delete %s</string>
+    <string name="ok">OK</string>
+    <string name="cancel">Cancel</string>
+    <string name="aborted">Aborted</string>
 </resources>

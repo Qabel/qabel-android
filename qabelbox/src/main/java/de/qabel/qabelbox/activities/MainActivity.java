@@ -694,7 +694,10 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void cancelAddIdentity() {
-        browseTo(null, null, null);
+        getFragmentManager().beginTransaction()
+                .replace(R.id.fragment_container, filesFragment)
+                .addToBackStack(null)
+                .commit();
     }
 
     @Override

@@ -2,6 +2,7 @@ package de.qabel.qabelbox.activities;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Fragment;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -13,7 +14,6 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.DocumentsContract;
 import android.provider.OpenableColumns;
-import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
@@ -116,6 +116,7 @@ public class MainActivity extends AppCompatActivity
     private TextView textViewSelectedIdentity;
     private Activity self;
     private View appBarMain;
+    private FilesFragment filesFragment;
     private Toolbar toolbar;
     private ImageView imageViewExpandIdentity;
     private boolean identityMenuExpanded;
@@ -316,6 +317,58 @@ public class MainActivity extends AppCompatActivity
         Log.i(TAG, "Provider: " + provider);
         boxVolume = provider.getVolumeForRoot(null, null, null);
 
+        filesFragment = FilesFragment.newInstance(boxVolume);
+        filesFragment.setOnItemClickListener(new FilesAdapter.OnItemClickListener() {
+                @Override
+                public void onItemClick(View view, int position) {
+                    final BoxObject boxObject = filesFragment.getFilesAdapter().get(position);
+                    if (boxObject instanceof BoxFolder) {
+                        filesFragment.browseTo(((BoxFolder) boxObject));
+                    } else if (boxObject instanceof BoxFile) {
+                        // Open
+                        String path = filesFragment.getBoxNavigation().getPath(boxObject);
+                        String documentId = boxVolume.getDocumentId(path);
+                        Uri uri = DocumentsContract.buildDocumentUri(
+                                BoxProvider.AUTHORITY, documentId);
+                        Intent viewIntent = new Intent();
+                        String type = URLConnection.guessContentTypeFromName(uri.toString());
+                        Log.i(TAG, "Mime type: " + type);
+                        viewIntent.setDataAndType(uri, type);
+                        viewIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                        startActivity(Intent.createChooser(viewIntent, "Open with"));
+                    }
+                }
+            @Override
+            public void onItemLockClick(View view, final int position) {
+                final BoxObject boxObject = filesFragment.getFilesAdapter().get(position);
+                new BottomSheet.Builder(self).title(boxObject.name).sheet(R.menu.files_bottom_sheet)
+                        .listener(new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                switch (which) {
+                                    case R.id.share:
+                                        Toast.makeText(self, R.string.not_implemented,
+                                                Toast.LENGTH_SHORT).show();
+                                        break;
+                                    case R.id.delete:
+                                        delete(boxObject);
+                                        break;
+                                    case R.id.export:
+                                        // Export handled in the MainActivity
+                                        if (boxObject instanceof BoxFolder) {
+                                            Toast.makeText(self, R.string.folder_export_not_implemented,
+                                                    Toast.LENGTH_SHORT).show();
+                                        } else {
+                                            onExport(filesFragment.getBoxNavigation(), boxObject);
+                                        }
+                                        break;
+                                }
+                            }
+                        }).show();
+
+            }
+            });
+
         contacts = new HashMap<>();
         identities = new Identities();
 
@@ -325,6 +378,9 @@ public class MainActivity extends AppCompatActivity
 
         initDrawer();
 
+        doSetupForFileFragment(filesFragment);
+
+        // Check if activity is started with ACTION_SEND or ACTION_SEND_MULTIPLE
         Intent intent = getIntent();
         String action = intent.getAction();
         String type = intent.getType();
@@ -348,7 +404,7 @@ public class MainActivity extends AppCompatActivity
                     Log.i(TAG, "Action send in main activity");
                     Uri imageUri = intent.getParcelableExtra(Intent.EXTRA_STREAM);
                     if (imageUri != null) {
-                        browseTo(null, null, imageUri);
+                        //TODO: UPLOAD
                     }
                 }
                 break;
@@ -359,7 +415,10 @@ public class MainActivity extends AppCompatActivity
                 }
                 break;
             default:
-                browseTo(null, null, null);
+                getFragmentManager().beginTransaction()
+                        .replace(R.id.fragment_container, filesFragment)
+                        .addToBackStack(null)
+                        .commit();
                 break;
         }
 
@@ -375,6 +434,51 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
+    private void delete(final BoxObject boxObject) {
+        new AlertDialog.Builder(self)
+                .setTitle(R.string.confirm_delete_title)
+                .setMessage(String.format(
+                        getResources().getString(R.string.confirm_delete_message), boxObject.name))
+                .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        new AsyncTask<Void, Void, Void>() {
+                            @Override
+                            protected void onCancelled() {
+                                filesFragment.setIsLoading(false);
+                            }
+
+                            @Override
+                            protected void onPreExecute() {
+                                filesFragment.setIsLoading(true);
+                            }
+
+                            @Override
+                            protected Void doInBackground(Void... params) {
+                                try {
+                                    filesFragment.getBoxNavigation().delete(boxObject);
+                                    filesFragment.getBoxNavigation().commit();
+                                } catch (QblStorageException e) {
+                                    Log.e(TAG, "Cannot delete " + boxObject.name);
+                                }
+                                return null;
+                            }
+
+                            @Override
+                            protected void onPostExecute(Void aVoid) {
+                                refresh();
+                            }
+                        }.execute();
+                    }
+                })
+                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        showAbortMessage();
+                    }
+                }).create().show();
+    }
+
     @Override
     public void onBackPressed() {
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -382,196 +486,13 @@ public class MainActivity extends AppCompatActivity
             drawer.closeDrawer(GravityCompat.START);
             return;
         } else {
-            getFragmentManager().popBackStack();
-        }
-        if (getFragmentManager().getBackStackEntryCount() == 1) {
-            super.onBackPressed();
-        }
-    }
-
-    private void browseTo(@Nullable final BoxNavigation boxNavigation, final BoxFolder navigateTo, final Uri uploadURI) {
-        new AsyncTask<Void, Void, Void>() {
-            FilesFragment filesFragment;
-            FilesAdapter filesAdapter;
-
-            @Override
-            protected void onPreExecute() {
-                super.onPreExecute();
-                if (uploadURI != null) {
-                    fab.hide();
-                    filesFragment = new SelectUploadFolderFragment();
-                    ((SelectUploadFolderFragment)filesFragment).setUri(uploadURI);
-                } else {
-                    fab.show();
-                    filesFragment = new FilesFragment();
+            Fragment fragment = getFragmentManager().findFragmentById(R.id.fragment_container);
+            if (fragment instanceof FilesFragment) {
+                if (!filesFragment.browseToParent()) {
+                    getFragmentManager().popBackStack();
                 }
-                filesFragment.setIsLoading(true);
-                filesAdapter = new FilesAdapter(new ArrayList<BoxObject>());
-                filesFragment.setAdapter(filesAdapter);
-                getFragmentManager().beginTransaction()
-                        .replace(R.id.fragment_container, filesFragment)
-                        .addToBackStack(null)
-                        .commit();
             }
-
-            @Override
-            protected Void doInBackground(Void... voids) {
-                final BoxNavigation navigation;
-                try {
-                    if (boxNavigation == null) {
-                        navigation = boxVolume.navigate();
-                    } else {
-                        navigation = boxNavigation;
-                    }
-                    if (navigateTo != null) {
-                        navigation.navigate(navigateTo);
-                    }
-                    filesFragment.setBoxNavigation(navigation);
-                    for (BoxFolder boxFolder : navigation.listFolders()){
-                        Log.d(TAG, "Adding folder: " + boxFolder.name);
-                        filesAdapter.add(boxFolder);
-                    }
-                    for (BoxExternal boxExternal : navigation.listExternals()){
-                        Log.d("MainActivity", "Adding external: " + boxExternal.name);
-                        filesAdapter.add(boxExternal);
-                    }
-                    if (uploadURI == null) {
-                        for (BoxFile boxFile : navigation.listFiles()) {
-                            Log.d(TAG, "Adding file: " + boxFile.name);
-                            filesAdapter.add(boxFile);
-                        }
-                    }
-                    filesAdapter.sort();
-
-                    filesAdapter.setOnItemClickListener(new FilesAdapter.OnItemClickListener() {
-                        @Override
-                        public void onItemClick(View view, int position) {
-                            final BoxObject boxObject = filesAdapter.get(position);
-                            if (boxObject instanceof BoxFolder) {
-                                browseTo(navigation, ((BoxFolder) boxObject), uploadURI);
-                            } else if (boxObject instanceof BoxFile) {
-                                // Open
-                                String path = navigation.getPath(boxObject);
-                                String documentId = boxVolume.getDocumentId(path);
-                                Uri uri = DocumentsContract.buildDocumentUri(
-                                        BoxProvider.AUTHORITY, documentId);
-                                Intent viewIntent = new Intent();
-                                String type = URLConnection.guessContentTypeFromName(uri.toString());
-                                Log.i(TAG, "Mime type: " + type);
-                                viewIntent.setDataAndType(uri, type);
-                                viewIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                                startActivity(Intent.createChooser(viewIntent, "Open with"));
-                            }
-                        }
-
-                        @Override
-                        public void onItemLockClick(View view, final int position) {
-                            final BoxObject boxObject = filesAdapter.get(position);
-                            new BottomSheet.Builder(self).title(boxObject.name).sheet(R.menu.files_bottom_sheet)
-                                .listener(new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        switch (which) {
-                                            case R.id.share:
-                                                Toast.makeText(self, R.string.not_implemented,
-                                                        Toast.LENGTH_SHORT).show();
-                                                break;
-                                            case R.id.delete:
-                                                new AlertDialog.Builder(self)
-                                                        .setTitle(R.string.confirm_delete_title)
-                                                        .setMessage(String.format(
-                                                                getResources().getString(R.string.confirm_delete_message), boxObject.name))
-                                                        .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-                                                            @Override
-                                                            public void onClick(DialogInterface dialog, int which) {
-                                                                new AsyncTask<Void, Void, Void>() {
-                                                                    @Override
-                                                                    protected void onPreExecute() {
-                                                                        super.onPreExecute();
-                                                                        filesFragment.setIsLoading(true);
-                                                                    }
-
-                                                                    @Override
-                                                                    protected Void doInBackground(Void... params) {
-                                                                        try {
-                                                                            navigation.delete(boxObject);
-                                                                            navigation.commit();
-                                                                        } catch (QblStorageException e) {
-                                                                            Log.e(TAG, "Cannot delete " + boxObject.name);
-                                                                        }
-                                                                        return null;
-                                                                    }
-
-                                                                    @Override
-                                                                    protected void onPostExecute(Void aVoid) {
-                                                                        super.onPostExecute(aVoid);
-                                                                        onDoRefresh(filesFragment, navigation, filesAdapter);
-                                                                    }
-                                                                }.execute();
-                                                            }
-                                                        })
-                                                        .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                                                            @Override
-                                                            public void onClick(DialogInterface dialog, int which) {
-                                                                Toast.makeText(self, R.string.aborted,
-                                                                        Toast.LENGTH_SHORT).show();
-                                                            }
-                                                    }).create().show();
-
-                                                break;
-                                            case R.id.export:
-                                                // Export handled in the MainActivity
-                                                if (boxObject instanceof BoxFolder) {
-                                                    Toast.makeText(self, R.string.folder_export_not_implemented,
-                                                            Toast.LENGTH_SHORT).show();
-                                                } else {
-                                                    onExport(navigation, boxObject);
-                                                }
-                                                break;
-                                        }
-                                    }
-                                }).show();
-
-                        }
-                    });
-                } catch (QblStorageException e) {
-                    Log.e(TAG, "browseTo failed", e);
-                }
-                return null;
-            }
-
-            @Override
-            protected void onPostExecute(Void aVoid) {
-                super.onPostExecute(aVoid);
-
-                fab.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        fab.hide();
-                        final NewFolderFragment newFolderFragment = new NewFolderFragment();
-                        new AsyncTask<Void, Void, Void>() {
-
-                            @Override
-                            protected Void doInBackground(Void... params) {
-                                newFolderFragment.setBoxNavigation(boxNavigation);
-                                return null;
-                            }
-
-                            @Override
-                            protected void onPostExecute(Void aVoid) {
-                                super.onPostExecute(aVoid);
-                                getFragmentManager().beginTransaction()
-                                        .replace(R.id.fragment_container, newFolderFragment)
-                                        .addToBackStack(null)
-                                        .commit();
-                            }
-                        }.execute();
-                    }
-                });
-                filesFragment.setIsLoading(false);
-                filesAdapter.notifyDataSetChanged();
-            }
-        }.execute();
+        }
     }
 
     @Override
@@ -604,7 +525,9 @@ public class MainActivity extends AppCompatActivity
         if (id == R.id.nav_contacts) {
             selectContactsFragment();
         } else if (id == R.id.nav_browse) {
-            browseTo(null, null, null);
+            getFragmentManager().beginTransaction()
+                    .replace(R.id.fragment_container, filesFragment)
+                    .commit();
         } else if (id == R.id.nav_open) {
             Intent intentOpen = new Intent(Intent.ACTION_OPEN_DOCUMENT);
             intentOpen.addCategory(Intent.CATEGORY_OPENABLE);
@@ -678,14 +601,30 @@ public class MainActivity extends AppCompatActivity
                     boxNavigation.createFolder(name);
                     boxNavigation.commit();
                 } catch (QblStorageException e) {
-                    e.printStackTrace();
+                    Log.e(TAG, "Failed creating folder "+ name, e);
                 }
                 return null;
             }
+
+            @Override
+            protected void onCancelled() {
+                filesFragment.setIsLoading(false);
+                showAbortMessage();
+            }
+
+            @Override
+            protected void onPreExecute() {
+                getFragmentManager().beginTransaction()
+                        .replace(R.id.fragment_container, filesFragment)
+                        .addToBackStack(null)
+                        .commit();
+                filesFragment.setIsLoading(true);
+            }
+
             @Override
             protected void onPostExecute(Void aVoid) {
                 super.onPostExecute(aVoid);
-                browseTo(null, null, null);
+                refresh();
             }
         }.execute();
     }
@@ -748,8 +687,10 @@ public class MainActivity extends AppCompatActivity
 
         textViewSelectedIdentity.setText(activeIdentity.getAlias());
 
-        browseTo(null, null, null);
-    }
+        getFragmentManager().beginTransaction()
+                .replace(R.id.fragment_container, filesFragment)
+                .addToBackStack(null)
+                .commit();    }
 
     @Override
     public void onNewPasswordEntered(char[] newPassword) {
@@ -765,8 +706,10 @@ public class MainActivity extends AppCompatActivity
             if (QabelBoxApplication.getLastActiveIdentityID().equals("")) {
                 startAddIdentity();
             } else {
-                browseTo(null, null, null);
-            }
+                getFragmentManager().beginTransaction()
+                        .replace(R.id.fragment_container, filesFragment)
+                        .addToBackStack(null)
+                        .commit();            }
         } else {
             getFragmentManager().beginTransaction()
                     .replace(R.id.fragment_container, new OpenDatabaseFragment(), TAG_OPEN_DATABASE_FRAGMENT)
@@ -847,6 +790,17 @@ public class MainActivity extends AppCompatActivity
                     Log.e(TAG, "refresh failed", e);
                 }
                 return null;
+            }
+
+            @Override
+            protected void onCancelled() {
+				filesFragment.setIsLoading(true);
+                showAbortMessage();
+            }
+
+            @Override
+            protected void onPreExecute() {
+                filesFragment.setIsLoading(true);
             }
 
             @Override
@@ -977,4 +931,42 @@ public class MainActivity extends AppCompatActivity
             }
         });
     }
+
+    private void showAbortMessage() {
+        Toast.makeText(self, R.string.aborted,
+                Toast.LENGTH_SHORT).show();
+    }
+
+    public void doSetupForFileFragment(final FilesFragment filesFragment) {
+
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                fab.hide();
+                final NewFolderFragment newFolderFragment = new NewFolderFragment();
+                new AsyncTask<Void, Void, Void>() {
+                    @Override
+                    protected Void doInBackground(Void... params) {
+                        newFolderFragment.setBoxNavigation(filesFragment.getBoxNavigation());
+                        return null;
+                    }
+
+                    @Override
+                    protected void onPostExecute(Void aVoid) {
+                        super.onPostExecute(aVoid);
+                        getFragmentManager().beginTransaction()
+                                .replace(R.id.fragment_container, newFolderFragment)
+                                .addToBackStack(null)
+                                .commit();
+                    }
+                }.execute();
+            }
+        });
+        filesFragment.setIsLoading(false);
+    }
+
+    private void refresh() {
+        onDoRefresh(filesFragment, filesFragment.getBoxNavigation(), filesFragment.getFilesAdapter());
+    }
+
 }

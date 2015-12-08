@@ -94,6 +94,11 @@ public class BoxVolume {
 
 
 	public BoxNavigation navigate() throws QblStorageException {
+		return new FolderNavigation(getDirectoryMetadata(), keyPair, null, deviceId, transferManager,
+				this, PATH_ROOT, null, context);
+	}
+
+	DirectoryMetadata getDirectoryMetadata() throws QblStorageException {
 		String rootRef = getRootRef();
 		logger.info("Navigating to " + rootRef);
 		InputStream indexDl = blockingDownload(rootRef);
@@ -112,8 +117,7 @@ public class BoxVolume {
 		} catch (IOException | InvalidCipherTextException | InvalidKeyException e) {
 			throw new QblStorageException(e);
 		}
-		DirectoryMetadata dm = DirectoryMetadata.openDatabase(tmp, deviceId, rootRef, tempDir);
-		return new FolderNavigation(dm, keyPair, null, deviceId, transferManager, PATH_ROOT, context);
+		return DirectoryMetadata.openDatabase(tmp, deviceId, rootRef, tempDir);
 	}
 
 	public String getRootRef() throws QblStorageException {

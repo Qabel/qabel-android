@@ -18,6 +18,8 @@ public interface BoxNavigation {
 	 */
 	void commit() throws QblStorageException;
 
+	boolean hasParent();
+	void navigateToParent() throws QblStorageException;
 	void navigate(BoxFolder target) throws QblStorageException;
 	BoxNavigation navigate(BoxExternal target);
 

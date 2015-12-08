@@ -19,6 +19,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.security.InvalidKeyException;
+import java.util.Stack;
 
 import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.exceptions.QblStorageNotFound;
@@ -28,13 +29,14 @@ public class FolderNavigation extends AbstractNavigation {
 	private static final Logger logger = LoggerFactory.getLogger(FolderNavigation.class.getName());
 
 	public FolderNavigation(DirectoryMetadata dm, QblECKeyPair keyPair, @Nullable byte[] dmKey, byte[] deviceId,
-	                        TransferManager transferUtility, String path, Context context) {
-		super(dm, keyPair, dmKey, deviceId, transferUtility, path, context);
+	                        TransferManager transferUtility, BoxVolume boxVolume, String path,
+							@Nullable Stack<BoxFolder> parents, Context context) {
+		super(dm, keyPair, dmKey, deviceId, transferUtility, boxVolume, path, parents, context);
 	}
 
 	@Override
 	protected void uploadDirectoryMetadata() throws QblStorageException {
-		if (path.equals("/")) {
+		if (currentPath.equals("/")) {
 			uploadDirectoryMetadataRoot();
 		}
 		else {
@@ -67,7 +69,7 @@ public class FolderNavigation extends AbstractNavigation {
 	}
 
 	protected DirectoryMetadata reloadMetadata() throws QblStorageException {
-		if (path.equals("/")) {
+		if (currentPath.equals("/")) {
 			return reloadMetadataRoot();
 		}
 		else {

@@ -1,38 +1,12 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="de.qabel.qabel_platform.fragments.AddIdentityFragment">
+    tools:context="de.qabel.qabelbox.fragments.AddIdentityFragment">
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_gravity="left|center_vertical">
-
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/add"
-            android:id="@+id/buttonAddIdentity"
-            android:layout_below="@+id/editTextIdentityDropServer"
-            android:layout_centerHorizontal="true"
-            android:layout_marginTop="31dp" />
-
-        <EditText
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/editTextIdentityAlias"
-            android:text="@string/identity_alias"
-            android:layout_below="@+id/textView2"
-            android:layout_centerHorizontal="true" />
-
-        <EditText
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/editTextIdentityDropServer"
-            android:layout_below="@+id/editTextIdentityAlias"
-            android:layout_centerHorizontal="true"
-            android:layout_marginTop="31dp"
-            android:text="@string/drop_server_address" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -42,6 +16,23 @@
             android:id="@+id/textView2"
             android:layout_alignParentTop="true"
             android:layout_centerHorizontal="true" />
+
+        <EditText
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/editTextIdentityAlias"
+            android:text="@string/identity_alias"
+            android:layout_below="@+id/textView2"
+            android:layout_centerHorizontal="true" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/add"
+            android:id="@+id/buttonAddIdentity"
+            android:layout_below="@id/editTextIdentityAlias"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="16dp" />
 
     </RelativeLayout>
 </FrameLayout>

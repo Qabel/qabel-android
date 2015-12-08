@@ -20,12 +20,12 @@ import de.qabel.core.config.DropServer;
 import de.qabel.core.config.Identity;
 import de.qabel.core.crypto.QblECKeyPair;
 import de.qabel.core.drop.DropURL;
+import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
 
 public class AddIdentityFragment extends Fragment {
 
     private EditText textViewIdentityName;
-    private EditText textViewDropServer;
     private Button buttonAddIdentity;
     private AddIdentityListener mListener;
 
@@ -35,13 +35,12 @@ public class AddIdentityFragment extends Fragment {
 
         final View view = inflater.inflate(R.layout.fragment_add_identity, container, false);
         textViewIdentityName = (EditText) view.findViewById(R.id.editTextIdentityAlias);
-        textViewDropServer = (EditText) view.findViewById(R.id.editTextIdentityDropServer);
         buttonAddIdentity = (Button) view.findViewById(R.id.buttonAddIdentity);
 
         buttonAddIdentity.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                URI uri = URI.create(textViewDropServer.getText().toString());
+                URI uri = URI.create(QabelBoxApplication.DEFAULT_DROP_SERVER);
                 DropServer dropServer = new DropServer(uri, "", true);
                 DropURL dropURL = new DropURL(dropServer);
                 Collection<DropURL> dropURLs = new ArrayList<>();

@@ -31,7 +31,7 @@ import de.qabel.qabelbox.R;
 
 public class AddIdentityFragment extends Fragment {
 
-    private static final int DEFAULT_DROP_BITS = 8;
+    private static final int DEFAULT_DROP_BYTES = 8;
     private EditText textViewIdentityName;
     private Button buttonAddIdentity;
     private Button buttonCancel;
@@ -61,17 +61,17 @@ public class AddIdentityFragment extends Fragment {
         textViewDropIDCurrent = (TextView) view.findViewById(R.id.textViewAddIdentityDropIDCurrentBits);
 
         textViewDropIDMin.setText(String.valueOf(0));
-        textViewDropIDCurrent.setText(String.valueOf(DEFAULT_DROP_BITS));
+        textViewDropIDCurrent.setText(String.valueOf(DEFAULT_DROP_BYTES));
         textViewDropIDMax.setText(String.valueOf(DropIdGenerator.DROP_ID_LENGTH_BYTE));
 
-        seekBarDropID.setProgress(DEFAULT_DROP_BITS - 1);
+        seekBarDropID.setProgress(DEFAULT_DROP_BYTES - 1);
 
         buttonAddIdentity.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 URI uri = URI.create(QabelBoxApplication.DEFAULT_DROP_SERVER);
                 DropServer dropServer = new DropServer(uri, "", true);
-                DropIdGenerator adjustableDropIdGenerator = new AdjustableDropIdGenerator(seekBarDropID.getProgress() + 1);
+                DropIdGenerator adjustableDropIdGenerator = new AdjustableDropIdGenerator((seekBarDropID.getProgress() + 1) * 8);
                 DropURL dropURL = new DropURL(dropServer, adjustableDropIdGenerator);
                 Collection<DropURL> dropURLs = new ArrayList<>();
                 dropURLs.add(dropURL);
@@ -127,7 +127,7 @@ public class AddIdentityFragment extends Fragment {
                     textViewDropIDMin.setVisibility(View.INVISIBLE);
                     textViewDropIDMax.setVisibility(View.INVISIBLE);
                     textViewDropIDCurrent.setVisibility(View.INVISIBLE);
-                    seekBarDropID.setProgress(DEFAULT_DROP_BITS - 1);
+                    seekBarDropID.setProgress(DEFAULT_DROP_BYTES - 1);
                 }
             }
         });

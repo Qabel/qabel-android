@@ -12,6 +12,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.concurrent.Callable;
@@ -186,23 +187,10 @@ public class FilesFragment extends Fragment {
 
     public boolean browseToParent() {
         cancelBrowseToTask();
-        FutureTask<Boolean> futureHasParent =
-                new FutureTask<>(new Callable<Boolean>() {
-                    public Boolean call() {
-                        return boxNavigation.hasParent();
-                    }
-                });
 
-        serialExecutor.execute(futureHasParent);
-
-        try {
-            if (!futureHasParent.get()) {
-                return false;
-            }
-        } catch (InterruptedException | ExecutionException e) {
-            Log.e(TAG, "hasParent() failed", e);
-            return false;
-        }
+		if (!boxNavigation.hasParent()) {
+			return false;
+		}
 
         browseToTask = new AsyncTask<Void, Void, Void>() {
             @Override
@@ -218,7 +206,7 @@ public class FilesFragment extends Fragment {
                     boxNavigation.navigateToParent();
                     fillAdapter();
                 } catch (QblStorageException e) {
-                    Log.e(TAG, "browseTo failed", e);
+                    Log.d(TAG, "browseTo failed", e);
                 }
                 return null;
             }
@@ -284,9 +272,7 @@ public class FilesFragment extends Fragment {
             protected Void doInBackground(Void... voids) {
                 waitForBoxNavigation();
                 try {
-                    if (navigateTo != null) {
-                        boxNavigation.navigate(navigateTo);
-                    }
+					boxNavigation.navigate(navigateTo);
                     fillAdapter();
                 } catch (QblStorageException e) {
                     Log.e(TAG, "browseTo failed", e);
@@ -300,6 +286,15 @@ public class FilesFragment extends Fragment {
                 setIsLoading(false);
                 filesAdapter.notifyDataSetChanged();
                 browseToTask = null;
+            }
+
+            @Override
+            protected void onCancelled() {
+                super.onCancelled();
+                setIsLoading(false);
+                browseToTask = null;
+                Toast.makeText(getActivity(), R.string.aborted,
+                        Toast.LENGTH_SHORT).show();
             }
         };
         browseToTask.executeOnExecutor(serialExecutor);

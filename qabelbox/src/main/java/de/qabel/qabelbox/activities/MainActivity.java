@@ -329,47 +329,7 @@ public class MainActivity extends AppCompatActivity
                                                 Toast.LENGTH_SHORT).show();
                                         break;
                                     case R.id.delete:
-                                        new AlertDialog.Builder(self)
-                                                .setTitle(R.string.confirm_delete_title)
-                                                .setMessage(String.format(
-                                                        getResources().getString(R.string.confirm_delete_message), boxObject.name))
-                                                .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-                                                    @Override
-                                                    public void onClick(DialogInterface dialog, int which) {
-                                                        new AsyncTask<Void, Void, Void>() {
-                                                            @Override
-                                                            protected void onPreExecute() {
-                                                                super.onPreExecute();
-                                                                filesFragment.setIsLoading(true);
-                                                            }
-
-                                                            @Override
-                                                            protected Void doInBackground(Void... params) {
-                                                                try {
-                                                                    filesFragment.getBoxNavigation().delete(boxObject);
-                                                                    filesFragment.getBoxNavigation().commit();
-                                                                } catch (QblStorageException e) {
-                                                                    Log.e(TAG, "Cannot delete " + boxObject.name);
-                                                                }
-                                                                return null;
-                                                            }
-
-                                                            @Override
-                                                            protected void onPostExecute(Void aVoid) {
-                                                                super.onPostExecute(aVoid);
-                                                                onDoRefresh(filesFragment, filesFragment.getBoxNavigation(), filesFragment.getFilesAdapter());
-                                                            }
-                                                        }.execute();
-                                                    }
-                                                })
-                                                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                                                    @Override
-                                                    public void onClick(DialogInterface dialog, int which) {
-                                                        Toast.makeText(self, R.string.aborted,
-                                                                Toast.LENGTH_SHORT).show();
-                                                    }
-                                                }).create().show();
-
+                                        delete(boxObject);
                                         break;
                                     case R.id.export:
                                         // Export handled in the MainActivity
@@ -418,6 +378,8 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
+        doSetupForFileFragment(filesFragment);
+
         // Check if activity is started with ACTION_SEND or ACTION_SEND_MULTIPLE
         Intent intent = getIntent();
         String action = intent.getAction();
@@ -462,6 +424,51 @@ public class MainActivity extends AppCompatActivity
 
         LocalBroadcastManager.getInstance(this).registerReceiver(new ResourceReadyReceiver(),
                 new IntentFilter(QabelBoxApplication.RESOURCES_INITIALIZED));
+    }
+
+    private void delete(final BoxObject boxObject) {
+        new AlertDialog.Builder(self)
+                .setTitle(R.string.confirm_delete_title)
+                .setMessage(String.format(
+                        getResources().getString(R.string.confirm_delete_message), boxObject.name))
+                .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        new AsyncTask<Void, Void, Void>() {
+                            @Override
+                            protected void onCancelled() {
+                                filesFragment.setIsLoading(false);
+                            }
+
+                            @Override
+                            protected void onPreExecute() {
+                                filesFragment.setIsLoading(true);
+                            }
+
+                            @Override
+                            protected Void doInBackground(Void... params) {
+                                try {
+                                    filesFragment.getBoxNavigation().delete(boxObject);
+                                    filesFragment.getBoxNavigation().commit();
+                                } catch (QblStorageException e) {
+                                    Log.e(TAG, "Cannot delete " + boxObject.name);
+                                }
+                                return null;
+                            }
+
+                            @Override
+                            protected void onPostExecute(Void aVoid) {
+                                refresh();
+                            }
+                        }.execute();
+                    }
+                })
+                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        showAbortMessage();
+                    }
+                }).create().show();
     }
 
     @Override
@@ -588,17 +595,31 @@ public class MainActivity extends AppCompatActivity
                     boxNavigation.createFolder(name);
                     boxNavigation.commit();
                 } catch (QblStorageException e) {
-                    e.printStackTrace();
+                    Log.e(TAG, "Failed creating folder "+ name, e);
                 }
                 return null;
             }
+
+
             @Override
-            protected void onPostExecute(Void aVoid) {
-                super.onPostExecute(aVoid);
+            protected void onCancelled() {
+                filesFragment.setIsLoading(false);
+                showAbortMessage();
+            }
+
+            @Override
+            protected void onPreExecute() {
                 getFragmentManager().beginTransaction()
                         .replace(R.id.fragment_container, filesFragment)
                         .addToBackStack(null)
                         .commit();
+                filesFragment.setIsLoading(true);
+            }
+
+            @Override
+            protected void onPostExecute(Void aVoid) {
+                super.onPostExecute(aVoid);
+                refresh();
             }
         }.execute();
     }
@@ -774,6 +795,17 @@ public class MainActivity extends AppCompatActivity
             }
 
             @Override
+            protected void onCancelled() {
+				filesFragment.setIsLoading(true);
+                showAbortMessage();
+            }
+
+            @Override
+            protected void onPreExecute() {
+                filesFragment.setIsLoading(true);
+            }
+
+            @Override
             protected void onPostExecute(Void aVoid) {
                 super.onPostExecute(aVoid);
 
@@ -784,6 +816,11 @@ public class MainActivity extends AppCompatActivity
             }
         };
         asyncTask.execute();
+    }
+
+    private void showAbortMessage() {
+        Toast.makeText(self, R.string.aborted,
+                Toast.LENGTH_SHORT).show();
     }
 
     public void doSetupForFileFragment(final FilesFragment filesFragment) {
@@ -812,6 +849,10 @@ public class MainActivity extends AppCompatActivity
             }
         });
         filesFragment.setIsLoading(false);
+    }
+
+    private void refresh() {
+        onDoRefresh(filesFragment, filesFragment.getBoxNavigation(), filesFragment.getFilesAdapter());
     }
 
 }

@@ -142,7 +142,7 @@ public abstract class AbstractNavigation implements BoxNavigation {
 		try {
 			doNavigate(target, true);
 		} catch (QblStorageException e) {
-				throw new QblStorageNotFound("Invalid key");
+			throw new QblStorageNotFound("Invalid key");
 		}
 	}
 
@@ -362,6 +362,7 @@ public abstract class AbstractNavigation implements BoxNavigation {
 
 	@Override
 	public void delete(BoxObject boxObject) throws QblStorageException {
+		logger.info("Deleting object: " + boxObject.name);
 		if (boxObject instanceof BoxFile) {
 			delete((BoxFile) boxObject);
 		} else if (boxObject instanceof BoxFolder) {

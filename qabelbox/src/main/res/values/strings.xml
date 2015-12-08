@@ -6,7 +6,7 @@
     <string name="Qabel">Qabel</string>
 
     <string name="open">Open</string>
-    <string name="contact_image">Contact Logo</string>
+    <string name="item_image">Item image</string>
     <string name="enter_password_header">Enter password</string>
     <string name="add_contacts">Add new contact</string>
     <string name="contact_name">Contact name</string>
@@ -57,4 +57,10 @@
     <string name="aborted">Aborted</string>
     <string name="manage_identities">Manage Identities</string>
     <string name="addIdentityShowAdvanced">Show advanced options</string>
+    <string name="Rename">Rename</string>
+    <string name="alias_cannot_be_empty">Alias cannot be empty</string>
+    <string name="rename_identity">Rename %s</string>
+    <string name="new_identity_name">New identity name</string>
+    <string name="confirm_delete_identity_header">Delete identity?</string>
+    <string name="confirm_delete_identity_message">Do you really want to delete the identity %s? This action can\'t be undone!</string>
 </resources>

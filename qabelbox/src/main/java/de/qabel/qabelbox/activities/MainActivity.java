@@ -42,7 +42,10 @@ import java.io.OutputStream;
 import java.io.Serializable;
 import java.net.URLConnection;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
 
 import de.qabel.ackack.MessageInfo;
 import de.qabel.ackack.Responsible;
@@ -58,6 +61,7 @@ import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.fragments.AddContactFragment;
 import de.qabel.qabelbox.fragments.AddIdentityFragment;
 import de.qabel.qabelbox.fragments.ContactFragment;
+import de.qabel.qabelbox.fragments.IdentitiesFragment;
 import de.qabel.qabelbox.fragments.NewDatabasePasswordFragment;
 import de.qabel.qabelbox.fragments.OpenDatabaseFragment;
 import de.qabel.qabelbox.storage.BoxExternal;
@@ -83,7 +87,8 @@ public class MainActivity extends AppCompatActivity
                                         NewDatabasePasswordFragment.NewDatabasePasswordListener,
                                             OpenDatabaseFragment.OpenDatabaseFragmentListener,
                                                 AddContactFragment.AddContactListener,
-                                                    FilesFragment.FilesListListener{
+                                                    FilesFragment.FilesListListener,
+                                                        IdentitiesFragment.IdentityListListener {
 
     public static final String ACTION_ENTER_DB_PASSWORD = "EnterDatabasePassword";
     public static final String ACTION_ENTER_NEW_DB_PASSWORD = "EnterNewDatabasePassword";
@@ -129,6 +134,7 @@ public class MainActivity extends AppCompatActivity
         public ProviderActor() {
             on(EventNameConstants.EVENT_CONTACT_ADDED, this);
             on(EventNameConstants.EVENT_IDENTITY_ADDED, this);
+            on(EventNameConstants.EVENT_IDENTITY_REMOVED, this);
 
             resourceActor.retrieveIdentities(this, new Responsible() {
                 @Override
@@ -195,6 +201,17 @@ public class MainActivity extends AppCompatActivity
                             contacts.put(i, new Contacts());
                         }
                         identities.put(i);
+                    }
+                    break;
+                case EventNameConstants.EVENT_IDENTITY_REMOVED:
+                    if (data[0] instanceof String) {
+                        String keyIdentifier = (String) data[0];
+                        Identity identityToRemove = identities.getByKeyIdentifier(keyIdentifier);
+                        if (identityToRemove == activeIdentity) {
+                            // TODO: Select new active Identity
+                        }
+                        Log.d(TAG, "Removing identity: " + identityToRemove.getAlias());
+                        identities.remove(identityToRemove);
                     }
                     break;
                 default:
@@ -673,6 +690,20 @@ public class MainActivity extends AppCompatActivity
                 .commit();
     }
 
+    public void startManageIdentities() {
+        fab.show();
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startAddIdentity();
+            }
+        });
+        getFragmentManager().beginTransaction()
+                .replace(R.id.fragment_container, IdentitiesFragment.newInstance(identities))
+                .addToBackStack(null)
+                .commit();
+    }
+
     @Override
     public void addIdentity(Identity identity) {
         resourceActor.writeIdentities(identity);
@@ -741,6 +772,16 @@ public class MainActivity extends AppCompatActivity
         } else {
             fab.show();
         }
+    }
+
+    @Override
+    public void deleteIdentity(Identity identity) {
+        resourceActor.removeIdentities(identity);
+    }
+
+    @Override
+    public void modifyIdentity(Identity identity) {
+        resourceActor.writeIdentities(identity);
     }
 
     @Override
@@ -874,46 +915,52 @@ public class MainActivity extends AppCompatActivity
                 } else {
                     imageViewExpandIdentity.setImageResource(R.drawable.ic_arrow_drop_up_black_24dp);
                     navigationView.getMenu().clear();
-                    for (final Identity identity : identities.getIdentities()) {
+                    List<Identity> identityList = new ArrayList<>(identities.getIdentities());
+                    Collections.sort(identityList, new Comparator<Identity>() {
+                        @Override
+                        public int compare(Identity lhs, Identity rhs) {
+                            return lhs.getAlias().compareTo(rhs.getAlias());
+                        }
+                    });
+                    for (final Identity identity : identityList) {
                         navigationView.getMenu()
-                                .add(NAV_GROUP_IDENTITIES, Menu.NONE, Menu.NONE, identity.getAlias())
-                                .setIcon(R.drawable.ic_perm_identity_black_24dp)
-                                .setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
-                                    @Override
-                                    public boolean onMenuItemClick(MenuItem item) {
-                                        drawer.closeDrawer(GravityCompat.START);
-                                        selectIdentity(identity);
-                                        return true;
-                                    }
-                                });
+                            .add(NAV_GROUP_IDENTITIES, Menu.NONE, Menu.NONE, identity.getAlias())
+                            .setIcon(R.drawable.ic_perm_identity_black_24dp)
+                            .setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+                                @Override
+                                public boolean onMenuItemClick(MenuItem item) {
+                                    drawer.closeDrawer(GravityCompat.START);
+                                    selectIdentity(identity);
+                                    return true;
+                                }
+                            });
                     }
                     navigationView.getMenu()
-                            .add(NAV_GROUP_IDENTITY_ACTIONS, Menu.NONE, Menu.NONE, R.string.add_identity)
-                            .setIcon(R.drawable.ic_add_circle_black_24dp)
-                            .setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
-                                @Override
-                                public boolean onMenuItemClick(MenuItem item) {
-                                    drawer.closeDrawer(GravityCompat.START);
-                                    startAddIdentity();
-                                    return true;
-                                }
-                            });
+                        .add(NAV_GROUP_IDENTITY_ACTIONS, Menu.NONE, Menu.NONE, R.string.add_identity)
+                        .setIcon(R.drawable.ic_add_circle_black_24dp)
+                        .setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+                            @Override
+                            public boolean onMenuItemClick(MenuItem item) {
+                                drawer.closeDrawer(GravityCompat.START);
+                                startAddIdentity();
+                                return true;
+                            }
+                        });
                     navigationView.getMenu()
-                            .add(NAV_GROUP_IDENTITY_ACTIONS, Menu.NONE, Menu.NONE, R.string.manage_identities)
-                            .setIcon(R.drawable.ic_settings_black_24dp)
-                            .setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
-                                @Override
-                                public boolean onMenuItemClick(MenuItem item) {
-                                    drawer.closeDrawer(GravityCompat.START);
-                                    Toast.makeText(self, R.string.not_implemented,
-                                            Toast.LENGTH_SHORT).show();
-                                    return true;
-                                }
-                            });
-                    identityMenuExpanded = true;
-                }
+                        .add(NAV_GROUP_IDENTITY_ACTIONS, Menu.NONE, Menu.NONE, R.string.manage_identities)
+                        .setIcon(R.drawable.ic_settings_black_24dp)
+                        .setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+                            @Override
+                            public boolean onMenuItemClick(MenuItem item) {
+                                drawer.closeDrawer(GravityCompat.START);
+                                startManageIdentities();
+                                return true;
+                            }
+                        });
+                identityMenuExpanded = true;
             }
-        });
+        }
+    });
 
         drawer.setDrawerListener(new DrawerLayout.DrawerListener() {
             @Override

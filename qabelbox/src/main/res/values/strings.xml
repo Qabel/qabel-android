@@ -56,4 +56,5 @@
     <string name="cancel">Cancel</string>
     <string name="aborted">Aborted</string>
     <string name="manage_identities">Manage Identities</string>
+    <string name="addIdentityShowAdvanced">Show advanced options</string>
 </resources>

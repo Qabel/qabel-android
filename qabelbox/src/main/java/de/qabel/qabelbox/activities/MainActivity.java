@@ -752,6 +752,11 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
+    public void cancelAddIdentity() {
+        browseTo(null, null, null);
+    }
+
+    @Override
     public void onNewPasswordEntered(char[] newPassword) {
         ((QabelBoxApplication) getApplication()).init(newPassword);
         setDrawerLocked(false);

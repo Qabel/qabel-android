@@ -63,4 +63,6 @@
     <string name="new_identity_name">New identity name</string>
     <string name="confirm_delete_identity_header">Delete identity?</string>
     <string name="confirm_delete_identity_message">Do you really want to delete the identity %s? This action can\'t be undone!</string>
+    <string name="add_folder_header">Add folder</string>
+    <string name="add_folder_name">Enter new folder name</string>
 </resources>

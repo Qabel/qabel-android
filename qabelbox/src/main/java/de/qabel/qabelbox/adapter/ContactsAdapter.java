@@ -33,9 +33,9 @@ public class ContactsAdapter extends RecyclerView.Adapter<ContactsAdapter.Contac
         public ContactViewHolder(View v) {
             super(v);
             v.setOnClickListener(this);
-            mTextViewContactName = (TextView) v.findViewById(R.id.textViewContactName);
-            mTextViewContactDetails = (TextView) v.findViewById(R.id.textViewContactDetail);
-            mImageView = (ImageView) v.findViewById(R.id.contactIcon);
+            mTextViewContactName = (TextView) v.findViewById(R.id.textViewItemName);
+            mTextViewContactDetails = (TextView) v.findViewById(R.id.textViewItemDetail);
+            mImageView = (ImageView) v.findViewById(R.id.itemIcon);
         }
 
         @Override

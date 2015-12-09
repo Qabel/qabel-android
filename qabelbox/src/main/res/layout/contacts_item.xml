@@ -8,24 +8,24 @@
     <ImageView
         android:layout_width="50dp"
         android:layout_height="50dp"
-        android:id="@+id/contactIcon"
+        android:id="@+id/itemIcon"
         android:layout_alignParentTop="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
-        android:contentDescription="@string/contact_image" />
+        android:contentDescription="@string/item_image" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/textViewContactName"
+        android:id="@+id/textViewItemName"
         android:layout_alignParentTop="true"
-        android:layout_toRightOf="@+id/contactIcon" />
+        android:layout_toRightOf="@+id/itemIcon" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/textViewContactDetail"
-        android:layout_below="@+id/textViewContactName"
-        android:layout_toRightOf="@+id/contactIcon"
-        android:layout_toEndOf="@+id/contactIcon" />
+        android:id="@+id/textViewItemDetail"
+        android:layout_below="@+id/textViewItemName"
+        android:layout_toRightOf="@+id/itemIcon"
+        android:layout_toEndOf="@+id/itemIcon" />
 </RelativeLayout>

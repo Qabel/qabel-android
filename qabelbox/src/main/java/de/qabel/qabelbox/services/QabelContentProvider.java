@@ -1,16 +1,20 @@
 package de.qabel.qabelbox.services;
 
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.ContentProvider;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.ServiceConnection;
 import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.net.Uri;
+import android.os.IBinder;
 import android.support.v4.content.LocalBroadcastManager;
+import android.util.Log;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -43,6 +47,7 @@ public class QabelContentProvider extends ContentProvider {
     private static final UriMatcher uriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
     private static final int CONTACTS = 1;
     private static final int IDENTITIES = 2;
+    private static final String TAG = "QabelContentProvider";
 
     private final Contacts contacts;
     private final Identities identities;
@@ -55,6 +60,8 @@ public class QabelContentProvider extends ContentProvider {
         uriMatcher.addURI(QabelContentProviderConstants.CONTENT_AUTHORITY, QabelContentProviderConstants.CONTENT_CONTACTS, CONTACTS);
         uriMatcher.addURI(QabelContentProviderConstants.CONTENT_AUTHORITY, QabelContentProviderConstants.CONTENT_IDENTITIES, IDENTITIES);
     }
+
+    private LocalQabelService mService;
 
     public QabelContentProvider() {
         contacts = new Contacts();
@@ -107,26 +114,35 @@ public class QabelContentProvider extends ContentProvider {
         }
     }
 
-    /**
-     * Starts initialization of QabelResourceProvider resources when global resources are ready
-     */
-    class ResourceReadyReceiver extends BroadcastReceiver {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            resourceActor = QabelBoxApplication.getResourceActor();
-
-            providerActor = new ProviderActor();
-            providerActorThread = new Thread(providerActor, "ProviderActorThread");
-            providerActorThread.start();
-
-            resourcesReady = true;
-        }
-    }
 
     @Override
     public boolean onCreate() {
-        LocalBroadcastManager.getInstance(getContext()).registerReceiver(new ResourceReadyReceiver(),
-                new IntentFilter(QabelBoxApplication.RESOURCES_INITIALIZED));
+        Context context = getContext();
+        Intent intent = new Intent(context, LocalQabelService.class);
+        if (context == null) {
+            Log.e(TAG, "Cannot create service without context");
+            return false;
+        }
+        context.bindService(intent, new ServiceConnection() {
+            @Override
+            public void onServiceConnected(ComponentName name, IBinder service) {
+                LocalQabelService.LocalBinder binder = (LocalQabelService.LocalBinder) service;
+                mService = binder.getService();
+                resourceActor = mService.getResourceActor();
+
+                providerActor = new ProviderActor();
+                providerActorThread = new Thread(providerActor, "ProviderActorThread");
+                providerActorThread.start();
+
+                resourcesReady = true;
+            }
+
+            @Override
+            public void onServiceDisconnected(ComponentName name) {
+                mService = null;
+            }
+        }, Context.BIND_AUTO_CREATE);
+
         return true;
     }
 

@@ -5,14 +5,17 @@ import android.app.AlertDialog;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.ServiceConnection;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.provider.DocumentsContract;
 import android.provider.OpenableColumns;
 import android.support.design.widget.FloatingActionButton;
@@ -64,8 +67,7 @@ import de.qabel.qabelbox.fragments.AddContactFragment;
 import de.qabel.qabelbox.fragments.AddIdentityFragment;
 import de.qabel.qabelbox.fragments.ContactFragment;
 import de.qabel.qabelbox.fragments.IdentitiesFragment;
-import de.qabel.qabelbox.fragments.NewDatabasePasswordFragment;
-import de.qabel.qabelbox.fragments.OpenDatabaseFragment;
+import de.qabel.qabelbox.services.LocalQabelService;
 import de.qabel.qabelbox.storage.BoxExternal;
 import de.qabel.qabelbox.storage.BoxFile;
 import de.qabel.qabelbox.storage.BoxFolder;
@@ -84,8 +86,6 @@ public class MainActivity extends AppCompatActivity
                     SelectUploadFolderFragment.OnSelectedUploadFolderListener,
                             ContactFragment.ContactListListener,
                                     AddIdentityFragment.AddIdentityListener,
-                                        NewDatabasePasswordFragment.NewDatabasePasswordListener,
-                                            OpenDatabaseFragment.OpenDatabaseFragmentListener,
                                                 AddContactFragment.AddContactListener,
                                                     FilesFragment.FilesListListener,
                                                         IdentitiesFragment.IdentityListListener {
@@ -225,20 +225,6 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    /**
-     * Starts initialization when global resources are ready
-     */
-    class ResourceReadyReceiver extends BroadcastReceiver {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            resourceActor = QabelBoxApplication.getResourceActor();
-
-            providerActor = new ProviderActor();
-            providerActorThread = new Thread(providerActor, "ProviderActorThread");
-            providerActorThread.start();
-        }
-    }
-
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         final Uri uri;
@@ -337,6 +323,24 @@ public class MainActivity extends AppCompatActivity
         appBarMain = findViewById(R.id.app_bap_main);
         fab = (FloatingActionButton) findViewById(R.id.fab);
 
+        Intent serviceIntent = new Intent(this, LocalQabelService.class);
+        bindService(serviceIntent, new ServiceConnection() {
+            @Override
+            public void onServiceConnected(ComponentName name, IBinder service) {
+                LocalQabelService.LocalBinder binder = (LocalQabelService.LocalBinder) service;
+                resourceActor = binder.getService().getResourceActor();
+
+                providerActor = new ProviderActor();
+                providerActorThread = new Thread(providerActor, "ProviderActorThread");
+                providerActorThread.start();
+            }
+
+            @Override
+            public void onServiceDisconnected(ComponentName name) {
+                resourceActor = null;
+            }
+        }, Context.BIND_AUTO_CREATE);
+
         self = this;
         contacts = new HashMap<>();
         identities = new Identities();
@@ -360,12 +364,6 @@ public class MainActivity extends AppCompatActivity
 
         // Checks if a fragment should be launched
         switch (intent.getAction()) {
-            case ACTION_ENTER_DB_PASSWORD:
-                selectOpenDatabaseFragment();
-                break;
-            case ACTION_ENTER_NEW_DB_PASSWORD:
-                selectNewDatabasePasswordFragment();
-                break;
             case Intent.ACTION_SEND:
                 if (type != null) {
                     Log.i(TAG, "Action send in main activity");
@@ -382,7 +380,7 @@ public class MainActivity extends AppCompatActivity
                 }
                 break;
             default:
-                selectOpenDatabaseFragment();
+                selectFilesFragment();
                 break;
         }
 
@@ -413,8 +411,6 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
-        LocalBroadcastManager.getInstance(this).registerReceiver(new ResourceReadyReceiver(),
-                new IntentFilter(QabelBoxApplication.RESOURCES_INITIALIZED));
     }
 
     private void initFloatingActionButton() {
@@ -757,27 +753,6 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void onNewPasswordEntered(char[] newPassword) {
-        ((QabelBoxApplication) getApplication()).init(newPassword);
-        setDrawerLocked(false);
-        selectAddIdentityFragment();
-    }
-
-    @Override
-    public void onPasswordEntered(char[] password) {
-        if (((QabelBoxApplication) getApplication()).init(password)) {
-            setDrawerLocked(false);
-            if (QabelBoxApplication.getLastActiveIdentityID().equals("")) {
-                selectAddIdentityFragment();
-            } else {
-                selectFilesFragment();
-            }
-        } else {
-            selectOpenDatabaseFragment();
-        }
-    }
-
-    @Override
     public void addContact(Contact contact) {
         resourceActor.writeContacts(contact);
 
@@ -1019,20 +994,6 @@ public class MainActivity extends AppCompatActivity
     /*
         FRAGMENT SELECTION METHODS
     */
-
-    private void selectNewDatabasePasswordFragment() {
-        fab.hide();
-        getFragmentManager().beginTransaction()
-                .replace(R.id.fragment_container, new NewDatabasePasswordFragment(), TAG_NEW_DATABASE_PASSWORD_FRAGMENT)
-                .commit();
-    }
-
-    private void selectOpenDatabaseFragment() {
-        fab.hide();
-        getFragmentManager().beginTransaction()
-                .replace(R.id.fragment_container, new OpenDatabaseFragment(), TAG_OPEN_DATABASE_FRAGMENT)
-                .commit();
-    }
 
     private void selectAddContactFragment(Identity identity) {
         fab.hide();

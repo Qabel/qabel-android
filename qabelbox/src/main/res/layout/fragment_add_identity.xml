@@ -21,10 +21,12 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/editTextIdentityAlias"
-            android:text="@string/identity_alias"
+            android:hint="@string/identity_alias"
             android:layout_below="@+id/textViewAddIdentityHeader"
-            android:layout_centerHorizontal="true"
-            android:layout_marginTop="55dp"/>
+            android:layout_marginTop="55dp"
+            android:layout_alignStart="@+id/checkBoxAddIdentityAdvanced"
+            android:layout_alignEnd="@+id/checkBoxAddIdentityAdvanced"
+            android:textAlignment="center"/>
 
         <Button
             android:layout_width="wrap_content"

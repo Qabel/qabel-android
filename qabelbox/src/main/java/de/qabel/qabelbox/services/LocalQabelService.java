@@ -57,4 +57,10 @@ public class LocalQabelService extends Service {
 		resourceActorThread = new Thread(resourceActor, "ResourceActorThread");
 		resourceActorThread.start();
 	}
+
+	@Override
+	public void onDestroy() {
+		super.onDestroy();
+		resourceActor.stop();
+	}
 }

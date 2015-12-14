@@ -4,12 +4,10 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Fragment;
 import android.app.FragmentManager;
-import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.database.Cursor;
 import android.net.Uri;
@@ -21,7 +19,6 @@ import android.provider.OpenableColumns;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
-import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -62,11 +59,17 @@ import de.qabel.core.config.Contacts;
 import de.qabel.core.config.Identities;
 import de.qabel.core.config.Identity;
 import de.qabel.core.config.ResourceActor;
+import de.qabel.qabelbox.QabelBoxApplication;
+import de.qabel.qabelbox.R;
+import de.qabel.qabelbox.adapter.FilesAdapter;
 import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.fragments.AddContactFragment;
 import de.qabel.qabelbox.fragments.AddIdentityFragment;
 import de.qabel.qabelbox.fragments.ContactFragment;
+import de.qabel.qabelbox.fragments.FilesFragment;
 import de.qabel.qabelbox.fragments.IdentitiesFragment;
+import de.qabel.qabelbox.fragments.SelectUploadFolderFragment;
+import de.qabel.qabelbox.providers.BoxProvider;
 import de.qabel.qabelbox.services.LocalQabelService;
 import de.qabel.qabelbox.storage.BoxExternal;
 import de.qabel.qabelbox.storage.BoxFile;
@@ -74,12 +77,6 @@ import de.qabel.qabelbox.storage.BoxFolder;
 import de.qabel.qabelbox.storage.BoxNavigation;
 import de.qabel.qabelbox.storage.BoxObject;
 import de.qabel.qabelbox.storage.BoxVolume;
-import de.qabel.qabelbox.QabelBoxApplication;
-import de.qabel.qabelbox.R;
-import de.qabel.qabelbox.adapter.FilesAdapter;
-import de.qabel.qabelbox.fragments.FilesFragment;
-import de.qabel.qabelbox.fragments.SelectUploadFolderFragment;
-import de.qabel.qabelbox.providers.BoxProvider;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,
@@ -90,11 +87,6 @@ public class MainActivity extends AppCompatActivity
                                                     FilesFragment.FilesListListener,
                                                         IdentitiesFragment.IdentityListListener {
 
-    public static final String ACTION_ENTER_DB_PASSWORD = "EnterDatabasePassword";
-    public static final String ACTION_ENTER_NEW_DB_PASSWORD = "EnterNewDatabasePassword";
-
-    private static final String TAG_OPEN_DATABASE_FRAGMENT = "OPEN_DATABASE_FRAGMENT";
-    private static final String TAG_NEW_DATABASE_PASSWORD_FRAGMENT = "NEW_DATABASE_PASSWORD_FRAGMENT";
     private static final String TAG_FILES_FRAGMENT = "TAG_FILES_FRAGMENT";
     private static final String TAG_CONTACT_LIST_FRAGMENT = "TAG_CONTACT_LIST_FRAGMENT";
     private static final String TAG_MANAGE_IDENTITIES_FRAGMENT = "TAG_MANAGE_IDENTITIES_FRAGMENT";
@@ -403,8 +395,6 @@ public class MainActivity extends AppCompatActivity
                         fab.hide();
                         break;
                     case TAG_FILES_FRAGMENT:
-                    case TAG_OPEN_DATABASE_FRAGMENT:
-                    case TAG_NEW_DATABASE_PASSWORD_FRAGMENT:
                     default:
                         Log.d(TAG, "No FAB action required");
                 }
@@ -577,10 +567,6 @@ public class MainActivity extends AppCompatActivity
             Fragment activeFragment = getFragmentManager().findFragmentById(R.id.fragment_container);
 
             switch (activeFragment.getTag()) {
-                case TAG_OPEN_DATABASE_FRAGMENT:
-                case TAG_NEW_DATABASE_PASSWORD_FRAGMENT:
-                    finishAffinity();
-                    break;
                 case TAG_FILES_FRAGMENT:
                     if (!filesFragment.browseToParent()) {
                         finishAffinity();

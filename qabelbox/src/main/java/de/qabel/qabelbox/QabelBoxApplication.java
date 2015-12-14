@@ -27,7 +27,6 @@ import de.qabel.qabelbox.providers.BoxProvider;
 import de.qabel.qabelbox.services.LocalQabelService;
 
 public class QabelBoxApplication extends Application {
-    public static final String RESOURCES_INITIALIZED = "ResourcesInitialized";
     public static final String DEFAULT_DROP_SERVER = "http://localhost";
 
     private static final String PREF_DEVICE_ID_CREATED = "PREF_DEVICE_ID_CREATED";
@@ -44,18 +43,6 @@ public class QabelBoxApplication extends Application {
     static {
         // Enforce SpongyCastle as JCE provider
         Security.insertProviderAt(new BouncyCastleProvider(), 1);
-    }
-
-    public ResourceActor getResourceActor() {
-        if (mService != null) {
-            return mService.getResourceActor();
-        } else {
-            throw new RuntimeException("ResourceActor has not been initialized yet.");
-        }
-    }
-
-    public static boolean isResourceActorInitialized() {
-        return true;
     }
 
     public static void setLastActiveIdentityID(String identityID) {

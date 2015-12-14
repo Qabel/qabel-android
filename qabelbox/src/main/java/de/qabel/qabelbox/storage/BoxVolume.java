@@ -40,6 +40,7 @@ public class BoxVolume {
 	private CryptoUtils cryptoUtils;
 	private File tempDir;
 	private final TransferManager transferManager;
+	private String prefix;
 
 	public BoxVolume(TransferUtility transferUtility, AWSCredentials credentials,
 	                 QblECKeyPair keyPair, String bucket, String prefix,
@@ -54,6 +55,7 @@ public class BoxVolume {
 		this.rootId = new DocumentIdParser().buildId(
 				keyPair.getPub().getReadableKeyIdentifier(), bucket, prefix, null);
 		transferManager = new TransferManager(transferUtility, awsClient, bucket, prefix, tempDir);
+		this.prefix = prefix;
 	}
 
 	public String getRootId() {
@@ -127,6 +129,7 @@ public class BoxVolume {
 		} catch (NoSuchAlgorithmException e) {
 			throw new QblStorageException(e);
 		}
+		md.update(this.prefix.getBytes());
 		md.update(keyPair.getPrivateKey());
 		byte[] digest = md.digest();
 		byte[] firstBytes = Arrays.copyOfRange(digest, 0, 16);

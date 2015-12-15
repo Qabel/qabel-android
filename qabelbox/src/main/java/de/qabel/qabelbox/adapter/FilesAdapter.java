@@ -103,10 +103,14 @@ public class FilesAdapter extends RecyclerView.Adapter<FilesAdapter.FilesViewHol
         }
         else if (boxObject instanceof BoxFile) {
             BoxFile boxFile = (BoxFile) boxObject;
-            holder.mTextViewFolderDetailsLeft.setText(dateFormat.format(new Date(boxFile.mtime)));
+            holder.mTextViewFolderDetailsLeft.setText(formatModificationTime(boxFile));
             holder.mTextViewFolderDetailsRight.setText(FileUtils.byteCountToDisplaySize(boxFile.size));
             holder.mImageView.setImageResource(R.drawable.ic_insert_drive_file_black_24dp);
         }
+    }
+
+    private String formatModificationTime(BoxFile boxFile) {
+        return dateFormat.format(new Date(boxFile.mtime * 1000));
     }
 
     @Override

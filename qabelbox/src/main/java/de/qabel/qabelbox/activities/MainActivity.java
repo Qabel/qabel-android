@@ -255,7 +255,14 @@ public class MainActivity extends AppCompatActivity
         }
         if (requestCode == REQUEST_CODE_UPLOAD_FILE && resultCode == Activity.RESULT_OK && data != null) {
             uri = data.getData();
-            uploadUri(uri);
+            String path = "";
+            if (filesFragment != null) {
+                BoxNavigation boxNavigation = filesFragment.getBoxNavigation();
+                if (boxNavigation != null) {
+                    path = boxNavigation.getPath();
+                }
+            }
+            uploadUri(uri, path);
             return;
         }
         if (requestCode == REQUEST_CODE_DELETE_FILE && resultCode == Activity.RESULT_OK && data != null) {
@@ -298,7 +305,9 @@ public class MainActivity extends AppCompatActivity
 
     }
 
-    private boolean uploadUri(Uri uri) {
+    private boolean uploadUri(Uri uri, String targetFolder) {
+        Toast.makeText(self, R.string.uploading_file,
+                Toast.LENGTH_SHORT).show();
         Cursor cursor = getContentResolver().query(uri, null, null, null, null);
         if (cursor == null) {
             Log.e(TAG, "No valid url for uploading" + uri);
@@ -309,7 +318,7 @@ public class MainActivity extends AppCompatActivity
                 cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
         Log.i(TAG, "Displayname: " + displayName);
         Uri uploadUri = DocumentsContract.buildDocumentUri(
-                BoxProvider.AUTHORITY, HARDCODED_ROOT + displayName);
+                BoxProvider.AUTHORITY, HARDCODED_ROOT + targetFolder + displayName);
         try {
             OutputStream outputStream = getContentResolver().openOutputStream(uploadUri, "w");
             if (outputStream == null) {
@@ -426,28 +435,7 @@ public class MainActivity extends AppCompatActivity
 
                 switch (activeFragmentTag) {
                     case TAG_FILES_FRAGMENT:
-                        AlertDialog.Builder renameDialog = new AlertDialog.Builder(self);
-
-                        renameDialog.setTitle(R.string.add_folder_header);
-                        renameDialog.setMessage(R.string.add_folder_name);
-
-                        final EditText editTextNewFolder = new EditText(self);
-                        renameDialog.setView(editTextNewFolder);
-
-                        renameDialog.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int whichButton) {
-                                String newFolderName = editTextNewFolder.getText().toString();
-                                if (!newFolderName.equals("")) {
-                                    createFolder(newFolderName, filesFragment.getBoxNavigation());
-                                }
-                            }
-                        });
-
-                        renameDialog.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int whichButton) {
-                            }
-                        });
-                        renameDialog.show();
+                        filesFragmentBottomSheet();
                         break;
 
                     case TAG_CONTACT_LIST_FRAGMENT:
@@ -463,6 +451,51 @@ public class MainActivity extends AppCompatActivity
                 }
             }
         });
+    }
+
+    private void filesFragmentBottomSheet() {
+        new BottomSheet.Builder(self).sheet(R.menu.create_bottom_sheet)
+                .listener(new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        switch (which) {
+                            case R.id.create_folder:
+                                newFolderDialog();
+                                break;
+                            case R.id.upload_file:
+                                Intent intentOpen = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+                                intentOpen.addCategory(Intent.CATEGORY_OPENABLE);
+                                intentOpen.setType("*/*");
+                                startActivityForResult(intentOpen, REQUEST_CODE_UPLOAD_FILE);
+                                break;
+                        }
+                    }
+                }).show();
+    }
+
+    private void newFolderDialog() {
+        AlertDialog.Builder renameDialog = new AlertDialog.Builder(self);
+
+        renameDialog.setTitle(R.string.add_folder_header);
+        renameDialog.setMessage(R.string.add_folder_name);
+
+        final EditText editTextNewFolder = new EditText(self);
+        renameDialog.setView(editTextNewFolder);
+
+        renameDialog.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int whichButton) {
+                String newFolderName = editTextNewFolder.getText().toString();
+                if (!newFolderName.equals("")) {
+                    createFolder(newFolderName, filesFragment.getBoxNavigation());
+                }
+            }
+        });
+
+        renameDialog.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int whichButton) {
+            }
+        });
+        renameDialog.show();
     }
 
     private void initFilesFragment() {

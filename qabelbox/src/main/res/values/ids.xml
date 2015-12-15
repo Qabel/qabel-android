@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="create_folder" type="id">1</item>
+    <item name="upload_file" type="id">2</item>
+</resources>

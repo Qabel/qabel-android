@@ -44,26 +44,19 @@ public class StorageSearch {
         return results;
     }
 
-
     public static boolean isValidSearchTerm(String name) {
         return name != null && !"".equals(name.trim());
     }
 
-
     public StorageSearch filterByNameCaseSensitive(String name) {
-        filterByName(name, true);
-        return this;
+        return filterByName(name, true);
     }
-
     public StorageSearch filterByNameCaseInsensitive(String name) {
-        filterByName(name, false);
-        return this;
+        return filterByName(name, false);
     }
     public StorageSearch filterByName(String name) {
-        filterByNameCaseInsensitive(name);
-        return this;
+        return filterByNameCaseInsensitive(name);
     }
-
     public StorageSearch filterByName(String name, boolean caseSensitive) {
 
         if(!isValidSearchTerm(name)) {
@@ -88,6 +81,73 @@ public class StorageSearch {
 
         return this;
     }
+
+    public StorageSearch filterByMaximumSize(long size) {
+        return filterBySize(size, false);
+    }
+    public StorageSearch filterByMinimumSize(long size) {
+        return filterBySize(size, true);
+    }
+    public StorageSearch filterBySize(long size, boolean minSize) {
+
+        List<BoxObject> filtered = new ArrayList<>();
+
+        for(BoxObject o : results) {
+            if(o instanceof BoxFile) {
+                BoxFile f = (BoxFile) o;
+
+                if((minSize && f.size >= size) ||
+                   (!minSize && f.size <= size)) {
+                    filtered.add(o);
+                }
+            }
+        }
+
+        results = filtered;
+
+        return this;
+    }
+
+    public StorageSearch filterOnlyFiles() {
+
+        List<BoxObject> filtered = new ArrayList<>();
+        filtered.addAll(StorageSearch.toBoxFiles(results));
+        results = filtered;
+
+        return this;
+    }
+    public static List<BoxFile> toBoxFiles(List<BoxObject> lst) {
+        List<BoxFile> ret = new ArrayList<>();
+
+        for(BoxObject o : lst) {
+            if(o instanceof BoxFile) {
+                ret.add((BoxFile)o);
+            }
+        }
+
+        return ret;
+    }
+
+    public StorageSearch filterOnlyDirectories() {
+
+        List<BoxObject> filtered = new ArrayList<>();
+        filtered.addAll(StorageSearch.toBoxFolders(results));
+        results = filtered;
+
+        return this;
+    }
+    public static List<BoxFolder> toBoxFolders(List<BoxObject> lst) {
+        List<BoxFolder> ret = new ArrayList<>();
+
+        for(BoxObject o : lst) {
+            if(o instanceof BoxFolder) {
+                ret.add((BoxFolder)o);
+            }
+        }
+
+        return ret;
+    }
+
 
     private List<BoxObject> collectAll() throws QblStorageException {
         List<BoxObject> lst = new ArrayList<>();

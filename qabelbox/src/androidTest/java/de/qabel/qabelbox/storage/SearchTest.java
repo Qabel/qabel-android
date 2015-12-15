@@ -34,63 +34,81 @@ import static org.junit.Assert.assertThat;
  */
 public class SearchTest extends AndroidTestCase {
 
-    private final static String TAG = "#######################";
-    private final static String bucket = "qabel";
-    private final static String prefix = UUID.randomUUID().toString();
+    private final static String TAG = "######SEARCHTEST######";
 
-    private static AmazonS3Client s3Client;
+    //will represent a filled resultset after setUp()
+    //
+    //level0-one.bin
+    //+dir1-level1-one
+    //  level1-ONE.bin
+    //  level1-two-Small.bin
+    //  +dir1-level2-one
+    //      one-level2-one.bin
+    //  +dir1-level2-two
+    //      two-level2-one.bin
+    //
     private static List<BoxObject> searchResults;
+
     private static boolean setup = true;
 
-    @Before
     public void setUp() throws Exception {
         if(!setup) {
-            //init this only once, and since @BeforeClass has to be static use this hack
+            //setting up the directory structure takes time and so it is only made once - @AfterClass is not available here, so the cleanup is done, too
             return;
         }
 
         setup = false;
 
-        CryptoUtils utils = new CryptoUtils();
-        byte[] deviceID = utils.getRandomBytes(16);
-        QblECKeyPair keyPair = new QblECKeyPair();
+        AmazonS3Client s3Client = null;
+        final String bucket = "qabel";
+        final String prefix = UUID.randomUUID().toString();
 
-        AWSCredentials awsCredentials = new AWSCredentials() {
-            @Override
-            public String getAWSAccessKeyId() {
-                return getContext().getResources().getString(R.string.aws_user);
+        try {
+            CryptoUtils utils = new CryptoUtils();
+            byte[] deviceID = utils.getRandomBytes(16);
+            QblECKeyPair keyPair = new QblECKeyPair();
+
+            AWSCredentials awsCredentials = new AWSCredentials() {
+                @Override
+                public String getAWSAccessKeyId() {
+                    return getContext().getResources().getString(R.string.aws_user);
+                }
+
+                @Override
+                public String getAWSSecretKey() {
+                    return getContext().getString(R.string.aws_password);
+                }
+            };
+            AWSCredentials credentials = awsCredentials;
+            s3Client = new AmazonS3Client(credentials);
+            assertNotNull(awsCredentials.getAWSAccessKeyId());
+            assertNotNull(awsCredentials.getAWSSecretKey());
+
+            TransferUtility transfer = new TransferUtility(s3Client, getContext());
+            BoxVolume volume = new BoxVolume(transfer, credentials, keyPair, bucket, prefix, deviceID,
+                    getContext());
+
+            volume.createIndex(bucket, prefix);
+
+            Log.w(TAG, "VOL :" + volume.toString());
+
+            BoxNavigation nav = volume.navigate();
+
+            setupFakeDirectoryStructure(nav);
+
+            setupBaseSearch(nav);
+        }
+        finally {
+            if(s3Client != null) {
+                cleanUp(s3Client, bucket, prefix);
             }
-
-            @Override
-            public String getAWSSecretKey() {
-                return getContext().getString(R.string.aws_password);
-            }
-        };
-        AWSCredentials credentials = awsCredentials;
-        s3Client = new AmazonS3Client(credentials);
-        assertNotNull(awsCredentials.getAWSAccessKeyId());
-        assertNotNull(awsCredentials.getAWSSecretKey());
-
-        TransferUtility transfer = new TransferUtility(s3Client, getContext());
-        BoxVolume volume = new BoxVolume(transfer, credentials, keyPair, bucket, prefix, deviceID,
-                getContext());
-
-        volume.createIndex(bucket, prefix);
-
-        Log.w(TAG, "VOL :" + volume.toString());
-
-        BoxNavigation nav = volume.navigate();
-
-        setupFakeDirectoryStructure(nav);
-
-        setupBaseSearch(nav);
+        }
 
         Log.w(TAG, "SETUP DONE");
         Log.w(TAG, "--------");
     }
 
-    @AfterClass
-    public static void cleanUp() throws IOException {
+    public void cleanUp(AmazonS3Client s3Client, String bucket, String prefix) throws IOException {
         ObjectListing listing = s3Client.listObjects(bucket, prefix);
         List<DeleteObjectsRequest.KeyVersion> keys = new ArrayList<>();
         for (S3ObjectSummary summary : listing.getObjectSummaries()) {
@@ -141,15 +159,6 @@ public class SearchTest extends AndroidTestCase {
         nav.upload("two-level2-one.bin", new FileInputStream(testFile), null);
         nav.commit();
 
-        //level0-one.bin
-        //+dir1-level1-one
-        //  level1-ONE.bin
-        //  level1-two-Small.bin
-        //  +dir1-level2-one
-        //      one-level2-one.bin
-        //  +dir1-level2-two
-        //      two-level2-one.bin
-
         while(nav.hasParent()) {
             nav.navigateToParent();
         }
@@ -175,6 +184,10 @@ public class SearchTest extends AndroidTestCase {
         }
     }
 
+    private void debug(BoxObject o) {
+        Log.w(TAG, o instanceof BoxFile ? "FILE: " + o.name + " @"+((BoxFile) o).size : "DIR : " + o.name);
+    }
+
     private void setupBaseSearch(BoxNavigation nav) throws Exception {
         searchResults = new StorageSearch(nav).getResults();
     }
@@ -185,7 +198,7 @@ public class SearchTest extends AndroidTestCase {
         Log.w(TAG, "collectAll");
 
         for(BoxObject o : searchResults) {
-            Log.w(TAG, o instanceof BoxFile ? "FILE: " + o.name : "DIR : " + o.name);
+            debug(o);
         }
 
         assertEquals(8, searchResults.size());
@@ -219,9 +232,39 @@ public class SearchTest extends AndroidTestCase {
 
     }
 
+    @Test
+    public void testFilterBySize() throws Exception {
 
+        assertEquals(3, new StorageSearch(searchResults).filterByNameCaseSensitive("level1").getResults().size());
 
+        assertEquals(1, new StorageSearch(searchResults).filterByNameCaseSensitive("level1").filterByMaximumSize(100).getResults().size());
+        assertEquals(2, new StorageSearch(searchResults).filterByNameCaseSensitive("level1").filterByMaximumSize(110000).getResults().size());
+        assertEquals(1, new StorageSearch(searchResults).filterByNameCaseSensitive("level1").filterByMaximumSize(100000).getResults().size());
 
+        assertEquals(2, new StorageSearch(searchResults).filterByNameCaseSensitive("level1").filterByMinimumSize(1).getResults().size());
+        assertEquals(1, new StorageSearch(searchResults).filterByNameCaseSensitive("level1").filterByMinimumSize(100).getResults().size());
+        assertEquals(0, new StorageSearch(searchResults).filterByNameCaseSensitive("level1").filterByMinimumSize(10000000).getResults().size());
+    }
+
+    @Test
+    public void testFilterByFileOrDir() throws Exception {
+
+        List<BoxObject> objs = new StorageSearch(searchResults).filterByNameCaseSensitive("level1").filterOnlyDirectories().getResults();
+        assertEquals(1, objs.size());
+
+        List<BoxFolder> dirs = StorageSearch.toBoxFolders(objs);
+        assertEquals(1, dirs.size());
+        assertEquals("dir1-level1-one", dirs.get(0).name);
+
+        objs = new StorageSearch(searchResults).filterByNameCaseSensitive("level1").filterOnlyFiles().getResults();
+        assertEquals(2, objs.size());
+
+        List<BoxFile> files = StorageSearch.toBoxFiles(objs);
+        assertEquals(2, files.size());
+        assertEquals("level1-ONE.bin", files.get(0).name);
+        assertEquals("level1-two-Small.bin", files.get(1).name);
+
+    }
 
 
 

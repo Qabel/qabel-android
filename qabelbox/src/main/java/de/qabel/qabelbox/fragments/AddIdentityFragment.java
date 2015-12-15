@@ -79,9 +79,7 @@ public class AddIdentityFragment extends Fragment {
                 Identity identity = new Identity(textViewIdentityName.getText().toString(),
                         dropURLs, new QblECKeyPair());
 
-                InputMethodManager imm = (InputMethodManager) getActivity()
-                        .getSystemService(Context.INPUT_METHOD_SERVICE);
-                imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+                hideSoftInput(view);
                 mListener.addIdentity(identity);
             }
         });
@@ -89,6 +87,7 @@ public class AddIdentityFragment extends Fragment {
         buttonCancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                hideSoftInput(view);
                 mListener.cancelAddIdentity();
             }
         });
@@ -133,6 +132,12 @@ public class AddIdentityFragment extends Fragment {
         });
 
         return view;
+    }
+
+    private void hideSoftInput(View view) {
+        InputMethodManager imm = (InputMethodManager) getActivity()
+                .getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
     }
 
     @Override

@@ -22,28 +22,35 @@
             android:layout_height="wrap_content"
             android:id="@+id/editTextIdentityAlias"
             android:hint="@string/identity_alias"
+            android:drawableStart="@drawable/ic_perm_identity_black_24dp"
             android:layout_below="@+id/textViewAddIdentityHeader"
-            android:layout_marginTop="55dp"
-            android:layout_alignStart="@+id/checkBoxAddIdentityAdvanced"
-            android:layout_alignEnd="@+id/checkBoxAddIdentityAdvanced"
-            android:textAlignment="center"/>
-
-        <Button
-            android:layout_width="wrap_content"
+            android:layout_marginTop="15dp"
+            android:inputType="text"
+            android:layout_alignEnd="@+id/seekBarAddIdentityDropID"
+            android:layout_toEndOf="@+id/textViewAddIdentityDropIDMinBits"/>
+        <RelativeLayout
+            android:id="@+id/bottom_bar"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/add"
-            android:id="@+id/buttonAddIdentity"
+            android:orientation="horizontal"
             android:layout_alignParentBottom="true"
-            android:layout_alignParentEnd="true"/>
-
-        <Button
-            style="?android:attr/buttonStyleSmall"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/cancel"
-            android:id="@+id/buttonAddIdentityCancel"
-            android:layout_alignTop="@+id/buttonAddIdentity"
-            android:layout_alignParentStart="true"/>
+            android:background="@color/colorBottomBackground"
+            android:baselineAligned="false">
+            <Button
+                android:id="@+id/buttonAddIdentityCancel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentStart="true"
+                android:text="@string/cancel"
+                style="@style/BottomBarButton" />
+            <Button
+                android:id="@+id/buttonAddIdentity"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:text="@string/add"
+                style="@style/BottomBarButton" />
+        </RelativeLayout>
 
         <SeekBar
             android:layout_width="wrap_content"
@@ -64,8 +71,9 @@
             android:text="@string/addIdentityShowAdvanced"
             android:id="@+id/checkBoxAddIdentityAdvanced"
             android:checked="false"
-            android:layout_alignStart="@+id/textViewAddIdentityHeader"
-            android:layout_below="@+id/editTextIdentityAlias"/>
+            android:layout_below="@+id/editTextIdentityAlias"
+            android:layout_alignEnd="@+id/editTextIdentityAlias"
+            android:layout_toEndOf="@+id/textViewAddIdentityDropIDMinBits"/>
 
         <TextView
             android:layout_width="wrap_content"

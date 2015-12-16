@@ -35,7 +35,7 @@ import static org.junit.Assert.assertThat;
  */
 public class SearchTest extends AndroidTestCase {
 
-    private final static String TAG = "######SEARCHTEST######";
+    private final static String TAG = SearchTest.class.getName();
 
     //will represent a filled resultset after setUp()
     //
@@ -91,7 +91,7 @@ public class SearchTest extends AndroidTestCase {
 
             volume.createIndex(bucket, prefix);
 
-            Log.w(TAG, "VOL :" + volume.toString());
+            Log.d(TAG, "VOL :" + volume.toString());
 
             BoxNavigation nav = volume.navigate();
 
@@ -104,25 +104,25 @@ public class SearchTest extends AndroidTestCase {
             }
         }
 
-        Log.w(TAG, "SETUP DONE");
-        Log.w(TAG, "--------");
+        Log.d(TAG, "SETUP DONE");
     }
 
     public void cleanUp(AmazonS3Client s3Client, String bucket, String prefix) throws IOException {
         ObjectListing listing = s3Client.listObjects(bucket, prefix);
         List<DeleteObjectsRequest.KeyVersion> keys = new ArrayList<>();
+
         for (S3ObjectSummary summary : listing.getObjectSummaries()) {
-            Log.w(TAG, "DELETE: " + summary.getKey());
+            Log.d(TAG, "DELETE: " + summary.getKey());
             keys.add(new DeleteObjectsRequest.KeyVersion(summary.getKey()));
         }
+
         if (keys.isEmpty()) {
             return;
         }
+
         DeleteObjectsRequest deleteObjectsRequest = new DeleteObjectsRequest(bucket);
         deleteObjectsRequest.setKeys(keys);
         s3Client.deleteObjects(deleteObjectsRequest);
-
-        Log.w(TAG, "-------");
     }
 
     private void setupFakeDirectoryStructure(BoxNavigation nav) throws Exception {
@@ -164,7 +164,7 @@ public class SearchTest extends AndroidTestCase {
             nav.navigateToParent();
         }
 
-        Log.w(TAG, "NAV : " + nav);
+        Log.d(TAG, "NAV : " + nav);
 
         debug(nav);
 
@@ -173,11 +173,11 @@ public class SearchTest extends AndroidTestCase {
     private void debug(BoxNavigation nav) throws Exception {
 
         for (BoxFile file : nav.listFiles()) {
-            Log.w(TAG, "FILE: " + file.name);
+            Log.d(TAG, "FILE: " + file.name);
         }
 
         for (BoxFolder folder : nav.listFolders()) {
-            Log.w(TAG, "DIR : " + folder.name);
+            Log.d(TAG, "DIR : " + folder.name);
 
             nav.navigate(folder);
             debug(nav);
@@ -187,10 +187,10 @@ public class SearchTest extends AndroidTestCase {
 
     private void debug(BoxObject o) {
         if (o instanceof BoxFile) {
-            Log.w(TAG, "FILE: " + o.name + " @" + ((BoxFile) o).size);
+            Log.d(TAG, "FILE: " + o.name + " @" + ((BoxFile) o).size);
         }
         else {
-            Log.w(TAG, "DIR : " + o.name);
+            Log.d(TAG, "DIR : " + o.name);
         }
     }
 
@@ -201,7 +201,7 @@ public class SearchTest extends AndroidTestCase {
     @Test
     public void testCollectAll() throws Exception {
 
-        Log.w(TAG, "collectAll");
+        Log.d(TAG, "collectAll");
 
         for (BoxObject o : searchResults) {
             debug(o);
@@ -209,7 +209,7 @@ public class SearchTest extends AndroidTestCase {
 
         assertEquals(8, searchResults.size());
 
-        Log.w(TAG, "/collectAll");
+        Log.d(TAG, "/collectAll");
     }
 
     @Test

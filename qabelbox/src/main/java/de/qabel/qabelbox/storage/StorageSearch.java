@@ -1,6 +1,13 @@
 package de.qabel.qabelbox.storage;
 
+import android.util.Log;
+
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 
 import de.qabel.qabelbox.exceptions.QblStorageException;
@@ -133,6 +140,44 @@ public class StorageSearch {
 
 		return this;
 	}
+
+    public StorageSearch filterByMinimumDate(Date date) {
+        return filterByDate(date, true);
+    }
+
+    public StorageSearch filterByMaximumDate(Date date) {
+        return filterByDate(date, false);
+    }
+
+    /**
+     * This method will filter by last modified and return only files.
+     *
+     * @param date
+     * @param minDate
+     * @return
+     */
+    public StorageSearch filterByDate(Date date, boolean minDate) {
+
+        List<BoxObject> filtered = new ArrayList<>();
+
+        for (BoxObject o : results) {
+            if (o instanceof BoxFile) {
+                Date boxDate = new Date(((BoxFile)o).mtime);
+
+                boolean isBeforeMinimumDate = boxDate.before(date) && date.getTime() != boxDate.getTime();
+                boolean isAfterMaximumDate = boxDate.after(date);
+                boolean isInvalid = (minDate && isBeforeMinimumDate) || (!minDate && isAfterMaximumDate);
+
+                if (!isInvalid) {
+                    filtered.add(o);
+                }
+            }
+        }
+
+        results = filtered;
+
+        return this;
+    }
 
 	public StorageSearch filterOnlyFiles() {
 

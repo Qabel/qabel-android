@@ -20,6 +20,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.UUID;
 
@@ -187,7 +190,8 @@ public class SearchTest extends AndroidTestCase {
 
 	private void debug(BoxObject o) {
 		if (o instanceof BoxFile) {
-			Log.d(TAG, "FILE: " + o.name + " @" + ((BoxFile) o).size);
+            BoxFile f = ((BoxFile) o);
+			Log.d(TAG, "FILE: " + o.name + " @" +f.size+ " D: "+f.mtime);
 		} else {
 			Log.d(TAG, "DIR : " + o.name);
 		}
@@ -296,5 +300,41 @@ public class SearchTest extends AndroidTestCase {
 		assertEquals("level1-two-Small.bin", files.get(1).name);
 	}
 
+    @Test
+    public void testFilterByDate() throws Exception {
+
+        List<BoxFile> files = StorageSearch.toBoxFiles(searchResults);
+        assertEquals(5, files.size());
+
+        Calendar calendar = new GregorianCalendar();
+        calendar.set(Calendar.YEAR, 2010);
+
+        files.get(0).mtime = calendar.getTimeInMillis();
+        Date target = calendar.getTime();
+
+        calendar.set(Calendar.YEAR, 2011);
+        Date afterTarget = calendar.getTime();
+
+        calendar.set(Calendar.YEAR, 2009);
+        Date beforeTarget = calendar.getTime();
+
+        StorageSearch search = new StorageSearch(searchResults).filterByMinimumDate(afterTarget);
+        assertEquals(0, search.getResults().size());
+
+        search = new StorageSearch(searchResults).filterByMinimumDate(beforeTarget);
+        assertEquals(1, search.getResults().size());
+
+        search = new StorageSearch(searchResults).filterByMinimumDate(target);
+        assertEquals(1, search.getResults().size());
+
+        search = new StorageSearch(searchResults).filterByMaximumDate(target);
+        assertEquals(5, search.getResults().size());
+
+        search = new StorageSearch(searchResults).filterByMaximumDate(beforeTarget);
+        assertEquals(4, search.getResults().size());
+
+        search = new StorageSearch(searchResults).filterByMaximumDate(afterTarget);
+        assertEquals(5, search.getResults().size());
+    }
 
 }

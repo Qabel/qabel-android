@@ -16,6 +16,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -85,8 +86,8 @@ public class SearchTest extends AndroidTestCase {
             assertNotNull(awsCredentials.getAWSSecretKey());
 
             TransferUtility transfer = new TransferUtility(s3Client, getContext());
-            BoxVolume volume = new BoxVolume(transfer, credentials, keyPair, bucket, prefix, deviceID,
-                    getContext());
+            BoxVolume volume = new BoxVolume(transfer, credentials, keyPair, bucket, prefix,
+                    deviceID, getContext());
 
             volume.createIndex(bucket, prefix);
 
@@ -127,6 +128,7 @@ public class SearchTest extends AndroidTestCase {
     private void setupFakeDirectoryStructure(BoxNavigation nav) throws Exception {
 
         String testFile = BoxTest.createTestFile();
+        String smallFile = BoxTest.smallTestFile().getAbsolutePath();
 
         assertThat(nav.listFiles().size(), is(0));
 
@@ -139,7 +141,7 @@ public class SearchTest extends AndroidTestCase {
 
         nav.upload("level1-ONE.bin", new FileInputStream(testFile), null);
         nav.commit();
-        nav.upload("level1-two-Small.bin", new FileInputStream(BoxTest.smallTestFile().getAbsolutePath()), null);
+        nav.upload("level1-two-Small.bin", new FileInputStream(smallFile), null);
         nav.commit();
 
         folder = nav.createFolder("dir1-level2-one");
@@ -184,7 +186,12 @@ public class SearchTest extends AndroidTestCase {
     }
 
     private void debug(BoxObject o) {
-        Log.w(TAG, o instanceof BoxFile ? "FILE: " + o.name + " @" + ((BoxFile) o).size : "DIR : " + o.name);
+        if (o instanceof BoxFile) {
+            Log.w(TAG, "FILE: " + o.name + " @" + ((BoxFile) o).size);
+        }
+        else {
+            Log.w(TAG, "DIR : " + o.name);
+        }
     }
 
     private void setupBaseSearch(BoxNavigation nav) throws Exception {
@@ -221,48 +228,73 @@ public class SearchTest extends AndroidTestCase {
         assertEquals(1, lst.size());
         assertEquals("level1-two-Small.bin", lst.get(0).name);
 
-        assertEquals(0, new StorageSearch(searchResults).filterByNameCaseSensitive("small").getResults().size());
-        assertEquals(1, new StorageSearch(searchResults).filterByNameCaseSensitive("Small").getResults().size());
+        StorageSearch search = new StorageSearch(searchResults).filterByNameCaseSensitive("small");
+        assertEquals(0, search.getResults().size());
+
+        search =  new StorageSearch(searchResults).filterByNameCaseSensitive("Small");
+        assertEquals(1, search.getResults().size());
 
         //if not valid don't apply the filter
-        assertEquals(8, new StorageSearch(searchResults).filterByName(null).getResults().size());
-        assertEquals(8, new StorageSearch(searchResults).filterByName("").getResults().size());
-        assertEquals(8, new StorageSearch(searchResults).filterByName(" ").getResults().size());
+        search =  new StorageSearch(searchResults).filterByName(null);
+        assertEquals(8, search.getResults().size());
 
+        search = new StorageSearch(searchResults).filterByName("");
+        assertEquals(8, search.getResults().size());
+
+        search = new StorageSearch(searchResults).filterByName(" ");
+        assertEquals(8, search.getResults().size());
     }
 
     @Test
     public void testFilterBySize() throws Exception {
 
-        assertEquals(3, new StorageSearch(searchResults).filterByNameCaseSensitive("level1").getResults().size());
+        StorageSearch search = new StorageSearch(searchResults).filterByNameCaseSensitive("level1");
+        assertEquals(3, search.getResults().size());
 
-        assertEquals(1, new StorageSearch(searchResults).filterByNameCaseSensitive("level1").filterByMaximumSize(100).getResults().size());
-        assertEquals(2, new StorageSearch(searchResults).filterByNameCaseSensitive("level1").filterByMaximumSize(110000).getResults().size());
-        assertEquals(1, new StorageSearch(searchResults).filterByNameCaseSensitive("level1").filterByMaximumSize(100000).getResults().size());
+        search = new StorageSearch(searchResults).filterByNameCaseSensitive("level1")
+                .filterByMaximumSize(100);
+        assertEquals(1, search.getResults().size());
 
-        assertEquals(2, new StorageSearch(searchResults).filterByNameCaseSensitive("level1").filterByMinimumSize(1).getResults().size());
-        assertEquals(1, new StorageSearch(searchResults).filterByNameCaseSensitive("level1").filterByMinimumSize(100).getResults().size());
-        assertEquals(0, new StorageSearch(searchResults).filterByNameCaseSensitive("level1").filterByMinimumSize(10000000).getResults().size());
+        search = new StorageSearch(searchResults).filterByNameCaseSensitive("level1")
+                .filterByMaximumSize(110000);
+        assertEquals(2, search.getResults().size());
+
+        search = new StorageSearch(searchResults).filterByNameCaseSensitive("level1")
+                .filterByMaximumSize(100000);
+        assertEquals(1, search.getResults().size());
+
+        search = new StorageSearch(searchResults).filterByNameCaseSensitive("level1")
+                .filterByMinimumSize(1);
+        assertEquals(2, search.getResults().size());
+
+        search = new StorageSearch(searchResults).filterByNameCaseSensitive("level1")
+                .filterByMinimumSize(100);
+        assertEquals(1, search.getResults().size());
+
+        search = new StorageSearch(searchResults).filterByNameCaseSensitive("level1")
+                .filterByMinimumSize(10000000);
+        assertEquals(0, search.getResults().size());
     }
 
     @Test
     public void testFilterByFileOrDir() throws Exception {
 
-        List<BoxObject> objs = new StorageSearch(searchResults).filterByNameCaseSensitive("level1").filterOnlyDirectories().getResults();
+        List<BoxObject> objs = new StorageSearch(searchResults).filterByNameCaseSensitive("level1")
+                .filterOnlyDirectories().getResults();
         assertEquals(1, objs.size());
 
         List<BoxFolder> dirs = StorageSearch.toBoxFolders(objs);
         assertEquals(1, dirs.size());
         assertEquals("dir1-level1-one", dirs.get(0).name);
 
-        objs = new StorageSearch(searchResults).filterByNameCaseSensitive("level1").filterOnlyFiles().getResults();
+        objs = new StorageSearch(searchResults).filterByNameCaseSensitive("level1")
+                .filterOnlyFiles().getResults();
         assertEquals(2, objs.size());
 
         List<BoxFile> files = StorageSearch.toBoxFiles(objs);
         assertEquals(2, files.size());
         assertEquals("level1-ONE.bin", files.get(0).name);
         assertEquals("level1-two-Small.bin", files.get(1).name);
-
     }
 
 

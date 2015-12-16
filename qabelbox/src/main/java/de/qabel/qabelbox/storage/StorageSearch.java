@@ -1,7 +1,5 @@
 package de.qabel.qabelbox.storage;
 
-import android.util.Log;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -101,8 +99,7 @@ public class StorageSearch {
             if (o instanceof BoxFile) {
                 BoxFile f = (BoxFile) o;
 
-                if ((minSize && f.size >= size) ||
-                        (!minSize && f.size <= size)) {
+                if ((minSize && f.size >= size) || (!minSize && f.size <= size)) {
                     filtered.add(o);
                 }
             }

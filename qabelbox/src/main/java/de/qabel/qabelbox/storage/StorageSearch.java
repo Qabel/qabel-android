@@ -33,6 +33,34 @@ public class StorageSearch {
 		this.results = results;
 	}
 
+	public static boolean isValidSearchTerm(String name) {
+		return name != null && !"".equals(name.trim());
+	}
+
+	public static List<BoxFile> toBoxFiles(List<BoxObject> lst) {
+		List<BoxFile> ret = new ArrayList<>();
+
+		for (BoxObject o : lst) {
+			if (o instanceof BoxFile) {
+				ret.add((BoxFile) o);
+			}
+		}
+
+		return ret;
+	}
+
+	public static List<BoxFolder> toBoxFolders(List<BoxObject> lst) {
+		List<BoxFolder> ret = new ArrayList<>();
+
+		for (BoxObject o : lst) {
+			if (o instanceof BoxFolder) {
+				ret.add((BoxFolder) o);
+			}
+		}
+
+		return ret;
+	}
+
 	/**
 	 * The flat list of the current resultset.
 	 *
@@ -40,10 +68,6 @@ public class StorageSearch {
 	 */
 	public List<BoxObject> getResults() {
 		return results;
-	}
-
-	public static boolean isValidSearchTerm(String name) {
-		return name != null && !"".equals(name.trim());
 	}
 
 	public StorageSearch filterByNameCaseSensitive(String name) {
@@ -119,18 +143,6 @@ public class StorageSearch {
 		return this;
 	}
 
-	public static List<BoxFile> toBoxFiles(List<BoxObject> lst) {
-		List<BoxFile> ret = new ArrayList<>();
-
-		for (BoxObject o : lst) {
-			if (o instanceof BoxFile) {
-				ret.add((BoxFile) o);
-			}
-		}
-
-		return ret;
-	}
-
 	public StorageSearch filterOnlyDirectories() {
 
 		List<BoxObject> filtered = new ArrayList<>();
@@ -139,19 +151,6 @@ public class StorageSearch {
 
 		return this;
 	}
-
-	public static List<BoxFolder> toBoxFolders(List<BoxObject> lst) {
-		List<BoxFolder> ret = new ArrayList<>();
-
-		for (BoxObject o : lst) {
-			if (o instanceof BoxFolder) {
-				ret.add((BoxFolder) o);
-			}
-		}
-
-		return ret;
-	}
-
 
 	private List<BoxObject> collectAll() throws QblStorageException {
 		List<BoxObject> lst = new ArrayList<>();

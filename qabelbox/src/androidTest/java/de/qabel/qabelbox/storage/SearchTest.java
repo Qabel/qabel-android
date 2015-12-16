@@ -52,7 +52,7 @@ public class SearchTest extends AndroidTestCase {
     private static boolean setup = true;
 
     public void setUp() throws Exception {
-        if(!setup) {
+        if (!setup) {
             //setting up the directory structure takes time and so it is only made once - @AfterClass is not available here, so the cleanup is done, too
             return;
         }
@@ -97,9 +97,8 @@ public class SearchTest extends AndroidTestCase {
             setupFakeDirectoryStructure(nav);
 
             setupBaseSearch(nav);
-        }
-        finally {
-            if(s3Client != null) {
+        } finally {
+            if (s3Client != null) {
                 cleanUp(s3Client, bucket, prefix);
             }
         }
@@ -159,11 +158,11 @@ public class SearchTest extends AndroidTestCase {
         nav.upload("two-level2-one.bin", new FileInputStream(testFile), null);
         nav.commit();
 
-        while(nav.hasParent()) {
+        while (nav.hasParent()) {
             nav.navigateToParent();
         }
 
-        Log.w(TAG, "NAV : "+nav);
+        Log.w(TAG, "NAV : " + nav);
 
         debug(nav);
 
@@ -171,12 +170,12 @@ public class SearchTest extends AndroidTestCase {
 
     private void debug(BoxNavigation nav) throws Exception {
 
-        for(BoxFile file : nav.listFiles()) {
-            Log.w(TAG, "FILE: "+file.name);
+        for (BoxFile file : nav.listFiles()) {
+            Log.w(TAG, "FILE: " + file.name);
         }
 
-        for(BoxFolder folder : nav.listFolders()) {
-            Log.w(TAG, "DIR : "+folder.name);
+        for (BoxFolder folder : nav.listFolders()) {
+            Log.w(TAG, "DIR : " + folder.name);
 
             nav.navigate(folder);
             debug(nav);
@@ -185,7 +184,7 @@ public class SearchTest extends AndroidTestCase {
     }
 
     private void debug(BoxObject o) {
-        Log.w(TAG, o instanceof BoxFile ? "FILE: " + o.name + " @"+((BoxFile) o).size : "DIR : " + o.name);
+        Log.w(TAG, o instanceof BoxFile ? "FILE: " + o.name + " @" + ((BoxFile) o).size : "DIR : " + o.name);
     }
 
     private void setupBaseSearch(BoxNavigation nav) throws Exception {
@@ -197,7 +196,7 @@ public class SearchTest extends AndroidTestCase {
 
         Log.w(TAG, "collectAll");
 
-        for(BoxObject o : searchResults) {
+        for (BoxObject o : searchResults) {
             debug(o);
         }
 
@@ -265,8 +264,6 @@ public class SearchTest extends AndroidTestCase {
         assertEquals("level1-two-Small.bin", files.get(1).name);
 
     }
-
-
 
 
 }

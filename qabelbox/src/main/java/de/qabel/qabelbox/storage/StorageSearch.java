@@ -51,28 +51,31 @@ public class StorageSearch {
     public StorageSearch filterByNameCaseSensitive(String name) {
         return filterByName(name, true);
     }
+
     public StorageSearch filterByNameCaseInsensitive(String name) {
         return filterByName(name, false);
     }
+
     public StorageSearch filterByName(String name) {
         return filterByNameCaseInsensitive(name);
     }
+
     public StorageSearch filterByName(String name, boolean caseSensitive) {
 
-        if(!isValidSearchTerm(name)) {
+        if (!isValidSearchTerm(name)) {
             return this;
         }
 
-        if(!caseSensitive) {
+        if (!caseSensitive) {
             name = name.toLowerCase();
         }
 
         List<BoxObject> filtered = new ArrayList<>();
 
-        for(BoxObject o : results) {
+        for (BoxObject o : results) {
             String objKey = caseSensitive ? o.name : o.name.toLowerCase();
 
-            if(objKey.indexOf(name) >= 0) {
+            if (objKey.indexOf(name) >= 0) {
                 filtered.add(o);
             }
         }
@@ -85,19 +88,21 @@ public class StorageSearch {
     public StorageSearch filterByMaximumSize(long size) {
         return filterBySize(size, false);
     }
+
     public StorageSearch filterByMinimumSize(long size) {
         return filterBySize(size, true);
     }
+
     public StorageSearch filterBySize(long size, boolean minSize) {
 
         List<BoxObject> filtered = new ArrayList<>();
 
-        for(BoxObject o : results) {
-            if(o instanceof BoxFile) {
+        for (BoxObject o : results) {
+            if (o instanceof BoxFile) {
                 BoxFile f = (BoxFile) o;
 
-                if((minSize && f.size >= size) ||
-                   (!minSize && f.size <= size)) {
+                if ((minSize && f.size >= size) ||
+                        (!minSize && f.size <= size)) {
                     filtered.add(o);
                 }
             }
@@ -116,12 +121,13 @@ public class StorageSearch {
 
         return this;
     }
+
     public static List<BoxFile> toBoxFiles(List<BoxObject> lst) {
         List<BoxFile> ret = new ArrayList<>();
 
-        for(BoxObject o : lst) {
-            if(o instanceof BoxFile) {
-                ret.add((BoxFile)o);
+        for (BoxObject o : lst) {
+            if (o instanceof BoxFile) {
+                ret.add((BoxFile) o);
             }
         }
 
@@ -136,12 +142,13 @@ public class StorageSearch {
 
         return this;
     }
+
     public static List<BoxFolder> toBoxFolders(List<BoxObject> lst) {
         List<BoxFolder> ret = new ArrayList<>();
 
-        for(BoxObject o : lst) {
-            if(o instanceof BoxFolder) {
-                ret.add((BoxFolder)o);
+        for (BoxObject o : lst) {
+            if (o instanceof BoxFolder) {
+                ret.add((BoxFolder) o);
             }
         }
 
@@ -159,11 +166,11 @@ public class StorageSearch {
 
     private void addAll(List<BoxObject> lst) throws QblStorageException {
 
-        for(BoxFile file : navigation.listFiles()) {
+        for (BoxFile file : navigation.listFiles()) {
             lst.add(file);
         }
 
-        for(BoxFolder folder : navigation.listFolders()) {
+        for (BoxFolder folder : navigation.listFolders()) {
             lst.add(folder);
 
             navigation.navigate(folder);

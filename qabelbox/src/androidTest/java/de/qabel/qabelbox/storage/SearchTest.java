@@ -10,13 +10,8 @@ import com.amazonaws.services.s3.model.DeleteObjectsRequest;
 import com.amazonaws.services.s3.model.ObjectListing;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
 
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -335,6 +330,38 @@ public class SearchTest extends AndroidTestCase {
 
         search = new StorageSearch(searchResults).filterByMaximumDate(afterTarget);
         assertEquals(5, search.getResults().size());
+    }
+
+    @Test
+    public void testSortByName() throws Exception {
+
+        StorageSearch search = StorageSearch.createStorageSearchFromList(searchResults).sortCaseInsensitiveByName();
+        assertEquals("dir1-level1-one", search.getResults().get(0).name);
+
+        searchResults.get(2).name = searchResults.get(2).name.toUpperCase();
+
+        search = new StorageSearch(searchResults).sortCaseSensitiveByName();
+        assertEquals("LEVEL1-ONE.BIN", search.getResults().get(0).name);
+    }
+
+    @Test
+    public void testFilterByExtension() throws Exception {
+
+        List<BoxObject> lst = new StorageSearch(searchResults).filterByExtension("bin").getResults();
+
+        assertEquals(5, lst.size());
+
+        lst = new StorageSearch(searchResults).filterByExtension(".bin").getResults();
+
+        assertEquals(5, lst.size());
+
+        lst = new StorageSearch(searchResults).filterByExtension("BIN").getResults();
+
+        assertEquals(5, lst.size());
+
+        lst = new StorageSearch(searchResults).filterByExtension(".jpg").getResults();
+
+        assertEquals(0, lst.size());
     }
 
 }

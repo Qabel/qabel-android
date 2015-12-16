@@ -40,6 +40,14 @@ public class StorageSearch {
 		this.results = results;
 	}
 
+    public static StorageSearch createStorageSearchFromList(List<? extends BoxObject> other) {
+        List<BoxObject> lst = new ArrayList<>();
+
+        lst.addAll(other);
+
+        return new StorageSearch(lst);
+    }
+
 	public static boolean isValidSearchTerm(String name) {
 		return name != null && !"".equals(name.trim());
 	}
@@ -141,6 +149,35 @@ public class StorageSearch {
 		return this;
 	}
 
+    public StorageSearch filterByExtension(String extension) {
+
+        if(extension == null) {
+            results.clear();
+
+            return this;
+        }
+
+        if(!extension.startsWith(".")) {
+            extension = "."+extension;
+        }
+
+        List<BoxObject> filtered = new ArrayList<>();
+
+        for (BoxObject o : results) {
+            if (o instanceof BoxFile) {
+                BoxFile f = (BoxFile) o;
+
+                if (f.name.toLowerCase().endsWith(extension.toLowerCase())) {
+                    filtered.add(o);
+                }
+            }
+        }
+
+        results = filtered;
+
+        return this;
+    }
+
     public StorageSearch filterByMinimumDate(Date date) {
         return filterByDate(date, true);
     }
@@ -196,6 +233,40 @@ public class StorageSearch {
 
 		return this;
 	}
+
+    public StorageSearch sortCaseSensitiveByName() {
+        return sortByName(true);
+    }
+
+    public StorageSearch sortCaseInsensitiveByName() {
+        return sortByName(false);
+    }
+
+    public StorageSearch sortByName(boolean caseSensitive) {
+
+        if(caseSensitive) {
+            Collections.sort(results, new Comparator<BoxObject>() {
+
+                public int compare(BoxObject o1, BoxObject o2) {
+                    String s1 = o1.name;
+                    String s2 = o2.name;
+                    return s1.compareTo(s2);
+                }
+            });
+        }
+        else {
+            Collections.sort(results, new Comparator<BoxObject>() {
+
+                public int compare(BoxObject o1, BoxObject o2) {
+                    String s1 = o1.name;
+                    String s2 = o2.name;
+                    return s1.toLowerCase().compareTo(s2.toLowerCase());
+                }
+            });
+        }
+
+        return this;
+    }
 
 	private List<BoxObject> collectAll() throws QblStorageException {
 		List<BoxObject> lst = new ArrayList<>();

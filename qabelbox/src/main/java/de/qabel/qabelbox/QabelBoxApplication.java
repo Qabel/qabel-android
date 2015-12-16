@@ -32,7 +32,6 @@ public class QabelBoxApplication extends Application {
     private static final String PREF_DEVICE_ID_CREATED = "PREF_DEVICE_ID_CREATED";
     private static final String PREF_DEVICE_ID = "PREF_DEVICE_ID";
     private static final int NUM_BYTES_DEVICE_ID = 16;
-    private static final String PREF_LAST_ACTIVE_IDENTITY = "PREF_LAST_ACTIVE_IDENTITY";
 
     private LocalQabelService mService;
 
@@ -43,16 +42,6 @@ public class QabelBoxApplication extends Application {
     static {
         // Enforce SpongyCastle as JCE provider
         Security.insertProviderAt(new BouncyCastleProvider(), 1);
-    }
-
-    public static void setLastActiveIdentityID(String identityID) {
-        sharedPreferences.edit()
-                .putString(PREF_LAST_ACTIVE_IDENTITY, identityID)
-                .apply();
-    }
-
-    public static String getLastActiveIdentityID() {
-        return sharedPreferences.getString(PREF_LAST_ACTIVE_IDENTITY, "");
     }
 
     public BoxProvider getProvider() {
@@ -71,7 +60,25 @@ public class QabelBoxApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-        sharedPreferences = getSharedPreferences(this.getClass().getCanonicalName(), MODE_PRIVATE);
+        Log.d(this.getClass().getName(), "onCreate called");
+        Intent intent = new Intent(this, LocalQabelService.class);
+        bindService(intent, new ServiceConnection() {
+            @Override
+            public void onServiceConnected(ComponentName name, IBinder service) {
+                LocalQabelService.LocalBinder binder = (LocalQabelService.LocalBinder) service;
+                mService = binder.getService();
+                localServiceConnected();
+
+            }
+            @Override
+            public void onServiceDisconnected(ComponentName name) {
+                mService = null;
+            }
+        }, Context.BIND_AUTO_CREATE);
+    }
+
+    private void localServiceConnected() {
+        sharedPreferences = mService.getSharedPreferences();
 
         if (!sharedPreferences.getBoolean(PREF_DEVICE_ID_CREATED, false)) {
 
@@ -84,20 +91,7 @@ public class QabelBoxApplication extends Application {
                     .putBoolean(PREF_DEVICE_ID_CREATED, true)
                     .apply();
         }
-
-        Intent intent = new Intent(this, LocalQabelService.class);
-        bindService(intent, new ServiceConnection() {
-            @Override
-            public void onServiceConnected(ComponentName name, IBinder service) {
-                LocalQabelService.LocalBinder binder = (LocalQabelService.LocalBinder) service;
-                mService = binder.getService();
-            }
-
-            @Override
-            public void onServiceDisconnected(ComponentName name) {
-                mService = null;
-            }
-        }, Context.BIND_AUTO_CREATE);
     }
+
 
 }

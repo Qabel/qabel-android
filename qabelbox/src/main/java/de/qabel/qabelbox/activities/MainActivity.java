@@ -126,6 +126,7 @@ public class MainActivity extends AppCompatActivity
     // Used to save the document uri that should exported while waiting for the result
     // of the create document intent.
     private Uri exportUri;
+    private LocalQabelService mService;
 
     class ProviderActor extends EventActor implements EventListener {
         public ProviderActor() {
@@ -144,20 +145,14 @@ public class MainActivity extends AppCompatActivity
                         identities.put(identity);
                     }
 
-                    String lastID = QabelBoxApplication.getLastActiveIdentityID();
-                    if (!lastID.equals("")) {
-                        for (Identity identity : identities.getIdentities()) {
-                            if (identity.getPersistenceID().equals(lastID)) {
-                                activeIdentity = identity;
-                                runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        textViewSelectedIdentity.setText(activeIdentity.getAlias());
-                                    }
-                                });
-                                break;
+                    activeIdentity = mService.getActiveIdentity();
+                    if (activeIdentity != null) {
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                textViewSelectedIdentity.setText(activeIdentity.getAlias());
                             }
-                        }
+                        });
                     }
                 }
             });
@@ -320,6 +315,7 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void onServiceConnected(ComponentName name, IBinder service) {
                 LocalQabelService.LocalBinder binder = (LocalQabelService.LocalBinder) service;
+                mService = binder.getService();
                 resourceActor = binder.getService().getResourceActor();
 
                 providerActor = new ProviderActor();
@@ -509,7 +505,7 @@ public class MainActivity extends AppCompatActivity
     protected void onPause() {
         super.onPause();
         if (activeIdentity != null) {
-            QabelBoxApplication.setLastActiveIdentityID(activeIdentity.getPersistenceID());
+            mService.setActiveIdentity(activeIdentity);
         }
     }
 
@@ -720,7 +716,8 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void addIdentity(Identity identity) {
-        resourceActor.writeIdentities(identity);
+        mService.addIdentity(identity);
+        mService.setActiveIdentity(identity);
         activeIdentity = identity;
 
         contacts.put(identity, new Contacts());
@@ -757,12 +754,12 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void deleteIdentity(Identity identity) {
-        resourceActor.removeIdentities(identity);
+        mService.deleteIdentity(identity);
     }
 
     @Override
     public void modifyIdentity(Identity identity) {
-        resourceActor.writeIdentities(identity);
+        mService.modifyIdentity(identity);
     }
 
     @Override

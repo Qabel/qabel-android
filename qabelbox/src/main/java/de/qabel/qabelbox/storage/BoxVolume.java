@@ -33,6 +33,7 @@ public class BoxVolume {
 	private static final String PATH_ROOT = "/";
 	private final String rootId;
 	private final Context context;
+	private final String bucket;
 
 	private TransferUtility transferUtility;
 	private QblECKeyPair keyPair;
@@ -56,6 +57,7 @@ public class BoxVolume {
 				keyPair.getPub().getReadableKeyIdentifier(), bucket, prefix, null);
 		transferManager = new TransferManager(transferUtility, awsClient, bucket, prefix, tempDir);
 		this.prefix = prefix;
+		this.bucket = bucket;
 	}
 
 	public String getRootId() {
@@ -136,6 +138,10 @@ public class BoxVolume {
 		ByteBuffer bb = ByteBuffer.wrap(firstBytes);
 		UUID uuid = new UUID(bb.getLong(), bb.getLong());
 		return uuid.toString();
+	}
+
+	public void createIndex() throws QblStorageException {
+		createIndex(bucket, prefix);
 	}
 
 	public void createIndex(String bucket, String prefix) throws QblStorageException {

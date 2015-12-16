@@ -62,7 +62,15 @@ public class FilesFragment extends Fragment {
                 try {
                     filesFragment.setBoxNavigation(boxVolume.navigate());
                 } catch (QblStorageException e) {
-                    Log.e(TAG, "Cannot navigate to root");
+                    Log.e(TAG, "Cannot navigate to root", e);
+                    try {
+                        boxVolume.createIndex();
+                        filesFragment.setBoxNavigation(boxVolume.navigate());
+                    } catch (QblStorageException e1) {
+                        Log.e(TAG, "Creating a volume failed", e1);
+                        cancel(true);
+                        return null;
+                    }
                 }
                 filesFragment.fillAdapter();
                 return null;

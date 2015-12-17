@@ -64,7 +64,7 @@ We do not dogmatically follow a particular style guide but generally the [Code C
 Regarding the look and feel most -- but not all -- of this is reflected by the Eclipse default settings.
 
 ### Our style
-* Use tabs instead of spaces.
+* Use tabs instead of spaces. Do not mix tabs and spaces for indentation in one file, so fall back to using spaces if the file already uses spaces for indentation.
 * Try to fit your code into **80** characters but do not wrap your line of code just for the sake of wrapping it. Use **120** in your auto format settings.
 * Statements like ```if``` always with ```{ }```. Do not just write ```if (foo) bar;```
 * Our code does not need to be compatible to versions below Java 7. That means you can and should use Java 7 features and syntax.

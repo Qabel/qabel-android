@@ -111,6 +111,15 @@ public class LocalQabelService extends Service {
 		persistence.updateEntity(identity);
 	}
 
+	public Contacts getContacts() {
+		List<Persistable> entities = persistence.getEntities(Contact.class);
+		Contacts contacts = new Contacts();
+		for (Persistable p : entities) {
+			contacts.put((Contact) p);
+		}
+		return contacts;
+	}
+
 	public Contacts getContacts(Identity identity) {
 		List<Persistable> entities = persistence.getEntities(Contact.class);
 		Contacts contacts = new Contacts();

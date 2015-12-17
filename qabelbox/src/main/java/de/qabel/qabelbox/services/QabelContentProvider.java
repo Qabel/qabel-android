@@ -1,38 +1,25 @@
 package de.qabel.qabelbox.services;
 
-import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.ContentProvider;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.net.Uri;
 import android.os.IBinder;
-import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 
 import de.qabel.QabelContentProviderConstants;
-import de.qabel.ackack.MessageInfo;
-import de.qabel.ackack.Responsible;
-import de.qabel.ackack.event.EventActor;
-import de.qabel.ackack.event.EventListener;
-import de.qabel.core.EventNameConstants;
 import de.qabel.core.config.Contact;
-import de.qabel.core.config.Contacts;
-import de.qabel.core.config.Identities;
 import de.qabel.core.config.Identity;
-import de.qabel.core.config.ResourceActor;
-import de.qabel.qabelbox.QabelBoxApplication;
 
 /**
  * QabelResourceProvider provides access to Qabel resources like Contacts and Identities for
@@ -49,9 +36,7 @@ public class QabelContentProvider extends ContentProvider {
     private static final int IDENTITIES = 2;
     private static final String TAG = "QabelContentProvider";
 
-    private final Contacts contacts;
-    private final Identities identities;
-    private boolean resourcesReady;
+    private boolean resourcesReady = false;
 
     static {
         uriMatcher.addURI(QabelContentProviderConstants.CONTENT_AUTHORITY, QabelContentProviderConstants.CONTENT_CONTACTS, CONTACTS);
@@ -61,8 +46,6 @@ public class QabelContentProvider extends ContentProvider {
     private LocalQabelService mService;
 
     public QabelContentProvider() {
-        contacts = new Contacts();
-        identities = new Identities();
     }
 
     @Override
@@ -78,10 +61,12 @@ public class QabelContentProvider extends ContentProvider {
             public void onServiceConnected(ComponentName name, IBinder service) {
                 LocalQabelService.LocalBinder binder = (LocalQabelService.LocalBinder) service;
                 mService = binder.getService();
+                resourcesReady = true;
             }
 
             @Override
             public void onServiceDisconnected(ComponentName name) {
+                resourcesReady = false;
                 mService = null;
             }
         }, Context.BIND_AUTO_CREATE);
@@ -92,7 +77,7 @@ public class QabelContentProvider extends ContentProvider {
     private Cursor queryContacts() {
         MatrixCursor cursor = new MatrixCursor(QabelContentProviderConstants.CONTACT_COLUMN_NAMES);
 
-        ArrayList<Contact> returnedContactList = new ArrayList<>(contacts.getContacts());
+        ArrayList<Contact> returnedContactList = new ArrayList<>(mService.getContacts().getContacts());
         Collections.sort(returnedContactList, new Comparator<Contact>() {
             @Override
             public int compare(Contact lhs, Contact rhs) {
@@ -111,7 +96,8 @@ public class QabelContentProvider extends ContentProvider {
     private Cursor queryIdentities() {
         MatrixCursor cursor = new MatrixCursor(QabelContentProviderConstants.IDENTITIES_COLUMN_NAMES);
 
-        ArrayList<Identity> returnedIdentityList = new ArrayList<>(identities.getIdentities());
+        ArrayList<Identity> returnedIdentityList = new ArrayList<>(
+                mService.getIdentities().getIdentities());
         Collections.sort(returnedIdentityList, new Comparator<Identity>() {
             @Override
             public int compare(Identity lhs, Identity rhs) {

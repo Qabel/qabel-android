@@ -106,12 +106,6 @@ public class MainActivity extends AppCompatActivity
     private static final int NAV_GROUP_IDENTITY_ACTIONS = 2;
     private DrawerLayout drawer;
     private ActionBarDrawerToggle toggle;
-    private Identity activeIdentity;
-    private ResourceActor resourceActor;
-    private ProviderActor providerActor;
-    private Thread providerActorThread;
-    private HashMap<Identity, Contacts> contacts;
-    private Identities identities;
     private BoxVolume boxVolume;
     private BoxProvider provider;
     private FloatingActionButton fab;
@@ -127,90 +121,6 @@ public class MainActivity extends AppCompatActivity
     // of the create document intent.
     private Uri exportUri;
     private LocalQabelService mService;
-
-    class ProviderActor extends EventActor implements EventListener {
-        public ProviderActor() {
-            on(EventNameConstants.EVENT_CONTACT_ADDED, this);
-            on(EventNameConstants.EVENT_IDENTITY_ADDED, this);
-            on(EventNameConstants.EVENT_IDENTITY_REMOVED, this);
-
-            resourceActor.retrieveIdentities(this, new Responsible() {
-                @Override
-                public void onResponse(Serializable... data) {
-                    final Identity[] identitiesArray = (Identity[]) data;
-                    for (Identity identity : identitiesArray) {
-                        if (contacts.get(identity) == null) {
-                            contacts.put(identity, new Contacts());
-                        }
-                        identities.put(identity);
-                    }
-
-                    activeIdentity = mService.getActiveIdentity();
-                    if (activeIdentity != null) {
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                textViewSelectedIdentity.setText(activeIdentity.getAlias());
-                            }
-                        });
-                    }
-                }
-            });
-
-            resourceActor.retrieveContacts(this, new Responsible() {
-                @Override
-                public void onResponse(Serializable... data) {
-                    for (Contact contact : (Contact[]) data) {
-                        Contacts identityContacts = contacts.get(contact.getContactOwner());
-                        if (identityContacts == null) {
-                            identityContacts = new Contacts();
-                        }
-                        identityContacts.put(contact);
-                        contacts.put(contact.getContactOwner(), identityContacts);
-                    }
-                }
-            });
-        }
-
-        @Override
-        public void onEvent(String event, MessageInfo info, Object... data) {
-            switch (event) {
-                case EventNameConstants.EVENT_CONTACT_ADDED:
-                    if (data[0] instanceof Contact) {
-                        Contact c = (Contact) data[0];
-                        Contacts identityContacts = contacts.get(c.getContactOwner());
-                        if (identityContacts == null) {
-                            identityContacts = new Contacts();
-                        }
-                        identityContacts.put(c);
-                        contacts.put(c.getContactOwner(), identityContacts);
-                    }
-                    break;
-                case EventNameConstants.EVENT_IDENTITY_ADDED:
-                    if (data[0] instanceof Identity) {
-                        Identity i = (Identity) data[0];
-                        if (contacts.get(i) == null) {
-                            contacts.put(i, new Contacts());
-                        }
-                        identities.put(i);
-                    }
-                    break;
-                case EventNameConstants.EVENT_IDENTITY_REMOVED:
-                    if (data[0] instanceof String) {
-                        String keyIdentifier = (String) data[0];
-                        Identity identityToRemove = identities.getByKeyIdentifier(keyIdentifier);
-                        if (identityToRemove == activeIdentity) {
-                            // TODO: Select new active Identity
-                        }
-                        Log.d(TAG, "Removing identity: " + identityToRemove.getAlias());
-                        identities.remove(identityToRemove);
-                    }
-                    break;
-                default:
-                    break;
-            }
-        }
-    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -312,26 +222,25 @@ public class MainActivity extends AppCompatActivity
 
         Intent serviceIntent = new Intent(this, LocalQabelService.class);
         bindService(serviceIntent, new ServiceConnection() {
+
             @Override
             public void onServiceConnected(ComponentName name, IBinder service) {
                 LocalQabelService.LocalBinder binder = (LocalQabelService.LocalBinder) service;
                 mService = binder.getService();
-                resourceActor = binder.getService().getResourceActor();
-
-                providerActor = new ProviderActor();
-                providerActorThread = new Thread(providerActor, "ProviderActorThread");
-                providerActorThread.start();
+                onLocalServiceConnected();
             }
 
             @Override
             public void onServiceDisconnected(ComponentName name) {
-                resourceActor = null;
+                mService = null;
             }
+
         }, Context.BIND_AUTO_CREATE);
 
-        self = this;
-        contacts = new HashMap<>();
-        identities = new Identities();
+    }
+
+    private void onLocalServiceConnected() {
+        Log.d(TAG, "LocalQabelService connected");
 
         provider = ((QabelBoxApplication) getApplication()).getProvider();
         Log.i(TAG, "Provider: " + provider);
@@ -339,9 +248,14 @@ public class MainActivity extends AppCompatActivity
 
         initFilesFragment();
 
+        self = this;
+
         initFloatingActionButton();
 
         initDrawer();
+
+        textViewSelectedIdentity.setText(mService.getActiveIdentity().getAlias());
+
 
         // Check if activity is started with ACTION_SEND or ACTION_SEND_MULTIPLE
         Intent intent = getIntent();
@@ -396,7 +310,6 @@ public class MainActivity extends AppCompatActivity
                 }
             }
         });
-
     }
 
     private void initFloatingActionButton() {
@@ -433,7 +346,7 @@ public class MainActivity extends AppCompatActivity
                         break;
 
                     case TAG_CONTACT_LIST_FRAGMENT:
-                        startAddContact(activeIdentity);
+                        startAddContact(mService.getActiveIdentity());
                         break;
 
                     case TAG_MANAGE_IDENTITIES_FRAGMENT:
@@ -504,9 +417,6 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onPause() {
         super.onPause();
-        if (activeIdentity != null) {
-            mService.setActiveIdentity(activeIdentity);
-        }
     }
 
     private void delete(final BoxObject boxObject) {
@@ -708,7 +618,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     public void selectIdentity(Identity identity) {
-        activeIdentity = identity;
+        mService.setActiveIdentity(identity);
         selectContactsFragment();
 
         textViewSelectedIdentity.setText(identity.getAlias());
@@ -718,14 +628,11 @@ public class MainActivity extends AppCompatActivity
     public void addIdentity(Identity identity) {
         mService.addIdentity(identity);
         mService.setActiveIdentity(identity);
-        activeIdentity = identity;
-
-        contacts.put(identity, new Contacts());
 
         Snackbar.make(appBarMain, "Added identity: " + identity.getAlias(), Snackbar.LENGTH_LONG)
                 .show();
 
-        textViewSelectedIdentity.setText(activeIdentity.getAlias());
+        textViewSelectedIdentity.setText(identity.getAlias());
 
         selectFilesFragment();
     }
@@ -737,8 +644,7 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void addContact(Contact contact) {
-        resourceActor.writeContacts(contact);
-
+        mService.addContact(contact);
         Snackbar.make(appBarMain, "Added contact: " + contact.getAlias(), Snackbar.LENGTH_LONG)
                 .show();
     }
@@ -871,6 +777,7 @@ public class MainActivity extends AppCompatActivity
         textViewSelectedIdentity.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Identity activeIdentity = mService.getActiveIdentity();
                 if (activeIdentity != null) {
                     IntentIntegrator intentIntegrator = new IntentIntegrator(self);
                     intentIntegrator.shareText("QABELCONTACT\n"
@@ -893,7 +800,8 @@ public class MainActivity extends AppCompatActivity
                 } else {
                     imageViewExpandIdentity.setImageResource(R.drawable.ic_arrow_drop_up_black_24dp);
                     navigationView.getMenu().clear();
-                    List<Identity> identityList = new ArrayList<>(identities.getIdentities());
+                    List<Identity> identityList = new ArrayList<>(
+                            mService.getIdentities().getIdentities());
                     Collections.sort(identityList, new Comparator<Identity>() {
                         @Override
                         public int compare(Identity lhs, Identity rhs) {
@@ -989,7 +897,8 @@ public class MainActivity extends AppCompatActivity
     private void selectManageIdentitiesFragment() {
         fab.show();
         getFragmentManager().beginTransaction()
-                .replace(R.id.fragment_container, IdentitiesFragment.newInstance(identities),
+                .replace(R.id.fragment_container,
+                        IdentitiesFragment.newInstance(mService.getIdentities()),
                         TAG_MANAGE_IDENTITIES_FRAGMENT)
                 .addToBackStack(null)
                 .commit();
@@ -997,9 +906,10 @@ public class MainActivity extends AppCompatActivity
 
     private void selectContactsFragment() {
         fab.show();
+        Identity activeIdentity = mService.getActiveIdentity();
         getFragmentManager().beginTransaction()
                 .replace(R.id.fragment_container,
-                        ContactFragment.newInstance(contacts.get(activeIdentity), activeIdentity),
+                        ContactFragment.newInstance(mService.getContacts(activeIdentity), activeIdentity),
                         TAG_CONTACT_LIST_FRAGMENT)
                 .addToBackStack(null)
                 .commit();

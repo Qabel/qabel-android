@@ -8,6 +8,8 @@ import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
+import org.spongycastle.util.encoders.Hex;
+
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -31,6 +33,7 @@ import de.qabel.core.config.Settings;
 import de.qabel.core.config.SyncedModuleSettings;
 import de.qabel.core.config.SyncedSettings;
 import de.qabel.core.crypto.BinaryDropMessageV0;
+import de.qabel.core.crypto.CryptoUtils;
 import de.qabel.core.drop.DropMessage;
 import de.qabel.core.drop.DropURL;
 import de.qabel.core.exceptions.QblDropPayloadSizeException;
@@ -46,12 +49,17 @@ public class LocalQabelService extends Service {
 	private static final String TAG = "LocalQabelService";
 	private static final String PREF_LAST_ACTIVE_IDENTITY = "PREF_LAST_ACTIVE_IDENTITY";
 	private static final char[] PASSWORD = "constantpassword".toCharArray();
+	public static final String DEFAULT_DROP_SERVER = "http://localhost";
+
+	private static final String PREF_DEVICE_ID_CREATED = "PREF_DEVICE_ID_CREATED";
+	private static final String PREF_DEVICE_ID = "PREF_DEVICE_ID";
+	private static final int NUM_BYTES_DEVICE_ID = 16;
+
 	private final IBinder mBinder = new LocalBinder();
 
 	static final String DB_NAME = "qabel-service";
 	private static final int DB_VERSION = 1;
 	private AndroidPersistence persistence;
-	private Identity activeIdentity;
 	private SharedPreferences sharedPreferences;
 
 	private void setLastActiveIdentityID(String identityID) {
@@ -153,6 +161,15 @@ public class LocalQabelService extends Service {
 		}
 	}
 
+	public byte[] getDeviceID() {
+		String deviceID = sharedPreferences.getString(PREF_DEVICE_ID, "");
+		if (deviceID.equals("")) {
+			// Should never occur
+			throw new RuntimeException("DeviceID not created!");
+		}
+		return Hex.decode(deviceID);
+	}
+
 	@Override
 	public IBinder onBind(Intent intent) {
 		return mBinder;
@@ -161,6 +178,7 @@ public class LocalQabelService extends Service {
 	@Override
 	public void onCreate() {
 		super.onCreate();
+		Log.i(TAG, "LocalQabelService created");
 		sharedPreferences = getSharedPreferences(this.getClass().getCanonicalName(), MODE_PRIVATE);
 		AndroidPersistence androidPersistence;
 		QblSQLiteParams params = new QblSQLiteParams(this, DB_NAME, null, DB_VERSION);
@@ -171,6 +189,17 @@ public class LocalQabelService extends Service {
 			return;
 		}
 		this.persistence = androidPersistence;
+		if (!sharedPreferences.getBoolean(PREF_DEVICE_ID_CREATED, false)) {
+
+			CryptoUtils cryptoUtils = new CryptoUtils();
+			byte[] deviceID = cryptoUtils.getRandomBytes(NUM_BYTES_DEVICE_ID);
+
+			Log.d(this.getClass().getName(), "New device ID: " + Hex.toHexString(deviceID));
+
+			sharedPreferences.edit().putString(PREF_DEVICE_ID, Hex.toHexString(deviceID))
+					.putBoolean(PREF_DEVICE_ID_CREATED, true)
+					.apply();
+		}
 
 	}
 

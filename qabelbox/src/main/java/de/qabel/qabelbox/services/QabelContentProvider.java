@@ -51,9 +51,6 @@ public class QabelContentProvider extends ContentProvider {
 
     private final Contacts contacts;
     private final Identities identities;
-    private ResourceActor resourceActor;
-    private ProviderActor providerActor;
-    private Thread providerActorThread;
     private boolean resourcesReady;
 
     static {
@@ -68,53 +65,6 @@ public class QabelContentProvider extends ContentProvider {
         identities = new Identities();
     }
 
-    /**
-     * Loads qabel resources from ResourceActor
-     */
-    class ProviderActor extends EventActor implements EventListener {
-        public ProviderActor() {
-            on(EventNameConstants.EVENT_CONTACT_ADDED, this);
-            on(EventNameConstants.EVENT_IDENTITY_ADDED, this);
-
-            resourceActor.retrieveContacts(this, new Responsible() {
-                @Override
-                public void onResponse(Serializable... data) {
-                    for (Contact c : (Contact[]) data) {
-                        contacts.put(c);
-                    }
-                }
-            });
-
-            resourceActor.retrieveIdentities(this, new Responsible() {
-                @Override
-                public void onResponse(Serializable... data) {
-                    for (Identity identity : (Identity[]) data) {
-                        identities.put(identity);
-                    }
-                }
-            });
-        }
-
-        @Override
-        public void onEvent(String event, MessageInfo info, Object... data) {
-            switch (event) {
-                case EventNameConstants.EVENT_CONTACT_ADDED:
-                    if (data[0] instanceof Contact) {
-                        contacts.put((Contact) data[0]);
-                    }
-                    break;
-                case EventNameConstants.EVENT_IDENTITY_ADDED:
-                    if (data[0] instanceof Identity) {
-                        identities.put((Identity) data[0]);
-                    }
-                    break;
-                default:
-                    break;
-            }
-        }
-    }
-
-
     @Override
     public boolean onCreate() {
         Context context = getContext();
@@ -128,13 +78,6 @@ public class QabelContentProvider extends ContentProvider {
             public void onServiceConnected(ComponentName name, IBinder service) {
                 LocalQabelService.LocalBinder binder = (LocalQabelService.LocalBinder) service;
                 mService = binder.getService();
-                resourceActor = mService.getResourceActor();
-
-                providerActor = new ProviderActor();
-                providerActorThread = new Thread(providerActor, "ProviderActorThread");
-                providerActorThread.start();
-
-                resourcesReady = true;
             }
 
             @Override

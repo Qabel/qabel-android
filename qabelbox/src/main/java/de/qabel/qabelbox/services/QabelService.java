@@ -6,7 +6,6 @@ import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.Handler;
@@ -16,29 +15,19 @@ import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
 import android.support.v4.app.NotificationCompat;
-import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
-import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 
 import de.qabel.ServiceConstants;
-import de.qabel.ackack.MessageInfo;
-import de.qabel.ackack.Responsible;
-import de.qabel.ackack.event.EventActor;
 import de.qabel.ackack.event.EventEmitter;
-import de.qabel.ackack.event.EventListener;
-import de.qabel.core.EventNameConstants;
 import de.qabel.core.config.Contact;
 import de.qabel.core.config.Identity;
 import de.qabel.core.config.ResourceActor;
 import de.qabel.core.drop.DropActor;
 import de.qabel.core.drop.DropMessage;
 import de.qabel.core.module.ModuleManager;
-import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
 
 /**
@@ -69,7 +58,6 @@ public class QabelService extends Service {
     private ResourceActor resourceActor;
     private HashMap<String, Identity> identities;
     private HashMap<String, Contact> contacts;
-    private Thread providerActorThread;
     private LocalQabelService mService;
 
     class IncomingHandlerThread extends Thread {
@@ -127,55 +115,6 @@ public class QabelService extends Service {
                 }
             });
             Looper.loop();
-        }
-    }
-
-    /**
-     * Loads qabel resources from ResourceActor
-     */
-    class ProviderActor extends EventActor implements EventListener {
-        public ProviderActor() {
-            on(EventNameConstants.EVENT_CONTACT_ADDED, this);
-            on(EventNameConstants.EVENT_IDENTITY_ADDED, this);
-
-            resourceActor.retrieveContacts(this, new Responsible() {
-                @Override
-                public void onResponse(Serializable... data) {
-                    ArrayList<Contact> receivedContacts = new ArrayList<>(Arrays.asList((Contact[]) data));
-                    for (Contact c : receivedContacts) {
-                        contacts.put(c.getKeyIdentifier(), c);
-                    }
-                }
-            });
-
-            resourceActor.retrieveIdentities(this, new Responsible() {
-                @Override
-                public void onResponse(Serializable... data) {
-                    for (Identity identity : (Identity[]) data) {
-                      identities.put(identity.getKeyIdentifier(), identity);
-                    }
-                }
-            });
-        }
-
-        @Override
-        public void onEvent(String event, MessageInfo info, Object... data) {
-            switch (event) {
-                case EventNameConstants.EVENT_CONTACT_ADDED:
-                    if (data[0] instanceof Contact) {
-                        Contact c = (Contact) data[0];
-                        contacts.put(c.getKeyIdentifier(), c);
-                    }
-                    break;
-                case EventNameConstants.EVENT_IDENTITY_ADDED:
-                    if (data[0] instanceof Identity) {
-                        Identity i = (Identity) data[0];
-                        identities.put(i.getKeyIdentifier(), i);
-                    }
-                    break;
-                default:
-                    break;
-            }
         }
     }
 
@@ -253,8 +192,6 @@ public class QabelService extends Service {
         }, Context.BIND_AUTO_CREATE);
 
         resourceActor = mService.getResourceActor();
-        providerActorThread = new Thread(new ProviderActor());
-        providerActorThread.start();
         dropActor = new DropActor(resourceActor, emitter);
         dropActor.setInterval(DEFAULT_DROP_POLL_INTERVAL);
         Thread dropActorThread = new Thread(dropActor, "DropActorThread");

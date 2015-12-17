@@ -1,7 +1,10 @@
 package de.qabel.qabelbox.providers;
 
 import android.app.NotificationManager;
+import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
+import android.content.ServiceConnection;
 import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.net.Uri;
@@ -9,6 +12,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.CancellationSignal;
 import android.os.Handler;
+import android.os.IBinder;
 import android.os.ParcelFileDescriptor;
 import android.provider.DocumentsContract;
 import android.provider.DocumentsContract.Document;
@@ -50,6 +54,7 @@ import java.util.concurrent.TimeUnit;
 import de.qabel.core.crypto.QblECKeyPair;
 import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.exceptions.QblStorageNotFound;
+import de.qabel.qabelbox.services.LocalQabelService;
 import de.qabel.qabelbox.storage.BoxFile;
 import de.qabel.qabelbox.storage.BoxFolder;
 import de.qabel.qabelbox.storage.BoxNavigation;
@@ -94,9 +99,28 @@ public class BoxProvider extends DocumentsProvider {
 
     private Map<String, BoxCursor> folderContentCache;
     private String currentFolder;
+    private LocalQabelService mService;
 
     @Override
     public boolean onCreate() {
+        final Context context = getContext();
+        if (context == null) {
+            Log.e(TAG, "No context available in BoxProvider, exiting");
+            return false;
+        }
+        Intent intent = new Intent(context, LocalQabelService.class);
+        context.bindService(intent, new ServiceConnection() {
+            @Override
+            public void onServiceConnected(ComponentName name, IBinder service) {
+                LocalQabelService.LocalBinder binder = (LocalQabelService.LocalBinder) service;
+                mService = binder.getService();
+            }
+
+            @Override
+            public void onServiceDisconnected(ComponentName name) {
+                mService = null;
+            }
+        }, Context.BIND_AUTO_CREATE);
         mDocumentIdParser = new DocumentIdParser();
 
         mThreadPoolExecutor = new ThreadPoolExecutor(
@@ -109,12 +133,12 @@ public class BoxProvider extends DocumentsProvider {
         awsCredentials = new AWSCredentials() {
             @Override
             public String getAWSAccessKeyId() {
-                return getContext().getResources().getString(R.string.aws_user);
+                return context.getResources().getString(R.string.aws_user);
             }
 
             @Override
             public String getAWSSecretKey() {
-                return getContext().getResources().getString(R.string.aws_password);
+                return context.getResources().getString(R.string.aws_password);
             }
         };
         amazonS3Client = new AmazonS3Client(awsCredentials);
@@ -177,7 +201,7 @@ public class BoxProvider extends DocumentsProvider {
         setUpTransferUtility();
 
         return new BoxVolume(transferUtility, awsCredentials, testKey, bucket, prefix,
-                    QabelBoxApplication.getDeviceID(), getContext());
+                    mService.getDeviceID(), getContext());
     }
 
     @Override

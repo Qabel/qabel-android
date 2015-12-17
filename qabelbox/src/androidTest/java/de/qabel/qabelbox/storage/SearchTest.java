@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.UUID;
 
@@ -33,267 +34,270 @@ import static org.junit.Assert.assertThat;
  */
 public class SearchTest extends AndroidTestCase {
 
-	private final static String TAG = SearchTest.class.getName();
+    private final static String TAG = SearchTest.class.getName();
 
-	//will represent a filled resultset after setUp()
-	//
-	//level0-one.bin
-	//+dir1-level1-one
-	//  level1-ONE.bin
-	//  level1-two-Small.bin
-	//  +dir1-level2-one
-	//      one-level2-one.bin
-	//  +dir1-level2-two
-	//      two-level2-one.bin
-	//
-	private static List<BoxObject> searchResults;
+    //will represent a filled resultset after setUp()
+    //
+    //level0-one.bin
+    //+dir1-level1-one
+    //  level1-ONE.bin
+    //  level1-two-Small.bin
+    //  +dir1-level2-one
+    //      one-level2-one.bin
+    //  +dir1-level2-two
+    //      two-level2-one.bin
+    //
+    private static List<BoxObject> searchResults;
+    private static Hashtable<String, BoxObject> pathMapping;
 
-	private static boolean setup = true;
+    private static boolean setup = true;
 
-	public void setUp() throws Exception {
-		if (!setup) {
-			//setting up the directory structure takes time and so it is only made once - @AfterClass is not available here, so the cleanup is done, too
-			return;
-		}
+    public void setUp() throws Exception {
+        if (!setup) {
+            //setting up the directory structure takes time and so it is only made once - @AfterClass is not available here, so the cleanup is done, too
+            return;
+        }
 
-		setup = false;
+        setup = false;
 
-		AmazonS3Client s3Client = null;
-		final String bucket = "qabel";
-		final String prefix = UUID.randomUUID().toString();
+        AmazonS3Client s3Client = null;
+        final String bucket = "qabel";
+        final String prefix = UUID.randomUUID().toString();
 
-		try {
-			CryptoUtils utils = new CryptoUtils();
-			byte[] deviceID = utils.getRandomBytes(16);
-			QblECKeyPair keyPair = new QblECKeyPair();
+        try {
+            CryptoUtils utils = new CryptoUtils();
+            byte[] deviceID = utils.getRandomBytes(16);
+            QblECKeyPair keyPair = new QblECKeyPair();
 
-			AWSCredentials awsCredentials = new AWSCredentials() {
-				@Override
-				public String getAWSAccessKeyId() {
-					return getContext().getResources().getString(R.string.aws_user);
-				}
+            AWSCredentials awsCredentials = new AWSCredentials() {
+                @Override
+                public String getAWSAccessKeyId() {
+                    return getContext().getResources().getString(R.string.aws_user);
+                }
 
-				@Override
-				public String getAWSSecretKey() {
-					return getContext().getString(R.string.aws_password);
-				}
-			};
-			AWSCredentials credentials = awsCredentials;
-			s3Client = new AmazonS3Client(credentials);
-			assertNotNull(awsCredentials.getAWSAccessKeyId());
-			assertNotNull(awsCredentials.getAWSSecretKey());
+                @Override
+                public String getAWSSecretKey() {
+                    return getContext().getString(R.string.aws_password);
+                }
+            };
+            AWSCredentials credentials = awsCredentials;
+            s3Client = new AmazonS3Client(credentials);
+            assertNotNull(awsCredentials.getAWSAccessKeyId());
+            assertNotNull(awsCredentials.getAWSSecretKey());
 
-			TransferUtility transfer = new TransferUtility(s3Client, getContext());
-			BoxVolume volume = new BoxVolume(transfer, credentials, keyPair, bucket, prefix,
-					deviceID, getContext());
+            TransferUtility transfer = new TransferUtility(s3Client, getContext());
+            BoxVolume volume = new BoxVolume(transfer, credentials, keyPair, bucket, prefix,
+                    deviceID, getContext());
 
-			volume.createIndex(bucket, prefix);
+            volume.createIndex(bucket, prefix);
 
-			Log.d(TAG, "VOL :" + volume.toString());
+            Log.d(TAG, "VOL :" + volume.toString());
 
-			BoxNavigation nav = volume.navigate();
+            BoxNavigation nav = volume.navigate();
 
-			setupFakeDirectoryStructure(nav);
+            setupFakeDirectoryStructure(nav);
 
-			setupBaseSearch(nav);
-		} finally {
-			if (s3Client != null) {
-				cleanUp(s3Client, bucket, prefix);
-			}
-		}
+            setupBaseSearch(nav);
+        } finally {
+            if (s3Client != null) {
+                cleanUp(s3Client, bucket, prefix);
+            }
+        }
 
-		Log.d(TAG, "SETUP DONE");
-	}
+        Log.d(TAG, "SETUP DONE");
+    }
 
-	public void cleanUp(AmazonS3Client s3Client, String bucket, String prefix) throws IOException {
-		ObjectListing listing = s3Client.listObjects(bucket, prefix);
-		List<DeleteObjectsRequest.KeyVersion> keys = new ArrayList<>();
+    public void cleanUp(AmazonS3Client s3Client, String bucket, String prefix) throws IOException {
+        ObjectListing listing = s3Client.listObjects(bucket, prefix);
+        List<DeleteObjectsRequest.KeyVersion> keys = new ArrayList<>();
 
-		for (S3ObjectSummary summary : listing.getObjectSummaries()) {
-			Log.d(TAG, "DELETE: " + summary.getKey());
-			keys.add(new DeleteObjectsRequest.KeyVersion(summary.getKey()));
-		}
+        for (S3ObjectSummary summary : listing.getObjectSummaries()) {
+            Log.d(TAG, "DELETE: " + summary.getKey());
+            keys.add(new DeleteObjectsRequest.KeyVersion(summary.getKey()));
+        }
 
-		if (keys.isEmpty()) {
-			return;
-		}
+        if (keys.isEmpty()) {
+            return;
+        }
 
-		DeleteObjectsRequest deleteObjectsRequest = new DeleteObjectsRequest(bucket);
-		deleteObjectsRequest.setKeys(keys);
-		s3Client.deleteObjects(deleteObjectsRequest);
-	}
+        DeleteObjectsRequest deleteObjectsRequest = new DeleteObjectsRequest(bucket);
+        deleteObjectsRequest.setKeys(keys);
+        s3Client.deleteObjects(deleteObjectsRequest);
+    }
 
-	private void setupFakeDirectoryStructure(BoxNavigation nav) throws Exception {
+    private void setupFakeDirectoryStructure(BoxNavigation nav) throws Exception {
 
-		String testFile = BoxTest.createTestFile();
-		String smallFile = BoxTest.smallTestFile().getAbsolutePath();
+        String testFile = BoxTest.createTestFile();
+        String smallFile = BoxTest.smallTestFile().getAbsolutePath();
 
-		assertThat(nav.listFiles().size(), is(0));
+        assertThat(nav.listFiles().size(), is(0));
 
-		nav.upload("level0-one.bin", new FileInputStream(testFile), null);
-		nav.commit();
+        nav.upload("level0-one.bin", new FileInputStream(testFile), null);
+        nav.commit();
 
-		BoxFolder folder = nav.createFolder("dir1-level1-one");
-		nav.commit();
-		nav.navigate(folder);
+        BoxFolder folder = nav.createFolder("dir1-level1-one");
+        nav.commit();
+        nav.navigate(folder);
 
-		nav.upload("level1-ONE.bin", new FileInputStream(testFile), null);
-		nav.commit();
-		nav.upload("level1-two-Small.bin", new FileInputStream(smallFile), null);
-		nav.commit();
+        nav.upload("level1-ONE.bin", new FileInputStream(testFile), null);
+        nav.commit();
+        nav.upload("level1-two-Small.bin", new FileInputStream(smallFile), null);
+        nav.commit();
 
-		folder = nav.createFolder("dir1-level2-one");
-		nav.commit();
-		nav.navigate(folder);
+        folder = nav.createFolder("dir1-level2-one");
+        nav.commit();
+        nav.navigate(folder);
 
-		nav.upload("one-level2-one.bin", new FileInputStream(testFile), null);
-		nav.commit();
+        nav.upload("one-level2-one.bin", new FileInputStream(testFile), null);
+        nav.commit();
 
-		nav.navigateToParent();
+        nav.navigateToParent();
 
-		folder = nav.createFolder("dir1-level2-two");
-		nav.commit();
-		nav.navigate(folder);
+        folder = nav.createFolder("dir1-level2-two");
+        nav.commit();
+        nav.navigate(folder);
 
-		nav.upload("two-level2-one.bin", new FileInputStream(testFile), null);
-		nav.commit();
+        nav.upload("two-level2-one.bin", new FileInputStream(testFile), null);
+        nav.commit();
 
-		while (nav.hasParent()) {
-			nav.navigateToParent();
-		}
+        while (nav.hasParent()) {
+            nav.navigateToParent();
+        }
 
-		Log.d(TAG, "NAV : " + nav);
+        Log.d(TAG, "NAV : " + nav);
 
-		debug(nav);
+        debug(nav);
+    }
 
-	}
+    private void debug(BoxNavigation nav) throws Exception {
 
-	private void debug(BoxNavigation nav) throws Exception {
+        for (BoxFile file : nav.listFiles()) {
+            Log.d(TAG, "FILE: " + file.name);
+        }
 
-		for (BoxFile file : nav.listFiles()) {
-			Log.d(TAG, "FILE: " + file.name);
-		}
+        for (BoxFolder folder : nav.listFolders()) {
+            Log.d(TAG, "DIR : " + folder.name);
 
-		for (BoxFolder folder : nav.listFolders()) {
-			Log.d(TAG, "DIR : " + folder.name);
+            nav.navigate(folder);
+            debug(nav);
+            nav.navigateToParent();
+        }
+    }
 
-			nav.navigate(folder);
-			debug(nav);
-			nav.navigateToParent();
-		}
-	}
-
-	private void debug(BoxObject o) {
-		if (o instanceof BoxFile) {
+    private void debug(BoxObject o) {
+        if (o instanceof BoxFile) {
             BoxFile f = ((BoxFile) o);
-			Log.d(TAG, "FILE: " + o.name + " @" +f.size+ " D: "+f.mtime);
-		} else {
-			Log.d(TAG, "DIR : " + o.name);
-		}
-	}
+            Log.d(TAG, "FILE: " + o.name + " @" + f.size + " D: " + f.mtime);
+        } else {
+            Log.d(TAG, "DIR : " + o.name);
+        }
+    }
 
-	private void setupBaseSearch(BoxNavigation nav) throws Exception {
-		searchResults = new StorageSearch(nav).getResults();
-	}
+    private void setupBaseSearch(BoxNavigation nav) throws Exception {
+        StorageSearch search = new StorageSearch(nav);
 
-	@Test
-	public void testCollectAll() throws Exception {
+        searchResults = search.getResults();
+        pathMapping = search.getPathMapping();
+    }
 
-		Log.d(TAG, "collectAll");
+    @Test
+    public void testCollectAll() throws Exception {
 
-		for (BoxObject o : searchResults) {
-			debug(o);
-		}
+        Log.d(TAG, "collectAll");
 
-		assertEquals(8, searchResults.size());
+        for (BoxObject o : searchResults) {
+            debug(o);
+        }
 
-		Log.d(TAG, "/collectAll");
-	}
+        assertEquals(8, searchResults.size());
 
-	@Test
-	public void testForValidName() throws Exception {
-		assertFalse(StorageSearch.isValidSearchTerm(null));
-		assertFalse(StorageSearch.isValidSearchTerm(""));
-		assertFalse(StorageSearch.isValidSearchTerm(" "));
+        Log.d(TAG, "/collectAll");
+    }
 
-		assertTrue(StorageSearch.isValidSearchTerm("1"));
-	}
+    @Test
+    public void testForValidName() throws Exception {
+        assertFalse(StorageSearch.isValidSearchTerm(null));
+        assertFalse(StorageSearch.isValidSearchTerm(""));
+        assertFalse(StorageSearch.isValidSearchTerm(" "));
 
-	@Test
-	public void testNameSearch() throws Exception {
-		List<BoxObject> lst = new StorageSearch(searchResults).filterByName("small").getResults();
+        assertTrue(StorageSearch.isValidSearchTerm("1"));
+    }
 
-		assertEquals(1, lst.size());
-		assertEquals("level1-two-Small.bin", lst.get(0).name);
+    @Test
+    public void testNameSearch() throws Exception {
+        List<BoxObject> lst = new StorageSearch(searchResults).filterByName("small").getResults();
 
-		StorageSearch search = new StorageSearch(searchResults).filterByNameCaseSensitive("small");
-		assertEquals(0, search.getResults().size());
+        assertEquals(1, lst.size());
+        assertEquals("level1-two-Small.bin", lst.get(0).name);
 
-		search = new StorageSearch(searchResults).filterByNameCaseSensitive("Small");
-		assertEquals(1, search.getResults().size());
+        StorageSearch search = new StorageSearch(searchResults).filterByNameCaseSensitive("small");
+        assertEquals(0, search.getResults().size());
 
-		//if not valid don't apply the filter
-		search = new StorageSearch(searchResults).filterByName(null);
-		assertEquals(8, search.getResults().size());
+        search = new StorageSearch(searchResults).filterByNameCaseSensitive("Small");
+        assertEquals(1, search.getResults().size());
 
-		search = new StorageSearch(searchResults).filterByName("");
-		assertEquals(8, search.getResults().size());
+        //if not valid don't apply the filter
+        search = new StorageSearch(searchResults).filterByName(null);
+        assertEquals(8, search.getResults().size());
 
-		search = new StorageSearch(searchResults).filterByName(" ");
-		assertEquals(8, search.getResults().size());
-	}
+        search = new StorageSearch(searchResults).filterByName("");
+        assertEquals(8, search.getResults().size());
 
-	@Test
-	public void testFilterBySize() throws Exception {
+        search = new StorageSearch(searchResults).filterByName(" ");
+        assertEquals(8, search.getResults().size());
+    }
 
-		StorageSearch search = new StorageSearch(searchResults).filterByNameCaseSensitive("level1");
-		assertEquals(3, search.getResults().size());
+    @Test
+    public void testFilterBySize() throws Exception {
 
-		search = new StorageSearch(searchResults).filterByNameCaseSensitive("level1")
-				.filterByMaximumSize(100);
-		assertEquals(1, search.getResults().size());
+        StorageSearch search = new StorageSearch(searchResults).filterByNameCaseSensitive("level1");
+        assertEquals(3, search.getResults().size());
 
-		search = new StorageSearch(searchResults).filterByNameCaseSensitive("level1")
-				.filterByMaximumSize(110000);
-		assertEquals(2, search.getResults().size());
+        search = new StorageSearch(searchResults).filterByNameCaseSensitive("level1")
+                .filterByMaximumSize(100);
+        assertEquals(1, search.getResults().size());
 
-		search = new StorageSearch(searchResults).filterByNameCaseSensitive("level1")
-				.filterByMaximumSize(100000);
-		assertEquals(1, search.getResults().size());
+        search = new StorageSearch(searchResults).filterByNameCaseSensitive("level1")
+                .filterByMaximumSize(110000);
+        assertEquals(2, search.getResults().size());
 
-		search = new StorageSearch(searchResults).filterByNameCaseSensitive("level1")
-				.filterByMinimumSize(1);
-		assertEquals(2, search.getResults().size());
+        search = new StorageSearch(searchResults).filterByNameCaseSensitive("level1")
+                .filterByMaximumSize(100000);
+        assertEquals(1, search.getResults().size());
 
-		search = new StorageSearch(searchResults).filterByNameCaseSensitive("level1")
-				.filterByMinimumSize(100);
-		assertEquals(1, search.getResults().size());
+        search = new StorageSearch(searchResults).filterByNameCaseSensitive("level1")
+                .filterByMinimumSize(1);
+        assertEquals(2, search.getResults().size());
 
-		search = new StorageSearch(searchResults).filterByNameCaseSensitive("level1")
-				.filterByMinimumSize(10000000);
-		assertEquals(0, search.getResults().size());
-	}
+        search = new StorageSearch(searchResults).filterByNameCaseSensitive("level1")
+                .filterByMinimumSize(100);
+        assertEquals(1, search.getResults().size());
 
-	@Test
-	public void testFilterByFileOrDir() throws Exception {
+        search = new StorageSearch(searchResults).filterByNameCaseSensitive("level1")
+                .filterByMinimumSize(10000000);
+        assertEquals(0, search.getResults().size());
+    }
 
-		List<BoxObject> objs = new StorageSearch(searchResults).filterByNameCaseSensitive("level1")
-				.filterOnlyDirectories().getResults();
-		assertEquals(1, objs.size());
+    @Test
+    public void testFilterByFileOrDir() throws Exception {
 
-		List<BoxFolder> dirs = StorageSearch.toBoxFolders(objs);
-		assertEquals(1, dirs.size());
-		assertEquals("dir1-level1-one", dirs.get(0).name);
+        List<BoxObject> objs = new StorageSearch(searchResults).filterByNameCaseSensitive("level1")
+                .filterOnlyDirectories().getResults();
+        assertEquals(1, objs.size());
 
-		objs = new StorageSearch(searchResults).filterByNameCaseSensitive("level1")
-				.filterOnlyFiles().getResults();
-		assertEquals(2, objs.size());
+        List<BoxFolder> dirs = StorageSearch.toBoxFolders(objs);
+        assertEquals(1, dirs.size());
+        assertEquals("dir1-level1-one", dirs.get(0).name);
 
-		List<BoxFile> files = StorageSearch.toBoxFiles(objs);
-		assertEquals(2, files.size());
-		assertEquals("level1-ONE.bin", files.get(0).name);
-		assertEquals("level1-two-Small.bin", files.get(1).name);
-	}
+        objs = new StorageSearch(searchResults).filterByNameCaseSensitive("level1")
+                .filterOnlyFiles().getResults();
+        assertEquals(2, objs.size());
+
+        List<BoxFile> files = StorageSearch.toBoxFiles(objs);
+        assertEquals(2, files.size());
+        assertEquals("level1-ONE.bin", files.get(0).name);
+        assertEquals("level1-two-Small.bin", files.get(1).name);
+    }
 
     @Test
     public void testFilterByDate() throws Exception {
@@ -338,10 +342,14 @@ public class SearchTest extends AndroidTestCase {
         StorageSearch search = StorageSearch.createStorageSearchFromList(searchResults).sortCaseInsensitiveByName();
         assertEquals("dir1-level1-one", search.getResults().get(0).name);
 
-        searchResults.get(2).name = searchResults.get(2).name.toUpperCase();
+        //we need to clone here since the test order is not guaranteed and other results depend on the original names
+        List<BoxObject> clonedList = createClonedList(searchResults);
+
+        search = new StorageSearch(clonedList).sortCaseSensitiveByName();
+        assertEquals("LEVEL1-ONE.BIN", search.getResults().get(0).name);
 
         search = new StorageSearch(searchResults).sortCaseSensitiveByName();
-        assertEquals("LEVEL1-ONE.BIN", search.getResults().get(0).name);
+        assertEquals("dir1-level1-one", search.getResults().get(0).name);
     }
 
     @Test
@@ -364,4 +372,64 @@ public class SearchTest extends AndroidTestCase {
         assertEquals(0, lst.size());
     }
 
+    @Test
+    public void testFindByPath() throws Exception {
+
+        StorageSearch search = new StorageSearch(searchResults, pathMapping);
+
+        List<BoxObject> lst = search.filterByName("small").getResults();
+
+        assertEquals("level1-two-Small.bin", lst.get(0).name);
+
+        assertEquals(lst.get(0), search.findByPath("/dir1-level1-one/level1-two-Small.bin"));
+    }
+
+    @Test
+    public void testFindPathByBoxObject() throws Exception {
+
+        StorageSearch search = new StorageSearch(searchResults, pathMapping);
+
+        List<BoxObject> results = search.getResults();
+
+        Log.d(TAG, "MAPS: " + search.getPathMapping().size());
+
+        for (String key : search.getPathMapping().keySet()) {
+            BoxObject o = search.getPathMapping().get(key);
+
+            Log.d(TAG, "OBJ : " + o.name + " / " + o);
+            Log.d(TAG, "PATH: " + key);
+        }
+
+        assertEquals("level0-one.bin", results.get(0).name);
+        assertEquals("/level0-one.bin", search.findPathByBoxObject(results.get(0)));
+
+        assertEquals("dir1-level1-one", results.get(1).name);
+        assertEquals("/dir1-level1-one/", search.findPathByBoxObject(results.get(1)));
+    }
+
+    private BoxObject clone(BoxObject o) {
+
+        if (o instanceof BoxFile) {
+            BoxFile tmp = (BoxFile) o;
+
+            return new BoxFile(tmp.block, tmp.name, tmp.size, tmp.mtime, tmp.key);
+        } else {
+            BoxFolder tmp = (BoxFolder) o;
+
+            return new BoxFolder(tmp.ref, tmp.name, tmp.key);
+        }
+    }
+
+    private List<BoxObject> createClonedList(List<BoxObject> input) {
+
+        List<BoxObject> clonedList = new ArrayList<>();
+
+        for (BoxObject o : input) {
+            clonedList.add(clone(o));
+        }
+
+        clonedList.get(2).name = clonedList.get(2).name.toUpperCase();
+
+        return clonedList;
+    }
 }

@@ -9,9 +9,11 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import de.qabel.ackack.event.EventEmitter;
 import de.qabel.core.config.Account;
@@ -123,6 +125,24 @@ public class LocalQabelService extends Service {
 
 	public void modifyContact(Contact contact) {
 		persistence.updateEntity(contact);
+	}
+
+	public Map<Identity, Contacts> getAllContacts() {
+		Map<Identity, Contacts> contacts = new HashMap<>();
+		List<Persistable> entities = persistence.getEntities(Contact.class);
+		for (Persistable p : entities) {
+			Contact c = (Contact) p;
+			Identity owner = c.getContactOwner();
+			Contacts map;
+			if (contacts.containsKey(owner)) {
+				map = contacts.get(owner);
+			} else {
+				map = new Contacts();
+				contacts.put(owner, map);
+			}
+			map.put(c);
+		}
+		return contacts;
 	}
 
 

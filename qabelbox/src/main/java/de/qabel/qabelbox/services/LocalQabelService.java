@@ -101,6 +101,31 @@ public class LocalQabelService extends Service {
 		persistence.updateEntity(identity);
 	}
 
+	public Contacts getContacts(Identity identity) {
+		List<Persistable> entities = persistence.getEntities(Contact.class);
+		Contacts contacts = new Contacts();
+		for (Persistable p : entities) {
+			Contact c = (Contact) p;
+			if (c.getContactOwner().equals(identity)) {
+				contacts.put(c);
+			}
+		}
+		return contacts;
+	}
+
+	public void addContact(Contact contact) {
+		persistence.persistEntity(contact);
+	}
+
+	public void deleteContact(Contact contact) {
+		persistence.removeEntity(contact.getPersistenceID(), Contact.class);
+	}
+
+	public void modifyContact(Contact contact) {
+		persistence.updateEntity(contact);
+	}
+
+
 	public class LocalBinder extends Binder {
 		public LocalQabelService getService() {
 			// Return this instance of LocalQabelService so clients can call public methods

@@ -162,6 +162,10 @@ public class LocalQabelService extends Service {
 		return contacts;
 	}
 
+	public void sendDropMessage(DropMessage dropMessage, Contact recipient) {
+
+	}
+
 
 	public class LocalBinder extends Binder {
 		public LocalQabelService getService() {

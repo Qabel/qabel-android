@@ -3,9 +3,11 @@ package de.qabel.qabelbox.services;
 import android.app.NotificationManager;
 import android.app.Service;
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -68,6 +70,7 @@ public class QabelService extends Service {
     private HashMap<String, Identity> identities;
     private HashMap<String, Contact> contacts;
     private Thread providerActorThread;
+    private LocalQabelService mService;
 
     class IncomingHandlerThread extends Thread {
 
@@ -199,16 +202,7 @@ public class QabelService extends Service {
 
         setNotification("Qabel Service waiting for database unlock");
 
-        /**
-         *  If global resources are not ready, register for RESOURCES_INITIALIZED event. Else init
-         *  local resources
-         */
-        if (QabelBoxApplication.isResourceActorInitialized()) {
-            initServiceResources();
-        } else {
-            LocalBroadcastManager.getInstance(this).registerReceiver(new ResourceReadyReceiver(),
-                    new IntentFilter(QabelBoxApplication.RESOURCES_INITIALIZED));
-        }
+		initServiceResources();
     }
 
     @Override
@@ -244,14 +238,28 @@ public class QabelService extends Service {
      */
     private void initServiceResources() {
         Log.i(LOG_TAG_QABEL_SERVICE, "Init resources");
-        resourceActor = QabelBoxApplication.getResourceActor();
+        Intent intent = new Intent(this, LocalQabelService.class);
+        bindService(intent, new ServiceConnection() {
+            @Override
+            public void onServiceConnected(ComponentName name, IBinder service) {
+                LocalQabelService.LocalBinder binder = (LocalQabelService.LocalBinder) service;
+                mService = binder.getService();
+            }
+
+            @Override
+            public void onServiceDisconnected(ComponentName name) {
+                mService = null;
+            }
+        }, Context.BIND_AUTO_CREATE);
+
+        resourceActor = mService.getResourceActor();
         providerActorThread = new Thread(new ProviderActor());
         providerActorThread.start();
-        dropActor = new DropActor(QabelBoxApplication.getResourceActor(), emitter);
+        dropActor = new DropActor(resourceActor, emitter);
         dropActor.setInterval(DEFAULT_DROP_POLL_INTERVAL);
         Thread dropActorThread = new Thread(dropActor, "DropActorThread");
         dropActorThread.start();
-        moduleManager = new ModuleManager(emitter, QabelBoxApplication.getResourceActor());
+        moduleManager = new ModuleManager(emitter, resourceActor);
         try {
             receiverModule = moduleManager.startModule(ReceiverModule.class);
             receiverModule.setMessageReceivedInterface(new ReceiverModule.MessageReceivedInterface() {

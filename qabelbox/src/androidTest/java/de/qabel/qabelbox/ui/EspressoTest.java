@@ -8,6 +8,8 @@ import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 import android.util.Log;
 
+import com.squareup.spoon.Spoon;
+
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -35,7 +37,7 @@ public class EspressoTest {
     @Test
     public void test1IncorrectLogin() {
         // Type text and then press the button. check if
-
+        //Spoon.screenshot(getActivity(), "initial_state");
         onView(withId(R.id.editTextPassword))
                 .perform(typeText("HELLO1"), closeSoftKeyboard());
         onView(withId(R.id.buttonOpen)).perform(click());

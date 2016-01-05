@@ -12,7 +12,7 @@ android {
         versionName "1.0"
 
         testInstrumentationRunner "de.qabel.qabelbox.QblJUnitRunner"
-
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
         ndk {
             moduleName "curve25519"
@@ -65,5 +65,8 @@ dependencies {
     androidTestCompile 'com.android.support.test.espresso:espresso-core:2.2.1'
     // Set this dependency to build and run UI Automator tests
     androidTestCompile 'com.android.support.test.uiautomator:uiautomator-v18:2.1.2'
+
+    androidTestCompile 'com.android.support.test.espresso:espresso-core:2.2.1'
+
 
 }

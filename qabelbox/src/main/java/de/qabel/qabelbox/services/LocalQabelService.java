@@ -72,17 +72,8 @@ public class LocalQabelService extends Service {
 		return sharedPreferences.getString(PREF_LAST_ACTIVE_IDENTITY, "");
 	}
 
-
-	public ResourceActor getResourceActor() {
-		return null;
-	}
-
 	public void addIdentity(Identity identity) {
 		persistence.updateOrPersistEntity(identity);
-	}
-
-	public SharedPreferences getSharedPreferences() {
-		return sharedPreferences;
 	}
 
 	public Identities getIdentities() {

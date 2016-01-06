@@ -219,6 +219,8 @@ public class MainActivity extends AppCompatActivity
         setSupportActionBar(toolbar);
         appBarMain = findViewById(R.id.app_bap_main);
         fab = (FloatingActionButton) findViewById(R.id.fab);
+        self = this;
+        initFloatingActionButton();
 
         Intent serviceIntent = new Intent(this, LocalQabelService.class);
         bindService(serviceIntent, new ServiceConnection() {
@@ -237,6 +239,32 @@ public class MainActivity extends AppCompatActivity
 
         }, Context.BIND_AUTO_CREATE);
 
+        getFragmentManager().addOnBackStackChangedListener(new FragmentManager.OnBackStackChangedListener() {
+            @Override
+            public void onBackStackChanged() {
+                // Set FAB visibility according to currently visible fragment
+                Fragment activeFragment = getFragmentManager().findFragmentById(R.id.fragment_container);
+                switch (activeFragment.getTag()) {
+                    case TAG_CONTACT_LIST_FRAGMENT:
+                        fab.show();
+                        break;
+                    case TAG_MANAGE_IDENTITIES_FRAGMENT:
+                        fab.show();
+                        break;
+                    case TAG_ADD_IDENTITY_FRAGMENT:
+                        fab.hide();
+                        break;
+                    case TAG_ADD_CONTACT_FRAGMENT:
+                        fab.hide();
+                        break;
+                    case TAG_FILES_FRAGMENT:
+                        fab.show();
+                    default:
+                        Log.d(TAG, "No FAB action required");
+                }
+            }
+        });
+
     }
 
     private void onLocalServiceConnected() {
@@ -244,18 +272,19 @@ public class MainActivity extends AppCompatActivity
 
         provider = ((QabelBoxApplication) getApplication()).getProvider();
         Log.i(TAG, "Provider: " + provider);
+		provider.setLocalService(mService);
+
         boxVolume = provider.getVolumeForRoot(null, null, null);
 
         initFilesFragment();
-
-        self = this;
-
-        initFloatingActionButton();
-
         initDrawer();
 
-        textViewSelectedIdentity.setText(mService.getActiveIdentity().getAlias());
-
+        Identity activeIdentity = mService.getActiveIdentity();
+        if (activeIdentity != null) {
+            textViewSelectedIdentity.setText(activeIdentity.getAlias());
+            initFilesFragment();
+            initBoxVolume(activeIdentity);
+        }
 
         // Check if activity is started with ACTION_SEND or ACTION_SEND_MULTIPLE
         Intent intent = getIntent();
@@ -282,34 +311,20 @@ public class MainActivity extends AppCompatActivity
                 }
                 break;
             default:
-                selectFilesFragment();
+                if (activeIdentity != null) {
+                    selectFilesFragment();
+                } else {
+                    selectAddIdentityFragment();
+                }
                 break;
         }
 
-        getFragmentManager().addOnBackStackChangedListener(new FragmentManager.OnBackStackChangedListener() {
-            @Override
-            public void onBackStackChanged() {
-                // Set FAB visibility according to currently visible fragment
-                Fragment activeFragment = getFragmentManager().findFragmentById(R.id.fragment_container);
-                switch (activeFragment.getTag()) {
-                    case TAG_CONTACT_LIST_FRAGMENT:
-                        fab.show();
-                        break;
-                    case TAG_MANAGE_IDENTITIES_FRAGMENT:
-                        fab.show();
-                        break;
-                    case TAG_ADD_IDENTITY_FRAGMENT:
-                        fab.hide();
-                        break;
-                    case TAG_ADD_CONTACT_FRAGMENT:
-                        fab.hide();
-                        break;
-                    case TAG_FILES_FRAGMENT:
-                    default:
-                        Log.d(TAG, "No FAB action required");
-                }
-            }
-        });
+    }
+
+    private void initBoxVolume(Identity activeIdentity) {
+        boxVolume = provider.getVolumeForRoot(
+                activeIdentity.getEcPublicKey().getReadableKeyIdentifier(),
+                null, null);
     }
 
     private void initFloatingActionButton() {
@@ -633,6 +648,11 @@ public class MainActivity extends AppCompatActivity
                 .show();
 
         textViewSelectedIdentity.setText(identity.getAlias());
+        if (filesFragment != null) {
+            getFragmentManager().beginTransaction().remove(filesFragment).commit();
+        }
+        initBoxVolume(identity);
+        initFilesFragment();
 
         selectFilesFragment();
     }

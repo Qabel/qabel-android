@@ -147,6 +147,15 @@ public class BoxProvider extends DocumentsProvider {
         folderContentCache = new HashMap<>();
         return true;
     }
+	/**
+     * Used to temporary inject the service if it is not ready yet
+     * @param service
+     */
+    public void setLocalService(LocalQabelService service) {
+        if (mService == null) {
+            mService = service;
+        }
+    }
 
     private void setUpTransferUtility() {
         if (transferUtility == null) {

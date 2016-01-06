@@ -98,10 +98,18 @@ public class LocalQabelService extends Service {
 		persistence.removeEntity(identity.getPersistenceID(), Identity.class);
 	}
 
+	/**
+	 * Modify the identity in place
+	 * @param identity known identity with modifid data
+	 */
 	public void modifyIdentity(Identity identity) {
 		persistence.updateEntity(identity);
 	}
 
+	/**
+	 * Create a list of all contacts that are known, regardless of the identity that owns it
+	 * @return List of all contacts
+	 */
 	public Contacts getContacts() {
 		List<Persistable> entities = persistence.getEntities(Contact.class);
 		Contacts contacts = new Contacts();
@@ -111,6 +119,11 @@ public class LocalQabelService extends Service {
 		return contacts;
 	}
 
+	/**
+	 * Create a list of contacts for the given Identity
+	 * @param identity selected identity
+	 * @return List of contacts owned by the identity
+	 */
 	public Contacts getContacts(Identity identity) {
 		List<Persistable> entities = persistence.getEntities(Contact.class);
 		Contacts contacts = new Contacts();
@@ -135,6 +148,10 @@ public class LocalQabelService extends Service {
 		persistence.updateEntity(contact);
 	}
 
+	/**
+	 * Create a map that maps each known identity to all of its contacts
+	 * @return Map of each identity to its contacts
+	 */
 	public Map<Identity, Contacts> getAllContacts() {
 		Map<Identity, Contacts> contacts = new HashMap<>();
 		List<Persistable> entities = persistence.getEntities(Contact.class);

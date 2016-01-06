@@ -48,7 +48,8 @@ public class LocalQabelService extends Service {
 
 	private static final String TAG = "LocalQabelService";
 	private static final String PREF_LAST_ACTIVE_IDENTITY = "PREF_LAST_ACTIVE_IDENTITY";
-	private static final char[] PASSWORD = "constantpassword".toCharArray();
+	// Hardcoded password until the password is saved in the Android KeyStore
+	protected static final char[] PASSWORD = "constantpassword".toCharArray();
 	public static final String DEFAULT_DROP_SERVER = "http://localhost";
 
 	private static final String PREF_DEVICE_ID_CREATED = "PREF_DEVICE_ID_CREATED";

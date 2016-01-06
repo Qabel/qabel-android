@@ -38,7 +38,6 @@ public class QabelService extends Service {
 
     private static final int SERVICE_NOTIFICATION_ID = 1;
     private static final String LOG_TAG_QABEL_SERVICE = "Qabel-Service";
-    private static final long DEFAULT_DROP_POLL_INTERVAL = 5000L;
     public static final String TAG = "QabelService";
 
     private final IncomingHandlerThread incomingHandlerThread = new IncomingHandlerThread();
@@ -63,8 +62,6 @@ public class QabelService extends Service {
 
                 @Override
                 public void handleMessage(Message msg) {
-                    // Wait with message processing until resources are initialized
-
                     switch (msg.what) {
                         case ServiceConstants.MSG_REGISTER_ON_TYPE:
                             String dropMessageType = msg.getData().getString(ServiceConstants.DROP_MESSAGE_TYPE);
@@ -106,7 +103,7 @@ public class QabelService extends Service {
 
         mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
-        setNotification("Qabel Service waiting for database unlock");
+        setNotification("Qabel Service starting");
 
 		initServiceResources();
     }
@@ -131,8 +128,7 @@ public class QabelService extends Service {
     }
 
     /**
-     * Initialize DropActor and Module manager. Requires global ResourceActor to be ready.
-     * Thus started when receiving IQabelServiceInternal.RESOURCES_INITIALIZED
+     * Initialize DropActor and Module manager after connecting to the {@link LocalQabelService}
      */
     private void initServiceResources() {
         Log.i(LOG_TAG_QABEL_SERVICE, "Init resources");

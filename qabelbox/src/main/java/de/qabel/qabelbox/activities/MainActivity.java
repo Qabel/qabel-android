@@ -21,6 +21,7 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -62,6 +63,7 @@ import de.qabel.core.config.ResourceActor;
 import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.fragments.AddContactFragment;
 import de.qabel.qabelbox.fragments.AddIdentityFragment;
+import de.qabel.qabelbox.fragments.BaseFragment;
 import de.qabel.qabelbox.fragments.ContactFragment;
 import de.qabel.qabelbox.fragments.IdentitiesFragment;
 import de.qabel.qabelbox.fragments.NewDatabasePasswordFragment;
@@ -81,14 +83,14 @@ import de.qabel.qabelbox.providers.BoxProvider;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,
-                    SelectUploadFolderFragment.OnSelectedUploadFolderListener,
-                            ContactFragment.ContactListListener,
-                                    AddIdentityFragment.AddIdentityListener,
-                                        NewDatabasePasswordFragment.NewDatabasePasswordListener,
-                                            OpenDatabaseFragment.OpenDatabaseFragmentListener,
-                                                AddContactFragment.AddContactListener,
-                                                    FilesFragment.FilesListListener,
-                                                        IdentitiesFragment.IdentityListListener {
+        SelectUploadFolderFragment.OnSelectedUploadFolderListener,
+        ContactFragment.ContactListListener,
+        AddIdentityFragment.AddIdentityListener,
+        NewDatabasePasswordFragment.NewDatabasePasswordListener,
+        OpenDatabaseFragment.OpenDatabaseFragmentListener,
+        AddContactFragment.AddContactListener,
+        FilesFragment.FilesListListener,
+        IdentitiesFragment.IdentityListListener {
 
     public static final String ACTION_ENTER_DB_PASSWORD = "EnterDatabasePassword";
     public static final String ACTION_ENTER_NEW_DB_PASSWORD = "EnterNewDatabasePassword";
@@ -279,7 +281,7 @@ public class MainActivity extends AppCompatActivity
         }
         if (requestCode == REQUEST_CODE_CHOOSE_EXPORT && resultCode == Activity.RESULT_OK && data != null) {
             uri = data.getData();
-            Log.i(TAG, "Export uri chosen: "+ uri.toString());
+            Log.i(TAG, "Export uri chosen: " + uri.toString());
             new AsyncTask<Void, Void, Void>() {
 
                 @Override
@@ -400,6 +402,8 @@ public class MainActivity extends AppCompatActivity
             public void onBackStackChanged() {
                 // Set FAB visibility according to currently visible fragment
                 Fragment activeFragment = getFragmentManager().findFragmentById(R.id.fragment_container);
+
+                //@todo add isFabNeeded to baseFragment and check this value
                 switch (activeFragment.getTag()) {
                     case TAG_CONTACT_LIST_FRAGMENT:
                         fab.show();
@@ -418,6 +422,17 @@ public class MainActivity extends AppCompatActivity
                     case TAG_NEW_DATABASE_PASSWORD_FRAGMENT:
                     default:
                         Log.d(TAG, "No FAB action required");
+                }
+                if (activeFragment instanceof BaseFragment) {
+                    BaseFragment fragment = ((BaseFragment) activeFragment);
+                    toolbar.setTitle(fragment.getTitle());
+                    if (fragment.isFabNeeded()) {
+                        fab.show();
+                    } else {
+                        fab.hide();
+                    }
+
+
                 }
             }
         });
@@ -520,33 +535,34 @@ public class MainActivity extends AppCompatActivity
                     startActivity(Intent.createChooser(viewIntent, "Open with"));
                 }
             }
+
             @Override
             public void onItemLockClick(View view, final int position) {
                 final BoxObject boxObject = filesFragment.getFilesAdapter().get(position);
                 new BottomSheet.Builder(self).title(boxObject.name).sheet(R.menu.files_bottom_sheet)
-                    .listener(new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            switch (which) {
-                                case R.id.share:
-                                    Toast.makeText(self, R.string.not_implemented,
-                                            Toast.LENGTH_SHORT).show();
-                                    break;
-                                case R.id.delete:
-                                    delete(boxObject);
-                                    break;
-                                case R.id.export:
-                                    // Export handled in the MainActivity
-                                    if (boxObject instanceof BoxFolder) {
-                                        Toast.makeText(self, R.string.folder_export_not_implemented,
+                        .listener(new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                switch (which) {
+                                    case R.id.share:
+                                        Toast.makeText(self, R.string.not_implemented,
                                                 Toast.LENGTH_SHORT).show();
-                                    } else {
-                                        onExport(filesFragment.getBoxNavigation(), boxObject);
-                                    }
-                                    break;
+                                        break;
+                                    case R.id.delete:
+                                        delete(boxObject);
+                                        break;
+                                    case R.id.export:
+                                        // Export handled in the MainActivity
+                                        if (boxObject instanceof BoxFolder) {
+                                            Toast.makeText(self, R.string.folder_export_not_implemented,
+                                                    Toast.LENGTH_SHORT).show();
+                                        } else {
+                                            onExport(filesFragment.getBoxNavigation(), boxObject);
+                                        }
+                                        break;
+                                }
                             }
-                        }
-                    }).show();
+                        }).show();
 
             }
         });
@@ -612,19 +628,22 @@ public class MainActivity extends AppCompatActivity
             drawer.closeDrawer(GravityCompat.START);
         } else {
             Fragment activeFragment = getFragmentManager().findFragmentById(R.id.fragment_container);
-
-            switch (activeFragment.getTag()) {
-                case TAG_OPEN_DATABASE_FRAGMENT:
-                case TAG_NEW_DATABASE_PASSWORD_FRAGMENT:
-                    finishAffinity();
-                    break;
-                case TAG_FILES_FRAGMENT:
-                    if (!filesFragment.browseToParent()) {
+            if (activeFragment.getTag() == null) {
+                getFragmentManager().popBackStack();
+            } else {
+                switch (activeFragment.getTag()) {
+                    case TAG_OPEN_DATABASE_FRAGMENT:
+                    case TAG_NEW_DATABASE_PASSWORD_FRAGMENT:
                         finishAffinity();
-                    }
-                    break;
-                default:
-                    getFragmentManager().popBackStack();
+                        break;
+                    case TAG_FILES_FRAGMENT:
+                        if (!filesFragment.browseToParent()) {
+                            finishAffinity();
+                        }
+                        break;
+                    default:
+                        getFragmentManager().popBackStack();
+                }
             }
         }
     }
@@ -688,12 +707,12 @@ public class MainActivity extends AppCompatActivity
         new AsyncTask<Void, Void, Void>() {
             @Override
             protected Void doInBackground(Void... params) {
-				Cursor returnCursor =
-						getContentResolver().query(uri, null, null, null, null);
-				int nameIndex = returnCursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
-				returnCursor.moveToFirst();
-				String name = returnCursor.getString(nameIndex);
-				returnCursor.close();
+                Cursor returnCursor =
+                        getContentResolver().query(uri, null, null, null, null);
+                int nameIndex = returnCursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
+                returnCursor.moveToFirst();
+                String name = returnCursor.getString(nameIndex);
+                returnCursor.close();
 
                 try {
                     String path = boxNavigation.getPath();
@@ -732,7 +751,7 @@ public class MainActivity extends AppCompatActivity
                     boxNavigation.createFolder(name);
                     boxNavigation.commit();
                 } catch (QblStorageException e) {
-                    Log.e(TAG, "Failed creating folder "+ name, e);
+                    Log.e(TAG, "Failed creating folder " + name, e);
                 }
                 return null;
             }
@@ -875,7 +894,7 @@ public class MainActivity extends AppCompatActivity
                 //TODO: Duplication with browseTo
                 filesAdapter.clear();
                 try {
-					boxNavigation.reload();
+                    boxNavigation.reload();
                     for (BoxFolder boxFolder : boxNavigation.listFolders()) {
                         Log.d(TAG, "Adding folder: " + boxFolder.name);
                         filesAdapter.add(boxFolder);
@@ -896,7 +915,7 @@ public class MainActivity extends AppCompatActivity
 
             @Override
             protected void onCancelled() {
-				filesFragment.setIsLoading(true);
+                filesFragment.setIsLoading(true);
                 showAbortMessage();
             }
 
@@ -977,39 +996,39 @@ public class MainActivity extends AppCompatActivity
                     });
                     for (final Identity identity : identityList) {
                         navigationView.getMenu()
-                            .add(NAV_GROUP_IDENTITIES, Menu.NONE, Menu.NONE, identity.getAlias())
-                            .setIcon(R.drawable.ic_perm_identity_black_24dp)
+                                .add(NAV_GROUP_IDENTITIES, Menu.NONE, Menu.NONE, identity.getAlias())
+                                .setIcon(R.drawable.ic_perm_identity_black_24dp)
+                                .setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+                                    @Override
+                                    public boolean onMenuItemClick(MenuItem item) {
+                                        drawer.closeDrawer(GravityCompat.START);
+                                        selectIdentity(identity);
+                                        return true;
+                                    }
+                                });
+                    }
+                    navigationView.getMenu()
+                            .add(NAV_GROUP_IDENTITY_ACTIONS, Menu.NONE, Menu.NONE, R.string.add_identity)
+                            .setIcon(R.drawable.ic_add_circle_black_24dp)
                             .setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
                                 @Override
                                 public boolean onMenuItemClick(MenuItem item) {
                                     drawer.closeDrawer(GravityCompat.START);
-                                    selectIdentity(identity);
+                                    selectAddIdentityFragment();
                                     return true;
                                 }
                             });
-                    }
                     navigationView.getMenu()
-                        .add(NAV_GROUP_IDENTITY_ACTIONS, Menu.NONE, Menu.NONE, R.string.add_identity)
-                        .setIcon(R.drawable.ic_add_circle_black_24dp)
-                        .setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
-                            @Override
-                            public boolean onMenuItemClick(MenuItem item) {
-                                drawer.closeDrawer(GravityCompat.START);
-                                selectAddIdentityFragment();
-                                return true;
-                            }
-                        });
-                    navigationView.getMenu()
-                        .add(NAV_GROUP_IDENTITY_ACTIONS, Menu.NONE, Menu.NONE, R.string.manage_identities)
-                        .setIcon(R.drawable.ic_settings_black_24dp)
-                        .setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
-                            @Override
-                            public boolean onMenuItemClick(MenuItem item) {
-                                drawer.closeDrawer(GravityCompat.START);
-                                selectManageIdentitiesFragment();
-                                return true;
-                            }
-                        });
+                            .add(NAV_GROUP_IDENTITY_ACTIONS, Menu.NONE, Menu.NONE, R.string.manage_identities)
+                            .setIcon(R.drawable.ic_settings_black_24dp)
+                            .setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+                                @Override
+                                public boolean onMenuItemClick(MenuItem item) {
+                                    drawer.closeDrawer(GravityCompat.START);
+                                    selectManageIdentitiesFragment();
+                                    return true;
+                                }
+                            });
                     identityMenuExpanded = true;
                 }
             }

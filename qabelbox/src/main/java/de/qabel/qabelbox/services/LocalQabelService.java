@@ -5,42 +5,22 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Binder;
 import android.os.IBinder;
-import android.preference.PreferenceManager;
 import android.util.Log;
 
 import org.spongycastle.util.encoders.Hex;
 
-import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import de.qabel.ackack.event.EventEmitter;
-import de.qabel.core.config.Account;
 import de.qabel.core.config.Contact;
 import de.qabel.core.config.Contacts;
-import de.qabel.core.config.DropServer;
 import de.qabel.core.config.Identities;
 import de.qabel.core.config.Identity;
-import de.qabel.core.config.LocalSettings;
-import de.qabel.core.config.LocaleModuleSettings;
 import de.qabel.core.config.Persistable;
-import de.qabel.core.config.Persistence;
-import de.qabel.core.config.ResourceActor;
-import de.qabel.core.config.Settings;
-import de.qabel.core.config.SyncedModuleSettings;
-import de.qabel.core.config.SyncedSettings;
-import de.qabel.core.crypto.BinaryDropMessageV0;
 import de.qabel.core.crypto.CryptoUtils;
 import de.qabel.core.drop.DropMessage;
-import de.qabel.core.drop.DropURL;
-import de.qabel.core.exceptions.QblDropPayloadSizeException;
 import de.qabel.core.exceptions.QblInvalidEncryptionKeyException;
-import de.qabel.core.http.DropHTTP;
-import de.qabel.core.http.HTTPResult;
-import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.config.AndroidPersistence;
 import de.qabel.qabelbox.config.QblSQLiteParams;
 

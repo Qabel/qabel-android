@@ -38,18 +38,18 @@ public class LocalQabelService extends Service {
 
 	private final IBinder mBinder = new LocalBinder();
 
-	static final String DB_NAME = "qabel-service";
-	private static final int DB_VERSION = 1;
-	private AndroidPersistence persistence;
-	private SharedPreferences sharedPreferences;
+	protected static final String DB_NAME = "qabel-service";
+	protected static final int DB_VERSION = 1;
+	protected AndroidPersistence persistence;
+	SharedPreferences sharedPreferences;
 
-	private void setLastActiveIdentityID(String identityID) {
+	protected void setLastActiveIdentityID(String identityID) {
 		sharedPreferences.edit()
 				.putString(PREF_LAST_ACTIVE_IDENTITY, identityID)
 				.apply();
 	}
 
-	private String getLastActiveIdentityID() {
+	protected String getLastActiveIdentityID() {
 		return sharedPreferences.getString(PREF_LAST_ACTIVE_IDENTITY, "");
 	}
 
@@ -181,7 +181,11 @@ public class LocalQabelService extends Service {
 	public void onCreate() {
 		super.onCreate();
 		Log.i(TAG, "LocalQabelService created");
-		sharedPreferences = getSharedPreferences(this.getClass().getCanonicalName(), MODE_PRIVATE);
+		initSharedPreferences();
+		initAndroidPersistence();
+	}
+
+	protected void initAndroidPersistence() {
 		AndroidPersistence androidPersistence;
 		QblSQLiteParams params = new QblSQLiteParams(this, DB_NAME, null, DB_VERSION);
 		try {
@@ -191,6 +195,10 @@ public class LocalQabelService extends Service {
 			return;
 		}
 		this.persistence = androidPersistence;
+	}
+
+	protected void initSharedPreferences() {
+		sharedPreferences = getSharedPreferences(this.getClass().getCanonicalName(), MODE_PRIVATE);
 		if (!sharedPreferences.getBoolean(PREF_DEVICE_ID_CREATED, false)) {
 
 			CryptoUtils cryptoUtils = new CryptoUtils();
@@ -202,7 +210,6 @@ public class LocalQabelService extends Service {
 					.putBoolean(PREF_DEVICE_ID_CREATED, true)
 					.apply();
 		}
-
 	}
 
 	@Override

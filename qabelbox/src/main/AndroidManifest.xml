@@ -63,6 +63,15 @@
         </service>
 
         <service
+            android:name=".services.LocalQabelService"
+            android:enabled="true"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="de.qabel.qabelbox.service.LocalQabelService" >
+                </action>
+            </intent-filter>
+        </service>
+        <service
             android:name=".services.BoxSyncService"
             android:exported="true"
             android:process=":sync">

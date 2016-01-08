@@ -10,6 +10,9 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
@@ -89,6 +92,7 @@ public class FilesFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
         self = this;
     }
 
@@ -149,6 +153,24 @@ public class FilesFragment extends Fragment {
         }
     }
 
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        // TODO Auto-generated method stub
+        super.onCreateOptionsMenu(menu, inflater);
+        inflater.inflate(R.menu.ab_files, menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // handle item selection
+        switch (item.getItemId()) {
+            case R.id.action_settings:
+                // do s.th.
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
     /**
      * Sets visibility of loading spinner. Visibility is stored if method is invoked
      * before onCreateView() has completed.

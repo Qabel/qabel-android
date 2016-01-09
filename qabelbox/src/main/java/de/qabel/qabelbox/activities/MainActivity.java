@@ -115,7 +115,7 @@ public class MainActivity extends AppCompatActivity
     private static final int NAV_GROUP_IDENTITIES = 1;
     private static final int NAV_GROUP_IDENTITY_ACTIONS = 2;
     private DrawerLayout drawer;
-    private ActionBarDrawerToggle toggle;
+    public ActionBarDrawerToggle toggle;
     private Identity activeIdentity;
     private ResourceActor resourceActor;
     private ProviderActor providerActor;
@@ -136,6 +136,7 @@ public class MainActivity extends AppCompatActivity
     // Used to save the document uri that should exported while waiting for the result
     // of the create document intent.
     private Uri exportUri;
+    //public View.OnClickListener mOriginalToggleListener;
 
     class ProviderActor extends EventActor implements EventListener {
         public ProviderActor() {
@@ -345,6 +346,7 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+   //     getSupportActionBar().setHomeButtonEnabled(true);
         appBarMain = findViewById(R.id.app_bap_main);
         fab = (FloatingActionButton) findViewById(R.id.fab);
 
@@ -361,7 +363,7 @@ public class MainActivity extends AppCompatActivity
         initFloatingActionButton();
 
         initDrawer();
-
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
         // Check if activity is started with ACTION_SEND or ACTION_SEND_MULTIPLE
         Intent intent = getIntent();
         String action = intent.getAction();
@@ -435,12 +437,29 @@ public class MainActivity extends AppCompatActivity
 
 
                 }
+                //reset drawericon
+                if (getFragmentManager().getBackStackEntryCount() == 0) {
+                    getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+                    toggle.setDrawerIndicatorEnabled(true);
+                  /*  System.out.println("nvai orig list " + mOriginalToggleListener);
+                    toggle.setToolbarNavigationClickListener(mOriginalToggleListener);*/
+
+                }
             }
         });
 
         LocalBroadcastManager.getInstance(this).registerReceiver(new ResourceReadyReceiver(),
                 new IntentFilter(QabelBoxApplication.RESOURCES_INITIALIZED));
+       // saveToggleClickListener();
+
     }
+/*
+    public void saveToggleClickListener() {
+        mOriginalToggleListener = toggle.getToolbarNavigationClickListener();
+
+        System.out.println("drawer toggle "+mOriginalToggleListener);
+    }*/
+
 
     private void initFloatingActionButton() {
         fab.setOnClickListener(new View.OnClickListener() {
@@ -562,6 +581,7 @@ public class MainActivity extends AppCompatActivity
 
     /**
      * open system show file dialog
+     *
      * @param boxObject
      */
     public void showFile(BoxObject boxObject) {
@@ -632,14 +652,17 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onBackPressed() {
-
+System.out.println("onbackpressed");
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else {
             Fragment activeFragment = getFragmentManager().findFragmentById(R.id.fragment_container);
+            Log.i(TAG, "activeFragment " + activeFragment.toString() + " " + activeFragment.getTag());
             if (activeFragment.getTag() == null) {
+                Log.i(TAG, "activeFragment " + activeFragment.toString());
                 getFragmentManager().popBackStack();
+
             } else {
                 switch (activeFragment.getTag()) {
                     case TAG_OPEN_DATABASE_FRAGMENT:
@@ -647,12 +670,17 @@ public class MainActivity extends AppCompatActivity
                         finishAffinity();
                         break;
                     case TAG_FILES_FRAGMENT:
+                        toggle.setDrawerIndicatorEnabled(true);
                         if (!filesFragment.browseToParent()) {
                             finishAffinity();
                         }
                         break;
                     default:
+
+
                         getFragmentManager().popBackStack();
+
+
                 }
             }
         }
@@ -670,6 +698,7 @@ public class MainActivity extends AppCompatActivity
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
+        System.out.println("act: " + item.getItemId() + " " + android.R.id.home);
         int id = item.getItemId();
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
@@ -966,6 +995,7 @@ public class MainActivity extends AppCompatActivity
         toggle.syncState();
 
         setDrawerLocked(true);
+//        saveToggleClickListener();
 
         final NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
@@ -1067,6 +1097,8 @@ public class MainActivity extends AppCompatActivity
 
             }
         });
+
+
     }
 
     private void showAbortMessage() {

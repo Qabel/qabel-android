@@ -5,6 +5,7 @@ import android.app.Fragment;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.widget.Toast;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -19,7 +20,7 @@ import de.qabel.qabelbox.activities.MainActivity;
 public class BaseFragment extends Fragment {
     protected static Executor serialExecutor = Executors.newSingleThreadExecutor();
     protected ActionBar action;
-    private MainActivity mActivity;
+    protected MainActivity mActivity;
 
     /**
      * @return title for fragment
@@ -49,20 +50,18 @@ public class BaseFragment extends Fragment {
     }
 
     public void showUpButton() {
+        //final View.OnClickListener clickListener = mActivity.toggle.getToolbarNavigationClickListener();
+
         mActivity.toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mActivity.toolbar.setNavigationOnClickListener(null);
+
                 getFragmentManager().popBackStack();
+
 
             }
         });
     }
 
 
-
-    public void hideUpButton() {
-        action.setDisplayHomeAsUpEnabled(false);
-        action.setHomeButtonEnabled(true);
-    }
 }

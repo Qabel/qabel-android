@@ -106,6 +106,7 @@ public class FilesFragment extends BaseFragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
+        action.setDisplayHomeAsUpEnabled(false);
         final AppCompatActivity act = (AppCompatActivity) getActivity();
         final ActionBar action = act.getSupportActionBar();
         action.setTitle(getTitle());
@@ -115,14 +116,13 @@ public class FilesFragment extends BaseFragment {
 
     @Override
     public void onResume() {
-        System.out.println("onresume");
-        hideUpButton();
-        action.setDisplayHomeAsUpEnabled(false);
-        action.setHomeButtonEnabled(true);
-        action.setDisplayShowHomeEnabled(true);
         super.onResume();
-
     }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+      }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -303,17 +303,16 @@ public class FilesFragment extends BaseFragment {
                 setIsLoading(false);
 
                 //check if files found
-                System.out.println("danny res " + storageSearch.filterOnlyFiles().filterByName(searchText).getResults().size());
-
-                if(storageSearch==null||storageSearch.filterOnlyFiles().getResults().size()==0)
-                {
-                    Toast.makeText(getActivity(),R.string.no_entrys_found,Toast.LENGTH_SHORT).show();
+                if (storageSearch == null || storageSearch.filterOnlyFiles().getResults().size() == 0) {
+                    Toast.makeText(getActivity(), R.string.no_entrys_found, Toast.LENGTH_SHORT).show();
                     return;
                 }
 
                 try {
-                    FilesSearchResultFragment fragment = FilesSearchResultFragment.newInstance(storageSearch,searchText);
-                    getFragmentManager().beginTransaction().replace(R.id.fragment_container, fragment, FilesSearchResultFragment.TAG).addToBackStack(FilesSearchResultFragment.TAG).commit();
+                    FilesSearchResultFragment fragment = FilesSearchResultFragment.newInstance(storageSearch, searchText);
+                    //fragment=Test.newInstance(storageSearch,"22");
+                    mActivity.toggle.setDrawerIndicatorEnabled(false);
+                    getFragmentManager().beginTransaction().add(R.id.fragment_container, fragment, fragment.TAG).addToBackStack(null).commit();
                 } catch (QblStorageException e) {
                     e.printStackTrace();
                     Toast.makeText(getActivity(), R.string.error_search_not_posibility, Toast.LENGTH_SHORT).show();
@@ -436,6 +435,7 @@ public class FilesFragment extends BaseFragment {
 
     void fillAdapter() {
         filesAdapter.clear();
+
         try {
             for (BoxFolder boxFolder : boxNavigation.listFolders()) {
                 Log.d(TAG, "Adding folder: " + boxFolder.name);

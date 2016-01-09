@@ -30,7 +30,18 @@ public class FilesSearchResultFragment extends FilesFragment {
     protected static final String TAG = "FilesSearchResFragment";
     protected StorageSearch mSearchResult;
     private MainActivity mMainActivity;
-
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Get item selected and deal with it
+        System.out.println("frag "+item.getItemId()+" "+android.R.id.home);
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                //called when the up affordance/carat in actionbar is pressed
+                mActivity.onBackPressed();
+                return true;
+        }
+        return false;
+    }
     public static FilesSearchResultFragment newInstance(StorageSearch storageSearch, String searchText) throws QblStorageException {
         FilesSearchResultFragment filesFragment = new FilesSearchResultFragment();
         FilesAdapter filesAdapter = new FilesAdapter(new ArrayList<BoxObject>());
@@ -61,6 +72,7 @@ public class FilesSearchResultFragment extends FilesFragment {
         });
     }
 
+
     void fillAdapter(List<BoxObject> results) {
         filesAdapter.clear();
         for (BoxObject boxObject : results) {
@@ -69,21 +81,6 @@ public class FilesSearchResultFragment extends FilesFragment {
         filesAdapter.sort();
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-        showUpButton();
-        action.setDisplayHomeAsUpEnabled(true);
-
-    }
-
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View v=super.onCreateView(inflater, container, savedInstanceState);
-
-        return v;
-
-    }
 
     @Override
     public void onAttach(Activity activity) {
@@ -101,14 +98,18 @@ public class FilesSearchResultFragment extends FilesFragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
-      //  showUpButton();
+        //showUpButton();
+        action.setDisplayHomeAsUpEnabled(true);
+
+       action.setDefaultDisplayHomeAsUpEnabled(true);
+
         self = this;
     }
 
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        //menu.clear();
+        menu.clear();
         inflater.inflate(R.menu.ab_files_search_result, menu);
     }
 

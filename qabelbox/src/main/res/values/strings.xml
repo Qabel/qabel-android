@@ -73,4 +73,5 @@
     <string name="filter">Filter</string>
     <string name="no_entrys_found">No files found</string>
     <string name="load_file_list">Load filelist</string>
+    <string name="ab_filesearch_hint">Enter keyword</string>
 </resources>

@@ -122,14 +122,14 @@ public class MainActivity extends AppCompatActivity
     private Thread providerActorThread;
     private HashMap<Identity, Contacts> contacts;
     private Identities identities;
-    private BoxVolume boxVolume;
+    public BoxVolume boxVolume;
     private BoxProvider provider;
     private FloatingActionButton fab;
     private TextView textViewSelectedIdentity;
     private Activity self;
     private View appBarMain;
     private FilesFragment filesFragment;
-    private Toolbar toolbar;
+    public Toolbar toolbar;
     private ImageView imageViewExpandIdentity;
     private boolean identityMenuExpanded;
 
@@ -400,6 +400,7 @@ public class MainActivity extends AppCompatActivity
         getFragmentManager().addOnBackStackChangedListener(new FragmentManager.OnBackStackChangedListener() {
             @Override
             public void onBackStackChanged() {
+
                 // Set FAB visibility according to currently visible fragment
                 Fragment activeFragment = getFragmentManager().findFragmentById(R.id.fragment_container);
 
@@ -523,16 +524,7 @@ public class MainActivity extends AppCompatActivity
                     filesFragment.browseTo(((BoxFolder) boxObject));
                 } else if (boxObject instanceof BoxFile) {
                     // Open
-                    String path = filesFragment.getBoxNavigation().getPath(boxObject);
-                    String documentId = boxVolume.getDocumentId(path);
-                    Uri uri = DocumentsContract.buildDocumentUri(
-                            BoxProvider.AUTHORITY, documentId);
-                    Intent viewIntent = new Intent();
-                    String type = URLConnection.guessContentTypeFromName(uri.toString());
-                    Log.i(TAG, "Mime type: " + type);
-                    viewIntent.setDataAndType(uri, type);
-                    viewIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                    startActivity(Intent.createChooser(viewIntent, "Open with"));
+                    showFile(boxObject);
                 }
             }
 
@@ -566,6 +558,23 @@ public class MainActivity extends AppCompatActivity
 
             }
         });
+    }
+
+    /**
+     * open system show file dialog
+     * @param boxObject
+     */
+    public void showFile(BoxObject boxObject) {
+        String path = filesFragment.getBoxNavigation().getPath(boxObject);
+        String documentId = boxVolume.getDocumentId(path);
+        Uri uri = DocumentsContract.buildDocumentUri(
+                BoxProvider.AUTHORITY, documentId);
+        Intent viewIntent = new Intent();
+        String type = URLConnection.guessContentTypeFromName(uri.toString());
+        Log.i(TAG, "Mime type: " + type);
+        viewIntent.setDataAndType(uri, type);
+        viewIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        startActivity(Intent.createChooser(viewIntent, "Open with"));
     }
 
     @Override
@@ -623,6 +632,7 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onBackPressed() {
+
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
@@ -661,7 +671,6 @@ public class MainActivity extends AppCompatActivity
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
-
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             return true;
@@ -673,6 +682,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
+
         int id = item.getItemId();
 
         if (id == R.id.nav_contacts) {

@@ -51,7 +51,7 @@ public class FilesFragment extends BaseFragment {
     private RecyclerView.LayoutManager recyclerViewLayoutManager;
     private boolean isLoading;
     private FilesListListener mListener;
-    private SwipeRefreshLayout swipeRefreshLayout;
+    protected SwipeRefreshLayout swipeRefreshLayout;
     protected FilesFragment self;
     private AsyncTask<Void, Void, Void> browseToTask;
 
@@ -109,7 +109,19 @@ public class FilesFragment extends BaseFragment {
         final AppCompatActivity act = (AppCompatActivity) getActivity();
         final ActionBar action = act.getSupportActionBar();
         action.setTitle(getTitle());
+
         self = this;
+    }
+
+    @Override
+    public void onResume() {
+        System.out.println("onresume");
+        hideUpButton();
+        action.setDisplayHomeAsUpEnabled(false);
+        action.setHomeButtonEnabled(true);
+        action.setDisplayShowHomeEnabled(true);
+        super.onResume();
+
     }
 
     @Override
@@ -171,6 +183,7 @@ public class FilesFragment extends BaseFragment {
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        menu.clear();
         super.onCreateOptionsMenu(menu, inflater);
         inflater.inflate(R.menu.ab_files, menu);
     }
@@ -178,13 +191,11 @@ public class FilesFragment extends BaseFragment {
     @Override
     public void onPrepareOptionsMenu(Menu menu) {
         mSearchAction = menu.findItem(R.id.action_search);
-
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // handle item selection
-
         switch (item.getItemId()) {
             case R.id.action_search:
                 handleMenuSearch();
@@ -279,7 +290,7 @@ public class FilesFragment extends BaseFragment {
      */
     private void startSearch(final String searchText) {
         //
-        Toast.makeText(getActivity(), "starte suche " + searchText, Toast.LENGTH_LONG).show();
+        Toast.makeText(getActivity(), R.string.load_file_list, Toast.LENGTH_LONG).show();
         new AsyncTask<String, Void, StorageSearch>() {
             @Override
             protected void onPreExecute() {
@@ -289,14 +300,20 @@ public class FilesFragment extends BaseFragment {
 
             @Override
             protected void onPostExecute(StorageSearch storageSearch) {
-                fillAdapter();
                 setIsLoading(false);
-                filesAdapter.notifyDataSetChanged();
-                storageSearch.filterByName(searchText);
+
+                //check if files found
+                System.out.println("danny res " + storageSearch.filterOnlyFiles().filterByName(searchText).getResults().size());
+
+                if(storageSearch==null||storageSearch.filterOnlyFiles().getResults().size()==0)
+                {
+                    Toast.makeText(getActivity(),R.string.no_entrys_found,Toast.LENGTH_SHORT).show();
+                    return;
+                }
 
                 try {
-                    FilesSearchResultFragment fragment = FilesSearchResultFragment.newInstance(storageSearch.getResults());
-                    getFragmentManager().beginTransaction().add(R.id.fragment_container, fragment, TAG).addToBackStack(TAG).commit();
+                    FilesSearchResultFragment fragment = FilesSearchResultFragment.newInstance(storageSearch,searchText);
+                    getFragmentManager().beginTransaction().replace(R.id.fragment_container, fragment, FilesSearchResultFragment.TAG).addToBackStack(FilesSearchResultFragment.TAG).commit();
                 } catch (QblStorageException e) {
                     e.printStackTrace();
                     Toast.makeText(getActivity(), R.string.error_search_not_posibility, Toast.LENGTH_SHORT).show();

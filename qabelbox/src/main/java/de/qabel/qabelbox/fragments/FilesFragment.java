@@ -2,12 +2,10 @@ package de.qabel.qabelbox.fragments;
 
 
 import android.app.Activity;
-import android.app.Fragment;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
-
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -27,16 +25,14 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
 
+import de.qabel.qabelbox.R;
+import de.qabel.qabelbox.adapter.FilesAdapter;
 import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.storage.BoxExternal;
 import de.qabel.qabelbox.storage.BoxFile;
 import de.qabel.qabelbox.storage.BoxFolder;
 import de.qabel.qabelbox.storage.BoxNavigation;
-import de.qabel.qabelbox.R;
-import de.qabel.qabelbox.adapter.FilesAdapter;
 import de.qabel.qabelbox.storage.BoxObject;
 import de.qabel.qabelbox.storage.BoxVolume;
 import de.qabel.qabelbox.storage.StorageSearch;
@@ -51,15 +47,16 @@ public class FilesFragment extends BaseFragment {
     private RecyclerView.LayoutManager recyclerViewLayoutManager;
     private boolean isLoading;
     private FilesListListener mListener;
-    protected SwipeRefreshLayout swipeRefreshLayout;
-    protected FilesFragment self;
+    private SwipeRefreshLayout swipeRefreshLayout;
+    private FilesFragment self;
     private AsyncTask<Void, Void, Void> browseToTask;
 
 
     private MenuItem mSearchAction;
     private boolean isSearchOpened = false;
     private EditText edtSeach;
-    BoxVolume mBoxVolume;
+    private BoxVolume mBoxVolume;
+    private AsyncTask<String, Void, StorageSearch> searchTask;
 
     public static FilesFragment newInstance(final BoxVolume boxVolume) {
         final FilesFragment filesFragment = new FilesFragment();
@@ -106,7 +103,7 @@ public class FilesFragment extends BaseFragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
-        action.setDisplayHomeAsUpEnabled(false);
+        actionBar.setDisplayHomeAsUpEnabled(false);
         final AppCompatActivity act = (AppCompatActivity) getActivity();
         final ActionBar action = act.getSupportActionBar();
         action.setTitle(getTitle());
@@ -114,15 +111,6 @@ public class FilesFragment extends BaseFragment {
         self = this;
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-      }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -206,18 +194,14 @@ public class FilesFragment extends BaseFragment {
         }
     }
 
-    protected void handleMenuSearch() {
-
-
-        final AppCompatActivity act = (AppCompatActivity) getActivity();
-        final ActionBar action = act.getSupportActionBar();
-
-        if (isSearchOpened) { //test if the search is open
-
-            removeSearchInActionbar(action);
-        } else { //open the search entry
-
-            openSearchInActionBar(action);
+    /**
+     * handle click on search icon
+     */
+    private void handleMenuSearch() {
+        if (isSearchOpened) {
+            removeSearchInActionbar(actionBar);
+        } else {
+            openSearchInActionBar(actionBar);
         }
     }
 
@@ -227,23 +211,20 @@ public class FilesFragment extends BaseFragment {
      * @param action
      */
     private void openSearchInActionBar(final ActionBar action) {
-        action.setDisplayShowCustomEnabled(true); //enable it to display a
-        // custom view in the action bar.
-        action.setCustomView(R.layout.search_bar);//add the custom view
-        action.setDisplayShowTitleEnabled(false); //hide the title
+        action.setDisplayShowCustomEnabled(true);
+        action.setCustomView(R.layout.search_bar);
+        action.setDisplayShowTitleEnabled(false);
 
-        edtSeach = (EditText) action.getCustomView().findViewById(R.id.edtSearch); //the text editor
+        edtSeach = (EditText) action.getCustomView().findViewById(R.id.edtSearch);
 
-        //this is a listener to do a search when the user clicks on search button
+        //add editor action listener
         edtSeach.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 if (actionId == EditorInfo.IME_ACTION_SEARCH) {
-                    InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
                     removeSearchInActionbar(action);
                     String text = edtSeach.getText().toString();
                     startSearch(text);
-
                     return true;
                 }
                 return false;
@@ -253,14 +234,11 @@ public class FilesFragment extends BaseFragment {
 
         edtSeach.requestFocus();
 
-        //open the keyboard focused in the edtSearch
+        //open keyboard
         InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.showSoftInput(edtSeach, InputMethodManager.SHOW_IMPLICIT);
-
-
-        //add the close icon
-        mSearchAction.setIcon(getResources().getDrawable(R.drawable.ic_ab_close));
-
+        mActivity.fab.hide();
+        mSearchAction.setIcon(R.drawable.ic_ab_close);
         isSearchOpened = true;
     }
 
@@ -270,17 +248,24 @@ public class FilesFragment extends BaseFragment {
      * @param action
      */
     private void removeSearchInActionbar(ActionBar action) {
-        action.setDisplayShowCustomEnabled(false); //disable a custom view inside the actionbar
-        action.setDisplayShowTitleEnabled(true); //show the title in the action bar
+        action.setDisplayShowCustomEnabled(false);
+        action.setDisplayShowTitleEnabled(true);
 
         //hides the keyboard
         InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(edtSeach.getWindowToken(), 0);
         imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.RESULT_HIDDEN);
-        //add the search icon in the action bar
-        mSearchAction.setIcon(getResources().getDrawable(R.drawable.ic_ab_magnify));
-
+        mSearchAction.setIcon(R.drawable.ic_ab_magnify);
         isSearchOpened = false;
+        mActivity.fab.show();
+    }
+
+    @Override
+    public void onPause() {
+        if (isSearchOpened) {
+            removeSearchInActionbar(actionBar);
+        }
+        super.onPause();
     }
 
     /**
@@ -291,11 +276,19 @@ public class FilesFragment extends BaseFragment {
     private void startSearch(final String searchText) {
         //
         Toast.makeText(getActivity(), R.string.load_file_list, Toast.LENGTH_LONG).show();
-        new AsyncTask<String, Void, StorageSearch>() {
+        cancelSearchTask();
+        searchTask = new AsyncTask<String, Void, StorageSearch>() {
+
             @Override
             protected void onPreExecute() {
                 super.onPreExecute();
                 setIsLoading(true);
+            }
+
+            @Override
+            protected void onCancelled(StorageSearch storageSearch) {
+                setIsLoading(false);
+                super.onCancelled(storageSearch);
             }
 
             @Override
@@ -307,17 +300,11 @@ public class FilesFragment extends BaseFragment {
                     Toast.makeText(getActivity(), R.string.no_entrys_found, Toast.LENGTH_SHORT).show();
                     return;
                 }
-
-                try {
+                if (!mActivity.isFinishing() && !searchTask.isCancelled()) {
                     FilesSearchResultFragment fragment = FilesSearchResultFragment.newInstance(storageSearch, searchText);
-                    //fragment=Test.newInstance(storageSearch,"22");
                     mActivity.toggle.setDrawerIndicatorEnabled(false);
-                    getFragmentManager().beginTransaction().add(R.id.fragment_container, fragment, fragment.TAG).addToBackStack(null).commit();
-                } catch (QblStorageException e) {
-                    e.printStackTrace();
-                    Toast.makeText(getActivity(), R.string.error_search_not_posibility, Toast.LENGTH_SHORT).show();
+                    getFragmentManager().beginTransaction().add(R.id.fragment_container, fragment, FilesSearchResultFragment.TAG).addToBackStack(null).commit();
                 }
-
             }
 
             @Override
@@ -330,10 +317,18 @@ public class FilesFragment extends BaseFragment {
                 return null;
 
             }
-        }.executeOnExecutor(serialExecutor);
+        };
+        searchTask.executeOnExecutor(serialExecutor);
 
 
     }
+
+    private void cancelSearchTask() {
+        if (searchTask != null) {
+            searchTask.cancel(true);
+        }
+    }
+
 
     /**
      * Sets visibility of loading spinner. Visibility is stored if method is invoked
@@ -371,7 +366,7 @@ public class FilesFragment extends BaseFragment {
         return true;
     }
 
-    void setBoxNavigation(BoxNavigation boxNavigation) {
+    private void setBoxNavigation(BoxNavigation boxNavigation) {
         this.boxNavigation = boxNavigation;
     }
 
@@ -382,6 +377,24 @@ public class FilesFragment extends BaseFragment {
     @Override
     public String getTitle() {
         return getString(R.string.headline_files);
+    }
+
+    /**
+     * handle back pressed
+     *
+     * @return true if back handled
+     */
+    public boolean handleBackPressed() {
+        if (isSearchOpened) {
+            removeSearchInActionbar(actionBar);
+            return true;
+        }
+        if (searchTask != null && ((!searchTask.isCancelled() && searchTask.getStatus() != AsyncTask.Status.FINISHED))) {
+            cancelSearchTask();
+            return true;
+        }
+
+        return false;
     }
 
     public interface FilesListListener {
@@ -433,7 +446,7 @@ public class FilesFragment extends BaseFragment {
         setIsLoading(true);
     }
 
-    void fillAdapter() {
+    private void fillAdapter() {
         filesAdapter.clear();
 
         try {

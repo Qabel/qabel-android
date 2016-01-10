@@ -3,9 +3,7 @@ package de.qabel.qabelbox.fragments;
 import android.app.Activity;
 import android.app.Fragment;
 import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
 import android.view.View;
-import android.widget.Toast;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -19,7 +17,7 @@ import de.qabel.qabelbox.activities.MainActivity;
  */
 public class BaseFragment extends Fragment {
     protected static Executor serialExecutor = Executors.newSingleThreadExecutor();
-    protected ActionBar action;
+    protected ActionBar actionBar;
     protected MainActivity mActivity;
 
     /**
@@ -40,28 +38,26 @@ public class BaseFragment extends Fragment {
     public void onAttach(Activity activity) {
         super.onAttach(activity);
         mActivity = (MainActivity) getActivity();
-        action = mActivity.getSupportActionBar();
+        actionBar = mActivity.getSupportActionBar();
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-        action.setTitle(getTitle());
-    }
-
-    public void showUpButton() {
-        //final View.OnClickListener clickListener = mActivity.toggle.getToolbarNavigationClickListener();
-
-        mActivity.toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+    /**
+     * set own back listener in actionbar
+     */
+    protected void setActionBarBackListener() {
+        mActivity.toggle.setToolbarNavigationClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-                getFragmentManager().popBackStack();
-
-
+                if (getFragmentManager().getBackStackEntryCount() > 0)
+                    mActivity.onBackPressed();
             }
         });
     }
 
-
+    /**
+     * @return true if fragment handle back button. otherwise return false to display sidemenu icon
+     */
+    public boolean supportBackButton() {
+        return false;
+    }
 }

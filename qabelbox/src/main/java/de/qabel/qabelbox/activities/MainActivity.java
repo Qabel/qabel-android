@@ -21,7 +21,6 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -122,14 +121,14 @@ public class MainActivity extends AppCompatActivity
     private Thread providerActorThread;
     private HashMap<Identity, Contacts> contacts;
     private Identities identities;
-    public BoxVolume boxVolume;
+    private BoxVolume boxVolume;
     private BoxProvider provider;
-    private FloatingActionButton fab;
+    public FloatingActionButton fab;
     private TextView textViewSelectedIdentity;
     private Activity self;
     private View appBarMain;
     private FilesFragment filesFragment;
-    public Toolbar toolbar;
+    private Toolbar toolbar;
     private ImageView imageViewExpandIdentity;
     private boolean identityMenuExpanded;
 
@@ -303,7 +302,6 @@ public class MainActivity extends AppCompatActivity
                     return null;
                 }
             }.execute();
-            return;
         }
 
     }
@@ -346,7 +344,7 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-   //     getSupportActionBar().setHomeButtonEnabled(true);
+
         appBarMain = findViewById(R.id.app_bap_main);
         fab = (FloatingActionButton) findViewById(R.id.fab);
 
@@ -363,7 +361,6 @@ public class MainActivity extends AppCompatActivity
         initFloatingActionButton();
 
         initDrawer();
-        getSupportActionBar().setDisplayShowHomeEnabled(true);
         // Check if activity is started with ACTION_SEND or ACTION_SEND_MULTIPLE
         Intent intent = getIntent();
         String action = intent.getAction();
@@ -406,59 +403,49 @@ public class MainActivity extends AppCompatActivity
                 // Set FAB visibility according to currently visible fragment
                 Fragment activeFragment = getFragmentManager().findFragmentById(R.id.fragment_container);
 
-                //@todo add isFabNeeded to baseFragment and check this value
-                switch (activeFragment.getTag()) {
-                    case TAG_CONTACT_LIST_FRAGMENT:
-                        fab.show();
-                        break;
-                    case TAG_MANAGE_IDENTITIES_FRAGMENT:
-                        fab.show();
-                        break;
-                    case TAG_ADD_IDENTITY_FRAGMENT:
-                        fab.hide();
-                        break;
-                    case TAG_ADD_CONTACT_FRAGMENT:
-                        fab.hide();
-                        break;
-                    case TAG_FILES_FRAGMENT:
-                    case TAG_OPEN_DATABASE_FRAGMENT:
-                    case TAG_NEW_DATABASE_PASSWORD_FRAGMENT:
-                    default:
-                        Log.d(TAG, "No FAB action required");
-                }
                 if (activeFragment instanceof BaseFragment) {
                     BaseFragment fragment = ((BaseFragment) activeFragment);
                     toolbar.setTitle(fragment.getTitle());
+                    System.out.println("base fab " + fragment.isFabNeeded());
                     if (fragment.isFabNeeded()) {
                         fab.show();
                     } else {
                         fab.hide();
                     }
-
-
+                } else {
+                    //@todo add isFabNeeded to baseFragment and check this value
+                    switch (activeFragment.getTag()) {
+                        case TAG_CONTACT_LIST_FRAGMENT:
+                            fab.show();
+                            break;
+                        case TAG_MANAGE_IDENTITIES_FRAGMENT:
+                            fab.show();
+                            break;
+                        case TAG_ADD_IDENTITY_FRAGMENT:
+                            fab.hide();
+                            break;
+                        case TAG_ADD_CONTACT_FRAGMENT:
+                            fab.hide();
+                            break;
+                        case TAG_FILES_FRAGMENT:
+                        case TAG_OPEN_DATABASE_FRAGMENT:
+                        case TAG_NEW_DATABASE_PASSWORD_FRAGMENT:
+                        default:
+                            Log.d(TAG, "No FAB action required");
+                    }
                 }
-                //reset drawericon
-                if (getFragmentManager().getBackStackEntryCount() == 0) {
+
+                //check if navigation drawer need to reset
+                if (getFragmentManager().getBackStackEntryCount() == 0 || (activeFragment instanceof BaseFragment) && !((BaseFragment) activeFragment).supportBackButton()) {
                     getSupportActionBar().setDisplayHomeAsUpEnabled(false);
                     toggle.setDrawerIndicatorEnabled(true);
-                  /*  System.out.println("nvai orig list " + mOriginalToggleListener);
-                    toggle.setToolbarNavigationClickListener(mOriginalToggleListener);*/
-
                 }
             }
         });
 
         LocalBroadcastManager.getInstance(this).registerReceiver(new ResourceReadyReceiver(),
                 new IntentFilter(QabelBoxApplication.RESOURCES_INITIALIZED));
-       // saveToggleClickListener();
-
     }
-/*
-    public void saveToggleClickListener() {
-        mOriginalToggleListener = toggle.getToolbarNavigationClickListener();
-
-        System.out.println("drawer toggle "+mOriginalToggleListener);
-    }*/
 
 
     private void initFloatingActionButton() {
@@ -652,15 +639,12 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onBackPressed() {
-System.out.println("onbackpressed");
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else {
             Fragment activeFragment = getFragmentManager().findFragmentById(R.id.fragment_container);
-            Log.i(TAG, "activeFragment " + activeFragment.toString() + " " + activeFragment.getTag());
             if (activeFragment.getTag() == null) {
-                Log.i(TAG, "activeFragment " + activeFragment.toString());
                 getFragmentManager().popBackStack();
 
             } else {
@@ -671,16 +655,12 @@ System.out.println("onbackpressed");
                         break;
                     case TAG_FILES_FRAGMENT:
                         toggle.setDrawerIndicatorEnabled(true);
-                        if (!filesFragment.browseToParent()) {
+                        if (!filesFragment.handleBackPressed()&&!filesFragment.browseToParent()) {
                             finishAffinity();
                         }
                         break;
                     default:
-
-
                         getFragmentManager().popBackStack();
-
-
                 }
             }
         }
@@ -698,7 +678,6 @@ System.out.println("onbackpressed");
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
-        System.out.println("act: " + item.getItemId() + " " + android.R.id.home);
         int id = item.getItemId();
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
@@ -782,7 +761,7 @@ System.out.println("onbackpressed");
 
     }
 
-    public void createFolder(final String name, final BoxNavigation boxNavigation) {
+    private void createFolder(final String name, final BoxNavigation boxNavigation) {
         new AsyncTask<Void, Void, Void>() {
             @Override
             protected Void doInBackground(Void... params) {
@@ -820,7 +799,7 @@ System.out.println("onbackpressed");
         selectAddContactFragment(identity);
     }
 
-    public void selectIdentity(Identity identity) {
+    private void selectIdentity(Identity identity) {
         activeIdentity = identity;
         selectContactsFragment();
 

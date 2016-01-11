@@ -29,7 +29,6 @@ public class BoxProviderTester extends BoxProvider {
 	public Identity identity;
 
 
-	@Override
 	void bindToService(final Context context) {
 		setParametersForTests();
 		initServiceForTests(context);

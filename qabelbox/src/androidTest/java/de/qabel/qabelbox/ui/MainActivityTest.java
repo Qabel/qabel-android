@@ -45,7 +45,7 @@ public class MainActivityTest {
         mActivity = mActivityTestRule.getActivity();
     }
 
-
+/*
     @Test
     public void testCheckEmptyPassword() {
         Spoon.screenshot(mActivity, "initial_state");
@@ -64,7 +64,7 @@ public class MainActivityTest {
         onView(withId(R.id.buttonOpen)).perform(click());
         onView(withId(R.id.buttonOpen)).check(matches(isDisplayed()));
     }
-
+*/
     public void isToastMessageDisplayed(int textId) {
         onView(withText(textId)).inRoot(withDecorView(not(mActivity.getWindow().getDecorView()))).check(matches(isDisplayed()));
     }

@@ -17,7 +17,7 @@
             android:layout_marginTop="47dp"
             android:spinnerMode="dialog" />
 
-        <Button
+        <de.qabel.qabelbox.views.ButtonFont
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/Select"
@@ -26,7 +26,7 @@
             android:layout_centerHorizontal="true"
             android:layout_marginTop="53dp" />
 
-        <TextView
+        <de.qabel.qabelbox.views.TextViewFont
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceLarge"

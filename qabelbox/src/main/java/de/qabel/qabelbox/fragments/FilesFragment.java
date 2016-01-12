@@ -108,7 +108,6 @@ public class FilesFragment extends BaseFragment {
         final AppCompatActivity act = (AppCompatActivity) getActivity();
         final ActionBar action = act.getSupportActionBar();
         action.setTitle(getTitle());
-
         self = this;
     }
 

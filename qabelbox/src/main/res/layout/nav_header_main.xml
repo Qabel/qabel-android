@@ -18,7 +18,7 @@
         <ImageView android:layout_width="96dp" android:layout_height="96dp"
                    android:src="@drawable/qabel_logo" android:id="@+id/qabelLogo" />
 
-        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+        <de.qabel.qabelbox.views.TextViewFont android:layout_width="wrap_content" android:layout_height="wrap_content"
                   android:id="@+id/textViewSelectedIdentity"
                   android:layout_alignTop="@+id/imageViewExpandIdentity"
                   android:layout_alignBottom="@+id/imageViewExpandIdentity"

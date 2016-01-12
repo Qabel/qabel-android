@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <array name="fonts">
+        <item>fonts/Roboto-Regular.ttf</item>
+        <item>fonts/Roboto-Italic.ttf</item>
+        <item>fonts/Roboto-Bold.ttf</item>
+    </array>
+</resources>

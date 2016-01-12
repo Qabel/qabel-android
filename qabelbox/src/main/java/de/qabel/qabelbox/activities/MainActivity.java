@@ -97,7 +97,7 @@ public class MainActivity extends AppCompatActivity
     private static final int NAV_GROUP_IDENTITY_ACTIONS = 2;
     private DrawerLayout drawer;
     private BoxVolume boxVolume;
-    private ActionBarDrawerToggle toggle;
+    public ActionBarDrawerToggle toggle;
     private BoxProvider provider;
     public FloatingActionButton fab;
     private TextView textViewSelectedIdentity;
@@ -299,8 +299,8 @@ public class MainActivity extends AppCompatActivity
         Identity activeIdentity = mService.getActiveIdentity();
         if (activeIdentity != null) {
             textViewSelectedIdentity.setText(activeIdentity.getAlias());
-            initFilesFragment();
             initBoxVolume(activeIdentity);
+            initFilesFragment();
         }
 
         // Check if activity is started with ACTION_SEND or ACTION_SEND_MULTIPLE

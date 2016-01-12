@@ -22,7 +22,7 @@
             android:layout_height="wrap_content"
             android:id="@+id/editTextIdentityAlias"
             android:hint="@string/identity_alias"
-            android:drawableStart="@drawable/ic_perm_identity_black_24dp"
+            android:drawableStart="@drawable/ic_perm_identity_black"
             android:layout_below="@+id/textViewAddIdentityHeader"
             android:layout_marginTop="15dp"
             android:inputType="text"

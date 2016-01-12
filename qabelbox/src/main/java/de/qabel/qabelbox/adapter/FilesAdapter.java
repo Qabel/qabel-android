@@ -91,13 +91,13 @@ public class FilesAdapter extends RecyclerView.Adapter<FilesAdapter.FilesViewHol
 //                    R.plurals.sharedWith, boxObject.getShareCount(), boxObject.getShareCount()));
 //        }
         if (boxObject instanceof BoxFolder) {
-            holder.mImageView.setImageResource(R.drawable.ic_folder_black_24dp);
+            holder.mImageView.setImageResource(R.drawable.ic_folder_black);
             // Always set all ViewHolder fields, otherwise recycled views contain wrong data
             holder.mTextViewFolderDetailsLeft.setText("");
             holder.mTextViewFolderDetailsRight.setText("");
         } else if (boxObject instanceof BoxExternal) {
             BoxExternal boxExternal = (BoxExternal) boxObject;
-            holder.mImageView.setImageResource(R.drawable.ic_folder_shared_black_24dp);
+            holder.mImageView.setImageResource(R.drawable.ic_folder_shared_black);
             // TODO: Only show a part of the key identifier until owner name is implemented
             holder.mTextViewFolderDetailsLeft.setText("Owner: " + boxExternal.owner.getReadableKeyIdentifier().substring(0, 6));
             holder.mTextViewFolderDetailsRight.setText("");
@@ -106,7 +106,7 @@ public class FilesAdapter extends RecyclerView.Adapter<FilesAdapter.FilesViewHol
             BoxFile boxFile = (BoxFile) boxObject;
             holder.mTextViewFolderDetailsLeft.setText(formatModificationTime(boxFile));
             holder.mTextViewFolderDetailsRight.setText(FileUtils.byteCountToDisplaySize(boxFile.size));
-            holder.mImageView.setImageResource(R.drawable.ic_insert_drive_file_black_24dp);
+            holder.mImageView.setImageResource(R.drawable.ic_insert_drive_file_black);
         }
     }
 

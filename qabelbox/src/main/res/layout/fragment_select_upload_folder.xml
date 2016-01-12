@@ -20,7 +20,7 @@
             android:layout_alignParentTop="true"
             android:layout_above="@+id/buttonAbortUpload"/>
 
-        <Button
+        <de.qabel.qabelbox.views.ButtonFont
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/abort"
@@ -29,7 +29,7 @@
             android:layout_alignParentRight="true"
             android:layout_alignParentEnd="true"/>
 
-        <Button
+        <de.qabel.qabelbox.views.ButtonFont
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/upload"

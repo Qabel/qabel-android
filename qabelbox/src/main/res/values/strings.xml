@@ -67,4 +67,11 @@
     <string name="add_folder_name">Enter new folder name</string>
     <string name="create_folder">Create folder</string>
     <string name="uploading_file">Uploading file</string>
+    <string name="error_search_not_posibility">Search error</string>
+    <string name="headline_searchresult">Search result</string>
+    <string name="headline_files">File browser</string>
+    <string name="filter">Filter</string>
+    <string name="no_entrys_found">No files found</string>
+    <string name="load_file_list">Load filelist</string>
+    <string name="ab_filesearch_hint">Enter keyword</string>
 </resources>

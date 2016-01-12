@@ -26,6 +26,7 @@ public class FilesAdapter extends RecyclerView.Adapter<FilesAdapter.FilesViewHol
     private OnItemClickListener onItemClickListener;
     private DateFormat dateFormat = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT);
 
+
     public FilesAdapter(List<BoxObject> BoxObject) {
         boxObjects = BoxObject;
     }

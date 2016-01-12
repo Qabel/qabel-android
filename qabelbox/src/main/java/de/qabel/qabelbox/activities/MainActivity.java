@@ -55,6 +55,7 @@ import de.qabel.qabelbox.adapter.FilesAdapter;
 import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.fragments.AddContactFragment;
 import de.qabel.qabelbox.fragments.AddIdentityFragment;
+import de.qabel.qabelbox.fragments.BaseFragment;
 import de.qabel.qabelbox.fragments.ContactFragment;
 import de.qabel.qabelbox.fragments.FilesFragment;
 import de.qabel.qabelbox.fragments.IdentitiesFragment;
@@ -95,10 +96,10 @@ public class MainActivity extends AppCompatActivity
     private static final int NAV_GROUP_IDENTITIES = 1;
     private static final int NAV_GROUP_IDENTITY_ACTIONS = 2;
     private DrawerLayout drawer;
-    private ActionBarDrawerToggle toggle;
     private BoxVolume boxVolume;
+    public ActionBarDrawerToggle toggle;
     private BoxProvider provider;
-    private FloatingActionButton fab;
+    public FloatingActionButton fab;
     private TextView textViewSelectedIdentity;
     private Activity self;
     private View appBarMain;
@@ -245,23 +246,41 @@ public class MainActivity extends AppCompatActivity
             public void onBackStackChanged() {
                 // Set FAB visibility according to currently visible fragment
                 Fragment activeFragment = getFragmentManager().findFragmentById(R.id.fragment_container);
-                switch (activeFragment.getTag()) {
-                    case TAG_CONTACT_LIST_FRAGMENT:
+
+                if (activeFragment instanceof BaseFragment) {
+                    BaseFragment fragment = ((BaseFragment) activeFragment);
+                    toolbar.setTitle(fragment.getTitle());
+                    System.out.println("base fab " + fragment.isFabNeeded());
+                    if (fragment.isFabNeeded()) {
                         fab.show();
-                        break;
-                    case TAG_MANAGE_IDENTITIES_FRAGMENT:
-                        fab.show();
-                        break;
-                    case TAG_ADD_IDENTITY_FRAGMENT:
+                    } else {
                         fab.hide();
-                        break;
-                    case TAG_ADD_CONTACT_FRAGMENT:
-                        fab.hide();
-                        break;
-                    case TAG_FILES_FRAGMENT:
-                        fab.show();
-                    default:
-                        Log.d(TAG, "No FAB action required");
+                    }
+                } else {
+                    //@todo add isFabNeeded to baseFragment and check this value
+                    switch (activeFragment.getTag()) {
+                        case TAG_CONTACT_LIST_FRAGMENT:
+                            fab.show();
+                            break;
+                        case TAG_MANAGE_IDENTITIES_FRAGMENT:
+                            fab.show();
+                            break;
+                        case TAG_ADD_IDENTITY_FRAGMENT:
+                            fab.hide();
+                            break;
+                        case TAG_ADD_CONTACT_FRAGMENT:
+                            fab.hide();
+                            break;
+                        case TAG_FILES_FRAGMENT:
+                        default:
+                            Log.d(TAG, "No FAB action required");
+                    }
+                }
+
+                //check if navigation drawer need to reset
+                if (getFragmentManager().getBackStackEntryCount() == 0 || (activeFragment instanceof BaseFragment) && !((BaseFragment) activeFragment).supportBackButton()) {
+                    getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+                    toggle.setDrawerIndicatorEnabled(true);
                 }
             }
         });
@@ -275,16 +294,13 @@ public class MainActivity extends AppCompatActivity
         Log.i(TAG, "Provider: " + provider);
 
         provider.setLocalService(mService);
-        initBoxVolume();
-
-        initFilesFragment();
         initDrawer();
 
         Identity activeIdentity = mService.getActiveIdentity();
         if (activeIdentity != null) {
             textViewSelectedIdentity.setText(activeIdentity.getAlias());
-            initFilesFragment();
             initBoxVolume(activeIdentity);
+            initFilesFragment();
         }
 
         // Check if activity is started with ACTION_SEND or ACTION_SEND_MULTIPLE
@@ -325,12 +341,6 @@ public class MainActivity extends AppCompatActivity
     private void initBoxVolume(Identity activeIdentity) {
         boxVolume = provider.getVolumeForRoot(
                 activeIdentity.getEcPublicKey().getReadableKeyIdentifier(),
-                null, null);
-    }
-
-    private void initBoxVolume() {
-        boxVolume = provider.getVolumeForRoot(
-                mService.getActiveIdentity().getEcPublicKey().getReadableKeyIdentifier(),
                 null, null);
     }
 
@@ -416,16 +426,7 @@ public class MainActivity extends AppCompatActivity
                     filesFragment.browseTo(((BoxFolder) boxObject));
                 } else if (boxObject instanceof BoxFile) {
                     // Open
-                    String path = filesFragment.getBoxNavigation().getPath(boxObject);
-                    String documentId = boxVolume.getDocumentId(path);
-                    Uri uri = DocumentsContract.buildDocumentUri(
-                            BoxProvider.AUTHORITY, documentId);
-                    Intent viewIntent = new Intent();
-                    String type = URLConnection.guessContentTypeFromName(uri.toString());
-                    Log.i(TAG, "Mime type: " + type);
-                    viewIntent.setDataAndType(uri, type);
-                    viewIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                    startActivity(Intent.createChooser(viewIntent, "Open with"));
+                    showFile(boxObject);
                 }
             }
             @Override
@@ -458,6 +459,24 @@ public class MainActivity extends AppCompatActivity
 
             }
         });
+    }
+
+    /**
+     * open system show file dialog
+     *
+     * @param boxObject
+     */
+    public void showFile(BoxObject boxObject) {
+        String path = filesFragment.getBoxNavigation().getPath(boxObject);
+        String documentId = boxVolume.getDocumentId(path);
+        Uri uri = DocumentsContract.buildDocumentUri(
+                BoxProvider.AUTHORITY, documentId);
+        Intent viewIntent = new Intent();
+        String type = URLConnection.guessContentTypeFromName(uri.toString());
+        Log.i(TAG, "Mime type: " + type);
+        viewIntent.setDataAndType(uri, type);
+        viewIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        startActivity(Intent.createChooser(viewIntent, "Open with"));
     }
 
     @Override
@@ -517,15 +536,20 @@ public class MainActivity extends AppCompatActivity
             drawer.closeDrawer(GravityCompat.START);
         } else {
             Fragment activeFragment = getFragmentManager().findFragmentById(R.id.fragment_container);
+            if (activeFragment.getTag() == null) {
+                getFragmentManager().popBackStack();
 
-            switch (activeFragment.getTag()) {
-                case TAG_FILES_FRAGMENT:
-                    if (!filesFragment.browseToParent()) {
-                        finishAffinity();
-                    }
-                    break;
-                default:
-                    getFragmentManager().popBackStack();
+            } else {
+                switch (activeFragment.getTag()) {
+                    case TAG_FILES_FRAGMENT:
+                        toggle.setDrawerIndicatorEnabled(true);
+                        if (!filesFragment.handleBackPressed()&&!filesFragment.browseToParent()) {
+                            finishAffinity();
+                        }
+                        break;
+                    default:
+                        getFragmentManager().popBackStack();
+                }
             }
         }
     }
@@ -533,7 +557,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.main, menu);
+        getMenuInflater().inflate(R.menu.ab_main, menu);
         return true;
     }
 
@@ -692,7 +716,7 @@ public class MainActivity extends AppCompatActivity
         mService.setActiveIdentity(identity);
         textViewSelectedIdentity.setText(identity.getAlias());
         getFragmentManager().beginTransaction().remove(filesFragment).commit();
-        initBoxVolume();
+        initBoxVolume(identity);
         initFilesFragment();
     }
 

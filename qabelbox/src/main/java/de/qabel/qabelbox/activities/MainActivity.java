@@ -701,21 +701,15 @@ public class MainActivity extends AppCompatActivity
 
         Snackbar.make(appBarMain, "Added identity: " + identity.getAlias(), Snackbar.LENGTH_LONG)
                 .show();
-
-        textViewSelectedIdentity.setText(identity.getAlias());
-        if (filesFragment != null) {
-            getFragmentManager().beginTransaction().remove(filesFragment).commit();
-        }
-        initBoxVolume(identity);
-        initFilesFragment();
-
         selectFilesFragment();
     }
 
     private void changeActiveIdentity(Identity identity) {
         mService.setActiveIdentity(identity);
         textViewSelectedIdentity.setText(identity.getAlias());
-        getFragmentManager().beginTransaction().remove(filesFragment).commit();
+        if (filesFragment != null) {
+            getFragmentManager().beginTransaction().remove(filesFragment).commit();
+        }
         initBoxVolume(identity);
         initFilesFragment();
     }

@@ -108,6 +108,7 @@ public class FilesAdapter extends RecyclerView.Adapter<FilesAdapter.FilesViewHol
             holder.mTextViewFolderDetailsRight.setText(FileUtils.byteCountToDisplaySize(boxFile.size));
             holder.mImageView.setImageResource(R.drawable.ic_insert_drive_file_black);
         }
+        holder.mImageView.setAlpha(0.8f);
     }
 
     private String formatModificationTime(BoxFile boxFile) {

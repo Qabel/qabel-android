@@ -4,21 +4,21 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Fragment;
 import android.app.FragmentManager;
-import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.IntentFilter;
+import android.content.ServiceConnection;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.provider.DocumentsContract;
 import android.provider.OpenableColumns;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
-import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -41,61 +41,43 @@ import org.apache.commons.io.IOUtils;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.Serializable;
 import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
 
-import de.qabel.ackack.MessageInfo;
-import de.qabel.ackack.Responsible;
-import de.qabel.ackack.event.EventActor;
-import de.qabel.ackack.event.EventListener;
-import de.qabel.core.EventNameConstants;
 import de.qabel.core.config.Contact;
-import de.qabel.core.config.Contacts;
-import de.qabel.core.config.Identities;
 import de.qabel.core.config.Identity;
-import de.qabel.core.config.ResourceActor;
+import de.qabel.qabelbox.QabelBoxApplication;
+import de.qabel.qabelbox.R;
+import de.qabel.qabelbox.adapter.FilesAdapter;
 import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.fragments.AddContactFragment;
 import de.qabel.qabelbox.fragments.AddIdentityFragment;
 import de.qabel.qabelbox.fragments.BaseFragment;
 import de.qabel.qabelbox.fragments.ContactFragment;
+import de.qabel.qabelbox.fragments.FilesFragment;
 import de.qabel.qabelbox.fragments.IdentitiesFragment;
-import de.qabel.qabelbox.fragments.NewDatabasePasswordFragment;
-import de.qabel.qabelbox.fragments.OpenDatabaseFragment;
+import de.qabel.qabelbox.fragments.SelectUploadFolderFragment;
+import de.qabel.qabelbox.providers.BoxProvider;
+import de.qabel.qabelbox.services.LocalQabelService;
 import de.qabel.qabelbox.storage.BoxExternal;
 import de.qabel.qabelbox.storage.BoxFile;
 import de.qabel.qabelbox.storage.BoxFolder;
 import de.qabel.qabelbox.storage.BoxNavigation;
 import de.qabel.qabelbox.storage.BoxObject;
 import de.qabel.qabelbox.storage.BoxVolume;
-import de.qabel.qabelbox.QabelBoxApplication;
-import de.qabel.qabelbox.R;
-import de.qabel.qabelbox.adapter.FilesAdapter;
-import de.qabel.qabelbox.fragments.FilesFragment;
-import de.qabel.qabelbox.fragments.SelectUploadFolderFragment;
-import de.qabel.qabelbox.providers.BoxProvider;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,
-        SelectUploadFolderFragment.OnSelectedUploadFolderListener,
-        ContactFragment.ContactListListener,
-        AddIdentityFragment.AddIdentityListener,
-        NewDatabasePasswordFragment.NewDatabasePasswordListener,
-        OpenDatabaseFragment.OpenDatabaseFragmentListener,
-        AddContactFragment.AddContactListener,
-        FilesFragment.FilesListListener,
-        IdentitiesFragment.IdentityListListener {
+                    SelectUploadFolderFragment.OnSelectedUploadFolderListener,
+                            ContactFragment.ContactListListener,
+                                    AddIdentityFragment.AddIdentityListener,
+                                                AddContactFragment.AddContactListener,
+                                                    FilesFragment.FilesListListener,
+                                                        IdentitiesFragment.IdentityListListener {
 
-    public static final String ACTION_ENTER_DB_PASSWORD = "EnterDatabasePassword";
-    public static final String ACTION_ENTER_NEW_DB_PASSWORD = "EnterNewDatabasePassword";
-
-    private static final String TAG_OPEN_DATABASE_FRAGMENT = "OPEN_DATABASE_FRAGMENT";
-    private static final String TAG_NEW_DATABASE_PASSWORD_FRAGMENT = "NEW_DATABASE_PASSWORD_FRAGMENT";
     private static final String TAG_FILES_FRAGMENT = "TAG_FILES_FRAGMENT";
     private static final String TAG_CONTACT_LIST_FRAGMENT = "TAG_CONTACT_LIST_FRAGMENT";
     private static final String TAG_MANAGE_IDENTITIES_FRAGMENT = "TAG_MANAGE_IDENTITIES_FRAGMENT";
@@ -105,8 +87,8 @@ public class MainActivity extends AppCompatActivity
     private static final String TAG = "BoxMainActivity";
     private static final int REQUEST_CODE_OPEN = 11;
     private static final int REQUEST_CODE_UPLOAD_FILE = 12;
-    public static final String HARDCODED_ROOT = BoxProvider.PUB_KEY
-            + BoxProvider.DOCID_SEPARATOR + BoxProvider.BUCKET + BoxProvider.DOCID_SEPARATOR
+    public static final String HARDCODED_ROOT = BoxProvider.DOCID_SEPARATOR
+            + BoxProvider.BUCKET + BoxProvider.DOCID_SEPARATOR
             + BoxProvider.PREFIX + BoxProvider.DOCID_SEPARATOR + BoxProvider.PATH_SEP;
     private static final int REQUEST_CODE_DELETE_FILE = 13;
     private static final int REQUEST_CODE_CHOOSE_EXPORT = 14;
@@ -114,14 +96,8 @@ public class MainActivity extends AppCompatActivity
     private static final int NAV_GROUP_IDENTITIES = 1;
     private static final int NAV_GROUP_IDENTITY_ACTIONS = 2;
     private DrawerLayout drawer;
-    public ActionBarDrawerToggle toggle;
-    private Identity activeIdentity;
-    private ResourceActor resourceActor;
-    private ProviderActor providerActor;
-    private Thread providerActorThread;
-    private HashMap<Identity, Contacts> contacts;
-    private Identities identities;
     private BoxVolume boxVolume;
+    private ActionBarDrawerToggle toggle;
     private BoxProvider provider;
     public FloatingActionButton fab;
     private TextView textViewSelectedIdentity;
@@ -135,111 +111,7 @@ public class MainActivity extends AppCompatActivity
     // Used to save the document uri that should exported while waiting for the result
     // of the create document intent.
     private Uri exportUri;
-    //public View.OnClickListener mOriginalToggleListener;
-
-    class ProviderActor extends EventActor implements EventListener {
-        public ProviderActor() {
-            on(EventNameConstants.EVENT_CONTACT_ADDED, this);
-            on(EventNameConstants.EVENT_IDENTITY_ADDED, this);
-            on(EventNameConstants.EVENT_IDENTITY_REMOVED, this);
-
-            resourceActor.retrieveIdentities(this, new Responsible() {
-                @Override
-                public void onResponse(Serializable... data) {
-                    final Identity[] identitiesArray = (Identity[]) data;
-                    for (Identity identity : identitiesArray) {
-                        if (contacts.get(identity) == null) {
-                            contacts.put(identity, new Contacts());
-                        }
-                        identities.put(identity);
-                    }
-
-                    String lastID = QabelBoxApplication.getLastActiveIdentityID();
-                    if (!lastID.equals("")) {
-                        for (Identity identity : identities.getIdentities()) {
-                            if (identity.getPersistenceID().equals(lastID)) {
-                                activeIdentity = identity;
-                                runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        textViewSelectedIdentity.setText(activeIdentity.getAlias());
-                                    }
-                                });
-                                break;
-                            }
-                        }
-                    }
-                }
-            });
-
-            resourceActor.retrieveContacts(this, new Responsible() {
-                @Override
-                public void onResponse(Serializable... data) {
-                    for (Contact contact : (Contact[]) data) {
-                        Contacts identityContacts = contacts.get(contact.getContactOwner());
-                        if (identityContacts == null) {
-                            identityContacts = new Contacts();
-                        }
-                        identityContacts.put(contact);
-                        contacts.put(contact.getContactOwner(), identityContacts);
-                    }
-                }
-            });
-        }
-
-        @Override
-        public void onEvent(String event, MessageInfo info, Object... data) {
-            switch (event) {
-                case EventNameConstants.EVENT_CONTACT_ADDED:
-                    if (data[0] instanceof Contact) {
-                        Contact c = (Contact) data[0];
-                        Contacts identityContacts = contacts.get(c.getContactOwner());
-                        if (identityContacts == null) {
-                            identityContacts = new Contacts();
-                        }
-                        identityContacts.put(c);
-                        contacts.put(c.getContactOwner(), identityContacts);
-                    }
-                    break;
-                case EventNameConstants.EVENT_IDENTITY_ADDED:
-                    if (data[0] instanceof Identity) {
-                        Identity i = (Identity) data[0];
-                        if (contacts.get(i) == null) {
-                            contacts.put(i, new Contacts());
-                        }
-                        identities.put(i);
-                    }
-                    break;
-                case EventNameConstants.EVENT_IDENTITY_REMOVED:
-                    if (data[0] instanceof String) {
-                        String keyIdentifier = (String) data[0];
-                        Identity identityToRemove = identities.getByKeyIdentifier(keyIdentifier);
-                        if (identityToRemove == activeIdentity) {
-                            // TODO: Select new active Identity
-                        }
-                        Log.d(TAG, "Removing identity: " + identityToRemove.getAlias());
-                        identities.remove(identityToRemove);
-                    }
-                    break;
-                default:
-                    break;
-            }
-        }
-    }
-
-    /**
-     * Starts initialization when global resources are ready
-     */
-    class ResourceReadyReceiver extends BroadcastReceiver {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            resourceActor = QabelBoxApplication.getResourceActor();
-
-            providerActor = new ProviderActor();
-            providerActorThread = new Thread(providerActor, "ProviderActorThread");
-            providerActorThread.start();
-        }
-    }
+    private LocalQabelService mService;
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -281,7 +153,7 @@ public class MainActivity extends AppCompatActivity
         }
         if (requestCode == REQUEST_CODE_CHOOSE_EXPORT && resultCode == Activity.RESULT_OK && data != null) {
             uri = data.getData();
-            Log.i(TAG, "Export uri chosen: " + uri.toString());
+            Log.i(TAG, "Export uri chosen: "+ uri.toString());
             new AsyncTask<Void, Void, Void>() {
 
                 @Override
@@ -302,6 +174,7 @@ public class MainActivity extends AppCompatActivity
                     return null;
                 }
             }.execute();
+            return;
         }
 
     }
@@ -318,8 +191,10 @@ public class MainActivity extends AppCompatActivity
         String displayName = cursor.getString(
                 cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
         Log.i(TAG, "Displayname: " + displayName);
+        String keyIdentifier = mService.getActiveIdentity().getEcPublicKey()
+                .getReadableKeyIdentifier();
         Uri uploadUri = DocumentsContract.buildDocumentUri(
-                BoxProvider.AUTHORITY, HARDCODED_ROOT + targetFolder + displayName);
+                BoxProvider.AUTHORITY, keyIdentifier + HARDCODED_ROOT + targetFolder + displayName);
         try {
             OutputStream outputStream = getContentResolver().openOutputStream(uploadUri, "w");
             if (outputStream == null) {
@@ -344,62 +219,31 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
         appBarMain = findViewById(R.id.app_bap_main);
         fab = (FloatingActionButton) findViewById(R.id.fab);
-
         self = this;
-        contacts = new HashMap<>();
-        identities = new Identities();
-
-        provider = ((QabelBoxApplication) getApplication()).getProvider();
-        Log.i(TAG, "Provider: " + provider);
-        boxVolume = provider.getVolumeForRoot(null, null, null);
-
-        initFilesFragment();
-
         initFloatingActionButton();
 
-        initDrawer();
-        // Check if activity is started with ACTION_SEND or ACTION_SEND_MULTIPLE
-        Intent intent = getIntent();
-        String action = intent.getAction();
-        String type = intent.getType();
+        Intent serviceIntent = new Intent(this, LocalQabelService.class);
+        bindService(serviceIntent, new ServiceConnection() {
 
-        Log.i(TAG, "Intent action: " + action);
+            @Override
+            public void onServiceConnected(ComponentName name, IBinder service) {
+                LocalQabelService.LocalBinder binder = (LocalQabelService.LocalBinder) service;
+                mService = binder.getService();
+                onLocalServiceConnected();
+            }
 
-        // Checks if a fragment should be launched
-        switch (intent.getAction()) {
-            case ACTION_ENTER_DB_PASSWORD:
-                selectOpenDatabaseFragment();
-                break;
-            case ACTION_ENTER_NEW_DB_PASSWORD:
-                selectNewDatabasePasswordFragment();
-                break;
-            case Intent.ACTION_SEND:
-                if (type != null) {
-                    Log.i(TAG, "Action send in main activity");
-                    Uri imageUri = intent.getParcelableExtra(Intent.EXTRA_STREAM);
-                    if (imageUri != null) {
-                        //TODO: UPLOAD
-                    }
-                }
-                break;
-            case Intent.ACTION_SEND_MULTIPLE:
-                if (type != null) {
-                    ArrayList<Uri> imageUris = intent.getParcelableArrayListExtra(Intent.EXTRA_STREAM);
-                    //TODO: Implement
-                }
-                break;
-            default:
-                selectOpenDatabaseFragment();
-                break;
-        }
+            @Override
+            public void onServiceDisconnected(ComponentName name) {
+                mService = null;
+            }
+
+        }, Context.BIND_AUTO_CREATE);
 
         getFragmentManager().addOnBackStackChangedListener(new FragmentManager.OnBackStackChangedListener() {
             @Override
             public void onBackStackChanged() {
-
                 // Set FAB visibility according to currently visible fragment
                 Fragment activeFragment = getFragmentManager().findFragmentById(R.id.fragment_container);
 
@@ -428,8 +272,6 @@ public class MainActivity extends AppCompatActivity
                             fab.hide();
                             break;
                         case TAG_FILES_FRAGMENT:
-                        case TAG_OPEN_DATABASE_FRAGMENT:
-                        case TAG_NEW_DATABASE_PASSWORD_FRAGMENT:
                         default:
                             Log.d(TAG, "No FAB action required");
                     }
@@ -443,10 +285,64 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
-        LocalBroadcastManager.getInstance(this).registerReceiver(new ResourceReadyReceiver(),
-                new IntentFilter(QabelBoxApplication.RESOURCES_INITIALIZED));
     }
 
+    private void onLocalServiceConnected() {
+        Log.d(TAG, "LocalQabelService connected");
+
+        provider = ((QabelBoxApplication) getApplication()).getProvider();
+        Log.i(TAG, "Provider: " + provider);
+
+        provider.setLocalService(mService);
+        initDrawer();
+
+        Identity activeIdentity = mService.getActiveIdentity();
+        if (activeIdentity != null) {
+            textViewSelectedIdentity.setText(activeIdentity.getAlias());
+            initFilesFragment();
+            initBoxVolume(activeIdentity);
+        }
+
+        // Check if activity is started with ACTION_SEND or ACTION_SEND_MULTIPLE
+        Intent intent = getIntent();
+        String action = intent.getAction();
+        String type = intent.getType();
+
+        Log.i(TAG, "Intent action: " + action);
+
+        // Checks if a fragment should be launched
+        switch (intent.getAction()) {
+            case Intent.ACTION_SEND:
+                if (type != null) {
+                    Log.i(TAG, "Action send in main activity");
+                    Uri imageUri = intent.getParcelableExtra(Intent.EXTRA_STREAM);
+                    if (imageUri != null) {
+                        //TODO: UPLOAD
+                    }
+                }
+                break;
+            case Intent.ACTION_SEND_MULTIPLE:
+                if (type != null) {
+                    ArrayList<Uri> imageUris = intent.getParcelableArrayListExtra(Intent.EXTRA_STREAM);
+                    //TODO: Implement
+                }
+                break;
+            default:
+                if (activeIdentity != null) {
+                    selectFilesFragment();
+                } else {
+                    selectAddIdentityFragment();
+                }
+                break;
+        }
+
+    }
+
+    private void initBoxVolume(Identity activeIdentity) {
+        boxVolume = provider.getVolumeForRoot(
+                activeIdentity.getEcPublicKey().getReadableKeyIdentifier(),
+                null, null);
+    }
 
     private void initFloatingActionButton() {
         fab.setOnClickListener(new View.OnClickListener() {
@@ -461,7 +357,7 @@ public class MainActivity extends AppCompatActivity
                         break;
 
                     case TAG_CONTACT_LIST_FRAGMENT:
-                        startAddContact(activeIdentity);
+                        startAddContact(mService.getActiveIdentity());
                         break;
 
                     case TAG_MANAGE_IDENTITIES_FRAGMENT:
@@ -533,34 +429,33 @@ public class MainActivity extends AppCompatActivity
                     showFile(boxObject);
                 }
             }
-
             @Override
             public void onItemLockClick(View view, final int position) {
                 final BoxObject boxObject = filesFragment.getFilesAdapter().get(position);
                 new BottomSheet.Builder(self).title(boxObject.name).sheet(R.menu.files_bottom_sheet)
-                        .listener(new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                switch (which) {
-                                    case R.id.share:
-                                        Toast.makeText(self, R.string.not_implemented,
+                    .listener(new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            switch (which) {
+                                case R.id.share:
+                                    Toast.makeText(self, R.string.not_implemented,
+                                            Toast.LENGTH_SHORT).show();
+                                    break;
+                                case R.id.delete:
+                                    delete(boxObject);
+                                    break;
+                                case R.id.export:
+                                    // Export handled in the MainActivity
+                                    if (boxObject instanceof BoxFolder) {
+                                        Toast.makeText(self, R.string.folder_export_not_implemented,
                                                 Toast.LENGTH_SHORT).show();
-                                        break;
-                                    case R.id.delete:
-                                        delete(boxObject);
-                                        break;
-                                    case R.id.export:
-                                        // Export handled in the MainActivity
-                                        if (boxObject instanceof BoxFolder) {
-                                            Toast.makeText(self, R.string.folder_export_not_implemented,
-                                                    Toast.LENGTH_SHORT).show();
-                                        } else {
-                                            onExport(filesFragment.getBoxNavigation(), boxObject);
-                                        }
-                                        break;
-                                }
+                                    } else {
+                                        onExport(filesFragment.getBoxNavigation(), boxObject);
+                                    }
+                                    break;
                             }
-                        }).show();
+                        }
+                    }).show();
 
             }
         });
@@ -587,9 +482,6 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onPause() {
         super.onPause();
-        if (activeIdentity != null) {
-            QabelBoxApplication.setLastActiveIdentityID(activeIdentity.getPersistenceID());
-        }
     }
 
     private void delete(final BoxObject boxObject) {
@@ -649,10 +541,6 @@ public class MainActivity extends AppCompatActivity
 
             } else {
                 switch (activeFragment.getTag()) {
-                    case TAG_OPEN_DATABASE_FRAGMENT:
-                    case TAG_NEW_DATABASE_PASSWORD_FRAGMENT:
-                        finishAffinity();
-                        break;
                     case TAG_FILES_FRAGMENT:
                         toggle.setDrawerIndicatorEnabled(true);
                         if (!filesFragment.handleBackPressed()&&!filesFragment.browseToParent()) {
@@ -679,6 +567,7 @@ public class MainActivity extends AppCompatActivity
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
+
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             return true;
@@ -690,7 +579,6 @@ public class MainActivity extends AppCompatActivity
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
-
         int id = item.getItemId();
 
         if (id == R.id.nav_contacts) {
@@ -725,12 +613,12 @@ public class MainActivity extends AppCompatActivity
         new AsyncTask<Void, Void, Void>() {
             @Override
             protected Void doInBackground(Void... params) {
-                Cursor returnCursor =
-                        getContentResolver().query(uri, null, null, null, null);
-                int nameIndex = returnCursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
-                returnCursor.moveToFirst();
-                String name = returnCursor.getString(nameIndex);
-                returnCursor.close();
+				Cursor returnCursor =
+						getContentResolver().query(uri, null, null, null, null);
+				int nameIndex = returnCursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
+				returnCursor.moveToFirst();
+				String name = returnCursor.getString(nameIndex);
+				returnCursor.close();
 
                 try {
                     String path = boxNavigation.getPath();
@@ -761,7 +649,7 @@ public class MainActivity extends AppCompatActivity
 
     }
 
-    private void createFolder(final String name, final BoxNavigation boxNavigation) {
+    public void createFolder(final String name, final BoxNavigation boxNavigation) {
         new AsyncTask<Void, Void, Void>() {
             @Override
             protected Void doInBackground(Void... params) {
@@ -769,7 +657,7 @@ public class MainActivity extends AppCompatActivity
                     boxNavigation.createFolder(name);
                     boxNavigation.commit();
                 } catch (QblStorageException e) {
-                    Log.e(TAG, "Failed creating folder " + name, e);
+                    Log.e(TAG, "Failed creating folder "+ name, e);
                 }
                 return null;
             }
@@ -799,26 +687,37 @@ public class MainActivity extends AppCompatActivity
         selectAddContactFragment(identity);
     }
 
-    private void selectIdentity(Identity identity) {
-        activeIdentity = identity;
-        selectContactsFragment();
+    public void selectIdentity(Identity identity) {
+        changeActiveIdentity(identity);
 
-        textViewSelectedIdentity.setText(identity.getAlias());
+        selectContactsFragment();
     }
 
     @Override
     public void addIdentity(Identity identity) {
-        resourceActor.writeIdentities(identity);
-        activeIdentity = identity;
-
-        contacts.put(identity, new Contacts());
+        mService.addIdentity(identity);
+        changeActiveIdentity(identity);
+        provider.notifyRootsUpdated();
 
         Snackbar.make(appBarMain, "Added identity: " + identity.getAlias(), Snackbar.LENGTH_LONG)
                 .show();
 
-        textViewSelectedIdentity.setText(activeIdentity.getAlias());
+        textViewSelectedIdentity.setText(identity.getAlias());
+        if (filesFragment != null) {
+            getFragmentManager().beginTransaction().remove(filesFragment).commit();
+        }
+        initBoxVolume(identity);
+        initFilesFragment();
 
         selectFilesFragment();
+    }
+
+    private void changeActiveIdentity(Identity identity) {
+        mService.setActiveIdentity(identity);
+        textViewSelectedIdentity.setText(identity.getAlias());
+        getFragmentManager().beginTransaction().remove(filesFragment).commit();
+        initBoxVolume(identity);
+        initFilesFragment();
     }
 
     @Override
@@ -827,30 +726,8 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void onNewPasswordEntered(char[] newPassword) {
-        ((QabelBoxApplication) getApplication()).init(newPassword);
-        setDrawerLocked(false);
-        selectAddIdentityFragment();
-    }
-
-    @Override
-    public void onPasswordEntered(char[] password) {
-        if (((QabelBoxApplication) getApplication()).init(password)) {
-            setDrawerLocked(false);
-            if (QabelBoxApplication.getLastActiveIdentityID().equals("")) {
-                selectAddIdentityFragment();
-            } else {
-                selectFilesFragment();
-            }
-        } else {
-            selectOpenDatabaseFragment();
-        }
-    }
-
-    @Override
     public void addContact(Contact contact) {
-        resourceActor.writeContacts(contact);
-
+        mService.addContact(contact);
         Snackbar.make(appBarMain, "Added contact: " + contact.getAlias(), Snackbar.LENGTH_LONG)
                 .show();
     }
@@ -866,12 +743,14 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void deleteIdentity(Identity identity) {
-        resourceActor.removeIdentities(identity);
+        provider.notifyRootsUpdated();
+        mService.deleteIdentity(identity);
     }
 
     @Override
     public void modifyIdentity(Identity identity) {
-        resourceActor.writeIdentities(identity);
+        provider.notifyRootsUpdated();
+        mService.modifyIdentity(identity);
     }
 
     @Override
@@ -912,7 +791,7 @@ public class MainActivity extends AppCompatActivity
                 //TODO: Duplication with browseTo
                 filesAdapter.clear();
                 try {
-                    boxNavigation.reload();
+					boxNavigation.reload();
                     for (BoxFolder boxFolder : boxNavigation.listFolders()) {
                         Log.d(TAG, "Adding folder: " + boxFolder.name);
                         filesAdapter.add(boxFolder);
@@ -933,7 +812,7 @@ public class MainActivity extends AppCompatActivity
 
             @Override
             protected void onCancelled() {
-                filesFragment.setIsLoading(true);
+				filesFragment.setIsLoading(true);
                 showAbortMessage();
             }
 
@@ -973,8 +852,7 @@ public class MainActivity extends AppCompatActivity
         drawer.setDrawerListener(toggle);
         toggle.syncState();
 
-        setDrawerLocked(true);
-//        saveToggleClickListener();
+        setDrawerLocked(false);
 
         final NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
@@ -984,6 +862,7 @@ public class MainActivity extends AppCompatActivity
         textViewSelectedIdentity.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Identity activeIdentity = mService.getActiveIdentity();
                 if (activeIdentity != null) {
                     IntentIntegrator intentIntegrator = new IntentIntegrator(self);
                     intentIntegrator.shareText("QABELCONTACT\n"
@@ -1006,7 +885,8 @@ public class MainActivity extends AppCompatActivity
                 } else {
                     imageViewExpandIdentity.setImageResource(R.drawable.ic_arrow_drop_up_black_24dp);
                     navigationView.getMenu().clear();
-                    List<Identity> identityList = new ArrayList<>(identities.getIdentities());
+                    List<Identity> identityList = new ArrayList<>(
+                            mService.getIdentities().getIdentities());
                     Collections.sort(identityList, new Comparator<Identity>() {
                         @Override
                         public int compare(Identity lhs, Identity rhs) {
@@ -1015,39 +895,39 @@ public class MainActivity extends AppCompatActivity
                     });
                     for (final Identity identity : identityList) {
                         navigationView.getMenu()
-                                .add(NAV_GROUP_IDENTITIES, Menu.NONE, Menu.NONE, identity.getAlias())
-                                .setIcon(R.drawable.ic_perm_identity_black_24dp)
-                                .setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
-                                    @Override
-                                    public boolean onMenuItemClick(MenuItem item) {
-                                        drawer.closeDrawer(GravityCompat.START);
-                                        selectIdentity(identity);
-                                        return true;
-                                    }
-                                });
+                            .add(NAV_GROUP_IDENTITIES, Menu.NONE, Menu.NONE, identity.getAlias())
+                            .setIcon(R.drawable.ic_perm_identity_black_24dp)
+                            .setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+                                @Override
+                                public boolean onMenuItemClick(MenuItem item) {
+                                    drawer.closeDrawer(GravityCompat.START);
+                                    selectIdentity(identity);
+                                    return true;
+                                }
+                            });
                     }
                     navigationView.getMenu()
-                            .add(NAV_GROUP_IDENTITY_ACTIONS, Menu.NONE, Menu.NONE, R.string.add_identity)
-                            .setIcon(R.drawable.ic_add_circle_black_24dp)
-                            .setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
-                                @Override
-                                public boolean onMenuItemClick(MenuItem item) {
-                                    drawer.closeDrawer(GravityCompat.START);
-                                    selectAddIdentityFragment();
-                                    return true;
-                                }
-                            });
+                        .add(NAV_GROUP_IDENTITY_ACTIONS, Menu.NONE, Menu.NONE, R.string.add_identity)
+                        .setIcon(R.drawable.ic_add_circle_black_24dp)
+                        .setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+                            @Override
+                            public boolean onMenuItemClick(MenuItem item) {
+                                drawer.closeDrawer(GravityCompat.START);
+                                selectAddIdentityFragment();
+                                return true;
+                            }
+                        });
                     navigationView.getMenu()
-                            .add(NAV_GROUP_IDENTITY_ACTIONS, Menu.NONE, Menu.NONE, R.string.manage_identities)
-                            .setIcon(R.drawable.ic_settings_black_24dp)
-                            .setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
-                                @Override
-                                public boolean onMenuItemClick(MenuItem item) {
-                                    drawer.closeDrawer(GravityCompat.START);
-                                    selectManageIdentitiesFragment();
-                                    return true;
-                                }
-                            });
+                        .add(NAV_GROUP_IDENTITY_ACTIONS, Menu.NONE, Menu.NONE, R.string.manage_identities)
+                        .setIcon(R.drawable.ic_settings_black_24dp)
+                        .setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+                            @Override
+                            public boolean onMenuItemClick(MenuItem item) {
+                                drawer.closeDrawer(GravityCompat.START);
+                                selectManageIdentitiesFragment();
+                                return true;
+                            }
+                        });
                     identityMenuExpanded = true;
                 }
             }
@@ -1076,8 +956,6 @@ public class MainActivity extends AppCompatActivity
 
             }
         });
-
-
     }
 
     private void showAbortMessage() {
@@ -1093,20 +971,6 @@ public class MainActivity extends AppCompatActivity
         FRAGMENT SELECTION METHODS
     */
 
-    private void selectNewDatabasePasswordFragment() {
-        fab.hide();
-        getFragmentManager().beginTransaction()
-                .replace(R.id.fragment_container, new NewDatabasePasswordFragment(), TAG_NEW_DATABASE_PASSWORD_FRAGMENT)
-                .commit();
-    }
-
-    private void selectOpenDatabaseFragment() {
-        fab.hide();
-        getFragmentManager().beginTransaction()
-                .replace(R.id.fragment_container, new OpenDatabaseFragment(), TAG_OPEN_DATABASE_FRAGMENT)
-                .commit();
-    }
-
     private void selectAddContactFragment(Identity identity) {
         fab.hide();
         getFragmentManager().beginTransaction()
@@ -1118,7 +982,8 @@ public class MainActivity extends AppCompatActivity
     private void selectManageIdentitiesFragment() {
         fab.show();
         getFragmentManager().beginTransaction()
-                .replace(R.id.fragment_container, IdentitiesFragment.newInstance(identities),
+                .replace(R.id.fragment_container,
+                        IdentitiesFragment.newInstance(mService.getIdentities()),
                         TAG_MANAGE_IDENTITIES_FRAGMENT)
                 .addToBackStack(null)
                 .commit();
@@ -1126,9 +991,10 @@ public class MainActivity extends AppCompatActivity
 
     private void selectContactsFragment() {
         fab.show();
+        Identity activeIdentity = mService.getActiveIdentity();
         getFragmentManager().beginTransaction()
                 .replace(R.id.fragment_container,
-                        ContactFragment.newInstance(contacts.get(activeIdentity), activeIdentity),
+                        ContactFragment.newInstance(mService.getContacts(activeIdentity), activeIdentity),
                         TAG_CONTACT_LIST_FRAGMENT)
                 .addToBackStack(null)
                 .commit();

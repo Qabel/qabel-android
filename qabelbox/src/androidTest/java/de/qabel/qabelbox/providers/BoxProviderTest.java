@@ -1,13 +1,15 @@
 package de.qabel.qabelbox.providers;
 
 import android.annotation.TargetApi;
+import android.content.Context;
 import android.content.ContentResolver;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
 import android.os.ParcelFileDescriptor;
 import android.provider.DocumentsContract;
-import android.test.ProviderTestCase2;
+import android.test.InstrumentationTestCase;
+import android.test.mock.MockContentResolver;
 import android.util.Log;
 
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferUtility;
@@ -16,7 +18,6 @@ import com.amazonaws.services.s3.model.ObjectListing;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
 
 import org.apache.commons.io.IOUtils;
-import org.spongycastle.util.encoders.Hex;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -30,54 +31,48 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.UUID;
 
 import de.qabel.core.crypto.CryptoUtils;
 import de.qabel.core.crypto.QblECKeyPair;
+import de.qabel.qabelbox.activities.MainActivity;
 import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.storage.BoxFolder;
 import de.qabel.qabelbox.storage.BoxNavigation;
 import de.qabel.qabelbox.storage.BoxVolume;
-import de.qabel.qabelbox.activities.MainActivity;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-public class BoxProviderTest extends ProviderTestCase2<BoxProvider>{
+public class BoxProviderTest extends InstrumentationTestCase {
 
     private BoxVolume volume;
     final String bucket = BoxProvider.BUCKET;
-    final String prefix = UUID.randomUUID().toString();
-    public static String ROOT_DOC_ID;
     private String testFileName;
-    private ContentResolver mContentResolver;
+    private MockContentResolver mContentResolver;
+    public static String ROOT_DOC_ID;
 
     private static final String TAG = "BoxProviderTest";
-
-    public BoxProviderTest(Class<BoxProvider> providerClass, String providerAuthority) {
-        super(providerClass, providerAuthority);
-    }
-
-    public BoxProviderTest() {
-        this(BoxProvider.class, BoxProvider.AUTHORITY);
-    }
+    private BoxProviderTester mProvider;
+    private Context mContext;
 
     @Override
     protected void setUp() throws Exception {
         super.setUp();
         Log.d(TAG, "setUp");
-        CryptoUtils utils = new CryptoUtils();
-        byte[] deviceID = utils.getRandomBytes(16);
-        QblECKeyPair keyPair = new QblECKeyPair(Hex.decode(BoxProvider.PRIVATE_KEY));
-        ROOT_DOC_ID = BoxProvider.PUB_KEY + BoxProvider.DOCID_SEPARATOR + BoxProvider.BUCKET
-                + BoxProvider.DOCID_SEPARATOR + prefix + BoxProvider.DOCID_SEPARATOR
-                + BoxProvider.PATH_SEP;
-        BoxProvider provider = getProvider();
-        provider.transferUtility = new TransferUtility(provider.amazonS3Client, getContext());
+
+        mContext = getInstrumentation().getTargetContext();
+        mProvider = new BoxProviderTester();
+        mProvider.bindToService(mContext);
+        mContentResolver = new MockContentResolver();
+        mContentResolver.addProvider(BoxProvider.AUTHORITY, mProvider);
+        byte[] deviceID = getProvider().deviceID;
+        BoxProviderTester provider = getProvider();
+        ROOT_DOC_ID = provider.rootDocId;
+        provider.transferUtility = new TransferUtility(provider.amazonS3Client, mContext);
 
         volume = new BoxVolume(provider.transferUtility, provider.awsCredentials,
-                keyPair, bucket, prefix, deviceID, getContext());
-        volume.createIndex(bucket, prefix);
+                provider.keyPair, bucket, provider.prefix, deviceID, mContext);
+        volume.createIndex(bucket, provider.prefix);
 
         File tmpDir = new File(System.getProperty("java.io.tmpdir"));
         File file = File.createTempFile("testfile", "test", tmpDir);
@@ -89,16 +84,17 @@ public class BoxProviderTest extends ProviderTestCase2<BoxProvider>{
         }
         outputStream.close();
         testFileName = file.getAbsolutePath();
+    }
 
-        mContentResolver = getContext().getContentResolver();
-
+    BoxProviderTester getProvider() {
+        return mProvider;
     }
 
     @Override
     public void tearDown() throws Exception {
         super.tearDown();
         Log.d(TAG, "tearDown");
-        ObjectListing listing = getProvider().amazonS3Client.listObjects(bucket, prefix);
+        ObjectListing listing = getProvider().amazonS3Client.listObjects(bucket, getProvider().prefix);
         List<DeleteObjectsRequest.KeyVersion> keys = new ArrayList<>();
         for (S3ObjectSummary summary : listing.getObjectSummaries()) {
             keys.add(new DeleteObjectsRequest.KeyVersion(summary.getKey()));
@@ -138,7 +134,7 @@ public class BoxProviderTest extends ProviderTestCase2<BoxProvider>{
         assertThat(cursor.getCount(), is(1));
         cursor.moveToFirst();
         String documentId = cursor.getString(6);
-        assertThat(documentId, is(MainActivity.HARDCODED_ROOT));
+        assertThat(documentId, is(BoxProviderTester.PUB_KEY + MainActivity.HARDCODED_ROOT));
 
     }
 

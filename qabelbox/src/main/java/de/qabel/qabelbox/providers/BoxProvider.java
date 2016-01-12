@@ -1,7 +1,10 @@
 package de.qabel.qabelbox.providers;
 
 import android.app.NotificationManager;
+import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
+import android.content.ServiceConnection;
 import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.net.Uri;
@@ -9,6 +12,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.CancellationSignal;
 import android.os.Handler;
+import android.os.IBinder;
 import android.os.ParcelFileDescriptor;
 import android.provider.DocumentsContract;
 import android.provider.DocumentsContract.Document;
@@ -47,9 +51,12 @@ import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+import de.qabel.core.config.Identities;
+import de.qabel.core.config.Identity;
 import de.qabel.core.crypto.QblECKeyPair;
 import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.exceptions.QblStorageNotFound;
+import de.qabel.qabelbox.services.LocalQabelService;
 import de.qabel.qabelbox.storage.BoxFile;
 import de.qabel.qabelbox.storage.BoxFolder;
 import de.qabel.qabelbox.storage.BoxNavigation;
@@ -78,10 +85,8 @@ public class BoxProvider extends DocumentsProvider {
     public static final String PATH_SEP= "/";
     public static final String DOCID_SEPARATOR = "::::";
 
-    public static final String PUB_KEY = "8520f0098930a754748b7ddcb43ef75a0dbf3a0d26381af4eba4a98eaa9b4e6a";
     public static final String BUCKET = "qabel";
     public static final String PREFIX = "boxtest";
-    public static final String PRIVATE_KEY = "77076d0a7318a57d3c16c17251b26645df4c2f87ebc0992ab177fba51db92c2a";
 
     DocumentIdParser mDocumentIdParser;
     private ThreadPoolExecutor mThreadPoolExecutor;
@@ -94,9 +99,29 @@ public class BoxProvider extends DocumentsProvider {
 
     private Map<String, BoxCursor> folderContentCache;
     private String currentFolder;
+    private LocalQabelService mService;
 
     @Override
     public boolean onCreate() {
+        final Context context = getContext();
+        if (context == null) {
+            Log.e(TAG, "No context available in BoxProvider, exiting");
+            return false;
+        }
+        Intent intent = new Intent(context, LocalQabelService.class);
+        context.bindService(intent, new ServiceConnection() {
+            @Override
+            public void onServiceConnected(ComponentName name, IBinder service) {
+                LocalQabelService.LocalBinder binder = (LocalQabelService.LocalBinder) service;
+                mService = binder.getService();
+                notifyRootsUpdated();
+            }
+
+            @Override
+            public void onServiceDisconnected(ComponentName name) {
+                mService = null;
+            }
+        }, Context.BIND_AUTO_CREATE);
         mDocumentIdParser = new DocumentIdParser();
 
         mThreadPoolExecutor = new ThreadPoolExecutor(
@@ -109,12 +134,12 @@ public class BoxProvider extends DocumentsProvider {
         awsCredentials = new AWSCredentials() {
             @Override
             public String getAWSAccessKeyId() {
-                return getContext().getResources().getString(R.string.aws_user);
+                return context.getResources().getString(R.string.aws_user);
             }
 
             @Override
             public String getAWSSecretKey() {
-                return getContext().getResources().getString(R.string.aws_password);
+                return context.getResources().getString(R.string.aws_password);
             }
         };
         amazonS3Client = new AmazonS3Client(awsCredentials);
@@ -122,6 +147,15 @@ public class BoxProvider extends DocumentsProvider {
 
         folderContentCache = new HashMap<>();
         return true;
+    }
+
+	/**
+     * Notify the system that the roots have changed
+     * This happens if identities or prefixes changed.
+     */
+    public void notifyRootsUpdated() {
+        getContext().getContentResolver()
+                .notifyChange(DocumentsContract.buildRootsUri(AUTHORITY), null);
     }
 
     private void setUpTransferUtility() {
@@ -132,22 +166,40 @@ public class BoxProvider extends DocumentsProvider {
         }
     }
 
+	/**
+     * Used to temporary inject the service if it is not ready yet
+     * @param service
+     */
+    public void setLocalService(LocalQabelService service) {
+        if (mService == null) {
+            mService = service;
+        }
+    }
+
     @Override
     public Cursor queryRoots(String[] projection) throws FileNotFoundException {
         String[] netProjection = reduceProjection(projection, DEFAULT_ROOT_PROJECTION);
 
         MatrixCursor result = new MatrixCursor(netProjection);
-        final MatrixCursor.RowBuilder row = result.newRow();
-        row.add(Root.COLUMN_ROOT_ID,
-                mDocumentIdParser.buildId(PUB_KEY,
-                        BUCKET, PREFIX, null));
-        row.add(Root.COLUMN_DOCUMENT_ID,
-                mDocumentIdParser.buildId(PUB_KEY,
-                        BUCKET, PREFIX, "/"));
-        row.add(Root.COLUMN_ICON, R.drawable.qabel_logo);
-        row.add(Root.COLUMN_FLAGS, Root.FLAG_SUPPORTS_CREATE);
-        row.add(Root.COLUMN_TITLE, "Qabel Box Test2");
-        row.add(Root.COLUMN_SUMMARY, "Foobar");
+        if (mService == null) {
+            return result;
+        }
+        Identities identities = mService.getIdentities();
+        for (Identity identity: identities.getIdentities()) {
+            final MatrixCursor.RowBuilder row = result.newRow();
+            String pub_key = identity.getEcPublicKey().getReadableKeyIdentifier();
+            row.add(Root.COLUMN_ROOT_ID,
+                    mDocumentIdParser.buildId(pub_key,
+                            BUCKET, PREFIX, null));
+            row.add(Root.COLUMN_DOCUMENT_ID,
+                    mDocumentIdParser.buildId(pub_key,
+                            BUCKET, PREFIX, "/"));
+            row.add(Root.COLUMN_ICON, R.drawable.qabel_logo);
+            row.add(Root.COLUMN_FLAGS, Root.FLAG_SUPPORTS_CREATE);
+            row.add(Root.COLUMN_TITLE, "Qabel Box " + PREFIX.substring(0, 7));
+            row.add(Root.COLUMN_SUMMARY, identity.getAlias());
+        }
+
         return result;
     }
 
@@ -172,12 +224,13 @@ public class BoxProvider extends DocumentsProvider {
         if (prefix == null) {
             prefix = PREFIX;
         }
-        QblECKeyPair testKey = new QblECKeyPair(Hex.decode(PRIVATE_KEY));
+        QblECKeyPair key = mService.getIdentities()
+                .getByKeyIdentifier(identity).getPrimaryKeyPair();
 
         setUpTransferUtility();
 
-        return new BoxVolume(transferUtility, awsCredentials, testKey, bucket, prefix,
-                    QabelBoxApplication.getDeviceID(), getContext());
+        return new BoxVolume(transferUtility, awsCredentials, key, bucket, prefix,
+                    mService.getDeviceID(), getContext());
     }
 
     @Override

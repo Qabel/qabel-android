@@ -45,26 +45,6 @@ public class MainActivityTest {
         mActivity = mActivityTestRule.getActivity();
     }
 
-
-    @Test
-    public void testCheckEmptyPassword() {
-        Spoon.screenshot(mActivity, "initial_state");
-        onView(withId(R.id.buttonOpen)).perform(click());
-        isToastMessageDisplayed(R.string.enter_db_password);
-        Spoon.screenshot(mActivity, "enter_db_password_toast");
-    }
-
-
-    @Test
-    public void testCheckIncorrectPassword() {
-        onView(withId(R.id.editTextPassword))
-                .perform(typeText("HELLO1"), closeSoftKeyboard());
-        onView(withText("foobar")).check(doesNotExist());
-        Spoon.screenshot(mActivity, "after_enter_password");
-        onView(withId(R.id.buttonOpen)).perform(click());
-        onView(withId(R.id.buttonOpen)).check(matches(isDisplayed()));
-    }
-
     public void isToastMessageDisplayed(int textId) {
         onView(withText(textId)).inRoot(withDecorView(not(mActivity.getWindow().getDecorView()))).check(matches(isDisplayed()));
     }

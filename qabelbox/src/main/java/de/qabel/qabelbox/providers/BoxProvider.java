@@ -99,7 +99,7 @@ public class BoxProvider extends DocumentsProvider {
 
     private Map<String, BoxCursor> folderContentCache;
     private String currentFolder;
-    private LocalQabelService mService;
+    protected LocalQabelService mService;
 
     @Override
     public boolean onCreate() {

@@ -13,7 +13,7 @@
             android:layout_height="wrap_content"
             android:id="@+id/editTextContactName"
             android:hint="@string/contact_name"
-            android:drawableStart="@drawable/ic_perm_identity_black_24dp"
+            android:drawableStart="@drawable/ic_perm_identity_black"
             android:layout_below="@+id/textView"
             android:layout_alignParentStart="true"
             android:layout_alignParentEnd="true"/>
@@ -24,7 +24,7 @@
             android:id="@+id/editTextContactDropURL"
             android:layout_below="@+id/editTextContactName"
             android:inputType="textUri"
-            android:drawableStart="@drawable/ic_share_black_24dp"
+            android:drawableStart="@drawable/ic_share_black"
             android:hint="@string/contact_drop_url"
             android:layout_alignParentStart="true"
             android:layout_alignParentEnd="true"/>
@@ -34,7 +34,7 @@
             android:layout_height="wrap_content"
             android:id="@+id/editTextContactPublicKey"
             android:hint="@string/contact_public_key"
-            android:drawableStart="@drawable/ic_settings_black_24dp"
+            android:drawableStart="@drawable/ic_settings_black"
             android:layout_below="@+id/editTextContactDropURL"
             android:layout_alignEnd="@+id/editTextContactDropURL"
             android:layout_alignParentStart="true"/>

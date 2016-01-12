@@ -8,7 +8,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -64,7 +63,7 @@ public class IdentitiesAdapter extends RecyclerView.Adapter<IdentitiesAdapter.Id
     @Override
     public IdentityViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View v = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.contacts_item, parent, false);
+                .inflate(R.layout.item_contacts, parent, false);
         return new IdentityViewHolder(v);
     }
 

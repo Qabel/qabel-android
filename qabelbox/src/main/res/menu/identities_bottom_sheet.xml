@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:id="@+id/identities_rename" android:title="@string/Rename" android:icon="@drawable/ic_share_black_24dp"/>
-    <item android:id="@+id/identities_delete" android:title="@string/Delete" android:icon="@drawable/ic_delete_black_24dp"/>
-    <item android:id="@+id/identities_export" android:title="@string/Export" android:icon="@drawable/ic_attach_file_black_24dp"/>
+    <item android:id="@+id/identities_rename" android:title="@string/Rename" android:icon="@drawable/ic_share_black"/>
+    <item android:id="@+id/identities_delete" android:title="@string/Delete" android:icon="@drawable/ic_delete_black"/>
+    <item android:id="@+id/identities_export" android:title="@string/Export" android:icon="@drawable/ic_attach_file_black"/>
 </menu>

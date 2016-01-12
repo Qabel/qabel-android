@@ -78,7 +78,7 @@ public class FilesAdapter extends RecyclerView.Adapter<FilesAdapter.FilesViewHol
     @Override
     public FilesViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View v = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.files_item, parent, false);
+                .inflate(R.layout.item_files, parent, false);
         return new FilesViewHolder(v);
     }
 

@@ -25,7 +25,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
-import java.util.Hashtable;
 
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.adapter.FilesAdapter;
@@ -213,7 +212,7 @@ public class FilesFragment extends BaseFragment {
      */
     private void openSearchInActionBar(final ActionBar action) {
         action.setDisplayShowCustomEnabled(true);
-        action.setCustomView(R.layout.search_bar);
+        action.setCustomView(R.layout.ab_search_field);
         action.setDisplayShowTitleEnabled(false);
 
         edtSeach = (EditText) action.getCustomView().findViewById(R.id.edtSearch);

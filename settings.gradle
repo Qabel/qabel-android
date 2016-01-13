@@ -1,1 +1,1 @@
-include ':libqabel', ':qabeldropchatexample', ':qabelbox'
+include ':libqabel', ':qabelbox'

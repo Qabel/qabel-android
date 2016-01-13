@@ -12,6 +12,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
+import dalvik.annotation.TestTarget;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.activities.MainActivity;
 
@@ -22,9 +23,11 @@ import static android.support.test.espresso.action.ViewActions.typeText;
 import static android.support.test.espresso.assertion.ViewAssertions.doesNotExist;
 import static android.support.test.espresso.assertion.ViewAssertions.matches;
 import static android.support.test.espresso.matcher.RootMatchers.withDecorView;
+import static android.support.test.espresso.matcher.ViewMatchers.assertThat;
 import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 
@@ -43,6 +46,11 @@ public class MainActivityTest {
     @Before
     public void setUp() {
         mActivity = mActivityTestRule.getActivity();
+    }
+
+    @Test
+    public void dummyTest() {
+        Spoon.screenshot(mActivity, "startup");
     }
 
     public void isToastMessageDisplayed(int textId) {

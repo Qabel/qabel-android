@@ -1,10 +1,7 @@
 package de.qabel.qabelbox.activities;
 
 import android.app.Activity;
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.Handler;
 
@@ -14,7 +11,7 @@ import de.qabel.qabelbox.R;
  * Created by danny on 11.01.2016.
  */
 public class SplashActivity extends Activity {
-    private long SPLASH_TIME = 1000;
+    private long SPLASH_TIME = 1500;
     private SplashActivity mActivity;
 
     @Override

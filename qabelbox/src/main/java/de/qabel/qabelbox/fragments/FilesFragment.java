@@ -255,6 +255,7 @@ public class FilesFragment extends BaseFragment {
         imm.hideSoftInputFromWindow(edtSeach.getWindowToken(), 0);
         imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.RESULT_HIDDEN);
         mSearchAction.setIcon(R.drawable.ic_ab_search);
+        action.setTitle(getTitle());
         isSearchOpened = false;
         mActivity.fab.show();
     }

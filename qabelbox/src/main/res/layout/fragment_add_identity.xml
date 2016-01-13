@@ -8,7 +8,7 @@
         android:layout_height="match_parent"
         android:layout_gravity="left|top">
 
-        <TextView
+        <de.qabel.qabelbox.views.TextViewFont
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceLarge"
@@ -17,7 +17,7 @@
             android:layout_alignParentTop="true"
             android:layout_centerHorizontal="true" />
 
-        <EditText
+        <de.qabel.qabelbox.views.EditTextFont
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/editTextIdentityAlias"
@@ -36,14 +36,14 @@
             android:layout_alignParentBottom="true"
             android:background="@color/colorBottomBackground"
             android:baselineAligned="false">
-            <Button
+            <de.qabel.qabelbox.views.ButtonFont
                 android:id="@+id/buttonAddIdentityCancel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentStart="true"
                 android:text="@string/cancel"
                 style="@style/BottomBarButton" />
-            <Button
+            <de.qabel.qabelbox.views.ButtonFont
                 android:id="@+id/buttonAddIdentity"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -65,7 +65,7 @@
             android:layout_marginLeft="16dp"
             android:layout_marginRight="16dp"/>
 
-        <CheckBox
+        <de.qabel.qabelbox.views.CheckBoxFont
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/addIdentityShowAdvanced"
@@ -75,7 +75,7 @@
             android:layout_alignEnd="@+id/editTextIdentityAlias"
             android:layout_toEndOf="@+id/textViewAddIdentityDropIDMinBits"/>
 
-        <TextView
+        <de.qabel.qabelbox.views.TextViewFont
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceMedium"
@@ -85,7 +85,7 @@
             android:layout_alignEnd="@+id/checkBoxAddIdentityAdvanced"
             android:visibility="invisible"/>
 
-        <TextView
+        <de.qabel.qabelbox.views.TextViewFont
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceSmall"
@@ -94,7 +94,7 @@
             android:layout_centerHorizontal="true"
             android:visibility="invisible"/>
 
-        <TextView
+        <de.qabel.qabelbox.views.TextViewFont
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceSmall"
@@ -103,7 +103,7 @@
             android:layout_alignStart="@+id/seekBarAddIdentityDropID"
             android:visibility="invisible"/>
 
-        <TextView
+        <de.qabel.qabelbox.views.TextViewFont
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceSmall"
@@ -112,7 +112,7 @@
             android:layout_alignEnd="@+id/seekBarAddIdentityDropID"
             android:visibility="invisible"/>
 
-        <TextView
+        <de.qabel.qabelbox.views.TextViewFont
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceMedium"

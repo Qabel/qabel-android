@@ -11,6 +11,7 @@ spoon {
     className = 'de.qabel.qabelbox.ui.MainActivityTest'
     // To run a single method in TestCase
     //methodName = 'test1IncorrectLogin'
+    adbTimeout = 60
 }
 
 

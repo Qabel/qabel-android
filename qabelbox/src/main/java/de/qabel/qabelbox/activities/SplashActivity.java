@@ -11,7 +11,7 @@ import de.qabel.qabelbox.R;
  * Created by danny on 11.01.2016.
  */
 public class SplashActivity extends Activity {
-    private long SPLASH_TIME = 1500;
+    private final long SPLASH_TIME = 1500;
     private SplashActivity mActivity;
 
     @Override

@@ -8,10 +8,15 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import java.util.Date;
 
 import de.qabel.qabelbox.R;
+import de.qabel.qabelbox.helper.Formater;
+import de.qabel.qabelbox.storage.BoxFile;
+import de.qabel.qabelbox.storage.BoxObject;
+import de.qabel.qabelbox.storage.StorageSearch;
 
 /**
  * Created by danny on 14.01.2016.
@@ -19,11 +24,22 @@ import de.qabel.qabelbox.R;
 public class FileSearchFilterFragment extends BaseFragment {
     private FilterData mFilterData;
     private CallbackListener mListener;
+    private TextView mTvMinFileSize;
+    private TextView mTvMaxFileSize;
+    private TextView mTvMinDate;
+    private TextView mTvMaxDate;
+    private StorageSearch mSearchResult;
+    long mMinFileSize;
+    long mMaxFileSize;
+    long mMinDate;
+    long mMaxDate;
 
-    public static FileSearchFilterFragment newInstance(FilterData data, CallbackListener listener) {
+    public static FileSearchFilterFragment newInstance(FilterData data, StorageSearch searchResult, CallbackListener listener) {
         FileSearchFilterFragment fragment = new FileSearchFilterFragment();
         fragment.mFilterData = data;
         fragment.mListener = listener;
+        fragment.mSearchResult = searchResult;
+        fragment.generateMinMax();
         return fragment;
     }
 
@@ -39,8 +55,38 @@ public class FileSearchFilterFragment extends BaseFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         final View view = inflater.inflate(R.layout.fragment_files_search_filter, container, false);
+        mTvMinFileSize = (TextView) view.findViewById(R.id.tvMinFileSize);
+        mTvMaxFileSize = (TextView) view.findViewById(R.id.tvMaxFileSize);
+        mTvMinDate = (TextView) view.findViewById(R.id.tvMinDate);
+        mTvMaxDate = (TextView) view.findViewById(R.id.tvMaxDate);
+        updateInitialUI();
         return view;
 
+    }
+
+    private void updateInitialUI() {
+        mTvMinFileSize.setText(Formater.formatFileSizeHumanReadable(mMinFileSize));
+        mTvMaxFileSize.setText(Formater.formatFileSizeHumanReadable(mMaxFileSize));
+        mTvMaxDate.setText(Formater.formatDateShort(mMaxDate * 1000));
+        mTvMinDate.setText(Formater.formatDateShort(mMinDate * 1000));
+    }
+
+    private void generateMinMax() {
+        mMinFileSize = Integer.MAX_VALUE;
+        mMaxFileSize = Integer.MIN_VALUE;
+        mMaxDate = 0;
+        mMinDate = System.currentTimeMillis() / 1000;
+
+        for (BoxObject item : mSearchResult.getResults()) {
+            if (item instanceof BoxFile) {
+                BoxFile file = (BoxFile) item;
+                mMinFileSize = Math.min(file.size, mMinFileSize);
+                mMaxFileSize = Math.max(file.size, mMaxFileSize);
+                mMinDate = Math.min(file.mtime, mMinDate);
+                mMaxDate = Math.max(file.mtime, mMaxDate);
+
+            }
+        }
     }
 
     @Override
@@ -62,8 +108,7 @@ public class FileSearchFilterFragment extends BaseFragment {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_ok) {
+        if (id == R.id.action_use_filter) {
             getFragmentManager().popBackStack();
             mListener.onSuccess(mFilterData);
             return true;
@@ -75,7 +120,7 @@ public class FileSearchFilterFragment extends BaseFragment {
     public static class FilterData {
         Date mDateMin;
         Date mDateMax;
-        int mfileSizeMin = Integer.MIN_VALUE;
+        int mFileSizeMin = 0;
         int mFileSizeMax = Integer.MAX_VALUE;
     }
 

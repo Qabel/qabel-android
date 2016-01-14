@@ -17,7 +17,6 @@
         android:paddingTop="@dimen/activity_vertical_margin">
 
         <de.qabel.qabelbox.views.TextViewFont
-            android:id="@+id/textView2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/filter_label_filesize"
@@ -31,7 +30,7 @@
 
 
             <de.qabel.qabelbox.views.TextViewFont
-                android:id="@+id/tvMin"
+                android:id="@+id/tvMinFileSize"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentRight="true"
@@ -45,7 +44,7 @@
                 android:text=" - " />
 
             <de.qabel.qabelbox.views.TextViewFont
-                android:id="@+id/tvMax"
+                android:id="@+id/tvMaxFileSize"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentRight="true"
@@ -54,11 +53,11 @@
         </LinearLayout>
 
         <SeekBar
-            android:paddingTop="5dp"
             android:id="@+id/sb_min"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_alignParentRight="true" />
+            android:layout_alignParentRight="true"
+            android:paddingTop="5dp" />
 
         <SeekBar
             android:id="@+id/sb_max"
@@ -91,30 +90,54 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal">
 
-            <de.qabel.qabelbox.views.ButtonFont
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
 
-                android:layout_marginStart="5dp"
-                android:background="@color/colorPrimary"
-                android:layout_width="wrap_content"
-                android:textColor="@color/white"
-                android:layout_height="wrap_content"
-                android:text="Change" />
-            <de.qabel.qabelbox.views.TextViewFont
-                android:id="@+id/textView5"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="12.02.2015" />
+                <de.qabel.qabelbox.views.TextViewFont
+                    android:id="@+id/tvMinDate"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:text="12.02.2015" />
+
+                <de.qabel.qabelbox.views.ButtonFont
+
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="5dp"
+                    android:background="@color/colorPrimary"
+                    android:text="Change"
+                    android:textColor="@color/white" />
+            </LinearLayout>
 
             <de.qabel.qabelbox.views.TextViewFont
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text=" - " />
 
-            <de.qabel.qabelbox.views.TextViewFont
-                android:id="@+id/textView6"
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="14.01.2016" />
+                android:orientation="vertical">
+
+                <de.qabel.qabelbox.views.TextViewFont
+                    android:id="@+id/tvMaxDate"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:text="12.02.2015" />
+
+                <de.qabel.qabelbox.views.ButtonFont
+
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="5dp"
+                    android:background="@color/colorPrimary"
+                    android:text="Change"
+                    android:textColor="@color/white" />
+            </LinearLayout>
 
         </LinearLayout>
 

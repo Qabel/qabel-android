@@ -111,8 +111,7 @@ public class FilesSearchResultFragment extends FilesFragment {
     }
 
     private void handleFilterAction() {
-        Toast.makeText(getActivity(), "tbd: Filter action.", Toast.LENGTH_SHORT).show();
-        FileSearchFilterFragment fragment = FileSearchFilterFragment.newInstance(mFilterData, new FileSearchFilterFragment.CallbackListener() {
+        FileSearchFilterFragment fragment = FileSearchFilterFragment.newInstance(mFilterData,mSearchResult,new FileSearchFilterFragment.CallbackListener() {
             @Override
             public void onSuccess(FileSearchFilterFragment.FilterData data) {
                 filterData(data);
@@ -122,9 +121,18 @@ public class FilesSearchResultFragment extends FilesFragment {
         getFragmentManager().beginTransaction().add(R.id.fragment_container, fragment).addToBackStack(null).commit();
     }
 
+
     private void filterData(FileSearchFilterFragment.FilterData data) {
         this.mFilterData = data;
-        fillAdapter(mSearchResult.filterByName(mSearchText).getResults());
+        StorageSearch result = mSearchResult.filterByName(mSearchText);
+        if (data.mDateMin != null)
+            result = result.filterByMinimumDate(data.mDateMin);
+        if (data.mDateMax != null)
+            result = result.filterByMaximumDate(data.mDateMax);
+
+        result = result.filterByMinimumSize(data.mFileSizeMin);
+        result = result.filterByMaximumSize(data.mFileSizeMax);
+        fillAdapter(result.getResults());
         filesAdapter.notifyDataSetChanged();
     }
 

@@ -35,7 +35,7 @@ import de.qabel.qabelbox.R;
  * {@link AddContactFragment.AddContactListener} interface
  * to handle interaction events.
  */
-public class AddContactFragment extends Fragment {
+public class AddContactFragment extends BaseFragment {
 
     private static final String ARG_IDENTITY = "Identity";
     private Fragment fragment;
@@ -71,7 +71,7 @@ public class AddContactFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        final View view =  inflater.inflate(R.layout.fragment_add_contact, container, false);
+        final View view = inflater.inflate(R.layout.fragment_add_contact, container, false);
 
         editTextContactName = (EditText) view.findViewById(R.id.editTextContactName);
         editTextDropURL = (EditText) view.findViewById(R.id.editTextContactDropURL);
@@ -159,7 +159,19 @@ public class AddContactFragment extends Fragment {
         }
     }
 
+    @Override
+    public boolean isFabNeeded() {
+        return false;
+    }
+
     public interface AddContactListener {
         void addContact(Contact contact);
     }
+
+    @Override
+    public boolean supportBackButton() {
+        return false;
+    }
+
+
 }

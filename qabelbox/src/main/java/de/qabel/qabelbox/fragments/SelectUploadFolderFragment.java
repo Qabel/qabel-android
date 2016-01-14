@@ -96,4 +96,12 @@ public class SelectUploadFolderFragment extends FilesFragment {
         void onAbort();
     }
 
+    @Override
+    public boolean isFabNeeded() {
+        return false;
+    }
+
+    public boolean supportBackButton() {
+        return false;
+    }
 }

@@ -55,7 +55,7 @@ public class BaseFragment extends Fragment {
     }
 
     /**
-     * @return true if fragment handle back button. otherwise return false to display sidemenu icon
+     * @return true if fragment handle back button. otherwise return false to display sideMenu icon
      */
     public boolean supportBackButton() {
         return false;

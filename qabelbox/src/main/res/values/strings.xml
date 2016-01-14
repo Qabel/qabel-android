@@ -74,4 +74,5 @@
     <string name="no_entrys_found">No files found</string>
     <string name="load_file_list">Load filelist</string>
     <string name="ab_filesearch_hint">Enter keyword</string>
+    <string name="splash_footer_text">Don\'t trust us...\n...it\'s not necessary!</string>
 </resources>

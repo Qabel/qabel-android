@@ -11,11 +11,14 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Hashtable;
 import java.util.List;
 
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.adapter.FilesAdapter;
+import de.qabel.qabelbox.storage.BoxExternal;
 import de.qabel.qabelbox.storage.BoxFile;
+import de.qabel.qabelbox.storage.BoxFolder;
 import de.qabel.qabelbox.storage.BoxObject;
 import de.qabel.qabelbox.storage.StorageSearch;
 
@@ -111,7 +114,7 @@ public class FilesSearchResultFragment extends FilesFragment {
     }
 
     private void handleFilterAction() {
-        FileSearchFilterFragment fragment = FileSearchFilterFragment.newInstance(mFilterData,mSearchResult,new FileSearchFilterFragment.CallbackListener() {
+        FileSearchFilterFragment fragment = FileSearchFilterFragment.newInstance(mFilterData, mSearchResult, new FileSearchFilterFragment.CallbackListener() {
             @Override
             public void onSuccess(FileSearchFilterFragment.FilterData data) {
                 filterData(data);
@@ -124,16 +127,23 @@ public class FilesSearchResultFragment extends FilesFragment {
 
     private void filterData(FileSearchFilterFragment.FilterData data) {
         this.mFilterData = data;
-        StorageSearch result = mSearchResult.filterByName(mSearchText);
-        if (data.mDateMin != null)
-            result = result.filterByMinimumDate(data.mDateMin);
-        if (data.mDateMax != null)
-            result = result.filterByMaximumDate(data.mDateMax);
 
-        result = result.filterByMinimumSize(data.mFileSizeMin);
-        result = result.filterByMaximumSize(data.mFileSizeMax);
-        fillAdapter(result.getResults());
-        filesAdapter.notifyDataSetChanged();
+        StorageSearch result = null;
+        try {
+            result = mSearchResult.clone().filterByName(mSearchText);
+            if (data.mDateMin != null)
+                result = result.filterByMinimumDate(data.mDateMin);
+            if (data.mDateMax != null)
+                result = result.filterByMaximumDate(data.mDateMax);
+
+            result = result.filterByMinimumSize(data.mFileSizeMin);
+            result = result.filterByMaximumSize(data.mFileSizeMax);
+            fillAdapter(result.getResults());
+            filesAdapter.notifyDataSetChanged();
+        } catch (CloneNotSupportedException e) {
+            e.printStackTrace();
+        }
+
     }
 
 

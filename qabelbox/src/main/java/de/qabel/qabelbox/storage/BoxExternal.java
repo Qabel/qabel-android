@@ -38,4 +38,9 @@ public class BoxExternal extends BoxObject {
 		result = 31 * result + (key != null ? Arrays.hashCode(key) : 0);
 		return result;
 	}
+
+	@Override
+	protected BoxExternal clone() throws CloneNotSupportedException {
+		return new BoxExternal(url,name,owner,key);
+	}
 }

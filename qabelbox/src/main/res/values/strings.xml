@@ -81,4 +81,5 @@
     <string name="search_filter_filesize_min">Min</string>
     <string name="ab_use_filter">Use</string>
     <string name="headline_filefilter">Filter</string>
+    <string name="change">Change</string>
 </resources>

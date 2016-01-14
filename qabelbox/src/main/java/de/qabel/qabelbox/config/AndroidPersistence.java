@@ -29,13 +29,14 @@ public class AndroidPersistence extends Persistence<QblSQLiteParams> {
     private static final String STR_BLOB = "BLOB";
     private static final String STR_ID = "ID";
     private static final String STR_ID_QUERY = "ID = ?";
+    private static final int NUM_PBKDF2_ROUNDS = 1; // reduce performance impact on start
     private QblSQLiteOpenHelper dbHelper;
     private SQLiteDatabase database;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AndroidPersistence.class.getName());
 
     public AndroidPersistence(QblSQLiteParams params, char[] password) throws QblInvalidEncryptionKeyException {
-        super(params, password);
+        super(params, password, NUM_PBKDF2_ROUNDS);
     }
 
     @Override

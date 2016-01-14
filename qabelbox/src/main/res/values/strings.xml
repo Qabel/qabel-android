@@ -82,4 +82,8 @@
     <string name="ab_use_filter">Use</string>
     <string name="headline_filefilter">Filter</string>
     <string name="change">Change</string>
+    <string name="unit_filesyste_mb">MB</string>
+    <string name="unit_filesyste_gb">GB</string>
+    <string name="unit_filesyste_kb">KB</string>
+    <string name="unit_filesyste_bytes">Bytes</string>
 </resources>

@@ -185,12 +185,22 @@ public class FilesFragment extends BaseFragment {
         // handle item selection
         switch (item.getItemId()) {
             case R.id.action_search:
-                handleMenuSearch();
+                if (!isSearchRunning()) {
+                    handleMenuSearch();
+                }
                 return true;
 
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    private boolean isSearchRunning() {
+        if (isSearchOpened) {
+
+            return true;
+        }
+        return searchTask != null && ((!searchTask.isCancelled() && searchTask.getStatus() != AsyncTask.Status.FINISHED));
     }
 
     /**

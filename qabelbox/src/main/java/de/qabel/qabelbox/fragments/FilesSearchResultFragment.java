@@ -1,6 +1,7 @@
 package de.qabel.qabelbox.fragments;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -132,16 +133,18 @@ public class FilesSearchResultFragment extends FilesFragment {
         try {
             result = mSearchResult.clone().filterByName(mSearchText);
             if (data.mDateMin != null)
-                result = result.filterByMinimumDate(data.mDateMin);
+                result.filterByMinimumDate(data.mDateMin);
             if (data.mDateMax != null)
-                result = result.filterByMaximumDate(data.mDateMax);
+                result.filterByMaximumDate(data.mDateMax);
 
-            result = result.filterByMinimumSize(data.mFileSizeMin);
-            result = result.filterByMaximumSize(data.mFileSizeMax);
+
+            result.filterByMinimumSize(data.mFileSizeMin);
+            result.filterByMaximumSize(data.mFileSizeMax);
             fillAdapter(result.getResults());
             filesAdapter.notifyDataSetChanged();
         } catch (CloneNotSupportedException e) {
             e.printStackTrace();
+            Log.e(TAG, "error on clone SearchResult ", e);
         }
 
     }

@@ -13,6 +13,7 @@ import android.util.Log;
 import android.widget.DatePicker;
 
 import java.util.Calendar;
+import java.util.Date;
 
 
 public class DatePickerFragment extends DialogFragment implements
@@ -31,6 +32,8 @@ public class DatePickerFragment extends DialogFragment implements
         int day = c.get(Calendar.DAY_OF_MONTH);
 
         DatePickerDialog dialog = new DatePickerDialog(getActivity(), this, year, month, day);
+        dialog.getDatePicker().setMaxDate(mMaxDate * 1000);
+        dialog.getDatePicker().setMinDate(mMinDate * 1000);
         return dialog;
     }
 

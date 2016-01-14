@@ -2,6 +2,7 @@ package de.qabel.qabelbox.fragments;
 
 import android.app.Activity;
 import android.app.Fragment;
+import android.app.FragmentManager;
 import android.support.v7.app.ActionBar;
 import android.view.View;
 
@@ -48,7 +49,8 @@ public class BaseFragment extends Fragment {
         mActivity.toggle.setToolbarNavigationClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (getFragmentManager().getBackStackEntryCount() > 0)
+                FragmentManager fm = getFragmentManager();
+                if (/*fm != null &&*/ fm.getBackStackEntryCount() > 0)
                     mActivity.onBackPressed();
             }
         });

@@ -211,8 +211,7 @@ public class StorageSearch {
 
         for (BoxObject o : results) {
             if (o instanceof BoxFile) {
-                Date boxDate = new Date(((BoxFile) o).mtime);
-
+                Date boxDate = new Date(((BoxFile) o).mtime*1000);
                 boolean isBeforeMinimumDate = boxDate.before(date) && date.getTime() != boxDate.getTime();
                 boolean isAfterMaximumDate = boxDate.after(date);
                 boolean isInvalid = (minDate && isBeforeMinimumDate) || (!minDate && isAfterMaximumDate);

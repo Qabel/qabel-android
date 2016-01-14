@@ -53,14 +53,14 @@
         </LinearLayout>
 
         <SeekBar
-            android:id="@+id/sb_min"
+            android:id="@+id/sbFileSizeMin"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
             android:paddingTop="5dp" />
 
         <SeekBar
-            android:id="@+id/sb_max"
+            android:id="@+id/sbFileSizeMax"
 
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

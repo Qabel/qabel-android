@@ -8,6 +8,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.SeekBar;
 import android.widget.TextView;
 
 import java.util.Date;
@@ -21,7 +22,7 @@ import de.qabel.qabelbox.storage.StorageSearch;
 /**
  * Created by danny on 14.01.2016.
  */
-public class FileSearchFilterFragment extends BaseFragment {
+public class FileSearchFilterFragment extends BaseFragment implements SeekBar.OnSeekBarChangeListener {
     private FilterData mFilterData;
     private CallbackListener mListener;
     private TextView mTvMinFileSize;
@@ -33,6 +34,8 @@ public class FileSearchFilterFragment extends BaseFragment {
     long mMaxFileSize;
     long mMinDate;
     long mMaxDate;
+    private SeekBar mSbFileSizeMin;
+    private SeekBar mSbFileSizeMax;
 
     public static FileSearchFilterFragment newInstance(FilterData data, StorageSearch searchResult, CallbackListener listener) {
         FileSearchFilterFragment fragment = new FileSearchFilterFragment();
@@ -59,7 +62,11 @@ public class FileSearchFilterFragment extends BaseFragment {
         mTvMaxFileSize = (TextView) view.findViewById(R.id.tvMaxFileSize);
         mTvMinDate = (TextView) view.findViewById(R.id.tvMinDate);
         mTvMaxDate = (TextView) view.findViewById(R.id.tvMaxDate);
+        mSbFileSizeMin = (SeekBar) view.findViewById(R.id.sbFileSizeMin);
+        mSbFileSizeMax = (SeekBar) view.findViewById(R.id.sbFileSizeMax);
         updateInitialUI();
+        mSbFileSizeMin.setOnSeekBarChangeListener(this);
+        mSbFileSizeMax.setOnSeekBarChangeListener(this);
         return view;
 
     }
@@ -69,6 +76,9 @@ public class FileSearchFilterFragment extends BaseFragment {
         mTvMaxFileSize.setText(Formater.formatFileSizeHumanReadable(mMaxFileSize));
         mTvMaxDate.setText(Formater.formatDateShort(mMaxDate * 1000));
         mTvMinDate.setText(Formater.formatDateShort(mMinDate * 1000));
+        mSbFileSizeMin.setMax((int) (mMaxFileSize - mMinFileSize));
+        mSbFileSizeMax.setMax((int) (mMaxFileSize - mMinFileSize));
+
     }
 
     private void generateMinMax() {
@@ -110,11 +120,42 @@ public class FileSearchFilterFragment extends BaseFragment {
         int id = item.getItemId();
         if (id == R.id.action_use_filter) {
             getFragmentManager().popBackStack();
+            mFilterData.mFileSizeMin = (int) (mSbFileSizeMin.getProgress() + mMinFileSize);
+            mFilterData.mFileSizeMax = (int) (mSbFileSizeMax.getProgress() + mMinFileSize);
             mListener.onSuccess(mFilterData);
             return true;
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+        if (seekBar == mSbFileSizeMax) {
+
+            mTvMaxFileSize.setText(Formater.formatFileSizeHumanReadable(progress + mMinFileSize));
+        }
+        if (seekBar == mSbFileSizeMin) {
+            mTvMinFileSize.setText(Formater.formatFileSizeHumanReadable(progress + mMinFileSize));
+        }
+
+    }
+
+    @Override
+    public void onStartTrackingTouch(SeekBar seekBar) {
+
+    }
+
+    @Override
+    public void onStopTrackingTouch(SeekBar seekBar) {
+
+        if (seekBar == mSbFileSizeMin && mSbFileSizeMin.getProgress() > mSbFileSizeMax.getProgress())
+            mSbFileSizeMax.setProgress(mSbFileSizeMin.getProgress());
+        else {
+            if (seekBar == mSbFileSizeMax && mSbFileSizeMax.getProgress() < mSbFileSizeMin.getProgress())
+                mSbFileSizeMin.setProgress(mSbFileSizeMax.getProgress());
+        }
+
     }
 
     public static class FilterData {

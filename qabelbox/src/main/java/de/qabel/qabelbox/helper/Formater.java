@@ -22,13 +22,13 @@ public class Formater {
         if (filesize < KB) {
             result = filesize + " Bytes";
         } else if (filesize < MB)
-            result = df.format(filesize / KB) + " KB";
+            result = df.format(new Double(filesize) / KB) + " KB";
         else if (filesize < GB)
-            result = df.format(filesize / MB) + " MB";
+            result = df.format(new Double(filesize) / MB) + " MB";
         else {
-            result = df.format(filesize / GB) + "  GB";
+            result = df.format(new Double(filesize) / GB) + "  GB";
         }
-        return result;
+        return result.replace(",",".");
     }
 
     private static String formatDateShort(Date date) {

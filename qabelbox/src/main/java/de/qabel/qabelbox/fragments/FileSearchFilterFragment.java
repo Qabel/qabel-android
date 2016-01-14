@@ -60,7 +60,6 @@ public class FileSearchFilterFragment extends BaseFragment implements SeekBar.On
         setActionBarBackListener();
     }
 
-    @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         final View view = inflater.inflate(R.layout.fragment_files_search_filter, container, false);
@@ -77,14 +76,13 @@ public class FileSearchFilterFragment extends BaseFragment implements SeekBar.On
         mSbFileSizeMax.setOnSeekBarChangeListener(this);
         setDateButtonClickListener();
         return view;
-
     }
 
     private void setDateButtonClickListener() {
         btSelectMinDate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                DatePickerFragment newFragment = DatePickerFragment.newInstance(mMinDate, mMaxDate,mMinDate, new DatePickerFragment.CallbackListener() {
+                DatePickerFragment newFragment = DatePickerFragment.newInstance(mMinDate, mMaxDate, mMinDate, new DatePickerFragment.CallbackListener() {
                     @Override
                     public void onSuccess(int year, int month, int day) {
                         mMinDate = getStartOfDay(getDate(year, month, day)).getTime() / 1000;
@@ -101,7 +99,7 @@ public class FileSearchFilterFragment extends BaseFragment implements SeekBar.On
         btSelectMaxDate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                DatePickerFragment newFragment = DatePickerFragment.newInstance(mMinDate, mMaxDate, mMaxDate,new DatePickerFragment.CallbackListener() {
+                DatePickerFragment newFragment = DatePickerFragment.newInstance(mMinDate, mMaxDate, mMaxDate, new DatePickerFragment.CallbackListener() {
                     @Override
                     public void onSuccess(int year, int month, int day) {
                         mMaxDate = getEndOfDay(getDate(year, month, day)).getTime() / 1000;
@@ -135,13 +133,22 @@ public class FileSearchFilterFragment extends BaseFragment implements SeekBar.On
     }
 
     private void updateInitialUI() {
-        mTvMinFileSize.setText(Formater.formatFileSizeHumanReadable(mMinFileSize));
-        mTvMaxFileSize.setText(Formater.formatFileSizeHumanReadable(mMaxFileSize));
-        mTvMaxDate.setText(Formater.formatDateShort(mMaxDate * 1000));
-        mTvMinDate.setText(Formater.formatDateShort(mMinDate * 1000));
+        mTvMinFileSize.setText(Formater.formatFileSizeHumanReadable(getActivity(), mMinFileSize));
+        mTvMaxFileSize.setText(Formater.formatFileSizeHumanReadable(getActivity(), mMaxFileSize));
+        if (mFilterData.mDateMax != null) {
+            mTvMaxDate.setText(Formater.formatDateShort(mFilterData.mDateMax));
+        } else {
+            mTvMaxDate.setText(Formater.formatDateShort(mMaxDate * 1000));
+        }
+        if (mFilterData.mDateMin != null) {
+            mTvMinDate.setText(Formater.formatDateShort(mFilterData.mDateMin));
+        } else {
+            mTvMinDate.setText(Formater.formatDateShort(mMinDate * 1000));
+        }
         mSbFileSizeMin.setMax((int) (mMaxFileSize - mMinFileSize));
         mSbFileSizeMax.setMax((int) (mMaxFileSize - mMinFileSize));
-
+        mSbFileSizeMin.setProgress((int) (mFilterData.mFileSizeMin - mMinFileSize));
+        mSbFileSizeMax.setProgress((int) (mFilterData.mFileSizeMax - mMinFileSize));
     }
 
     private void generateMinMax() {
@@ -185,8 +192,9 @@ public class FileSearchFilterFragment extends BaseFragment implements SeekBar.On
             getFragmentManager().popBackStack();
             mFilterData.mFileSizeMin = (int) (mSbFileSizeMin.getProgress() + mMinFileSize);
             mFilterData.mFileSizeMax = (int) (mSbFileSizeMax.getProgress() + mMinFileSize);
-            mFilterData.mDateMin = new Date(mMinDate);
-            mFilterData.mDateMax = new Date(mMaxDate);
+            mFilterData.mDateMin = new Date(mMinDate * 1000);
+            mFilterData.mDateMax = new Date(mMaxDate * 1000);
+
             mListener.onSuccess(mFilterData);
             return true;
         }
@@ -198,10 +206,10 @@ public class FileSearchFilterFragment extends BaseFragment implements SeekBar.On
     public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
         if (seekBar == mSbFileSizeMax) {
 
-            mTvMaxFileSize.setText(Formater.formatFileSizeHumanReadable(progress + mMinFileSize));
+            mTvMaxFileSize.setText(Formater.formatFileSizeHumanReadable(getActivity(), progress + mMinFileSize));
         }
         if (seekBar == mSbFileSizeMin) {
-            mTvMinFileSize.setText(Formater.formatFileSizeHumanReadable(progress + mMinFileSize));
+            mTvMinFileSize.setText(Formater.formatFileSizeHumanReadable(getActivity(), progress + mMinFileSize));
         }
 
     }

@@ -74,4 +74,10 @@
     <string name="no_entrys_found">No files found</string>
     <string name="load_file_list">Load filelist</string>
     <string name="ab_filesearch_hint">Enter keyword</string>
+    <string name="filter_label_date">Date</string>
+    <string name="filter_label_filesize">Filesize:</string>
+    <string name="headline_searchresultfilter">Search filter</string>
+    <string name="search_filter_filesize_min">Min</string>
+    <string name="ab_use_filter">Use</string>
+    <string name="headline_filefilter">Filter</string>
 </resources>

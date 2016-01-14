@@ -103,12 +103,13 @@
                     android:text="12.02.2015" />
 
                 <de.qabel.qabelbox.views.ButtonFont
+                    android:id="@+id/btMinDate"
 
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="5dp"
                     android:background="@color/colorPrimary"
-                    android:text="Change"
+                    android:text="@string/change"
                     android:textColor="@color/white" />
             </LinearLayout>
 
@@ -130,7 +131,7 @@
                     android:text="12.02.2015" />
 
                 <de.qabel.qabelbox.views.ButtonFont
-
+                    android:id="@+id/btMaxDate"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="5dp"

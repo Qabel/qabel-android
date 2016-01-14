@@ -8,9 +8,13 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
+import org.apache.commons.lang3.time.DateUtils;
+
+import java.util.Calendar;
 import java.util.Date;
 
 import de.qabel.qabelbox.R;
@@ -36,6 +40,8 @@ public class FileSearchFilterFragment extends BaseFragment implements SeekBar.On
     long mMaxDate;
     private SeekBar mSbFileSizeMin;
     private SeekBar mSbFileSizeMax;
+    private Button btSelectMinDate;
+    private Button btSelectMaxDate;
 
     public static FileSearchFilterFragment newInstance(FilterData data, StorageSearch searchResult, CallbackListener listener) {
         FileSearchFilterFragment fragment = new FileSearchFilterFragment();
@@ -64,11 +70,68 @@ public class FileSearchFilterFragment extends BaseFragment implements SeekBar.On
         mTvMaxDate = (TextView) view.findViewById(R.id.tvMaxDate);
         mSbFileSizeMin = (SeekBar) view.findViewById(R.id.sbFileSizeMin);
         mSbFileSizeMax = (SeekBar) view.findViewById(R.id.sbFileSizeMax);
+        btSelectMinDate = (Button) view.findViewById(R.id.btMinDate);
+        btSelectMaxDate = (Button) view.findViewById(R.id.btMaxDate);
         updateInitialUI();
         mSbFileSizeMin.setOnSeekBarChangeListener(this);
         mSbFileSizeMax.setOnSeekBarChangeListener(this);
+        setDateButtonClickListener();
         return view;
 
+    }
+
+    private void setDateButtonClickListener() {
+        btSelectMinDate.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                DatePickerFragment newFragment = DatePickerFragment.newInstance(mMinDate, mMaxDate,mMinDate, new DatePickerFragment.CallbackListener() {
+                    @Override
+                    public void onSuccess(int year, int month, int day) {
+                        mMinDate = getStartOfDay(getDate(year, month, day)).getTime() / 1000;
+                        mTvMinDate.setText(Formater.formatDateShort(mMinDate * 1000));
+                        if (mMinDate > mMaxDate) {
+                            mMaxDate = getEndOfDay(getDate(year, month, day)).getTime() / 1000;
+                            mTvMaxDate.setText(Formater.formatDateShort(mMaxDate * 1000));
+                        }
+                    }
+                });
+                newFragment.show(getFragmentManager(), "datePicker");
+            }
+        });
+        btSelectMaxDate.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                DatePickerFragment newFragment = DatePickerFragment.newInstance(mMinDate, mMaxDate, mMaxDate,new DatePickerFragment.CallbackListener() {
+                    @Override
+                    public void onSuccess(int year, int month, int day) {
+                        mMaxDate = getEndOfDay(getDate(year, month, day)).getTime() / 1000;
+                        mTvMaxDate.setText(Formater.formatDateShort(mMaxDate * 1000));
+                        if (mMaxDate < mMinDate) {
+                            mMinDate = getStartOfDay(getDate(year, month, day)).getTime() / 1000;
+                            mTvMinDate.setText(Formater.formatDateShort(mMinDate * 1000));
+                        }
+
+                    }
+                });
+                newFragment.show(getFragmentManager(), "datePicker");
+            }
+        });
+    }
+
+    private Date getDate(int year, int month, int day) {
+        Calendar c = Calendar.getInstance();
+        c.set(Calendar.YEAR, year);
+        c.set(Calendar.MONTH, month);
+        c.set(Calendar.DAY_OF_MONTH, day);
+        return c.getTime();
+    }
+
+    public static Date getEndOfDay(Date date) {
+        return DateUtils.addMilliseconds(DateUtils.ceiling(date, Calendar.DATE), -1);
+    }
+
+    public static Date getStartOfDay(Date date) {
+        return DateUtils.truncate(date, Calendar.DATE);
     }
 
     private void updateInitialUI() {
@@ -122,6 +185,8 @@ public class FileSearchFilterFragment extends BaseFragment implements SeekBar.On
             getFragmentManager().popBackStack();
             mFilterData.mFileSizeMin = (int) (mSbFileSizeMin.getProgress() + mMinFileSize);
             mFilterData.mFileSizeMax = (int) (mSbFileSizeMax.getProgress() + mMinFileSize);
+            mFilterData.mDateMin = new Date(mMinDate);
+            mFilterData.mDateMax = new Date(mMaxDate);
             mListener.onSuccess(mFilterData);
             return true;
         }

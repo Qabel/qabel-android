@@ -23,7 +23,6 @@ public class FontHelper {
     public static FontHelper getInstance(Context context) {
         if (instance == null) {
             instance = new FontHelper();
-            instance.loadCustomeFonts(context);
         }
         return instance;
     }
@@ -34,12 +33,14 @@ public class FontHelper {
 
         for (int i = 0; i < fontList.length; i++) {
             fonts[i] = Typeface.createFromAsset(context.getAssets(), fontList[i]);
-         }
+        }
     }
 
     public void setCustomeFonts(TextView view) {
-        //if(!view.isInEditMode())
-        {
+        if (!view.isInEditMode()) {
+            if (fonts == null) {
+                loadCustomeFonts(view.getContext());
+            }
             view.setTypeface(fonts[0], Typeface.NORMAL);
             view.setTypeface(fonts[1], Typeface.ITALIC);
             view.setTypeface(fonts[2], Typeface.BOLD);

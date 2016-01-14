@@ -19,7 +19,7 @@ import de.qabel.qabelbox.adapter.ContactsAdapter;
 /**
  * Fragment that shows a contact list.
  */
-public class ContactFragment extends Fragment {
+public class ContactFragment extends BaseFragment {
 
     private static final String ARG_CONTACTS = "ARG_CONTACTS";
     private static final String ARG_IDENTITY = "ARG_IDENTITY";
@@ -96,5 +96,14 @@ public class ContactFragment extends Fragment {
 
     public interface ContactListListener {
         void startAddContact(Identity identity);
+    }
+
+    @Override
+    public boolean isFabNeeded() {
+        return true;
+    }
+
+     public boolean supportBackButton() {
+        return false;
     }
 }

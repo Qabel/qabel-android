@@ -26,7 +26,7 @@ import de.qabel.qabelbox.adapter.IdentitiesAdapter;
 /**
  * Fragment that shows an identity list.
  */
-public class IdentitiesFragment extends Fragment {
+public class IdentitiesFragment extends BaseFragment {
 
     private static final String ARG_IDENTITIES = "ARG_IDENTITIES";
 
@@ -172,5 +172,14 @@ public class IdentitiesFragment extends Fragment {
     public interface IdentityListListener {
         void deleteIdentity(Identity identity);
         void modifyIdentity(Identity identity);
+    }
+
+    @Override
+    public boolean isFabNeeded() {
+        return true;
+    }
+
+    public boolean supportBackButton() {
+        return false;
     }
 }

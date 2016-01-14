@@ -29,7 +29,7 @@ import de.qabel.core.drop.DropURL;
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
 
-public class AddIdentityFragment extends Fragment {
+public class AddIdentityFragment extends BaseFragment {
 
     private static final int DEFAULT_DROP_BYTES = 8;
     private EditText textViewIdentityName;
@@ -157,8 +157,16 @@ public class AddIdentityFragment extends Fragment {
         mListener = null;
     }
 
+    @Override
+    public boolean isFabNeeded() {
+        return false;
+    }
+
     public interface AddIdentityListener {
         void addIdentity(Identity identity);
         void cancelAddIdentity();
+    }
+    public boolean supportBackButton() {
+        return false;
     }
 }

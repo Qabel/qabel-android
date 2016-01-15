@@ -1,9 +1,5 @@
 package de.qabel.qabelbox.fragments;
 
-/**
- * Created by danny on 14.01.2016.
- */
-
 
 import android.app.DatePickerDialog;
 import android.app.Dialog;
@@ -13,12 +9,14 @@ import android.util.Log;
 import android.widget.DatePicker;
 
 import java.util.Calendar;
-import java.util.Date;
 
+/**
+ * Created by danny on 14.01.2016.
+ */
 
 public class DatePickerFragment extends DialogFragment implements
         DatePickerDialog.OnDateSetListener {
-    CallbackListener mCallback;
+    private CallbackListener mCallback;
     private long mMaxDate;
     private long mMinDate;
     private long mCurrentDate;

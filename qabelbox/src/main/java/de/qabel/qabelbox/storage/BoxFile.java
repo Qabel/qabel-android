@@ -40,4 +40,9 @@ public class BoxFile extends BoxObject {
 		this.mtime = mtime;
 		this.key = key;
 	}
+
+	@Override
+	protected BoxFile clone() throws CloneNotSupportedException {
+		return new BoxFile(block,name,size,mtime,key);
+	}
 }

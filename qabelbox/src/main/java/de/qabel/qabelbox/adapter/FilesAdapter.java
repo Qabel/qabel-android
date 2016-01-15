@@ -26,7 +26,6 @@ public class FilesAdapter extends RecyclerView.Adapter<FilesAdapter.FilesViewHol
     private OnItemClickListener onItemClickListener;
     private DateFormat dateFormat = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT);
 
-
     public FilesAdapter(List<BoxObject> BoxObject) {
         boxObjects = BoxObject;
     }
@@ -68,6 +67,7 @@ public class FilesAdapter extends RecyclerView.Adapter<FilesAdapter.FilesViewHol
 
     public interface OnItemClickListener {
         void onItemClick(View view, int position);
+
         void onItemLockClick(View view, int position);
     }
 
@@ -101,8 +101,7 @@ public class FilesAdapter extends RecyclerView.Adapter<FilesAdapter.FilesViewHol
             // TODO: Only show a part of the key identifier until owner name is implemented
             holder.mTextViewFolderDetailsLeft.setText("Owner: " + boxExternal.owner.getReadableKeyIdentifier().substring(0, 6));
             holder.mTextViewFolderDetailsRight.setText("");
-        }
-        else if (boxObject instanceof BoxFile) {
+        } else if (boxObject instanceof BoxFile) {
             BoxFile boxFile = (BoxFile) boxObject;
             holder.mTextViewFolderDetailsLeft.setText(formatModificationTime(boxFile));
             holder.mTextViewFolderDetailsRight.setText(FileUtils.byteCountToDisplaySize(boxFile.size));

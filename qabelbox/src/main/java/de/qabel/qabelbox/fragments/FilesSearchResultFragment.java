@@ -1,5 +1,6 @@
 package de.qabel.qabelbox.fragments;
 
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -8,12 +9,15 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import de.qabel.qabelbox.R;
+import de.qabel.qabelbox.activities.MainActivity;
 import de.qabel.qabelbox.adapter.FilesAdapter;
+import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.storage.BoxFile;
 import de.qabel.qabelbox.storage.BoxObject;
 import de.qabel.qabelbox.storage.StorageSearch;
@@ -26,13 +30,16 @@ public class FilesSearchResultFragment extends FilesFragment {
     private StorageSearch mSearchResult;
     private String mSearchText;
     private FileSearchFilterFragment.FilterData mFilterData = new FileSearchFilterFragment.FilterData();
+    private AsyncTask<String, Void, StorageSearch> searchTask;
+    private boolean mNeedRefresh;
 
-    public static FilesSearchResultFragment newInstance(StorageSearch storageSearch, String searchText) {
+    public static FilesSearchResultFragment newInstance(StorageSearch storageSearch, String searchText, boolean needRefresh) {
         FilesSearchResultFragment fragment = new FilesSearchResultFragment();
         FilesAdapter filesAdapter = new FilesAdapter(new ArrayList<BoxObject>());
         fragment.setAdapter(filesAdapter);
         fragment.mSearchResult = storageSearch.filterOnlyFiles();
         fragment.mSearchText = searchText;
+        fragment.mNeedRefresh = needRefresh;
         fragment.fillAdapter(fragment.mSearchResult.filterByName(searchText).getResults());
         filesAdapter.notifyDataSetChanged();
         return fragment;
@@ -106,7 +113,67 @@ public class FilesSearchResultFragment extends FilesFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View v = super.onCreateView(inflater, container, savedInstanceState);
         setClickListener();
+
         return v;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (mNeedRefresh) {
+            restartSearch(mSearchText);
+        }
+    }
+
+    /**
+     * start search
+     *
+     * @param searchText
+     */
+    private void restartSearch(final String searchText) {
+        //
+        Toast.makeText(getActivity(), "dummy restart suche", Toast.LENGTH_LONG).show();
+
+        searchTask = new AsyncTask<String, Void, StorageSearch>() {
+
+            @Override
+            protected void onPreExecute() {
+                super.onPreExecute();
+
+            }
+
+            @Override
+            protected void onCancelled(StorageSearch storageSearch) {
+                super.onCancelled(storageSearch);
+            }
+
+            @Override
+            protected void onPostExecute(StorageSearch storageSearch) {
+                if (!mActivity.isFinishing() && !searchTask.isCancelled()) {
+                    Toast.makeText(getActivity(), "resuche beendet", Toast.LENGTH_SHORT).show();
+                    mSearchResult = storageSearch;
+                    mNeedRefresh = false;
+
+                    filterData(mFilterData);
+
+                }
+            }
+
+            @Override
+            protected StorageSearch doInBackground(String... params) {
+                try {
+                    return new StorageSearch(((FilesFragment) getFragmentManager().findFragmentByTag(MainActivity.TAG_FILES_FRAGMENT)).getBoxVolume().navigate());
+                } catch (QblStorageException e) {
+                    e.printStackTrace();
+                }
+
+                return null;
+
+            }
+        };
+        searchTask.executeOnExecutor(serialExecutor);
+
+
     }
 
     @Override

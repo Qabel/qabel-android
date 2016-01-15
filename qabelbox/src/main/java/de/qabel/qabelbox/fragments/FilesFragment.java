@@ -51,12 +51,12 @@ public class FilesFragment extends BaseFragment {
     private FilesFragment self;
     private AsyncTask<Void, Void, Void> browseToTask;
 
-
     private MenuItem mSearchAction;
     private boolean isSearchOpened = false;
     private EditText edtSeach;
     private BoxVolume mBoxVolume;
     private AsyncTask<String, Void, StorageSearch> searchTask;
+    private StorageSearch mCachedStorageSearch;
 
     public static FilesFragment newInstance(final BoxVolume boxVolume) {
         final FilesFragment filesFragment = new FilesFragment();
@@ -311,7 +311,18 @@ public class FilesFragment extends BaseFragment {
                     return;
                 }
                 if (!mActivity.isFinishing() && !searchTask.isCancelled()) {
-                    FilesSearchResultFragment fragment = FilesSearchResultFragment.newInstance(storageSearch, searchText);
+                    boolean needRefresh = mCachedStorageSearch != null;
+                    try {
+                        mCachedStorageSearch = storageSearch.clone();
+                    } catch (CloneNotSupportedException e) {
+                        e.printStackTrace();
+                    }
+
+                    if (needRefresh) {
+                        mCachedStorageSearch.getResults().remove(0);
+                        mCachedStorageSearch.getResults().remove(0);
+                    }
+                    FilesSearchResultFragment fragment = FilesSearchResultFragment.newInstance(mCachedStorageSearch, searchText, needRefresh);
                     mActivity.toggle.setDrawerIndicatorEnabled(false);
                     getFragmentManager().beginTransaction().add(R.id.fragment_container, fragment, FilesSearchResultFragment.TAG).addToBackStack(null).commit();
                 }
@@ -320,6 +331,10 @@ public class FilesFragment extends BaseFragment {
             @Override
             protected StorageSearch doInBackground(String... params) {
                 try {
+                    if (mCachedStorageSearch != null && mCachedStorageSearch.getResults().size() > 0) {
+                        return mCachedStorageSearch;
+                    }
+
                     return new StorageSearch(mBoxVolume.navigate());
                 } catch (QblStorageException e) {
                     e.printStackTrace();
@@ -406,6 +421,10 @@ public class FilesFragment extends BaseFragment {
         }
 
         return false;
+    }
+
+    public BoxVolume getBoxVolume() {
+        return mBoxVolume;
     }
 
     public interface FilesListListener {

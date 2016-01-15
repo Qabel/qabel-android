@@ -78,7 +78,7 @@ public class MainActivity extends AppCompatActivity
         FilesFragment.FilesListListener,
         IdentitiesFragment.IdentityListListener {
 
-    private static final String TAG_FILES_FRAGMENT = "TAG_FILES_FRAGMENT";
+    public static final String TAG_FILES_FRAGMENT = "TAG_FILES_FRAGMENT";
     private static final String TAG_CONTACT_LIST_FRAGMENT = "TAG_CONTACT_LIST_FRAGMENT";
     private static final String TAG_MANAGE_IDENTITIES_FRAGMENT = "TAG_MANAGE_IDENTITIES_FRAGMENT";
     private static final String TAG_ADD_IDENTITY_FRAGMENT = "TAG_ADD_IDENTITY_FRAGMENT";

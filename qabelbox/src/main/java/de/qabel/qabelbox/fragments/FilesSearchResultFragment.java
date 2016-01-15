@@ -8,18 +8,13 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.Hashtable;
 import java.util.List;
 
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.adapter.FilesAdapter;
-import de.qabel.qabelbox.storage.BoxExternal;
 import de.qabel.qabelbox.storage.BoxFile;
-import de.qabel.qabelbox.storage.BoxFolder;
 import de.qabel.qabelbox.storage.BoxObject;
 import de.qabel.qabelbox.storage.StorageSearch;
 
@@ -30,7 +25,7 @@ public class FilesSearchResultFragment extends FilesFragment {
     protected static final String TAG = "FilesSearchResFragment";
     private StorageSearch mSearchResult;
     private String mSearchText;
-    public FileSearchFilterFragment.FilterData mFilterData = new FileSearchFilterFragment.FilterData();
+    private FileSearchFilterFragment.FilterData mFilterData = new FileSearchFilterFragment.FilterData();
 
     public static FilesSearchResultFragment newInstance(StorageSearch storageSearch, String searchText) {
         FilesSearchResultFragment fragment = new FilesSearchResultFragment();

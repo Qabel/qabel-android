@@ -132,18 +132,18 @@ public class FilesSearchResultFragment extends FilesFragment {
         StorageSearch result = null;
         try {
             result = mSearchResult.clone().filterByName(mSearchText);
-            if (data.mDateMin != null)
+            if (data.mDateMin != null) {
                 result.filterByMinimumDate(data.mDateMin);
-            if (data.mDateMax != null)
+            }
+            if (data.mDateMax != null) {
                 result.filterByMaximumDate(data.mDateMax);
-
+            }
 
             result.filterByMinimumSize(data.mFileSizeMin);
             result.filterByMaximumSize(data.mFileSizeMax);
             fillAdapter(result.getResults());
             filesAdapter.notifyDataSetChanged();
         } catch (CloneNotSupportedException e) {
-            e.printStackTrace();
             Log.e(TAG, "error on clone SearchResult ", e);
         }
     }

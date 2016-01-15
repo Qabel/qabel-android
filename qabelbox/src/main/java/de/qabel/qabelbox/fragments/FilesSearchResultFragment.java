@@ -47,10 +47,15 @@ public class FilesSearchResultFragment extends FilesFragment {
         mActivity.fab.hide();
     }
 
+
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         menu.clear();
         inflater.inflate(R.menu.ab_files_search_result, menu);
+
+        if (mSearchResult.getResults().size() <= 2) {
+            menu.removeItem(R.id.action_ok);
+        }
     }
 
     @Override
@@ -141,9 +146,12 @@ public class FilesSearchResultFragment extends FilesFragment {
             e.printStackTrace();
             Log.e(TAG, "error on clone SearchResult ", e);
         }
-
     }
 
+    @Override
+    public boolean isFabNeeded() {
+        return false;
+    }
 
     @Override
     public boolean supportBackButton() {

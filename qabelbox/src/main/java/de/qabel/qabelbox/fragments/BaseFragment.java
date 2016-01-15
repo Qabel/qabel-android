@@ -46,12 +46,11 @@ public class BaseFragment extends Fragment {
      * set own back listener in actionbar
      */
     protected void setActionBarBackListener() {
+        
         mActivity.toggle.setToolbarNavigationClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                FragmentManager fm = getFragmentManager();
-                if (/*fm != null &&*/ fm.getBackStackEntryCount() > 0)
-                    mActivity.onBackPressed();
+                mActivity.onBackPressed();
             }
         });
     }

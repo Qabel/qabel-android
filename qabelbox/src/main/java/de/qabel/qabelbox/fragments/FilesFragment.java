@@ -324,6 +324,7 @@ public class FilesFragment extends BaseFragment {
                 } catch (QblStorageException e) {
                     e.printStackTrace();
                 }
+
                 return null;
 
             }

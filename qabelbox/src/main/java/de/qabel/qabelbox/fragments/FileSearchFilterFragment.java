@@ -37,6 +37,9 @@ public class FileSearchFilterFragment extends BaseFragment implements SeekBar.On
     long mMaxFileSize;
     long mMinDate;
     long mMaxDate;
+    long mNewMinDate=0;
+    long mNewMaxDate=0;
+
     private SeekBar mSbFileSizeMin;
     private SeekBar mSbFileSizeMax;
     private Button btSelectMinDate;
@@ -85,10 +88,13 @@ public class FileSearchFilterFragment extends BaseFragment implements SeekBar.On
                     @Override
                     public void onSuccess(int year, int month, int day) {
                         mMinDate = getStartOfDay(getDate(year, month, day)).getTime() / 1000;
+                        mNewMinDate=mMinDate;
                         mTvMinDate.setText(Formater.formatDateShort(mMinDate * 1000));
                         if (mMinDate > mMaxDate) {
                             mMaxDate = getEndOfDay(getDate(year, month, day)).getTime() / 1000;
+                            mNewMaxDate=mMaxDate;
                             mTvMaxDate.setText(Formater.formatDateShort(mMaxDate * 1000));
+
                         }
                     }
                 });
@@ -102,9 +108,11 @@ public class FileSearchFilterFragment extends BaseFragment implements SeekBar.On
                     @Override
                     public void onSuccess(int year, int month, int day) {
                         mMaxDate = getEndOfDay(getDate(year, month, day)).getTime() / 1000;
+                        mNewMaxDate=mMaxDate;
                         mTvMaxDate.setText(Formater.formatDateShort(mMaxDate * 1000));
                         if (mMaxDate < mMinDate) {
                             mMinDate = getStartOfDay(getDate(year, month, day)).getTime() / 1000;
+                            mNewMinDate=mMinDate;
                             mTvMinDate.setText(Formater.formatDateShort(mMinDate * 1000));
                         }
 
@@ -191,8 +199,10 @@ public class FileSearchFilterFragment extends BaseFragment implements SeekBar.On
             getFragmentManager().popBackStack();
             mFilterData.mFileSizeMin = (int) (mSbFileSizeMin.getProgress() + mMinFileSize);
             mFilterData.mFileSizeMax = (int) (mSbFileSizeMax.getProgress() + mMinFileSize);
-            mFilterData.mDateMin = new Date(mMinDate * 1000);
-            mFilterData.mDateMax = new Date(mMaxDate * 1000);
+            if(mNewMinDate>0)
+            mFilterData.mDateMin = new Date(mNewMinDate * 1000);
+            if(mNewMaxDate>0)
+            mFilterData.mDateMax = new Date(mNewMaxDate * 1000);
 
             mListener.onSuccess(mFilterData);
             return true;
@@ -227,7 +237,6 @@ public class FileSearchFilterFragment extends BaseFragment implements SeekBar.On
             if (seekBar == mSbFileSizeMax && mSbFileSizeMax.getProgress() < mSbFileSizeMin.getProgress())
                 mSbFileSizeMin.setProgress(mSbFileSizeMax.getProgress());
         }
-
     }
 
     public static class FilterData {

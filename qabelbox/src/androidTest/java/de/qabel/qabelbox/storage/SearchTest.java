@@ -308,7 +308,7 @@ public class SearchTest extends AndroidTestCase {
 		Calendar calendar = new GregorianCalendar();
 		calendar.set(Calendar.YEAR, 2010);
 
-		files.get(0).mtime = calendar.getTimeInMillis();
+		files.get(0).mtime = calendar.getTimeInMillis()/1000;
 		Date target = calendar.getTime();
 
 		calendar.set(Calendar.YEAR, 2011);
@@ -318,22 +318,23 @@ public class SearchTest extends AndroidTestCase {
 		Date beforeTarget = calendar.getTime();
 
 		StorageSearch search = new StorageSearch(searchResults).filterByMinimumDate(afterTarget);
-		assertEquals(0, search.getResults().size());
-
-		search = new StorageSearch(searchResults).filterByMinimumDate(beforeTarget);
-		assertEquals(1, search.getResults().size());
-
-		search = new StorageSearch(searchResults).filterByMinimumDate(target);
-		assertEquals(1, search.getResults().size());
-
-		search = new StorageSearch(searchResults).filterByMaximumDate(target);
-		assertEquals(5, search.getResults().size());
-
-		search = new StorageSearch(searchResults).filterByMaximumDate(beforeTarget);
+	
 		assertEquals(4, search.getResults().size());
 
-		search = new StorageSearch(searchResults).filterByMaximumDate(afterTarget);
+		search = new StorageSearch(searchResults).filterByMinimumDate(beforeTarget);
 		assertEquals(5, search.getResults().size());
+
+		search = new StorageSearch(searchResults).filterByMinimumDate(target);
+		assertEquals(4, search.getResults().size());
+
+		search = new StorageSearch(searchResults).filterByMaximumDate(target);
+		assertEquals(1, search.getResults().size());
+
+		search = new StorageSearch(searchResults).filterByMaximumDate(beforeTarget);
+		assertEquals(0, search.getResults().size());
+
+		search = new StorageSearch(searchResults).filterByMaximumDate(afterTarget);
+		assertEquals(1, search.getResults().size());
 	}
 
 	@Test

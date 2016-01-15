@@ -95,7 +95,10 @@ public class SelectUploadFolderFragment extends FilesFragment {
         void onFolderSelected(Uri uri, BoxNavigation boxNavigation);
         void onAbort();
     }
-
+    @Override
+    public String getTitle() {
+        return getString(R.string.headline_select_upload_folder);
+    }
     @Override
     public boolean isFabNeeded() {
         return false;

@@ -41,6 +41,17 @@ public class BaseFragment extends Fragment {
         actionBar = mActivity.getSupportActionBar();
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        actionBar.setTitle(getTitle());
+        if (isFabNeeded()) {
+            mActivity.fab.show();
+        } else {
+            mActivity.fab.hide();
+        }
+    }
+
     /**
      * set own back listener in actionbar
      */

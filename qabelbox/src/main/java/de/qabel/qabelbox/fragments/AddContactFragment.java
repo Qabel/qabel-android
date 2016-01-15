@@ -169,6 +169,11 @@ public class AddContactFragment extends BaseFragment {
     }
 
     @Override
+    public String getTitle() {
+        return getString(R.string.headline_add_contact);
+    }
+
+    @Override
     public boolean supportBackButton() {
         return false;
     }

@@ -97,7 +97,10 @@ public class ContactFragment extends BaseFragment {
     public interface ContactListListener {
         void startAddContact(Identity identity);
     }
-
+    @Override
+    public String getTitle() {
+        return getString(R.string.headline_contacts);
+    }
     @Override
     public boolean isFabNeeded() {
         return true;

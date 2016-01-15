@@ -161,7 +161,10 @@ public class AddIdentityFragment extends BaseFragment {
     public boolean isFabNeeded() {
         return false;
     }
-
+    @Override
+    public String getTitle() {
+        return getString(R.string.headline_add_identity);
+    }
     public interface AddIdentityListener {
         void addIdentity(Identity identity);
         void cancelAddIdentity();

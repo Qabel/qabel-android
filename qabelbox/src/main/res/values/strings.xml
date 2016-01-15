@@ -40,7 +40,7 @@
         <item quantity="other">shared with %d persons.</item>
     </plurals>
 
-<!-- TODO: Remove or change this placeholder text -->
+    <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="upload">Upload</string>
     <string name="abort">Abort</string>
@@ -75,4 +75,9 @@
     <string name="load_file_list">Load filelist</string>
     <string name="ab_filesearch_hint">Enter keyword</string>
     <string name="splash_footer_text">Don\'t trust us...\n...it\'s not necessary!</string>
+    <string name="headline_add_contact">Add contact</string>
+    <string name="headline_add_identity">Add identity</string>
+    <string name="headline_contacts">Contacts</string>
+    <string name="headline_identities">Identities</string>
+    <string name="headline_select_upload_folder">Select upload folder</string>
 </resources>

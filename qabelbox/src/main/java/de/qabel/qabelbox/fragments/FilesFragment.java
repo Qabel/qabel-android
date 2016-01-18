@@ -1,6 +1,5 @@
 package de.qabel.qabelbox.fragments;
 
-
 import android.app.Activity;
 import android.content.Context;
 import android.os.AsyncTask;
@@ -37,7 +36,6 @@ import de.qabel.qabelbox.storage.BoxObject;
 import de.qabel.qabelbox.storage.BoxVolume;
 import de.qabel.qabelbox.storage.StorageSearch;
 
-
 public class FilesFragment extends BaseFragment {
 
     private static final String TAG = "FilesFragment";
@@ -47,7 +45,7 @@ public class FilesFragment extends BaseFragment {
     private RecyclerView.LayoutManager recyclerViewLayoutManager;
     private boolean isLoading;
     private FilesListListener mListener;
-    private SwipeRefreshLayout swipeRefreshLayout;
+    protected SwipeRefreshLayout swipeRefreshLayout;
     private FilesFragment self;
     private AsyncTask<Void, Void, Void> browseToTask;
 
@@ -59,6 +57,7 @@ public class FilesFragment extends BaseFragment {
     private StorageSearch mCachedStorageSearch;
 
     public static FilesFragment newInstance(final BoxVolume boxVolume) {
+
         final FilesFragment filesFragment = new FilesFragment();
         filesFragment.mBoxVolume = boxVolume;
         final FilesAdapter filesAdapter = new FilesAdapter(new ArrayList<BoxObject>());
@@ -66,12 +65,14 @@ public class FilesFragment extends BaseFragment {
         new AsyncTask<Void, Void, Void>() {
             @Override
             protected void onPreExecute() {
+
                 super.onPreExecute();
                 filesFragment.setIsLoading(true);
             }
 
             @Override
             protected Void doInBackground(Void... params) {
+
                 try {
                     filesFragment.setBoxNavigation(boxVolume.navigate());
                 } catch (QblStorageException e) {
@@ -91,6 +92,7 @@ public class FilesFragment extends BaseFragment {
 
             @Override
             protected void onPostExecute(Void aVoid) {
+
                 super.onPostExecute(aVoid);
                 filesFragment.setIsLoading(false);
                 filesAdapter.notifyDataSetChanged();
@@ -101,6 +103,7 @@ public class FilesFragment extends BaseFragment {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
         actionBar.setDisplayHomeAsUpEnabled(false);
@@ -110,28 +113,27 @@ public class FilesFragment extends BaseFragment {
         self = this;
     }
 
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
         View view = inflater.inflate(R.layout.fragment_files, container, false);
-
         swipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.swipeRefresh);
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                mListener.onDoRefresh(self, boxNavigation, filesAdapter);
 
+                mListener.onDoRefresh(self, boxNavigation, filesAdapter);
             }
         });
+
         swipeRefreshLayout.post(new Runnable() {
             @Override
             public void run() {
+
                 swipeRefreshLayout.setRefreshing(isLoading);
             }
         });
-
         filesListRecyclerView = (RecyclerView) view.findViewById(R.id.files_list);
         filesListRecyclerView.setHasFixedSize(true);
 
@@ -143,6 +145,7 @@ public class FilesFragment extends BaseFragment {
         filesListRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+
                 super.onScrolled(recyclerView, dx, dy);
                 int lastCompletelyVisibleItem = ((LinearLayoutManager) recyclerViewLayoutManager).findLastCompletelyVisibleItemPosition();
                 int firstCompletelyVisibleItem = ((LinearLayoutManager) recyclerViewLayoutManager).findFirstCompletelyVisibleItemPosition();
@@ -157,8 +160,17 @@ public class FilesFragment extends BaseFragment {
         return view;
     }
 
+
+
+    /*@Override
+    public void onResume() {
+        super.onResume();
+        setIsLoading(isLoading);
+    }*/
+
     @Override
     public void onAttach(Activity activity) {
+
         super.onAttach(activity);
         try {
             mListener = (FilesListListener) activity;
@@ -170,6 +182,7 @@ public class FilesFragment extends BaseFragment {
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+
         menu.clear();
         super.onCreateOptionsMenu(menu, inflater);
         inflater.inflate(R.menu.ab_files, menu);
@@ -177,6 +190,7 @@ public class FilesFragment extends BaseFragment {
 
     @Override
     public void onPrepareOptionsMenu(Menu menu) {
+
         mSearchAction = menu.findItem(R.id.action_search);
     }
 
@@ -187,6 +201,8 @@ public class FilesFragment extends BaseFragment {
             case R.id.action_search:
                 if (!isSearchRunning()) {
                     handleMenuSearch();
+                } else if (isSearchOpened) {
+                    removeSearchInActionbar(actionBar);
                 }
                 return true;
 
@@ -196,6 +212,7 @@ public class FilesFragment extends BaseFragment {
     }
 
     private boolean isSearchRunning() {
+
         if (isSearchOpened) {
 
             return true;
@@ -207,6 +224,7 @@ public class FilesFragment extends BaseFragment {
      * handle click on search icon
      */
     private void handleMenuSearch() {
+
         if (isSearchOpened) {
             removeSearchInActionbar(actionBar);
         } else {
@@ -220,6 +238,7 @@ public class FilesFragment extends BaseFragment {
      * @param action
      */
     private void openSearchInActionBar(final ActionBar action) {
+
         action.setDisplayShowCustomEnabled(true);
         action.setCustomView(R.layout.ab_search_field);
         action.setDisplayShowTitleEnabled(false);
@@ -230,16 +249,16 @@ public class FilesFragment extends BaseFragment {
         edtSeach.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+
                 if (actionId == EditorInfo.IME_ACTION_SEARCH) {
-                    removeSearchInActionbar(action);
                     String text = edtSeach.getText().toString();
+                    removeSearchInActionbar(action);
                     startSearch(text);
                     return true;
                 }
                 return false;
             }
         });
-
 
         edtSeach.requestFocus();
 
@@ -257,12 +276,14 @@ public class FilesFragment extends BaseFragment {
      * @param action
      */
     private void removeSearchInActionbar(ActionBar action) {
+
         action.setDisplayShowCustomEnabled(false);
         action.setDisplayShowTitleEnabled(true);
 
         //hides the keyboard
         InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(edtSeach.getWindowToken(), 0);
+
         imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.RESULT_HIDDEN);
         mSearchAction.setIcon(R.drawable.ic_ab_search);
         action.setTitle(getTitle());
@@ -272,6 +293,7 @@ public class FilesFragment extends BaseFragment {
 
     @Override
     public void onPause() {
+
         if (isSearchOpened) {
             removeSearchInActionbar(actionBar);
         }
@@ -284,25 +306,27 @@ public class FilesFragment extends BaseFragment {
      * @param searchText
      */
     private void startSearch(final String searchText) {
-        //
-        Toast.makeText(getActivity(), R.string.load_file_list, Toast.LENGTH_LONG).show();
+
         cancelSearchTask();
         searchTask = new AsyncTask<String, Void, StorageSearch>() {
 
             @Override
             protected void onPreExecute() {
+
                 super.onPreExecute();
                 setIsLoading(true);
             }
 
             @Override
             protected void onCancelled(StorageSearch storageSearch) {
+
                 setIsLoading(false);
                 super.onCancelled(storageSearch);
             }
 
             @Override
             protected void onPostExecute(StorageSearch storageSearch) {
+
                 setIsLoading(false);
 
                 //check if files found
@@ -318,18 +342,15 @@ public class FilesFragment extends BaseFragment {
                         e.printStackTrace();
                     }
 
-                    if (needRefresh) {
-                        mCachedStorageSearch.getResults().remove(0);
-                        mCachedStorageSearch.getResults().remove(0);
-                    }
                     FilesSearchResultFragment fragment = FilesSearchResultFragment.newInstance(mCachedStorageSearch, searchText, needRefresh);
                     mActivity.toggle.setDrawerIndicatorEnabled(false);
-                    getFragmentManager().beginTransaction().add(R.id.fragment_container, fragment, FilesSearchResultFragment.TAG).addToBackStack(null).commit();
+                    getFragmentManager().beginTransaction().replace(R.id.fragment_container, fragment, FilesSearchResultFragment.TAG).addToBackStack(null).commit();
                 }
             }
 
             @Override
             protected StorageSearch doInBackground(String... params) {
+
                 try {
                     if (mCachedStorageSearch != null && mCachedStorageSearch.getResults().size() > 0) {
                         return mCachedStorageSearch;
@@ -341,20 +362,17 @@ public class FilesFragment extends BaseFragment {
                 }
 
                 return null;
-
             }
         };
         searchTask.executeOnExecutor(serialExecutor);
-
-
     }
 
     private void cancelSearchTask() {
+
         if (searchTask != null) {
             searchTask.cancel(true);
         }
     }
-
 
     /**
      * Sets visibility of loading spinner. Visibility is stored if method is invoked
@@ -363,6 +381,7 @@ public class FilesFragment extends BaseFragment {
      * @param isLoading
      */
     public void setIsLoading(final boolean isLoading) {
+
         this.isLoading = isLoading;
         if (swipeRefreshLayout == null) {
             return;
@@ -370,38 +389,46 @@ public class FilesFragment extends BaseFragment {
         swipeRefreshLayout.post(new Runnable() {
             @Override
             public void run() {
+
                 swipeRefreshLayout.setRefreshing(isLoading);
             }
         });
     }
 
     public void setAdapter(FilesAdapter adapter) {
+
         filesAdapter = adapter;
     }
 
     public FilesAdapter getFilesAdapter() {
+
         return filesAdapter;
     }
 
     public void setOnItemClickListener(FilesAdapter.OnItemClickListener onItemClickListener) {
+
         filesAdapter.setOnItemClickListener(onItemClickListener);
     }
 
     @Override
     public boolean isFabNeeded() {
+
         return true;
     }
 
     private void setBoxNavigation(BoxNavigation boxNavigation) {
+
         this.boxNavigation = boxNavigation;
     }
 
     public BoxNavigation getBoxNavigation() {
+
         return boxNavigation;
     }
 
     @Override
     public String getTitle() {
+
         return getString(R.string.headline_files);
     }
 
@@ -411,6 +438,7 @@ public class FilesFragment extends BaseFragment {
      * @return true if back handled
      */
     public boolean handleBackPressed() {
+
         if (isSearchOpened) {
             removeSearchInActionbar(actionBar);
             return true;
@@ -424,10 +452,17 @@ public class FilesFragment extends BaseFragment {
     }
 
     public BoxVolume getBoxVolume() {
+
         return mBoxVolume;
     }
 
+    public void setCachedSearchResult(StorageSearch searchResult) {
+
+        mCachedStorageSearch = searchResult;
+    }
+
     public interface FilesListListener {
+
         void onScrolledToBottom(boolean scrolledToBottom);
 
         void onExport(BoxNavigation boxNavigation, BoxObject object);
@@ -436,6 +471,7 @@ public class FilesFragment extends BaseFragment {
     }
 
     public boolean browseToParent() {
+
         cancelBrowseToTask();
 
         if (!boxNavigation.hasParent()) {
@@ -445,12 +481,14 @@ public class FilesFragment extends BaseFragment {
         browseToTask = new AsyncTask<Void, Void, Void>() {
             @Override
             protected void onPreExecute() {
+
                 super.onPreExecute();
                 preBrowseTo();
             }
 
             @Override
             protected Void doInBackground(Void... voids) {
+
                 waitForBoxNavigation();
                 try {
                     boxNavigation.navigateToParent();
@@ -463,6 +501,7 @@ public class FilesFragment extends BaseFragment {
 
             @Override
             protected void onPostExecute(Void aVoid) {
+
                 super.onPostExecute(aVoid);
                 setIsLoading(false);
                 filesAdapter.notifyDataSetChanged();
@@ -473,10 +512,12 @@ public class FilesFragment extends BaseFragment {
     }
 
     private void preBrowseTo() {
+
         setIsLoading(true);
     }
 
     private void fillAdapter() {
+
         filesAdapter.clear();
 
         try {
@@ -499,6 +540,7 @@ public class FilesFragment extends BaseFragment {
     }
 
     private void waitForBoxNavigation() {
+
         while (boxNavigation == null) {
             Log.d(TAG, "waiting for BoxNavigation");
             try {
@@ -510,17 +552,20 @@ public class FilesFragment extends BaseFragment {
     }
 
     public void browseTo(final BoxFolder navigateTo) {
+
         Log.d(TAG, "Browsing to " + navigateTo.name);
         cancelBrowseToTask();
         browseToTask = new AsyncTask<Void, Void, Void>() {
             @Override
             protected void onPreExecute() {
+
                 super.onPreExecute();
                 preBrowseTo();
             }
 
             @Override
             protected Void doInBackground(Void... voids) {
+
                 waitForBoxNavigation();
                 try {
                     boxNavigation.navigate(navigateTo);
@@ -533,6 +578,7 @@ public class FilesFragment extends BaseFragment {
 
             @Override
             protected void onPostExecute(Void aVoid) {
+
                 super.onPostExecute(aVoid);
                 setIsLoading(false);
                 filesAdapter.notifyDataSetChanged();
@@ -541,6 +587,7 @@ public class FilesFragment extends BaseFragment {
 
             @Override
             protected void onCancelled() {
+
                 super.onCancelled();
                 setIsLoading(false);
                 browseToTask = null;
@@ -552,11 +599,11 @@ public class FilesFragment extends BaseFragment {
     }
 
     private void cancelBrowseToTask() {
+
         if (browseToTask != null) {
             Log.d(TAG, "Found a running browseToTask");
             browseToTask.cancel(true);
             Log.d(TAG, "Canceled browserToTask");
         }
     }
-
 }

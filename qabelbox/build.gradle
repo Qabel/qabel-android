@@ -8,7 +8,7 @@ spoon {
     // for debug output
     debug = true
     // To run a single test class
-    className = 'de.qabel.qabelbox.ui.MainActivityTest'
+    className = 'de.qabel.qabelbox.ui.FileSearchTest'
     // To run a single method in TestCase
     //methodName = 'test1IncorrectLogin'
     adbTimeout = 60

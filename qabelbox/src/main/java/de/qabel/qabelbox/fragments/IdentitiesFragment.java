@@ -168,7 +168,10 @@ public class IdentitiesFragment extends BaseFragment {
         super.onDetach();
         mListener = null;
     }
-
+    @Override
+    public String getTitle() {
+        return getString(R.string.headline_identities);
+    }
     public interface IdentityListListener {
         void deleteIdentity(Identity identity);
         void modifyIdentity(Identity identity);

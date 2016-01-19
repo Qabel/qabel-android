@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:id="@+id/logo_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:src="@drawable/qabel_logo"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/initial_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:visibility="invisible">
+
+
+        <android.support.v4.widget.Space
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            />
+
+
+        <de.qabel.qabelbox.views.SquareTextViewFont
+            android:id="@+id/tv_initial"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:background="@drawable/identity_circle"
+            android:gravity="center"
+            android:padding="@dimen/identity_circle_padding_vertical"
+            android:text="WW"
+            android:textColor="@color/white"
+            android:textSize="@dimen/textsize_identity_circle_initial"/>
+
+        <android.support.v4.widget.Space
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            />
+
+        <LinearLayout
+            android:id="@+id/layout_top_textlines"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:orientation="vertical">
+
+
+            <de.qabel.qabelbox.views.TextViewFont
+                android:id="@+id/tv_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:lines="1"
+                android:text="walter warum"
+                android:textColor="@color/default_text_color"/>
+
+            <de.qabel.qabelbox.views.TextViewFont
+                android:id="@+id/tv_description"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:lines="1"
+                android:text="forum and entwickler"
+                android:textColor="@color/default_text_color"/>
+
+        </LinearLayout>
+
+        <android.support.v4.widget.Space
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"/>
+    </LinearLayout>
+</FrameLayout>

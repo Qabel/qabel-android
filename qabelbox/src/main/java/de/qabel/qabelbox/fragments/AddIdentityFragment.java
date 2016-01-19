@@ -1,8 +1,6 @@
 package de.qabel.qabelbox.fragments;
 
-
 import android.app.Activity;
-import android.app.Fragment;
 import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -69,6 +67,7 @@ public class AddIdentityFragment extends BaseFragment {
         buttonAddIdentity.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 URI uri = URI.create(QabelBoxApplication.DEFAULT_DROP_SERVER);
                 DropServer dropServer = new DropServer(uri, "", true);
                 DropIdGenerator adjustableDropIdGenerator = new AdjustableDropIdGenerator((seekBarDropID.getProgress() + 1) * 8);
@@ -87,6 +86,7 @@ public class AddIdentityFragment extends BaseFragment {
         buttonCancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 hideSoftInput(view);
                 mListener.cancelAddIdentity();
             }
@@ -95,6 +95,7 @@ public class AddIdentityFragment extends BaseFragment {
         seekBarDropID.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+
                 textViewDropIDCurrent.setText(String.valueOf(progress + 1));
             }
 
@@ -112,6 +113,7 @@ public class AddIdentityFragment extends BaseFragment {
         checkBoxAdvancedOptions.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+
                 if (isChecked) {
                     textViewDescriptionDropID.setVisibility(View.VISIBLE);
                     textViewAdvancedDescriptionDropID.setVisibility(View.VISIBLE);
@@ -135,6 +137,7 @@ public class AddIdentityFragment extends BaseFragment {
     }
 
     private void hideSoftInput(View view) {
+
         InputMethodManager imm = (InputMethodManager) getActivity()
                 .getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
@@ -142,6 +145,7 @@ public class AddIdentityFragment extends BaseFragment {
 
     @Override
     public void onAttach(Activity activity) {
+
         super.onAttach(activity);
         try {
             mListener = (AddIdentityListener) activity;
@@ -153,23 +157,32 @@ public class AddIdentityFragment extends BaseFragment {
 
     @Override
     public void onDetach() {
+
         super.onDetach();
         mListener = null;
     }
 
     @Override
     public boolean isFabNeeded() {
+
         return false;
     }
+
     @Override
     public String getTitle() {
+
         return getString(R.string.headline_add_identity);
     }
+
     public interface AddIdentityListener {
+
         void addIdentity(Identity identity);
+
         void cancelAddIdentity();
     }
+
     public boolean supportBackButton() {
+
         return false;
     }
 }

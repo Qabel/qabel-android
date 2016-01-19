@@ -13,7 +13,9 @@
         android:layout_width="match_parent"
         android:lines="1"
         android:maxLines="1"
+        android:id="@+id/et_name"
         android:singleLine="true"
+        android:hint="@string/identity_enter_name_hint"
         android:layout_height="wrap_content"/>
 
     <Space
@@ -26,6 +28,7 @@
         android:layout_height="wrap_content"
         android:gravity="left"
         android:minLines="5"
+
         android:text="@string/create_identity_enter_name"
         android:textSize="@dimen/textsize_normal"/>
 

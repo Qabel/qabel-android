@@ -58,6 +58,7 @@ public class CreateIdentityHeaderFragment extends Fragment {
                 result += value.toUpperCase().charAt(0);
             }
         }
+        System.out.println("ini '"+result+"'");
         return result;
     }
 }

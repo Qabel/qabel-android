@@ -8,12 +8,13 @@
         android:id="@+id/logo_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:padding="20dp"
         android:orientation="vertical">
 
         <ImageView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:src="@drawable/qabel_logo"/>
+            android:src="@drawable/big_logo"/>
     </LinearLayout>
 
     <LinearLayout

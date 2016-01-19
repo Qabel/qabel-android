@@ -9,12 +9,30 @@
     android:layout_marginTop="@dimen/activity_vertical_margin"
     android:orientation="vertical">
 
-    <de.qabel.qabelbox.views.EditTextFont
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:lines="1"
-        android:maxLines="1"
-        android:singleLine="true"
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content">
+
+        <SeekBar
+            android:id="@+id/sb_security"
+
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+        <de.qabel.qabelbox.views.TextViewFont
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_below="@id/sb_security"
+            android:text="@string/identity_security_low"/>
+
+        <de.qabel.qabelbox.views.TextViewFont
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_below="@id/sb_security"
+            android:text="@string/identity_security_high"/>
+    </RelativeLayout>
 
     <Space
         android:layout_width="wrap_content"

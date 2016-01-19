@@ -4,30 +4,30 @@
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="match_parent"
     android:layout_alignParentBottom="true"
     android:layout_marginTop="@dimen/activity_vertical_margin"
     android:orientation="vertical">
-
-    <de.qabel.qabelbox.views.EditTextFont
-        android:layout_width="match_parent"
-        android:lines="1"
-        android:maxLines="1"
-        android:singleLine="true"
-        android:layout_height="wrap_content"/>
 
     <Space
         android:layout_width="wrap_content"
         android:layout_height="20dp"
         android:layout_weight="1"/>
 
-    <de.qabel.qabelbox.views.TextViewFont
+    <de.qabel.qabelbox.views.ButtonFont
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="left"
-        android:minLines="5"
-        android:text="@string/create_identity_enter_name"
-        android:textSize="@dimen/textsize_normal"/>
+        android:textColor="@color/default_text_color"
+        android:drawableRight="@drawable/ic_icon_arrow_right"
+        android:text="@string/create_identity_create"/>
+
+
+    <de.qabel.qabelbox.views.ButtonFont
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="@color/default_text_color"
+        android:drawableRight="@drawable/ic_icon_arrow_right"
+        android:text="@string/create_identity_import"/>
 
     <Space
         android:layout_width="wrap_content"

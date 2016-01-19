@@ -88,4 +88,11 @@
     <string name="create_identity_successfull">Herzlichen Glückwunsch</string>
     <string name="dialog_headline_info">Information</string>
     <string name="create_identity_enter_all_data">Please fill out all data to continues</string>
+    <string name="finish">Finish</string>
+    <string name="identity_enter_name_hint">Name oder Pseudonym der Identität</string>
+    <string name="identity_enter_desription_hint">Accountbezeichnung oder Bechreibung</string>
+    <string name="identity_security_low">Less</string>
+    <string name="identity_security_high">High</string>
+    <string name="create_identity_create">Create new identity</string>
+    <string name="create_identity_import">Import identity</string>
 </resources>

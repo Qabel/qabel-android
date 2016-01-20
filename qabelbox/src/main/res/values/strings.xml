@@ -89,11 +89,11 @@
     <string name="dialog_headline_info">Information</string>
     <string name="create_identity_enter_all_data">Please fill out all data to continues</string>
     <string name="finish">Finish</string>
-    <string name="identity_enter_name_hint">Name oder Pseudonym der Identität</string>
-    <string name="identity_enter_desription_hint">Accountbezeichnung oder Bechreibung</string>
+    <string name="create_identity_enter_name_hint">Name der Identität</string>
     <string name="identity_security_low">Less</string>
-    <string name="identity_security_high">High</string>
+    <string name="identity_security_high">Much</string>
     <string name="create_identity_create">Create new identity</string>
     <string name="create_identity_import">Import identity</string>
     <string name="function_not_yet_implenented">Function not yet implemented</string>
+    <string name="step_x_from_y">Step $1/$2</string>
 </resources>

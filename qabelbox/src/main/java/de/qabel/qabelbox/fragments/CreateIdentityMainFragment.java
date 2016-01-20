@@ -15,8 +15,8 @@ import de.qabel.qabelbox.helper.UIHelper;
  */
 public class CreateIdentityMainFragment extends BaseIdentityFragment implements View.OnClickListener {
 
-    Button mCreateIdentity;
-    Button mImportIdentity;
+    private Button mCreateIdentity;
+    private Button mImportIdentity;
 
     @Nullable
     @Override

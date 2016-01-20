@@ -10,13 +10,13 @@
     android:orientation="vertical">
 
     <de.qabel.qabelbox.views.EditTextFont
+        android:id="@+id/et_name"
         android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/create_identity_enter_name_hint"
         android:lines="1"
         android:maxLines="1"
-        android:id="@+id/et_name"
-        android:singleLine="true"
-        android:hint="@string/identity_enter_name_hint"
-        android:layout_height="wrap_content"/>
+        android:singleLine="true"/>
 
     <Space
         android:layout_width="wrap_content"
@@ -24,11 +24,11 @@
         android:layout_weight="1"/>
 
     <de.qabel.qabelbox.views.TextViewFont
+        android:id="@+id/tv_message"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="left"
         android:minLines="5"
-
         android:text="@string/create_identity_enter_name"
         android:textSize="@dimen/textsize_normal"/>
 

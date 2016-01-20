@@ -54,12 +54,12 @@ import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.adapter.FilesAdapter;
 import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.fragments.AddContactFragment;
-import de.qabel.qabelbox.fragments.AddIdentityFragment;
 import de.qabel.qabelbox.fragments.BaseFragment;
 import de.qabel.qabelbox.fragments.ContactFragment;
 import de.qabel.qabelbox.fragments.FilesFragment;
 import de.qabel.qabelbox.fragments.IdentitiesFragment;
 import de.qabel.qabelbox.fragments.SelectUploadFolderFragment;
+import de.qabel.qabelbox.listeners.AddIdentityListener;
 import de.qabel.qabelbox.providers.BoxProvider;
 import de.qabel.qabelbox.services.LocalQabelService;
 import de.qabel.qabelbox.storage.BoxExternal;
@@ -73,7 +73,7 @@ public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,
         SelectUploadFolderFragment.OnSelectedUploadFolderListener,
         ContactFragment.ContactListListener,
-        AddIdentityFragment.AddIdentityListener,
+        AddIdentityListener,
         AddContactFragment.AddContactListener,
         FilesFragment.FilesListListener,
         IdentitiesFragment.IdentityListListener {
@@ -81,7 +81,6 @@ public class MainActivity extends AppCompatActivity
     private static final String TAG_FILES_FRAGMENT = "TAG_FILES_FRAGMENT";
     private static final String TAG_CONTACT_LIST_FRAGMENT = "TAG_CONTACT_LIST_FRAGMENT";
     private static final String TAG_MANAGE_IDENTITIES_FRAGMENT = "TAG_MANAGE_IDENTITIES_FRAGMENT";
-    private static final String TAG_ADD_IDENTITY_FRAGMENT = "TAG_ADD_IDENTITY_FRAGMENT";
     private static final String TAG_ADD_CONTACT_FRAGMENT = "TAG_ADD_CONTACT_FRAGMENT";
 
     private static final String TAG = "BoxMainActivity";
@@ -123,13 +122,7 @@ public class MainActivity extends AppCompatActivity
             if (requestCode == REQUEST_CREATE_IDENTITY) {
                 if (data != null && data.hasExtra(CreateIdentityActivity.P_IDENTITY)) {
                     Identity identity = (Identity) data.getSerializableExtra(CreateIdentityActivity.P_IDENTITY);
-                    Toast.makeText(getApplicationContext(), "create identity "+identity.getAlias(), Toast.LENGTH_LONG).show();
-                    changeActiveIdentity(identity);
-                    provider.notifyRootsUpdated();
-
-                    Snackbar.make(appBarMain, "Added identity: " + identity.getAlias(), Snackbar.LENGTH_LONG)
-                            .show();
-                    selectFilesFragment();
+                    addIdentity(identity);
                 }
             }
             if (data != null) {
@@ -493,12 +486,6 @@ public class MainActivity extends AppCompatActivity
         startActivity(Intent.createChooser(viewIntent, "Open with"));
     }
 
-    @Override
-    protected void onPause() {
-
-        super.onPause();
-    }
-
     private void delete(final BoxObject boxObject) {
 
         new AlertDialog.Builder(self)
@@ -723,7 +710,6 @@ public class MainActivity extends AppCompatActivity
         selectContactsFragment();
     }
 
-    @Override
     public void addIdentity(Identity identity) {
 
         mService.addIdentity(identity);
@@ -956,11 +942,8 @@ public class MainActivity extends AppCompatActivity
                                 public boolean onMenuItemClick(MenuItem item) {
 
                                     drawer.closeDrawer(GravityCompat.START);
-                                    Intent i = new Intent(self, CreateIdentityActivity.class);
-                                    i.putExtra(CreateIdentityActivity.MODE, CreateIdentityActivity.MODE_IDENTITY);
-                                    i.putExtra(CreateIdentityActivity.FIRST_RUN, false);
-                                    self.startActivityForResult(i,REQUEST_CREATE_IDENTITY);
-                                    //selectAddIdentityFragment();
+
+                                    selectAddIdentityFragment();
                                     return true;
                                 }
                             });
@@ -1008,6 +991,13 @@ public class MainActivity extends AppCompatActivity
         });
     }
 
+    private void selectAddIdentityFragment() {
+
+        Intent i = new Intent(self, CreateIdentityActivity.class);
+        i.putExtra(CreateIdentityActivity.FIRST_RUN, false);
+        self.startActivityForResult(i, REQUEST_CREATE_IDENTITY);
+    }
+
     private void showAbortMessage() {
 
         Toast.makeText(self, R.string.aborted,
@@ -1051,15 +1041,6 @@ public class MainActivity extends AppCompatActivity
                 .replace(R.id.fragment_container,
                         ContactFragment.newInstance(mService.getContacts(activeIdentity), activeIdentity),
                         TAG_CONTACT_LIST_FRAGMENT)
-                .addToBackStack(null)
-                .commit();
-    }
-
-    private void selectAddIdentityFragment() {
-
-        fab.hide();
-        getFragmentManager().beginTransaction()
-                .replace(R.id.fragment_container, new AddIdentityFragment(), TAG_ADD_IDENTITY_FRAGMENT)
                 .addToBackStack(null)
                 .commit();
     }

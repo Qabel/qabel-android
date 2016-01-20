@@ -16,27 +16,16 @@ public class BaseIdentityFragment extends Fragment {
     public void onAttach(Activity activity) {
 
         super.onAttach(activity);
-        mActivty=(CreateIdentityActivity)activity;
+        mActivty = (CreateIdentityActivity) activity;
     }
 
     /**
-     * return true if all data entered
+     * check if fragment ready to go to next page.
      *
-     * @return
+     * @return error message to show to user or null if all ok
      */
     public String check() {
 
         return "";
-    }
-
-    /**
-     * reset data for reuse fragment
-     */
-    public void resetData() {
-
-    }
-
-    public void onBackPressed() {
-
     }
 }

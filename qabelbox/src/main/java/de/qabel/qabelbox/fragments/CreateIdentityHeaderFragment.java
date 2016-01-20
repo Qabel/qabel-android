@@ -15,7 +15,7 @@ import de.qabel.qabelbox.R;
  */
 public class CreateIdentityHeaderFragment extends Fragment {
 
-    private TextView tvDescription;
+
     private ViewGroup logoLayout;
     private ViewGroup initialLayout;
     private TextView tvInitial;
@@ -30,12 +30,11 @@ public class CreateIdentityHeaderFragment extends Fragment {
         initialLayout = (ViewGroup) view.findViewById(R.id.initial_layout);
         tvInitial = (TextView) view.findViewById(R.id.tv_initial);
         tvName = (TextView) view.findViewById(R.id.tv_name);
-        tvDescription = (TextView) view.findViewById(R.id.tv_description);
-        updateUI(null, null, Integer.MIN_VALUE);
+        updateUI(null);
         return view;
     }
 
-    public void updateUI(String name, String description, int securityLevel) {
+    public void updateUI(String name) {
 
         if (name == null) {
             logoLayout.setVisibility(View.VISIBLE);
@@ -46,7 +45,7 @@ public class CreateIdentityHeaderFragment extends Fragment {
         initialLayout.setVisibility(View.VISIBLE);
         tvName.setText(name);
         tvInitial.setText(getInitials(name));
-        tvDescription.setText(description);
+
     }
 
     private String getInitials(String name) {

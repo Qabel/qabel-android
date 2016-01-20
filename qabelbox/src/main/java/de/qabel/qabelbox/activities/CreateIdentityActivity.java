@@ -1,6 +1,7 @@
 package de.qabel.qabelbox.activities;
 
 import android.app.FragmentTransaction;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -10,9 +11,10 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
+import de.qabel.core.accounting.AccountingHTTP;
+import de.qabel.core.config.Identity;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.fragments.BaseIdentityFragment;
-import de.qabel.qabelbox.fragments.CreateIdentityDescriptionFragment;
 import de.qabel.qabelbox.fragments.CreateIdentityFinalFragment;
 import de.qabel.qabelbox.fragments.CreateIdentityHeaderFragment;
 import de.qabel.qabelbox.fragments.CreateIdentityMainFragment;
@@ -25,26 +27,33 @@ import de.qabel.qabelbox.helper.UIHelper;
  */
 public class CreateIdentityActivity extends AppCompatActivity {
 
+    public static String FIRST_RUN = "first_run";
+    public static String MODE = "mode";
+    public static String MODE_IDENTITY = "mode_identity";
+    public static String P_IDENTITY = "identity_name";
     private CreateIdentityActivity mActivity;
     private Toolbar mToolbar;
     MenuItem mActionNext;
     private ActionBar actionBar;
     private CreateIdentityHeaderFragment mIdentityHeaderFragment;
     private CreateIdentityNameFragment mIdentityNameFragment;
-    int progress = 0;
-    String name, description;
+    String name;
     int security = Integer.MIN_VALUE;
 
-    BaseIdentityFragment[] fragments = new BaseIdentityFragment[5];
+    BaseIdentityFragment[] fragments;
     int step = 0;
     private String TAG = this.getClass().getSimpleName();
+    AccountingHTTP mAccounting;
+    int activityResult = RESULT_CANCELED;
+    boolean mFirstRun;
+    private Identity mNewIdentity;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
         mActivity = this;
-
+        mFirstRun = getIntent().getBooleanExtra(FIRST_RUN, true);
         overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
         setContentView(R.layout.activity_create_identity);
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -63,15 +72,20 @@ public class CreateIdentityActivity extends AppCompatActivity {
         });
         mIdentityHeaderFragment = new CreateIdentityHeaderFragment();
         step = 0;
-        fragments[0] = new CreateIdentityMainFragment();
-        fragments[1] = new CreateIdentityNameFragment();
-        fragments[2] = new CreateIdentityDescriptionFragment();
-        fragments[3] = new CreateIdentitySecurityFragment();
-        fragments[4] = new CreateIdentityFinalFragment();
+        fillFragmentList();
         FragmentTransaction ft = getFragmentManager().beginTransaction();
-        ft.add(R.id.fragment_container_content, fragments[0]);//.addToBackStack(null);
+        ft.add(R.id.fragment_container_content, fragments[0]);
         ft.add(R.id.fragment_container_header, mIdentityHeaderFragment);
         ft.commit();
+    }
+
+    private void fillFragmentList() {
+
+        fragments = new BaseIdentityFragment[4];
+        fragments[0] = new CreateIdentityMainFragment();
+        fragments[1] = new CreateIdentityNameFragment();
+        fragments[2] = new CreateIdentitySecurityFragment();
+        fragments[3] = new CreateIdentityFinalFragment();
     }
 
     @Override
@@ -79,21 +93,35 @@ public class CreateIdentityActivity extends AppCompatActivity {
 
         System.out.println("onback " + getFragmentManager().getBackStackEntryCount());
         int fragmentCount = getFragmentManager().getBackStackEntryCount();
-        if (step < fragments.length && fragmentCount > 0 ) {
-            if(fragmentCount== fragments.length - 1)
-            {
-                getToMainFragment();
+        if (step < fragments.length && fragmentCount > 0) {
+            if (fragmentCount == fragments.length - 1) {
+                activityResult = RESULT_OK;
+                finishWizard();
                 return;
             }
-            ((BaseIdentityFragment)getFragmentManager().findFragmentById(R.id.fragment_container_content)).onBackPressed();
+            ((BaseIdentityFragment) getFragmentManager().findFragmentById(R.id.fragment_container_content)).onBackPressed();
             getFragmentManager().popBackStack();
             step--;
-            mIdentityHeaderFragment.updateUI(name, description, security);
+            mIdentityHeaderFragment.updateUI(name);
             return;
         } else {
-            setResult(RESULT_CANCELED);
             finish();
         }
+    }
+
+    private void finishWizard() {
+
+        Intent result = new Intent();
+        result.putExtra(P_IDENTITY, mNewIdentity);
+        setResult(activityResult, result);
+
+        finish();
+        if (mFirstRun) {
+            Intent i = new Intent(mActivity, MainActivity.class);
+            i.setAction("");
+            startActivity(i);
+        }
+        //getToMainFragment();
     }
 
     private void getToMainFragment() {
@@ -107,8 +135,8 @@ public class CreateIdentityActivity extends AppCompatActivity {
         while (fragmentCount-- > 0) {
             getFragmentManager().popBackStack();
         }
+
         step = 0;
-        //    ft.replace(R.id.fragment_container_content, fragments[step]).addToBackStack(null);
         ft.commit();
         resetUI();
 
@@ -118,9 +146,8 @@ public class CreateIdentityActivity extends AppCompatActivity {
     private void resetUI() {
 
         setIdentityName(null);
-        setIdentityDescription(null);
         setSecurity(Integer.MIN_VALUE);
-        mIdentityHeaderFragment.updateUI(name, description, security);
+        mIdentityHeaderFragment.updateUI(name);
     }
 
     @Override
@@ -128,6 +155,7 @@ public class CreateIdentityActivity extends AppCompatActivity {
 
         getMenuInflater().inflate(R.menu.ab_create_identity, menu);
         mActionNext = menu.findItem(R.id.action_next);
+        updateActionBar(step);
         return true;
     }
 
@@ -144,18 +172,20 @@ public class CreateIdentityActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    private void handleNextClick() {
+    public void handleNextClick() {
 
         String check = ((BaseIdentityFragment) getFragmentManager().findFragmentById(R.id.fragment_container_content)).check();
         if (check == null) {
 
             if (step == fragments.length - 1) {
-                getToMainFragment();
+                activityResult = RESULT_OK;
+
+                finishWizard();
 
                 return;
             }
             step++;
-            mIdentityHeaderFragment.updateUI(name, description, security);
+            mIdentityHeaderFragment.updateUI(name);
             getFragmentManager().beginTransaction().replace(R.id.fragment_container_content, fragments[step]).addToBackStack(null).commit();
             updateActionBar(step);
         } else {
@@ -165,26 +195,19 @@ public class CreateIdentityActivity extends AppCompatActivity {
 
     private void updateActionBar(int step) {
 
-        if (step < fragments.length - 1) {
+        if (step == 0) {
+            mActionNext.setVisible(false);
+        } else if (step < fragments.length - 1) {
+            mActionNext.setVisible(true);
             actionBar.setDisplayShowHomeEnabled(true);
             actionBar.setHomeButtonEnabled(true);
             mActionNext.setTitle(R.string.next);
         } else {
+            mActionNext.setVisible(true);
             actionBar.setDisplayHomeAsUpEnabled(false);
             actionBar.setDisplayShowTitleEnabled(false);
             mActionNext.setTitle(R.string.finish);
         }
-    }
-
-    private void completed() {
-
-        setResult(RESULT_OK);
-        finish();
-    }
-
-    public void setIdentityDescription(String text) {
-
-        description = text;
     }
 
     public void setIdentityName(String text) {
@@ -195,5 +218,20 @@ public class CreateIdentityActivity extends AppCompatActivity {
     public void setSecurity(int progress) {
 
         security = progress;
+    }
+
+    public String getIdentityName() {
+
+        return name;
+    }
+
+    public int getSecurity() {
+
+        return security;
+    }
+
+    public void setCreatedIdentity(Identity identity) {
+
+        mNewIdentity = identity;
     }
 }

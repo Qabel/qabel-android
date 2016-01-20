@@ -87,11 +87,13 @@ public class MainActivity extends AppCompatActivity
     private static final String TAG = "BoxMainActivity";
     private static final int REQUEST_CODE_OPEN = 11;
     private static final int REQUEST_CODE_UPLOAD_FILE = 12;
+
     public static final String HARDCODED_ROOT = BoxProvider.DOCID_SEPARATOR
             + BoxProvider.BUCKET + BoxProvider.DOCID_SEPARATOR
             + BoxProvider.PREFIX + BoxProvider.DOCID_SEPARATOR + BoxProvider.PATH_SEP;
     private static final int REQUEST_CODE_DELETE_FILE = 13;
     private static final int REQUEST_CODE_CHOOSE_EXPORT = 14;
+    private static final int REQUEST_CREATE_IDENTITY = 16;
     private static final String FALLBACK_MIMETYPE = "application/octet-stream";
     private static final int NAV_GROUP_IDENTITIES = 1;
     private static final int NAV_GROUP_IDENTITY_ACTIONS = 2;
@@ -115,71 +117,90 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+
         final Uri uri;
-        if (requestCode == REQUEST_CODE_OPEN && resultCode == Activity.RESULT_OK && data != null) {
-            uri = data.getData();
-            Log.i(TAG, "Uri: " + uri.toString());
-            Intent viewIntent = new Intent();
-            String type = URLConnection.guessContentTypeFromName(uri.toString());
-            Log.i(TAG, "Mime type: " + type);
-            viewIntent.setDataAndType(uri, type);
-            viewIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-            startActivity(Intent.createChooser(viewIntent, "Open with"));
-            return;
-        }
-        if (requestCode == REQUEST_CODE_UPLOAD_FILE && resultCode == Activity.RESULT_OK && data != null) {
-            uri = data.getData();
-            String path = "";
-            if (filesFragment != null) {
-                BoxNavigation boxNavigation = filesFragment.getBoxNavigation();
-                if (boxNavigation != null) {
-                    path = boxNavigation.getPath();
+        if (resultCode == RESULT_OK) {
+            if (requestCode == REQUEST_CREATE_IDENTITY) {
+                if (data != null && data.hasExtra(CreateIdentityActivity.P_IDENTITY)) {
+                    Identity identity = (Identity) data.getSerializableExtra(CreateIdentityActivity.P_IDENTITY);
+                    Toast.makeText(getApplicationContext(), "create identity "+identity.getAlias(), Toast.LENGTH_LONG).show();
+                    changeActiveIdentity(identity);
+                    provider.notifyRootsUpdated();
+
+                    Snackbar.make(appBarMain, "Added identity: " + identity.getAlias(), Snackbar.LENGTH_LONG)
+                            .show();
+                    selectFilesFragment();
                 }
             }
-            uploadUri(uri, path);
-            return;
-        }
-        if (requestCode == REQUEST_CODE_DELETE_FILE && resultCode == Activity.RESULT_OK && data != null) {
-            uri = data.getData();
-            Log.i(TAG, "Deleting file: " + uri.toString());
-            new AsyncTask<Uri, Void, Boolean>() {
-
-                @Override
-                protected Boolean doInBackground(Uri... params) {
-                    return DocumentsContract.deleteDocument(getContentResolver(), params[0]);
+            if (data != null) {
+                if (requestCode == REQUEST_CODE_OPEN) {
+                    uri = data.getData();
+                    Log.i(TAG, "Uri: " + uri.toString());
+                    Intent viewIntent = new Intent();
+                    String type = URLConnection.guessContentTypeFromName(uri.toString());
+                    Log.i(TAG, "Mime type: " + type);
+                    viewIntent.setDataAndType(uri, type);
+                    viewIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                    startActivity(Intent.createChooser(viewIntent, "Open with"));
+                    return;
                 }
-            }.execute(uri);
-            return;
-        }
-        if (requestCode == REQUEST_CODE_CHOOSE_EXPORT && resultCode == Activity.RESULT_OK && data != null) {
-            uri = data.getData();
-            Log.i(TAG, "Export uri chosen: " + uri.toString());
-            new AsyncTask<Void, Void, Void>() {
+                if (requestCode == REQUEST_CODE_UPLOAD_FILE) {
+                    uri = data.getData();
+                    String path = "";
+                    if (filesFragment != null) {
+                        BoxNavigation boxNavigation = filesFragment.getBoxNavigation();
+                        if (boxNavigation != null) {
+                            path = boxNavigation.getPath();
+                        }
+                    }
+                    uploadUri(uri, path);
+                    return;
+                }
+                if (requestCode == REQUEST_CODE_DELETE_FILE) {
+                    uri = data.getData();
+                    Log.i(TAG, "Deleting file: " + uri.toString());
+                    new AsyncTask<Uri, Void, Boolean>() {
 
-                @Override
-                protected Void doInBackground(Void... params) {
-                    try {
-                        InputStream inputStream = getContentResolver().openInputStream(exportUri);
-                        OutputStream outputStream = getContentResolver().openOutputStream(uri);
-                        if (inputStream == null || outputStream == null) {
-                            Log.e(TAG, "could not open streams");
+                        @Override
+                        protected Boolean doInBackground(Uri... params) {
+
+                            return DocumentsContract.deleteDocument(getContentResolver(), params[0]);
+                        }
+                    }.execute(uri);
+                    return;
+                }
+                if (requestCode == REQUEST_CODE_CHOOSE_EXPORT) {
+                    uri = data.getData();
+                    Log.i(TAG, "Export uri chosen: " + uri.toString());
+                    new AsyncTask<Void, Void, Void>() {
+
+                        @Override
+                        protected Void doInBackground(Void... params) {
+
+                            try {
+                                InputStream inputStream = getContentResolver().openInputStream(exportUri);
+                                OutputStream outputStream = getContentResolver().openOutputStream(uri);
+                                if (inputStream == null || outputStream == null) {
+                                    Log.e(TAG, "could not open streams");
+                                    return null;
+                                }
+                                IOUtils.copy(inputStream, outputStream);
+                                inputStream.close();
+                                outputStream.close();
+                            } catch (IOException e) {
+                                Log.e(TAG, "Failed to export file", e);
+                            }
                             return null;
                         }
-                        IOUtils.copy(inputStream, outputStream);
-                        inputStream.close();
-                        outputStream.close();
-                    } catch (IOException e) {
-                        Log.e(TAG, "Failed to export file", e);
-                    }
-                    return null;
+                    }.execute();
+                    return;
                 }
-            }.execute();
-            return;
+            }
         }
-
     }
 
     private boolean uploadUri(Uri uri, String targetFolder) {
+
         Toast.makeText(self, R.string.uploading_file,
                 Toast.LENGTH_SHORT).show();
         Cursor cursor = getContentResolver().query(uri, null, null, null, null);
@@ -215,6 +236,7 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -229,6 +251,7 @@ public class MainActivity extends AppCompatActivity
 
             @Override
             public void onServiceConnected(ComponentName name, IBinder service) {
+
                 LocalQabelService.LocalBinder binder = (LocalQabelService.LocalBinder) service;
                 mService = binder.getService();
                 onLocalServiceConnected();
@@ -236,9 +259,9 @@ public class MainActivity extends AppCompatActivity
 
             @Override
             public void onServiceDisconnected(ComponentName name) {
+
                 mService = null;
             }
-
         }, Context.BIND_AUTO_CREATE);
 
         getFragmentManager().addOnBackStackChangedListener(new FragmentManager.OnBackStackChangedListener() {
@@ -263,10 +286,10 @@ public class MainActivity extends AppCompatActivity
                 }
             }
         });
-
     }
 
     private void onLocalServiceConnected() {
+
         Log.d(TAG, "LocalQabelService connected");
 
         provider = ((QabelBoxApplication) getApplication()).getProvider();
@@ -314,19 +337,21 @@ public class MainActivity extends AppCompatActivity
                 }
                 break;
         }
-
     }
 
     private void initBoxVolume(Identity activeIdentity) {
+
         boxVolume = provider.getVolumeForRoot(
                 activeIdentity.getEcPublicKey().getReadableKeyIdentifier(),
                 null, null);
     }
 
     private void initFloatingActionButton() {
+
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 Fragment activeFragment = getFragmentManager().findFragmentById(R.id.fragment_container);
                 String activeFragmentTag = activeFragment.getTag();
 
@@ -351,10 +376,12 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void filesFragmentBottomSheet() {
+
         new BottomSheet.Builder(self).sheet(R.menu.create_bottom_sheet)
                 .listener(new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
+
                         switch (which) {
                             case R.id.create_folder:
                                 newFolderDialog();
@@ -371,6 +398,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void newFolderDialog() {
+
         AlertDialog.Builder renameDialog = new AlertDialog.Builder(self);
 
         renameDialog.setTitle(R.string.add_folder_header);
@@ -381,6 +409,7 @@ public class MainActivity extends AppCompatActivity
 
         renameDialog.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
+
                 String newFolderName = editTextNewFolder.getText().toString();
                 if (!newFolderName.equals("")) {
                     createFolder(newFolderName, filesFragment.getBoxNavigation());
@@ -390,16 +419,19 @@ public class MainActivity extends AppCompatActivity
 
         renameDialog.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
+
             }
         });
         renameDialog.show();
     }
 
     private void initFilesFragment() {
+
         filesFragment = FilesFragment.newInstance(boxVolume);
         filesFragment.setOnItemClickListener(new FilesAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(View view, int position) {
+
                 final BoxObject boxObject = filesFragment.getFilesAdapter().get(position);
                 if (boxObject instanceof BoxFolder) {
                     filesFragment.browseTo(((BoxFolder) boxObject));
@@ -411,11 +443,13 @@ public class MainActivity extends AppCompatActivity
 
             @Override
             public void onItemLockClick(View view, final int position) {
+
                 final BoxObject boxObject = filesFragment.getFilesAdapter().get(position);
                 new BottomSheet.Builder(self).title(boxObject.name).sheet(R.menu.files_bottom_sheet)
                         .listener(new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
+
                                 switch (which) {
                                     case R.id.share:
                                         Toast.makeText(self, R.string.not_implemented,
@@ -436,7 +470,6 @@ public class MainActivity extends AppCompatActivity
                                 }
                             }
                         }).show();
-
             }
         });
     }
@@ -447,6 +480,7 @@ public class MainActivity extends AppCompatActivity
      * @param boxObject
      */
     public void showFile(BoxObject boxObject) {
+
         String path = filesFragment.getBoxNavigation().getPath(boxObject);
         String documentId = boxVolume.getDocumentId(path);
         Uri uri = DocumentsContract.buildDocumentUri(
@@ -461,10 +495,12 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     protected void onPause() {
+
         super.onPause();
     }
 
     private void delete(final BoxObject boxObject) {
+
         new AlertDialog.Builder(self)
                 .setTitle(R.string.confirm_delete_title)
                 .setMessage(String.format(
@@ -472,19 +508,23 @@ public class MainActivity extends AppCompatActivity
                 .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
+
                         new AsyncTask<Void, Void, Void>() {
                             @Override
                             protected void onCancelled() {
+
                                 filesFragment.setIsLoading(false);
                             }
 
                             @Override
                             protected void onPreExecute() {
+
                                 filesFragment.setIsLoading(true);
                             }
 
                             @Override
                             protected Void doInBackground(Void... params) {
+
                                 try {
                                     filesFragment.getBoxNavigation().delete(boxObject);
                                     filesFragment.getBoxNavigation().commit();
@@ -496,6 +536,7 @@ public class MainActivity extends AppCompatActivity
 
                             @Override
                             protected void onPostExecute(Void aVoid) {
+
                                 refresh();
                             }
                         }.execute();
@@ -504,6 +545,7 @@ public class MainActivity extends AppCompatActivity
                 .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
+
                         showAbortMessage();
                     }
                 }).create().show();
@@ -511,6 +553,7 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onBackPressed() {
+
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
@@ -518,7 +561,6 @@ public class MainActivity extends AppCompatActivity
             Fragment activeFragment = getFragmentManager().findFragmentById(R.id.fragment_container);
             if (activeFragment.getTag() == null) {
                 getFragmentManager().popBackStack();
-
             } else {
                 switch (activeFragment.getTag()) {
                     case TAG_FILES_FRAGMENT:
@@ -587,12 +629,13 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
-
     @Override
     public void onFolderSelected(final Uri uri, final BoxNavigation boxNavigation) {
+
         new AsyncTask<Void, Void, Void>() {
             @Override
             protected Void doInBackground(Void... params) {
+
                 Cursor returnCursor =
                         getContentResolver().query(uri, null, null, null, null);
                 int nameIndex = returnCursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
@@ -630,9 +673,11 @@ public class MainActivity extends AppCompatActivity
     }
 
     public void createFolder(final String name, final BoxNavigation boxNavigation) {
+
         new AsyncTask<Void, Void, Void>() {
             @Override
             protected Void doInBackground(Void... params) {
+
                 try {
                     boxNavigation.createFolder(name);
                     boxNavigation.commit();
@@ -644,18 +689,21 @@ public class MainActivity extends AppCompatActivity
 
             @Override
             protected void onCancelled() {
+
                 filesFragment.setIsLoading(false);
                 showAbortMessage();
             }
 
             @Override
             protected void onPreExecute() {
+
                 selectFilesFragment();
                 filesFragment.setIsLoading(true);
             }
 
             @Override
             protected void onPostExecute(Void aVoid) {
+
                 super.onPostExecute(aVoid);
                 refresh();
             }
@@ -664,10 +712,12 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void startAddContact(Identity identity) {
+
         selectAddContactFragment(identity);
     }
 
     public void selectIdentity(Identity identity) {
+
         changeActiveIdentity(identity);
 
         selectContactsFragment();
@@ -675,6 +725,7 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void addIdentity(Identity identity) {
+
         mService.addIdentity(identity);
         changeActiveIdentity(identity);
         provider.notifyRootsUpdated();
@@ -685,6 +736,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void changeActiveIdentity(Identity identity) {
+
         mService.setActiveIdentity(identity);
         textViewSelectedIdentity.setText(identity.getAlias());
         if (filesFragment != null) {
@@ -696,11 +748,13 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void cancelAddIdentity() {
+
         selectFilesFragment();
     }
 
     @Override
     public void addContact(Contact contact) {
+
         mService.addContact(contact);
         Snackbar.make(appBarMain, "Added contact: " + contact.getAlias(), Snackbar.LENGTH_LONG)
                 .show();
@@ -708,6 +762,7 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onScrolledToBottom(boolean scrolledToBottom) {
+
         if (scrolledToBottom) {
             fab.hide();
         } else {
@@ -717,12 +772,14 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void deleteIdentity(Identity identity) {
+
         provider.notifyRootsUpdated();
         mService.deleteIdentity(identity);
     }
 
     @Override
     public void modifyIdentity(Identity identity) {
+
         provider.notifyRootsUpdated();
         mService.modifyIdentity(identity);
     }
@@ -732,6 +789,7 @@ public class MainActivity extends AppCompatActivity
      * Handle an export request sent from the FilesFragment
      */
     public void onExport(BoxNavigation boxNavigation, BoxObject boxObject) {
+
         String path = boxNavigation.getPath(boxObject);
         String documentId = boxVolume.getDocumentId(path);
         Uri uri = DocumentsContract.buildDocumentUri(
@@ -755,6 +813,7 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onDoRefresh(final FilesFragment filesFragment, final BoxNavigation boxNavigation, final FilesAdapter filesAdapter) {
+
         if (boxNavigation == null) {
             Log.e(TAG, "Refresh failed because the boxNavigation object is null");
             return;
@@ -786,17 +845,20 @@ public class MainActivity extends AppCompatActivity
 
             @Override
             protected void onCancelled() {
+
                 filesFragment.setIsLoading(true);
                 showAbortMessage();
             }
 
             @Override
             protected void onPreExecute() {
+
                 filesFragment.setIsLoading(true);
             }
 
             @Override
             protected void onPostExecute(Void aVoid) {
+
                 super.onPostExecute(aVoid);
 
                 filesAdapter.sort();
@@ -809,6 +871,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void setDrawerLocked(boolean locked) {
+
         if (locked) {
             drawer.setDrawerListener(null);
             drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
@@ -820,6 +883,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void initDrawer() {
+
         drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
@@ -836,6 +900,7 @@ public class MainActivity extends AppCompatActivity
         textViewSelectedIdentity.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 Identity activeIdentity = mService.getActiveIdentity();
                 if (activeIdentity != null) {
                     IntentIntegrator intentIntegrator = new IntentIntegrator(self);
@@ -851,6 +916,7 @@ public class MainActivity extends AppCompatActivity
         imageViewExpandIdentity.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 if (identityMenuExpanded) {
                     imageViewExpandIdentity.setImageResource(R.drawable.ic_arrow_drop_down_black);
                     navigationView.getMenu().clear();
@@ -864,6 +930,7 @@ public class MainActivity extends AppCompatActivity
                     Collections.sort(identityList, new Comparator<Identity>() {
                         @Override
                         public int compare(Identity lhs, Identity rhs) {
+
                             return lhs.getAlias().compareTo(rhs.getAlias());
                         }
                     });
@@ -874,6 +941,7 @@ public class MainActivity extends AppCompatActivity
                                 .setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
                                     @Override
                                     public boolean onMenuItemClick(MenuItem item) {
+
                                         drawer.closeDrawer(GravityCompat.START);
                                         selectIdentity(identity);
                                         return true;
@@ -886,8 +954,13 @@ public class MainActivity extends AppCompatActivity
                             .setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
                                 @Override
                                 public boolean onMenuItemClick(MenuItem item) {
+
                                     drawer.closeDrawer(GravityCompat.START);
-                                    selectAddIdentityFragment();
+                                    Intent i = new Intent(self, CreateIdentityActivity.class);
+                                    i.putExtra(CreateIdentityActivity.MODE, CreateIdentityActivity.MODE_IDENTITY);
+                                    i.putExtra(CreateIdentityActivity.FIRST_RUN, false);
+                                    self.startActivityForResult(i,REQUEST_CREATE_IDENTITY);
+                                    //selectAddIdentityFragment();
                                     return true;
                                 }
                             });
@@ -897,6 +970,7 @@ public class MainActivity extends AppCompatActivity
                             .setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
                                 @Override
                                 public boolean onMenuItemClick(MenuItem item) {
+
                                     drawer.closeDrawer(GravityCompat.START);
                                     selectManageIdentitiesFragment();
                                     return true;
@@ -910,6 +984,7 @@ public class MainActivity extends AppCompatActivity
         drawer.setDrawerListener(new DrawerLayout.DrawerListener() {
             @Override
             public void onDrawerSlide(View drawerView, float slideOffset) {
+
             }
 
             @Override
@@ -919,6 +994,7 @@ public class MainActivity extends AppCompatActivity
 
             @Override
             public void onDrawerClosed(View drawerView) {
+
                 navigationView.getMenu().clear();
                 navigationView.inflateMenu(R.menu.activity_main_drawer);
                 imageViewExpandIdentity.setImageResource(R.drawable.ic_arrow_drop_down_black);
@@ -933,11 +1009,13 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void showAbortMessage() {
+
         Toast.makeText(self, R.string.aborted,
                 Toast.LENGTH_SHORT).show();
     }
 
     private void refresh() {
+
         onDoRefresh(filesFragment, filesFragment.getBoxNavigation(), filesFragment.getFilesAdapter());
     }
 
@@ -946,6 +1024,7 @@ public class MainActivity extends AppCompatActivity
     */
 
     private void selectAddContactFragment(Identity identity) {
+
         fab.hide();
         getFragmentManager().beginTransaction()
                 .replace(R.id.fragment_container, AddContactFragment.newInstance(identity), TAG_ADD_CONTACT_FRAGMENT)
@@ -954,6 +1033,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void selectManageIdentitiesFragment() {
+
         fab.show();
         getFragmentManager().beginTransaction()
                 .replace(R.id.fragment_container,
@@ -964,6 +1044,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void selectContactsFragment() {
+
         fab.show();
         Identity activeIdentity = mService.getActiveIdentity();
         getFragmentManager().beginTransaction()
@@ -975,6 +1056,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void selectAddIdentityFragment() {
+
         fab.hide();
         getFragmentManager().beginTransaction()
                 .replace(R.id.fragment_container, new AddIdentityFragment(), TAG_ADD_IDENTITY_FRAGMENT)
@@ -983,6 +1065,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void selectFilesFragment() {
+
         fab.show();
         filesFragment.setIsLoading(false);
         getFragmentManager().beginTransaction()

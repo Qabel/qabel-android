@@ -16,6 +16,7 @@
 
     <de.qabel.qabelbox.views.ButtonFont
         android:layout_width="match_parent"
+        android:id="@+id/bt_create_identity"
         android:layout_height="wrap_content"
         android:textColor="@color/default_text_color"
         android:drawableRight="@drawable/ic_icon_arrow_right"
@@ -25,6 +26,7 @@
     <de.qabel.qabelbox.views.ButtonFont
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:id="@+id/bt_import_identity"
         android:textColor="@color/default_text_color"
         android:drawableRight="@drawable/ic_icon_arrow_right"
         android:text="@string/create_identity_import"/>

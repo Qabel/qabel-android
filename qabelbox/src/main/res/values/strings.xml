@@ -95,4 +95,5 @@
     <string name="identity_security_high">High</string>
     <string name="create_identity_create">Create new identity</string>
     <string name="create_identity_import">Import identity</string>
+    <string name="function_not_yet_implenented">Function not yet implemented</string>
 </resources>

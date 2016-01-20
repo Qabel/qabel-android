@@ -75,14 +75,7 @@
                 android:text="walter warum"
                 android:textColor="@color/default_text_color"/>
 
-            <de.qabel.qabelbox.views.TextViewFont
-                android:id="@+id/tv_description"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:lines="1"
-                android:text="forum and entwickler"
-                android:textColor="@color/default_text_color"/>
+
 
         </LinearLayout>
 

@@ -15,9 +15,9 @@
 
         <SeekBar
             android:id="@+id/sb_security"
-
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
+            android:layout_height="wrap_content"
+            android:max="3"/>
 
         <de.qabel.qabelbox.views.TextViewFont
             android:layout_width="wrap_content"

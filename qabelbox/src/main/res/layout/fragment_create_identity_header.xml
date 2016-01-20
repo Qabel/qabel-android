@@ -8,8 +8,9 @@
         android:id="@+id/logo_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:orientation="vertical"
         android:padding="20dp"
-        android:orientation="vertical">
+        android:visibility="invisible">
 
         <ImageView
             android:layout_width="match_parent"
@@ -22,7 +23,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        android:visibility="invisible">
+        android:visibility="visible">
 
 
         <android.support.v4.widget.Space
@@ -31,18 +32,25 @@
             android:layout_weight="1"
             />
 
-
-        <de.qabel.qabelbox.views.SquareTextViewFont
-            android:id="@+id/tv_initial"
+        <de.qabel.qabelbox.views.SquareFrameLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:background="@drawable/identity_circle"
-            android:gravity="center"
-            android:padding="@dimen/identity_circle_padding_vertical"
-            android:text="WW"
-            android:textColor="@color/white"
-            android:textSize="@dimen/textsize_identity_circle_initial"/>
+            android:padding="30sp">
+
+
+            <de.qabel.qabelbox.views.TextViewFont
+                android:id="@+id/tv_initial"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:text="WW"
+                android:textColor="@color/white"
+                android:textSize="@dimen/textsize_identity_circle_initial"/>
+        </de.qabel.qabelbox.views.SquareFrameLayout>
 
         <android.support.v4.widget.Space
             android:layout_width="match_parent"

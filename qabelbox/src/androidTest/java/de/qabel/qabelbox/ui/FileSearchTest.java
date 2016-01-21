@@ -4,14 +4,22 @@ package de.qabel.qabelbox.ui;
  * Created by danny on 05.01.2016.
  */
 
+import android.net.Uri;
+import android.os.AsyncTask;
+import android.os.PowerManager;
+import android.provider.DocumentsContract;
 import android.support.test.rule.ActivityTestRule;
 import android.widget.SeekBar;
+import android.widget.Toast;
 
 import com.squareup.spoon.Spoon;
 
+import org.junit.After;
 import org.junit.Before;
+import org.junit.FixMethodOrder;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.runners.MethodSorters;
 
 import java.io.IOException;
 
@@ -21,6 +29,7 @@ import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.activities.MainActivity;
 import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.storage.StorageSearch;
+import de.qabel.qabelbox.ui.helper.UIActionHelper;
 import de.qabel.qabelbox.ui.helper.UIBoxHelper;
 import de.qabel.qabelbox.ui.helper.UITestHelper;
 import de.qabel.qabelbox.ui.matcher.QabelMatcher;
@@ -41,27 +50,36 @@ import static android.support.test.espresso.matcher.ViewMatchers.withId;
  * Tests for MainActivity.
  */
 
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class FileSearchTest {
 
+    private final String TAG = this.getClass().getSimpleName();
     @Rule
-    public ActivityTestRule<MainActivity> mActivityTestRule = new ActivityTestRule<>(MainActivity.class);
+    public ActivityTestRule<MainActivity> mActivityTestRule = new ActivityTestRule<>(MainActivity.class, false, true);
 
     private MainActivity mActivity;
     private UIBoxHelper mBoxHelper;
     private final boolean mFillAccount = true;
+    private PowerManager.WakeLock wakeLock;
 
     public FileSearchTest() throws IOException {
-
         //setup data before MainActivity launched. This avoid the call to create identity
         if (mFillAccount) {
             setupData();
         }
     }
 
+    @After
+    public void cleanUp() {
+
+        wakeLock.release();
+    }
+
     @Before
     public void setUp() throws IOException, QblStorageException {
 
         mActivity = mActivityTestRule.getActivity();
+        wakeLock = UIActionHelper.wakeupDevice(mActivity);
     }
 
     private void setupData() {
@@ -70,8 +88,7 @@ public class FileSearchTest {
         mBoxHelper.bindService(QabelBoxApplication.getInstance());
         Identity identity = mBoxHelper.addIdentity("spoon");
         mBoxHelper.setActiveIdentity(identity);
-
-        uploadTestFiles(identity);
+        uploadTestFiles(mBoxHelper.getCurrentIdentity());
     }
 
     private void uploadTestFiles(Identity identity) {
@@ -88,8 +105,10 @@ public class FileSearchTest {
         mBoxHelper.waitUntilFileCount(fileCount);
     }
 
+
+
     @Test
-    public void searchByNamesTest() {
+    public void search1ByNamesTest() {
 
         Spoon.screenshot(mActivity, "startup");
         testSearch("black", 2);
@@ -99,7 +118,7 @@ public class FileSearchTest {
     }
 
     @Test
-    public void searchFilterTest() {
+    public void search2FilterTest() {
 
         testSearchWithFilter("", 0, 2048, 6, true);
         testSearchWithFilter("", 0, 10240, 7, false);
@@ -107,7 +126,7 @@ public class FileSearchTest {
     }
 
     @Test
-    public void searchCacheTest() throws QblStorageException {
+    public void search3CacheTest() throws QblStorageException {
 
         String text = "";
         int results = 7;
@@ -139,6 +158,7 @@ public class FileSearchTest {
 
         onView(withId(R.id.files_list)).check(matches(QabelMatcher.withListSize(3)));
         Spoon.screenshot(mActivity, "after_research");
+        mBoxHelper.deleteFile(mBoxHelper.getCurrentIdentity(), "black_3","");
     }
 
     /**

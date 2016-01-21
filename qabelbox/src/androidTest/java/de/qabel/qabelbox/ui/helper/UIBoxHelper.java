@@ -84,7 +84,13 @@ public class UIBoxHelper {
             }
         }
     }
-
+    public boolean deleteFile(Identity identity, String name, String targetFolder) {
+        String keyIdentifier = identity.getEcPublicKey()
+                .getReadableKeyIdentifier();
+        Uri uploadUri = DocumentsContract.buildDocumentUri(
+                BoxProvider.AUTHORITY, keyIdentifier + MainActivity.HARDCODED_ROOT + targetFolder + name);
+       return DocumentsContract.deleteDocument(mActivity.getContentResolver(), uploadUri);
+    }
     public boolean uploadFile(Identity identity, String name, byte[] data, String targetFolder) {
 
         Log.d(TAG, "upload demo file " + name);
@@ -93,6 +99,7 @@ public class UIBoxHelper {
                 .getReadableKeyIdentifier();
         Uri uploadUri = DocumentsContract.buildDocumentUri(
                 BoxProvider.AUTHORITY, keyIdentifier + MainActivity.HARDCODED_ROOT + targetFolder + name);
+
         try {
             OutputStream outputStream = QabelBoxApplication.getInstance().getContentResolver().openOutputStream(uploadUri, "w");
             if (outputStream == null) {
@@ -170,6 +177,11 @@ public class UIBoxHelper {
     public void setActiveIdentity(Identity identity) {
 
         mService.setActiveIdentity(identity);
+    }
+
+    public void deleteIdentity(Identity identity) {
+
+        mService.deleteIdentity(identity);
     }
 
     public Identity getCurrentIdentity() {

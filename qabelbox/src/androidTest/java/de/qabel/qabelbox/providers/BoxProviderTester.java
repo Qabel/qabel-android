@@ -94,7 +94,7 @@ public class BoxProviderTester extends BoxProvider {
 			AndroidPersistence androidPersistence;
 			QblSQLiteParams params = new QblSQLiteParams(context, DB_NAME, null, DB_VERSION);
 			try {
-				androidPersistence = new AndroidPersistence(params, PASSWORD);
+				androidPersistence = new AndroidPersistence(params);
 			} catch (QblInvalidEncryptionKeyException e) {
 				return;
 			}

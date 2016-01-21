@@ -25,7 +25,6 @@ import de.qabel.core.config.Contact;
 import de.qabel.core.config.Contacts;
 import de.qabel.core.config.Identities;
 import de.qabel.core.config.Identity;
-import de.qabel.core.config.Persistable;
 import de.qabel.core.crypto.AbstractBinaryDropMessage;
 import de.qabel.core.crypto.BinaryDropMessageV0;
 import de.qabel.core.crypto.CryptoUtils;
@@ -47,8 +46,6 @@ public class LocalQabelService extends Service {
 
 	private static final String TAG = "LocalQabelService";
 	private static final String PREF_LAST_ACTIVE_IDENTITY = "PREF_LAST_ACTIVE_IDENTITY";
-	// Hardcoded password until the password is saved in the Android KeyStore
-	protected static final char[] PASSWORD = "constantpassword".toCharArray();
 	public static final String DEFAULT_DROP_SERVER = "http://localhost";
 
 	private static final String PREF_DEVICE_ID_CREATED = "PREF_DEVICE_ID_CREATED";
@@ -107,10 +104,10 @@ public class LocalQabelService extends Service {
 	}
 
 	public Identities getIdentities() {
-		List<Persistable> entities = persistence.getEntities(Identity.class);
+		List<Identity> entities = persistence.getEntities(Identity.class);
 		Identities identities = new Identities();
-		for (Persistable p : entities) {
-			identities.put((Identity) p);
+		for (Identity i : entities) {
+			identities.put(i);
 		}
 		return identities;
 	}
@@ -141,10 +138,10 @@ public class LocalQabelService extends Service {
 	 * @return List of all contacts
 	 */
 	public Contacts getContacts() {
-		List<Persistable> entities = persistence.getEntities(Contact.class);
+		List<Contact> entities = persistence.getEntities(Contact.class);
 		Contacts contacts = new Contacts();
-		for (Persistable p : entities) {
-			contacts.put((Contact) p);
+		for (Contact c : entities) {
+			contacts.put(c);
 		}
 		return contacts;
 	}
@@ -155,10 +152,9 @@ public class LocalQabelService extends Service {
 	 * @return List of contacts owned by the identity
 	 */
 	public Contacts getContacts(Identity identity) {
-		List<Persistable> entities = persistence.getEntities(Contact.class);
+		List<Contact> entities = persistence.getEntities(Contact.class);
 		Contacts contacts = new Contacts();
-		for (Persistable p : entities) {
-			Contact c = (Contact) p;
+		for (Contact c : entities) {
 			if (c.getContactOwner().equals(identity)) {
 				contacts.put(c);
 			}
@@ -184,9 +180,8 @@ public class LocalQabelService extends Service {
 	 */
 	public Map<Identity, Contacts> getAllContacts() {
 		Map<Identity, Contacts> contacts = new HashMap<>();
-		List<Persistable> entities = persistence.getEntities(Contact.class);
-		for (Persistable p : entities) {
-			Contact c = (Contact) p;
+		List<Contact> entities = persistence.getEntities(Contact.class);
+		for (Contact c : entities) {
 			Identity owner = c.getContactOwner();
 			Contacts map;
 			if (contacts.containsKey(owner)) {
@@ -348,7 +343,7 @@ public class LocalQabelService extends Service {
 		AndroidPersistence androidPersistence;
 		QblSQLiteParams params = new QblSQLiteParams(this, DB_NAME, null, DB_VERSION);
 		try {
-			androidPersistence = new AndroidPersistence(params, PASSWORD);
+			androidPersistence = new AndroidPersistence(params);
 		} catch (QblInvalidEncryptionKeyException e) {
 			Log.e(TAG, "Invalid database password!");
 			return;

@@ -36,13 +36,13 @@ public class CreateIdentityActivity extends BaseWizwardActivity {
     private Identity mNewIdentity;
 
     @Override
-    protected String getHeaderText() {
+    protected String getHeaderFragmentText() {
 
         return mIdentityName;
     }
 
     @Override
-    protected int getHeadline() {
+    protected int getActionBarTitle() {
 
         return R.string.headline_add_identity;
     }

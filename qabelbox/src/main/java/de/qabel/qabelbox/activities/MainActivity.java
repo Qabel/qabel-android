@@ -546,6 +546,7 @@ public class MainActivity extends AppCompatActivity
             drawer.closeDrawer(GravityCompat.START);
         } else {
             Fragment activeFragment = getFragmentManager().findFragmentById(R.id.fragment_container);
+
             if (activeFragment.getTag() == null) {
                 getFragmentManager().popBackStack();
             } else {

@@ -47,7 +47,7 @@ public abstract class BaseWizwardActivity extends AppCompatActivity {
         setContentView(R.layout.activity_create_identity);
         setupToolbar();
         createFragments();
-        actionBar.setTitle(getHeadline());
+        actionBar.setTitle(getActionBarTitle());
     }
 
     private void setupToolbar() {
@@ -96,7 +96,7 @@ public abstract class BaseWizwardActivity extends AppCompatActivity {
             //otherwise, popbackstack and update ui
             step--;
             getFragmentManager().popBackStack();
-            mIdentityHeaderFragment.updateUI(getHeaderText());
+            mIdentityHeaderFragment.updateUI(getHeaderFragmentText());
             updateActionBar(step);
         } else {
             //return without finish the wizard
@@ -104,7 +104,7 @@ public abstract class BaseWizwardActivity extends AppCompatActivity {
         }
     }
 
-    protected abstract String getHeaderText();
+    protected abstract String getHeaderFragmentText();
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -143,7 +143,7 @@ public abstract class BaseWizwardActivity extends AppCompatActivity {
             }
             //no... go to next step
             step++;
-            mIdentityHeaderFragment.updateUI(getHeaderText());
+            mIdentityHeaderFragment.updateUI(getHeaderFragmentText());
             getFragmentManager().beginTransaction().replace(R.id.fragment_container_content, fragments[step]).addToBackStack(null).commit();
             updateActionBar(step);
         }
@@ -181,7 +181,7 @@ public abstract class BaseWizwardActivity extends AppCompatActivity {
         }
     }
 
-    protected abstract int getHeadline();
+    protected abstract int getActionBarTitle();
 
     protected abstract BaseIdentityFragment[] getFragmentList();
 

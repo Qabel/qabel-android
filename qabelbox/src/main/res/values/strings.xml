@@ -84,7 +84,7 @@
     <string name="next">Next</string>
     <string name="create_identity_enter_description">Bitte geben Sie hier eine Beschreibung der Personengruppe ein, mit deren Sie über diese Identität kommunizieren wollen</string>
     <string name="create_identity_select_security">Wie Paranoid sind Sie?\nUnd wie viele Nutzlosen Datenverkehr zur Identitätsverschleierung nehmen Sie dafür in kauf?</string>
-    <string name="create_identity_final">Deise Identität wurde ist nun nutztbar. Sie können nun weitere Identitäten hinzifügen.</string>
+    <string name="create_identity_final">Diese Identität ist nun nutztbar. Sie können nun weitere Identitäten hinzufügen.</string>
     <string name="create_identity_successfull">Herzlichen Glückwunsch</string>
     <string name="dialog_headline_info">Information</string>
     <string name="create_identity_enter_all_data">Please fill out all data to continues</string>

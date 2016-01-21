@@ -9,10 +9,10 @@
         android:id="@+id/edtSearch"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:hint="@string/ab_filesearch_hint"
+        android:imeOptions="actionSearch"
         android:inputType="text"
         android:textColor="@color/white"
-        android:textCursorDrawable="@null"
-        android:hint="@string/ab_filesearch_hint"
-        android:imeOptions="actionSearch" />
+        android:textCursorDrawable="@null"/>
 
 </LinearLayout>

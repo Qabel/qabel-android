@@ -9,12 +9,10 @@ import java.io.Serializable;
 import java.util.List;
 
 import de.qabel.core.config.Persistable;
-import de.qabel.core.exceptions.QblInvalidEncryptionKeyException;
 import de.qabel.qabelbox.config.AndroidPersistence;
 import de.qabel.qabelbox.config.QblSQLiteParams;
 
 public class PersistenceTest extends AndroidTestCase {
-    private final static char[] ENCRYPTION_PASSWORD = "password".toCharArray();
     private final static String DB_NAME = "qabel-android-test";
     private final static int DB_VERSION = 1;
     private AndroidPersistence persistence;
@@ -24,22 +22,12 @@ public class PersistenceTest extends AndroidTestCase {
         super.setUp();
         getContext().deleteDatabase(DB_NAME);
         QblSQLiteParams params = new QblSQLiteParams(getContext(), DB_NAME, null, DB_VERSION);
-        persistence = new AndroidPersistence(params, ENCRYPTION_PASSWORD);
+        persistence = new AndroidPersistence(params);
     }
 
     @Override
     public void tearDown() throws Exception {
         super.tearDown();
-    }
-
-    public void testOpenWrongPassword() {
-        try {
-            QblSQLiteParams params = new QblSQLiteParams(getContext(), DB_NAME, null, DB_VERSION);
-            persistence = new AndroidPersistence(params, "wrongPassword".toCharArray());
-        } catch (QblInvalidEncryptionKeyException e) {
-            return;
-        }
-        Assert.fail();
     }
 
     public void testGetNotPersistedEntity() {
@@ -53,14 +41,14 @@ public class PersistenceTest extends AndroidTestCase {
         Assert.assertTrue(persistence.persistEntity(pto));
         Assert.assertTrue(persistence.persistEntity(pto2));
 
-        List<Persistable> objects = persistence.getEntities(PersistenceTestObject.class);
+        List<PersistenceTestObject> objects = persistence.getEntities(PersistenceTestObject.class);
         Assert.assertEquals(2, objects.size());
         Assert.assertTrue(objects.contains(pto));
         Assert.assertTrue(objects.contains(pto2));
     }
 
     public void testGetEntitiesEmpty() {
-        List<Persistable> objects = persistence.getEntities(PersistenceTestObject.class);
+        List<PersistenceTestObject> objects = persistence.getEntities(PersistenceTestObject.class);
         Assert.assertEquals(0, objects.size());
     }
 
@@ -71,7 +59,7 @@ public class PersistenceTest extends AndroidTestCase {
         Assert.assertTrue(persistence.persistEntity(pto));
         Assert.assertTrue(persistence.updateEntity(pto));
 
-        PersistenceTestObject receivedPto = (PersistenceTestObject) persistence.getEntity(pto.getPersistenceID(),
+        PersistenceTestObject receivedPto = persistence.getEntity(pto.getPersistenceID(),
                 PersistenceTestObject.class);
         Assert.assertEquals(pto, receivedPto);
     }
@@ -80,13 +68,13 @@ public class PersistenceTest extends AndroidTestCase {
         PersistenceTestObject pto = new PersistenceTestObject("pto");
 
         Assert.assertTrue(persistence.updateOrPersistEntity(pto));
-        PersistenceTestObject receivedPto = (PersistenceTestObject) persistence.getEntity(pto.getPersistenceID(),
+        PersistenceTestObject receivedPto = persistence.getEntity(pto.getPersistenceID(),
                 PersistenceTestObject.class);
         Assert.assertEquals(pto, receivedPto);
 
         pto.data = "changed";
         Assert.assertTrue(persistence.updateOrPersistEntity(pto));
-        receivedPto = (PersistenceTestObject) persistence.getEntity(pto.getPersistenceID(),
+        receivedPto = persistence.getEntity(pto.getPersistenceID(),
                 PersistenceTestObject.class);
         Assert.assertEquals(pto, receivedPto);
     }
@@ -101,13 +89,13 @@ public class PersistenceTest extends AndroidTestCase {
         persistence.persistEntity(pto);
 
         // Assure that pto has been persisted
-        PersistenceTestObject receivedPto = (PersistenceTestObject) persistence.getEntity(pto.getPersistenceID(),
+        PersistenceTestObject receivedPto = persistence.getEntity(pto.getPersistenceID(),
                 PersistenceTestObject.class);
         Assert.assertEquals(pto, receivedPto);
 
         Assert.assertTrue(persistence.removeEntity(pto.getPersistenceID(), PersistenceTestObject.class));
 
-        PersistenceTestObject receivedPto2 = (PersistenceTestObject) persistence.getEntity(pto.getPersistenceID(),
+        PersistenceTestObject receivedPto2 = persistence.getEntity(pto.getPersistenceID(),
                 PersistenceTestObject.class);
         Assert.assertNull(receivedPto2);
     }
@@ -122,28 +110,6 @@ public class PersistenceTest extends AndroidTestCase {
 
     public void testDropNotExistingTable() {
         Assert.assertFalse(persistence.dropTable(PersistenceTestObject.class));
-    }
-
-    public void testChangeMasterKey() {
-        PersistenceTestObject pto = new PersistenceTestObject("pto");
-        persistence.persistEntity(pto);
-
-        Assert.assertTrue(persistence.changePassword(ENCRYPTION_PASSWORD, "qabel2".toCharArray()));
-
-        PersistenceTestObject receivedPto = (PersistenceTestObject) persistence.getEntity(pto.getPersistenceID(),
-                PersistenceTestObject.class);
-        Assert.assertEquals(pto, receivedPto);
-    }
-
-    public void testChangeMasterKeyFail() {
-        PersistenceTestObject pto = new PersistenceTestObject("pto");
-        persistence.persistEntity(pto);
-
-        Assert.assertFalse(persistence.changePassword("wrongPassword".toCharArray(), "qabel2".toCharArray()));
-
-        PersistenceTestObject receivedPto = (PersistenceTestObject) persistence.getEntity(pto.getPersistenceID(),
-                PersistenceTestObject.class);
-        Assert.assertEquals(pto, receivedPto);
     }
 
     static public class PersistenceTestObject extends Persistable implements Serializable {

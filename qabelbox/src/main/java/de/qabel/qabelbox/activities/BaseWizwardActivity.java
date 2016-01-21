@@ -132,7 +132,7 @@ public abstract class BaseWizwardActivity extends AppCompatActivity {
         //check if fragment ready to go to the next step
         if (check != null) {
             //no, show error message
-            UIHelper.showDialogMessage(this, R.string.dialog_headline_info, R.string.create_identity_enter_all_data, R.string.ok);
+            UIHelper.showDialogMessage(this, R.string.dialog_headline_info, R.string.create_identity_enter_all_data);
         } else {
 
             //check if currently last step

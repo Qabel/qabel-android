@@ -2,7 +2,8 @@
 <resources>
     <array name="fonts">
         <item>fonts/Roboto-Regular.ttf</item>
-        <item>fonts/Roboto-Italic.ttf</item>
         <item>fonts/Roboto-Bold.ttf</item>
+        <item>fonts/Roboto-Italic.ttf</item>
+        <item>fonts/Roboto-BoldItalic.ttf</item>
     </array>
 </resources>

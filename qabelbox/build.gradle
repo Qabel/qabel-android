@@ -10,7 +10,7 @@ spoon {
     // To run a single test class
     className = 'de.qabel.qabelbox.ui.FileSearchTest'
     // To run a single method in TestCase
-    methodName = 'search3FilterTest'
+    methodName = 'search2FilterTest'
     adbTimeout = 60
 }
 

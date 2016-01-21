@@ -61,8 +61,36 @@ public class LocalQabelService extends Service {
 	protected static final int DB_VERSION = 1;
 	protected AndroidPersistence persistence;
 	private DropHTTP dropHTTP;
+	private long dropPollInterval;
+	private OnDropMessageReceived dropMessageReceiver;
+	private Thread dropMessageReceiverThread;
 
 	SharedPreferences sharedPreferences;
+	private boolean receiverShouldStop = false;
+
+	public interface OnDropMessageReceived {
+		void onDropMessage(Collection<DropMessage> dropMessages);
+	}
+
+	public void setDropMessageReceiver(OnDropMessageReceived dropMessageReceiver) {
+		this.dropMessageReceiver = dropMessageReceiver;
+	}
+
+	/**
+	 * Get drop poll interval in milliseconds
+	 * @return Drop poll interval in milliseconds
+	 */
+	public long getDropPollInterval() {
+		return dropPollInterval;
+	}
+
+	/**
+	 * Set drop poll interval in milliseconds
+	 * @param dropPollInterval Drop poll interval in milliseconds
+	 */
+	public void setDropPollInterval(long dropPollInterval) {
+		this.dropPollInterval = dropPollInterval;
+	}
 
 	protected void setLastActiveIdentityID(String identityID) {
 		sharedPreferences.edit()
@@ -209,11 +237,11 @@ public class LocalQabelService extends Service {
 	}
 
 	/**
-	 * Retrieves all DropMessages all Identities
+	 * Retrieves all DropMessages of all Identities
 	 *
 	 * @return Retrieved, decrypted DropMessages.
 	 */
-	public Collection<DropMessage> retrieveDropMessages() {
+	private Collection<DropMessage> retrieveDropMessages() {
 		Collection<DropMessage> allMessages = new ArrayList<>();
 		for(Identity identity : getIdentities().getIdentities()) {
 			for(DropURL dropUrl: identity.getDropUrls()) {
@@ -230,9 +258,8 @@ public class LocalQabelService extends Service {
 	 * @param uri      URI where to retrieve the drop from
 	 * @return Retrieved, decrypted DropMessages.
 	 */
-	public Collection<DropMessage> retrieveDropMessages(URI uri) {
-		DropHTTP http = new DropHTTP();
-		HTTPResult<Collection<byte[]>> cipherMessages = http.receiveMessages(uri);
+	private Collection<DropMessage> retrieveDropMessages(URI uri) {
+		HTTPResult<Collection<byte[]>> cipherMessages = dropHTTP.receiveMessages(uri);
 		Collection<DropMessage> plainMessages = new ArrayList<>();
 
 		List<Contact> ccc = new ArrayList<>(getContacts().getContacts());
@@ -313,6 +340,8 @@ public class LocalQabelService extends Service {
 		dropHTTP = new DropHTTP();
 		initSharedPreferences();
 		initAndroidPersistence();
+		dropPollInterval = 1000L * 60L; // 60 seconds
+		initDropMessageReceiverThread();
 	}
 
 	protected void initAndroidPersistence() {
@@ -342,9 +371,30 @@ public class LocalQabelService extends Service {
 		}
 	}
 
+	private void initDropMessageReceiverThread() {
+		dropMessageReceiverThread = new Thread(new Runnable(){
+			@Override
+			public void run() {
+				while (!receiverShouldStop) {
+					if (dropMessageReceiver != null) {
+						LOGGER.debug("Receiving DropMessages");
+						dropMessageReceiver.onDropMessage(retrieveDropMessages());
+					}
+					try {
+						Thread.sleep(dropPollInterval);
+					} catch (InterruptedException e) {
+						LOGGER.debug("DropMessage receiver interrupted.", e);
+					}
+				}
+			}
+		});
+		dropMessageReceiverThread.start();
+	}
+
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
+		receiverShouldStop = true;
 	}
 
 }

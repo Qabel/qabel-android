@@ -17,11 +17,13 @@ import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
 import java.util.HashMap;
+import java.util.Map;
 
 import de.qabel.ServiceConstants;
 import de.qabel.core.config.Contact;
 import de.qabel.core.config.Identity;
 import de.qabel.core.drop.DropMessage;
+import de.qabel.core.drop.DropURL;
 import de.qabel.core.exceptions.QblDropPayloadSizeException;
 import de.qabel.qabelbox.R;
 
@@ -86,8 +88,9 @@ public class QabelService extends Service {
                                 try {
                                     mService.sendDropMessage(dropMessage, recipient, new LocalQabelService.OnSendDropMessageResult() {
                                         @Override
-                                        public void onSendDropResult(boolean delivered) {
+                                        public void onSendDropResult(Map<DropURL, Boolean> deliveryStatus) {
                                             //TODO: Ignored for now
+
                                         }
                                     });
                                 } catch (QblDropPayloadSizeException e) {

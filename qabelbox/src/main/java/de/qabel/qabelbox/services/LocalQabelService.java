@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Binder;
 import android.os.IBinder;
+import android.support.annotation.Nullable;
 import android.util.Log;
 
 import org.slf4j.Logger;
@@ -43,7 +44,6 @@ import de.qabel.qabelbox.config.QblSQLiteParams;
 public class LocalQabelService extends Service {
 
 	private final static Logger LOGGER = LoggerFactory.getLogger(LocalQabelService.class.getName());
-
 
 	private static final String TAG = "LocalQabelService";
 	private static final String PREF_LAST_ACTIVE_IDENTITY = "PREF_LAST_ACTIVE_IDENTITY";
@@ -173,23 +173,39 @@ public class LocalQabelService extends Service {
 	}
 
 	public interface OnSendDropMessageResult {
-		void onSendDropResult(boolean delivered);
+		void onSendDropResult(Map<DropURL, Boolean> deliveryStatus);
 	}
 
+	/**
+	 * Sends {@link DropMessage} to a {@link Contact} in a new thread. Returns without blocking.
+	 * @param dropMessage {@link DropMessage} to send.
+	 * @param recipient {@link Contact} to send {@link DropMessage} to.
+	 * @param dropResultCallback Callback to Map<DropURL, Boolean> deliveryStatus which contains
+	 *                              sending status to DropURLs of the recipient. Can be null if status is irrelevant.
+	 * @throws QblDropPayloadSizeException
+	 */
 	public void sendDropMessage(final DropMessage dropMessage, final Contact recipient,
-								final OnSendDropMessageResult dropResultCallback) throws QblDropPayloadSizeException {
-		final BinaryDropMessageV0 binaryMessage = new BinaryDropMessageV0(dropMessage);
-		final byte[] messageByteArray = binaryMessage.assembleMessageFor(recipient);
+								@Nullable final OnSendDropMessageResult dropResultCallback) throws QblDropPayloadSizeException {
+		new Thread(new Runnable() {
+			final BinaryDropMessageV0 binaryMessage = new BinaryDropMessageV0(dropMessage);
+			final byte[] messageByteArray = binaryMessage.assembleMessageFor(recipient);
 
-		boolean delivered = false;
-
-		for (DropURL dropURL : recipient.getDropUrls()) {
-			HTTPResult<?> dropResult = dropHTTP.send(dropURL.getUri(), messageByteArray);
-			if (dropResult.getResponseCode() == 200) {
-				delivered = true;
+			HashMap<DropURL, Boolean> deliveryStatus = new HashMap<>();
+			@Override
+			public void run() {
+				for (DropURL dropURL : recipient.getDropUrls()) {
+					HTTPResult<?> dropResult = dropHTTP.send(dropURL.getUri(), messageByteArray);
+					if (dropResult.getResponseCode() == 200) {
+						deliveryStatus.put(dropURL, true);
+					} else {
+						deliveryStatus.put(dropURL, false);
+					}
+				}
+				if (dropResultCallback != null) {
+					dropResultCallback.onSendDropResult(deliveryStatus);
+				}
 			}
-		}
-		dropResultCallback.onSendDropResult(delivered);
+		}).start();
 	}
 
 	/**

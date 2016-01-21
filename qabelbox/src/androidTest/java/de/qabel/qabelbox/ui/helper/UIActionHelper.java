@@ -47,6 +47,7 @@ public class UIActionHelper {
         PowerManager powerManager = (PowerManager) activity.getSystemService(Context.POWER_SERVICE);
         PowerManager.WakeLock wakeLock = powerManager.newWakeLock(PowerManager.FULL_WAKE_LOCK | PowerManager.ACQUIRE_CAUSES_WAKEUP | PowerManager.ON_AFTER_RELEASE, "Wakeup!");
         wakeLock.acquire();
+        UITestHelper.sleep(500);
         //wait until display is unlocked
         activity.runOnUiThread(new Runnable() {
             @Override

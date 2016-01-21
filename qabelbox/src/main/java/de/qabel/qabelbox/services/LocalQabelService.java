@@ -18,9 +18,14 @@ import de.qabel.core.config.Contacts;
 import de.qabel.core.config.Identities;
 import de.qabel.core.config.Identity;
 import de.qabel.core.config.Persistable;
+import de.qabel.core.crypto.BinaryDropMessageV0;
 import de.qabel.core.crypto.CryptoUtils;
 import de.qabel.core.drop.DropMessage;
+import de.qabel.core.drop.DropURL;
+import de.qabel.core.exceptions.QblDropPayloadSizeException;
 import de.qabel.core.exceptions.QblInvalidEncryptionKeyException;
+import de.qabel.core.http.DropHTTP;
+import de.qabel.core.http.HTTPResult;
 import de.qabel.qabelbox.config.AndroidPersistence;
 import de.qabel.qabelbox.config.QblSQLiteParams;
 
@@ -41,6 +46,8 @@ public class LocalQabelService extends Service {
 	protected static final String DB_NAME = "qabel-service";
 	protected static final int DB_VERSION = 1;
 	protected AndroidPersistence persistence;
+	private DropHTTP dropHTTP;
+
 	SharedPreferences sharedPreferences;
 
 	protected void setLastActiveIdentityID(String identityID) {
@@ -151,8 +158,24 @@ public class LocalQabelService extends Service {
 		return contacts;
 	}
 
-	public void sendDropMessage(DropMessage dropMessage, Contact recipient) {
+	public interface OnSendDropMessageResult {
+		void onSendDropResult(boolean delivered);
+	}
 
+	public void sendDropMessage(final DropMessage dropMessage, final Contact recipient,
+								final OnSendDropMessageResult dropResultCallback) throws QblDropPayloadSizeException {
+		final BinaryDropMessageV0 binaryMessage = new BinaryDropMessageV0(dropMessage);
+		final byte[] messageByteArray = binaryMessage.assembleMessageFor(recipient);
+
+		boolean delivered = false;
+
+		for (DropURL dropURL : recipient.getDropUrls()) {
+			HTTPResult<?> dropResult = dropHTTP.send(dropURL.getUri(), messageByteArray);
+			if (dropResult.getResponseCode() == 200) {
+				delivered = true;
+			}
+		}
+		dropResultCallback.onSendDropResult(delivered);
 	}
 
 
@@ -181,6 +204,7 @@ public class LocalQabelService extends Service {
 	public void onCreate() {
 		super.onCreate();
 		Log.i(TAG, "LocalQabelService created");
+		dropHTTP = new DropHTTP();
 		initSharedPreferences();
 		initAndroidPersistence();
 	}

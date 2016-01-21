@@ -43,12 +43,14 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URLConnection;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
 import de.qabel.core.config.Contact;
 import de.qabel.core.config.Identity;
+import de.qabel.core.drop.DropMessage;
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.adapter.FilesAdapter;
@@ -315,6 +317,12 @@ public class MainActivity extends AppCompatActivity
                 break;
         }
 
+		mService.setDropMessageReceiver(new LocalQabelService.OnDropMessageReceived() {
+		@Override
+			public void onDropMessage(Collection<DropMessage> dropMessages) {
+				//TODO: Handle DropMessages
+			}
+		});
     }
 
     private void initBoxVolume(Identity activeIdentity) {

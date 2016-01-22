@@ -3,29 +3,38 @@ package de.qabel.qabelbox.services;
 import android.content.Intent;
 import android.test.ServiceTestCase;
 
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Map;
+import java.util.concurrent.CountDownLatch;
 
 import de.qabel.core.config.Contact;
 import de.qabel.core.config.Contacts;
 import de.qabel.core.config.Identities;
 import de.qabel.core.config.Identity;
 import de.qabel.core.crypto.QblECKeyPair;
+import de.qabel.core.drop.DropMessage;
+import de.qabel.core.drop.DropURL;
+import de.qabel.core.exceptions.QblDropInvalidURL;
+import de.qabel.core.exceptions.QblDropPayloadSizeException;
 
-public class LocalQabelServiceTest extends ServiceTestCase<LocalQabelService> {
+public class LocalQabelServiceTest extends ServiceTestCase<LocalQabelServiceTester> {
 
-	private LocalQabelService mService;
+	private LocalQabelServiceTester mService;
 	private Identity identity;
 	private Contact contact;
 
 	public LocalQabelServiceTest() {
-		super(LocalQabelService.class);
+		super(LocalQabelServiceTester.class);
 	}
 
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
-		getContext().deleteDatabase(LocalQabelService.DB_NAME);
-		Intent intent = new Intent(getContext(), LocalQabelService.class);
+		getContext().deleteDatabase(LocalQabelServiceTester.DB_NAME);
+		Intent intent = new Intent(getContext(), LocalQabelServiceTester.class);
 		startService(intent);
 		this.mService = getService();
 		identity = new Identity("foo", null, new QblECKeyPair());
@@ -90,6 +99,49 @@ public class LocalQabelServiceTest extends ServiceTestCase<LocalQabelService> {
 		assertTrue(contacts.containsKey(secondIdentity));
 		assertTrue(contacts.get(identity).getContacts().contains(contact));
 		assertTrue(contacts.get(secondIdentity).getContacts().contains(secondContact));
+	}
+
+	public void testSendAndReceiveDropMessage() throws QblDropPayloadSizeException, URISyntaxException, QblDropInvalidURL, InterruptedException {
+		QblECKeyPair senderKeypair = new QblECKeyPair();
+		Identity senderIdentity = new Identity("SenderIdentity", new ArrayList<DropURL>(), senderKeypair);
+
+		QblECKeyPair receiverKeypair = new QblECKeyPair();
+		Identity receiverIdentity = new Identity("ReceiverIdentity", new ArrayList<DropURL>(), receiverKeypair);
+
+		Contact senderContact = new Contact(receiverIdentity, "foo", null, senderKeypair.getPub());
+
+		Contact recipientContact = new Contact(senderIdentity, "foo", null, receiverKeypair.getPub());
+		recipientContact.addDrop(new DropURL("http://localhost/abcdefghijklmnopqrstuvwxyzabcdefgworkingUrl"));
+
+		mService.addIdentity(senderIdentity);
+		mService.addIdentity(receiverIdentity);
+		mService.addContact(recipientContact);
+		mService.addContact(senderContact);
+
+		DropMessage dropMessage = new DropMessage(senderIdentity, "DropPayload", "DropPayloadType");
+
+		final CountDownLatch lock = new CountDownLatch(1);
+
+		mService.sendDropMessage(dropMessage, recipientContact, new LocalQabelService.OnSendDropMessageResult() {
+			@Override
+			public void onSendDropResult(Map<DropURL, Boolean> deliveryStatus) {
+				lock.countDown();
+			}
+		});
+
+		lock.await();
+
+		Collection<DropMessage> dropMessages =
+				mService.retrieveDropMessages(URI.create("http://localhost/dropmessages"));
+
+		assertEquals(1, dropMessages.size());
+	}
+
+	public void testReceiveDropMessagesEmpty() {
+		Collection<DropMessage> dropMessages =
+				mService.retrieveDropMessages(URI.create("http://localhost/empty"));
+
+		assertEquals(0, dropMessages.size());
 	}
 
 }

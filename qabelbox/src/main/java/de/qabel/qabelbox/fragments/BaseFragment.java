@@ -16,6 +16,7 @@ import de.qabel.qabelbox.activities.MainActivity;
  * Created by danny on 08.01.2016.
  */
 public class BaseFragment extends Fragment {
+
     protected static Executor serialExecutor = Executors.newSingleThreadExecutor();
     protected ActionBar actionBar;
     protected MainActivity mActivity;
@@ -24,6 +25,7 @@ public class BaseFragment extends Fragment {
      * @return title for fragment
      */
     public String getTitle() {
+
         return getString(R.string.app_name);
     }
 
@@ -31,11 +33,13 @@ public class BaseFragment extends Fragment {
      * @return true if floating action button used
      */
     public boolean isFabNeeded() {
+
         return false;
     }
 
     @Override
     public void onAttach(Activity activity) {
+
         super.onAttach(activity);
         mActivity = (MainActivity) getActivity();
         actionBar = mActivity.getSupportActionBar();
@@ -56,11 +60,29 @@ public class BaseFragment extends Fragment {
      * set own back listener in actionbar
      */
     protected void setActionBarBackListener() {
+
         mActivity.toggle.setToolbarNavigationClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (getFragmentManager().getBackStackEntryCount() > 0)
-                    mActivity.onBackPressed();
+
+                mActivity.onBackPressed();
+            }
+        });
+    }
+
+    /**
+     * set own back listener in actionbar
+     */
+    protected void setActionBarBackListener(final View.OnClickListener listener) {
+
+        mActivity.toggle.setToolbarNavigationClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                if (listener != null) {
+                    listener.onClick(v);
+                }
+                mActivity.onBackPressed();
             }
         });
     }
@@ -69,6 +91,14 @@ public class BaseFragment extends Fragment {
      * @return true if fragment handle back button. otherwise return false to display sideMenu icon
      */
     public boolean supportBackButton() {
+
         return false;
+    }
+
+    /**
+     * handle hardware back button
+     */
+    public void onBackPressed() {
+
     }
 }

@@ -7,7 +7,7 @@
 
     <de.qabel.qabelbox.views.EditTextFont
         android:id="@+id/edtSearch"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="@string/ab_filesearch_hint"
         android:imeOptions="actionSearch"

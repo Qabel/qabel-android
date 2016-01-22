@@ -5,10 +5,18 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Binder;
 import android.os.IBinder;
+import android.support.annotation.Nullable;
 import android.util.Log;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.spongycastle.util.encoders.Hex;
 
+import java.net.URI;
+import java.security.SecureRandom;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -17,19 +25,27 @@ import de.qabel.core.config.Contact;
 import de.qabel.core.config.Contacts;
 import de.qabel.core.config.Identities;
 import de.qabel.core.config.Identity;
-import de.qabel.core.config.Persistable;
+import de.qabel.core.crypto.AbstractBinaryDropMessage;
+import de.qabel.core.crypto.BinaryDropMessageV0;
 import de.qabel.core.crypto.CryptoUtils;
 import de.qabel.core.drop.DropMessage;
+import de.qabel.core.drop.DropURL;
+import de.qabel.core.exceptions.QblDropInvalidMessageSizeException;
+import de.qabel.core.exceptions.QblDropPayloadSizeException;
 import de.qabel.core.exceptions.QblInvalidEncryptionKeyException;
+import de.qabel.core.exceptions.QblSpoofedSenderException;
+import de.qabel.core.exceptions.QblVersionMismatchException;
+import de.qabel.core.http.DropHTTP;
+import de.qabel.core.http.HTTPResult;
 import de.qabel.qabelbox.config.AndroidPersistence;
 import de.qabel.qabelbox.config.QblSQLiteParams;
 
 public class LocalQabelService extends Service {
 
+	private final static Logger LOGGER = LoggerFactory.getLogger(LocalQabelService.class.getName());
+
 	private static final String TAG = "LocalQabelService";
 	private static final String PREF_LAST_ACTIVE_IDENTITY = "PREF_LAST_ACTIVE_IDENTITY";
-	// Hardcoded password until the password is saved in the Android KeyStore
-	protected static final char[] PASSWORD = "constantpassword".toCharArray();
 	public static final String DEFAULT_DROP_SERVER = "http://localhost";
 
 	private static final String PREF_DEVICE_ID_CREATED = "PREF_DEVICE_ID_CREATED";
@@ -41,6 +57,8 @@ public class LocalQabelService extends Service {
 	protected static final String DB_NAME = "qabel-service";
 	protected static final int DB_VERSION = 1;
 	protected AndroidPersistence persistence;
+	private DropHTTP dropHTTP;
+
 	SharedPreferences sharedPreferences;
 
 	protected void setLastActiveIdentityID(String identityID) {
@@ -58,10 +76,10 @@ public class LocalQabelService extends Service {
 	}
 
 	public Identities getIdentities() {
-		List<Persistable> entities = persistence.getEntities(Identity.class);
+		List<Identity> entities = persistence.getEntities(Identity.class);
 		Identities identities = new Identities();
-		for (Persistable p : entities) {
-			identities.put((Identity) p);
+		for (Identity i : entities) {
+			identities.put(i);
 		}
 		return identities;
 	}
@@ -92,10 +110,10 @@ public class LocalQabelService extends Service {
 	 * @return List of all contacts
 	 */
 	public Contacts getContacts() {
-		List<Persistable> entities = persistence.getEntities(Contact.class);
+		List<Contact> entities = persistence.getEntities(Contact.class);
 		Contacts contacts = new Contacts();
-		for (Persistable p : entities) {
-			contacts.put((Contact) p);
+		for (Contact c : entities) {
+			contacts.put(c);
 		}
 		return contacts;
 	}
@@ -106,10 +124,9 @@ public class LocalQabelService extends Service {
 	 * @return List of contacts owned by the identity
 	 */
 	public Contacts getContacts(Identity identity) {
-		List<Persistable> entities = persistence.getEntities(Contact.class);
+		List<Contact> entities = persistence.getEntities(Contact.class);
 		Contacts contacts = new Contacts();
-		for (Persistable p : entities) {
-			Contact c = (Contact) p;
+		for (Contact c : entities) {
 			if (c.getContactOwner().equals(identity)) {
 				contacts.put(c);
 			}
@@ -135,9 +152,8 @@ public class LocalQabelService extends Service {
 	 */
 	public Map<Identity, Contacts> getAllContacts() {
 		Map<Identity, Contacts> contacts = new HashMap<>();
-		List<Persistable> entities = persistence.getEntities(Contact.class);
-		for (Persistable p : entities) {
-			Contact c = (Contact) p;
+		List<Contact> entities = persistence.getEntities(Contact.class);
+		for (Contact c : entities) {
 			Identity owner = c.getContactOwner();
 			Contacts map;
 			if (contacts.containsKey(owner)) {
@@ -151,10 +167,135 @@ public class LocalQabelService extends Service {
 		return contacts;
 	}
 
-	public void sendDropMessage(DropMessage dropMessage, Contact recipient) {
-
+	public interface OnSendDropMessageResult {
+		void onSendDropResult(Map<DropURL, Boolean> deliveryStatus);
 	}
 
+	/**
+	 * Sends {@link DropMessage} to a {@link Contact} in a new thread. Returns without blocking.
+	 * @param dropMessage {@link DropMessage} to send.
+	 * @param recipient {@link Contact} to send {@link DropMessage} to.
+	 * @param dropResultCallback Callback to Map<DropURL, Boolean> deliveryStatus which contains
+	 *                              sending status to DropURLs of the recipient. Can be null if status is irrelevant.
+	 * @throws QblDropPayloadSizeException
+	 */
+	public void sendDropMessage(final DropMessage dropMessage, final Contact recipient,
+								@Nullable final OnSendDropMessageResult dropResultCallback) throws QblDropPayloadSizeException {
+		new Thread(new Runnable() {
+			final BinaryDropMessageV0 binaryMessage = new BinaryDropMessageV0(dropMessage);
+			final byte[] messageByteArray = binaryMessage.assembleMessageFor(recipient);
+			HashMap<DropURL, Boolean> deliveryStatus = new HashMap<>();
+			@Override
+			public void run() {
+				for (DropURL dropURL : recipient.getDropUrls()) {
+					HTTPResult<?> dropResult = dropHTTPsend(dropURL, messageByteArray);
+					if (dropResult.getResponseCode() == 200) {
+						deliveryStatus.put(dropURL, true);
+					} else {
+						deliveryStatus.put(dropURL, false);
+					}
+				}
+				if (dropResultCallback != null) {
+					dropResultCallback.onSendDropResult(deliveryStatus);
+				}
+			}
+		}).start();
+	}
+
+	/**
+	 * Send DropMessages via DropHTTP. Method extracted to mock send in LocalQabelServiceTester.
+	 * @param dropURL DropURL to send DropMessage to.
+	 * @param message Encrypted DropMessage
+	 * @return
+	 */
+	HTTPResult<?> dropHTTPsend(DropURL dropURL, byte[] message) {
+		return dropHTTP.send(dropURL.getUri(), message);
+	}
+
+	/**
+	 * Retrieves all DropMessages all Identities
+	 *
+	 * @return Retrieved, decrypted DropMessages.
+	 */
+	public Collection<DropMessage> retrieveDropMessages() {
+		Collection<DropMessage> allMessages = new ArrayList<>();
+		for(Identity identity : getIdentities().getIdentities()) {
+			for(DropURL dropUrl: identity.getDropUrls()) {
+				Collection<DropMessage> results = this.retrieveDropMessages(dropUrl.getUri());
+				allMessages.addAll(results);
+			}
+		}
+		return allMessages;
+	}
+
+	/**
+	 * Retrieves all DropMessages from given URI
+	 *
+	 * @param uri      URI where to retrieve the drop from
+	 * @return Retrieved, decrypted DropMessages.
+	 */
+	public Collection<DropMessage> retrieveDropMessages(URI uri) {
+		HTTPResult<Collection<byte[]>> cipherMessages = getDropMessages(uri);
+		Collection<DropMessage> plainMessages = new ArrayList<>();
+
+		List<Contact> ccc = new ArrayList<>(getContacts().getContacts());
+		Collections.shuffle(ccc, new SecureRandom());
+
+		for (byte[] cipherMessage : cipherMessages.getData()) {
+			AbstractBinaryDropMessage binMessage;
+			byte binaryFormatVersion = cipherMessage[0];
+
+			switch (binaryFormatVersion) {
+				case 0:
+					try {
+						binMessage = new BinaryDropMessageV0(cipherMessage);
+					} catch (QblVersionMismatchException e) {
+						LOGGER.error("Version mismatch in binary drop message", e);
+						throw new RuntimeException("Version mismatch should not happen", e);
+					} catch (QblDropInvalidMessageSizeException e) {
+						LOGGER.info("Binary drop message version 0 with unexpected size discarded.");
+						// Invalid message uploads may happen with malicious intent
+						// or by broken clients. Skip.
+						continue;
+					}
+					break;
+				default:
+					LOGGER.warn("Unknown binary drop message version " + binaryFormatVersion);
+					// cannot handle this message -> skip
+					continue;
+			}
+			for (Identity identity : getIdentities().getIdentities()) {
+				DropMessage dropMessage;
+				try {
+					dropMessage = binMessage.disassembleMessage(identity);
+				} catch (QblSpoofedSenderException e) {
+					//TODO: Notify the user about the spoofed message
+					break;
+				}
+				if (dropMessage != null) {
+					for (Contact c : ccc) {
+						if (c.getKeyIdentifier().equals(dropMessage.getSenderKeyId())){
+							if (dropMessage.registerSender(c)){
+								plainMessages.add(dropMessage);
+								break;
+							}
+						}
+					}
+					break;
+				}
+			}
+		}
+		return plainMessages;
+	}
+
+	/**
+	 * Receives DropMessages via DropHTTP. Method extracted to mock receive in LocalQabelServiceTester.
+	 * @param uri URI to receive DropMessages from
+	 * @return HTTPResult with collection of encrypted DropMessages.
+	 */
+	HTTPResult<Collection<byte[]>> getDropMessages(URI uri) {
+		return dropHTTP.receiveMessages(uri);
+	}
 
 	public class LocalBinder extends Binder {
 		public LocalQabelService getService() {
@@ -181,6 +322,7 @@ public class LocalQabelService extends Service {
 	public void onCreate() {
 		super.onCreate();
 		Log.i(TAG, "LocalQabelService created");
+		dropHTTP = new DropHTTP();
 		initSharedPreferences();
 		initAndroidPersistence();
 	}
@@ -189,7 +331,7 @@ public class LocalQabelService extends Service {
 		AndroidPersistence androidPersistence;
 		QblSQLiteParams params = new QblSQLiteParams(this, DB_NAME, null, DB_VERSION);
 		try {
-			androidPersistence = new AndroidPersistence(params, PASSWORD);
+			androidPersistence = new AndroidPersistence(params);
 		} catch (QblInvalidEncryptionKeyException e) {
 			Log.e(TAG, "Invalid database password!");
 			return;

@@ -318,22 +318,22 @@ public class SearchTest extends AndroidTestCase {
 		Date beforeTarget = calendar.getTime();
 
 		StorageSearch search = new StorageSearch(searchResults).filterByMinimumDate(afterTarget);
-		assertEquals(0, search.getResults().size());
+		assertEquals(5, search.getResults().size());
 
 		search = new StorageSearch(searchResults).filterByMinimumDate(beforeTarget);
-		assertEquals(1, search.getResults().size());
+		assertEquals(5, search.getResults().size());
 
 		search = new StorageSearch(searchResults).filterByMinimumDate(target);
-		assertEquals(1, search.getResults().size());
+		assertEquals(5, search.getResults().size());
 
 		search = new StorageSearch(searchResults).filterByMaximumDate(target);
-		assertEquals(5, search.getResults().size());
+		assertEquals(0, search.getResults().size());
 
 		search = new StorageSearch(searchResults).filterByMaximumDate(beforeTarget);
-		assertEquals(4, search.getResults().size());
+		assertEquals(0, search.getResults().size());
 
 		search = new StorageSearch(searchResults).filterByMaximumDate(afterTarget);
-		assertEquals(5, search.getResults().size());
+		assertEquals(0, search.getResults().size());
 	}
 
 	@Test

@@ -8,9 +8,9 @@ spoon {
     // for debug output
     debug = true
     // To run a single test class
-    className = 'de.qabel.qabelbox.ui.MainActivityTest'
+    className = 'de.qabel.qabelbox.ui.FileSearchTest'
     // To run a single method in TestCase
-    //methodName = 'test1IncorrectLogin'
+    //methodName = 'search3CacheTest'
     adbTimeout = 60
 }
 
@@ -26,9 +26,11 @@ android {
         targetSdkVersion 22
         versionCode 1
         versionName "1.0"
+        //junit test
         testInstrumentationRunner "de.qabel.qabelbox.QblJUnitRunner"
         //ui tests
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+
         ndk {
             moduleName "curve25519"
         }

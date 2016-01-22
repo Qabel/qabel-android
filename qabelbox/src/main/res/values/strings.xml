@@ -96,4 +96,15 @@
     <string name="create_identity_import">Import identity</string>
     <string name="function_not_yet_implenented">Function not yet implemented</string>
     <string name="step_x_from_y">Step $1/$2</string>
+    <string name="filter_label_date">Date</string>
+    <string name="filter_label_filesize">Filesize:</string>
+    <string name="headline_searchresultfilter">Search filter</string>
+    <string name="search_filter_filesize_min">Min</string>
+    <string name="ab_use_filter">Use</string>
+    <string name="headline_filefilter">Filter</string>
+    <string name="change">Change</string>
+    <string name="unit_filesyste_mb">MB</string>
+    <string name="unit_filesyste_gb">GB</string>
+    <string name="unit_filesyste_kb">KB</string>
+    <string name="unit_filesyste_bytes">Bytes</string>
 </resources>

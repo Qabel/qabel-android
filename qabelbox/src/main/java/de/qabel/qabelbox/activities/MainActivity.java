@@ -59,7 +59,6 @@ import de.qabel.qabelbox.fragments.ContactFragment;
 import de.qabel.qabelbox.fragments.FilesFragment;
 import de.qabel.qabelbox.fragments.IdentitiesFragment;
 import de.qabel.qabelbox.fragments.SelectUploadFolderFragment;
-import de.qabel.qabelbox.listeners.AddIdentityListener;
 import de.qabel.qabelbox.providers.BoxProvider;
 import de.qabel.qabelbox.services.LocalQabelService;
 import de.qabel.qabelbox.storage.BoxExternal;
@@ -73,12 +72,11 @@ public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,
         SelectUploadFolderFragment.OnSelectedUploadFolderListener,
         ContactFragment.ContactListListener,
-        AddIdentityListener,
         AddContactFragment.AddContactListener,
         FilesFragment.FilesListListener,
         IdentitiesFragment.IdentityListListener {
 
-    private static final String TAG_FILES_FRAGMENT = "TAG_FILES_FRAGMENT";
+    public static final String TAG_FILES_FRAGMENT = "TAG_FILES_FRAGMENT";
     private static final String TAG_CONTACT_LIST_FRAGMENT = "TAG_CONTACT_LIST_FRAGMENT";
     private static final String TAG_MANAGE_IDENTITIES_FRAGMENT = "TAG_MANAGE_IDENTITIES_FRAGMENT";
     private static final String TAG_ADD_CONTACT_FRAGMENT = "TAG_ADD_CONTACT_FRAGMENT";
@@ -86,7 +84,6 @@ public class MainActivity extends AppCompatActivity
     private static final String TAG = "BoxMainActivity";
     private static final int REQUEST_CODE_OPEN = 11;
     private static final int REQUEST_CODE_UPLOAD_FILE = 12;
-
     public static final String HARDCODED_ROOT = BoxProvider.DOCID_SEPARATOR
             + BoxProvider.BUCKET + BoxProvider.DOCID_SEPARATOR
             + BoxProvider.PREFIX + BoxProvider.DOCID_SEPARATOR + BoxProvider.PATH_SEP;
@@ -546,7 +543,6 @@ public class MainActivity extends AppCompatActivity
             drawer.closeDrawer(GravityCompat.START);
         } else {
             Fragment activeFragment = getFragmentManager().findFragmentById(R.id.fragment_container);
-
             if (activeFragment.getTag() == null) {
                 getFragmentManager().popBackStack();
             } else {
@@ -733,11 +729,7 @@ public class MainActivity extends AppCompatActivity
         initFilesFragment();
     }
 
-    @Override
-    public void cancelAddIdentity() {
 
-        selectFilesFragment();
-    }
 
     @Override
     public void addContact(Contact contact) {
@@ -943,7 +935,6 @@ public class MainActivity extends AppCompatActivity
                                 public boolean onMenuItemClick(MenuItem item) {
 
                                     drawer.closeDrawer(GravityCompat.START);
-
                                     selectAddIdentityFragment();
                                     return true;
                                 }

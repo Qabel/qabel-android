@@ -184,12 +184,11 @@ public class LocalQabelService extends Service {
 		new Thread(new Runnable() {
 			final BinaryDropMessageV0 binaryMessage = new BinaryDropMessageV0(dropMessage);
 			final byte[] messageByteArray = binaryMessage.assembleMessageFor(recipient);
-
 			HashMap<DropURL, Boolean> deliveryStatus = new HashMap<>();
 			@Override
 			public void run() {
 				for (DropURL dropURL : recipient.getDropUrls()) {
-					HTTPResult<?> dropResult = dropHTTP.send(dropURL.getUri(), messageByteArray);
+					HTTPResult<?> dropResult = dropHTTPsend(dropURL, messageByteArray);
 					if (dropResult.getResponseCode() == 200) {
 						deliveryStatus.put(dropURL, true);
 					} else {
@@ -201,6 +200,16 @@ public class LocalQabelService extends Service {
 				}
 			}
 		}).start();
+	}
+
+	/**
+	 * Send DropMessages via DropHTTP. Method extracted to mock send in LocalQabelServiceTester.
+	 * @param dropURL DropURL to send DropMessage to.
+	 * @param message Encrypted DropMessage
+	 * @return
+	 */
+	HTTPResult<?> dropHTTPsend(DropURL dropURL, byte[] message) {
+		return dropHTTP.send(dropURL.getUri(), message);
 	}
 
 	/**
@@ -226,8 +235,7 @@ public class LocalQabelService extends Service {
 	 * @return Retrieved, decrypted DropMessages.
 	 */
 	public Collection<DropMessage> retrieveDropMessages(URI uri) {
-		DropHTTP http = new DropHTTP();
-		HTTPResult<Collection<byte[]>> cipherMessages = http.receiveMessages(uri);
+		HTTPResult<Collection<byte[]>> cipherMessages = getDropMessages(uri);
 		Collection<DropMessage> plainMessages = new ArrayList<>();
 
 		List<Contact> ccc = new ArrayList<>(getContacts().getContacts());
@@ -278,6 +286,15 @@ public class LocalQabelService extends Service {
 			}
 		}
 		return plainMessages;
+	}
+
+	/**
+	 * Receives DropMessages via DropHTTP. Method extracted to mock receive in LocalQabelServiceTester.
+	 * @param uri URI to receive DropMessages from
+	 * @return HTTPResult with collection of encrypted DropMessages.
+	 */
+	HTTPResult<Collection<byte[]>> getDropMessages(URI uri) {
+		return dropHTTP.receiveMessages(uri);
 	}
 
 	public class LocalBinder extends Binder {

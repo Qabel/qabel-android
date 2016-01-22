@@ -54,6 +54,7 @@ public class UIBoxHelper {
 
         Intent serviceIntent = new Intent(app.getApplicationContext(), LocalQabelService.class);
         finished = false;
+        app.stopService(serviceIntent);
         app.bindService(serviceIntent, new ServiceConnection() {
 
             @Override

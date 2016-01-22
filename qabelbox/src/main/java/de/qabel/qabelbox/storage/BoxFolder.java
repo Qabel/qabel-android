@@ -34,4 +34,8 @@ public class BoxFolder extends BoxObject {
 		return result;
 	}
 
+	@Override
+	protected BoxFolder clone() throws CloneNotSupportedException {
+		return new BoxFolder(ref,name,key);
+	}
 }

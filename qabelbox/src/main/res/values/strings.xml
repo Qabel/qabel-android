@@ -80,4 +80,15 @@
     <string name="headline_contacts">Contacts</string>
     <string name="headline_identities">Identities</string>
     <string name="headline_select_upload_folder">Select upload folder</string>
+    <string name="filter_label_date">Date</string>
+    <string name="filter_label_filesize">Filesize:</string>
+    <string name="headline_searchresultfilter">Search filter</string>
+    <string name="search_filter_filesize_min">Min</string>
+    <string name="ab_use_filter">Use</string>
+    <string name="headline_filefilter">Filter</string>
+    <string name="change">Change</string>
+    <string name="unit_filesyste_mb">MB</string>
+    <string name="unit_filesyste_gb">GB</string>
+    <string name="unit_filesyste_kb">KB</string>
+    <string name="unit_filesyste_bytes">Bytes</string>
 </resources>

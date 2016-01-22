@@ -26,9 +26,9 @@ android {
         targetSdkVersion 22
         versionCode 1
         versionName "1.0"
+        //junit test
         testInstrumentationRunner "de.qabel.qabelbox.QblJUnitRunner"
-        //ui tests
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+
         ndk {
             moduleName "curve25519"
         }

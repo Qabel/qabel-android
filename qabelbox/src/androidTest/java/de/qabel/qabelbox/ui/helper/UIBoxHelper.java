@@ -159,7 +159,6 @@ public class UIBoxHelper {
     }
 
     public void setActiveIdentity(Identity identity) {
-
         mService.setActiveIdentity(identity);
     }
 

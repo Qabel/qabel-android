@@ -4,13 +4,9 @@ package de.qabel.qabelbox.ui;
  * Created by danny on 05.01.2016.
  */
 
-import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.PowerManager;
-import android.provider.DocumentsContract;
 import android.support.test.rule.ActivityTestRule;
 import android.widget.SeekBar;
-import android.widget.Toast;
 
 import com.squareup.spoon.Spoon;
 
@@ -86,6 +82,14 @@ public class FileSearchTest {
 
         mBoxHelper = new UIBoxHelper(mActivity);
         mBoxHelper.bindService(QabelBoxApplication.getInstance());
+        try {
+            Identity old = mBoxHelper.getCurrentIdentity();
+            if (old != null) {
+                mBoxHelper.deleteIdentity(old);
+            }
+        } catch (Exception e) {
+
+        }
         Identity identity = mBoxHelper.addIdentity("spoon");
         mBoxHelper.setActiveIdentity(identity);
         uploadTestFiles(mBoxHelper.getCurrentIdentity());
@@ -104,8 +108,6 @@ public class FileSearchTest {
 
         mBoxHelper.waitUntilFileCount(fileCount);
     }
-
-
 
     @Test
     public void search1ByNamesTest() {
@@ -158,7 +160,7 @@ public class FileSearchTest {
 
         onView(withId(R.id.files_list)).check(matches(QabelMatcher.withListSize(3)));
         Spoon.screenshot(mActivity, "after_research");
-        mBoxHelper.deleteFile(mActivity,mBoxHelper.getCurrentIdentity(), "black_3","");
+        mBoxHelper.deleteFile(mActivity, mBoxHelper.getCurrentIdentity(), "black_3", "");
     }
 
     /**

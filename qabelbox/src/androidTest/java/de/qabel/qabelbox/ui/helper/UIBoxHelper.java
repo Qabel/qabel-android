@@ -1,5 +1,6 @@
 package de.qabel.qabelbox.ui.helper;
 
+import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -84,13 +85,13 @@ public class UIBoxHelper {
         }
     }
 
-    public boolean deleteFile(Identity identity, String name, String targetFolder) {
+    public boolean deleteFile(Activity activity,Identity identity, String name, String targetFolder) {
 
         String keyIdentifier = identity.getEcPublicKey()
                 .getReadableKeyIdentifier();
         Uri uploadUri = DocumentsContract.buildDocumentUri(
                 BoxProvider.AUTHORITY, keyIdentifier + MainActivity.HARDCODED_ROOT + targetFolder + name);
-        return DocumentsContract.deleteDocument(mActivity.getContentResolver(), uploadUri);
+        return DocumentsContract.deleteDocument(activity.getContentResolver(), uploadUri);
     }
 
     public boolean uploadFile(Identity identity, String name, byte[] data, String targetFolder) {

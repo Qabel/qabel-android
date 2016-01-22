@@ -2,6 +2,8 @@ package de.qabel.qabelbox.ui.helper;
 
 import android.app.Activity;
 import android.app.ActivityManager;
+import android.support.test.runner.lifecycle.ActivityLifecycleMonitorRegistry;
+import android.support.test.runner.lifecycle.Stage;
 
 import de.qabel.qabelbox.QabelBoxApplication;
 
@@ -29,11 +31,28 @@ public class UITestHelper {
     }
 
     public static void sleep(int ms) {
+
         try {
             Thread.sleep(ms);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+    }
 
+    public static Activity getCurrentActivity(Activity mActivity) throws Throwable {
+
+        final Activity[] activity = new Activity[1];
+        mActivity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+
+                activity[0] = ActivityLifecycleMonitorRegistry.getInstance()
+                        .getActivitiesInStage(Stage.RESUMED).iterator().next();
+            }
+        });
+        while (activity[0] == null) {
+            Thread.sleep(200);
+        }
+        return activity[0];
     }
 }

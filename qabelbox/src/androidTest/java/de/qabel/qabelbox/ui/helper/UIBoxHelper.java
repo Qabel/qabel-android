@@ -27,7 +27,6 @@ import de.qabel.core.drop.DropURL;
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.activities.MainActivity;
 import de.qabel.qabelbox.exceptions.QblStorageException;
-import de.qabel.qabelbox.fragments.AddIdentityFragment;
 import de.qabel.qabelbox.providers.BoxProvider;
 import de.qabel.qabelbox.services.LocalQabelService;
 import de.qabel.qabelbox.storage.BoxVolume;
@@ -84,13 +83,16 @@ public class UIBoxHelper {
             }
         }
     }
+
     public boolean deleteFile(Identity identity, String name, String targetFolder) {
+
         String keyIdentifier = identity.getEcPublicKey()
                 .getReadableKeyIdentifier();
         Uri uploadUri = DocumentsContract.buildDocumentUri(
                 BoxProvider.AUTHORITY, keyIdentifier + MainActivity.HARDCODED_ROOT + targetFolder + name);
-       return DocumentsContract.deleteDocument(mActivity.getContentResolver(), uploadUri);
+        return DocumentsContract.deleteDocument(mActivity.getContentResolver(), uploadUri);
     }
+
     public boolean uploadFile(Identity identity, String name, byte[] data, String targetFolder) {
 
         Log.d(TAG, "upload demo file " + name);
@@ -126,43 +128,24 @@ public class UIBoxHelper {
         Identity identity = new Identity(identName,
                 dropURLs, new QblECKeyPair());
         finished = false;
-        AddIdentityFragment.AddIdentityListener mListener = new AddIdentityFragment.AddIdentityListener() {
-            @Override
-            public void addIdentity(Identity identity) {
 
-                Log.d(TAG, "identity added " + identity.getAlias() + " " + identity.getEcPublicKey().getReadableKeyIdentifier());
-                mService.addIdentity(identity);
-                mService.setActiveIdentity(identity);
-                {
-                    try {
-                        initBoxVolume(identity);
-                        mBoxVolume.navigate();
-                    } catch (QblStorageException e) {
-                        Log.e(TAG, "Cannot navigate to root", e);
-                        try {
-                            mBoxVolume.createIndex();
-                            mBoxVolume.navigate();
-                        } catch (QblStorageException e1) {
-                            Log.e(TAG, "Creating a volume failed", e1);
-                        }
-                    }
-                }
-                finished = true;
-            }
+        Log.d(TAG, "identity added " + identity.getAlias() + " " + identity.getEcPublicKey().getReadableKeyIdentifier());
+        mService.addIdentity(identity);
+        mService.setActiveIdentity(identity);
 
-            @Override
-            public void cancelAddIdentity() {
-
-            }
-        };
-        mListener.addIdentity(identity);
-        while (!finished) {
+        try {
+            initBoxVolume(identity);
+            mBoxVolume.navigate();
+        } catch (QblStorageException e) {
+            Log.e(TAG, "Cannot navigate to root", e);
             try {
-                Thread.sleep(100);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+                mBoxVolume.createIndex();
+                mBoxVolume.navigate();
+            } catch (QblStorageException e1) {
+                Log.e(TAG, "Creating a volume failed", e1);
             }
         }
+
         return identity;
     }
 

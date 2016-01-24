@@ -9,7 +9,8 @@ spoon {
     debug = true
     // To run a single test class
     //className = 'de.qabel.qabelbox.ui.FileSearchTest'
-    className = 'de.qabel.qabelbox.ui.CreateIdentityTest'
+    //className = 'de.qabel.qabelbox.ui.CreateIdentityTest'
+    instrumentationArgs = ["package=de.qabel.qabelbox.ui"]
     // To run a single method in TestCase
     //methodName = 'search3CacheTest'
     adbTimeout = 60

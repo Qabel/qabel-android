@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import de.qabel.core.config.DropServer;
+import de.qabel.core.config.Identities;
 import de.qabel.core.config.Identity;
 import de.qabel.core.crypto.QblECKeyPair;
 import de.qabel.core.drop.AdjustableDropIdGenerator;
@@ -65,7 +66,14 @@ public class CreateIdentityActivity extends BaseWizwardActivity {
                     return getString(R.string.create_identity_enter_all_data);
                 }
                 //@todo add function to check if identity existis
-
+                Identities identities = QabelBoxApplication.getInstance().getService().getIdentities();
+                if (identities != null) {
+                    for (Identity identity : identities.getIdentities()) {
+                        if (identity.getAlias().equals(editText)) {
+                        return getString(R.string.create_identity_already_exists);
+                        }
+                    }
+                }
                 setIdentityName(editText);
                 return null;
             }

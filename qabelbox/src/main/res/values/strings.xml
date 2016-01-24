@@ -107,4 +107,5 @@
     <string name="unit_filesyste_gb">GB</string>
     <string name="unit_filesyste_kb">KB</string>
     <string name="unit_filesyste_bytes">Bytes</string>
+    <string name="create_identity_already_exists">This identiy exists. Please choose another identity.</string>
 </resources>

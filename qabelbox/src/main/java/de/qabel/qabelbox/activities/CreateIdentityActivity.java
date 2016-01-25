@@ -1,9 +1,11 @@
 package de.qabel.qabelbox.activities;
 
 import android.content.Intent;
+import android.os.Bundle;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.SeekBar;
+import android.widget.Toast;
 
 import java.net.URI;
 import java.util.ArrayList;
@@ -37,14 +39,20 @@ public class CreateIdentityActivity extends BaseWizwardActivity {
     private Identity mNewIdentity;
 
     @Override
-    protected String getHeaderFragmentText() {
+    protected void onCreate(Bundle savedInstanceState) {
+        if (QabelBoxApplication.getInstance().getService().getIdentities().getIdentities().size() > 0) {
+            canExit = true;
+        }
+        super.onCreate(savedInstanceState);
+    }
 
+    @Override
+    protected String getHeaderFragmentText() {
         return mIdentityName;
     }
 
     @Override
     protected int getActionBarTitle() {
-
         return R.string.headline_add_identity;
     }
 
@@ -65,12 +73,12 @@ public class CreateIdentityActivity extends BaseWizwardActivity {
                 if (error) {
                     return getString(R.string.create_identity_enter_all_data);
                 }
-                //@todo add function to check if identity existis
+
                 Identities identities = QabelBoxApplication.getInstance().getService().getIdentities();
                 if (identities != null) {
                     for (Identity identity : identities.getIdentities()) {
                         if (identity.getAlias().equals(editText)) {
-                        return getString(R.string.create_identity_already_exists);
+                            return getString(R.string.create_identity_already_exists);
                         }
                     }
                 }
@@ -115,7 +123,10 @@ public class CreateIdentityActivity extends BaseWizwardActivity {
 
     @Override
     protected void completeWizard() {
-
+        if (QabelBoxApplication.getInstance().getService().getIdentities().getIdentities().size() == 0) {
+            Toast.makeText(this, "not finished ", Toast.LENGTH_SHORT).show();
+            return;
+        }
         Intent result = new Intent();
         result.putExtra(P_IDENTITY, mNewIdentity);
         setResult(activityResult, result);

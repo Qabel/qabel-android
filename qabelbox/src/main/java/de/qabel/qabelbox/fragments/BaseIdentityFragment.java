@@ -3,6 +3,7 @@ package de.qabel.qabelbox.fragments;
 import android.app.Activity;
 import android.app.Fragment;
 
+import de.qabel.qabelbox.activities.BaseWizwardActivity;
 import de.qabel.qabelbox.activities.CreateIdentityActivity;
 
 /**
@@ -10,7 +11,7 @@ import de.qabel.qabelbox.activities.CreateIdentityActivity;
  */
 public class BaseIdentityFragment extends Fragment {
 
-    protected CreateIdentityActivity mActivty;
+    protected BaseWizwardActivity mActivty;
 
     @Override
     public void onAttach(Activity activity) {

@@ -108,4 +108,21 @@
     <string name="unit_filesyste_kb">KB</string>
     <string name="unit_filesyste_bytes">Bytes</string>
     <string name="create_identity_already_exists">This identiy exists. Please choose another identity.</string>
+    <string name="create_account_password1_hint">Password</string>
+    <string name="create_account_password2_hint">Password again</string>
+    <string name="create_account_password_infos">Please enter your password</string>
+    <string name="create_box_account">Create  new Box Account</string>
+    <string name="login">Login</string>
+    <string name="create_account_username_hint">Username</string>
+    <string name="create_account_login_infos">Please enter your login data for your box account</string>
+    <string name="create_account_enter_name_infos">Please enter your user name for your box account. You can enter maximum of 30 characters</string>
+    <string name="create_account_name_hint">Account name</string>
+    <string name="create_account_enter_all_data">Please fill out all data to continues</string>
+    <string name="create_account_maximum_32_chars">The maximum length of account name is 32 characters</string>
+    <string name="create_account_invalid_characters">The account name contains invalid characters. Use characters of the follow: letters, numbers, @, _, +, -</string>
+    <string name="create_account_email">Please enter your E-Mail. With this address can you reset your account</string>
+    <string name="create_account_email_hint">Your E-Mail</string>
+    <string name="create_account_passwords_dont_match">Your entered passwords don\'t match. Please enter the same password on all input fields</string>
+    <string name="create_account_final">Your box account are now availible.</string>
+    <string name="create_identity_final_create_identity">Your box account are now availible. Create new identity with the next last steps</string>
 </resources>

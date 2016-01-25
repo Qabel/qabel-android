@@ -8,8 +8,10 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Toast;
 
 import de.qabel.core.accounting.AccountingHTTP;
+import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.fragments.BaseIdentityFragment;
 import de.qabel.qabelbox.fragments.CreateIdentityHeaderFragment;
@@ -36,6 +38,7 @@ public abstract class BaseWizwardActivity extends AppCompatActivity {
     protected boolean mFirstRun;
     //values for create box account mode
     AccountingHTTP mAccounting;
+    protected boolean canExit = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -89,6 +92,7 @@ public abstract class BaseWizwardActivity extends AppCompatActivity {
             //check if last fragment displayed
             if (fragmentCount == fragments.length - 1) {
                 //complete wizard
+
                 activityResult = RESULT_OK;
                 completeWizard();
                 return;
@@ -100,7 +104,11 @@ public abstract class BaseWizwardActivity extends AppCompatActivity {
             updateActionBar(step);
         } else {
             //return without finish the wizard
-            finish();
+            if (canExit) {
+                finish();
+            } else {
+                Toast.makeText(this, "please finish wizward", Toast.LENGTH_SHORT).show();
+            }
         }
     }
 
@@ -143,6 +151,9 @@ public abstract class BaseWizwardActivity extends AppCompatActivity {
             }
             //no... go to next step
             step++;
+            if (step == fragments.length - 1) {
+                canExit = true;
+            }
             mIdentityHeaderFragment.updateUI(getHeaderFragmentText());
             getFragmentManager().beginTransaction().replace(R.id.fragment_container_content, fragments[step]).addToBackStack(null).commit();
             updateActionBar(step);

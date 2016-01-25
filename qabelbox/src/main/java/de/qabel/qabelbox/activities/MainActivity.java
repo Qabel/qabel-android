@@ -59,6 +59,8 @@ import de.qabel.qabelbox.fragments.ContactFragment;
 import de.qabel.qabelbox.fragments.FilesFragment;
 import de.qabel.qabelbox.fragments.IdentitiesFragment;
 import de.qabel.qabelbox.fragments.SelectUploadFolderFragment;
+import de.qabel.qabelbox.fragments.SettingsFragment;
+import de.qabel.qabelbox.helper.UIHelper;
 import de.qabel.qabelbox.providers.BoxProvider;
 import de.qabel.qabelbox.services.LocalQabelService;
 import de.qabel.qabelbox.storage.BoxExternal;
@@ -90,6 +92,7 @@ public class MainActivity extends AppCompatActivity
     private static final int REQUEST_CODE_DELETE_FILE = 13;
     private static final int REQUEST_CODE_CHOOSE_EXPORT = 14;
     private static final int REQUEST_CREATE_IDENTITY = 16;
+    private static final int REQUEST_SETTINGS = 17;
     private static final String FALLBACK_MIMETYPE = "application/octet-stream";
     private static final int NAV_GROUP_IDENTITIES = 1;
     private static final int NAV_GROUP_IDENTITY_ACTIONS = 2;
@@ -591,21 +594,11 @@ public class MainActivity extends AppCompatActivity
             selectContactsFragment();
         } else if (id == R.id.nav_browse) {
             selectFilesFragment();
-        } else if (id == R.id.nav_open) {
-            Intent intentOpen = new Intent(Intent.ACTION_OPEN_DOCUMENT);
-            intentOpen.addCategory(Intent.CATEGORY_OPENABLE);
-            intentOpen.setType("*/*");
-            startActivityForResult(intentOpen, REQUEST_CODE_OPEN);
-        } else if (id == R.id.nav_upload) {
-            Intent intentOpen = new Intent(Intent.ACTION_OPEN_DOCUMENT);
-            intentOpen.addCategory(Intent.CATEGORY_OPENABLE);
-            intentOpen.setType("*/*");
-            startActivityForResult(intentOpen, REQUEST_CODE_UPLOAD_FILE);
-        } else if (id == R.id.nav_delete) {
-            Intent intentOpen = new Intent(Intent.ACTION_OPEN_DOCUMENT);
-            intentOpen.addCategory(Intent.CATEGORY_OPENABLE);
-            intentOpen.setType("*/*");
-            startActivityForResult(intentOpen, REQUEST_CODE_DELETE_FILE);
+        } else if (id == R.id.nav_help) {
+            UIHelper.showFunctionNotYetImplemented(this);
+        } else if (id == R.id.nav_settings) {
+            Intent intent = new Intent(this, SettingsActivity.class);
+            startActivityForResult(intent, REQUEST_SETTINGS);
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -728,7 +721,6 @@ public class MainActivity extends AppCompatActivity
         initBoxVolume(identity);
         initFilesFragment();
     }
-
 
 
     @Override

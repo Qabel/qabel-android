@@ -125,4 +125,15 @@
     <string name="create_account_passwords_dont_match">Your entered passwords don\'t match. Please enter the same password on all input fields</string>
     <string name="create_account_final">Your box account are now availible.</string>
     <string name="create_identity_final_create_identity">Your box account are now availible. Create new identity with the next last steps</string>
+    <string name="filebrowser">Filebrowser</string>
+    <string name="help">Help</string>
+    <string name="settings_headline_boxaccount">Boxaccount</string>
+    <string name="headline_settings">Settings</string>
+    <string name="settings_change_account_password">Change password</string>
+    <string name="settings_change_account_password_summary">Use this function to to change your password</string>
+    <string name="settings_key_change_password">change_account_password</string>
+    <string name="change_boxaccount_password_message">Please enter a new password to change your boxaccount password.</string>
+    <string name="dialog_headline_please_wait">Please wait</string>
+    <string name="dialog_message_server_communication_is_running">Server communication is running</string>
+    <string name="boxaccount_password_changed">\'Boxaccount password successfully changed</string>
 </resources>

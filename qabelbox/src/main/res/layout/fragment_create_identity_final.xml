@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_alignParentBottom="true"
@@ -10,33 +9,33 @@
     android:orientation="vertical">
 
     <de.qabel.qabelbox.views.TextViewFont
+        android:id="@+id/tv_success"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:lines="1"
         android:maxLines="1"
         android:singleLine="true"
-        android:id="@+id/tv_success"
         android:text="@string/create_identity_successfull"
-        android:textStyle="bold"/>
+        android:textStyle="bold" />
 
     <Space
         android:layout_width="wrap_content"
         android:layout_height="20dp"
-        android:layout_weight="1"/>
+        android:layout_weight="1" />
 
     <de.qabel.qabelbox.views.TextViewFont
+        android:id="@+id/tv_message"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="left"
         android:minLines="5"
-        android:id="@+id/tv_message"
         android:text="@string/create_account_final"
-        android:textSize="@dimen/textsize_normal"/>
+        android:textSize="@dimen/textsize_normal" />
 
     <Space
         android:layout_width="wrap_content"
         android:layout_height="20dp"
-        android:layout_weight="1"/>
+        android:layout_weight="1" />
 
 </LinearLayout>
 

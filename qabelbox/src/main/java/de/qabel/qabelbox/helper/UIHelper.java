@@ -3,6 +3,8 @@ package de.qabel.qabelbox.helper;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.view.WindowManager;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import de.qabel.qabelbox.R;
@@ -55,5 +57,42 @@ public class UIHelper {
     public static void showDialogMessage(Activity activity, int headline, int message, int buttonOk) {
 
         showDialogMessage(activity, headline, message, buttonOk, Integer.MIN_VALUE, null, null);
+    }
+
+    public static void showFunctionNotYetImplemented(Activity activity) {
+        showDialogMessage(activity, R.string.dialog_headline_info, R.string.function_not_yet_implenented);
+    }
+
+    /**
+     * show wait message
+     */
+    public static AlertDialog showWaitMessage(final Activity activity, int headline, int message, boolean cancelable) {
+        AlertDialog.Builder builder =
+                new AlertDialog.Builder(activity,R.style.AppCompatAlertDialogStyle);
+        builder.setTitle(headline);
+        builder.setMessage(message);
+
+        builder.setCancelable(cancelable);
+        final AlertDialog dialog = builder.create();
+
+        dialog.setOnShowListener(new DialogInterface.OnShowListener() {
+            @Override
+            public void onShow(DialogInterface dialog1) {
+                final FontHelper fontHelper = FontHelper.getInstance(activity);
+                fontHelper.setCustomeFonts((TextView) dialog.findViewById(android.R.id.message));
+                fontHelper.setCustomeFonts((TextView) dialog.findViewById(android.R.id.title));
+
+            }
+        });
+        dialog.getWindow().setLayout(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
+        WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
+        lp.copyFrom(dialog.getWindow().getAttributes());
+        lp.width = WindowManager.LayoutParams.MATCH_PARENT;
+        lp.height = WindowManager.LayoutParams.WRAP_CONTENT;
+        dialog.show();
+        dialog.getWindow().setAttributes(lp);
+
+        dialog.show();
+        return dialog;
     }
 }

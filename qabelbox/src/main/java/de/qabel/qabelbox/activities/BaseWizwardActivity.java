@@ -72,8 +72,8 @@ public abstract class BaseWizwardActivity extends AppCompatActivity {
         });
     }
 
-    private void createFragments() {
 
+    private void createFragments() {
         mIdentityHeaderFragment = new CreateIdentityHeaderFragment();
         fragments = getFragmentList();
         FragmentTransaction ft = getFragmentManager().beginTransaction();

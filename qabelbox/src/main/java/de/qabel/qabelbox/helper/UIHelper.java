@@ -68,7 +68,7 @@ public class UIHelper {
      */
     public static AlertDialog showWaitMessage(final Activity activity, int headline, int message, boolean cancelable) {
         AlertDialog.Builder builder =
-                new AlertDialog.Builder(activity,R.style.AppCompatAlertDialogStyle);
+                new AlertDialog.Builder(activity, R.style.AppCompatAlertDialogStyle);
         builder.setTitle(headline);
         builder.setMessage(message);
 
@@ -84,15 +84,13 @@ public class UIHelper {
 
             }
         });
-        dialog.getWindow().setLayout(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
+
         WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
         lp.copyFrom(dialog.getWindow().getAttributes());
         lp.width = WindowManager.LayoutParams.MATCH_PARENT;
         lp.height = WindowManager.LayoutParams.WRAP_CONTENT;
         dialog.show();
         dialog.getWindow().setAttributes(lp);
-
-        dialog.show();
         return dialog;
     }
 }

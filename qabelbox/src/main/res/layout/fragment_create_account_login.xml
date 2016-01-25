@@ -7,23 +7,25 @@
     android:layout_alignParentBottom="true"
     android:layout_marginTop="@dimen/activity_vertical_margin"
     android:orientation="vertical">
+
     <de.qabel.qabelbox.views.EditTextFont
-        android:id="@+id/username"
+        android:id="@+id/et_username"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="@string/create_account_username_hint"
         android:lines="1"
         android:maxLines="1"
         android:singleLine="true" />
+
     <de.qabel.qabelbox.views.EditTextFont
         android:id="@+id/et_password"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="@string/create_account_password1_hint"
+        android:inputType="textPassword"
         android:lines="1"
         android:maxLines="1"
         android:singleLine="true" />
-
 
 
     <Space
@@ -36,7 +38,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="left"
-        android:minLines="5"
+
         android:text="@string/create_account_login_infos"
         android:textSize="@dimen/textsize_normal" />
 
@@ -44,6 +46,7 @@
         android:layout_width="wrap_content"
         android:layout_height="20dp"
         android:layout_weight="1" />
+
 
 </LinearLayout>
 

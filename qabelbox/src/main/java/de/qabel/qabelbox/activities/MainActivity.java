@@ -595,7 +595,8 @@ public class MainActivity extends AppCompatActivity
         } else if (id == R.id.nav_browse) {
             selectFilesFragment();
         } else if (id == R.id.nav_help) {
-            UIHelper.showFunctionNotYetImplemented(this);
+            //UIHelper.showFunctionNotYetImplemented(this);
+            startActivity(new Intent(this, CreateAccountActivity.class));
         } else if (id == R.id.nav_settings) {
             Intent intent = new Intent(this, SettingsActivity.class);
             startActivityForResult(intent, REQUEST_SETTINGS);

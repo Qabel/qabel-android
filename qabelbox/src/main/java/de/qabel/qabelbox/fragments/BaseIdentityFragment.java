@@ -17,7 +17,7 @@ public class BaseIdentityFragment extends Fragment {
     public void onAttach(Activity activity) {
 
         super.onAttach(activity);
-        mActivty = (CreateIdentityActivity) activity;
+        mActivty = (BaseWizwardActivity) activity;
     }
 
     /**

@@ -136,4 +136,5 @@
     <string name="dialog_headline_please_wait">Please wait</string>
     <string name="dialog_message_server_communication_is_running">Server communication is running</string>
     <string name="boxaccount_password_changed">\'Boxaccount password successfully changed</string>
+    <string name="headline_create_box_account">Create BoxAccount</string>
 </resources>

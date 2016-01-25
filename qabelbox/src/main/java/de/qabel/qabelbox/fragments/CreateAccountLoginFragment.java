@@ -1,12 +1,17 @@
 package de.qabel.qabelbox.fragments;
 
+import android.app.Activity;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.activities.BaseWizwardActivity;
@@ -23,14 +28,6 @@ public class CreateAccountLoginFragment extends BaseIdentityFragment {
     private BaseWizwardActivity.NextChecker mChecker;
     private TextView tvMessage;
 
-    public static CreateAccountLoginFragment newInstance(int messageId, int editTextHintId, BaseWizwardActivity.NextChecker checker) {
-
-        CreateAccountLoginFragment fragment = new CreateAccountLoginFragment();
-        fragment.mMessageId = messageId;
-        fragment.mEditTextHintId = editTextHintId;
-        fragment.mChecker = checker;
-        return fragment;
-    }
 
     @Nullable
     @Override
@@ -39,11 +36,35 @@ public class CreateAccountLoginFragment extends BaseIdentityFragment {
 
         View view = inflater.inflate(R.layout.fragment_create_account_login, container, false);
 
-        tvMessage = ((TextView) view.findViewById(R.id.et_name));
+        tvMessage = ((TextView) view.findViewById(R.id.et_username));
         editText = (EditText) view.findViewById(R.id.et_password);
-        tvMessage.setText(mMessageId);
-        editText.setHint(mEditTextHintId);
+
+        setHasOptionsMenu(true);
         return view;
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        menu.clear();
+        inflater.inflate(R.menu.ab_next, menu);
+
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        if (id == R.id.action_ok) {
+            Toast.makeText(getActivity(), "Dummy login", Toast.LENGTH_SHORT).show();
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+
     }
 
     @Override

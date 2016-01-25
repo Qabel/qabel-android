@@ -29,7 +29,7 @@ public abstract class BaseWizwardActivity extends AppCompatActivity {
     public static final String P_IDENTITY = "identity_name";
     protected BaseWizwardActivity mActivity;
     private MenuItem mActionNext;
-    private ActionBar actionBar;
+    protected ActionBar actionBar;
     private CreateIdentityHeaderFragment mIdentityHeaderFragment;
 
     protected BaseIdentityFragment[] fragments;
@@ -62,7 +62,10 @@ public abstract class BaseWizwardActivity extends AppCompatActivity {
         actionBar.setDisplayShowHomeEnabled(true);
         actionBar.setDisplayHomeAsUpEnabled(true);
         actionBar.setHomeButtonEnabled(true);
-
+if(!canExit)
+{
+    actionBar.setDisplayHomeAsUpEnabled(false);
+}
         mToolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -98,7 +101,9 @@ public abstract class BaseWizwardActivity extends AppCompatActivity {
                 return;
             }
             //otherwise, popbackstack and update ui
-            step--;
+            if (step > 0) {
+                step--;
+            }
             getFragmentManager().popBackStack();
             mIdentityHeaderFragment.updateUI(getHeaderFragmentText());
             updateActionBar(step);
@@ -170,6 +175,14 @@ public abstract class BaseWizwardActivity extends AppCompatActivity {
         //update icons
         if (step == 0) {
             mActionNext.setVisible(false);
+            /*if(!canExit)
+            {
+                actionBar.setDisplayHomeAsUpEnabled(false);
+            }
+            else
+            {
+                actionBar.setDisplayHomeAsUpEnabled(true);
+            }*/
         } else if (step < fragments.length - 1) {
             mActionNext.setVisible(true);
             actionBar.setDisplayShowHomeEnabled(true);

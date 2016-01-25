@@ -43,6 +43,7 @@ public class CreateAccountPasswordFragment extends BaseIdentityFragment {
     public String check() {
         //check if pw1 match pw2
         if (etPassword1.getText().toString().equals(etPassword2.getText().toString())) {
+            //yes, check password
             return mChecker.check(etPassword1);
         } else {
             return getString(R.string.create_account_passwords_dont_match);

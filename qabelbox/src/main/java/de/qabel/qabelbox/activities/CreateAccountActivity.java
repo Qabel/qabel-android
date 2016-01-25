@@ -1,6 +1,7 @@
 package de.qabel.qabelbox.activities;
 
 import android.content.Intent;
+import android.os.Bundle;
 import android.view.View;
 import android.widget.EditText;
 
@@ -25,6 +26,13 @@ public class CreateAccountActivity extends BaseWizwardActivity {
     private String mBoxAccountPassword;
 
     @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+
+    }
+
+    @Override
     protected String getHeaderFragmentText() {
 
         return mBoxAccountName;
@@ -32,8 +40,7 @@ public class CreateAccountActivity extends BaseWizwardActivity {
 
     @Override
     protected int getActionBarTitle() {
-
-        return R.string.headline_add_identity;
+        return R.string.headline_create_box_account;
     }
 
     /**
@@ -148,10 +155,9 @@ public class CreateAccountActivity extends BaseWizwardActivity {
             Intent intent = new Intent(mActivity, MainActivity.class);
             intent.setAction("");
             startActivity(intent);
-        }
-        else {
+        } else {
             Intent result = new Intent();
-       //     result.putExtra(P_IDENTITY, mNewIdentity);
+            //     result.putExtra(P_IDENTITY, mNewIdentity);
             setResult(activityResult, result);
             finish();
         }

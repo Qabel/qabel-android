@@ -80,6 +80,22 @@
     <string name="headline_contacts">Contacts</string>
     <string name="headline_identities">Identities</string>
     <string name="headline_select_upload_folder">Select upload folder</string>
+    <string name="create_identity_enter_name">Bitte geben Sie hier den Namen dieser Identität ein, z.B. \"Jane Doe\" pder \"Forentroll\"</string>
+    <string name="next">Next</string>
+    <string name="create_identity_enter_description">Bitte geben Sie hier eine Beschreibung der Personengruppe ein, mit deren Sie über diese Identität kommunizieren wollen</string>
+    <string name="create_identity_select_security">Wie Paranoid sind Sie?\nUnd wie viele Nutzlosen Datenverkehr zur Identitätsverschleierung nehmen Sie dafür in kauf?</string>
+    <string name="create_identity_final">Diese Identität ist nun nutztbar. Sie können nun weitere Identitäten hinzufügen.</string>
+    <string name="create_identity_successfull">Herzlichen Glückwunsch</string>
+    <string name="dialog_headline_info">Information</string>
+    <string name="create_identity_enter_all_data">Please fill out all data to continues</string>
+    <string name="finish">Finish</string>
+    <string name="create_identity_enter_name_hint">Name der Identität</string>
+    <string name="identity_security_low">Less</string>
+    <string name="identity_security_high">Much</string>
+    <string name="create_identity_create">Create new identity</string>
+    <string name="create_identity_import">Import identity</string>
+    <string name="function_not_yet_implenented">Function not yet implemented</string>
+    <string name="step_x_from_y">Step $1/$2</string>
     <string name="filter_label_date">Date</string>
     <string name="filter_label_filesize">Filesize:</string>
     <string name="headline_searchresultfilter">Search filter</string>
@@ -91,4 +107,5 @@
     <string name="unit_filesyste_gb">GB</string>
     <string name="unit_filesyste_kb">KB</string>
     <string name="unit_filesyste_bytes">Bytes</string>
+    <string name="create_identity_already_exists">This identiy exists. Please choose another identity.</string>
 </resources>

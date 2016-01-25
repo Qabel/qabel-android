@@ -54,7 +54,6 @@ import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.adapter.FilesAdapter;
 import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.fragments.AddContactFragment;
-import de.qabel.qabelbox.fragments.AddIdentityFragment;
 import de.qabel.qabelbox.fragments.BaseFragment;
 import de.qabel.qabelbox.fragments.ContactFragment;
 import de.qabel.qabelbox.fragments.FilesFragment;
@@ -73,7 +72,6 @@ public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,
         SelectUploadFolderFragment.OnSelectedUploadFolderListener,
         ContactFragment.ContactListListener,
-        AddIdentityFragment.AddIdentityListener,
         AddContactFragment.AddContactListener,
         FilesFragment.FilesListListener,
         IdentitiesFragment.IdentityListListener {
@@ -81,7 +79,6 @@ public class MainActivity extends AppCompatActivity
     public static final String TAG_FILES_FRAGMENT = "TAG_FILES_FRAGMENT";
     private static final String TAG_CONTACT_LIST_FRAGMENT = "TAG_CONTACT_LIST_FRAGMENT";
     private static final String TAG_MANAGE_IDENTITIES_FRAGMENT = "TAG_MANAGE_IDENTITIES_FRAGMENT";
-    private static final String TAG_ADD_IDENTITY_FRAGMENT = "TAG_ADD_IDENTITY_FRAGMENT";
     private static final String TAG_ADD_CONTACT_FRAGMENT = "TAG_ADD_CONTACT_FRAGMENT";
 
     private static final String TAG = "BoxMainActivity";
@@ -92,6 +89,7 @@ public class MainActivity extends AppCompatActivity
             + BoxProvider.PREFIX + BoxProvider.DOCID_SEPARATOR + BoxProvider.PATH_SEP;
     private static final int REQUEST_CODE_DELETE_FILE = 13;
     private static final int REQUEST_CODE_CHOOSE_EXPORT = 14;
+    private static final int REQUEST_CREATE_IDENTITY = 16;
     private static final String FALLBACK_MIMETYPE = "application/octet-stream";
     private static final int NAV_GROUP_IDENTITIES = 1;
     private static final int NAV_GROUP_IDENTITY_ACTIONS = 2;
@@ -117,67 +115,77 @@ public class MainActivity extends AppCompatActivity
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 
         final Uri uri;
-        if (requestCode == REQUEST_CODE_OPEN && resultCode == Activity.RESULT_OK && data != null) {
-            uri = data.getData();
-            Log.i(TAG, "Uri: " + uri.toString());
-            Intent viewIntent = new Intent();
-            String type = URLConnection.guessContentTypeFromName(uri.toString());
-            Log.i(TAG, "Mime type: " + type);
-            viewIntent.setDataAndType(uri, type);
-            viewIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-            startActivity(Intent.createChooser(viewIntent, "Open with"));
-            return;
-        }
-        if (requestCode == REQUEST_CODE_UPLOAD_FILE && resultCode == Activity.RESULT_OK && data != null) {
-            uri = data.getData();
-            String path = "";
-            if (filesFragment != null) {
-                BoxNavigation boxNavigation = filesFragment.getBoxNavigation();
-                if (boxNavigation != null) {
-                    path = boxNavigation.getPath();
+        if (resultCode == RESULT_OK) {
+            if (requestCode == REQUEST_CREATE_IDENTITY) {
+                if (data != null && data.hasExtra(CreateIdentityActivity.P_IDENTITY)) {
+                    Identity identity = (Identity) data.getSerializableExtra(CreateIdentityActivity.P_IDENTITY);
+                    addIdentity(identity);
                 }
             }
-            uploadUri(uri, path);
-            return;
-        }
-        if (requestCode == REQUEST_CODE_DELETE_FILE && resultCode == Activity.RESULT_OK && data != null) {
-            uri = data.getData();
-            Log.i(TAG, "Deleting file: " + uri.toString());
-            new AsyncTask<Uri, Void, Boolean>() {
-
-                @Override
-                protected Boolean doInBackground(Uri... params) {
-
-                    return DocumentsContract.deleteDocument(getContentResolver(), params[0]);
+            if (data != null) {
+                if (requestCode == REQUEST_CODE_OPEN) {
+                    uri = data.getData();
+                    Log.i(TAG, "Uri: " + uri.toString());
+                    Intent viewIntent = new Intent();
+                    String type = URLConnection.guessContentTypeFromName(uri.toString());
+                    Log.i(TAG, "Mime type: " + type);
+                    viewIntent.setDataAndType(uri, type);
+                    viewIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                    startActivity(Intent.createChooser(viewIntent, "Open with"));
+                    return;
                 }
-            }.execute(uri);
-            return;
-        }
-        if (requestCode == REQUEST_CODE_CHOOSE_EXPORT && resultCode == Activity.RESULT_OK && data != null) {
-            uri = data.getData();
-            Log.i(TAG, "Export uri chosen: " + uri.toString());
-            new AsyncTask<Void, Void, Void>() {
+                if (requestCode == REQUEST_CODE_UPLOAD_FILE) {
+                    uri = data.getData();
+                    String path = "";
+                    if (filesFragment != null) {
+                        BoxNavigation boxNavigation = filesFragment.getBoxNavigation();
+                        if (boxNavigation != null) {
+                            path = boxNavigation.getPath();
+                        }
+                    }
+                    uploadUri(uri, path);
+                    return;
+                }
+                if (requestCode == REQUEST_CODE_DELETE_FILE) {
+                    uri = data.getData();
+                    Log.i(TAG, "Deleting file: " + uri.toString());
+                    new AsyncTask<Uri, Void, Boolean>() {
 
-                @Override
-                protected Void doInBackground(Void... params) {
+                        @Override
+                        protected Boolean doInBackground(Uri... params) {
 
-                    try {
-                        InputStream inputStream = getContentResolver().openInputStream(exportUri);
-                        OutputStream outputStream = getContentResolver().openOutputStream(uri);
-                        if (inputStream == null || outputStream == null) {
-                            Log.e(TAG, "could not open streams");
+                            return DocumentsContract.deleteDocument(getContentResolver(), params[0]);
+                        }
+                    }.execute(uri);
+                    return;
+                }
+                if (requestCode == REQUEST_CODE_CHOOSE_EXPORT) {
+                    uri = data.getData();
+                    Log.i(TAG, "Export uri chosen: " + uri.toString());
+                    new AsyncTask<Void, Void, Void>() {
+
+                        @Override
+                        protected Void doInBackground(Void... params) {
+
+                            try {
+                                InputStream inputStream = getContentResolver().openInputStream(exportUri);
+                                OutputStream outputStream = getContentResolver().openOutputStream(uri);
+                                if (inputStream == null || outputStream == null) {
+                                    Log.e(TAG, "could not open streams");
+                                    return null;
+                                }
+                                IOUtils.copy(inputStream, outputStream);
+                                inputStream.close();
+                                outputStream.close();
+                            } catch (IOException e) {
+                                Log.e(TAG, "Failed to export file", e);
+                            }
                             return null;
                         }
-                        IOUtils.copy(inputStream, outputStream);
-                        inputStream.close();
-                        outputStream.close();
-                    } catch (IOException e) {
-                        Log.e(TAG, "Failed to export file", e);
-                    }
-                    return null;
+                    }.execute();
+                    return;
                 }
-            }.execute();
-            return;
+            }
         }
     }
 
@@ -475,12 +483,6 @@ public class MainActivity extends AppCompatActivity
         startActivity(Intent.createChooser(viewIntent, "Open with"));
     }
 
-    @Override
-    protected void onPause() {
-
-        super.onPause();
-    }
-
     private void delete(final BoxObject boxObject) {
 
         new AlertDialog.Builder(self)
@@ -544,9 +546,6 @@ public class MainActivity extends AppCompatActivity
             if (activeFragment.getTag() == null) {
                 getFragmentManager().popBackStack();
             } else {
-                if (activeFragment instanceof BaseFragment) {
-                    ((BaseFragment) activeFragment).onBackPressed();
-                }
                 switch (activeFragment.getTag()) {
                     case TAG_FILES_FRAGMENT:
                         toggle.setDrawerIndicatorEnabled(true);
@@ -708,7 +707,6 @@ public class MainActivity extends AppCompatActivity
         selectContactsFragment();
     }
 
-    @Override
     public void addIdentity(Identity identity) {
 
         mService.addIdentity(identity);
@@ -731,11 +729,7 @@ public class MainActivity extends AppCompatActivity
         initFilesFragment();
     }
 
-    @Override
-    public void cancelAddIdentity() {
 
-        selectFilesFragment();
-    }
 
     @Override
     public void addContact(Contact contact) {
@@ -989,13 +983,20 @@ public class MainActivity extends AppCompatActivity
         });
     }
 
+    private void selectAddIdentityFragment() {
+
+        Intent i = new Intent(self, CreateIdentityActivity.class);
+        i.putExtra(CreateIdentityActivity.FIRST_RUN, false);
+        self.startActivityForResult(i, REQUEST_CREATE_IDENTITY);
+    }
+
     private void showAbortMessage() {
 
         Toast.makeText(self, R.string.aborted,
                 Toast.LENGTH_SHORT).show();
     }
 
-    public void refresh() {
+    private void refresh() {
 
         onDoRefresh(filesFragment, filesFragment.getBoxNavigation(), filesFragment.getFilesAdapter());
     }
@@ -1032,15 +1033,6 @@ public class MainActivity extends AppCompatActivity
                 .replace(R.id.fragment_container,
                         ContactFragment.newInstance(mService.getContacts(activeIdentity), activeIdentity),
                         TAG_CONTACT_LIST_FRAGMENT)
-                .addToBackStack(null)
-                .commit();
-    }
-
-    private void selectAddIdentityFragment() {
-
-        fab.hide();
-        getFragmentManager().beginTransaction()
-                .replace(R.id.fragment_container, new AddIdentityFragment(), TAG_ADD_IDENTITY_FRAGMENT)
                 .addToBackStack(null)
                 .commit();
     }

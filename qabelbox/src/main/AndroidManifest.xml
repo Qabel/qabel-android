@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest package="de.qabel.qabelbox"
-          xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest
+    package="de.qabel.qabelbox"
+    xmlns:android="http://schemas.android.com/apk/res/android">
 
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
@@ -50,13 +51,22 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
+            android:name=".activities.CreateIdentityActivity"
+            android:label="@string/app_name"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:windowSoftInputMode="adjustPan">
+
+        </activity>
+
+        <activity
             android:name=".activities.SplashActivity"
             android:label="@string/app_name"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
-                <category android:name="android.intent.category.LAUNCHER"/>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
 
@@ -68,14 +78,14 @@
             android:windowSoftInputMode="stateHidden|adjustResize">
 
             <intent-filter>
-                <action android:name="android.intent.action.SEND"/>
-                <category android:name="android.intent.category.DEFAULT"/>
-                <data android:mimeType="*/*"/>
+                <action android:name="android.intent.action.SEND" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="*/*" />
             </intent-filter>
             <intent-filter>
-                <action android:name="android.intent.action.SEND_MULTIPLE"/>
-                <category android:name="android.intent.category.DEFAULT"/>
-                <data android:mimeType="*/*"/>
+                <action android:name="android.intent.action.SEND_MULTIPLE" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="*/*" />
             </intent-filter>
 
         </activity>
@@ -103,24 +113,24 @@
             android:exported="true"
             android:process=":sync">
             <intent-filter>
-                <action android:name="android.content.SyncAdapter"/>
+                <action android:name="android.content.SyncAdapter" />
             </intent-filter>
             <meta-data
                 android:name="android.content.SyncAdapter"
-                android:resource="@xml/syncadapter"/>
+                android:resource="@xml/syncadapter" />
         </service>
 
         <service android:name=".services.BoxAuthenticatorService">
             <intent-filter>
-                <action android:name="android.accounts.AccountAuthenticator"/>
+                <action android:name="android.accounts.AccountAuthenticator" />
             </intent-filter>
             <meta-data
                 android:name="android.accounts.AccountAuthenticator"
-                android:resource="@xml/authenticator"/>
+                android:resource="@xml/authenticator" />
         </service>
         <service
             android:name="com.amazonaws.mobileconnectors.s3.transferutility.TransferService"
-            android:enabled="true"/>
+            android:enabled="true" />
 
         <provider
             android:name=".services.QabelContentProvider"
@@ -130,10 +140,10 @@
             android:writePermission="de.qabel.qabelbox.QABEL_WRITE_RESOURCES">
             <path-permission
                 android:path="/contacts"
-                android:readPermission="de.qabel.qabelbox.QABEL_READ_CONTACTS"/>
+                android:readPermission="de.qabel.qabelbox.QABEL_READ_CONTACTS" />
             <path-permission
                 android:path="/identities"
-                android:readPermission="de.qabel.qabelbox.QABEL_READ_IDENTITIES"/>
+                android:readPermission="de.qabel.qabelbox.QABEL_READ_IDENTITIES" />
         </provider>
 
         <provider
@@ -144,7 +154,7 @@
             android:grantUriPermissions="true"
             android:permission="android.permission.MANAGE_DOCUMENTS">
             <intent-filter>
-                <action android:name="android.content.action.DOCUMENTS_PROVIDER"/>
+                <action android:name="android.content.action.DOCUMENTS_PROVIDER" />
             </intent-filter>
 
         </provider>

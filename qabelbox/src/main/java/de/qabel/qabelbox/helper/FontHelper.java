@@ -1,11 +1,9 @@
 package de.qabel.qabelbox.helper;
 
-import android.app.Application;
 import android.content.Context;
 import android.graphics.Typeface;
 import android.widget.TextView;
 
-import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
 
 /**
@@ -21,6 +19,7 @@ public class FontHelper {
     }
 
     public static FontHelper getInstance(Context context) {
+
         if (instance == null) {
             instance = new FontHelper();
         }
@@ -28,8 +27,11 @@ public class FontHelper {
     }
 
     private void loadCustomeFonts(Context context) {
+
+        //load fonts in fixed order, 0=normal, 1=bold, 2=italic, 3=bolditalic
         String[] fontList = context.getResources().getStringArray(R.array.fonts);
         fonts = new Typeface[fontList.length];
+
 
         for (int i = 0; i < fontList.length; i++) {
             fonts[i] = Typeface.createFromAsset(context.getAssets(), fontList[i]);
@@ -37,15 +39,15 @@ public class FontHelper {
     }
 
     public void setCustomeFonts(TextView view) {
-        if (!view.isInEditMode()) {
+
+        if (view != null && !view.isInEditMode()) {
             if (fonts == null) {
                 loadCustomeFonts(view.getContext());
             }
-            view.setTypeface(fonts[0], Typeface.NORMAL);
-            view.setTypeface(fonts[1], Typeface.ITALIC);
-            view.setTypeface(fonts[2], Typeface.BOLD);
+            int style = view.getTypeface().getStyle();
+            if (style >= 0 && style < fonts.length) {
+                view.setTypeface(fonts[style], style);
+            }
         }
     }
-
-
 }

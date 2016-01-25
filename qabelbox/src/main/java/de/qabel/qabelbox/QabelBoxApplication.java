@@ -58,4 +58,9 @@ public class QabelBoxApplication extends Application {
             }
         }, Context.BIND_AUTO_CREATE);
     }
+
+    public LocalQabelService getService() {
+        return mService;
+
+    }
 }

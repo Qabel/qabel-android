@@ -28,12 +28,12 @@ public class TextViewFont extends TextView {
         super(context, attrs, defStyleAttr);
         FontHelper.getInstance(context).setCustomeFonts(this);
     }
-
+/*
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     public TextViewFont(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
         FontHelper.getInstance(context).setCustomeFonts(this);
-    }
+    }*/
 
 
 }

@@ -26,10 +26,10 @@ public class CheckBoxFont extends CheckBox {
         super(context, attrs, defStyleAttr);
         FontHelper.getInstance(context).setCustomeFonts(this);
     }
-
+/*
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     public CheckBoxFont(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
         FontHelper.getInstance(context).setCustomeFonts(this);
-    }
+    }*/
 }

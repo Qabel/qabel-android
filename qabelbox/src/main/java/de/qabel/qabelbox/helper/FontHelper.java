@@ -44,7 +44,11 @@ public class FontHelper {
             if (fonts == null) {
                 loadCustomeFonts(view.getContext());
             }
-            int style = view.getTypeface().getStyle();
+            int style=Typeface.NORMAL;
+            if(view.getTypeface()!=null)
+            {
+                style = view.getTypeface().getStyle();
+            }
             if (style >= 0 && style < fonts.length) {
                 view.setTypeface(fonts[style], style);
             }

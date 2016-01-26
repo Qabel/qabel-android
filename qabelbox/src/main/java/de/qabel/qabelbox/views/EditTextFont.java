@@ -27,9 +27,10 @@ public class EditTextFont extends EditText {
         FontHelper.getInstance(context).setCustomeFonts(this);
     }
 
+    /*
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     public EditTextFont(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
         FontHelper.getInstance(context).setCustomeFonts(this);
-    }
+    }*/
 }

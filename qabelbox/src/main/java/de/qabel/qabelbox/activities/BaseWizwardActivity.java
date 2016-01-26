@@ -33,7 +33,7 @@ public abstract class BaseWizwardActivity extends AppCompatActivity {
     private CreateIdentityHeaderFragment mIdentityHeaderFragment;
 
     protected BaseIdentityFragment[] fragments;
-    private int step = 0;
+    protected int step = 0;
     protected int activityResult = RESULT_CANCELED;
     protected boolean mFirstRun;
     //values for create box account mode
@@ -62,10 +62,9 @@ public abstract class BaseWizwardActivity extends AppCompatActivity {
         actionBar.setDisplayShowHomeEnabled(true);
         actionBar.setDisplayHomeAsUpEnabled(true);
         actionBar.setHomeButtonEnabled(true);
-if(!canExit)
-{
-    actionBar.setDisplayHomeAsUpEnabled(false);
-}
+        if (!canExit) {
+//            actionBar.setDisplayHomeAsUpEnabled(false);
+        }
         mToolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -155,14 +154,31 @@ if(!canExit)
                 return;
             }
             //no... go to next step
-            step++;
-            if (step == fragments.length - 1) {
-                canExit = true;
+
+            if (canShowNext(step)) {
+                showNextFragment();
             }
-            mIdentityHeaderFragment.updateUI(getHeaderFragmentText());
-            getFragmentManager().beginTransaction().replace(R.id.fragment_container_content, fragments[step]).addToBackStack(null).commit();
-            updateActionBar(step);
         }
+    }
+
+    /**
+     * override this if you need special handling on next click
+     *
+     * @param step
+     * @return
+     */
+    protected boolean canShowNext(int step) {
+        return true;
+    }
+
+    protected void showNextFragment() {
+        step++;
+        if (step == fragments.length - 1) {
+            canExit = true;
+        }
+        mIdentityHeaderFragment.updateUI(getHeaderFragmentText());
+        getFragmentManager().beginTransaction().replace(R.id.fragment_container_content, fragments[step]).addToBackStack(null).commit();
+        updateActionBar(step);
     }
 
     /**
@@ -175,7 +191,7 @@ if(!canExit)
         //update icons
         if (step == 0) {
             mActionNext.setVisible(false);
-            /*if(!canExit)
+            /* if(!canExit)
             {
                 actionBar.setDisplayHomeAsUpEnabled(false);
             }

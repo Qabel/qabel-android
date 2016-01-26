@@ -28,9 +28,10 @@ public class ButtonFont extends Button {
         FontHelper.getInstance(context).setCustomeFonts(this);
     }
 
+    /*
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     public ButtonFont(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
         FontHelper.getInstance(context).setCustomeFonts(this);
-    }
+    }*/
 }

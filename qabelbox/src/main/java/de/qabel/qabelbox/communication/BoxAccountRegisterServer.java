@@ -1,10 +1,13 @@
 package de.qabel.qabelbox.communication;
 
+import android.util.Log;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import okhttp3.Call;
 import okhttp3.Callback;
+import okhttp3.Headers;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -16,17 +19,25 @@ import okhttp3.RequestBody;
  * class to handle the register server network action
  */
 public class BoxAccountRegisterServer {
+    private final String TAG = this.getClass().getSimpleName();
     private final OkHttpClient client = new OkHttpClient();
     MediaType JSON = MediaType.parse("application/json; charset=utf-8");
 
-    private void doServerAction(String url, JSONObject json, Callback callback) {
+    private void doServerAction(String url, JSONObject json, Callback callback, String token) {
         RequestBody body = RequestBody.create(JSON, json.toString());
-        final Request request = new Request.Builder()
+        Request.Builder builder = new Request.Builder()
                 .url(url)
-                .post(body)
-                .build();
-
+                .post(body);
+        if (token != null) {
+            builder.addHeader("Authorization", "Token " + token);
+        }
+        final Request request = builder.build();
+        Log.v(TAG, "do server action to " + body + " " + request);
         client.newCall(request).enqueue(callback);
+    }
+
+    private void doServerAction(String url, JSONObject json, Callback callback) {
+        doServerAction(url, json, callback, null);
     }
 
     public void register(String username, String password1, String password2, String email, Callback callback) {
@@ -75,6 +86,7 @@ public class BoxAccountRegisterServer {
         } catch (JSONException e) {
             e.printStackTrace();
         }
+
         doServerAction(URLs.PASSWORD_CHANGE, json, callback);
     }
 

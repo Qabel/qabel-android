@@ -52,6 +52,7 @@ public abstract class SimpleCallback implements Callback {
 
     @Override
     public void onResponse(Call call, Response response) {
+        Log.v(TAG, "callback onResponse " + response);
         if (!response.isSuccessful()) {
             Log.w(TAG, "Unexpected code " + response);
             onError(call, Reasons.InvalidResponse);

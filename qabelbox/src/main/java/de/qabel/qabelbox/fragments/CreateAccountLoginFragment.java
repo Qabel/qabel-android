@@ -35,10 +35,8 @@ public class CreateAccountLoginFragment extends BaseIdentityFragment {
             savedInstanceState) {
 
         View view = inflater.inflate(R.layout.fragment_create_account_login, container, false);
-
         tvMessage = ((TextView) view.findViewById(R.id.et_username));
         editText = (EditText) view.findViewById(R.id.et_password);
-
         setHasOptionsMenu(true);
         return view;
     }

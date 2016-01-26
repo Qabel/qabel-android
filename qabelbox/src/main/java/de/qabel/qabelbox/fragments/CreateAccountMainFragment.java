@@ -49,8 +49,10 @@ public class CreateAccountMainFragment extends BaseIdentityFragment implements V
             mActivty.handleNextClick();
         }
         if (v == mLogin) {
-            CreateAccountLoginFragment fragment=new CreateAccountLoginFragment();
-            getFragmentManager().beginTransaction().replace(R.id.fragment_container_content,fragment).addToBackStack(null).commit();
+            mActivty.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            mActivty.getSupportActionBar().setDisplayUseLogoEnabled(false);
+            CreateAccountLoginFragment fragment = new CreateAccountLoginFragment();
+            getFragmentManager().beginTransaction().replace(R.id.fragment_container_content, fragment).addToBackStack(null).commit();
         }
     }
 

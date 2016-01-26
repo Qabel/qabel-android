@@ -8,6 +8,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import de.qabel.core.accounting.AccountingHTTP;
@@ -51,6 +52,7 @@ public abstract class BaseWizwardActivity extends AppCompatActivity {
         setupToolbar();
         createFragments();
         actionBar.setTitle(getActionBarTitle());
+
     }
 
     private void setupToolbar() {
@@ -63,12 +65,13 @@ public abstract class BaseWizwardActivity extends AppCompatActivity {
         actionBar.setDisplayHomeAsUpEnabled(true);
         actionBar.setHomeButtonEnabled(true);
         if (!canExit) {
-//            actionBar.setDisplayHomeAsUpEnabled(false);
+            getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+/*            actionBar.setDisplayUseLogoEnabled(true);
+            actionBar.setLogo(R.drawable.ab_logo);*/
         }
         mToolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
                 onBackPressed();
             }
         });
@@ -103,6 +106,10 @@ public abstract class BaseWizwardActivity extends AppCompatActivity {
             if (step > 0) {
                 step--;
             }
+            if (step == 0 && !canExit) {
+                actionBar.setDisplayHomeAsUpEnabled(false);
+                actionBar.setDisplayUseLogoEnabled(true);
+            }
             getFragmentManager().popBackStack();
             mIdentityHeaderFragment.updateUI(getHeaderFragmentText());
             updateActionBar(step);
@@ -111,6 +118,7 @@ public abstract class BaseWizwardActivity extends AppCompatActivity {
             if (canExit) {
                 finish();
             } else {
+
                 Toast.makeText(this, "please finish wizward", Toast.LENGTH_SHORT).show();
             }
         }
@@ -176,6 +184,9 @@ public abstract class BaseWizwardActivity extends AppCompatActivity {
         if (step == fragments.length - 1) {
             canExit = true;
         }
+        actionBar.setDisplayHomeAsUpEnabled(true);
+        actionBar.setDisplayUseLogoEnabled(false);
+
         mIdentityHeaderFragment.updateUI(getHeaderFragmentText());
         getFragmentManager().beginTransaction().replace(R.id.fragment_container_content, fragments[step]).addToBackStack(null).commit();
         updateActionBar(step);

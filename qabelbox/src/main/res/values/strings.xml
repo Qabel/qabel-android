@@ -140,4 +140,6 @@
     <string name="server_access_not_successfully_retry_question">Server access failed. Do you want to retry?</string>
     <string name="no">No</string>
     <string name="yes">Yes</string>
+    <string name="dialog_headline_warning">Warning</string>
+    <string name="message_step_is_needed_or_close_app">For the use of this app is this step necessary. Do you want to quit the app?</string>
 </resources>

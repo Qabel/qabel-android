@@ -1,6 +1,7 @@
 package de.qabel.qabelbox.activities;
 
 import android.app.FragmentTransaction;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -8,11 +9,8 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ImageView;
-import android.widget.Toast;
 
 import de.qabel.core.accounting.AccountingHTTP;
-import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.fragments.BaseIdentityFragment;
 import de.qabel.qabelbox.fragments.CreateIdentityHeaderFragment;
@@ -52,7 +50,6 @@ public abstract class BaseWizwardActivity extends AppCompatActivity {
         setupToolbar();
         createFragments();
         actionBar.setTitle(getActionBarTitle());
-
     }
 
     private void setupToolbar() {
@@ -72,13 +69,14 @@ public abstract class BaseWizwardActivity extends AppCompatActivity {
         mToolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 onBackPressed();
             }
         });
     }
 
-
     private void createFragments() {
+
         mIdentityHeaderFragment = new CreateIdentityHeaderFragment();
         fragments = getFragmentList();
         FragmentTransaction ft = getFragmentManager().beginTransaction();
@@ -119,7 +117,18 @@ public abstract class BaseWizwardActivity extends AppCompatActivity {
                 finish();
             } else {
 
-                Toast.makeText(this, "please finish wizward", Toast.LENGTH_SHORT).show();
+                UIHelper.showDialogMessage(this, R.string.dialog_headline_warning, R.string.message_step_is_needed_or_close_app, R.string.yes, R.string.no, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                        finish();
+                    }
+                }, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                    }
+                });
             }
         }
     }
@@ -176,10 +185,12 @@ public abstract class BaseWizwardActivity extends AppCompatActivity {
      * @return
      */
     protected boolean canShowNext(int step) {
+
         return true;
     }
 
     protected void showNextFragment() {
+
         step++;
         if (step == fragments.length - 1) {
             canExit = true;

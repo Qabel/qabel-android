@@ -40,6 +40,7 @@ public class CreateIdentityActivity extends BaseWizwardActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         if (QabelBoxApplication.getInstance().getService().getIdentities().getIdentities().size() > 0) {
             canExit = true;
         }
@@ -48,11 +49,13 @@ public class CreateIdentityActivity extends BaseWizwardActivity {
 
     @Override
     protected String getHeaderFragmentText() {
+
         return mIdentityName;
     }
 
     @Override
     protected int getActionBarTitle() {
+
         return R.string.headline_add_identity;
     }
 
@@ -94,6 +97,7 @@ public class CreateIdentityActivity extends BaseWizwardActivity {
                 Identity identity = createIdentity();
                 addIdentity(identity);
                 setCreatedIdentity(identity);
+
                 return null;
             }
 
@@ -114,6 +118,9 @@ public class CreateIdentityActivity extends BaseWizwardActivity {
 
                 LocalQabelService mService = QabelBoxApplication.getInstance().getService();
                 mService.addIdentity(identity);
+                if (mService.getActiveIdentity() == null) {
+                    mService.setActiveIdentity(identity);
+                }
             }
         });
 
@@ -123,6 +130,7 @@ public class CreateIdentityActivity extends BaseWizwardActivity {
 
     @Override
     protected void completeWizard() {
+
         if (QabelBoxApplication.getInstance().getService().getIdentities().getIdentities().size() == 0) {
             Toast.makeText(this, "not finished ", Toast.LENGTH_SHORT).show();
             return;

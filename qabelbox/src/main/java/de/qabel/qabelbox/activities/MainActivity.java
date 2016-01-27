@@ -59,8 +59,6 @@ import de.qabel.qabelbox.fragments.ContactFragment;
 import de.qabel.qabelbox.fragments.FilesFragment;
 import de.qabel.qabelbox.fragments.IdentitiesFragment;
 import de.qabel.qabelbox.fragments.SelectUploadFolderFragment;
-import de.qabel.qabelbox.fragments.SettingsFragment;
-import de.qabel.qabelbox.helper.UIHelper;
 import de.qabel.qabelbox.providers.BoxProvider;
 import de.qabel.qabelbox.services.LocalQabelService;
 import de.qabel.qabelbox.storage.BoxExternal;
@@ -123,6 +121,7 @@ public class MainActivity extends AppCompatActivity
                 if (data != null && data.hasExtra(CreateIdentityActivity.P_IDENTITY)) {
                     Identity identity = (Identity) data.getSerializableExtra(CreateIdentityActivity.P_IDENTITY);
                     addIdentity(identity);
+                    selectFilesFragment();
                 }
             }
             if (data != null) {
@@ -231,6 +230,11 @@ public class MainActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
+        if(SplashActivity.startWizardActivities(this))
+        {
+            finish();
+
+        }
         setContentView(R.layout.activity_main);
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -723,7 +727,6 @@ public class MainActivity extends AppCompatActivity
         initFilesFragment();
     }
 
-
     @Override
     public void addContact(Contact contact) {
 
@@ -747,6 +750,13 @@ public class MainActivity extends AppCompatActivity
 
         provider.notifyRootsUpdated();
         mService.deleteIdentity(identity);
+        if (mService.getIdentities().getIdentities().size() == 0) {
+            selectAddIdentityFragment();
+        } else {
+            mService.setActiveIdentity(mService.getIdentities().getIdentities().iterator().next());
+            textViewSelectedIdentity.setText(mService.getActiveIdentity().getAlias());
+            selectFilesFragment();
+        }
     }
 
     @Override
@@ -869,7 +879,7 @@ public class MainActivity extends AppCompatActivity
 
         // Map QR-Code indent to alias textview in nav_header_main
         textViewSelectedIdentity = (TextView) navigationView.findViewById(R.id.textViewSelectedIdentity);
-        textViewSelectedIdentity.setOnClickListener(new View.OnClickListener() {
+        findViewById(R.id.qabelLogo).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
@@ -885,7 +895,7 @@ public class MainActivity extends AppCompatActivity
         });
 
         imageViewExpandIdentity = (ImageView) navigationView.findViewById(R.id.imageViewExpandIdentity);
-        imageViewExpandIdentity.setOnClickListener(new View.OnClickListener() {
+        findViewById(R.id.select_identity_layout).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
@@ -979,8 +989,15 @@ public class MainActivity extends AppCompatActivity
     private void selectAddIdentityFragment() {
 
         Intent i = new Intent(self, CreateIdentityActivity.class);
-        i.putExtra(CreateIdentityActivity.FIRST_RUN, false);
-        self.startActivityForResult(i, REQUEST_CREATE_IDENTITY);
+        int identitiesCount = mService.getIdentities().getIdentities().size();
+        i.putExtra(CreateIdentityActivity.FIRST_RUN, identitiesCount == 0 ? true : false);
+
+        if (identitiesCount == 0) {
+            finish();
+            self.startActivityForResult(i, REQUEST_CREATE_IDENTITY);
+        } else {
+            self.startActivity(i);
+        }
     }
 
     private void showAbortMessage() {

@@ -7,7 +7,6 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.EditText;
 
-import de.qabel.core.config.Identity;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.communication.BoxAccountRegisterServer;
 import de.qabel.qabelbox.communication.SimpleCallback;
@@ -29,7 +28,6 @@ public class CreateAccountActivity extends BaseWizwardActivity {
 
     private String mBoxAccountName;
 
-
     private String mBoxAccountPassword1;
     private String mBoxAccountPassword2;
     private String mBoxAccountEMail;
@@ -38,9 +36,8 @@ public class CreateAccountActivity extends BaseWizwardActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
-
-
     }
 
     @Override
@@ -51,6 +48,7 @@ public class CreateAccountActivity extends BaseWizwardActivity {
 
     @Override
     protected int getActionBarTitle() {
+
         return R.string.headline_create_box_account;
     }
 
@@ -87,6 +85,7 @@ public class CreateAccountActivity extends BaseWizwardActivity {
         fragments[2] = CreateIdentityEditTextFragment.newInstance(R.string.create_account_email, R.string.create_account_email_hint, new NextChecker() {
             @Override
             public String check(View view) {
+
                 String editText = ((EditText) view).getText().toString().trim();
                 String result = checkEMailAddress(editText);
                 if (result != null) {
@@ -102,6 +101,7 @@ public class CreateAccountActivity extends BaseWizwardActivity {
         fragments[3] = CreateAccountPasswordFragment.newInstance(new NextChecker() {
             @Override
             public String check(View view) {
+
                 String editText = ((EditText) view).getText().toString().trim();
                 String result = checkPW(editText);
                 if (result == null) {
@@ -124,6 +124,7 @@ public class CreateAccountActivity extends BaseWizwardActivity {
     }
 
     private String checkEMailAddress(String editText) {
+
         boolean error = editText.length() < 1;
         if (error) {
             return getString(R.string.create_identity_enter_all_data);
@@ -142,6 +143,7 @@ public class CreateAccountActivity extends BaseWizwardActivity {
     }
 
     private String checkBoxAccountName(String editText) {
+
         if (editText.length() < 1) {
             return getString(R.string.create_account_enter_all_data);
         }
@@ -185,23 +187,25 @@ public class CreateAccountActivity extends BaseWizwardActivity {
 
         final SimpleCallback callback = new SimpleCallback() {
             void showRetryDialog() {
+
                 UIHelper.showDialogMessage(mActivity, R.string.dialog_headline_info, R.string.server_access_not_successfully_retry_question, R.string.yes, R.string.no, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
+
                         register(username, password1, password2, email);
                     }
                 }
                         , new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
 
+                        dialog.dismiss();
                     }
                 });
             }
 
-
             protected void onError(final Call call, SimpleCallback.Reasons reasons) {
+
                 if (reasons == Reasons.IOException && retryCount++ < 3) {
                     call.enqueue(this);
                 } else {
@@ -211,6 +215,7 @@ public class CreateAccountActivity extends BaseWizwardActivity {
             }
 
             protected void onSuccess(Call call, Response response, String text) {
+
                 dialog.dismiss();
                 mActivity.showNextFragment();
             }
@@ -221,6 +226,7 @@ public class CreateAccountActivity extends BaseWizwardActivity {
 
     @Override
     protected boolean canShowNext(int step) {
+
         if (step == fragments.length - 2) {
             register(mBoxAccountName, mBoxAccountPassword1, mBoxAccountPassword2, mBoxAccountEMail);
             return false;

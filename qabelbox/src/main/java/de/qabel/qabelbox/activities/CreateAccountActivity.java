@@ -4,12 +4,18 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.Toast;
 
+import org.json.JSONObject;
+
+import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.communication.BoxAccountRegisterServer;
-import de.qabel.qabelbox.communication.SimpleCallback;
+import de.qabel.qabelbox.communication.SimpleJsonCallback;
+import de.qabel.qabelbox.config.AppPreference;
 import de.qabel.qabelbox.fragments.BaseIdentityFragment;
 import de.qabel.qabelbox.fragments.CreateAccountFinalFragment;
 import de.qabel.qabelbox.fragments.CreateAccountMainFragment;
@@ -163,18 +169,22 @@ public class CreateAccountActivity extends BaseWizwardActivity {
     }
 
     @Override
-    protected void completeWizard() {
+    public void completeWizard() {
 
-        if (mFirstRun) {
-            Intent intent = new Intent(mActivity, MainActivity.class);
-            intent.setAction("");
-            startActivity(intent);
-        } else {
-            Intent result = new Intent();
-            //     result.putExtra(P_IDENTITY, mNewIdentity);
-            setResult(activityResult, result);
+        if (QabelBoxApplication.getInstance().getService().getIdentities().getIdentities().size() > 0) {
+            //fallback if identity exists after box account created. this case should never thrown
+            Log.e(TAG, "Identity exist after create box account");
+            Toast.makeText(mActivity, R.string.skip_create_identity, Toast.LENGTH_SHORT).show();
+
             finish();
+            Intent i = new Intent(mActivity, MainActivity.class);
+            startActivity(i);
+            return;
         }
+        Intent i = new Intent(mActivity, CreateIdentityActivity.class);
+        i.putExtra(BaseWizwardActivity.FIRST_RUN, true);
+        finish();
+        startActivity(i);
     }
 
     public void setAccountName(String text) {
@@ -186,7 +196,8 @@ public class CreateAccountActivity extends BaseWizwardActivity {
 
         final AlertDialog dialog = UIHelper.showWaitMessage(this, R.string.dialog_headline_please_wait, R.string.dialog_message_server_communication_is_running, false);
 
-        final SimpleCallback callback = new SimpleCallback() {
+        final SimpleJsonCallback callback = new SimpleJsonCallback() {
+
             void showRetryDialog() {
 
                 UIHelper.showDialogMessage(mActivity, R.string.dialog_headline_info, R.string.server_access_not_successfully_retry_question, R.string.yes, R.string.no, new DialogInterface.OnClickListener() {
@@ -205,7 +216,7 @@ public class CreateAccountActivity extends BaseWizwardActivity {
                 });
             }
 
-            protected void onError(final Call call, SimpleCallback.Reasons reasons) {
+            protected void onError(final Call call, SimpleJsonCallback.Reasons reasons) {
 
                 if (reasons == Reasons.IOException && retryCount++ < 3) {
                     call.enqueue(this);
@@ -215,10 +226,22 @@ public class CreateAccountActivity extends BaseWizwardActivity {
                 }
             }
 
-            protected void onSuccess(Call call, Response response, String text) {
+            protected void onSuccess(Call call, Response response, JSONObject json) {
 
-                dialog.dismiss();
-                mActivity.showNextFragment();
+                BoxAccountRegisterServer.ServerResponse result = BoxAccountRegisterServer.parseJson(json);
+                if (result.token != null && result.token.length() > 5) {
+                    new AppPreference(mActivity).setToken(result.token);
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+
+                            dialog.dismiss();
+                            mActivity.showNextFragment();
+                        }
+                    });
+                } else {
+                    //@todo define other cases
+                }
             }
         };
 

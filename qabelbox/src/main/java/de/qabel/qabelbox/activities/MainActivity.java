@@ -59,6 +59,7 @@ import de.qabel.qabelbox.fragments.ContactFragment;
 import de.qabel.qabelbox.fragments.FilesFragment;
 import de.qabel.qabelbox.fragments.IdentitiesFragment;
 import de.qabel.qabelbox.fragments.SelectUploadFolderFragment;
+import de.qabel.qabelbox.helper.UIHelper;
 import de.qabel.qabelbox.providers.BoxProvider;
 import de.qabel.qabelbox.services.LocalQabelService;
 import de.qabel.qabelbox.storage.BoxExternal;
@@ -230,11 +231,16 @@ public class MainActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
-        if(SplashActivity.startWizardActivities(this))
-        {
-            finish();
-
+        Log.v(TAG, "start mainactivity");
+        if (SplashActivity.startWizardActivities(this)) {
+            Log.d(TAG, "started wizard dialog");
+            return;
         }
+        LocalQabelService service = QabelBoxApplication.getInstance().getService();
+        if (service.getActiveIdentity() == null) {
+            service.setActiveIdentity(service.getIdentities().getIdentities().iterator().next());
+        }
+
         setContentView(R.layout.activity_main);
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -310,29 +316,29 @@ public class MainActivity extends AppCompatActivity
         Log.i(TAG, "Intent action: " + action);
 
         // Checks if a fragment should be launched
-        switch (intent.getAction()) {
-            case Intent.ACTION_SEND:
-                if (type != null) {
-                    Log.i(TAG, "Action send in main activity");
-                    Uri imageUri = intent.getParcelableExtra(Intent.EXTRA_STREAM);
-                    if (imageUri != null) {
-                        //TODO: UPLOAD
+        if (intent != null && intent.getAction() != null) {
+            switch (intent.getAction()) {
+                case Intent.ACTION_SEND:
+                    if (type != null) {
+                        Log.i(TAG, "Action send in main activity");
+                        Uri imageUri = intent.getParcelableExtra(Intent.EXTRA_STREAM);
+                        if (imageUri != null) {
+                            //TODO: UPLOAD
+                        }
                     }
-                }
-                break;
-            case Intent.ACTION_SEND_MULTIPLE:
-                if (type != null) {
-                    ArrayList<Uri> imageUris = intent.getParcelableArrayListExtra(Intent.EXTRA_STREAM);
-                    //TODO: Implement
-                }
-                break;
-            default:
-                if (activeIdentity != null) {
-                    selectFilesFragment();
-                } else {
-                    selectAddIdentityFragment();
-                }
-                break;
+                    break;
+                case Intent.ACTION_SEND_MULTIPLE:
+                    if (type != null) {
+                        ArrayList<Uri> imageUris = intent.getParcelableArrayListExtra(Intent.EXTRA_STREAM);
+                        //TODO: Implement
+                    }
+                    break;
+                default:
+
+
+
+                    break;
+            }
         }
     }
 
@@ -550,6 +556,11 @@ public class MainActivity extends AppCompatActivity
             drawer.closeDrawer(GravityCompat.START);
         } else {
             Fragment activeFragment = getFragmentManager().findFragmentById(R.id.fragment_container);
+            if(activeFragment==null)
+            {
+                super.onBackPressed();
+                return;
+            }
             if (activeFragment.getTag() == null) {
                 getFragmentManager().popBackStack();
             } else {
@@ -599,8 +610,7 @@ public class MainActivity extends AppCompatActivity
         } else if (id == R.id.nav_browse) {
             selectFilesFragment();
         } else if (id == R.id.nav_help) {
-            //UIHelper.showFunctionNotYetImplemented(this);
-            startActivity(new Intent(this, CreateAccountActivity.class));
+            UIHelper.showFunctionNotYetImplemented(this);
         } else if (id == R.id.nav_settings) {
             Intent intent = new Intent(this, SettingsActivity.class);
             startActivityForResult(intent, REQUEST_SETTINGS);
@@ -751,7 +761,13 @@ public class MainActivity extends AppCompatActivity
         provider.notifyRootsUpdated();
         mService.deleteIdentity(identity);
         if (mService.getIdentities().getIdentities().size() == 0) {
-            selectAddIdentityFragment();
+            UIHelper.showDialogMessage(this, R.string.dialog_headline_info, R.string.last_identity_delete_create_new, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+
+                    selectAddIdentityFragment();
+                }
+            });
         } else {
             mService.setActiveIdentity(mService.getIdentities().getIdentities().iterator().next());
             textViewSelectedIdentity.setText(mService.getActiveIdentity().getAlias());

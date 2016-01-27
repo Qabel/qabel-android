@@ -26,7 +26,6 @@ public class BoxAccountRegisterServer {
 
     private void doServerAction(String url, JSONObject json, Callback callback, String token) {
 
-
         Log.v(TAG, "post body json" + json.toString());
         RequestBody body = RequestBody.create(JSON, json.toString());
         Log.v(TAG, "post body with " + body.toString());
@@ -36,11 +35,11 @@ public class BoxAccountRegisterServer {
         if (token != null) {
             builder.addHeader("Authorization", "Token " + token);
         }
-        builder.addHeader("Accept","application/json");
-        String locale=Locale.getDefault().toString();
+        builder.addHeader("Accept", "application/json");
+        String locale = Locale.getDefault().toString();
         builder.addHeader("language", locale);
         final Request request = builder.build();
-        Log.v(TAG, "do server action to " + body + " " + request.toString()+" "+locale);
+        Log.v(TAG, "do server action to " + body + " " + request.toString() + " " + locale);
         client.newCall(request).enqueue(callback);
     }
 
@@ -107,5 +106,41 @@ public class BoxAccountRegisterServer {
         }
 
         doServerAction(URLs.PASSWORD_RESET, json, callback);
+    }
+
+    public static ServerResponse parseJson(JSONObject json) {
+
+        ServerResponse response = new ServerResponse();
+        response.token = getJsonString("key", json);
+        response.username = getJsonString("username", json);
+        response.password1 = getJsonString("password1", json);
+        response.password2 = getJsonString("password2", json);
+        response.non_field_errors = getJsonString("non_field_errors", json);
+
+        return response;
+    }
+
+    private static String getJsonString(String key, JSONObject json) {
+
+        if (json.has(key)) {
+            try {
+                return json.getString(key);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+        return null;
+    }
+
+    public final static class ServerResponse
+
+    {
+
+        public String token;
+        public String username;
+        public String password1;
+        public String password2;
+        public String email;
+        public String non_field_errors;
     }
 }

@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.view.WindowManager;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import de.qabel.qabelbox.R;
@@ -19,6 +18,15 @@ public class UIHelper {
      * show dialog with one button
      */
     public static void showDialogMessage(final Activity activity, final int headline, final int message, final int buttonOk, final int buttonCancel, final DialogInterface.OnClickListener buttonOkListener, final DialogInterface.OnClickListener buttonCancelListener) {
+
+        showDialogMessage(activity, activity.getString(headline), activity.getString(message), buttonOk, buttonCancel, buttonOkListener, buttonCancelListener);
+    }
+
+    /**
+     * show dialog with one button
+     */
+    public static void showDialogMessage(final Activity activity, final String headline, final String message, final int buttonOk, final int buttonCancel, final DialogInterface.OnClickListener buttonOkListener, final DialogInterface.OnClickListener buttonCancelListener) {
+
         final AlertDialog.Builder builder =
                 new AlertDialog.Builder(activity);
         builder.setTitle(headline);
@@ -32,10 +40,12 @@ public class UIHelper {
         activity.runOnUiThread(new Runnable() {
             @Override
             public void run() {
+
                 final AlertDialog dialog = builder.create();
                 dialog.setOnShowListener(new DialogInterface.OnShowListener() {
                     @Override
                     public void onShow(DialogInterface dialog1) {
+
                         fontHelper.setCustomeFonts((TextView) dialog.findViewById(android.R.id.message));
                         fontHelper.setCustomeFonts((TextView) dialog.findViewById(android.R.id.title));
 
@@ -45,7 +55,6 @@ public class UIHelper {
                 });
 
                 dialog.show();
-
             }
         });
     }
@@ -53,6 +62,11 @@ public class UIHelper {
     public static void showDialogMessage(Activity activity, int headline, int message) {
 
         showDialogMessage(activity, headline, message, R.string.ok, Integer.MIN_VALUE, null, null);
+    }
+
+    public static void showDialogMessage(Activity activity, int headline, String message) {
+
+        showDialogMessage(activity, activity.getString(headline), message, R.string.ok, Integer.MIN_VALUE, null, null);
     }
 
     public static void showDialogMessage(Activity activity, int headline, int message, DialogInterface.OnClickListener buttonOkListener) {
@@ -66,6 +80,7 @@ public class UIHelper {
     }
 
     public static void showFunctionNotYetImplemented(Activity activity) {
+
         showDialogMessage(activity, R.string.dialog_headline_info, R.string.function_not_yet_implenented);
     }
 
@@ -73,6 +88,7 @@ public class UIHelper {
      * show wait message
      */
     public static AlertDialog showWaitMessage(final Activity activity, int headline, int message, boolean cancelable) {
+
         AlertDialog.Builder builder =
                 new AlertDialog.Builder(activity, R.style.AppCompatAlertDialogStyle);
         builder.setTitle(headline);
@@ -84,10 +100,10 @@ public class UIHelper {
         dialog.setOnShowListener(new DialogInterface.OnShowListener() {
             @Override
             public void onShow(DialogInterface dialog1) {
+
                 final FontHelper fontHelper = FontHelper.getInstance(activity);
                 fontHelper.setCustomeFonts((TextView) dialog.findViewById(android.R.id.message));
                 fontHelper.setCustomeFonts((TextView) dialog.findViewById(android.R.id.title));
-
             }
         });
 

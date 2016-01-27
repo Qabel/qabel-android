@@ -129,7 +129,7 @@ public class CreateIdentityActivity extends BaseWizwardActivity {
     }
 
     @Override
-    protected void completeWizard() {
+    public void completeWizard() {
 
         if (QabelBoxApplication.getInstance().getService().getIdentities().getIdentities().size() == 0) {
             Toast.makeText(this, "not finished ", Toast.LENGTH_SHORT).show();

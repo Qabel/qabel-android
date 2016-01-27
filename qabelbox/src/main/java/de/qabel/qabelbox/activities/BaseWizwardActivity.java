@@ -247,7 +247,7 @@ public abstract class BaseWizwardActivity extends AppCompatActivity {
 
     protected abstract BaseIdentityFragment[] getFragmentList();
 
-    protected abstract void completeWizard();
+    public abstract void completeWizard();
 
     public interface NextChecker {
 

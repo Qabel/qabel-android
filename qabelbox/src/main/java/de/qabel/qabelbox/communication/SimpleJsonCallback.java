@@ -2,6 +2,9 @@ package de.qabel.qabelbox.communication;
 
 import android.util.Log;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.IOException;
 
 import okhttp3.Call;
@@ -13,13 +16,13 @@ import okhttp3.Response;
  * <p/>
  * Class to simple handle a server response.
  */
-public abstract class SimpleCallback implements Callback {
+public abstract class SimpleJsonCallback implements Callback {
 
     private String TAG = "callback";//.getClass().getSimpleName();
     protected int retryCount = 0;
 
     protected enum Reasons {
-        IOException, Body, InvalidResponse
+        IOException, Body, JSON, InvalidResponse
     }
 
     /**
@@ -35,9 +38,9 @@ public abstract class SimpleCallback implements Callback {
      *
      * @param call     hold the server call object
      * @param response hold the response object
-     * @param text     contain the body as string
+     * @param json     parsed json object
      */
-    protected abstract void onSuccess(Call call, Response response, String text);
+    protected abstract void onSuccess(Call call, Response response, JSONObject json);
 
     @Override
     public void onFailure(Call call, IOException e) {
@@ -56,7 +59,6 @@ public abstract class SimpleCallback implements Callback {
 
         {
             Log.w(TAG, "Unexpected code " + response);
-            Log.v(TAG, "response " + response.toString());
             onError(call, Reasons.InvalidResponse);
             return;
         }
@@ -68,7 +70,21 @@ public abstract class SimpleCallback implements Callback {
             onError(call, Reasons.Body);
             return;
         }
-        Log.d(TAG, "server response valid " + text);
-        onSuccess(call, response, text);
+
+        JSONObject json = null;
+        try {
+            json = new JSONObject(text);
+        } catch (JSONException e) {
+            Log.w(TAG, "server response can't parse json", e);
+            onError(call, Reasons.Body);
+            return;
+        }
+        if (json == null) {
+            Log.w(TAG, "server response can't parse json");
+            onError(call, Reasons.Body);
+            return;
+        }
+        Log.v(TAG,"Json response "+json.toString());
+        onSuccess(call, response, json);
     }
 }

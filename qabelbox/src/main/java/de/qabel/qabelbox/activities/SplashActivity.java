@@ -5,19 +5,10 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
-import android.util.Log;
-
-import java.io.IOException;
-import java.util.Locale;
 
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
-import de.qabel.qabelbox.communication.BoxAccountRegisterServer;
-import de.qabel.qabelbox.communication.SimpleCallback;
 import de.qabel.qabelbox.config.AppPreference;
-import okhttp3.Call;
-import okhttp3.Callback;
-import okhttp3.Response;
 
 /**
  * Created by danny on 11.01.2016.
@@ -36,6 +27,7 @@ public class SplashActivity extends Activity {
         overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
         setContentView(R.layout.activity_splashscreen);
         setupAppPreferences();
+        //   prefs.setToken(null);
     }
 
     private void setupAppPreferences() {
@@ -80,7 +72,7 @@ public class SplashActivity extends Activity {
 
             private void startMainActivity() {
 
-                if (startWizardActivities(mActivity)) {
+                if (!startWizardActivities(mActivity)) {
 
                     Intent intent = new Intent(mActivity, MainActivity.class);
                     intent.setAction("");
@@ -97,42 +89,28 @@ public class SplashActivity extends Activity {
      * start wizard activities if app not ready to go. If other activity need to start, the current activity finished
      *
      * @param activity current activity
-     * @return
+     * @return false if no wizward start needed
      */
     public static boolean startWizardActivities(Activity activity) {
 
-        new BoxAccountRegisterServer().register("testuse2r1", "a434$§$§", "a434$§$§", "emehl@nochmehuj9888989jr.de", new SimpleCallback() {
-
-            @Override
-            protected void onError(Call call, Reasons IOException) {
-
-            }
-
-            @Override
-            protected void onSuccess(Call call, Response response, String text) {
-
-            }
-        });
         AppPreference prefs = new AppPreference(activity);
-        //prefs.setToken(null);
+
         if (prefs.getToken() == null) {
             Intent intent = new Intent(activity, CreateAccountActivity.class);
             intent.putExtra(BaseWizwardActivity.FIRST_RUN, true);
-            intent.setAction("");
             activity.startActivity(intent);
             activity.overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
             activity.finish();
-            return false;
+            return true;
         } else if (QabelBoxApplication.getInstance().getService().getIdentities().getIdentities().size() == 0) {
             Intent intent = new Intent(activity, CreateIdentityActivity.class);
             intent.putExtra(BaseWizwardActivity.FIRST_RUN, true);
-            intent.setAction("");
             activity.startActivity(intent);
             activity.overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
             activity.finish();
-            return false;
-        } else {
             return true;
+        } else {
+            return false;
         }
     }
 }

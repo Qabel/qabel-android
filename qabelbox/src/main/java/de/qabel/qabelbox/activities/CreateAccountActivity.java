@@ -135,6 +135,7 @@ public class CreateAccountActivity extends BaseWizwardActivity {
 
     private void setEMail(String editText) {
 
+        this.mBoxAccountEMail = editText;
     }
 
     private String checkBoxAccountNameByServer(String editText) {

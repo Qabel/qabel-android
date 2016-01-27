@@ -5,10 +5,19 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
+
+import java.io.IOException;
+import java.util.Locale;
 
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
+import de.qabel.qabelbox.communication.BoxAccountRegisterServer;
+import de.qabel.qabelbox.communication.SimpleCallback;
 import de.qabel.qabelbox.config.AppPreference;
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.Response;
 
 /**
  * Created by danny on 11.01.2016.
@@ -92,6 +101,18 @@ public class SplashActivity extends Activity {
      */
     public static boolean startWizardActivities(Activity activity) {
 
+        new BoxAccountRegisterServer().register("testuse2r1", "a434$§$§", "a434$§$§", "emehl@nochmehuj9888989jr.de", new SimpleCallback() {
+
+            @Override
+            protected void onError(Call call, Reasons IOException) {
+
+            }
+
+            @Override
+            protected void onSuccess(Call call, Response response, String text) {
+
+            }
+        });
         AppPreference prefs = new AppPreference(activity);
         //prefs.setToken(null);
         if (prefs.getToken() == null) {

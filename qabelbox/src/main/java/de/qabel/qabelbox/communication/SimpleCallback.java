@@ -1,14 +1,9 @@
 package de.qabel.qabelbox.communication;
 
-import android.app.Activity;
-import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.util.Log;
 
 import java.io.IOException;
 
-import de.qabel.qabelbox.R;
-import de.qabel.qabelbox.helper.UIHelper;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Response;
@@ -20,7 +15,7 @@ import okhttp3.Response;
  */
 public abstract class SimpleCallback implements Callback {
 
-    private String TAG = this.getClass().getSimpleName();
+    private String TAG = "callback";//.getClass().getSimpleName();
     protected int retryCount = 0;
 
     protected enum Reasons {
@@ -46,15 +41,22 @@ public abstract class SimpleCallback implements Callback {
 
     @Override
     public void onFailure(Call call, IOException e) {
+
         Log.w(TAG, "error on network action", e);
         onError(call, Reasons.IOException);
     }
 
     @Override
     public void onResponse(Call call, Response response) {
-        Log.v(TAG, "callback onResponse " + response);
-        if (!response.isSuccessful()) {
+
+        int code = response.code();
+        Log.v(TAG, "callback onResponse " + response + " " + code);
+
+        if (code != 400 && code < 200 && code >= 300)
+
+        {
             Log.w(TAG, "Unexpected code " + response);
+            Log.v(TAG, "response " + response.toString());
             onError(call, Reasons.InvalidResponse);
             return;
         }
@@ -66,10 +68,7 @@ public abstract class SimpleCallback implements Callback {
             onError(call, Reasons.Body);
             return;
         }
-        Log.d(TAG, "server response valid");
+        Log.d(TAG, "server response valid " + text);
         onSuccess(call, response, text);
-
     }
-
-
 }

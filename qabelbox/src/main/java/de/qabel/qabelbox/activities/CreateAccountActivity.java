@@ -11,6 +11,8 @@ import android.widget.Toast;
 
 import org.json.JSONObject;
 
+import java.util.ArrayList;
+
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.communication.BoxAccountRegisterServer;
@@ -21,6 +23,7 @@ import de.qabel.qabelbox.fragments.CreateAccountFinalFragment;
 import de.qabel.qabelbox.fragments.CreateAccountMainFragment;
 import de.qabel.qabelbox.fragments.CreateAccountPasswordFragment;
 import de.qabel.qabelbox.fragments.CreateIdentityEditTextFragment;
+import de.qabel.qabelbox.helper.Formater;
 import de.qabel.qabelbox.helper.UIHelper;
 import okhttp3.Call;
 import okhttp3.Response;
@@ -109,13 +112,8 @@ public class CreateAccountActivity extends BaseWizwardActivity {
             public String check(View view) {
 
                 String editText = ((EditText) view).getText().toString().trim();
-                String result = checkPW(editText);
-                if (result == null) {
-                    setPassword(editText, editText);
-                    return null;
-                } else {
-                    return result;
-                }
+                setPassword(editText, editText);
+                return null;
             }
         });
 
@@ -135,7 +133,9 @@ public class CreateAccountActivity extends BaseWizwardActivity {
         if (error) {
             return getString(R.string.create_identity_enter_all_data);
         }
-        //@todo regex check email
+        if (!Formater.isEMailValid(editText)) {
+            return getString(R.string.email_adress_invalid);
+        }
         return null;
     }
 
@@ -240,8 +240,40 @@ public class CreateAccountActivity extends BaseWizwardActivity {
                         }
                     });
                 } else {
-                    //@todo define other cases
+                    String errorText = generateErrorMessage(result);
+                    dialog.dismiss();
+                    UIHelper.showDialogMessage(mActivity, R.string.dialog_headline_info, errorText);
                 }
+            }
+
+            private String generateErrorMessage(BoxAccountRegisterServer.ServerResponse result) {
+
+                ArrayList<String> message = new ArrayList<>();
+                if (result.non_field_errors != null) {
+                    message.add(result.non_field_errors);
+                }
+                if (result.password1 != null) {
+                    message.add(result.password1);
+                }
+                if (result.password2 != null) {
+                    message.add(result.password2);
+                }
+                if (result.email != null) {
+                    message.add(result.email);
+                }
+                if (result.username != null) {
+                    message.add(result.username);
+                }
+                String errorText = "";
+                if (message.size() == 0) {
+                    errorText = getString(R.string.server_access_failed_or_invalid_check_internet_connection);
+                } else {
+                    errorText = "- " + message.get(0);
+                    for (int i = 1; i < message.size(); i++) {
+                        errorText += "\n -" + message.get(i);
+                    }
+                }
+                return errorText;
             }
         };
 
@@ -249,7 +281,32 @@ public class CreateAccountActivity extends BaseWizwardActivity {
     }
 
     @Override
+    protected void updateActionBar(int step) {
+
+        super.updateActionBar(step);
+        //override next button text with create identity
+        if (step == fragments.length - 1) {
+            mActionNext.setTitle(R.string.btn_create_identity);
+        }
+    }
+/*
+    @Override
+    public void onBackPressed() {
+
+        super.onBackPressed();
+    }*/
+
+    @Override
     protected boolean canShowNext(int step) {
+/*
+        if (step == 1) {
+            Toast.makeText(this, "name", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        if (step == 2) {
+            Toast.makeText(this, "email", Toast.LENGTH_SHORT).show();
+            return false;
+        }*/
 
         if (step == fragments.length - 2) {
             register(mBoxAccountName, mBoxAccountPassword1, mBoxAccountPassword2, mBoxAccountEMail);

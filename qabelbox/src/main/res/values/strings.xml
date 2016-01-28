@@ -84,7 +84,7 @@
     <string name="next">Next</string>
     <string name="create_identity_enter_description">Bitte geben Sie hier eine Beschreibung der Personengruppe ein, mit deren Sie über diese Identität kommunizieren wollen</string>
     <string name="create_identity_select_security">Wie Paranoid sind Sie?\nUnd wie viele Nutzlosen Datenverkehr zur Identitätsverschleierung nehmen Sie dafür in kauf?</string>
-    <string name="create_identity_final">Diese Identität ist nun nutztbar. Sie können nun weitere Identitäten hinzufügen.</string>
+    <string name="create_identity_final">Diese Identität ist nun nutztbar. Sie können nun Daten hochladen oder weitere Identitäten hinzufügen.</string>
     <string name="create_identity_successfull">Herzlichen Glückwunsch</string>
     <string name="dialog_headline_info">Information</string>
     <string name="create_identity_enter_all_data">Please fill out all data to continues</string>
@@ -123,14 +123,14 @@
     <string name="create_account_email">Please enter your E-Mail. With this address can you reset your account</string>
     <string name="create_account_email_hint">Your E-Mail</string>
     <string name="create_account_passwords_dont_match">Your entered passwords don\'t match. Please enter the same password on all input fields</string>
-    <string name="create_account_final">Your box account are now availible.</string>
-    <string name="create_identity_final_create_identity">Your box account are now availible. Create new identity with the next last steps</string>
+    <string name="create_account_final">Your box account are now available. Finally, create your first identity.</string>
+    <string name="create_identity_final_create_identity">Your box account are now available. Finally, cCreate new identity with the next last steps</string>
     <string name="filebrowser">Filebrowser</string>
     <string name="help">Help</string>
     <string name="settings_headline_boxaccount">Boxaccount</string>
     <string name="headline_settings">Settings</string>
     <string name="settings_change_account_password">Change password</string>
-    <string name="settings_change_account_password_summary">Use this function to to change your password</string>
+    <string name="settings_change_account_password_summary">Use this function to change your password</string>
     <string name="settings_key_change_password">change_account_password</string>
     <string name="change_boxaccount_password_message">Please enter a new password to change your boxaccount password.</string>
     <string name="dialog_headline_please_wait">Please wait</string>
@@ -144,4 +144,12 @@
     <string name="message_step_is_needed_or_close_app">For the use of this app is this step necessary. Do you want to quit the app?</string>
     <string name="skip_create_identity">Skip create identity.</string>
     <string name="last_identity_delete_create_new">You have deleted your last identity. Create a new now</string>
+    <string name="server_access_failed_or_invalid_check_internet_connection">Server communication failed. Please check if you entered all data and if you have a stable internet connection</string>
+    <string name="password_to_short">Your password to short.</string>
+    <string name="email_adress_invalid">Your email address is invalid. Please check your email address and try it again.</string>
+    <string name="btn_create_identity">Create identity</string>
+    <string name="create_account_final_headline">Very good. You a near finish</string>
+    <string name="change_account_password_oldpassword_hint">Current password</string>
+    <string name="change_account_password_newpassword1_hint">New password</string>
+    <string name="change_account_password_newpassword2_hint">Again</string>
 </resources>

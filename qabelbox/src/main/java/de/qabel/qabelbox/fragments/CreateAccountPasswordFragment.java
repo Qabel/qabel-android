@@ -6,7 +6,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
-import android.widget.TextView;
 
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.activities.BaseWizwardActivity;
@@ -41,11 +40,16 @@ public class CreateAccountPasswordFragment extends BaseIdentityFragment {
 
     @Override
     public String check() {
+
+        if (etPassword1.getText().length() < 3) {
+            return getString(R.string.password_to_short);
+        }
         //check if pw1 match pw2
         if (etPassword1.getText().toString().equals(etPassword2.getText().toString())) {
             //yes, check password
             return mChecker.check(etPassword1);
         } else {
+            //no
             return getString(R.string.create_account_passwords_dont_match);
         }
     }

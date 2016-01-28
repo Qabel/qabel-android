@@ -27,7 +27,7 @@ public abstract class BaseWizwardActivity extends AppCompatActivity {
 
     public static final String P_IDENTITY = "identity_name";
     protected BaseWizwardActivity mActivity;
-    private MenuItem mActionNext;
+    protected MenuItem mActionNext;
     protected ActionBar actionBar;
     private CreateIdentityHeaderFragment mIdentityHeaderFragment;
 
@@ -161,7 +161,7 @@ public abstract class BaseWizwardActivity extends AppCompatActivity {
         //check if fragment ready to go to the next step
         if (check != null) {
             //no, show error message
-            UIHelper.showDialogMessage(this, R.string.dialog_headline_info, R.string.create_identity_enter_all_data);
+            UIHelper.showDialogMessage(this, R.string.dialog_headline_info, check);
         } else {
 
             //check if currently last step
@@ -208,19 +208,11 @@ public abstract class BaseWizwardActivity extends AppCompatActivity {
      *
      * @param step current step number
      */
-    private void updateActionBar(int step) {
+    protected void updateActionBar(int step) {
 
         //update icons
         if (step == 0) {
             mActionNext.setVisible(false);
-            /* if(!canExit)
-            {
-                actionBar.setDisplayHomeAsUpEnabled(false);
-            }
-            else
-            {
-                actionBar.setDisplayHomeAsUpEnabled(true);
-            }*/
         } else if (step < fragments.length - 1) {
             mActionNext.setVisible(true);
             actionBar.setDisplayShowHomeEnabled(true);
@@ -236,9 +228,7 @@ public abstract class BaseWizwardActivity extends AppCompatActivity {
         //update subtitle
         if (step == 0) {
             actionBar.setSubtitle(null);
-        } else if (step == fragments.length - 1) {
-            actionBar.setSubtitle(R.string.finish);
-        } else {
+        } else if (step < fragments.length - 1) {
             actionBar.setSubtitle(getString(R.string.step_x_from_y).replace("$1", step + "").replace("$2", (fragments.length - 2) + ""));
         }
     }

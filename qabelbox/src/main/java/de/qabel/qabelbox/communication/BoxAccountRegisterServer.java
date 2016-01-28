@@ -1,12 +1,15 @@
 package de.qabel.qabelbox.communication;
 
+import android.content.Context;
 import android.util.Log;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.Locale;
 
+import de.qabel.qabelbox.config.AppPreference;
 import okhttp3.Callback;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
@@ -20,7 +23,7 @@ import okhttp3.RequestBody;
  */
 public class BoxAccountRegisterServer {
 
-    private final String TAG = this.getClass().getSimpleName();
+    private final static String TAG = "BoxAccountServer";
     private final OkHttpClient client = new OkHttpClient();
     MediaType JSON = MediaType.parse("application/json; charset=utf-8");
 
@@ -82,7 +85,7 @@ public class BoxAccountRegisterServer {
         doServerAction(URLs.LOGOUT, json, callback);
     }
 
-    public void changePassword(String token, String new_password1, String new_password2, String old_password, Callback callback) {
+    public void changePassword(Context context, String old_password, String new_password1, String new_password2, Callback callback) {
 
         JSONObject json = new JSONObject();
         try {
@@ -93,7 +96,7 @@ public class BoxAccountRegisterServer {
             e.printStackTrace();
         }
 
-        doServerAction(URLs.PASSWORD_CHANGE, json, callback);
+        doServerAction(URLs.PASSWORD_CHANGE, json, callback, new AppPreference(context).getToken());
     }
 
     public void resetPassword(String email, Callback callback) {
@@ -113,10 +116,14 @@ public class BoxAccountRegisterServer {
         ServerResponse response = new ServerResponse();
         response.token = getJsonString("key", json);
         response.username = getJsonString("username", json);
+        response.email = getJsonString("email", json);
         response.password1 = getJsonString("password1", json);
         response.password2 = getJsonString("password2", json);
         response.non_field_errors = getJsonString("non_field_errors", json);
-
+        response.old_password = getJsonString("old_password", json);
+        response.success = getJsonString("success", json);
+        response.new_password1 = getJsonString("new_password1", json);
+        response.new_password1 = getJsonString("new_password2", json);
         return response;
     }
 
@@ -124,9 +131,19 @@ public class BoxAccountRegisterServer {
 
         if (json.has(key)) {
             try {
+                JSONArray array = json.getJSONArray(key);
+                String ret = "";
+                for (int i = 0; i < array.length(); i++) {
+                    ret += array.getString(i);
+                }
+                return ret;
+            } catch (JSONException e) {
+                Log.d(TAG, "can't convert "+key+" to array. try string");
+            }
+            try {
                 return json.getString(key);
             } catch (JSONException e) {
-                e.printStackTrace();
+                Log.w(TAG, "can't convert \"+key+\" to string.", e);
             }
         }
         return null;
@@ -142,5 +159,9 @@ public class BoxAccountRegisterServer {
         public String password2;
         public String email;
         public String non_field_errors;
+        public String old_password;
+        public String new_password1;
+        public String new_password2;
+        public String success;
     }
 }

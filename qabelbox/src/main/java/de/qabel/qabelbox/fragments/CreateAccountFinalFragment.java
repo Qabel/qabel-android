@@ -28,7 +28,9 @@ public class CreateAccountFinalFragment extends BaseIdentityFragment {
         View v = inflater.inflate(R.layout.fragment_create_identity_final, container, false);
         tvSuccess = (TextView) v.findViewById(R.id.tv_success);
         tvMessage = (TextView) v.findViewById(R.id.tv_message);
-
+        //override identity messages
+        tvMessage.setText(R.string.create_account_final);
+        tvSuccess.setText(R.string.create_account_final_headline);
         LocalQabelService service = QabelBoxApplication.getInstance().getService();
         Identities identities = service.getIdentities();
         if (identities == null || identities.getIdentities().size() == 0) {

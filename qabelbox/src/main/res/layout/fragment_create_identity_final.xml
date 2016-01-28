@@ -29,7 +29,7 @@
         android:layout_height="wrap_content"
         android:gravity="left"
         android:minLines="5"
-        android:text="@string/create_account_final"
+        android:text="@string/create_identity_final"
         android:textSize="@dimen/textsize_normal" />
 
     <Space

@@ -335,8 +335,6 @@ public class MainActivity extends AppCompatActivity
                     break;
                 default:
 
-
-
                     break;
             }
         }
@@ -556,8 +554,7 @@ public class MainActivity extends AppCompatActivity
             drawer.closeDrawer(GravityCompat.START);
         } else {
             Fragment activeFragment = getFragmentManager().findFragmentById(R.id.fragment_container);
-            if(activeFragment==null)
-            {
+            if (activeFragment == null) {
                 super.onBackPressed();
                 return;
             }
@@ -1043,6 +1040,7 @@ public class MainActivity extends AppCompatActivity
     private void selectManageIdentitiesFragment() {
 
         fab.show();
+
         getFragmentManager().beginTransaction()
                 .replace(R.id.fragment_container,
                         IdentitiesFragment.newInstance(mService.getIdentities()),

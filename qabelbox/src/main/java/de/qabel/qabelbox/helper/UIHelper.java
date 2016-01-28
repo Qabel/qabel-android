@@ -1,9 +1,13 @@
 package de.qabel.qabelbox.helper;
 
+import android.app.ActionBar;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import de.qabel.qabelbox.R;
@@ -114,5 +118,53 @@ public class UIHelper {
         dialog.show();
         dialog.getWindow().setAttributes(lp);
         return dialog;
+    }
+
+    public static void showEditTextDialog(Activity activity, int title, int message, int ok, int cancel, final EditTextDialogClickListener okListener,
+                                          final EditTextDialogClickListener cancelListener) {
+
+        showEditTextDialog(activity, activity.getString(title), activity.getString(message), ok, cancel, okListener, cancelListener);
+    }
+
+    public static void showEditTextDialog(Activity activity, String title, String message, int ok, int cancel, final EditTextDialogClickListener okListener,
+
+                                          final EditTextDialogClickListener cancelListener)
+
+    {
+
+        AlertDialog.Builder renameDialog = new AlertDialog.Builder(activity);
+
+        renameDialog.setTitle(title);
+        renameDialog.setMessage(message);
+        LinearLayout layout = new LinearLayout(activity);
+
+        layout.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        final EditText editTextNewFolder = new EditText(activity);
+        int p = (int) activity.getResources().getDimension(R.dimen.activity_horizontal_margin);
+        layout.setPadding(p, p, p, p);
+        layout.addView(editTextNewFolder, new ActionBar.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        renameDialog.setView(layout);
+
+        renameDialog.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int whichButton) {
+
+                if (okListener != null)
+                    okListener.onClick(dialog, whichButton, editTextNewFolder);
+            }
+        });
+
+        renameDialog.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int whichButton) {
+
+                if (cancelListener != null)
+                    cancelListener.onClick(dialog, whichButton, editTextNewFolder);
+            }
+        });
+        renameDialog.show();
+    }
+
+    public interface EditTextDialogClickListener {
+
+        void onClick(DialogInterface dialog, int which, EditText editText);
     }
 }

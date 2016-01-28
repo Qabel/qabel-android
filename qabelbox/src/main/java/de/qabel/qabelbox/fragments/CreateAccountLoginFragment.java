@@ -95,9 +95,7 @@ public class CreateAccountLoginFragment extends BaseIdentityFragment {
     private void login(final String username, final String password) {
 
         final AlertDialog dialog = UIHelper.showWaitMessage(mActivity, R.string.dialog_headline_please_wait, R.string.dialog_message_server_communication_is_running, false);
-
         final SimpleJsonCallback callback = createCallback(username, password, dialog);
-
         mBoxAccountServer.login(username, password, callback);
     }
 

@@ -15,7 +15,6 @@ import de.qabel.qabelbox.R;
  */
 public class CreateIdentityHeaderFragment extends Fragment {
 
-
     private ViewGroup logoLayout;
     private ViewGroup initialLayout;
     private TextView tvInitial;

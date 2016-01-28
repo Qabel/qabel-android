@@ -25,7 +25,6 @@ public class BaseIdentityFragment extends Fragment {
      * @return error message to show to user or null if all ok
      */
     public String check() {
-
         return "";
     }
 }

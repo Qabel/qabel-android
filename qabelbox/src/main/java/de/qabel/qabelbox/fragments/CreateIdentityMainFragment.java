@@ -1,5 +1,6 @@
 package de.qabel.qabelbox.fragments;
 
+import android.app.Activity;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
@@ -7,8 +8,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
+import de.qabel.core.config.Identity;
+import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
+import de.qabel.qabelbox.activities.CreateIdentityActivity;
 import de.qabel.qabelbox.helper.UIHelper;
+import de.qabel.qabelbox.services.LocalQabelService;
 
 /**
  * Created by danny on 19.01.16.
@@ -44,7 +49,10 @@ public class CreateIdentityMainFragment extends BaseIdentityFragment implements 
         }
         if (v == mImportIdentity) {
             UIHelper.showDialogMessage(getActivity(), R.string.dialog_headline_info, R.string.function_not_yet_implenented);
+            //@lennart: add here functions to import identity. after you import identity call:
+
         }
     }
 }
+
 

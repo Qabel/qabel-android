@@ -33,7 +33,7 @@ public abstract class BaseWizardActivity extends AppCompatActivity {
 
     protected BaseIdentityFragment[] fragments;
     private int step = 0;
-    protected int activityResult = RESULT_CANCELED;
+    public int activityResult = RESULT_CANCELED;
     protected boolean mFirstRun;
     //values for create box account mode
     AccountingHTTP mAccounting;

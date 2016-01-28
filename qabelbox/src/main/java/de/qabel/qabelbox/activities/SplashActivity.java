@@ -27,7 +27,6 @@ public class SplashActivity extends Activity {
         overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
         setContentView(R.layout.activity_splashscreen);
         setupAppPreferences();
-           prefs.setToken(null);
     }
 
     private void setupAppPreferences() {

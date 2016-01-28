@@ -34,10 +34,10 @@ public class CreateAccountFinalFragment extends BaseIdentityFragment {
         LocalQabelService service = QabelBoxApplication.getInstance().getService();
         Identities identities = service.getIdentities();
         if (identities == null || identities.getIdentities().size() == 0) {
-            //no identities availible.
+            //no identities available.
             needCreateIdentity = true;
         } else {
-            //identities availible. check if one active.
+            //identities available. check if one active.
             Identity activeIdentity = service.getActiveIdentity();
             if (activeIdentity == null) {
                 //no active identities. try to set the first as active
@@ -45,7 +45,7 @@ public class CreateAccountFinalFragment extends BaseIdentityFragment {
                 service.setActiveIdentity(identityToSet);
                 Identity setted = service.getActiveIdentity();
                 if (setted != null && setted.getAlias().equals(activeIdentity.getAlias())) {
-                    //active identity setted
+                    //active identity set
                     needCreateIdentity = false;
                 } else {
                     needCreateIdentity = true;

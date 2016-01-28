@@ -116,13 +116,24 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 
+        Log.d(TAG, "danny activityresult " + requestCode);
         final Uri uri;
         if (resultCode == RESULT_OK) {
             if (requestCode == REQUEST_CREATE_IDENTITY) {
+                Log.d(TAG, "danny activityresult identity created");
                 if (data != null && data.hasExtra(CreateIdentityActivity.P_IDENTITY)) {
+
                     Identity identity = (Identity) data.getSerializableExtra(CreateIdentityActivity.P_IDENTITY);
+                    Log.d(TAG, "danny activityresult identity created " + identity.getAlias());
+                    //changeActiveIdentity(identity);
                     addIdentity(identity);
-                    selectFilesFragment();
+                    /*
+                    addIdentity(identity);
+                    mService.setActiveIdentity(identity);
+                    textViewSelectedIdentity.setText(identity.getAlias());
+                    initBoxVolume(identity);
+                    initFilesFragment();
+                    selectFilesFragment();*/
                 }
             }
             if (data != null) {
@@ -231,12 +242,14 @@ public class MainActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
-        Log.v(TAG, "start mainactivity");
+        LocalQabelService service = QabelBoxApplication.getInstance().getService();
+        Log.v(TAG, "danny start mainactivity identcount: " + service.getIdentities().getIdentities().size());
+        Log.v(TAG, "danny start mainactivity identactive: " + service.getActiveIdentity());
         if (SplashActivity.startWizardActivities(this)) {
             Log.d(TAG, "started wizard dialog");
             return;
         }
-        LocalQabelService service = QabelBoxApplication.getInstance().getService();
+
         if (service.getActiveIdentity() == null) {
             service.setActiveIdentity(service.getIdentities().getIdentities().iterator().next());
         }
@@ -338,6 +351,8 @@ public class MainActivity extends AppCompatActivity
                     break;
             }
         }
+        initFilesFragment();
+        selectFilesFragment();
     }
 
     private void initBoxVolume(Identity activeIdentity) {
@@ -400,30 +415,16 @@ public class MainActivity extends AppCompatActivity
 
     private void newFolderDialog() {
 
-        AlertDialog.Builder renameDialog = new AlertDialog.Builder(self);
+        UIHelper.showEditTextDialog(this, R.string.add_folder_header, R.string.add_folder_name, R.string.ok, R.string.cancel, new UIHelper.EditTextDialogClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which, EditText editText) {
 
-        renameDialog.setTitle(R.string.add_folder_header);
-        renameDialog.setMessage(R.string.add_folder_name);
-
-        final EditText editTextNewFolder = new EditText(self);
-        renameDialog.setView(editTextNewFolder);
-
-        renameDialog.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int whichButton) {
-
-                String newFolderName = editTextNewFolder.getText().toString();
+                String newFolderName = editText.getText().toString();
                 if (!newFolderName.equals("")) {
                     createFolder(newFolderName, filesFragment.getBoxNavigation());
                 }
             }
-        });
-
-        renameDialog.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int whichButton) {
-
-            }
-        });
-        renameDialog.show();
+        }, null);
     }
 
     private void initFilesFragment() {
@@ -708,8 +709,6 @@ public class MainActivity extends AppCompatActivity
     public void selectIdentity(Identity identity) {
 
         changeActiveIdentity(identity);
-
-        selectContactsFragment();
     }
 
     public void addIdentity(Identity identity) {
@@ -726,12 +725,14 @@ public class MainActivity extends AppCompatActivity
     private void changeActiveIdentity(Identity identity) {
 
         mService.setActiveIdentity(identity);
+
         textViewSelectedIdentity.setText(identity.getAlias());
         if (filesFragment != null) {
             getFragmentManager().beginTransaction().remove(filesFragment).commit();
         }
         initBoxVolume(identity);
         initFilesFragment();
+        selectFilesFragment();
     }
 
     @Override
@@ -766,9 +767,10 @@ public class MainActivity extends AppCompatActivity
                 }
             });
         } else {
-            mService.setActiveIdentity(mService.getIdentities().getIdentities().iterator().next());
-            textViewSelectedIdentity.setText(mService.getActiveIdentity().getAlias());
-            selectFilesFragment();
+            changeActiveIdentity(mService.getIdentities().getIdentities().iterator().next());
+            /*textViewSelectedIdentity.setText(mService.getActiveIdentity().getAlias());
+
+            selectFilesFragment();*/
         }
     }
 
@@ -777,6 +779,7 @@ public class MainActivity extends AppCompatActivity
 
         provider.notifyRootsUpdated();
         mService.modifyIdentity(identity);
+        textViewSelectedIdentity.setText(mService.getActiveIdentity().getAlias());
     }
 
     @Override
@@ -1007,9 +1010,9 @@ public class MainActivity extends AppCompatActivity
 
         if (identitiesCount == 0) {
             finish();
-            self.startActivityForResult(i, REQUEST_CREATE_IDENTITY);
-        } else {
             self.startActivity(i);
+        } else {
+            self.startActivityForResult(i, REQUEST_CREATE_IDENTITY);
         }
     }
 

@@ -122,7 +122,7 @@ public class CreateIdentityTest {
         UITestHelper.sleep(1000);
         onView(withId(R.id.imageViewExpandIdentity)).check(matches(isDisplayed())).perform(click());
         onView(withText(identity)).check(matches(isDisplayed()));
-        Spoon.screenshot(mActivity, "spoon1_2");
+        Spoon.screenshot(UITestHelper.getCurrentActivity(mActivity), "spoon1_2");
         onView(withId(R.id.drawer_layout)).perform(QabelViewAction.actionCloseDrawer());
     }
 

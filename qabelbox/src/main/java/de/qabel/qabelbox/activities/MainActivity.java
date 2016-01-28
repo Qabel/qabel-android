@@ -116,24 +116,12 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 
-        Log.d(TAG, "danny activityresult " + requestCode);
         final Uri uri;
         if (resultCode == RESULT_OK) {
             if (requestCode == REQUEST_CREATE_IDENTITY) {
-                Log.d(TAG, "danny activityresult identity created");
                 if (data != null && data.hasExtra(CreateIdentityActivity.P_IDENTITY)) {
-
                     Identity identity = (Identity) data.getSerializableExtra(CreateIdentityActivity.P_IDENTITY);
-                    Log.d(TAG, "danny activityresult identity created " + identity.getAlias());
-                    //changeActiveIdentity(identity);
                     addIdentity(identity);
-                    /*
-                    addIdentity(identity);
-                    mService.setActiveIdentity(identity);
-                    textViewSelectedIdentity.setText(identity.getAlias());
-                    initBoxVolume(identity);
-                    initFilesFragment();
-                    selectFilesFragment();*/
                 }
             }
             if (data != null) {
@@ -243,8 +231,6 @@ public class MainActivity extends AppCompatActivity
 
         super.onCreate(savedInstanceState);
         LocalQabelService service = QabelBoxApplication.getInstance().getService();
-        Log.v(TAG, "danny start mainactivity identcount: " + service.getIdentities().getIdentities().size());
-        Log.v(TAG, "danny start mainactivity identactive: " + service.getActiveIdentity());
         if (SplashActivity.startWizardActivities(this)) {
             Log.d(TAG, "started wizard dialog");
             return;

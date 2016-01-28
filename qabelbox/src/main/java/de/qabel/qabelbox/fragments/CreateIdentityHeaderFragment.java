@@ -44,7 +44,6 @@ public class CreateIdentityHeaderFragment extends Fragment {
         initialLayout.setVisibility(View.VISIBLE);
         tvName.setText(name);
         tvInitial.setText(getInitials(name));
-
     }
 
     private String getInitials(String name) {
@@ -56,7 +55,6 @@ public class CreateIdentityHeaderFragment extends Fragment {
                 result += value.toUpperCase().charAt(0);
             }
         }
-        System.out.println("ini '"+result+"'");
         return result;
     }
 }

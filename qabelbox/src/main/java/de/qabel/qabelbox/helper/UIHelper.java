@@ -36,7 +36,7 @@ public class UIHelper {
             builder.setNegativeButton(buttonCancel, buttonCancelListener);
         }
 
-        final FontHelper fontHelper = FontHelper.getInstance(activity);
+        final FontHelper fontHelper = FontHelper.getInstance();
         activity.runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -101,7 +101,7 @@ public class UIHelper {
             @Override
             public void onShow(DialogInterface dialog1) {
 
-                final FontHelper fontHelper = FontHelper.getInstance(activity);
+                final FontHelper fontHelper = FontHelper.getInstance();
                 fontHelper.setCustomeFonts((TextView) dialog.findViewById(android.R.id.message));
                 fontHelper.setCustomeFonts((TextView) dialog.findViewById(android.R.id.title));
             }

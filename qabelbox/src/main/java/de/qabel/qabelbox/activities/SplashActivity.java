@@ -27,7 +27,7 @@ public class SplashActivity extends Activity {
         overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
         setContentView(R.layout.activity_splashscreen);
         setupAppPreferences();
-        //   prefs.setToken(null);
+           prefs.setToken(null);
     }
 
     private void setupAppPreferences() {
@@ -89,7 +89,7 @@ public class SplashActivity extends Activity {
      * start wizard activities if app not ready to go. If other activity need to start, the current activity finished
      *
      * @param activity current activity
-     * @return false if no wizward start needed
+     * @return false if no wizard start needed
      */
     public static boolean startWizardActivities(Activity activity) {
 
@@ -97,14 +97,14 @@ public class SplashActivity extends Activity {
 
         if (prefs.getToken() == null) {
             Intent intent = new Intent(activity, CreateAccountActivity.class);
-            intent.putExtra(BaseWizwardActivity.FIRST_RUN, true);
+            intent.putExtra(BaseWizardActivity.FIRST_RUN, true);
             activity.startActivity(intent);
             activity.overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
             activity.finish();
             return true;
         } else if (QabelBoxApplication.getInstance().getService().getIdentities().getIdentities().size() == 0) {
             Intent intent = new Intent(activity, CreateIdentityActivity.class);
-            intent.putExtra(BaseWizwardActivity.FIRST_RUN, true);
+            intent.putExtra(BaseWizardActivity.FIRST_RUN, true);
             activity.startActivity(intent);
             activity.overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
             activity.finish();

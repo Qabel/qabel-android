@@ -11,7 +11,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.EditText;
 import android.widget.TextView;
 
 import org.json.JSONObject;
@@ -21,7 +20,6 @@ import java.util.ArrayList;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.communication.BoxAccountRegisterServer;
 import de.qabel.qabelbox.communication.SimpleJsonCallback;
-import de.qabel.qabelbox.config.AppPreference;
 import de.qabel.qabelbox.helper.UIHelper;
 import okhttp3.Call;
 import okhttp3.Response;
@@ -29,33 +27,19 @@ import okhttp3.Response;
 /**
  * Created by danny on 19.01.16.
  */
-public class CreateAccountLoginFragment extends BaseIdentityFragment {
+public class CreateAccountResetPasswordFragment extends BaseIdentityFragment {
 
-    private EditText etPassword;
-    private TextView etUserName;
-
+    private TextView etEMail;
     private final BoxAccountRegisterServer mBoxAccountServer = new BoxAccountRegisterServer();
-    private View resetPassword;
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle
             savedInstanceState) {
 
-        View view = inflater.inflate(R.layout.fragment_create_account_login, container, false);
-        etUserName = ((TextView) view.findViewById(R.id.et_username));
-        etPassword = (EditText) view.findViewById(R.id.et_password);
-        resetPassword = view.findViewById(R.id.reset_password);
+        View view = inflater.inflate(R.layout.fragment_create_account_reset_password, container, false);
+        etEMail = ((TextView) view.findViewById(R.id.et_email));
 
-        resetPassword.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                getFragmentManager().popBackStack();
-                CreateAccountResetPasswordFragment fragment = new CreateAccountResetPasswordFragment();
-                getActivity().getFragmentManager().beginTransaction().replace(R.id.fragment_container_content, fragment).addToBackStack(null).commit();
-            }
-        });
         setHasOptionsMenu(true);
         return view;
     }
@@ -77,7 +61,7 @@ public class CreateAccountLoginFragment extends BaseIdentityFragment {
                 UIHelper.showDialogMessage(getActivity(), R.string.dialog_headline_info, check);
                 return true;
             }
-            login(etUserName.getText().toString(), etPassword.getText().toString());
+            resetPassword(etEMail.getText().toString());
             return true;
         }
 
@@ -86,23 +70,23 @@ public class CreateAccountLoginFragment extends BaseIdentityFragment {
 
     private String checkData() {
 
-        if (etPassword.getText().toString().length() < 3 || etUserName.getText().toString().length() == 0) {
+        if (etEMail.getText().toString().length() < 3 || etEMail.getText().toString().length() == 0) {
             return getString(R.string.create_account_enter_all_data);
         }
         return null;
     }
 
-    private void login(final String username, final String password) {
+    private void resetPassword(final String email) {
 
         final AlertDialog dialog = UIHelper.showWaitMessage(mActivity, R.string.dialog_headline_please_wait, R.string.dialog_message_server_communication_is_running, false);
 
-        final SimpleJsonCallback callback = createCallback(username, password, dialog);
+        final SimpleJsonCallback callback = createCallback(email, dialog);
 
-        mBoxAccountServer.login(username, password, callback);
+        mBoxAccountServer.resetPassword(email, callback);
     }
 
     @NonNull
-    private SimpleJsonCallback createCallback(final String username, final String password, final AlertDialog dialog) {
+    private SimpleJsonCallback createCallback(final String email, final AlertDialog dialog) {
 
         return new SimpleJsonCallback() {
 
@@ -112,7 +96,7 @@ public class CreateAccountLoginFragment extends BaseIdentityFragment {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
 
-                        login(username, password);
+                        resetPassword(email);
                     }
                 }
                         , new DialogInterface.OnClickListener() {
@@ -127,7 +111,7 @@ public class CreateAccountLoginFragment extends BaseIdentityFragment {
             protected void onError(final Call call, Reasons reasons) {
 
                 if (reasons == Reasons.IOException && retryCount++ < 3) {
-                    mBoxAccountServer.login(username, password, this);
+                    mBoxAccountServer.resetPassword(email, this);
                 } else {
                     dialog.dismiss();
                     showRetryDialog();
@@ -136,15 +120,17 @@ public class CreateAccountLoginFragment extends BaseIdentityFragment {
 
             protected void onSuccess(Call call, Response response, JSONObject json) {
 
-                BoxAccountRegisterServer.ServerResponse result = BoxAccountRegisterServer.parseJson(json);
-                if (result.token != null && result.token.length() > 5) {
-                    new AppPreference(getActivity()).setToken(result.token);
+                final BoxAccountRegisterServer.ServerResponse result = BoxAccountRegisterServer.parseJson(json);
+                if (result.success != null) {
+
                     getActivity().runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
 
                             dialog.dismiss();
-                            mActivity.completeWizard();
+
+                            getActivity().onBackPressed();
+                            UIHelper.showDialogMessage(getActivity(), R.string.dialog_headline_info, result.success);
                         }
                     });
                 } else {
@@ -160,11 +146,8 @@ public class CreateAccountLoginFragment extends BaseIdentityFragment {
                 if (result.non_field_errors != null) {
                     message.add(result.non_field_errors);
                 }
-                if (result.password != null) {
-                    message.add(result.password);
-                }
-                if (result.username != null) {
-                    message.add(result.username);
+                if (result.email != null) {
+                    message.add(result.email);
                 }
 
                 String errorText = "";
@@ -179,13 +162,5 @@ public class CreateAccountLoginFragment extends BaseIdentityFragment {
                 return errorText;
             }
         };
-    }
-
-    @Override
-    public String check() {
-
-        UIHelper.showDialogMessage(getActivity(), R.string.dialog_headline_info, R.string.function_not_yet_implenented);
-        //return mChecker.check(editText);
-        return null;
     }
 }

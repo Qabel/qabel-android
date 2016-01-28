@@ -9,7 +9,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import de.qabel.qabelbox.R;
-import de.qabel.qabelbox.activities.BaseWizwardActivity;
+import de.qabel.qabelbox.activities.BaseWizardActivity;
 
 /**
  * Created by danny on 19.01.16.
@@ -19,10 +19,9 @@ public class CreateIdentityEditTextFragment extends BaseIdentityFragment {
     private EditText editText;
     private int mMessageId;
     private int mEditTextHintId;
-    private BaseWizwardActivity.NextChecker mChecker;
-    private TextView tvMessage;
+    private BaseWizardActivity.NextChecker mChecker;
 
-    public static CreateIdentityEditTextFragment newInstance(int messageId, int editTextHintId, BaseWizwardActivity.NextChecker checker) {
+    public static CreateIdentityEditTextFragment newInstance(int messageId, int editTextHintId, BaseWizardActivity.NextChecker checker) {
 
         CreateIdentityEditTextFragment fragment = new CreateIdentityEditTextFragment();
         fragment.mMessageId = messageId;
@@ -38,7 +37,7 @@ public class CreateIdentityEditTextFragment extends BaseIdentityFragment {
 
         View view = inflater.inflate(R.layout.fragment_create_identity_edittext, container, false);
 
-        tvMessage = ((TextView) view.findViewById(R.id.tv_message));
+        TextView tvMessage = ((TextView) view.findViewById(R.id.tv_message));
         editText = (EditText) view.findViewById(R.id.et_name);
         tvMessage.setText(mMessageId);
         editText.setHint(mEditTextHintId);

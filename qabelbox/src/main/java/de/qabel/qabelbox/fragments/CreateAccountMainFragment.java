@@ -1,6 +1,5 @@
 package de.qabel.qabelbox.fragments;
 
-import android.app.Activity;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
@@ -9,7 +8,6 @@ import android.view.ViewGroup;
 import android.widget.Button;
 
 import de.qabel.qabelbox.R;
-import de.qabel.qabelbox.helper.UIHelper;
 
 /**
  * Created by danny on 19.01.16.
@@ -38,19 +36,15 @@ public class CreateAccountMainFragment extends BaseIdentityFragment implements V
     }
 
     @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-    }
-
-    @Override
     public void onClick(View v) {
 
         if (v == mCreateAccount) {
-            mActivty.handleNextClick();
+            mActivity.handleNextClick();
         }
         if (v == mLogin) {
-            mActivty.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            mActivty.getSupportActionBar().setDisplayUseLogoEnabled(false);
+            mActivity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            mActivity.getSupportActionBar().setDisplayUseLogoEnabled(false);
+
             CreateAccountLoginFragment fragment = new CreateAccountLoginFragment();
             getFragmentManager().beginTransaction().replace(R.id.fragment_container_content, fragment).addToBackStack(null).commit();
         }

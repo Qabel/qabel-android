@@ -8,7 +8,7 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 
 import de.qabel.qabelbox.R;
-import de.qabel.qabelbox.activities.BaseWizwardActivity;
+import de.qabel.qabelbox.activities.BaseWizardActivity;
 
 /**
  * Created by danny on 19.01.16.
@@ -17,9 +17,9 @@ public class CreateAccountPasswordFragment extends BaseIdentityFragment {
 
     private EditText etPassword1;
     private EditText etPassword2;
-    private BaseWizwardActivity.NextChecker mChecker;
+    private BaseWizardActivity.NextChecker mChecker;
 
-    public static CreateAccountPasswordFragment newInstance(BaseWizwardActivity.NextChecker checker) {
+    public static CreateAccountPasswordFragment newInstance(BaseWizardActivity.NextChecker checker) {
 
         CreateAccountPasswordFragment fragment = new CreateAccountPasswordFragment();
         fragment.mChecker = checker;

@@ -18,7 +18,7 @@ import okhttp3.Response;
  */
 public abstract class SimpleJsonCallback implements Callback {
 
-    private String TAG = "callback";//.getClass().getSimpleName();
+    private final String TAG = "callback";
     protected int retryCount = 0;
 
     protected enum Reasons {
@@ -76,12 +76,12 @@ public abstract class SimpleJsonCallback implements Callback {
             json = new JSONObject(text);
         } catch (JSONException e) {
             Log.w(TAG, "server response can't parse json", e);
-            onError(call, Reasons.Body);
+            onError(call, Reasons.JSON);
             return;
         }
         if (json == null) {
-            Log.w(TAG, "server response can't parse json");
-            onError(call, Reasons.Body);
+            Log.w(TAG, "server response json is empty");
+            onError(call, Reasons.JSON);
             return;
         }
         Log.v(TAG,"Json response "+json.toString());

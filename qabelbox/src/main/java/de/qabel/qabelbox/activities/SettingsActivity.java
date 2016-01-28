@@ -22,7 +22,6 @@ public class SettingsActivity extends AppCompatActivity {
 
         super.onCreate(savedInstanceState);
         mActivity = this;
-
         overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
         setContentView(R.layout.activity_settings);
         setupToolbar();

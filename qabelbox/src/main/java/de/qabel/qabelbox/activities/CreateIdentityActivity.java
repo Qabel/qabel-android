@@ -30,7 +30,7 @@ import de.qabel.qabelbox.services.LocalQabelService;
 /**
  * Created by danny on 11.01.2016.
  */
-public class CreateIdentityActivity extends BaseWizwardActivity {
+public class CreateIdentityActivity extends BaseWizardActivity {
 
     private String TAG = this.getClass().getSimpleName();
 

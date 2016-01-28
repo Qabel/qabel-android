@@ -114,7 +114,7 @@
     <string name="create_box_account">Create  new Box Account</string>
     <string name="login">Login</string>
     <string name="create_account_username_hint">Username</string>
-    <string name="create_account_login_infos">Please enter your login data for your box account</string>
+    <string name="create_account_login_infos">Please enter your login data for your box account.</string>
     <string name="create_account_enter_name_infos">Please enter your user name for your box account. You can enter maximum of 30 characters</string>
     <string name="create_account_name_hint">Account name</string>
     <string name="create_account_enter_all_data">Please fill out all data to continues</string>
@@ -151,5 +151,7 @@
     <string name="create_account_final_headline">Very good. You a near finish</string>
     <string name="change_account_password_oldpassword_hint">Current password</string>
     <string name="change_account_password_newpassword1_hint">New password</string>
-    <string name="change_account_password_newpassword2_hint">Again</string>
+    <string name="change_account_password_newpassword2_hint">New password again</string>
+    <string name="btn_reset_password">Reset password</string>
+    <string name="create_account_reset_password_infos">Enter your email address that you entered until the account registration</string>
 </resources>

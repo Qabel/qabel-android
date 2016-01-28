@@ -3,7 +3,7 @@ package de.qabel.qabelbox.activities;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
@@ -31,9 +31,9 @@ import okhttp3.Response;
 /**
  * Created by danny on 11.01.2016.
  */
-public class CreateAccountActivity extends BaseWizwardActivity {
+public class CreateAccountActivity extends BaseWizardActivity {
 
-    private String TAG = this.getClass().getSimpleName();
+    private final String TAG = this.getClass().getSimpleName();
 
     private String mBoxAccountName;
 
@@ -41,13 +41,7 @@ public class CreateAccountActivity extends BaseWizwardActivity {
     private String mBoxAccountPassword2;
     private String mBoxAccountEMail;
 
-    private BoxAccountRegisterServer mBoxAccountServer = new BoxAccountRegisterServer();
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-
-        super.onCreate(savedInstanceState);
-    }
+    private final BoxAccountRegisterServer mBoxAccountServer = new BoxAccountRegisterServer();
 
     @Override
     protected String getHeaderFragmentText() {
@@ -81,10 +75,7 @@ public class CreateAccountActivity extends BaseWizwardActivity {
                 if (result != null) {
                     return result;
                 }
-                result = checkBoxAccountNameByServer(editText);
-                if (result != null) {
-                    return result;
-                }
+
                 setAccountName(editText);
                 return null;
             }
@@ -122,11 +113,6 @@ public class CreateAccountActivity extends BaseWizwardActivity {
         return fragments;
     }
 
-    private String checkPW(String editText) {
-        //@todo check if password is valid. check all data, length, minmax ....
-        return null;
-    }
-
     private String checkEMailAddress(String editText) {
 
         boolean error = editText.length() < 1;
@@ -144,11 +130,6 @@ public class CreateAccountActivity extends BaseWizwardActivity {
         this.mBoxAccountEMail = editText;
     }
 
-    private String checkBoxAccountNameByServer(String editText) {
-        //@todo check username with server
-        return null;
-    }
-
     private String checkBoxAccountName(String editText) {
 
         if (editText.length() < 1) {
@@ -157,15 +138,8 @@ public class CreateAccountActivity extends BaseWizwardActivity {
         if (editText.length() > 32) {
             return getString(R.string.create_account_maximum_32_chars);
         }
-        if (!checkBoxAccountNameCharacter(editText)) {
-            return getString(R.string.create_account_invalid_characters);
-        }
-        return null;
-    }
 
-    boolean checkBoxAccountNameCharacter(String editText) {
-        //@todo: check name regex needed
-        return true;
+        return null;
     }
 
     @Override
@@ -182,21 +156,29 @@ public class CreateAccountActivity extends BaseWizwardActivity {
             return;
         }
         Intent i = new Intent(mActivity, CreateIdentityActivity.class);
-        i.putExtra(BaseWizwardActivity.FIRST_RUN, true);
+        i.putExtra(BaseWizardActivity.FIRST_RUN, true);
         finish();
         startActivity(i);
     }
 
-    public void setAccountName(String text) {
+    private void setAccountName(String text) {
 
         mBoxAccountName = text;
     }
 
-    public void register(final String username, final String password1, final String password2, final String email) {
+    private void register(final String username, final String password1, final String password2, final String email) {
 
         final AlertDialog dialog = UIHelper.showWaitMessage(this, R.string.dialog_headline_please_wait, R.string.dialog_message_server_communication_is_running, false);
 
-        final SimpleJsonCallback callback = new SimpleJsonCallback() {
+        final SimpleJsonCallback callback = createCallback(username, password1, password2, email, dialog);
+
+        mBoxAccountServer.register(username, password1, password2, email, callback);
+    }
+
+    @NonNull
+    private SimpleJsonCallback createCallback(final String username, final String password1, final String password2, final String email, final AlertDialog dialog) {
+
+        return new SimpleJsonCallback() {
 
             void showRetryDialog() {
 
@@ -216,10 +198,10 @@ public class CreateAccountActivity extends BaseWizwardActivity {
                 });
             }
 
-            protected void onError(final Call call, SimpleJsonCallback.Reasons reasons) {
+            protected void onError(final Call call, Reasons reasons) {
 
                 if (reasons == Reasons.IOException && retryCount++ < 3) {
-                    call.enqueue(this);
+                    mBoxAccountServer.register(username, password1, password2, email, this);
                 } else {
                     dialog.dismiss();
                     showRetryDialog();
@@ -276,8 +258,6 @@ public class CreateAccountActivity extends BaseWizwardActivity {
                 return errorText;
             }
         };
-
-        mBoxAccountServer.register(username, password1, password2, email, callback);
     }
 
     @Override
@@ -316,7 +296,7 @@ public class CreateAccountActivity extends BaseWizwardActivity {
         }
     }
 
-    public void setPassword(String password1, String password2) {
+    private void setPassword(String password1, String password2) {
 
         mBoxAccountPassword1 = password1;
         mBoxAccountPassword2 = password2;

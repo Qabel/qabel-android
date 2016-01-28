@@ -8,7 +8,7 @@ import android.view.ViewGroup;
 import android.widget.SeekBar;
 
 import de.qabel.qabelbox.R;
-import de.qabel.qabelbox.activities.BaseWizwardActivity;
+import de.qabel.qabelbox.activities.BaseWizardActivity;
 
 /**
  * Created by danny on 19.01.16.
@@ -16,9 +16,9 @@ import de.qabel.qabelbox.activities.BaseWizwardActivity;
 public class CreateIdentityDropBitsFragment extends BaseIdentityFragment {
 
     private SeekBar sbSecurity;
-    private BaseWizwardActivity.NextChecker mChecker;
+    private BaseWizardActivity.NextChecker mChecker;
 
-    public static CreateIdentityDropBitsFragment newInstance(BaseWizwardActivity.NextChecker checker) {
+    public static CreateIdentityDropBitsFragment newInstance(BaseWizardActivity.NextChecker checker) {
 
         CreateIdentityDropBitsFragment fragment = new CreateIdentityDropBitsFragment();
 

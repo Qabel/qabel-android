@@ -14,11 +14,11 @@ public class FontHelper {
     private Typeface[] fonts;
     private static FontHelper instance = null;
 
-    protected FontHelper() {
+    private FontHelper() {
         // Exists only to defeat instantiation.
     }
 
-    public static FontHelper getInstance(Context context) {
+    public static FontHelper getInstance() {
 
         if (instance == null) {
             instance = new FontHelper();

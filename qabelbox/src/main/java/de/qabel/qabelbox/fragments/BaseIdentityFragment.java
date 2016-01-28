@@ -3,21 +3,20 @@ package de.qabel.qabelbox.fragments;
 import android.app.Activity;
 import android.app.Fragment;
 
-import de.qabel.qabelbox.activities.BaseWizwardActivity;
-import de.qabel.qabelbox.activities.CreateIdentityActivity;
+import de.qabel.qabelbox.activities.BaseWizardActivity;
 
 /**
  * Created by danny on 19.01.16.
  */
 public class BaseIdentityFragment extends Fragment {
 
-    protected BaseWizwardActivity mActivty;
+    protected BaseWizardActivity mActivity;
 
     @Override
     public void onAttach(Activity activity) {
 
         super.onAttach(activity);
-        mActivty = (BaseWizwardActivity) activity;
+        mActivity = (BaseWizardActivity) activity;
     }
 
     /**

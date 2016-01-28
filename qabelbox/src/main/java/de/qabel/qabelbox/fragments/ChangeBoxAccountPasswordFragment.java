@@ -1,10 +1,10 @@
 package de.qabel.qabelbox.fragments;
 
 import android.app.AlertDialog;
-import android.app.Dialog;
 import android.app.Fragment;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -13,7 +13,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import org.json.JSONObject;
@@ -32,10 +31,8 @@ import okhttp3.Response;
  */
 public class ChangeBoxAccountPasswordFragment extends Fragment {
 
-    private TextView tvMessage;
-    Dialog mWaitDialog;
     private EditText etOldPassword, etPassword1, etPassword2;
-    BoxAccountRegisterServer mBoxAccountServer = new BoxAccountRegisterServer();
+    private final BoxAccountRegisterServer mBoxAccountServer = new BoxAccountRegisterServer();
 
     @Nullable
     @Override
@@ -44,7 +41,6 @@ public class ChangeBoxAccountPasswordFragment extends Fragment {
 
         View view = inflater.inflate(R.layout.fragment_change_box_account_password, container, false);
 
-        tvMessage = ((TextView) view.findViewById(R.id.et_name));
         etOldPassword = (EditText) view.findViewById(R.id.et_old_password);
         etPassword1 = (EditText) view.findViewById(R.id.et_password1);
         etPassword2 = (EditText) view.findViewById(R.id.et_password2);
@@ -86,21 +82,26 @@ public class ChangeBoxAccountPasswordFragment extends Fragment {
             return getString(R.string.password_to_short);
         }
         //check if pw1 match pw2
-        if (etPassword1.getText().toString().equals(etPassword2.getText().toString())) {
-            //yes, check password
-
-        } else {
+        if (!etPassword1.getText().toString().equals(etPassword2.getText().toString())) {
             //no
             return getString(R.string.create_account_passwords_dont_match);
         }
         return null;
     }
 
-    public void sendChangePWRequest(final String oldPassword, final String newPassword1, final String newPassword2) {
+    private void sendChangePWRequest(final String oldPassword, final String newPassword1, final String newPassword2) {
 
         final AlertDialog dialog = UIHelper.showWaitMessage(getActivity(), R.string.dialog_headline_please_wait, R.string.dialog_message_server_communication_is_running, false);
 
-        final SimpleJsonCallback callback = new SimpleJsonCallback() {
+        final SimpleJsonCallback callback = createCallback(oldPassword, newPassword1, newPassword2, dialog);
+
+        mBoxAccountServer.changePassword(getActivity(), oldPassword, newPassword1, newPassword2, callback);
+    }
+
+    @NonNull
+    private SimpleJsonCallback createCallback(final String oldPassword, final String newPassword1, final String newPassword2, final AlertDialog dialog) {
+
+        return new SimpleJsonCallback() {
 
             void showRetryDialog() {
 
@@ -120,10 +121,10 @@ public class ChangeBoxAccountPasswordFragment extends Fragment {
                 });
             }
 
-            protected void onError(final Call call, SimpleJsonCallback.Reasons reasons) {
+            protected void onError(final Call call, Reasons reasons) {
 
                 if (reasons == Reasons.IOException && retryCount++ < 3) {
-                    call.enqueue(this);
+                    mBoxAccountServer.changePassword(getActivity(), oldPassword, newPassword1, newPassword2, this);
                 } else {
                     dialog.dismiss();
                     showRetryDialog();
@@ -170,7 +171,7 @@ public class ChangeBoxAccountPasswordFragment extends Fragment {
                     message.add(result.new_password2);
                 }
 
-                String errorText = "";
+                String errorText;
                 if (message.size() == 0) {
                     errorText = getString(R.string.server_access_failed_or_invalid_check_internet_connection);
                 } else {
@@ -182,8 +183,6 @@ public class ChangeBoxAccountPasswordFragment extends Fragment {
                 return errorText;
             }
         };
-
-        mBoxAccountServer.changePassword(getActivity(), oldPassword, newPassword1, newPassword2, callback);
     }
 }
 

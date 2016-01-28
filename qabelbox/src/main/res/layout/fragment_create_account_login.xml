@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-
-
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_alignParentBottom="true"
-    android:layout_marginTop="@dimen/activity_vertical_margin"
-    android:orientation="vertical">
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:layout_alignParentBottom="true"
+              android:layout_marginTop="@dimen/activity_vertical_margin"
+              android:layout_weight="3"
+              android:orientation="vertical">
 
     <de.qabel.qabelbox.views.EditTextFont
         android:id="@+id/et_username"
@@ -15,7 +14,7 @@
         android:hint="@string/create_account_username_hint"
         android:lines="1"
         android:maxLines="1"
-        android:singleLine="true" />
+        android:singleLine="true"/>
 
     <de.qabel.qabelbox.views.EditTextFont
         android:id="@+id/et_password"
@@ -25,27 +24,44 @@
         android:inputType="textPassword"
         android:lines="1"
         android:maxLines="1"
-        android:singleLine="true" />
+        android:singleLine="true"/>
 
 
     <Space
         android:layout_width="wrap_content"
-        android:layout_height="20dp"
-        android:layout_weight="1" />
+        android:layout_height="0dp"
+        android:layout_weight="1"/>
 
     <de.qabel.qabelbox.views.TextViewFont
         android:id="@+id/tv_message"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="left"
-
         android:text="@string/create_account_login_infos"
-        android:textSize="@dimen/textsize_normal" />
+
+        android:textSize="@dimen/textsize_normal"/>
 
     <Space
         android:layout_width="wrap_content"
-        android:layout_height="20dp"
-        android:layout_weight="1" />
+        android:layout_height="0dp"
+        android:layout_weight="1"/>
+
+    <de.qabel.qabelbox.views.TextViewFont
+        android:id="@+id/reset_password"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="7dp"
+        android:layout_marginTop="7dp"
+        android:gravity="right"
+        android:text="@string/btn_reset_password"
+        android:textColor="@color/colorPrimary"
+        android:textSize="@dimen/textsize_normal"/>
+
+
+    <Space
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:layout_weight="1"/>
 
 
 </LinearLayout>

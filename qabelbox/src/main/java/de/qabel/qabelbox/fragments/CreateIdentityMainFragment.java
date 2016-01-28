@@ -40,7 +40,7 @@ public class CreateIdentityMainFragment extends BaseIdentityFragment implements 
     public void onClick(View v) {
 
         if (v == mCreateIdentity) {
-            mActivty.handleNextClick();
+            mActivity.handleNextClick();
         }
         if (v == mImportIdentity) {
             UIHelper.showDialogMessage(getActivity(), R.string.dialog_headline_info, R.string.function_not_yet_implenented);

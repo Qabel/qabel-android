@@ -19,20 +19,20 @@ import de.qabel.qabelbox.helper.UIHelper;
 /**
  * Created by danny on 11.01.2016.
  */
-public abstract class BaseWizwardActivity extends AppCompatActivity {
+public abstract class BaseWizardActivity extends AppCompatActivity {
 
     private String TAG = this.getClass().getSimpleName();
 
     public static final String FIRST_RUN = "first_run";
 
     public static final String P_IDENTITY = "identity_name";
-    protected BaseWizwardActivity mActivity;
+    protected BaseWizardActivity mActivity;
     protected MenuItem mActionNext;
-    protected ActionBar actionBar;
+    private ActionBar actionBar;
     private CreateIdentityHeaderFragment mIdentityHeaderFragment;
 
     protected BaseIdentityFragment[] fragments;
-    protected int step = 0;
+    private int step = 0;
     protected int activityResult = RESULT_CANCELED;
     protected boolean mFirstRun;
     //values for create box account mode
@@ -63,8 +63,6 @@ public abstract class BaseWizwardActivity extends AppCompatActivity {
         actionBar.setHomeButtonEnabled(true);
         if (!canExit) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(false);
-/*            actionBar.setDisplayUseLogoEnabled(true);
-            actionBar.setLogo(R.drawable.ab_logo);*/
         }
         mToolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
@@ -185,7 +183,6 @@ public abstract class BaseWizwardActivity extends AppCompatActivity {
      * @return
      */
     protected boolean canShowNext(int step) {
-
         return true;
     }
 

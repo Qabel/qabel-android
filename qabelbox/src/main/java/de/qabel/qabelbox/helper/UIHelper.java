@@ -11,6 +11,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import de.qabel.qabelbox.R;
+import de.qabel.qabelbox.views.EditTextFont;
 
 /**
  * Class to support app wide helper function
@@ -132,14 +133,14 @@ public class UIHelper {
 
     {
 
-        AlertDialog.Builder renameDialog = new AlertDialog.Builder(activity);
+        final AlertDialog.Builder renameDialog = new AlertDialog.Builder(activity);
 
         renameDialog.setTitle(title);
         renameDialog.setMessage(message);
         LinearLayout layout = new LinearLayout(activity);
 
         layout.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-        final EditText editTextNewFolder = new EditText(activity);
+        final EditTextFont editTextNewFolder = new EditTextFont(activity);
         int p = (int) activity.getResources().getDimension(R.dimen.activity_horizontal_margin);
         layout.setPadding(p, p, p, p);
         layout.addView(editTextNewFolder, new ActionBar.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
@@ -160,7 +161,27 @@ public class UIHelper {
                     cancelListener.onClick(dialog, whichButton, editTextNewFolder);
             }
         });
-        renameDialog.show();
+        final FontHelper fontHelper = FontHelper.getInstance();
+        activity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+
+                final AlertDialog dialog = renameDialog.create();
+                dialog.setOnShowListener(new DialogInterface.OnShowListener() {
+                    @Override
+                    public void onShow(DialogInterface dialog1) {
+
+                        fontHelper.setCustomeFonts((TextView) dialog.findViewById(android.R.id.message));
+                        fontHelper.setCustomeFonts((TextView) dialog.findViewById(android.R.id.title));
+
+                        fontHelper.setCustomeFonts(dialog.getButton(AlertDialog.BUTTON_POSITIVE));
+                        fontHelper.setCustomeFonts(dialog.getButton(AlertDialog.BUTTON_NEGATIVE));
+                    }
+                });
+
+                dialog.show();
+            }
+        });
     }
 
     public interface EditTextDialogClickListener {

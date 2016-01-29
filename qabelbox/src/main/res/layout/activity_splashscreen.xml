@@ -19,11 +19,11 @@
         <de.qabel.qabelbox.views.TextViewFont
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
             android:layout_gravity="center"
-            android:textSize="@dimen/textsize_splash"
+            android:layout_marginTop="20dp"
             android:text="@string/splash_footer_text"
-            android:textColor="@color/white" />
+            android:textColor="@color/white"
+            android:textSize="@dimen/textsize_splash" />
     </FrameLayout>
 
     <FrameLayout

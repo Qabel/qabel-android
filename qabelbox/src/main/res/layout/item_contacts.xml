@@ -1,31 +1,47 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:layout_gravity="center_horizontal">
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:layout_gravity="center_horizontal"
+              android:orientation="horizontal"
+              android:paddingBottom="5dp"
+              android:layout_marginTop="5dp"
+              android:layout_marginBottom="5dp"
+              android:background="#11000000"
+              android:paddingTop="5dp">
 
     <ImageView
+        android:id="@+id/itemIcon"
         android:layout_width="50dp"
         android:layout_height="50dp"
-        android:id="@+id/itemIcon"
-        android:layout_alignParentTop="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
-        android:contentDescription="@string/item_image" />
-
-    <de.qabel.qabelbox.views.TextViewFont
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/textViewItemName"
         android:layout_alignParentTop="true"
-        android:layout_toRightOf="@+id/itemIcon" />
+        android:padding="5dp"
 
-    <de.qabel.qabelbox.views.TextViewFont
-        android:layout_width="wrap_content"
+        android:contentDescription="@string/item_image"
+        android:src="@drawable/qabel_logo"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/textViewItemDetail"
-        android:layout_below="@+id/textViewItemName"
-        android:layout_toRightOf="@+id/itemIcon"
-        android:layout_toEndOf="@+id/itemIcon" />
-</RelativeLayout>
+        android:layout_gravity="center_vertical"
+        android:orientation="vertical">
+
+        <de.qabel.qabelbox.views.TextViewFont
+            android:id="@+id/textViewItemName"
+            android:textStyle="bold"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            />
+
+
+        <de.qabel.qabelbox.views.TextViewFont
+            android:id="@+id/textViewItemDetail"
+            android:visibility="gone"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            />
+    </LinearLayout>
+</LinearLayout>

@@ -1,11 +1,17 @@
 package de.qabel.qabelbox.helper;
 
+import android.app.ActionBar;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.view.ViewGroup;
+import android.view.WindowManager;
+import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import de.qabel.qabelbox.R;
+import de.qabel.qabelbox.views.EditTextFont;
 
 /**
  * Class to support app wide helper function
@@ -16,35 +22,56 @@ public class UIHelper {
     /**
      * show dialog with one button
      */
-    public static void showDialogMessage(Activity activity, int headline, int message, int buttonOk, int buttonCancel, DialogInterface.OnClickListener buttonOkListener, DialogInterface.OnClickListener buttonCancelListener) {
+    public static void showDialogMessage(final Activity activity, final int headline, final int message, final int buttonOk, final int buttonCancel, final DialogInterface.OnClickListener buttonOkListener, final DialogInterface.OnClickListener buttonCancelListener) {
 
-        AlertDialog.Builder builder =
+        showDialogMessage(activity, activity.getString(headline), activity.getString(message), buttonOk, buttonCancel, buttonOkListener, buttonCancelListener);
+    }
+
+    /**
+     * show dialog with one button
+     */
+    public static void showDialogMessage(final Activity activity, final String headline, final String message, final int buttonOk, final int buttonCancel, final DialogInterface.OnClickListener buttonOkListener, final DialogInterface.OnClickListener buttonCancelListener) {
+
+        final AlertDialog.Builder builder =
                 new AlertDialog.Builder(activity);
         builder.setTitle(headline);
         builder.setMessage(message);
         builder.setPositiveButton(buttonOk, buttonOkListener);
         if (buttonCancel != Integer.MIN_VALUE) {
-            builder.setPositiveButton(buttonCancel, buttonCancelListener);
+            builder.setNegativeButton(buttonCancel, buttonCancelListener);
         }
-        final AlertDialog dialog = builder.create();
-        final FontHelper fontHelper = FontHelper.getInstance(activity);
-        dialog.setOnShowListener(new DialogInterface.OnShowListener() {
-            @Override
-            public void onShow(DialogInterface dialog1) {
-                fontHelper.setCustomeFonts((TextView) dialog.findViewById(android.R.id.message));
-                fontHelper.setCustomeFonts((TextView) dialog.findViewById(android.R.id.title));
 
-                fontHelper.setCustomeFonts(dialog.getButton(AlertDialog.BUTTON_POSITIVE));
-                fontHelper.setCustomeFonts(dialog.getButton(AlertDialog.BUTTON_NEGATIVE));
+        final FontHelper fontHelper = FontHelper.getInstance();
+        activity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+
+                final AlertDialog dialog = builder.create();
+                dialog.setOnShowListener(new DialogInterface.OnShowListener() {
+                    @Override
+                    public void onShow(DialogInterface dialog1) {
+
+                        fontHelper.setCustomeFonts((TextView) dialog.findViewById(android.R.id.message));
+                        fontHelper.setCustomeFonts((TextView) dialog.findViewById(android.R.id.title));
+
+                        fontHelper.setCustomeFonts(dialog.getButton(AlertDialog.BUTTON_POSITIVE));
+                        fontHelper.setCustomeFonts(dialog.getButton(AlertDialog.BUTTON_NEGATIVE));
+                    }
+                });
+
+                dialog.show();
             }
         });
-
-        dialog.show();
     }
 
     public static void showDialogMessage(Activity activity, int headline, int message) {
 
         showDialogMessage(activity, headline, message, R.string.ok, Integer.MIN_VALUE, null, null);
+    }
+
+    public static void showDialogMessage(Activity activity, int headline, String message) {
+
+        showDialogMessage(activity, activity.getString(headline), message, R.string.ok, Integer.MIN_VALUE, null, null);
     }
 
     public static void showDialogMessage(Activity activity, int headline, int message, DialogInterface.OnClickListener buttonOkListener) {
@@ -55,5 +82,110 @@ public class UIHelper {
     public static void showDialogMessage(Activity activity, int headline, int message, int buttonOk) {
 
         showDialogMessage(activity, headline, message, buttonOk, Integer.MIN_VALUE, null, null);
+    }
+
+    public static void showFunctionNotYetImplemented(Activity activity) {
+
+        showDialogMessage(activity, R.string.dialog_headline_info, R.string.function_not_yet_implenented);
+    }
+
+    /**
+     * show wait message
+     */
+    public static AlertDialog showWaitMessage(final Activity activity, int headline, int message, boolean cancelable) {
+
+        AlertDialog.Builder builder =
+                new AlertDialog.Builder(activity, R.style.AppCompatAlertDialogStyle);
+        builder.setTitle(headline);
+        builder.setMessage(message);
+
+        builder.setCancelable(cancelable);
+        final AlertDialog dialog = builder.create();
+
+        dialog.setOnShowListener(new DialogInterface.OnShowListener() {
+            @Override
+            public void onShow(DialogInterface dialog1) {
+
+                final FontHelper fontHelper = FontHelper.getInstance();
+                fontHelper.setCustomeFonts((TextView) dialog.findViewById(android.R.id.message));
+                fontHelper.setCustomeFonts((TextView) dialog.findViewById(android.R.id.title));
+            }
+        });
+
+        WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
+        lp.copyFrom(dialog.getWindow().getAttributes());
+        lp.width = WindowManager.LayoutParams.MATCH_PARENT;
+        lp.height = WindowManager.LayoutParams.WRAP_CONTENT;
+        dialog.show();
+        dialog.getWindow().setAttributes(lp);
+        return dialog;
+    }
+
+    public static void showEditTextDialog(Activity activity, int title, int message, int ok, int cancel, final EditTextDialogClickListener okListener,
+                                          final EditTextDialogClickListener cancelListener) {
+
+        showEditTextDialog(activity, activity.getString(title), activity.getString(message), ok, cancel, okListener, cancelListener);
+    }
+
+    public static void showEditTextDialog(Activity activity, String title, String message, int ok, int cancel, final EditTextDialogClickListener okListener,
+
+                                          final EditTextDialogClickListener cancelListener)
+
+    {
+
+        final AlertDialog.Builder renameDialog = new AlertDialog.Builder(activity);
+
+        renameDialog.setTitle(title);
+        renameDialog.setMessage(message);
+        LinearLayout layout = new LinearLayout(activity);
+
+        layout.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        final EditTextFont editTextNewFolder = new EditTextFont(activity);
+        int p = (int) activity.getResources().getDimension(R.dimen.activity_horizontal_margin);
+        layout.setPadding(p, p, p, p);
+        layout.addView(editTextNewFolder, new ActionBar.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        renameDialog.setView(layout);
+
+        renameDialog.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int whichButton) {
+
+                if (okListener != null)
+                    okListener.onClick(dialog, whichButton, editTextNewFolder);
+            }
+        });
+
+        renameDialog.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int whichButton) {
+
+                if (cancelListener != null)
+                    cancelListener.onClick(dialog, whichButton, editTextNewFolder);
+            }
+        });
+        final FontHelper fontHelper = FontHelper.getInstance();
+        activity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+
+                final AlertDialog dialog = renameDialog.create();
+                dialog.setOnShowListener(new DialogInterface.OnShowListener() {
+                    @Override
+                    public void onShow(DialogInterface dialog1) {
+
+                        fontHelper.setCustomeFonts((TextView) dialog.findViewById(android.R.id.message));
+                        fontHelper.setCustomeFonts((TextView) dialog.findViewById(android.R.id.title));
+
+                        fontHelper.setCustomeFonts(dialog.getButton(AlertDialog.BUTTON_POSITIVE));
+                        fontHelper.setCustomeFonts(dialog.getButton(AlertDialog.BUTTON_NEGATIVE));
+                    }
+                });
+
+                dialog.show();
+            }
+        });
+    }
+
+    public interface EditTextDialogClickListener {
+
+        void onClick(DialogInterface dialog, int which, EditText editText);
     }
 }

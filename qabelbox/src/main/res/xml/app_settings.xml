@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <PreferenceCategory
+        android:summary="243324"
+        android:title="@string/settings_headline_boxaccount">
+        <Preference
+           android:key="@string/settings_key_change_password"
+            android:summary="@string/settings_change_account_password_summary"
+            android:title="@string/settings_change_account_password" />
+    </PreferenceCategory>
+
+
+</PreferenceScreen>

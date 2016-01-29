@@ -76,7 +76,7 @@ public class FilesFragment extends BaseFragment {
                 try {
                     filesFragment.setBoxNavigation(boxVolume.navigate());
                 } catch (QblStorageException e) {
-                    Log.e(TAG, "Cannot navigate to root", e);
+                    Log.w(TAG, "Cannot navigate to root. maybe first initialization", e);
                     try {
                         boxVolume.createIndex();
                         filesFragment.setBoxNavigation(boxVolume.navigate());

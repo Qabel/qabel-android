@@ -1,6 +1,7 @@
 package de.qabel.qabelbox.activities;
 
 import android.content.Intent;
+import android.os.Bundle;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.SeekBar;
@@ -28,13 +29,22 @@ import de.qabel.qabelbox.services.LocalQabelService;
 /**
  * Created by danny on 11.01.2016.
  */
-public class CreateIdentityActivity extends BaseWizwardActivity {
+public class CreateIdentityActivity extends BaseWizardActivity {
 
     private String TAG = this.getClass().getSimpleName();
 
     private String mIdentityName;
     private int mIdentityDropProgress = Integer.MIN_VALUE;
     private Identity mNewIdentity;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+
+        if (QabelBoxApplication.getInstance().getService().getIdentities().getIdentities().size() > 0) {
+            canExit = true;
+        }
+        super.onCreate(savedInstanceState);
+    }
 
     @Override
     protected String getHeaderFragmentText() {
@@ -65,12 +75,12 @@ public class CreateIdentityActivity extends BaseWizwardActivity {
                 if (error) {
                     return getString(R.string.create_identity_enter_all_data);
                 }
-                //@todo add function to check if identity existis
+
                 Identities identities = QabelBoxApplication.getInstance().getService().getIdentities();
                 if (identities != null) {
                     for (Identity identity : identities.getIdentities()) {
                         if (identity.getAlias().equals(editText)) {
-                        return getString(R.string.create_identity_already_exists);
+                            return getString(R.string.create_identity_already_exists);
                         }
                     }
                 }
@@ -86,6 +96,7 @@ public class CreateIdentityActivity extends BaseWizwardActivity {
                 Identity identity = createIdentity();
                 addIdentity(identity);
                 setCreatedIdentity(identity);
+
                 return null;
             }
 
@@ -106,6 +117,9 @@ public class CreateIdentityActivity extends BaseWizwardActivity {
 
                 LocalQabelService mService = QabelBoxApplication.getInstance().getService();
                 mService.addIdentity(identity);
+                if (mService.getActiveIdentity() == null) {
+                    mService.setActiveIdentity(identity);
+                }
             }
         });
 
@@ -114,7 +128,7 @@ public class CreateIdentityActivity extends BaseWizwardActivity {
     }
 
     @Override
-    protected void completeWizard() {
+    public void completeWizard() {
 
         Intent result = new Intent();
         result.putExtra(P_IDENTITY, mNewIdentity);

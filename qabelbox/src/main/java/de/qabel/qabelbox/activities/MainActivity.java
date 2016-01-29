@@ -16,6 +16,7 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.provider.DocumentsContract;
 import android.provider.OpenableColumns;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
@@ -59,6 +60,7 @@ import de.qabel.qabelbox.fragments.ContactFragment;
 import de.qabel.qabelbox.fragments.FilesFragment;
 import de.qabel.qabelbox.fragments.IdentitiesFragment;
 import de.qabel.qabelbox.fragments.SelectUploadFolderFragment;
+import de.qabel.qabelbox.helper.UIHelper;
 import de.qabel.qabelbox.providers.BoxProvider;
 import de.qabel.qabelbox.services.LocalQabelService;
 import de.qabel.qabelbox.storage.BoxExternal;
@@ -90,6 +92,7 @@ public class MainActivity extends AppCompatActivity
     private static final int REQUEST_CODE_DELETE_FILE = 13;
     private static final int REQUEST_CODE_CHOOSE_EXPORT = 14;
     private static final int REQUEST_CREATE_IDENTITY = 16;
+    private static final int REQUEST_SETTINGS = 17;
     private static final String FALLBACK_MIMETYPE = "application/octet-stream";
     private static final int NAV_GROUP_IDENTITIES = 1;
     private static final int NAV_GROUP_IDENTITY_ACTIONS = 2;
@@ -110,6 +113,7 @@ public class MainActivity extends AppCompatActivity
     // of the create document intent.
     private Uri exportUri;
     private LocalQabelService mService;
+    private ServiceConnection mServiceConnection;
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -228,6 +232,16 @@ public class MainActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
+        LocalQabelService service = QabelBoxApplication.getInstance().getService();
+        if (SplashActivity.startWizardActivities(this)) {
+            Log.d(TAG, "started wizard dialog");
+            return;
+        }
+
+        if (service.getActiveIdentity() == null) {
+            service.setActiveIdentity(service.getIdentities().getIdentities().iterator().next());
+        }
+
         setContentView(R.layout.activity_main);
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -237,22 +251,8 @@ public class MainActivity extends AppCompatActivity
         initFloatingActionButton();
 
         Intent serviceIntent = new Intent(this, LocalQabelService.class);
-        bindService(serviceIntent, new ServiceConnection() {
-
-            @Override
-            public void onServiceConnected(ComponentName name, IBinder service) {
-
-                LocalQabelService.LocalBinder binder = (LocalQabelService.LocalBinder) service;
-                mService = binder.getService();
-                onLocalServiceConnected();
-            }
-
-            @Override
-            public void onServiceDisconnected(ComponentName name) {
-
-                mService = null;
-            }
-        }, Context.BIND_AUTO_CREATE);
+        mServiceConnection = getServiceConnection();
+        bindService(serviceIntent, mServiceConnection, Context.BIND_AUTO_CREATE);
 
         getFragmentManager().addOnBackStackChangedListener(new FragmentManager.OnBackStackChangedListener() {
             @Override
@@ -276,6 +276,27 @@ public class MainActivity extends AppCompatActivity
                 }
             }
         });
+    }
+
+    @NonNull
+    private ServiceConnection getServiceConnection() {
+
+        return new ServiceConnection() {
+
+            @Override
+            public void onServiceConnected(ComponentName name, IBinder service) {
+
+                LocalQabelService.LocalBinder binder = (LocalQabelService.LocalBinder) service;
+                mService = binder.getService();
+                onLocalServiceConnected();
+            }
+
+            @Override
+            public void onServiceDisconnected(ComponentName name) {
+
+                mService = null;
+            }
+        };
     }
 
     private void onLocalServiceConnected() {
@@ -303,30 +324,30 @@ public class MainActivity extends AppCompatActivity
         Log.i(TAG, "Intent action: " + action);
 
         // Checks if a fragment should be launched
-        switch (intent.getAction()) {
-            case Intent.ACTION_SEND:
-                if (type != null) {
-                    Log.i(TAG, "Action send in main activity");
-                    Uri imageUri = intent.getParcelableExtra(Intent.EXTRA_STREAM);
-                    if (imageUri != null) {
-                        //TODO: UPLOAD
+        if (intent != null && intent.getAction() != null) {
+            switch (intent.getAction()) {
+                case Intent.ACTION_SEND:
+                    if (type != null) {
+                        Log.i(TAG, "Action send in main activity");
+                        Uri imageUri = intent.getParcelableExtra(Intent.EXTRA_STREAM);
+                        if (imageUri != null) {
+                            //TODO: UPLOAD
+                        }
                     }
-                }
-                break;
-            case Intent.ACTION_SEND_MULTIPLE:
-                if (type != null) {
-                    ArrayList<Uri> imageUris = intent.getParcelableArrayListExtra(Intent.EXTRA_STREAM);
-                    //TODO: Implement
-                }
-                break;
-            default:
-                if (activeIdentity != null) {
-                    selectFilesFragment();
-                } else {
-                    selectAddIdentityFragment();
-                }
-                break;
+                    break;
+                case Intent.ACTION_SEND_MULTIPLE:
+                    if (type != null) {
+                        ArrayList<Uri> imageUris = intent.getParcelableArrayListExtra(Intent.EXTRA_STREAM);
+                        //TODO: Implement
+                    }
+                    break;
+                default:
+
+                    break;
+            }
         }
+        initFilesFragment();
+        selectFilesFragment();
     }
 
     private void initBoxVolume(Identity activeIdentity) {
@@ -389,30 +410,16 @@ public class MainActivity extends AppCompatActivity
 
     private void newFolderDialog() {
 
-        AlertDialog.Builder renameDialog = new AlertDialog.Builder(self);
+        UIHelper.showEditTextDialog(this, R.string.add_folder_header, R.string.add_folder_name, R.string.ok, R.string.cancel, new UIHelper.EditTextDialogClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which, EditText editText) {
 
-        renameDialog.setTitle(R.string.add_folder_header);
-        renameDialog.setMessage(R.string.add_folder_name);
-
-        final EditText editTextNewFolder = new EditText(self);
-        renameDialog.setView(editTextNewFolder);
-
-        renameDialog.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int whichButton) {
-
-                String newFolderName = editTextNewFolder.getText().toString();
+                String newFolderName = editText.getText().toString();
                 if (!newFolderName.equals("")) {
                     createFolder(newFolderName, filesFragment.getBoxNavigation());
                 }
             }
-        });
-
-        renameDialog.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int whichButton) {
-
-            }
-        });
-        renameDialog.show();
+        }, null);
     }
 
     private void initFilesFragment() {
@@ -543,6 +550,10 @@ public class MainActivity extends AppCompatActivity
             drawer.closeDrawer(GravityCompat.START);
         } else {
             Fragment activeFragment = getFragmentManager().findFragmentById(R.id.fragment_container);
+            if (activeFragment == null) {
+                super.onBackPressed();
+                return;
+            }
             if (activeFragment.getTag() == null) {
                 getFragmentManager().popBackStack();
             } else {
@@ -591,21 +602,11 @@ public class MainActivity extends AppCompatActivity
             selectContactsFragment();
         } else if (id == R.id.nav_browse) {
             selectFilesFragment();
-        } else if (id == R.id.nav_open) {
-            Intent intentOpen = new Intent(Intent.ACTION_OPEN_DOCUMENT);
-            intentOpen.addCategory(Intent.CATEGORY_OPENABLE);
-            intentOpen.setType("*/*");
-            startActivityForResult(intentOpen, REQUEST_CODE_OPEN);
-        } else if (id == R.id.nav_upload) {
-            Intent intentOpen = new Intent(Intent.ACTION_OPEN_DOCUMENT);
-            intentOpen.addCategory(Intent.CATEGORY_OPENABLE);
-            intentOpen.setType("*/*");
-            startActivityForResult(intentOpen, REQUEST_CODE_UPLOAD_FILE);
-        } else if (id == R.id.nav_delete) {
-            Intent intentOpen = new Intent(Intent.ACTION_OPEN_DOCUMENT);
-            intentOpen.addCategory(Intent.CATEGORY_OPENABLE);
-            intentOpen.setType("*/*");
-            startActivityForResult(intentOpen, REQUEST_CODE_DELETE_FILE);
+        } else if (id == R.id.nav_help) {
+            UIHelper.showFunctionNotYetImplemented(this);
+        } else if (id == R.id.nav_settings) {
+            Intent intent = new Intent(this, SettingsActivity.class);
+            startActivityForResult(intent, REQUEST_SETTINGS);
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -703,8 +704,6 @@ public class MainActivity extends AppCompatActivity
     public void selectIdentity(Identity identity) {
 
         changeActiveIdentity(identity);
-
-        selectContactsFragment();
     }
 
     public void addIdentity(Identity identity) {
@@ -721,15 +720,15 @@ public class MainActivity extends AppCompatActivity
     private void changeActiveIdentity(Identity identity) {
 
         mService.setActiveIdentity(identity);
+
         textViewSelectedIdentity.setText(identity.getAlias());
         if (filesFragment != null) {
             getFragmentManager().beginTransaction().remove(filesFragment).commit();
         }
         initBoxVolume(identity);
         initFilesFragment();
+        selectFilesFragment();
     }
-
-
 
     @Override
     public void addContact(Contact contact) {
@@ -754,6 +753,20 @@ public class MainActivity extends AppCompatActivity
 
         provider.notifyRootsUpdated();
         mService.deleteIdentity(identity);
+        if (mService.getIdentities().getIdentities().size() == 0) {
+            UIHelper.showDialogMessage(this, R.string.dialog_headline_info, R.string.last_identity_delete_create_new, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+
+                    selectAddIdentityFragment();
+                }
+            });
+        } else {
+            changeActiveIdentity(mService.getIdentities().getIdentities().iterator().next());
+            /*textViewSelectedIdentity.setText(mService.getActiveIdentity().getAlias());
+
+            selectFilesFragment();*/
+        }
     }
 
     @Override
@@ -761,6 +774,7 @@ public class MainActivity extends AppCompatActivity
 
         provider.notifyRootsUpdated();
         mService.modifyIdentity(identity);
+        textViewSelectedIdentity.setText(mService.getActiveIdentity().getAlias());
     }
 
     @Override
@@ -788,6 +802,15 @@ public class MainActivity extends AppCompatActivity
         intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
         // the activity result will handle the actual file copy
         startActivityForResult(intent, REQUEST_CODE_CHOOSE_EXPORT);
+    }
+
+    @Override
+    protected void onDestroy() {
+
+        if (mServiceConnection != null) {
+            unbindService(mServiceConnection);
+        }
+        super.onDestroy();
     }
 
     @Override
@@ -876,7 +899,7 @@ public class MainActivity extends AppCompatActivity
 
         // Map QR-Code indent to alias textview in nav_header_main
         textViewSelectedIdentity = (TextView) navigationView.findViewById(R.id.textViewSelectedIdentity);
-        textViewSelectedIdentity.setOnClickListener(new View.OnClickListener() {
+        findViewById(R.id.qabelLogo).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
@@ -892,7 +915,7 @@ public class MainActivity extends AppCompatActivity
         });
 
         imageViewExpandIdentity = (ImageView) navigationView.findViewById(R.id.imageViewExpandIdentity);
-        imageViewExpandIdentity.setOnClickListener(new View.OnClickListener() {
+        findViewById(R.id.select_identity_layout).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
@@ -986,8 +1009,15 @@ public class MainActivity extends AppCompatActivity
     private void selectAddIdentityFragment() {
 
         Intent i = new Intent(self, CreateIdentityActivity.class);
-        i.putExtra(CreateIdentityActivity.FIRST_RUN, false);
-        self.startActivityForResult(i, REQUEST_CREATE_IDENTITY);
+        int identitiesCount = mService.getIdentities().getIdentities().size();
+        i.putExtra(CreateIdentityActivity.FIRST_RUN, identitiesCount == 0 ? true : false);
+
+        if (identitiesCount == 0) {
+            finish();
+            self.startActivity(i);
+        } else {
+            self.startActivityForResult(i, REQUEST_CREATE_IDENTITY);
+        }
     }
 
     private void showAbortMessage() {
@@ -1017,6 +1047,7 @@ public class MainActivity extends AppCompatActivity
     private void selectManageIdentitiesFragment() {
 
         fab.show();
+
         getFragmentManager().beginTransaction()
                 .replace(R.id.fragment_container,
                         IdentitiesFragment.newInstance(mService.getIdentities()),

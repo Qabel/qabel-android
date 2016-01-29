@@ -25,6 +25,7 @@ import de.qabel.core.config.Identity;
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.activities.MainActivity;
+import de.qabel.qabelbox.config.AppPreference;
 import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.services.LocalQabelService;
 import de.qabel.qabelbox.ui.action.QabelViewAction;
@@ -82,6 +83,7 @@ public class CreateIdentityTest {
                 identities.getIdentities()) {
             service.deleteIdentity(identity);
         }
+        new AppPreference(QabelBoxApplication.getInstance().getApplicationContext()).setToken("dummytoken");
     }
 
     @Test
@@ -89,7 +91,7 @@ public class CreateIdentityTest {
 
         String identity = "spoon1";
         String identity2 = "spoon2";
-        Spoon.screenshot(mActivity, "start");
+        Spoon.screenshot(UITestHelper.getCurrentActivity(mActivity), "start");
         createIdentity(identity);
         onView(withId(R.id.drawer_layout)).perform(QabelViewAction.actionOpenDrawer());
         onView(withText(identity)).check(matches(isDisplayed()));
@@ -103,7 +105,7 @@ public class CreateIdentityTest {
 
         //create spoon 2 identity
         onView(withId(R.id.drawer_layout)).perform(QabelViewAction.actionOpenDrawer());
-        Spoon.screenshot(mActivity, "spoon1");
+        Spoon.screenshot(UITestHelper.getCurrentActivity(mActivity), "spoon1");
         onView(withText(identity)).check(matches(isDisplayed()));
         UITestHelper.sleep(500);
         onView(withId(R.id.imageViewExpandIdentity)).check(matches(isDisplayed())).perform(click());
@@ -120,7 +122,7 @@ public class CreateIdentityTest {
         UITestHelper.sleep(1000);
         onView(withId(R.id.imageViewExpandIdentity)).check(matches(isDisplayed())).perform(click());
         onView(withText(identity)).check(matches(isDisplayed()));
-        Spoon.screenshot(mActivity, "spoon1_2");
+        Spoon.screenshot(UITestHelper.getCurrentActivity(mActivity), "spoon1_2");
         onView(withId(R.id.drawer_layout)).perform(QabelViewAction.actionCloseDrawer());
     }
 

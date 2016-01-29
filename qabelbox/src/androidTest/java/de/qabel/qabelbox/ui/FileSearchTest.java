@@ -23,6 +23,7 @@ import de.qabel.core.config.Identity;
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.activities.MainActivity;
+import de.qabel.qabelbox.config.AppPreference;
 import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.storage.StorageSearch;
 import de.qabel.qabelbox.ui.helper.UIActionHelper;
@@ -79,7 +80,7 @@ public class FileSearchTest {
     }
 
     private void setupData() {
-
+        new AppPreference(QabelBoxApplication.getInstance().getApplicationContext()).setToken("dummytoken");
         mBoxHelper = new UIBoxHelper(mActivity);
         mBoxHelper.bindService(QabelBoxApplication.getInstance());
         try {

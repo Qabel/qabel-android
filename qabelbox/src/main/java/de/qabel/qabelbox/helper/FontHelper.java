@@ -14,11 +14,11 @@ public class FontHelper {
     private Typeface[] fonts;
     private static FontHelper instance = null;
 
-    protected FontHelper() {
+    private FontHelper() {
         // Exists only to defeat instantiation.
     }
 
-    public static FontHelper getInstance(Context context) {
+    public static FontHelper getInstance() {
 
         if (instance == null) {
             instance = new FontHelper();
@@ -44,7 +44,11 @@ public class FontHelper {
             if (fonts == null) {
                 loadCustomeFonts(view.getContext());
             }
-            int style = view.getTypeface().getStyle();
+            int style=Typeface.NORMAL;
+            if(view.getTypeface()!=null)
+            {
+                style = view.getTypeface().getStyle();
+            }
             if (style >= 0 && style < fonts.length) {
                 view.setTypeface(fonts[style], style);
             }

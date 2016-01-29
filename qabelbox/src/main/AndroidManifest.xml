@@ -1,47 +1,46 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest
-    package="de.qabel.qabelbox"
-    xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="de.qabel.qabelbox">
 
-    <uses-permission android:name="android.permission.INTERNET"/>
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
-    <uses-permission android:name="android.permission.READ_SYNC_SETTINGS"/>
-    <uses-permission android:name="android.permission.WRITE_SYNC_SETTINGS"/>
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
-    <uses-permission android:name="android.permission.AUTHENTICATE_ACCOUNTS"/>
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.READ_SYNC_SETTINGS" />
+    <uses-permission android:name="android.permission.WRITE_SYNC_SETTINGS" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.AUTHENTICATE_ACCOUNTS" />
 
     <permission
         android:name="de.qabel.qabelbox.QABELSERVICE"
         android:label="Use QabelService"
-        android:protectionLevel="dangerous"/>
+        android:protectionLevel="dangerous" />
 
     <permission
         android:name="de.qabel.qabelbox.QABEL_READ_RESOURCES"
         android:label="Read Qabel Resources"
-        android:protectionLevel="dangerous"/>
+        android:protectionLevel="dangerous" />
     <permission
         android:name="de.qabel.qabelbox.QABEL_WRITE_RESOURCES"
         android:label="Write Qabel Resources"
-        android:protectionLevel="dangerous"/>
+        android:protectionLevel="dangerous" />
 
     <permission
         android:name="de.qabel.qabelbox.QABEL_READ_CONTACTS"
         android:label="Read Qabel Contacts"
-        android:protectionLevel="dangerous"/>
+        android:protectionLevel="dangerous" />
     <permission
         android:name="de.qabel.qabelbox.QABEL_WRITE_CONTACTS"
         android:label="Write Qabel Contacts"
-        android:protectionLevel="dangerous"/>
+        android:protectionLevel="dangerous" />
 
     <permission
         android:name="de.qabel.qabelbox.QABEL_READ_IDENTITIES"
         android:label="Read Qabel Identities"
-        android:protectionLevel="dangerous"/>
+        android:protectionLevel="dangerous" />
     <permission
         android:name="de.qabel.qabelbox.QABEL_WRITE_IDENTITIES"
         android:label="Write Qabel Identities"
-        android:protectionLevel="dangerous"/>
+        android:protectionLevel="dangerous" />
 
     <application
         android:name="de.qabel.qabelbox.QabelBoxApplication"
@@ -58,7 +57,22 @@
             android:windowSoftInputMode="adjustPan">
 
         </activity>
+        <activity
+            android:name=".activities.CreateAccountActivity"
+            android:label="@string/app_name"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:windowSoftInputMode="adjustPan">
 
+        </activity>
+        <activity
+            android:name=".activities.SettingsActivity"
+            android:label="@string/app_name"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:windowSoftInputMode="adjustPan">
+
+        </activity>
         <activity
             android:name=".activities.SplashActivity"
             android:label="@string/app_name"

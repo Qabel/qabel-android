@@ -1,6 +1,7 @@
 package de.qabel.qabelbox.activities;
 
 import android.app.FragmentTransaction;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -18,24 +19,25 @@ import de.qabel.qabelbox.helper.UIHelper;
 /**
  * Created by danny on 11.01.2016.
  */
-public abstract class BaseWizwardActivity extends AppCompatActivity {
+public abstract class BaseWizardActivity extends AppCompatActivity {
 
     private String TAG = this.getClass().getSimpleName();
 
     public static final String FIRST_RUN = "first_run";
 
     public static final String P_IDENTITY = "identity_name";
-    protected BaseWizwardActivity mActivity;
-    private MenuItem mActionNext;
+    protected BaseWizardActivity mActivity;
+    protected MenuItem mActionNext;
     private ActionBar actionBar;
     private CreateIdentityHeaderFragment mIdentityHeaderFragment;
 
     protected BaseIdentityFragment[] fragments;
     private int step = 0;
-    protected int activityResult = RESULT_CANCELED;
+    public int activityResult = RESULT_CANCELED;
     protected boolean mFirstRun;
     //values for create box account mode
     AccountingHTTP mAccounting;
+    protected boolean canExit = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,7 +61,9 @@ public abstract class BaseWizwardActivity extends AppCompatActivity {
         actionBar.setDisplayShowHomeEnabled(true);
         actionBar.setDisplayHomeAsUpEnabled(true);
         actionBar.setHomeButtonEnabled(true);
-
+        if (!canExit) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+        }
         mToolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -89,18 +93,41 @@ public abstract class BaseWizwardActivity extends AppCompatActivity {
             //check if last fragment displayed
             if (fragmentCount == fragments.length - 1) {
                 //complete wizard
+
                 activityResult = RESULT_OK;
                 completeWizard();
                 return;
             }
             //otherwise, popbackstack and update ui
-            step--;
+            if (step > 0) {
+                step--;
+            }
+            if (step == 0 && !canExit) {
+                actionBar.setDisplayHomeAsUpEnabled(false);
+                actionBar.setDisplayUseLogoEnabled(true);
+            }
             getFragmentManager().popBackStack();
             mIdentityHeaderFragment.updateUI(getHeaderFragmentText());
             updateActionBar(step);
         } else {
             //return without finish the wizard
-            finish();
+            if (canExit) {
+                finish();
+            } else {
+
+                UIHelper.showDialogMessage(this, R.string.dialog_headline_warning, R.string.message_step_is_needed_or_close_app, R.string.yes, R.string.no, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                        finish();
+                    }
+                }, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                    }
+                });
+            }
         }
     }
 
@@ -132,7 +159,7 @@ public abstract class BaseWizwardActivity extends AppCompatActivity {
         //check if fragment ready to go to the next step
         if (check != null) {
             //no, show error message
-            UIHelper.showDialogMessage(this, R.string.dialog_headline_info, R.string.create_identity_enter_all_data);
+            UIHelper.showDialogMessage(this, R.string.dialog_headline_info, check);
         } else {
 
             //check if currently last step
@@ -142,11 +169,35 @@ public abstract class BaseWizwardActivity extends AppCompatActivity {
                 return;
             }
             //no... go to next step
-            step++;
-            mIdentityHeaderFragment.updateUI(getHeaderFragmentText());
-            getFragmentManager().beginTransaction().replace(R.id.fragment_container_content, fragments[step]).addToBackStack(null).commit();
-            updateActionBar(step);
+
+            if (canShowNext(step)) {
+                showNextFragment();
+            }
         }
+    }
+
+    /**
+     * override this if you need special handling on next click
+     *
+     * @param step
+     * @return
+     */
+    protected boolean canShowNext(int step) {
+        return true;
+    }
+
+    protected void showNextFragment() {
+
+        step++;
+        if (step == fragments.length - 1) {
+            canExit = true;
+        }
+        actionBar.setDisplayHomeAsUpEnabled(true);
+        actionBar.setDisplayUseLogoEnabled(false);
+
+        mIdentityHeaderFragment.updateUI(getHeaderFragmentText());
+        getFragmentManager().beginTransaction().replace(R.id.fragment_container_content, fragments[step]).addToBackStack(null).commit();
+        updateActionBar(step);
     }
 
     /**
@@ -154,7 +205,7 @@ public abstract class BaseWizwardActivity extends AppCompatActivity {
      *
      * @param step current step number
      */
-    private void updateActionBar(int step) {
+    protected void updateActionBar(int step) {
 
         //update icons
         if (step == 0) {
@@ -174,9 +225,7 @@ public abstract class BaseWizwardActivity extends AppCompatActivity {
         //update subtitle
         if (step == 0) {
             actionBar.setSubtitle(null);
-        } else if (step == fragments.length - 1) {
-            actionBar.setSubtitle(R.string.finish);
-        } else {
+        } else if (step < fragments.length - 1) {
             actionBar.setSubtitle(getString(R.string.step_x_from_y).replace("$1", step + "").replace("$2", (fragments.length - 2) + ""));
         }
     }
@@ -185,7 +234,7 @@ public abstract class BaseWizwardActivity extends AppCompatActivity {
 
     protected abstract BaseIdentityFragment[] getFragmentList();
 
-    protected abstract void completeWizard();
+    public abstract void completeWizard();
 
     public interface NextChecker {
 

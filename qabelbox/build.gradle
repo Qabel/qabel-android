@@ -88,7 +88,7 @@ dependencies {
     androidTestCompile 'com.android.support.test.espresso:espresso-core:2.2.1'
     //set dep to get screenshot functons
     androidTestCompile 'com.squareup.spoon:spoon-client:1.3.1'
-
+    compile 'com.squareup.okhttp3:okhttp:3.0.1'
 }
 
 // for integration test of this plugin

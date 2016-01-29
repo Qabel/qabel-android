@@ -1,12 +1,13 @@
 package de.qabel.qabelbox.adapter;
 
+import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-
+import android.widget.Toast;
 
 import org.apache.commons.io.FileUtils;
 
@@ -15,22 +16,28 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
+import de.qabel.qabelbox.QabelBoxApplication;
+import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.storage.BoxExternal;
 import de.qabel.qabelbox.storage.BoxFile;
 import de.qabel.qabelbox.storage.BoxFolder;
 import de.qabel.qabelbox.storage.BoxObject;
-import de.qabel.qabelbox.R;
 
 public class FilesAdapter extends RecyclerView.Adapter<FilesAdapter.FilesViewHolder> {
+
     private final List<BoxObject> boxObjects;
     private OnItemClickListener onItemClickListener;
     private DateFormat dateFormat = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT);
+    View emptyView, loadingView;
 
     public FilesAdapter(List<BoxObject> BoxObject) {
+
         boxObjects = BoxObject;
+        registerAdapterDataObserver(observer);
     }
 
     class FilesViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener {
+
         public final TextView mTextViewFolderName;
         public final TextView mTextViewFolderDetailsLeft;
         public final TextView mTextViewFolderDetailsMiddle;
@@ -38,6 +45,7 @@ public class FilesAdapter extends RecyclerView.Adapter<FilesAdapter.FilesViewHol
         public final ImageView mImageView;
 
         public FilesViewHolder(View v) {
+
             super(v);
             v.setOnClickListener(this);
             v.setOnLongClickListener(this);
@@ -50,6 +58,7 @@ public class FilesAdapter extends RecyclerView.Adapter<FilesAdapter.FilesViewHol
 
         @Override
         public void onClick(View view) {
+
             if (onItemClickListener != null) {
                 onItemClickListener.onItemClick(view, getAdapterPosition());
             }
@@ -57,6 +66,7 @@ public class FilesAdapter extends RecyclerView.Adapter<FilesAdapter.FilesViewHol
 
         @Override
         public boolean onLongClick(View view) {
+
             if (onItemClickListener != null) {
                 onItemClickListener.onItemLockClick(view, getAdapterPosition());
                 return true;
@@ -66,17 +76,20 @@ public class FilesAdapter extends RecyclerView.Adapter<FilesAdapter.FilesViewHol
     }
 
     public interface OnItemClickListener {
+
         void onItemClick(View view, int position);
 
         void onItemLockClick(View view, int position);
     }
 
     public void setOnItemClickListener(OnItemClickListener onItemClickListener) {
+
         this.onItemClickListener = onItemClickListener;
     }
 
     @Override
     public FilesViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+
         View v = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.item_files, parent, false);
         return new FilesViewHolder(v);
@@ -84,6 +97,7 @@ public class FilesAdapter extends RecyclerView.Adapter<FilesAdapter.FilesViewHol
 
     @Override
     public void onBindViewHolder(FilesViewHolder holder, int position) {
+
         BoxObject boxObject = boxObjects.get(position);
         holder.mTextViewFolderName.setText(boxObject.name);
 //        if (boxObject.getShareCount() > 0) {
@@ -111,27 +125,65 @@ public class FilesAdapter extends RecyclerView.Adapter<FilesAdapter.FilesViewHol
     }
 
     private String formatModificationTime(BoxFile boxFile) {
+
         return dateFormat.format(new Date(boxFile.mtime * 1000));
     }
 
     @Override
     public int getItemCount() {
+
         return boxObjects.size();
     }
 
     public boolean add(BoxObject boxObject) {
+
         return boxObjects.add(boxObject);
     }
 
     public BoxObject get(int position) {
+
         return boxObjects.get(position);
     }
 
     public void sort() {
+
         Collections.sort(boxObjects);
     }
 
     public void clear() {
+
         boxObjects.clear();
+    }
+
+    boolean loaded = false;
+
+    void updateEmptyView() {
+
+        if (loadingView != null) {
+            int fileCount = boxObjects.size();
+            if (fileCount > 0 || loadingView.getVisibility() != View.VISIBLE||loaded) {
+                loadingView.setVisibility(View.GONE);
+                loaded = true;
+            }
+            if (loaded) {
+                emptyView.setVisibility(fileCount > 0 ? View.GONE : View.VISIBLE);
+            }
+        }
+    }
+
+    final RecyclerView.AdapterDataObserver observer = new RecyclerView.AdapterDataObserver() {
+        @Override
+        public void onChanged() {
+
+            super.onChanged();
+            updateEmptyView();
+        }
+    };
+
+    public void setEmptyView(@Nullable View emptyView, View loadingView) {
+
+        this.emptyView = emptyView;
+        this.loadingView = loadingView;
+        updateEmptyView();
     }
 }

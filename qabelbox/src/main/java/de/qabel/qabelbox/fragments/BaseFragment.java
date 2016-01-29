@@ -94,11 +94,21 @@ public class BaseFragment extends Fragment {
 
         return false;
     }
+    /**
+     * @return true if fragment handle back button. otherwise return false to display sideMenu icon
+     */
+    public boolean supportSubtitle() {
 
+        return false;
+    }
     /**
      * handle hardware back button
      */
     public void onBackPressed() {
+
+    }
+
+    public void updateSubtitle() {
 
     }
 }

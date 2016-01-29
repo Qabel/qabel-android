@@ -108,4 +108,7 @@
     <string name="unit_filesyste_kb">KB</string>
     <string name="unit_filesyste_bytes">Bytes</string>
     <string name="create_identity_already_exists">This identiy exists. Please choose another identity.</string>
+    <string name="listdata_loading">Data loading</string>
+    <string name="file_list_empty">Your folder contain no data. Click on add button at bottom to upload own files</string>
+    <string name="contact_list_empty">Your contact list is empty. Click on add button at bottom to add new contacts</string>
 </resources>

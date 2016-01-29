@@ -1,5 +1,6 @@
 package de.qabel.qabelbox.adapter;
 
+import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,18 +20,25 @@ import de.qabel.qabelbox.R;
  * set click actions on ViewHolders by setOnItemClickListener.
  */
 public class ContactsAdapter extends RecyclerView.Adapter<ContactsAdapter.ContactViewHolder> {
+
     private final List<Contact> mContacts;
     private OnItemClickListener onItemClickListener;
+    private View emptyView;
 
     public ContactsAdapter(Contacts contacts) {
+
         mContacts = new ArrayList<>(contacts.getContacts());
+        registerAdapterDataObserver(observer);
     }
 
     class ContactViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+
         public final TextView mTextViewContactName;
         public final TextView mTextViewContactDetails;
         public final ImageView mImageView;
+
         public ContactViewHolder(View v) {
+
             super(v);
             v.setOnClickListener(this);
             mTextViewContactName = (TextView) v.findViewById(R.id.textViewItemName);
@@ -40,6 +48,7 @@ public class ContactsAdapter extends RecyclerView.Adapter<ContactsAdapter.Contac
 
         @Override
         public void onClick(View view) {
+
             if (onItemClickListener != null) {
                 onItemClickListener.onItemClick(view, getAdapterPosition());
             }
@@ -47,19 +56,23 @@ public class ContactsAdapter extends RecyclerView.Adapter<ContactsAdapter.Contac
     }
 
     public interface OnItemClickListener {
+
         void onItemClick(View view, int position);
     }
 
     /**
      * Sets the action to perform on item clicks
+     *
      * @param onItemClickListener
      */
     public void setOnItemClickListener(OnItemClickListener onItemClickListener) {
+
         this.onItemClickListener = onItemClickListener;
     }
 
     @Override
     public ContactViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+
         View v = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.item_contacts, parent, false);
         return new ContactViewHolder(v);
@@ -67,12 +80,38 @@ public class ContactsAdapter extends RecyclerView.Adapter<ContactsAdapter.Contac
 
     @Override
     public void onBindViewHolder(ContactViewHolder holder, int position) {
+
         holder.mTextViewContactName.setText(mContacts.get(position).getAlias());
         holder.mTextViewContactDetails.setText(mContacts.get(position).getKeyIdentifier());
     }
 
     @Override
     public int getItemCount() {
+
         return mContacts.size();
+    }
+
+    void updateEmptyView() {
+
+        if (emptyView != null) {
+
+            emptyView.setVisibility(getItemCount() > 0 ? View.GONE : View.VISIBLE);
+        }
+    }
+
+    final RecyclerView.AdapterDataObserver observer = new RecyclerView.AdapterDataObserver() {
+        @Override
+        public void onChanged() {
+
+            super.onChanged();
+            updateEmptyView();
+        }
+    };
+
+    public void setEmptyView(@Nullable View emptyView) {
+
+        this.emptyView = emptyView;
+
+        updateEmptyView();
     }
 }

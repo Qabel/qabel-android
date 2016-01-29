@@ -154,4 +154,7 @@
     <string name="change_account_password_newpassword2_hint">New password again</string>
     <string name="btn_reset_password">Reset password</string>
     <string name="create_account_reset_password_infos">Enter your email address that you entered until the account registration</string>
+    <string name="listdata_loading">Data loading</string>
+    <string name="file_list_empty">Your folder contains no data. Click on the add button at bottom to upload own files</string>
+    <string name="contact_list_empty">Your contact list is empty. Click on the add button at bottom to add new contacts</string>
 </resources>

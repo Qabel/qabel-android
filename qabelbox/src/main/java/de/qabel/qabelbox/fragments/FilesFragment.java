@@ -20,6 +20,7 @@ import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -55,13 +56,17 @@ public class FilesFragment extends BaseFragment {
     private BoxVolume mBoxVolume;
     private AsyncTask<String, Void, StorageSearch> searchTask;
     private StorageSearch mCachedStorageSearch;
+    View mEmptyView;
+    View mLoadingView;
 
     public static FilesFragment newInstance(final BoxVolume boxVolume) {
 
         final FilesFragment filesFragment = new FilesFragment();
         filesFragment.mBoxVolume = boxVolume;
         final FilesAdapter filesAdapter = new FilesAdapter(new ArrayList<BoxObject>());
+
         filesFragment.setAdapter(filesAdapter);
+
         new AsyncTask<Void, Void, Void>() {
             @Override
             protected void onPreExecute() {
@@ -110,7 +115,15 @@ public class FilesFragment extends BaseFragment {
         final AppCompatActivity act = (AppCompatActivity) getActivity();
         final ActionBar action = act.getSupportActionBar();
         action.setTitle(getTitle());
+
         self = this;
+    }
+
+    @Override
+    public void onStart() {
+
+        super.onStart();
+        updateSubtitle();
     }
 
     @Override
@@ -118,6 +131,22 @@ public class FilesFragment extends BaseFragment {
                              Bundle savedInstanceState) {
 
         View view = inflater.inflate(R.layout.fragment_files, container, false);
+        mEmptyView = view.findViewById(R.id.empty_view);
+        mLoadingView = view.findViewById(R.id.loading_view);
+        final ProgressBar pg = (ProgressBar) view.findViewById(R.id.pb_firstloading);
+        pg.setIndeterminate(true);
+        pg.setMax(100);
+        pg.setProgress(10);
+        pg.setEnabled(true);
+        /*getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+
+                pg.setVisibility(View.VISIBLE);
+            }
+        });*/
+
+        filesAdapter.setEmptyView(mEmptyView, mLoadingView);
         swipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.swipeRefresh);
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
@@ -159,14 +188,6 @@ public class FilesFragment extends BaseFragment {
         });
         return view;
     }
-
-
-
-    /*@Override
-    public void onResume() {
-        super.onResume();
-        setIsLoading(isLoading);
-    }*/
 
     @Override
     public void onAttach(Activity activity) {
@@ -386,6 +407,9 @@ public class FilesFragment extends BaseFragment {
         if (swipeRefreshLayout == null) {
             return;
         }
+        if (!isLoading) {
+            mLoadingView.setVisibility(View.GONE);
+        }
         swipeRefreshLayout.post(new Runnable() {
             @Override
             public void run() {
@@ -398,6 +422,7 @@ public class FilesFragment extends BaseFragment {
     public void setAdapter(FilesAdapter adapter) {
 
         filesAdapter = adapter;
+        filesAdapter.setEmptyView(mEmptyView, mLoadingView);
     }
 
     public FilesAdapter getFilesAdapter() {
@@ -461,6 +486,71 @@ public class FilesFragment extends BaseFragment {
         mCachedStorageSearch = searchResult;
     }
 
+    public void refresh() {
+
+        if (boxNavigation == null) {
+            Log.e(TAG, "Refresh failed because the boxNavigation object is null");
+            return;
+        }
+        AsyncTask<Void, Void, Void> asyncTask = new AsyncTask<Void, Void, Void>() {
+            @Override
+            protected Void doInBackground(Void... params) {
+                //TODO: Duplication with browseTo
+                filesAdapter.clear();
+
+                try {
+                    boxNavigation.reload();
+                    for (BoxFolder boxFolder : boxNavigation.listFolders()) {
+                        Log.d(TAG, "Adding folder: " + boxFolder.name);
+                        filesAdapter.add(boxFolder);
+                    }
+                    for (BoxExternal boxExternal : boxNavigation.listExternals()) {
+                        Log.d("MainActivity", "Adding external: " + boxExternal.name);
+                        filesAdapter.add(boxExternal);
+                    }
+                    for (BoxFile boxFile : boxNavigation.listFiles()) {
+                        Log.d(TAG, "Adding file: " + boxFile.name);
+                        filesAdapter.add(boxFile);
+                    }
+                } catch (QblStorageException e) {
+                    Log.e(TAG, "refresh failed", e);
+                }
+                return null;
+            }
+
+            @Override
+            protected void onCancelled() {
+
+                setIsLoading(true);
+                showAbortMessage();
+            }
+
+            @Override
+            protected void onPreExecute() {
+
+                setIsLoading(true);
+            }
+
+            @Override
+            protected void onPostExecute(Void aVoid) {
+
+                super.onPostExecute(aVoid);
+
+                filesAdapter.sort();
+                filesAdapter.notifyDataSetChanged();
+
+                setIsLoading(false);
+            }
+        };
+        asyncTask.execute();
+    }
+
+    private void showAbortMessage() {
+
+        Toast.makeText(mActivity, R.string.aborted,
+                Toast.LENGTH_SHORT).show();
+    }
+
     public interface FilesListListener {
 
         void onScrolledToBottom(boolean scrolledToBottom);
@@ -504,11 +594,23 @@ public class FilesFragment extends BaseFragment {
 
                 super.onPostExecute(aVoid);
                 setIsLoading(false);
+                updateSubtitle();
                 filesAdapter.notifyDataSetChanged();
             }
         };
         browseToTask.executeOnExecutor(serialExecutor);
         return true;
+    }
+
+    @Override
+    public void updateSubtitle() {
+
+        String path = boxNavigation != null ? boxNavigation.getPath() : "";
+        if (path.equals("/")) {
+            path = null;
+        }
+        if (actionBar != null)
+            actionBar.setSubtitle(path);
     }
 
     private void preBrowseTo() {
@@ -536,6 +638,7 @@ public class FilesFragment extends BaseFragment {
         } catch (QblStorageException e) {
             Log.e(TAG, "browseTo failed", e);
         }
+
         filesAdapter.sort();
     }
 
@@ -549,6 +652,12 @@ public class FilesFragment extends BaseFragment {
                 return;
             }
         }
+    }
+
+    @Override
+    public boolean supportSubtitle() {
+
+        return true;
     }
 
     public void browseTo(final BoxFolder navigateTo) {
@@ -581,6 +690,7 @@ public class FilesFragment extends BaseFragment {
 
                 super.onPostExecute(aVoid);
                 setIsLoading(false);
+                updateSubtitle();
                 filesAdapter.notifyDataSetChanged();
                 browseToTask = null;
             }

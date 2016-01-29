@@ -73,6 +73,7 @@ public class ContactFragment extends BaseFragment {
                 Toast.makeText(getActivity().getApplicationContext(), "Selected " + position, Toast.LENGTH_LONG).show();
             }
         });
+        contactListAdapter.setEmptyView(view.findViewById(R.id.empty_view));
 
         return view;
     }

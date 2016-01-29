@@ -285,6 +285,7 @@ public class MainActivity extends AppCompatActivity
 
             @Override
             public void onServiceConnected(ComponentName name, IBinder service) {
+
                 LocalQabelService.LocalBinder binder = (LocalQabelService.LocalBinder) service;
                 mService = binder.getService();
                 onLocalServiceConnected();
@@ -806,7 +807,9 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onDestroy() {
 
-        unbindService(mServiceConnection);
+        if (mServiceConnection != null) {
+            unbindService(mServiceConnection);
+        }
         super.onDestroy();
     }
 

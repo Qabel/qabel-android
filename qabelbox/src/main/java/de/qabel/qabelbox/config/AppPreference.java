@@ -21,23 +21,12 @@ public class AppPreference {
 
     public void setToken(String token) {
 
-        settings.edit().putString(P_TOKEN, encrypt(token)).commit();
-    }
-
-    private String encrypt(String data) {
-        //@todo add functions to encrypt
-        return data;
-    }
-
-    private String decrypt(String data) {
-        //@todo add functions to encrypt
-        return data;
+        settings.edit().putString(P_TOKEN, token).commit();
     }
 
     public String getToken() {
 
-        String token = settings.getString(P_TOKEN, null);
-        return (token == null) ? null : decrypt(token);
+        return settings.getString(P_TOKEN, null);
     }
 
     public int getLastAppStartVersion() {

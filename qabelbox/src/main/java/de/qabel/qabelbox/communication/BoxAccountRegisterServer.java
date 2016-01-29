@@ -50,9 +50,7 @@ public class BoxAccountRegisterServer {
      */
     private void doServerAction(String url, JSONObject json, Callback callback, String token) {
 
-        Log.v(TAG, "post body json" + json.toString());
         RequestBody body = RequestBody.create(JSON, json.toString());
-        Log.v(TAG, "post body with " + body.toString());
         Request.Builder builder = new Request.Builder()
                 .url(url)
                 .post(body);
@@ -63,7 +61,6 @@ public class BoxAccountRegisterServer {
         String locale = Locale.getDefault().toString();
         builder.addHeader("language", locale);
         final Request request = builder.build();
-        Log.v(TAG, "do server action to " + body + " " + request.toString() + " " + locale);
         client.newCall(request).enqueue(callback);
     }
 

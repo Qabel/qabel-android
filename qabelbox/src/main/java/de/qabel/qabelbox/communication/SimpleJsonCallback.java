@@ -84,7 +84,6 @@ public abstract class SimpleJsonCallback implements Callback {
             onError(call, Reasons.JSON);
             return;
         }
-        Log.v(TAG,"Json response "+json.toString());
         onSuccess(call, response, json);
     }
 }

@@ -154,4 +154,5 @@
     <string name="change_account_password_newpassword2_hint">New password again</string>
     <string name="btn_reset_password">Reset password</string>
     <string name="create_account_reset_password_infos">Enter your email address that you entered until the account registration</string>
+    <string name="cant_read_identity">Can\'t read identity from file</string>
 </resources>

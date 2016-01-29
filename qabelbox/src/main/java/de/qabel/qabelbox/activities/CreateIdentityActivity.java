@@ -31,6 +31,8 @@ import de.qabel.qabelbox.services.LocalQabelService;
  */
 public class CreateIdentityActivity extends BaseWizardActivity {
 
+    public static final int REQUEST_CODE_IMPORT_IDENTITY = 1;
+
     private String TAG = this.getClass().getSimpleName();
 
     private String mIdentityName;

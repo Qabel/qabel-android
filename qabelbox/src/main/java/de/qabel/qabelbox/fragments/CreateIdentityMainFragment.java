@@ -1,6 +1,8 @@
 package de.qabel.qabelbox.fragments;
 
 import android.app.Activity;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
@@ -8,10 +10,20 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
+import org.json.JSONException;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.URISyntaxException;
+
 import de.qabel.core.config.Identity;
+import de.qabel.core.exceptions.QblDropInvalidURL;
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.activities.CreateIdentityActivity;
+import de.qabel.qabelbox.config.IdentityExportImport;
 import de.qabel.qabelbox.helper.UIHelper;
 import de.qabel.qabelbox.services.LocalQabelService;
 
@@ -48,11 +60,45 @@ public class CreateIdentityMainFragment extends BaseIdentityFragment implements 
             mActivity.handleNextClick();
         }
         if (v == mImportIdentity) {
-            UIHelper.showDialogMessage(getActivity(), R.string.dialog_headline_info, R.string.function_not_yet_implenented);
-            //@lennart: add here functions to import identity. after you import identity call:
-
+			Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+			intent.addCategory(Intent.CATEGORY_OPENABLE);
+			intent.setType("*/*");
+			startActivityForResult(intent, CreateIdentityActivity.REQUEST_CODE_IMPORT_IDENTITY);
         }
     }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode,
+                                 Intent resultData) {
+
+		if (requestCode == CreateIdentityActivity.REQUEST_CODE_IMPORT_IDENTITY && resultCode == Activity.RESULT_OK) {
+			if (resultData != null) {
+				Uri uri = resultData.getData();
+				try (InputStream inputStream = mActivity.getContentResolver().openInputStream(uri);
+					 BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
+					StringBuilder stringBuilder = new StringBuilder();
+					String line;
+					while ((line = reader.readLine()) != null) {
+						stringBuilder.append(line);
+					}
+					Identity importedIdentity = IdentityExportImport.parseIdentity(stringBuilder.toString());
+
+					LocalQabelService mService = QabelBoxApplication.getInstance().getService();
+					mService.addIdentity(importedIdentity);
+					if (mService.getActiveIdentity() == null) {
+						mService.setActiveIdentity(importedIdentity);
+					}
+
+					CreateIdentityActivity activity = (CreateIdentityActivity) mActivity;
+					activity.activityResult = Activity.RESULT_OK;
+					activity.setCreatedIdentity(importedIdentity);
+					activity.completeWizard();
+				} catch (IOException | JSONException | URISyntaxException | QblDropInvalidURL e) {
+					UIHelper.showDialogMessage(getActivity(), R.string.dialog_headline_info, R.string.cant_read_identity);
+				}
+			}
+		}
+	}
 }
 
 

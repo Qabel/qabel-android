@@ -16,7 +16,7 @@ import de.qabel.core.exceptions.QblDropInvalidURL;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 
-public class ResourceExportImportTest {
+public class ContactExportImportTest {
 
     @Test
     public void testExportIdentityAsContact() throws URISyntaxException, QblDropInvalidURL {
@@ -27,7 +27,7 @@ public class ResourceExportImportTest {
                         "http://localhost:6000/1234567890123456789012345678901234567891234"));
         Identity identity = new Identity("Identity", dropURLs, qblECKeyPair);
 
-        assertThat(ResourceExportImport.exportIdentityAsContact(identity), is("{\"QABELALIAS\":\"Identity\",\"QABELDROPURL\":" +
+        assertThat(ContactExportImport.exportIdentityAsContact(identity), is("{\"QABELALIAS\":\"Identity\",\"QABELDROPURL\":" +
                         "[\"http:\\/\\/localhost:6000\\/1234567890123456789012345678901234567891234\"]," +
                         "\"QABELKEYIDENTIFIER\":\"" + qblECKeyPair.getPub().getReadableKeyIdentifier() + "\"}"));
     }
@@ -45,9 +45,9 @@ public class ResourceExportImportTest {
 
         Identity identity = new Identity("Identity", dropURLs, qblECKeyPair);
 
-        String json = ResourceExportImport.exportIdentityAsContact(identity);
+        String json = ContactExportImport.exportIdentityAsContact(identity);
         // Normally a contact wouldn't be imported for the belonging identity, but it doesn't matter for the test
-        Contact contact = ResourceExportImport.parseContactForIdentity(identity, json);
+        Contact contact = ContactExportImport.parseContactForIdentity(identity, json);
 
         assertThat(identity.getAlias(), is(contact.getAlias()));
         assertThat(identity.getDropUrls(), is(contact.getDropUrls()));

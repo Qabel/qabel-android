@@ -157,4 +157,7 @@
     <string name="listdata_loading">Data loading</string>
     <string name="file_list_empty">Your folder contains no data. Click on the add button at bottom to upload own files</string>
     <string name="contact_list_empty">Your contact list is empty. Click on the add button at bottom to add new contacts</string>
+    <string name="cant_read_identity">Can\'t read identity from file</string>
+    <string name="identity_export_failed">Identity export failed!</string>
+    <string name="identity_export_complete">Identity exported</string>
 </resources>

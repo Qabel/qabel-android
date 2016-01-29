@@ -16,11 +16,11 @@ import de.qabel.core.crypto.QblECPublicKey;
 import de.qabel.core.drop.DropURL;
 import de.qabel.core.exceptions.QblDropInvalidURL;
 
-public class ResourceExportImport {
+public class ContactExportImport {
 
-    private static final String TAG_QABEL_ALIAS = "QABELALIAS";
-    private static final String TAG_QABEL_DROP_URLS = "QABELDROPURL";
-    private static final String TAG_QABEL_KEY_IDENTIFIER = "QABELKEYIDENTIFIER";
+    private static final String KEY_ALIAS = "QABELALIAS";
+    private static final String KEY_DROP_URLS = "QABELDROPURL";
+    private static final String KEY_KEY_IDENTIFIER = "QABELKEYIDENTIFIER";
 
     /**
      * Exports the {@link Contact} information as a JSON string from an {@link Identity}
@@ -31,12 +31,12 @@ public class ResourceExportImport {
         JSONObject jsonObject = new JSONObject();
         JSONArray jsonDropUrls = new JSONArray();
         try {
-            jsonObject.put(TAG_QABEL_ALIAS, identity.getAlias());
+            jsonObject.put(KEY_ALIAS, identity.getAlias());
             for (DropURL dropURL : identity.getDropUrls()) {
                 jsonDropUrls.put(dropURL);
             }
-            jsonObject.put(TAG_QABEL_DROP_URLS, jsonDropUrls);
-            jsonObject.put(TAG_QABEL_KEY_IDENTIFIER, identity.getKeyIdentifier());
+            jsonObject.put(KEY_DROP_URLS, jsonDropUrls);
+            jsonObject.put(KEY_KEY_IDENTIFIER, identity.getKeyIdentifier());
         } catch (JSONException e) {
             // Shouldn't be possible to trigger this exception
             throw new RuntimeException("Cannot build JSONObject", e);
@@ -58,12 +58,12 @@ public class ResourceExportImport {
         JSONObject jsonObject = new JSONObject(json);
 
         Collection<DropURL> dropURLs = new ArrayList<>();
-        String alias = jsonObject.getString(TAG_QABEL_ALIAS);
-        JSONArray jsonDropURLS = jsonObject.getJSONArray(TAG_QABEL_DROP_URLS);
+        String alias = jsonObject.getString(KEY_ALIAS);
+        JSONArray jsonDropURLS = jsonObject.getJSONArray(KEY_DROP_URLS);
         for (int i = 0; i < jsonDropURLS.length(); i++) {
             dropURLs.add(new DropURL(jsonDropURLS.getString(i)));
         }
-        String keyIdentifier = jsonObject.getString(TAG_QABEL_KEY_IDENTIFIER);
+        String keyIdentifier = jsonObject.getString(KEY_KEY_IDENTIFIER);
 
         return new Contact(identity, alias, dropURLs, new QblECPublicKey(Hex.decode(keyIdentifier)));
     }

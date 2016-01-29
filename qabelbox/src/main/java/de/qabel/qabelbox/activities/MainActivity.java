@@ -93,6 +93,7 @@ public class MainActivity extends AppCompatActivity
     private static final int REQUEST_CODE_CHOOSE_EXPORT = 14;
     private static final int REQUEST_CREATE_IDENTITY = 16;
     private static final int REQUEST_SETTINGS = 17;
+    public static final int REQUEST_EXPORT_IDENTITY = 18;
     private static final String FALLBACK_MIMETYPE = "application/octet-stream";
     private static final int NAV_GROUP_IDENTITIES = 1;
     private static final int NAV_GROUP_IDENTITY_ACTIONS = 2;

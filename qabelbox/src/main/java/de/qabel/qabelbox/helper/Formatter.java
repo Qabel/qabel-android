@@ -13,7 +13,7 @@ import de.qabel.qabelbox.R;
 /**
  * Created by danny on 14.01.2016.
  */
-public class Formater {
+public class Formatter {
 
     private static final long KB = 1024;
     private static final long MB = 1024 * 1024;
@@ -61,10 +61,7 @@ public class Formater {
 
     public static boolean isEMailValid(String email) {
 
-        final String EMAIL_PATTERN =
-                "^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@"
-                        + "[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$";
-
+        final String EMAIL_PATTERN = "^.+@.+$";
         Pattern pattern = Pattern.compile(EMAIL_PATTERN);
         return pattern.matcher(email).matches();
     }

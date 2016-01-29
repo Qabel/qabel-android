@@ -17,7 +17,7 @@ import java.util.Calendar;
 import java.util.Date;
 
 import de.qabel.qabelbox.R;
-import de.qabel.qabelbox.helper.Formater;
+import de.qabel.qabelbox.helper.Formatter;
 import de.qabel.qabelbox.storage.BoxFile;
 import de.qabel.qabelbox.storage.BoxObject;
 import de.qabel.qabelbox.storage.StorageSearch;
@@ -89,11 +89,11 @@ public class FileSearchFilterFragment extends BaseFragment implements SeekBar.On
                     public void onSuccess(int year, int month, int day) {
                         mMinDate = getStartOfDay(getDate(year, month, day)).getTime() / 1000;
                         mNewMinDate = mMinDate;
-                        mTvMinDate.setText(Formater.formatDateShort(mMinDate * 1000));
+                        mTvMinDate.setText(Formatter.formatDateShort(mMinDate * 1000));
                         if (mMinDate > mMaxDate) {
                             mMaxDate = getEndOfDay(getDate(year, month, day)).getTime() / 1000;
                             mNewMaxDate = mMaxDate;
-                            mTvMaxDate.setText(Formater.formatDateShort(mMaxDate * 1000));
+                            mTvMaxDate.setText(Formatter.formatDateShort(mMaxDate * 1000));
 
                         }
                     }
@@ -109,11 +109,11 @@ public class FileSearchFilterFragment extends BaseFragment implements SeekBar.On
                     public void onSuccess(int year, int month, int day) {
                         mMaxDate = getEndOfDay(getDate(year, month, day)).getTime() / 1000;
                         mNewMaxDate = mMaxDate;
-                        mTvMaxDate.setText(Formater.formatDateShort(mMaxDate * 1000));
+                        mTvMaxDate.setText(Formatter.formatDateShort(mMaxDate * 1000));
                         if (mMaxDate < mMinDate) {
                             mMinDate = getStartOfDay(getDate(year, month, day)).getTime() / 1000;
                             mNewMinDate = mMinDate;
-                            mTvMinDate.setText(Formater.formatDateShort(mMinDate * 1000));
+                            mTvMinDate.setText(Formatter.formatDateShort(mMinDate * 1000));
                         }
 
                     }
@@ -140,17 +140,17 @@ public class FileSearchFilterFragment extends BaseFragment implements SeekBar.On
     }
 
     private void updateInitialUI() {
-        mTvMinFileSize.setText(Formater.formatFileSizeHumanReadable(getActivity(), mMinFileSize));
-        mTvMaxFileSize.setText(Formater.formatFileSizeHumanReadable(getActivity(), mMaxFileSize));
+        mTvMinFileSize.setText(Formatter.formatFileSizeHumanReadable(getActivity(), mMinFileSize));
+        mTvMaxFileSize.setText(Formatter.formatFileSizeHumanReadable(getActivity(), mMaxFileSize));
         if (mFilterData.mDateMax != null) {
-            mTvMaxDate.setText(Formater.formatDateShort(mFilterData.mDateMax));
+            mTvMaxDate.setText(Formatter.formatDateShort(mFilterData.mDateMax));
         } else {
-            mTvMaxDate.setText(Formater.formatDateShort(mMaxDate * 1000));
+            mTvMaxDate.setText(Formatter.formatDateShort(mMaxDate * 1000));
         }
         if (mFilterData.mDateMin != null) {
-            mTvMinDate.setText(Formater.formatDateShort(mFilterData.mDateMin));
+            mTvMinDate.setText(Formatter.formatDateShort(mFilterData.mDateMin));
         } else {
-            mTvMinDate.setText(Formater.formatDateShort(mMinDate * 1000));
+            mTvMinDate.setText(Formatter.formatDateShort(mMinDate * 1000));
         }
         mSbFileSizeMin.setMax((int) (mMaxFileSize - mMinFileSize));
         mSbFileSizeMax.setMax((int) (mMaxFileSize - mMinFileSize));
@@ -216,10 +216,10 @@ public class FileSearchFilterFragment extends BaseFragment implements SeekBar.On
     public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
         if (seekBar == mSbFileSizeMax) {
 
-            mTvMaxFileSize.setText(Formater.formatFileSizeHumanReadable(getActivity(), progress + mMinFileSize));
+            mTvMaxFileSize.setText(Formatter.formatFileSizeHumanReadable(getActivity(), progress + mMinFileSize));
         }
         if (seekBar == mSbFileSizeMin) {
-            mTvMinFileSize.setText(Formater.formatFileSizeHumanReadable(getActivity(), progress + mMinFileSize));
+            mTvMinFileSize.setText(Formatter.formatFileSizeHumanReadable(getActivity(), progress + mMinFileSize));
         }
 
     }

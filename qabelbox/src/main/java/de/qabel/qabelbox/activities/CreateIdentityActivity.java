@@ -5,7 +5,6 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.SeekBar;
-import android.widget.Toast;
 
 import java.net.URI;
 import java.util.ArrayList;
@@ -131,10 +130,6 @@ public class CreateIdentityActivity extends BaseWizardActivity {
     @Override
     public void completeWizard() {
 
-        if (QabelBoxApplication.getInstance().getService().getIdentities().getIdentities().size() == 0) {
-            Toast.makeText(this, "not finished ", Toast.LENGTH_SHORT).show();
-            return;
-        }
         Intent result = new Intent();
         result.putExtra(P_IDENTITY, mNewIdentity);
         setResult(activityResult, result);

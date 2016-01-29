@@ -23,7 +23,7 @@ import de.qabel.qabelbox.fragments.CreateAccountFinalFragment;
 import de.qabel.qabelbox.fragments.CreateAccountMainFragment;
 import de.qabel.qabelbox.fragments.CreateAccountPasswordFragment;
 import de.qabel.qabelbox.fragments.CreateIdentityEditTextFragment;
-import de.qabel.qabelbox.helper.Formater;
+import de.qabel.qabelbox.helper.Formatter;
 import de.qabel.qabelbox.helper.UIHelper;
 import okhttp3.Call;
 import okhttp3.Response;
@@ -119,7 +119,7 @@ public class CreateAccountActivity extends BaseWizardActivity {
         if (error) {
             return getString(R.string.create_identity_enter_all_data);
         }
-        if (!Formater.isEMailValid(editText)) {
+        if (!Formatter.isEMailValid(editText)) {
             return getString(R.string.email_adress_invalid);
         }
         return null;
@@ -269,24 +269,9 @@ public class CreateAccountActivity extends BaseWizardActivity {
             mActionNext.setTitle(R.string.btn_create_identity);
         }
     }
-/*
-    @Override
-    public void onBackPressed() {
-
-        super.onBackPressed();
-    }*/
 
     @Override
     protected boolean canShowNext(int step) {
-/*
-        if (step == 1) {
-            Toast.makeText(this, "name", Toast.LENGTH_SHORT).show();
-            return false;
-        }
-        if (step == 2) {
-            Toast.makeText(this, "email", Toast.LENGTH_SHORT).show();
-            return false;
-        }*/
 
         if (step == fragments.length - 2) {
             register(mBoxAccountName, mBoxAccountPassword1, mBoxAccountPassword2, mBoxAccountEMail);

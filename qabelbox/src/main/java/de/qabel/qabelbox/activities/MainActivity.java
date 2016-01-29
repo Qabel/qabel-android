@@ -16,6 +16,7 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.provider.DocumentsContract;
 import android.provider.OpenableColumns;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
@@ -112,6 +113,7 @@ public class MainActivity extends AppCompatActivity
     // of the create document intent.
     private Uri exportUri;
     private LocalQabelService mService;
+    private ServiceConnection mServiceConnection;
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -249,22 +251,8 @@ public class MainActivity extends AppCompatActivity
         initFloatingActionButton();
 
         Intent serviceIntent = new Intent(this, LocalQabelService.class);
-        bindService(serviceIntent, new ServiceConnection() {
-
-            @Override
-            public void onServiceConnected(ComponentName name, IBinder service) {
-
-                LocalQabelService.LocalBinder binder = (LocalQabelService.LocalBinder) service;
-                mService = binder.getService();
-                onLocalServiceConnected();
-            }
-
-            @Override
-            public void onServiceDisconnected(ComponentName name) {
-
-                mService = null;
-            }
-        }, Context.BIND_AUTO_CREATE);
+        mServiceConnection = getServiceConnection();
+        bindService(serviceIntent, mServiceConnection, Context.BIND_AUTO_CREATE);
 
         getFragmentManager().addOnBackStackChangedListener(new FragmentManager.OnBackStackChangedListener() {
             @Override
@@ -288,6 +276,26 @@ public class MainActivity extends AppCompatActivity
                 }
             }
         });
+    }
+
+    @NonNull
+    private ServiceConnection getServiceConnection() {
+
+        return new ServiceConnection() {
+
+            @Override
+            public void onServiceConnected(ComponentName name, IBinder service) {
+                LocalQabelService.LocalBinder binder = (LocalQabelService.LocalBinder) service;
+                mService = binder.getService();
+                onLocalServiceConnected();
+            }
+
+            @Override
+            public void onServiceDisconnected(ComponentName name) {
+
+                mService = null;
+            }
+        };
     }
 
     private void onLocalServiceConnected() {
@@ -793,6 +801,13 @@ public class MainActivity extends AppCompatActivity
         intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
         // the activity result will handle the actual file copy
         startActivityForResult(intent, REQUEST_CODE_CHOOSE_EXPORT);
+    }
+
+    @Override
+    protected void onDestroy() {
+
+        unbindService(mServiceConnection);
+        super.onDestroy();
     }
 
     @Override

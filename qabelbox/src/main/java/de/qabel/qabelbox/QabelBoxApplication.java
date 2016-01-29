@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.IBinder;
+import android.support.annotation.NonNull;
 
 import org.spongycastle.jce.provider.BouncyCastleProvider;
 
@@ -27,6 +28,8 @@ public class QabelBoxApplication extends Application {
         Security.insertProviderAt(new BouncyCastleProvider(), 1);
     }
 
+    private ServiceConnection mServiceConnection;
+
     public BoxProvider getProvider() {
 
         return boxProvider;
@@ -43,7 +46,20 @@ public class QabelBoxApplication extends Application {
         super.onCreate();
         mInstance = this;
         Intent intent = new Intent(this, LocalQabelService.class);
-        bindService(intent, new ServiceConnection() {
+        mServiceConnection = getServiceConnection();
+        bindService(intent, mServiceConnection, Context.BIND_AUTO_CREATE);
+    }
+
+    @Override
+    public void onTerminate() {
+        unbindService(mServiceConnection);
+        super.onTerminate();
+    }
+
+    @NonNull
+    private ServiceConnection getServiceConnection() {
+
+        return new ServiceConnection() {
             @Override
             public void onServiceConnected(ComponentName name, IBinder service) {
 
@@ -56,11 +72,11 @@ public class QabelBoxApplication extends Application {
 
                 mService = null;
             }
-        }, Context.BIND_AUTO_CREATE);
+        };
     }
 
     public LocalQabelService getService() {
-        return mService;
 
+        return mService;
     }
 }

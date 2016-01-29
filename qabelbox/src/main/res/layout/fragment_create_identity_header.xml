@@ -73,6 +73,7 @@
                 android:layout_gravity="center_horizontal"
                 android:lines="1"
                 android:text="walter warum"
+                style="@style/MessageText"
                 android:textColor="@color/default_text_color"/>
 
 

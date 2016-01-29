@@ -1,28 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:layout_gravity="center_horizontal">
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_gravity="center_horizontal">
 
     <ImageView
         android:id="@+id/fileFolderIcon"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
+        style="@style/ListIcon"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
-        android:layout_alignParentTop="true" />
+        android:layout_alignParentTop="true"/>
 
     <de.qabel.qabelbox.views.TextViewFont
         android:id="@+id/textViewFolderName"
+        style="@style/ListFirstTextLine"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:layout_marginLeft="5dp"
-        android:layout_toRightOf="@+id/fileFolderIcon" />
+        android:layout_toRightOf="@+id/fileFolderIcon"/>
 
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    <LinearLayout
+        style="@style/ListSecondTextLine"
+        xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
+
         android:layout_height="wrap_content"
         android:layout_below="@+id/textViewFolderName"
         android:layout_toEndOf="@+id/fileFolderIcon"
@@ -33,16 +36,18 @@
         <de.qabel.qabelbox.views.TextViewFont
             android:id="@+id/textViewFolderDetailLeft"
             android:layout_width="0dp"
+            style="@style/ListSecondTextLine"
             android:layout_height="wrap_content"
             android:layout_weight="2"
-            android:textSize="@dimen/abc_text_size_small_material" />
+          />
 
         <de.qabel.qabelbox.views.TextViewFont
             android:id="@+id/textViewFolderDetailMiddle"
             android:layout_width="0dp"
+            style="@style/ListSecondTextLine"
             android:layout_height="wrap_content"
             android:layout_weight="2"
-            android:textSize="@dimen/abc_text_size_small_material" />
+            />
 
         <de.qabel.qabelbox.views.TextViewFont
             android:id="@+id/textViewFolderDetailRight"
@@ -51,6 +56,6 @@
             android:layout_weight="1"
             android:gravity="right"
             android:textAlignment="gravity"
-            android:textSize="@dimen/abc_text_size_small_material" />
+            style="@style/ListSecondTextLine"/>
     </LinearLayout>
 </RelativeLayout>

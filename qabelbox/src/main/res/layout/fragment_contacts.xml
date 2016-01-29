@@ -13,10 +13,6 @@
             android:id="@+id/contact_list"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true"
-            android:layout_alignParentTop="true"
             android:layout_gravity="center_horizontal|top"
             android:scrollbars="vertical"/>
 
@@ -29,7 +25,7 @@
             android:visibility="visible">
 
             <de.qabel.qabelbox.views.TextViewFont
-                style="@style/listview_loading_text"
+                style="@style/ListViewLoadingText"
                 android:text="@string/contact_list_empty"
 
                 />

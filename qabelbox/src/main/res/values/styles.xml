@@ -18,11 +18,13 @@
         <item name="colorButtonNormal">@color/colorAccent</item>
         <item name="alertDialogTheme">@style/AppCompatAlertDialogStyle</item>
     </style>
+
     <style name="AppCompatAlertDialogStyle" parent="Theme.AppCompat.Light.Dialog.Alert">
         <item name="colorAccent">@color/colorAccent</item>
         <item name="android:textColorPrimary">@color/default_text_color</item>
 
     </style>
+
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar"/>
 
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light">
@@ -33,16 +35,67 @@
     </style>
 
     <style name="Button">
+        <item name="android:background">@color/colorPrimary</item>
         <item name="android:textSize">16sp</item>
         <item name="android:textColor">@color/white</item>
         <item name="android:textStyle">bold</item>
     </style>
 
-    <style name="listview_loading_text">
+    <style name="ButtonSecondary" parent="Button">
+        <item name="android:textSize">14sp</item>
+        <item name="android:textStyle">normal</item>
+    </style>
+
+    <style name="ListViewLoadingText">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_gravity">center</item>
         <item name="android:textColor">@color/default_text_color</item>
         <item name="android:textSize">@dimen/textsize_empty_view</item>
+    </style>
+
+    <!-- style for edit text-->
+    <style name="EditText">
+        <item name="android:lines">1</item>
+        <item name="android:maxLines">1</item>
+        <item name="android:textSize">@dimen/textsize_edittext</item>
+        <item name="android:singleLine">true</item>
+    </style>
+    <!-- style for standard text message field-->
+    <style name="MessageText">
+        <item name="android:textColor">@color/default_text_color</item>
+        <item name="android:textSize">@dimen/textsize_normal</item>
+    </style>
+
+    <style name="TextViewButton" parent="MessageText">
+        <item name="android:paddingTop">5dp</item>
+        <item name="android:paddingBottom">5dp</item>
+        <item name="android:clickable">true</item>
+        <item name="android:textColor">@color/colorPrimary</item>
+    </style>
+
+    <style name="ListIcon">
+        <item name="android:layout_width">50dp</item>
+        <item name="android:layout_height">50dp</item>
+        <item name="android:layout_alignParentLeft">true</item>
+        <item name="android:layout_alignParentStart">true</item>
+        <item name="android:layout_alignParentTop">true</item>
+        <item name="android:padding">5dp</item>
+        <item name="android:contentDescription">@string/item_image</item>
+    </style>
+
+    <style name="ListFirstTextLine">
+        <item name="android:textStyle">bold</item>
+        <item name="android:textSize">@dimen/textsize_list_first_line</item>
+    </style>
+
+    <style name="ListSecondTextLine">
+        <item name="android:textSize">@dimen/textsize_list_second_line</item>
+    </style>
+
+    <style name="ListItemContactBackground">
+        <item name="android:paddingBottom">5dp</item>
+        <item name="android:background">#00000000</item>
+        <item name="android:paddingTop">5dp</item>
     </style>
 </resources>

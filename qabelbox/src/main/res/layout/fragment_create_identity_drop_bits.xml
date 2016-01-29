@@ -22,6 +22,7 @@
         <de.qabel.qabelbox.views.TextViewFont
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            style="@style/MessageText"
             android:layout_alignParentLeft="true"
             android:layout_below="@id/sb_security"
             android:text="@string/identity_security_low"/>
@@ -30,6 +31,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
+            style="@style/MessageText"
             android:layout_below="@id/sb_security"
             android:text="@string/identity_security_high"/>
     </RelativeLayout>
@@ -45,7 +47,7 @@
         android:gravity="left"
         android:minLines="5"
         android:text="@string/create_identity_select_security"
-        android:textSize="@dimen/textsize_normal"/>
+        style="@style/MessageText"/>
 
     <Space
         android:layout_width="wrap_content"

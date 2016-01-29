@@ -12,9 +12,7 @@
         android:id="@+id/tv_success"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:lines="1"
-        android:maxLines="1"
-        android:singleLine="true"
+        style="@style/MessageText"
         android:text="@string/create_identity_successfull"
         android:textStyle="bold" />
 
@@ -27,10 +25,10 @@
         android:id="@+id/tv_message"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="left"
+
         android:minLines="5"
         android:text="@string/create_identity_final"
-        android:textSize="@dimen/textsize_normal" />
+        style="@style/MessageText"/>
 
     <Space
         android:layout_width="wrap_content"

@@ -5,23 +5,13 @@
               android:layout_height="wrap_content"
               android:layout_gravity="center_horizontal"
               android:orientation="horizontal"
-              android:paddingBottom="5dp"
-              android:layout_marginTop="5dp"
-              android:layout_marginBottom="5dp"
-              android:background="#11000000"
-              android:paddingTop="5dp">
+              style="@style/ListItemContactBackground">
 
     <ImageView
         android:id="@+id/itemIcon"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentTop="true"
-        android:padding="5dp"
 
-        android:contentDescription="@string/item_image"
-        android:src="@drawable/qabel_logo"/>
+        android:src="@drawable/qabel_logo"
+        style="@style/ListIcon"/>
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -31,10 +21,9 @@
 
         <de.qabel.qabelbox.views.TextViewFont
             android:id="@+id/textViewItemName"
-            android:textStyle="bold"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            />
+            style="@style/ListFirstTextLine"/>
 
 
         <de.qabel.qabelbox.views.TextViewFont
@@ -42,6 +31,6 @@
             android:visibility="gone"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            />
+            style="@style/ListSecondTextLine"/>
     </LinearLayout>
 </LinearLayout>

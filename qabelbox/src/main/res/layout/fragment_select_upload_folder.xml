@@ -20,19 +20,21 @@
             android:layout_alignParentTop="true"
             android:layout_above="@+id/buttonAbortUpload"/>
 
-        <de.qabel.qabelbox.views.ButtonFont
+        <de.qabel.qabelbox.views.TextViewFont
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/abort"
             android:id="@+id/buttonAbortUpload"
+            style="@style/TextViewButton"
             android:layout_alignParentBottom="true"
             android:layout_alignParentRight="true"
             android:layout_alignParentEnd="true"/>
 
-        <de.qabel.qabelbox.views.ButtonFont
+        <de.qabel.qabelbox.views.TextViewFont
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/upload"
+            style="@style/TextViewButton"
             android:id="@+id/buttonUpload"
             android:layout_alignParentBottom="true"
             android:layout_alignParentLeft="true"

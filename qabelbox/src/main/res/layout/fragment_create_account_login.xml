@@ -9,22 +9,18 @@
 
     <de.qabel.qabelbox.views.EditTextFont
         android:id="@+id/et_username"
+        style="@style/EditText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="@string/create_account_username_hint"
-        android:lines="1"
-        android:maxLines="1"
-        android:singleLine="true"/>
+        android:hint="@string/create_account_username_hint"/>
 
     <de.qabel.qabelbox.views.EditTextFont
         android:id="@+id/et_password"
+        style="@style/EditText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="@string/create_account_password1_hint"
-        android:inputType="textPassword"
-        android:lines="1"
-        android:maxLines="1"
-        android:singleLine="true"/>
+        android:inputType="textPassword"/>
 
 
     <Space
@@ -34,12 +30,12 @@
 
     <de.qabel.qabelbox.views.TextViewFont
         android:id="@+id/tv_message"
+        style="@style/MessageText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="left"
-        android:text="@string/create_account_login_infos"
 
-        android:textSize="@dimen/textsize_normal"/>
+        android:text="@string/create_account_login_infos"/>
 
     <Space
         android:layout_width="wrap_content"
@@ -48,14 +44,14 @@
 
     <de.qabel.qabelbox.views.TextViewFont
         android:id="@+id/reset_password"
+        style="@style/TextViewButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="7dp"
-        android:layout_marginTop="7dp"
+
         android:gravity="right"
-        android:text="@string/btn_reset_password"
         android:textColor="@color/colorPrimary"
-        android:textSize="@dimen/textsize_normal"/>
+        android:text="@string/btn_reset_password"
+     />
 
 
     <Space

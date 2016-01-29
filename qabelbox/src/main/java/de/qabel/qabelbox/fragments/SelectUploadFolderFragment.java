@@ -9,6 +9,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.TextView;
+
+import org.w3c.dom.Text;
 
 import de.qabel.qabelbox.storage.BoxNavigation;
 import de.qabel.qabelbox.R;
@@ -21,8 +24,8 @@ public class SelectUploadFolderFragment extends FilesFragment {
     private Uri uri;
     private RecyclerView.LayoutManager recyclerViewLayoutManager;
     private OnSelectedUploadFolderListener mListener;
-    private Button buttonUpload;
-    private Button buttonAbortUpload;
+    private TextView buttonUpload;
+    private TextView buttonAbortUpload;
 
 
     @Override
@@ -43,7 +46,7 @@ public class SelectUploadFolderFragment extends FilesFragment {
 
         filesListRecyclerView.setAdapter(filesAdapter);
 
-        buttonUpload = (Button) view.findViewById(R.id.buttonUpload);
+        buttonUpload = (TextView) view.findViewById(R.id.buttonUpload);
         buttonUpload.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -51,7 +54,7 @@ public class SelectUploadFolderFragment extends FilesFragment {
             }
         });
 
-        buttonAbortUpload = (Button) view.findViewById(R.id.buttonAbortUpload);
+        buttonAbortUpload = (TextView) view.findViewById(R.id.buttonAbortUpload);
         buttonAbortUpload.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

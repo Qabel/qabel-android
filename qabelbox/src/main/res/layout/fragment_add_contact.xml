@@ -13,6 +13,7 @@
             android:layout_height="wrap_content"
             android:id="@+id/editTextContactName"
             android:hint="@string/contact_name"
+            style="@style/EditText"
             android:drawableStart="@drawable/ic_perm_identity_black"
             android:layout_below="@+id/textView"
             android:layout_alignParentStart="true"
@@ -21,6 +22,7 @@
         <de.qabel.qabelbox.views.EditTextFont
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            style="@style/EditText"
             android:id="@+id/editTextContactDropURL"
             android:layout_below="@+id/editTextContactName"
             android:inputType="textUri"
@@ -34,6 +36,7 @@
             android:layout_height="wrap_content"
             android:id="@+id/editTextContactPublicKey"
             android:hint="@string/contact_public_key"
+            style="@style/EditText"
             android:drawableStart="@drawable/ic_settings_black"
             android:layout_below="@+id/editTextContactDropURL"
             android:layout_alignEnd="@+id/editTextContactDropURL"
@@ -44,7 +47,10 @@
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceLarge"
             android:text="@string/add_contacts"
+            style="@style/MessageText"
             android:id="@+id/textView"
+            android:layout_marginBottom="@dimen/activity_vertical_margin"
+            android:layout_marginTop="@dimen/activity_vertical_margin"
             android:layout_alignParentTop="true"
             android:layout_centerHorizontal="true" />
 

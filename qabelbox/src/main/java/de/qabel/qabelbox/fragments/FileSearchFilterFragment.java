@@ -12,6 +12,7 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 
 import org.apache.commons.lang3.time.DateUtils;
+import org.w3c.dom.Text;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -42,8 +43,8 @@ public class FileSearchFilterFragment extends BaseFragment implements SeekBar.On
 
     private SeekBar mSbFileSizeMin;
     private SeekBar mSbFileSizeMax;
-    private Button btSelectMinDate;
-    private Button btSelectMaxDate;
+    private TextView btSelectMinDate;
+    private TextView btSelectMaxDate;
 
     public static FileSearchFilterFragment newInstance(FilterData data, StorageSearch searchResult, CallbackListener listener) {
         FileSearchFilterFragment fragment = new FileSearchFilterFragment();
@@ -71,8 +72,8 @@ public class FileSearchFilterFragment extends BaseFragment implements SeekBar.On
         mTvMaxDate = (TextView) view.findViewById(R.id.tvMaxDate);
         mSbFileSizeMin = (SeekBar) view.findViewById(R.id.sbFileSizeMin);
         mSbFileSizeMax = (SeekBar) view.findViewById(R.id.sbFileSizeMax);
-        btSelectMinDate = (Button) view.findViewById(R.id.btMinDate);
-        btSelectMaxDate = (Button) view.findViewById(R.id.btMaxDate);
+        btSelectMinDate = (TextView) view.findViewById(R.id.btMinDate);
+        btSelectMaxDate = (TextView) view.findViewById(R.id.btMaxDate);
         updateInitialUI();
         mSbFileSizeMin.setOnSeekBarChangeListener(this);
         mSbFileSizeMax.setOnSeekBarChangeListener(this);

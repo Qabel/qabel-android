@@ -40,8 +40,6 @@
         <item quantity="other">shared with %d persons.</item>
     </plurals>
 
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="upload">Upload</string>
     <string name="abort">Abort</string>
     <string name="Delete">Delete</string>
@@ -67,14 +65,14 @@
     <string name="add_folder_name">Enter new folder name</string>
     <string name="create_folder">Create folder</string>
     <string name="uploading_file">Uploading file</string>
-    <string name="error_search_not_posibility">Search error</string>
+    <string name="error_search_not_possibility">Search error</string>
     <string name="headline_searchresult">Search result</string>
     <string name="headline_files">File browser</string>
     <string name="filter">Filter</string>
     <string name="no_entrys_found">No files found</string>
     <string name="load_file_list">Load filelist</string>
     <string name="ab_filesearch_hint">Enter keyword</string>
-    <string name="splash_footer_text">Don\'t trust us...\n...it\'s not necessary!</string>
+    <string name="splash_footer_text">Don\'t trust us…\n...it\'s not necessary!</string>
     <string name="headline_add_contact">Add contact</string>
     <string name="headline_add_identity">Add identity</string>
     <string name="headline_contacts">Contacts</string>
@@ -141,7 +139,7 @@
     <string name="no">No</string>
     <string name="yes">Yes</string>
     <string name="dialog_headline_warning">Warning</string>
-    <string name="message_step_is_needed_or_close_app">For the use of this app is this step necessary. Do you want to quit the app?</string>
+    <string name="message_step_is_needed_or_close_app">This step is necessary to use this app. Do you want to quit the app?</string>
     <string name="skip_create_identity">Skip create identity.</string>
     <string name="last_identity_delete_create_new">You have deleted your last identity. Create a new now</string>
     <string name="server_access_failed_or_invalid_check_internet_connection">Server communication failed. Please check if you entered all data and if you have a stable internet connection</string>

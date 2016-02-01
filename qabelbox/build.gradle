@@ -7,6 +7,7 @@ apply plugin: 'spoon'
 spoon {
     // for debug output
     debug = true
+    noAnimations = true
     // To run a single test class
     //className = 'de.qabel.qabelbox.ui.FileSearchTest'
     //className = 'de.qabel.qabelbox.ui.CreateIdentityTest'

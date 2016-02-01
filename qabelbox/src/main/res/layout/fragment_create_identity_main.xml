@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:layout_alignParentBottom="true"
@@ -12,15 +11,16 @@
     <Space
         android:layout_width="wrap_content"
         android:layout_height="20dp"
-        android:layout_weight="1"/>
+        android:layout_weight="1" />
 
     <de.qabel.qabelbox.views.ButtonFont
         android:id="@+id/bt_create_identity"
         style="@style/Button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+
         android:drawableRight="@drawable/ic_icon_arrow_right"
-        android:text="@string/create_identity_create"/>
+        android:text="@string/create_identity_create" />
 
 
     <de.qabel.qabelbox.views.ButtonFont
@@ -28,14 +28,14 @@
         style="@style/Button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
         android:drawableRight="@drawable/ic_icon_arrow_right"
-        android:text="@string/create_identity_import"
-        />
+        android:text="@string/create_identity_import" />
 
     <Space
         android:layout_width="wrap_content"
         android:layout_height="20dp"
-        android:layout_weight="1"/>
+        android:layout_weight="1" />
 
 </LinearLayout>
 

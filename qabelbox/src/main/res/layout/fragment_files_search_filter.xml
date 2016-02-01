@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@color/colorBottomBackground"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:background="@color/colorBottomBackground"
 
-    android:orientation="vertical">
+              android:orientation="vertical">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -17,11 +17,12 @@
         android:paddingTop="@dimen/activity_vertical_margin">
 
         <de.qabel.qabelbox.views.TextViewFont
+            style="@style/MessageText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/filter_label_filesize"
             android:textAppearance="?android:attr/textAppearanceLarge"
-            android:textStyle="bold" />
+            android:textStyle="bold"/>
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -31,24 +32,27 @@
 
             <de.qabel.qabelbox.views.TextViewFont
                 android:id="@+id/tvMinFileSize"
+                style="@style/MessageText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentRight="true"
-                android:text="1243 Bytes" />
+                android:text="1243 Bytes"/>
 
             <de.qabel.qabelbox.views.TextViewFont
 
+                style="@style/MessageText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentRight="true"
-                android:text=" - " />
+                android:text=" - "/>
 
             <de.qabel.qabelbox.views.TextViewFont
                 android:id="@+id/tvMaxFileSize"
+                style="@style/MessageText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentRight="true"
-                android:text="239 KB" />
+                android:text="239 KB"/>
 
         </LinearLayout>
 
@@ -57,7 +61,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
-            android:paddingTop="5dp" />
+            android:paddingTop="5dp"/>
 
         <SeekBar
             android:id="@+id/sbFileSizeMax"
@@ -65,7 +69,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
-            android:layout_marginTop="10dp" />
+            android:layout_marginTop="10dp"/>
     </LinearLayout>
 
     <LinearLayout
@@ -78,12 +82,13 @@
 
         <de.qabel.qabelbox.views.TextViewFont
             android:id="@+id/textView3"
+            style="@style/MessageText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/filter_label_date"
             android:textAppearance="?android:attr/textAppearanceLarge"
 
-            android:textStyle="bold" />
+            android:textStyle="bold"/>
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -97,26 +102,28 @@
 
                 <de.qabel.qabelbox.views.TextViewFont
                     android:id="@+id/tvMinDate"
+                    style="@style/MessageText"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:text="12.02.2015" />
+                    android:text="12.02.2015"/>
 
-                <de.qabel.qabelbox.views.ButtonFont
+                <de.qabel.qabelbox.views.TextViewFont
                     android:id="@+id/btMinDate"
-
+                    style="@style/TextViewButton"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="5dp"
-                    android:background="@color/colorPrimary"
+android:layout_gravity="center"
+
                     android:text="@string/change"
-                    android:textColor="@color/white" />
+                    />
             </LinearLayout>
 
             <de.qabel.qabelbox.views.TextViewFont
+                style="@style/MessageText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text=" - " />
+                android:text=" - "/>
 
             <LinearLayout
                 android:layout_width="wrap_content"
@@ -125,19 +132,22 @@
 
                 <de.qabel.qabelbox.views.TextViewFont
                     android:id="@+id/tvMaxDate"
+                    style="@style/MessageText"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:text="12.02.2015" />
+                    android:text="12.02.2015"/>
 
-                <de.qabel.qabelbox.views.ButtonFont
+                <de.qabel.qabelbox.views.TextViewFont
                     android:id="@+id/btMaxDate"
+                    style="@style/TextViewButton"
+                    android:layout_gravity="center"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="5dp"
-                    android:background="@color/colorPrimary"
+
+
                     android:text="Change"
-                    android:textColor="@color/white" />
+                    />
             </LinearLayout>
 
         </LinearLayout>

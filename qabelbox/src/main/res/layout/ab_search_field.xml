@@ -12,6 +12,7 @@
         android:hint="@string/ab_filesearch_hint"
         android:imeOptions="actionSearch"
         android:inputType="text"
+        android:textSize="@dimen/textsize_ab_edittext"
         android:textColor="@color/white"
         android:textCursorDrawable="@null"/>
 

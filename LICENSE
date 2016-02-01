@@ -206,6 +206,6 @@ The full license text may be accessed under <http://www.qabel.de>
 
 ----------------------------------------------------------------------------------------------------
 Used third party librarys
--> see build.gradle
-
+1. -> see build.gradle
+2. -> https://android.googlesource.com/platform/frameworks/testing/+/61a929bd4642b9042bfb05b85340c1761ab90733/espresso/espresso-contrib/src/main/java/com/google/android/apps/common/testing/ui/espresso/contrib/DrawerActions.java
 Used third party assets

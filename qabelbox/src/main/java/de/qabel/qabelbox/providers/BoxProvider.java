@@ -72,8 +72,8 @@ public class BoxProvider extends DocumentsProvider {
 
     public static final String[] DEFAULT_ROOT_PROJECTION = new
             String[]{Root.COLUMN_ROOT_ID, Root.COLUMN_MIME_TYPES,
-                    Root.COLUMN_FLAGS, Root.COLUMN_ICON, Root.COLUMN_TITLE,
-                    Root.COLUMN_SUMMARY, Root.COLUMN_DOCUMENT_ID,};
+            Root.COLUMN_FLAGS, Root.COLUMN_ICON, Root.COLUMN_TITLE,
+            Root.COLUMN_SUMMARY, Root.COLUMN_DOCUMENT_ID,};
 
     public static final String[] DEFAULT_DOCUMENT_PROJECTION = new
             String[]{Document.COLUMN_DOCUMENT_ID, Document.COLUMN_MIME_TYPE,
@@ -82,7 +82,7 @@ public class BoxProvider extends DocumentsProvider {
 
 
     public static final String AUTHORITY = "de.qabel.qabelbox.providers.documents";
-    public static final String PATH_SEP= "/";
+    public static final String PATH_SEP = "/";
     public static final String DOCID_SEPARATOR = "::::";
 
     public static final String BUCKET = "qabel";
@@ -172,8 +172,9 @@ public class BoxProvider extends DocumentsProvider {
         }
     }
 
-	/**
+    /**
      * Used to temporary inject the service if it is not ready yet
+     *
      * @param service
      */
     public void setLocalService(LocalQabelService service) {
@@ -184,6 +185,7 @@ public class BoxProvider extends DocumentsProvider {
 
     @Override
     public Cursor queryRoots(String[] projection) throws FileNotFoundException {
+
         String[] netProjection = reduceProjection(projection, DEFAULT_ROOT_PROJECTION);
 
         MatrixCursor result = new MatrixCursor(netProjection);
@@ -191,7 +193,7 @@ public class BoxProvider extends DocumentsProvider {
             return result;
         }
         Identities identities = mService.getIdentities();
-        for (Identity identity: identities.getIdentities()) {
+        for (Identity identity : identities.getIdentities()) {
             final MatrixCursor.RowBuilder row = result.newRow();
             String pub_key = identity.getEcPublicKey().getReadableKeyIdentifier();
             row.add(Root.COLUMN_ROOT_ID,
@@ -215,10 +217,15 @@ public class BoxProvider extends DocumentsProvider {
         }
         HashSet<String> supported = new HashSet<>(Arrays.asList(supportedProjection));
         ArrayList<String> result = new ArrayList<>();
-        for (String column: projection) {
+        for (String column : projection) {
             if (supported.contains(column)) {
                 result.add(column);
+            } else {
+                Log.w(TAG, "requested cursor field don't supported " + column);
             }
+        }
+        if (result.size() == 0) {
+            Log.e(TAG, "cursors contain no fields after reduceProjection");
         }
         return result.toArray(projection);
     }
@@ -239,13 +246,12 @@ public class BoxProvider extends DocumentsProvider {
         setUpTransferUtility();
 
         return new BoxVolume(transferUtility, awsCredentials, key, bucket, prefix,
-                    mService.getDeviceID(), getContext());
+                mService.getDeviceID(), getContext());
     }
 
     @Override
     public Cursor queryDocument(String documentId, String[] projection)
             throws FileNotFoundException {
-        Log.d(TAG, "Query Document: " + documentId);
         MatrixCursor cursor = createCursor(projection, false);
 
         String filePath = mDocumentIdParser.getFilePath(documentId);
@@ -260,35 +266,38 @@ public class BoxProvider extends DocumentsProvider {
 
         try {
             List<String> strings = mDocumentIdParser.splitPath(mDocumentIdParser.getFilePath(documentId));
-            String basename = strings.remove(strings.size()-1);
+            String basename = strings.remove(strings.size() - 1);
             BoxNavigation navigation =
                     traverseToFolder(volume, strings);
             Log.d(TAG, "Inserting basename " + basename);
             insertFileByName(cursor, navigation, documentId, basename);
         } catch (QblStorageException e) {
+            System.out.println("danny quere rooot no doc");
             Log.i(TAG, "Could not find document " + documentId, e);
             throw new FileNotFoundException("Failed navigating the volume");
         }
+
+        System.out.println("danny quere rooots " + cursor.getCount() + " " + cursor.getColumnCount());
         return cursor;
     }
 
     private BoxVolume getVolumeForId(String documentId) throws FileNotFoundException {
         return getVolumeForRoot(
-                    mDocumentIdParser.getIdentity(documentId),
-                    mDocumentIdParser.getBucket(documentId),
-                    mDocumentIdParser.getPrefix(documentId));
+                mDocumentIdParser.getIdentity(documentId),
+                mDocumentIdParser.getBucket(documentId),
+                mDocumentIdParser.getPrefix(documentId));
     }
 
     void insertFileByName(MatrixCursor cursor, BoxNavigation navigation,
                           String documentId, String basename) throws QblStorageException {
-        for (BoxFolder folder: navigation.listFolders()) {
+        for (BoxFolder folder : navigation.listFolders()) {
             Log.d(TAG, "Checking folder:" + folder.name);
             if (basename.equals(folder.name)) {
                 insertFolder(cursor, documentId, folder);
                 return;
             }
         }
-        for (BoxFile file: navigation.listFiles()) {
+        for (BoxFile file : navigation.listFiles()) {
             Log.d(TAG, "Checking file:" + file.name);
             if (basename.equals(file.name)) {
                 insertFile(cursor, documentId, file);
@@ -315,8 +324,8 @@ public class BoxProvider extends DocumentsProvider {
         boolean cacheHit = (cursor != null);
         if (parentDocumentId.equals(currentFolder) && cacheHit) {
             // best case: we are still in the same folder and we got a cache hit
-			Log.d(TAG, "Up to date cached data found");
-			cursor.setExtraLoading(false);
+            Log.d(TAG, "Up to date cached data found");
+            cursor.setExtraLoading(false);
             return cursor;
         }
         if (cacheHit) {
@@ -326,14 +335,14 @@ public class BoxProvider extends DocumentsProvider {
             Log.d(TAG, "Serving empty listing and refreshing");
             cursor = createCursor(projection, true);
         }
-		currentFolder = parentDocumentId;
-		asyncChildDocuments(parentDocumentId, projection, cursor);
-		return cursor;
+        currentFolder = parentDocumentId;
+        asyncChildDocuments(parentDocumentId, projection, cursor);
+        return cursor;
     }
 
-	/**
+    /**
      * Create and fill a new MatrixCursor
-     *
+     * <p/>
      * The cursor can be modified to show a loading and/or an error message.
      *
      * @param parentDocumentId
@@ -358,13 +367,13 @@ public class BoxProvider extends DocumentsProvider {
         return cursor;
     }
 
-	/**
+    /**
      * Query the directory listing, store the cursor in the folderContentCache and
      * notify the original cursor of the update.
      *
      * @param parentDocumentId
      * @param projection
-     * @param result Original cursor
+     * @param result           Original cursor
      */
     private void asyncChildDocuments(final String parentDocumentId, final String[] projection,
                                      BoxCursor result) {
@@ -391,16 +400,16 @@ public class BoxProvider extends DocumentsProvider {
     @NonNull
     private BoxCursor createCursor(String[] projection, final boolean extraLoading) {
         String[] reduced = reduceProjection(projection, DEFAULT_DOCUMENT_PROJECTION);
-		BoxCursor cursor = new BoxCursor(reduced);
+        BoxCursor cursor = new BoxCursor(reduced);
         cursor.setExtraLoading(extraLoading);
         return cursor;
     }
 
     private void insertFolderListing(MatrixCursor cursor, BoxNavigation navigation, String parentDocumentId) throws QblStorageException {
-        for (BoxFolder folder: navigation.listFolders()) {
+        for (BoxFolder folder : navigation.listFolders()) {
             insertFolder(cursor, parentDocumentId + folder.name + PATH_SEP, folder);
         }
-        for (BoxFile file: navigation.listFiles()) {
+        for (BoxFile file : navigation.listFiles()) {
             insertFile(cursor, parentDocumentId + file.name, file);
         }
     }
@@ -413,6 +422,7 @@ public class BoxProvider extends DocumentsProvider {
         row.add(Document.COLUMN_FLAGS, Document.FLAG_SUPPORTS_WRITE);
         row.add(Document.COLUMN_MIME_TYPE,
                 URLConnection.guessContentTypeFromName(file.name));
+        //@danny todo add data
     }
 
     private void insertFolder(MatrixCursor cursor, String documentId, BoxFolder folder) {
@@ -422,16 +432,18 @@ public class BoxProvider extends DocumentsProvider {
         row.add(Document.COLUMN_SUMMARY, null);
         row.add(Document.COLUMN_FLAGS, Document.FLAG_DIR_SUPPORTS_CREATE);
         row.add(Document.COLUMN_MIME_TYPE, Document.MIME_TYPE_DIR);
+        //@danny todo add data
     }
 
     BoxNavigation traverseToFolder(BoxVolume volume, List<String> filePath) throws QblStorageException {
         Log.d(TAG, "Traversing to " + filePath.toString());
         BoxNavigation navigation = volume.navigate();
-        PARTS: for (String part: filePath) {
+        PARTS:
+        for (String part : filePath) {
             if (part.equals("")) {
                 continue;
             }
-            for (BoxFolder folder: navigation.listFolders()) {
+            for (BoxFolder folder : navigation.listFolders()) {
                 Log.i(TAG, "Part: " + part + " Folder: " + folder.name);
                 if (part.equals(folder.name)) {
                     navigation.navigate(folder);
@@ -518,11 +530,10 @@ public class BoxProvider extends DocumentsProvider {
             } catch (IOException e) {
                 throw new FileNotFoundException();
             }
-        }
-        else {
+        } else {
             File tmp = downloadFile(documentId, mode, signal);
-			final int accessMode = ParcelFileDescriptor.parseMode(mode);
-			return ParcelFileDescriptor.open(tmp, accessMode);
+            final int accessMode = ParcelFileDescriptor.parseMode(mode);
+            return ParcelFileDescriptor.open(tmp, accessMode);
 
         }
     }
@@ -627,7 +638,7 @@ public class BoxProvider extends DocumentsProvider {
 
     private BoxFile findFileinList(String basename, BoxNavigation navigation)
             throws QblStorageException, FileNotFoundException {
-        for (BoxFile file: navigation.listFiles()) {
+        for (BoxFile file : navigation.listFiles()) {
             if (file.name.equals(basename)) {
                 return file;
             }
@@ -636,7 +647,7 @@ public class BoxProvider extends DocumentsProvider {
     }
 
     @Override
-    public String createDocument (String parentDocumentId, String mimeType, String displayName) throws FileNotFoundException {
+    public String createDocument(String parentDocumentId, String mimeType, String displayName) throws FileNotFoundException {
         Log.d(TAG, "createDocument: " + parentDocumentId + "; " + mimeType + "; " + displayName);
 
         String parentPath = mDocumentIdParser.getFilePath(parentDocumentId);
@@ -670,17 +681,17 @@ public class BoxProvider extends DocumentsProvider {
 
         try {
             List<String> splitPath = mDocumentIdParser.splitPath(path);
-            String basename = splitPath.remove(splitPath.size()-1);
+            String basename = splitPath.remove(splitPath.size() - 1);
             BoxNavigation navigation = traverseToFolder(volume, splitPath);
 
-            for (BoxFile file: navigation.listFiles()) {
+            for (BoxFile file : navigation.listFiles()) {
                 if (file.name.equals(basename)) {
                     navigation.delete(file);
                     navigation.commit();
                     return;
                 }
             }
-            for (BoxFolder folder: navigation.listFolders()) {
+            for (BoxFolder folder : navigation.listFolders()) {
                 if (folder.name.equals(basename)) {
                     navigation.delete(folder);
                     navigation.commit();

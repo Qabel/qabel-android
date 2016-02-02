@@ -16,6 +16,7 @@ import android.widget.Toast;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 
+import org.json.JSONException;
 import org.spongycastle.util.encoders.DecoderException;
 import org.spongycastle.util.encoders.Hex;
 
@@ -29,6 +30,8 @@ import de.qabel.core.crypto.QblECPublicKey;
 import de.qabel.core.drop.DropURL;
 import de.qabel.core.exceptions.QblDropInvalidURL;
 import de.qabel.qabelbox.R;
+import de.qabel.qabelbox.config.ContactExportImport;
+import de.qabel.qabelbox.helper.UIHelper;
 
 /**
  * Activities that contain this fragment must implement the
@@ -141,20 +144,10 @@ public class AddContactFragment extends BaseFragment {
     public void onActivityResult(int requestCode, int resultCode, Intent intent) {
         IntentResult scanResult = IntentIntegrator.parseActivityResult(requestCode, resultCode, intent);
         if (scanResult != null && scanResult.getContents() != null) {
-            String[] result = scanResult.getContents().split("\\r?\\n");
-            if (result.length == 4 && result[0].equals("QABELCONTACT")) {
-                try {
-                    DropURL dropURL = new DropURL(result[2]);
-                    Collection<DropURL> dropURLs = new ArrayList<>();
-                    dropURLs.add(dropURL);
-
-                    QblECPublicKey publicKey = new QblECPublicKey(Hex.decode(result[3]));
-                    mListener.addContact(new Contact(identity, result[1], dropURLs, publicKey));
-                } catch (URISyntaxException e) {
-                    e.printStackTrace();
-                } catch (QblDropInvalidURL e) {
-                    e.printStackTrace();
-                }
+            try {
+                mListener.addContact(ContactExportImport.parseContactForIdentity(identity, scanResult.getContents()));
+            } catch (JSONException | URISyntaxException | QblDropInvalidURL e) {
+                UIHelper.showDialogMessage(getActivity(), R.string.dialog_headline_info, R.string.cant_read_contact);
             }
         }
     }

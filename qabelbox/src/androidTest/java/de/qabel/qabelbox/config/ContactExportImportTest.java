@@ -58,6 +58,15 @@ public class ContactExportImportTest {
 	}
 
 	@Test
+	public void testExportImportContactWithOptionals() throws QblDropInvalidURL, JSONException, URISyntaxException {
+		contact1.setEmail("test@example.com");
+		contact1.setPhone("+491111111");
+		String contactJSON = ContactExportImport.exportContact(contact1);
+		Contact importedContact1 = ContactExportImport.parseContactForIdentity(identity, contactJSON);
+		contactEquals(contact1, importedContact1);
+	}
+
+	@Test
 	public void testExportImportContacts() throws JSONException, URISyntaxException, QblDropInvalidURL {
 		String contactsJSON = ContactExportImport.exportContacts(contacts);
 

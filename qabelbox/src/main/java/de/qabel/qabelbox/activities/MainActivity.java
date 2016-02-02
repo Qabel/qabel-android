@@ -10,6 +10,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.database.Cursor;
+import android.media.Image;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -59,11 +60,11 @@ import de.qabel.qabelbox.fragments.BaseFragment;
 import de.qabel.qabelbox.fragments.ContactFragment;
 import de.qabel.qabelbox.fragments.FilesFragment;
 import de.qabel.qabelbox.fragments.IdentitiesFragment;
+import de.qabel.qabelbox.fragments.ImageViewerFragment;
 import de.qabel.qabelbox.fragments.SelectUploadFolderFragment;
 import de.qabel.qabelbox.helper.UIHelper;
 import de.qabel.qabelbox.providers.BoxProvider;
 import de.qabel.qabelbox.services.LocalQabelService;
-import de.qabel.qabelbox.storage.BoxExternal;
 import de.qabel.qabelbox.storage.BoxFile;
 import de.qabel.qabelbox.storage.BoxFolder;
 import de.qabel.qabelbox.storage.BoxNavigation;
@@ -94,6 +95,8 @@ public class MainActivity extends AppCompatActivity
     private static final int REQUEST_CREATE_IDENTITY = 16;
     private static final int REQUEST_SETTINGS = 17;
     public static final int REQUEST_EXPORT_IDENTITY = 18;
+    public static final int REQUEST_EXTERN_VIEWER_APP = 19;
+
     private static final String FALLBACK_MIMETYPE = "application/octet-stream";
     private static final int NAV_GROUP_IDENTITIES = 1;
     private static final int NAV_GROUP_IDENTITY_ACTIONS = 2;
@@ -120,6 +123,9 @@ public class MainActivity extends AppCompatActivity
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 
         final Uri uri;
+        if (requestCode == REQUEST_EXTERN_VIEWER_APP) {
+            Log.d(TAG, "extern app " + requestCode + " " + resultCode);
+        }
         if (resultCode == RESULT_OK) {
             if (requestCode == REQUEST_CREATE_IDENTITY) {
                 if (data != null && data.hasExtra(CreateIdentityActivity.P_IDENTITY)) {
@@ -132,7 +138,7 @@ public class MainActivity extends AppCompatActivity
                     uri = data.getData();
                     Log.i(TAG, "Uri: " + uri.toString());
                     Intent viewIntent = new Intent();
-                    String type = URLConnection.guessContentTypeFromName(uri.toString());
+                    String type = getMimeType(uri);
                     Log.i(TAG, "Mime type: " + type);
                     viewIntent.setDataAndType(uri, type);
                     viewIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
@@ -269,12 +275,9 @@ public class MainActivity extends AppCompatActivity
                     } else {
                         fab.hide();
                     }
-                    if(!fragment.supportSubtitle())
-                    {
+                    if (!fragment.supportSubtitle()) {
                         toolbar.setSubtitle(null);
-                    }
-                    else
-                    {
+                    } else {
                         fragment.updateSubtitle();
                     }
                 }
@@ -439,11 +442,13 @@ public class MainActivity extends AppCompatActivity
             public void onItemClick(View view, int position) {
 
                 final BoxObject boxObject = filesFragment.getFilesAdapter().get(position);
-                if (boxObject instanceof BoxFolder) {
-                    filesFragment.browseTo(((BoxFolder) boxObject));
-                } else if (boxObject instanceof BoxFile) {
-                    // Open
-                    showFile(boxObject);
+                if (boxObject != null) {
+                    if (boxObject instanceof BoxFolder) {
+                        filesFragment.browseTo(((BoxFolder) boxObject));
+                    } else if (boxObject instanceof BoxFile) {
+                        // Open
+                        showFile(boxObject);
+                    }
                 }
             }
 
@@ -457,6 +462,12 @@ public class MainActivity extends AppCompatActivity
                             public void onClick(DialogInterface dialog, int which) {
 
                                 switch (which) {
+                                    case R.id.open:
+                                        ImageViewerFragment.showImage(self, getUri(boxObject), getMimeType(boxObject), Intent.ACTION_VIEW);
+                                        break;
+                                    case R.id.edit:
+                                        ImageViewerFragment.showImage(self, getUri(boxObject), getMimeType(boxObject), Intent.ACTION_EDIT);
+                                        break;
                                     case R.id.share:
                                         Toast.makeText(self, R.string.not_implemented,
                                                 Toast.LENGTH_SHORT).show();
@@ -487,16 +498,47 @@ public class MainActivity extends AppCompatActivity
      */
     public void showFile(BoxObject boxObject) {
 
+        Uri uri = getUri(boxObject);
+        String type = getMimeType(uri);
+        Log.v(TAG, "Mime type: " + type);
+        Log.v(TAG, "Uri: " + uri.toString() + " " + uri.toString().length());
+
+        //check if file type is image
+        if(type != null && type.indexOf("image") == 0) {
+            ImageViewerFragment viewerFragment = ImageViewerFragment.newInstance(uri, type);
+            getFragmentManager().beginTransaction()
+
+                    .replace(R.id.fragment_container, viewerFragment).addToBackStack(null)
+                   .commit();
+            toggle.setDrawerIndicatorEnabled(false);
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            return;
+        }
+
+        Intent viewIntent = new Intent();
+        viewIntent.setDataAndType(uri, type);
+        //check if file type is video
+        if(type != null && type.indexOf("video") == 0) {
+            viewIntent.setAction(Intent.ACTION_VIEW);
+        }
+        viewIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        startActivityForResult(Intent.createChooser(viewIntent, "Open with"), REQUEST_EXTERN_VIEWER_APP);
+    }
+
+    private String getMimeType(Uri uri) {
+
+        return URLConnection.guessContentTypeFromName(uri.toString());
+    }
+    private String getMimeType(BoxObject boxObject) {
+
+        return getMimeType(getUri(boxObject));
+    }
+    private Uri getUri(BoxObject boxObject) {
+
         String path = filesFragment.getBoxNavigation().getPath(boxObject);
         String documentId = boxVolume.getDocumentId(path);
-        Uri uri = DocumentsContract.buildDocumentUri(
+        return DocumentsContract.buildDocumentUri(
                 BoxProvider.AUTHORITY, documentId);
-        Intent viewIntent = new Intent();
-        String type = URLConnection.guessContentTypeFromName(uri.toString());
-        Log.i(TAG, "Mime type: " + type);
-        viewIntent.setDataAndType(uri, type);
-        viewIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-        startActivity(Intent.createChooser(viewIntent, "Open with"));
     }
 
     private void delete(final BoxObject boxObject) {
@@ -558,7 +600,13 @@ public class MainActivity extends AppCompatActivity
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else {
-            Fragment activeFragment = getFragmentManager().findFragmentById(R.id.fragment_container);
+            /*Fragment activeFragment = getFragmentManager().findFragmentById(android.R.id.content);
+            if(activeFragment instanceof ImageViewerFragment)
+            {
+                getFragmentManager().popBackStack();
+                return;
+            }*/
+            Fragment  activeFragment = getFragmentManager().findFragmentById(R.id.fragment_container);
             if (activeFragment == null) {
                 super.onBackPressed();
                 return;
@@ -800,7 +848,7 @@ public class MainActivity extends AppCompatActivity
         exportUri = uri;
 
         // Chose a suitable place for this file, determined by the mime type
-        String type = URLConnection.guessContentTypeFromName(uri.toString());
+        String type = getMimeType(uri);
         if (type == null) {
             type = FALLBACK_MIMETYPE;
         }
@@ -825,8 +873,8 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onDoRefresh(final FilesFragment filesFragment, final BoxNavigation boxNavigation, final FilesAdapter filesAdapter) {
-        filesFragment.refresh();
 
+        filesFragment.refresh();
     }
 
     private void setDrawerLocked(boolean locked) {

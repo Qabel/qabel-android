@@ -7,7 +7,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import org.apache.commons.io.FileUtils;
 
@@ -16,7 +15,6 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
-import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.storage.BoxExternal;
 import de.qabel.qabelbox.storage.BoxFile;
@@ -142,7 +140,10 @@ public class FilesAdapter extends RecyclerView.Adapter<FilesAdapter.FilesViewHol
 
     public BoxObject get(int position) {
 
-        return boxObjects.get(position);
+        if (position < boxObjects.size()) {
+            return boxObjects.get(position);
+        }
+        return null;
     }
 
     public void sort() {
@@ -161,7 +162,7 @@ public class FilesAdapter extends RecyclerView.Adapter<FilesAdapter.FilesViewHol
 
         if (loadingView != null) {
             int fileCount = boxObjects.size();
-            if (fileCount > 0 || loadingView.getVisibility() != View.VISIBLE||loaded) {
+            if (fileCount > 0 || loadingView.getVisibility() != View.VISIBLE || loaded) {
                 loadingView.setVisibility(View.GONE);
                 loaded = true;
             }

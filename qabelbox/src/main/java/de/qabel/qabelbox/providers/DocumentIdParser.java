@@ -44,6 +44,16 @@ public class DocumentIdParser {
         throw new FileNotFoundException("Could not find file path in document id");
     }
 
+	public String getPath(String documentId) throws FileNotFoundException {
+		String filepath = getFilePath(documentId);
+		filepath = filepath.substring(0 , filepath.lastIndexOf('/') + 1);
+		// TODO: Workaround for wrong formatted document IDs
+		if (filepath.startsWith("//")) {
+			return filepath.substring(1, filepath.length());
+		}
+		return filepath;
+	}
+
     public List<String> splitPath(String filePath) {
         ArrayList<String> list = new ArrayList<>(Arrays.asList(filePath.split("/")));
         return list;

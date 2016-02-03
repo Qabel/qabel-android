@@ -744,7 +744,15 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void addContact(Contact contact) {
 
-        mService.addContact(contact);
+		for (Contact c : mService.getContacts().getContacts()) {
+			if (c.getKeyIdentifier().equals(contact.getKeyIdentifier())) {
+				Snackbar.make(appBarMain, "Contact already existing: " + contact.getAlias(), Snackbar.LENGTH_LONG)
+						.show();
+				return;
+			}
+		}
+
+		mService.addContact(contact);
         Snackbar.make(appBarMain, "Added contact: " + contact.getAlias(), Snackbar.LENGTH_LONG)
                 .show();
     }

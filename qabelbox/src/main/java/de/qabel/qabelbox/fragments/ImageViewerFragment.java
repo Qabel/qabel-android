@@ -1,11 +1,12 @@
 package de.qabel.qabelbox.fragments;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
@@ -15,7 +16,7 @@ import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
 import de.qabel.qabelbox.R;
-import de.qabel.qabelbox.activities.MainActivity;
+import de.qabel.qabelbox.helper.ExternalApps;
 
 /**
  * Created by danny on 02.02.16.
@@ -31,6 +32,25 @@ public class ImageViewerFragment extends BaseFragment {
         fragment.uri = uri;
         fragment.type = type;
         return fragment;
+    }
+
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+
+        super.onActivityCreated(savedInstanceState);
+        setHasOptionsMenu(true);
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+
+        menu.clear();
+    }
+
+    @Override
+    public String getTitle() {
+
+        return getString(R.string.headline_imageviewer);
     }
 
     @Nullable
@@ -80,27 +100,16 @@ public class ImageViewerFragment extends BaseFragment {
             @Override
             public void onClick(View v) {
 
-                getActivity().onBackPressed();
-                showImage(getActivity(), uri, type, Intent.ACTION_VIEW);
+                ExternalApps.openExternApp(getActivity(), uri, type, Intent.ACTION_VIEW);
             }
         });
         view.findViewById(R.id.edit).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
-                getActivity().onBackPressed();
-                showImage(getActivity(), uri, type, Intent.ACTION_EDIT);
+                ExternalApps.openExternApp(getActivity(), uri, type, Intent.ACTION_EDIT);
             }
         });
-    }
-
-    public static void showImage(Activity activity, Uri uri, String type, String action) {
-
-        Intent viewIntent = new Intent();
-        viewIntent.setDataAndType(uri, type);
-        viewIntent.setAction(action);
-        viewIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-        activity.startActivityForResult(Intent.createChooser(viewIntent, "Open with"), MainActivity.REQUEST_EXTERN_VIEWER_APP);
     }
 
     @Override
@@ -108,5 +117,4 @@ public class ImageViewerFragment extends BaseFragment {
 
         return true;
     }
-
 }

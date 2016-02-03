@@ -160,4 +160,12 @@
     <string name="identity_export_complete">Identity exported</string>
     <string name="Open">Open</string>
     <string name="edit">Edit</string>
+    <string name="ab_edit">Edit</string>
+    <string name="ab_show">Show</string>
+    <string name="headline_imageviewer">Image viewer</string>
+    <string name="inbox">Inbox</string>
+    <string name="share_subject">Qabel</string>
+    <string name="share_text">Here are your qabelbox</string>
+    <string name="share_via">Share via</string>
+    <string name="chooser_open_with">Open with</string>
 </resources>

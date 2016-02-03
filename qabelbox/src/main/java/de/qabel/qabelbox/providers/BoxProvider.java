@@ -233,8 +233,11 @@ public class BoxProvider extends DocumentsProvider {
             }
         }
         if (result.size() == 0) {
-            Log.e(TAG, "Cursors contain no fields after reduceProjection");
+            Log.e(TAG, "Cursors contain no fields after reduceProjection. Add fallback field");
+            //add fallback if no field supported. this avoid crashes on different third party apps
+            result.add(Document.COLUMN_DOCUMENT_ID);
         }
+
         return result.toArray(projection);
     }
 

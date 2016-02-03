@@ -12,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spongycastle.util.encoders.Hex;
 
+import java.io.FileNotFoundException;
 import java.net.URI;
 import java.security.SecureRandom;
 import java.util.ArrayList;
@@ -39,6 +40,8 @@ import de.qabel.core.http.DropHTTP;
 import de.qabel.core.http.HTTPResult;
 import de.qabel.qabelbox.config.AndroidPersistence;
 import de.qabel.qabelbox.config.QblSQLiteParams;
+import de.qabel.qabelbox.providers.DocumentIdParser;
+import de.qabel.qabelbox.storage.BoxUploadingFile;
 
 public class LocalQabelService extends Service {
 
@@ -58,6 +61,8 @@ public class LocalQabelService extends Service {
     protected static final int DB_VERSION = 1;
     protected AndroidPersistence persistence;
     private DropHTTP dropHTTP;
+    private HashMap<String, ArrayList<BoxUploadingFile>> pendingUploads;
+    private DocumentIdParser documentIdParser;
 
     SharedPreferences sharedPreferences;
 
@@ -321,6 +326,35 @@ public class LocalQabelService extends Service {
         return Hex.decode(deviceID);
     }
 
+	public HashMap<String, ArrayList<BoxUploadingFile>> getPendingUploads() {
+		return pendingUploads;
+	}
+
+	public void addPendingUpload(String documentId) throws FileNotFoundException {
+		String uploadPath = documentIdParser.getPath(documentId);
+		ArrayList<BoxUploadingFile> uploadsInPath = pendingUploads.get(uploadPath);
+		if (uploadsInPath == null) {
+			uploadsInPath = new ArrayList<>();
+		}
+		uploadsInPath.add(new BoxUploadingFile(documentIdParser.getBaseName(documentId)));
+		pendingUploads.put(uploadPath, uploadsInPath);
+	}
+
+	public boolean removePendingUpload(String documentId) throws FileNotFoundException {
+		String uploadPath = documentIdParser.getPath(documentId);
+		ArrayList<BoxUploadingFile> uploadsInPath = pendingUploads.get(uploadPath);
+		if (uploadsInPath == null) {
+			return false;
+		}
+		for (BoxUploadingFile boxUploadingFile : uploadsInPath) {
+			if (boxUploadingFile.name.equals(documentIdParser.getBaseName(documentId))) {
+				uploadsInPath.remove(boxUploadingFile);
+				return true;
+			}
+		}
+		return false;
+	}
+
     @Override
     public IBinder onBind(Intent intent) {
         return mBinder;
@@ -333,6 +367,8 @@ public class LocalQabelService extends Service {
         dropHTTP = new DropHTTP();
         initSharedPreferences();
         initAndroidPersistence();
+		pendingUploads = new HashMap<>();
+		documentIdParser = new DocumentIdParser();
     }
 
     protected void initAndroidPersistence() {

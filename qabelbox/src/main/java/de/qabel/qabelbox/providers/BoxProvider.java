@@ -19,6 +19,7 @@ import android.provider.DocumentsContract.Document;
 import android.provider.DocumentsContract.Root;
 import android.provider.DocumentsProvider;
 import android.support.annotation.NonNull;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.NotificationCompat;
 import android.util.Log;
 
@@ -56,6 +57,7 @@ import de.qabel.core.config.Identity;
 import de.qabel.core.crypto.QblECKeyPair;
 import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.exceptions.QblStorageNotFound;
+import de.qabel.qabelbox.services.LocalBroadcastConstants;
 import de.qabel.qabelbox.services.LocalQabelService;
 import de.qabel.qabelbox.storage.BoxFile;
 import de.qabel.qabelbox.storage.BoxFolder;
@@ -528,7 +530,9 @@ public class BoxProvider extends DocumentsProvider {
     }
 
     private void uploadFile(String documentId, File tmp, TransferManager.BoxTransferListener boxTransferListener) {
-        try {
+		try {
+			mService.addPendingUpload(documentId);
+			broadcastUploadStatus(documentId, LocalBroadcastConstants.UPLOAD_STATUS_NEW);
             BoxVolume volume = getVolumeForId(documentId);
             List<String> splitPath = mDocumentIdParser.splitPath(
                     mDocumentIdParser.getFilePath(documentId));
@@ -538,10 +542,26 @@ public class BoxProvider extends DocumentsProvider {
             Log.i(TAG, "Starting upload");
             navigation.upload(basename, new FileInputStream(tmp), boxTransferListener);
             navigation.commit();
+			mService.removePendingUpload(documentId);
+			broadcastUploadStatus(documentId, LocalBroadcastConstants.UPLOAD_STATUS_FINISHED);
         } catch (FileNotFoundException | QblStorageException e1) {
             Log.e(TAG, "Upload failed", e1);
+			try {
+				mService.removePendingUpload(documentId);
+			} catch (FileNotFoundException e) {
+				//Should not be possible
+				Log.e(TAG, "Removing failed upload failed", e);
+			}
+			broadcastUploadStatus(documentId, LocalBroadcastConstants.UPLOAD_STATUS_FAILED);
         }
     }
+
+	private void broadcastUploadStatus(String documentId, int uploadStatus) {
+		Intent intent = new Intent(LocalBroadcastConstants.INTENT_UPLOAD_BROADCAST);
+		intent.putExtra(LocalBroadcastConstants.EXTRA_UPLOAD_DOCUMENT_ID, documentId);
+		intent.putExtra(LocalBroadcastConstants.EXTRA_UPLOAD_STATUS, uploadStatus);
+		LocalBroadcastManager.getInstance(getContext()).sendBroadcast(intent);
+	}
 
     private File downloadFile(final String documentId, final String mode, final CancellationSignal signal) throws FileNotFoundException {
         final Future<File> future

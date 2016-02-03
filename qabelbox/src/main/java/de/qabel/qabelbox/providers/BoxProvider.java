@@ -82,7 +82,6 @@ public class BoxProvider extends DocumentsProvider {
     public static final String AUTHORITY = "de.qabel.qabelbox.providers.documents";
     public static final String PATH_SEP = "/";
     public static final String DOCID_SEPARATOR = "::::";
-    //public static final String DOCID_SEPARATOR = "z";
     public static final String BUCKET = "qabel";
     public static final String PREFIX = "boxtest";
 

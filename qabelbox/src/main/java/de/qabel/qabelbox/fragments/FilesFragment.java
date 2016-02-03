@@ -680,8 +680,11 @@ public class FilesFragment extends BaseFragment {
     }
 
     private void fillAdapter() {
+		filesAdapter.clear();
 
-        filesAdapter.clear();
+		if (boxNavigation == null) {
+			return;
+		}
 
         try {
             for (BoxFolder boxFolder : boxNavigation.listFolders()) {

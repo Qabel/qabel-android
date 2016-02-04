@@ -564,7 +564,7 @@ public class FilesFragment extends BaseFragment {
 
         cancelBrowseToTask();
 
-        if (!boxNavigation.hasParent()) {
+        if (boxNavigation==null||!boxNavigation.hasParent()) {
             return false;
         }
 

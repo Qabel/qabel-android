@@ -5,6 +5,7 @@ package de.qabel.qabelbox.ui;
  */
 
 import android.os.PowerManager;
+import android.support.design.internal.NavigationMenuItemView;
 import android.support.test.rule.ActivityTestRule;
 import android.widget.SeekBar;
 
@@ -29,6 +30,7 @@ import de.qabel.qabelbox.config.AppPreference;
 import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.services.LocalQabelService;
 import de.qabel.qabelbox.ui.action.QabelViewAction;
+import de.qabel.qabelbox.ui.helper.SystemAnimations;
 import de.qabel.qabelbox.ui.helper.UIActionHelper;
 import de.qabel.qabelbox.ui.helper.UITestHelper;
 import de.qabel.qabelbox.ui.matcher.QabelMatcher;
@@ -44,8 +46,10 @@ import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static android.support.test.espresso.matcher.ViewMatchers.withClassName;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
+import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.endsWith;
+import static org.hamcrest.core.Is.is;
 
 /**
  * Tests for MainActivity.
@@ -60,11 +64,13 @@ public class CreateIdentityTest {
     private MainActivity mActivity;
 
     private PowerManager.WakeLock wakeLock;
+    SystemAnimations mSystemAnimations;
 
     @After
     public void cleanUp() {
 
         wakeLock.release();
+        mSystemAnimations.enableAll();
     }
 
     @Before
@@ -72,6 +78,8 @@ public class CreateIdentityTest {
 
         mActivity = mActivityTestRule.getActivity();
         wakeLock = UIActionHelper.wakeupDevice(mActivity);
+        mSystemAnimations = new SystemAnimations(mActivity);
+        mSystemAnimations.disableAll();
     }
 
     @Test
@@ -107,6 +115,7 @@ public class CreateIdentityTest {
         onView(withId(R.id.drawer_layout)).perform(QabelViewAction.actionOpenDrawer());
         Spoon.screenshot(UITestHelper.getCurrentActivity(mActivity), "spoon1");
         onView(withText(identity)).check(matches(isDisplayed()));
+        //onData(allOf(is(instanceOf(NavigationMenuItemView.class)), withText(identity))).check(matches(isDisplayed()));
         UITestHelper.sleep(500);
         onView(withId(R.id.imageViewExpandIdentity)).check(matches(isDisplayed())).perform(click());
         UITestHelper.sleep(500);
@@ -121,7 +130,8 @@ public class CreateIdentityTest {
         onView(withId(R.id.drawer_layout)).check(matches(isDisplayed())).perform(QabelViewAction.actionOpenDrawer());
         UITestHelper.sleep(1000);
         onView(withId(R.id.imageViewExpandIdentity)).check(matches(isDisplayed())).perform(click());
-        onView(withText(identity)).check(matches(isDisplayed()));
+        onView(allOf(is(instanceOf(NavigationMenuItemView.class)), withText(identity2))).check(matches(isDisplayed()));
+
         Spoon.screenshot(UITestHelper.getCurrentActivity(mActivity), "spoon1_2");
         onView(withId(R.id.drawer_layout)).perform(QabelViewAction.actionCloseDrawer());
     }

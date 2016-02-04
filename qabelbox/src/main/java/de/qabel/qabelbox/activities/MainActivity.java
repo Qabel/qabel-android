@@ -60,11 +60,12 @@ import de.qabel.qabelbox.fragments.BaseFragment;
 import de.qabel.qabelbox.fragments.ContactFragment;
 import de.qabel.qabelbox.fragments.FilesFragment;
 import de.qabel.qabelbox.fragments.IdentitiesFragment;
+import de.qabel.qabelbox.fragments.ImageViewerFragment;
 import de.qabel.qabelbox.fragments.SelectUploadFolderFragment;
+import de.qabel.qabelbox.helper.ExternalApps;
 import de.qabel.qabelbox.helper.UIHelper;
 import de.qabel.qabelbox.providers.BoxProvider;
 import de.qabel.qabelbox.services.LocalQabelService;
-import de.qabel.qabelbox.storage.BoxExternal;
 import de.qabel.qabelbox.storage.BoxFile;
 import de.qabel.qabelbox.storage.BoxFolder;
 import de.qabel.qabelbox.storage.BoxNavigation;
@@ -85,16 +86,17 @@ public class MainActivity extends AppCompatActivity
     private static final String TAG_ADD_CONTACT_FRAGMENT = "TAG_ADD_CONTACT_FRAGMENT";
 
     private static final String TAG = "BoxMainActivity";
-    private static final int REQUEST_CODE_OPEN = 11;
     private static final int REQUEST_CODE_UPLOAD_FILE = 12;
     public static final String HARDCODED_ROOT = BoxProvider.DOCID_SEPARATOR
             + BoxProvider.BUCKET + BoxProvider.DOCID_SEPARATOR
             + BoxProvider.PREFIX + BoxProvider.DOCID_SEPARATOR + BoxProvider.PATH_SEP;
-    private static final int REQUEST_CODE_DELETE_FILE = 13;
     private static final int REQUEST_CODE_CHOOSE_EXPORT = 14;
     private static final int REQUEST_CREATE_IDENTITY = 16;
     private static final int REQUEST_SETTINGS = 17;
     public static final int REQUEST_EXPORT_IDENTITY = 18;
+    public static final int REQUEST_EXTERN_VIEWER_APP = 19;
+    public static final int REQUEST_EXTERN_SHARE_APP = 20;
+
     private static final String FALLBACK_MIMETYPE = "application/octet-stream";
     private static final int NAV_GROUP_IDENTITIES = 1;
     private static final int NAV_GROUP_IDENTITY_ACTIONS = 2;
@@ -121,7 +123,13 @@ public class MainActivity extends AppCompatActivity
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 
         final Uri uri;
+        if (requestCode == REQUEST_EXTERN_VIEWER_APP) {
+            Log.d(TAG, "result from extern app " + resultCode);
+        }
         if (resultCode == RESULT_OK) {
+            if (requestCode == REQUEST_SETTINGS) {
+                //add functions if ui need refresh after settings changed
+            }
             if (requestCode == REQUEST_CREATE_IDENTITY) {
                 if (data != null && data.hasExtra(CreateIdentityActivity.P_IDENTITY)) {
                     Identity identity = (Identity) data.getSerializableExtra(CreateIdentityActivity.P_IDENTITY);
@@ -129,17 +137,7 @@ public class MainActivity extends AppCompatActivity
                 }
             }
             if (data != null) {
-                if (requestCode == REQUEST_CODE_OPEN) {
-                    uri = data.getData();
-                    Log.i(TAG, "Uri: " + uri.toString());
-                    Intent viewIntent = new Intent();
-                    String type = URLConnection.guessContentTypeFromName(uri.toString());
-                    Log.i(TAG, "Mime type: " + type);
-                    viewIntent.setDataAndType(uri, type);
-                    viewIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                    startActivity(Intent.createChooser(viewIntent, "Open with"));
-                    return;
-                }
+
                 if (requestCode == REQUEST_CODE_UPLOAD_FILE) {
                     uri = data.getData();
                     String path = "";
@@ -152,19 +150,7 @@ public class MainActivity extends AppCompatActivity
                     uploadUri(uri, path);
                     return;
                 }
-                if (requestCode == REQUEST_CODE_DELETE_FILE) {
-                    uri = data.getData();
-                    Log.i(TAG, "Deleting file: " + uri.toString());
-                    new AsyncTask<Uri, Void, Boolean>() {
 
-                        @Override
-                        protected Boolean doInBackground(Uri... params) {
-
-                            return DocumentsContract.deleteDocument(getContentResolver(), params[0]);
-                        }
-                    }.execute(uri);
-                    return;
-                }
                 if (requestCode == REQUEST_CODE_CHOOSE_EXPORT) {
                     uri = data.getData();
                     Log.i(TAG, "Export uri chosen: " + uri.toString());
@@ -270,12 +256,9 @@ public class MainActivity extends AppCompatActivity
                     } else {
                         fab.hide();
                     }
-                    if(!fragment.supportSubtitle())
-                    {
+                    if (!fragment.supportSubtitle()) {
                         toolbar.setSubtitle(null);
-                    }
-                    else
-                    {
+                    } else {
                         fragment.updateSubtitle();
                     }
                 }
@@ -440,11 +423,13 @@ public class MainActivity extends AppCompatActivity
             public void onItemClick(View view, int position) {
 
                 final BoxObject boxObject = filesFragment.getFilesAdapter().get(position);
-                if (boxObject instanceof BoxFolder) {
-                    filesFragment.browseTo(((BoxFolder) boxObject));
-                } else if (boxObject instanceof BoxFile) {
-                    // Open
-                    showFile(boxObject);
+                if (boxObject != null) {
+                    if (boxObject instanceof BoxFolder) {
+                        filesFragment.browseTo(((BoxFolder) boxObject));
+                    } else if (boxObject instanceof BoxFile) {
+                        // Open
+                        showFile(boxObject);
+                    }
                 }
             }
 
@@ -458,9 +443,14 @@ public class MainActivity extends AppCompatActivity
                             public void onClick(DialogInterface dialog, int which) {
 
                                 switch (which) {
+                                    case R.id.open:
+                                        ExternalApps.openExternApp(self, getUri(boxObject), getMimeType(boxObject), Intent.ACTION_VIEW);
+                                        break;
+                                    case R.id.edit:
+                                        ExternalApps.openExternApp(self, getUri(boxObject), getMimeType(boxObject), Intent.ACTION_EDIT);
+                                        break;
                                     case R.id.share:
-                                        Toast.makeText(self, R.string.not_implemented,
-                                                Toast.LENGTH_SHORT).show();
+                                        ExternalApps.share(self, getUri(boxObject), getMimeType(boxObject));
                                         break;
                                     case R.id.delete:
                                         delete(boxObject);
@@ -488,16 +478,49 @@ public class MainActivity extends AppCompatActivity
      */
     public void showFile(BoxObject boxObject) {
 
+        Uri uri = getUri(boxObject);
+        String type = getMimeType(uri);
+        Log.v(TAG, "Mime type: " + type);
+        Log.v(TAG, "Uri: " + uri.toString() + " " + uri.toString().length());
+
+        //check if file type is image
+        if (type != null && type.indexOf("image") == 0) {
+            ImageViewerFragment viewerFragment = ImageViewerFragment.newInstance(uri, type);
+            getFragmentManager().beginTransaction()
+                    .replace(R.id.fragment_container, viewerFragment).addToBackStack(null)
+                    .commit();
+            toggle.setDrawerIndicatorEnabled(false);
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+            return;
+        }
+
+        Intent viewIntent = new Intent();
+        viewIntent.setDataAndType(uri, type);
+        //check if file type is video
+        if (type != null && type.indexOf("video") == 0) {
+            viewIntent.setAction(Intent.ACTION_VIEW);
+        }
+        viewIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        startActivityForResult(Intent.createChooser(viewIntent, "Open with"), REQUEST_EXTERN_VIEWER_APP);
+    }
+
+    private String getMimeType(Uri uri) {
+
+        return URLConnection.guessContentTypeFromName(uri.toString());
+    }
+
+    private String getMimeType(BoxObject boxObject) {
+
+        return getMimeType(getUri(boxObject));
+    }
+
+    private Uri getUri(BoxObject boxObject) {
+
         String path = filesFragment.getBoxNavigation().getPath(boxObject);
         String documentId = boxVolume.getDocumentId(path);
-        Uri uri = DocumentsContract.buildDocumentUri(
+        return DocumentsContract.buildDocumentUri(
                 BoxProvider.AUTHORITY, documentId);
-        Intent viewIntent = new Intent();
-        String type = URLConnection.guessContentTypeFromName(uri.toString());
-        Log.i(TAG, "Mime type: " + type);
-        viewIntent.setDataAndType(uri, type);
-        viewIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-        startActivity(Intent.createChooser(viewIntent, "Open with"));
     }
 
     private void delete(final BoxObject boxObject) {
@@ -559,6 +582,7 @@ public class MainActivity extends AppCompatActivity
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else {
+
             Fragment activeFragment = getFragmentManager().findFragmentById(R.id.fragment_container);
             if (activeFragment == null) {
                 super.onBackPressed();
@@ -613,6 +637,8 @@ public class MainActivity extends AppCompatActivity
         } else if (id == R.id.nav_browse) {
             selectFilesFragment();
         } else if (id == R.id.nav_help) {
+            UIHelper.showFunctionNotYetImplemented(this);
+        } else if (id == R.id.nav_inbox) {
             UIHelper.showFunctionNotYetImplemented(this);
         } else if (id == R.id.nav_settings) {
             Intent intent = new Intent(this, SettingsActivity.class);
@@ -809,7 +835,7 @@ public class MainActivity extends AppCompatActivity
         exportUri = uri;
 
         // Chose a suitable place for this file, determined by the mime type
-        String type = URLConnection.guessContentTypeFromName(uri.toString());
+        String type = getMimeType(uri);
         if (type == null) {
             type = FALLBACK_MIMETYPE;
         }
@@ -834,8 +860,8 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onDoRefresh(final FilesFragment filesFragment, final BoxNavigation boxNavigation, final FilesAdapter filesAdapter) {
-        filesFragment.refresh();
 
+        filesFragment.refresh();
     }
 
     private void setDrawerLocked(boolean locked) {

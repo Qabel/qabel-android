@@ -26,6 +26,7 @@ import de.qabel.qabelbox.activities.MainActivity;
 import de.qabel.qabelbox.config.AppPreference;
 import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.storage.StorageSearch;
+import de.qabel.qabelbox.ui.helper.SystemAnimations;
 import de.qabel.qabelbox.ui.helper.UIActionHelper;
 import de.qabel.qabelbox.ui.helper.UIBoxHelper;
 import de.qabel.qabelbox.ui.helper.UITestHelper;
@@ -58,7 +59,7 @@ public class FileSearchTest {
     private UIBoxHelper mBoxHelper;
     private final boolean mFillAccount = true;
     private PowerManager.WakeLock wakeLock;
-
+    SystemAnimations mSystemAnimations;
     public FileSearchTest() throws IOException {
         //setup data before MainActivity launched. This avoid the call to create identity
         if (mFillAccount) {
@@ -70,6 +71,7 @@ public class FileSearchTest {
     public void cleanUp() {
 
         wakeLock.release();
+        mSystemAnimations.enableAll();
     }
 
     @Before
@@ -77,6 +79,8 @@ public class FileSearchTest {
 
         mActivity = mActivityTestRule.getActivity();
         wakeLock = UIActionHelper.wakeupDevice(mActivity);
+        mSystemAnimations = new SystemAnimations(mActivity);
+        mSystemAnimations.disableAll();
     }
 
     private void setupData() {

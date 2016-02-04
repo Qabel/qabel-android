@@ -66,7 +66,7 @@ public class QabelMatcher {
             @Override
             public void describeTo(Description description) {
                 description.appendText("expected: ");
-                description.appendText(""+expectedProgress);
+                description.appendText("" + expectedProgress);
             }
 
             @Override
@@ -75,4 +75,10 @@ public class QabelMatcher {
             }
         };
     }
+
+
+    public static Matcher<View> withDrawable(final int resourceId) {
+        return new DrawableMatcher(resourceId);
+    }
+
 }

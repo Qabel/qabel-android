@@ -2,6 +2,7 @@ package de.qabel.qabelbox.fragments;
 
 import android.app.Activity;
 import android.app.Fragment;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -20,6 +21,7 @@ import org.json.JSONException;
 import org.spongycastle.util.encoders.DecoderException;
 import org.spongycastle.util.encoders.Hex;
 
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -27,7 +29,9 @@ import de.qabel.core.config.Contact;
 import de.qabel.core.config.Identity;
 import de.qabel.core.crypto.QblECPublicKey;
 import de.qabel.core.drop.DropURL;
+import de.qabel.core.exceptions.QblDropInvalidURL;
 import de.qabel.qabelbox.R;
+import de.qabel.qabelbox.helper.UIHelper;
 import de.qabel.qabelbox.config.ContactExportImport;
 import de.qabel.qabelbox.helper.UIHelper;
 
@@ -149,7 +153,7 @@ public class AddContactFragment extends BaseFragment {
         IntentResult scanResult = IntentIntegrator.parseActivityResult(requestCode, resultCode, intent);
         if (scanResult != null && scanResult.getContents() != null) {
             try {
-                mListener.addContact(ContactExportImport.parseContactForIdentity(identity, scanResult.getContents()));
+                mListener.contactAdded(ContactExportImport.parseContactForIdentity(identity, scanResult.getContents()));
             } catch (JSONException | URISyntaxException | QblDropInvalidURL e) {
                 UIHelper.showDialogMessage(getActivity(), R.string.dialog_headline_info, R.string.cant_read_contact);
             }

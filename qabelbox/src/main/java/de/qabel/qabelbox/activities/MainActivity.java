@@ -75,7 +75,6 @@ public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,
         SelectUploadFolderFragment.OnSelectedUploadFolderListener,
         ContactFragment.ContactListListener,
-
         FilesFragment.FilesListListener,
         IdentitiesFragment.IdentityListListener {
 
@@ -764,23 +763,8 @@ public class MainActivity extends AppCompatActivity
         selectFilesFragment();
     }
 
-    @Override
-    public void addContact(Contact contact) {
-
-	for (Contact c : mService.getContacts().getContacts()) {
-		if (c.getKeyIdentifier().equals(contact.getKeyIdentifier())) {
-			Snackbar.make(appBarMain, "Contact already existing: " + contact.getAlias(), Snackbar.LENGTH_LONG)
-					.show();
-			return;
-		}
-	}
-
-	mService.addContact(contact);
-	Snackbar.make(appBarMain, "Added contact: " + contact.igetAlias(), Snackbar.LENGTH_LONG).show();
-    }
 
     @Override
-
     public void onScrolledToBottom(boolean scrolledToBottom) {
 
         if (scrolledToBottom) {
@@ -1056,6 +1040,13 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void contactAdded(Contact contact) {
+        for (Contact c : mService.getContacts().getContacts()) {
+            if (c.getKeyIdentifier().equals(contact.getKeyIdentifier())) {
+                Snackbar.make(appBarMain, "Contact already existing: " + contact.getAlias(), Snackbar.LENGTH_LONG)
+                        .show();
+                return;
+            }
+        }
 
         Snackbar.make(appBarMain, "Added contact: " + contact.getAlias(), Snackbar.LENGTH_LONG)
                 .show();

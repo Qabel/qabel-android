@@ -35,7 +35,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.cocosw.bottomsheet.BottomSheet;
-import com.google.zxing.integration.android.IntentIntegrator;
 
 import org.apache.commons.io.IOUtils;
 
@@ -59,12 +58,11 @@ import de.qabel.qabelbox.fragments.BaseFragment;
 import de.qabel.qabelbox.fragments.ContactFragment;
 import de.qabel.qabelbox.fragments.FilesFragment;
 import de.qabel.qabelbox.fragments.IdentitiesFragment;
+import de.qabel.qabelbox.fragments.QRcodeFragment;
 import de.qabel.qabelbox.fragments.SelectUploadFolderFragment;
-import de.qabel.qabelbox.helper.QRCodeHelper;
 import de.qabel.qabelbox.helper.UIHelper;
 import de.qabel.qabelbox.providers.BoxProvider;
 import de.qabel.qabelbox.services.LocalQabelService;
-import de.qabel.qabelbox.storage.BoxExternal;
 import de.qabel.qabelbox.storage.BoxFile;
 import de.qabel.qabelbox.storage.BoxFolder;
 import de.qabel.qabelbox.storage.BoxNavigation;
@@ -106,7 +104,7 @@ public class MainActivity extends AppCompatActivity
     private BoxProvider provider;
     public FloatingActionButton fab;
     private TextView textViewSelectedIdentity;
-    private Activity self;
+    private MainActivity self;
     private View appBarMain;
     private FilesFragment filesFragment;
     private Toolbar toolbar;
@@ -272,12 +270,9 @@ public class MainActivity extends AppCompatActivity
                     } else {
                         fab.hide();
                     }
-                    if(!fragment.supportSubtitle())
-                    {
+                    if (!fragment.supportSubtitle()) {
                         toolbar.setSubtitle(null);
-                    }
-                    else
-                    {
+                    } else {
                         fragment.updateSubtitle();
                     }
                 }
@@ -828,8 +823,8 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onDoRefresh(final FilesFragment filesFragment, final BoxNavigation boxNavigation, final FilesAdapter filesAdapter) {
-        filesFragment.refresh();
 
+        filesFragment.refresh();
     }
 
     private void setDrawerLocked(boolean locked) {
@@ -863,8 +858,8 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void onClick(View v) {
 
-             QRCodeHelper.exportIdentityAsContactWithQR(self, mService.getActiveIdentity());
-
+                drawer.closeDrawer(GravityCompat.START);
+                showQRCode(self, mService.getActiveIdentity());
             }
         });
 
@@ -958,6 +953,14 @@ public class MainActivity extends AppCompatActivity
 
             }
         });
+    }
+
+    public static void showQRCode(MainActivity activity, Identity identity) {
+        activity.toggle.setDrawerIndicatorEnabled(false);
+        activity.getFragmentManager().beginTransaction()
+                .replace(R.id.fragment_container, QRcodeFragment.newInstance(identity), null)
+                .addToBackStack(null)
+                .commit();
     }
 
     private void selectAddIdentityFragment() {

@@ -162,7 +162,7 @@
     <string name="error_reason_io">Fehler beim Lese oder Schreibvorgang</string>
     <string name="reason_for_error">Reason: %1</string>
     <string name="contact_export_successfully">Contact exported. You can share this contact to your friends.</string>
-    <string name="ExportAsContactWithQRcode">Export as contact - QRCode</string>
+    <string name="ExportAsContactWithQRcode">QRCode</string>
     <string name="qrcode">QRCode</string>
     <string name="headline_qrcode">QRCode</string>
 </resources>

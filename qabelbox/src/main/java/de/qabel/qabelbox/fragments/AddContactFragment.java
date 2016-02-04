@@ -82,6 +82,7 @@ public class AddContactFragment extends BaseFragment {
         buttonAdd.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 try {
                     DropURL dropURL = new DropURL(editTextDropURL.getText().toString());
 
@@ -112,6 +113,7 @@ public class AddContactFragment extends BaseFragment {
         buttonScan.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 IntentIntegrator integrator = new IntentIntegrator(fragment);
                 integrator.initiateScan();
             }

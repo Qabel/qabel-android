@@ -17,7 +17,6 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.cocosw.bottomsheet.BottomSheet;
-import com.google.zxing.integration.android.IntentIntegrator;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -150,7 +149,8 @@ public class IdentitiesFragment extends BaseFragment {
                                         exportIdentityAsContact(identity);
                                         break;
                                     case R.id.identities_export_as_contact_qrcode:
-                                        BarcodeFragment.newInstance(identity);
+                                        MainActivity.showQRCode(mActivity,identity);
+
                                         //QRCodeHelper.exportIdentityAsContactWithQR(getActivity(), identity);
                                 }
                             }

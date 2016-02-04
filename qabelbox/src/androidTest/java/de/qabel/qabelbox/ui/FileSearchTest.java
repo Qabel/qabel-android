@@ -155,7 +155,7 @@ public class FileSearchTest {
         onView(withId(R.id.files_list)).check(matches(QabelMatcher.withListSize(fileCount + 1)));
         Spoon.screenshot(mActivity, "after_refresh");
         pressBack();
-        testIfFileBrowserDisplayed(fileCount);
+        testIfFileBrowserDisplayed(fileCount + 1);
 
         //start new search
         text = "black";

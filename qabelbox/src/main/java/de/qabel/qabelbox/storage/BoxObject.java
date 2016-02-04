@@ -7,7 +7,10 @@ public class BoxObject implements Comparable<BoxObject>  {
 
 	@Override
 	public int compareTo(BoxObject another) {
-		if (this instanceof BoxFile && another instanceof BoxFile) {
+		if (this instanceof BoxFile && (another instanceof BoxFile || another instanceof BoxUploadingFile)) {
+			return this.name.compareTo(another.name);
+		}
+		if (this instanceof BoxUploadingFile && (another instanceof BoxFile || another instanceof BoxUploadingFile)) {
 			return this.name.compareTo(another.name);
 		}
 		if (this instanceof BoxFolder && (another instanceof BoxFolder || another instanceof BoxExternal)) {

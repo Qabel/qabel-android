@@ -98,4 +98,9 @@ public class DocumentIdParserTest extends TestCase {
         assertNull(p.buildId(null, null, null, null));
     }
 
+	@Test
+	public void testGetPath() throws FileNotFoundException {
+		assertThat(p.getPath(rootId + "::::" + filePath + fileName), is(filePath));
+	}
+
 }

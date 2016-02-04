@@ -6,6 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import org.apache.commons.io.FileUtils;
@@ -20,6 +21,7 @@ import de.qabel.qabelbox.storage.BoxExternal;
 import de.qabel.qabelbox.storage.BoxFile;
 import de.qabel.qabelbox.storage.BoxFolder;
 import de.qabel.qabelbox.storage.BoxObject;
+import de.qabel.qabelbox.storage.BoxUploadingFile;
 
 public class FilesAdapter extends RecyclerView.Adapter<FilesAdapter.FilesViewHolder> {
 
@@ -41,6 +43,7 @@ public class FilesAdapter extends RecyclerView.Adapter<FilesAdapter.FilesViewHol
         public final TextView mTextViewFolderDetailsMiddle;
         public final TextView mTextViewFolderDetailsRight;
         public final ImageView mImageView;
+		public final ProgressBar mProgressBar;
 
         public FilesViewHolder(View v) {
 
@@ -52,6 +55,7 @@ public class FilesAdapter extends RecyclerView.Adapter<FilesAdapter.FilesViewHol
             mTextViewFolderDetailsMiddle = (TextView) v.findViewById(R.id.textViewFolderDetailMiddle);
             mTextViewFolderDetailsRight = (TextView) v.findViewById(R.id.textViewFolderDetailRight);
             mImageView = (ImageView) v.findViewById(R.id.fileFolderIcon);
+			mProgressBar = (ProgressBar) v.findViewById(R.id.fileFolderProgress);
         }
 
         @Override
@@ -107,18 +111,26 @@ public class FilesAdapter extends RecyclerView.Adapter<FilesAdapter.FilesViewHol
             // Always set all ViewHolder fields, otherwise recycled views contain wrong data
             holder.mTextViewFolderDetailsLeft.setText("");
             holder.mTextViewFolderDetailsRight.setText("");
+			holder.mProgressBar.setVisibility(View.INVISIBLE);
         } else if (boxObject instanceof BoxExternal) {
             BoxExternal boxExternal = (BoxExternal) boxObject;
             holder.mImageView.setImageResource(R.drawable.ic_folder_shared_black);
             // TODO: Only show a part of the key identifier until owner name is implemented
             holder.mTextViewFolderDetailsLeft.setText("Owner: " + boxExternal.owner.getReadableKeyIdentifier().substring(0, 6));
             holder.mTextViewFolderDetailsRight.setText("");
-        } else if (boxObject instanceof BoxFile) {
+			holder.mProgressBar.setVisibility(View.INVISIBLE);
+		} else if (boxObject instanceof BoxFile) {
             BoxFile boxFile = (BoxFile) boxObject;
             holder.mTextViewFolderDetailsLeft.setText(formatModificationTime(boxFile));
             holder.mTextViewFolderDetailsRight.setText(FileUtils.byteCountToDisplaySize(boxFile.size));
             holder.mImageView.setImageResource(R.drawable.ic_insert_drive_file_black);
-        }
+			holder.mProgressBar.setVisibility(View.INVISIBLE);
+		} else if (boxObject instanceof BoxUploadingFile) {
+			holder.mTextViewFolderDetailsLeft.setText(R.string.uploading);
+			holder.mTextViewFolderDetailsRight.setText("");
+			holder.mImageView.setImageResource(R.drawable.ic_cloud_upload_black_24dp);
+			holder.mProgressBar.setVisibility(View.VISIBLE);
+		}
         holder.mImageView.setAlpha(0.8f);
     }
 

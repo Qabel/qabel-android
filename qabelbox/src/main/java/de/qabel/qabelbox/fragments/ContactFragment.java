@@ -10,6 +10,9 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
@@ -23,6 +26,7 @@ import org.spongycastle.util.encoders.Hex;
 import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.Iterator;
 
 import de.qabel.core.config.Contact;
@@ -35,7 +39,7 @@ import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.activities.MainActivity;
 import de.qabel.qabelbox.adapter.ContactsAdapter;
 import de.qabel.qabelbox.config.ContactExportImport;
-import de.qabel.qabelbox.helper.FileHelper.FileHelper;
+import de.qabel.qabelbox.helper.FileHelper;
 import de.qabel.qabelbox.helper.UIHelper;
 import de.qabel.qabelbox.services.LocalQabelService;
 
@@ -252,14 +256,7 @@ public class ContactFragment extends BaseFragment {
         }
     }
 
-    public boolean supportBackButton() {
-
-        return true;
-    }
-
     private void selectAddContactFragment(Identity identity) {
-
-        mActivity.toggle.setDrawerIndicatorEnabled(false);
         getFragmentManager().beginTransaction()
                 .replace(R.id.fragment_container, AddContactFragment.newInstance(identity), null)
                 .addToBackStack(null)

@@ -598,6 +598,9 @@ public class MainActivity extends AppCompatActivity
                             finishAffinity();
                         }
                         break;
+                    case TAG_CONTACT_LIST_FRAGMENT:
+                        super.onBackPressed();
+                        break;
                     default:
                         getFragmentManager().popBackStack();
                 }
@@ -1023,7 +1026,6 @@ public class MainActivity extends AppCompatActivity
                 .replace(R.id.fragment_container,
                         ContactFragment.newInstance(mService.getContacts(activeIdentity), activeIdentity),
                         TAG_CONTACT_LIST_FRAGMENT)
-                .addToBackStack(null)
                 .commit();
     }
 

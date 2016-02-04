@@ -3,9 +3,12 @@ package de.qabel.qabelbox.helper;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
+import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -205,6 +208,14 @@ public class UIHelper {
         //merge: use contact of other pr
         return null;
     }
+
+    public static void hideKeyboard(Activity activity,View mView) {
+        InputMethodManager imm = (InputMethodManager) activity
+                .getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(mView.getWindowToken(), 0);
+
+    }
+
     public interface EditTextDialogClickListener {
 
         void onClick(DialogInterface dialog, int which, EditText editText);

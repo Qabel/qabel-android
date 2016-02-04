@@ -54,7 +54,6 @@ import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.adapter.FilesAdapter;
 import de.qabel.qabelbox.exceptions.QblStorageException;
-import de.qabel.qabelbox.fragments.AddContactFragment;
 import de.qabel.qabelbox.fragments.BaseFragment;
 import de.qabel.qabelbox.fragments.ContactFragment;
 import de.qabel.qabelbox.fragments.FilesFragment;
@@ -63,7 +62,6 @@ import de.qabel.qabelbox.fragments.SelectUploadFolderFragment;
 import de.qabel.qabelbox.helper.UIHelper;
 import de.qabel.qabelbox.providers.BoxProvider;
 import de.qabel.qabelbox.services.LocalQabelService;
-import de.qabel.qabelbox.storage.BoxExternal;
 import de.qabel.qabelbox.storage.BoxFile;
 import de.qabel.qabelbox.storage.BoxFolder;
 import de.qabel.qabelbox.storage.BoxNavigation;
@@ -74,14 +72,13 @@ public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,
         SelectUploadFolderFragment.OnSelectedUploadFolderListener,
         ContactFragment.ContactListListener,
-        AddContactFragment.AddContactListener,
+
         FilesFragment.FilesListListener,
         IdentitiesFragment.IdentityListListener {
 
     public static final String TAG_FILES_FRAGMENT = "TAG_FILES_FRAGMENT";
     private static final String TAG_CONTACT_LIST_FRAGMENT = "TAG_CONTACT_LIST_FRAGMENT";
     private static final String TAG_MANAGE_IDENTITIES_FRAGMENT = "TAG_MANAGE_IDENTITIES_FRAGMENT";
-    private static final String TAG_ADD_CONTACT_FRAGMENT = "TAG_ADD_CONTACT_FRAGMENT";
 
     private static final String TAG = "BoxMainActivity";
     private static final int REQUEST_CODE_OPEN = 11;
@@ -269,12 +266,9 @@ public class MainActivity extends AppCompatActivity
                     } else {
                         fab.hide();
                     }
-                    if(!fragment.supportSubtitle())
-                    {
+                    if (!fragment.supportSubtitle()) {
                         toolbar.setSubtitle(null);
-                    }
-                    else
-                    {
+                    } else {
                         fragment.updateSubtitle();
                     }
                 }
@@ -374,14 +368,16 @@ public class MainActivity extends AppCompatActivity
 
                 Fragment activeFragment = getFragmentManager().findFragmentById(R.id.fragment_container);
                 String activeFragmentTag = activeFragment.getTag();
-
+                if (activeFragment instanceof BaseFragment) {
+                    BaseFragment bf = (BaseFragment) activeFragment;
+                    //call fab action in basefragment. if fragment handled this, we are done
+                    if (bf.handleFABAction()) {
+                        return;
+                    }
+                }
                 switch (activeFragmentTag) {
                     case TAG_FILES_FRAGMENT:
                         filesFragmentBottomSheet();
-                        break;
-
-                    case TAG_CONTACT_LIST_FRAGMENT:
-                        startAddContact(mService.getActiveIdentity());
                         break;
 
                     case TAG_MANAGE_IDENTITIES_FRAGMENT:
@@ -704,12 +700,6 @@ public class MainActivity extends AppCompatActivity
         }.execute();
     }
 
-    @Override
-    public void startAddContact(Identity identity) {
-
-        selectAddContactFragment(identity);
-    }
-
     public void selectIdentity(Identity identity) {
 
         changeActiveIdentity(identity);
@@ -738,14 +728,6 @@ public class MainActivity extends AppCompatActivity
         initBoxVolume(identity);
         initFilesFragment();
         selectFilesFragment();
-    }
-
-    @Override
-    public void addContact(Contact contact) {
-
-        mService.addContact(contact);
-        Snackbar.make(appBarMain, "Added contact: " + contact.getAlias(), Snackbar.LENGTH_LONG)
-                .show();
     }
 
     @Override
@@ -825,8 +807,8 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onDoRefresh(final FilesFragment filesFragment, final BoxNavigation boxNavigation, final FilesAdapter filesAdapter) {
-        filesFragment.refresh();
 
+        filesFragment.refresh();
     }
 
     private void setDrawerLocked(boolean locked) {
@@ -992,15 +974,6 @@ public class MainActivity extends AppCompatActivity
         FRAGMENT SELECTION METHODS
     */
 
-    private void selectAddContactFragment(Identity identity) {
-
-        fab.hide();
-        getFragmentManager().beginTransaction()
-                .replace(R.id.fragment_container, AddContactFragment.newInstance(identity), TAG_ADD_CONTACT_FRAGMENT)
-                .addToBackStack(null)
-                .commit();
-    }
-
     private void selectManageIdentitiesFragment() {
 
         fab.show();
@@ -1033,5 +1006,18 @@ public class MainActivity extends AppCompatActivity
                 .replace(R.id.fragment_container, filesFragment, TAG_FILES_FRAGMENT)
                 .commit();
         filesFragment.updateSubtitle();
+    }
+
+    @Override
+    public void contactAdded(Contact contact) {
+
+        Snackbar.make(appBarMain, "Added contact: " + contact.getAlias(), Snackbar.LENGTH_LONG)
+                .show();
+        //@todo need refresh contact list.would be fixed in redeisgn contact list
+    }
+
+    @Override
+    public void contactDeleted(Contact contact) {
+        //@todo need refresh contact list.would be fixed in redeisgn contact list
     }
 }

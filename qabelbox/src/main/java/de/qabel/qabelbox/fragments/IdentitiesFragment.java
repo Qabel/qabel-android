@@ -17,6 +17,7 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.cocosw.bottomsheet.BottomSheet;
+import com.google.zxing.integration.android.IntentIntegrator;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -29,6 +30,7 @@ import de.qabel.qabelbox.adapter.IdentitiesAdapter;
 import de.qabel.qabelbox.config.ContactExportImport;
 import de.qabel.qabelbox.config.IdentityExportImport;
 import de.qabel.qabelbox.config.QabelSchema;
+import de.qabel.qabelbox.helper.QRCodeHelper;
 import de.qabel.qabelbox.helper.UIHelper;
 
 /**
@@ -147,6 +149,9 @@ public class IdentitiesFragment extends BaseFragment {
                                     case R.id.identities_export_as_contact:
                                         exportIdentityAsContact(identity);
                                         break;
+                                    case R.id.identities_export_as_contact_qrcode:
+                                        BarcodeFragment.newInstance(identity);
+                                        //QRCodeHelper.exportIdentityAsContactWithQR(getActivity(), identity);
                                 }
                             }
                         }).show();
@@ -155,6 +160,8 @@ public class IdentitiesFragment extends BaseFragment {
 
         return view;
     }
+
+
 
     private void exportIdentity(Identity identity) {
 

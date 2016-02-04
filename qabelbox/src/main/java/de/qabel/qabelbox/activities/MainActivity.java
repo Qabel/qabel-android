@@ -60,6 +60,7 @@ import de.qabel.qabelbox.fragments.ContactFragment;
 import de.qabel.qabelbox.fragments.FilesFragment;
 import de.qabel.qabelbox.fragments.IdentitiesFragment;
 import de.qabel.qabelbox.fragments.SelectUploadFolderFragment;
+import de.qabel.qabelbox.helper.QRCodeHelper;
 import de.qabel.qabelbox.helper.UIHelper;
 import de.qabel.qabelbox.providers.BoxProvider;
 import de.qabel.qabelbox.services.LocalQabelService;
@@ -862,14 +863,8 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void onClick(View v) {
 
-                Identity activeIdentity = mService.getActiveIdentity();
-                if (activeIdentity != null) {
-                    IntentIntegrator intentIntegrator = new IntentIntegrator(self);
-                    intentIntegrator.shareText("QABELCONTACT\n"
-                            + activeIdentity.getAlias() + "\n"
-                            + activeIdentity.getDropUrls().toArray()[0].toString() + "\n"
-                            + activeIdentity.getKeyIdentifier());
-                }
+             QRCodeHelper.exportIdentityAsContactWithQR(self, mService.getActiveIdentity());
+
             }
         });
 

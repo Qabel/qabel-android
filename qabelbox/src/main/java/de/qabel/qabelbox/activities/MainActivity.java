@@ -53,6 +53,7 @@ import de.qabel.core.config.Identity;
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.adapter.FilesAdapter;
+import de.qabel.qabelbox.config.ContactExportImport;
 import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.fragments.AddContactFragment;
 import de.qabel.qabelbox.fragments.BaseFragment;
@@ -743,7 +744,15 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void addContact(Contact contact) {
 
-        mService.addContact(contact);
+		for (Contact c : mService.getContacts().getContacts()) {
+			if (c.getKeyIdentifier().equals(contact.getKeyIdentifier())) {
+				Snackbar.make(appBarMain, "Contact already existing: " + contact.getAlias(), Snackbar.LENGTH_LONG)
+						.show();
+				return;
+			}
+		}
+
+		mService.addContact(contact);
         Snackbar.make(appBarMain, "Added contact: " + contact.getAlias(), Snackbar.LENGTH_LONG)
                 .show();
     }
@@ -863,10 +872,7 @@ public class MainActivity extends AppCompatActivity
                 Identity activeIdentity = mService.getActiveIdentity();
                 if (activeIdentity != null) {
                     IntentIntegrator intentIntegrator = new IntentIntegrator(self);
-                    intentIntegrator.shareText("QABELCONTACT\n"
-                            + activeIdentity.getAlias() + "\n"
-                            + activeIdentity.getDropUrls().toArray()[0].toString() + "\n"
-                            + activeIdentity.getKeyIdentifier());
+                    intentIntegrator.shareText(ContactExportImport.exportIdentityAsContact(activeIdentity));
                 }
             }
         });

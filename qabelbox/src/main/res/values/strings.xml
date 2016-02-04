@@ -170,4 +170,12 @@
     <string name="share_via">Share via</string>
     <string name="chooser_open_with">Open with</string>
     <string name="uploading">Uploading</string>
+    <string name="add_new_contact">Add new contact</string>
+    <string name="qrecode_scanner">QR-Code scanner</string>
+    <string name="from_file">Import</string>
+    <string name="direct_input">Manual input</string>
+    <string name="identity_import_failed">Identity import failed</string>
+    <string name="contact_import_failed">Contact import failed</string>
+    <string name="contact_import_successfull">Contact imported</string>
+    <string name="cant_import_contact_already_exisits">Can\'t import contact. Contact already in contact list</string>
 </resources>

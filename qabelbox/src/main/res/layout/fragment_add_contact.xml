@@ -64,13 +64,6 @@
             android:baselineAligned="false">
 
             <de.qabel.qabelbox.views.ButtonFont
-                android:id="@+id/buttonScanContact"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentStart="true"
-                android:text="@string/Scan"
-                style="@style/BottomBarButton" />
-            <de.qabel.qabelbox.views.ButtonFont
                 android:id="@+id/buttonAddContact"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

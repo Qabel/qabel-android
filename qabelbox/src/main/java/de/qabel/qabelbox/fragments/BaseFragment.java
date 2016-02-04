@@ -111,4 +111,9 @@ public class BaseFragment extends Fragment {
     public void updateSubtitle() {
 
     }
+
+    public boolean handleFABAction() {
+
+        return false;
+    }
 }

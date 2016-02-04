@@ -11,6 +11,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import de.qabel.qabelbox.R;
+import de.qabel.qabelbox.activities.MainActivity;
 import de.qabel.qabelbox.views.EditTextFont;
 
 /**
@@ -184,6 +185,26 @@ public class UIHelper {
         });
     }
 
+
+    /**
+     * show dialog message. they try to get a readable message from exception
+     *
+     * @param activity
+     * @param headline
+     * @param message
+     * @param e
+     */
+    public static void showDialogMessage(Activity activity, int headline, int message, Exception e) {
+
+        String reason = getUserReadableMessage(activity, e);
+        showDialogMessage(activity, headline, activity.getString(message) + (reason == null ? "" : ". "+reason));
+    }
+
+    private static String getUserReadableMessage(Activity activity, Exception e) {
+
+        //merge: use contact of other pr
+        return null;
+    }
     public interface EditTextDialogClickListener {
 
         void onClick(DialogInterface dialog, int which, EditText editText);

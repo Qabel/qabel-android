@@ -76,14 +76,12 @@ public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,
         SelectUploadFolderFragment.OnSelectedUploadFolderListener,
         ContactFragment.ContactListListener,
-        AddContactFragment.AddContactListener,
         FilesFragment.FilesListListener,
         IdentitiesFragment.IdentityListListener {
 
     public static final String TAG_FILES_FRAGMENT = "TAG_FILES_FRAGMENT";
     private static final String TAG_CONTACT_LIST_FRAGMENT = "TAG_CONTACT_LIST_FRAGMENT";
     private static final String TAG_MANAGE_IDENTITIES_FRAGMENT = "TAG_MANAGE_IDENTITIES_FRAGMENT";
-    private static final String TAG_ADD_CONTACT_FRAGMENT = "TAG_ADD_CONTACT_FRAGMENT";
 
     private static final String TAG = "BoxMainActivity";
     private static final int REQUEST_CODE_UPLOAD_FILE = 12;
@@ -358,14 +356,16 @@ public class MainActivity extends AppCompatActivity
 
                 Fragment activeFragment = getFragmentManager().findFragmentById(R.id.fragment_container);
                 String activeFragmentTag = activeFragment.getTag();
-
+                if (activeFragment instanceof BaseFragment) {
+                    BaseFragment bf = (BaseFragment) activeFragment;
+                    //call fab action in basefragment. if fragment handled this, we are done
+                    if (bf.handleFABAction()) {
+                        return;
+                    }
+                }
                 switch (activeFragmentTag) {
                     case TAG_FILES_FRAGMENT:
                         filesFragmentBottomSheet();
-                        break;
-
-                    case TAG_CONTACT_LIST_FRAGMENT:
-                        startAddContact(mService.getActiveIdentity());
                         break;
 
                     case TAG_MANAGE_IDENTITIES_FRAGMENT:
@@ -731,12 +731,6 @@ public class MainActivity extends AppCompatActivity
         }.execute();
     }
 
-    @Override
-    public void startAddContact(Identity identity) {
-
-        selectAddContactFragment(identity);
-    }
-
     public void selectIdentity(Identity identity) {
 
         changeActiveIdentity(identity);
@@ -767,21 +761,6 @@ public class MainActivity extends AppCompatActivity
         selectFilesFragment();
     }
 
-    @Override
-    public void addContact(Contact contact) {
-
-		for (Contact c : mService.getContacts().getContacts()) {
-			if (c.getKeyIdentifier().equals(contact.getKeyIdentifier())) {
-				Snackbar.make(appBarMain, "Contact already existing: " + contact.getAlias(), Snackbar.LENGTH_LONG)
-						.show();
-				return;
-			}
-		}
-
-		mService.addContact(contact);
-        Snackbar.make(appBarMain, "Added contact: " + contact.getAlias(), Snackbar.LENGTH_LONG)
-                .show();
-    }
 
     @Override
     public void onScrolledToBottom(boolean scrolledToBottom) {
@@ -1024,15 +1003,6 @@ public class MainActivity extends AppCompatActivity
         FRAGMENT SELECTION METHODS
     */
 
-    private void selectAddContactFragment(Identity identity) {
-
-        fab.hide();
-        getFragmentManager().beginTransaction()
-                .replace(R.id.fragment_container, AddContactFragment.newInstance(identity), TAG_ADD_CONTACT_FRAGMENT)
-                .addToBackStack(null)
-                .commit();
-    }
-
     private void selectManageIdentitiesFragment() {
 
         fab.show();
@@ -1065,5 +1035,25 @@ public class MainActivity extends AppCompatActivity
                 .replace(R.id.fragment_container, filesFragment, TAG_FILES_FRAGMENT)
                 .commit();
         filesFragment.updateSubtitle();
+    }
+
+    @Override
+    public void contactAdded(Contact contact) {
+        for (Contact c : mService.getContacts().getContacts()) {
+            if (c.getKeyIdentifier().equals(contact.getKeyIdentifier())) {
+                Snackbar.make(appBarMain, "Contact already existing: " + contact.getAlias(), Snackbar.LENGTH_LONG)
+                        .show();
+                return;
+            }
+        }
+
+        Snackbar.make(appBarMain, "Added contact: " + contact.getAlias(), Snackbar.LENGTH_LONG)
+                .show();
+        //@todo need refresh contact list.would be fixed in redeisgn contact list
+    }
+
+    @Override
+    public void contactDeleted(Contact contact) {
+        //@todo need refresh contact list.would be fixed in redeisgn contact list
     }
 }

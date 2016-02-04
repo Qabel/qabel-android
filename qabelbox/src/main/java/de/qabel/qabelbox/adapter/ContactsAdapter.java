@@ -82,7 +82,8 @@ public class ContactsAdapter extends RecyclerView.Adapter<ContactsAdapter.Contac
     public void onBindViewHolder(ContactViewHolder holder, int position) {
 
         holder.mTextViewContactName.setText(mContacts.get(position).getAlias());
-        holder.mTextViewContactDetails.setText(mContacts.get(position).getKeyIdentifier());
+        holder.mTextViewContactDetails.setText(mContacts.get(position).getEmail());
+
     }
 
     @Override

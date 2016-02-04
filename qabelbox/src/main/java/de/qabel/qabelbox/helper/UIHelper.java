@@ -10,6 +10,8 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import java.io.IOException;
+
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.views.EditTextFont;
 
@@ -182,6 +184,29 @@ public class UIHelper {
                 dialog.show();
             }
         });
+    }
+
+    /**
+     * show dialog message. they try to get a readable message from exception
+     *
+     * @param activity
+     * @param headline
+     * @param message
+     * @param e
+     */
+    public static void showDialogMessage(Activity activity, int headline, int message, Exception e) {
+
+        String reason = getUserReadableMessage(activity, e);
+        showDialogMessage(activity, headline, message + reason == null ? "" : reason);
+    }
+
+    private static String getUserReadableMessage(Activity activity, Exception e) {
+
+        String reason = activity.getString(R.string.reason_for_error);
+        if (e instanceof IOException) {
+            return " "+reason.replace("%1",activity.getString(R.string.error_reason_io));
+        }
+        return null;
     }
 
     public interface EditTextDialogClickListener {

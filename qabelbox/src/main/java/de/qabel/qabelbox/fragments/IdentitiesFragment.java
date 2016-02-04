@@ -10,7 +10,6 @@ import android.os.Bundle;
 import android.os.ParcelFileDescriptor;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,7 +18,6 @@ import android.widget.Toast;
 
 import com.cocosw.bottomsheet.BottomSheet;
 
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
@@ -28,7 +26,9 @@ import de.qabel.core.config.Identity;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.activities.MainActivity;
 import de.qabel.qabelbox.adapter.IdentitiesAdapter;
+import de.qabel.qabelbox.config.ContactExportImport;
 import de.qabel.qabelbox.config.IdentityExportImport;
+import de.qabel.qabelbox.config.QabelSchema;
 import de.qabel.qabelbox.helper.UIHelper;
 
 /**
@@ -42,7 +42,7 @@ public class IdentitiesFragment extends BaseFragment {
     private IdentitiesAdapter identityListAdapter;
     private RecyclerView.LayoutManager recyclerViewLayoutManager;
 
-	private Identity identityToExport;
+    private Identity identityToExport;
     private Identities identities;
     private IdentityListListener mListener;
 
@@ -142,7 +142,10 @@ public class IdentitiesFragment extends BaseFragment {
                                         confirmDelete.show();
                                         break;
                                     case R.id.identities_export:
-										exportIdentity(identity);
+                                        exportIdentity(identity);
+                                        break;
+                                    case R.id.identities_export_as_contact:
+                                        exportIdentityAsContact(identity);
                                         break;
                                 }
                             }
@@ -153,35 +156,54 @@ public class IdentitiesFragment extends BaseFragment {
         return view;
     }
 
-	private void exportIdentity(Identity identity) {
-		Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
+    private void exportIdentity(Identity identity) {
 
-		intent.addCategory(Intent.CATEGORY_OPENABLE);
+        startExportFileChooser(identity, QabelSchema.FILE_PREFIX_IDENTITY, QabelSchema.FILE_SUFFIX_IDENTITY, MainActivity.REQUEST_EXPORT_IDENTITY);
+    }
 
-		intent.setType("application/json");
-		intent.putExtra(Intent.EXTRA_TITLE, identity.getAlias() + ".qid");
-		//TODO: Is there any way to add data to the intent? Abusing a member for this is so wrong...
-		identityToExport = identity;
-		startActivityForResult(intent, MainActivity.REQUEST_EXPORT_IDENTITY);
-	}
+    private void exportIdentityAsContact(Identity identity) {
 
-	@Override
-	public void onActivityResult(int requestCode, int resultCode,
-								 Intent resultData) {
+        startExportFileChooser(identity, QabelSchema.FILE_PREFIX_CONTACT, QabelSchema.FILE_SUFFIX_CONTACT, MainActivity.REQUEST_EXPORT_IDENTITY_AS_CONTACT);
+    }
 
-		if (requestCode == MainActivity.REQUEST_EXPORT_IDENTITY && resultCode == Activity.RESULT_OK) {
-			if (resultData != null) {
-				Uri uri = resultData.getData();
-				try (ParcelFileDescriptor pfd = mActivity.getContentResolver().openFileDescriptor(uri, "w");
-				 	FileOutputStream fileOutputStream = new FileOutputStream(pfd.getFileDescriptor())) {
-					fileOutputStream.write((IdentityExportImport.exportIdentity(identityToExport)).getBytes());
-					UIHelper.showDialogMessage(activity, R.string.dialog_headline_info, R.string.identity_export_complete);
-				} catch (IOException e) {
-					UIHelper.showDialogMessage(activity, R.string.dialog_headline_info, R.string.identity_export_failed);
-				}
-			}
-		}
-	}
+    private void startExportFileChooser(Identity identity, String type, String filesuffix, int requestCode) {
+
+        Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
+
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+
+        intent.setType("application/json");
+        intent.putExtra(Intent.EXTRA_TITLE, type + "" + identity.getAlias() + "." + filesuffix);
+        //TODO: Is there any way to add data to the intent? Abusing a member for this is so wrong...
+        identityToExport = identity;
+        startActivityForResult(intent, requestCode);
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode,
+                                 Intent resultData) {
+
+        if (resultCode == Activity.RESULT_OK) {
+            if (requestCode == MainActivity.REQUEST_EXPORT_IDENTITY || requestCode == MainActivity.REQUEST_EXPORT_IDENTITY_AS_CONTACT) {
+                if (resultData != null) {
+                    Uri uri = resultData.getData();
+
+                    try (ParcelFileDescriptor pfd = mActivity.getContentResolver().openFileDescriptor(uri, "w");
+                         FileOutputStream fileOutputStream = new FileOutputStream(pfd.getFileDescriptor())) {
+                        if (requestCode == MainActivity.REQUEST_EXPORT_IDENTITY_AS_CONTACT) {
+                            fileOutputStream.write((ContactExportImport.exportIdentityAsContact(identityToExport)).getBytes());
+                            UIHelper.showDialogMessage(activity, R.string.dialog_headline_info, R.string.contact_export_successfully);
+                        } else {
+                            fileOutputStream.write((IdentityExportImport.exportIdentity(identityToExport)).getBytes());
+                            UIHelper.showDialogMessage(activity, R.string.dialog_headline_info, R.string.identity_export_successfully);
+                        }
+                    } catch (IOException e) {
+                        UIHelper.showDialogMessage(activity, R.string.dialog_headline_info, R.string.identity_export_failed, e);
+                    }
+                }
+            }
+        }
+    }
 
     @Override
     public void onAttach(Activity activity) {

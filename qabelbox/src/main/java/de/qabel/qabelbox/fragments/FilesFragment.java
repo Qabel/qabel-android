@@ -111,11 +111,11 @@ public class FilesFragment extends BaseFragment {
 
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
-        actionBar.setDisplayHomeAsUpEnabled(false);
-        final AppCompatActivity act = (AppCompatActivity) getActivity();
-        final ActionBar action = act.getSupportActionBar();
-        action.setTitle(getTitle());
+        if (actionBar != null) {
+            actionBar.setDisplayHomeAsUpEnabled(false);
 
+            actionBar.setTitle(getTitle());
+        }
         self = this;
     }
 

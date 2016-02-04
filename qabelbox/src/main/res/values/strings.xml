@@ -157,5 +157,9 @@
     <string name="contact_list_empty">Your contact list is empty. Click on the add button at bottom to add new contacts</string>
     <string name="cant_read_identity">Can\'t read identity from file</string>
     <string name="identity_export_failed">Identity export failed!</string>
-    <string name="identity_export_complete">Identity exported</string>
+    <string name="identity_export_successfully">Identity exported. Please take sure that never get access to this identity file!</string>
+    <string name="ExportAsContact">Export as contact</string>
+    <string name="error_reason_io">Fehler beim Lese oder Schreibvorgang</string>
+    <string name="reason_for_error">Reason: %1</string>
+    <string name="contact_export_successfully">Contact exported. You can share this contact to your friends.</string>
 </resources>

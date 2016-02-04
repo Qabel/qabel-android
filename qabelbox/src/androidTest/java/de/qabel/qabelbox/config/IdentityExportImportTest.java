@@ -1,5 +1,6 @@
 package de.qabel.qabelbox.config;
 
+
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -23,20 +24,19 @@ public class IdentityExportImportTest {
 		Identity identity = new Identity("Identity", dropURLs, qblECKeyPair);
 		identity.setPhone("049111111");
 		identity.setEmail("test@example.com");
+		identity.getPrefixes().add("prefix1");
+		identity.getPrefixes().add("prefix2");
 
 		String exportedIdentity = IdentityExportImport.exportIdentity(identity);
 
 		Identity importedIdentity = IdentityExportImport.parseIdentity(exportedIdentity);
 
-		assertEquals(identity, importedIdentity);
 		assertEquals(identity.getId(), importedIdentity.getId());
-		assertEquals(identity.getCreated(), importedIdentity.getCreated());
-		assertEquals(identity.getUpdated(), importedIdentity.getUpdated());
-		assertEquals(identity.getDeleted(), importedIdentity.getDeleted());
 		assertEquals(identity.getEmail(), importedIdentity.getEmail());
 		assertEquals(identity.getPhone(), importedIdentity.getPhone());
 		assertEquals(identity.getPrimaryKeyPair(), importedIdentity.getPrimaryKeyPair());
 		assertEquals(identity.getDropUrls(), importedIdentity.getDropUrls());
+		assertEquals(identity.getPrefixes(), importedIdentity.getPrefixes());
 	}
 
 	@Test
@@ -52,15 +52,12 @@ public class IdentityExportImportTest {
 
 		Identity importedIdentity = IdentityExportImport.parseIdentity(exportedIdentity);
 
-		assertEquals(identity, importedIdentity);
 		assertEquals(identity.getId(), importedIdentity.getId());
-		assertEquals(identity.getCreated(), importedIdentity.getCreated());
-		assertEquals(identity.getUpdated(), importedIdentity.getUpdated());
-		assertEquals(identity.getDeleted(), importedIdentity.getDeleted());
 		assertEquals(identity.getEmail(), importedIdentity.getEmail());
 		assertEquals(identity.getPhone(), importedIdentity.getPhone());
 		assertEquals(identity.getPrimaryKeyPair(), importedIdentity.getPrimaryKeyPair());
 		assertEquals(identity.getDropUrls(), importedIdentity.getDropUrls());
+		assertEquals(identity.getPrefixes(), importedIdentity.getPrefixes());
 	}
 
 }

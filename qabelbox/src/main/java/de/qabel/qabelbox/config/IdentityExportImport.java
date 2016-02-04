@@ -17,14 +17,12 @@ import de.qabel.core.exceptions.QblDropInvalidURL;
 public class IdentityExportImport {
 
 	private static final String KEY_ID = "id";
-	private static final String KEY_CREATED = "created";
-	private static final String KEY_UPDATED = "updated";
-	private static final String KEY_DELETED = "deleted";
 	private static final String KEY_ALIAS = "alias";
 	private static final String KEY_EMAIL = "email";
 	private static final String KEY_PHONE = "phone";
 	private static final String KEY_PRIVATE_KEY = "private_key";
 	private static final String KEY_PUBLIC_KEY = "public_key";
+	private static final String KEY_PREFIXES = "prefixes";
 	private static final String KEY_DROP_URLS = "drop_urls";
 
 	/**
@@ -37,13 +35,15 @@ public class IdentityExportImport {
 
 		try {
 			jsonObject.put(KEY_ID, identity.getId());
-			jsonObject.put(KEY_CREATED, identity.getCreated());
-			jsonObject.put(KEY_UPDATED, identity.getUpdated());
-			jsonObject.put(KEY_DELETED, identity.getDeleted());
 			jsonObject.put(KEY_ALIAS, identity.getAlias());
 			jsonObject.put(KEY_EMAIL, identity.getEmail());
 			jsonObject.put(KEY_PHONE, identity.getPhone());
 			jsonObject.put(KEY_PRIVATE_KEY, Hex.toHexString(identity.getPrimaryKeyPair().getPrivateKey()));
+			JSONArray jsonPrefixes = new JSONArray();
+			for (String prefix : identity.getPrefixes()) {
+				jsonPrefixes.put(prefix);
+			}
+			jsonObject.put(KEY_PREFIXES, jsonPrefixes);
 			jsonObject.put(KEY_PUBLIC_KEY, Hex.toHexString(identity.getEcPublicKey().getKey()));
 
 			for (DropURL dropURL : identity.getDropUrls()) {
@@ -80,17 +80,14 @@ public class IdentityExportImport {
 
 		Identity identity = new Identity(alias, dropURLs, qblECKeyPair);
 
+		if(jsonObject.has(KEY_PREFIXES)) {
+			JSONArray jsonPrefixes = jsonObject.getJSONArray(KEY_PREFIXES);
+			for (int i = 0; i < jsonPrefixes.length(); i++) {
+				identity.getPrefixes().add(jsonPrefixes.getString(i));
+			}
+		}
 		if (jsonObject.has(KEY_ID)) {
 			identity.setId(jsonObject.getInt(KEY_ID));
-		}
-		if (jsonObject.has(KEY_CREATED)) {
-			identity.setCreated(jsonObject.getLong(KEY_CREATED));
-		}
-		if (jsonObject.has(KEY_UPDATED)) {
-			identity.setUpdated(jsonObject.getLong(KEY_UPDATED));
-		}
-		if (jsonObject.has(KEY_DELETED)) {
-			identity.setDeleted(jsonObject.getLong(KEY_DELETED));
 		}
 		if (jsonObject.has(KEY_EMAIL)) {
 			identity.setEmail(jsonObject.getString(KEY_EMAIL));

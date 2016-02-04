@@ -3,14 +3,18 @@ package de.qabel.qabelbox.helper;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
+import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import de.qabel.qabelbox.R;
+import de.qabel.qabelbox.activities.MainActivity;
 import de.qabel.qabelbox.views.EditTextFont;
 
 /**
@@ -182,6 +186,34 @@ public class UIHelper {
                 dialog.show();
             }
         });
+    }
+
+
+    /**
+     * show dialog message. they try to get a readable message from exception
+     *
+     * @param activity
+     * @param headline
+     * @param message
+     * @param e
+     */
+    public static void showDialogMessage(Activity activity, int headline, int message, Exception e) {
+
+        String reason = getUserReadableMessage(activity, e);
+        showDialogMessage(activity, headline, activity.getString(message) + (reason == null ? "" : ". "+reason));
+    }
+
+    private static String getUserReadableMessage(Activity activity, Exception e) {
+
+        //merge: use contact of other pr
+        return null;
+    }
+
+    public static void hideKeyboard(Activity activity,View mView) {
+        InputMethodManager imm = (InputMethodManager) activity
+                .getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(mView.getWindowToken(), 0);
+
     }
 
     public interface EditTextDialogClickListener {

@@ -10,7 +10,6 @@ import android.os.Bundle;
 import android.os.ParcelFileDescriptor;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,7 +18,6 @@ import android.widget.Toast;
 
 import com.cocosw.bottomsheet.BottomSheet;
 
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
@@ -92,7 +90,7 @@ public class IdentitiesFragment extends BaseFragment {
             public void onItemClick(View view, int position) {
 
                 final Identity identity = identityListAdapter.get(position);
-                new BottomSheet.Builder(activity).title(identity.getAlias()).sheet(R.menu.identities_bottom_sheet)
+                new BottomSheet.Builder(activity).title(identity.getAlias()).sheet(R.menu.bottom_sheet_identities)
                         .listener(new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
@@ -142,7 +140,7 @@ public class IdentitiesFragment extends BaseFragment {
                                         confirmDelete.show();
                                         break;
                                     case R.id.identities_export:
-										exportIdentity(identity);
+                                        exportIdentity(identity);
                                         break;
                                 }
                             }

@@ -68,9 +68,9 @@ public class FilesFragment extends BaseFragment {
     private StorageSearch mCachedStorageSearch;
     View mEmptyView;
     View mLoadingView;
-	private LocalQabelService mService;
+    private LocalQabelService mService;
 
-	public static FilesFragment newInstance(final BoxVolume boxVolume) {
+    public static FilesFragment newInstance(final BoxVolume boxVolume) {
 
         final FilesFragment filesFragment = new FilesFragment();
         filesFragment.mBoxVolume = boxVolume;
@@ -127,60 +127,65 @@ public class FilesFragment extends BaseFragment {
         final ActionBar action = act.getSupportActionBar();
         action.setTitle(getTitle());
 
-		bindToService(getActivity());
+        bindToService(getActivity());
 
-		self = this;
-		LocalBroadcastManager.getInstance(getActivity()).registerReceiver(mMessageReceiver,
-				new IntentFilter(LocalBroadcastConstants.INTENT_UPLOAD_BROADCAST));
+        self = this;
+        LocalBroadcastManager.getInstance(getActivity()).registerReceiver(mMessageReceiver,
+                new IntentFilter(LocalBroadcastConstants.INTENT_UPLOAD_BROADCAST));
     }
 
-	void bindToService(Context context) {
-		Intent intent = new Intent(context, LocalQabelService.class);
-		context.bindService(intent, new ServiceConnection() {
-			@Override
-			public void onServiceConnected(ComponentName name, IBinder service) {
-				LocalQabelService.LocalBinder binder = (LocalQabelService.LocalBinder) service;
-				mService = binder.getService();
-			}
+    void bindToService(Context context) {
 
-			@Override
-			public void onServiceDisconnected(ComponentName name) {
-				mService = null;
-			}
-		}, Context.BIND_AUTO_CREATE);
-	}
+        Intent intent = new Intent(context, LocalQabelService.class);
+        context.bindService(intent, new ServiceConnection() {
+            @Override
+            public void onServiceConnected(ComponentName name, IBinder service) {
 
-	private BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
-		@Override
-		public void onReceive(Context context, Intent intent) {
-			String documentId = intent.getStringExtra(LocalBroadcastConstants.EXTRA_UPLOAD_DOCUMENT_ID);
-			int uploadStatus = intent.getIntExtra(LocalBroadcastConstants.EXTRA_UPLOAD_STATUS, - 1);
+                LocalQabelService.LocalBinder binder = (LocalQabelService.LocalBinder) service;
+                mService = binder.getService();
+            }
 
-			switch (uploadStatus) {
-				case LocalBroadcastConstants.UPLOAD_STATUS_NEW:
-					Log.d(TAG, "Received new upload: " + documentId);
-					fillAdapter();
-					filesAdapter.notifyDataSetChanged();
-					break;
-				case LocalBroadcastConstants.UPLOAD_STATUS_FINISHED:
-					Log.d(TAG, "Received upload finished: " + documentId);
-					refresh();
-					break;
-				case LocalBroadcastConstants.UPLOAD_STATUS_FAILED:
-					Log.d(TAG, "Received upload failed: " + documentId);
-					refresh();
-					break;
-			}
-		}
-	};
+            @Override
+            public void onServiceDisconnected(ComponentName name) {
 
-	@Override
-	public void onDestroy() {
-		super.onDestroy();
-		LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(mMessageReceiver);
-	}
+                mService = null;
+            }
+        }, Context.BIND_AUTO_CREATE);
+    }
 
-	@Override
+    private BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+
+            String documentId = intent.getStringExtra(LocalBroadcastConstants.EXTRA_UPLOAD_DOCUMENT_ID);
+            int uploadStatus = intent.getIntExtra(LocalBroadcastConstants.EXTRA_UPLOAD_STATUS, -1);
+
+            switch (uploadStatus) {
+                case LocalBroadcastConstants.UPLOAD_STATUS_NEW:
+                    Log.d(TAG, "Received new upload: " + documentId);
+                    fillAdapter();
+                    filesAdapter.notifyDataSetChanged();
+                    break;
+                case LocalBroadcastConstants.UPLOAD_STATUS_FINISHED:
+                    Log.d(TAG, "Received upload finished: " + documentId);
+                    refresh();
+                    break;
+                case LocalBroadcastConstants.UPLOAD_STATUS_FAILED:
+                    Log.d(TAG, "Received upload failed: " + documentId);
+                    refresh();
+                    break;
+            }
+        }
+    };
+
+    @Override
+    public void onDestroy() {
+
+        super.onDestroy();
+        LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(mMessageReceiver);
+    }
+
+    @Override
     public void onStart() {
 
         super.onStart();
@@ -680,11 +685,12 @@ public class FilesFragment extends BaseFragment {
     }
 
     private void fillAdapter() {
-		filesAdapter.clear();
 
-		if (boxNavigation == null) {
-			return;
-		}
+        filesAdapter.clear();
+
+        if (boxNavigation == null) {
+            return;
+        }
 
         try {
             for (BoxFolder boxFolder : boxNavigation.listFolders()) {
@@ -703,15 +709,15 @@ public class FilesFragment extends BaseFragment {
             Log.e(TAG, "browseTo failed", e);
         }
 
-		if (mService != null && mService.getPendingUploads() != null) {
-			ArrayList<BoxUploadingFile> uploadsInPath = mService.getPendingUploads().get(boxNavigation.getPath());
+        if (mService != null && mService.getPendingUploads() != null) {
+            ArrayList<BoxUploadingFile> uploadsInPath = mService.getPendingUploads().get(boxNavigation.getPath());
 
-			if (uploadsInPath != null) {
-				for (BoxUploadingFile boxUploadingFile : uploadsInPath) {
-					filesAdapter.add(boxUploadingFile);
-				}
-			}
-		}
+            if (uploadsInPath != null) {
+                for (BoxUploadingFile boxUploadingFile : uploadsInPath) {
+                    filesAdapter.add(boxUploadingFile);
+                }
+            }
+        }
 
         filesAdapter.sort();
     }

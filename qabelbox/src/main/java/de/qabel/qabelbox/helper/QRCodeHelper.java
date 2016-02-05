@@ -11,6 +11,7 @@ import android.widget.ImageView;
 
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.WriterException;
+import com.google.zxing.common.BitArray;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
 
@@ -45,8 +46,7 @@ public class QRCodeHelper {
                 size = iv.getMeasuredWidth();
                 DisplayMetrics metrics = new DisplayMetrics();
                 activity.getWindowManager().getDefaultDisplay().getMetrics(metrics);
-                //qrcode maximum display size and maximum 1024 and minimum 480
-                size = Math.max(480, Math.min(1024, metrics.widthPixels));
+                size = Math.max(320, Math.min(1024, metrics.widthPixels));
                 Log.d(TAG, "QRCode size " + size);
             }
 
@@ -63,12 +63,14 @@ public class QRCodeHelper {
                     BitMatrix bitMatrix = writer.encode(text, BarcodeFormat.QR_CODE, size, size);
                     int width = bitMatrix.getWidth();
                     int height = bitMatrix.getHeight();
-
+                    BitArray row = new BitArray(width);
                     int[] data = new int[width * height];
                     for (int y = 0; y < height; y++) {
                         int yy = y * width;
+                        bitMatrix.getRow(y, row);
+                        int[] rowArray = row.getBitArray();
                         for (int x = 0; x < width; x++) {
-                            data[x + yy] = bitMatrix.get(x, y) ? Color.BLACK : Color.WHITE;
+                            data[x + yy] = ((rowArray[x / 32] >>> (x & 0x1f)) & 1) != 0 ? Color.BLACK : Color.WHITE;
                         }
                     }
 

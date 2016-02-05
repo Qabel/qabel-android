@@ -13,7 +13,7 @@ import de.qabel.qabelbox.config.AppPreference;
 /**
  * Created by danny on 11.01.2016.
  */
-public class SplashActivity extends Activity {
+public class SplashActivity extends CrashReportingActivity {
 
     private final long SPLASH_TIME = 1500;
     private SplashActivity mActivity;
@@ -24,6 +24,7 @@ public class SplashActivity extends Activity {
 
         super.onCreate(savedInstanceState);
         mActivity = this;
+
         overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
         setContentView(R.layout.activity_splashscreen);
         setupAppPreferences();

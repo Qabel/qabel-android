@@ -80,6 +80,6 @@ public class QRCodeHelper {
                 }
                 return null;
             }
-        }.executeOnExecutor(AsyncTask.SERIAL_EXECUTOR, identity);
+        }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, identity);
     }
 }

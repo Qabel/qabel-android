@@ -9,7 +9,7 @@
     <de.qabel.qabelbox.views.SquareFrameLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#ffff0000">
+        android:background="@color/white">
 
         <ImageView
             android:id="@+id/qrcode"

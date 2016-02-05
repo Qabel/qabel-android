@@ -956,7 +956,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     public static void showQRCode(MainActivity activity, Identity identity) {
-        activity.toggle.setDrawerIndicatorEnabled(false);
+
         activity.getFragmentManager().beginTransaction()
                 .replace(R.id.fragment_container, QRcodeFragment.newInstance(identity), null)
                 .addToBackStack(null)

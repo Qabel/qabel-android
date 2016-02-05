@@ -1,48 +1,83 @@
 package de.qabel.qabelbox.helper;
 
 import android.app.Activity;
-import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.os.AsyncTask;
+import android.util.DisplayMetrics;
+import android.util.Log;
+import android.view.View;
+import android.widget.ImageView;
 
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.WriterException;
 import com.google.zxing.common.BitMatrix;
-
 import com.google.zxing.qrcode.QRCodeWriter;
 
 import de.qabel.core.config.Identity;
-import de.qabel.qabelbox.R;
 
 /**
  * Created by danny on 04.02.16.
  */
 public class QRCodeHelper {
 
+    private static final String TAG = "QRCodeHelper";
 
-    public static Bitmap generateQRCode(Activity activity,Identity identity) {
+    public static void generateQRCode(final Activity activity, final Identity identity, final ImageView iv) {
 
-        String text = "QABELCONTACT\n"
-                + identity.getAlias() + "\n"
-                + identity.getDropUrls().toArray()[0].toString() + "\n"
-                + identity.getKeyIdentifier();
+        new AsyncTask<Identity, Void, Bitmap>() {
 
-        int size=512;
-        QRCodeWriter writer = new QRCodeWriter();
-        try {
-            BitMatrix bitMatrix = writer.encode(text, BarcodeFormat.QR_CODE, size, size);
-            int width = bitMatrix.getWidth();
-            int height = bitMatrix.getHeight();
-            Bitmap bmp = Bitmap.createBitmap(width, height, Bitmap.Config.RGB_565);
-            for (int x = 0; x < width; x++) {
-                for (int y = 0; y < height; y++) {
-                    bmp.setPixel(x, y, bitMatrix.get(x, y) ? Color.BLACK : Color.WHITE);
+            public int size;
+
+            @Override
+            protected void onPostExecute(Bitmap bitmap) {
+
+                if (bitmap != null && iv != null && iv.isAttachedToWindow()) {
+                    iv.setImageBitmap(bitmap);
                 }
             }
-            return bmp;
-        } catch (WriterException e) {
-            e.printStackTrace();
-        }
-        return null;
+
+            @Override
+            protected void onPreExecute() {
+
+                super.onPreExecute();
+                iv.measure(View.MeasureSpec.EXACTLY, View.MeasureSpec.EXACTLY);
+                size = iv.getMeasuredWidth();
+                DisplayMetrics metrics = new DisplayMetrics();
+                activity.getWindowManager().getDefaultDisplay().getMetrics(metrics);
+                //qrcode maximum display size and maximum 1024 and minimum 480
+                size = Math.max(480, Math.min(1024, metrics.widthPixels));
+                Log.d(TAG, "QRCode size " + size);
+            }
+
+            @Override
+            protected Bitmap doInBackground(Identity... identities) {
+
+                String text = "QABELCONTACT\n"
+                        + identities[0].getAlias() + "\n"
+                        + identities[0].getDropUrls().toArray()[0].toString() + "\n"
+                        + identities[0].getKeyIdentifier();
+
+                QRCodeWriter writer = new QRCodeWriter();
+                try {
+                    BitMatrix bitMatrix = writer.encode(text, BarcodeFormat.QR_CODE, size, size);
+                    int width = bitMatrix.getWidth();
+                    int height = bitMatrix.getHeight();
+
+                    int[] data = new int[width * height];
+                    for (int y = 0; y < height; y++) {
+                        int yy = y * width;
+                        for (int x = 0; x < width; x++) {
+                            data[x + yy] = bitMatrix.get(x, y) ? Color.BLACK : Color.WHITE;
+                        }
+                    }
+
+                    return Bitmap.createBitmap(data, 0, width, width, height, Bitmap.Config.RGB_565);
+                } catch (WriterException e) {
+                    e.printStackTrace();
+                }
+                return null;
+            }
+        }.executeOnExecutor(AsyncTask.SERIAL_EXECUTOR, identity);
     }
 }

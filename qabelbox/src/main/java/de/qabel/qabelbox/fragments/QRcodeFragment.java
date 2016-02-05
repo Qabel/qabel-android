@@ -39,7 +39,7 @@ public class QRcodeFragment extends BaseFragment {
     public void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
-
+        mActivity.toggle.setDrawerIndicatorEnabled(false);
         actionBar.setDisplayHomeAsUpEnabled(true);
         setActionBarBackListener();
         setHasOptionsMenu(true);
@@ -70,7 +70,7 @@ public class QRcodeFragment extends BaseFragment {
         editTextDropURL.setText(identity.getDropUrls().toArray()[0].toString());
         editTextPublicKey.setText(identity.getKeyIdentifier());
         ImageView imageView = (ImageView) view.findViewById(R.id.qrcode);
-        imageView.setImageBitmap(QRCodeHelper.generateQRCode(getActivity(), identity));
+        QRCodeHelper.generateQRCode(getActivity(), identity, imageView);
         return view;
     }
 

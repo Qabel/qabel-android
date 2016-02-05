@@ -72,7 +72,7 @@
     <string name="no_entrys_found">No files found</string>
     <string name="load_file_list">Load filelist</string>
     <string name="ab_filesearch_hint">Enter keyword</string>
-    <string name="splash_footer_text">Don\'t trust us…\n...it\'s not necessary!</string>
+    <string name="splash_footer_text">Please do not trust us.\nIt is not necessary</string>
     <string name="headline_add_contact">Add contact</string>
     <string name="headline_add_identity">Add identity</string>
     <string name="headline_contacts">Contacts</string>

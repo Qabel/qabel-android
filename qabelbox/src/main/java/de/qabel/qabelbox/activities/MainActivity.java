@@ -770,7 +770,6 @@ public class MainActivity extends AppCompatActivity
         mService.addIdentity(identity);
         changeActiveIdentity(identity);
         provider.notifyRootsUpdated();
-
         Snackbar.make(appBarMain, "Added identity: " + identity.getAlias(), Snackbar.LENGTH_LONG)
                 .show();
         selectFilesFragment();
@@ -779,7 +778,6 @@ public class MainActivity extends AppCompatActivity
     private void changeActiveIdentity(Identity identity) {
 
         mService.setActiveIdentity(identity);
-
         textViewSelectedIdentity.setText(identity.getAlias());
         if (filesFragment != null) {
             getFragmentManager().beginTransaction().remove(filesFragment).commit();
@@ -815,9 +813,6 @@ public class MainActivity extends AppCompatActivity
             });
         } else {
             changeActiveIdentity(mService.getIdentities().getIdentities().iterator().next());
-            /*textViewSelectedIdentity.setText(mService.getActiveIdentity().getAlias());
-
-            selectFilesFragment();*/
         }
     }
 

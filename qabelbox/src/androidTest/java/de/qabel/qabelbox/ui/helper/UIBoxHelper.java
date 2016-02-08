@@ -5,12 +5,15 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.IBinder;
 import android.provider.DocumentsContract;
 import android.util.Log;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.io.output.ByteArrayOutputStream;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -86,7 +89,7 @@ public class UIBoxHelper {
         }
     }
 
-    public boolean deleteFile(Activity activity,Identity identity, String name, String targetFolder) {
+    public boolean deleteFile(Activity activity, Identity identity, String name, String targetFolder) {
 
         String keyIdentifier = identity.getEcPublicKey()
                 .getReadableKeyIdentifier();
@@ -160,6 +163,7 @@ public class UIBoxHelper {
     }
 
     public void setActiveIdentity(Identity identity) {
+
         mService.setActiveIdentity(identity);
     }
 
@@ -189,5 +193,22 @@ public class UIBoxHelper {
         } catch (QblStorageException | InterruptedException e) {
             e.printStackTrace();
         }
+    }
+
+    /**update drawable file
+     *
+     * @param identity  identity to upload
+     * @param filename  filename to store in box
+     * @param format    format type
+     * @param id        resource id
+     */
+    public void uploadDrawableFile(Identity identity, String filename, Bitmap.CompressFormat format, int id) {
+
+        Bitmap bitmap = BitmapFactory.decodeResource(QabelBoxApplication.getInstance().getResources(), id);
+        ByteArrayOutputStream baos = new ByteArrayOutputStream(100 * 1024);
+        bitmap.compress(format, 100, baos);
+        byte[] data = new byte[baos.size()];
+        System.arraycopy(baos.toByteArray(), 0, data, 0, baos.size());
+        uploadFile(identity, filename, data, "");
     }
 }

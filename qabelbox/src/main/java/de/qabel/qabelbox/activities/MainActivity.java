@@ -52,14 +52,16 @@ import de.qabel.core.config.Identity;
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.adapter.FilesAdapter;
+import de.qabel.qabelbox.config.ContactExportImport;
 import de.qabel.qabelbox.exceptions.QblStorageException;
-import de.qabel.qabelbox.fragments.AddContactFragment;
 import de.qabel.qabelbox.fragments.BaseFragment;
 import de.qabel.qabelbox.fragments.ContactFragment;
 import de.qabel.qabelbox.fragments.FilesFragment;
 import de.qabel.qabelbox.fragments.IdentitiesFragment;
+import de.qabel.qabelbox.fragments.ImageViewerFragment;
 import de.qabel.qabelbox.fragments.QRcodeFragment;
 import de.qabel.qabelbox.fragments.SelectUploadFolderFragment;
+import de.qabel.qabelbox.helper.ExternalApps;
 import de.qabel.qabelbox.helper.UIHelper;
 import de.qabel.qabelbox.providers.BoxProvider;
 import de.qabel.qabelbox.services.LocalQabelService;
@@ -73,31 +75,32 @@ public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,
         SelectUploadFolderFragment.OnSelectedUploadFolderListener,
         ContactFragment.ContactListListener,
-        AddContactFragment.AddContactListener,
         FilesFragment.FilesListListener,
         IdentitiesFragment.IdentityListListener {
 
     public static final String TAG_FILES_FRAGMENT = "TAG_FILES_FRAGMENT";
     private static final String TAG_CONTACT_LIST_FRAGMENT = "TAG_CONTACT_LIST_FRAGMENT";
     private static final String TAG_MANAGE_IDENTITIES_FRAGMENT = "TAG_MANAGE_IDENTITIES_FRAGMENT";
-    private static final String TAG_ADD_CONTACT_FRAGMENT = "TAG_ADD_CONTACT_FRAGMENT";
 
     private static final String TAG = "BoxMainActivity";
-    private static final int REQUEST_CODE_OPEN = 11;
     private static final int REQUEST_CODE_UPLOAD_FILE = 12;
     public static final String HARDCODED_ROOT = BoxProvider.DOCID_SEPARATOR
             + BoxProvider.BUCKET + BoxProvider.DOCID_SEPARATOR
             + BoxProvider.PREFIX + BoxProvider.DOCID_SEPARATOR + BoxProvider.PATH_SEP;
-    private static final int REQUEST_CODE_DELETE_FILE = 13;
     private static final int REQUEST_CODE_CHOOSE_EXPORT = 14;
     private static final int REQUEST_CREATE_IDENTITY = 16;
     private static final int REQUEST_SETTINGS = 17;
     public static final int REQUEST_EXPORT_IDENTITY = 18;
-    public static final int REQUEST_EXPORT_IDENTITY_AS_CONTACT = 19;
+    public static final int REQUEST_EXTERN_VIEWER_APP = 19;
+    public static final int REQUEST_EXTERN_SHARE_APP = 20;
 
+    public static final int REQUEST_EXPORT_IDENTITY_AS_CONTACT = 19;
+    
     private static final String FALLBACK_MIMETYPE = "application/octet-stream";
     private static final int NAV_GROUP_IDENTITIES = 1;
     private static final int NAV_GROUP_IDENTITY_ACTIONS = 2;
+    private static final int REQUEST_CODE_OPEN = 21;
+    private static final int REQUEST_CODE_DELETE_FILE = 22;
     private DrawerLayout drawer;
     private BoxVolume boxVolume;
     public ActionBarDrawerToggle toggle;
@@ -121,7 +124,13 @@ public class MainActivity extends AppCompatActivity
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 
         final Uri uri;
+        if (requestCode == REQUEST_EXTERN_VIEWER_APP) {
+            Log.d(TAG, "result from extern app " + resultCode);
+        }
         if (resultCode == RESULT_OK) {
+            if (requestCode == REQUEST_SETTINGS) {
+                //add functions if ui need refresh after settings changed
+            }
             if (requestCode == REQUEST_CREATE_IDENTITY) {
                 if (data != null && data.hasExtra(CreateIdentityActivity.P_IDENTITY)) {
                     Identity identity = (Identity) data.getSerializableExtra(CreateIdentityActivity.P_IDENTITY);
@@ -372,14 +381,16 @@ public class MainActivity extends AppCompatActivity
 
                 Fragment activeFragment = getFragmentManager().findFragmentById(R.id.fragment_container);
                 String activeFragmentTag = activeFragment.getTag();
-
+                if (activeFragment instanceof BaseFragment) {
+                    BaseFragment bf = (BaseFragment) activeFragment;
+                    //call fab action in basefragment. if fragment handled this, we are done
+                    if (bf.handleFABAction()) {
+                        return;
+                    }
+                }
                 switch (activeFragmentTag) {
                     case TAG_FILES_FRAGMENT:
                         filesFragmentBottomSheet();
-                        break;
-
-                    case TAG_CONTACT_LIST_FRAGMENT:
-                        startAddContact(mService.getActiveIdentity());
                         break;
 
                     case TAG_MANAGE_IDENTITIES_FRAGMENT:
@@ -437,11 +448,13 @@ public class MainActivity extends AppCompatActivity
             public void onItemClick(View view, int position) {
 
                 final BoxObject boxObject = filesFragment.getFilesAdapter().get(position);
-                if (boxObject instanceof BoxFolder) {
-                    filesFragment.browseTo(((BoxFolder) boxObject));
-                } else if (boxObject instanceof BoxFile) {
-                    // Open
-                    showFile(boxObject);
+                if (boxObject != null) {
+                    if (boxObject instanceof BoxFolder) {
+                        filesFragment.browseTo(((BoxFolder) boxObject));
+                    } else if (boxObject instanceof BoxFile) {
+                        // Open
+                        showFile(boxObject);
+                    }
                 }
             }
 
@@ -455,9 +468,14 @@ public class MainActivity extends AppCompatActivity
                             public void onClick(DialogInterface dialog, int which) {
 
                                 switch (which) {
+                                    case R.id.open:
+                                        ExternalApps.openExternApp(self, getUri(boxObject), getMimeType(boxObject), Intent.ACTION_VIEW);
+                                        break;
+                                    case R.id.edit:
+                                        ExternalApps.openExternApp(self, getUri(boxObject), getMimeType(boxObject), Intent.ACTION_EDIT);
+                                        break;
                                     case R.id.share:
-                                        Toast.makeText(self, R.string.not_implemented,
-                                                Toast.LENGTH_SHORT).show();
+                                        ExternalApps.share(self, getUri(boxObject), getMimeType(boxObject));
                                         break;
                                     case R.id.delete:
                                         delete(boxObject);
@@ -485,16 +503,49 @@ public class MainActivity extends AppCompatActivity
      */
     public void showFile(BoxObject boxObject) {
 
+        Uri uri = getUri(boxObject);
+        String type = getMimeType(uri);
+        Log.v(TAG, "Mime type: " + type);
+        Log.v(TAG, "Uri: " + uri.toString() + " " + uri.toString().length());
+
+        //check if file type is image
+        if (type != null && type.indexOf("image") == 0) {
+            ImageViewerFragment viewerFragment = ImageViewerFragment.newInstance(uri, type);
+            getFragmentManager().beginTransaction()
+                    .replace(R.id.fragment_container, viewerFragment).addToBackStack(null)
+                    .commit();
+            toggle.setDrawerIndicatorEnabled(false);
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+            return;
+        }
+
+        Intent viewIntent = new Intent();
+        viewIntent.setDataAndType(uri, type);
+        //check if file type is video
+        if (type != null && type.indexOf("video") == 0) {
+            viewIntent.setAction(Intent.ACTION_VIEW);
+        }
+        viewIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        startActivityForResult(Intent.createChooser(viewIntent, "Open with"), REQUEST_EXTERN_VIEWER_APP);
+    }
+
+    private String getMimeType(Uri uri) {
+
+        return URLConnection.guessContentTypeFromName(uri.toString());
+    }
+
+    private String getMimeType(BoxObject boxObject) {
+
+        return getMimeType(getUri(boxObject));
+    }
+
+    private Uri getUri(BoxObject boxObject) {
+
         String path = filesFragment.getBoxNavigation().getPath(boxObject);
         String documentId = boxVolume.getDocumentId(path);
-        Uri uri = DocumentsContract.buildDocumentUri(
+        return DocumentsContract.buildDocumentUri(
                 BoxProvider.AUTHORITY, documentId);
-        Intent viewIntent = new Intent();
-        String type = URLConnection.guessContentTypeFromName(uri.toString());
-        Log.i(TAG, "Mime type: " + type);
-        viewIntent.setDataAndType(uri, type);
-        viewIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-        startActivity(Intent.createChooser(viewIntent, "Open with"));
     }
 
     private void delete(final BoxObject boxObject) {
@@ -556,6 +607,7 @@ public class MainActivity extends AppCompatActivity
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else {
+
             Fragment activeFragment = getFragmentManager().findFragmentById(R.id.fragment_container);
             if (activeFragment == null) {
                 super.onBackPressed();
@@ -570,6 +622,9 @@ public class MainActivity extends AppCompatActivity
                         if (!filesFragment.handleBackPressed() && !filesFragment.browseToParent()) {
                             finishAffinity();
                         }
+                        break;
+                    case TAG_CONTACT_LIST_FRAGMENT:
+                        super.onBackPressed();
                         break;
                     default:
                         getFragmentManager().popBackStack();
@@ -610,6 +665,8 @@ public class MainActivity extends AppCompatActivity
         } else if (id == R.id.nav_browse) {
             selectFilesFragment();
         } else if (id == R.id.nav_help) {
+            UIHelper.showFunctionNotYetImplemented(this);
+        } else if (id == R.id.nav_inbox) {
             UIHelper.showFunctionNotYetImplemented(this);
         } else if (id == R.id.nav_settings) {
             Intent intent = new Intent(this, SettingsActivity.class);
@@ -702,12 +759,6 @@ public class MainActivity extends AppCompatActivity
         }.execute();
     }
 
-    @Override
-    public void startAddContact(Identity identity) {
-
-        selectAddContactFragment(identity);
-    }
-
     public void selectIdentity(Identity identity) {
 
         changeActiveIdentity(identity);
@@ -738,13 +789,6 @@ public class MainActivity extends AppCompatActivity
         selectFilesFragment();
     }
 
-    @Override
-    public void addContact(Contact contact) {
-
-        mService.addContact(contact);
-        Snackbar.make(appBarMain, "Added contact: " + contact.getAlias(), Snackbar.LENGTH_LONG)
-                .show();
-    }
 
     @Override
     public void onScrolledToBottom(boolean scrolledToBottom) {
@@ -798,7 +842,7 @@ public class MainActivity extends AppCompatActivity
         exportUri = uri;
 
         // Chose a suitable place for this file, determined by the mime type
-        String type = URLConnection.guessContentTypeFromName(uri.toString());
+        String type = getMimeType(uri);
         if (type == null) {
             type = FALLBACK_MIMETYPE;
         }
@@ -954,7 +998,6 @@ public class MainActivity extends AppCompatActivity
             }
         });
     }
-
     public static void showQRCode(MainActivity activity, Identity identity) {
 
         activity.getFragmentManager().beginTransaction()
@@ -992,15 +1035,6 @@ public class MainActivity extends AppCompatActivity
         FRAGMENT SELECTION METHODS
     */
 
-    private void selectAddContactFragment(Identity identity) {
-
-        fab.hide();
-        getFragmentManager().beginTransaction()
-                .replace(R.id.fragment_container, AddContactFragment.newInstance(identity), TAG_ADD_CONTACT_FRAGMENT)
-                .addToBackStack(null)
-                .commit();
-    }
-
     private void selectManageIdentitiesFragment() {
 
         fab.show();
@@ -1021,7 +1055,6 @@ public class MainActivity extends AppCompatActivity
                 .replace(R.id.fragment_container,
                         ContactFragment.newInstance(mService.getContacts(activeIdentity), activeIdentity),
                         TAG_CONTACT_LIST_FRAGMENT)
-                .addToBackStack(null)
                 .commit();
     }
 
@@ -1033,5 +1066,25 @@ public class MainActivity extends AppCompatActivity
                 .replace(R.id.fragment_container, filesFragment, TAG_FILES_FRAGMENT)
                 .commit();
         filesFragment.updateSubtitle();
+    }
+
+    @Override
+    public void contactAdded(Contact contact) {
+        for (Contact c : mService.getContacts().getContacts()) {
+            if (c.getKeyIdentifier().equals(contact.getKeyIdentifier())) {
+                Snackbar.make(appBarMain, "Contact already existing: " + contact.getAlias(), Snackbar.LENGTH_LONG)
+                        .show();
+                return;
+            }
+        }
+
+        Snackbar.make(appBarMain, "Added contact: " + contact.getAlias(), Snackbar.LENGTH_LONG)
+                .show();
+        //@todo need refresh contact list.would be fixed in redeisgn contact list
+    }
+
+    @Override
+    public void contactDeleted(Contact contact) {
+        //@todo need refresh contact list.would be fixed in redeisgn contact list
     }
 }

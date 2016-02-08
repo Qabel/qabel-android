@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/add_contact_via_qr" android:title="@string/qrecode_scanner" android:icon="@drawable/ic_qrcode_scan"/>
+    <item android:id="@+id/add_contact_from_file" android:title="@string/from_file" android:icon="@drawable/ic_action_folder_open"/>
+    <item android:id="@+id/add_contact_direct_input" android:title="@string/direct_input" android:icon="@drawable/ic_action_edit"/>
+
+
+</menu>

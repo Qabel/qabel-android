@@ -1,84 +1,52 @@
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="de.qabel.qabelbox.fragments.AddContactFragment">
+    android:padding="@dimen/activity_horizontal_margin"
+    >
 
-    <RelativeLayout
+    <LinearLayout
         android:layout_width="match_parent"
+
         android:layout_height="match_parent"
-        android:layout_gravity="center">
-
-        <de.qabel.qabelbox.views.EditTextFont
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/editTextContactName"
-            android:hint="@string/contact_name"
-            style="@style/EditText"
-            android:drawableStart="@drawable/ic_perm_identity_black"
-            android:layout_below="@+id/textView"
-            android:layout_alignParentStart="true"
-            android:layout_alignParentEnd="true"/>
-
-        <de.qabel.qabelbox.views.EditTextFont
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            style="@style/EditText"
-            android:id="@+id/editTextContactDropURL"
-            android:layout_below="@+id/editTextContactName"
-            android:inputType="textUri"
-            android:drawableStart="@drawable/ic_share_black"
-            android:hint="@string/contact_drop_url"
-            android:layout_alignParentStart="true"
-            android:layout_alignParentEnd="true"/>
-
-        <de.qabel.qabelbox.views.EditTextFont
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/editTextContactPublicKey"
-            android:hint="@string/contact_public_key"
-            style="@style/EditText"
-            android:drawableStart="@drawable/ic_settings_black"
-            android:layout_below="@+id/editTextContactDropURL"
-            android:layout_alignEnd="@+id/editTextContactDropURL"
-            android:layout_alignParentStart="true"/>
+        android:orientation="vertical">
 
         <de.qabel.qabelbox.views.TextViewFont
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceLarge"
-            android:text="@string/add_contacts"
-            style="@style/MessageText"
             android:id="@+id/textView"
-            android:layout_marginBottom="@dimen/activity_vertical_margin"
-            android:layout_marginTop="@dimen/activity_vertical_margin"
-            android:layout_alignParentTop="true"
-            android:layout_centerHorizontal="true" />
-
-        <RelativeLayout
-            android:id="@+id/bottom_bar"
+            style="@style/MessageText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_alignParentBottom="true"
-            android:background="@color/colorBottomBackground"
-            android:baselineAligned="false">
+            android:text="@string/messsage_enter_contact_manual"/>
 
-            <de.qabel.qabelbox.views.ButtonFont
-                android:id="@+id/buttonScanContact"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentStart="true"
-                android:text="@string/Scan"
-                style="@style/BottomBarButton" />
-            <de.qabel.qabelbox.views.ButtonFont
-                android:id="@+id/buttonAddContact"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentEnd="true"
-                android:text="@string/add"
-                style="@style/BottomBarButton" />
-        </RelativeLayout>
+        <de.qabel.qabelbox.views.EditTextFont
+            android:id="@+id/editTextContactName"
+            style="@style/EditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:drawableStart="@drawable/ic_perm_identity_black"
+            android:hint="@string/contact_name"
+            />
 
-    </RelativeLayout>
+        <de.qabel.qabelbox.views.EditTextFont
+            android:id="@+id/editTextContactDropURL"
+            style="@style/EditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:drawableStart="@drawable/ic_share_black"
+            android:hint="@string/contact_drop_url"
+            android:inputType="textUri"
+            />
 
+        <de.qabel.qabelbox.views.EditTextFont
+            android:id="@+id/editTextContactPublicKey"
+            style="@style/EditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:drawableStart="@drawable/ic_settings_black"
+            android:hint="@string/contact_public_key"
+            />
+
+
+    </LinearLayout>
 </FrameLayout>

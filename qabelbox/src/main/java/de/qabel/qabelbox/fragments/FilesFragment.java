@@ -1,9 +1,16 @@
 package de.qabel.qabelbox.fragments;
 
 import android.app.Activity;
+import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.ServiceConnection;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.IBinder;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -29,11 +36,14 @@ import java.util.ArrayList;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.adapter.FilesAdapter;
 import de.qabel.qabelbox.exceptions.QblStorageException;
+import de.qabel.qabelbox.services.LocalBroadcastConstants;
+import de.qabel.qabelbox.services.LocalQabelService;
 import de.qabel.qabelbox.storage.BoxExternal;
 import de.qabel.qabelbox.storage.BoxFile;
 import de.qabel.qabelbox.storage.BoxFolder;
 import de.qabel.qabelbox.storage.BoxNavigation;
 import de.qabel.qabelbox.storage.BoxObject;
+import de.qabel.qabelbox.storage.BoxUploadingFile;
 import de.qabel.qabelbox.storage.BoxVolume;
 import de.qabel.qabelbox.storage.StorageSearch;
 
@@ -58,6 +68,7 @@ public class FilesFragment extends BaseFragment {
     private StorageSearch mCachedStorageSearch;
     View mEmptyView;
     View mLoadingView;
+    private LocalQabelService mService;
 
     public static FilesFragment newInstance(final BoxVolume boxVolume) {
 
@@ -114,9 +125,65 @@ public class FilesFragment extends BaseFragment {
         if (actionBar != null) {
             actionBar.setDisplayHomeAsUpEnabled(false);
 
+     
             actionBar.setTitle(getTitle());
         }
+        bindToService(getActivity());
+
         self = this;
+        LocalBroadcastManager.getInstance(getActivity()).registerReceiver(mMessageReceiver,
+                new IntentFilter(LocalBroadcastConstants.INTENT_UPLOAD_BROADCAST));
+    }
+
+    void bindToService(Context context) {
+
+        Intent intent = new Intent(context, LocalQabelService.class);
+        context.bindService(intent, new ServiceConnection() {
+            @Override
+            public void onServiceConnected(ComponentName name, IBinder service) {
+
+                LocalQabelService.LocalBinder binder = (LocalQabelService.LocalBinder) service;
+                mService = binder.getService();
+            }
+
+            @Override
+            public void onServiceDisconnected(ComponentName name) {
+
+                mService = null;
+            }
+        }, Context.BIND_AUTO_CREATE);
+    }
+
+    private BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+
+            String documentId = intent.getStringExtra(LocalBroadcastConstants.EXTRA_UPLOAD_DOCUMENT_ID);
+            int uploadStatus = intent.getIntExtra(LocalBroadcastConstants.EXTRA_UPLOAD_STATUS, -1);
+
+            switch (uploadStatus) {
+                case LocalBroadcastConstants.UPLOAD_STATUS_NEW:
+                    Log.d(TAG, "Received new upload: " + documentId);
+                    fillAdapter();
+                    filesAdapter.notifyDataSetChanged();
+                    break;
+                case LocalBroadcastConstants.UPLOAD_STATUS_FINISHED:
+                    Log.d(TAG, "Received upload finished: " + documentId);
+                    refresh();
+                    break;
+                case LocalBroadcastConstants.UPLOAD_STATUS_FAILED:
+                    Log.d(TAG, "Received upload failed: " + documentId);
+                    refresh();
+                    break;
+            }
+        }
+    };
+
+    @Override
+    public void onDestroy() {
+
+        super.onDestroy();
+        LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(mMessageReceiver);
     }
 
     @Override
@@ -564,7 +631,7 @@ public class FilesFragment extends BaseFragment {
 
         cancelBrowseToTask();
 
-        if (!boxNavigation.hasParent()) {
+        if (boxNavigation==null||!boxNavigation.hasParent()) {
             return false;
         }
 
@@ -622,6 +689,10 @@ public class FilesFragment extends BaseFragment {
 
         filesAdapter.clear();
 
+        if (boxNavigation == null) {
+            return;
+        }
+
         try {
             for (BoxFolder boxFolder : boxNavigation.listFolders()) {
                 Log.d(TAG, "Adding folder: " + boxFolder.name);
@@ -637,6 +708,16 @@ public class FilesFragment extends BaseFragment {
             }
         } catch (QblStorageException e) {
             Log.e(TAG, "browseTo failed", e);
+        }
+
+        if (mService != null && mService.getPendingUploads() != null) {
+            ArrayList<BoxUploadingFile> uploadsInPath = mService.getPendingUploads().get(boxNavigation.getPath());
+
+            if (uploadsInPath != null) {
+                for (BoxUploadingFile boxUploadingFile : uploadsInPath) {
+                    filesAdapter.add(boxUploadingFile);
+                }
+            }
         }
 
         filesAdapter.sort();

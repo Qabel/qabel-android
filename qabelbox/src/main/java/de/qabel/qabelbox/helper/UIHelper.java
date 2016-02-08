@@ -3,9 +3,12 @@ package de.qabel.qabelbox.helper;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
+import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -13,6 +16,7 @@ import android.widget.TextView;
 import java.io.IOException;
 
 import de.qabel.qabelbox.R;
+import de.qabel.qabelbox.activities.MainActivity;
 import de.qabel.qabelbox.views.EditTextFont;
 
 /**
@@ -197,7 +201,7 @@ public class UIHelper {
     public static void showDialogMessage(Activity activity, int headline, int message, Exception e) {
 
         String reason = getUserReadableMessage(activity, e);
-        showDialogMessage(activity, headline, message + reason == null ? "" : reason);
+        showDialogMessage(activity, headline, activity.getString(message) +( reason == null ? "" : reason));
     }
 
     private static String getUserReadableMessage(Activity activity, Exception e) {
@@ -208,7 +212,12 @@ public class UIHelper {
         }
         return null;
     }
+    public static void hideKeyboard(Activity activity,View mView) {
+        InputMethodManager imm = (InputMethodManager) activity
+                .getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(mView.getWindowToken(), 0);
 
+    }
     public interface EditTextDialogClickListener {
 
         void onClick(DialogInterface dialog, int which, EditText editText);

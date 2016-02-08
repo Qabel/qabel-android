@@ -93,7 +93,7 @@ public class IdentitiesFragment extends BaseFragment {
             public void onItemClick(View view, int position) {
 
                 final Identity identity = identityListAdapter.get(position);
-                new BottomSheet.Builder(activity).title(identity.getAlias()).sheet(R.menu.identities_bottom_sheet)
+                new BottomSheet.Builder(activity).title(identity.getAlias()).sheet(R.menu.bottom_sheet_identities)
                         .listener(new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {

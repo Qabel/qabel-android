@@ -19,7 +19,7 @@ import de.qabel.qabelbox.helper.UIHelper;
 /**
  * Created by danny on 11.01.2016.
  */
-public abstract class BaseWizardActivity extends AppCompatActivity {
+public abstract class BaseWizardActivity extends CrashReportingActivity {
 
     private String TAG = this.getClass().getSimpleName();
 

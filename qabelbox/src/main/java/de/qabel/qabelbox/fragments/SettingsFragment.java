@@ -11,10 +11,15 @@ import de.qabel.qabelbox.R;
  */
 public class SettingsFragment extends PreferenceFragment {
 
+    final public static String APP_PREF_NAME = "appsettings";
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
+        // Define the settings file to use by this settings fragment
+        getPreferenceManager().setSharedPreferencesName(APP_PREF_NAME);
+
         // Load the preferences from an XML resource
         addPreferencesFromResource(R.xml.app_settings);
         findPreference(getString(R.string.settings_key_change_password)).setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {

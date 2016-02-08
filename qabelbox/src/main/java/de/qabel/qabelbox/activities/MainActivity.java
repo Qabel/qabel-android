@@ -35,7 +35,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.cocosw.bottomsheet.BottomSheet;
-import com.google.zxing.integration.android.IntentIntegrator;
 
 import org.apache.commons.io.IOUtils;
 
@@ -60,6 +59,7 @@ import de.qabel.qabelbox.fragments.ContactFragment;
 import de.qabel.qabelbox.fragments.FilesFragment;
 import de.qabel.qabelbox.fragments.IdentitiesFragment;
 import de.qabel.qabelbox.fragments.ImageViewerFragment;
+import de.qabel.qabelbox.fragments.QRcodeFragment;
 import de.qabel.qabelbox.fragments.SelectUploadFolderFragment;
 import de.qabel.qabelbox.helper.ExternalApps;
 import de.qabel.qabelbox.helper.UIHelper;
@@ -94,16 +94,20 @@ public class MainActivity extends AppCompatActivity
     public static final int REQUEST_EXTERN_VIEWER_APP = 19;
     public static final int REQUEST_EXTERN_SHARE_APP = 20;
 
+    public static final int REQUEST_EXPORT_IDENTITY_AS_CONTACT = 19;
+    
     private static final String FALLBACK_MIMETYPE = "application/octet-stream";
     private static final int NAV_GROUP_IDENTITIES = 1;
     private static final int NAV_GROUP_IDENTITY_ACTIONS = 2;
+    private static final int REQUEST_CODE_OPEN = 21;
+    private static final int REQUEST_CODE_DELETE_FILE = 22;
     private DrawerLayout drawer;
     private BoxVolume boxVolume;
     public ActionBarDrawerToggle toggle;
     private BoxProvider provider;
     public FloatingActionButton fab;
     private TextView textViewSelectedIdentity;
-    private Activity self;
+    private MainActivity self;
     private View appBarMain;
     private FilesFragment filesFragment;
     private Toolbar toolbar;
@@ -134,7 +138,17 @@ public class MainActivity extends AppCompatActivity
                 }
             }
             if (data != null) {
-
+                if (requestCode == REQUEST_CODE_OPEN) {
+                    uri = data.getData();
+                    Log.i(TAG, "Uri: " + uri.toString());
+                    Intent viewIntent = new Intent();
+                    String type = URLConnection.guessContentTypeFromName(uri.toString());
+                    Log.i(TAG, "Mime type: " + type);
+                    viewIntent.setDataAndType(uri, type);
+                    viewIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                    startActivity(Intent.createChooser(viewIntent, "Open with"));
+                    return;
+                }
                 if (requestCode == REQUEST_CODE_UPLOAD_FILE) {
                     uri = data.getData();
                     String path = "";
@@ -147,7 +161,19 @@ public class MainActivity extends AppCompatActivity
                     uploadUri(uri, path);
                     return;
                 }
+                if (requestCode == REQUEST_CODE_DELETE_FILE) {
+                    uri = data.getData();
+                    Log.i(TAG, "Deleting file: " + uri.toString());
+                    new AsyncTask<Uri, Void, Boolean>() {
 
+                        @Override
+                        protected Boolean doInBackground(Uri... params) {
+
+                            return DocumentsContract.deleteDocument(getContentResolver(), params[0]);
+                        }
+                    }.execute(uri);
+                    return;
+                }
                 if (requestCode == REQUEST_CODE_CHOOSE_EXPORT) {
                     uri = data.getData();
                     Log.i(TAG, "Export uri chosen: " + uri.toString());
@@ -744,7 +770,6 @@ public class MainActivity extends AppCompatActivity
         mService.addIdentity(identity);
         changeActiveIdentity(identity);
         provider.notifyRootsUpdated();
-
         Snackbar.make(appBarMain, "Added identity: " + identity.getAlias(), Snackbar.LENGTH_LONG)
                 .show();
         selectFilesFragment();
@@ -753,7 +778,6 @@ public class MainActivity extends AppCompatActivity
     private void changeActiveIdentity(Identity identity) {
 
         mService.setActiveIdentity(identity);
-
         textViewSelectedIdentity.setText(identity.getAlias());
         if (filesFragment != null) {
             getFragmentManager().beginTransaction().remove(filesFragment).commit();
@@ -789,9 +813,6 @@ public class MainActivity extends AppCompatActivity
             });
         } else {
             changeActiveIdentity(mService.getIdentities().getIdentities().iterator().next());
-            /*textViewSelectedIdentity.setText(mService.getActiveIdentity().getAlias());
-
-            selectFilesFragment();*/
         }
     }
 
@@ -876,11 +897,8 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void onClick(View v) {
 
-                Identity activeIdentity = mService.getActiveIdentity();
-                if (activeIdentity != null) {
-                    IntentIntegrator intentIntegrator = new IntentIntegrator(self);
-                    intentIntegrator.shareText(ContactExportImport.exportIdentityAsContact(activeIdentity));
-                }
+                drawer.closeDrawer(GravityCompat.START);
+                showQRCode(self, mService.getActiveIdentity());
             }
         });
 
@@ -974,6 +992,13 @@ public class MainActivity extends AppCompatActivity
 
             }
         });
+    }
+    public static void showQRCode(MainActivity activity, Identity identity) {
+
+        activity.getFragmentManager().beginTransaction()
+                .replace(R.id.fragment_container, QRcodeFragment.newInstance(identity), null)
+                .addToBackStack(null)
+                .commit();
     }
 
     private void selectAddIdentityFragment() {

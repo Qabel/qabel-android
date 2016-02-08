@@ -13,6 +13,8 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import java.io.IOException;
+
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.activities.MainActivity;
 import de.qabel.qabelbox.views.EditTextFont;
@@ -188,7 +190,6 @@ public class UIHelper {
         });
     }
 
-
     /**
      * show dialog message. they try to get a readable message from exception
      *
@@ -200,22 +201,23 @@ public class UIHelper {
     public static void showDialogMessage(Activity activity, int headline, int message, Exception e) {
 
         String reason = getUserReadableMessage(activity, e);
-        showDialogMessage(activity, headline, activity.getString(message) + (reason == null ? "" : ". "+reason));
+        showDialogMessage(activity, headline, activity.getString(message) +( reason == null ? "" : reason));
     }
 
     private static String getUserReadableMessage(Activity activity, Exception e) {
 
-        //merge: use contact of other pr
+        String reason = activity.getString(R.string.reason_for_error);
+        if (e instanceof IOException) {
+            return " "+reason.replace("%1",activity.getString(R.string.error_reason_io));
+        }
         return null;
     }
-
     public static void hideKeyboard(Activity activity,View mView) {
         InputMethodManager imm = (InputMethodManager) activity
                 .getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(mView.getWindowToken(), 0);
 
     }
-
     public interface EditTextDialogClickListener {
 
         void onClick(DialogInterface dialog, int which, EditText editText);

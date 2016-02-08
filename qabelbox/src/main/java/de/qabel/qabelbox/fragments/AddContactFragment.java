@@ -148,19 +148,7 @@ public class AddContactFragment extends BaseFragment {
         mListener = null;
     }
 
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent intent) {
-        IntentResult scanResult = IntentIntegrator.parseActivityResult(requestCode, resultCode, intent);
-        if (scanResult != null && scanResult.getContents() != null) {
-            try {
-                mListener.contactAdded(ContactExportImport.parseContactForIdentity(identity, scanResult.getContents()));
-            } catch (JSONException | URISyntaxException | QblDropInvalidURL e) {
-                UIHelper.showDialogMessage(getActivity(), R.string.dialog_headline_info, R.string.cant_read_contact);
-            }
-        }
-    }
-
-    @Override
+   @Override
     public boolean isFabNeeded() {
 
         return false;

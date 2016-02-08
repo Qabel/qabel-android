@@ -33,6 +33,7 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 
+import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.adapter.FilesAdapter;
 import de.qabel.qabelbox.exceptions.QblStorageException;
@@ -128,31 +129,13 @@ public class FilesFragment extends BaseFragment {
      
             actionBar.setTitle(getTitle());
         }
-        bindToService(getActivity());
-
+        mService = QabelBoxApplication.getInstance().getService();
         self = this;
         LocalBroadcastManager.getInstance(getActivity()).registerReceiver(mMessageReceiver,
                 new IntentFilter(LocalBroadcastConstants.INTENT_UPLOAD_BROADCAST));
     }
 
-    void bindToService(Context context) {
 
-        Intent intent = new Intent(context, LocalQabelService.class);
-        context.bindService(intent, new ServiceConnection() {
-            @Override
-            public void onServiceConnected(ComponentName name, IBinder service) {
-
-                LocalQabelService.LocalBinder binder = (LocalQabelService.LocalBinder) service;
-                mService = binder.getService();
-            }
-
-            @Override
-            public void onServiceDisconnected(ComponentName name) {
-
-                mService = null;
-            }
-        }, Context.BIND_AUTO_CREATE);
-    }
 
     private BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
         @Override

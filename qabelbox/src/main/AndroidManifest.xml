@@ -49,6 +49,11 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        <!--only for internal test feedback-->
+        <activity android:name="net.hockeyapp.android.UpdateActivity" />
+        <activity android:name="net.hockeyapp.android.FeedbackActivity" />
+        <activity android:name="net.hockeyapp.android.PaintActivity" />
+        <!-- end only internal test feedback-->
         <activity
             android:name=".activities.CreateIdentityActivity"
             android:label="@string/app_name"

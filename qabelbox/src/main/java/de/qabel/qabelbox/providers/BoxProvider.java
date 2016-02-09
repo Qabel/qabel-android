@@ -514,6 +514,7 @@ public class BoxProvider extends DocumentsProvider {
                     .setSmallIcon(R.drawable.notification_template_icon_bg);
             mBuilder.setProgress(100, 0, false);
             mNotifyManager.notify(id, mBuilder.build());
+            mService.addPendingUpload(documentId, null);
 
             // Attach a close listener if the document is opened in write mode.
             try {
@@ -582,8 +583,6 @@ public class BoxProvider extends DocumentsProvider {
 
     private void uploadFile(String documentId, File tmp, TransferManager.BoxTransferListener boxTransferListener) {
         try {
-	    mService.addPendingUpload(documentId);
-	    broadcastUploadStatus(documentId, LocalBroadcastConstants.UPLOAD_STATUS_NEW);
             BoxVolume volume = getVolumeForId(documentId);
             List<String> splitPath = mDocumentIdParser.splitPath(
                     mDocumentIdParser.getFilePath(documentId));
@@ -591,28 +590,21 @@ public class BoxProvider extends DocumentsProvider {
             Log.i(TAG, "Navigating to folder");
             BoxNavigation navigation = traverseToFolder(volume, splitPath);
             Log.i(TAG, "Starting upload");
-            navigation.upload(basename, new FileInputStream(tmp), boxTransferListener);
+            BoxFile boxFile = navigation.upload(basename, new FileInputStream(tmp), boxTransferListener);
             navigation.commit();
-			mService.removePendingUpload(documentId);
-			broadcastUploadStatus(documentId, LocalBroadcastConstants.UPLOAD_STATUS_FINISHED);
+			Bundle extras = new Bundle();
+			extras.putParcelable(LocalBroadcastConstants.EXTRA_FILE, boxFile);
+			mService.removePendingUpload(documentId, LocalBroadcastConstants.UPLOAD_STATUS_FINISHED, extras);
         } catch (FileNotFoundException | QblStorageException e1) {
             Log.e(TAG, "Upload failed", e1);
 			try {
-				mService.removePendingUpload(documentId);
+				mService.removePendingUpload(documentId, LocalBroadcastConstants.UPLOAD_STATUS_FAILED, null);
 			} catch (FileNotFoundException e) {
 				//Should not be possible
 				Log.e(TAG, "Removing failed upload failed", e);
 			}
-			broadcastUploadStatus(documentId, LocalBroadcastConstants.UPLOAD_STATUS_FAILED);
         }
     }
-
-	private void broadcastUploadStatus(String documentId, int uploadStatus) {
-		Intent intent = new Intent(LocalBroadcastConstants.INTENT_UPLOAD_BROADCAST);
-		intent.putExtra(LocalBroadcastConstants.EXTRA_UPLOAD_DOCUMENT_ID, documentId);
-		intent.putExtra(LocalBroadcastConstants.EXTRA_UPLOAD_STATUS, uploadStatus);
-		LocalBroadcastManager.getInstance(getContext()).sendBroadcast(intent);
-	}
 
     private File downloadFile(final String documentId, final String mode, final CancellationSignal signal) throws FileNotFoundException {
 

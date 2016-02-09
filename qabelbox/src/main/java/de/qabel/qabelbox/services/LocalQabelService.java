@@ -4,8 +4,10 @@ import android.app.Service;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Binder;
+import android.os.Bundle;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import org.slf4j.Logger;
@@ -19,8 +21,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import de.qabel.core.config.Contact;
 import de.qabel.core.config.Contacts;
@@ -41,6 +45,7 @@ import de.qabel.core.http.HTTPResult;
 import de.qabel.qabelbox.config.AndroidPersistence;
 import de.qabel.qabelbox.config.QblSQLiteParams;
 import de.qabel.qabelbox.providers.DocumentIdParser;
+import de.qabel.qabelbox.storage.BoxFile;
 import de.qabel.qabelbox.storage.BoxUploadingFile;
 
 public class LocalQabelService extends Service {
@@ -62,6 +67,7 @@ public class LocalQabelService extends Service {
     protected AndroidPersistence persistence;
     private DropHTTP dropHTTP;
     private HashMap<String, ArrayList<BoxUploadingFile>> pendingUploads;
+	private Map<String, List<BoxFile>> cachedFinishedUploads;
     private DocumentIdParser documentIdParser;
 
     SharedPreferences sharedPreferences;
@@ -330,7 +336,7 @@ public class LocalQabelService extends Service {
 		return pendingUploads;
 	}
 
-	public void addPendingUpload(String documentId) throws FileNotFoundException {
+	public void addPendingUpload(String documentId, Bundle extras) throws FileNotFoundException {
 		String uploadPath = documentIdParser.getPath(documentId);
 		ArrayList<BoxUploadingFile> uploadsInPath = pendingUploads.get(uploadPath);
 		if (uploadsInPath == null) {
@@ -338,11 +344,20 @@ public class LocalQabelService extends Service {
 		}
 		uploadsInPath.add(new BoxUploadingFile(documentIdParser.getBaseName(documentId)));
 		pendingUploads.put(uploadPath, uploadsInPath);
+		broadcastUploadStatus(documentId, LocalBroadcastConstants.UPLOAD_STATUS_NEW, extras);
 	}
 
-	public boolean removePendingUpload(String documentId) throws FileNotFoundException {
+	public boolean removePendingUpload(String documentId, int cause, @Nullable Bundle extras) throws FileNotFoundException {
 		String uploadPath = documentIdParser.getPath(documentId);
 		ArrayList<BoxUploadingFile> uploadsInPath = pendingUploads.get(uploadPath);
+		switch (cause) {
+			case LocalBroadcastConstants.UPLOAD_STATUS_FINISHED:
+				broadcastUploadStatus(documentId, LocalBroadcastConstants.UPLOAD_STATUS_FINISHED, extras);
+				break;
+			case LocalBroadcastConstants.UPLOAD_STATUS_FAILED:
+				broadcastUploadStatus(documentId, LocalBroadcastConstants.UPLOAD_STATUS_FAILED, extras);
+				break;
+		}
 		if (uploadsInPath == null) {
 			return false;
 		}
@@ -355,7 +370,21 @@ public class LocalQabelService extends Service {
 		return false;
 	}
 
-    @Override
+	private void broadcastUploadStatus(String documentId, int uploadStatus, @Nullable Bundle extras) {
+		Intent intent = new Intent(LocalBroadcastConstants.INTENT_UPLOAD_BROADCAST);
+		intent.putExtra(LocalBroadcastConstants.EXTRA_UPLOAD_DOCUMENT_ID, documentId);
+		intent.putExtra(LocalBroadcastConstants.EXTRA_UPLOAD_STATUS, uploadStatus);
+		if (extras != null) {
+			intent.putExtra(LocalBroadcastConstants.EXTRA_UPLOAD_EXTRA, extras);
+		}
+		LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
+	}
+
+	public Map<String, List<BoxFile>> getCachedFinishedUploads() {
+		return cachedFinishedUploads;
+	}
+
+	@Override
     public IBinder onBind(Intent intent) {
         return mBinder;
     }
@@ -369,6 +398,7 @@ public class LocalQabelService extends Service {
         initAndroidPersistence();
 		pendingUploads = new HashMap<>();
 		documentIdParser = new DocumentIdParser();
+		cachedFinishedUploads = Collections.synchronizedMap(new HashMap<String, List<BoxFile>>());
     }
 
     protected void initAndroidPersistence() {

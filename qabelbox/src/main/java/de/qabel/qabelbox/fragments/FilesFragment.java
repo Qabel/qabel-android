@@ -31,11 +31,14 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.List;
 
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.adapter.FilesAdapter;
 import de.qabel.qabelbox.exceptions.QblStorageException;
+import de.qabel.qabelbox.providers.DocumentIdParser;
 import de.qabel.qabelbox.services.LocalBroadcastConstants;
 import de.qabel.qabelbox.services.LocalQabelService;
 import de.qabel.qabelbox.storage.BoxExternal;
@@ -66,6 +69,7 @@ public class FilesFragment extends BaseFragment {
     private BoxVolume mBoxVolume;
     private AsyncTask<String, Void, StorageSearch> searchTask;
     private StorageSearch mCachedStorageSearch;
+    private DocumentIdParser documentIdParser;
     View mEmptyView;
     View mLoadingView;
     private LocalQabelService mService;
@@ -129,28 +133,30 @@ public class FilesFragment extends BaseFragment {
 
         bindToService(getActivity());
 
+        documentIdParser = new DocumentIdParser();
+
         self = this;
         LocalBroadcastManager.getInstance(getActivity()).registerReceiver(mMessageReceiver,
-                new IntentFilter(LocalBroadcastConstants.INTENT_UPLOAD_BROADCAST));
+				new IntentFilter(LocalBroadcastConstants.INTENT_UPLOAD_BROADCAST));
     }
 
     void bindToService(Context context) {
 
         Intent intent = new Intent(context, LocalQabelService.class);
         context.bindService(intent, new ServiceConnection() {
-            @Override
-            public void onServiceConnected(ComponentName name, IBinder service) {
+			@Override
+			public void onServiceConnected(ComponentName name, IBinder service) {
 
-                LocalQabelService.LocalBinder binder = (LocalQabelService.LocalBinder) service;
-                mService = binder.getService();
-            }
+				LocalQabelService.LocalBinder binder = (LocalQabelService.LocalBinder) service;
+				mService = binder.getService();
+			}
 
-            @Override
-            public void onServiceDisconnected(ComponentName name) {
+			@Override
+			public void onServiceDisconnected(ComponentName name) {
 
-                mService = null;
-            }
-        }, Context.BIND_AUTO_CREATE);
+				mService = null;
+			}
+		}, Context.BIND_AUTO_CREATE);
     }
 
     private BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
@@ -168,7 +174,23 @@ public class FilesFragment extends BaseFragment {
                     break;
                 case LocalBroadcastConstants.UPLOAD_STATUS_FINISHED:
                     Log.d(TAG, "Received upload finished: " + documentId);
-                    refresh();
+                    Bundle extras = intent.getExtras().getBundle(LocalBroadcastConstants.EXTRA_UPLOAD_EXTRA);
+                    if (extras != null) {
+                        BoxFile boxFile = extras.getParcelable(LocalBroadcastConstants.EXTRA_FILE);
+						try {
+							List<BoxFile> cachedFiles =
+									mService.getCachedFinishedUploads().get(documentIdParser.getPath(documentId));
+							if (cachedFiles == null) {
+								cachedFiles = new ArrayList<>();
+							}
+							cachedFiles.add(boxFile);
+							mService.getCachedFinishedUploads().put(documentIdParser.getPath(documentId), cachedFiles);
+						} catch (FileNotFoundException e) {
+							e.printStackTrace();
+						}
+                        fillAdapter();
+                    }
+                    filesAdapter.notifyDataSetChanged();
                     break;
                 case LocalBroadcastConstants.UPLOAD_STATUS_FAILED:
                     Log.d(TAG, "Received upload failed: " + documentId);
@@ -477,12 +499,12 @@ public class FilesFragment extends BaseFragment {
             mLoadingView.setVisibility(View.GONE);
         }
         swipeRefreshLayout.post(new Runnable() {
-            @Override
-            public void run() {
+			@Override
+			public void run() {
 
-                swipeRefreshLayout.setRefreshing(isLoading);
-            }
-        });
+				swipeRefreshLayout.setRefreshing(isLoading);
+			}
+		});
     }
 
     public void setAdapter(FilesAdapter adapter) {
@@ -718,6 +740,21 @@ public class FilesFragment extends BaseFragment {
                 }
             }
         }
+
+		if (mService != null && mService.getCachedFinishedUploads() != null) {
+			List<BoxFile> cachedFiles =
+					mService.getCachedFinishedUploads().get(boxNavigation.getPath());
+			if (cachedFiles != null) {
+				for (BoxFile boxFile : cachedFiles) {
+					if (filesAdapter.containsEqual(boxFile)) {
+						cachedFiles.remove(boxFile);
+					}
+					else {
+						filesAdapter.add(boxFile);
+					}
+				}
+			}
+		}
 
         filesAdapter.sort();
     }

@@ -168,6 +168,15 @@ public class FilesAdapter extends RecyclerView.Adapter<FilesAdapter.FilesViewHol
         boxObjects.clear();
     }
 
+	public boolean containsEqual(Object object) {
+		for (BoxObject boxObject : boxObjects) {
+			if (object.equals(boxObject)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
     boolean loaded = false;
 
     void updateEmptyView() {

@@ -4,6 +4,8 @@ import android.os.Bundle;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
 
+import net.hockeyapp.android.FeedbackManager;
+
 import de.qabel.qabelbox.R;
 
 /**
@@ -30,6 +32,16 @@ public class SettingsFragment extends PreferenceFragment {
                 return true;
             }
         });
+        findPreference(getString(R.string.settings_key_internal_feedback)).setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+
+                FeedbackManager.register(getActivity(), getString(R.string.hockeykey), null);
+                FeedbackManager.showFeedbackActivity(getActivity());
+                return true;
+            }
+        });
+
     }
 }
 

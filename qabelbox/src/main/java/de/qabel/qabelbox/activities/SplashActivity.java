@@ -9,6 +9,7 @@ import android.os.Handler;
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.config.AppPreference;
+import de.qabel.qabelbox.services.LocalQabelService;
 
 /**
  * Created by danny on 11.01.2016.
@@ -101,15 +102,19 @@ public class SplashActivity extends Activity {
             activity.overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
             activity.finish();
             return true;
-        } else if (QabelBoxApplication.getInstance().getService().getIdentities().getIdentities().size() == 0) {
-            Intent intent = new Intent(activity, CreateIdentityActivity.class);
-            intent.putExtra(BaseWizardActivity.FIRST_RUN, true);
-            activity.startActivity(intent);
-            activity.overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
-            activity.finish();
-            return true;
         } else {
-            return false;
+            LocalQabelService service = QabelBoxApplication.getInstance().getService();
+            if (service != null && service.getIdentities().getIdentities().size() == 0) {
+                Intent intent = new Intent(activity, CreateIdentityActivity.class);
+                intent.putExtra(BaseWizardActivity.FIRST_RUN, true);
+                activity.startActivity(intent);
+                activity.overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+                activity.finish();
+                return true;
+            } else {
+                return false;
+            }
         }
+
     }
 }

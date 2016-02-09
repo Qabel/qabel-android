@@ -25,14 +25,13 @@
 
     </style>
 
-    <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar"/>
+    <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
 
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light">
         <item name="android:color">@color/white</item>
     </style>
 
-    <style name="BottomBarButton" parent="@style/Widget.AppCompat.Button.Borderless">
-    </style>
+    <style name="BottomBarButton" parent="@style/Widget.AppCompat.Button.Borderless"></style>
 
     <style name="Button">
         <item name="android:background">@color/colorPrimary</item>
@@ -110,4 +109,7 @@
         <item name="android:shadowDx">3</item>
         <item name="android:shadowDy">3</item>
     </style>
+
+
+    <style name="Spinner"></style>
 </resources>

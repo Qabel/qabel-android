@@ -26,11 +26,15 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -45,7 +49,9 @@ import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import de.qabel.core.config.Contact;
 import de.qabel.core.config.Identity;
@@ -95,14 +101,14 @@ public class MainActivity extends AppCompatActivity
     public static final int REQUEST_EXTERN_SHARE_APP = 20;
 
     public static final int REQUEST_EXPORT_IDENTITY_AS_CONTACT = 19;
-    
+
     private static final String FALLBACK_MIMETYPE = "application/octet-stream";
     private static final int NAV_GROUP_IDENTITIES = 1;
     private static final int NAV_GROUP_IDENTITY_ACTIONS = 2;
     private static final int REQUEST_CODE_OPEN = 21;
     private static final int REQUEST_CODE_DELETE_FILE = 22;
     private DrawerLayout drawer;
-    private BoxVolume boxVolume;
+    public BoxVolume boxVolume;
     public ActionBarDrawerToggle toggle;
     private BoxProvider provider;
     public FloatingActionButton fab;
@@ -117,7 +123,7 @@ public class MainActivity extends AppCompatActivity
     // Used to save the document uri that should exported while waiting for the result
     // of the create document intent.
     private Uri exportUri;
-    private LocalQabelService mService;
+    public LocalQabelService mService;
     private ServiceConnection mServiceConnection;
 
     @Override
@@ -241,17 +247,17 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
         super.onCreate(savedInstanceState);
-        LocalQabelService service = QabelBoxApplication.getInstance().getService();
+        Log.d(TAG, "onCreate");
+        Intent serviceIntent = new Intent(this, LocalQabelService.class);
+        mServiceConnection = getServiceConnection();
         if (SplashActivity.startWizardActivities(this)) {
             Log.d(TAG, "started wizard dialog");
             return;
         }
+        /*LocalQabelService service = QabelBoxApplication.getInstance().getService();
 
-        if (service.getActiveIdentity() == null) {
-            service.setActiveIdentity(service.getIdentities().getIdentities().iterator().next());
-        }
+        }*/
 
         setContentView(R.layout.activity_main);
         toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -261,8 +267,7 @@ public class MainActivity extends AppCompatActivity
         self = this;
         initFloatingActionButton();
 
-        Intent serviceIntent = new Intent(this, LocalQabelService.class);
-        mServiceConnection = getServiceConnection();
+
         bindService(serviceIntent, mServiceConnection, Context.BIND_AUTO_CREATE);
 
         getFragmentManager().addOnBackStackChangedListener(new FragmentManager.OnBackStackChangedListener() {
@@ -305,6 +310,7 @@ public class MainActivity extends AppCompatActivity
                 LocalQabelService.LocalBinder binder = (LocalQabelService.LocalBinder) service;
                 mService = binder.getService();
                 onLocalServiceConnected();
+
             }
 
             @Override
@@ -318,7 +324,9 @@ public class MainActivity extends AppCompatActivity
     private void onLocalServiceConnected() {
 
         Log.d(TAG, "LocalQabelService connected");
-
+        if (mService.getActiveIdentity() == null) {
+            mService.setActiveIdentity(mService.getIdentities().getIdentities().iterator().next());
+        }
         provider = ((QabelBoxApplication) getApplication()).getProvider();
         Log.i(TAG, "Provider: " + provider);
 
@@ -327,9 +335,7 @@ public class MainActivity extends AppCompatActivity
 
         Identity activeIdentity = mService.getActiveIdentity();
         if (activeIdentity != null) {
-            textViewSelectedIdentity.setText(activeIdentity.getAlias());
-            initBoxVolume(activeIdentity);
-            initFilesFragment();
+            refreshFilesBrowser(activeIdentity);
         }
 
         // Check if activity is started with ACTION_SEND or ACTION_SEND_MULTIPLE
@@ -338,7 +344,8 @@ public class MainActivity extends AppCompatActivity
         String type = intent.getType();
 
         Log.i(TAG, "Intent action: " + action);
-
+        initFilesFragment();
+        selectFilesFragment();
         // Checks if a fragment should be launched
         if (intent != null && intent.getAction() != null) {
             switch (intent.getAction()) {
@@ -348,22 +355,55 @@ public class MainActivity extends AppCompatActivity
                         Uri imageUri = intent.getParcelableExtra(Intent.EXTRA_STREAM);
                         if (imageUri != null) {
                             //TODO: UPLOAD
+                            ArrayList<Uri> data = new ArrayList<Uri>();
+                            data.add(imageUri);
+                            Toast.makeText(self, "share: " + imageUri, Toast.LENGTH_SHORT).show();
+                            shareIntoApp(data);
                         }
                     }
                     break;
                 case Intent.ACTION_SEND_MULTIPLE:
                     if (type != null) {
                         ArrayList<Uri> imageUris = intent.getParcelableArrayListExtra(Intent.EXTRA_STREAM);
+                        String urls = "";
+                        for (Uri uri : imageUris) {
+                            Toast.makeText(self, "share: " + imageUris, Toast.LENGTH_SHORT).show();
+                            shareIntoApp(imageUris);
+                        }
                         //TODO: Implement
                     }
+
                     break;
                 default:
 
                     break;
             }
+        } else {
+
+
         }
+    }
+
+    public void refreshFilesBrowser(Identity activeIdentity) {
+        textViewSelectedIdentity.setText(activeIdentity.getAlias());
+        initBoxVolume(activeIdentity);
         initFilesFragment();
-        selectFilesFragment();
+    }
+
+    private void shareIntoApp(ArrayList<Uri> data) {
+
+
+        getFragmentManager().beginTransaction()
+                .replace(R.id.fragment_container,
+                        //ShareIntoAppFragment.newInstance()
+                        new SelectUploadFolderFragment()
+                        , null)
+                .addToBackStack(null)
+                .commit();
+
+        /*
+
+*/
     }
 
     private void initBoxVolume(Identity activeIdentity) {
@@ -775,7 +815,7 @@ public class MainActivity extends AppCompatActivity
         selectFilesFragment();
     }
 
-    private void changeActiveIdentity(Identity identity) {
+    public void changeActiveIdentity(Identity identity) {
 
         mService.setActiveIdentity(identity);
         textViewSelectedIdentity.setText(identity.getAlias());
@@ -993,6 +1033,7 @@ public class MainActivity extends AppCompatActivity
             }
         });
     }
+
     public static void showQRCode(MainActivity activity, Identity identity) {
 
         activity.getFragmentManager().beginTransaction()

@@ -64,7 +64,7 @@ public class FilesFragment extends BaseFragment {
     private MenuItem mSearchAction;
     private boolean isSearchOpened = false;
     private EditText edtSeach;
-    private BoxVolume mBoxVolume;
+    protected BoxVolume mBoxVolume;
     private AsyncTask<String, Void, StorageSearch> searchTask;
     private StorageSearch mCachedStorageSearch;
     View mEmptyView;
@@ -126,7 +126,7 @@ public class FilesFragment extends BaseFragment {
         if (actionBar != null) {
             actionBar.setDisplayHomeAsUpEnabled(false);
 
-     
+
             actionBar.setTitle(getTitle());
         }
         mService = QabelBoxApplication.getInstance().getService();
@@ -134,7 +134,6 @@ public class FilesFragment extends BaseFragment {
         LocalBroadcastManager.getInstance(getActivity()).registerReceiver(mMessageReceiver,
                 new IntentFilter(LocalBroadcastConstants.INTENT_UPLOAD_BROADCAST));
     }
-
 
 
     private BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
@@ -491,7 +490,7 @@ public class FilesFragment extends BaseFragment {
         return true;
     }
 
-    private void setBoxNavigation(BoxNavigation boxNavigation) {
+    protected void setBoxNavigation(BoxNavigation boxNavigation) {
 
         this.boxNavigation = boxNavigation;
     }
@@ -614,7 +613,7 @@ public class FilesFragment extends BaseFragment {
 
         cancelBrowseToTask();
 
-        if (boxNavigation==null||!boxNavigation.hasParent()) {
+        if (boxNavigation == null || !boxNavigation.hasParent()) {
             return false;
         }
 
@@ -668,7 +667,7 @@ public class FilesFragment extends BaseFragment {
         setIsLoading(true);
     }
 
-    private void fillAdapter() {
+    protected void fillAdapter() {
 
         filesAdapter.clear();
 

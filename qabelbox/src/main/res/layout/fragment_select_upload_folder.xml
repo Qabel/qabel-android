@@ -1,45 +1,20 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-             xmlns:tools="http://schemas.android.com/tools"
-             android:layout_width="match_parent"
-             android:layout_height="match_parent"
-             tools:context="de.qabel.qabelbox.fragments.SelectUploadFolderFragment">
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="de.qabel.qabelbox.fragments.SelectUploadFolderFragment">
 
-    <RelativeLayout
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/files_list"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_gravity="left|top">
+        android:layout_height="226dp"
+        android:layout_above="@+id/buttonAbortUpload"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_gravity="center_horizontal|top"
+        android:scrollbars="vertical" />
 
-        <android.support.v7.widget.RecyclerView
-            android:id="@+id/files_list"
-            android:scrollbars="vertical"
-            android:layout_width="match_parent"
-            android:layout_height="226dp"
-            android:layout_gravity="center_horizontal|top"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true"
-            android:layout_alignParentTop="true"
-            android:layout_above="@+id/buttonAbortUpload"/>
-
-        <de.qabel.qabelbox.views.TextViewFont
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/abort"
-            android:id="@+id/buttonAbortUpload"
-            style="@style/TextViewButton"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentRight="true"
-            android:layout_alignParentEnd="true"/>
-
-        <de.qabel.qabelbox.views.TextViewFont
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/upload"
-            style="@style/TextViewButton"
-            android:id="@+id/buttonUpload"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true"/>
-
-    </RelativeLayout>
 
 </FrameLayout>

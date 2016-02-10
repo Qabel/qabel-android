@@ -195,4 +195,11 @@
     <string name="headline_share_into_app">Upload</string>
     <string name="x_files_uploading">%1 files uploading to qabelbox</string>
     <string name="share_in_app_go_back_without_upload">Dou you really discard your selected share?</string>
+    <string name="general_settings">General settings</string>
+    <string name="settings_key_bugreporting_enabled">bugreporting_enabled</string>
+    <string name="settings_bugreporting_enable_summary">Activate this if you want to send bug reporting to developer</string>
+    <string name="settings_bugreporting">Bug reporting</string>
+    <string name="settings_key_internal_feedback">key_internalfeedback</string>
+    <string name="debug_send_feedback">Send feedback</string>
+    <string name="debug_send_feedback_to_pm">Send feedback to PM. Tell him if the app is working and other suggestions</string>
 </resources>

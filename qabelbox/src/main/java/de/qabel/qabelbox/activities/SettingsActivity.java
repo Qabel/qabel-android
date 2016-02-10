@@ -13,7 +13,7 @@ import de.qabel.qabelbox.fragments.SettingsFragment;
 /**
  * Created by danny on 25.01.2016.
  */
-public class SettingsActivity extends AppCompatActivity {
+public class SettingsActivity extends CrashReportingActivity {
     private SettingsActivity mActivity;
     private ActionBar actionBar;
 

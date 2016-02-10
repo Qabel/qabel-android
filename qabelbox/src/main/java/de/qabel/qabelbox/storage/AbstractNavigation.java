@@ -3,6 +3,7 @@ package de.qabel.qabelbox.storage;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.util.Log;
 
 import de.qabel.core.crypto.CryptoUtils;
 import de.qabel.core.crypto.QblECKeyPair;
@@ -11,6 +12,7 @@ import de.qabel.qabelbox.exceptions.QblStorageNameConflict;
 import de.qabel.qabelbox.exceptions.QblStorageNotFound;
 import de.qabel.qabelbox.providers.BoxProvider;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.NotImplementedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,6 +27,7 @@ public abstract class AbstractNavigation implements BoxNavigation {
 
 	private static final Logger logger = LoggerFactory.getLogger(AbstractNavigation.class.getName());
 	public static final String BLOCKS_PREFIX = "blocks/";
+	private static final String TAG = "AbstractNavigation";
 	private final FileCache cache;
 	private final Context context;
 	protected byte[] dmKey;
@@ -314,11 +317,106 @@ public abstract class AbstractNavigation implements BoxNavigation {
 			download = refreshCache(boxFile, boxTransferListener);
 		}
 		try {
-			return openStream(boxFile, download);
+			return openStream(boxFile.key, download);
 		} catch (QblStorageException e) {
 			download = refreshCache(boxFile, boxTransferListener);
-			return openStream(boxFile, download);
+			return openStream(boxFile.key, download);
 		}
+	}
+
+	/**
+	 * Creates and uploads a FileMetadata object for a BoxFile. FileMetadata location is written to BoxFile.meta
+	 * and encryption key to BoxFile.metakey. If BoxFile.meta or BoxFile.metakey is not null, BoxFile will not be
+	 * modified and no FileMetadata will be created. Call {@link #removeFileMetadata(BoxFile boxFile)}
+	 * first if you want to re-create a new FileMetadata.
+	 * @param boxFile BoxFile to create FileMetadata from.
+	 * @return True if FileMetadata has successfully created and uploaded.
+	 */
+	@Override
+	public boolean createFileMetadata(BoxFile boxFile) {
+		if (boxFile.meta != null && boxFile.metakey != null) {
+			return false;
+		}
+		String block = UUID.randomUUID().toString();
+		boxFile.meta = prefix + '/' + block;
+		KeyParameter key = cryptoUtils.generateSymmetricKey();
+		boxFile.metakey = key.getKey();
+
+		try {
+			FileMetadata fileMetadata = new FileMetadata(boxFile, dm.getTempDir());
+			FileInputStream fileInputStream = new FileInputStream(fileMetadata.getPath());
+			uploadEncrypted(fileInputStream, key, prefix, BLOCKS_PREFIX + block, null);
+
+			// Overwrite = delete old file, upload new file
+			BoxFile oldFile = dm.getFile(boxFile.name);
+			if (oldFile != null) {
+				deleteQueue.add(oldFile.block);
+				dm.deleteFile(oldFile);
+			}
+			updatedFiles.add(new FileUpdate(oldFile, boxFile));
+			dm.insertFile(boxFile);
+		} catch (QblStorageException | FileNotFoundException e) {
+			Log.e(TAG, "Could not create or upload FileMetadata", e);
+			return false;
+		}
+		return true;
+	}
+
+	/**
+	 * Deletes FileMetadata and sets BoxFile.meta and BoxFile.metakey to null. Does not re-encrypt BoxFile thus
+	 * receivers of the FileMetadata can still read the BoxFile.
+	 * @param boxFile BoxFile to remove FileMetadata from.
+	 * @return True if FileMetadata has been deleted. False if meta information is missing.
+	 */
+	@Override
+	public boolean removeFileMetadata(BoxFile boxFile) {
+		if (boxFile.meta == null || boxFile.metakey == null) {
+			return false;
+		}
+		String[] splitURL = boxFile.meta.split("/");
+
+		blockingDelete(splitURL[0], splitURL[1]);
+		boxFile.meta = null;
+		boxFile.metakey = null;
+
+		return true;
+	}
+
+	/**
+	 * Attaches a received BoxFile to the file list.
+	 * @param metaURL URL to download FileMetadata from
+	 * @param metaKey Key to decrypt FileMetadata with
+	 * @throws QblStorageException If FileMetadata cannot be accesses or decrypted.
+	 */
+	@Override
+	public void attachExternalFile(String metaURL, byte[] metaKey) throws QblStorageException {
+		String[] splitURL = metaURL.split("/");
+		File encryptedMetadata = blockingDownload(splitURL[0], BLOCKS_PREFIX + splitURL[1], null);
+
+		File out = new File(context.getExternalCacheDir(), UUID.randomUUID().toString());
+
+		try (InputStream decryptedInputStream = openStream(metaKey, encryptedMetadata);
+			 FileOutputStream fileOutputStream = new FileOutputStream(out)){
+
+			IOUtils.copy(decryptedInputStream, fileOutputStream);
+		} catch (IOException e) {
+			throw new QblStorageException("Could not decrypt FileMetadata", e);
+		}
+
+		FileMetadata fileMetadata = new FileMetadata(out);
+		dm.insertFile(fileMetadata.getFile());
+	}
+
+	/**
+	 * Deletes a BoxFile from the DirectoryMetadata. BEWARE: This method does not validate is provided BoxFile is
+	 * actually a received share. If this method is called with a regular BoxFile, the BoxFile will be deleted
+	 * from the DirectoryMetadata, but the actual file will not be removed from the storage.
+	 * @param boxFile Received shared BoxFile to delete from DirectoryMetadata.
+	 * @throws QblStorageException
+	 */
+	@Override
+	public void detachExternalFile(BoxFile boxFile) throws QblStorageException {
+		dm.deleteFile(boxFile);
 	}
 
 	private File refreshCache(BoxFile boxFile, @Nullable TransferManager.BoxTransferListener boxTransferListener) throws QblStorageNotFound {
@@ -330,8 +428,8 @@ public abstract class AbstractNavigation implements BoxNavigation {
 	}
 
 	@NonNull
-	private InputStream openStream(BoxFile boxFile, File file) throws QblStorageException {
-		KeyParameter key = new KeyParameter(boxFile.key);
+	private InputStream openStream(byte[] boxFileKey, File file) throws QblStorageException {
+		KeyParameter key = new KeyParameter(boxFileKey);
 		try {
 			File temp = File.createTempFile("upload", "down", dm.getTempDir());
 			if (!cryptoUtils.decryptFileAuthenticatedSymmetricAndValidateTag(

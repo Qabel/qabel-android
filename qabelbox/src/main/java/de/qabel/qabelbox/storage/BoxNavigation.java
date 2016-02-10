@@ -3,6 +3,7 @@ package de.qabel.qabelbox.storage;
 import android.support.annotation.Nullable;
 
 import de.qabel.qabelbox.exceptions.QblStorageException;
+import de.qabel.qabelbox.exceptions.QblStorageNotFound;
 
 import java.io.InputStream;
 import java.util.List;
@@ -29,6 +30,12 @@ public interface BoxNavigation {
 
 	BoxFile upload(String name, InputStream content, @Nullable TransferManager.BoxTransferListener boxTransferListener) throws QblStorageException;
 	InputStream download(BoxFile file, @Nullable TransferManager.BoxTransferListener boxTransferListener) throws QblStorageException;
+
+	boolean createFileMetadata(BoxFile boxFile);
+	boolean removeFileMetadata(BoxFile boxFile);
+
+	void attachExternalFile(String metaURL, byte[] metaKey) throws QblStorageException;
+	void detachExternalFile(BoxFile boxFile) throws QblStorageException;
 
 	void delete(BoxObject boxObject) throws QblStorageException;
 	void delete(BoxFile boxFile) throws QblStorageException;

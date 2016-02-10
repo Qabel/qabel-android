@@ -1,6 +1,5 @@
 package de.qabel.qabelbox.activities;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Fragment;
 import android.app.FragmentManager;
@@ -26,15 +25,11 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -49,7 +44,6 @@ import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -58,7 +52,7 @@ import de.qabel.core.config.Identity;
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.adapter.FilesAdapter;
-import de.qabel.qabelbox.config.ContactExportImport;
+import de.qabel.qabelbox.dialogs.SelectIdentityForUploadDialog;
 import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.fragments.BaseFragment;
 import de.qabel.qabelbox.fragments.ContactFragment;
@@ -68,6 +62,7 @@ import de.qabel.qabelbox.fragments.ImageViewerFragment;
 import de.qabel.qabelbox.fragments.QRcodeFragment;
 import de.qabel.qabelbox.fragments.SelectUploadFolderFragment;
 import de.qabel.qabelbox.helper.ExternalApps;
+import de.qabel.qabelbox.helper.Sanity;
 import de.qabel.qabelbox.helper.UIHelper;
 import de.qabel.qabelbox.providers.BoxProvider;
 import de.qabel.qabelbox.services.LocalQabelService;
@@ -87,7 +82,7 @@ public class MainActivity extends AppCompatActivity
     public static final String TAG_FILES_FRAGMENT = "TAG_FILES_FRAGMENT";
     private static final String TAG_CONTACT_LIST_FRAGMENT = "TAG_CONTACT_LIST_FRAGMENT";
     private static final String TAG_MANAGE_IDENTITIES_FRAGMENT = "TAG_MANAGE_IDENTITIES_FRAGMENT";
-
+    private static final String TAG_FILES_SHARE_INTO_APP_FRAGMENT = "TAG_FILES_SHARE_INTO_APP_FRAGMENT";
     private static final String TAG = "BoxMainActivity";
     private static final int REQUEST_CODE_UPLOAD_FILE = 12;
     public static final String HARDCODED_ROOT = BoxProvider.DOCID_SEPARATOR
@@ -125,6 +120,7 @@ public class MainActivity extends AppCompatActivity
     private Uri exportUri;
     public LocalQabelService mService;
     private ServiceConnection mServiceConnection;
+    private SelectUploadFolderFragment shareFragment;
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -247,18 +243,15 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         Log.d(TAG, "onCreate");
         Intent serviceIntent = new Intent(this, LocalQabelService.class);
         mServiceConnection = getServiceConnection();
-        if (SplashActivity.startWizardActivities(this)) {
+        if (Sanity.startWizardActivities(this)) {
             Log.d(TAG, "started wizard dialog");
             return;
         }
-        /*LocalQabelService service = QabelBoxApplication.getInstance().getService();
-
-        }*/
-
         setContentView(R.layout.activity_main);
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -267,8 +260,12 @@ public class MainActivity extends AppCompatActivity
         self = this;
         initFloatingActionButton();
 
-
         bindService(serviceIntent, mServiceConnection, Context.BIND_AUTO_CREATE);
+
+        addBackStackListener();
+    }
+
+    private void addBackStackListener() {
 
         getFragmentManager().addOnBackStackChangedListener(new FragmentManager.OnBackStackChangedListener() {
             @Override
@@ -292,8 +289,13 @@ public class MainActivity extends AppCompatActivity
                 }
                 //check if navigation drawer need to reset
                 if (getFragmentManager().getBackStackEntryCount() == 0 || (activeFragment instanceof BaseFragment) && !((BaseFragment) activeFragment).supportBackButton()) {
-                    getSupportActionBar().setDisplayHomeAsUpEnabled(false);
-                    toggle.setDrawerIndicatorEnabled(true);
+                    Log.d(TAG, "danny: " + activeFragment);
+                    if (activeFragment instanceof SelectUploadFolderFragment) {
+                    } else {
+
+                        getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+                        toggle.setDrawerIndicatorEnabled(true);
+                    }
                 }
             }
         });
@@ -310,7 +312,6 @@ public class MainActivity extends AppCompatActivity
                 LocalQabelService.LocalBinder binder = (LocalQabelService.LocalBinder) service;
                 mService = binder.getService();
                 onLocalServiceConnected();
-
             }
 
             @Override
@@ -344,66 +345,82 @@ public class MainActivity extends AppCompatActivity
         String type = intent.getType();
 
         Log.i(TAG, "Intent action: " + action);
-        initFilesFragment();
-        selectFilesFragment();
+
         // Checks if a fragment should be launched
-        if (intent != null && intent.getAction() != null) {
+        if (type != null && intent != null && intent.getAction() != null) {
+
             switch (intent.getAction()) {
+
                 case Intent.ACTION_SEND:
-                    if (type != null) {
-                        Log.i(TAG, "Action send in main activity");
-                        Uri imageUri = intent.getParcelableExtra(Intent.EXTRA_STREAM);
-                        if (imageUri != null) {
-                            //TODO: UPLOAD
-                            ArrayList<Uri> data = new ArrayList<Uri>();
-                            data.add(imageUri);
-                            Toast.makeText(self, "share: " + imageUri, Toast.LENGTH_SHORT).show();
-                            shareIntoApp(data);
-                        }
+                    Log.i(TAG, "Action send in main activity");
+                    Uri imageUri = intent.getParcelableExtra(Intent.EXTRA_STREAM);
+                    if (imageUri != null) {
+                        ArrayList<Uri> data = new ArrayList<Uri>();
+                        data.add(imageUri);
+                        shareIntoApp(data);
                     }
+
                     break;
                 case Intent.ACTION_SEND_MULTIPLE:
-                    if (type != null) {
-                        ArrayList<Uri> imageUris = intent.getParcelableArrayListExtra(Intent.EXTRA_STREAM);
-                        String urls = "";
-                        for (Uri uri : imageUris) {
-                            Toast.makeText(self, "share: " + imageUris, Toast.LENGTH_SHORT).show();
-                            shareIntoApp(imageUris);
-                        }
-                        //TODO: Implement
+                    Log.i(TAG, "Action send multiple in main activity");
+                    ArrayList<Uri> imageUris = intent.getParcelableArrayListExtra(Intent.EXTRA_STREAM);
+                    if (imageUris != null && imageUris.size() > 0) {
+                        shareIntoApp(imageUris);
                     }
-
                     break;
                 default:
-
+                    initFilesFragment();
+                    selectFilesFragment();
                     break;
             }
         } else {
-
-
+            initFilesFragment();
+            selectFilesFragment();
         }
     }
 
     public void refreshFilesBrowser(Identity activeIdentity) {
+
         textViewSelectedIdentity.setText(activeIdentity.getAlias());
         initBoxVolume(activeIdentity);
         initFilesFragment();
     }
 
-    private void shareIntoApp(ArrayList<Uri> data) {
+    private void shareIntoApp(final ArrayList<Uri> data) {
 
+        fab.hide();
 
+        final Set<Identity> identities = mService.getIdentities().getIdentities();
+        if (identities.size() > 1) {
+            new SelectIdentityForUploadDialog(self, new SelectIdentityForUploadDialog.Result() {
+                @Override
+                public void onCancel() {
+
+                    UIHelper.showDialogMessage(self, R.string.dialog_headline_warning, R.string.share_into_app_canceled);
+                    onBackPressed();
+                }
+
+                @Override
+                public void onIdentitySelected(Identity identity) {
+
+                    changeActiveIdentity(identity);
+
+                    shareIdentitySelected(data, identity);
+                }
+            });
+        } else {
+            shareIdentitySelected(data, mService.getActiveIdentity());
+        }
+    }
+
+    private void shareIdentitySelected(final ArrayList<Uri> data, Identity activeIdentity) {
+
+        shareFragment = SelectUploadFolderFragment.newInstance(boxVolume, data, activeIdentity);
         getFragmentManager().beginTransaction()
                 .replace(R.id.fragment_container,
-                        //ShareIntoAppFragment.newInstance()
-                        new SelectUploadFolderFragment()
-                        , null)
+                        shareFragment, TAG_FILES_SHARE_INTO_APP_FRAGMENT)
                 .addToBackStack(null)
                 .commit();
-
-        /*
-
-*/
     }
 
     private void initBoxVolume(Identity activeIdentity) {
@@ -472,6 +489,7 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void onClick(DialogInterface dialog, int which, EditText editText) {
 
+                UIHelper.hideKeyboard(self, editText);
                 String newFolderName = editText.getText().toString();
                 if (!newFolderName.equals("")) {
                     createFolder(newFolderName, filesFragment.getBoxNavigation());
@@ -657,7 +675,20 @@ public class MainActivity extends AppCompatActivity
                 getFragmentManager().popBackStack();
             } else {
                 switch (activeFragment.getTag()) {
+                    case TAG_FILES_SHARE_INTO_APP_FRAGMENT:
+                        if (!shareFragment.handleBackPressed() && !shareFragment.browseToParent()) {
+                            UIHelper.showDialogMessage(self, R.string.dialog_headline_warning, R.string.close_app_without_sharing, R.string.yes, R.string.no, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+
+                                    self.onBackPressed();
+                                    //finish();
+                                }
+                            }, null);
+                        }
+                        break;
                     case TAG_FILES_FRAGMENT:
+
                         toggle.setDrawerIndicatorEnabled(true);
                         if (!filesFragment.handleBackPressed() && !filesFragment.browseToParent()) {
                             finishAffinity();
@@ -827,6 +858,14 @@ public class MainActivity extends AppCompatActivity
         selectFilesFragment();
     }
 
+    @Override
+    protected void onResume() {
+
+        super.onResume();
+        if (mService != null && mService.getActiveIdentity() != null) {
+            textViewSelectedIdentity.setText(mService.getActiveIdentity().getAlias());
+        }
+    }
 
     @Override
     public void onScrolledToBottom(boolean scrolledToBottom) {
@@ -834,7 +873,12 @@ public class MainActivity extends AppCompatActivity
         if (scrolledToBottom) {
             fab.hide();
         } else {
-            fab.show();
+            Fragment activeFragment = getFragmentManager().findFragmentById(R.id.fragment_container);
+            if (activeFragment != null) {
+                if (activeFragment instanceof BaseFragment && ((BaseFragment) activeFragment).handleFABAction()) {
+                    fab.show();
+                }
+            }
         }
     }
 
@@ -1106,6 +1150,7 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void contactAdded(Contact contact) {
+
         for (Contact c : mService.getContacts().getContacts()) {
             if (c.getKeyIdentifier().equals(contact.getKeyIdentifier())) {
                 Snackbar.make(appBarMain, "Contact already existing: " + contact.getAlias(), Snackbar.LENGTH_LONG)

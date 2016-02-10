@@ -2,18 +2,14 @@ package de.qabel.qabelbox.fragments;
 
 import android.app.Activity;
 import android.content.BroadcastReceiver;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.ServiceConnection;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.IBinder;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -52,7 +48,7 @@ public class FilesFragment extends BaseFragment {
 
     private static final String TAG = "FilesFragment";
     protected BoxNavigation boxNavigation;
-    private RecyclerView filesListRecyclerView;
+    public RecyclerView filesListRecyclerView;
     protected FilesAdapter filesAdapter;
     private RecyclerView.LayoutManager recyclerViewLayoutManager;
     private boolean isLoading;
@@ -74,6 +70,12 @@ public class FilesFragment extends BaseFragment {
     public static FilesFragment newInstance(final BoxVolume boxVolume) {
 
         final FilesFragment filesFragment = new FilesFragment();
+        fillFragmentData(boxVolume, filesFragment);
+        return filesFragment;
+    }
+
+    protected static void fillFragmentData(final BoxVolume boxVolume, final FilesFragment filesFragment) {
+
         filesFragment.mBoxVolume = boxVolume;
         final FilesAdapter filesAdapter = new FilesAdapter(new ArrayList<BoxObject>());
 
@@ -103,7 +105,7 @@ public class FilesFragment extends BaseFragment {
                         return null;
                     }
                 }
-                filesFragment.fillAdapter();
+                filesFragment.fillAdapter(filesAdapter);
                 return null;
             }
 
@@ -115,7 +117,6 @@ public class FilesFragment extends BaseFragment {
                 filesAdapter.notifyDataSetChanged();
             }
         }.executeOnExecutor(serialExecutor);
-        return filesFragment;
     }
 
     @Override
@@ -126,7 +127,6 @@ public class FilesFragment extends BaseFragment {
         if (actionBar != null) {
             actionBar.setDisplayHomeAsUpEnabled(false);
 
-
             actionBar.setTitle(getTitle());
         }
         mService = QabelBoxApplication.getInstance().getService();
@@ -135,18 +135,20 @@ public class FilesFragment extends BaseFragment {
                 new IntentFilter(LocalBroadcastConstants.INTENT_UPLOAD_BROADCAST));
     }
 
-
     private BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
 
+            if (filesAdapter == null) {
+                return;
+            }
             String documentId = intent.getStringExtra(LocalBroadcastConstants.EXTRA_UPLOAD_DOCUMENT_ID);
             int uploadStatus = intent.getIntExtra(LocalBroadcastConstants.EXTRA_UPLOAD_STATUS, -1);
 
             switch (uploadStatus) {
                 case LocalBroadcastConstants.UPLOAD_STATUS_NEW:
                     Log.d(TAG, "Received new upload: " + documentId);
-                    fillAdapter();
+                    fillAdapter(filesAdapter);
                     filesAdapter.notifyDataSetChanged();
                     break;
                 case LocalBroadcastConstants.UPLOAD_STATUS_FINISHED:
@@ -180,22 +182,7 @@ public class FilesFragment extends BaseFragment {
                              Bundle savedInstanceState) {
 
         View view = inflater.inflate(R.layout.fragment_files, container, false);
-        mEmptyView = view.findViewById(R.id.empty_view);
-        mLoadingView = view.findViewById(R.id.loading_view);
-        final ProgressBar pg = (ProgressBar) view.findViewById(R.id.pb_firstloading);
-        pg.setIndeterminate(true);
-        pg.setMax(100);
-        pg.setProgress(10);
-        pg.setEnabled(true);
-        /*getActivity().runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-
-                pg.setVisibility(View.VISIBLE);
-            }
-        });*/
-
-        filesAdapter.setEmptyView(mEmptyView, mLoadingView);
+        setupLoadingViews(view);
         swipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.swipeRefresh);
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
@@ -236,6 +223,17 @@ public class FilesFragment extends BaseFragment {
             }
         });
         return view;
+    }
+
+    protected void setupLoadingViews(View view) {
+
+        mEmptyView = view.findViewById(R.id.empty_view);
+        mLoadingView = view.findViewById(R.id.loading_view);
+        final ProgressBar pg = (ProgressBar) view.findViewById(R.id.pb_firstloading);
+        pg.setIndeterminate(true);
+        pg.setEnabled(true);
+        if(filesAdapter!=null)
+        filesAdapter.setEmptyView(mEmptyView, mLoadingView);
     }
 
     @Override
@@ -631,7 +629,7 @@ public class FilesFragment extends BaseFragment {
                 waitForBoxNavigation();
                 try {
                     boxNavigation.navigateToParent();
-                    fillAdapter();
+                    fillAdapter(filesAdapter);
                 } catch (QblStorageException e) {
                     Log.d(TAG, "browseTo failed", e);
                 }
@@ -667,8 +665,11 @@ public class FilesFragment extends BaseFragment {
         setIsLoading(true);
     }
 
-    protected void fillAdapter() {
+    protected void fillAdapter(FilesAdapter filesAdapter) {
 
+        if (filesAdapter == null) {
+            return;
+        }
         filesAdapter.clear();
 
         if (boxNavigation == null) {
@@ -741,7 +742,7 @@ public class FilesFragment extends BaseFragment {
                 waitForBoxNavigation();
                 try {
                     boxNavigation.navigate(navigateTo);
-                    fillAdapter();
+                    fillAdapter(filesAdapter);
                 } catch (QblStorageException e) {
                     Log.e(TAG, "browseTo failed", e);
                 }

@@ -879,7 +879,8 @@ public class MainActivity extends CrashReportingActivity
     @Override
     protected void onDestroy() {
 
-        if (mServiceConnection != null) {
+        if (mServiceConnection != null&&mService!=null) {
+
             unbindService(mServiceConnection);
         }
         super.onDestroy();

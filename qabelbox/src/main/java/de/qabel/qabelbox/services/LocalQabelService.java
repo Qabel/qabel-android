@@ -371,7 +371,7 @@ public class LocalQabelService extends Service {
 		documentIdParser = new DocumentIdParser();
     }
 
-    private void initAndroidPersistence() {
+    protected void initAndroidPersistence() {
         AndroidPersistence androidPersistence;
         QblSQLiteParams params = new QblSQLiteParams(this, DB_NAME, null, DB_VERSION);
         try {
@@ -383,7 +383,7 @@ public class LocalQabelService extends Service {
         this.persistence = androidPersistence;
     }
 
-    public void initSharedPreferences() {
+    protected void initSharedPreferences() {
         sharedPreferences = getSharedPreferences(this.getClass().getCanonicalName(), MODE_PRIVATE);
         if (!sharedPreferences.getBoolean(PREF_DEVICE_ID_CREATED, false)) {
 

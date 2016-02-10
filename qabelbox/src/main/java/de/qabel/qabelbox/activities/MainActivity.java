@@ -8,13 +8,11 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.provider.DocumentsContract;
-import android.provider.OpenableColumns;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
@@ -52,6 +50,7 @@ import de.qabel.core.config.Identity;
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.adapter.FilesAdapter;
+import de.qabel.qabelbox.communication.VolumeFileTransferHelper;
 import de.qabel.qabelbox.dialogs.SelectIdentityForUploadDialog;
 import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.fragments.BaseFragment;
@@ -85,9 +84,7 @@ public class MainActivity extends AppCompatActivity
     private static final String TAG_FILES_SHARE_INTO_APP_FRAGMENT = "TAG_FILES_SHARE_INTO_APP_FRAGMENT";
     private static final String TAG = "BoxMainActivity";
     private static final int REQUEST_CODE_UPLOAD_FILE = 12;
-    public static final String HARDCODED_ROOT = BoxProvider.DOCID_SEPARATOR
-            + BoxProvider.BUCKET + BoxProvider.DOCID_SEPARATOR
-            + BoxProvider.PREFIX + BoxProvider.DOCID_SEPARATOR + BoxProvider.PATH_SEP;
+
     private static final int REQUEST_CODE_CHOOSE_EXPORT = 14;
     private static final int REQUEST_CREATE_IDENTITY = 16;
     private static final int REQUEST_SETTINGS = 17;
@@ -160,7 +157,7 @@ public class MainActivity extends AppCompatActivity
                             path = boxNavigation.getPath();
                         }
                     }
-                    uploadUri(uri, path);
+                    uploadUri((Uri) uri, (String) path);
                     return;
                 }
                 if (requestCode == REQUEST_CODE_DELETE_FILE) {
@@ -210,42 +207,14 @@ public class MainActivity extends AppCompatActivity
 
         Toast.makeText(self, R.string.uploading_file,
                 Toast.LENGTH_SHORT).show();
-        Cursor cursor = getContentResolver().query(uri, null, null, null, null);
-        if (cursor == null) {
-            Log.e(TAG, "No valid url for uploading" + uri);
-            return true;
-        }
-        cursor.moveToFirst();
-        String displayName = cursor.getString(
-                cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
-        Log.i(TAG, "Displayname: " + displayName);
-        String keyIdentifier = mService.getActiveIdentity().getEcPublicKey()
-                .getReadableKeyIdentifier();
-        Uri uploadUri = DocumentsContract.buildDocumentUri(
-                BoxProvider.AUTHORITY, keyIdentifier + HARDCODED_ROOT + targetFolder + displayName);
-        try {
-            OutputStream outputStream = getContentResolver().openOutputStream(uploadUri, "w");
-            if (outputStream == null) {
-                return false;
-            }
-            InputStream inputStream = getContentResolver().openInputStream(uri);
-            if (inputStream == null) {
-                return false;
-            }
-            IOUtils.copy(inputStream, outputStream);
-            outputStream.close();
-            inputStream.close();
-        } catch (IOException e) {
-            Log.e(TAG, "Error opening output stream for upload", e);
-        }
-        return false;
+        return VolumeFileTransferHelper.uploadUri(self, uri, targetFolder, mService.getActiveIdentity());
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
-        Log.d(TAG, "onCreate");
+        Log.d(TAG, "onCreate " + this.hashCode());
         Intent serviceIntent = new Intent(this, LocalQabelService.class);
         mServiceConnection = getServiceConnection();
         if (Sanity.startWizardActivities(this)) {
@@ -311,7 +280,7 @@ public class MainActivity extends AppCompatActivity
 
                 LocalQabelService.LocalBinder binder = (LocalQabelService.LocalBinder) service;
                 mService = binder.getService();
-                onLocalServiceConnected();
+                onLocalServiceConnected(getIntent());
             }
 
             @Override
@@ -322,7 +291,7 @@ public class MainActivity extends AppCompatActivity
         };
     }
 
-    private void onLocalServiceConnected() {
+    private void onLocalServiceConnected(Intent intent) {
 
         Log.d(TAG, "LocalQabelService connected");
         if (mService.getActiveIdentity() == null) {
@@ -340,7 +309,7 @@ public class MainActivity extends AppCompatActivity
         }
 
         // Check if activity is started with ACTION_SEND or ACTION_SEND_MULTIPLE
-        Intent intent = getIntent();
+
         String action = intent.getAction();
         String type = intent.getType();
 
@@ -414,10 +383,10 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void shareIdentitySelected(final ArrayList<Uri> data, Identity activeIdentity) {
-
+        toggle.setDrawerIndicatorEnabled(false);
         shareFragment = SelectUploadFolderFragment.newInstance(boxVolume, data, activeIdentity);
         getFragmentManager().beginTransaction()
-                .replace(R.id.fragment_container,
+                .add(R.id.fragment_container,
                         shareFragment, TAG_FILES_SHARE_INTO_APP_FRAGMENT)
                 .addToBackStack(null)
                 .commit();
@@ -498,6 +467,7 @@ public class MainActivity extends AppCompatActivity
         }, null);
     }
 
+    //@todo move this to filesfragment
     private void initFilesFragment() {
 
         filesFragment = FilesFragment.newInstance(boxVolume);
@@ -588,16 +558,17 @@ public class MainActivity extends AppCompatActivity
         startActivityForResult(Intent.createChooser(viewIntent, "Open with"), REQUEST_EXTERN_VIEWER_APP);
     }
 
+    //@todo move outside
     private String getMimeType(Uri uri) {
 
         return URLConnection.guessContentTypeFromName(uri.toString());
     }
-
+    //@todo move outside
     private String getMimeType(BoxObject boxObject) {
 
         return getMimeType(getUri(boxObject));
     }
-
+    //@todo move outside
     private Uri getUri(BoxObject boxObject) {
 
         String path = filesFragment.getBoxNavigation().getPath(boxObject);
@@ -677,11 +648,11 @@ public class MainActivity extends AppCompatActivity
                 switch (activeFragment.getTag()) {
                     case TAG_FILES_SHARE_INTO_APP_FRAGMENT:
                         if (!shareFragment.handleBackPressed() && !shareFragment.browseToParent()) {
-                            UIHelper.showDialogMessage(self, R.string.dialog_headline_warning, R.string.close_app_without_sharing, R.string.yes, R.string.no, new DialogInterface.OnClickListener() {
+                            UIHelper.showDialogMessage(self, R.string.dialog_headline_warning, R.string.share_in_app_go_back_without_upload, R.string.yes, R.string.no, new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
 
-                                    self.onBackPressed();
+                                    getFragmentManager().popBackStack();
                                     //finish();
                                 }
                             }, null);
@@ -752,46 +723,14 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onFolderSelected(final Uri uri, final BoxNavigation boxNavigation) {
 
-        new AsyncTask<Void, Void, Void>() {
-            @Override
-            protected Void doInBackground(Void... params) {
-
-                Cursor returnCursor =
-                        getContentResolver().query(uri, null, null, null, null);
-                int nameIndex = returnCursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
-                returnCursor.moveToFirst();
-                String name = returnCursor.getString(nameIndex);
-                returnCursor.close();
-
-                try {
-                    String path = boxNavigation.getPath();
-                    String folderId = boxVolume.getDocumentId(path);
-                    Uri uploadUri = DocumentsContract.buildDocumentUri(
-                            BoxProvider.AUTHORITY, folderId + name);
-
-                    InputStream content = getContentResolver().openInputStream(uri);
-                    OutputStream upload = getContentResolver().openOutputStream(uploadUri, "w");
-                    if (upload == null || content == null) {
-                        finish();
-                        return null;
-                    }
-                    IOUtils.copy(content, upload);
-                    content.close();
-                    upload.close();
-                } catch (IOException e) {
-                    Log.e(TAG, "Upload failed", e);
-                }
-                return null;
-            }
-        }.execute();
-        finish();
+        VolumeFileTransferHelper.upload(self, uri, boxNavigation, boxVolume);
     }
 
     @Override
     public void onAbort() {
 
     }
-
+    //@todo move outside
     public void createFolder(final String name, final BoxNavigation boxNavigation) {
 
         new AsyncTask<Void, Void, Void>() {
@@ -858,13 +797,13 @@ public class MainActivity extends AppCompatActivity
         selectFilesFragment();
     }
 
-    @Override
-    protected void onResume() {
 
-        super.onResume();
-        if (mService != null && mService.getActiveIdentity() != null) {
-            textViewSelectedIdentity.setText(mService.getActiveIdentity().getAlias());
-        }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+
+        Log.d(TAG, "onCreateOnIntent");
+        onLocalServiceConnected(intent);
     }
 
     @Override
@@ -881,6 +820,7 @@ public class MainActivity extends AppCompatActivity
             }
         }
     }
+
 
     @Override
     public void deleteIdentity(Identity identity) {
@@ -912,6 +852,7 @@ public class MainActivity extends AppCompatActivity
     /**
      * Handle an export request sent from the FilesFragment
      */
+    //@todo move outside
     public void onExport(BoxNavigation boxNavigation, BoxObject boxObject) {
 
         String path = boxNavigation.getPath(boxObject);

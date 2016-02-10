@@ -145,6 +145,7 @@ public class SelectUploadFolderFragment extends FilesFragment {
             mListener.onFolderSelected(uris.get(i), boxNavigation);
         }
         Toast.makeText(getActivity(), getString(R.string.x_files_uploading).replace("%1", "" + uris.size()), Toast.LENGTH_SHORT).show();
+        getFragmentManager().popBackStack();
     }
 
     public void setAdapter(FilesAdapter adapter) {

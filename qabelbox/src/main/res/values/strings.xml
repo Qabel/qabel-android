@@ -194,5 +194,5 @@
     <string name="share_into_app_canceled">The upload into Qabelbox was canceled!</string>
     <string name="headline_share_into_app">Upload</string>
     <string name="x_files_uploading">%1 files uploading to qabelbox</string>
-    <string name="close_app_without_sharing">Dou you really quit the app without uploading the selected files?</string>
+    <string name="share_in_app_go_back_without_upload">Dou you really discard your selected share?</string>
 </resources>

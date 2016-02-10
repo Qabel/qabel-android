@@ -24,6 +24,7 @@ import java.util.AbstractMap.SimpleEntry;
 public abstract class AbstractNavigation implements BoxNavigation {
 
 	private static final Logger logger = LoggerFactory.getLogger(AbstractNavigation.class.getName());
+	public static final String BLOCKS_PREFIX = "blocks/";
 	private final FileCache cache;
 	private final Context context;
 	protected byte[] dmKey;
@@ -33,6 +34,7 @@ public abstract class AbstractNavigation implements BoxNavigation {
 	protected final byte[] deviceId;
 	protected TransferManager transferManager;
 	protected final CryptoUtils cryptoUtils;
+	protected final String prefix;
 
 	private final BoxVolume boxVolume;
 	private final Set<String> deleteQueue = new HashSet<>();
@@ -41,9 +43,10 @@ public abstract class AbstractNavigation implements BoxNavigation {
 
 	protected String currentPath;
 
-	public AbstractNavigation(DirectoryMetadata dm, QblECKeyPair keyPair, byte[] dmKey, byte[] deviceId,
+	public AbstractNavigation(String prefix, DirectoryMetadata dm, QblECKeyPair keyPair, byte[] dmKey, byte[] deviceId,
 							  TransferManager transferManager, BoxVolume boxVolume, String path,
 							  @Nullable Stack<BoxFolder> parentBoxFolders, Context context) {
+		this.prefix = prefix;
 		this.dm = dm;
 		this.keyPair = keyPair;
 		this.deviceId = deviceId;
@@ -86,19 +89,19 @@ public abstract class AbstractNavigation implements BoxNavigation {
 		return filepath.substring(filepath.lastIndexOf('/') + 1, filepath.length());
 	}
 
-	protected File blockingDownload(String name, TransferManager.BoxTransferListener boxTransferListener) throws QblStorageNotFound {
+	protected File blockingDownload(String prefix, String name, TransferManager.BoxTransferListener boxTransferListener) throws QblStorageNotFound {
 		File file = transferManager.createTempFile();
-		int id = transferManager.download(name, file, boxTransferListener);
+		int id = transferManager.download(prefix, name, file, boxTransferListener);
 		if (transferManager.waitFor(id)) {
 			return file;
 		} else {
-			throw new QblStorageNotFound("File not found");
+			throw new QblStorageNotFound("File not found. Prefix: " + prefix  + " Name: " + name);
 		}
 	}
 
-	protected Long blockingUpload(String name,
+	protected Long blockingUpload(String prefix, String name,
 								  File file, @Nullable TransferManager.BoxTransferListener boxTransferListener) {
-		int id = transferManager.upload(name, file, boxTransferListener);
+		int id = transferManager.upload(prefix, name, file, boxTransferListener);
 		transferManager.waitFor(id);
 		return currentSecondsFromEpoch();
 	}
@@ -160,7 +163,7 @@ public abstract class AbstractNavigation implements BoxNavigation {
 				dm = boxVolume.getDirectoryMetadata();
 				dmKey = null;
 			} else {
-				File indexDl = blockingDownload(target.ref, null);
+				File indexDl = blockingDownload(prefix, target.ref, null);
 				File tmp = File.createTempFile("dir", "db", dm.getTempDir());
 				KeyParameter keyParameter = new KeyParameter(target.key);
 				if (cryptoUtils.decryptFileAuthenticatedSymmetricAndValidateTag(
@@ -198,7 +201,7 @@ public abstract class AbstractNavigation implements BoxNavigation {
 		}
 		uploadDirectoryMetadata();
 		for (String ref: deleteQueue) {
-			blockingDelete(ref);
+			blockingDelete(prefix, ref);
 		}
 		// TODO: make a test fail without these
 		deleteQueue.clear();
@@ -207,8 +210,8 @@ public abstract class AbstractNavigation implements BoxNavigation {
 
 	protected abstract DirectoryMetadata reloadMetadata() throws QblStorageException;
 
-	protected void blockingDelete(String ref) {
-		transferManager.delete(ref);
+	protected void blockingDelete(String prefix, String ref) {
+		transferManager.delete(prefix, ref);
 
 	}
 
@@ -270,7 +273,7 @@ public abstract class AbstractNavigation implements BoxNavigation {
 		KeyParameter key = cryptoUtils.generateSymmetricKey();
 		String block = UUID.randomUUID().toString();
 		BoxFile boxFile = new BoxFile(block, name, null, 0L, key.getKey());
-		SimpleEntry<Long, Long> mtimeAndSize = uploadEncrypted(content, key, "blocks/" + block, boxTransferListener);
+		SimpleEntry<Long, Long> mtimeAndSize = uploadEncrypted(content, key, prefix, BLOCKS_PREFIX + block, boxTransferListener);
 		boxFile.mtime = mtimeAndSize.getKey();
 		boxFile.size = mtimeAndSize.getValue();
 		// Overwrite = delete old file, upload new file
@@ -285,7 +288,7 @@ public abstract class AbstractNavigation implements BoxNavigation {
 	}
 
 	protected SimpleEntry<Long, Long> uploadEncrypted(
-			InputStream content, KeyParameter key, String block,
+			InputStream content, KeyParameter key, String prefix, String block,
 			@Nullable TransferManager.BoxTransferListener boxTransferListener) throws QblStorageException {
 		try {
 			File tempFile = File.createTempFile("upload", "up", dm.getTempDir());
@@ -295,7 +298,7 @@ public abstract class AbstractNavigation implements BoxNavigation {
 			}
 			outputStream.flush();
 			Long size = tempFile.length();
-			Long mtime = blockingUpload(block, tempFile, boxTransferListener);
+			Long mtime = blockingUpload(prefix, block, tempFile, boxTransferListener);
 			return new SimpleEntry<>(mtime, size);
 		} catch (IOException | InvalidKeyException e) {
 			throw new QblStorageException(e);
@@ -320,7 +323,7 @@ public abstract class AbstractNavigation implements BoxNavigation {
 
 	private File refreshCache(BoxFile boxFile, @Nullable TransferManager.BoxTransferListener boxTransferListener) throws QblStorageNotFound {
 		logger.info("Refreshing cache: "+ boxFile.block);
-		File download = blockingDownload("blocks/" + boxFile.block, boxTransferListener);
+		File download = blockingDownload(prefix, BLOCKS_PREFIX + boxFile.block, boxTransferListener);
 		cache.put(boxFile, download);
 		cache.close();
 		return download;
@@ -353,7 +356,7 @@ public abstract class AbstractNavigation implements BoxNavigation {
 		KeyParameter secretKey = cryptoUtils.generateSymmetricKey();
 		BoxFolder folder = new BoxFolder(dm.getFileName(), name, secretKey.getKey());
 		this.dm.insertFolder(folder);
-		BoxNavigation newFolder = new FolderNavigation(dm, keyPair, secretKey.getKey(),
+		BoxNavigation newFolder = new FolderNavigation(prefix, dm, keyPair, secretKey.getKey(),
 			deviceId, transferManager, boxVolume, currentPath + BoxProvider.PATH_SEP + folder.name,
 				parentBoxFolders, context);
 		newFolder.commit();
@@ -377,7 +380,7 @@ public abstract class AbstractNavigation implements BoxNavigation {
 		dm.deleteFile(file);
 		cache.remove(file);
 		cache.close();
-		deleteQueue.add("blocks/" + file.block);
+		deleteQueue.add(BLOCKS_PREFIX + file.block);
 	}
 
 	@Override

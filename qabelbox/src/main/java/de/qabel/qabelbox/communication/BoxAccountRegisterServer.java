@@ -8,12 +8,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.Locale;
-import java.util.concurrent.TimeUnit;
 
 import de.qabel.qabelbox.config.AppPreference;
 import okhttp3.Callback;
-import okhttp3.MediaType;
-import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 
@@ -22,23 +19,9 @@ import okhttp3.RequestBody;
  * <p/>
  * class to handle the register server network action
  */
-public class BoxAccountRegisterServer {
+public class BoxAccountRegisterServer extends BaseServer {
 
     private final static String TAG = "BoxAccountServer";
-    private final OkHttpClient client;
-    private final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
-
-    /**
-     * create new instance of http client and set timeouts
-     */
-    public BoxAccountRegisterServer() {
-
-        OkHttpClient.Builder builder = new OkHttpClient.Builder();
-        builder.connectTimeout(15, TimeUnit.SECONDS); // connect timeout
-        builder.readTimeout(15, TimeUnit.SECONDS);    // socket timeout
-        builder.writeTimeout(10, TimeUnit.SECONDS);
-        client = builder.build();
-    }
 
     /**
      * main function for server action
@@ -54,12 +37,7 @@ public class BoxAccountRegisterServer {
         Request.Builder builder = new Request.Builder()
                 .url(url)
                 .post(body);
-        if (token != null) {
-            builder.addHeader("Authorization", "Token " + token);
-        }
-        builder.addHeader("Accept", "application/json");
-        String locale = Locale.getDefault().toString();
-        builder.addHeader("language", locale);
+        addHeader(token, builder);
         final Request request = builder.build();
         client.newCall(request).enqueue(callback);
     }
@@ -152,34 +130,7 @@ public class BoxAccountRegisterServer {
         return response;
     }
 
-    /**
-     * try to parse json objecct as array, otherwise try to get as string.
-     *
-     * @param key  json keyword
-     * @param json json object
-     * @return
-     */
-    private static String getJsonString(String key, JSONObject json) {
 
-        if (json.has(key)) {
-            try {
-                JSONArray array = json.getJSONArray(key);
-                String ret = "";
-                for (int i = 0; i < array.length(); i++) {
-                    ret += array.getString(i);
-                }
-                return ret;
-            } catch (JSONException e) {
-                Log.d(TAG, "can't convert " + key + " to array. try string");
-            }
-            try {
-                return json.getString(key);
-            } catch (JSONException e) {
-                Log.w(TAG, "can't convert \"+key+\" to string.", e);
-            }
-        }
-        return null;
-    }
 
     /**
      * hold all possibility server response fields

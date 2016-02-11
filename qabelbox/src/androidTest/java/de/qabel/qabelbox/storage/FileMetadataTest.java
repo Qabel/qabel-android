@@ -27,13 +27,24 @@ public class FileMetadataTest {
 
 	@Test
 	public void testFileMetadataBoxFile() throws QblStorageException {
-		assertThat(fileMetadata.getFile(), is(equalTo(boxFile)));
+		BoxExternalFile boxFileFromMetadata = fileMetadata.getFile();
+		assertThat(boxFile.block, is(equalTo(boxFileFromMetadata.block)));
+		assertThat(boxFile.name, is(equalTo(boxFileFromMetadata.name)));
+		assertThat(boxFile.size, is(equalTo(boxFileFromMetadata.size)));
+		assertThat(boxFile.mtime, is(equalTo(boxFileFromMetadata.mtime)));
+		assertThat(boxFile.key, is(equalTo(boxFileFromMetadata.key)));
 	}
 
 	@Test
 	public void testRecreateFileMetadataFromFile() throws QblStorageException, IOException {
 		FileMetadata fileMetadataFromTemp = new FileMetadata(fileMetadata.getPath());
-		assertThat(fileMetadataFromTemp.getFile(), is(equalTo(boxFile)));
+		BoxExternalFile boxFileFromMetadata = fileMetadataFromTemp.getFile();
+		assertThat(boxFile.block, is(equalTo(boxFileFromMetadata.block)));
+		assertThat(boxFile.name, is(equalTo(boxFileFromMetadata.name)));
+		assertThat(boxFile.size, is(equalTo(boxFileFromMetadata.size)));
+		assertThat(boxFile.mtime, is(equalTo(boxFileFromMetadata.mtime)));
+		assertThat(boxFile.key, is(equalTo(boxFileFromMetadata.key)));
+		assertThat(OWNER, is(equalTo(boxFileFromMetadata.owner)));
 	}
 
 	@Test

@@ -27,15 +27,16 @@ public interface BoxNavigation {
 	List<BoxFile> listFiles() throws QblStorageException;
 	List<BoxFolder> listFolders() throws QblStorageException;
 	List<BoxExternal> listExternals() throws QblStorageException;
+	List<BoxExternalFile> listExternalFiles() throws QblStorageException;
 
 	BoxFile upload(String name, InputStream content, @Nullable TransferManager.BoxTransferListener boxTransferListener) throws QblStorageException;
 	InputStream download(BoxFile file, @Nullable TransferManager.BoxTransferListener boxTransferListener) throws QblStorageException;
 
-	boolean createFileMetadata(BoxFile boxFile);
+	boolean createFileMetadata(String owner, BoxFile boxFile);
 	boolean removeFileMetadata(BoxFile boxFile);
 
-	void attachExternalFile(String metaURL, byte[] metaKey) throws QblStorageException;
-	void detachExternalFile(BoxFile boxFile) throws QblStorageException;
+	void attachExternalFile(String owner, String metaURL, byte[] metaKey) throws QblStorageException;
+	void detachExternalFile(BoxExternalFile boxExternalFile) throws QblStorageException;
 
 	void delete(BoxObject boxObject) throws QblStorageException;
 	void delete(BoxFile boxFile) throws QblStorageException;

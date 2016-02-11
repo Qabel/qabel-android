@@ -47,8 +47,9 @@ import static org.junit.Assert.assertThat;
 
 public class BoxTest extends AndroidTestCase {
     private static final Logger logger = LoggerFactory.getLogger(BoxTest.class.getName());
+	private static final String OWNER = "owner";
 
-    BoxVolume volume;
+	BoxVolume volume;
     BoxVolume volume2;
 	BoxVolume volumeOtherUser;
     byte[] deviceID;
@@ -161,23 +162,24 @@ public class BoxTest extends AndroidTestCase {
 		BoxFile boxFile = nav.upload("foobar", new FileInputStream(file), null);
 		nav.commit();
 
-		nav.createFileMetadata(boxFile);
+		nav.createFileMetadata(OWNER, boxFile);
 		nav.commit();
 
 		// Share meta and metakey to other user
 
 		BoxNavigation navOtherUser = volumeOtherUser.navigate();
-		navOtherUser.attachExternalFile(boxFile.meta, boxFile.metakey);
+		navOtherUser.attachExternalFile(OWNER, boxFile.meta, boxFile.metakey);
 		navOtherUser.commit();
 
-		List<BoxFile> boxFiles = navOtherUser.listFiles();
-		assertThat(boxFiles.size(), is(1));
-		BoxFile boxFileReceived = boxFiles.get(0);
-		assertThat(boxFileReceived.block, is(equalTo(boxFile.block)));
-		assertThat(boxFileReceived.name, is(equalTo(boxFile.name)));
-		assertThat(boxFileReceived.key, is(equalTo(boxFile.key)));
-		assertThat(boxFileReceived.mtime, is(equalTo(boxFile.mtime)));
-		assertThat(boxFileReceived.size, is(equalTo(boxFile.size)));
+		List<BoxExternalFile> boxExternalFiles = navOtherUser.listExternalFiles();
+		assertThat(boxExternalFiles.size(), is(1));
+		BoxExternalFile boxFileReceived = boxExternalFiles.get(0);
+		assertThat(boxFile.block, is(equalTo(boxFileReceived.block)));
+		assertThat(boxFile.name, is(equalTo(boxFileReceived.name)));
+		assertThat(boxFile.size, is(equalTo(boxFileReceived.size)));
+		assertThat(boxFile.mtime, is(equalTo(boxFileReceived.mtime)));
+		assertThat(boxFile.key, is(equalTo(boxFileReceived.key)));
+		assertThat(OWNER, is(equalTo(boxFileReceived.owner)));
 	}
 
 	@Test
@@ -187,23 +189,23 @@ public class BoxTest extends AndroidTestCase {
 		BoxFile boxFile = nav.upload("foobar", new FileInputStream(file), null);
 		nav.commit();
 
-		nav.createFileMetadata(boxFile);
+		nav.createFileMetadata(OWNER, boxFile);
 		nav.commit();
 
 		// Share meta and metakey to other user
 
 		BoxNavigation navOtherUser = volumeOtherUser.navigate();
-		navOtherUser.attachExternalFile(boxFile.meta, boxFile.metakey);
+		navOtherUser.attachExternalFile(OWNER, boxFile.meta, boxFile.metakey);
 		navOtherUser.commit();
 
-		List<BoxFile> boxFiles = navOtherUser.listFiles();
-		assertThat(boxFiles.size(), is(1));
+		List<BoxExternalFile> boxExternalFiles = navOtherUser.listExternalFiles();
+		assertThat(boxExternalFiles.size(), is(1));
 
-		navOtherUser.detachExternalFile(boxFiles.get(0));
+		navOtherUser.detachExternalFile(boxExternalFiles.get(0));
 		navOtherUser.commit();
 
-		boxFiles = navOtherUser.listFiles();
-		assertThat(boxFiles.size(), is(0));
+		boxExternalFiles = navOtherUser.listExternalFiles();
+		assertThat(boxExternalFiles.size(), is(0));
 	}
 
 	@Test

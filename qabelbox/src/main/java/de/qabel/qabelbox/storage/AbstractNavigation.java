@@ -271,6 +271,11 @@ public abstract class AbstractNavigation implements BoxNavigation {
 	}
 
 	@Override
+	public List<BoxExternalFile> listExternalFiles() throws QblStorageException {
+		return dm.listExternalFiles();
+	}
+
+	@Override
 	public BoxFile upload(String name, InputStream content,
 						  @Nullable TransferManager.BoxTransferListener boxTransferListener) throws QblStorageException {
 		KeyParameter key = cryptoUtils.generateSymmetricKey();
@@ -333,7 +338,7 @@ public abstract class AbstractNavigation implements BoxNavigation {
 	 * @return True if FileMetadata has successfully created and uploaded.
 	 */
 	@Override
-	public boolean createFileMetadata(BoxFile boxFile) {
+	public boolean createFileMetadata(String owner, BoxFile boxFile) {
 		if (boxFile.meta != null && boxFile.metakey != null) {
 			return false;
 		}
@@ -343,7 +348,7 @@ public abstract class AbstractNavigation implements BoxNavigation {
 		boxFile.metakey = key.getKey();
 
 		try {
-			FileMetadata fileMetadata = new FileMetadata(boxFile, dm.getTempDir());
+			FileMetadata fileMetadata = new FileMetadata(owner, boxFile, dm.getTempDir());
 			FileInputStream fileInputStream = new FileInputStream(fileMetadata.getPath());
 			uploadEncrypted(fileInputStream, key, prefix, BLOCKS_PREFIX + block, null);
 
@@ -383,13 +388,14 @@ public abstract class AbstractNavigation implements BoxNavigation {
 	}
 
 	/**
-	 * Attaches a received BoxFile to the file list.
+	 * Attaches a received BoxExternalFile to the DirectoryMetadata
+	 * @param owner Owner of the shared BoxFile
 	 * @param metaURL URL to download FileMetadata from
 	 * @param metaKey Key to decrypt FileMetadata with
 	 * @throws QblStorageException If FileMetadata cannot be accesses or decrypted.
 	 */
 	@Override
-	public void attachExternalFile(String metaURL, byte[] metaKey) throws QblStorageException {
+	public void attachExternalFile(String owner, String metaURL, byte[] metaKey) throws QblStorageException {
 		String[] splitURL = metaURL.split("/");
 		File encryptedMetadata = blockingDownload(splitURL[0], BLOCKS_PREFIX + splitURL[1], null);
 
@@ -404,19 +410,21 @@ public abstract class AbstractNavigation implements BoxNavigation {
 		}
 
 		FileMetadata fileMetadata = new FileMetadata(out);
-		dm.insertFile(fileMetadata.getFile());
+		BoxExternalFile boxExternalFile = fileMetadata.getFile();
+		boxExternalFile.owner = owner;
+		boxExternalFile.meta = metaURL;
+		boxExternalFile.metakey = metaKey;
+		dm.insertExternalFile(boxExternalFile);
 	}
 
 	/**
-	 * Deletes a BoxFile from the DirectoryMetadata. BEWARE: This method does not validate is provided BoxFile is
-	 * actually a received share. If this method is called with a regular BoxFile, the BoxFile will be deleted
-	 * from the DirectoryMetadata, but the actual file will not be removed from the storage.
-	 * @param boxFile Received shared BoxFile to delete from DirectoryMetadata.
+	 * Deletes a BoxExternalFile from the DirectoryMetadata.
+	 * @param boxExternalFile Received shared BoxFile to delete from DirectoryMetadata.
 	 * @throws QblStorageException
 	 */
 	@Override
-	public void detachExternalFile(BoxFile boxFile) throws QblStorageException {
-		dm.deleteFile(boxFile);
+	public void detachExternalFile(BoxExternalFile boxExternalFile) throws QblStorageException {
+		dm.deleteExternalFile(boxExternalFile);
 	}
 
 	private File refreshCache(BoxFile boxFile, @Nullable TransferManager.BoxTransferListener boxTransferListener) throws QblStorageNotFound {

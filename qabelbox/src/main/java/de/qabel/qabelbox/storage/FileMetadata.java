@@ -26,6 +26,7 @@ class FileMetadata {
 			"CREATE TABLE spec_version (" +
 					" version INTEGER PRIMARY KEY )",
 			"CREATE TABLE file (" +
+					" owner VARCHAR(255) NOT NULL," +
 					" block VARCHAR(255) NOT NULL," +
 					" name VARCHAR(255) NULL PRIMARY KEY," +
 					" size LONG NOT NULL," +
@@ -34,7 +35,7 @@ class FileMetadata {
 			"INSERT INTO spec_version (version) VALUES(0)"
 	};
 
-	public FileMetadata(BoxFile boxFile, File tempDir) throws QblStorageException {
+	public FileMetadata(String owner, BoxFile boxFile, File tempDir) throws QblStorageException {
 		try {
 			path = File.createTempFile("dir", "db", tempDir);
 		} catch (IOException e) {
@@ -54,7 +55,7 @@ class FileMetadata {
 		} catch (SQLException e) {
 			throw new RuntimeException("Cannot init the database", e);
 		}
-		insertFile(boxFile);
+		insertFile(owner, boxFile);
 	}
 
 	public FileMetadata(File path) throws QblStorageException {
@@ -70,14 +71,15 @@ class FileMetadata {
 		}
 	}
 
-	private void insertFile(BoxFile boxFile) throws QblStorageException {
+	private void insertFile(String owner, BoxFile boxFile) throws QblStorageException {
 		try (PreparedStatement statement = connection.prepareStatement(
-					"INSERT INTO file (block, name, size, mtime, key) VALUES(?, ?, ?, ?, ?)")) {
-			statement.setString(1, boxFile.block);
-			statement.setString(2, boxFile.name);
-			statement.setLong(3, boxFile.size);
-			statement.setLong(4, boxFile.mtime);
-			statement.setBytes(5, boxFile.key);
+					"INSERT INTO file (owner, block, name, size, mtime, key) VALUES(?, ?, ?, ?, ?, ?)")) {
+			statement.setString(1, owner);
+			statement.setString(2, boxFile.block);
+			statement.setString(3, boxFile.name);
+			statement.setLong(4, boxFile.size);
+			statement.setLong(5, boxFile.mtime);
+			statement.setBytes(6, boxFile.key);
 			if (statement.executeUpdate() != 1) {
 				throw new QblStorageException("Failed to insert file");
 			}
@@ -114,12 +116,12 @@ class FileMetadata {
 		}
 	}
 
-	BoxFile getFile() throws QblStorageException {
+	BoxExternalFile getFile() throws QblStorageException {
 		try (Statement statement = connection.createStatement()) {
-			ResultSet rs = statement.executeQuery("SELECT block, name, size, mtime, key FROM file LIMIT 1");
+			ResultSet rs = statement.executeQuery("SELECT owner, block, name, size, mtime, key FROM file LIMIT 1");
 			if (rs.next()) {
-				return new BoxFile(rs.getString(1),
-						rs.getString(2), rs.getLong(3), rs.getLong(4), rs.getBytes(5));
+				return new BoxExternalFile(rs.getString(1), rs.getString(2),
+						rs.getString(3), rs.getLong(4), rs.getLong(5), rs.getBytes(6));
 			}
 			return null;
 		} catch (SQLException e) {

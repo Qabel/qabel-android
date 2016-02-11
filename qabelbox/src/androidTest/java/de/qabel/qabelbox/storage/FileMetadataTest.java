@@ -14,13 +14,15 @@ import static org.junit.Assert.*;
 
 public class FileMetadataTest {
 
+	private static final String OWNER = "owner";
+
 	private BoxFile boxFile;
 	private FileMetadata fileMetadata;
 
 	@Before
 	public void setUp() throws Exception {
 		boxFile = new BoxFile("Block", "Name", 1000L, 1000L, new byte[]{0x00, 0x01, 0x02});
-		fileMetadata = new FileMetadata(boxFile, new File(System.getProperty("java.io.tmpdir")));
+		fileMetadata = new FileMetadata(OWNER, boxFile, new File(System.getProperty("java.io.tmpdir")));
 	}
 
 	@Test

@@ -37,6 +37,7 @@ import de.qabel.qabelbox.R;
  * The service is started when a client binds to the service and stopped when the last client
  * unbinds.
  */
+@SuppressWarnings("JavadocReference")
 public class QabelService extends Service {
 
     private static final int SERVICE_NOTIFICATION_ID = 1;
@@ -86,7 +87,8 @@ public class QabelService extends Service {
                                 DropMessage dropMessage = new DropMessage(sender, dropPayload, dropPayloadType);
                                 Log.i(LOG_TAG_QABEL_SERVICE, "Sending received DropMessage");
                                 try {
-                                    mService.sendDropMessage(dropMessage, recipient, new LocalQabelService.OnSendDropMessageResult() {
+                                    mService.sendDropMessage(dropMessage, recipient, sender,
+                                            new LocalQabelService.OnSendDropMessageResult() {
                                         @Override
                                         public void onSendDropResult(Map<DropURL, Boolean> deliveryStatus) {
                                             //TODO: Ignored for now

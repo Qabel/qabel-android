@@ -40,12 +40,12 @@ public class ContactExportImportTest {
 		identity.setPhone("+491111111");
 
 		QblECKeyPair contact1KeyPair = new QblECKeyPair();
-		contact1 = new Contact(identity,  "Contact1", dropURLs, contact1KeyPair.getPub());
+		contact1 = new Contact("Contact1", dropURLs, contact1KeyPair.getPub());
 
 		QblECKeyPair contact2KeyPair = new QblECKeyPair();
-		contact2 = new Contact(identity, "Contact2", dropURLs, contact2KeyPair.getPub());
+		contact2 = new Contact("Contact2", dropURLs, contact2KeyPair.getPub());
 
-		contacts = new Contacts();
+		contacts = new Contacts(identity);
 		contacts.put(contact1);
 		contacts.put(contact2);
 	}

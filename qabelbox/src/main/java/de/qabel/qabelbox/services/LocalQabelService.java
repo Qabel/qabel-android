@@ -117,12 +117,7 @@ public class LocalQabelService extends Service {
      * @return List of all contacts
      */
     public Contacts getContacts() {
-        List<Contact> entities = persistence.getEntities(Contact.class);
-        Contacts contacts = new Contacts();
-        for (Contact c : entities) {
-            contacts.put(c);
-        }
-        return contacts;
+        return getContacts(getActiveIdentity());
     }
 
     /**
@@ -132,26 +127,30 @@ public class LocalQabelService extends Service {
      * @return List of contacts owned by the identity
      */
     public Contacts getContacts(Identity identity) {
-        List<Contact> entities = persistence.getEntities(Contact.class);
-        Contacts contacts = new Contacts();
-        for (Contact c : entities) {
-            if (c.getContactOwner().equals(identity)) {
-                contacts.put(c);
+        List<Contacts> entities = persistence.getEntities(Contacts.class);
+        for (Contacts contacts: entities) {
+            if (contacts.getIdentity().equals(identity)) {
+                return contacts;
             }
         }
+        Contacts contacts = new Contacts(identity);
+        persistence.updateOrPersistEntity(contacts);
         return contacts;
     }
 
     public void addContact(Contact contact) {
-        persistence.persistEntity(contact);
+        persistence.updateEntity(getContacts().put(contact));
     }
 
     public void deleteContact(Contact contact) {
-        persistence.removeEntity(contact.getPersistenceID(), Contact.class);
+        persistence.updateEntity(getContacts().remove(contact));
     }
 
     public void modifyContact(Contact contact) {
-        persistence.updateEntity(contact);
+        Contacts contacts = getContacts();
+        contacts.remove(contact);
+        contacts.put(contact);
+        persistence.updateEntity(contacts);
     }
 
     /**
@@ -160,20 +159,11 @@ public class LocalQabelService extends Service {
      * @return Map of each identity to its contacts
      */
     public Map<Identity, Contacts> getAllContacts() {
-        Map<Identity, Contacts> contacts = new HashMap<>();
-        List<Contact> entities = persistence.getEntities(Contact.class);
-        for (Contact c : entities) {
-            Identity owner = c.getContactOwner();
-            Contacts map;
-            if (contacts.containsKey(owner)) {
-                map = contacts.get(owner);
-            } else {
-                map = new Contacts();
-                contacts.put(owner, map);
-            }
-            map.put(c);
+        Map<Identity, Contacts> contactMap = new HashMap<>();
+        for (Contacts contacts: persistence.getEntities(Contacts.class)) {
+            contactMap.put(contacts.getIdentity(), contacts);
         }
-        return contacts;
+        return contactMap;
     }
 
     public interface OnSendDropMessageResult {
@@ -190,10 +180,12 @@ public class LocalQabelService extends Service {
      * @throws QblDropPayloadSizeException
      */
     public void sendDropMessage(final DropMessage dropMessage, final Contact recipient,
-                                @Nullable final OnSendDropMessageResult dropResultCallback) throws QblDropPayloadSizeException {
+                                final Identity identity,
+                                @Nullable final OnSendDropMessageResult dropResultCallback)
+            throws QblDropPayloadSizeException {
         new Thread(new Runnable() {
             final BinaryDropMessageV0 binaryMessage = new BinaryDropMessageV0(dropMessage);
-            final byte[] messageByteArray = binaryMessage.assembleMessageFor(recipient);
+            final byte[] messageByteArray = binaryMessage.assembleMessageFor(recipient, identity);
             HashMap<DropURL, Boolean> deliveryStatus = new HashMap<>();
 
             @Override

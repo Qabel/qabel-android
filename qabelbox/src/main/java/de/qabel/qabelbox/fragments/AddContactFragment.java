@@ -1,8 +1,6 @@
 package de.qabel.qabelbox.fragments;
 
-import android.app.Activity;
 import android.app.Fragment;
-import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -14,14 +12,8 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 
-import com.google.zxing.integration.android.IntentIntegrator;
-import com.google.zxing.integration.android.IntentResult;
-
-import org.json.JSONException;
-import org.spongycastle.util.encoders.DecoderException;
 import org.spongycastle.util.encoders.Hex;
 
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -29,15 +21,11 @@ import de.qabel.core.config.Contact;
 import de.qabel.core.config.Identity;
 import de.qabel.core.crypto.QblECPublicKey;
 import de.qabel.core.drop.DropURL;
-import de.qabel.core.exceptions.QblDropInvalidURL;
 import de.qabel.qabelbox.R;
-import de.qabel.qabelbox.helper.UIHelper;
-import de.qabel.qabelbox.config.ContactExportImport;
 import de.qabel.qabelbox.helper.UIHelper;
 
 /**
  * Activities that contain this fragment must implement the
- * {@link ContactFragment.ContactListListener} interface
  * to handle interaction events.
  */
 public class AddContactFragment extends BaseFragment {
@@ -51,7 +39,6 @@ public class AddContactFragment extends BaseFragment {
     private EditText editTextPublicKey;
     private Button buttonAdd;
 
-    private ContactFragment.ContactListListener mListener;
     private View mView;
 
     public static AddContactFragment newInstance(Identity identity) {
@@ -130,25 +117,6 @@ public class AddContactFragment extends BaseFragment {
     }
 
     @Override
-    public void onAttach(Activity activity) {
-
-        super.onAttach(activity);
-        try {
-            mListener = (ContactFragment.ContactListListener) activity;
-        } catch (ClassCastException e) {
-            throw new ClassCastException(activity.toString()
-                    + " must implement AddContactListener");
-        }
-    }
-
-    @Override
-    public void onDetach() {
-
-        super.onDetach();
-        mListener = null;
-    }
-
-   @Override
     public boolean isFabNeeded() {
 
         return false;

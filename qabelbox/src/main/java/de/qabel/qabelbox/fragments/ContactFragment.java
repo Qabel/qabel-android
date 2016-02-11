@@ -1,8 +1,11 @@
 package de.qabel.qabelbox.fragments;
 
 import android.app.Activity;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.ParcelFileDescriptor;
@@ -10,12 +13,8 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import com.cocosw.bottomsheet.BottomSheet;
 import com.google.zxing.integration.android.IntentIntegrator;
@@ -26,7 +25,6 @@ import org.spongycastle.util.encoders.Hex;
 import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Date;
 import java.util.Iterator;
 
 import de.qabel.core.config.Contact;
@@ -40,6 +38,7 @@ import de.qabel.qabelbox.activities.MainActivity;
 import de.qabel.qabelbox.adapter.ContactsAdapter;
 import de.qabel.qabelbox.config.ContactExportImport;
 import de.qabel.qabelbox.helper.FileHelper;
+import de.qabel.qabelbox.helper.Helper;
 import de.qabel.qabelbox.helper.UIHelper;
 import de.qabel.qabelbox.services.LocalQabelService;
 
@@ -51,7 +50,7 @@ public class ContactFragment extends BaseFragment {
     private static final String ARG_CONTACTS = "ARG_CONTACTS";
     private static final String ARG_IDENTITY = "ARG_IDENTITY";
     private static final int REQUEST_IMPORT_CONTACT = 1000;
-    private final String TAG = this.getClass().getSimpleName();
+    private static final String TAG = "ContactFragment";
 
     private RecyclerView contactListRecyclerView;
     private ContactsAdapter contactListAdapter;
@@ -59,8 +58,7 @@ public class ContactFragment extends BaseFragment {
 
     private Contacts contacts;
     private Identity identity;
-    private ContactListListener mListener;
-    BaseFragment self;
+    private BaseFragment self;
 
     public static ContactFragment newInstance(Contacts contacts, Identity identity) {
 
@@ -78,6 +76,7 @@ public class ContactFragment extends BaseFragment {
 
         super.onCreate(savedInstanceState);
         self = this;
+        mActivity.registerReceiver(refreshContactListReceiver, new IntentFilter(Helper.INTENT_REFRESH_CONTACTLIST));
         Bundle arguments = getArguments();
         if (arguments != null) {
             contacts = (Contacts) arguments.getSerializable(ARG_CONTACTS);
@@ -100,35 +99,34 @@ public class ContactFragment extends BaseFragment {
         contactListAdapter = new ContactsAdapter(contacts);
         contactListRecyclerView.setAdapter(contactListAdapter);
 
-        contactListAdapter.setOnItemClickListener(new ContactsAdapter.OnItemClickListener() {
-            @Override
-            public void onItemClick(View view, int position) {
-
-                Toast.makeText(getActivity().getApplicationContext(), "Selected " + position, Toast.LENGTH_LONG).show();
-            }
-        });
+        setClickListener();
         contactListAdapter.setEmptyView(view.findViewById(R.id.empty_view));
 
         return view;
     }
 
-    @Override
-    public void onAttach(Activity activity) {
+    private void setClickListener() {
 
-        super.onAttach(activity);
-        try {
-            mListener = (ContactListListener) activity;
-        } catch (ClassCastException e) {
-            throw new ClassCastException(activity.toString()
-                    + " must implement ContactListListener");
-        }
-    }
+        contactListAdapter.setOnItemClickListener(new ContactsAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(View view, final int position) {
 
-    @Override
-    public void onDetach() {
+                final Contact contact = contactListAdapter.getContact(position);
+                UIHelper.showDialogMessage(getActivity(), getString(R.string.dialog_headline_warning),
+                        getString(R.string.dialog_message_delete_contact_question).replace("%1", contact.getAlias()),
+                        R.string.yes, R.string.no, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
 
-        super.onDetach();
-        mListener = null;
+                                LocalQabelService service = QabelBoxApplication.getInstance().getService();
+                                service.deleteContact(contact);
+
+                                refreshContactList();
+                                UIHelper.showDialogMessage(mActivity, R.string.dialog_headline_info, getString(R.string.contact_deleted).replace("%1", contact.getAlias()));
+                            }
+                        }, null);
+            }
+        });
     }
 
     /**
@@ -155,16 +153,36 @@ public class ContactFragment extends BaseFragment {
         } else {
             service.addContact(
                     contact);
-            activity.contactAdded(contact);
+
+            sendRefreshContactList(activity);
             UIHelper.showDialogMessage(activity, R.string.dialog_headline_info, R.string.contact_import_successfull);
         }
     }
 
-    public interface ContactListListener {
+    private static void sendRefreshContactList(MainActivity activity) {
 
-        void contactAdded(Contact contact);
+        Log.d(TAG, "send refresh intent");
+        Intent intent = new Intent(Helper.INTENT_REFRESH_CONTACTLIST);
+        activity.sendBroadcast(intent);
+    }
 
-        void contactDeleted(Contact contact);
+    @Override
+    public void onDestroy() {
+
+        Log.v(TAG, "unregisterReceiver");
+        mActivity.unregisterReceiver(refreshContactListReceiver);
+        super.onDestroy();
+    }
+
+    private void refreshContactList() {
+
+        if (contactListRecyclerView != null && contactListRecyclerView.isAttachedToWindow()) {
+            contacts = QabelBoxApplication.getInstance().getService().getContacts();
+            contactListAdapter = new ContactsAdapter(contacts);
+            contactListRecyclerView.setAdapter(contactListAdapter);
+            contactListAdapter.notifyDataSetChanged();
+            setClickListener();
+        }
     }
 
     @Override
@@ -257,9 +275,20 @@ public class ContactFragment extends BaseFragment {
     }
 
     private void selectAddContactFragment(Identity identity) {
+
         getFragmentManager().beginTransaction()
                 .replace(R.id.fragment_container, AddContactFragment.newInstance(identity), null)
                 .addToBackStack(null)
                 .commit();
     }
+
+    private final BroadcastReceiver refreshContactListReceiver = new BroadcastReceiver() {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+
+            Log.v(TAG, "receive refresh contactlist event");
+            refreshContactList();
+        }
+    };
 }

@@ -1,6 +1,5 @@
 package de.qabel.qabelbox.activities;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Fragment;
 import android.app.FragmentManager;
@@ -23,7 +22,6 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
@@ -52,7 +50,6 @@ import de.qabel.core.config.Identity;
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.adapter.FilesAdapter;
-import de.qabel.qabelbox.config.ContactExportImport;
 import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.fragments.BaseFragment;
 import de.qabel.qabelbox.fragments.ContactFragment;
@@ -74,7 +71,6 @@ import de.qabel.qabelbox.storage.BoxVolume;
 public class MainActivity extends CrashReportingActivity
         implements NavigationView.OnNavigationItemSelectedListener,
         SelectUploadFolderFragment.OnSelectedUploadFolderListener,
-        ContactFragment.ContactListListener,
         FilesFragment.FilesListListener,
         IdentitiesFragment.IdentityListListener {
 
@@ -95,7 +91,7 @@ public class MainActivity extends CrashReportingActivity
     public static final int REQUEST_EXTERN_SHARE_APP = 20;
 
     public static final int REQUEST_EXPORT_IDENTITY_AS_CONTACT = 19;
-    
+
     private static final String FALLBACK_MIMETYPE = "application/octet-stream";
     private static final int NAV_GROUP_IDENTITIES = 1;
     private static final int NAV_GROUP_IDENTITY_ACTIONS = 2;
@@ -787,7 +783,6 @@ public class MainActivity extends CrashReportingActivity
         selectFilesFragment();
     }
 
-
     @Override
     public void onScrolledToBottom(boolean scrolledToBottom) {
 
@@ -993,6 +988,7 @@ public class MainActivity extends CrashReportingActivity
             }
         });
     }
+
     public static void showQRCode(MainActivity activity, Identity identity) {
 
         activity.getFragmentManager().beginTransaction()
@@ -1063,23 +1059,5 @@ public class MainActivity extends CrashReportingActivity
         filesFragment.updateSubtitle();
     }
 
-    @Override
-    public void contactAdded(Contact contact) {
-        for (Contact c : mService.getContacts().getContacts()) {
-            if (c.getKeyIdentifier().equals(contact.getKeyIdentifier())) {
-                Snackbar.make(appBarMain, "Contact already existing: " + contact.getAlias(), Snackbar.LENGTH_LONG)
-                        .show();
-                return;
-            }
-        }
 
-        Snackbar.make(appBarMain, "Added contact: " + contact.getAlias(), Snackbar.LENGTH_LONG)
-                .show();
-        //@todo need refresh contact list.would be fixed in redeisgn contact list
-    }
-
-    @Override
-    public void contactDeleted(Contact contact) {
-        //@todo need refresh contact list.would be fixed in redeisgn contact list
-    }
 }

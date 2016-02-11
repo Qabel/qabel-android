@@ -31,6 +31,11 @@ public class ContactsAdapter extends RecyclerView.Adapter<ContactsAdapter.Contac
         registerAdapterDataObserver(observer);
     }
 
+    public Contact getContact(int position) {
+
+        return mContacts.get(position);
+    }
+
     class ContactViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         public final TextView mTextViewContactName;
@@ -82,8 +87,7 @@ public class ContactsAdapter extends RecyclerView.Adapter<ContactsAdapter.Contac
     public void onBindViewHolder(ContactViewHolder holder, int position) {
 
         holder.mTextViewContactName.setText(mContacts.get(position).getAlias());
-        holder.mTextViewContactDetails.setText(mContacts.get(position).getEmail());
-
+        holder.mTextViewContactDetails.setText(mContacts.get(position).getEcPublicKey().getReadableKeyIdentifier());
     }
 
     @Override

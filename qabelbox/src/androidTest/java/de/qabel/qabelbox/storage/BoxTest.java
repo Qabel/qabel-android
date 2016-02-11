@@ -183,6 +183,26 @@ public class BoxTest extends AndroidTestCase {
 	}
 
 	@Test
+	public void testFileIsShared() throws QblStorageException, IOException {
+		BoxNavigation nav = volume.navigate();
+		File file = new File(testFileName);
+		BoxFile boxFile = nav.upload("foobar", new FileInputStream(file), null);
+		nav.commit();
+
+		assertThat(boxFile.isShared(), is(false));
+
+		nav.createFileMetadata(OWNER, boxFile);
+		nav.commit();
+
+		assertThat(boxFile.isShared(), is(true));
+
+		nav.removeFileMetadata(boxFile);
+		nav.commit();
+
+		assertThat(boxFile.isShared(), is(false));
+	}
+
+	@Test
 	public void testDetachFileMetadataShareFile() throws QblStorageException, IOException {
 		BoxNavigation nav = volume.navigate();
 		File file = new File(testFileName);

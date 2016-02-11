@@ -139,15 +139,38 @@ public class LocalQabelService extends Service {
     }
 
     public void addContact(Contact contact) {
-        persistence.updateEntity(getContacts().put(contact));
+        Contacts contacts = getContacts();
+        contacts.put(contact);
+        persistence.updateEntity(contacts);
+    }
+
+    public void addContact(Contact contact, Identity identity) {
+        Contacts contacts = getContacts(identity);
+        contacts.put(contact);
+        persistence.updateEntity(contacts);
     }
 
     public void deleteContact(Contact contact) {
-        persistence.updateEntity(getContacts().remove(contact));
+        Contacts contacts = getContacts();
+        contacts.remove(contact);
+        persistence.updateEntity(contacts);
+    }
+
+    public void deleteContact(Contact contact, Identity identity) {
+        Contacts contacts = getContacts(identity);
+        contacts.remove(contact);
+        persistence.updateEntity(contacts);
     }
 
     public void modifyContact(Contact contact) {
         Contacts contacts = getContacts();
+        contacts.remove(contact);
+        contacts.put(contact);
+        persistence.updateEntity(contacts);
+    }
+
+    public void modifyContact(Contact contact, Identity identity) {
+        Contacts contacts = getContacts(identity);
         contacts.remove(contact);
         contacts.put(contact);
         persistence.updateEntity(contacts);

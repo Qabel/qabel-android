@@ -92,7 +92,7 @@ public class LocalQabelServiceTest extends ServiceTestCase<LocalQabelServiceTest
 		Identity secondIdentity = new Identity("bar", null, new QblECKeyPair());
 		mService.addIdentity(identity);
 		Contact secondContact = new Contact("blub", null, new QblECKeyPair().getPub());
-		mService.addContact(secondContact);
+		mService.addContact(secondContact, secondIdentity);
 		Map<Identity, Contacts> contacts = mService.getAllContacts();
 		assertEquals(2, contacts.size());
 		assertTrue(contacts.containsKey(identity));

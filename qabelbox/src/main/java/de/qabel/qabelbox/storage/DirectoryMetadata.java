@@ -65,6 +65,13 @@ class DirectoryMetadata {
 					" name VARCHAR(255)NOT NULL PRIMARY KEY," +
 					" key BLOB NOT NULL," +
 					" url TEXT NOT NULL )",
+			"CREATE TABLE externalFiles (" +
+					" owner BLOB NOT NULL," +
+					" block VARCHAR(255) NOT NULL," +
+					" name VARCHAR(255) NULL PRIMARY KEY," +
+					" size LONG NOT NULL," +
+					" mtime LONG NOT NULL," +
+					" key BLOB NOT NULL) ",
 			"INSERT INTO spec_version (version) VALUES(0)"
 	};
 	private final File tempDir;
@@ -410,6 +417,57 @@ class DirectoryMetadata {
 		}
 	}
 
+	List<BoxExternalFile> listExternalFiles() throws QblStorageException {
+		try (Statement statement = connection.createStatement()){
+			ResultSet rs = statement.executeQuery(
+					"SELECT owner, block, name, size, mtime, key FROM externalFiles");
+			List<BoxExternalFile> files = new ArrayList<>();
+			while (rs.next()) {
+				files.add(new BoxExternalFile(rs.getString(1),
+						rs.getString(2), rs.getString(3), rs.getLong(4), rs.getLong(5), rs.getBytes(6)));
+			}
+			return files;
+		} catch (SQLException e) {
+			throw new QblStorageException(e);
+		}
+	}
+
+	void insertExternalFile(BoxExternalFile file) throws QblStorageException {
+		int type = isA(file.name);
+		if ((type != TYPE_NONE) && (type != TYPE_FILE)) {
+			throw new QblStorageNameConflict(file.name);
+		}
+		try (PreparedStatement st = connection.prepareStatement(
+				"INSERT INTO externalFiles (owner, block, name, size, mtime, key) VALUES(?, ?, ?, ?, ?, ?)")){
+			st.setString(1, file.owner);
+			st.setString(2, file.block);
+			st.setString(3, file.name);
+			st.setLong(4, file.size);
+			st.setLong(5, file.mtime);
+			st.setBytes(6, file.key);
+			if (st.executeUpdate() != 1) {
+				throw new QblStorageException("Failed to insert file");
+			}
+
+		} catch (SQLException e) {
+			logger.error("Could not insert file " + file.name);
+			throw new QblStorageException(e);
+		}
+	}
+
+	void deleteExternalFile(BoxExternalFile file) throws QblStorageException {
+		try (PreparedStatement st = connection.prepareStatement(
+				"DELETE FROM externalFiles WHERE name=?")){
+			st.setString(1, file.name);
+			if (st.executeUpdate() != 1) {
+				throw new QblStorageException("Failed to delete file: Not found");
+			}
+
+		} catch (SQLException e) {
+			throw new QblStorageException(e);
+		}
+	}
+
 	void insertFolder(BoxFolder folder) throws QblStorageException {
 		int type = isA(folder.name);
 		if ((type != TYPE_NONE) && (type != TYPE_FOLDER)) {
@@ -575,8 +633,8 @@ class DirectoryMetadata {
 	}
 
 	int isA(String name) throws QblStorageException {
-		String[] types = {"files", "folders", "externals"};
-		for (int type = 0; type < 3; type++) {
+		String[] types = {"files", "folders", "externals", "externalFiles"};
+		for (int type = 0; type < 4; type++) {
 			PreparedStatement statement = null;
 			try {
 				statement = connection.prepareStatement(

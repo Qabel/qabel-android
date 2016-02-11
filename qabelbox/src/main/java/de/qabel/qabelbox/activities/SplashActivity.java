@@ -5,20 +5,10 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
-import android.util.Log;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.IOException;
 
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
-import de.qabel.qabelbox.communication.PrefixServer;
 import de.qabel.qabelbox.config.AppPreference;
-import okhttp3.Call;
-import okhttp3.Callback;
-import okhttp3.Response;
 
 /**
  * Created by danny on 11.01.2016.
@@ -39,43 +29,6 @@ public class SplashActivity extends CrashReportingActivity {
         overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
         setContentView(R.layout.activity_splashscreen);
         setupAppPreferences();
-        testGetPrefix();
-    }
-
-    private void testGetPrefix() {
-
-        new PrefixServer().getPrefix(this, new Callback() {
-            @Override
-            public void onFailure(Call call, IOException e) {
-
-                Log.d(TAG, "danny failed: ", e);
-            }
-
-            @Override
-            public void onResponse(Call call, Response response) throws IOException {
-
-                int code = response.code();
-
-                Log.d(TAG, "danny: " + response.toString() + " " + response.code() + " " + call.request().toString() + " " + call.request().headers().toString());
-                boolean error=true;
-                if (code == 201) {
-                    String text = response.body().toString();
-                    try {
-                        PrefixServer.ServerResponse result = PrefixServer.parseJson(new JSONObject(text));
-                        Log.d(TAG, "prefix: " + result.prefix);
-                        error=false;
-                    } catch (JSONException e) {
-                        Log.w(TAG, "error on parse service response", e);
-                    }
-                }
-                if (code == 401) {
-                    //{"detail":"Invalid token."}
-                    //unauthorized
-                } else {
-
-                }
-            }
-        });
     }
 
     private void setupAppPreferences() {

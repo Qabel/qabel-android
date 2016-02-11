@@ -195,4 +195,5 @@
     <string name="settings_key_internal_feedback">key_internalfeedback</string>
     <string name="debug_send_feedback">Send feedback</string>
     <string name="debug_send_feedback_to_pm">Send feedback to PM. Tell him if the app is working and other suggestions</string>
+    <string name="create_idenity_cant_get_prefix">Servercommunication failed. Please check your internet connection</string>
 </resources>

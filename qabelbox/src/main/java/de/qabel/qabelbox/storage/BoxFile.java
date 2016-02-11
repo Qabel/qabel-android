@@ -60,4 +60,16 @@ public class BoxFile extends BoxObject {
 	protected BoxFile clone() throws CloneNotSupportedException {
 		return new BoxFile(block,name,size,mtime, key, meta,metakey);
 	}
+
+	/**
+	 * Get if BoxFile is shared. Tests only if meta and metakey is not null, not if a share has been
+	 * successfully send to another user.
+	 * @return True if BoxFile might be shared.
+	 */
+	public boolean isShared() {
+		if (meta != null && metakey != null) {
+			return true;
+		}
+		return false;
+	}
 }

@@ -35,6 +35,7 @@ import java.util.List;
 import de.qabel.core.crypto.CryptoUtils;
 import de.qabel.core.crypto.QblECKeyPair;
 import de.qabel.qabelbox.activities.MainActivity;
+import de.qabel.qabelbox.communication.VolumeFileTransferHelper;
 import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.storage.BoxFolder;
 import de.qabel.qabelbox.storage.BoxNavigation;
@@ -134,7 +135,7 @@ public class BoxProviderTest extends InstrumentationTestCase {
         assertThat(cursor.getCount(), is(1));
         cursor.moveToFirst();
         String documentId = cursor.getString(6);
-        assertThat(documentId, is(BoxProviderTester.PUB_KEY + MainActivity.HARDCODED_ROOT));
+        assertThat(documentId, is(BoxProviderTester.PUB_KEY + VolumeFileTransferHelper.HARDCODED_ROOT));
 
     }
 

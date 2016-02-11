@@ -15,6 +15,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import com.cocosw.bottomsheet.BottomSheet;
 import com.google.zxing.integration.android.IntentIntegrator;
@@ -59,6 +60,8 @@ public class ContactFragment extends BaseFragment {
     private Contacts contacts;
     private Identity identity;
     private BaseFragment self;
+    private TextView contactCount;
+    private View emptyView;
 
     public static ContactFragment newInstance(Contacts contacts, Identity identity) {
 
@@ -76,6 +79,7 @@ public class ContactFragment extends BaseFragment {
 
         super.onCreate(savedInstanceState);
         self = this;
+        setHasOptionsMenu(true);
         mActivity.registerReceiver(refreshContactListReceiver, new IntentFilter(Helper.INTENT_REFRESH_CONTACTLIST));
         Bundle arguments = getArguments();
         if (arguments != null) {
@@ -89,18 +93,13 @@ public class ContactFragment extends BaseFragment {
                              Bundle savedInstanceState) {
 
         View view = inflater.inflate(R.layout.fragment_contacts, container, false);
-
+        contactCount = (TextView) view.findViewById(R.id.contactCount);
         contactListRecyclerView = (RecyclerView) view.findViewById(R.id.contact_list);
         contactListRecyclerView.setHasFixedSize(true);
-
+        emptyView = view.findViewById(R.id.empty_view);
         recyclerViewLayoutManager = new LinearLayoutManager(view.getContext());
         contactListRecyclerView.setLayoutManager(recyclerViewLayoutManager);
-
-        contactListAdapter = new ContactsAdapter(contacts);
-        contactListRecyclerView.setAdapter(contactListAdapter);
-
-        setClickListener();
-        contactListAdapter.setEmptyView(view.findViewById(R.id.empty_view));
+        refreshContactList(contacts);
 
         return view;
     }
@@ -120,8 +119,7 @@ public class ContactFragment extends BaseFragment {
 
                                 LocalQabelService service = QabelBoxApplication.getInstance().getService();
                                 service.deleteContact(contact);
-
-                                refreshContactList();
+                                refreshContactList(service.getContacts(service.getActiveIdentity()));
                                 UIHelper.showDialogMessage(mActivity, R.string.dialog_headline_info, getString(R.string.contact_deleted).replace("%1", contact.getAlias()));
                             }
                         }, null);
@@ -134,7 +132,6 @@ public class ContactFragment extends BaseFragment {
      *
      * @param activity
      * @param contact
-     * @return
      */
     public static void addContact(MainActivity activity, Contact contact) {
 
@@ -174,14 +171,21 @@ public class ContactFragment extends BaseFragment {
         super.onDestroy();
     }
 
-    private void refreshContactList() {
+    private void refreshContactList(Contacts contacts) {
 
-        if (contactListRecyclerView != null && contactListRecyclerView.isAttachedToWindow()) {
-            contacts = QabelBoxApplication.getInstance().getService().getContacts();
+        if (contactListRecyclerView != null) {
+            int count = contacts.getContacts().size();
+            if (count == 0) {
+                contactCount.setVisibility(View.INVISIBLE);
+            } else {
+                contactCount.setText(getString(R.string.contact_count).replace("%1", "" + count));
+                contactCount.setVisibility(View.VISIBLE);
+            }
             contactListAdapter = new ContactsAdapter(contacts);
+            contactListAdapter.setEmptyView(emptyView);
             contactListRecyclerView.setAdapter(contactListAdapter);
-            contactListAdapter.notifyDataSetChanged();
             setClickListener();
+            contactListAdapter.notifyDataSetChanged();
         }
     }
 
@@ -288,7 +292,8 @@ public class ContactFragment extends BaseFragment {
         public void onReceive(Context context, Intent intent) {
 
             Log.v(TAG, "receive refresh contactlist event");
-            refreshContactList();
+            LocalQabelService service = QabelBoxApplication.getInstance().getService();
+            refreshContactList(service.getContacts(service.getActiveIdentity()));
         }
     };
 }

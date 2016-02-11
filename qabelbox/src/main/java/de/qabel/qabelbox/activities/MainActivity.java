@@ -45,7 +45,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import de.qabel.core.config.Contact;
 import de.qabel.core.config.Identity;
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
@@ -643,8 +642,9 @@ public class MainActivity extends CrashReportingActivity
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
+        if (id == R.id.action_infos) {
+            String text = getString(R.string.dummy_infos_text);
+            UIHelper.showDialogMessage(self, R.string.dialog_headline_info, text);
             return true;
         }
 
@@ -1058,6 +1058,4 @@ public class MainActivity extends CrashReportingActivity
                 .commit();
         filesFragment.updateSubtitle();
     }
-
-
 }

@@ -4,9 +4,9 @@
     tools:context=".MainActivity">
 
     <item
-        android:id="@+id/action_settings"
+        android:id="@+id/action_infos"
         android:orderInCategory="100"
-        android:title="@string/action_settings"
+        android:title="@string/infos"
         app:showAsAction="never" />
 
 

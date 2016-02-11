@@ -197,4 +197,7 @@
     <string name="debug_send_feedback_to_pm">Send feedback to PM. Tell him if the app is working and other suggestions</string>
     <string name="dialog_message_delete_contact_question">Do you really delete the contact %1?</string>
     <string name="contact_deleted">Contact with name %1 deleted</string>
+    <string name="infos">Infos</string>
+    <string name="dummy_infos_text">This is the alpha version of QabelBox</string>
+    <string name="contact_count">Contact count: %1</string>
 </resources>

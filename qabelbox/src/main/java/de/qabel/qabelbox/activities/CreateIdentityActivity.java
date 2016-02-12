@@ -57,7 +57,7 @@ public class CreateIdentityActivity extends BaseWizardActivity {
         if (QabelBoxApplication.getInstance().getService().getIdentities().getIdentities().size() > 0) {
             canExit = true;
         }
-        loadPrefixInBackground();
+
     }
 
     @Override
@@ -70,6 +70,15 @@ public class CreateIdentityActivity extends BaseWizardActivity {
     protected int getActionBarTitle() {
 
         return R.string.headline_add_identity;
+    }
+
+    @Override
+    public void handleNextClick() {
+
+        super.handleNextClick();
+        if(step>0&&tryCount!=3&&prefix==null) {
+            loadPrefixInBackground();
+        }
     }
 
     /**
@@ -207,13 +216,20 @@ public class CreateIdentityActivity extends BaseWizardActivity {
                     Log.d(TAG, "Server response code: " + response.code());
 
                     if (code == 201) {
-                        String text = response.body().toString();
+                        String text = response.body().string();
                         try {
                             PrefixServer.ServerResponse result = PrefixServer.parseJson(new JSONObject(text));
                             Log.d(TAG, "prefix: " + result.prefix);
                             prefix = result.prefix;
                             return;
                         } catch (JSONException e) {
+                            System.out.println(text);
+                            if(text!=null&&text.startsWith("\"")&&text.charAt(text.length()-1)=='"')
+                            {
+                                prefix=text.substring(1,text.length()-1);
+                                Log.w(TAG, "prefix temp until server fix: "+prefix+" "+text);
+                                return;
+                            }
                             Log.w(TAG, "error on parse service response", e);
                         }
                     }

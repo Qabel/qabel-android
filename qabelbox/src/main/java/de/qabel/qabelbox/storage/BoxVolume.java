@@ -55,7 +55,7 @@ public class BoxVolume {
 		AmazonS3Client awsClient = new AmazonS3Client(credentials);
 		this.rootId = new DocumentIdParser().buildId(
 				keyPair.getPub().getReadableKeyIdentifier(), bucket, prefix, null);
-		transferManager = new TransferManager(transferUtility, awsClient, bucket, prefix, tempDir);
+		transferManager = new TransferManager(transferUtility, awsClient, bucket, tempDir);
 		this.prefix = prefix;
 		this.bucket = bucket;
 	}
@@ -70,7 +70,7 @@ public class BoxVolume {
 
 	private InputStream blockingDownload(String name) throws QblStorageNotFound {
 		File tmp = transferManager.createTempFile();
-		int id = transferManager.download(name, tmp, null);
+		int id = transferManager.download(prefix, name, tmp, null);
 		if (transferManager.waitFor(id)) {
 			try {
 				return new FileInputStream(tmp);
@@ -90,7 +90,7 @@ public class BoxVolume {
 		} catch (IOException e) {
 			throw new QblStorageException(e);
 		}
-		int id = transferManager.upload(name, tmp, null);
+		int id = transferManager.upload(prefix, name, tmp, null);
 		if (!transferManager.waitFor(id)) {
 			throw new QblStorageException("Upload failed");
 		}
@@ -98,7 +98,7 @@ public class BoxVolume {
 
 
 	public BoxNavigation navigate() throws QblStorageException {
-		return new FolderNavigation(getDirectoryMetadata(), keyPair, null, deviceId, transferManager,
+		return new FolderNavigation(prefix, getDirectoryMetadata(), keyPair, null, deviceId, transferManager,
 				this, PATH_ROOT, null, context);
 	}
 

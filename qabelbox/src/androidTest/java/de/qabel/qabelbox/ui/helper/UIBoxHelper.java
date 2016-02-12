@@ -30,6 +30,7 @@ import de.qabel.core.drop.DropIdGenerator;
 import de.qabel.core.drop.DropURL;
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.activities.MainActivity;
+import de.qabel.qabelbox.communication.VolumeFileTransferHelper;
 import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.providers.BoxProvider;
 import de.qabel.qabelbox.services.LocalQabelService;
@@ -94,7 +95,7 @@ public class UIBoxHelper {
         String keyIdentifier = identity.getEcPublicKey()
                 .getReadableKeyIdentifier();
         Uri uploadUri = DocumentsContract.buildDocumentUri(
-                BoxProvider.AUTHORITY, keyIdentifier + MainActivity.HARDCODED_ROOT + targetFolder + name);
+                BoxProvider.AUTHORITY, keyIdentifier + VolumeFileTransferHelper.HARDCODED_ROOT + targetFolder + name);
         return DocumentsContract.deleteDocument(activity.getContentResolver(), uploadUri);
     }
 
@@ -105,7 +106,7 @@ public class UIBoxHelper {
         String keyIdentifier = identity.getEcPublicKey()
                 .getReadableKeyIdentifier();
         Uri uploadUri = DocumentsContract.buildDocumentUri(
-                BoxProvider.AUTHORITY, keyIdentifier + MainActivity.HARDCODED_ROOT + targetFolder + name);
+                BoxProvider.AUTHORITY, keyIdentifier + VolumeFileTransferHelper.HARDCODED_ROOT + targetFolder + name);
 
         try {
             OutputStream outputStream = QabelBoxApplication.getInstance().getContentResolver().openOutputStream(uploadUri, "w");

@@ -9,6 +9,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import de.qabel.core.config.Contact;
@@ -28,7 +30,20 @@ public class ContactsAdapter extends RecyclerView.Adapter<ContactsAdapter.Contac
     public ContactsAdapter(Contacts contacts) {
 
         mContacts = new ArrayList<>(contacts.getContacts());
+        Collections.sort(mContacts, new Comparator<Contact>() {
+            @Override
+            public int compare(Contact lhs, Contact rhs) {
+
+                return lhs.getAlias().compareTo(rhs.getAlias());
+            }
+        });
+
         registerAdapterDataObserver(observer);
+    }
+
+    public Contact getContact(int position) {
+
+        return mContacts.get(position);
     }
 
     class ContactViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
@@ -82,8 +97,7 @@ public class ContactsAdapter extends RecyclerView.Adapter<ContactsAdapter.Contac
     public void onBindViewHolder(ContactViewHolder holder, int position) {
 
         holder.mTextViewContactName.setText(mContacts.get(position).getAlias());
-        holder.mTextViewContactDetails.setText(mContacts.get(position).getEmail());
-
+        holder.mTextViewContactDetails.setText(mContacts.get(position).getEcPublicKey().getReadableKeyIdentifier());
     }
 
     @Override

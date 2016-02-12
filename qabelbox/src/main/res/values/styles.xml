@@ -25,14 +25,13 @@
 
     </style>
 
-    <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar"/>
+    <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
 
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light">
         <item name="android:color">@color/white</item>
     </style>
 
-    <style name="BottomBarButton" parent="@style/Widget.AppCompat.Button.Borderless">
-    </style>
+    <style name="BottomBarButton" parent="@style/Widget.AppCompat.Button.Borderless"></style>
 
     <style name="Button">
         <item name="android:background">@color/colorPrimary</item>
@@ -67,7 +66,10 @@
         <item name="android:textColor">@color/default_text_color</item>
         <item name="android:textSize">@dimen/textsize_normal</item>
     </style>
-
+    <style name="SmallGreyMessageText">
+        <item name="android:textColor">@color/grey_text_color</item>
+        <item name="android:textSize">@dimen/textsize_small</item>
+    </style>
     <style name="TextViewButton" parent="MessageText">
         <item name="android:paddingTop">5dp</item>
         <item name="android:paddingBottom">5dp</item>
@@ -110,4 +112,18 @@
         <item name="android:shadowDx">3</item>
         <item name="android:shadowDy">3</item>
     </style>
+
+    <style name="ListItemCardView">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginTop">6dp</item>
+        <item name="android:layout_marginBottom">3dp</item>
+        <item name="android:layout_marginRight">@dimen/border_middle</item>
+        <item name="android:layout_marginLeft">@dimen/border_middle</item>
+    </style>
+
+
+
+
+    <style name="Spinner"></style>
 </resources>

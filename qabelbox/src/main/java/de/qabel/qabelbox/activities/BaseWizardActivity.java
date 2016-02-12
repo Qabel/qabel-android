@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -93,9 +94,9 @@ public abstract class BaseWizardActivity extends CrashReportingActivity {
             //check if last fragment displayed
             if (fragmentCount == fragments.length - 1) {
                 //complete wizard
-
                 activityResult = RESULT_OK;
                 completeWizard();
+
                 return;
             }
             //otherwise, popbackstack and update ui

@@ -190,6 +190,57 @@ public class UIHelper {
         });
     }
 
+    public static void showCustomeDialog(Activity activity, int title, View layout, int ok, int cancel, final DialogInterface.OnClickListener okListener,
+
+                                         final DialogInterface.OnClickListener cancelListener)
+
+    {
+
+        final AlertDialog.Builder renameDialog = new AlertDialog.Builder(activity);
+
+        renameDialog.setTitle(title);
+
+
+        renameDialog.setView(layout);
+
+        renameDialog.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int whichButton) {
+
+                if (okListener != null)
+                    okListener.onClick(dialog, whichButton);
+            }
+        });
+
+        renameDialog.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int whichButton) {
+
+                if (cancelListener != null)
+                    cancelListener.onClick(dialog, whichButton);
+            }
+        });
+        final FontHelper fontHelper = FontHelper.getInstance();
+        activity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+
+                final AlertDialog dialog = renameDialog.create();
+                dialog.setOnShowListener(new DialogInterface.OnShowListener() {
+                    @Override
+                    public void onShow(DialogInterface dialog1) {
+
+                        fontHelper.setCustomeFonts((TextView) dialog.findViewById(android.R.id.message));
+                        fontHelper.setCustomeFonts((TextView) dialog.findViewById(android.R.id.title));
+
+                        fontHelper.setCustomeFonts(dialog.getButton(AlertDialog.BUTTON_POSITIVE));
+                        fontHelper.setCustomeFonts(dialog.getButton(AlertDialog.BUTTON_NEGATIVE));
+                    }
+                });
+
+                dialog.show();
+            }
+        });
+    }
+
     /**
      * show dialog message. they try to get a readable message from exception
      *
@@ -201,23 +252,25 @@ public class UIHelper {
     public static void showDialogMessage(Activity activity, int headline, int message, Exception e) {
 
         String reason = getUserReadableMessage(activity, e);
-        showDialogMessage(activity, headline, activity.getString(message) +( reason == null ? "" : reason));
+        showDialogMessage(activity, headline, activity.getString(message) + (reason == null ? "" : reason));
     }
 
     private static String getUserReadableMessage(Activity activity, Exception e) {
 
         String reason = activity.getString(R.string.reason_for_error);
         if (e instanceof IOException) {
-            return " "+reason.replace("%1",activity.getString(R.string.error_reason_io));
+            return " " + reason.replace("%1", activity.getString(R.string.error_reason_io));
         }
         return null;
     }
-    public static void hideKeyboard(Activity activity,View mView) {
+
+    public static void hideKeyboard(Activity activity, View mView) {
         InputMethodManager imm = (InputMethodManager) activity
                 .getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(mView.getWindowToken(), 0);
 
     }
+
     public interface EditTextDialogClickListener {
 
         void onClick(DialogInterface dialog, int which, EditText editText);

@@ -19,6 +19,7 @@ import java.util.Comparator;
 
 import de.qabel.QabelContentProviderConstants;
 import de.qabel.core.config.Contact;
+import de.qabel.core.config.Contacts;
 import de.qabel.core.config.Identity;
 
 /**
@@ -77,18 +78,13 @@ public class QabelContentProvider extends ContentProvider {
     private Cursor queryContacts() {
         MatrixCursor cursor = new MatrixCursor(QabelContentProviderConstants.CONTACT_COLUMN_NAMES);
 
-        ArrayList<Contact> returnedContactList = new ArrayList<>(mService.getContacts().getContacts());
-        Collections.sort(returnedContactList, new Comparator<Contact>() {
-            @Override
-            public int compare(Contact lhs, Contact rhs) {
-                return lhs.getAlias().compareTo(rhs.getAlias());
+        for (Contacts contacts: mService.getAllContacts().values()) {
+            for (Contact contact : contacts.getContacts()) {
+                String[] values = new String[]{contact.getAlias(),
+                        contacts.getIdentity().getKeyIdentifier(),
+                        contact.getKeyIdentifier()};
+                cursor.addRow(values);
             }
-        });
-
-        for (Contact contact : returnedContactList) {
-            String[] values = new String[]{contact.getAlias(), contact.getContactOwnerKeyId(),
-                    contact.getKeyIdentifier()};
-            cursor.addRow(values);
         }
         return cursor;
     }

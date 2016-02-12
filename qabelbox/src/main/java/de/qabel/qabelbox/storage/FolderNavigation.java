@@ -28,10 +28,10 @@ public class FolderNavigation extends AbstractNavigation {
 
 	private static final Logger logger = LoggerFactory.getLogger(FolderNavigation.class.getName());
 
-	public FolderNavigation(DirectoryMetadata dm, QblECKeyPair keyPair, @Nullable byte[] dmKey, byte[] deviceId,
+	public FolderNavigation(String prefix, DirectoryMetadata dm, QblECKeyPair keyPair, @Nullable byte[] dmKey, byte[] deviceId,
 	                        TransferManager transferUtility, BoxVolume boxVolume, String path,
 							@Nullable Stack<BoxFolder> parents, Context context) {
-		super(dm, keyPair, dmKey, deviceId, transferUtility, boxVolume, path, parents, context);
+		super(prefix, dm, keyPair, dmKey, deviceId, transferUtility, boxVolume, path, parents, context);
 	}
 
 	@Override
@@ -52,7 +52,7 @@ public class FolderNavigation extends AbstractNavigation {
 			FileOutputStream fileOutputStream = new FileOutputStream(tmp);
 			fileOutputStream.write(encrypted);
 			fileOutputStream.close();
-			blockingUpload(dm.getFileName(), tmp, null);
+			blockingUpload(prefix, dm.getFileName(), tmp, null);
 		} catch (IOException | InvalidKeyException e) {
 			throw new QblStorageException(e);
 		}
@@ -61,7 +61,7 @@ public class FolderNavigation extends AbstractNavigation {
 	private void uploadDirectoryMetadataSubFolder() throws QblStorageException {
 		logger.info("Uploading directory metadata");
 		try {
-			uploadEncrypted(new FileInputStream(dm.getPath()), new KeyParameter(dmKey),
+			uploadEncrypted(new FileInputStream(dm.getPath()), new KeyParameter(dmKey), prefix,
 					dm.getFileName(), null);
 		} catch (FileNotFoundException e) {
 			throw new QblStorageException(e);
@@ -81,7 +81,7 @@ public class FolderNavigation extends AbstractNavigation {
 		logger.info("Reloading directory metadata");
 		// duplicate of navigate()
 		try {
-			File indexDl = blockingDownload(dm.getFileName(), null);
+			File indexDl = blockingDownload(prefix, dm.getFileName(), null);
 			File tmp = File.createTempFile("dir", "db", dm.getTempDir());
 			if (cryptoUtils.decryptFileAuthenticatedSymmetricAndValidateTag(
 					new FileInputStream(indexDl), tmp, new KeyParameter(dmKey))) {
@@ -97,7 +97,7 @@ public class FolderNavigation extends AbstractNavigation {
 	protected DirectoryMetadata reloadMetadataRoot() throws QblStorageException {
 		// TODO: duplicate with BoxVoume.navigate()
 		String rootRef = dm.getFileName();
-		File indexDl = blockingDownload(rootRef, null);
+		File indexDl = blockingDownload(prefix, rootRef, null);
 		File tmp;
 		try {
 			byte[] encrypted = IOUtils.toByteArray(new FileInputStream(indexDl));

@@ -1,4 +1,4 @@
-package de.qabel.qabelbox.communication;
+package de.qabel.qabelbox.communication.callbacks;
 
 import android.util.Log;
 

@@ -255,7 +255,6 @@ public class MainActivity extends CrashReportingActivity
                 }
                 //check if navigation drawer need to reset
                 if (getFragmentManager().getBackStackEntryCount() == 0 || (activeFragment instanceof BaseFragment) && !((BaseFragment) activeFragment).supportBackButton()) {
-                    Log.d(TAG, "danny: " + activeFragment);
                     if (activeFragment instanceof SelectUploadFolderFragment) {
                     } else {
 
@@ -380,6 +379,7 @@ public class MainActivity extends CrashReportingActivity
     }
 
     private void shareIdentitySelected(final ArrayList<Uri> data, Identity activeIdentity) {
+
         toggle.setDrawerIndicatorEnabled(false);
         shareFragment = SelectUploadFolderFragment.newInstance(boxVolume, data, activeIdentity);
         getFragmentManager().beginTransaction()
@@ -466,7 +466,9 @@ public class MainActivity extends CrashReportingActivity
 
     //@todo move this to filesfragment
     private void initFilesFragment() {
-
+        if (filesFragment != null) {
+            getFragmentManager().beginTransaction().remove(filesFragment).commit();
+        }
         filesFragment = FilesFragment.newInstance(boxVolume);
         filesFragment.setOnItemClickListener(new FilesAdapter.OnItemClickListener() {
             @Override
@@ -494,13 +496,13 @@ public class MainActivity extends CrashReportingActivity
 
                                 switch (which) {
                                     case R.id.open:
-                                        ExternalApps.openExternApp(self, getUri(boxObject), getMimeType(boxObject), Intent.ACTION_VIEW);
+                                        ExternalApps.openExternApp(self, VolumeFileTransferHelper.getUri(boxObject, boxVolume, filesFragment.getBoxNavigation()), getMimeType(boxObject), Intent.ACTION_VIEW);
                                         break;
                                     case R.id.edit:
-                                        ExternalApps.openExternApp(self, getUri(boxObject), getMimeType(boxObject), Intent.ACTION_EDIT);
+                                        ExternalApps.openExternApp(self, VolumeFileTransferHelper.getUri(boxObject, boxVolume, filesFragment.getBoxNavigation()), getMimeType(boxObject), Intent.ACTION_EDIT);
                                         break;
                                     case R.id.share:
-                                        ExternalApps.share(self, getUri(boxObject), getMimeType(boxObject));
+                                        ExternalApps.share(self, VolumeFileTransferHelper.getUri(boxObject, boxVolume, filesFragment.getBoxNavigation()), getMimeType(boxObject));
                                         break;
                                     case R.id.delete:
                                         delete(boxObject);
@@ -528,7 +530,7 @@ public class MainActivity extends CrashReportingActivity
      */
     public void showFile(BoxObject boxObject) {
 
-        Uri uri = getUri(boxObject);
+        Uri uri = VolumeFileTransferHelper.getUri(boxObject, boxVolume, filesFragment.getBoxNavigation());
         String type = getMimeType(uri);
         Log.v(TAG, "Mime type: " + type);
         Log.v(TAG, "Uri: " + uri.toString() + " " + uri.toString().length());
@@ -555,24 +557,18 @@ public class MainActivity extends CrashReportingActivity
         startActivityForResult(Intent.createChooser(viewIntent, "Open with"), REQUEST_EXTERN_VIEWER_APP);
     }
 
+
+    //@todo move outside
+    private String getMimeType(BoxObject boxObject) {
+
+        return getMimeType(VolumeFileTransferHelper.getUri(boxObject, boxVolume, filesFragment.getBoxNavigation()));
+    }
     //@todo move outside
     private String getMimeType(Uri uri) {
 
         return URLConnection.guessContentTypeFromName(uri.toString());
     }
-    //@todo move outside
-    private String getMimeType(BoxObject boxObject) {
 
-        return getMimeType(getUri(boxObject));
-    }
-    //@todo move outside
-    private Uri getUri(BoxObject boxObject) {
-
-        String path = filesFragment.getBoxNavigation().getPath(boxObject);
-        String documentId = boxVolume.getDocumentId(path);
-        return DocumentsContract.buildDocumentUri(
-                BoxProvider.AUTHORITY, documentId);
-    }
 
     private void delete(final BoxObject boxObject) {
 
@@ -728,6 +724,7 @@ public class MainActivity extends CrashReportingActivity
     public void onAbort() {
 
     }
+
     //@todo move outside
     public void createFolder(final String name, final BoxNavigation boxNavigation) {
 
@@ -789,13 +786,12 @@ public class MainActivity extends CrashReportingActivity
         textViewSelectedIdentity.setText(identity.getAlias());
         if (filesFragment != null) {
             getFragmentManager().beginTransaction().remove(filesFragment).commit();
+            filesFragment=null;
         }
         initBoxVolume(identity);
         initFilesFragment();
         selectFilesFragment();
     }
-
-
 
     @Override
     protected void onNewIntent(Intent intent) {
@@ -818,7 +814,6 @@ public class MainActivity extends CrashReportingActivity
             }
         }
     }
-
 
     @Override
     public void deleteIdentity(Identity identity) {
@@ -877,7 +872,7 @@ public class MainActivity extends CrashReportingActivity
     @Override
     protected void onDestroy() {
 
-        if (mServiceConnection != null&&mService!=null) {
+        if (mServiceConnection != null && mService != null) {
 
             unbindService(mServiceConnection);
         }

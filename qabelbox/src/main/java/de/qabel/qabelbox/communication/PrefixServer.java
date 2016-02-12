@@ -39,7 +39,7 @@ public class PrefixServer extends BaseServer {
 
     public void getPrefix(Context context, Callback callback) {
 
-        doServerAction(URLs.PREFIX_SERVER, callback, new AppPreference(context).getToken());
+        doServerAction(urls.getPrefix(), callback, new AppPreference(context).getToken());
     }
 
     /**

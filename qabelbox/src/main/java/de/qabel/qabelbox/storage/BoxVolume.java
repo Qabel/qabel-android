@@ -2,13 +2,13 @@ package de.qabel.qabelbox.storage;
 
 import android.content.Context;
 
-import com.amazonaws.auth.AWSCredentials;
-import com.amazonaws.mobileconnectors.s3.transferutility.TransferUtility;
-import com.amazonaws.services.s3.AmazonS3Client;
 
+
+import de.qabel.core.config.Identity;
 import de.qabel.core.crypto.CryptoUtils;
 import de.qabel.core.crypto.DecryptedPlaintext;
 import de.qabel.core.crypto.QblECKeyPair;
+import de.qabel.qabelbox.communication.VolumeFileTransferHelper;
 import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.exceptions.QblStorageNotFound;
 import de.qabel.qabelbox.providers.BoxProvider;
@@ -35,7 +35,6 @@ public class BoxVolume {
 	private final Context context;
 	private final String bucket;
 
-	private TransferUtility transferUtility;
 	private QblECKeyPair keyPair;
 	private byte[] deviceId;
 	private CryptoUtils cryptoUtils;
@@ -43,19 +42,18 @@ public class BoxVolume {
 	private final TransferManager transferManager;
 	private String prefix;
 
-	public BoxVolume(TransferUtility transferUtility, AWSCredentials credentials,
+	public BoxVolume(
 	                 QblECKeyPair keyPair, String bucket, String prefix,
 	                 byte[] deviceId, Context context) {
-		this.transferUtility = transferUtility;
 		this.keyPair = keyPair;
 		this.deviceId = deviceId;
 		this.context = context;
 		cryptoUtils = new CryptoUtils();
 		tempDir = context.getCacheDir();
-		AmazonS3Client awsClient = new AmazonS3Client(credentials);
+
 		this.rootId = new DocumentIdParser().buildId(
 				keyPair.getPub().getReadableKeyIdentifier(), bucket, prefix, null);
-		transferManager = new TransferManager(transferUtility, awsClient, bucket, tempDir);
+		transferManager = new TransferManager( tempDir);
 		this.prefix = prefix;
 		this.bucket = bucket;
 	}
@@ -142,6 +140,7 @@ public class BoxVolume {
 
 	public void createIndex() throws QblStorageException {
 		createIndex(bucket, prefix);
+
 	}
 
 	public void createIndex(String bucket, String prefix) throws QblStorageException {
@@ -160,7 +159,5 @@ public class BoxVolume {
 		} catch (InvalidKeyException e) {
 			throw new QblStorageException(e);
 		}
-
-
 	}
 }

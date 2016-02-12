@@ -59,7 +59,7 @@ public class BoxAccountRegisterServer extends BaseServer {
             e.printStackTrace();
         }
 
-        doServerAction(URLs.REGISTER, json, callback);
+        doServerAction(urls.getRegister(), json, callback);
     }
 
     public void login(String username, String password, Callback callback) {
@@ -72,13 +72,13 @@ public class BoxAccountRegisterServer extends BaseServer {
             e.printStackTrace();
         }
 
-        doServerAction(URLs.LOGIN, json, callback);
+        doServerAction(urls.getLogin(), json, callback);
     }
 
     public void logout(Context context, Callback callback) {
 
         JSONObject json = new JSONObject();
-        doServerAction(URLs.LOGOUT, json, callback, new AppPreference(context).getToken());
+        doServerAction(urls.getLogout(), json, callback, new AppPreference(context).getToken());
     }
 
     public void changePassword(Context context, String old_password, String new_password1, String new_password2, Callback callback) {
@@ -92,7 +92,7 @@ public class BoxAccountRegisterServer extends BaseServer {
             e.printStackTrace();
         }
 
-        doServerAction(URLs.PASSWORD_CHANGE, json, callback, new AppPreference(context).getToken());
+        doServerAction(urls.getPasswordChange(), json, callback, new AppPreference(context).getToken());
     }
 
     public void resetPassword(String email, Callback callback) {
@@ -104,7 +104,7 @@ public class BoxAccountRegisterServer extends BaseServer {
             e.printStackTrace();
         }
 
-        doServerAction(URLs.PASSWORD_RESET, json, callback);
+        doServerAction(urls.getPasswordReset(), json, callback);
     }
 
     /**

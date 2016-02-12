@@ -24,10 +24,6 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.NotificationCompat;
 import android.util.Log;
 
-import com.amazonaws.auth.AWSCredentials;
-import com.amazonaws.mobileconnectors.s3.transferutility.TransferUtility;
-import com.amazonaws.services.s3.AmazonS3Client;
-
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 
@@ -92,9 +88,6 @@ public class BoxProvider extends DocumentsProvider {
 
     private static final int KEEP_ALIVE_TIME = 1;
     private static final TimeUnit KEEP_ALIVE_TIME_UNIT = TimeUnit.SECONDS;
-    TransferUtility transferUtility;
-    AmazonS3Client amazonS3Client;
-    AWSCredentials awsCredentials;
 
     private Map<String, BoxCursor> folderContentCache;
     private String currentFolder;
@@ -120,20 +113,6 @@ public class BoxProvider extends DocumentsProvider {
                 KEEP_ALIVE_TIME_UNIT,
                 new LinkedBlockingDeque<Runnable>());
 
-        awsCredentials = new AWSCredentials() {
-            @Override
-            public String getAWSAccessKeyId() {
-
-                return context.getResources().getString(R.string.aws_user);
-            }
-
-            @Override
-            public String getAWSSecretKey() {
-
-                return context.getResources().getString(R.string.aws_password);
-            }
-        };
-        amazonS3Client = new AmazonS3Client(awsCredentials);
         QabelBoxApplication.boxProvider = this;
 
         folderContentCache = new HashMap<>();
@@ -168,15 +147,6 @@ public class BoxProvider extends DocumentsProvider {
 
         getContext().getContentResolver()
                 .notifyChange(DocumentsContract.buildRootsUri(AUTHORITY), null);
-    }
-
-    private void setUpTransferUtility() {
-
-        if (transferUtility == null) {
-            transferUtility = new TransferUtility(
-                    amazonS3Client,
-                    getContext().getApplicationContext());
-        }
     }
 
     /**
@@ -256,9 +226,7 @@ public class BoxProvider extends DocumentsProvider {
         }
         QblECKeyPair key = retrievedIdentity.getPrimaryKeyPair();
 
-        setUpTransferUtility();
-
-        return new BoxVolume(transferUtility, awsCredentials, key, bucket, prefix,
+        return new BoxVolume(key, bucket, prefix,
                 mService.getDeviceID(), getContext());
     }
 
@@ -581,9 +549,10 @@ public class BoxProvider extends DocumentsProvider {
     }
 
     private void uploadFile(String documentId, File tmp, TransferManager.BoxTransferListener boxTransferListener) {
+
         try {
-	    mService.addPendingUpload(documentId);
-	    broadcastUploadStatus(documentId, LocalBroadcastConstants.UPLOAD_STATUS_NEW);
+            mService.addPendingUpload(documentId);
+            broadcastUploadStatus(documentId, LocalBroadcastConstants.UPLOAD_STATUS_NEW);
             BoxVolume volume = getVolumeForId(documentId);
             List<String> splitPath = mDocumentIdParser.splitPath(
                     mDocumentIdParser.getFilePath(documentId));
@@ -593,26 +562,27 @@ public class BoxProvider extends DocumentsProvider {
             Log.i(TAG, "Starting upload");
             navigation.upload(basename, new FileInputStream(tmp), boxTransferListener);
             navigation.commit();
-			mService.removePendingUpload(documentId);
-			broadcastUploadStatus(documentId, LocalBroadcastConstants.UPLOAD_STATUS_FINISHED);
+            mService.removePendingUpload(documentId);
+            broadcastUploadStatus(documentId, LocalBroadcastConstants.UPLOAD_STATUS_FINISHED);
         } catch (FileNotFoundException | QblStorageException e1) {
             Log.e(TAG, "Upload failed", e1);
-			try {
-				mService.removePendingUpload(documentId);
-			} catch (FileNotFoundException e) {
-				//Should not be possible
-				Log.e(TAG, "Removing failed upload failed", e);
-			}
-			broadcastUploadStatus(documentId, LocalBroadcastConstants.UPLOAD_STATUS_FAILED);
+            try {
+                mService.removePendingUpload(documentId);
+            } catch (FileNotFoundException e) {
+                //Should not be possible
+                Log.e(TAG, "Removing failed upload failed", e);
+            }
+            broadcastUploadStatus(documentId, LocalBroadcastConstants.UPLOAD_STATUS_FAILED);
         }
     }
 
-	private void broadcastUploadStatus(String documentId, int uploadStatus) {
-		Intent intent = new Intent(LocalBroadcastConstants.INTENT_UPLOAD_BROADCAST);
-		intent.putExtra(LocalBroadcastConstants.EXTRA_UPLOAD_DOCUMENT_ID, documentId);
-		intent.putExtra(LocalBroadcastConstants.EXTRA_UPLOAD_STATUS, uploadStatus);
-		LocalBroadcastManager.getInstance(getContext()).sendBroadcast(intent);
-	}
+    private void broadcastUploadStatus(String documentId, int uploadStatus) {
+
+        Intent intent = new Intent(LocalBroadcastConstants.INTENT_UPLOAD_BROADCAST);
+        intent.putExtra(LocalBroadcastConstants.EXTRA_UPLOAD_DOCUMENT_ID, documentId);
+        intent.putExtra(LocalBroadcastConstants.EXTRA_UPLOAD_STATUS, uploadStatus);
+        LocalBroadcastManager.getInstance(getContext()).sendBroadcast(intent);
+    }
 
     private File downloadFile(final String documentId, final String mode, final CancellationSignal signal) throws FileNotFoundException {
 

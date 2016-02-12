@@ -21,12 +21,12 @@ public class BaseServer {
     protected final OkHttpClient client;
     protected final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
     private static final String TAG = "BaseServer";
-
+    URLs urls;
     /**
      * create new instance of http client and set timeouts
      */
     public BaseServer() {
-
+        urls=new URLs();
         OkHttpClient.Builder builder = new OkHttpClient.Builder();
         builder.connectTimeout(15, TimeUnit.SECONDS); // connect timeout
         builder.readTimeout(15, TimeUnit.SECONDS);    // socket timeout

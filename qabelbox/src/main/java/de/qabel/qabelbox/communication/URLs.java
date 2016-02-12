@@ -5,17 +5,68 @@ package de.qabel.qabelbox.communication;
  */
 public class URLs {
 
-    //define base urls
-    final static String BASE_ACCOUNTING ="https://test-accounting.qabel.de";
+    private String BASE_ACCOUNTING = "https://test-accounting.qabel.de";
+    private String BASE_BLOCK = "https://test-block.qabel.de";
 
-    //accounting
-    final static String REGISTER = BASE_ACCOUNTING +"/api/v0/auth/registration/";
-    final static String LOGIN = BASE_ACCOUNTING +"/api/v0/auth/login/";
-    final static String LOGOUT = BASE_ACCOUNTING +"/api/v0/auth/logout/";
-    final static String PASSWORD_CHANGE = BASE_ACCOUNTING +"/api/v0/auth/password/change/";
-    final static String PASSWORD_RESET = BASE_ACCOUNTING +"/api/v0/auth/password/reset/";
+    public void setBaseAccountingURL(String url) {
 
-    //prefix
-    final static String PREFIX_SERVER = BASE_ACCOUNTING +"/api/v0/prefix/";
+        BASE_ACCOUNTING = url;
+    }
 
+    public void setBaseBlockURL(String url) {
+
+        BASE_BLOCK = url;
+    }
+
+    //
+    //accounting server
+    //
+    String getRegister() {
+
+        return BASE_ACCOUNTING + "/api/v0/auth/registration/";
+    }
+
+    String getLogin() {
+
+        return BASE_ACCOUNTING + "/api/v0/auth/login/";
+    }
+
+    String getLogout() {
+
+        return BASE_ACCOUNTING + "/api/v0/auth/logout/";
+    }
+
+    String getPasswordChange() {
+
+        return BASE_ACCOUNTING + "/api/v0/auth/password/change/";
+    }
+
+    String getPasswordReset() {
+
+        return BASE_ACCOUNTING + "/api/v0/auth/password/reset/";
+    }
+
+    //prefix server
+    //
+    String getPrefix() {
+
+        return BASE_ACCOUNTING + "/api/v0/prefix/";
+    }
+
+    /**
+     * get files url for block server
+     * @return
+     */
+    String getFiles() {
+
+        return BASE_BLOCK + "/api/v0/files/";
+    }
+    /**
+     * get files url for block server
+     * @return
+     */
+    String getFilesBlock() {
+
+        return BASE_BLOCK + "/api/v0/";
+    }
 }

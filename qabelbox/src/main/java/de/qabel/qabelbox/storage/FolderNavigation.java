@@ -3,7 +3,7 @@ package de.qabel.qabelbox.storage;
 import android.content.Context;
 import android.support.annotation.Nullable;
 
-import com.amazonaws.util.IOUtils;
+
 
 import de.qabel.core.crypto.DecryptedPlaintext;
 import de.qabel.core.crypto.QblECKeyPair;
@@ -23,6 +23,7 @@ import java.util.Stack;
 
 import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.exceptions.QblStorageNotFound;
+import de.qabel.qabelbox.helper.FileHelper;
 
 public class FolderNavigation extends AbstractNavigation {
 
@@ -46,7 +47,7 @@ public class FolderNavigation extends AbstractNavigation {
 
 	private void uploadDirectoryMetadataRoot() throws QblStorageException {
 		try {
-			byte[] plaintext = IOUtils.toByteArray(new FileInputStream(dm.path));
+			byte[] plaintext = FileHelper.toByteArray(new FileInputStream(dm.path));
 			byte[] encrypted = cryptoUtils.createBox(keyPair, keyPair.getPub(), plaintext, 0);
 			File tmp = transferManager.createTempFile();
 			FileOutputStream fileOutputStream = new FileOutputStream(tmp);
@@ -100,7 +101,7 @@ public class FolderNavigation extends AbstractNavigation {
 		File indexDl = blockingDownload(prefix, rootRef, null);
 		File tmp;
 		try {
-			byte[] encrypted = IOUtils.toByteArray(new FileInputStream(indexDl));
+			byte[] encrypted = FileHelper.toByteArray(new FileInputStream(indexDl));
 			DecryptedPlaintext plaintext = cryptoUtils.readBox(keyPair, encrypted);
 			tmp = File.createTempFile("dir", "db", dm.getTempDir());
 			logger.info("Using " + tmp.toString() + " for the metadata file");

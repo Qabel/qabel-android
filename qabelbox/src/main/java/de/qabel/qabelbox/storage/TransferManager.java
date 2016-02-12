@@ -21,7 +21,6 @@ public class TransferManager implements TransferListener {
 
     private AmazonS3Client awsClient;
     private final String bucket;
-    private String prefix;
     private File tempDir;
     private final TransferUtility transferUtility;
 
@@ -30,11 +29,10 @@ public class TransferManager implements TransferListener {
     private final Map<Integer, BoxTransferListener> transferListeners;
 
     public TransferManager(TransferUtility transferUtility, AmazonS3Client awsClient,
-                           String bucket, String prefix, File tempDir) {
+                           String bucket, File tempDir) {
         this.transferUtility = transferUtility;
         this.awsClient = awsClient;
         this.bucket = bucket;
-        this.prefix = prefix;
         this.tempDir = tempDir;
         semaphores = new ConcurrentHashMap<>();
         errors = new HashMap<>();
@@ -46,7 +44,7 @@ public class TransferManager implements TransferListener {
         void onFinished();
     }
 
-    private String getKey(String name) {
+    private String getKey(String prefix, String name) {
         return prefix+'/'+name;
     }
 
@@ -59,8 +57,8 @@ public class TransferManager implements TransferListener {
     }
 
 
-    public int upload(String name, File file, @Nullable BoxTransferListener boxTransferListener) {
-        TransferObserver upload = transferUtility.upload(bucket, getKey(name), file);
+    public int upload(String prefix, String name, File file, @Nullable BoxTransferListener boxTransferListener) {
+        TransferObserver upload = transferUtility.upload(bucket, getKey(prefix, name), file);
         int id = upload.getId();
         logger.info("Uploading " + name + " id " + id);
         semaphores.put(id, new Semaphore(0));
@@ -71,8 +69,8 @@ public class TransferManager implements TransferListener {
         return upload.getId();
     }
 
-    public int download(String name, File file, @Nullable BoxTransferListener boxTransferListener) {
-        TransferObserver download = transferUtility.download(bucket, getKey(name), file);
+    public int download(String prefix, String name, File file, @Nullable BoxTransferListener boxTransferListener) {
+        TransferObserver download = transferUtility.download(bucket, getKey(prefix, name), file);
         int id = download.getId();
         logger.info("Downloading " + name + " id " + id);
         semaphores.put(id, new Semaphore(0));
@@ -129,7 +127,7 @@ public class TransferManager implements TransferListener {
     }
 
 
-    public void delete(String ref) {
-        awsClient.deleteObject(bucket, getKey(ref));
+    public void delete(String prefix, String ref) {
+        awsClient.deleteObject(bucket, getKey(prefix, ref));
     }
 }

@@ -267,7 +267,7 @@ public class ContactFragment extends BaseFragment {
                         dropURLs.add(dropURL);
 
                         QblECPublicKey publicKey = new QblECPublicKey(Hex.decode(result[3]));
-                        Contact contact = new Contact(identity, result[1], dropURLs, publicKey);
+                        Contact contact = new Contact(result[1], dropURLs, publicKey);
                         ContactFragment.addContact(mActivity, contact);
                     } catch (Exception e) {
                         Log.w(TAG, "add contact failed", e);

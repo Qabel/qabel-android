@@ -89,7 +89,7 @@ public class AddContactFragment extends BaseFragment {
 
             QblECPublicKey publicKey = new QblECPublicKey(
                     Hex.decode(editTextPublicKey.getText().toString()));
-            Contact contact = new Contact(identity, editTextContactName.getText().toString(), dropURLs, publicKey);
+            Contact contact = new Contact(editTextContactName.getText().toString(), dropURLs, publicKey);
             ContactFragment.addContact(mActivity, contact);
         } catch (Exception e) {
             Log.w(TAG, "add contact failed", e);

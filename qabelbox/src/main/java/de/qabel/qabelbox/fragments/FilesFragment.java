@@ -2,18 +2,14 @@ package de.qabel.qabelbox.fragments;
 
 import android.app.Activity;
 import android.content.BroadcastReceiver;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.ServiceConnection;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.IBinder;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -39,7 +35,7 @@ import de.qabel.qabelbox.adapter.FilesAdapter;
 import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.services.LocalBroadcastConstants;
 import de.qabel.qabelbox.services.LocalQabelService;
-import de.qabel.qabelbox.storage.BoxExternal;
+import de.qabel.qabelbox.storage.BoxExternalReference;
 import de.qabel.qabelbox.storage.BoxFile;
 import de.qabel.qabelbox.storage.BoxFolder;
 import de.qabel.qabelbox.storage.BoxNavigation;
@@ -554,7 +550,7 @@ public class FilesFragment extends BaseFragment {
                         Log.d(TAG, "Adding folder: " + boxFolder.name);
                         filesAdapter.add(boxFolder);
                     }
-                    for (BoxExternal boxExternal : boxNavigation.listExternals()) {
+                    for (BoxObject boxExternal : boxNavigation.listExternals()) {
                         Log.d("MainActivity", "Adding external: " + boxExternal.name);
                         filesAdapter.add(boxExternal);
                     }
@@ -681,7 +677,7 @@ public class FilesFragment extends BaseFragment {
                 Log.d(TAG, "Adding folder: " + boxFolder.name);
                 filesAdapter.add(boxFolder);
             }
-            for (BoxExternal boxExternal : boxNavigation.listExternals()) {
+            for (BoxObject boxExternal : boxNavigation.listExternals()) {
                 Log.d("MainActivity", "Adding external: " + boxExternal.name);
                 filesAdapter.add(boxExternal);
             }

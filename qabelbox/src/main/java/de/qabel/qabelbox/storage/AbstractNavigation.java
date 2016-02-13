@@ -317,8 +317,10 @@ public abstract class AbstractNavigation implements BoxNavigation {
 		// Overwrite = delete old file, upload new file
 		BoxFile oldFile = dm.getFile(name);
 		if (oldFile != null) {
-			boxFile.meta = oldFile.meta;
-			boxFile.metakey = oldFile.metakey.clone();
+			if (oldFile.meta != null && oldFile.metakey != null) {
+				boxFile.meta = oldFile.meta;
+				boxFile.metakey = oldFile.metakey.clone();
+			}
 			deleteQueue.add(oldFile.block);
 			dm.deleteFile(oldFile);
 		}

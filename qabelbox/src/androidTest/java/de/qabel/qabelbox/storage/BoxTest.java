@@ -37,6 +37,7 @@ import java.util.UUID;
 
 import de.qabel.core.crypto.CryptoUtils;
 import de.qabel.core.crypto.QblECKeyPair;
+import de.qabel.core.crypto.QblECPublicKey;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.exceptions.QblStorageNameConflict;
@@ -47,7 +48,7 @@ import static org.junit.Assert.assertThat;
 
 public class BoxTest extends AndroidTestCase {
     private static final Logger logger = LoggerFactory.getLogger(BoxTest.class.getName());
-	private static final String OWNER = "owner";
+	private static final QblECPublicKey OWNER = new QblECKeyPair().getPub();
 
 	BoxVolume volume;
     BoxVolume volume2;

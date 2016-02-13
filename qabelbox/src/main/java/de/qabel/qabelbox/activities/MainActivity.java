@@ -71,7 +71,7 @@ import de.qabel.qabelbox.storage.BoxVolume;
 
 public class MainActivity extends CrashReportingActivity
         implements NavigationView.OnNavigationItemSelectedListener,
-        SelectUploadFolderFragment.OnSelectedUploadFolderListener,
+
         FilesFragment.FilesListListener,
         IdentitiesFragment.IdentityListListener {
 
@@ -147,14 +147,15 @@ public class MainActivity extends CrashReportingActivity
                 }
                 if (requestCode == REQUEST_CODE_UPLOAD_FILE) {
                     uri = data.getData();
-                    String path = "";
+
                     if (filesFragment != null) {
                         BoxNavigation boxNavigation = filesFragment.getBoxNavigation();
                         if (boxNavigation != null) {
-                            path = boxNavigation.getPath();
+                            String path = boxNavigation.getPath();
+                            VolumeFileTransferHelper.upload(self, uri, boxNavigation, boxVolume);
                         }
                     }
-                    uploadUri((Uri) uri, (String) path);
+
                     return;
                 }
                 if (requestCode == REQUEST_CODE_DELETE_FILE) {
@@ -198,13 +199,6 @@ public class MainActivity extends CrashReportingActivity
                 }
             }
         }
-    }
-
-    private boolean uploadUri(Uri uri, String targetFolder) {
-
-        Toast.makeText(self, R.string.uploading_file,
-                Toast.LENGTH_SHORT).show();
-        return VolumeFileTransferHelper.uploadUri(self, uri, targetFolder, mService.getActiveIdentity());
     }
 
     @Override
@@ -393,7 +387,7 @@ public class MainActivity extends CrashReportingActivity
 
         boxVolume = provider.getVolumeForRoot(
                 activeIdentity.getEcPublicKey().getReadableKeyIdentifier(),
-                null, null);
+                null, VolumeFileTransferHelper.getPrefixFromIdentity(activeIdentity));
     }
 
     private void initFloatingActionButton() {
@@ -466,6 +460,7 @@ public class MainActivity extends CrashReportingActivity
 
     //@todo move this to filesfragment
     private void initFilesFragment() {
+
         if (filesFragment != null) {
             getFragmentManager().beginTransaction().remove(filesFragment).commit();
         }
@@ -557,18 +552,17 @@ public class MainActivity extends CrashReportingActivity
         startActivityForResult(Intent.createChooser(viewIntent, "Open with"), REQUEST_EXTERN_VIEWER_APP);
     }
 
-
     //@todo move outside
     private String getMimeType(BoxObject boxObject) {
 
         return getMimeType(VolumeFileTransferHelper.getUri(boxObject, boxVolume, filesFragment.getBoxNavigation()));
     }
+
     //@todo move outside
     private String getMimeType(Uri uri) {
 
         return URLConnection.guessContentTypeFromName(uri.toString());
     }
-
 
     private void delete(final BoxObject boxObject) {
 
@@ -714,16 +708,6 @@ public class MainActivity extends CrashReportingActivity
         return true;
     }
 
-    @Override
-    public void onFolderSelected(final Uri uri, final BoxNavigation boxNavigation) {
-
-        VolumeFileTransferHelper.upload(self, uri, boxNavigation, boxVolume);
-    }
-
-    @Override
-    public void onAbort() {
-
-    }
 
     //@todo move outside
     public void createFolder(final String name, final BoxNavigation boxNavigation) {
@@ -786,7 +770,7 @@ public class MainActivity extends CrashReportingActivity
         textViewSelectedIdentity.setText(identity.getAlias());
         if (filesFragment != null) {
             getFragmentManager().beginTransaction().remove(filesFragment).commit();
-            filesFragment=null;
+            filesFragment = null;
         }
         initBoxVolume(identity);
         initFilesFragment();

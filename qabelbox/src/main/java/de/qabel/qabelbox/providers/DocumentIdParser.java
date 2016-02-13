@@ -55,8 +55,8 @@ public class DocumentIdParser {
 	}
 
     public List<String> splitPath(String filePath) {
-        ArrayList<String> list = new ArrayList<>(Arrays.asList(filePath.split("/")));
-        return list;
+
+        return new ArrayList<>(Arrays.asList(filePath.split("/")));
     }
 
     public String getBaseName(String documentID) throws FileNotFoundException {

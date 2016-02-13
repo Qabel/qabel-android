@@ -7,8 +7,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 
-import de.qabel.core.config.Identity;
-import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.config.AppPreference;
 import de.qabel.qabelbox.helper.FileHelper;
 import okhttp3.Callback;
@@ -23,6 +21,15 @@ import okhttp3.RequestBody;
 public class BlockServer extends BaseServer {
 
     private final static String TAG = "PrefixServer";
+    int currentId = 0;
+    final int suffixId;
+
+    public BlockServer() {
+
+        super();
+        //maybe it can be bether to create a unique id. but normaly we have only one instance in boxvolume of blockserver so it should no collision occurs
+        suffixId = (this.getClass().hashCode() % 0xffff) * 0x10000;
+    }
 
     protected void doServerAction(Context context, String prefix, String path, String method, RequestBody body, Callback callback) {
 
@@ -35,6 +42,7 @@ public class BlockServer extends BaseServer {
         addHeader(new AppPreference(context).getToken(), builder);
         Request request = builder.build();
         Log.d(TAG, "danny request " + request.toString());
+
         client.newCall(request).enqueue(callback);
     }
 
@@ -46,31 +54,6 @@ public class BlockServer extends BaseServer {
     public void uploadFile(Context context, String prefix, String path, byte[] data, Callback callback) {
 
         doServerAction(context, prefix, path, "POST", RequestBody.create(JSON, data), callback);
-    }
-
-    public void deleteFile(Context context, String prefix, String path, Callback callback) {
-
-        doServerAction(context, prefix, path, "DELETE", null, callback);
-    }
-
-    public void downloadFile(Context context, Identity identity, String path, Callback callback) {
-
-        doServerAction(context, VolumeFileTransferHelper.getPrefixFromIdentity(identity), path, "GET", null, callback);
-    }
-
-    public void downloadFile(Context context, String path, Callback callback) {
-
-        doServerAction(context, VolumeFileTransferHelper.getPrefixFromIdentity(QabelBoxApplication.getInstance().getService().getActiveIdentity()), path, "GET", null, callback);
-    }
-
-    public void uploadFile(Context context, Identity identity, String path, byte[] data, Callback callback) {
-
-        doServerAction(context, VolumeFileTransferHelper.getPrefixFromIdentity(identity), path, "POST", RequestBody.create(JSON, data), callback);
-    }
-
-    public void deleteFile(Context context, Identity identity, String path, Callback callback) {
-
-        doServerAction(context, VolumeFileTransferHelper.getPrefixFromIdentity(identity), path, "DELETE", null, callback);
     }
 
     public void uploadFile(Context context, String prefix, String name, File file, Callback callback) {
@@ -87,15 +70,13 @@ public class BlockServer extends BaseServer {
         uploadFile(context, prefix, name, data, callback);
     }
 
-    int currentId = 0;
+    public void deleteFile(Context context, String prefix, String path, Callback callback) {
 
-    public int getNextId() {
-        //short way. maybe this can doing bether
-        return (this.getClass().hashCode() % 10000) + currentId++;
+        doServerAction(context, prefix, path, "DELETE", null, callback);
     }
 
-    public void uploadFile(Context context, String name, File file, Callback callback) {
+    public synchronized int getNextId() {
 
-        uploadFile(context, VolumeFileTransferHelper.getPrefixFromIdentity(QabelBoxApplication.getInstance().getService().getActiveIdentity()), name, file, callback);
+        return (suffixId + (currentId++) + (int) (System.currentTimeMillis()) % 1000000);
     }
 }

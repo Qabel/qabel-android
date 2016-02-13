@@ -621,6 +621,7 @@ public class BoxProvider extends DocumentsProvider {
             throws IOException, QblStorageException {
 
         final int id = 2;
+        //@todo notification handling into separate place
         final NotificationManager mNotifyManager = (NotificationManager) getContext().getSystemService(Context.NOTIFICATION_SERVICE);
         final NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(getContext());
         mBuilder.setContentTitle("Downloading " + mDocumentIdParser.getBaseName(documentId))

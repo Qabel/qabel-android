@@ -4,9 +4,6 @@ import android.content.Context;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
-
-
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,16 +20,14 @@ import java.util.concurrent.CountDownLatch;
 
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.communication.BlockServer;
-
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Response;
 
-public class TransferManager  {
+public class TransferManager {
 
     private static final Logger logger = LoggerFactory.getLogger(TransferManager.class.getName());
     private static final String TAG = "TransferManager";
-
 
     private File tempDir;
     private final Map<Integer, CountDownLatch> latches;
@@ -43,16 +38,12 @@ public class TransferManager  {
 
     public TransferManager(File tempDir) {
 
-
         this.tempDir = tempDir;
-        //semaphores = new ConcurrentHashMap<>();
         latches = new ConcurrentHashMap<>();
         errors = new HashMap<>();
         transferListeners = new ConcurrentHashMap<>();
         context = QabelBoxApplication.getInstance().getApplicationContext();
     }
-
-
 
     private String getKey(String prefix, String name) {
 
@@ -81,15 +72,15 @@ public class TransferManager  {
         Log.d(TAG, "upload " + prefix + " " + name + " " + file.toString());
         final int id = blockServer.getNextId();
         latches.put(id, new CountDownLatch(1));
-        blockServer.uploadFile(context,/* prefix,*/ name, file, new Callback() {
+        blockServer.uploadFile(context, prefix, name, file, new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
+                errors.put(id, e);
 
-                latches.get(id).countDown();
                 if (boxTransferListener != null) {
                     boxTransferListener.onFinished();
                 }
-
+                latches.get(id).countDown();
             }
 
             @Override
@@ -100,7 +91,6 @@ public class TransferManager  {
                 if (boxTransferListener != null) {
                     boxTransferListener.onFinished();
                 }
-
             }
         });
 
@@ -124,14 +114,14 @@ public class TransferManager  {
 
         final int id = blockServer.getNextId();
         latches.put(id, new CountDownLatch(1));
-        blockServer.downloadFile(context, /*prefix,*/ name, new Callback() {
+        blockServer.downloadFile(context, prefix, name, new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
 
                 if (boxTransferListener != null) {
                     boxTransferListener.onFinished();
                 }
-
+                errors.put(id, e);
                 latches.get(id).countDown();
             }
 
@@ -153,16 +143,21 @@ public class TransferManager  {
                         total += count;
                         output.write(data, 0, count);
                     }
-                    Log.d(TAG, "download response " + total);
+
+                    Log.d(TAG, "download filesize: " + total);
+                    if (boxTransferListener != null) {
+                        boxTransferListener.onProgressChanged(total, total);
+                    }
                     output.flush();
                     output.close();
                     input.close();
+                } else {
+                    Log.d(TAG, "donwload failure");
                 }
                 latches.get(id).countDown();
                 if (boxTransferListener != null) {
                     boxTransferListener.onFinished();
                 }
-
             }
         });
 
@@ -174,6 +169,7 @@ public class TransferManager  {
         logger.info("Waiting for " + id);
         try {
             latches.get(id).await();
+            logger.info("Waiting for " + id + " finished");
             Exception e = errors.get(id);
             if (e != null) {
                 return false;
@@ -184,9 +180,6 @@ public class TransferManager  {
         }
     }
 
-
-
-
     public void delete(String prefix, String ref) {
 
         //  awsClient.deleteObject(bucket, getKey(prefix, ref));
@@ -196,10 +189,9 @@ public class TransferManager  {
 
         final int id = blockServer.getNextId();
         latches.put(id, new CountDownLatch(1));
-        blockServer.downloadFile(context, /*prefix,*/ ref, new Callback() {
+        blockServer.downloadFile(context, prefix, ref, new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
-
 
                 latches.get(id).countDown();
             }
@@ -210,7 +202,6 @@ public class TransferManager  {
                 Log.d(TAG, "delete response " + response.code());
 
                 latches.get(id).countDown();
-
             }
         });
     }

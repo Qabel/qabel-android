@@ -61,17 +61,11 @@ class DirectoryMetadata {
 					" name VARCHAR(255)NOT NULL PRIMARY KEY," +
 					" key BLOB NOT NULL )",
 			"CREATE TABLE externals (" +
+					" is_folder BOOLEAN NOT NULL," +
 					" owner BLOB NOT NULL," +
 					" name VARCHAR(255)NOT NULL PRIMARY KEY," +
 					" key BLOB NOT NULL," +
 					" url TEXT NOT NULL )",
-			"CREATE TABLE externalFiles (" +
-					" owner BLOB NOT NULL," +
-					" block VARCHAR(255) NOT NULL," +
-					" name VARCHAR(255) NULL PRIMARY KEY," +
-					" size LONG NOT NULL," +
-					" mtime LONG NOT NULL," +
-					" key BLOB NOT NULL) ",
 			"INSERT INTO spec_version (version) VALUES(0)"
 	};
 	private final File tempDir;
@@ -417,14 +411,15 @@ class DirectoryMetadata {
 		}
 	}
 
-	List<BoxExternalFile> listExternalFiles() throws QblStorageException {
+	List<BoxExternalReference> listExternalReferences() throws QblStorageException {
 		try (Statement statement = connection.createStatement()){
 			ResultSet rs = statement.executeQuery(
-					"SELECT owner, block, name, size, mtime, key FROM externalFiles");
-			List<BoxExternalFile> files = new ArrayList<>();
+					"SELECT is_folder, url, name, owner, key FROM externals");
+			List<BoxExternalReference> files = new ArrayList<>();
 			while (rs.next()) {
-				files.add(new BoxExternalFile(rs.getString(1),
-						rs.getString(2), rs.getString(3), rs.getLong(4), rs.getLong(5), rs.getBytes(6)));
+				files.add(
+						new BoxExternalReference(rs.getBoolean(1), rs.getString(2), rs.getString(3),
+								new QblECPublicKey(rs.getBytes(4)), rs.getBytes(5)));
 			}
 			return files;
 		} catch (SQLException e) {
@@ -432,19 +427,18 @@ class DirectoryMetadata {
 		}
 	}
 
-	void insertExternalFile(BoxExternalFile file) throws QblStorageException {
+	void insertExternalReference(BoxExternalReference file) throws QblStorageException {
 		int type = isA(file.name);
 		if ((type != TYPE_NONE) && (type != TYPE_FILE)) {
 			throw new QblStorageNameConflict(file.name);
 		}
 		try (PreparedStatement st = connection.prepareStatement(
-				"INSERT INTO externalFiles (owner, block, name, size, mtime, key) VALUES(?, ?, ?, ?, ?, ?)")){
-			st.setString(1, file.owner);
-			st.setString(2, file.block);
+			 "INSERT INTO externals (is_folder, url, name, owner, key) VALUES(?, ?, ?, ?, ?)")){
+			st.setBoolean(1, file.isFolder);
+			st.setString(2, file.url);
 			st.setString(3, file.name);
-			st.setLong(4, file.size);
-			st.setLong(5, file.mtime);
-			st.setBytes(6, file.key);
+			st.setBytes(4, file.owner.getKey());
+			st.setBytes(5, file.key);
 			if (st.executeUpdate() != 1) {
 				throw new QblStorageException("Failed to insert file");
 			}
@@ -455,10 +449,10 @@ class DirectoryMetadata {
 		}
 	}
 
-	void deleteExternalFile(BoxExternalFile file) throws QblStorageException {
+	void deleteExternalReference(String name) throws QblStorageException {
 		try (PreparedStatement st = connection.prepareStatement(
-				"DELETE FROM externalFiles WHERE name=?")){
-			st.setString(1, file.name);
+				"DELETE FROM externals WHERE name=?")){
+			st.setString(1, name);
 			if (st.executeUpdate() != 1) {
 				throw new QblStorageException("Failed to delete file: Not found");
 			}
@@ -533,81 +527,6 @@ class DirectoryMetadata {
 		}
 	}
 
-	void insertExternal(BoxExternal external) throws QblStorageException {
-		int type = isA(external.name);
-		if ((type != TYPE_NONE) && (type != TYPE_EXTERNAL)) {
-			throw new QblStorageNameConflict(external.name);
-		}
-		PreparedStatement st = null;
-		try {
-			st = connection.prepareStatement(
-					"INSERT INTO externals (url, name, owner, key) VALUES(?, ?, ?, ?)");
-			st.setString(1, external.url);
-			st.setString(2, external.name);
-			st.setBytes(3, external.owner.getKey());
-			st.setBytes(4, external.key);
-			if (st.executeUpdate() != 1) {
-				throw new QblStorageException("Failed to insert external");
-			}
-
-		} catch (SQLException e) {
-			throw new QblStorageException(e);
-		} finally {
-			try {
-				if (st != null) {
-					st.close();
-				}
-			} catch (SQLException e) {
-			}
-		}
-	}
-
-	void deleteExternal(BoxExternal external) throws QblStorageException {
-		PreparedStatement st = null;
-		try {
-			st = connection.prepareStatement(
-					"DELETE FROM externals WHERE name=?");
-			st.setString(1, external.name);
-			if (st.executeUpdate() != 1) {
-				throw new QblStorageException("Failed to insert external");
-			}
-
-		} catch (SQLException e) {
-			throw new QblStorageException(e);
-		} finally {
-			try {
-				if (st != null) {
-					st.close();
-				}
-			} catch (SQLException e) {
-			}
-		}
-	}
-
-	List<BoxExternal> listExternals() throws QblStorageException {
-		Statement statement = null;
-		try {
-			statement = connection.createStatement();
-			ResultSet rs = statement.executeQuery(
-					"SELECT url, name, owner, key FROM externals");
-			List<BoxExternal> externals = new ArrayList<>();
-			while (rs.next()) {
-				externals.add(new BoxExternal(rs.getString(1), rs.getString(2),
-						new QblECPublicKey(rs.getBytes(3)), rs.getBytes(4)));
-			}
-			return externals;
-		} catch (SQLException e) {
-			throw new QblStorageException(e);
-		} finally {
-			try {
-				if (statement != null) {
-					statement.close();
-				}
-			} catch (SQLException e) {
-			}
-		}
-	}
-
 	BoxFile getFile(String name) throws QblStorageException {
 		PreparedStatement statement = null;
 		try {
@@ -633,8 +552,8 @@ class DirectoryMetadata {
 	}
 
 	int isA(String name) throws QblStorageException {
-		String[] types = {"files", "folders", "externals", "externalFiles"};
-		for (int type = 0; type < 4; type++) {
+		String[] types = {"files", "folders", "externals"};
+		for (int type = 0; type < 3; type++) {
 			PreparedStatement statement = null;
 			try {
 				statement = connection.prepareStatement(

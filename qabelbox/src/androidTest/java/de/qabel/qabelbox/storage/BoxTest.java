@@ -180,14 +180,12 @@ public class BoxTest extends AndroidTestCase {
 		BoxFile boxFile = nav.upload("foobar", new FileInputStream(file), null);
 		nav.commit();
 
-		nav.createFileMetadata(OWNER, boxFile);
-		nav.commit();
+		BoxExternalReference boxExternalReference = nav.createFileMetadata(OWNER, boxFile);
 
 		// Share meta and metakey to other user
 
 		BoxNavigation navOtherUser = volumeOtherUser.navigate();
-		navOtherUser.attachExternal(false, boxFile.name, OWNER, boxFile.meta, boxFile.metakey);
-		navOtherUser.commit();
+		navOtherUser.attachExternal(boxExternalReference);
 
 		checkExternalReceivedBoxFile(boxFile, navOtherUser);
 	}
@@ -199,14 +197,12 @@ public class BoxTest extends AndroidTestCase {
 		BoxFile boxFile = nav.upload("foobar", new FileInputStream(file), null);
 		nav.commit();
 
-		nav.createFileMetadata(OWNER, boxFile);
-		nav.commit();
+		BoxExternalReference boxExternalReference = nav.createFileMetadata(OWNER, boxFile);
 
 		// Share meta and metakey to other user
 
 		BoxNavigation navOtherUser = volumeOtherUser.navigate();
-		navOtherUser.attachExternal(false, boxFile.name, OWNER, boxFile.meta, boxFile.metakey);
-		navOtherUser.commit();
+		navOtherUser.attachExternal(boxExternalReference);
 
 		checkExternalReceivedBoxFile(boxFile, navOtherUser);
 
@@ -223,14 +219,12 @@ public class BoxTest extends AndroidTestCase {
 		BoxNavigation nav = volume.navigate();
 		BoxFile boxFile = uploadFile(nav, "foobar");
 
-		nav.createFileMetadata(OWNER, boxFile);
-		nav.commit();
+		BoxExternalReference boxExternalReference = nav.createFileMetadata(OWNER, boxFile);
 
 		// Share meta and metakey to other user
 
 		BoxNavigation navOtherUser = volumeOtherUser.navigate();
-		navOtherUser.attachExternal(false, boxFile.name, OWNER, boxFile.meta, boxFile.metakey);
-		navOtherUser.commit();
+		navOtherUser.attachExternal(boxExternalReference);
 
 		checkExternalReceivedBoxFile(boxFile, navOtherUser);
 
@@ -277,14 +271,12 @@ public class BoxTest extends AndroidTestCase {
 		BoxNavigation nav = volume.navigate();
 		BoxFile boxFile = uploadFile(nav, "foobar");
 
-		nav.createFileMetadata(OWNER, boxFile);
-		nav.commit();
+		BoxExternalReference boxExternalReference = nav.createFileMetadata(OWNER, boxFile);
 
 		// Share meta and metakey to other user
 
 		BoxNavigation navOtherUser = volumeOtherUser.navigate();
-		navOtherUser.attachExternal(false, boxFile.name, OWNER, boxFile.meta, boxFile.metakey);
-		navOtherUser.commit();
+		navOtherUser.attachExternal(boxExternalReference);
 
 		List<BoxObject> boxExternalFiles = navOtherUser.listExternals();
 		assertThat(boxExternalFiles.size(), is(1));

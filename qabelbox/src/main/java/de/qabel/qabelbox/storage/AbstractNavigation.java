@@ -384,9 +384,9 @@ public abstract class AbstractNavigation implements BoxNavigation {
 	 * @return True if FileMetadata has successfully created and uploaded.
 	 */
 	@Override
-	public boolean createFileMetadata(QblECPublicKey owner, BoxFile boxFile) {
+	public BoxExternalReference createFileMetadata(QblECPublicKey owner, BoxFile boxFile) throws QblStorageException {
 		if (boxFile.meta != null || boxFile.metakey != null) {
-			return false;
+			return new BoxExternalReference(false, boxFile.meta, boxFile.name, owner, boxFile.metakey);
 		}
 		String block = UUID.randomUUID().toString();
 		boxFile.meta = prefix + '/' + block;
@@ -405,10 +405,9 @@ public abstract class AbstractNavigation implements BoxNavigation {
 			}
 			dm.insertFile(boxFile);
 		} catch (QblStorageException | FileNotFoundException e) {
-			Log.e(TAG, "Could not create or upload FileMetadata", e);
-			return false;
+			throw new QblStorageException("Could not create or upload FileMetadata", e);
 		}
-		return true;
+		return new BoxExternalReference(false, boxFile.meta, boxFile.name, owner, boxFile.metakey);
 	}
 
 	/**
@@ -457,16 +456,12 @@ public abstract class AbstractNavigation implements BoxNavigation {
 
 	/**
 	 * Attaches a received BoxExternal to the DirectoryMetadata
-	 * @param isFolder True if share is a BoxFolder, false if share is a BoxFile
-	 * @param name Name of the share
-	 * @param owner Owner of the shared BoxFile or BoxFolder
-	 * @param metaURL URL to download metadata from
-	 * @param metaKey Key to decrypt metadata with
+	 * @param boxExternalReference Reference to meta file
 	 * @throws QblStorageException If metadata cannot be accesses or decrypted.
 	 */
 	@Override
-	public void attachExternal(boolean isFolder, String name, QblECPublicKey owner, String metaURL, byte[] metaKey) throws QblStorageException {
-			dm.insertExternalReference(new BoxExternalReference(isFolder, metaURL, name, owner, metaKey));
+	public void attachExternal(BoxExternalReference boxExternalReference) throws QblStorageException {
+			dm.insertExternalReference(boxExternalReference);
 	}
 
 	/**

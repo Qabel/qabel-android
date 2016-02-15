@@ -349,9 +349,11 @@ public class StorageSearch {
             if (item instanceof BoxFile) {
                 clone.add(((BoxFile) item).clone());
             }
-            if (item instanceof BoxExternal) {
-                clone.add(((BoxExternal) item).clone());
-            } else if (item instanceof BoxFolder) {
+            if (item instanceof BoxExternalFile) {
+                clone.add(((BoxExternalFile) item).clone());
+            } else if (item instanceof BoxExternalFolder){
+				clone.add(((BoxExternalFolder) item).clone());
+			} else if (item instanceof BoxFolder) {
                 clone.add(((BoxFolder) item).clone());
             }
         }

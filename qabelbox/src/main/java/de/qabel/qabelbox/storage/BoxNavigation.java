@@ -2,13 +2,15 @@ package de.qabel.qabelbox.storage;
 
 import android.support.annotation.Nullable;
 
+import de.qabel.core.crypto.QblECPublicKey;
 import de.qabel.qabelbox.exceptions.QblStorageException;
-import de.qabel.qabelbox.exceptions.QblStorageNotFound;
 
 import java.io.InputStream;
 import java.util.List;
 
 public interface BoxNavigation {
+
+	void navigate(String prefix, BoxExternalFolder target) throws QblStorageException;
 
 	/**
 	 * Bumps the version and uploads the metadata file
@@ -22,34 +24,36 @@ public interface BoxNavigation {
 	boolean hasParent();
 	void navigateToParent() throws QblStorageException;
 	void navigate(BoxFolder target) throws QblStorageException;
-	BoxNavigation navigate(BoxExternal target);
+	BoxNavigation navigate(BoxExternalReference target);
 
 	List<BoxFile> listFiles() throws QblStorageException;
 	List<BoxFolder> listFolders() throws QblStorageException;
-	List<BoxExternal> listExternals() throws QblStorageException;
-	List<BoxExternalFile> listExternalFiles() throws QblStorageException;
+	List<BoxObject> listExternals() throws QblStorageException;
 
 	BoxFile upload(String name, InputStream content, @Nullable TransferManager.BoxTransferListener boxTransferListener) throws QblStorageException;
 	InputStream download(BoxFile file, @Nullable TransferManager.BoxTransferListener boxTransferListener) throws QblStorageException;
 
-	boolean createFileMetadata(String owner, BoxFile boxFile);
+	boolean createFileMetadata(QblECPublicKey owner, BoxFile boxFile);
+	boolean updateFileMetadata(BoxFile boxFile);
 	boolean removeFileMetadata(BoxFile boxFile);
 
-	void attachExternalFile(String owner, String metaURL, byte[] metaKey) throws QblStorageException;
-	void detachExternalFile(BoxExternalFile boxExternalFile) throws QblStorageException;
+	void attachExternal(boolean isFolder, String name, QblECPublicKey owner, String metaURL, byte[] metaKey) throws QblStorageException;
+	void detachExternal(String name) throws QblStorageException;
 
 	void delete(BoxObject boxObject) throws QblStorageException;
 	void delete(BoxFile boxFile) throws QblStorageException;
 	void delete(BoxFolder boxFolder) throws QblStorageException;
-	void delete(BoxExternal boxExternal) throws QblStorageException;
+	void delete(BoxExternalReference boxExternal) throws QblStorageException;
 
 	BoxFolder createFolder(String name) throws QblStorageException;
 
 	BoxFile rename(BoxFile file, String name) throws QblStorageException;
 	BoxFolder rename(BoxFolder folder, String name) throws QblStorageException;
-	BoxExternal rename(BoxExternal external, String name) throws QblStorageException;
+	BoxExternalReference rename(BoxExternalReference external, String name) throws QblStorageException;
 
 	void reload() throws QblStorageException;
+
+	BoxExternalReference getDmRef(QblECPublicKey owner) throws QblStorageException;
 
 	String getPath();
 

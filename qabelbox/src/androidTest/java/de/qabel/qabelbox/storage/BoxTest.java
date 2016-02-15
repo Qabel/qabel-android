@@ -126,19 +126,24 @@ public class BoxTest extends AndroidTestCase {
     }
 
     public void tearDown() throws IOException {
-        ObjectListing listing = s3Client.listObjects(bucket, prefix);
-        List<DeleteObjectsRequest.KeyVersion> keys = new ArrayList<>();
-        for (S3ObjectSummary summary : listing.getObjectSummaries()) {
-            logger.info("deleting key" + summary.getKey());
-            keys.add(new DeleteObjectsRequest.KeyVersion(summary.getKey()));
-        }
-        if (keys.isEmpty()) {
-            return;
-        }
-        DeleteObjectsRequest deleteObjectsRequest = new DeleteObjectsRequest(bucket);
-        deleteObjectsRequest.setKeys(keys);
-        s3Client.deleteObjects(deleteObjectsRequest);
+		deleteObjects(bucket, prefix);
+		deleteObjects(bucket, prefixOtherUser);
     }
+
+	private void deleteObjects(String bucket, String prefix) {
+		ObjectListing listing = s3Client.listObjects(bucket, prefix);
+		List<DeleteObjectsRequest.KeyVersion> keys = new ArrayList<>();
+		for (S3ObjectSummary summary : listing.getObjectSummaries()) {
+			logger.info("deleting key" + summary.getKey());
+			keys.add(new DeleteObjectsRequest.KeyVersion(summary.getKey()));
+		}
+		if (keys.isEmpty()) {
+			return;
+		}
+		DeleteObjectsRequest deleteObjectsRequest = new DeleteObjectsRequest(bucket);
+		deleteObjectsRequest.setKeys(keys);
+
+	}
 
     @Test
     public void testCreateIndex() throws QblStorageException {

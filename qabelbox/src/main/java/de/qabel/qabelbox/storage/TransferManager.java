@@ -191,16 +191,16 @@ public class TransferManager {
         }
     }
 
-    public void delete(String prefix, String ref) {
+    public void delete(String prefix, String name) {
 
         //  awsClient.deleteObject(bucket, getKey(prefix, ref));
         //@todo delete ref, whats that?
 
-        Log.d(TAG, "delete " + prefix + " " + ref);
+        Log.d(TAG, "delete " + prefix + " " + name);
 
         final int id = blockServer.getNextId();
         latches.put(id, new CountDownLatch(1));
-        blockServer.downloadFile(context, prefix, ref, new Callback() {
+        blockServer.downloadFile(context, prefix, name, new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
                 latches.get(id).countDown();

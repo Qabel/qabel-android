@@ -101,7 +101,7 @@ public class OpenImageTest {
 
     private void setupData() {
 
-        new AppPreference(QabelBoxApplication.getInstance().getApplicationContext()).setToken("dummytoken");
+        new AppPreference(QabelBoxApplication.getInstance().getApplicationContext()).setToken(QabelBoxApplication.getInstance().getApplicationContext().getString(R.string.uitesttoken));
         mBoxHelper = new UIBoxHelper(mActivity);
         mBoxHelper.bindService(QabelBoxApplication.getInstance());
         try {

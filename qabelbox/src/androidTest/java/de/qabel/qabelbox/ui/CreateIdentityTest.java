@@ -91,7 +91,7 @@ public class CreateIdentityTest {
                 identities.getIdentities()) {
             service.deleteIdentity(identity);
         }
-        new AppPreference(QabelBoxApplication.getInstance().getApplicationContext()).setToken("dummytoken");
+        new AppPreference(QabelBoxApplication.getInstance().getApplicationContext()).setToken(QabelBoxApplication.getInstance().getApplicationContext().getString(R.string.uitesttoken));
     }
 
     @Test

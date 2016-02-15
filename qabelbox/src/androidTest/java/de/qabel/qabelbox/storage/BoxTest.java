@@ -215,6 +215,55 @@ public class BoxTest extends AndroidTestCase {
 	}
 
 	@Test
+	public void testShareAndUpdateAndUnshareFile() throws QblStorageException, IOException {
+		BoxNavigation nav = volume.navigate();
+		File file = new File(testFileName);
+		BoxFile boxFile = nav.upload("foobar", new FileInputStream(file), null);
+		nav.commit();
+
+		nav.createFileMetadata(OWNER, boxFile);
+		nav.commit();
+
+		// Share meta and metakey to other user
+
+		BoxNavigation navOtherUser = volumeOtherUser.navigate();
+		navOtherUser.attachExternal(false, boxFile.name, OWNER, boxFile.meta, boxFile.metakey);
+		navOtherUser.commit();
+
+		List<BoxObject> boxExternalFiles = navOtherUser.listExternals();
+		assertThat(boxExternalFiles.size(), is(1));
+		assertTrue(boxExternalFiles.get(0) instanceof BoxExternalFile);
+		BoxExternalFile boxFileReceived = (BoxExternalFile) boxExternalFiles.get(0);
+		assertThat(boxFile.name, is(equalTo(boxFileReceived.name)));
+		assertThat(boxFile.key, is(equalTo(boxFileReceived.key)));
+		assertThat(OWNER, is(equalTo(boxFileReceived.owner)));
+
+		boxFile = nav.upload("foobar", new FileInputStream(file), null);
+		nav.commit();
+
+		// Check that updated file can still be read
+
+		boxExternalFiles = navOtherUser.listExternals();
+		assertThat(boxExternalFiles.size(), is(1));
+		assertTrue(boxExternalFiles.get(0) instanceof BoxExternalFile);
+		boxFileReceived = (BoxExternalFile) boxExternalFiles.get(0);
+		assertThat(boxFile.name, is(equalTo(boxFileReceived.name)));
+		assertThat(boxFile.key, is(equalTo(boxFileReceived.key)));
+		assertThat(OWNER, is(equalTo(boxFileReceived.owner)));
+
+		// Remove FileMetadata and update file
+		nav.removeFileMetadata(boxFile);
+
+		boxFile = nav.upload("foobar", new FileInputStream(file), null);
+		nav.commit();
+
+		// Check that updated file cannot be read anymore
+
+		boxExternalFiles = navOtherUser.listExternals();
+		assertThat(boxExternalFiles.size(), is(0));
+	}
+
+	@Test
 	public void testFileIsShared() throws QblStorageException, IOException {
 		BoxNavigation nav = volume.navigate();
 		File file = new File(testFileName);

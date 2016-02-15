@@ -318,6 +318,74 @@ public class BoxTest extends AndroidTestCase {
 	}
 
 	@Test
+	public void testShareFolder() throws QblStorageException, IOException {
+		BoxNavigation nav = volume.navigate();
+		File file = new File(testFileName);
+
+		BoxFolder boxFolder = nav.createFolder("SHARE");
+		nav.commit();
+
+		nav.navigate(boxFolder);
+
+		BoxExternalReference boxExternalReference = nav.getDmRef(OWNER);
+
+		BoxFile boxFile1 = nav.upload("foobar", new FileInputStream(file), null);
+		nav.commit();
+
+		BoxFolder subFolder = nav.createFolder("SUBFOLDER");
+		nav.commit();
+
+		nav.navigate(subFolder);
+
+		BoxFile boxFile2 = nav.upload("foobar2", new FileInputStream(file), null);
+		nav.commit();
+
+		// Share meta and metakey to other user
+
+		BoxNavigation navOtherUser = volumeOtherUser.navigate();
+		navOtherUser.attachExternal(boxExternalReference.isFolder, boxExternalReference.name,
+				boxExternalReference.owner, boxExternalReference.url, boxExternalReference.key);
+		navOtherUser.commit();
+
+		List<BoxObject> externals = navOtherUser.listExternals();
+		assertThat(externals.size(), is(2));
+
+		assertTrue(externals.get(0) instanceof BoxExternalFile);
+		BoxExternalFile boxFileReceived = (BoxExternalFile) externals.get(0);
+		assertThat(boxFile1.name, is(equalTo(boxFileReceived.name)));
+		assertThat(boxFile1.key, is(equalTo(boxFileReceived.key)));
+		assertThat(OWNER, is(equalTo(boxFileReceived.owner)));
+
+		assertTrue(externals.get(1) instanceof BoxExternalFolder);
+		navOtherUser.navigate(boxExternalReference.url.split("/")[0], (BoxExternalFolder) externals.get(1));
+
+		List<BoxFile> boxFiles = navOtherUser.listFiles();
+		assertThat(boxFiles.size(), is(1));
+
+		BoxFile boxFileReceived2 = boxFiles.get(0);
+		assertThat(boxFile2.name, is(equalTo(boxFileReceived2.name)));
+		assertThat(boxFile2.key, is(equalTo(boxFileReceived2.key)));
+	}
+
+	@Test(expected=QblStorageException.class)
+	public void testShareRootFailure() throws QblStorageException {
+		BoxNavigation nav = volume.navigate();
+		nav.getDmRef(OWNER);
+	}
+
+	@Test(expected=QblStorageException.class)
+	public void testShareDirectoryMetadataWithoutOwnerRootFailure() throws QblStorageException {
+		BoxNavigation nav = volume.navigate();
+		BoxFolder boxFolder = nav.createFolder("SHARE");
+		nav.commit();
+
+		nav.navigate(boxFolder);
+
+		nav.getDmRef(null);
+	}
+
+
+	@Test
     public void testDeleteFile() throws QblStorageException, IOException {
         BoxNavigation nav = volume.navigate();
         BoxFile boxFile = uploadFile(nav);

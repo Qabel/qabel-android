@@ -10,6 +10,8 @@ import java.util.List;
 
 public interface BoxNavigation {
 
+	void navigate(String prefix, BoxExternalFolder target) throws QblStorageException;
+
 	/**
 	 * Bumps the version and uploads the metadata file
 	 *
@@ -50,6 +52,8 @@ public interface BoxNavigation {
 	BoxExternalReference rename(BoxExternalReference external, String name) throws QblStorageException;
 
 	void reload() throws QblStorageException;
+
+	BoxExternalReference getDmRef(QblECPublicKey owner) throws QblStorageException;
 
 	String getPath();
 

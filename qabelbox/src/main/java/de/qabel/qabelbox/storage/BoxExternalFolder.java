@@ -11,6 +11,12 @@ public class BoxExternalFolder extends BoxFolder implements BoxExternal {
 		super(ref, name, key);
 	}
 
+	public BoxExternalFolder(QblECPublicKey owner, BoxFolder boxFolder) {
+		super(boxFolder.ref, boxFolder.name, boxFolder.key);
+		this.owner = owner;
+		this.isAccessible = true;
+	}
+
 
 	@Override
 	public QblECPublicKey getOwner() {

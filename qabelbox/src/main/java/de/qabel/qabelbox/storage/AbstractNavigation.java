@@ -68,6 +68,17 @@ public abstract class AbstractNavigation implements BoxNavigation {
 		}
 	}
 
+	@Override
+	public BoxExternalReference getDmRef(QblECPublicKey owner) throws QblStorageException {
+		if (dmKey == null) {
+			throw new QblStorageException("Cannot share root folder!");
+		}
+		if (owner == null) {
+			throw new QblStorageException("Cannot share without owner!");
+		}
+		return new BoxExternalReference(true, prefix + '/' + dm.getFileName(), currentPath, owner, dmKey);
+	}
+
 	public String getPath() {
 		return currentPath;
 	}
@@ -123,7 +134,7 @@ public abstract class AbstractNavigation implements BoxNavigation {
 	public void navigateToParent() throws QblStorageException {
 		if (hasParent()) {
 			BoxFolder parentBoxFolder = parentBoxFolders.pop();
-			doNavigate(parentBoxFolder, false);
+			doNavigate(prefix, parentBoxFolder, false);
 		} else {
 			throw new QblStorageException("No parent folder");
 		}
@@ -147,13 +158,27 @@ public abstract class AbstractNavigation implements BoxNavigation {
             throw new QblStorageNotFound(target.name + " is not a direct subfolder of " + currentPath);
         }
 		try {
-			doNavigate(target, true);
+			doNavigate(prefix, target, true);
 		} catch (QblStorageException e) {
 			throw new QblStorageNotFound("Invalid key");
 		}
 	}
 
-	private void doNavigate(BoxFolder target, boolean isChild) throws QblStorageException {
+	/**
+	 * Navigates to a direct subfolder.
+	 * @param target Subfolder to navigate to
+	 * @throws QblStorageException
+	 */
+	@Override
+	public void navigate(String prefix, BoxExternalFolder target) throws QblStorageException {
+		try {
+			doNavigate(prefix, target, true);
+		} catch (QblStorageException e) {
+			throw new QblStorageNotFound("Invalid key");
+		}
+	}
+
+	private void doNavigate(String prefix, BoxFolder target, boolean isChild) throws QblStorageException {
 		// Push current BoxFolder to parentBoxFolders if navigating to a child and set currentPath
 		if (isChild) {
 			parentBoxFolders.push(new BoxFolder(dm.getFileName(), getName(), dmKey));
@@ -277,11 +302,14 @@ public abstract class AbstractNavigation implements BoxNavigation {
 			try {
 				File out = getMetadataFile(boxExternalRefs.url, boxExternalRefs.key);
 				if (boxExternalRefs.isFolder) {
-					//TODO: Check DirectoryMetadata handling
 					DirectoryMetadata directoryMetadata =
 							DirectoryMetadata.openDatabase(out, dm.deviceId, splitURL[1], dm.getTempDir());
-					boxExternals.addAll(directoryMetadata.listFiles());
-					boxExternals.addAll(directoryMetadata.listFolders());
+					for (BoxFile boxFile : directoryMetadata.listFiles()) {
+						boxExternals.add(new BoxExternalFile(boxExternalRefs.owner, boxFile));
+					}
+					for (BoxFolder boxFolder : directoryMetadata.listFolders()) {
+						boxExternals.add(new BoxExternalFolder(boxExternalRefs.owner, boxFolder));
+					}
 				} else {
 					FileMetadata fileMetadata = new FileMetadata(out);
 					boxExternals.add(fileMetadata.getFile());

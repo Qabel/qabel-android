@@ -19,6 +19,12 @@ public class BoxExternalFile extends BoxFile implements BoxExternal {
 		this.isAccessible = isAccessible;
 	}
 
+	public BoxExternalFile(QblECPublicKey owner, BoxFile boxFile) {
+		super(boxFile.block, boxFile.name, boxFile.size, boxFile.mtime, boxFile.key);
+		this.owner = owner;
+		this.isAccessible = true;
+	}
+
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;

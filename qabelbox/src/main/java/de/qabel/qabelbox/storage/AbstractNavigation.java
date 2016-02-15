@@ -274,16 +274,20 @@ public abstract class AbstractNavigation implements BoxNavigation {
 		List<BoxObject> boxExternals = new ArrayList<>();
 		for (BoxExternalReference boxExternalRefs : dm.listExternalReferences()) {
 			String[] splitURL = boxExternalRefs.url.split("/");
-			File out = getMetadataFile(boxExternalRefs.url, boxExternalRefs.key);
-			if (boxExternalRefs.isFolder) {
-				//TODO: Check DirectoryMetadata handling
-				DirectoryMetadata directoryMetadata =
-						DirectoryMetadata.openDatabase(out, dm.deviceId, splitURL[1], dm.getTempDir());
-				boxExternals.addAll(directoryMetadata.listFiles());
-				boxExternals.addAll(directoryMetadata.listFolders());
-			} else {
-				FileMetadata fileMetadata = new FileMetadata(out);
-				boxExternals.add(fileMetadata.getFile());
+			try {
+				File out = getMetadataFile(boxExternalRefs.url, boxExternalRefs.key);
+				if (boxExternalRefs.isFolder) {
+					//TODO: Check DirectoryMetadata handling
+					DirectoryMetadata directoryMetadata =
+							DirectoryMetadata.openDatabase(out, dm.deviceId, splitURL[1], dm.getTempDir());
+					boxExternals.addAll(directoryMetadata.listFiles());
+					boxExternals.addAll(directoryMetadata.listFolders());
+				} else {
+					FileMetadata fileMetadata = new FileMetadata(out);
+					boxExternals.add(fileMetadata.getFile());
+				}
+			} catch (QblStorageException e) {
+				Log.e(TAG, "Cannot load metadata file: " + boxExternalRefs.url);
 			}
 		}
 		return boxExternals;

@@ -367,13 +367,18 @@ public class BoxTest extends AndroidTestCase {
 		assertThat(boxFile2.key, is(equalTo(boxFileReceived2.key)));
 	}
 
-	@Test(expected=QblStorageException.class)
+	@Test
 	public void testShareRootFailure() throws QblStorageException {
 		BoxNavigation nav = volume.navigate();
-		nav.getDmRef(OWNER);
+		try {
+			nav.getDmRef(OWNER);
+		} catch (QblStorageException e) {
+			return;
+		}
+		fail("Expected QblStorageNotFound");
 	}
 
-	@Test(expected=QblStorageException.class)
+	@Test
 	public void testShareDirectoryMetadataWithoutOwnerRootFailure() throws QblStorageException {
 		BoxNavigation nav = volume.navigate();
 		BoxFolder boxFolder = nav.createFolder("SHARE");
@@ -381,7 +386,12 @@ public class BoxTest extends AndroidTestCase {
 
 		nav.navigate(boxFolder);
 
-		nav.getDmRef(null);
+		try {
+			nav.getDmRef(null);
+		} catch (QblStorageException e) {
+			return;
+		}
+		fail("Expected QblStorageNotFound");
 	}
 
 

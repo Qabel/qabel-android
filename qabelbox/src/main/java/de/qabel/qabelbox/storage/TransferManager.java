@@ -57,6 +57,15 @@ public class TransferManager {
         }
     }
 
+    /**
+     * upload file to server
+     *
+     * @param prefix              prefix from identity
+     * @param name                file name with path
+     * @param file                file to upload
+     * @param boxTransferListener listener
+     * @return new download id
+     */
     public int upload(String prefix, String name, File file, @Nullable final BoxTransferListener boxTransferListener) {
 
         Log.d(TAG, "upload " + prefix + " " + name + " " + file.toString());
@@ -87,6 +96,15 @@ public class TransferManager {
         return id;
     }
 
+    /**
+     * download file from server
+     *
+     * @param prefix              prefix from identity
+     * @param name                file name with directory
+     * @param file                destination file
+     * @param boxTransferListener listener
+     * @return new download id
+     */
     public int download(String prefix, String name, final File file, @Nullable final BoxTransferListener boxTransferListener) {
 
         Log.d(TAG, "download " + prefix + " " + name + " " + file.toString());
@@ -154,6 +172,12 @@ public class TransferManager {
         input.close();
     }
 
+    /**
+     * wait until server request finished.
+     *
+     * @param id id (getted from up/downbload
+     * @return true if no error occurs
+     */
     public boolean waitFor(int id) {
 
         logger.info("Waiting for " + id);

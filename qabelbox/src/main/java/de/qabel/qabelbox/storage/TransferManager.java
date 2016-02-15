@@ -28,20 +28,18 @@ public class TransferManager {
 
     private static final Logger logger = LoggerFactory.getLogger(TransferManager.class.getName());
     private static final String TAG = "TransferManager";
-
-    private File tempDir;
+    private final File tempDir;
     private final Map<Integer, CountDownLatch> latches;
     private final Map<Integer, Exception> errors;
-    private final Map<Integer, BoxTransferListener> transferListeners;
-    BlockServer blockServer = new BlockServer();
-    Context context;
+    private final BlockServer blockServer = new BlockServer();
+    private final Context context;
 
     public TransferManager(File tempDir) {
 
         this.tempDir = tempDir;
         latches = new ConcurrentHashMap<>();
         errors = new HashMap<>();
-        transferListeners = new ConcurrentHashMap<>();
+
         context = QabelBoxApplication.getInstance().getApplicationContext();
     }
 
@@ -60,15 +58,7 @@ public class TransferManager {
     }
 
     public int upload(String prefix, String name, File file, @Nullable final BoxTransferListener boxTransferListener) {
-        /*TransferObserver upload = transferUtility.upload(bucket, getKey(prefix, name), file);
-        int id = upload.getId();
-        logger.info("Uploading " + name + " id " + id);
-        semaphores.put(id, new Semaphore(0));
-        if (boxTransferListener != null) {
-            transferListeners.put(id, boxTransferListener);
-        }
-        upload.setTransferListener(this);
-        return upload.getId();*/
+
         Log.d(TAG, "upload " + prefix + " " + name + " " + file.toString());
         final int id = blockServer.getNextId();
         latches.put(id, new CountDownLatch(1));
@@ -99,17 +89,6 @@ public class TransferManager {
 
     public int download(String prefix, String name, final File file, @Nullable final BoxTransferListener boxTransferListener) {
 
-      /*  TransferObserver download = transferUtility.download(bucket, getKey(prefix, name), file);
-        int id = download.getId();
-        logger.info("Downloading " + name + " id " + id);
-        semaphores.put(id, new Semaphore(0));
-        if (boxTransferListener != null) {
-            transferListeners.put(id, boxTransferListener);
-        }
-        download.setTransferListener(this);
-        return id;*/
-
-        //name=name.replace("blocks/","");
         Log.d(TAG, "download " + prefix + " " + name + " " + file.toString());
 
         final int id = blockServer.getNextId();
@@ -130,27 +109,7 @@ public class TransferManager {
 
                 Log.d(TAG, "download response " + response.code());
                 if (response.code() == 200) {
-                    InputStream is = response.body().byteStream();
-
-                    BufferedInputStream input = new BufferedInputStream(is);
-                    OutputStream output = new FileOutputStream(file);
-
-                    byte[] data = new byte[1024];
-
-                    long total = 0;
-                    int count = 0;
-                    while ((count = input.read(data)) != -1) {
-                        total += count;
-                        output.write(data, 0, count);
-                    }
-
-                    Log.d(TAG, "download filesize: " + total);
-                    if (boxTransferListener != null) {
-                        boxTransferListener.onProgressChanged(total, total);
-                    }
-                    output.flush();
-                    output.close();
-                    input.close();
+                    readStreamFromServer(response, file, boxTransferListener);
                 } else {
                     Log.d(TAG, "donwload failure");
                 }
@@ -164,6 +123,37 @@ public class TransferManager {
         return id;
     }
 
+    /**
+     * read stream from server
+     *
+     * @param response
+     * @param file
+     * @param boxTransferListener
+     * @throws IOException
+     */
+    private void readStreamFromServer(Response response, File file, @Nullable BoxTransferListener boxTransferListener) throws IOException {
+        InputStream is = response.body().byteStream();
+        BufferedInputStream input = new BufferedInputStream(is);
+        OutputStream output = new FileOutputStream(file);
+
+        Log.d(TAG, "Server response received. Reading stream with unknown size");
+        final byte[] data = new byte[1024];
+        long total = 0;
+        int count;
+        while ((count = input.read(data)) != -1) {
+            total += count;
+            output.write(data, 0, count);
+        }
+
+        Log.d(TAG, "download filesize after: " + total);
+        if (boxTransferListener != null) {
+            boxTransferListener.onProgressChanged(total, total);
+        }
+        output.flush();
+        output.close();
+        input.close();
+    }
+
     public boolean waitFor(int id) {
 
         logger.info("Waiting for " + id);
@@ -171,10 +161,7 @@ public class TransferManager {
             latches.get(id).await();
             logger.info("Waiting for " + id + " finished");
             Exception e = errors.get(id);
-            if (e != null) {
-                return false;
-            }
-            return true;
+            return e == null;
         } catch (InterruptedException e) {
             return false;
         }
@@ -192,7 +179,6 @@ public class TransferManager {
         blockServer.downloadFile(context, prefix, ref, new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
-
                 latches.get(id).countDown();
             }
 

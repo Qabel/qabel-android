@@ -4,11 +4,8 @@ import android.content.Context;
 import android.util.Log;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
 
 import de.qabel.qabelbox.config.AppPreference;
-import de.qabel.qabelbox.helper.FileHelper;
 import okhttp3.Callback;
 import okhttp3.Request;
 import okhttp3.RequestBody;
@@ -21,17 +18,17 @@ import okhttp3.RequestBody;
 public class BlockServer extends BaseServer {
 
     private final static String TAG = "PrefixServer";
-    int currentId = 0;
-    final int suffixId;
+    private int currentId = 0;
+    private final int suffixId;
 
     public BlockServer() {
 
         super();
-        //maybe it can be bether to create a unique id. but normaly we have only one instance in boxvolume of blockserver so it should no collision occurs
+        //maybe it can be bether to create a unique id. but normally we have only one instance in boxvolume of blockserver so it should no collision occurs
         suffixId = (this.getClass().hashCode() % 0xffff) * 0x10000;
     }
 
-    protected void doServerAction(Context context, String prefix, String path, String method, RequestBody body, Callback callback) {
+    private void doServerAction(Context context, String prefix, String path, String method, RequestBody body, Callback callback) {
 
         String url = urls.getFiles() + prefix + path;
         Request.Builder builder = new Request.Builder()
@@ -41,7 +38,7 @@ public class BlockServer extends BaseServer {
 
         addHeader(new AppPreference(context).getToken(), builder);
         Request request = builder.build();
-        Log.d(TAG, "danny request " + request.toString());
+        Log.v(TAG, "blockserver request " + request.toString());
 
         client.newCall(request).enqueue(callback);
     }
@@ -58,16 +55,8 @@ public class BlockServer extends BaseServer {
 
     public void uploadFile(Context context, String prefix, String name, File file, Callback callback) {
 
-        byte[] data = new byte[0];
-        try {
-            FileInputStream fis = new FileInputStream(file);
-            data = FileHelper.readFileAsBinary(fis);
-            fis.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        doServerAction(context, prefix, name, "POST", RequestBody.create(JSON, file), callback);
 
-        uploadFile(context, prefix, name, data, callback);
     }
 
     public void deleteFile(Context context, String prefix, String path, Callback callback) {

@@ -145,7 +145,24 @@ public class BoxTest extends AndroidTestCase {
 
 	}
 
-    @Test
+	private void checkExternalReceivedBoxFile(BoxFile boxFile, BoxNavigation navOtherUser) throws QblStorageException {
+		List<BoxObject> boxExternalFiles = navOtherUser.listExternals();
+		assertThat(boxExternalFiles.size(), is(1));
+		assertTrue(boxExternalFiles.get(0) instanceof BoxExternalFile);
+		BoxExternalFile boxFileReceived = (BoxExternalFile) boxExternalFiles.get(0);
+		assertThat(boxFile.name, is(equalTo(boxFileReceived.name)));
+		assertThat(boxFile.key, is(equalTo(boxFileReceived.key)));
+		assertThat(OWNER, is(equalTo(boxFileReceived.owner)));
+	}
+
+	private BoxFile uploadFile(BoxNavigation nav, String name) throws QblStorageException, FileNotFoundException {
+		File file = new File(testFileName);
+		BoxFile boxFile = nav.upload(name, new FileInputStream(file), null);
+		nav.commit();
+		return boxFile;
+	}
+
+	@Test
     public void testCreateIndex() throws QblStorageException {
         BoxNavigation nav = volume.navigate();
         assertThat(nav.listFiles().size(), is(0));
@@ -172,13 +189,7 @@ public class BoxTest extends AndroidTestCase {
 		navOtherUser.attachExternal(false, boxFile.name, OWNER, boxFile.meta, boxFile.metakey);
 		navOtherUser.commit();
 
-		List<BoxObject> boxExternalFiles = navOtherUser.listExternals();
-		assertThat(boxExternalFiles.size(), is(1));
-		assertTrue(boxExternalFiles.get(0) instanceof BoxExternalFile);
-		BoxExternalFile boxFileReceived = (BoxExternalFile) boxExternalFiles.get(0);
-		assertThat(boxFile.name, is(equalTo(boxFileReceived.name)));
-		assertThat(boxFile.key, is(equalTo(boxFileReceived.key)));
-		assertThat(OWNER, is(equalTo(boxFileReceived.owner)));
+		checkExternalReceivedBoxFile(boxFile, navOtherUser);
 	}
 
 	@Test
@@ -197,34 +208,20 @@ public class BoxTest extends AndroidTestCase {
 		navOtherUser.attachExternal(false, boxFile.name, OWNER, boxFile.meta, boxFile.metakey);
 		navOtherUser.commit();
 
-		List<BoxObject> boxExternalFiles = navOtherUser.listExternals();
-		assertThat(boxExternalFiles.size(), is(1));
-		assertTrue(boxExternalFiles.get(0) instanceof BoxExternalFile);
-		BoxExternalFile boxFileReceived = (BoxExternalFile) boxExternalFiles.get(0);
-		assertThat(boxFile.name, is(equalTo(boxFileReceived.name)));
-		assertThat(boxFile.key, is(equalTo(boxFileReceived.key)));
-		assertThat(OWNER, is(equalTo(boxFileReceived.owner)));
+		checkExternalReceivedBoxFile(boxFile, navOtherUser);
 
 		boxFile = nav.upload("foobar", new FileInputStream(file), null);
 		nav.commit();
 
 		// Check that updated file can still be read
 
-		boxExternalFiles = navOtherUser.listExternals();
-		assertThat(boxExternalFiles.size(), is(1));
-		assertTrue(boxExternalFiles.get(0) instanceof BoxExternalFile);
-		boxFileReceived = (BoxExternalFile) boxExternalFiles.get(0);
-		assertThat(boxFile.name, is(equalTo(boxFileReceived.name)));
-		assertThat(boxFile.key, is(equalTo(boxFileReceived.key)));
-		assertThat(OWNER, is(equalTo(boxFileReceived.owner)));
+		checkExternalReceivedBoxFile(boxFile, navOtherUser);
 	}
 
 	@Test
 	public void testShareAndUpdateAndUnshareFile() throws QblStorageException, IOException {
 		BoxNavigation nav = volume.navigate();
-		File file = new File(testFileName);
-		BoxFile boxFile = nav.upload("foobar", new FileInputStream(file), null);
-		nav.commit();
+		BoxFile boxFile = uploadFile(nav, "foobar");
 
 		nav.createFileMetadata(OWNER, boxFile);
 		nav.commit();
@@ -235,48 +232,32 @@ public class BoxTest extends AndroidTestCase {
 		navOtherUser.attachExternal(false, boxFile.name, OWNER, boxFile.meta, boxFile.metakey);
 		navOtherUser.commit();
 
-		List<BoxObject> boxExternalFiles = navOtherUser.listExternals();
-		assertThat(boxExternalFiles.size(), is(1));
-		assertTrue(boxExternalFiles.get(0) instanceof BoxExternalFile);
-		BoxExternalFile boxFileReceived = (BoxExternalFile) boxExternalFiles.get(0);
-		assertThat(boxFile.name, is(equalTo(boxFileReceived.name)));
-		assertThat(boxFile.key, is(equalTo(boxFileReceived.key)));
-		assertThat(OWNER, is(equalTo(boxFileReceived.owner)));
+		checkExternalReceivedBoxFile(boxFile, navOtherUser);
 
-		boxFile = nav.upload("foobar", new FileInputStream(file), null);
-		nav.commit();
+		boxFile = uploadFile(nav, "foobar");
 
 		// Check that updated file can still be read
 
-		boxExternalFiles = navOtherUser.listExternals();
-		assertThat(boxExternalFiles.size(), is(1));
-		assertTrue(boxExternalFiles.get(0) instanceof BoxExternalFile);
-		boxFileReceived = (BoxExternalFile) boxExternalFiles.get(0);
-		assertThat(boxFile.name, is(equalTo(boxFileReceived.name)));
-		assertThat(boxFile.key, is(equalTo(boxFileReceived.key)));
-		assertThat(OWNER, is(equalTo(boxFileReceived.owner)));
+		checkExternalReceivedBoxFile(boxFile, navOtherUser);
 
 		// Remove FileMetadata and update file
 		nav.removeFileMetadata(boxFile);
 
-		boxFile = nav.upload("foobar", new FileInputStream(file), null);
-		nav.commit();
+		uploadFile(nav, "foobar");
 
 		// Check that updated file cannot be read anymore
 
-		boxExternalFiles = navOtherUser.listExternals();
+		List<BoxObject> boxExternalFiles = navOtherUser.listExternals();
 		assertThat(boxExternalFiles.size(), is(1));
 		assertTrue(boxExternalFiles.get(0) instanceof BoxExternalFile);
-		boxFileReceived = (BoxExternalFile) boxExternalFiles.get(0);
+		BoxExternalFile boxFileReceived = (BoxExternalFile) boxExternalFiles.get(0);
 		assertThat(boxFileReceived.isAccessible(), is(false));
 	}
 
 	@Test
 	public void testFileIsShared() throws QblStorageException, IOException {
 		BoxNavigation nav = volume.navigate();
-		File file = new File(testFileName);
-		BoxFile boxFile = nav.upload("foobar", new FileInputStream(file), null);
-		nav.commit();
+		BoxFile boxFile = uploadFile(nav, "foobar");
 
 		assertThat(boxFile.isShared(), is(false));
 
@@ -294,9 +275,7 @@ public class BoxTest extends AndroidTestCase {
 	@Test
 	public void testDetachFileMetadataShareFile() throws QblStorageException, IOException {
 		BoxNavigation nav = volume.navigate();
-		File file = new File(testFileName);
-		BoxFile boxFile = nav.upload("foobar", new FileInputStream(file), null);
-		nav.commit();
+		BoxFile boxFile = uploadFile(nav, "foobar");
 
 		nav.createFileMetadata(OWNER, boxFile);
 		nav.commit();

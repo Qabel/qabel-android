@@ -12,6 +12,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
+import de.qabel.core.crypto.QblECPublicKey;
 import de.qabel.qabelbox.exceptions.QblStorageException;
 
 class FileMetadata {
@@ -26,7 +27,7 @@ class FileMetadata {
 			"CREATE TABLE spec_version (" +
 					" version INTEGER PRIMARY KEY )",
 			"CREATE TABLE file (" +
-					" owner VARCHAR(255) NOT NULL," +
+					" owner BLOB NOT NULL," +
 					" block VARCHAR(255) NOT NULL," +
 					" name VARCHAR(255) NULL PRIMARY KEY," +
 					" size LONG NOT NULL," +
@@ -35,7 +36,7 @@ class FileMetadata {
 			"INSERT INTO spec_version (version) VALUES(0)"
 	};
 
-	public FileMetadata(String owner, BoxFile boxFile, File tempDir) throws QblStorageException {
+	public FileMetadata(QblECPublicKey owner, BoxFile boxFile, File tempDir) throws QblStorageException {
 		try {
 			path = File.createTempFile("dir", "db", tempDir);
 		} catch (IOException e) {
@@ -71,10 +72,10 @@ class FileMetadata {
 		}
 	}
 
-	private void insertFile(String owner, BoxFile boxFile) throws QblStorageException {
+	private void insertFile(QblECPublicKey owner, BoxFile boxFile) throws QblStorageException {
 		try (PreparedStatement statement = connection.prepareStatement(
 					"INSERT INTO file (owner, block, name, size, mtime, key) VALUES(?, ?, ?, ?, ?, ?)")) {
-			statement.setString(1, owner);
+			statement.setBytes(1, owner.getKey());
 			statement.setString(2, boxFile.block);
 			statement.setString(3, boxFile.name);
 			statement.setLong(4, boxFile.size);
@@ -120,7 +121,7 @@ class FileMetadata {
 		try (Statement statement = connection.createStatement()) {
 			ResultSet rs = statement.executeQuery("SELECT owner, block, name, size, mtime, key FROM file LIMIT 1");
 			if (rs.next()) {
-				return new BoxExternalFile(rs.getString(1), rs.getString(2),
+				return new BoxExternalFile(new QblECPublicKey(rs.getBytes(1)), rs.getString(2),
 						rs.getString(3), rs.getLong(4), rs.getLong(5), rs.getBytes(6));
 			}
 			return null;

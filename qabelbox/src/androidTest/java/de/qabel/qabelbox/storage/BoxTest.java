@@ -5,7 +5,6 @@ package de.qabel.qabelbox.storage;
 
 
 import android.test.AndroidTestCase;
-import android.util.Log;
 
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferUtility;
@@ -19,10 +18,6 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.spongycastle.crypto.engines.AESEngine;
-import org.spongycastle.crypto.modes.GCMBlockCipher;
-import org.spongycastle.crypto.params.AEADParameters;
-import org.spongycastle.crypto.params.KeyParameter;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -37,6 +32,7 @@ import java.util.UUID;
 
 import de.qabel.core.crypto.CryptoUtils;
 import de.qabel.core.crypto.QblECKeyPair;
+import de.qabel.core.crypto.QblECPublicKey;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.exceptions.QblStorageNameConflict;
@@ -47,7 +43,7 @@ import static org.junit.Assert.assertThat;
 
 public class BoxTest extends AndroidTestCase {
     private static final Logger logger = LoggerFactory.getLogger(BoxTest.class.getName());
-	private static final String OWNER = "owner";
+	private static final QblECPublicKey OWNER = new QblECKeyPair().getPub();
 
 	BoxVolume volume;
     BoxVolume volume2;
@@ -130,21 +126,43 @@ public class BoxTest extends AndroidTestCase {
     }
 
     public void tearDown() throws IOException {
-        ObjectListing listing = s3Client.listObjects(bucket, prefix);
-        List<DeleteObjectsRequest.KeyVersion> keys = new ArrayList<>();
-        for (S3ObjectSummary summary : listing.getObjectSummaries()) {
-            logger.info("deleting key" + summary.getKey());
-            keys.add(new DeleteObjectsRequest.KeyVersion(summary.getKey()));
-        }
-        if (keys.isEmpty()) {
-            return;
-        }
-        DeleteObjectsRequest deleteObjectsRequest = new DeleteObjectsRequest(bucket);
-        deleteObjectsRequest.setKeys(keys);
-        s3Client.deleteObjects(deleteObjectsRequest);
+		deleteObjects(bucket, prefix);
+		deleteObjects(bucket, prefixOtherUser);
     }
 
-    @Test
+	private void deleteObjects(String bucket, String prefix) {
+		ObjectListing listing = s3Client.listObjects(bucket, prefix);
+		List<DeleteObjectsRequest.KeyVersion> keys = new ArrayList<>();
+		for (S3ObjectSummary summary : listing.getObjectSummaries()) {
+			logger.info("deleting key" + summary.getKey());
+			keys.add(new DeleteObjectsRequest.KeyVersion(summary.getKey()));
+		}
+		if (keys.isEmpty()) {
+			return;
+		}
+		DeleteObjectsRequest deleteObjectsRequest = new DeleteObjectsRequest(bucket);
+		deleteObjectsRequest.setKeys(keys);
+
+	}
+
+	private void checkExternalReceivedBoxFile(BoxFile boxFile, BoxNavigation navOtherUser) throws QblStorageException {
+		List<BoxObject> boxExternalFiles = navOtherUser.listExternals();
+		assertThat(boxExternalFiles.size(), is(1));
+		assertTrue(boxExternalFiles.get(0) instanceof BoxExternalFile);
+		BoxExternalFile boxFileReceived = (BoxExternalFile) boxExternalFiles.get(0);
+		assertThat(boxFile.name, is(equalTo(boxFileReceived.name)));
+		assertThat(boxFile.key, is(equalTo(boxFileReceived.key)));
+		assertThat(OWNER, is(equalTo(boxFileReceived.owner)));
+	}
+
+	private BoxFile uploadFile(BoxNavigation nav, String name) throws QblStorageException, FileNotFoundException {
+		File file = new File(testFileName);
+		BoxFile boxFile = nav.upload(name, new FileInputStream(file), null);
+		nav.commit();
+		return boxFile;
+	}
+
+	@Test
     public void testCreateIndex() throws QblStorageException {
         BoxNavigation nav = volume.navigate();
         assertThat(nav.listFiles().size(), is(0));
@@ -168,26 +186,78 @@ public class BoxTest extends AndroidTestCase {
 		// Share meta and metakey to other user
 
 		BoxNavigation navOtherUser = volumeOtherUser.navigate();
-		navOtherUser.attachExternalFile(OWNER, boxFile.meta, boxFile.metakey);
+		navOtherUser.attachExternal(false, boxFile.name, OWNER, boxFile.meta, boxFile.metakey);
 		navOtherUser.commit();
 
-		List<BoxExternalFile> boxExternalFiles = navOtherUser.listExternalFiles();
+		checkExternalReceivedBoxFile(boxFile, navOtherUser);
+	}
+
+	@Test
+	public void testShareAndUpdateFile() throws QblStorageException, IOException {
+		BoxNavigation nav = volume.navigate();
+		File file = new File(testFileName);
+		BoxFile boxFile = nav.upload("foobar", new FileInputStream(file), null);
+		nav.commit();
+
+		nav.createFileMetadata(OWNER, boxFile);
+		nav.commit();
+
+		// Share meta and metakey to other user
+
+		BoxNavigation navOtherUser = volumeOtherUser.navigate();
+		navOtherUser.attachExternal(false, boxFile.name, OWNER, boxFile.meta, boxFile.metakey);
+		navOtherUser.commit();
+
+		checkExternalReceivedBoxFile(boxFile, navOtherUser);
+
+		boxFile = nav.upload("foobar", new FileInputStream(file), null);
+		nav.commit();
+
+		// Check that updated file can still be read
+
+		checkExternalReceivedBoxFile(boxFile, navOtherUser);
+	}
+
+	@Test
+	public void testShareAndUpdateAndUnshareFile() throws QblStorageException, IOException {
+		BoxNavigation nav = volume.navigate();
+		BoxFile boxFile = uploadFile(nav, "foobar");
+
+		nav.createFileMetadata(OWNER, boxFile);
+		nav.commit();
+
+		// Share meta and metakey to other user
+
+		BoxNavigation navOtherUser = volumeOtherUser.navigate();
+		navOtherUser.attachExternal(false, boxFile.name, OWNER, boxFile.meta, boxFile.metakey);
+		navOtherUser.commit();
+
+		checkExternalReceivedBoxFile(boxFile, navOtherUser);
+
+		boxFile = uploadFile(nav, "foobar");
+
+		// Check that updated file can still be read
+
+		checkExternalReceivedBoxFile(boxFile, navOtherUser);
+
+		// Remove FileMetadata and update file
+		nav.removeFileMetadata(boxFile);
+
+		uploadFile(nav, "foobar");
+
+		// Check that updated file cannot be read anymore
+
+		List<BoxObject> boxExternalFiles = navOtherUser.listExternals();
 		assertThat(boxExternalFiles.size(), is(1));
-		BoxExternalFile boxFileReceived = boxExternalFiles.get(0);
-		assertThat(boxFile.block, is(equalTo(boxFileReceived.block)));
-		assertThat(boxFile.name, is(equalTo(boxFileReceived.name)));
-		assertThat(boxFile.size, is(equalTo(boxFileReceived.size)));
-		assertThat(boxFile.mtime, is(equalTo(boxFileReceived.mtime)));
-		assertThat(boxFile.key, is(equalTo(boxFileReceived.key)));
-		assertThat(OWNER, is(equalTo(boxFileReceived.owner)));
+		assertTrue(boxExternalFiles.get(0) instanceof BoxExternalFile);
+		BoxExternalFile boxFileReceived = (BoxExternalFile) boxExternalFiles.get(0);
+		assertThat(boxFileReceived.isAccessible(), is(false));
 	}
 
 	@Test
 	public void testFileIsShared() throws QblStorageException, IOException {
 		BoxNavigation nav = volume.navigate();
-		File file = new File(testFileName);
-		BoxFile boxFile = nav.upload("foobar", new FileInputStream(file), null);
-		nav.commit();
+		BoxFile boxFile = uploadFile(nav, "foobar");
 
 		assertThat(boxFile.isShared(), is(false));
 
@@ -205,9 +275,7 @@ public class BoxTest extends AndroidTestCase {
 	@Test
 	public void testDetachFileMetadataShareFile() throws QblStorageException, IOException {
 		BoxNavigation nav = volume.navigate();
-		File file = new File(testFileName);
-		BoxFile boxFile = nav.upload("foobar", new FileInputStream(file), null);
-		nav.commit();
+		BoxFile boxFile = uploadFile(nav, "foobar");
 
 		nav.createFileMetadata(OWNER, boxFile);
 		nav.commit();
@@ -215,16 +283,16 @@ public class BoxTest extends AndroidTestCase {
 		// Share meta and metakey to other user
 
 		BoxNavigation navOtherUser = volumeOtherUser.navigate();
-		navOtherUser.attachExternalFile(OWNER, boxFile.meta, boxFile.metakey);
+		navOtherUser.attachExternal(false, boxFile.name, OWNER, boxFile.meta, boxFile.metakey);
 		navOtherUser.commit();
 
-		List<BoxExternalFile> boxExternalFiles = navOtherUser.listExternalFiles();
+		List<BoxObject> boxExternalFiles = navOtherUser.listExternals();
 		assertThat(boxExternalFiles.size(), is(1));
 
-		navOtherUser.detachExternalFile(boxExternalFiles.get(0));
+		navOtherUser.detachExternal(boxExternalFiles.get(0).name);
 		navOtherUser.commit();
 
-		boxExternalFiles = navOtherUser.listExternalFiles();
+		boxExternalFiles = navOtherUser.listExternals();
 		assertThat(boxExternalFiles.size(), is(0));
 	}
 

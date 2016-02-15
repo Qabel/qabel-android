@@ -35,7 +35,7 @@ import de.qabel.qabelbox.adapter.FilesAdapter;
 import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.services.LocalBroadcastConstants;
 import de.qabel.qabelbox.services.LocalQabelService;
-import de.qabel.qabelbox.storage.BoxExternal;
+import de.qabel.qabelbox.storage.BoxExternalReference;
 import de.qabel.qabelbox.storage.BoxFile;
 import de.qabel.qabelbox.storage.BoxFolder;
 import de.qabel.qabelbox.storage.BoxNavigation;
@@ -551,7 +551,7 @@ public class FilesFragment extends BaseFragment {
                         Log.d(TAG, "Adding folder: " + boxFolder.name);
                         filesAdapter.add(boxFolder);
                     }
-                    for (BoxExternal boxExternal : boxNavigation.listExternals()) {
+                    for (BoxObject boxExternal : boxNavigation.listExternals()) {
                         Log.d("MainActivity", "Adding external: " + boxExternal.name);
                         filesAdapter.add(boxExternal);
                     }
@@ -681,7 +681,7 @@ public class FilesFragment extends BaseFragment {
                 Log.d(TAG, "Adding folder: " + boxFolder.name);
                 filesAdapter.add(boxFolder);
             }
-            for (BoxExternal boxExternal : boxNavigation.listExternals()) {
+            for (BoxObject boxExternal : boxNavigation.listExternals()) {
                 Log.d("MainActivity", "Adding external: " + boxExternal.name);
                 filesAdapter.add(boxExternal);
             }

@@ -292,7 +292,7 @@ public abstract class AbstractNavigation implements BoxNavigation {
 	@NonNull
 	private File getMetadataFile(String url, byte[] key) throws QblStorageException {
 		String[] splitURL = url.split("/");
-		File encryptedMetadata = blockingDownload(splitURL[0], BLOCKS_PREFIX + splitURL[1], null);
+		File encryptedMetadata = blockingDownload(splitURL[0], splitURL[1], null);
 
 		File out = new File(context.getExternalCacheDir(), UUID.randomUUID().toString());
 
@@ -384,7 +384,7 @@ public abstract class AbstractNavigation implements BoxNavigation {
 		try {
 			FileMetadata fileMetadata = new FileMetadata(owner, boxFile, dm.getTempDir());
 			FileInputStream fileInputStream = new FileInputStream(fileMetadata.getPath());
-			uploadEncrypted(fileInputStream, key, prefix, BLOCKS_PREFIX + block, null);
+			uploadEncrypted(fileInputStream, key, prefix, block, null);
 
 			// Overwrite = delete old file, upload new file
 			BoxFile oldFile = dm.getFile(boxFile.name);
@@ -415,7 +415,7 @@ public abstract class AbstractNavigation implements BoxNavigation {
 			FileMetadata fileMetadataNew = new FileMetadata(fileMetadataOld.getFile().owner, boxFile, dm.getTempDir());
 			FileInputStream fileInputStream = new FileInputStream(fileMetadataNew.getPath());
 			String[] splitURL = boxFile.meta.split("/");
-			uploadEncrypted(fileInputStream, new KeyParameter(boxFile.metakey), splitURL[0], BLOCKS_PREFIX + splitURL[1], null);
+			uploadEncrypted(fileInputStream, new KeyParameter(boxFile.metakey), splitURL[0], splitURL[1], null);
 		} catch (QblStorageException | FileNotFoundException e) {
 			Log.e(TAG, "Could not create or upload FileMetadata", e);
 			return false;

@@ -260,7 +260,10 @@ public class BoxTest extends AndroidTestCase {
 		// Check that updated file cannot be read anymore
 
 		boxExternalFiles = navOtherUser.listExternals();
-		assertThat(boxExternalFiles.size(), is(0));
+		assertThat(boxExternalFiles.size(), is(1));
+		assertTrue(boxExternalFiles.get(0) instanceof BoxExternalFile);
+		boxFileReceived = (BoxExternalFile) boxExternalFiles.get(0);
+		assertThat(boxFileReceived.isAccessible(), is(false));
 	}
 
 	@Test

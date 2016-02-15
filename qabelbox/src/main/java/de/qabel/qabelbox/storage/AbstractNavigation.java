@@ -286,8 +286,16 @@ public abstract class AbstractNavigation implements BoxNavigation {
 					FileMetadata fileMetadata = new FileMetadata(out);
 					boxExternals.add(fileMetadata.getFile());
 				}
-			} catch (QblStorageException e) {
+			}
+			catch (QblStorageException e) {
 				Log.e(TAG, "Cannot load metadata file: " + boxExternalRefs.url);
+				if (boxExternalRefs.isFolder) {
+					boxExternals.add(new BoxExternalFolder(boxExternalRefs.url, boxExternalRefs.name,
+							boxExternalRefs.key, false));
+				} else {
+					boxExternals.add(new BoxExternalFile(boxExternalRefs.owner, boxExternalRefs.url,
+							boxExternalRefs.name, boxExternalRefs.key, false));
+				}
 			}
 		}
 		return boxExternals;

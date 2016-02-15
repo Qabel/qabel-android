@@ -5,10 +5,18 @@ import de.qabel.core.crypto.QblECPublicKey;
 public class BoxExternalFile extends BoxFile implements BoxExternal {
 
 	public QblECPublicKey owner;
+	private boolean isAccessible;
 
 	public BoxExternalFile(QblECPublicKey owner, String block, String name, Long size, Long mtime, byte[] key) {
 		super(block, name, size, mtime, key);
 		this.owner = owner;
+		this.isAccessible = true;
+	}
+
+	public BoxExternalFile(QblECPublicKey owner, String block, String name, byte[] key, boolean isAccessible) {
+		super(block, name, 0L, 0L, key);
+		this.owner = owner;
+		this.isAccessible = isAccessible;
 	}
 
 	@Override
@@ -38,5 +46,10 @@ public class BoxExternalFile extends BoxFile implements BoxExternal {
 	@Override
 	public void setOwner(QblECPublicKey owner) {
 		this.owner = owner;
+	}
+
+	@Override
+	public boolean isAccessible() {
+		return isAccessible;
 	}
 }

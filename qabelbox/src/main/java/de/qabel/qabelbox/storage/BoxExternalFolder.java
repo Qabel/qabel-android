@@ -5,10 +5,12 @@ import de.qabel.core.crypto.QblECPublicKey;
 public class BoxExternalFolder extends BoxFolder implements BoxExternal {
 
 	public QblECPublicKey owner;
+	private boolean isAccessible;
 
-	public BoxExternalFolder(String ref, String name, byte[] key) {
+	public BoxExternalFolder(String ref, String name, byte[] key, boolean isAccessible) {
 		super(ref, name, key);
 	}
+
 
 	@Override
 	public QblECPublicKey getOwner() {
@@ -18,6 +20,11 @@ public class BoxExternalFolder extends BoxFolder implements BoxExternal {
 	@Override
 	public void setOwner(QblECPublicKey owner) {
 		this.owner = owner;
+	}
+
+	@Override
+	public boolean isAccessible() {
+		return isAccessible;
 	}
 
 	@Override

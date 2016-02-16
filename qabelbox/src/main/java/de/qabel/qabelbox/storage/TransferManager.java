@@ -66,7 +66,7 @@ public class TransferManager {
      * @param boxTransferListener listener
      * @return new download id
      */
-    public int upload(String prefix, String name, File file, @Nullable final BoxTransferListener boxTransferListener) {
+    public int upload(String prefix, String name, final File file, @Nullable final BoxTransferListener boxTransferListener) {
 
         Log.d(TAG, "upload " + prefix + " " + name + " " + file.toString());
         final int id = blockServer.getNextId();
@@ -74,6 +74,7 @@ public class TransferManager {
         blockServer.uploadFile(context, prefix, name, file, new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
+
                 errors.put(id, e);
 
                 if (boxTransferListener != null) {
@@ -90,6 +91,9 @@ public class TransferManager {
                 if (boxTransferListener != null) {
                     boxTransferListener.onFinished();
                 }
+
+                Log.d(TAG, "delete file " + file.getName());
+                file.delete();
             }
         });
 
@@ -150,6 +154,7 @@ public class TransferManager {
      * @throws IOException
      */
     private void readStreamFromServer(Response response, File file, @Nullable BoxTransferListener boxTransferListener) throws IOException {
+
         InputStream is = response.body().byteStream();
         BufferedInputStream input = new BufferedInputStream(is);
         OutputStream output = new FileOutputStream(file);
@@ -203,6 +208,7 @@ public class TransferManager {
         blockServer.downloadFile(context, prefix, name, new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
+
                 latches.get(id).countDown();
             }
 

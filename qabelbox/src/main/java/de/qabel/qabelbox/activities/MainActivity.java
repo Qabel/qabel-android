@@ -368,6 +368,7 @@ public class MainActivity extends CrashReportingActivity
                 }
             });
         } else {
+            changeActiveIdentity(mService.getActiveIdentity());
             shareIdentitySelected(data, mService.getActiveIdentity());
         }
     }

@@ -107,6 +107,7 @@ public class ContactFragment extends BaseFragment {
     private void setClickListener() {
 
         contactListAdapter.setOnItemClickListener(new ContactsAdapter.OnItemClickListener() {
+
             @Override
             public void onItemClick(View view, final int position) {
 
@@ -123,6 +124,16 @@ public class ContactFragment extends BaseFragment {
                                 UIHelper.showDialogMessage(mActivity, R.string.dialog_headline_info, getString(R.string.contact_deleted).replace("%1", contact.getAlias()));
                             }
                         }, null);
+            }
+        });
+
+        contactListAdapter.setOnItemClickListener(new ContactsAdapter.OnItemClickListener() {
+
+            @Override
+            public void onItemClick(View view, final int position) {
+
+                final Contact contact = contactListAdapter.getContact(position);
+                getFragmentManager().beginTransaction().add(R.id.fragment_container, ContactChatFragment.newInstance(contact), MainActivity.TAG_CONTACT_CHAT_FRAGMENT).addToBackStack(MainActivity.TAG_CONTACT_CHAT_FRAGMENT).commit();
             }
         });
     }

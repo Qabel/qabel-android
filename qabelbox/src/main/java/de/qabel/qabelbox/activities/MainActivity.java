@@ -79,7 +79,8 @@ public class MainActivity extends CrashReportingActivity
     private static final String TAG_CONTACT_LIST_FRAGMENT = "TAG_CONTACT_LIST_FRAGMENT";
     private static final String TAG_MANAGE_IDENTITIES_FRAGMENT = "TAG_MANAGE_IDENTITIES_FRAGMENT";
     private static final String TAG_FILES_SHARE_INTO_APP_FRAGMENT = "TAG_FILES_SHARE_INTO_APP_FRAGMENT";
-    private static final String TAG = "BoxMainActivity";
+    private static final String TAG = "MainActivity";
+    public static final String TAG_CONTACT_CHAT_FRAGMENT = "TAG_CONTACT_CHAT_FRAGMENT";
     private static final int REQUEST_CODE_UPLOAD_FILE = 12;
 
     private static final int REQUEST_CODE_CHOOSE_EXPORT = 14;
@@ -96,6 +97,7 @@ public class MainActivity extends CrashReportingActivity
     private static final int NAV_GROUP_IDENTITY_ACTIONS = 2;
     private static final int REQUEST_CODE_OPEN = 21;
     private static final int REQUEST_CODE_DELETE_FILE = 22;
+
     private DrawerLayout drawer;
     public BoxVolume boxVolume;
     public ActionBarDrawerToggle toggle;

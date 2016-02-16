@@ -207,4 +207,8 @@
     <string name="infos">Infos</string>
     <string name="dummy_infos_text">This is the alpha version of QabelBox</string>
     <string name="contact_count">Contact count: %1</string>
+    <string name="chat_message_hint">Enter text</string>
+    <string name="refresh">Refresh</string>
+    <string name="headline_contact_chat">Chat</string>
+    <string name="btn_chat_send">Send</string>
 </resources>

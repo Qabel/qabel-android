@@ -1,13 +1,9 @@
 package de.qabel.qabelbox.communication;
 
 import android.content.Context;
-import android.util.Log;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import java.util.Locale;
 
 import de.qabel.qabelbox.config.AppPreference;
 import okhttp3.Callback;
@@ -19,7 +15,7 @@ import okhttp3.RequestBody;
  * <p/>
  * class to handle the register server network action
  */
-public class BoxAccountRegisterServer extends BaseServer {
+public class DropServer extends BaseServer {
 
     private final static String TAG = "BoxAccountServer";
 
@@ -47,7 +43,7 @@ public class BoxAccountRegisterServer extends BaseServer {
         doServerAction(url, json, callback, null);
     }
 
-    public void register(String username, String password1, String password2, String email, Callback callback) {
+    public void push(String username, String password1, String password2, String email, Callback callback) {
 
         JSONObject json = new JSONObject();
         try {
@@ -59,10 +55,10 @@ public class BoxAccountRegisterServer extends BaseServer {
             e.printStackTrace();
         }
 
-        doServerAction(urls.getRegister(), json, callback);
+        doServerAction(urls.getSendDrop(), json, callback);
     }
 
-    public void login(String username, String password, Callback callback) {
+    public void pull(String username, String password, Callback callback) {
 
         JSONObject json = new JSONObject();
         try {
@@ -72,40 +68,9 @@ public class BoxAccountRegisterServer extends BaseServer {
             e.printStackTrace();
         }
 
-        doServerAction(urls.getLogin(), json, callback);
+        doServerAction(urls.getReceiveDrop(), json, callback);
     }
 
-    public void logout(Context context, Callback callback) {
-
-        JSONObject json = new JSONObject();
-        doServerAction(urls.getLogout(), json, callback, new AppPreference(context).getToken());
-    }
-
-    public void changePassword(Context context, String old_password, String new_password1, String new_password2, Callback callback) {
-
-        JSONObject json = new JSONObject();
-        try {
-            json.put("new_password1", new_password1);
-            json.put("new_password2", new_password2);
-            json.put("old_password", old_password);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-        doServerAction(urls.getPasswordChange(), json, callback, new AppPreference(context).getToken());
-    }
-
-    public void resetPassword(String email, Callback callback) {
-
-        JSONObject json = new JSONObject();
-        try {
-            json.put("email", email);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-        doServerAction(urls.getPasswordReset(), json, callback);
-    }
 
     /**
      * parse all know server response fields, if available
@@ -130,7 +95,7 @@ public class BoxAccountRegisterServer extends BaseServer {
         return response;
     }
 
-
+    //box_share_notification` (was ja durchaus sinn ergibt ^^) und `box_message`
 
     /**
      * hold all possibility server response fields

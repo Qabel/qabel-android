@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="aws_user">AKIAJRJC2OGRRIH3ZZPQ</string>
+    <string name="aws_password">YnaUuOvg8gAyJpKxEGs1bD6S0v8X8DU+H42xr53s</string>
+    <string name="hockeykey">8381e46ba7bd41e68323e3bf384cb2ca</string>
+    <string name="uitesttoken">b45f7f9db394cb2e9f1e4d1550a60cc0cc2e6b35</string>
+    <string name="blockServer">https://test-accounting.qabel.de</string>
+    <string name="accountingServer">https://test-block.qabel.de</string>
+    <string name="dropServer">https://test-drop.qabel.de</string>
+</resources>

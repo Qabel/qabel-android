@@ -17,8 +17,8 @@ import java.util.Date;
 import java.util.List;
 
 import de.qabel.qabelbox.R;
+import de.qabel.qabelbox.helper.BoxObjectComparators;
 import de.qabel.qabelbox.storage.BoxExternalFile;
-import de.qabel.qabelbox.storage.BoxExternalReference;
 import de.qabel.qabelbox.storage.BoxFile;
 import de.qabel.qabelbox.storage.BoxFolder;
 import de.qabel.qabelbox.storage.BoxObject;
@@ -160,8 +160,7 @@ public class FilesAdapter extends RecyclerView.Adapter<FilesAdapter.FilesViewHol
     }
 
     public void sort() {
-
-        Collections.sort(boxObjects);
+        Collections.sort(boxObjects, BoxObjectComparators.alphabeticOrderDirectoriesFirstIgnoreCase());
     }
 
     public void clear() {

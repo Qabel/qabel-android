@@ -1,6 +1,8 @@
 package de.qabel.qabelbox.services;
 
+import android.app.Notification;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
@@ -48,6 +50,7 @@ import de.qabel.core.exceptions.QblVersionMismatchException;
 import de.qabel.core.http.DropHTTP;
 import de.qabel.core.http.HTTPResult;
 import de.qabel.qabelbox.R;
+import de.qabel.qabelbox.activities.MainActivity;
 import de.qabel.qabelbox.config.AndroidPersistence;
 import de.qabel.qabelbox.config.QblSQLiteParams;
 import de.qabel.qabelbox.providers.DocumentIdParser;
@@ -70,7 +73,6 @@ public class LocalQabelService extends Service {
 
 	private final IBinder mBinder = new LocalBinder();
 	private NotificationManager mNotifyManager;
-	private NotificationCompat.Builder mBuilder;
 
     protected static final String DB_NAME = "qabel-service";
     protected static final int DB_VERSION = 1;
@@ -80,6 +82,7 @@ public class LocalQabelService extends Service {
 	private Queue<BoxUploadingFile> uploadingQueue;
 	private Map<String, List<BoxFile>> cachedFinishedUploads;
     private DocumentIdParser documentIdParser;
+	private Context self;
 
     SharedPreferences sharedPreferences;
 
@@ -404,13 +407,31 @@ public class LocalQabelService extends Service {
 	private void updateNotification() {
 		BoxUploadingFile boxUploadingFile = uploadingQueue.peek();
 		if (boxUploadingFile != null) {
-			mBuilder.setContentTitle(getResources().getQuantityString(R.plurals.uploadsNotificationTitle,
-					uploadingQueue.size(), uploadingQueue.size()))
-					.setContentText(String.format(getString(R.string.upload_in_progress_notification_content), boxUploadingFile.name))
-					.setSmallIcon(R.drawable.qabel_logo)
-					.setProgress(100, boxUploadingFile.getUploadStatusPercent(), false);
-			mNotifyManager.notify(UPLOAD_NOTIFICATION_ID, mBuilder.build());
+			showNotification(getResources().getQuantityString(R.plurals.uploadsNotificationTitle,
+					uploadingQueue.size(), uploadingQueue.size()),
+					String.format(getString(R.string.upload_in_progress_notification_content), boxUploadingFile.name),
+					boxUploadingFile);
 		}
+	}
+
+	private void showNotification(String contentTitle, String contentText, BoxUploadingFile boxUploadingFile) {
+		Intent notificationIntent = new Intent(this, MainActivity.class);
+		notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP
+				| Intent.FLAG_ACTIVITY_SINGLE_TOP);
+		PendingIntent intent = PendingIntent.getActivity(this, 0,
+				notificationIntent, 0);
+
+		NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
+		builder.setContentTitle(contentTitle)
+				.setContentText(contentText)
+				.setSmallIcon(R.drawable.qabel_logo)
+				.setProgress(100, boxUploadingFile.getUploadStatusPercent(), false)
+				.setContentIntent(intent);
+
+		Notification notification = builder.build();
+		notification.flags |= Notification.FLAG_AUTO_CANCEL;
+
+		mNotifyManager.notify(UPLOAD_NOTIFICATION_ID, builder.build());
 	}
 
 	public TransferManager.BoxTransferListener getUploadTransferListener(final BoxUploadingFile boxUploadingFile) {
@@ -427,11 +448,7 @@ public class LocalQabelService extends Service {
 				uploadingQueue.remove(boxUploadingFile);
 				updateNotification();
 				if (uploadingQueue.isEmpty()) {
-					mBuilder.setContentTitle((getString(R.string.upload_complete_notification_title)))
-							.setContentText(null)
-							.setSmallIcon(R.drawable.qabel_logo)
-							.setProgress(100, 100, false);
-					mNotifyManager.notify(UPLOAD_NOTIFICATION_ID, mBuilder.build());
+					showNotification((getString(R.string.upload_complete_notification_title)), null, boxUploadingFile);
 				}
 			}
 		};
@@ -468,7 +485,7 @@ public class LocalQabelService extends Service {
 		cachedFinishedUploads = Collections.synchronizedMap(new HashMap<String, List<BoxFile>>());
 		uploadingQueue = new LinkedBlockingDeque<>();
 		mNotifyManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-		mBuilder = new NotificationCompat.Builder(this);
+		self = this;
     }
 
     protected void initAndroidPersistence() {

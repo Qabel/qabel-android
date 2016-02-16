@@ -33,7 +33,7 @@ public class PrefixServer extends BaseServer {
                 .url(url);
         addHeader(token, builder);
         Request request = builder.build();
-        Log.d(TAG, "danny request " + request.toString());
+        Log.d(TAG, "request " + request.toString());
         client.newCall(request).enqueue(callback);
     }
 

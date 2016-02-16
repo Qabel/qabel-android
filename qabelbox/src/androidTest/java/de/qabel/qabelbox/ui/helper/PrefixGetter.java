@@ -19,8 +19,8 @@ import okhttp3.Response;
  */
 public class PrefixGetter {
 
-    String prefix=null;
-    private String TAG="PrefixGetter";
+    private String prefix=null;
+    private final String TAG="PrefixGetter";
 
     public String getPrefix(Context context) {
         final CountDownLatch latch = new CountDownLatch(1);

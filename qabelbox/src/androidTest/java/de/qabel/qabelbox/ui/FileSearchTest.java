@@ -23,6 +23,7 @@ import de.qabel.core.config.Identity;
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.activities.MainActivity;
+import de.qabel.qabelbox.communication.BlockServer;
 import de.qabel.qabelbox.config.AppPreference;
 import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.storage.StorageSearch;
@@ -51,7 +52,6 @@ import static android.support.test.espresso.matcher.ViewMatchers.withId;
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class FileSearchTest {
 
-    private final String TAG = this.getClass().getSimpleName();
     @Rule
     public ActivityTestRule<MainActivity> mActivityTestRule = new ActivityTestRule<>(MainActivity.class, false, true);
 
@@ -59,7 +59,8 @@ public class FileSearchTest {
     private UIBoxHelper mBoxHelper;
     private final boolean mFillAccount = true;
     private PowerManager.WakeLock wakeLock;
-    SystemAnimations mSystemAnimations;
+    private SystemAnimations mSystemAnimations;
+
     public FileSearchTest() throws IOException {
         //setup data before MainActivity launched. This avoid the call to create identity
         if (mFillAccount) {
@@ -93,23 +94,32 @@ public class FileSearchTest {
                 mBoxHelper.deleteIdentity(old);
             }
         } catch (Exception e) {
-
+            e.printStackTrace();
         }
+
         Identity identity = mBoxHelper.addIdentity("spoon");
-        mBoxHelper.setActiveIdentity(identity);
-        uploadTestFiles(mBoxHelper.getCurrentIdentity());
+        uploadTestFiles();
     }
 
-    private void uploadTestFiles(Identity identity) {
+    private void uploadTestFiles() {
 
         int fileCount = 7;
-        mBoxHelper.uploadFile(identity, "testfile 2", new byte[1011], "");
-        mBoxHelper.uploadFile(identity, "red.png", new byte[1], "");
-        mBoxHelper.uploadFile(identity, "green.png", new byte[100], "");
-        mBoxHelper.uploadFile(identity, "blue.png", new byte[1011], "");
-        mBoxHelper.uploadFile(identity, "black_1.png", new byte[1011], "");
-        mBoxHelper.uploadFile(identity, "black_2.png", new byte[1024 * 10], "");
-        mBoxHelper.uploadFile(identity, "white.png", new byte[1011], "");
+        BlockServer bs = new BlockServer();
+        mBoxHelper.uploadFile(mBoxHelper.mBoxVolume, "testfile 2", new byte[1011], "");
+        mBoxHelper.uploadFile(mBoxHelper.mBoxVolume, "red.png", new byte[1], "");
+        mBoxHelper.uploadFile(mBoxHelper.mBoxVolume, "green.png", new byte[100], "");
+        mBoxHelper.uploadFile(mBoxHelper.mBoxVolume, "blue.png", new byte[1011], "");
+        mBoxHelper.uploadFile(mBoxHelper.mBoxVolume, "black_1.png", new byte[1011], "");
+        mBoxHelper.uploadFile(mBoxHelper.mBoxVolume, "black_2.png", new byte[1024 * 10], "");
+        mBoxHelper.uploadFile(mBoxHelper.mBoxVolume, "white.png", new byte[1011], "");
+
+        /*mBoxHelper.uploadFile(bs, identity, "testfile 2", new byte[1011], "");
+        mBoxHelper.uploadFile(bs, identity, "red.png", new byte[1], "");
+        mBoxHelper.uploadFile(bs, identity, "green.png", new byte[100], "");
+        mBoxHelper.uploadFile(bs, identity, "blue.png", new byte[1011], "");
+        mBoxHelper.uploadFile(bs, identity, "black_1.png", new byte[1011], "");
+        mBoxHelper.uploadFile(bs, identity, "black_2.png", new byte[1024 * 10], "");
+        mBoxHelper.uploadFile(bs, identity, "white.png", new byte[1011], "");*/
 
         mBoxHelper.waitUntilFileCount(fileCount);
     }
@@ -148,7 +158,7 @@ public class FileSearchTest {
         Spoon.screenshot(mActivity, "before_upload");
 
         //upload file
-        mBoxHelper.uploadFile(mBoxHelper.getCurrentIdentity(), "black_3", new byte[1024], "");
+        mBoxHelper.uploadFile(mBoxHelper.mBoxVolume, "black_3", new byte[1024], "");
         mBoxHelper.waitUntilFileCount(fileCount + 1);
 
         onView(withId(R.id.files_list)).perform(swipeDown());

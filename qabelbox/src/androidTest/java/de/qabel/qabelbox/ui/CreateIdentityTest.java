@@ -64,7 +64,7 @@ public class CreateIdentityTest {
     private MainActivity mActivity;
 
     private PowerManager.WakeLock wakeLock;
-    SystemAnimations mSystemAnimations;
+    private SystemAnimations mSystemAnimations;
 
     @After
     public void cleanUp() {
@@ -85,13 +85,14 @@ public class CreateIdentityTest {
     @Test
     public void addIdentity0Test() {
         //clear all identities
+        new AppPreference(QabelBoxApplication.getInstance().getApplicationContext()).setToken(QabelBoxApplication.getInstance().getApplicationContext().getString(R.string.uitesttoken));
         LocalQabelService service = QabelBoxApplication.getInstance().getService();
         Identities identities = service.getIdentities();
         for (Identity identity :
                 identities.getIdentities()) {
             service.deleteIdentity(identity);
         }
-        new AppPreference(QabelBoxApplication.getInstance().getApplicationContext()).setToken(QabelBoxApplication.getInstance().getApplicationContext().getString(R.string.uitesttoken));
+
     }
 
     @Test

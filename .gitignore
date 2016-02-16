@@ -43,3 +43,5 @@ log/
 *awsCredentials.xml
 *.iml
 /qabelbox/local.properties
+/qabelbox/src/main/res/values/params.xml
+

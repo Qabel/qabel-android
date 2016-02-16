@@ -1,12 +1,24 @@
 package de.qabel.qabelbox.communication;
 
+import android.content.Context;
+
+import de.qabel.qabelbox.QabelBoxApplication;
+import de.qabel.qabelbox.R;
+
 /**
  * Created by danny on 26.01.2016.
  */
 public class URLs {
 
-    private String BASE_ACCOUNTING = "https://test-accounting.qabel.de";
-    private String BASE_BLOCK = "https://test-block.qabel.de";
+    private String BASE_ACCOUNTING;
+    private String BASE_BLOCK;
+
+    public URLs() {
+
+        Context context = QabelBoxApplication.getInstance().getApplicationContext();
+        BASE_ACCOUNTING = context.getString(R.string.blockServer);
+        BASE_BLOCK = context.getString(R.string.accountingServer);
+    }
 
     public void setBaseAccountingURL(String url) {
 
@@ -55,14 +67,17 @@ public class URLs {
 
     /**
      * get files url for block server
+     *
      * @return
      */
     String getFiles() {
 
         return BASE_BLOCK + "/api/v0/files/";
     }
+
     /**
      * get files url for block server
+     *
      * @return
      */
     String getFilesBlock() {

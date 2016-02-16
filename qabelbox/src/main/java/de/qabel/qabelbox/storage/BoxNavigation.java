@@ -31,11 +31,11 @@ public interface BoxNavigation {
 	BoxFile upload(String name, InputStream content, @Nullable TransferManager.BoxTransferListener boxTransferListener) throws QblStorageException;
 	InputStream download(BoxFile file, @Nullable TransferManager.BoxTransferListener boxTransferListener) throws QblStorageException;
 
-	boolean createFileMetadata(QblECPublicKey owner, BoxFile boxFile);
+	BoxExternalReference createFileMetadata(QblECPublicKey owner, BoxFile boxFile) throws QblStorageException;
 	boolean updateFileMetadata(BoxFile boxFile);
 	boolean removeFileMetadata(BoxFile boxFile);
 
-	void attachExternal(boolean isFolder, String name, QblECPublicKey owner, String metaURL, byte[] metaKey) throws QblStorageException;
+	void attachExternal(BoxExternalReference boxExternalReference) throws QblStorageException;
 	void detachExternal(String name) throws QblStorageException;
 
 	void delete(BoxObject boxObject) throws QblStorageException;

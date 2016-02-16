@@ -1,6 +1,8 @@
 package de.qabel.qabelbox.services;
 
+import android.app.NotificationManager;
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Binder;
@@ -8,6 +10,7 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v7.app.NotificationCompat;
 import android.util.Log;
 
 import org.slf4j.Logger;
@@ -24,7 +27,9 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
 import java.util.Set;
+import java.util.concurrent.LinkedBlockingDeque;
 
 import de.qabel.core.config.Contact;
 import de.qabel.core.config.Contacts;
@@ -42,11 +47,13 @@ import de.qabel.core.exceptions.QblSpoofedSenderException;
 import de.qabel.core.exceptions.QblVersionMismatchException;
 import de.qabel.core.http.DropHTTP;
 import de.qabel.core.http.HTTPResult;
+import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.config.AndroidPersistence;
 import de.qabel.qabelbox.config.QblSQLiteParams;
 import de.qabel.qabelbox.providers.DocumentIdParser;
 import de.qabel.qabelbox.storage.BoxFile;
 import de.qabel.qabelbox.storage.BoxUploadingFile;
+import de.qabel.qabelbox.storage.TransferManager;
 
 public class LocalQabelService extends Service {
 
@@ -59,14 +66,18 @@ public class LocalQabelService extends Service {
     private static final String PREF_DEVICE_ID_CREATED = "PREF_DEVICE_ID_CREATED";
     private static final String PREF_DEVICE_ID = "PREF_DEVICE_ID";
     private static final int NUM_BYTES_DEVICE_ID = 16;
+	private static final int UPLOAD_NOTIFICATION_ID = 162134;
 
-    private final IBinder mBinder = new LocalBinder();
+	private final IBinder mBinder = new LocalBinder();
+	private NotificationManager mNotifyManager;
+	private NotificationCompat.Builder mBuilder;
 
     protected static final String DB_NAME = "qabel-service";
     protected static final int DB_VERSION = 1;
     protected AndroidPersistence persistence;
     private DropHTTP dropHTTP;
     private HashMap<String, ArrayList<BoxUploadingFile>> pendingUploads;
+	private Queue<BoxUploadingFile> uploadingQueue;
 	private Map<String, List<BoxFile>> cachedFinishedUploads;
     private DocumentIdParser documentIdParser;
 
@@ -351,15 +362,20 @@ public class LocalQabelService extends Service {
 		return pendingUploads;
 	}
 
-	public void addPendingUpload(String documentId, Bundle extras) throws FileNotFoundException {
+	public BoxUploadingFile addPendingUpload(String documentId, Bundle extras) throws FileNotFoundException {
 		String uploadPath = documentIdParser.getPath(documentId);
+		String filename = documentIdParser.getBaseName(documentId);
 		ArrayList<BoxUploadingFile> uploadsInPath = pendingUploads.get(uploadPath);
 		if (uploadsInPath == null) {
 			uploadsInPath = new ArrayList<>();
 		}
-		uploadsInPath.add(new BoxUploadingFile(documentIdParser.getBaseName(documentId)));
+		BoxUploadingFile boxUploadingFile = new BoxUploadingFile(filename);
+		uploadsInPath.add(boxUploadingFile);
 		pendingUploads.put(uploadPath, uploadsInPath);
+		uploadingQueue.add(boxUploadingFile);
+		updateNotification();
 		broadcastUploadStatus(documentId, LocalBroadcastConstants.UPLOAD_STATUS_NEW, extras);
+		return boxUploadingFile;
 	}
 
 	public boolean removePendingUpload(String documentId, int cause, @Nullable Bundle extras) throws FileNotFoundException {
@@ -383,6 +399,42 @@ public class LocalQabelService extends Service {
 			}
 		}
 		return false;
+	}
+
+	private void updateNotification() {
+		BoxUploadingFile boxUploadingFile = uploadingQueue.peek();
+		if (boxUploadingFile != null) {
+			mBuilder.setContentTitle(getResources().getQuantityString(R.plurals.uploadsNotificationTitle,
+					uploadingQueue.size(), uploadingQueue.size()))
+					.setContentText(String.format(getString(R.string.upload_in_progress_notification_content), boxUploadingFile.name))
+					.setSmallIcon(R.drawable.qabel_logo)
+					.setProgress(100, boxUploadingFile.getUploadStatusPercent(), false);
+			mNotifyManager.notify(UPLOAD_NOTIFICATION_ID, mBuilder.build());
+		}
+	}
+
+	public TransferManager.BoxTransferListener getUploadTransferListener(final BoxUploadingFile boxUploadingFile) {
+		return new TransferManager.BoxTransferListener() {
+			@Override
+			public void onProgressChanged(long bytesCurrent, long bytesTotal) {
+				boxUploadingFile.totalSize = bytesTotal;
+				boxUploadingFile.uploadedSize = bytesCurrent;
+				updateNotification();
+			}
+
+			@Override
+			public void onFinished() {
+				uploadingQueue.remove(boxUploadingFile);
+				updateNotification();
+				if (uploadingQueue.isEmpty()) {
+					mBuilder.setContentTitle((getString(R.string.upload_complete_notification_title)))
+							.setContentText(null)
+							.setSmallIcon(R.drawable.qabel_logo)
+							.setProgress(100, 100, false);
+					mNotifyManager.notify(UPLOAD_NOTIFICATION_ID, mBuilder.build());
+				}
+			}
+		};
 	}
 
 	private void broadcastUploadStatus(String documentId, int uploadStatus, @Nullable Bundle extras) {
@@ -414,6 +466,9 @@ public class LocalQabelService extends Service {
 		pendingUploads = new HashMap<>();
 		documentIdParser = new DocumentIdParser();
 		cachedFinishedUploads = Collections.synchronizedMap(new HashMap<String, List<BoxFile>>());
+		uploadingQueue = new LinkedBlockingDeque<>();
+		mNotifyManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+		mBuilder = new NotificationCompat.Builder(this);
     }
 
     protected void initAndroidPersistence() {

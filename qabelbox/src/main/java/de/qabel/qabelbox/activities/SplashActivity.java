@@ -9,11 +9,13 @@ import android.os.Handler;
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.config.AppPreference;
+import de.qabel.qabelbox.helper.Sanity;
+import de.qabel.qabelbox.services.LocalQabelService;
 
 /**
  * Created by danny on 11.01.2016.
  */
-public class SplashActivity extends Activity {
+public class SplashActivity extends CrashReportingActivity {
 
     private final long SPLASH_TIME = 1500;
     private SplashActivity mActivity;
@@ -24,6 +26,7 @@ public class SplashActivity extends Activity {
 
         super.onCreate(savedInstanceState);
         mActivity = this;
+
         overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
         setContentView(R.layout.activity_splashscreen);
         setupAppPreferences();
@@ -71,7 +74,7 @@ public class SplashActivity extends Activity {
 
             private void startMainActivity() {
 
-                if (!startWizardActivities(mActivity)) {
+                if (!Sanity.startWizardActivities(mActivity)) {
 
                     Intent intent = new Intent(mActivity, MainActivity.class);
                     intent.setAction("");
@@ -84,32 +87,5 @@ public class SplashActivity extends Activity {
                 , SPLASH_TIME);
     }
 
-    /**
-     * start wizard activities if app not ready to go. If other activity need to start, the current activity finished
-     *
-     * @param activity current activity
-     * @return false if no wizard start needed
-     */
-    public static boolean startWizardActivities(Activity activity) {
 
-        AppPreference prefs = new AppPreference(activity);
-
-        if (prefs.getToken() == null) {
-            Intent intent = new Intent(activity, CreateAccountActivity.class);
-            intent.putExtra(BaseWizardActivity.FIRST_RUN, true);
-            activity.startActivity(intent);
-            activity.overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
-            activity.finish();
-            return true;
-        } else if (QabelBoxApplication.getInstance().getService().getIdentities().getIdentities().size() == 0) {
-            Intent intent = new Intent(activity, CreateIdentityActivity.class);
-            intent.putExtra(BaseWizardActivity.FIRST_RUN, true);
-            activity.startActivity(intent);
-            activity.overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
-            activity.finish();
-            return true;
-        } else {
-            return false;
-        }
-    }
 }

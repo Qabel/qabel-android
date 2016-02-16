@@ -2,18 +2,14 @@ package de.qabel.qabelbox.fragments;
 
 import android.app.Activity;
 import android.content.BroadcastReceiver;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.ServiceConnection;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.IBinder;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -35,13 +31,13 @@ import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 
+import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.adapter.FilesAdapter;
 import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.providers.DocumentIdParser;
 import de.qabel.qabelbox.services.LocalBroadcastConstants;
 import de.qabel.qabelbox.services.LocalQabelService;
-import de.qabel.qabelbox.storage.BoxExternal;
 import de.qabel.qabelbox.storage.BoxFile;
 import de.qabel.qabelbox.storage.BoxFolder;
 import de.qabel.qabelbox.storage.BoxNavigation;
@@ -54,7 +50,7 @@ public class FilesFragment extends BaseFragment {
 
     private static final String TAG = "FilesFragment";
     protected BoxNavigation boxNavigation;
-    private RecyclerView filesListRecyclerView;
+    public RecyclerView filesListRecyclerView;
     protected FilesAdapter filesAdapter;
     private RecyclerView.LayoutManager recyclerViewLayoutManager;
     private boolean isLoading;
@@ -66,7 +62,7 @@ public class FilesFragment extends BaseFragment {
     private MenuItem mSearchAction;
     private boolean isSearchOpened = false;
     private EditText edtSeach;
-    private BoxVolume mBoxVolume;
+    protected BoxVolume mBoxVolume;
     private AsyncTask<String, Void, StorageSearch> searchTask;
     private StorageSearch mCachedStorageSearch;
     private DocumentIdParser documentIdParser;
@@ -77,6 +73,12 @@ public class FilesFragment extends BaseFragment {
     public static FilesFragment newInstance(final BoxVolume boxVolume) {
 
         final FilesFragment filesFragment = new FilesFragment();
+        fillFragmentData(boxVolume, filesFragment);
+        return filesFragment;
+    }
+
+    protected static void fillFragmentData(final BoxVolume boxVolume, final FilesFragment filesFragment) {
+
         filesFragment.mBoxVolume = boxVolume;
         final FilesAdapter filesAdapter = new FilesAdapter(new ArrayList<BoxObject>());
 
@@ -106,7 +108,7 @@ public class FilesFragment extends BaseFragment {
                         return null;
                     }
                 }
-                filesFragment.fillAdapter();
+                filesFragment.fillAdapter(filesAdapter);
                 return null;
             }
 
@@ -118,7 +120,6 @@ public class FilesFragment extends BaseFragment {
                 filesAdapter.notifyDataSetChanged();
             }
         }.executeOnExecutor(serialExecutor);
-        return filesFragment;
     }
 
     @Override
@@ -126,50 +127,35 @@ public class FilesFragment extends BaseFragment {
 
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
-        actionBar.setDisplayHomeAsUpEnabled(false);
-        final AppCompatActivity act = (AppCompatActivity) getActivity();
-        final ActionBar action = act.getSupportActionBar();
-        action.setTitle(getTitle());
-
-        bindToService(getActivity());
+        if (actionBar != null) {
+            actionBar.setDisplayHomeAsUpEnabled(false);
+			
+			actionBar.setTitle(getTitle());
+		}
 
         documentIdParser = new DocumentIdParser();
 
+  
+        mService = QabelBoxApplication.getInstance().getService();
         self = this;
         LocalBroadcastManager.getInstance(getActivity()).registerReceiver(mMessageReceiver,
 				new IntentFilter(LocalBroadcastConstants.INTENT_UPLOAD_BROADCAST));
-    }
-
-    void bindToService(Context context) {
-
-        Intent intent = new Intent(context, LocalQabelService.class);
-        context.bindService(intent, new ServiceConnection() {
-			@Override
-			public void onServiceConnected(ComponentName name, IBinder service) {
-
-				LocalQabelService.LocalBinder binder = (LocalQabelService.LocalBinder) service;
-				mService = binder.getService();
-			}
-
-			@Override
-			public void onServiceDisconnected(ComponentName name) {
-
-				mService = null;
-			}
-		}, Context.BIND_AUTO_CREATE);
     }
 
     private BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
 
+            if (filesAdapter == null) {
+                return;
+            }
             String documentId = intent.getStringExtra(LocalBroadcastConstants.EXTRA_UPLOAD_DOCUMENT_ID);
             int uploadStatus = intent.getIntExtra(LocalBroadcastConstants.EXTRA_UPLOAD_STATUS, -1);
 
             switch (uploadStatus) {
                 case LocalBroadcastConstants.UPLOAD_STATUS_NEW:
                     Log.d(TAG, "Received new upload: " + documentId);
-                    fillAdapter();
+                    fillAdapter(filesAdapter);
                     filesAdapter.notifyDataSetChanged();
                     break;
                 case LocalBroadcastConstants.UPLOAD_STATUS_FINISHED:
@@ -188,7 +174,7 @@ public class FilesFragment extends BaseFragment {
 						} catch (FileNotFoundException e) {
 							e.printStackTrace();
 						}
-                        fillAdapter();
+                        fillAdapter(filesAdapter);
                     }
                     filesAdapter.notifyDataSetChanged();
                     break;
@@ -201,14 +187,14 @@ public class FilesFragment extends BaseFragment {
     };
 
     @Override
-    public void onDestroy() {
+	public void onDestroy() {
 
         super.onDestroy();
         LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(mMessageReceiver);
     }
 
     @Override
-    public void onStart() {
+	public void onStart() {
 
         super.onStart();
         updateSubtitle();
@@ -219,22 +205,7 @@ public class FilesFragment extends BaseFragment {
                              Bundle savedInstanceState) {
 
         View view = inflater.inflate(R.layout.fragment_files, container, false);
-        mEmptyView = view.findViewById(R.id.empty_view);
-        mLoadingView = view.findViewById(R.id.loading_view);
-        final ProgressBar pg = (ProgressBar) view.findViewById(R.id.pb_firstloading);
-        pg.setIndeterminate(true);
-        pg.setMax(100);
-        pg.setProgress(10);
-        pg.setEnabled(true);
-        /*getActivity().runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-
-                pg.setVisibility(View.VISIBLE);
-            }
-        });*/
-
-        filesAdapter.setEmptyView(mEmptyView, mLoadingView);
+        setupLoadingViews(view);
         swipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.swipeRefresh);
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
@@ -260,21 +231,32 @@ public class FilesFragment extends BaseFragment {
         filesListRecyclerView.setAdapter(filesAdapter);
 
         filesListRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
-            @Override
-            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+			@Override
+			public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
 
-                super.onScrolled(recyclerView, dx, dy);
-                int lastCompletelyVisibleItem = ((LinearLayoutManager) recyclerViewLayoutManager).findLastCompletelyVisibleItemPosition();
-                int firstCompletelyVisibleItem = ((LinearLayoutManager) recyclerViewLayoutManager).findFirstCompletelyVisibleItemPosition();
-                if (lastCompletelyVisibleItem == filesAdapter.getItemCount() - 1
-                        && firstCompletelyVisibleItem > 0) {
-                    mListener.onScrolledToBottom(true);
-                } else {
-                    mListener.onScrolledToBottom(false);
-                }
-            }
-        });
+				super.onScrolled(recyclerView, dx, dy);
+				int lastCompletelyVisibleItem = ((LinearLayoutManager) recyclerViewLayoutManager).findLastCompletelyVisibleItemPosition();
+				int firstCompletelyVisibleItem = ((LinearLayoutManager) recyclerViewLayoutManager).findFirstCompletelyVisibleItemPosition();
+				if (lastCompletelyVisibleItem == filesAdapter.getItemCount() - 1
+						&& firstCompletelyVisibleItem > 0) {
+					mListener.onScrolledToBottom(true);
+				} else {
+					mListener.onScrolledToBottom(false);
+				}
+			}
+		});
         return view;
+    }
+
+    protected void setupLoadingViews(View view) {
+
+        mEmptyView = view.findViewById(R.id.empty_view);
+        mLoadingView = view.findViewById(R.id.loading_view);
+        final ProgressBar pg = (ProgressBar) view.findViewById(R.id.pb_firstloading);
+        pg.setIndeterminate(true);
+        pg.setEnabled(true);
+        if(filesAdapter!=null)
+        filesAdapter.setEmptyView(mEmptyView, mLoadingView);
     }
 
     @Override
@@ -499,12 +481,12 @@ public class FilesFragment extends BaseFragment {
             mLoadingView.setVisibility(View.GONE);
         }
         swipeRefreshLayout.post(new Runnable() {
-			@Override
-			public void run() {
+            @Override
+            public void run() {
 
-				swipeRefreshLayout.setRefreshing(isLoading);
-			}
-		});
+                swipeRefreshLayout.setRefreshing(isLoading);
+            }
+        });
     }
 
     public void setAdapter(FilesAdapter adapter) {
@@ -529,7 +511,7 @@ public class FilesFragment extends BaseFragment {
         return true;
     }
 
-    private void setBoxNavigation(BoxNavigation boxNavigation) {
+    protected void setBoxNavigation(BoxNavigation boxNavigation) {
 
         this.boxNavigation = boxNavigation;
     }
@@ -592,7 +574,7 @@ public class FilesFragment extends BaseFragment {
                         Log.d(TAG, "Adding folder: " + boxFolder.name);
                         filesAdapter.add(boxFolder);
                     }
-                    for (BoxExternal boxExternal : boxNavigation.listExternals()) {
+                    for (BoxObject boxExternal : boxNavigation.listExternals()) {
                         Log.d("MainActivity", "Adding external: " + boxExternal.name);
                         filesAdapter.add(boxExternal);
                     }
@@ -652,7 +634,7 @@ public class FilesFragment extends BaseFragment {
 
         cancelBrowseToTask();
 
-        if (boxNavigation==null||!boxNavigation.hasParent()) {
+        if (boxNavigation == null || !boxNavigation.hasParent()) {
             return false;
         }
 
@@ -670,7 +652,7 @@ public class FilesFragment extends BaseFragment {
                 waitForBoxNavigation();
                 try {
                     boxNavigation.navigateToParent();
-                    fillAdapter();
+                    fillAdapter(filesAdapter);
                 } catch (QblStorageException e) {
                     Log.d(TAG, "browseTo failed", e);
                 }
@@ -706,8 +688,11 @@ public class FilesFragment extends BaseFragment {
         setIsLoading(true);
     }
 
-    private void fillAdapter() {
+    protected void fillAdapter(FilesAdapter filesAdapter) {
 
+        if (filesAdapter == null) {
+            return;
+        }
         filesAdapter.clear();
 
         if (boxNavigation == null) {
@@ -719,7 +704,7 @@ public class FilesFragment extends BaseFragment {
                 Log.d(TAG, "Adding folder: " + boxFolder.name);
                 filesAdapter.add(boxFolder);
             }
-            for (BoxExternal boxExternal : boxNavigation.listExternals()) {
+            for (BoxObject boxExternal : boxNavigation.listExternals()) {
                 Log.d("MainActivity", "Adding external: " + boxExternal.name);
                 filesAdapter.add(boxExternal);
             }
@@ -731,7 +716,7 @@ public class FilesFragment extends BaseFragment {
             Log.e(TAG, "browseTo failed", e);
         }
 
-        if (mService != null && mService.getPendingUploads() != null) {
+		if (mService != null && mService.getPendingUploads() != null) {
             ArrayList<BoxUploadingFile> uploadsInPath = mService.getPendingUploads().get(boxNavigation.getPath());
 
             if (uploadsInPath != null) {
@@ -795,7 +780,7 @@ public class FilesFragment extends BaseFragment {
                 waitForBoxNavigation();
                 try {
                     boxNavigation.navigate(navigateTo);
-                    fillAdapter();
+                    fillAdapter(filesAdapter);
                 } catch (QblStorageException e) {
                     Log.e(TAG, "browseTo failed", e);
                 }

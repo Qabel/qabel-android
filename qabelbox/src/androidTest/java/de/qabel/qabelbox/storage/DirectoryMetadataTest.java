@@ -4,10 +4,6 @@ import junit.framework.TestCase;
 
 import de.qabel.core.crypto.QblECKeyPair;
 import de.qabel.qabelbox.exceptions.QblStorageException;
-import de.qabel.qabelbox.storage.BoxExternal;
-import de.qabel.qabelbox.storage.BoxFile;
-import de.qabel.qabelbox.storage.BoxFolder;
-import de.qabel.qabelbox.storage.DirectoryMetadata;
 
 import org.junit.Test;
 
@@ -39,7 +35,7 @@ public class DirectoryMetadataTest extends TestCase{
 		byte[] version = dm.getVersion();
 		assertThat(dm.listFiles().size(), is(0));
 		assertThat(dm.listFolders().size(), is(0));
-		assertThat(dm.listExternals().size(), is(0));
+		assertThat(dm.listExternalReferences().size(), is(0));
 		dm.commit();
 		assertThat(dm.getVersion(), is(not(equalTo(version))));
 
@@ -47,7 +43,7 @@ public class DirectoryMetadataTest extends TestCase{
 
 	@Test
 	public void testFileOperations() throws QblStorageException {
-		BoxFile file = new BoxFile("block", "name", 0L, 0L, new byte[] {1,2,});
+		BoxFile file = new BoxFile("block", "name", 0L, 0L, new byte[] {1,2,}, "metablock", new byte[]{0x03, 0x04});
 		dm.insertFile(file);
 		assertThat(dm.listFiles().size(), is(1));
 		assertThat(file, equalTo(dm.listFiles().get(0)));
@@ -68,13 +64,13 @@ public class DirectoryMetadataTest extends TestCase{
 
 	@Test
 	public void testExternalOperations() throws QblStorageException {
-		BoxExternal external = new BoxExternal("https://foobar", "name",
+		BoxExternalReference external = new BoxExternalReference(false, "https://foobar", "name",
 				new QblECKeyPair().getPub(), new byte[] {1,2,});
-		dm.insertExternal(external);
-		assertThat(dm.listExternals().size(), is(1));
-		assertThat(external, equalTo(dm.listExternals().get(0)));
-		dm.deleteExternal(external);
-		assertThat(dm.listExternals().size(), is(0));
+		dm.insertExternalReference(external);
+		assertThat(dm.listExternalReferences().size(), is(1));
+		assertThat(external, equalTo(dm.listExternalReferences().get(0)));
+		dm.deleteExternalReference(external.name);
+		assertThat(dm.listExternalReferences().size(), is(0));
 	}
 
 	@Test

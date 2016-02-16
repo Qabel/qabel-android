@@ -7,10 +7,12 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.IBinder;
 import android.support.annotation.NonNull;
+import android.util.Log;
 
 import org.spongycastle.jce.provider.BouncyCastleProvider;
 
 import java.security.Security;
+import java.util.concurrent.CountDownLatch;
 
 import de.qabel.qabelbox.providers.BoxProvider;
 import de.qabel.qabelbox.services.LocalQabelService;
@@ -18,6 +20,7 @@ import de.qabel.qabelbox.services.LocalQabelService;
 public class QabelBoxApplication extends Application {
 
     public static final String DEFAULT_DROP_SERVER = "http://localhost";
+    private static final String TAG = "QabelBoxApplication";
     private LocalQabelService mService;
 
     private static QabelBoxApplication mInstance = null;
@@ -29,6 +32,7 @@ public class QabelBoxApplication extends Application {
     }
 
     private ServiceConnection mServiceConnection;
+
 
     public BoxProvider getProvider() {
 
@@ -42,8 +46,8 @@ public class QabelBoxApplication extends Application {
 
     @Override
     public void onCreate() {
-
         super.onCreate();
+        Log.d(TAG, "onCreate");
         mInstance = this;
         Intent intent = new Intent(this, LocalQabelService.class);
         mServiceConnection = getServiceConnection();
@@ -62,9 +66,11 @@ public class QabelBoxApplication extends Application {
         return new ServiceConnection() {
             @Override
             public void onServiceConnected(ComponentName name, IBinder service) {
-
                 LocalQabelService.LocalBinder binder = (LocalQabelService.LocalBinder) service;
                 mService = binder.getService();
+
+                Log.d(TAG, "Service binded");
+
             }
 
             @Override
@@ -76,7 +82,6 @@ public class QabelBoxApplication extends Application {
     }
 
     public LocalQabelService getService() {
-
         return mService;
     }
 }

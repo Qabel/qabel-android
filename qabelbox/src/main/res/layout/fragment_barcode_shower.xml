@@ -1,0 +1,67 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="@dimen/activity_vertical_margin"
+    tools:context="de.qabel.qabelbox.fragments.AddContactFragment">
+
+    <de.qabel.qabelbox.views.SquareFrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/white">
+
+        <ImageView
+            android:id="@+id/qrcode"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:adjustViewBounds="true"
+            android:scaleType="fitXY" />
+    </de.qabel.qabelbox.views.SquareFrameLayout>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="center">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <de.qabel.qabelbox.views.TextViewFont
+                android:id="@+id/editTextContactName"
+                style="@style/MessageText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:drawableStart="@drawable/ic_perm_identity_black"
+                android:gravity="center"
+                android:paddingBottom="10dp"
+                android:paddingTop="5dp" />
+
+            <de.qabel.qabelbox.views.TextViewFont
+                android:id="@+id/editTextContactDropURL"
+                style="@style/MessageText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:drawableStart="@drawable/ic_share_black"
+                android:hint="@string/contact_drop_url"
+                android:inputType="textUri"
+                android:paddingBottom="10dp" />
+
+            <de.qabel.qabelbox.views.TextViewFont
+                android:id="@+id/editTextContactPublicKey"
+                style="@style/MessageText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+
+                android:drawableStart="@drawable/ic_settings_black"
+                android:hint="@string/contact_public_key" />
+
+
+        </LinearLayout>
+
+    </ScrollView>
+</LinearLayout>
+

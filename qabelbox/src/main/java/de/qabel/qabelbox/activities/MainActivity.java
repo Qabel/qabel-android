@@ -1,6 +1,5 @@
 package de.qabel.qabelbox.activities;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Fragment;
 import android.app.FragmentManager;
@@ -9,13 +8,11 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.provider.DocumentsContract;
-import android.provider.OpenableColumns;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
@@ -23,7 +20,6 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
@@ -35,7 +31,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.cocosw.bottomsheet.BottomSheet;
-import com.google.zxing.integration.android.IntentIntegrator;
 
 import org.apache.commons.io.IOUtils;
 
@@ -47,21 +42,24 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Set;
 
-import de.qabel.core.config.Contact;
 import de.qabel.core.config.Identity;
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.adapter.FilesAdapter;
-import de.qabel.qabelbox.config.ContactExportImport;
+import de.qabel.qabelbox.communication.VolumeFileTransferHelper;
+import de.qabel.qabelbox.dialogs.SelectIdentityForUploadDialog;
 import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.fragments.BaseFragment;
 import de.qabel.qabelbox.fragments.ContactFragment;
 import de.qabel.qabelbox.fragments.FilesFragment;
 import de.qabel.qabelbox.fragments.IdentitiesFragment;
 import de.qabel.qabelbox.fragments.ImageViewerFragment;
+import de.qabel.qabelbox.fragments.QRcodeFragment;
 import de.qabel.qabelbox.fragments.SelectUploadFolderFragment;
 import de.qabel.qabelbox.helper.ExternalApps;
+import de.qabel.qabelbox.helper.Sanity;
 import de.qabel.qabelbox.helper.UIHelper;
 import de.qabel.qabelbox.providers.BoxProvider;
 import de.qabel.qabelbox.services.LocalQabelService;
@@ -71,22 +69,19 @@ import de.qabel.qabelbox.storage.BoxNavigation;
 import de.qabel.qabelbox.storage.BoxObject;
 import de.qabel.qabelbox.storage.BoxVolume;
 
-public class MainActivity extends AppCompatActivity
+public class MainActivity extends CrashReportingActivity
         implements NavigationView.OnNavigationItemSelectedListener,
         SelectUploadFolderFragment.OnSelectedUploadFolderListener,
-        ContactFragment.ContactListListener,
         FilesFragment.FilesListListener,
         IdentitiesFragment.IdentityListListener {
 
     public static final String TAG_FILES_FRAGMENT = "TAG_FILES_FRAGMENT";
     private static final String TAG_CONTACT_LIST_FRAGMENT = "TAG_CONTACT_LIST_FRAGMENT";
     private static final String TAG_MANAGE_IDENTITIES_FRAGMENT = "TAG_MANAGE_IDENTITIES_FRAGMENT";
-
+    private static final String TAG_FILES_SHARE_INTO_APP_FRAGMENT = "TAG_FILES_SHARE_INTO_APP_FRAGMENT";
     private static final String TAG = "BoxMainActivity";
     private static final int REQUEST_CODE_UPLOAD_FILE = 12;
-    public static final String HARDCODED_ROOT = BoxProvider.DOCID_SEPARATOR
-            + BoxProvider.BUCKET + BoxProvider.DOCID_SEPARATOR
-            + BoxProvider.PREFIX + BoxProvider.DOCID_SEPARATOR + BoxProvider.PATH_SEP;
+
     private static final int REQUEST_CODE_CHOOSE_EXPORT = 14;
     private static final int REQUEST_CREATE_IDENTITY = 16;
     private static final int REQUEST_SETTINGS = 17;
@@ -94,16 +89,20 @@ public class MainActivity extends AppCompatActivity
     public static final int REQUEST_EXTERN_VIEWER_APP = 19;
     public static final int REQUEST_EXTERN_SHARE_APP = 20;
 
+    public static final int REQUEST_EXPORT_IDENTITY_AS_CONTACT = 19;
+
     private static final String FALLBACK_MIMETYPE = "application/octet-stream";
     private static final int NAV_GROUP_IDENTITIES = 1;
     private static final int NAV_GROUP_IDENTITY_ACTIONS = 2;
+    private static final int REQUEST_CODE_OPEN = 21;
+    private static final int REQUEST_CODE_DELETE_FILE = 22;
     private DrawerLayout drawer;
-    private BoxVolume boxVolume;
+    public BoxVolume boxVolume;
     public ActionBarDrawerToggle toggle;
     private BoxProvider provider;
     public FloatingActionButton fab;
     private TextView textViewSelectedIdentity;
-    private Activity self;
+    private MainActivity self;
     private View appBarMain;
     private FilesFragment filesFragment;
     private Toolbar toolbar;
@@ -113,8 +112,9 @@ public class MainActivity extends AppCompatActivity
     // Used to save the document uri that should exported while waiting for the result
     // of the create document intent.
     private Uri exportUri;
-    private LocalQabelService mService;
+    public LocalQabelService mService;
     private ServiceConnection mServiceConnection;
+    private SelectUploadFolderFragment shareFragment;
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -134,7 +134,17 @@ public class MainActivity extends AppCompatActivity
                 }
             }
             if (data != null) {
-
+                if (requestCode == REQUEST_CODE_OPEN) {
+                    uri = data.getData();
+                    Log.i(TAG, "Uri: " + uri.toString());
+                    Intent viewIntent = new Intent();
+                    String type = URLConnection.guessContentTypeFromName(uri.toString());
+                    Log.i(TAG, "Mime type: " + type);
+                    viewIntent.setDataAndType(uri, type);
+                    viewIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                    startActivity(Intent.createChooser(viewIntent, "Open with"));
+                    return;
+                }
                 if (requestCode == REQUEST_CODE_UPLOAD_FILE) {
                     uri = data.getData();
                     String path = "";
@@ -144,10 +154,22 @@ public class MainActivity extends AppCompatActivity
                             path = boxNavigation.getPath();
                         }
                     }
-                    uploadUri(uri, path);
+                    uploadUri((Uri) uri, (String) path);
                     return;
                 }
+                if (requestCode == REQUEST_CODE_DELETE_FILE) {
+                    uri = data.getData();
+                    Log.i(TAG, "Deleting file: " + uri.toString());
+                    new AsyncTask<Uri, Void, Boolean>() {
 
+                        @Override
+                        protected Boolean doInBackground(Uri... params) {
+
+                            return DocumentsContract.deleteDocument(getContentResolver(), params[0]);
+                        }
+                    }.execute(uri);
+                    return;
+                }
                 if (requestCode == REQUEST_CODE_CHOOSE_EXPORT) {
                     uri = data.getData();
                     Log.i(TAG, "Export uri chosen: " + uri.toString());
@@ -182,51 +204,20 @@ public class MainActivity extends AppCompatActivity
 
         Toast.makeText(self, R.string.uploading_file,
                 Toast.LENGTH_SHORT).show();
-        Cursor cursor = getContentResolver().query(uri, null, null, null, null);
-        if (cursor == null) {
-            Log.e(TAG, "No valid url for uploading" + uri);
-            return true;
-        }
-        cursor.moveToFirst();
-        String displayName = cursor.getString(
-                cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
-        Log.i(TAG, "Displayname: " + displayName);
-        String keyIdentifier = mService.getActiveIdentity().getEcPublicKey()
-                .getReadableKeyIdentifier();
-        Uri uploadUri = DocumentsContract.buildDocumentUri(
-                BoxProvider.AUTHORITY, keyIdentifier + HARDCODED_ROOT + targetFolder + displayName);
-        try {
-            OutputStream outputStream = getContentResolver().openOutputStream(uploadUri, "w");
-            if (outputStream == null) {
-                return false;
-            }
-            InputStream inputStream = getContentResolver().openInputStream(uri);
-            if (inputStream == null) {
-                return false;
-            }
-            IOUtils.copy(inputStream, outputStream);
-            outputStream.close();
-            inputStream.close();
-        } catch (IOException e) {
-            Log.e(TAG, "Error opening output stream for upload", e);
-        }
-        return false;
+        return VolumeFileTransferHelper.uploadUri(self, uri, targetFolder, mService.getActiveIdentity());
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
-        LocalQabelService service = QabelBoxApplication.getInstance().getService();
-        if (SplashActivity.startWizardActivities(this)) {
+        Log.d(TAG, "onCreate " + this.hashCode());
+        Intent serviceIntent = new Intent(this, LocalQabelService.class);
+        mServiceConnection = getServiceConnection();
+        if (Sanity.startWizardActivities(this)) {
             Log.d(TAG, "started wizard dialog");
             return;
         }
-
-        if (service.getActiveIdentity() == null) {
-            service.setActiveIdentity(service.getIdentities().getIdentities().iterator().next());
-        }
-
         setContentView(R.layout.activity_main);
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -235,9 +226,12 @@ public class MainActivity extends AppCompatActivity
         self = this;
         initFloatingActionButton();
 
-        Intent serviceIntent = new Intent(this, LocalQabelService.class);
-        mServiceConnection = getServiceConnection();
         bindService(serviceIntent, mServiceConnection, Context.BIND_AUTO_CREATE);
+
+        addBackStackListener();
+    }
+
+    private void addBackStackListener() {
 
         getFragmentManager().addOnBackStackChangedListener(new FragmentManager.OnBackStackChangedListener() {
             @Override
@@ -261,8 +255,13 @@ public class MainActivity extends AppCompatActivity
                 }
                 //check if navigation drawer need to reset
                 if (getFragmentManager().getBackStackEntryCount() == 0 || (activeFragment instanceof BaseFragment) && !((BaseFragment) activeFragment).supportBackButton()) {
-                    getSupportActionBar().setDisplayHomeAsUpEnabled(false);
-                    toggle.setDrawerIndicatorEnabled(true);
+                    Log.d(TAG, "danny: " + activeFragment);
+                    if (activeFragment instanceof SelectUploadFolderFragment) {
+                    } else {
+
+                        getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+                        toggle.setDrawerIndicatorEnabled(true);
+                    }
                 }
             }
         });
@@ -278,7 +277,7 @@ public class MainActivity extends AppCompatActivity
 
                 LocalQabelService.LocalBinder binder = (LocalQabelService.LocalBinder) service;
                 mService = binder.getService();
-                onLocalServiceConnected();
+                onLocalServiceConnected(getIntent());
             }
 
             @Override
@@ -289,10 +288,12 @@ public class MainActivity extends AppCompatActivity
         };
     }
 
-    private void onLocalServiceConnected() {
+    private void onLocalServiceConnected(Intent intent) {
 
         Log.d(TAG, "LocalQabelService connected");
-
+        if (mService.getActiveIdentity() == null) {
+            mService.setActiveIdentity(mService.getIdentities().getIdentities().iterator().next());
+        }
         provider = ((QabelBoxApplication) getApplication()).getProvider();
         Log.i(TAG, "Provider: " + provider);
 
@@ -301,43 +302,91 @@ public class MainActivity extends AppCompatActivity
 
         Identity activeIdentity = mService.getActiveIdentity();
         if (activeIdentity != null) {
-            textViewSelectedIdentity.setText(activeIdentity.getAlias());
-            initBoxVolume(activeIdentity);
-            initFilesFragment();
+            refreshFilesBrowser(activeIdentity);
         }
 
         // Check if activity is started with ACTION_SEND or ACTION_SEND_MULTIPLE
-        Intent intent = getIntent();
+
         String action = intent.getAction();
         String type = intent.getType();
 
         Log.i(TAG, "Intent action: " + action);
 
         // Checks if a fragment should be launched
-        if (intent != null && intent.getAction() != null) {
+        if (type != null && intent != null && intent.getAction() != null) {
+
             switch (intent.getAction()) {
+
                 case Intent.ACTION_SEND:
-                    if (type != null) {
-                        Log.i(TAG, "Action send in main activity");
-                        Uri imageUri = intent.getParcelableExtra(Intent.EXTRA_STREAM);
-                        if (imageUri != null) {
-                            //TODO: UPLOAD
-                        }
+                    Log.i(TAG, "Action send in main activity");
+                    Uri imageUri = intent.getParcelableExtra(Intent.EXTRA_STREAM);
+                    if (imageUri != null) {
+                        ArrayList<Uri> data = new ArrayList<Uri>();
+                        data.add(imageUri);
+                        shareIntoApp(data);
                     }
+
                     break;
                 case Intent.ACTION_SEND_MULTIPLE:
-                    if (type != null) {
-                        ArrayList<Uri> imageUris = intent.getParcelableArrayListExtra(Intent.EXTRA_STREAM);
-                        //TODO: Implement
+                    Log.i(TAG, "Action send multiple in main activity");
+                    ArrayList<Uri> imageUris = intent.getParcelableArrayListExtra(Intent.EXTRA_STREAM);
+                    if (imageUris != null && imageUris.size() > 0) {
+                        shareIntoApp(imageUris);
                     }
                     break;
                 default:
-
+                    initFilesFragment();
+                    selectFilesFragment();
                     break;
             }
+        } else {
+            initFilesFragment();
+            selectFilesFragment();
         }
+    }
+
+    public void refreshFilesBrowser(Identity activeIdentity) {
+
+        textViewSelectedIdentity.setText(activeIdentity.getAlias());
+        initBoxVolume(activeIdentity);
         initFilesFragment();
-        selectFilesFragment();
+    }
+
+    private void shareIntoApp(final ArrayList<Uri> data) {
+
+        fab.hide();
+
+        final Set<Identity> identities = mService.getIdentities().getIdentities();
+        if (identities.size() > 1) {
+            new SelectIdentityForUploadDialog(self, new SelectIdentityForUploadDialog.Result() {
+                @Override
+                public void onCancel() {
+
+                    UIHelper.showDialogMessage(self, R.string.dialog_headline_warning, R.string.share_into_app_canceled);
+                    onBackPressed();
+                }
+
+                @Override
+                public void onIdentitySelected(Identity identity) {
+
+                    changeActiveIdentity(identity);
+
+                    shareIdentitySelected(data, identity);
+                }
+            });
+        } else {
+            shareIdentitySelected(data, mService.getActiveIdentity());
+        }
+    }
+
+    private void shareIdentitySelected(final ArrayList<Uri> data, Identity activeIdentity) {
+        toggle.setDrawerIndicatorEnabled(false);
+        shareFragment = SelectUploadFolderFragment.newInstance(boxVolume, data, activeIdentity);
+        getFragmentManager().beginTransaction()
+                .add(R.id.fragment_container,
+                        shareFragment, TAG_FILES_SHARE_INTO_APP_FRAGMENT)
+                .addToBackStack(null)
+                .commit();
     }
 
     private void initBoxVolume(Identity activeIdentity) {
@@ -406,6 +455,7 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void onClick(DialogInterface dialog, int which, EditText editText) {
 
+                UIHelper.hideKeyboard(self, editText);
                 String newFolderName = editText.getText().toString();
                 if (!newFolderName.equals("")) {
                     createFolder(newFolderName, filesFragment.getBoxNavigation());
@@ -414,6 +464,7 @@ public class MainActivity extends AppCompatActivity
         }, null);
     }
 
+    //@todo move this to filesfragment
     private void initFilesFragment() {
 
         filesFragment = FilesFragment.newInstance(boxVolume);
@@ -504,16 +555,17 @@ public class MainActivity extends AppCompatActivity
         startActivityForResult(Intent.createChooser(viewIntent, "Open with"), REQUEST_EXTERN_VIEWER_APP);
     }
 
+    //@todo move outside
     private String getMimeType(Uri uri) {
 
         return URLConnection.guessContentTypeFromName(uri.toString());
     }
-
+    //@todo move outside
     private String getMimeType(BoxObject boxObject) {
 
         return getMimeType(getUri(boxObject));
     }
-
+    //@todo move outside
     private Uri getUri(BoxObject boxObject) {
 
         String path = filesFragment.getBoxNavigation().getPath(boxObject);
@@ -591,7 +643,20 @@ public class MainActivity extends AppCompatActivity
                 getFragmentManager().popBackStack();
             } else {
                 switch (activeFragment.getTag()) {
+                    case TAG_FILES_SHARE_INTO_APP_FRAGMENT:
+                        if (!shareFragment.handleBackPressed() && !shareFragment.browseToParent()) {
+                            UIHelper.showDialogMessage(self, R.string.dialog_headline_warning, R.string.share_in_app_go_back_without_upload, R.string.yes, R.string.no, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+
+                                    getFragmentManager().popBackStack();
+                                    //finish();
+                                }
+                            }, null);
+                        }
+                        break;
                     case TAG_FILES_FRAGMENT:
+
                         toggle.setDrawerIndicatorEnabled(true);
                         if (!filesFragment.handleBackPressed() && !filesFragment.browseToParent()) {
                             finishAffinity();
@@ -621,8 +686,9 @@ public class MainActivity extends AppCompatActivity
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
+        if (id == R.id.action_infos) {
+            String text = getString(R.string.dummy_infos_text);
+            UIHelper.showDialogMessage(self, R.string.dialog_headline_info, text);
             return true;
         }
 
@@ -655,46 +721,14 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onFolderSelected(final Uri uri, final BoxNavigation boxNavigation) {
 
-        new AsyncTask<Void, Void, Void>() {
-            @Override
-            protected Void doInBackground(Void... params) {
-
-                Cursor returnCursor =
-                        getContentResolver().query(uri, null, null, null, null);
-                int nameIndex = returnCursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
-                returnCursor.moveToFirst();
-                String name = returnCursor.getString(nameIndex);
-                returnCursor.close();
-
-                try {
-                    String path = boxNavigation.getPath();
-                    String folderId = boxVolume.getDocumentId(path);
-                    Uri uploadUri = DocumentsContract.buildDocumentUri(
-                            BoxProvider.AUTHORITY, folderId + name);
-
-                    InputStream content = getContentResolver().openInputStream(uri);
-                    OutputStream upload = getContentResolver().openOutputStream(uploadUri, "w");
-                    if (upload == null || content == null) {
-                        finish();
-                        return null;
-                    }
-                    IOUtils.copy(content, upload);
-                    content.close();
-                    upload.close();
-                } catch (IOException e) {
-                    Log.e(TAG, "Upload failed", e);
-                }
-                return null;
-            }
-        }.execute();
-        finish();
+        VolumeFileTransferHelper.upload(self, uri, boxNavigation, boxVolume);
     }
 
     @Override
     public void onAbort() {
 
     }
-
+    //@todo move outside
     public void createFolder(final String name, final BoxNavigation boxNavigation) {
 
         new AsyncTask<Void, Void, Void>() {
@@ -744,16 +778,14 @@ public class MainActivity extends AppCompatActivity
         mService.addIdentity(identity);
         changeActiveIdentity(identity);
         provider.notifyRootsUpdated();
-
         Snackbar.make(appBarMain, "Added identity: " + identity.getAlias(), Snackbar.LENGTH_LONG)
                 .show();
         selectFilesFragment();
     }
 
-    private void changeActiveIdentity(Identity identity) {
+    public void changeActiveIdentity(Identity identity) {
 
         mService.setActiveIdentity(identity);
-
         textViewSelectedIdentity.setText(identity.getAlias());
         if (filesFragment != null) {
             getFragmentManager().beginTransaction().remove(filesFragment).commit();
@@ -764,15 +796,29 @@ public class MainActivity extends AppCompatActivity
     }
 
 
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+
+        Log.d(TAG, "onCreateOnIntent");
+        onLocalServiceConnected(intent);
+    }
+
     @Override
     public void onScrolledToBottom(boolean scrolledToBottom) {
 
         if (scrolledToBottom) {
             fab.hide();
         } else {
-            fab.show();
+            Fragment activeFragment = getFragmentManager().findFragmentById(R.id.fragment_container);
+            if (activeFragment != null) {
+                if (activeFragment instanceof BaseFragment && ((BaseFragment) activeFragment).handleFABAction()) {
+                    fab.show();
+                }
+            }
         }
     }
+
 
     @Override
     public void deleteIdentity(Identity identity) {
@@ -789,9 +835,6 @@ public class MainActivity extends AppCompatActivity
             });
         } else {
             changeActiveIdentity(mService.getIdentities().getIdentities().iterator().next());
-            /*textViewSelectedIdentity.setText(mService.getActiveIdentity().getAlias());
-
-            selectFilesFragment();*/
         }
     }
 
@@ -807,6 +850,7 @@ public class MainActivity extends AppCompatActivity
     /**
      * Handle an export request sent from the FilesFragment
      */
+    //@todo move outside
     public void onExport(BoxNavigation boxNavigation, BoxObject boxObject) {
 
         String path = boxNavigation.getPath(boxObject);
@@ -833,7 +877,8 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onDestroy() {
 
-        if (mServiceConnection != null) {
+        if (mServiceConnection != null&&mService!=null) {
+
             unbindService(mServiceConnection);
         }
         super.onDestroy();
@@ -876,11 +921,8 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void onClick(View v) {
 
-                Identity activeIdentity = mService.getActiveIdentity();
-                if (activeIdentity != null) {
-                    IntentIntegrator intentIntegrator = new IntentIntegrator(self);
-                    intentIntegrator.shareText(ContactExportImport.exportIdentityAsContact(activeIdentity));
-                }
+                drawer.closeDrawer(GravityCompat.START);
+                showQRCode(self, mService.getActiveIdentity());
             }
         });
 
@@ -976,6 +1018,14 @@ public class MainActivity extends AppCompatActivity
         });
     }
 
+    public static void showQRCode(MainActivity activity, Identity identity) {
+
+        activity.getFragmentManager().beginTransaction()
+                .replace(R.id.fragment_container, QRcodeFragment.newInstance(identity), null)
+                .addToBackStack(null)
+                .commit();
+    }
+
     private void selectAddIdentityFragment() {
 
         Intent i = new Intent(self, CreateIdentityActivity.class);
@@ -1036,25 +1086,5 @@ public class MainActivity extends AppCompatActivity
                 .replace(R.id.fragment_container, filesFragment, TAG_FILES_FRAGMENT)
                 .commit();
         filesFragment.updateSubtitle();
-    }
-
-    @Override
-    public void contactAdded(Contact contact) {
-        for (Contact c : mService.getContacts().getContacts()) {
-            if (c.getKeyIdentifier().equals(contact.getKeyIdentifier())) {
-                Snackbar.make(appBarMain, "Contact already existing: " + contact.getAlias(), Snackbar.LENGTH_LONG)
-                        .show();
-                return;
-            }
-        }
-
-        Snackbar.make(appBarMain, "Added contact: " + contact.getAlias(), Snackbar.LENGTH_LONG)
-                .show();
-        //@todo need refresh contact list.would be fixed in redeisgn contact list
-    }
-
-    @Override
-    public void contactDeleted(Contact contact) {
-        //@todo need refresh contact list.would be fixed in redeisgn contact list
     }
 }

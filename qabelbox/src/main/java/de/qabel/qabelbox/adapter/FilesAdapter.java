@@ -17,7 +17,8 @@ import java.util.Date;
 import java.util.List;
 
 import de.qabel.qabelbox.R;
-import de.qabel.qabelbox.storage.BoxExternal;
+import de.qabel.qabelbox.helper.BoxObjectComparators;
+import de.qabel.qabelbox.storage.BoxExternalFile;
 import de.qabel.qabelbox.storage.BoxFile;
 import de.qabel.qabelbox.storage.BoxFolder;
 import de.qabel.qabelbox.storage.BoxObject;
@@ -112,9 +113,9 @@ public class FilesAdapter extends RecyclerView.Adapter<FilesAdapter.FilesViewHol
             holder.mTextViewFolderDetailsLeft.setText("");
             holder.mTextViewFolderDetailsRight.setText("");
 			holder.mProgressBar.setVisibility(View.INVISIBLE);
-        } else if (boxObject instanceof BoxExternal) {
-            BoxExternal boxExternal = (BoxExternal) boxObject;
-            holder.mImageView.setImageResource(R.drawable.ic_folder_shared_black);
+        } else if (boxObject instanceof BoxExternalFile) {
+            BoxExternalFile boxExternal = (BoxExternalFile) boxObject;
+            holder.mImageView.setImageResource(R.drawable.ic_insert_drive_file_black);
             // TODO: Only show a part of the key identifier until owner name is implemented
             holder.mTextViewFolderDetailsLeft.setText("Owner: " + boxExternal.owner.getReadableKeyIdentifier().substring(0, 6));
             holder.mTextViewFolderDetailsRight.setText("");
@@ -159,8 +160,7 @@ public class FilesAdapter extends RecyclerView.Adapter<FilesAdapter.FilesViewHol
     }
 
     public void sort() {
-
-        Collections.sort(boxObjects);
+        Collections.sort(boxObjects, BoxObjectComparators.alphabeticOrderDirectoriesFirstIgnoreCase());
     }
 
     public void clear() {

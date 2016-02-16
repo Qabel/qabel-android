@@ -47,8 +47,11 @@ public class BaseFragment extends Fragment {
 
     @Override
     public void onResume() {
+
         super.onResume();
-        actionBar.setTitle(getTitle());
+        if (actionBar != null) {
+            actionBar.setTitle(getTitle());
+        }
         if (isFabNeeded()) {
             mActivity.fab.show();
         } else {
@@ -94,6 +97,7 @@ public class BaseFragment extends Fragment {
 
         return false;
     }
+
     /**
      * @return true if fragment handle back button. otherwise return false to display sideMenu icon
      */
@@ -101,6 +105,7 @@ public class BaseFragment extends Fragment {
 
         return false;
     }
+
     /**
      * handle hardware back button
      */

@@ -110,7 +110,7 @@ public class ContactExportImport {
 	 * @throws QblDropInvalidURL
 	 */
 	public static Contacts parseContactsForIdentity(Identity identity, String json) throws JSONException, URISyntaxException, QblDropInvalidURL {
-		Contacts contacts = new Contacts();
+		Contacts contacts = new Contacts(identity);
 		JSONObject jsonObject = new JSONObject(json);
 		JSONArray jsonContacts = jsonObject.getJSONArray(KEY_CONTACTS);
 		for (int i = 0; i < jsonContacts.length(); i++) {
@@ -131,7 +131,7 @@ public class ContactExportImport {
         }
 		String keyIdentifier = jsonObject.getString(KEY_PUBLIC_KEY);
 
-		Contact contact = new Contact(identity, alias, dropURLs, new QblECPublicKey(Hex.decode(keyIdentifier)));
+		Contact contact = new Contact(alias, dropURLs, new QblECPublicKey(Hex.decode(keyIdentifier)));
 		if (jsonObject.has(KEY_EMAIL)) {
 			contact.setEmail(jsonObject.getString(KEY_EMAIL));
 		}

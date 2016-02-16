@@ -41,7 +41,7 @@ public class LocalQabelServiceTest extends ServiceTestCase<LocalQabelServiceTest
 		mService.addIdentity(identity);
 		mService.setActiveIdentity(identity);
 
-		contact = new Contact(identity, "foo", null, new QblECKeyPair().getPub());
+		contact = new Contact("foo", null, new QblECKeyPair().getPub());
 	}
 
 	public void testRetrieveIdentity() {
@@ -91,8 +91,8 @@ public class LocalQabelServiceTest extends ServiceTestCase<LocalQabelServiceTest
 		mService.addContact(contact);
 		Identity secondIdentity = new Identity("bar", null, new QblECKeyPair());
 		mService.addIdentity(identity);
-		Contact secondContact = new Contact(secondIdentity, "blub", null, new QblECKeyPair().getPub());
-		mService.addContact(secondContact);
+		Contact secondContact = new Contact("blub", null, new QblECKeyPair().getPub());
+		mService.addContact(secondContact, secondIdentity);
 		Map<Identity, Contacts> contacts = mService.getAllContacts();
 		assertEquals(2, contacts.size());
 		assertTrue(contacts.containsKey(identity));
@@ -108,9 +108,9 @@ public class LocalQabelServiceTest extends ServiceTestCase<LocalQabelServiceTest
 		QblECKeyPair receiverKeypair = new QblECKeyPair();
 		Identity receiverIdentity = new Identity("ReceiverIdentity", new ArrayList<DropURL>(), receiverKeypair);
 
-		Contact senderContact = new Contact(receiverIdentity, "foo", null, senderKeypair.getPub());
+		Contact senderContact = new Contact("foo", null, senderKeypair.getPub());
 
-		Contact recipientContact = new Contact(senderIdentity, "foo", null, receiverKeypair.getPub());
+		Contact recipientContact = new Contact("foo", null, receiverKeypair.getPub());
 		recipientContact.addDrop(new DropURL("http://localhost/abcdefghijklmnopqrstuvwxyzabcdefgworkingUrl"));
 
 		mService.addIdentity(senderIdentity);
@@ -122,7 +122,8 @@ public class LocalQabelServiceTest extends ServiceTestCase<LocalQabelServiceTest
 
 		final CountDownLatch lock = new CountDownLatch(1);
 
-		mService.sendDropMessage(dropMessage, recipientContact, new LocalQabelService.OnSendDropMessageResult() {
+		mService.sendDropMessage(dropMessage, recipientContact, senderIdentity,
+				new LocalQabelService.OnSendDropMessageResult() {
 			@Override
 			public void onSendDropResult(Map<DropURL, Boolean> deliveryStatus) {
 				lock.countDown();

@@ -94,7 +94,6 @@ public class URLs {
 
     String getDrop(String id) {
         return BASE_DROP + "/"+id;
-        //return BASE_DROP + "/api/v0/drop/"+id;
     }
 
 }

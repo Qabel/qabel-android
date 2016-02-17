@@ -12,7 +12,7 @@ import de.qabel.qabelbox.communication.model.ChatMessageItem;
 /**
  * class to store chat messages in database
  */
-class ChatMessagesDataBase extends SQLiteOpenHelper {
+public class ChatMessagesDataBase extends SQLiteOpenHelper {
 
     public static final int DATABASE_VERSION = 1;
     public static final String DATABASE_NAME = "ChatMessages.db";
@@ -31,6 +31,7 @@ class ChatMessagesDataBase extends SQLiteOpenHelper {
     public static final String COL_MESSAGE_PAYLOAD_TYPE = "payload_type";
     public static final String COL_MESSAGE_PAYLOAD = "payload";
 
+    //@todo dbname muss auch noch identität enthalten
     private static final String CREATE_TABLE =
             "CREATE TABLE IF NOT EXISTS " + TABLE_MESSAGE_NAME + "( " +
                     COL_MESSAGE_ID + " INTEGER AUTOINCREMENT," +

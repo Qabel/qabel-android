@@ -4,6 +4,8 @@ import android.util.Log;
 
 import org.apache.james.mime4j.MimeException;
 import org.apache.james.mime4j.parser.MimeStreamParser;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -15,6 +17,7 @@ import java.util.List;
 import de.qabel.core.config.Identity;
 import de.qabel.qabelbox.communication.DropServer;
 import de.qabel.qabelbox.helper.FileHelper;
+import de.qabel.qabelbox.storage.ChatMessagesDataBase;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Headers;
@@ -30,6 +33,7 @@ public class ChatServer {
     static ChatServer mInstance;
     public List<ChatServerCallback> callbacks = new ArrayList<>();
     long currentId = System.currentTimeMillis();
+    private ArrayList<ChatMessagesDataBase.ChatMessageDatabaseItem> messages = new ArrayList<>();
 
     public static ChatServer getInstance() {
 
@@ -101,6 +105,7 @@ public class ChatServer {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         Headers headers = response.headers();
 
+        //transmit header to mime4j
         for (String name : headers.names()) {
             String value = headers.get(name);
             baos.write(name.getBytes());
@@ -108,7 +113,9 @@ public class ChatServer {
             baos.write(value.getBytes());
             baos.write("\n".getBytes());
         }
+        //write new line. if not, we lost the first entry
         baos.write("\n".getBytes());
+
         InputStream bs = response.body().byteStream();
         baos.write(FileHelper.readInputStreamAsData(bs));
 
@@ -116,8 +123,54 @@ public class ChatServer {
         Log.d(TAG, "multipart response size: " + result.parts.size());
         for (int i = 0; i < result.parts.size(); i++) {
             byte[] part = result.parts.get(i);
+            try {
+                JSONObject json = new JSONObject(new String(part));
+
+                messages.add(createOtherMessage(json));
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
             Log.v(TAG, "danny: " + new String(part));
         }
+    }
+
+    public ChatMessagesDataBase.ChatMessageDatabaseItem createOtherMessage(JSONObject pJson) {
+
+        ChatMessagesDataBase.ChatMessageDatabaseItem item = new ChatMessagesDataBase.ChatMessageDatabaseItem();
+        JSONObject json = new JSONObject();
+        try {
+            item.time_stamp = pJson.getLong("time_stamp");
+            item.sender = pJson.getString("sender");
+            item.receiver = pJson.getString("receiver");
+            JSONObject payload = json.getJSONObject("data");
+            json.put("message", payload.getString("message"));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        item.drop_payload = json.toString();
+        item.isNew = 1;
+
+        return item;
+    }
+
+    public ChatMessagesDataBase.ChatMessageDatabaseItem createOwnMessage(String message) {
+
+        String identityPublicKey = "dummy";
+        String contactPublicKey = "dummy";
+        ChatMessagesDataBase.ChatMessageDatabaseItem item = new ChatMessagesDataBase.ChatMessageDatabaseItem();
+        item.time_stamp = System.currentTimeMillis();
+        item.sender = identityPublicKey;
+        item.receiver = contactPublicKey;
+        JSONObject json = new JSONObject();
+        try {
+            json.put("message", message);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        item.drop_payload = json.toString();
+        item.isNew = 1;
+
+        return item;
     }
 
     public void sendTextMessage(final long ownId, String dropId, String text, Identity currentIdentity, String receiver) {
@@ -137,9 +190,10 @@ public class ChatServer {
                 if (response.code() == 200) {
                     Log.d(TAG, "response " + response.body().toString());
                     response.body().close();
+                    sendCallbacksSuccess(ownId);
                 } else {
                     String result = "";
-                    sendCallbacksSuccess(ownId);
+                    sendCallbacksError(ownId);
                 }
             }
         });
@@ -162,6 +216,15 @@ public class ChatServer {
     public synchronized long getNextId() {
 
         return currentId++;
+    }
+
+    public ArrayList<ChatMessagesDataBase.ChatMessageDatabaseItem> getAllItemsForKey(String contactPublicKey) {
+
+        ArrayList<ChatMessagesDataBase.ChatMessageDatabaseItem> result = new ArrayList<>();
+        for (ChatMessagesDataBase.ChatMessageDatabaseItem message : messages) {
+            result.add(message);
+        }
+        return result;
     }
 
     public interface ChatServerCallback {

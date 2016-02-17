@@ -41,7 +41,6 @@ import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.activities.MainActivity;
 import de.qabel.qabelbox.adapter.ContactsAdapter;
 import de.qabel.qabelbox.chat.ChatServer;
-import de.qabel.qabelbox.communication.DropServer;
 import de.qabel.qabelbox.config.ContactExportImport;
 import de.qabel.qabelbox.helper.FileHelper;
 import de.qabel.qabelbox.helper.Helper;
@@ -85,7 +84,7 @@ public class ContactFragment extends BaseFragment {
 
         super.onCreate(savedInstanceState);
         self = this;
-        chatServer=ChatServer.getInstance();
+        chatServer = ChatServer.getInstance();
         setHasOptionsMenu(true);
         mActivity.registerReceiver(refreshContactListReceiver, new IntentFilter(Helper.INTENT_REFRESH_CONTACTLIST));
         Bundle arguments = getArguments();
@@ -123,8 +122,8 @@ public class ContactFragment extends BaseFragment {
 
         int id = item.getItemId();
         if (id == R.id.action_chat_refresh) {
-            long mId=chatServer.getNextId();
-            ChatServer.getInstance().refreshList(mId,QabelBoxApplication.getInstance().getService().getActiveIdentity());
+            long mId = chatServer.getNextId();
+            ChatServer.getInstance().refreshList(mId, QabelBoxApplication.getInstance().getService().getActiveIdentity());
         }
 
         return super.onOptionsItemSelected(item);
@@ -133,6 +132,14 @@ public class ContactFragment extends BaseFragment {
     private void setClickListener() {
 
         contactListAdapter.setOnItemClickListener(new ContactsAdapter.OnItemClickListener() {
+
+            @Override
+            public void onItemClick(View view, final int position) {
+
+                final Contact contact = contactListAdapter.getContact(position);
+                getFragmentManager().beginTransaction().add(R.id.fragment_container, ContactChatFragment.newInstance(contact), MainActivity.TAG_CONTACT_CHAT_FRAGMENT).addToBackStack(MainActivity.TAG_CONTACT_CHAT_FRAGMENT).commit();
+            }
+        }, new ContactsAdapter.OnItemClickListener() {
 
             @Override
             public void onItemClick(View view, final int position) {
@@ -150,16 +157,6 @@ public class ContactFragment extends BaseFragment {
                                 UIHelper.showDialogMessage(mActivity, R.string.dialog_headline_info, getString(R.string.contact_deleted).replace("%1", contact.getAlias()));
                             }
                         }, null);
-            }
-        });
-
-        contactListAdapter.setOnItemClickListener(new ContactsAdapter.OnItemClickListener() {
-
-            @Override
-            public void onItemClick(View view, final int position) {
-
-                final Contact contact = contactListAdapter.getContact(position);
-                getFragmentManager().beginTransaction().add(R.id.fragment_container, ContactChatFragment.newInstance(contact), MainActivity.TAG_CONTACT_CHAT_FRAGMENT).addToBackStack(MainActivity.TAG_CONTACT_CHAT_FRAGMENT).commit();
             }
         });
     }
@@ -343,9 +340,11 @@ public class ContactFragment extends BaseFragment {
 
     @Override
     public void onStop() {
+
         chatServer.removeListner(chatServerCallback);
         super.onStop();
     }
+
     private ChatServer.ChatServerCallback chatServerCallback = new ChatServer.ChatServerCallback() {
 
         @Override

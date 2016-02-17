@@ -12,12 +12,14 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Hashtable;
 
 import de.qabel.core.config.Contact;
 import de.qabel.core.config.Identity;
@@ -26,6 +28,7 @@ import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.adapter.ChatMessageAdapter;
 import de.qabel.qabelbox.chat.ChatServer;
 import de.qabel.qabelbox.communication.model.ChatMessageItem;
+import de.qabel.qabelbox.storage.ChatMessagesDataBase;
 
 /**
  * Activities that contain this fragment must implement the
@@ -37,6 +40,7 @@ public class ContactChatFragment extends BaseFragment {
     private final String TAG = this.getClass().getSimpleName();
 
     private Contact contact;
+    ArrayList<ChatMessagesDataBase.ChatMessageDatabaseItem> messages = new ArrayList<>();
 
     private View mView;
     private ContactChatFragment fragment;
@@ -47,6 +51,9 @@ public class ContactChatFragment extends BaseFragment {
     private TextView send;
     private EditText etText;
     private ChatServer chatServer;
+    Hashtable<Long, ChatMessagesDataBase.ChatMessageDatabaseItem> messageMap = new Hashtable();
+    private String contactPublicKey;
+    private String identityPrivateKey;
 
     public static ContactChatFragment newInstance(Contact contact) {
 
@@ -67,6 +74,8 @@ public class ContactChatFragment extends BaseFragment {
         if (arguments != null) {
             contact = (Contact) arguments.getSerializable(ARG_IDENTITY);
         }
+        contactPublicKey = contact.getEcPublicKey().getReadableKeyIdentifier();
+        identityPrivateKey = QabelBoxApplication.getInstance().getService().getActiveIdentity().getEcPublicKey().toString();
         mActivity.toggle.setDrawerIndicatorEnabled(false);
         actionBar.setDisplayHomeAsUpEnabled(true);
         setActionBarBackListener();
@@ -90,43 +99,57 @@ public class ContactChatFragment extends BaseFragment {
             @Override
             public void onClick(View v) {
 
-                Toast.makeText(getActivity(), "send text " + contact.getEcPublicKey().getReadableKeyIdentifier() + " " + etText.getText().toString(), Toast.LENGTH_LONG).show();
-                String[]temp = contact.getDropUrls().iterator().next().toString().split("/");
-                Identity currentIdentity=QabelBoxApplication.getInstance().getService().getActiveIdentity();
-
-                long id = chatServer.getNextId();
-                chatServer.sendTextMessage(id,temp[temp.length-1], etText.getText().toString(), currentIdentity,contact.getEcPublicKey().getReadableKeyIdentifier().toString());
+                String text = etText.getText().toString();
+                if (text.length() > 0) {
+                    String[] temp = contact.getDropUrls().iterator().next().toString().split("/");
+                    Identity currentIdentity = QabelBoxApplication.getInstance().getService().getActiveIdentity();
+                    long sendId = chatServer.getNextId();
+                    messageMap.put(sendId, chatServer.createOwnMessage(text));
+                    chatServer.sendTextMessage(sendId, temp[temp.length - 1], text, currentIdentity, contact.getEcPublicKey().getReadableKeyIdentifier().toString());
+                }
+                ;
             }
         });
-        refreshContactList();
+        etText.setText("");
+
+        refreshContactList(messages);
         actionBar.setSubtitle(contact.getAlias());
         mView = view;
         return view;
     }
 
+    private ChatMessageItem makeDummyEntry(String text) {
+
+        ChatMessageItem item = new ChatMessageItem();
+        item.time_stamp = System.currentTimeMillis();
+        item.sender = "sendkey";
+        JSONObject json = new JSONObject();
+        try {
+            json.put("message", "meine nachricht");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        item.drop_payload = json.toString();
+        return item;
+    }
+
     /**
      * refresh ui
+     *
+     * @param messages
      */
-    private void refreshContactList() {
+    private void refreshContactList(ArrayList<ChatMessagesDataBase.ChatMessageDatabaseItem> messages) {
 
-        ArrayList<ChatMessageItem> contacts = new ArrayList<>();
-        for (int i = 0; i < 10; i++) {
-            ChatMessageItem item = new ChatMessageItem();
-            item.time_stamp = System.currentTimeMillis();
-            item.sender = "sendkey";
-            JSONObject json = new JSONObject();
-            try {
-                json.put("message", "meine nachricht");
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-            item.drop_payload = json.toString();
-            contacts.add(item);
-        }
         if (contactListRecyclerView != null) {
-            int count = contacts.size();
 
-            contactListAdapter = new ChatMessageAdapter(contacts, contact);
+            Collections.sort(messages, new Comparator<ChatMessagesDataBase.ChatMessageDatabaseItem>() {
+                @Override
+                public int compare(ChatMessagesDataBase.ChatMessageDatabaseItem o1, ChatMessagesDataBase.ChatMessageDatabaseItem o2) {
+                    //lowest to highest
+                    return (o1.getTime() > o2.getTime() ? 1 : (o1.getTime() == o2.getTime() ? 0 : -1));
+                }
+            });
+            contactListAdapter = new ChatMessageAdapter(messages, contact);
             contactListAdapter.setEmptyView(emptyView);
             contactListRecyclerView.setAdapter(contactListAdapter);
             contactListAdapter.notifyDataSetChanged();
@@ -189,6 +212,19 @@ public class ContactChatFragment extends BaseFragment {
         @Override
         public void onSuccess(long id) {
 
+            final ChatMessagesDataBase.ChatMessageDatabaseItem item = messageMap.get(id);
+            if (item != null) {
+                messages.add(item);
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+
+                        messages = chatServer.getAllItemsForKey(contactPublicKey);
+                        etText.setText("");
+                        refreshContactList(messages);
+                    }
+                });
+            }
         }
 
         @Override

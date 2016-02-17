@@ -17,6 +17,7 @@ import de.qabel.core.config.Contact;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.communication.model.ChatMessageItem;
 import de.qabel.qabelbox.helper.Formatter;
+import de.qabel.qabelbox.storage.ChatMessagesDataBase;
 
 /**
  * Contacts adapter provides data for a Contacts list in a RecyclerView. Allows to externally
@@ -28,7 +29,7 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<ChatMessageAdapter.
     private OnItemClickListener onItemClickListener;
     private View emptyView;
 
-    public ChatMessageAdapter(ArrayList<ChatMessageItem> allMessages, Contact contact) {
+    public ChatMessageAdapter(ArrayList<ChatMessagesDataBase.ChatMessageDatabaseItem> allMessages, Contact contact) {
 
         mMessages = new ArrayList<>();
         for (ChatMessageItem message : allMessages) {
@@ -42,7 +43,7 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<ChatMessageAdapter.
             @Override
             public int compare(ChatMessageItem o1, ChatMessageItem o2) {
 
-                return (o1.getTime() > o2.getTime() ? -1 : (o1.getTime() == o2.getTime() ? 0 : 1));
+                return (o1.getTime() > o2.getTime() ? 1 : (o1.getTime() == o2.getTime() ? 0 : -1));
             }
         });
 

@@ -24,7 +24,7 @@ import de.qabel.qabelbox.R;
 public class ContactsAdapter extends RecyclerView.Adapter<ContactsAdapter.ContactViewHolder> {
 
     private final List<Contact> mContacts;
-    private OnItemClickListener onItemClickListener;
+    private OnItemClickListener onItemClickListener, onItemLongClickListener;
     private View emptyView;
 
     public ContactsAdapter(Contacts contacts) {
@@ -46,7 +46,7 @@ public class ContactsAdapter extends RecyclerView.Adapter<ContactsAdapter.Contac
         return mContacts.get(position);
     }
 
-    class ContactViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+    class ContactViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener {
 
         public final TextView mTextViewContactName;
         public final TextView mTextViewContactDetails;
@@ -56,6 +56,7 @@ public class ContactsAdapter extends RecyclerView.Adapter<ContactsAdapter.Contac
 
             super(v);
             v.setOnClickListener(this);
+            v.setOnLongClickListener(this);
             mTextViewContactName = (TextView) v.findViewById(R.id.textViewItemName);
             mTextViewContactDetails = (TextView) v.findViewById(R.id.textViewItemDetail);
             mImageView = (ImageView) v.findViewById(R.id.itemIcon);
@@ -67,6 +68,16 @@ public class ContactsAdapter extends RecyclerView.Adapter<ContactsAdapter.Contac
             if (onItemClickListener != null) {
                 onItemClickListener.onItemClick(view, getAdapterPosition());
             }
+        }
+
+        @Override
+        public boolean onLongClick(View view) {
+
+            if (onItemLongClickListener != null) {
+                onItemLongClickListener.onItemClick(view, getAdapterPosition());
+                return true;
+            }
+            return false;
         }
     }
 
@@ -80,9 +91,10 @@ public class ContactsAdapter extends RecyclerView.Adapter<ContactsAdapter.Contac
      *
      * @param onItemClickListener
      */
-    public void setOnItemClickListener(OnItemClickListener onItemClickListener) {
+    public void setOnItemClickListener(OnItemClickListener onItemClickListener, OnItemClickListener onItemLongClickListener) {
 
         this.onItemClickListener = onItemClickListener;
+        this.onItemLongClickListener = onItemLongClickListener;
     }
 
     @Override

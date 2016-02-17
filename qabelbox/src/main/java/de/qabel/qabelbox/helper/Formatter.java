@@ -51,7 +51,7 @@ public class Formatter {
 
     public static String formatDateTimeShort(Date date) {
 
-        return dateFormat.format(date);
+        return dateTimeFormat.format(date);
     }
 
     public static String formatDateTimeShort(long date) {

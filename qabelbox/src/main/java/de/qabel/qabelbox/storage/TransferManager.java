@@ -95,6 +95,10 @@ public class TransferManager {
         return id;
     }
 
+    public Exception lookupError(int transferId) {
+        return errors.get(transferId);
+    }
+
     /**
      * download file from server
      *
@@ -194,6 +198,8 @@ public class TransferManager {
         }
     }
 
+
+    // TODO: implement delete
     public void delete(String prefix, String name) {
 
         Log.d(TAG, "delete " + prefix + " " + name);

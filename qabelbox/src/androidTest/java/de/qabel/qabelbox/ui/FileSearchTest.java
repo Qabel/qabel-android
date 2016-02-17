@@ -85,7 +85,7 @@ public class FileSearchTest {
     }
 
     private void setupData() {
-        new AppPreference(QabelBoxApplication.getInstance().getApplicationContext()).setToken(QabelBoxApplication.getInstance().getApplicationContext().getString(R.string.uitesttoken));
+        new AppPreference(QabelBoxApplication.getInstance().getApplicationContext()).setToken(QabelBoxApplication.getInstance().getApplicationContext().getString(R.string.blockserver_magic_testtoken));
         mBoxHelper = new UIBoxHelper(mActivity);
         mBoxHelper.bindService(QabelBoxApplication.getInstance());
         try {

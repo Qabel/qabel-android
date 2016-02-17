@@ -40,6 +40,7 @@ import de.qabel.qabelbox.storage.StorageSearch;
  */
 public class UIBoxHelper {
 
+    @Deprecated
     private final MainActivity mActivity;
     private final String TAG = this.getClass().getSimpleName();
     private LocalQabelService mService;

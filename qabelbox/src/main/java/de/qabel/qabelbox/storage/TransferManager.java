@@ -43,11 +43,6 @@ public class TransferManager {
         context = QabelBoxApplication.getInstance().getApplicationContext();
     }
 
-    private String getKey(String prefix, String name) {
-
-        return prefix + '/' + name;
-    }
-
     public File createTempFile() {
 
         try {
@@ -76,7 +71,7 @@ public class TransferManager {
             public void onFailure(Call call, IOException e) {
 
                 errors.put(id, e);
-
+                Log.e(TAG, "error uploading to " + call.request(), e);
                 if (boxTransferListener != null) {
                     boxTransferListener.onFinished();
                 }
@@ -87,7 +82,7 @@ public class TransferManager {
             public void onResponse(Call call, Response response) throws IOException {
 
                 latches.get(id).countDown();
-                Log.d(TAG, "upload response " + response.code());
+                Log.d(TAG, "upload response " + response.code() + "(" + call.request() + ")");
                 if (boxTransferListener != null) {
                     boxTransferListener.onFinished();
                 }
@@ -129,7 +124,7 @@ public class TransferManager {
             @Override
             public void onResponse(Call call, Response response) throws IOException {
 
-                Log.d(TAG, "download response " + response.code());
+                Log.d(TAG, "download response " + response.code() + " on " + call.request());
                 if (response.code() == 200) {
                     readStreamFromServer(response, file, boxTransferListener);
                 } else {
@@ -190,6 +185,9 @@ public class TransferManager {
             latches.get(id).await();
             logger.info("Waiting for " + id + " finished");
             Exception e = errors.get(id);
+            if (e != null) {
+                logger.warn("Error found waiting for " + id, e);
+            }
             return e == null;
         } catch (InterruptedException e) {
             return false;
@@ -197,9 +195,6 @@ public class TransferManager {
     }
 
     public void delete(String prefix, String name) {
-
-        //  awsClient.deleteObject(bucket, getKey(prefix, ref));
-        //@todo delete ref, whats that?
 
         Log.d(TAG, "delete " + prefix + " " + name);
 

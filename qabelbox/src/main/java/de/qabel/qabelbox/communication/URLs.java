@@ -16,8 +16,8 @@ public class URLs {
     public URLs() {
 
         Context context = QabelBoxApplication.getInstance().getApplicationContext();
-        BASE_ACCOUNTING = context.getString(R.string.blockServer);
-        BASE_BLOCK = context.getString(R.string.accountingServer);
+        BASE_ACCOUNTING = context.getString(R.string.accountingServer);
+        BASE_BLOCK = context.getString(R.string.blockServer);
     }
 
     public void setBaseAccountingURL(String url) {
@@ -67,7 +67,6 @@ public class URLs {
 
     /**
      * get files url for block server
-     *
      * @return
      */
     String getFiles() {

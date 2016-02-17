@@ -2,7 +2,6 @@ package de.qabel.qabelbox.providers;
 
 import android.annotation.TargetApi;
 import android.content.Context;
-import android.content.ContentResolver;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
@@ -11,11 +10,6 @@ import android.provider.DocumentsContract;
 import android.test.InstrumentationTestCase;
 import android.test.mock.MockContentResolver;
 import android.util.Log;
-
-import com.amazonaws.mobileconnectors.s3.transferutility.TransferUtility;
-import com.amazonaws.services.s3.model.DeleteObjectsRequest;
-import com.amazonaws.services.s3.model.ObjectListing;
-import com.amazonaws.services.s3.model.S3ObjectSummary;
 
 import org.apache.commons.io.IOUtils;
 
@@ -32,9 +26,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import de.qabel.core.crypto.CryptoUtils;
-import de.qabel.core.crypto.QblECKeyPair;
-import de.qabel.qabelbox.activities.MainActivity;
 import de.qabel.qabelbox.communication.VolumeFileTransferHelper;
 import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.storage.BoxFolder;
@@ -69,11 +60,8 @@ public class BoxProviderTest extends InstrumentationTestCase {
         byte[] deviceID = getProvider().deviceID;
         BoxProviderTester provider = getProvider();
         ROOT_DOC_ID = provider.rootDocId;
-        provider.transferUtility = new TransferUtility(provider.amazonS3Client, mContext);
-
-        volume = new BoxVolume(provider.transferUtility, provider.awsCredentials,
-                provider.keyPair, bucket, provider.prefix, deviceID, mContext);
-        volume.createIndex(bucket, provider.prefix);
+        volume = new BoxVolume(provider.keyPair, bucket, provider.prefix, deviceID, mContext);
+        volume.createIndex();
 
         File tmpDir = new File(System.getProperty("java.io.tmpdir"));
         File file = File.createTempFile("testfile", "test", tmpDir);
@@ -95,17 +83,6 @@ public class BoxProviderTest extends InstrumentationTestCase {
     public void tearDown() throws Exception {
         super.tearDown();
         Log.d(TAG, "tearDown");
-        ObjectListing listing = getProvider().amazonS3Client.listObjects(bucket, getProvider().prefix);
-        List<DeleteObjectsRequest.KeyVersion> keys = new ArrayList<>();
-        for (S3ObjectSummary summary : listing.getObjectSummaries()) {
-            keys.add(new DeleteObjectsRequest.KeyVersion(summary.getKey()));
-        }
-        if (keys.isEmpty()) {
-            return;
-        }
-        DeleteObjectsRequest deleteObjectsRequest = new DeleteObjectsRequest(bucket);
-        deleteObjectsRequest.setKeys(keys);
-        getProvider().amazonS3Client.deleteObjects(deleteObjectsRequest);
     }
 
     public void testTraverseToFolder() throws QblStorageException {

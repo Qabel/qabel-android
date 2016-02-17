@@ -1,28 +1,12 @@
 package de.qabel.qabelbox.storage;
 
 
-
-
-
 import android.test.AndroidTestCase;
-import android.util.Log;
 
-import com.amazonaws.auth.AWSCredentials;
-import com.amazonaws.mobileconnectors.s3.transferutility.TransferUtility;
-import com.amazonaws.services.s3.AmazonS3Client;
-import com.amazonaws.services.s3.model.DeleteObjectsRequest;
-import com.amazonaws.services.s3.model.ObjectListing;
-import com.amazonaws.services.s3.model.S3ObjectSummary;
-import com.amazonaws.util.IOUtils;
-
+import org.apache.commons.io.IOUtils;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.spongycastle.crypto.engines.AESEngine;
-import org.spongycastle.crypto.modes.GCMBlockCipher;
-import org.spongycastle.crypto.params.AEADParameters;
-import org.spongycastle.crypto.params.KeyParameter;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -30,80 +14,102 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
-import java.util.UUID;
 
+import de.qabel.core.config.DropServer;
+import de.qabel.core.config.Identity;
 import de.qabel.core.crypto.CryptoUtils;
 import de.qabel.core.crypto.QblECKeyPair;
+import de.qabel.core.drop.DropURL;
+import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
+import de.qabel.qabelbox.config.AppPreference;
 import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.exceptions.QblStorageNameConflict;
 import de.qabel.qabelbox.exceptions.QblStorageNotFound;
+import de.qabel.qabelbox.providers.BoxProvider;
 
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.greaterThanOrEqualTo;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.startsWith;
 import static org.junit.Assert.assertThat;
 
 public class BoxTest extends AndroidTestCase {
-    private static final Logger logger = LoggerFactory.getLogger(BoxTest.class.getName());
-	private static final String OWNER = "owner";
+    private static final String OWNER = "owner";
 
-	BoxVolume volume;
-    BoxVolume volume2;
-	BoxVolume volumeOtherUser;
+    Identity identity;
+    Identity identityOtherUser;
+    BoxVolume volume;
+    BoxVolume volumeFromAnotherDevice;
+    BoxVolume volumeOtherUser;
     byte[] deviceID;
     byte[] deviceID2;
 	byte[] deviceIDOtherUser;
 	QblECKeyPair keyPair;
 	QblECKeyPair keyPairOtherUser;
     final String bucket = "qabel";
-    final String prefix = UUID.randomUUID().toString();
-	final String prefixOtherUser = UUID.randomUUID().toString();
+    final String path = "/";
+    String prefix = "test"; // Don't touch at the moment the test-server only accepts this prefix in debug moder (using the magictoken)
+    String prefixOtherUser = "test";
     private String testFileName;
-    private AmazonS3Client s3Client;
-    private AWSCredentials awsCredentials;
 
+    private BoxProvider provider;
+
+
+    public void configureTestServer() {
+        new AppPreference(QabelBoxApplication.getInstance().getApplicationContext()).setToken(QabelBoxApplication.getInstance().getApplicationContext().getString(R.string.blockserver_magic_testtoken));
+    }
+
+    @Before
     public void setUp() throws IOException, QblStorageException {
+        configureTestServer();
+        URI uri = URI.create(QabelBoxApplication.DEFAULT_DROP_SERVER);
+        DropServer dropServer = new DropServer(uri, "", true);
+        DropURL dropURL = new DropURL(dropServer);
+        Collection<DropURL> dropURLs = new ArrayList<>();
+        dropURLs.add(dropURL);
+
         CryptoUtils utils = new CryptoUtils();
+
         deviceID = utils.getRandomBytes(16);
         deviceID2 = utils.getRandomBytes(16);
 		deviceIDOtherUser = utils.getRandomBytes(16);
-
+        keyPair = new QblECKeyPair();
+        keyPairOtherUser = new QblECKeyPair();
 
 		testFileName = createTestFile();
 
-        keyPair = new QblECKeyPair();
-		keyPairOtherUser = new QblECKeyPair();
+        identity = new Identity("Default Test User", dropURLs, keyPair);
+        identity.getPrefixes().add(prefix);
+        identityOtherUser = new Identity("Second Test User", dropURLs, keyPairOtherUser);
+        identityOtherUser.getPrefixes().add(prefixOtherUser);
 
-        awsCredentials = new AWSCredentials() {
-            @Override
-            public String getAWSAccessKeyId() {
-                return getContext().getResources().getString(R.string.aws_user);
-            }
 
-            @Override
-            public String getAWSSecretKey() {
-                return getContext().getString(R.string.aws_password);
-            }
-        };
-        AWSCredentials credentials = awsCredentials;
-        s3Client = new AmazonS3Client(credentials);
-        assertNotNull(awsCredentials.getAWSAccessKeyId());
-        assertNotNull(awsCredentials.getAWSSecretKey());
+        volume = getVolumeForRoot(identity, deviceID, bucket, prefix);
+        volumeFromAnotherDevice = getVolumeForRoot(identity, deviceID2, bucket, prefix);
+        volumeOtherUser = getVolumeForRoot(identityOtherUser, deviceIDOtherUser, bucket, prefixOtherUser);
+        // new BoxVolume(keyPairOtherUser, bucket, prefixOtherUser, deviceIDOtherUser, getContext());
 
-        QblECKeyPair keyPair = new QblECKeyPair();
-        TransferUtility transfer = new TransferUtility(s3Client, getContext());
-        volume = new BoxVolume(transfer, credentials, keyPair, bucket, prefix, deviceID,
-                getContext());
-        volume2 = new BoxVolume(transfer, credentials, keyPair, bucket, prefix, deviceID2,
-                getContext());
-		volumeOtherUser = new BoxVolume(transfer, credentials, keyPairOtherUser, bucket, prefixOtherUser,
-				deviceIDOtherUser, getContext());
+        volume.createIndex();
+        //volumeOtherUser.createIndex();
 
-        volume.createIndex(bucket, prefix);
-		volumeOtherUser.createIndex(bucket, prefixOtherUser);
 
+    }
+
+
+    public BoxVolume getVolumeForRoot(Identity identity, byte[] deviceID, String bucket, String prefix) {
+        if (identity == null) {
+            throw new NullPointerException("Identity is null");
+        }
+        QblECKeyPair key = identity.getPrimaryKeyPair();
+        return new BoxVolume(key, bucket, prefix,
+                deviceID, getContext());
     }
 
     public static String createTestFile() throws IOException {
@@ -130,18 +136,7 @@ public class BoxTest extends AndroidTestCase {
     }
 
     public void tearDown() throws IOException {
-        ObjectListing listing = s3Client.listObjects(bucket, prefix);
-        List<DeleteObjectsRequest.KeyVersion> keys = new ArrayList<>();
-        for (S3ObjectSummary summary : listing.getObjectSummaries()) {
-            logger.info("deleting key" + summary.getKey());
-            keys.add(new DeleteObjectsRequest.KeyVersion(summary.getKey()));
-        }
-        if (keys.isEmpty()) {
-            return;
-        }
-        DeleteObjectsRequest deleteObjectsRequest = new DeleteObjectsRequest(bucket);
-        deleteObjectsRequest.setKeys(keys);
-        s3Client.deleteObjects(deleteObjectsRequest);
+
     }
 
     @Test
@@ -326,7 +321,7 @@ public class BoxTest extends AndroidTestCase {
     @Test
     public void testConflictFileUpdate() throws QblStorageException, IOException {
         BoxNavigation nav = volume.navigate();
-        BoxNavigation nav2 = volume2.navigate();
+        BoxNavigation nav2 = volumeFromAnotherDevice.navigate();
         File file = new File(testFileName);
         nav.upload("foobar", new FileInputStream(file), null);
         nav2.upload("foobar", new FileInputStream(file), null);
@@ -421,7 +416,7 @@ public class BoxTest extends AndroidTestCase {
     @Test
     public void testNameConflictOnDifferentClients() throws QblStorageException, IOException {
         BoxNavigation nav = volume.navigate();
-        BoxNavigation nav2 = volume2.navigate();
+        BoxNavigation nav2 = volumeFromAnotherDevice.navigate();
         File file = new File(testFileName);
         nav.upload("foobar", new FileInputStream(file), null);
         nav2.createFolder("foobar");
@@ -438,7 +433,7 @@ public class BoxTest extends AndroidTestCase {
     //@Test
     //public void testFolderNameConflictOnDifferentClients() throws QblStorageException, IOException {
     //	BoxNavigation nav = volume.navigate();
-    //	BoxNavigation nav2 = volume2.navigate();
+    //	BoxNavigation nav2 = volumeFromAnotherDevice.navigate();
     //	File file = new File(testFileName);
     //	nav.createFolder("foobar");
     //	nav2.upload("foobar", new FileInputStream(file));

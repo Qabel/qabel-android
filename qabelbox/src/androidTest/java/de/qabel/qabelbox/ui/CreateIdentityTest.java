@@ -85,7 +85,7 @@ public class CreateIdentityTest {
     @Test
     public void addIdentity0Test() {
         //clear all identities
-        new AppPreference(QabelBoxApplication.getInstance().getApplicationContext()).setToken(QabelBoxApplication.getInstance().getApplicationContext().getString(R.string.uitesttoken));
+        new AppPreference(QabelBoxApplication.getInstance().getApplicationContext()).setToken(QabelBoxApplication.getInstance().getApplicationContext().getString(R.string.blockserver_magic_testtoken));
         LocalQabelService service = QabelBoxApplication.getInstance().getService();
         Identities identities = service.getIdentities();
         for (Identity identity :

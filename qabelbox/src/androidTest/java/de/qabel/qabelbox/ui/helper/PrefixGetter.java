@@ -28,6 +28,7 @@ public class PrefixGetter {
         new PrefixServer().getPrefix(context, new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
+                Log.w(TAG, "Error communicating with server: " + call, e);
                 latch.countDown();
             }
 

@@ -1,6 +1,7 @@
 package de.qabel.qabelbox.communication;
 
 import android.content.Context;
+import android.net.Uri;
 import android.util.Log;
 
 import java.io.File;
@@ -29,8 +30,11 @@ public class BlockServer extends BaseServer {
     }
 
     private void doServerAction(Context context, String prefix, String path, String method, RequestBody body, Callback callback) {
-
-        String url = urls.getFiles() + prefix + path;
+        String apiURL = urls.getFiles();
+        String url = Uri.parse(apiURL).buildUpon()
+                .appendPath(prefix)
+                .appendPath(path)
+                .build().toString();
         Request.Builder builder = new Request.Builder()
                 .url(url);
 

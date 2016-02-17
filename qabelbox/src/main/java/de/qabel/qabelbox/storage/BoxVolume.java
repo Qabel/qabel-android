@@ -64,7 +64,6 @@ public class BoxVolume {
 
 
     public String getDocumentId(String path) {
-
         return rootId + BoxProvider.DOCID_SEPARATOR + path;
     }
 
@@ -99,7 +98,6 @@ public class BoxVolume {
     }
 
     public BoxNavigation navigate() throws QblStorageException {
-
         return new FolderNavigation(prefix, getDirectoryMetadata(), keyPair, null, deviceId, transferManager,
                 this, PATH_ROOT, null, context);
     }
@@ -144,21 +142,22 @@ public class BoxVolume {
         return uuid.toString();
     }
 
+    /*
+    @Deprecated
     public void createIndex() throws QblStorageException {
-
         createIndex(bucket, prefix);
     }
 
+    @Deprecated
     public void createIndex(String bucket, String prefix) throws QblStorageException {
-
         this.prefix=prefix;
         createIndex("https://" + bucket + ".s3.amazonaws.com/" + prefix);
     }
+    */
 
-    public void createIndex(String root) throws QblStorageException {
-
+    public void createIndex() throws QblStorageException {
         String rootRef = getRootRef();
-        DirectoryMetadata dm = DirectoryMetadata.newDatabase(root, deviceId, tempDir);
+        DirectoryMetadata dm = DirectoryMetadata.newDatabase(rootRef, deviceId, tempDir);
         try {
             byte[] plaintext = IOUtils.toByteArray(new FileInputStream(dm.path));
             byte[] encrypted = cryptoUtils.createBox(keyPair, keyPair.getPub(), plaintext, 0);

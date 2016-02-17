@@ -80,7 +80,6 @@ public class BoxProvider extends DocumentsProvider {
     public static final String AUTHORITY = "de.qabel.qabelbox.providers.documents";
     public static final String PATH_SEP = "/";
     public static final String DOCID_SEPARATOR = "::::";
-    public static final String BUCKET = "qabel";
     public static final String PREFIX = "boxtest";
 
     DocumentIdParser mDocumentIdParser;
@@ -175,11 +174,9 @@ public class BoxProvider extends DocumentsProvider {
             final MatrixCursor.RowBuilder row = result.newRow();
             String pub_key = identity.getEcPublicKey().getReadableKeyIdentifier();
             row.add(Root.COLUMN_ROOT_ID,
-                    mDocumentIdParser.buildId(pub_key,
-                            BUCKET, PREFIX, null));
+                    mDocumentIdParser.buildId(pub_key, PREFIX, null));
             row.add(Root.COLUMN_DOCUMENT_ID,
-                    mDocumentIdParser.buildId(pub_key,
-                            BUCKET, PREFIX, "/"));
+                    mDocumentIdParser.buildId(pub_key, PREFIX, "/"));
             row.add(Root.COLUMN_ICON, R.drawable.qabel_logo);
             row.add(Root.COLUMN_FLAGS, Root.FLAG_SUPPORTS_CREATE);
             row.add(Root.COLUMN_TITLE, "Qabel Box " + PREFIX.substring(0, 7));
@@ -212,11 +209,8 @@ public class BoxProvider extends DocumentsProvider {
         return result.toArray(projection);
     }
 
-    public BoxVolume getVolumeForRoot(String identity, String bucket, String prefix) {
+    public BoxVolume getVolumeForRoot(String identity, String prefix) {
 
-        if (bucket == null) {
-            bucket = BUCKET;
-        }
         if (prefix == null) {
             prefix = PREFIX;
         }
@@ -226,7 +220,7 @@ public class BoxProvider extends DocumentsProvider {
         }
         QblECKeyPair key = retrievedIdentity.getPrimaryKeyPair();
 
-        return new BoxVolume(key, bucket, prefix,
+        return new BoxVolume(key, prefix,
                 mService.getDeviceID(), getContext());
     }
 
@@ -281,7 +275,6 @@ public class BoxProvider extends DocumentsProvider {
 
         return getVolumeForRoot(
                 mDocumentIdParser.getIdentity(documentId),
-                mDocumentIdParser.getBucket(documentId),
                 mDocumentIdParser.getPrefix(documentId));
     }
 
@@ -756,7 +749,6 @@ public class BoxProvider extends DocumentsProvider {
             String newPath = StringUtils.join(splitPath, "");
             String renamedId = mDocumentIdParser.buildId(
                     mDocumentIdParser.getIdentity(documentId),
-                    mDocumentIdParser.getBucket(documentId),
                     mDocumentIdParser.getPrefix(documentId),
                     newPath);
 

@@ -388,7 +388,7 @@ public class MainActivity extends CrashReportingActivity
 
         boxVolume = provider.getVolumeForRoot(
                 activeIdentity.getEcPublicKey().getReadableKeyIdentifier(),
-                null, VolumeFileTransferHelper.getPrefixFromIdentity(activeIdentity));
+                VolumeFileTransferHelper.getPrefixFromIdentity(activeIdentity));
     }
 
     private void initFloatingActionButton() {

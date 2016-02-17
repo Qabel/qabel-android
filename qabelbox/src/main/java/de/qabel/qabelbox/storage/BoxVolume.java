@@ -36,7 +36,6 @@ public class BoxVolume {
     private static final String PATH_ROOT = "/";
     private final String rootId;
     private final Context context;
-    private final String bucket;
 
     private QblECKeyPair keyPair;
     private byte[] deviceId;
@@ -46,7 +45,7 @@ public class BoxVolume {
     private String prefix;
 
     public BoxVolume(
-            QblECKeyPair keyPair, String bucket, String prefix,
+            QblECKeyPair keyPair, String prefix,
             byte[] deviceId, Context context) {
 
         this.keyPair = keyPair;
@@ -56,10 +55,10 @@ public class BoxVolume {
         tempDir = context.getCacheDir();
 
         this.rootId = new DocumentIdParser().buildId(
-                keyPair.getPub().getReadableKeyIdentifier(), bucket, prefix, null);
+                keyPair.getPub().getReadableKeyIdentifier(), prefix, null);
         transferManager = new TransferManager(tempDir);
         this.prefix = prefix;
-        this.bucket = bucket;
+
     }
 
 
@@ -141,19 +140,6 @@ public class BoxVolume {
         UUID uuid = new UUID(bb.getLong(), bb.getLong());
         return uuid.toString();
     }
-
-    /*
-    @Deprecated
-    public void createIndex() throws QblStorageException {
-        createIndex(bucket, prefix);
-    }
-
-    @Deprecated
-    public void createIndex(String bucket, String prefix) throws QblStorageException {
-        this.prefix=prefix;
-        createIndex("https://" + bucket + ".s3.amazonaws.com/" + prefix);
-    }
-    */
 
     public void createIndex() throws QblStorageException {
         String rootRef = getRootRef();

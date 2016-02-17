@@ -54,14 +54,13 @@ public class SearchTest extends AndroidTestCase {
 
 		setup = false;
 
-		final String bucket = "qabel";
 		final String prefix = UUID.randomUUID().toString();
 
 		CryptoUtils utils = new CryptoUtils();
 			byte[] deviceID = utils.getRandomBytes(16);
 			QblECKeyPair keyPair = new QblECKeyPair();
 
-		BoxVolume volume = new BoxVolume(keyPair, bucket, prefix,
+		BoxVolume volume = new BoxVolume(keyPair, prefix,
 					deviceID, getContext());
 
 		volume.createIndex();

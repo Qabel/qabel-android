@@ -159,7 +159,7 @@ public class UIBoxHelper {
 
         mBoxVolume = provider.getVolumeForRoot(
                 activeIdentity.getEcPublicKey().getReadableKeyIdentifier(),
-                null, VolumeFileTransferHelper.getPrefixFromIdentity(activeIdentity));
+                VolumeFileTransferHelper.getPrefixFromIdentity(activeIdentity));
         mBoxVolume.createIndex();
     }
 

@@ -25,7 +25,6 @@ public class DocumentIdParserTest extends TestCase {
     private QblECKeyPair key;
     private String pub;
     private String prefix;
-    private String bucket;
     private String rootId ;
     private String filePath = "foo/bar/baz/";
     private String fileName = "lorem.txt";
@@ -37,8 +36,7 @@ public class DocumentIdParserTest extends TestCase {
            "77076d0a7318a57d3c16c17251b26645df4c2f87ebc0992ab177fba51db92c2a"));
         pub = "8520f0098930a754748b7ddcb43ef75a0dbf3a0d26381af4eba4a98eaa9b4e6a";
         prefix = "D7A75A70-8D28-11E5-A8EB-280369A460B9";
-        bucket = "qabel";
-        rootId = pub + "::::" + bucket + "::::" + prefix;
+        rootId = pub + "::::" + prefix;
     }
 
     @Test
@@ -61,18 +59,7 @@ public class DocumentIdParserTest extends TestCase {
         p.getPrefix("foo::::bar");
     }
 
-    @Test
-    public void testExtractBucket() throws FileNotFoundException {
-        assertThat(p.getBucket(rootId), is(bucket));
-        assertThat(p.getBucket(rootId+filePath), is(bucket));
-        assertThat(p.getBucket(rootId + filePath + fileName), is(bucket));
-    }
 
-    @Test(expected = FileNotFoundException.class)
-    public void testNoBucket() throws FileNotFoundException {
-        p.getBucket("foo::::bar");
-
-    }
     @Test
     public void testExtractFilePath() throws FileNotFoundException {
         assertThat(p.getFilePath(rootId + "::::" + filePath + fileName), is(filePath + fileName));
@@ -91,11 +78,10 @@ public class DocumentIdParserTest extends TestCase {
 
     @Test
     public void testBuildId() {
-        assertThat(p.buildId(pub, bucket, prefix, filePath), is(rootId + "::::" + filePath));
-        assertThat(p.buildId(pub, bucket, prefix, null), is(rootId));
-        assertThat(p.buildId(pub, bucket, null, null), is(pub + "::::" + bucket));
-        assertThat(p.buildId(pub, null, null, null), is(pub));
-        assertNull(p.buildId(null, null, null, null));
+        assertThat(p.buildId(pub, prefix, filePath), is(rootId + "::::" + filePath));
+        assertThat(p.buildId(pub, prefix, null), is(rootId));
+        assertThat(p.buildId(pub, null, null), is(pub));
+        assertNull(p.buildId(null, null, null));
     }
 
 	@Test

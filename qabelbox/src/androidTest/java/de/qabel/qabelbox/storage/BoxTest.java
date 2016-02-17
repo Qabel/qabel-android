@@ -53,8 +53,6 @@ public class BoxTest extends AndroidTestCase {
 	byte[] deviceIDOtherUser;
 	QblECKeyPair keyPair;
 	QblECKeyPair keyPairOtherUser;
-    final String bucket = "qabel";
-    final String path = "/";
     String prefix = "test"; // Don't touch at the moment the test-server only accepts this prefix in debug moder (using the magictoken)
     String prefixOtherUser = "test";
     private String testFileName;
@@ -91,10 +89,9 @@ public class BoxTest extends AndroidTestCase {
         identityOtherUser.getPrefixes().add(prefixOtherUser);
 
 
-        volume = getVolumeForRoot(identity, deviceID, bucket, prefix);
-        volumeFromAnotherDevice = getVolumeForRoot(identity, deviceID2, bucket, prefix);
-        volumeOtherUser = getVolumeForRoot(identityOtherUser, deviceIDOtherUser, bucket, prefixOtherUser);
-        // new BoxVolume(keyPairOtherUser, bucket, prefixOtherUser, deviceIDOtherUser, getContext());
+        volume = getVolumeForRoot(identity, deviceID, prefix);
+        volumeFromAnotherDevice = getVolumeForRoot(identity, deviceID2, prefix);
+        volumeOtherUser = getVolumeForRoot(identityOtherUser, deviceIDOtherUser, prefixOtherUser);
 
         volume.createIndex();
         //volumeOtherUser.createIndex();
@@ -103,12 +100,12 @@ public class BoxTest extends AndroidTestCase {
     }
 
 
-    public BoxVolume getVolumeForRoot(Identity identity, byte[] deviceID, String bucket, String prefix) {
+    public BoxVolume getVolumeForRoot(Identity identity, byte[] deviceID, String prefix) {
         if (identity == null) {
             throw new NullPointerException("Identity is null");
         }
         QblECKeyPair key = identity.getPrimaryKeyPair();
-        return new BoxVolume(key, bucket, prefix,
+        return new BoxVolume(key, prefix,
                 deviceID, getContext());
     }
 

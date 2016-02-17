@@ -38,7 +38,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 public class BoxProviderTest extends InstrumentationTestCase {
 
     private BoxVolume volume;
-    final String bucket = BoxProvider.BUCKET;
     private String testFileName;
     private MockContentResolver mContentResolver;
     public static String ROOT_DOC_ID;
@@ -60,7 +59,7 @@ public class BoxProviderTest extends InstrumentationTestCase {
         byte[] deviceID = getProvider().deviceID;
         BoxProviderTester provider = getProvider();
         ROOT_DOC_ID = provider.rootDocId;
-        volume = new BoxVolume(provider.keyPair, bucket, provider.prefix, deviceID, mContext);
+        volume = new BoxVolume(provider.keyPair, provider.prefix, deviceID, mContext);
         volume.createIndex();
 
         File tmpDir = new File(System.getProperty("java.io.tmpdir"));

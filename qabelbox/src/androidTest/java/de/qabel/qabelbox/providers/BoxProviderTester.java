@@ -40,8 +40,7 @@ public class BoxProviderTester extends BoxProvider {
 		CryptoUtils utils = new CryptoUtils();
 		deviceID = utils.getRandomBytes(16);
 		keyPair = new QblECKeyPair(Hex.decode(PRIVATE_KEY));
-		rootDocId = PUB_KEY + BoxProvider.DOCID_SEPARATOR + BoxProvider.BUCKET
-				+ BoxProvider.DOCID_SEPARATOR + prefix + BoxProvider.DOCID_SEPARATOR
+		rootDocId = PUB_KEY + BoxProvider.DOCID_SEPARATOR + prefix + BoxProvider.DOCID_SEPARATOR
 				+ BoxProvider.PATH_SEP;
 		identity = new Identity("testuser", null, keyPair);
 	}

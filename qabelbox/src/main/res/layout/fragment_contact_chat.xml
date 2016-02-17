@@ -13,15 +13,16 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true">
 
-        <de.qabel.qabelbox.views.TextViewFont
-            android:id="@+id/button_send"
+        <de.qabel.qabelbox.views.ButtonFont
+            android:id="@+id/bt_send"
+            style="@style/TextViewButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:gravity="center"
-            style="@style/TextViewButton"
+            android:layout_alignParentRight="true"
             android:layout_centerInParent="true"
             android:clickable="true"
-            android:layout_alignParentRight="true"
+
+            android:gravity="center"
             android:text="@string/btn_chat_send"/>
 
         <de.qabel.qabelbox.views.EditTextFont
@@ -29,7 +30,7 @@
             style="@style/EditText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_toLeftOf="@id/button_send"
+            android:layout_toLeftOf="@id/bt_send"
             android:hint="@string/chat_message_hint"
 
             />

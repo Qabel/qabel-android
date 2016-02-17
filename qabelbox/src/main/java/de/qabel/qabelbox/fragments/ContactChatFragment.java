@@ -9,6 +9,10 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -16,8 +20,11 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 
 import de.qabel.core.config.Contact;
+import de.qabel.core.config.Identity;
+import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.adapter.ChatMessageAdapter;
+import de.qabel.qabelbox.chat.ChatServer;
 import de.qabel.qabelbox.communication.model.ChatMessageItem;
 
 /**
@@ -37,6 +44,9 @@ public class ContactChatFragment extends BaseFragment {
     private View emptyView;
     private LinearLayoutManager recyclerViewLayoutManager;
     private ChatMessageAdapter contactListAdapter;
+    private TextView send;
+    private EditText etText;
+    private ChatServer chatServer;
 
     public static ContactChatFragment newInstance(Contact contact) {
 
@@ -51,6 +61,7 @@ public class ContactChatFragment extends BaseFragment {
     public void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
+        chatServer = ChatServer.getInstance();
         setHasOptionsMenu(true);
         Bundle arguments = getArguments();
         if (arguments != null) {
@@ -63,8 +74,6 @@ public class ContactChatFragment extends BaseFragment {
         fragment = this;
     }
 
-
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -75,12 +84,26 @@ public class ContactChatFragment extends BaseFragment {
         emptyView = view.findViewById(R.id.empty_view);
         recyclerViewLayoutManager = new LinearLayoutManager(view.getContext());
         contactListRecyclerView.setLayoutManager(recyclerViewLayoutManager);
+        etText = (EditText) view.findViewById(R.id.etText);
+        send = (Button) view.findViewById(R.id.bt_send);
+        send.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
 
+                Toast.makeText(getActivity(), "send text " + contact.getEcPublicKey().getReadableKeyIdentifier() + " " + etText.getText().toString(), Toast.LENGTH_LONG).show();
+                String[]temp = contact.getDropUrls().iterator().next().toString().split("/");
+                Identity currentIdentity=QabelBoxApplication.getInstance().getService().getActiveIdentity();
+
+                long id = chatServer.getNextId();
+                chatServer.sendTextMessage(id,temp[temp.length-1], etText.getText().toString(), currentIdentity,contact.getEcPublicKey().getReadableKeyIdentifier().toString());
+            }
+        });
         refreshContactList();
         actionBar.setSubtitle(contact.getAlias());
         mView = view;
         return view;
     }
+
     /**
      * refresh ui
      */
@@ -97,7 +120,7 @@ public class ContactChatFragment extends BaseFragment {
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-            item.drop_payload = json;
+            item.drop_payload = json.toString();
             contacts.add(item);
         }
         if (contactListRecyclerView != null) {
@@ -109,26 +132,24 @@ public class ContactChatFragment extends BaseFragment {
             contactListAdapter.notifyDataSetChanged();
         }
     }
+
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
 
         menu.clear();
-        inflater.inflate(R.menu.ab_refresh, menu);
+        inflater.inflate(R.menu.ab_chat_detail_refresh, menu);
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
 
         int id = item.getItemId();
-        if (id == R.id.action_refresh) {
-            refreshList();
+        if (id == R.id.action_chat_detail_refresh) {
+            long mId = chatServer.getNextId();
+            chatServer.refreshList(mId, QabelBoxApplication.getInstance().getService().getActiveIdentity());
         }
 
         return super.onOptionsItemSelected(item);
-    }
-
-    private void refreshList() {
-
     }
 
     @Override
@@ -148,4 +169,31 @@ public class ContactChatFragment extends BaseFragment {
 
         return true;
     }
+
+    @Override
+    public void onStart() {
+
+        super.onStart();
+        chatServer.addListner(chatServerCallback);
+    }
+
+    @Override
+    public void onStop() {
+
+        chatServer.removeListner(chatServerCallback);
+        super.onStop();
+    }
+
+    private ChatServer.ChatServerCallback chatServerCallback = new ChatServer.ChatServerCallback() {
+
+        @Override
+        public void onSuccess(long id) {
+
+        }
+
+        @Override
+        public void onError(long id) {
+
+        }
+    };
 }

@@ -13,6 +13,9 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -37,6 +40,8 @@ import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.activities.MainActivity;
 import de.qabel.qabelbox.adapter.ContactsAdapter;
+import de.qabel.qabelbox.chat.ChatServer;
+import de.qabel.qabelbox.communication.DropServer;
 import de.qabel.qabelbox.config.ContactExportImport;
 import de.qabel.qabelbox.helper.FileHelper;
 import de.qabel.qabelbox.helper.Helper;
@@ -62,6 +67,7 @@ public class ContactFragment extends BaseFragment {
     private BaseFragment self;
     private TextView contactCount;
     private View emptyView;
+    ChatServer chatServer;
 
     public static ContactFragment newInstance(Contacts contacts, Identity identity) {
 
@@ -79,6 +85,7 @@ public class ContactFragment extends BaseFragment {
 
         super.onCreate(savedInstanceState);
         self = this;
+        chatServer=ChatServer.getInstance();
         setHasOptionsMenu(true);
         mActivity.registerReceiver(refreshContactListReceiver, new IntentFilter(Helper.INTENT_REFRESH_CONTACTLIST));
         Bundle arguments = getArguments();
@@ -102,6 +109,25 @@ public class ContactFragment extends BaseFragment {
         refreshContactList(contacts);
 
         return view;
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+
+        menu.clear();
+        inflater.inflate(R.menu.ab_chat_refresh, menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        int id = item.getItemId();
+        if (id == R.id.action_chat_refresh) {
+            long mId=chatServer.getNextId();
+            ChatServer.getInstance().refreshList(mId,QabelBoxApplication.getInstance().getService().getActiveIdentity());
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 
     private void setClickListener() {
@@ -305,6 +331,31 @@ public class ContactFragment extends BaseFragment {
             Log.v(TAG, "receive refresh contactlist event");
             LocalQabelService service = QabelBoxApplication.getInstance().getService();
             refreshContactList(service.getContacts(service.getActiveIdentity()));
+        }
+    };
+
+    @Override
+    public void onStart() {
+
+        super.onStart();
+        chatServer.addListner(chatServerCallback);
+    }
+
+    @Override
+    public void onStop() {
+        chatServer.removeListner(chatServerCallback);
+        super.onStop();
+    }
+    private ChatServer.ChatServerCallback chatServerCallback = new ChatServer.ChatServerCallback() {
+
+        @Override
+        public void onSuccess(long id) {
+
+        }
+
+        @Override
+        public void onError(long id) {
+
         }
     };
 }

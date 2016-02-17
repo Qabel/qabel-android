@@ -92,12 +92,9 @@ public class URLs {
         return BASE_BLOCK + "/api/v0/";
     }
 
-    String getSendDrop() {
-
-        return BASE_DROP + "/api/v0/auth/password/reset/";
+    String getDrop(String id) {
+        return BASE_DROP + "/"+id;
+        //return BASE_DROP + "/api/v0/drop/"+id;
     }
-    String getReceiveDrop() {
 
-        return BASE_DROP + "/api/v0/auth/password/reset/";
-    }
 }

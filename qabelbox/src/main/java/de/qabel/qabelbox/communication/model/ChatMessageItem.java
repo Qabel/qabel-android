@@ -8,16 +8,16 @@ import org.json.JSONObject;
  */
 public class ChatMessageItem {
 
+    //from json
     public int version;
     public long time_stamp;
     public String sender;
     public String acknowledge_id;//key
     public String drop_payload_type;//key
-    public JSONObject drop_payload;
+    public String drop_payload;
 
-    /*private String url;
-    private String key;
-    private String message;*/
+    //inten values for db storage
+
     public long getTime() {
 
         return time_stamp;
@@ -49,14 +49,14 @@ public class ChatMessageItem {
         }
     }
 
-    final String SHARE_NOTIFICATION = "box_share_notification";
-    final String BOX_MESSAGE = "box_message";
+    public static final String SHARE_NOTIFICATION = "box_share_notification";
+    public static final String BOX_MESSAGE = "box_message";
 
     public MessagePayload getData() {
 
         MessagePayload message = new MessagePayload();
         try {
-            message.message = drop_payload.getString("message");
+            message.message = new JSONObject(drop_payload).getString("message");
         } catch (JSONException e) {
             e.printStackTrace();
         }

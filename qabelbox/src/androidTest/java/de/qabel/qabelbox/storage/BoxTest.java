@@ -31,7 +31,6 @@ import de.qabel.qabelbox.config.AppPreference;
 import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.exceptions.QblStorageNameConflict;
 import de.qabel.qabelbox.exceptions.QblStorageNotFound;
-import de.qabel.qabelbox.providers.BoxProvider;
 
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
@@ -56,9 +55,6 @@ public class BoxTest extends AndroidTestCase {
     String prefix = "test"; // Don't touch at the moment the test-server only accepts this prefix in debug moder (using the magictoken)
     String prefixOtherUser = "test";
     private String testFileName;
-
-    private BoxProvider provider;
-
 
     public void configureTestServer() {
         new AppPreference(QabelBoxApplication.getInstance().getApplicationContext()).setToken(QabelBoxApplication.getInstance().getApplicationContext().getString(R.string.blockserver_magic_testtoken));

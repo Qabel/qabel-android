@@ -6,7 +6,6 @@ import android.util.Log;
 
 import org.apache.commons.io.FileUtils;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.File;
@@ -96,7 +95,7 @@ public class TransferManagerTest extends AndroidTestCase {
 
 
     public void tearDown() throws IOException {
-        transferManager.delete(prefix, testFileNameOnServer);
+        syncDelete(testFileNameOnServer);
         FileUtils.deleteDirectory(tempDir);
     }
 
@@ -109,7 +108,13 @@ public class TransferManagerTest extends AndroidTestCase {
 
     private int syncDownload(final String nameOnServer, final File targetFile) {
         TransferManager.BoxTransferListener listner = new VerboseTransferManagerListener(nameOnServer + " -> " + targetFile, "uploading");
-        int transferId = transferManager.upload(prefix, nameOnServer, targetFile, listner);
+        int transferId = transferManager.download(prefix, nameOnServer, targetFile, listner);
+        transferManager.waitFor(transferId);
+        return transferId;
+    }
+
+    private int syncDelete(final String nameOnServer) {
+        int transferId = transferManager.delete(prefix, nameOnServer);
         transferManager.waitFor(transferId);
         return transferId;
     }
@@ -127,30 +132,87 @@ public class TransferManagerTest extends AndroidTestCase {
         File sourceFile = smallTestFile();
         File targetFile = createEmptyTargetfile();
         syncUpload(testFileNameOnServer, sourceFile);
-        syncDownload(testFileNameOnServer, targetFile);
+        int transferId = syncDownload(testFileNameOnServer, targetFile);
         assertFileContentIsEqual(sourceFile, targetFile);
+        assertNull(transferManager.lookupError(transferId));
     }
 
-    @Ignore // TODO: implement
     @Test
-    public void testDelete() {
-        String fileNameOnServer = "testfile.data";
+    public void testDownloadMissingFile() {
+        File targetFile = createEmptyTargetfile();
+        int transferID = syncDownload(testFileNameOnServer + "_missing", targetFile);
+        assertNotNull(transferManager.lookupError(transferID));
+        assertEquals(0, targetFile.length());
+
+        targetFile.delete();
+        transferID = syncDownload(testFileNameOnServer + "_missing", targetFile);
+        assertNotNull(transferManager.lookupError(transferID));
+        assertFalse(targetFile.exists());
+    }
+
+    @Test
+    public void testDeleteTwice() {
+        String fileNameOnServer = testFileNameOnServer;
         File sourceFile = smallTestFile();
         File targetFile = createEmptyTargetfile();
         syncUpload(fileNameOnServer, sourceFile);
-        transferManager.delete(prefix, fileNameOnServer);
+        int deleteId0 = syncDelete(fileNameOnServer);
+        assertEquals(0, targetFile.length());
+
+        int deleteId1 = syncDelete(fileNameOnServer);
+        assertNull(transferManager.lookupError(deleteId0));
+        assertNull(transferManager.lookupError(deleteId1));
+        assertEquals(0, targetFile.length());
+
+        int downloadId = syncDownload(fileNameOnServer, targetFile);
+        assertNotNull(transferManager.lookupError(downloadId));
+        assertEquals(0, targetFile.length());
+    }
+
+    @Test
+    public void testDeleteMissingFile() {
+        String fileNameOnServer = testFileNameOnServer + "_missing";
+        File sourceFile = smallTestFile();
+        File targetFile = createEmptyTargetfile();
+        assertEquals(0, targetFile.length());
+        syncUpload(fileNameOnServer, sourceFile);
+        int deleteId = syncDelete(fileNameOnServer);
 
         int transferId = syncDownload(fileNameOnServer, targetFile);
-        assertNotNull("Expected Error not found", transferManager.lookupError(transferId));
-        assertFalse(targetFile.exists());
+        assertNull("Error found but can be ignored", transferManager.lookupError(transferId));
+        assertEquals(0, targetFile.length());
 
-        // Deleting twice is ok
-        transferManager.delete(prefix, fileNameOnServer);
+        targetFile.delete();
+        assertEquals(0, targetFile.length());
+    }
+
+    @Test
+    public void testDeleteOnNonExistentTargetFile() {
+        String fileNameOnServer = testFileNameOnServer + "_missing";
+        File sourceFile = smallTestFile();
+        File targetFile = createEmptyTargetfile();
+        targetFile.delete();
+        syncUpload(fileNameOnServer, sourceFile);
+        int transferId = syncDelete(fileNameOnServer);
+        assertNull("Error found", transferManager.lookupError(transferId));
+        assertFalse("Delete touched local file, which should not be created", targetFile.exists());
+    }
+
+    @Test
+    public void testDelete() {
+        String fileNameOnServer = testFileNameOnServer;
+        File sourceFile = smallTestFile();
+        File targetFile = createEmptyTargetfile();
+        syncUpload(fileNameOnServer, sourceFile);
+        int deleteId = syncDelete(fileNameOnServer);
+
+        assertNull(transferManager.lookupError(deleteId));
+        assertEquals(0, targetFile.length());
     }
 
     public void assertFileContentIsEqual(File lhs, File rhs) {
         try {
-            assertTrue("File content not equal", FileUtils.contentEquals(lhs, rhs));
+            assertTrue("File content not equal " + lhs.getName() + ": " + lhs.length() + " vs " + rhs + ": " + rhs.length(), FileUtils.contentEquals(lhs, rhs));
         } catch (IOException e) {
             fail("Exception during file comparison " + e);
         }

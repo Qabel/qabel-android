@@ -7,6 +7,8 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
+import de.qabel.core.config.Identity;
+import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.communication.model.ChatMessageItem;
 
 /**
@@ -49,6 +51,12 @@ public class ChatMessagesDataBase extends SQLiteOpenHelper {
 
     public ChatMessagesDataBase(Context context) {
 
+        super(context, DATABASE_NAME, null, DATABASE_VERSION);
+    }
+
+    public ChatMessagesDataBase(QabelBoxApplication context, Identity activeIdentity) {
+
+        //@todo add identity to name
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
 

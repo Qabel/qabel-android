@@ -1,6 +1,5 @@
 package de.qabel.qabelbox.chat;
 
-import android.support.annotation.NonNull;
 import android.util.Log;
 
 import org.apache.james.mime4j.MimeException;
@@ -32,6 +31,7 @@ import okhttp3.Response;
 public class ChatServer {
 
     final String TAG = this.getClass().getSimpleName();
+    private  ChatMessagesDataBase dataBase;
     private DropServer dropServer;
     static ChatServer mInstance;
     public List<ChatServerCallback> callbacks = new ArrayList<>();
@@ -41,15 +41,16 @@ public class ChatServer {
     public static ChatServer getInstance() {
 
         if (mInstance == null) {
-            mInstance = new ChatServer();
+            mInstance = new ChatServer(QabelBoxApplication.getInstance().getService().getActiveIdentity());
         }
         return mInstance;
     }
 
-    private ChatServer() {
+    private ChatServer(Identity currentIdentity) {
 
         mInstance = this;
         mInstance.dropServer = new DropServer();
+        mInstance.dataBase=new ChatMessagesDataBase(QabelBoxApplication.getInstance(),QabelBoxApplication.getInstance().getService().getActiveIdentity());
     }
 
     public void addListener(ChatServerCallback callback) {
@@ -101,6 +102,14 @@ public class ChatServer {
         );
     }
 
+    /**
+     * parse response body from server. split multipart messages into single parts
+     *
+     * @param response response body
+     * @param result   interface that implements part handlung
+     * @throws IOException
+     * @throws MimeException
+     */
     protected void parseGetResponse(Response response, ChatStreamParser result) throws IOException, MimeException {
 
         response.header("content-type");
@@ -139,7 +148,6 @@ public class ChatServer {
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-            Log.v(TAG, "danny: " + new String(part));
         }
     }
 
@@ -147,6 +155,12 @@ public class ChatServer {
         //@todo add older (own) and loaded messages
     }
 
+    /**
+     * create received message for db
+     *
+     * @param pJson
+     * @return
+     */
     public ChatMessagesDataBase.ChatMessageDatabaseItem createOtherMessage(JSONObject pJson) {
 
         ChatMessagesDataBase.ChatMessageDatabaseItem item = ChatMessageItem.parseJson(pJson);
@@ -155,8 +169,13 @@ public class ChatServer {
         return item;
     }
 
-
-
+    /**
+     * create own chat message to store in db
+     *
+     * @param receiverKey receiver key
+     * @param message     message
+     * @return
+     */
     public ChatMessagesDataBase.ChatMessageDatabaseItem createOwnMessage(String receiverKey, String message) {
 
         String identityPublicKey = QabelBoxApplication.getInstance().getService().getActiveIdentity().getEcPublicKey().getReadableKeyIdentifier().toString();
@@ -177,9 +196,18 @@ public class ChatServer {
         return item;
     }
 
+    /**
+     * send text message
+     *
+     * @param ownId           own tracking id
+     * @param dropId          receiver drop id
+     * @param text            message to send
+     * @param currentIdentity own identity
+     * @param receiver        receiver key
+     */
     public void sendTextMessage(final long ownId, String dropId, String text, Identity currentIdentity, String receiver) {
 
-        JSONObject json = ChatMessageItem.getJsonToSend(dropId, text, currentIdentity, receiver);
+        final JSONObject json = ChatMessageItem.getJsonToSend(dropId, text, currentIdentity, receiver);
         Log.d(TAG, "send body: " + json.toString());
 
         dropServer.push(dropId, json, new Callback() {
@@ -197,6 +225,7 @@ public class ChatServer {
                 if (response.code() == 200) {
                     Log.d(TAG, "response " + response.body().toString());
                     response.body().close();
+                    storeIntoDB(json);
                     sendCallbacksSuccess(ownId);
                 } else {
                     sendCallbacksError(ownId);
@@ -205,7 +234,12 @@ public class ChatServer {
         });
     }
 
+    private void storeIntoDB(JSONObject json) {
 
+        ChatMessagesDataBase.ChatMessageDatabaseItem item = new ChatMessagesDataBase.ChatMessageDatabaseItem();
+        //@todo copy json data to db items
+        dataBase.put(item);
+    }
 
     /**
      * send all listener error notification

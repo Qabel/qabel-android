@@ -27,9 +27,8 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.io.FileNotFoundException;
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Map;
 
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
@@ -135,7 +134,6 @@ public class FilesFragment extends BaseFragment {
 
         documentIdParser = new DocumentIdParser();
 
-  
         mService = QabelBoxApplication.getInstance().getService();
         self = this;
         LocalBroadcastManager.getInstance(getActivity()).registerReceiver(mMessageReceiver,
@@ -160,22 +158,7 @@ public class FilesFragment extends BaseFragment {
                     break;
                 case LocalBroadcastConstants.UPLOAD_STATUS_FINISHED:
                     Log.d(TAG, "Received upload finished: " + documentId);
-                    Bundle extras = intent.getExtras().getBundle(LocalBroadcastConstants.EXTRA_UPLOAD_EXTRA);
-                    if (extras != null) {
-                        BoxFile boxFile = extras.getParcelable(LocalBroadcastConstants.EXTRA_FILE);
-						try {
-							List<BoxFile> cachedFiles =
-									mService.getCachedFinishedUploads().get(documentIdParser.getPath(documentId));
-							if (cachedFiles == null) {
-								cachedFiles = new ArrayList<>();
-							}
-							cachedFiles.add(boxFile);
-							mService.getCachedFinishedUploads().put(documentIdParser.getPath(documentId), cachedFiles);
-						} catch (FileNotFoundException e) {
-							e.printStackTrace();
-						}
-                        fillAdapter(filesAdapter);
-                    }
+                    fillAdapter(filesAdapter);
                     filesAdapter.notifyDataSetChanged();
                     break;
                 case LocalBroadcastConstants.UPLOAD_STATUS_FAILED:
@@ -565,23 +548,10 @@ public class FilesFragment extends BaseFragment {
         AsyncTask<Void, Void, Void> asyncTask = new AsyncTask<Void, Void, Void>() {
             @Override
             protected Void doInBackground(Void... params) {
-                //TODO: Duplication with browseTo
-                filesAdapter.clear();
-
                 try {
                     boxNavigation.reload();
-                    for (BoxFolder boxFolder : boxNavigation.listFolders()) {
-                        Log.d(TAG, "Adding folder: " + boxFolder.name);
-                        filesAdapter.add(boxFolder);
-                    }
-                    for (BoxObject boxExternal : boxNavigation.listExternals()) {
-                        Log.d("MainActivity", "Adding external: " + boxExternal.name);
-                        filesAdapter.add(boxExternal);
-                    }
-                    for (BoxFile boxFile : boxNavigation.listFiles()) {
-                        Log.d(TAG, "Adding file: " + boxFile.name);
-                        filesAdapter.add(boxFile);
-                    }
+					mService.getCachedFinishedUploads().clear();
+					loadBoxObjectsToAdapter(boxNavigation, filesAdapter);
                 } catch (QblStorageException e) {
                     Log.e(TAG, "refresh failed", e);
                 }
@@ -689,62 +659,60 @@ public class FilesFragment extends BaseFragment {
     }
 
     protected void fillAdapter(FilesAdapter filesAdapter) {
-
-        if (filesAdapter == null) {
+        if (filesAdapter == null || boxNavigation == null) {
             return;
         }
-        filesAdapter.clear();
-
-        if (boxNavigation == null) {
-            return;
-        }
-
         try {
-            for (BoxFolder boxFolder : boxNavigation.listFolders()) {
-                Log.d(TAG, "Adding folder: " + boxFolder.name);
-                filesAdapter.add(boxFolder);
-            }
-            for (BoxObject boxExternal : boxNavigation.listExternals()) {
-                Log.d("MainActivity", "Adding external: " + boxExternal.name);
-                filesAdapter.add(boxExternal);
-            }
-            for (BoxFile boxFile : boxNavigation.listFiles()) {
-                Log.d(TAG, "Adding file: " + boxFile.name);
-                filesAdapter.add(boxFile);
-            }
+			loadBoxObjectsToAdapter(boxNavigation, filesAdapter);
+			insertCachedFinishedUploads(filesAdapter);
+			insertPendingUploads(filesAdapter);
+			filesAdapter.sort();
         } catch (QblStorageException e) {
-            Log.e(TAG, "browseTo failed", e);
+            Log.e(TAG, "fillAdapter failed", e);
         }
+    }
 
+	private void insertPendingUploads(FilesAdapter filesAdapter) {
 		if (mService != null && mService.getPendingUploads() != null) {
-            ArrayList<BoxUploadingFile> uploadsInPath = mService.getPendingUploads().get(boxNavigation.getPath());
-
-            if (uploadsInPath != null) {
-                for (BoxUploadingFile boxUploadingFile : uploadsInPath) {
-                    filesAdapter.add(boxUploadingFile);
-                }
-            }
-        }
-
-		if (mService != null && mService.getCachedFinishedUploads() != null) {
-			List<BoxFile> cachedFiles =
-					mService.getCachedFinishedUploads().get(boxNavigation.getPath());
-			if (cachedFiles != null) {
-				for (BoxFile boxFile : cachedFiles) {
-					if (filesAdapter.containsEqual(boxFile)) {
-						cachedFiles.remove(boxFile);
-					}
-					else {
-						filesAdapter.add(boxFile);
-					}
+			Map<String, BoxUploadingFile> uploadsInPath = mService.getPendingUploads().get(boxNavigation.getPath());
+			if (uploadsInPath != null) {
+				for (BoxUploadingFile boxUploadingFile : uploadsInPath.values()) {
+					filesAdapter.remove(boxUploadingFile.name);
+					filesAdapter.add(boxUploadingFile);
 				}
 			}
 		}
+	}
 
-        filesAdapter.sort();
-    }
+	private void insertCachedFinishedUploads(FilesAdapter filesAdapter) {
+		if (mService != null && mService.getCachedFinishedUploads() != null) {
+			Map<String, BoxFile> cachedFiles = mService.getCachedFinishedUploads().get(boxNavigation.getPath());
+			if (cachedFiles != null) {
+				for (BoxFile boxFile : cachedFiles.values()) {
+					filesAdapter.remove(boxFile.name);
+					filesAdapter.add(boxFile);
+				}
+			}
+		}
+	}
 
-    private void waitForBoxNavigation() {
+	private void loadBoxObjectsToAdapter(BoxNavigation boxNavigation, FilesAdapter filesAdapter) throws QblStorageException {
+		filesAdapter.clear();
+		for (BoxFolder boxFolder : boxNavigation.listFolders()) {
+			Log.d(TAG, "Adding folder: " + boxFolder.name);
+			filesAdapter.add(boxFolder);
+		}
+		for (BoxObject boxExternal : boxNavigation.listExternals()) {
+			Log.d(TAG, "Adding external: " + boxExternal.name);
+			filesAdapter.add(boxExternal);
+		}
+		for (BoxFile boxFile : boxNavigation.listFiles()) {
+			Log.d(TAG, "Adding file: " + boxFile.name);
+			filesAdapter.add(boxFile);
+		}
+	}
+
+	private void waitForBoxNavigation() {
 
         while (boxNavigation == null) {
             Log.d(TAG, "waiting for BoxNavigation");

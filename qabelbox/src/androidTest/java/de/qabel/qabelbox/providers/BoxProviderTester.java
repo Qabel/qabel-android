@@ -30,6 +30,9 @@ public class BoxProviderTester extends BoxProvider {
 	public static final String PUB_KEY = "8520f0098930a754748b7ddcb43ef75a0dbf3a0d26381af4eba4a98eaa9b4e6a";
 	public static final String PRIVATE_KEY = "77076d0a7318a57d3c16c17251b26645df4c2f87ebc0992ab177fba51db92c2a";
 	public Identity identity;
+	public boolean isBroadcastNotificationCalled;
+	public boolean isShowNotificationCalled;
+	public boolean isUpdateNotificationCalled;
 
 
 	@Override
@@ -113,14 +116,19 @@ public class BoxProviderTester extends BoxProvider {
 
 		@Override
 		protected void showNotification(String contentTitle, String contentText, int progress) {
+			isShowNotificationCalled = true;
 		}
 
 		@Override
 		protected void updateNotification() {
+			// Actual updateNotification() method calls showNotification in any case.
+			showNotification(null, null, 0);
+			isUpdateNotificationCalled = true;
 		}
 
 		@Override
 		protected void broadcastUploadStatus(String documentId, int uploadStatus, @Nullable Bundle extras) {
+			isBroadcastNotificationCalled = true;
 		}
 	}
 }

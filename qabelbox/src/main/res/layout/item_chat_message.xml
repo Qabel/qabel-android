@@ -12,23 +12,22 @@
     android:padding="5dp"
     >
 
-    <ImageView
-        android:id="@+id/itemIcon"
-        style="@style/ListIcon"
-        android:layout_gravity="center_vertical"
-        android:src="@drawable/qabel_logo"/>
 
     <LinearLayout
+        android:id="@+id/chatTextLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center_vertical"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:paddingLeft="20dp"
+        android:paddingRight="20dp">
 
         <de.qabel.qabelbox.views.TextViewFont
             android:id="@+id/tvDate"
             style="@style/ListFirstTextLine"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+            android:layout_height="wrap_content"
+            android:textColor="@color/white"/>
 
 
         <de.qabel.qabelbox.views.TextViewFont
@@ -38,6 +37,7 @@
             android:layout_height="wrap_content"
             android:ellipsize="end"
             android:lines="1"
+            android:textColor="@color/white"
             />
 
         <de.qabel.qabelbox.views.TextViewFont
@@ -47,6 +47,7 @@
             android:layout_height="wrap_content"
             android:ellipsize="end"
             android:lines="1"
+            android:textColor="@color/white"
             />
     </LinearLayout>
 </LinearLayout>

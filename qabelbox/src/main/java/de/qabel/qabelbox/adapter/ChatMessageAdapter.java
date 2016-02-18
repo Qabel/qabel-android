@@ -73,7 +73,7 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<ChatMessageAdapter.
 
             super(v);
             v.setOnClickListener(this);
-            mBg = v;
+            mBg = v.findViewById(R.id.chatTextLayout);
             tvDate = (TextView) v.findViewById(R.id.tvDate);
             tvText = (TextView) v.findViewById(R.id.tvText);
             mLink = (TextView) v.findViewById(R.id.tvLink);

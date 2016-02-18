@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import de.qabel.core.config.Identity;
+import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.communication.DropServer;
 import de.qabel.qabelbox.helper.FileHelper;
 import de.qabel.qabelbox.storage.ChatMessagesDataBase;
@@ -82,6 +83,8 @@ public class ChatServer {
                             try {
                                 parseGetResponse(response, result);
                                 sendCallbacksSuccess(ownId);
+                                refreshMessageList(result);
+                                sendCallbacksRefreshed();
                                 return;
                             } catch (MimeException e) {
                                 e.printStackTrace();
@@ -120,18 +123,26 @@ public class ChatServer {
         baos.write(FileHelper.readInputStreamAsData(bs));
 
         parser.parse(new ByteArrayInputStream(baos.toByteArray()));
+    }
+
+    private void refreshMessageList(ChatStreamParser result) {
+
         Log.d(TAG, "multipart response size: " + result.parts.size());
         for (int i = 0; i < result.parts.size(); i++) {
             byte[] part = result.parts.get(i);
             try {
                 JSONObject json = new JSONObject(new String(part));
-
                 messages.add(createOtherMessage(json));
+                addMessagesFromDataBase(messages);
             } catch (JSONException e) {
                 e.printStackTrace();
             }
             Log.v(TAG, "danny: " + new String(part));
         }
+    }
+
+    private void addMessagesFromDataBase(ArrayList<ChatMessagesDataBase.ChatMessageDatabaseItem> messages) {
+        //@todo add older (own) and loaded messages
     }
 
     public ChatMessagesDataBase.ChatMessageDatabaseItem createOtherMessage(JSONObject pJson) {
@@ -142,7 +153,7 @@ public class ChatServer {
             item.time_stamp = pJson.getLong("time_stamp");
             item.sender = pJson.getString("sender");
             item.receiver = pJson.getString("receiver");
-            JSONObject payload = json.getJSONObject("data");
+            JSONObject payload = pJson.getJSONObject("data");
             json.put("message", payload.getString("message"));
         } catch (JSONException e) {
             e.printStackTrace();
@@ -153,14 +164,13 @@ public class ChatServer {
         return item;
     }
 
-    public ChatMessagesDataBase.ChatMessageDatabaseItem createOwnMessage(String message) {
+    public ChatMessagesDataBase.ChatMessageDatabaseItem createOwnMessage(String receiverKey,String message) {
 
-        String identityPublicKey = "dummy";
-        String contactPublicKey = "dummy";
+        String identityPublicKey = QabelBoxApplication.getInstance().getService().getActiveIdentity().getEcPublicKey().getReadableKeyIdentifier().toString();
         ChatMessagesDataBase.ChatMessageDatabaseItem item = new ChatMessagesDataBase.ChatMessageDatabaseItem();
         item.time_stamp = System.currentTimeMillis();
         item.sender = identityPublicKey;
-        item.receiver = contactPublicKey;
+        item.receiver = receiverKey;
         JSONObject json = new JSONObject();
         try {
             json.put("message", message);
@@ -192,13 +202,17 @@ public class ChatServer {
                     response.body().close();
                     sendCallbacksSuccess(ownId);
                 } else {
-                    String result = "";
                     sendCallbacksError(ownId);
                 }
             }
         });
     }
 
+    /**
+     * send all listener error notification
+     *
+     * @param id request id
+     */
     private void sendCallbacksError(long id) {
 
         for (ChatServerCallback callback : callbacks) {
@@ -206,10 +220,25 @@ public class ChatServer {
         }
     }
 
+    /**
+     * send all listener success
+     *
+     * @param id request id
+     */
     private void sendCallbacksSuccess(long id) {
 
         for (ChatServerCallback callback : callbacks) {
             callback.onSuccess(id);
+        }
+    }
+
+    /**
+     * send all listener that chatmessage list was refrehsed
+     */
+    private void sendCallbacksRefreshed() {
+
+        for (ChatServerCallback callback : callbacks) {
+            callback.onRefreshed();
         }
     }
 
@@ -229,8 +258,13 @@ public class ChatServer {
 
     public interface ChatServerCallback {
 
+        //requested command was successfull
         void onSuccess(long id);
 
+        //request command was not successfull
         void onError(long id);
+
+        //chatlist refreshed
+        void onRefreshed();
     }
 }

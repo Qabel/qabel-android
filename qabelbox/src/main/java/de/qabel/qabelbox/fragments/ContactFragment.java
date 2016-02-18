@@ -356,5 +356,10 @@ public class ContactFragment extends BaseFragment {
         public void onError(long id) {
 
         }
+
+        @Override
+        public void onRefreshed() {
+
+        }
     };
 }

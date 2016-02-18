@@ -2,6 +2,7 @@ package de.qabel.qabelbox.adapter;
 
 import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,20 +26,32 @@ import de.qabel.qabelbox.storage.ChatMessagesDataBase;
  */
 public class ChatMessageAdapter extends RecyclerView.Adapter<ChatMessageAdapter.ContactViewHolder> {
 
-    private List<ChatMessageItem> mMessages = null;
+    private final String TAG = getClass().getSimpleName();
+    private final String contactKey;
+    private List<ChatMessagesDataBase.ChatMessageDatabaseItem> mMessages = null;
     private OnItemClickListener onItemClickListener;
     private View emptyView;
 
     public ChatMessageAdapter(ArrayList<ChatMessagesDataBase.ChatMessageDatabaseItem> allMessages, Contact contact) {
 
         mMessages = new ArrayList<>();
-        for (ChatMessageItem message : allMessages) {
-            //if (message.getSenderKey().equals(contact.getEcPublicKey()))
+
+        contactKey = contact.getEcPublicKey().getReadableKeyIdentifier().toString();
+        Log.v(TAG, "search data for contact: " + contactKey);
+        for (ChatMessagesDataBase.ChatMessageDatabaseItem message : allMessages) {
+            if (contactKey.equals(message.getSenderKey()) || contactKey.equals(message.getReceiverKey()))
 
             {
                 mMessages.add(message);
             }
         }
+        Collections.sort(mMessages, new Comparator<ChatMessagesDataBase.ChatMessageDatabaseItem>() {
+            @Override
+            public int compare(ChatMessagesDataBase.ChatMessageDatabaseItem o1, ChatMessagesDataBase.ChatMessageDatabaseItem o2) {
+                //lowest to highest
+                return (o1.getTime() > o2.getTime() ? 1 : (o1.getTime() == o2.getTime() ? 0 : -1));
+            }
+        });
         Collections.sort(mMessages, new Comparator<ChatMessageItem>() {
             @Override
             public int compare(ChatMessageItem o1, ChatMessageItem o2) {
@@ -57,8 +70,9 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<ChatMessageAdapter.
 
     class ContactViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
-        public final TextView mTextViewContactName;
-        public final TextView mTextViewContactDetails;
+        public final TextView tvDate;
+        public final TextView tvText;
+        public final TextView mLink;
         public final ImageView mImageView;
         public final View mBg;
 
@@ -67,8 +81,9 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<ChatMessageAdapter.
             super(v);
             v.setOnClickListener(this);
             mBg = v;
-            mTextViewContactName = (TextView) v.findViewById(R.id.textViewItemName);
-            mTextViewContactDetails = (TextView) v.findViewById(R.id.textViewItemDetail);
+            tvDate = (TextView) v.findViewById(R.id.tvDate);
+            tvText = (TextView) v.findViewById(R.id.tvText);
+            mLink = (TextView) v.findViewById(R.id.tvLink);
             mImageView = (ImageView) v.findViewById(R.id.itemIcon);
         }
 
@@ -100,7 +115,7 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<ChatMessageAdapter.
     public ContactViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
 
         View v = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.item_contacts, parent, false);
+                .inflate(R.layout.item_chat_message, parent, false);
         return new ContactViewHolder(v);
     }
 
@@ -108,14 +123,24 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<ChatMessageAdapter.
     public void onBindViewHolder(ContactViewHolder holder, int position) {
 
         ChatMessageItem message = mMessages.get(position);
-        holder.mTextViewContactName.setText(Formatter.formatDateTimeShort(message.getTime()));
+        holder.tvDate.setText(Formatter.formatDateTimeShort(message.getTime()));
         ChatMessageItem.Type payload = message.getModelObject();
-        if (payload != null && payload == ChatMessageItem.Type.BOX_MESSAGE) {
-            holder.mTextViewContactDetails.setText(message.getData().getMessage());
-        } else {
-            //@todo is other type as string
-            holder.mTextViewContactDetails.setText(message.getData().getMessage());
+        ChatMessageItem.MessagePayload messageData = message.getData();
+        if (messageData != null && messageData instanceof ChatMessageItem.TextMessagePayload) {
+            holder.tvText.setText(((ChatMessageItem.TextMessagePayload) messageData).getMessage());
+            holder.mLink.setVisibility(View.GONE);
+        } else if (messageData != null && messageData instanceof ChatMessageItem.ShareMessagePayload) {
+            holder.tvText.setText(((ChatMessageItem.ShareMessagePayload) messageData).getMessage());
+            holder.mLink.setText(((ChatMessageItem.ShareMessagePayload) messageData).getURL());
+            holder.mLink.setVisibility(View.VISIBLE);
         }
+        if (contactKey.equals(message.getSenderKey()))
+        {
+            holder.itemView.setBackgroundResource(R.drawable.chat_in_message_bg);
+        } else {
+            holder.itemView.setBackgroundResource(R.drawable.chat_out_message_bg);
+        }
+
         holder.mBg.setBackgroundResource(R.drawable.chat_in_message_bg);
     }
 

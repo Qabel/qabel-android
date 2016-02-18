@@ -12,6 +12,7 @@ public class ChatMessageItem {
     public int version;
     public long time_stamp;
     public String sender;
+    public String receiver;
     public String acknowledge_id;//key
     public String drop_payload_type;//key
     public String drop_payload;
@@ -30,7 +31,7 @@ public class ChatMessageItem {
 
     public String getReceiverKey() {
 
-        return acknowledge_id;
+        return receiver;
     }
 
     public Type getModelObject()
@@ -54,20 +55,38 @@ public class ChatMessageItem {
 
     public MessagePayload getData() {
 
-        MessagePayload message = new MessagePayload();
-        try {
-            message.message = new JSONObject(drop_payload).getString("message");
-        } catch (JSONException e) {
-            e.printStackTrace();
+        if (drop_payload_type != null) {
+            if (drop_payload_type.equals(BOX_MESSAGE)) {
+                TextMessagePayload message = new TextMessagePayload();
+                try {
+                    message.message = new JSONObject(drop_payload).getString("message");
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                return message;
+            } else {
+                if (drop_payload_type.equals(SHARE_NOTIFICATION)) {
+                    ShareMessagePayload message = new ShareMessagePayload();
+                    try {
+                        message.message = new JSONObject(drop_payload).getString("message");
+                        message.url = new JSONObject(drop_payload).getString("url");
+                        message.key = new JSONObject(drop_payload).getString("key");
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                    return message;
+                }
+            }
         }
-        return message;
+        return null;
     }
 
-    public static class MessagePayload
+    /**
+     * hold text message
+     */
+    public static class TextMessagePayload extends MessagePayload {
 
-    {
-
-        String message, url, key;
+        String message;
 
         public String getMessage() {
 
@@ -75,10 +94,32 @@ public class ChatMessageItem {
         }
     }
 
+    /**
+     * hold share message
+     */
+    public static class ShareMessagePayload extends MessagePayload {
+
+        String message, url, key;
+
+        public String getMessage() {
+
+            return message;
+        }
+
+        public String getURL() {
+
+            return url;
+        }
+    }
+
     public enum Type
 
     {
         SHARE_NOTIFICATION, BOX_MESSAGE, payload, UNKNOWN
+    }
+
+    public static class MessagePayload {
+
     }
 }
 

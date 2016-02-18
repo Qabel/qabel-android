@@ -148,7 +148,7 @@ public class ChatMessagesDataBase extends SQLiteOpenHelper {
 
         public short isNew = 1;//1 for new, 0 for old
         public int id;
-        public String receiver;
+
         public String drop_payload_plain;
     }
 }

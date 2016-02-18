@@ -80,7 +80,7 @@ public class LocalQabelService extends Service {
     private DropHTTP dropHTTP;
     private HashMap<String, ArrayList<BoxUploadingFile>> pendingUploads;
 	private Queue<BoxUploadingFile> uploadingQueue;
-	private Map<String, List<BoxFile>> cachedFinishedUploads;
+	private Map<String, Map<String, BoxFile>> cachedFinishedUploads;
     private DocumentIdParser documentIdParser;
 	private Context self;
 
@@ -387,6 +387,7 @@ public class LocalQabelService extends Service {
 		switch (cause) {
 			case LocalBroadcastConstants.UPLOAD_STATUS_FINISHED:
 				broadcastUploadStatus(documentId, LocalBroadcastConstants.UPLOAD_STATUS_FINISHED, extras);
+				cacheFinishedUpload(documentId, extras);
 				break;
 			case LocalBroadcastConstants.UPLOAD_STATUS_FAILED:
 				broadcastUploadStatus(documentId, LocalBroadcastConstants.UPLOAD_STATUS_FAILED, extras);
@@ -404,6 +405,24 @@ public class LocalQabelService extends Service {
 		return false;
 	}
 
+    private void cacheFinishedUpload(String documentId, Bundle extras) {
+		if (extras != null) {
+			BoxFile boxFile = extras.getParcelable(LocalBroadcastConstants.EXTRA_FILE);
+			if (boxFile != null) {
+				try {
+					Map<String, BoxFile> cachedFiles = cachedFinishedUploads.get(documentIdParser.getPath(documentId));
+					if (cachedFiles == null) {
+						cachedFiles = new HashMap<>();
+					}
+					cachedFiles.remove(boxFile.name);
+					cachedFiles.put(boxFile.name, boxFile);
+					cachedFinishedUploads.put(documentIdParser.getPath(documentId), cachedFiles);
+				} catch (FileNotFoundException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+    }
 	private void updateNotification() {
 		BoxUploadingFile boxUploadingFile = uploadingQueue.peek();
 		if (boxUploadingFile != null) {
@@ -464,7 +483,7 @@ public class LocalQabelService extends Service {
 		LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
 	}
 
-	public Map<String, List<BoxFile>> getCachedFinishedUploads() {
+	public Map<String, Map<String, BoxFile>> getCachedFinishedUploads() {
 		return cachedFinishedUploads;
 	}
 
@@ -482,7 +501,7 @@ public class LocalQabelService extends Service {
         initAndroidPersistence();
 		pendingUploads = new HashMap<>();
 		documentIdParser = new DocumentIdParser();
-		cachedFinishedUploads = Collections.synchronizedMap(new HashMap<String, List<BoxFile>>());
+		cachedFinishedUploads = Collections.synchronizedMap(new HashMap<String, Map<String, BoxFile>>());
 		uploadingQueue = new LinkedBlockingDeque<>();
 		mNotifyManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 		self = this;

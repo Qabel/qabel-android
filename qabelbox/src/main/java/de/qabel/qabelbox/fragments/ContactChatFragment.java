@@ -3,6 +3,7 @@ package de.qabel.qabelbox.fragments;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -25,9 +26,10 @@ import de.qabel.core.config.Identity;
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.adapter.ChatMessageAdapter;
+import de.qabel.qabelbox.chat.ChatMessagesDataBase;
 import de.qabel.qabelbox.chat.ChatServer;
 import de.qabel.qabelbox.communication.model.ChatMessageItem;
-import de.qabel.qabelbox.storage.ChatMessagesDataBase;
+import de.qabel.qabelbox.helper.Helper;
 
 /**
  * Activities that contain this fragment must implement the
@@ -50,7 +52,7 @@ public class ContactChatFragment extends BaseFragment {
     private TextView send;
     private EditText etText;
     private ChatServer chatServer;
-    Hashtable<Long, ChatMessagesDataBase.ChatMessageDatabaseItem> messageMap = new Hashtable();
+    Hashtable<Long, JSONObject> messageMap = new Hashtable();
     private String contactPublicKey;
     private String identityPublicKey;
 
@@ -67,7 +69,9 @@ public class ContactChatFragment extends BaseFragment {
     public void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
-        chatServer = ChatServer.getInstance();
+
+            chatServer = ChatServer.getInstance();
+
         setHasOptionsMenu(true);
         Bundle arguments = getArguments();
         if (arguments != null) {
@@ -100,11 +104,13 @@ public class ContactChatFragment extends BaseFragment {
 
                 String text = etText.getText().toString();
                 if (text.length() > 0) {
-                    String[] temp = contact.getDropUrls().iterator().next().toString().split("/");
+                    String dropId = Helper.getDropIdFromContact(contact);
+                    //String[] temp = contact.getDropUrls().iterator().next().toString().split("/");
                     Identity currentIdentity = QabelBoxApplication.getInstance().getService().getActiveIdentity();
                     long sendId = chatServer.getNextId();
-                    messageMap.put(sendId, chatServer.createOwnMessage(identityPublicKey,text));
-                    chatServer.sendTextMessage(sendId, temp[temp.length - 1], text, currentIdentity, contact.getEcPublicKey().getReadableKeyIdentifier().toString());
+
+                    JSONObject message = chatServer.sendTextMessage(sendId, dropId, text, currentIdentity, contact.getEcPublicKey().getReadableKeyIdentifier().toString());
+                    messageMap.put(sendId, message);
                 }
                 ;
             }
@@ -150,8 +156,8 @@ public class ContactChatFragment extends BaseFragment {
             contactListRecyclerView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    //contactListAdapter.getMessage();
-                    Toast.makeText(getActivity(),"tbd: import share", Toast.LENGTH_SHORT).show();
+//@todo dont work temp
+                    Toast.makeText(getActivity(), "tbd: import share", Toast.LENGTH_SHORT).show();
                 }
             });
             contactListAdapter.notifyDataSetChanged();
@@ -214,14 +220,14 @@ public class ContactChatFragment extends BaseFragment {
         @Override
         public void onSuccess(long id) {
 
-            final ChatMessagesDataBase.ChatMessageDatabaseItem item = messageMap.get(id);
+            final JSONObject item = messageMap.get(id);
             if (item != null) {
-                messages.add(item);
+
                 getActivity().runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
 
-                        messages = chatServer.getAllItemsForKey(contactPublicKey);
+                        messages = chatServer.getAllItems();
                         etText.setText("");
                         refreshContactList(messages);
                     }
@@ -241,8 +247,7 @@ public class ContactChatFragment extends BaseFragment {
                 @Override
                 public void run() {
 
-                    messages = chatServer.getAllItemsForKey(contactPublicKey);
-                    messages.add(chatServer.createOwnMessage(contactPublicKey,"bla"));
+                    messages = chatServer.getAllItems();
                     refreshContactList(messages);
                 }
             });

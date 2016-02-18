@@ -19,7 +19,6 @@ import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.communication.DropServer;
 import de.qabel.qabelbox.communication.model.ChatMessageItem;
 import de.qabel.qabelbox.helper.FileHelper;
-import de.qabel.qabelbox.storage.ChatMessagesDataBase;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Headers;
@@ -30,18 +29,20 @@ import okhttp3.Response;
  */
 public class ChatServer {
 
-    final String TAG = this.getClass().getSimpleName();
-    private  ChatMessagesDataBase dataBase;
+    private static final String TAG = "ChatServer";
+
+    private ChatMessagesDataBase dataBase;
     private DropServer dropServer;
-    static ChatServer mInstance;
-    public List<ChatServerCallback> callbacks = new ArrayList<>();
-    long currentId = System.currentTimeMillis();
-    private ArrayList<ChatMessagesDataBase.ChatMessageDatabaseItem> messages = new ArrayList<>();
+    private static ChatServer mInstance;
+    private final List<ChatServerCallback> callbacks = new ArrayList<>();
+    private long currentId = System.currentTimeMillis();
+    private final ArrayList<ChatMessagesDataBase.ChatMessageDatabaseItem> messages = new ArrayList<>();
+    private Identity mIdentity;
 
     public static ChatServer getInstance() {
 
         if (mInstance == null) {
-            mInstance = new ChatServer(QabelBoxApplication.getInstance().getService().getActiveIdentity());
+            Log.e(TAG, "chatServer instance is null. Maybe forgot initialize with identity?");
         }
         return mInstance;
     }
@@ -50,7 +51,15 @@ public class ChatServer {
 
         mInstance = this;
         mInstance.dropServer = new DropServer();
-        mInstance.dataBase=new ChatMessagesDataBase(QabelBoxApplication.getInstance(),QabelBoxApplication.getInstance().getService().getActiveIdentity());
+        mInstance.dataBase = new ChatMessagesDataBase(QabelBoxApplication.getInstance(), currentIdentity);
+    }
+
+    public static ChatServer getInstance(Identity activeIdentity) {
+
+        if (mInstance == null) {
+            mInstance = new ChatServer(activeIdentity);
+        }
+        return mInstance;
     }
 
     public void addListener(ChatServerCallback callback) {
@@ -87,8 +96,8 @@ public class ChatServer {
                                 parseGetResponse(response, result);
                                 sendCallbacksSuccess(ownId);
                                 refreshMessageList(result);
+
                                 sendCallbacksRefreshed();
-                                return;
                             } catch (MimeException e) {
                                 e.printStackTrace();
                                 sendCallbacksError(ownId);
@@ -110,7 +119,7 @@ public class ChatServer {
      * @throws IOException
      * @throws MimeException
      */
-    protected void parseGetResponse(Response response, ChatStreamParser result) throws IOException, MimeException {
+    private void parseGetResponse(Response response, ChatStreamParser result) throws IOException, MimeException {
 
         response.header("content-type");
         MimeStreamParser parser = new MimeStreamParser();
@@ -139,20 +148,29 @@ public class ChatServer {
     private void refreshMessageList(ChatStreamParser result) {
 
         Log.d(TAG, "multipart response size: " + result.parts.size());
+        messages.clear();
         for (int i = 0; i < result.parts.size(); i++) {
             byte[] part = result.parts.get(i);
             try {
                 JSONObject json = new JSONObject(new String(part));
                 messages.add(createOtherMessage(json));
-                addMessagesFromDataBase(messages);
             } catch (JSONException e) {
                 e.printStackTrace();
             }
         }
+        addMessagesFromDataBase(messages);
     }
 
     private void addMessagesFromDataBase(ArrayList<ChatMessagesDataBase.ChatMessageDatabaseItem> messages) {
-        //@todo add older (own) and loaded messages
+
+        ChatMessagesDataBase.ChatMessageDatabaseItem[] result = dataBase.getAll();
+        if (result != null) {
+            for (ChatMessagesDataBase.ChatMessageDatabaseItem item : result) {
+
+                Log.d(TAG, "add messages from database " + item.drop_payload);
+                messages.add(item);
+            }
+        }
     }
 
     /**
@@ -161,7 +179,7 @@ public class ChatServer {
      * @param pJson
      * @return
      */
-    public ChatMessagesDataBase.ChatMessageDatabaseItem createOtherMessage(JSONObject pJson) {
+    private ChatMessagesDataBase.ChatMessageDatabaseItem createOtherMessage(JSONObject pJson) {
 
         ChatMessagesDataBase.ChatMessageDatabaseItem item = ChatMessageItem.parseJson(pJson);
         item.isNew = 1;
@@ -178,7 +196,7 @@ public class ChatServer {
      */
     public ChatMessagesDataBase.ChatMessageDatabaseItem createOwnMessage(String receiverKey, String message) {
 
-        String identityPublicKey = QabelBoxApplication.getInstance().getService().getActiveIdentity().getEcPublicKey().getReadableKeyIdentifier().toString();
+        String identityPublicKey = mIdentity.getEcPublicKey().getReadableKeyIdentifier();
         ChatMessagesDataBase.ChatMessageDatabaseItem item = new ChatMessagesDataBase.ChatMessageDatabaseItem();
         item.time_stamp = System.currentTimeMillis();
         item.sender = identityPublicKey;
@@ -205,7 +223,7 @@ public class ChatServer {
      * @param currentIdentity own identity
      * @param receiver        receiver key
      */
-    public void sendTextMessage(final long ownId, String dropId, String text, Identity currentIdentity, String receiver) {
+    public JSONObject sendTextMessage(final long ownId, String dropId, String text, Identity currentIdentity, String receiver) {
 
         final JSONObject json = ChatMessageItem.getJsonToSend(dropId, text, currentIdentity, receiver);
         Log.d(TAG, "send body: " + json.toString());
@@ -225,20 +243,35 @@ public class ChatServer {
                 if (response.code() == 200) {
                     Log.d(TAG, "response " + response.body().toString());
                     response.body().close();
-                    storeIntoDB(json);
+                    messages.add(getDataBaseItemFromJson(json));
+                    storeIntoDB(getDataBaseItemFromJson(json));
                     sendCallbacksSuccess(ownId);
                 } else {
                     sendCallbacksError(ownId);
                 }
             }
         });
+        return json;
     }
 
-    private void storeIntoDB(JSONObject json) {
+    private ChatMessagesDataBase.ChatMessageDatabaseItem getDataBaseItemFromJson(JSONObject json) {
 
-        ChatMessagesDataBase.ChatMessageDatabaseItem item = new ChatMessagesDataBase.ChatMessageDatabaseItem();
-        //@todo copy json data to db items
-        dataBase.put(item);
+        ChatMessagesDataBase.ChatMessageDatabaseItem item = ChatMessagesDataBase.ChatMessageDatabaseItem.parseJson(json);
+        item.isNew = 0;
+        try {
+            if (json.has("id"))
+                item.id = json.getInt("id");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return item;
+    }
+
+    private void storeIntoDB(ChatMessagesDataBase.ChatMessageDatabaseItem item) {
+
+        if (item != null) {
+            dataBase.put(item);
+        }
     }
 
     /**
@@ -280,13 +313,9 @@ public class ChatServer {
         return currentId++;
     }
 
-    public ArrayList<ChatMessagesDataBase.ChatMessageDatabaseItem> getAllItemsForKey(String contactPublicKey) {
+    public ArrayList<ChatMessagesDataBase.ChatMessageDatabaseItem> getAllItems() {
 
-        ArrayList<ChatMessagesDataBase.ChatMessageDatabaseItem> result = new ArrayList<>();
-        for (ChatMessagesDataBase.ChatMessageDatabaseItem message : messages) {
-            result.add(message);
-        }
-        return result;
+        return messages;
     }
 
     public interface ChatServerCallback {

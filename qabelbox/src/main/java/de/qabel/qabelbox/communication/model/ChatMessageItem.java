@@ -1,12 +1,15 @@
 package de.qabel.qabelbox.communication.model;
 
 import android.support.annotation.NonNull;
+import android.util.Log;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.UUID;
+
 import de.qabel.core.config.Identity;
-import de.qabel.qabelbox.storage.ChatMessagesDataBase;
+import de.qabel.qabelbox.chat.ChatMessagesDataBase;
 
 /**
  * Created by danny on 16.02.16.
@@ -24,6 +27,7 @@ public class ChatMessageItem {
     public String acknowledge_id;//key
     public String drop_payload_type;//key
     public String drop_payload;
+    private String TAG = this.getClass().getSimpleName();
 
     //inten values for db storage
 
@@ -42,7 +46,7 @@ public class ChatMessageItem {
         return receiver;
     }
 
-    public Type getModelObject()
+/*    public Type getModelObject()
 
     {
 
@@ -56,19 +60,18 @@ public class ChatMessageItem {
         } else {
             return Type.UNKNOWN;
         }
-    }
-
-
+    }*/
 
     public MessagePayload getData() {
 
-        if (drop_payload_type != null) {
+        if (drop_payload_type != null && drop_payload != null) {
             if (drop_payload_type.equals(BOX_MESSAGE)) {
                 TextMessagePayload message = new TextMessagePayload();
                 try {
                     message.message = new JSONObject(drop_payload).getString("message");
                 } catch (JSONException e) {
-                    e.printStackTrace();
+                    Log.w(TAG, "no payload data field", e);
+                    return null;
                 }
                 return message;
             } else {
@@ -119,12 +122,6 @@ public class ChatMessageItem {
         }
     }
 
-    public enum Type
-
-    {
-        SHARE_NOTIFICATION, BOX_MESSAGE, payload, UNKNOWN
-    }
-
     public static class MessagePayload {
 
     }
@@ -141,7 +138,7 @@ public class ChatMessageItem {
             json.put("version", 1);
             json.put("time_stamp", System.currentTimeMillis());
             data.put("message", text);
-            json.put("acknowledge_id", dropId);
+            json.put("acknowledge_id", UUID.randomUUID().toString());
             json.put("sender", currentIdentity.getEcPublicKey().getReadableKeyIdentifier().toString());
             json.put("receiver", receiver);
             json.put("model_object", ChatMessageItem.BOX_MESSAGE);
@@ -153,7 +150,7 @@ public class ChatMessageItem {
     }
 
     @NonNull
-    public static  ChatMessagesDataBase.ChatMessageDatabaseItem parseJson(JSONObject pJson) {
+    public static ChatMessagesDataBase.ChatMessageDatabaseItem parseJson(JSONObject pJson) {
 
         ChatMessagesDataBase.ChatMessageDatabaseItem item = new ChatMessagesDataBase.ChatMessageDatabaseItem();
         JSONObject json = new JSONObject();
@@ -162,7 +159,7 @@ public class ChatMessageItem {
             item.sender = pJson.getString("sender");
             item.receiver = pJson.getString("receiver");
             item.drop_payload_type = pJson.getString("model_object");
-            item.acknowledge_id=pJson.getString("acknowledge_id");
+            item.acknowledge_id = pJson.getString("acknowledge_id");
             JSONObject payload = pJson.getJSONObject("data");
             json.put("message", payload.getString("message"));
         } catch (JSONException e) {

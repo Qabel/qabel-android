@@ -16,14 +16,10 @@ import java.util.List;
 
 import de.qabel.core.config.Contact;
 import de.qabel.qabelbox.R;
+import de.qabel.qabelbox.chat.ChatMessagesDataBase;
 import de.qabel.qabelbox.communication.model.ChatMessageItem;
 import de.qabel.qabelbox.helper.Formatter;
-import de.qabel.qabelbox.storage.ChatMessagesDataBase;
 
-/**
- * Contacts adapter provides data for a Contacts list in a RecyclerView. Allows to externally
- * set click actions on ViewHolders by setOnItemClickListener.
- */
 public class ChatMessageAdapter extends RecyclerView.Adapter<ChatMessageAdapter.ContactViewHolder> {
 
     private final String TAG = getClass().getSimpleName();
@@ -48,7 +44,7 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<ChatMessageAdapter.
         Collections.sort(mMessages, new Comparator<ChatMessagesDataBase.ChatMessageDatabaseItem>() {
             @Override
             public int compare(ChatMessagesDataBase.ChatMessageDatabaseItem o1, ChatMessagesDataBase.ChatMessageDatabaseItem o2) {
-                //lowest to highest
+
                 return (o1.getTime() > o2.getTime() ? -1 : (o1.getTime() == o2.getTime() ? 0 : 1));
             }
         });
@@ -127,9 +123,9 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<ChatMessageAdapter.
             holder.mLink.setVisibility(View.VISIBLE);
         }
         if (contactPublicKey.equals(message.getSenderKey())) {
-            holder.mBg.setBackgroundResource(R.drawable.chat_out_message_bg);
-        } else {
             holder.mBg.setBackgroundResource(R.drawable.chat_in_message_bg);
+        } else {
+            holder.mBg.setBackgroundResource(R.drawable.chat_out_message_bg);
         }
     }
 

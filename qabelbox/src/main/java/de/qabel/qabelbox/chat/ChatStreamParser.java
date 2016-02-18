@@ -17,7 +17,7 @@ import de.qabel.qabelbox.helper.FileHelper;
  */
 public class ChatStreamParser extends AbstractContentHandler {
 
-    ArrayList<byte[]> parts = new ArrayList<>();
+    final ArrayList<byte[]> parts = new ArrayList<>();
     private static final String TAG = "ChatStreamParser";
 
     @Override

@@ -72,7 +72,6 @@ public class LocalQabelService extends Service {
 	private static final int UPLOAD_NOTIFICATION_ID = 162134;
 
 	private final IBinder mBinder = new LocalBinder();
-	private NotificationManager mNotifyManager;
 
     protected static final String DB_NAME = "qabel-service";
     protected static final int DB_VERSION = 1;
@@ -415,17 +414,19 @@ public class LocalQabelService extends Service {
 		}
     }
 
-	private void updateNotification() {
+	protected void updateNotification() {
 		BoxUploadingFile boxUploadingFile = uploadingQueue.peek();
 		if (boxUploadingFile != null) {
 			showNotification(getResources().getQuantityString(R.plurals.uploadsNotificationTitle,
 					uploadingQueue.size(), uploadingQueue.size()),
 					String.format(getString(R.string.upload_in_progress_notification_content), boxUploadingFile.name),
-					boxUploadingFile);
+					boxUploadingFile.getUploadStatusPercent());
+		} else {
+			showNotification((getString(R.string.upload_complete_notification_title)), null, 100);
 		}
 	}
 
-	private void showNotification(String contentTitle, String contentText, BoxUploadingFile boxUploadingFile) {
+	protected void showNotification(String contentTitle, @Nullable String contentText, int progress) {
 		Intent notificationIntent = new Intent(this, MainActivity.class);
 		notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP
 				| Intent.FLAG_ACTIVITY_SINGLE_TOP);
@@ -436,13 +437,14 @@ public class LocalQabelService extends Service {
 		builder.setContentTitle(contentTitle)
 				.setContentText(contentText)
 				.setSmallIcon(R.drawable.qabel_logo)
-				.setProgress(100, boxUploadingFile.getUploadStatusPercent(), false)
+				.setProgress(100, progress, false)
 				.setContentIntent(intent);
 
 		Notification notification = builder.build();
 		notification.flags |= Notification.FLAG_AUTO_CANCEL;
 
-		mNotifyManager.notify(UPLOAD_NOTIFICATION_ID, builder.build());
+		NotificationManager notifyManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+		notifyManager.notify(UPLOAD_NOTIFICATION_ID, builder.build());
 	}
 
 	public TransferManager.BoxTransferListener getUploadTransferListener(final BoxUploadingFile boxUploadingFile) {
@@ -458,14 +460,11 @@ public class LocalQabelService extends Service {
 			public void onFinished() {
 				uploadingQueue.remove(boxUploadingFile);
 				updateNotification();
-				if (uploadingQueue.isEmpty()) {
-					showNotification((getString(R.string.upload_complete_notification_title)), null, boxUploadingFile);
-				}
 			}
 		};
 	}
 
-	private void broadcastUploadStatus(String documentId, int uploadStatus, @Nullable Bundle extras) {
+	protected void broadcastUploadStatus(String documentId, int uploadStatus, @Nullable Bundle extras) {
 		Intent intent = new Intent(LocalBroadcastConstants.INTENT_UPLOAD_BROADCAST);
 		intent.putExtra(LocalBroadcastConstants.EXTRA_UPLOAD_DOCUMENT_ID, documentId);
 		intent.putExtra(LocalBroadcastConstants.EXTRA_UPLOAD_STATUS, uploadStatus);
@@ -495,7 +494,6 @@ public class LocalQabelService extends Service {
 		documentIdParser = new DocumentIdParser();
 		cachedFinishedUploads = Collections.synchronizedMap(new HashMap<String, Map<String, BoxFile>>());
 		uploadingQueue = new LinkedBlockingDeque<>();
-		mNotifyManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 		self = this;
     }
 

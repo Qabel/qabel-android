@@ -3,6 +3,8 @@ package de.qabel.qabelbox.providers;
 import android.Manifest;
 import android.content.Context;
 import android.content.pm.ProviderInfo;
+import android.os.Bundle;
+import android.support.annotation.Nullable;
 
 import org.spongycastle.util.encoders.Hex;
 
@@ -16,6 +18,7 @@ import de.qabel.core.exceptions.QblInvalidEncryptionKeyException;
 import de.qabel.qabelbox.config.AndroidPersistence;
 import de.qabel.qabelbox.config.QblSQLiteParams;
 import de.qabel.qabelbox.services.LocalQabelService;
+import de.qabel.qabelbox.storage.BoxUploadingFile;
 
 public class BoxProviderTester extends BoxProvider {
 
@@ -106,6 +109,18 @@ public class BoxProviderTester extends BoxProvider {
 			Identities identities = new Identities();
 			identities.put(identity);
 			return identities;
+		}
+
+		@Override
+		protected void showNotification(String contentTitle, String contentText, int progress) {
+		}
+
+		@Override
+		protected void updateNotification() {
+		}
+
+		@Override
+		protected void broadcastUploadStatus(String documentId, int uploadStatus, @Nullable Bundle extras) {
 		}
 	}
 }

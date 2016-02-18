@@ -53,17 +53,13 @@ public class VolumeFileTransferHelper {
 					return null;
 				}
 
-                try {
-                    Uri uploadUri = makeUri(name, boxNavigation, boxVolume);
-
-                    InputStream content = self.getContentResolver().openInputStream(uri);
-                    OutputStream upload = self.getContentResolver().openOutputStream(uploadUri, "w");
+				Uri uploadUri = makeUri(name, boxNavigation, boxVolume);
+				try (InputStream content = self.getContentResolver().openInputStream(uri);
+					 OutputStream upload = self.getContentResolver().openOutputStream(uploadUri, "w") ){
                     if (upload == null || content == null) {
                         return null;
                     }
                     IOUtils.copy(content, upload);
-                    content.close();
-                    upload.close();
                 } catch (IOException e) {
                     Log.e(TAG, "Upload failed", e);
                 }
@@ -95,18 +91,13 @@ public class VolumeFileTransferHelper {
                 .getReadableKeyIdentifier();
         Uri uploadUri = DocumentsContract.buildDocumentUri(
                 BoxProvider.AUTHORITY, keyIdentifier + HARDCODED_ROOT + targetFolder + displayName);
-        try {
-            OutputStream outputStream = context.getContentResolver().openOutputStream(uploadUri, "w");
-            if (outputStream == null) {
-                return false;
-            }
-            InputStream inputStream = context.getContentResolver().openInputStream(uri);
-            if (inputStream == null) {
-                return false;
-            }
-            IOUtils.copy(inputStream, outputStream);
-            outputStream.close();
-            inputStream.close();
+		try (OutputStream outputStream = context.getContentResolver().openOutputStream(uploadUri, "w");
+			 InputStream inputStream = context.getContentResolver().openInputStream(uri)) {
+			if (inputStream == null || outputStream == null) {
+				return false;
+			}
+			IOUtils.copy(inputStream, outputStream);
+			inputStream.close();
         } catch (IOException e) {
             Log.e(TAG, "Error opening output stream for upload", e);
         }

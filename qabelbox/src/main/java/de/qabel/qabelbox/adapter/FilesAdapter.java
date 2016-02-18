@@ -14,7 +14,9 @@ import org.apache.commons.io.FileUtils;
 import java.text.DateFormat;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.helper.BoxObjectComparators;
@@ -27,6 +29,7 @@ import de.qabel.qabelbox.storage.BoxUploadingFile;
 public class FilesAdapter extends RecyclerView.Adapter<FilesAdapter.FilesViewHolder> {
 
     private final List<BoxObject> boxObjects;
+	private final Map<String, BoxObject> boxObjectsByName;
     private OnItemClickListener onItemClickListener;
     private DateFormat dateFormat = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT);
     View emptyView, loadingView;
@@ -34,7 +37,11 @@ public class FilesAdapter extends RecyclerView.Adapter<FilesAdapter.FilesViewHol
     public FilesAdapter(List<BoxObject> BoxObject) {
 
         boxObjects = BoxObject;
-        registerAdapterDataObserver(observer);
+		boxObjectsByName = new HashMap<>();
+		for (BoxObject boxObject : boxObjects) {
+			boxObjectsByName.put(boxObject.name, boxObject);
+		}
+		registerAdapterDataObserver(observer);
     }
 
     class FilesViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener {
@@ -147,9 +154,19 @@ public class FilesAdapter extends RecyclerView.Adapter<FilesAdapter.FilesViewHol
     }
 
     public boolean add(BoxObject boxObject) {
-
+		boxObjectsByName.put(boxObject.name, boxObject);
         return boxObjects.add(boxObject);
     }
+
+	public boolean remove(BoxObject boxObject) {
+		boxObjectsByName.remove(boxObject.name);
+		return boxObjects.remove(boxObject);
+	}
+
+	public boolean remove(String name) {
+		BoxObject toRemove = boxObjectsByName.remove(name);
+		return boxObjects.remove(toRemove);
+	}
 
     public BoxObject get(int position) {
 
@@ -159,16 +176,20 @@ public class FilesAdapter extends RecyclerView.Adapter<FilesAdapter.FilesViewHol
         return null;
     }
 
+	public BoxObject get(String name) {
+		return boxObjectsByName.get(name);
+	}
+
     public void sort() {
         Collections.sort(boxObjects, BoxObjectComparators.alphabeticOrderDirectoriesFirstIgnoreCase());
     }
 
     public void clear() {
-
+		boxObjectsByName.clear();
         boxObjects.clear();
     }
 
-	public boolean containsEqual(Object object) {
+	public boolean containsEqual(BoxObject object) {
 		for (BoxObject boxObject : boxObjects) {
 			if (object.equals(boxObject)) {
 				return true;

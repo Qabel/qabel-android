@@ -78,7 +78,7 @@ public class LocalQabelService extends Service {
     protected static final int DB_VERSION = 1;
     protected AndroidPersistence persistence;
     private DropHTTP dropHTTP;
-    private HashMap<String, ArrayList<BoxUploadingFile>> pendingUploads;
+    private HashMap<String, Map<String, BoxUploadingFile>> pendingUploads;
 	private Queue<BoxUploadingFile> uploadingQueue;
 	private Map<String, Map<String, BoxFile>> cachedFinishedUploads;
     private DocumentIdParser documentIdParser;
@@ -361,19 +361,19 @@ public class LocalQabelService extends Service {
         return Hex.decode(deviceID);
     }
 
-	public HashMap<String, ArrayList<BoxUploadingFile>> getPendingUploads() {
+	public HashMap<String, Map<String, BoxUploadingFile>> getPendingUploads() {
 		return pendingUploads;
 	}
 
 	public BoxUploadingFile addPendingUpload(String documentId, Bundle extras) throws FileNotFoundException {
 		String uploadPath = documentIdParser.getPath(documentId);
 		String filename = documentIdParser.getBaseName(documentId);
-		ArrayList<BoxUploadingFile> uploadsInPath = pendingUploads.get(uploadPath);
+		Map<String, BoxUploadingFile> uploadsInPath = pendingUploads.get(uploadPath);
 		if (uploadsInPath == null) {
-			uploadsInPath = new ArrayList<>();
+			uploadsInPath = new HashMap<>();
 		}
 		BoxUploadingFile boxUploadingFile = new BoxUploadingFile(filename);
-		uploadsInPath.add(boxUploadingFile);
+		uploadsInPath.put(filename, boxUploadingFile);
 		pendingUploads.put(uploadPath, uploadsInPath);
 		uploadingQueue.add(boxUploadingFile);
 		updateNotification();
@@ -383,7 +383,7 @@ public class LocalQabelService extends Service {
 
 	public boolean removePendingUpload(String documentId, int cause, @Nullable Bundle extras) throws FileNotFoundException {
 		String uploadPath = documentIdParser.getPath(documentId);
-		ArrayList<BoxUploadingFile> uploadsInPath = pendingUploads.get(uploadPath);
+		Map<String, BoxUploadingFile> uploadsInPath = pendingUploads.get(uploadPath);
 		switch (cause) {
 			case LocalBroadcastConstants.UPLOAD_STATUS_FINISHED:
 				broadcastUploadStatus(documentId, LocalBroadcastConstants.UPLOAD_STATUS_FINISHED, extras);
@@ -393,16 +393,7 @@ public class LocalQabelService extends Service {
 				broadcastUploadStatus(documentId, LocalBroadcastConstants.UPLOAD_STATUS_FAILED, extras);
 				break;
 		}
-		if (uploadsInPath == null) {
-			return false;
-		}
-		for (BoxUploadingFile boxUploadingFile : uploadsInPath) {
-			if (boxUploadingFile.name.equals(documentIdParser.getBaseName(documentId))) {
-				uploadsInPath.remove(boxUploadingFile);
-				return true;
-			}
-		}
-		return false;
+		return uploadsInPath != null && uploadsInPath.remove(documentIdParser.getBaseName(documentId)) != null;
 	}
 
     private void cacheFinishedUpload(String documentId, Bundle extras) {
@@ -423,6 +414,7 @@ public class LocalQabelService extends Service {
 			}
 		}
     }
+
 	private void updateNotification() {
 		BoxUploadingFile boxUploadingFile = uploadingQueue.peek();
 		if (boxUploadingFile != null) {

@@ -10,6 +10,7 @@ import android.util.Log;
 
 import org.apache.commons.io.IOUtils;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -27,6 +28,7 @@ import de.qabel.qabelbox.storage.BoxVolume;
 public class VolumeFileTransferHelper {
 
     private static final String TAG = "DownloadUploadHelper";
+	private static final String URI_PREFIX_FILE = "file://";
     public static final String HARDCODED_ROOT = BoxProvider.DOCID_SEPARATOR
             + BoxProvider.BUCKET + BoxProvider.DOCID_SEPARATOR
             + BoxProvider.PREFIX + BoxProvider.DOCID_SEPARATOR + BoxProvider.PATH_SEP;
@@ -35,12 +37,21 @@ public class VolumeFileTransferHelper {
             @Override
             protected Void doInBackground(Void... params) {
 
+				String name;
                 Cursor returnCursor =
                         self.getContentResolver().query(uri, null, null, null, null);
-                int nameIndex = returnCursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
-                returnCursor.moveToFirst();
-                String name = returnCursor.getString(nameIndex);
-                returnCursor.close();
+				if (returnCursor != null) {
+					int nameIndex = returnCursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
+					returnCursor.moveToFirst();
+					name = returnCursor.getString(nameIndex);
+					returnCursor.close();
+				} else if (uri.toString().startsWith(URI_PREFIX_FILE)) {
+					File file = new File(uri.toString());
+					name = file.getName();
+				} else {
+					Log.e(TAG, "Cannot handle URI for upload: " + uri.toString());
+					return null;
+				}
 
                 try {
                     Uri uploadUri = makeUri(name, boxNavigation, boxVolume);

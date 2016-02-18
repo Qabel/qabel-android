@@ -1,12 +1,20 @@
 package de.qabel.qabelbox.communication.model;
 
+import android.support.annotation.NonNull;
+
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import de.qabel.core.config.Identity;
+import de.qabel.qabelbox.storage.ChatMessagesDataBase;
 
 /**
  * Created by danny on 16.02.16.
  */
 public class ChatMessageItem {
+
+    public static final String SHARE_NOTIFICATION = "box_share_notification";
+    public static final String BOX_MESSAGE = "box_message";
 
     //from json
     public int version;
@@ -50,8 +58,7 @@ public class ChatMessageItem {
         }
     }
 
-    public static final String SHARE_NOTIFICATION = "box_share_notification";
-    public static final String BOX_MESSAGE = "box_message";
+
 
     public MessagePayload getData() {
 
@@ -120,6 +127,49 @@ public class ChatMessageItem {
 
     public static class MessagePayload {
 
+    }
+
+    @NonNull
+    public static JSONObject getJsonToSend(String dropId, String text, Identity currentIdentity, String receiver) {
+
+        JSONObject json = new JSONObject();
+
+        try {
+
+            JSONObject data = new JSONObject();
+            data.put("message", text);
+            json.put("version", 1);
+            json.put("time_stamp", System.currentTimeMillis());
+            data.put("message", text);
+            json.put("acknowledge_id", dropId);
+            json.put("sender", currentIdentity.getEcPublicKey().getReadableKeyIdentifier().toString());
+            json.put("receiver", receiver);
+            json.put("model_object", ChatMessageItem.BOX_MESSAGE);
+            json.put("data", data);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return json;
+    }
+
+    @NonNull
+    public static  ChatMessagesDataBase.ChatMessageDatabaseItem parseJson(JSONObject pJson) {
+
+        ChatMessagesDataBase.ChatMessageDatabaseItem item = new ChatMessagesDataBase.ChatMessageDatabaseItem();
+        JSONObject json = new JSONObject();
+        try {
+            item.time_stamp = pJson.getLong("time_stamp");
+            item.sender = pJson.getString("sender");
+            item.receiver = pJson.getString("receiver");
+            item.drop_payload_type = pJson.getString("model_object");
+            item.acknowledge_id=pJson.getString("acknowledge_id");
+            JSONObject payload = pJson.getJSONObject("data");
+            json.put("message", payload.getString("message"));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        item.drop_payload = json.toString();
+        return item;
     }
 }
 

@@ -90,6 +90,7 @@ public class ContactChatFragment extends BaseFragment {
         contactListRecyclerView.setHasFixedSize(true);
         emptyView = view.findViewById(R.id.empty_view);
         recyclerViewLayoutManager = new LinearLayoutManager(view.getContext());
+        recyclerViewLayoutManager.setReverseLayout(true);
         contactListRecyclerView.setLayoutManager(recyclerViewLayoutManager);
         etText = (EditText) view.findViewById(R.id.etText);
         send = (Button) view.findViewById(R.id.bt_send);
@@ -198,13 +199,13 @@ public class ContactChatFragment extends BaseFragment {
     public void onStart() {
 
         super.onStart();
-        chatServer.addListner(chatServerCallback);
+        chatServer.addListener(chatServerCallback);
     }
 
     @Override
     public void onStop() {
 
-        chatServer.removeListner(chatServerCallback);
+        chatServer.removeListener(chatServerCallback);
         super.onStop();
     }
 
@@ -241,7 +242,7 @@ public class ContactChatFragment extends BaseFragment {
                 public void run() {
 
                     messages = chatServer.getAllItemsForKey(contactPublicKey);
-                    messages.add(chatServer.createOwnMessage(identityPublicKey,"bla"));
+                    messages.add(chatServer.createOwnMessage(contactPublicKey,"bla"));
                     refreshContactList(messages);
                 }
             });

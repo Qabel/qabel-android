@@ -1,5 +1,6 @@
 package de.qabel.qabelbox.chat;
 
+import android.support.annotation.NonNull;
 import android.util.Log;
 
 import org.apache.james.mime4j.MimeException;
@@ -17,6 +18,7 @@ import java.util.List;
 import de.qabel.core.config.Identity;
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.communication.DropServer;
+import de.qabel.qabelbox.communication.model.ChatMessageItem;
 import de.qabel.qabelbox.helper.FileHelper;
 import de.qabel.qabelbox.storage.ChatMessagesDataBase;
 import okhttp3.Call;
@@ -50,12 +52,12 @@ public class ChatServer {
         mInstance.dropServer = new DropServer();
     }
 
-    public void addListner(ChatServerCallback callback) {
+    public void addListener(ChatServerCallback callback) {
 
         callbacks.add(callback);
     }
 
-    public void removeListner(ChatServerCallback callback) {
+    public void removeListener(ChatServerCallback callback) {
 
         callbacks.remove(callback);
     }
@@ -108,7 +110,7 @@ public class ChatServer {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         Headers headers = response.headers();
 
-        //transmit header to mime4j
+        //copy header to mime4j stream
         for (String name : headers.names()) {
             String value = headers.get(name);
             baos.write(name.getBytes());
@@ -147,24 +149,15 @@ public class ChatServer {
 
     public ChatMessagesDataBase.ChatMessageDatabaseItem createOtherMessage(JSONObject pJson) {
 
-        ChatMessagesDataBase.ChatMessageDatabaseItem item = new ChatMessagesDataBase.ChatMessageDatabaseItem();
-        JSONObject json = new JSONObject();
-        try {
-            item.time_stamp = pJson.getLong("time_stamp");
-            item.sender = pJson.getString("sender");
-            item.receiver = pJson.getString("receiver");
-            JSONObject payload = pJson.getJSONObject("data");
-            json.put("message", payload.getString("message"));
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        item.drop_payload = json.toString();
+        ChatMessagesDataBase.ChatMessageDatabaseItem item = ChatMessageItem.parseJson(pJson);
         item.isNew = 1;
 
         return item;
     }
 
-    public ChatMessagesDataBase.ChatMessageDatabaseItem createOwnMessage(String receiverKey,String message) {
+
+
+    public ChatMessagesDataBase.ChatMessageDatabaseItem createOwnMessage(String receiverKey, String message) {
 
         String identityPublicKey = QabelBoxApplication.getInstance().getService().getActiveIdentity().getEcPublicKey().getReadableKeyIdentifier().toString();
         ChatMessagesDataBase.ChatMessageDatabaseItem item = new ChatMessagesDataBase.ChatMessageDatabaseItem();
@@ -178,6 +171,7 @@ public class ChatServer {
             e.printStackTrace();
         }
         item.drop_payload = json.toString();
+        item.drop_payload_type = ChatMessageItem.BOX_MESSAGE;
         item.isNew = 1;
 
         return item;
@@ -185,7 +179,10 @@ public class ChatServer {
 
     public void sendTextMessage(final long ownId, String dropId, String text, Identity currentIdentity, String receiver) {
 
-        dropServer.push(dropId, text, receiver, currentIdentity, new Callback() {
+        JSONObject json = ChatMessageItem.getJsonToSend(dropId, text, currentIdentity, receiver);
+        Log.d(TAG, "send body: " + json.toString());
+
+        dropServer.push(dropId, json, new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
 
@@ -207,6 +204,8 @@ public class ChatServer {
             }
         });
     }
+
+
 
     /**
      * send all listener error notification

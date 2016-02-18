@@ -335,13 +335,13 @@ public class ContactFragment extends BaseFragment {
     public void onStart() {
 
         super.onStart();
-        chatServer.addListner(chatServerCallback);
+        chatServer.addListener(chatServerCallback);
     }
 
     @Override
     public void onStop() {
 
-        chatServer.removeListner(chatServerCallback);
+        chatServer.removeListener(chatServerCallback);
         super.onStop();
     }
 

@@ -27,7 +27,7 @@ import de.qabel.qabelbox.storage.ChatMessagesDataBase;
 public class ChatMessageAdapter extends RecyclerView.Adapter<ChatMessageAdapter.ContactViewHolder> {
 
     private final String TAG = getClass().getSimpleName();
-    private final String contactKey;
+    private final String contactPublicKey;
     private List<ChatMessagesDataBase.ChatMessageDatabaseItem> mMessages = null;
     private OnItemClickListener onItemClickListener;
     private View emptyView;
@@ -36,10 +36,10 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<ChatMessageAdapter.
 
         mMessages = new ArrayList<>();
 
-        contactKey = contact.getEcPublicKey().getReadableKeyIdentifier().toString();
-        Log.v(TAG, "search data for contact: " + contactKey);
+        contactPublicKey = contact.getEcPublicKey().getReadableKeyIdentifier().toString();
+        Log.v(TAG, "search data for contact: " + contactPublicKey);
         for (ChatMessagesDataBase.ChatMessageDatabaseItem message : allMessages) {
-            if (contactKey.equals(message.getSenderKey()) || contactKey.equals(message.getReceiverKey()))
+            if (contactPublicKey.equals(message.getSenderKey()) || contactPublicKey.equals(message.getReceiverKey()))
 
             {
                 mMessages.add(message);
@@ -49,14 +49,7 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<ChatMessageAdapter.
             @Override
             public int compare(ChatMessagesDataBase.ChatMessageDatabaseItem o1, ChatMessagesDataBase.ChatMessageDatabaseItem o2) {
                 //lowest to highest
-                return (o1.getTime() > o2.getTime() ? 1 : (o1.getTime() == o2.getTime() ? 0 : -1));
-            }
-        });
-        Collections.sort(mMessages, new Comparator<ChatMessageItem>() {
-            @Override
-            public int compare(ChatMessageItem o1, ChatMessageItem o2) {
-
-                return (o1.getTime() > o2.getTime() ? 1 : (o1.getTime() == o2.getTime() ? 0 : -1));
+                return (o1.getTime() > o2.getTime() ? -1 : (o1.getTime() == o2.getTime() ? 0 : 1));
             }
         });
 
@@ -124,7 +117,6 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<ChatMessageAdapter.
 
         ChatMessageItem message = mMessages.get(position);
         holder.tvDate.setText(Formatter.formatDateTimeShort(message.getTime()));
-        ChatMessageItem.Type payload = message.getModelObject();
         ChatMessageItem.MessagePayload messageData = message.getData();
         if (messageData != null && messageData instanceof ChatMessageItem.TextMessagePayload) {
             holder.tvText.setText(((ChatMessageItem.TextMessagePayload) messageData).getMessage());
@@ -134,14 +126,11 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<ChatMessageAdapter.
             holder.mLink.setText(((ChatMessageItem.ShareMessagePayload) messageData).getURL());
             holder.mLink.setVisibility(View.VISIBLE);
         }
-        if (contactKey.equals(message.getSenderKey()))
-        {
-            holder.itemView.setBackgroundResource(R.drawable.chat_in_message_bg);
+        if (contactPublicKey.equals(message.getSenderKey())) {
+            holder.mBg.setBackgroundResource(R.drawable.chat_out_message_bg);
         } else {
-            holder.itemView.setBackgroundResource(R.drawable.chat_out_message_bg);
+            holder.mBg.setBackgroundResource(R.drawable.chat_in_message_bg);
         }
-
-        holder.mBg.setBackgroundResource(R.drawable.chat_in_message_bg);
     }
 
     @Override

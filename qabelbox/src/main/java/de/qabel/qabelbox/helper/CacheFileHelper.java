@@ -99,7 +99,9 @@ public class CacheFileHelper {
                     {
                         if (file.getName().startsWith("dir"))
                         {
-                            Log.w(TAG, "can delete dir file? " + file.getName() + " " + file.length());
+                            Log.v(TAG, "delete dir file " + file.getName() + " " + file.length());
+                            deletedSize += file.length();
+                            file.delete();
                         }
                     }
                 }

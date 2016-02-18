@@ -1,7 +1,7 @@
 package de.qabel.qabelbox.services;
 
 public class LocalBroadcastConstants {
-	// BoxProvider upload constants
+	// BoxProvider uploadAndDeleteLocalfile constants
 	public static final String INTENT_UPLOAD_BROADCAST = "uploadBroadcast";
 	public static final String EXTRA_UPLOAD_DOCUMENT_ID = "documentID";
 	public static final String EXTRA_UPLOAD_STATUS = "uploadStatus";

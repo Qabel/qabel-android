@@ -20,8 +20,7 @@ import java.util.concurrent.CountDownLatch;
 
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.communication.BlockServer;
-import de.qabel.qabelbox.exceptions.QblStorageException;
-import de.qabel.qabelbox.exceptions.QblStorageNotFound;
+import de.qabel.qabelbox.exceptions.QblServerException;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Response;
@@ -55,20 +54,21 @@ public class TransferManager {
     }
 
     /**
-     * upload file to server
+     * uploadAndDeleteLocalfile localfile to server
+     * For convience the localfile will be delete after the oparation is finished
      *
      * @param prefix              prefix from identity
-     * @param name                file name with path
-     * @param file                file to upload
+     * @param name                localfile name with path
+     * @param localfile                localfile to uploadAndDeleteLocalfile
      * @param boxTransferListener listener
      * @return new download id
      */
-    public int upload(String prefix, String name, final File file, @Nullable final BoxTransferListener boxTransferListener) {
+    public int uploadAndDeleteLocalfileOnSuccess(String prefix, String name, final File localfile, @Nullable final BoxTransferListener boxTransferListener) {
 
-        Log.d(TAG, "upload " + prefix + " " + name + " " + file.toString());
+        Log.d(TAG, "uploadAndDeleteLocalfile " + prefix + " " + name + " " + localfile.toString());
         final int id = blockServer.getNextId();
         latches.put(id, new CountDownLatch(1));
-        blockServer.uploadFile(context, prefix, name, file, new Callback() {
+        blockServer.uploadFile(context, prefix, name, localfile, new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
 
@@ -83,14 +83,27 @@ public class TransferManager {
             @Override
             public void onResponse(Call call, Response response) throws IOException {
 
-                latches.get(id).countDown();
-                Log.d(TAG, "upload response " + response.code() + "(" + call.request() + ")");
-                if (boxTransferListener != null) {
-                    boxTransferListener.onFinished();
+
+                int status = response.code();
+                switch (status) {
+                    case 201:
+                    case 204:
+                        Log.d(TAG, "uploadAndDeleteLocalfile response " + response.code() + "(" + call.request() + ")");
+                        if (boxTransferListener != null) {
+                            boxTransferListener.onFinished();
+                        }
+                        Log.d(TAG, "delete localfile " + localfile.getName());
+                        localfile.delete();
+                        latches.get(id).countDown();
+                        break;
+                    default:
+                        String msg = "Unexpected status code (" + response.code() + " for " + call.request();
+                        errors.put(id, new QblServerException(response.code(), call.request().toString()));
+                        Log.e(TAG, msg);
+                        latches.get(id).countDown();
                 }
 
-                Log.d(TAG, "delete file " + file.getName());
-                file.delete();
+
             }
         });
 
@@ -133,21 +146,16 @@ public class TransferManager {
                     case 200:
                         readStreamFromServer(response, file, boxTransferListener);
                         break;
-                    case 404:
-                        QblStorageNotFound notFoundError = new QblStorageNotFound("404 Not found for " + call.request());
-                        errors.put(id, notFoundError);
-                        Log.w(TAG, "download failure", notFoundError);
-                        break;
                     default:
-                        QblStorageException genericError = new QblStorageException("Unexpected response code: " + response.code() + " for " + response.request());
+                        QblServerException genericError = new QblServerException(response.code(), call.request().toString());
                         errors.put(id, genericError);
                         Log.w(TAG, "download failure", genericError);
                         break;
                 }
-                latches.get(id).countDown();
                 if (boxTransferListener != null) {
                     boxTransferListener.onFinished();
                 }
+                latches.get(id).countDown();
             }
         });
 
@@ -225,17 +233,13 @@ public class TransferManager {
                 Log.d(TAG, "delete response " + response.code());
                 latches.get(id).countDown();
                 switch (response.code()) {
-                    case 403:
-                        QblStorageException forbidden = new QblStorageException("No permission to delete resource (403):" + call.request());
-                        errors.put(id, forbidden);
-                        Log.w(TAG, "Trying to perform forbidden operation", forbidden);
-                        break;
                     case 200:
                     case 204:
                     case 404: // 404 can be safley ignored
                         break;
                     default:
-                        QblStorageException genericError = new QblStorageException("Unexpecte statud code:" + response.code() + " for " + call.request());
+                        QblServerException genericError = new QblServerException(response.code(), call.request().toString());
+                        Log.w(TAG, genericError.getMessage());
                         errors.put(id, genericError);
                         break;
                 }

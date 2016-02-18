@@ -22,7 +22,7 @@ import de.qabel.qabelbox.storage.BoxObject;
 import de.qabel.qabelbox.storage.BoxVolume;
 
 /**
- * Class to hold upload/download on separate place
+ * Class to hold uploadAndDeleteLocalfile/download on separate place
  * Created by danny on 10.02.16.
  */
 public class VolumeFileTransferHelper {
@@ -102,7 +102,7 @@ public class VolumeFileTransferHelper {
             outputStream.close();
             inputStream.close();
         } catch (IOException e) {
-            Log.e(TAG, "Error opening output stream for upload", e);
+            Log.e(TAG, "Error opening output stream for uploadAndDeleteLocalfile", e);
         }
         return false;
     }

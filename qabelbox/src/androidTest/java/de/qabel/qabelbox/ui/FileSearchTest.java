@@ -157,7 +157,7 @@ public class FileSearchTest {
         int fileCount = new StorageSearch(mBoxHelper.mBoxVolume.navigate()).getResults().size();
         Spoon.screenshot(mActivity, "before_upload");
 
-        //upload file
+        //uploadAndDeleteLocalfile file
         mBoxHelper.uploadFile(mBoxHelper.mBoxVolume, "black_3", new byte[1024], "");
         mBoxHelper.waitUntilFileCount(fileCount + 1);
 

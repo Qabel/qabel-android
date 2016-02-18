@@ -146,7 +146,7 @@ public class BoxProviderTest extends InstrumentationTestCase {
         IOUtils.copy(new FileInputStream(file), outputStream);
         outputStream.close();
 
-        // wait for the upload in the background
+        // wait for the uploadAndDeleteLocalfile in the background
         // TODO: actually wait for it.
         Thread.sleep(10000l);
 
@@ -178,14 +178,14 @@ public class BoxProviderTest extends InstrumentationTestCase {
         byte[] dl = IOUtils.toByteArray(inputStream);
         assertThat("Downloaded file not correct", dl, is(testContent));
 
-        // Use the same file descriptor to upload new content
+        // Use the same file descriptor to uploadAndDeleteLocalfile new content
         OutputStream outputStream = new FileOutputStream(fileDescriptor);
         assertNotNull(outputStream);
         outputStream.write(6);
         outputStream.close();
         parcelFileDescriptor.close();
 
-        // wait for the upload in the background
+        // wait for the uploadAndDeleteLocalfile in the background
         // TODO: actually wait for it.
         Thread.sleep(4000L);
 

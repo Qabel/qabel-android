@@ -147,16 +147,16 @@ public class FilesFragment extends BaseFragment {
 
             switch (uploadStatus) {
                 case LocalBroadcastConstants.UPLOAD_STATUS_NEW:
-                    Log.d(TAG, "Received new upload: " + documentId);
+                    Log.d(TAG, "Received new uploadAndDeleteLocalfile: " + documentId);
                     fillAdapter(filesAdapter);
                     filesAdapter.notifyDataSetChanged();
                     break;
                 case LocalBroadcastConstants.UPLOAD_STATUS_FINISHED:
-                    Log.d(TAG, "Received upload finished: " + documentId);
+                    Log.d(TAG, "Received uploadAndDeleteLocalfile finished: " + documentId);
                     refresh();
                     break;
                 case LocalBroadcastConstants.UPLOAD_STATUS_FAILED:
-                    Log.d(TAG, "Received upload failed: " + documentId);
+                    Log.d(TAG, "Received uploadAndDeleteLocalfile failed: " + documentId);
                     refresh();
                     break;
             }

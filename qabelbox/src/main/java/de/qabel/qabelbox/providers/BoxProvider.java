@@ -483,7 +483,7 @@ public class BoxProvider extends DocumentsProvider {
                 if (isRead) {
                     tmp = downloadFile(documentId, mode, signal);
                 } else {
-                    tmp = File.createTempFile("upload", "", getContext().getExternalCacheDir());
+                    tmp = File.createTempFile("uploadAndDeleteLocalfile", "", getContext().getExternalCacheDir());
                 }
                 ParcelFileDescriptor.OnCloseListener onCloseListener = new ParcelFileDescriptor.OnCloseListener() {
                     @Override
@@ -552,7 +552,7 @@ public class BoxProvider extends DocumentsProvider {
             String basename = splitPath.remove(splitPath.size() - 1);
             Log.i(TAG, "Navigating to folder");
             BoxNavigation navigation = traverseToFolder(volume, splitPath);
-            Log.i(TAG, "Starting upload");
+            Log.i(TAG, "Starting uploadAndDeleteLocalfile");
             navigation.upload(basename, new FileInputStream(tmp), boxTransferListener);
             navigation.commit();
             mService.removePendingUpload(documentId);
@@ -563,7 +563,7 @@ public class BoxProvider extends DocumentsProvider {
                 mService.removePendingUpload(documentId);
             } catch (FileNotFoundException e) {
                 //Should not be possible
-                Log.e(TAG, "Removing failed upload failed", e);
+                Log.e(TAG, "Removing failed uploadAndDeleteLocalfile failed", e);
             }
             broadcastUploadStatus(documentId, LocalBroadcastConstants.UPLOAD_STATUS_FAILED);
         }

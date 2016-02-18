@@ -429,7 +429,7 @@ public class BoxTest extends AndroidTestCase {
     //	BoxNavigation nav2 = volumeFromAnotherDevice.navigate();
     //	File file = new File(testFileName);
     //	nav.createFolder("foobar");
-    //	nav2.upload("foobar", new FileInputStream(file));
+    //	nav2.uploadAndDeleteLocalfile("foobar", new FileInputStream(file));
     //	nav2.commit();
     //	nav.commit();
     //	assertThat(nav.listFiles().size(), is(1));

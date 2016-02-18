@@ -90,7 +90,7 @@ public class BoxVolume {
         } catch (IOException e) {
             throw new QblStorageException(e);
         }
-        int id = transferManager.upload(prefix, name, tmp, null);
+        int id = transferManager.uploadAndDeleteLocalfileOnSuccess(prefix, name, tmp, null);
         if (!transferManager.waitFor(id)) {
             throw new QblStorageException("Upload failed");
         }

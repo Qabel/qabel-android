@@ -5,23 +5,34 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
-import de.qabel.core.crypto.CryptoUtils;
-import de.qabel.core.crypto.QblECKeyPair;
-import de.qabel.qabelbox.exceptions.QblStorageException;
-import de.qabel.qabelbox.exceptions.QblStorageNameConflict;
-import de.qabel.qabelbox.exceptions.QblStorageNotFound;
-import de.qabel.qabelbox.providers.BoxProvider;
-
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.NotImplementedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spongycastle.crypto.params.KeyParameter;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.security.InvalidKeyException;
-import java.util.*;
 import java.util.AbstractMap.SimpleEntry;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.Stack;
+import java.util.UUID;
+
+import de.qabel.core.crypto.CryptoUtils;
+import de.qabel.core.crypto.QblECKeyPair;
+import de.qabel.qabelbox.exceptions.QblStorageException;
+import de.qabel.qabelbox.exceptions.QblStorageNameConflict;
+import de.qabel.qabelbox.exceptions.QblStorageNotFound;
+import de.qabel.qabelbox.providers.BoxProvider;
 
 public abstract class AbstractNavigation implements BoxNavigation {
 
@@ -104,7 +115,7 @@ public abstract class AbstractNavigation implements BoxNavigation {
 
 	protected Long blockingUpload(String prefix, String name,
 								  File file, @Nullable TransferManager.BoxTransferListener boxTransferListener) {
-		int id = transferManager.upload(prefix, name, file, boxTransferListener);
+		int id = transferManager.uploadAndDeleteLocalfileOnSuccess(prefix, name, file, boxTransferListener);
 		transferManager.waitFor(id);
 		return currentSecondsFromEpoch();
 	}
@@ -284,7 +295,7 @@ public abstract class AbstractNavigation implements BoxNavigation {
 		SimpleEntry<Long, Long> mtimeAndSize = uploadEncrypted(content, key, prefix, BLOCKS_PREFIX + block, boxTransferListener);
 		boxFile.mtime = mtimeAndSize.getKey();
 		boxFile.size = mtimeAndSize.getValue();
-		// Overwrite = delete old file, upload new file
+		// Overwrite = delete old file, uploadAndDeleteLocalfile new file
 		BoxFile oldFile = dm.getFile(name);
 		if (oldFile != null) {
 			deleteQueue.add(oldFile.block);
@@ -299,7 +310,7 @@ public abstract class AbstractNavigation implements BoxNavigation {
 			InputStream content, KeyParameter key, String prefix, String block,
 			@Nullable TransferManager.BoxTransferListener boxTransferListener) throws QblStorageException {
 		try {
-			File tempFile = File.createTempFile("upload", "up", dm.getTempDir());
+			File tempFile = File.createTempFile("uploadAndDeleteLocalfile", "up", dm.getTempDir());
 			OutputStream outputStream = new FileOutputStream(tempFile);
 			if (!cryptoUtils.encryptStreamAuthenticatedSymmetric(content, outputStream, key, null)) {
 				throw new QblStorageException("Encryption failed");
@@ -352,7 +363,7 @@ public abstract class AbstractNavigation implements BoxNavigation {
 			FileInputStream fileInputStream = new FileInputStream(fileMetadata.getPath());
 			uploadEncrypted(fileInputStream, key, prefix, BLOCKS_PREFIX + block, null);
 
-			// Overwrite = delete old file, upload new file
+			// Overwrite = delete old file, uploadAndDeleteLocalfile new file
 			BoxFile oldFile = dm.getFile(boxFile.name);
 			if (oldFile != null) {
 				deleteQueue.add(oldFile.block);
@@ -361,7 +372,7 @@ public abstract class AbstractNavigation implements BoxNavigation {
 			updatedFiles.add(new FileUpdate(oldFile, boxFile));
 			dm.insertFile(boxFile);
 		} catch (QblStorageException | FileNotFoundException e) {
-			Log.e(TAG, "Could not create or upload FileMetadata", e);
+			Log.e(TAG, "Could not create or uploadAndDeleteLocalfile FileMetadata", e);
 			return false;
 		}
 		return true;
@@ -439,7 +450,7 @@ public abstract class AbstractNavigation implements BoxNavigation {
 	private InputStream openStream(byte[] boxFileKey, File file) throws QblStorageException {
 		KeyParameter key = new KeyParameter(boxFileKey);
 		try {
-			File temp = File.createTempFile("upload", "down", dm.getTempDir());
+			File temp = File.createTempFile("uploadAndDeleteLocalfile", "down", dm.getTempDir());
 			if (!cryptoUtils.decryptFileAuthenticatedSymmetricAndValidateTag(
 					new FileInputStream(file), temp, key)
 					|| checkFile(temp)) {

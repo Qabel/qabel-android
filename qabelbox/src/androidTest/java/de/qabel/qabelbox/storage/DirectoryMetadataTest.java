@@ -43,7 +43,7 @@ public class DirectoryMetadataTest extends TestCase{
 
 	@Test
 	public void testFileOperations() throws QblStorageException {
-		BoxFile file = new BoxFile("block", "name", 0L, 0L, new byte[] {1,2,}, "metablock", new byte[]{0x03, 0x04});
+		BoxFile file = new BoxFile("prefix", "block", "name", 0L, 0L, new byte[] {1,2,}, "metablock", new byte[]{0x03, 0x04});
 		dm.insertFile(file);
 		assertThat(dm.listFiles().size(), is(1));
 		assertThat(file, equalTo(dm.listFiles().get(0)));
@@ -64,7 +64,7 @@ public class DirectoryMetadataTest extends TestCase{
 
 	@Test
 	public void testExternalOperations() throws QblStorageException {
-		BoxExternalReference external = new BoxExternalReference(false, "https://foobar", "name",
+		BoxExternalReference external = new BoxExternalReference(false, "prefix", "https://foobar", "name",
 				new QblECKeyPair().getPub(), new byte[] {1,2,});
 		dm.insertExternalReference(external);
 		assertThat(dm.listExternalReferences().size(), is(1));

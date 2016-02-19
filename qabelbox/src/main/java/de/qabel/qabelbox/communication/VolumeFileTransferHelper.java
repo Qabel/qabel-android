@@ -15,7 +15,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import de.qabel.core.config.Identity;
-import de.qabel.qabelbox.activities.MainActivity;
 import de.qabel.qabelbox.providers.BoxProvider;
 import de.qabel.qabelbox.storage.BoxNavigation;
 import de.qabel.qabelbox.storage.BoxVolume;
@@ -30,7 +29,9 @@ public class VolumeFileTransferHelper {
     public static final String HARDCODED_ROOT = BoxProvider.DOCID_SEPARATOR
             + BoxProvider.BUCKET + BoxProvider.DOCID_SEPARATOR
             + BoxProvider.PREFIX + BoxProvider.DOCID_SEPARATOR + BoxProvider.PATH_SEP;
+
     public static void upload(final Context self, final Uri uri, final BoxNavigation boxNavigation, final BoxVolume boxVolume) {
+
         new AsyncTask<Void, Void, Void>() {
             @Override
             protected Void doInBackground(Void... params) {
@@ -69,12 +70,12 @@ public class VolumeFileTransferHelper {
                 BoxProvider.AUTHORITY, folderId + name);
     }
 
-
     public static boolean uploadUri(Context context, Uri uri, String targetFolder, Identity identity) {
+
         Cursor cursor = context.getContentResolver().query(uri, null, null, null, null);
         if (cursor == null) {
             Log.e(TAG, "No valid url for uploading" + uri);
-            return true;
+            return false;
         }
         cursor.moveToFirst();
         String displayName = cursor.getString(
@@ -96,6 +97,7 @@ public class VolumeFileTransferHelper {
             IOUtils.copy(inputStream, outputStream);
             outputStream.close();
             inputStream.close();
+            return true;
         } catch (IOException e) {
             Log.e(TAG, "Error opening output stream for upload", e);
         }

@@ -58,6 +58,7 @@ import de.qabel.qabelbox.fragments.IdentitiesFragment;
 import de.qabel.qabelbox.fragments.ImageViewerFragment;
 import de.qabel.qabelbox.fragments.QRcodeFragment;
 import de.qabel.qabelbox.fragments.SelectUploadFolderFragment;
+import de.qabel.qabelbox.helper.CacheFileHelper;
 import de.qabel.qabelbox.helper.ExternalApps;
 import de.qabel.qabelbox.helper.Sanity;
 import de.qabel.qabelbox.helper.UIHelper;
@@ -204,7 +205,11 @@ public class MainActivity extends CrashReportingActivity
 
         Toast.makeText(self, R.string.uploading_file,
                 Toast.LENGTH_SHORT).show();
-        return VolumeFileTransferHelper.uploadUri(self, uri, targetFolder, mService.getActiveIdentity());
+        boolean result = VolumeFileTransferHelper.uploadUri(self, uri, targetFolder, mService.getActiveIdentity());
+        if (!result) {
+            Toast.makeText(self, R.string.message_file_cant_upload, Toast.LENGTH_SHORT).show();
+        }
+        return result;
     }
 
     @Override
@@ -380,6 +385,7 @@ public class MainActivity extends CrashReportingActivity
     }
 
     private void shareIdentitySelected(final ArrayList<Uri> data, Identity activeIdentity) {
+
         toggle.setDrawerIndicatorEnabled(false);
         shareFragment = SelectUploadFolderFragment.newInstance(boxVolume, data, activeIdentity);
         getFragmentManager().beginTransaction()
@@ -560,11 +566,13 @@ public class MainActivity extends CrashReportingActivity
 
         return URLConnection.guessContentTypeFromName(uri.toString());
     }
+
     //@todo move outside
     private String getMimeType(BoxObject boxObject) {
 
         return getMimeType(getUri(boxObject));
     }
+
     //@todo move outside
     private Uri getUri(BoxObject boxObject) {
 
@@ -728,6 +736,7 @@ public class MainActivity extends CrashReportingActivity
     public void onAbort() {
 
     }
+
     //@todo move outside
     public void createFolder(final String name, final BoxNavigation boxNavigation) {
 
@@ -795,8 +804,6 @@ public class MainActivity extends CrashReportingActivity
         selectFilesFragment();
     }
 
-
-
     @Override
     protected void onNewIntent(Intent intent) {
 
@@ -818,7 +825,6 @@ public class MainActivity extends CrashReportingActivity
             }
         }
     }
-
 
     @Override
     public void deleteIdentity(Identity identity) {
@@ -877,10 +883,11 @@ public class MainActivity extends CrashReportingActivity
     @Override
     protected void onDestroy() {
 
-        if (mServiceConnection != null&&mService!=null) {
+        if (mServiceConnection != null && mService != null) {
 
             unbindService(mServiceConnection);
         }
+        new CacheFileHelper().freeCacheAsynchron(QabelBoxApplication.getInstance().getApplicationContext());
         super.onDestroy();
     }
 

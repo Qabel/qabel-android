@@ -4,6 +4,7 @@ package de.qabel.qabelbox.ui;
  * Created by danny on 05.01.2016.
  */
 
+import android.content.Context;
 import android.os.PowerManager;
 import android.support.test.rule.ActivityTestRule;
 import android.widget.SeekBar;
@@ -24,6 +25,7 @@ import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.activities.MainActivity;
 import de.qabel.qabelbox.communication.BlockServer;
+import de.qabel.qabelbox.communication.URLs;
 import de.qabel.qabelbox.config.AppPreference;
 import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.storage.StorageSearch;
@@ -85,7 +87,10 @@ public class FileSearchTest {
     }
 
     private void setupData() {
-        new AppPreference(QabelBoxApplication.getInstance().getApplicationContext()).setToken(QabelBoxApplication.getInstance().getApplicationContext().getString(R.string.blockserver_magic_testtoken));
+        Context applicationContext = QabelBoxApplication.getInstance().getApplicationContext();
+        new AppPreference(applicationContext)
+                .setToken(applicationContext.getString(R.string.blockserver_magic_testtoken));
+        URLs.setBaseBlockURL(applicationContext.getString(R.string.testBlockServer));
         mBoxHelper = new UIBoxHelper(mActivity);
         mBoxHelper.bindService(QabelBoxApplication.getInstance());
         try {

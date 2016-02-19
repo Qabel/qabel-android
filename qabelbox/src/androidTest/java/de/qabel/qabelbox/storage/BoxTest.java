@@ -1,6 +1,7 @@
 package de.qabel.qabelbox.storage;
 
 
+import android.content.Context;
 import android.test.AndroidTestCase;
 
 import org.apache.commons.io.IOUtils;
@@ -30,6 +31,7 @@ import de.qabel.core.crypto.QblECPublicKey;
 import de.qabel.core.drop.DropURL;
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
+import de.qabel.qabelbox.communication.URLs;
 import de.qabel.qabelbox.config.AppPreference;
 import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.exceptions.QblStorageNameConflict;
@@ -61,7 +63,10 @@ public class BoxTest extends AndroidTestCase {
     private String testFileName;
 
     public void configureTestServer() {
-        new AppPreference(QabelBoxApplication.getInstance().getApplicationContext()).setToken(QabelBoxApplication.getInstance().getApplicationContext().getString(R.string.blockserver_magic_testtoken));
+	    Context applicationContext = QabelBoxApplication.getInstance().getApplicationContext();
+	    new AppPreference(applicationContext)
+			    .setToken(applicationContext.getString(R.string.blockserver_magic_testtoken));
+	    URLs.setBaseBlockURL(applicationContext.getString(R.string.testBlockServer));
     }
 
     @Before

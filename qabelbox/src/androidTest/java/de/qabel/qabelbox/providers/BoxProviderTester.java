@@ -8,6 +8,7 @@ import android.support.annotation.Nullable;
 
 import org.spongycastle.util.encoders.Hex;
 
+import java.util.ArrayList;
 import java.util.UUID;
 
 import de.qabel.core.config.Identities;
@@ -49,6 +50,9 @@ public class BoxProviderTester extends BoxProvider {
 		rootDocId = PUB_KEY + BoxProvider.DOCID_SEPARATOR + prefix + BoxProvider.DOCID_SEPARATOR
 				+ BoxProvider.PATH_SEP;
 		identity = new Identity("testuser", null, keyPair);
+		ArrayList<String> prefixes = new ArrayList<>();
+		prefixes.add(prefix);
+		identity.setPrefixes(prefixes);
 	}
 
 	private void initServiceForTests(Context context) {

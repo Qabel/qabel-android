@@ -175,7 +175,13 @@ public class BoxProvider extends DocumentsProvider {
         for (Identity identity : identities.getIdentities()) {
             final MatrixCursor.RowBuilder row = result.newRow();
             String pub_key = identity.getEcPublicKey().getReadableKeyIdentifier();
-            String prefix = VolumeFileTransferHelper.getPrefixFromIdentity(identity);
+            String prefix;
+            try {
+                prefix = identity.getPrefixes().get(0);
+            } catch (IndexOutOfBoundsException e) {
+                Log.e(TAG, "Could not find a prefix in identity " + pub_key);
+                continue;
+            }
             row.add(Root.COLUMN_ROOT_ID,
                     mDocumentIdParser.buildId(pub_key, prefix, null));
             row.add(Root.COLUMN_DOCUMENT_ID,

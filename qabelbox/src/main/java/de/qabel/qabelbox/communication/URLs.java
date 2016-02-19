@@ -10,22 +10,26 @@ import de.qabel.qabelbox.R;
  */
 public class URLs {
 
-    private String BASE_ACCOUNTING;
-    private String BASE_BLOCK;
+    private static String BASE_ACCOUNTING;
+    private static String BASE_BLOCK;
 
     public URLs() {
 
         Context context = QabelBoxApplication.getInstance().getApplicationContext();
-        BASE_ACCOUNTING = context.getString(R.string.accountingServer);
-        BASE_BLOCK = context.getString(R.string.blockServer);
+        if (BASE_ACCOUNTING == null) {
+            BASE_ACCOUNTING = context.getString(R.string.accountingServer);
+        }
+        if (BASE_BLOCK == null) {
+            BASE_BLOCK = context.getString(R.string.blockServer);
+        }
     }
 
-    public void setBaseAccountingURL(String url) {
+    public static void setBaseAccountingURL(String url) {
 
         BASE_ACCOUNTING = url;
     }
 
-    public void setBaseBlockURL(String url) {
+    public static void setBaseBlockURL(String url) {
 
         BASE_BLOCK = url;
     }

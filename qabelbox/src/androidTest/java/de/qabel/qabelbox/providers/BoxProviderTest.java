@@ -28,6 +28,7 @@ import java.util.List;
 
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
+import de.qabel.qabelbox.communication.URLs;
 import de.qabel.qabelbox.communication.VolumeFileTransferHelper;
 import de.qabel.qabelbox.config.AppPreference;
 import de.qabel.qabelbox.exceptions.QblStorageException;
@@ -53,9 +54,10 @@ public class BoxProviderTest extends InstrumentationTestCase {
     protected void setUp() throws Exception {
         super.setUp();
         Log.d(TAG, "setUp");
-        new AppPreference(QabelBoxApplication.getInstance().getApplicationContext())
-                .setToken(QabelBoxApplication.getInstance().getApplicationContext().
-                        getString(R.string.blockserver_magic_testtoken));
+        Context applicationContext = QabelBoxApplication.getInstance().getApplicationContext();
+        new AppPreference(applicationContext)
+                .setToken(applicationContext.getString(R.string.blockserver_magic_testtoken));
+        URLs.setBaseBlockURL(applicationContext.getString(R.string.testBlockServer));
 
         mContext = getInstrumentation().getTargetContext();
         mProvider = new BoxProviderTester();

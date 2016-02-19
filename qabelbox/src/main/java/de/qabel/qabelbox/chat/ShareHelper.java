@@ -3,6 +3,7 @@ package de.qabel.qabelbox.chat;
 import android.app.AlertDialog;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.support.annotation.NonNull;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -33,17 +34,23 @@ import de.qabel.qabelbox.storage.BoxObject;
 public class ShareHelper {
 
     private static String TAG = "ShareHelper";
+    @NonNull
+    public static BoxExternalReference getBoxExternalReference(Contact contact, ChatMessageItem item) {
+
+        ChatMessageItem.ShareMessagePayload payload = (ChatMessageItem.ShareMessagePayload) item.getData();
+        Log.d(TAG,"add "+payload.getURL()+" "+payload.getMessage()+" "+contact.getEcPublicKey()+" "+payload.getKey());
+        return new BoxExternalReference(false, payload.getURL(), payload.getMessage(), contact.getEcPublicKey(), Hex.decode(payload.getKey()));
+    }
 
     public static void shareToQabelUser(final LocalQabelService mService, final MainActivity context, final BoxNavigation nav, final Contact contact, final Uri fileUri, final BoxObject boxFileOriginal) {
-
         {
             new AsyncTask<Void, String[], String[]>() {
                 public AlertDialog waitMessage;
 
-                void share(String url, String key) {
+                void share(String url, String key,String name) {
 
                     final ChatServer cs = ChatServer.getInstance(mService.getActiveIdentity());
-                    final DropMessage dm = cs.getShareDropMessage(boxFileOriginal.name, url, key);
+                    final DropMessage dm = cs.getShareDropMessage(name, url, key);
                     try {
                         mService.sendDropMessage(dm, contact, mService.getActiveIdentity(), new LocalQabelService.OnSendDropMessageResult() {
                             @Override
@@ -71,8 +78,8 @@ public class ShareHelper {
                 protected void onPostExecute(String[] strings) {
 
                     super.onPostExecute(strings);
-                    if (strings != null && strings.length == 2) {
-                        share(strings[0], strings[1]);
+                    if (strings != null && strings.length == 3) {
+                        share(strings[0], strings[1],strings[2]);
                     }
                     waitMessage.dismiss();
                 }
@@ -90,23 +97,18 @@ public class ShareHelper {
                         Log.v(TAG, "fileuri: " + fileUri);
                         InputStream content = context.getContentResolver().openInputStream(fileUri);
                         BoxFile boxFile = nav.upload(boxFileOriginal.name, content, null);
-
                         nav.commit();
 
                         BoxExternalReference boxExternalReference = null;
                         try {
                             boxExternalReference = nav.createFileMetadata(mService.getActiveIdentity().getEcPublicKey(), boxFile);
-                            String prefix;
 
-                            if (mService.getActiveIdentity().getPrefixes().size() > 0) {
-                                prefix = mService.getActiveIdentity().getPrefixes().get(0).toString();
-                            } else {
-                                //@ŧodo remove after prefixsrver push merged
-                                prefix = UUID.randomUUID().toString();
-                            }
-                            Log.v(TAG, "url: " + prefix + "/" + boxExternalReference.url);
+                            //@todo remove. add test
+                            /*nav.attachExternal(boxExternalReference);
+                            nav.commit();*/
+                            //end
                             return new String[]{
-                                    /*prefix+"/"+  */  boxExternalReference.url, Hex.toHexString(boxExternalReference.key)
+                                      boxExternalReference.url, Hex.toHexString(boxExternalReference.key),boxExternalReference.name
                             };
                         } catch (QblStorageException e) {
                             e.printStackTrace();

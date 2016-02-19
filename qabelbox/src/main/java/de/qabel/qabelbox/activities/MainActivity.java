@@ -545,7 +545,7 @@ public class MainActivity extends CrashReportingActivity
     private void shareToQabelUser(final BoxObject boxObject) {
 
         if (mService.getContacts(mService.getActiveIdentity()).getContacts().size() == 0) {
-            UIHelper.showDialogMessage(self, R.string.dialog_headline_info, R.string.cant_share_contactlist_is_empty, Toast.LENGTH_SHORT);
+            UIHelper.showDialogMessage(self, R.string.dialog_headline_info, R.string.cant_share_contactlist_is_empty);
             ;
         } else {
             if (boxObject instanceof BoxFile) {

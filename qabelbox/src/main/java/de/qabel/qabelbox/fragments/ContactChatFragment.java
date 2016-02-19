@@ -34,6 +34,7 @@ import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.adapter.ChatMessageAdapter;
 import de.qabel.qabelbox.chat.ChatMessageItem;
 import de.qabel.qabelbox.chat.ChatServer;
+import de.qabel.qabelbox.chat.ShareHelper;
 import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.services.LocalQabelService;
 import de.qabel.qabelbox.storage.BoxExternalReference;
@@ -198,8 +199,7 @@ public class ContactChatFragment extends BaseFragment {
             public void onItemClick(ChatMessageItem item) {
 
                 if (item.getData() instanceof ChatMessageItem.ShareMessagePayload) {
-                    ChatMessageItem.ShareMessagePayload payload = (ChatMessageItem.ShareMessagePayload) item.getData();
-                    final BoxExternalReference boxExternalReference = new BoxExternalReference(false, payload.getURL(), payload.getMessage(), contact.getEcPublicKey(), Hex.decode(payload.getKey()));
+                    final BoxExternalReference boxExternalReference = ShareHelper.getBoxExternalReference(contact,item);
                     final FilesFragment filesFragment = mActivity.filesFragment;
                     new AsyncTask<Void, Void, List<BoxObject>>() {
                         @Override
@@ -236,6 +236,7 @@ public class ContactChatFragment extends BaseFragment {
         });
         contactListAdapter.notifyDataSetChanged();
     }
+
 
     @NonNull
     private ArrayList<ChatMessageItem> convertDropMessageToDatabaseMessage(Collection<DropMessage> messages) {

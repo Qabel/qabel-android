@@ -39,10 +39,7 @@ public class ChatServer {
     }
 
     public static ChatServer getInstance(Identity activeIdentity) {
-
-        if (mInstance == null) {
-            mInstance = new ChatServer(activeIdentity);
-        }
+        mInstance = new ChatServer(activeIdentity);
         return mInstance;
     }
 

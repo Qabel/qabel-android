@@ -26,7 +26,7 @@ public class SelectContactForShareDialog {
 
         LayoutInflater inflater = (LayoutInflater)
                 activity.getSystemService(Activity.LAYOUT_INFLATER_SERVICE);
-        View view = inflater.inflate(R.layout.dialog_select_identity, null);
+        View view = inflater.inflate(R.layout.dialog_select_contact, null);
         final Spinner mIdentitySpinner = (Spinner) view.findViewById(R.id.spinner_identities);
 
         Set<Contact> identities = activity.mService.getContacts().getContacts();
@@ -43,7 +43,7 @@ public class SelectContactForShareDialog {
         ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<String>(activity, R.layout.view_spinner, spinnerArray);
         spinnerArrayAdapter.setDropDownViewResource(R.layout.view_spinner);
         mIdentitySpinner.setAdapter(spinnerArrayAdapter);
-        UIHelper.showCustomeDialog(activity, R.string.headline_share_into_app, view, R.string.ok, R.string.cancel, new DialogInterface.OnClickListener() {
+        UIHelper.showCustomeDialog(activity, R.string.headline_share_to_qabeluser, view, R.string.ok, R.string.cancel, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
 

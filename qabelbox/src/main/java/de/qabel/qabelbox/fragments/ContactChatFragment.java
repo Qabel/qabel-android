@@ -17,6 +17,8 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.spongycastle.util.encoders.Hex;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
@@ -31,7 +33,9 @@ import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.adapter.ChatMessageAdapter;
 import de.qabel.qabelbox.chat.ChatMessageItem;
 import de.qabel.qabelbox.chat.ChatServer;
+import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.services.LocalQabelService;
+import de.qabel.qabelbox.storage.BoxExternalReference;
 
 /**
  * Activities that contain this fragment must implement the
@@ -181,16 +185,35 @@ public class ContactChatFragment extends BaseFragment {
         }
     }
 
-    private void fillAdapter(ArrayList<ChatMessageItem> data) {
+    private void fillAdapter(final ArrayList<ChatMessageItem> data) {
 
         contactListAdapter = new ChatMessageAdapter(data, contact);
         contactListAdapter.setEmptyView(emptyView);
         contactListRecyclerView.setAdapter(contactListAdapter);
-        contactListRecyclerView.setOnClickListener(new View.OnClickListener() {
+
+        contactListAdapter.setOnItemClickListener(new ChatMessageAdapter.OnItemClickListener() {
             @Override
-            public void onClick(View v) {
-//@todo dont work temp
-                Toast.makeText(getActivity(), "tbd: import share", Toast.LENGTH_SHORT).show();
+            public void onItemClick(View view, int position) {
+
+
+
+                ChatMessageItem item = data.get(position);
+                if (item.getData() instanceof ChatMessageItem.ShareMessagePayload) {
+                    ChatMessageItem.ShareMessagePayload payload = (ChatMessageItem.ShareMessagePayload) item.getData();
+                    BoxExternalReference boxExternalReference = new BoxExternalReference(false, payload.getURL(), payload.getMessage(), contact.getEcPublicKey(), Hex.decode(payload.getKey()));
+                    try {
+                        mActivity.filesFragment.getBoxNavigation().attachExternal(boxExternalReference);
+                        Toast.makeText(mActivity, R.string.shared_file_imported, Toast.LENGTH_SHORT).show();
+                    } catch (QblStorageException e) {
+                        e.printStackTrace();
+                        Log.e(TAG, "import share error", e);
+                        Toast.makeText(mActivity, R.string.cant_import_shared_file, Toast.LENGTH_SHORT).show();
+                    }
+                }
+                else
+                {
+                    //nothing to do if message a normal text message. maybe later copy and paste or other action
+                }
             }
         });
         contactListAdapter.notifyDataSetChanged();

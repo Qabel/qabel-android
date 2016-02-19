@@ -123,6 +123,10 @@ public class ChatMessageItem {
 
             return url;
         }
+        public String getKey()
+        {
+            return key;
+        }
     }
 
     public static class MessagePayload {

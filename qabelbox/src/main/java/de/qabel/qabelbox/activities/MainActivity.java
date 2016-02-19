@@ -35,6 +35,7 @@ import com.cocosw.bottomsheet.BottomSheet;
 import org.apache.commons.io.IOUtils;
 import org.spongycastle.util.encoders.Hex;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -48,6 +49,8 @@ import java.util.Set;
 
 import de.qabel.core.config.Contact;
 import de.qabel.core.config.Identity;
+import de.qabel.core.crypto.QblECKeyPair;
+import de.qabel.core.crypto.QblECPublicKey;
 import de.qabel.core.drop.DropMessage;
 import de.qabel.core.drop.DropURL;
 import de.qabel.core.exceptions.QblDropPayloadSizeException;
@@ -55,6 +58,7 @@ import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.adapter.FilesAdapter;
 import de.qabel.qabelbox.chat.ChatServer;
+import de.qabel.qabelbox.chat.ShareHelper;
 import de.qabel.qabelbox.communication.VolumeFileTransferHelper;
 import de.qabel.qabelbox.dialogs.SelectContactForShareDialog;
 import de.qabel.qabelbox.dialogs.SelectIdentityForUploadDialog;
@@ -71,6 +75,7 @@ import de.qabel.qabelbox.helper.Sanity;
 import de.qabel.qabelbox.helper.UIHelper;
 import de.qabel.qabelbox.providers.BoxProvider;
 import de.qabel.qabelbox.services.LocalQabelService;
+import de.qabel.qabelbox.storage.BoxExternalReference;
 import de.qabel.qabelbox.storage.BoxFile;
 import de.qabel.qabelbox.storage.BoxFolder;
 import de.qabel.qabelbox.storage.BoxNavigation;
@@ -114,7 +119,7 @@ public class MainActivity extends CrashReportingActivity
     private TextView textViewSelectedIdentity;
     private MainActivity self;
     private View appBarMain;
-    private FilesFragment filesFragment;
+    public FilesFragment filesFragment;
     private Toolbar toolbar;
     private ImageView imageViewExpandIdentity;
     private boolean identityMenuExpanded;
@@ -535,39 +540,32 @@ public class MainActivity extends CrashReportingActivity
         });
     }
 
+
+
     private void shareToQabelUser(final BoxObject boxObject) {
 
-        if (boxObject instanceof BoxFile) {
-            BoxFile bf = (BoxFile) boxObject;
-            String url = "";//String url = boxVolume.getDocumentId();
-            shareToQabelUser(url, Hex.toHexString(bf.key));
+        if (mService.getContacts(mService.getActiveIdentity()).getContacts().size() == 0) {
+            UIHelper.showDialogMessage(self, R.string.dialog_headline_info, R.string.cant_share_contactlist_is_empty, Toast.LENGTH_SHORT);
+            ;
+        } else {
+            if (boxObject instanceof BoxFile) {
+
+                new SelectContactForShareDialog(self, new SelectContactForShareDialog.Result() {
+                    @Override
+                    public void onCancel() {
+
+                    }
+
+                    @Override
+                    public void onContactSelected(Contact contact) {
+
+                        ShareHelper.shareToQabelUser( mService,self,filesFragment.getBoxNavigation(),contact,(BoxFile) boxObject);
+                    }
+                });
+            } else {
+                UIHelper.showDialogMessage(self, R.string.share_only_files_possibility, Toast.LENGTH_SHORT);
+            }
         }
-    }
-
-    private void shareToQabelUser(final String url, final String key) {
-
-        new SelectContactForShareDialog(self, new SelectContactForShareDialog.Result() {
-            @Override
-            public void onCancel() {
-
-            }
-
-            @Override
-            public void onContactSelected(Contact contact) {
-
-                DropMessage dm = ChatServer.getShareDropMessage(getString(R.string.fileshare_label_in_chatmessage), url, key);
-                try {
-                    mService.sendDropMessage(dm, contact, mService.getActiveIdentity(), new LocalQabelService.OnSendDropMessageResult() {
-                        @Override
-                        public void onSendDropResult(Map<DropURL, Boolean> deliveryStatus) {
-
-                        }
-                    });
-                } catch (QblDropPayloadSizeException e) {
-                    Log.e(TAG, "cant sned share", e);
-                }
-            }
-        });
     }
 
     /**

@@ -5,6 +5,14 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
+import de.qabel.core.crypto.CryptoUtils;
+import de.qabel.core.crypto.QblECKeyPair;
+import de.qabel.core.crypto.QblECPublicKey;
+import de.qabel.qabelbox.exceptions.QblStorageException;
+import de.qabel.qabelbox.exceptions.QblStorageNameConflict;
+import de.qabel.qabelbox.exceptions.QblStorageNotFound;
+import de.qabel.qabelbox.providers.BoxProvider;
+
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.NotImplementedException;
 import org.slf4j.Logger;
@@ -20,19 +28,13 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.security.InvalidKeyException;
 import java.util.AbstractMap.SimpleEntry;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.Stack;
 import java.util.UUID;
-
-import de.qabel.core.crypto.CryptoUtils;
-import de.qabel.core.crypto.QblECKeyPair;
-import de.qabel.qabelbox.exceptions.QblStorageException;
-import de.qabel.qabelbox.exceptions.QblStorageNameConflict;
-import de.qabel.qabelbox.exceptions.QblStorageNotFound;
-import de.qabel.qabelbox.providers.BoxProvider;
 
 public abstract class AbstractNavigation implements BoxNavigation {
 
@@ -213,6 +215,9 @@ public abstract class AbstractNavigation implements BoxNavigation {
 			}
 			dm.commit();
 		}
+		for (FileUpdate update: updatedFiles) {
+			updateFileMetadata(update.updated);
+		}
 		uploadDirectoryMetadata();
 		for (String ref: deleteQueue) {
 			blockingDelete(prefix, ref);
@@ -262,7 +267,7 @@ public abstract class AbstractNavigation implements BoxNavigation {
 	protected abstract void uploadDirectoryMetadata() throws QblStorageException;
 
 	@Override
-	public BoxNavigation navigate(BoxExternal target) {
+	public BoxNavigation navigate(BoxExternalReference target) {
 		throw new NotImplementedException("Externals are not yet implemented!");
 	}
 
@@ -277,13 +282,51 @@ public abstract class AbstractNavigation implements BoxNavigation {
 	}
 
 	@Override
-	public List<BoxExternal> listExternals() throws QblStorageException {
-		return dm.listExternals();
+	public List<BoxObject> listExternals() throws QblStorageException {
+		List<BoxObject> boxExternals = new ArrayList<>();
+		for (BoxExternalReference boxExternalRefs : dm.listExternalReferences()) {
+			String[] splitURL = boxExternalRefs.url.split("/");
+			try {
+				File out = getMetadataFile(boxExternalRefs.url, boxExternalRefs.key);
+				if (boxExternalRefs.isFolder) {
+					//TODO: Check DirectoryMetadata handling
+					DirectoryMetadata directoryMetadata =
+							DirectoryMetadata.openDatabase(out, dm.deviceId, splitURL[1], dm.getTempDir());
+					boxExternals.addAll(directoryMetadata.listFiles());
+					boxExternals.addAll(directoryMetadata.listFolders());
+				} else {
+					FileMetadata fileMetadata = new FileMetadata(out);
+					boxExternals.add(fileMetadata.getFile());
+				}
+			}
+			catch (QblStorageException e) {
+				Log.e(TAG, "Cannot load metadata file: " + boxExternalRefs.url);
+				if (boxExternalRefs.isFolder) {
+					boxExternals.add(new BoxExternalFolder(boxExternalRefs.url, boxExternalRefs.name,
+							boxExternalRefs.key, false));
+				} else {
+					boxExternals.add(new BoxExternalFile(boxExternalRefs.owner, boxExternalRefs.url,
+							boxExternalRefs.name, boxExternalRefs.key, false));
+				}
+			}
+		}
+		return boxExternals;
 	}
 
-	@Override
-	public List<BoxExternalFile> listExternalFiles() throws QblStorageException {
-		return dm.listExternalFiles();
+	@NonNull
+	private File getMetadataFile(String url, byte[] key) throws QblStorageException {
+		String[] splitURL = url.split("/");
+		File encryptedMetadata = blockingDownload(splitURL[0], splitURL[1], null);
+
+		File out = new File(context.getExternalCacheDir(), UUID.randomUUID().toString());
+
+		try (InputStream decryptedInputStream = openStream(key, encryptedMetadata);
+			 FileOutputStream fileOutputStream = new FileOutputStream(out)){
+			IOUtils.copy(decryptedInputStream, fileOutputStream);
+		} catch (IOException e) {
+			throw new QblStorageException("Could not decrypt FileMetadata", e);
+		}
+		return out;
 	}
 
 	@Override
@@ -298,6 +341,10 @@ public abstract class AbstractNavigation implements BoxNavigation {
 		// Overwrite = delete old file, uploadAndDeleteLocalfile new file
 		BoxFile oldFile = dm.getFile(name);
 		if (oldFile != null) {
+			if (oldFile.meta != null && oldFile.metakey != null) {
+				boxFile.meta = oldFile.meta;
+				boxFile.metakey = oldFile.metakey.clone();
+			}
 			deleteQueue.add(oldFile.block);
 			dm.deleteFile(oldFile);
 		}
@@ -349,9 +396,9 @@ public abstract class AbstractNavigation implements BoxNavigation {
 	 * @return True if FileMetadata has successfully created and uploaded.
 	 */
 	@Override
-	public boolean createFileMetadata(String owner, BoxFile boxFile) {
-		if (boxFile.meta != null && boxFile.metakey != null) {
-			return false;
+	public BoxExternalReference createFileMetadata(QblECPublicKey owner, BoxFile boxFile) throws QblStorageException {
+		if (boxFile.meta != null || boxFile.metakey != null) {
+			return new BoxExternalReference(false, boxFile.meta, boxFile.name, owner, boxFile.metakey);
 		}
 		String block = UUID.randomUUID().toString();
 		boxFile.meta = prefix + '/' + block;
@@ -361,16 +408,37 @@ public abstract class AbstractNavigation implements BoxNavigation {
 		try {
 			FileMetadata fileMetadata = new FileMetadata(owner, boxFile, dm.getTempDir());
 			FileInputStream fileInputStream = new FileInputStream(fileMetadata.getPath());
-			uploadEncrypted(fileInputStream, key, prefix, BLOCKS_PREFIX + block, null);
+			uploadEncrypted(fileInputStream, key, prefix, block, null);
 
 			// Overwrite = delete old file, uploadAndDeleteLocalfile new file
 			BoxFile oldFile = dm.getFile(boxFile.name);
 			if (oldFile != null) {
-				deleteQueue.add(oldFile.block);
 				dm.deleteFile(oldFile);
 			}
-			updatedFiles.add(new FileUpdate(oldFile, boxFile));
 			dm.insertFile(boxFile);
+		} catch (QblStorageException | FileNotFoundException e) {
+			throw new QblStorageException("Could not create or upload FileMetadata", e);
+		}
+		return new BoxExternalReference(false, boxFile.meta, boxFile.name, owner, boxFile.metakey);
+	}
+
+	/**
+	 * Updates and uploads a FileMetadata object for a BoxFile.
+	 * @param boxFile BoxFile to create FileMetadata from.
+	 * @return True if FileMetadata has successfully created and uploaded.
+	 */
+	@Override
+	public boolean updateFileMetadata(BoxFile boxFile) {
+		if (boxFile.meta == null || boxFile.metakey == null) {
+			return false;
+		}
+		try {
+			File out = getMetadataFile(boxFile.meta, boxFile.metakey);
+			FileMetadata fileMetadataOld = new FileMetadata(out);
+			FileMetadata fileMetadataNew = new FileMetadata(fileMetadataOld.getFile().owner, boxFile, dm.getTempDir());
+			FileInputStream fileInputStream = new FileInputStream(fileMetadataNew.getPath());
+			String[] splitURL = boxFile.meta.split("/");
+			uploadEncrypted(fileInputStream, new KeyParameter(boxFile.metakey), splitURL[0], splitURL[1], null);
 		} catch (QblStorageException | FileNotFoundException e) {
 			Log.e(TAG, "Could not create or uploadAndDeleteLocalfile FileMetadata", e);
 			return false;
@@ -399,43 +467,23 @@ public abstract class AbstractNavigation implements BoxNavigation {
 	}
 
 	/**
-	 * Attaches a received BoxExternalFile to the DirectoryMetadata
-	 * @param owner Owner of the shared BoxFile
-	 * @param metaURL URL to download FileMetadata from
-	 * @param metaKey Key to decrypt FileMetadata with
-	 * @throws QblStorageException If FileMetadata cannot be accesses or decrypted.
+	 * Attaches a received BoxExternal to the DirectoryMetadata
+	 * @param boxExternalReference Reference to meta file
+	 * @throws QblStorageException If metadata cannot be accesses or decrypted.
 	 */
 	@Override
-	public void attachExternalFile(String owner, String metaURL, byte[] metaKey) throws QblStorageException {
-		String[] splitURL = metaURL.split("/");
-		File encryptedMetadata = blockingDownload(splitURL[0], BLOCKS_PREFIX + splitURL[1], null);
-
-		File out = new File(context.getExternalCacheDir(), UUID.randomUUID().toString());
-
-		try (InputStream decryptedInputStream = openStream(metaKey, encryptedMetadata);
-			 FileOutputStream fileOutputStream = new FileOutputStream(out)){
-
-			IOUtils.copy(decryptedInputStream, fileOutputStream);
-		} catch (IOException e) {
-			throw new QblStorageException("Could not decrypt FileMetadata", e);
-		}
-
-		FileMetadata fileMetadata = new FileMetadata(out);
-		BoxExternalFile boxExternalFile = fileMetadata.getFile();
-		boxExternalFile.owner = owner;
-		boxExternalFile.meta = metaURL;
-		boxExternalFile.metakey = metaKey;
-		dm.insertExternalFile(boxExternalFile);
+	public void attachExternal(BoxExternalReference boxExternalReference) throws QblStorageException {
+			dm.insertExternalReference(boxExternalReference);
 	}
 
 	/**
 	 * Deletes a BoxExternalFile from the DirectoryMetadata.
-	 * @param boxExternalFile Received shared BoxFile to delete from DirectoryMetadata.
+	 * @param name Name of received shared BoxFile to delete from DirectoryMetadata.
 	 * @throws QblStorageException
 	 */
 	@Override
-	public void detachExternalFile(BoxExternalFile boxExternalFile) throws QblStorageException {
-		dm.deleteExternalFile(boxExternalFile);
+	public void detachExternal(String name) throws QblStorageException {
+		dm.deleteExternalReference(name);
 	}
 
 	private File refreshCache(BoxFile boxFile, @Nullable TransferManager.BoxTransferListener boxTransferListener) throws QblStorageNotFound {
@@ -487,8 +535,6 @@ public abstract class AbstractNavigation implements BoxNavigation {
 			delete((BoxFile) boxObject);
 		} else if (boxObject instanceof BoxFolder) {
 			delete((BoxFolder) boxObject);
-		} else if (boxObject instanceof BoxExternal) {
-			delete((BoxExternal) boxObject);
 		}
 	}
 
@@ -518,7 +564,7 @@ public abstract class AbstractNavigation implements BoxNavigation {
 	}
 
 	@Override
-	public void delete(BoxExternal external) throws QblStorageException {
+	public void delete(BoxExternalReference external) throws QblStorageException {
 		throw new NotImplementedException("Externals are not yet implemented!");
 	}
 
@@ -539,10 +585,10 @@ public abstract class AbstractNavigation implements BoxNavigation {
 	}
 
 	@Override
-	public BoxExternal rename(BoxExternal external, String name) throws QblStorageException {
-		dm.deleteExternal(external);
+	public BoxExternalReference rename(BoxExternalReference external, String name) throws QblStorageException {
+		dm.deleteExternalReference(external.name);
 		external.name = name;
-		dm.insertExternal(external);
+		dm.insertExternalReference(external);
 		return external;
 	}
 

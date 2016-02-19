@@ -155,6 +155,9 @@ public class BoxProviderTest extends InstrumentationTestCase {
         byte[] dl = IOUtils.toByteArray(inputStream);
         byte[] content = IOUtils.toByteArray(new FileInputStream(file));
         assertThat(dl, is(content));
+		assertTrue(mProvider.isBroadcastNotificationCalled);
+		assertTrue(mProvider.isShowNotificationCalled);
+		assertTrue(mProvider.isUpdateNotificationCalled);
     }
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
@@ -194,7 +197,10 @@ public class BoxProviderTest extends InstrumentationTestCase {
         assertNotNull(inputStream);
         byte[] downloaded = IOUtils.toByteArray(dlInputStream);
         assertThat("Changes to the uploaded file not found", downloaded, is(updatedContent));
-    }
+		assertTrue(mProvider.isBroadcastNotificationCalled);
+		assertTrue(mProvider.isShowNotificationCalled);
+		assertTrue(mProvider.isUpdateNotificationCalled);
+	}
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     public void testCreateFile() {

@@ -6,6 +6,8 @@ import org.junit.Test;
 import java.io.File;
 import java.io.IOException;
 
+import de.qabel.core.crypto.QblECKeyPair;
+import de.qabel.core.crypto.QblECPublicKey;
 import de.qabel.qabelbox.exceptions.QblStorageException;
 
 import static org.hamcrest.Matchers.equalTo;
@@ -14,7 +16,7 @@ import static org.junit.Assert.*;
 
 public class FileMetadataTest {
 
-	private static final String OWNER = "owner";
+	private static final QblECPublicKey OWNER = new QblECKeyPair().getPub();
 
 	private BoxFile boxFile;
 	private FileMetadata fileMetadata;

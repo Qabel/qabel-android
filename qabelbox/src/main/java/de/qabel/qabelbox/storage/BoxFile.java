@@ -1,8 +1,11 @@
 package de.qabel.qabelbox.storage;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import java.util.Arrays;
 
-public class BoxFile extends BoxObject {
+public class BoxFile extends BoxObject implements Parcelable {
 	public String block;
 	public Long size;
 	public Long mtime;
@@ -72,4 +75,51 @@ public class BoxFile extends BoxObject {
 		}
 		return false;
 	}
+
+	protected BoxFile(Parcel in) {
+		super(in.readString());
+		block = in.readString();
+		key = new byte[in.readInt()];
+		in.readByteArray(key);
+		size = in.readByte() == 0x00 ? null : in.readLong();
+		mtime = in.readByte() == 0x00 ? null : in.readLong();
+	}
+
+	@Override
+	public int describeContents() {
+		return 0;
+	}
+
+	@Override
+	public void writeToParcel(Parcel dest, int flags) {
+		dest.writeString(name);
+		dest.writeString(block);
+		dest.writeByteArray(key);
+		if (size == null) {
+			dest.writeByte((byte) (0x00));
+		} else {
+			dest.writeByte((byte) (0x01));
+			dest.writeLong(size);
+		}
+		if (mtime == null) {
+			dest.writeByte((byte) (0x00));
+		} else {
+			dest.writeByte((byte) (0x01));
+			dest.writeLong(mtime);
+		}
+	}
+
+	@SuppressWarnings("unused")
+	public static final Parcelable.Creator<BoxFile> CREATOR = new Parcelable.Creator<BoxFile>() {
+		@Override
+		public BoxFile createFromParcel(Parcel in) {
+			return new BoxFile(in);
+		}
+
+		@Override
+		public BoxFile[] newArray(int size) {
+			return new BoxFile[size];
+		}
+	};
+
 }

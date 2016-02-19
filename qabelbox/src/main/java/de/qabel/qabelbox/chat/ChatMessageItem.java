@@ -1,4 +1,4 @@
-package de.qabel.qabelbox.communication.model;
+package de.qabel.qabelbox.chat;
 
 import android.support.annotation.NonNull;
 import android.util.Log;
@@ -28,6 +28,9 @@ public class ChatMessageItem {
     public String drop_payload_type;//key
     public String drop_payload;
     private String TAG = this.getClass().getSimpleName();
+
+    public short isNew = 1;//1 for new, 0 for old
+    public int id;
 
     //inten values for db storage
 
@@ -126,47 +129,7 @@ public class ChatMessageItem {
 
     }
 
-    @NonNull
-    public static JSONObject getJsonToSend(String dropId, String text, Identity currentIdentity, String receiver) {
 
-        JSONObject json = new JSONObject();
 
-        try {
-
-            JSONObject data = new JSONObject();
-            data.put("message", text);
-            json.put("version", 1);
-            json.put("time_stamp", System.currentTimeMillis());
-            data.put("message", text);
-            json.put("acknowledge_id", UUID.randomUUID().toString());
-            json.put("sender", currentIdentity.getEcPublicKey().getReadableKeyIdentifier().toString());
-            json.put("receiver", receiver);
-            json.put("model_object", ChatMessageItem.BOX_MESSAGE);
-            json.put("data", data);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        return json;
-    }
-
-    @NonNull
-    public static ChatMessagesDataBase.ChatMessageDatabaseItem parseJson(JSONObject pJson) {
-
-        ChatMessagesDataBase.ChatMessageDatabaseItem item = new ChatMessagesDataBase.ChatMessageDatabaseItem();
-        JSONObject json = new JSONObject();
-        try {
-            item.time_stamp = pJson.getLong("time_stamp");
-            item.sender = pJson.getString("sender");
-            item.receiver = pJson.getString("receiver");
-            item.drop_payload_type = pJson.getString("model_object");
-            item.acknowledge_id = pJson.getString("acknowledge_id");
-            JSONObject payload = pJson.getJSONObject("data");
-            json.put("message", payload.getString("message"));
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        item.drop_payload = json.toString();
-        return item;
-    }
 }
 

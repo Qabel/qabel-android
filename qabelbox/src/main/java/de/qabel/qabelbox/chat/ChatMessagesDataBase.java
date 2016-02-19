@@ -10,7 +10,6 @@ import android.util.Log;
 
 import de.qabel.core.config.Identity;
 import de.qabel.qabelbox.QabelBoxApplication;
-import de.qabel.qabelbox.communication.model.ChatMessageItem;
 
 /**
  * class to store chat messages in database
@@ -76,7 +75,7 @@ public class ChatMessagesDataBase extends SQLiteOpenHelper {
         sqLiteDatabase.execSQL("DROP TABLE " + CREATE_TABLE_LOAD + ";");
     }
 
-    private void remove(ChatMessageDatabaseItem item) {
+    private void remove(ChatMessageItem item) {
 
         SQLiteDatabase database = getReadableDatabase();
         int rows = database.delete(TABLE_MESSAGE_NAME, COL_MESSAGE_ID + "=?",
@@ -84,7 +83,7 @@ public class ChatMessagesDataBase extends SQLiteOpenHelper {
         Log.i(TAG, "entrys deleted with id: " + item.id + " count: " + rows);
     }
 
-    public long put(ChatMessageDatabaseItem item) {
+    public long put(ChatMessageItem item) {
 
         remove(item);
         Log.i(TAG, "Put into db: " + item.toString() + " " + item.getSenderKey() + " " + item.getReceiverKey());
@@ -106,7 +105,7 @@ public class ChatMessagesDataBase extends SQLiteOpenHelper {
         return id;
     }
 
-    public ChatMessageDatabaseItem[] get(String key) {
+    public ChatMessageItem[] get(String key) {
 
         SQLiteDatabase database = getReadableDatabase();
 
@@ -137,7 +136,7 @@ public class ChatMessagesDataBase extends SQLiteOpenHelper {
                         COL_MESSAGE_PAYLOAD};
     }
 
-    public ChatMessageDatabaseItem[] getAll() {
+    public ChatMessageItem[] getAll() {
 
         SQLiteDatabase database = getReadableDatabase();
 
@@ -150,19 +149,19 @@ public class ChatMessagesDataBase extends SQLiteOpenHelper {
     }
 
     @Nullable
-    private ChatMessageDatabaseItem[] createResultList(Cursor cursor) {
+    private ChatMessageItem[] createResultList(Cursor cursor) {
 
         try {
             cursor.moveToFirst();
 
             int count = cursor.getCount();
             Log.v(TAG, "database result count");
-            ChatMessageDatabaseItem[] items = new ChatMessageDatabaseItem[count];
+            ChatMessageItem[] items = new ChatMessageItem[count];
             int i = 0;
 
             while (!cursor.isAfterLast()) {
                 //should match all columns list
-                items[i] = new ChatMessageDatabaseItem();
+                items[i] = new ChatMessageItem();
                 items[i].id = cursor.getInt(0);
                 items[i].isNew = cursor.getShort(1);
                 items[i].time_stamp = cursor.getLong(2);
@@ -184,9 +183,5 @@ public class ChatMessagesDataBase extends SQLiteOpenHelper {
         }
     }
 
-    public static class ChatMessageDatabaseItem extends ChatMessageItem {
 
-        public short isNew = 1;//1 for new, 0 for old
-        public int id;
-    }
 }

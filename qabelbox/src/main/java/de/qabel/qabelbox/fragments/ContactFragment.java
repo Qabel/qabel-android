@@ -7,6 +7,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.ParcelFileDescriptor;
 import android.support.v7.widget.LinearLayoutManager;
@@ -35,6 +36,7 @@ import de.qabel.core.config.Contact;
 import de.qabel.core.config.Contacts;
 import de.qabel.core.config.Identity;
 import de.qabel.core.crypto.QblECPublicKey;
+import de.qabel.core.drop.DropMessage;
 import de.qabel.core.drop.DropURL;
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
@@ -122,10 +124,15 @@ public class ContactFragment extends BaseFragment {
 
         int id = item.getItemId();
         if (id == R.id.action_chat_refresh) {
-            long mId = chatServer.getNextId();
-            ChatServer.getInstance().refreshList(mId, QabelBoxApplication.getInstance().getService().getActiveIdentity());
-        }
 
+            new AsyncTask<Void, Void, Collection<DropMessage>>() {
+                @Override
+                protected Collection<DropMessage> doInBackground(Void... params) {
+
+                    return chatServer.refreshList();
+                }
+            }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+        }
         return super.onOptionsItemSelected(item);
     }
 
@@ -346,16 +353,6 @@ public class ContactFragment extends BaseFragment {
     }
 
     private ChatServer.ChatServerCallback chatServerCallback = new ChatServer.ChatServerCallback() {
-
-        @Override
-        public void onSuccess(long id) {
-
-        }
-
-        @Override
-        public void onError(long id) {
-
-        }
 
         @Override
         public void onRefreshed() {

@@ -2,7 +2,6 @@ package de.qabel.qabelbox.adapter;
 
 import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,34 +15,32 @@ import java.util.List;
 
 import de.qabel.core.config.Contact;
 import de.qabel.qabelbox.R;
-import de.qabel.qabelbox.chat.ChatMessagesDataBase;
-import de.qabel.qabelbox.communication.model.ChatMessageItem;
+import de.qabel.qabelbox.chat.ChatMessageItem;
 import de.qabel.qabelbox.helper.Formatter;
 
 public class ChatMessageAdapter extends RecyclerView.Adapter<ChatMessageAdapter.ContactViewHolder> {
 
     private final String TAG = getClass().getSimpleName();
     private final String contactPublicKey;
-    private List<ChatMessagesDataBase.ChatMessageDatabaseItem> mMessages = null;
+    private List<ChatMessageItem> mMessages = null;
     private OnItemClickListener onItemClickListener;
     private View emptyView;
 
-    public ChatMessageAdapter(ArrayList<ChatMessagesDataBase.ChatMessageDatabaseItem> allMessages, Contact contact) {
+    public ChatMessageAdapter(ArrayList<ChatMessageItem> allMessages, Contact contact) {
 
         mMessages = new ArrayList<>();
 
         contactPublicKey = contact.getEcPublicKey().getReadableKeyIdentifier().toString();
-        Log.v(TAG, "search data for contact: " + contactPublicKey);
-        for (ChatMessagesDataBase.ChatMessageDatabaseItem message : allMessages) {
+        for (ChatMessageItem message : allMessages) {
             if (contactPublicKey.equals(message.getSenderKey()) || contactPublicKey.equals(message.getReceiverKey()))
 
             {
                 mMessages.add(message);
             }
         }
-        Collections.sort(mMessages, new Comparator<ChatMessagesDataBase.ChatMessageDatabaseItem>() {
+        Collections.sort(mMessages, new Comparator<ChatMessageItem>() {
             @Override
-            public int compare(ChatMessagesDataBase.ChatMessageDatabaseItem o1, ChatMessagesDataBase.ChatMessageDatabaseItem o2) {
+            public int compare(ChatMessageItem o1, ChatMessageItem o2) {
 
                 return (o1.getTime() > o2.getTime() ? -1 : (o1.getTime() == o2.getTime() ? 0 : 1));
             }

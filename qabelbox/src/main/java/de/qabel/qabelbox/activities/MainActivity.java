@@ -61,6 +61,7 @@ import de.qabel.qabelbox.fragments.IdentitiesFragment;
 import de.qabel.qabelbox.fragments.ImageViewerFragment;
 import de.qabel.qabelbox.fragments.QRcodeFragment;
 import de.qabel.qabelbox.fragments.SelectUploadFolderFragment;
+import de.qabel.qabelbox.helper.CacheFileHelper;
 import de.qabel.qabelbox.helper.ExternalApps;
 import de.qabel.qabelbox.helper.Sanity;
 import de.qabel.qabelbox.helper.UIHelper;
@@ -210,7 +211,11 @@ public class MainActivity extends CrashReportingActivity
 
         Toast.makeText(self, R.string.uploading_file,
                 Toast.LENGTH_SHORT).show();
-        return VolumeFileTransferHelper.uploadUri(self, uri, targetFolder, mService.getActiveIdentity());
+        boolean result = VolumeFileTransferHelper.uploadUri(self, uri, targetFolder, mService.getActiveIdentity());
+        if (!result) {
+            Toast.makeText(self, R.string.message_file_cant_upload, Toast.LENGTH_SHORT).show();
+        }
+        return result;
     }
 
     @Override
@@ -922,6 +927,7 @@ public class MainActivity extends CrashReportingActivity
 
             unbindService(mServiceConnection);
         }
+        new CacheFileHelper().freeCacheAsynchron(QabelBoxApplication.getInstance().getApplicationContext());
         super.onDestroy();
     }
 

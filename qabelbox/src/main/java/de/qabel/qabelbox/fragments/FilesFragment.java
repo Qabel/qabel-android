@@ -28,14 +28,15 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.Map;
 
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.adapter.FilesAdapter;
 import de.qabel.qabelbox.exceptions.QblStorageException;
+import de.qabel.qabelbox.providers.DocumentIdParser;
 import de.qabel.qabelbox.services.LocalBroadcastConstants;
 import de.qabel.qabelbox.services.LocalQabelService;
-import de.qabel.qabelbox.storage.BoxExternalReference;
 import de.qabel.qabelbox.storage.BoxFile;
 import de.qabel.qabelbox.storage.BoxFolder;
 import de.qabel.qabelbox.storage.BoxNavigation;
@@ -63,6 +64,7 @@ public class FilesFragment extends BaseFragment {
     protected BoxVolume mBoxVolume;
     private AsyncTask<String, Void, StorageSearch> searchTask;
     private StorageSearch mCachedStorageSearch;
+    private DocumentIdParser documentIdParser;
     View mEmptyView;
     View mLoadingView;
     private LocalQabelService mService;
@@ -126,13 +128,16 @@ public class FilesFragment extends BaseFragment {
         setHasOptionsMenu(true);
         if (actionBar != null) {
             actionBar.setDisplayHomeAsUpEnabled(false);
+			
+			actionBar.setTitle(getTitle());
+		}
 
-            actionBar.setTitle(getTitle());
-        }
+        documentIdParser = new DocumentIdParser();
+
         mService = QabelBoxApplication.getInstance().getService();
         self = this;
         LocalBroadcastManager.getInstance(getActivity()).registerReceiver(mMessageReceiver,
-                new IntentFilter(LocalBroadcastConstants.INTENT_UPLOAD_BROADCAST));
+				new IntentFilter(LocalBroadcastConstants.INTENT_UPLOAD_BROADCAST));
     }
 
     private BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
@@ -153,7 +158,8 @@ public class FilesFragment extends BaseFragment {
                     break;
                 case LocalBroadcastConstants.UPLOAD_STATUS_FINISHED:
                     Log.d(TAG, "Received upload finished: " + documentId);
-                    refresh();
+                    fillAdapter(filesAdapter);
+                    filesAdapter.notifyDataSetChanged();
                     break;
                 case LocalBroadcastConstants.UPLOAD_STATUS_FAILED:
                     Log.d(TAG, "Received upload failed: " + documentId);
@@ -164,14 +170,14 @@ public class FilesFragment extends BaseFragment {
     };
 
     @Override
-    public void onDestroy() {
+	public void onDestroy() {
 
         super.onDestroy();
         LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(mMessageReceiver);
     }
 
     @Override
-    public void onStart() {
+	public void onStart() {
 
         super.onStart();
         updateSubtitle();
@@ -208,20 +214,20 @@ public class FilesFragment extends BaseFragment {
         filesListRecyclerView.setAdapter(filesAdapter);
 
         filesListRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
-            @Override
-            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+			@Override
+			public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
 
-                super.onScrolled(recyclerView, dx, dy);
-                int lastCompletelyVisibleItem = ((LinearLayoutManager) recyclerViewLayoutManager).findLastCompletelyVisibleItemPosition();
-                int firstCompletelyVisibleItem = ((LinearLayoutManager) recyclerViewLayoutManager).findFirstCompletelyVisibleItemPosition();
-                if (lastCompletelyVisibleItem == filesAdapter.getItemCount() - 1
-                        && firstCompletelyVisibleItem > 0) {
-                    mListener.onScrolledToBottom(true);
-                } else {
-                    mListener.onScrolledToBottom(false);
-                }
-            }
-        });
+				super.onScrolled(recyclerView, dx, dy);
+				int lastCompletelyVisibleItem = ((LinearLayoutManager) recyclerViewLayoutManager).findLastCompletelyVisibleItemPosition();
+				int firstCompletelyVisibleItem = ((LinearLayoutManager) recyclerViewLayoutManager).findFirstCompletelyVisibleItemPosition();
+				if (lastCompletelyVisibleItem == filesAdapter.getItemCount() - 1
+						&& firstCompletelyVisibleItem > 0) {
+					mListener.onScrolledToBottom(true);
+				} else {
+					mListener.onScrolledToBottom(false);
+				}
+			}
+		});
         return view;
     }
 
@@ -542,23 +548,10 @@ public class FilesFragment extends BaseFragment {
         AsyncTask<Void, Void, Void> asyncTask = new AsyncTask<Void, Void, Void>() {
             @Override
             protected Void doInBackground(Void... params) {
-                //TODO: Duplication with browseTo
-                filesAdapter.clear();
-
                 try {
                     boxNavigation.reload();
-                    for (BoxFolder boxFolder : boxNavigation.listFolders()) {
-                        Log.d(TAG, "Adding folder: " + boxFolder.name);
-                        filesAdapter.add(boxFolder);
-                    }
-                    for (BoxObject boxExternal : boxNavigation.listExternals()) {
-                        Log.d("MainActivity", "Adding external: " + boxExternal.name);
-                        filesAdapter.add(boxExternal);
-                    }
-                    for (BoxFile boxFile : boxNavigation.listFiles()) {
-                        Log.d(TAG, "Adding file: " + boxFile.name);
-                        filesAdapter.add(boxFile);
-                    }
+					mService.getCachedFinishedUploads().clear();
+					loadBoxObjectsToAdapter(boxNavigation, filesAdapter);
                 } catch (QblStorageException e) {
                     Log.e(TAG, "refresh failed", e);
                 }
@@ -666,47 +659,60 @@ public class FilesFragment extends BaseFragment {
     }
 
     protected void fillAdapter(FilesAdapter filesAdapter) {
-
-        if (filesAdapter == null) {
+        if (filesAdapter == null || boxNavigation == null) {
             return;
         }
-        filesAdapter.clear();
-
-        if (boxNavigation == null) {
-            return;
-        }
-
         try {
-            for (BoxFolder boxFolder : boxNavigation.listFolders()) {
-                Log.d(TAG, "Adding folder: " + boxFolder.name);
-                filesAdapter.add(boxFolder);
-            }
-            for (BoxObject boxExternal : boxNavigation.listExternals()) {
-                Log.d("MainActivity", "Adding external: " + boxExternal.name);
-                filesAdapter.add(boxExternal);
-            }
-            for (BoxFile boxFile : boxNavigation.listFiles()) {
-                Log.d(TAG, "Adding file: " + boxFile.name);
-                filesAdapter.add(boxFile);
-            }
+			loadBoxObjectsToAdapter(boxNavigation, filesAdapter);
+			insertCachedFinishedUploads(filesAdapter);
+			insertPendingUploads(filesAdapter);
+			filesAdapter.sort();
         } catch (QblStorageException e) {
-            Log.e(TAG, "browseTo failed", e);
+            Log.e(TAG, "fillAdapter failed", e);
         }
-
-        if (mService != null && mService.getPendingUploads() != null) {
-            ArrayList<BoxUploadingFile> uploadsInPath = mService.getPendingUploads().get(boxNavigation.getPath());
-
-            if (uploadsInPath != null) {
-                for (BoxUploadingFile boxUploadingFile : uploadsInPath) {
-                    filesAdapter.add(boxUploadingFile);
-                }
-            }
-        }
-
-        filesAdapter.sort();
     }
 
-    private void waitForBoxNavigation() {
+	private void insertPendingUploads(FilesAdapter filesAdapter) {
+		if (mService != null && mService.getPendingUploads() != null) {
+			Map<String, BoxUploadingFile> uploadsInPath = mService.getPendingUploads().get(boxNavigation.getPath());
+			if (uploadsInPath != null) {
+				for (BoxUploadingFile boxUploadingFile : uploadsInPath.values()) {
+					filesAdapter.remove(boxUploadingFile.name);
+					filesAdapter.add(boxUploadingFile);
+				}
+			}
+		}
+	}
+
+	private void insertCachedFinishedUploads(FilesAdapter filesAdapter) {
+		if (mService != null && mService.getCachedFinishedUploads() != null) {
+			Map<String, BoxFile> cachedFiles = mService.getCachedFinishedUploads().get(boxNavigation.getPath());
+			if (cachedFiles != null) {
+				for (BoxFile boxFile : cachedFiles.values()) {
+					filesAdapter.remove(boxFile.name);
+					filesAdapter.add(boxFile);
+				}
+			}
+		}
+	}
+
+	private void loadBoxObjectsToAdapter(BoxNavigation boxNavigation, FilesAdapter filesAdapter) throws QblStorageException {
+		filesAdapter.clear();
+		for (BoxFolder boxFolder : boxNavigation.listFolders()) {
+			Log.d(TAG, "Adding folder: " + boxFolder.name);
+			filesAdapter.add(boxFolder);
+		}
+		for (BoxObject boxExternal : boxNavigation.listExternals()) {
+			Log.d(TAG, "Adding external: " + boxExternal.name);
+			filesAdapter.add(boxExternal);
+		}
+		for (BoxFile boxFile : boxNavigation.listFiles()) {
+			Log.d(TAG, "Adding file: " + boxFile.name);
+			filesAdapter.add(boxFile);
+		}
+	}
+
+	private void waitForBoxNavigation() {
 
         while (boxNavigation == null) {
             Log.d(TAG, "waiting for BoxNavigation");

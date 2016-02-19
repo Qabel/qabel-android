@@ -40,6 +40,11 @@
         <item quantity="other">shared with %d persons.</item>
     </plurals>
 
+    <plurals name="uploadsNotificationTitle">
+        <item quantity="one">Uploading. %d file remaining</item>
+        <item quantity="other">Uploading. %d files remaining</item>
+    </plurals>
+
     <string name="upload">Upload</string>
     <string name="abort">Abort</string>
     <string name="Delete">Delete</string>
@@ -223,4 +228,7 @@
     <string name="cant_import_shared_file">Can\'t import shared file7</string>
     <string name="shared_file_imported">Shared file imported</string>
     <string name="please_wait_attach_external_file">Please wait. Attaching external file to accocunt</string>
+    <string name="upload_complete_notification_title">Upload complete</string>
+    <string name="upload_in_progress_notification_content">Upload in progress: %s</string>
+    <string name="message_file_cant_upload">File can\'t upload</string>
 </resources>

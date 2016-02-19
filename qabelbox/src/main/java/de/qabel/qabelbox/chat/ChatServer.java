@@ -15,11 +15,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.security.InvalidKeyException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import de.qabel.core.config.Contact;
 import de.qabel.core.config.Identity;
 import de.qabel.core.crypto.CryptoUtils;
+import de.qabel.core.drop.DropMessage;
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.communication.DropServer;
 import de.qabel.qabelbox.communication.model.ChatMessageItem;
@@ -84,6 +86,9 @@ public class ChatServer {
      */
 
     public void refreshList(final long ownId, Identity identity) {
+
+        Collection<DropMessage> data = QabelBoxApplication.getInstance().getService().retrieveDropMessages();
+
 
         String[] temp = identity.getDropUrls().iterator().next().toString().split("/");
         dropServer.pull(temp[temp.length - 1], new Callback() {

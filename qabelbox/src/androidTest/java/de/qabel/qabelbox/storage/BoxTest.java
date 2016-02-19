@@ -94,7 +94,7 @@ public class BoxTest extends AndroidTestCase {
         volumeOtherUser = getVolumeForRoot(identityOtherUser, deviceIDOtherUser, prefixOtherUser);
 
         volume.createIndex();
-        //volumeOtherUser.createIndex();
+        volumeOtherUser.createIndex();
 
 
     }

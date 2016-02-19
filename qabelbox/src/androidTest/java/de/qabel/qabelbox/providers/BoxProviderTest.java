@@ -26,7 +26,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import de.qabel.qabelbox.QabelBoxApplication;
+import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.communication.VolumeFileTransferHelper;
+import de.qabel.qabelbox.config.AppPreference;
 import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.storage.BoxFolder;
 import de.qabel.qabelbox.storage.BoxNavigation;
@@ -50,6 +53,9 @@ public class BoxProviderTest extends InstrumentationTestCase {
     protected void setUp() throws Exception {
         super.setUp();
         Log.d(TAG, "setUp");
+        new AppPreference(QabelBoxApplication.getInstance().getApplicationContext())
+                .setToken(QabelBoxApplication.getInstance().getApplicationContext().
+                        getString(R.string.blockserver_magic_testtoken));
 
         mContext = getInstrumentation().getTargetContext();
         mProvider = new BoxProviderTester();
@@ -213,7 +219,7 @@ public class BoxProviderTest extends InstrumentationTestCase {
         Uri document = DocumentsContract.createDocument(mContentResolver, parentDocumentUri,
                 "image/png",
                 "testfile.png");
-        assertNotNull(document);
+        assertNotNull("Create document failed, no document Uri returned", document);
         assertThat(document.toString(), is(documentUri.toString()));
         query = mContentResolver.query(documentUri, null, null, null, null);
         assertNotNull("Document not created:" + documentUri.toString(), query);

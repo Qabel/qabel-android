@@ -46,7 +46,7 @@ public class DocumentIdParserTest extends TestCase {
 
     @Test(expected = FileNotFoundException.class)
     public void testNoIdentity() throws FileNotFoundException {
-        p.getIdentity("foobar");
+        p.getIdentity("::::foobar");
     }
 
     @Test
@@ -56,7 +56,7 @@ public class DocumentIdParserTest extends TestCase {
 
     @Test(expected = FileNotFoundException.class)
     public void testNoPrefix() throws FileNotFoundException {
-        p.getPrefix("foo::::bar");
+        p.getPrefix("foo::::");
     }
 
 

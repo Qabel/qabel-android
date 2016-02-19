@@ -81,7 +81,7 @@ public class BoxProvider extends DocumentsProvider {
     public static final String AUTHORITY = "de.qabel.qabelbox.providers.documents";
     public static final String PATH_SEP = "/";
     public static final String DOCID_SEPARATOR = "::::";
-    public static final String PREFIX = "boxtest";
+    public static final String PREFIX = "test";
 
     DocumentIdParser mDocumentIdParser;
     private ThreadPoolExecutor mThreadPoolExecutor;
@@ -90,7 +90,6 @@ public class BoxProvider extends DocumentsProvider {
     private static final TimeUnit KEEP_ALIVE_TIME_UNIT = TimeUnit.SECONDS;
 
     private Map<String, BoxCursor> folderContentCache;
-	private Map<String, Integer> uploadNotifications;
     private String currentFolder;
     protected LocalQabelService mService;
 
@@ -117,7 +116,6 @@ public class BoxProvider extends DocumentsProvider {
         QabelBoxApplication.boxProvider = this;
 
         folderContentCache = new HashMap<>();
-		uploadNotifications = new HashMap<>();
         return true;
     }
 
@@ -182,7 +180,7 @@ public class BoxProvider extends DocumentsProvider {
                     mDocumentIdParser.buildId(pub_key, PREFIX, "/"));
             row.add(Root.COLUMN_ICON, R.drawable.qabel_logo);
             row.add(Root.COLUMN_FLAGS, Root.FLAG_SUPPORTS_CREATE);
-            row.add(Root.COLUMN_TITLE, "Qabel Box " + PREFIX.substring(0, 7));
+            row.add(Root.COLUMN_TITLE, "Qabel Box " + PREFIX);
             row.add(Root.COLUMN_SUMMARY, identity.getAlias());
         }
 

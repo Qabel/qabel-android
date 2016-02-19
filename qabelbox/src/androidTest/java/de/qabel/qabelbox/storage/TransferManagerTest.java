@@ -109,6 +109,15 @@ public class TransferManagerTest extends AndroidTestCase {
     }
 
     @Test
+    public void testUploadBlock() {
+        File smallFileToUpload = null;
+        smallFileToUpload = smallTestFile();
+        int uploadId = syncUpload("blocks/"+testFileNameOnServer, smallFileToUpload);
+        assertTransferManagerWasSuccesful(uploadId);
+        assertFalse(smallFileToUpload.exists());
+    }
+
+    @Test
     public void testDownload() {
         File sourceFile = smallTestFile();
         File sourceFileBackup = createEmptyTargetfile();

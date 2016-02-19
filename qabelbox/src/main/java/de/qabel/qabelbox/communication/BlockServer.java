@@ -19,6 +19,7 @@ import okhttp3.RequestBody;
 public class BlockServer extends BaseServer {
 
     private final static String TAG = "PrefixServer";
+    public static final String BLOCKS = "blocks/";
     private int currentId = 0;
     private final int suffixId;
 
@@ -31,8 +32,13 @@ public class BlockServer extends BaseServer {
 
     private void doServerAction(Context context, String prefix, String path, String method, RequestBody body, Callback callback) {
         String apiURL = urls.getFiles();
-        String url = Uri.parse(apiURL).buildUpon()
-                .appendPath(prefix)
+	    Uri.Builder uriBuilder = Uri.parse(apiURL).buildUpon()
+                .appendPath(prefix);
+        if (path.startsWith(BLOCKS)) {
+            uriBuilder.appendPath("blocks");
+            path = path.substring(BLOCKS.length());
+        }
+        String url = uriBuilder
                 .appendPath(path)
                 .build().toString();
         Request.Builder builder = new Request.Builder()

@@ -1,6 +1,7 @@
 package de.qabel.qabelbox.chat;
 
 import android.app.AlertDialog;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.util.Log;
 import android.widget.Toast;
@@ -8,6 +9,11 @@ import android.widget.Toast;
 import org.spongycastle.util.encoders.Hex;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
+import java.net.URI;
 import java.util.Map;
 
 import de.qabel.core.config.Contact;
@@ -16,12 +22,14 @@ import de.qabel.core.drop.DropURL;
 import de.qabel.core.exceptions.QblDropPayloadSizeException;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.activities.MainActivity;
+import de.qabel.qabelbox.communication.VolumeFileTransferHelper;
 import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.helper.UIHelper;
 import de.qabel.qabelbox.services.LocalQabelService;
 import de.qabel.qabelbox.storage.BoxExternalReference;
 import de.qabel.qabelbox.storage.BoxFile;
 import de.qabel.qabelbox.storage.BoxNavigation;
+import de.qabel.qabelbox.storage.BoxObject;
 
 /**
  * Created by danny on 19.02.16.
@@ -30,7 +38,8 @@ public class ShareHelper {
 
     private static String TAG = "ShareHelper";
 
-    public static void shareToQabelUser(final LocalQabelService mService, final MainActivity context, final BoxNavigation nav, final Contact contact, final BoxFile boxFileOriginal) {
+    public static void shareToQabelUser(final LocalQabelService mService, final MainActivity context, final BoxNavigation nav, final Contact contact, final Uri fileUri,final BoxObject boxFileOriginal) {
+
         {
             new AsyncTask<Void, String[], String[]>() {
                 public AlertDialog waitMessage;
@@ -82,7 +91,9 @@ public class ShareHelper {
                 protected String[] doInBackground(Void... params) {
 
                     try {
-                        BoxFile boxFile = nav.upload("foobar", new ByteArrayInputStream(new byte[100]), null);
+
+                        InputStream content = context.getContentResolver().openInputStream(fileUri);
+                        BoxFile boxFile = nav.upload(boxFileOriginal.name, content, null);
                         nav.commit();
 
                         BoxExternalReference boxExternalReference = null;
@@ -95,6 +106,8 @@ public class ShareHelper {
                             e.printStackTrace();
                         }
                     } catch (QblStorageException e) {
+                        e.printStackTrace();
+                    } catch (FileNotFoundException e) {
                         e.printStackTrace();
                     }
                     return null;

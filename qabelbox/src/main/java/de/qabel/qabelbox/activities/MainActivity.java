@@ -559,7 +559,7 @@ public class MainActivity extends CrashReportingActivity
                     @Override
                     public void onContactSelected(Contact contact) {
 
-                        ShareHelper.shareToQabelUser( mService,self,filesFragment.getBoxNavigation(),contact,(BoxFile) boxObject);
+                        ShareHelper.shareToQabelUser( mService,self,filesFragment.getBoxNavigation(),contact,getUri(boxObject), boxObject);
                     }
                 });
             } else {

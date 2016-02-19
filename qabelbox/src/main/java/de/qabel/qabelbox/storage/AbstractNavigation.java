@@ -274,11 +274,11 @@ public abstract class AbstractNavigation implements BoxNavigation {
 		List<BoxObject> boxExternals = new ArrayList<>();
 		for (BoxExternalReference boxExternalRefs : dm.listExternalReferences()) {
 			try {
-				File out = getMetadataFile(boxExternalRefs.prefix, boxExternalRefs.block, boxExternalRefs.key);
+				File out = getMetadataFile(boxExternalRefs.getPrefix(), boxExternalRefs.getBlock(), boxExternalRefs.key);
 				if (boxExternalRefs.isFolder) {
 					//TODO: Check DirectoryMetadata handling
 					DirectoryMetadata directoryMetadata =
-							DirectoryMetadata.openDatabase(out, dm.deviceId, boxExternalRefs.block, dm.getTempDir());
+							DirectoryMetadata.openDatabase(out, dm.deviceId, boxExternalRefs.getBlock(), dm.getTempDir());
 					boxExternals.addAll(directoryMetadata.listFiles());
 					boxExternals.addAll(directoryMetadata.listFolders());
 				} else {
@@ -287,12 +287,12 @@ public abstract class AbstractNavigation implements BoxNavigation {
 				}
 			}
 			catch (QblStorageException e) {
-				Log.e(TAG, "Cannot load metadata file: " + boxExternalRefs.prefix + '/' + boxExternalRefs.block);
+				Log.e(TAG, "Cannot load metadata file: " + boxExternalRefs.getPrefix() + '/' + boxExternalRefs.getBlock());
 				if (boxExternalRefs.isFolder) {
-					boxExternals.add(new BoxExternalFolder(boxExternalRefs.getRef(), boxExternalRefs.name,
+					boxExternals.add(new BoxExternalFolder(boxExternalRefs.url, boxExternalRefs.name,
 							boxExternalRefs.key, false));
 				} else {
-					boxExternals.add(new BoxExternalFile(boxExternalRefs.owner, boxExternalRefs.prefix, boxExternalRefs.block,
+					boxExternals.add(new BoxExternalFile(boxExternalRefs.owner, boxExternalRefs.getPrefix(), boxExternalRefs.getBlock(),
 							boxExternalRefs.name, boxExternalRefs.key, false));
 				}
 			}
@@ -383,7 +383,7 @@ public abstract class AbstractNavigation implements BoxNavigation {
 	@Override
 	public BoxExternalReference createFileMetadata(QblECPublicKey owner, BoxFile boxFile) throws QblStorageException {
 		if (boxFile.meta != null || boxFile.metakey != null) {
-			return new BoxExternalReference(false, boxFile.prefix, boxFile.meta, boxFile.name, owner, boxFile.metakey);
+			return new BoxExternalReference(false, boxFile.prefix + '/' + boxFile.meta, boxFile.name, owner, boxFile.metakey);
 		}
 		String metaBlock = UUID.randomUUID().toString();
 		KeyParameter key = cryptoUtils.generateSymmetricKey();
@@ -404,7 +404,7 @@ public abstract class AbstractNavigation implements BoxNavigation {
 		} catch (QblStorageException | FileNotFoundException e) {
 			throw new QblStorageException("Could not create or upload FileMetadata", e);
 		}
-		return new BoxExternalReference(false, boxFile.prefix, metaBlock, boxFile.name, owner, boxFile.metakey);
+		return new BoxExternalReference(false, boxFile.prefix + '/' + metaBlock, boxFile.name, owner, boxFile.metakey);
 	}
 
 	/**

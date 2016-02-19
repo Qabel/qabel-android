@@ -66,8 +66,7 @@ class DirectoryMetadata {
 					" owner BLOB NOT NULL," +
 					" name VARCHAR(255)NOT NULL PRIMARY KEY," +
 					" key BLOB NOT NULL," +
-					" prefix VARCHAR(255) NOT NULL, " +
-					" block VARCHAR(255) NOT NULL )",
+					" url TEXT NOT NULL )",
 			"INSERT INTO spec_version (version) VALUES(0)"
 	};
 	private final File tempDir;
@@ -417,12 +416,12 @@ class DirectoryMetadata {
 	List<BoxExternalReference> listExternalReferences() throws QblStorageException {
 		try (Statement statement = connection.createStatement()){
 			ResultSet rs = statement.executeQuery(
-					"SELECT is_folder, prefix, block, name, owner, key FROM externals");
+					"SELECT is_folder, url, name, owner, key FROM externals");
 			List<BoxExternalReference> files = new ArrayList<>();
 			while (rs.next()) {
 				files.add(
-						new BoxExternalReference(rs.getBoolean(1), rs.getString(2), rs.getString(3), rs.getString(4),
-								new QblECPublicKey(rs.getBytes(5)), rs.getBytes(6)));
+						new BoxExternalReference(rs.getBoolean(1), rs.getString(2), rs.getString(3),
+								new QblECPublicKey(rs.getBytes(4)), rs.getBytes(5)));
 			}
 			return files;
 		} catch (SQLException e) {
@@ -436,13 +435,12 @@ class DirectoryMetadata {
 			throw new QblStorageNameConflict(file.name);
 		}
 		try (PreparedStatement st = connection.prepareStatement(
-			 "INSERT INTO externals (is_folder, prefix, block, name, owner, key) VALUES(?, ?, ?, ?, ?, ?)")){
+			 "INSERT INTO externals (is_folder, url, name, owner, key) VALUES(?, ?, ?, ?, ?)")){
 			st.setBoolean(1, file.isFolder);
-			st.setString(2, file.prefix);
-			st.setString(3, file.block);
-			st.setString(4, file.name);
-			st.setBytes(5, file.owner.getKey());
-			st.setBytes(6, file.key);
+			st.setString(2, file.url);
+			st.setString(3, file.name);
+			st.setBytes(4, file.owner.getKey());
+			st.setBytes(5, file.key);
 			if (st.executeUpdate() != 1) {
 				throw new QblStorageException("Failed to insert file");
 			}

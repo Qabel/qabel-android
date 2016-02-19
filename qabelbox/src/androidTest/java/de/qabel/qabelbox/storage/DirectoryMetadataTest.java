@@ -64,7 +64,7 @@ public class DirectoryMetadataTest extends TestCase{
 
 	@Test
 	public void testExternalOperations() throws QblStorageException {
-		BoxExternalReference external = new BoxExternalReference(false, "prefix", "https://foobar", "name",
+		BoxExternalReference external = new BoxExternalReference(false, "https://foobar", "name",
 				new QblECKeyPair().getPub(), new byte[] {1,2,});
 		dm.insertExternalReference(external);
 		assertThat(dm.listExternalReferences().size(), is(1));

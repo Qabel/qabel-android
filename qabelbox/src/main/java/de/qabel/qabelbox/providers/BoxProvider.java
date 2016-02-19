@@ -64,6 +64,7 @@ import de.qabel.qabelbox.services.LocalQabelService;
 import de.qabel.qabelbox.storage.BoxFile;
 import de.qabel.qabelbox.storage.BoxFolder;
 import de.qabel.qabelbox.storage.BoxNavigation;
+import de.qabel.qabelbox.storage.BoxUploadingFile;
 import de.qabel.qabelbox.storage.BoxVolume;
 import de.qabel.qabelbox.storage.TransferManager;
 
@@ -97,6 +98,7 @@ public class BoxProvider extends DocumentsProvider {
     AWSCredentials awsCredentials;
 
     private Map<String, BoxCursor> folderContentCache;
+	private Map<String, Integer> uploadNotifications;
     private String currentFolder;
     protected LocalQabelService mService;
 
@@ -137,6 +139,7 @@ public class BoxProvider extends DocumentsProvider {
         QabelBoxApplication.boxProvider = this;
 
         folderContentCache = new HashMap<>();
+		uploadNotifications = new HashMap<>();
         return true;
     }
 
@@ -506,15 +509,7 @@ public class BoxProvider extends DocumentsProvider {
         final boolean isRead = (mode.indexOf('r') != -1);
 
         if (isWrite) {
-            final int id = 1;
-            final NotificationManager mNotifyManager = (NotificationManager) getContext().getSystemService(Context.NOTIFICATION_SERVICE);
-            final NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(getContext());
-            mBuilder.setContentTitle("Uploading " + mDocumentIdParser.getBaseName(documentId))
-                    .setContentText("Upload in progress")
-                    .setSmallIcon(R.drawable.notification_template_icon_bg);
-            mBuilder.setProgress(100, 0, false);
-            mNotifyManager.notify(id, mBuilder.build());
-
+			final BoxUploadingFile boxUploadingFile = mService.addPendingUpload(documentId, null);
             // Attach a close listener if the document is opened in write mode.
             try {
                 Handler handler = new Handler(getContext().getMainLooper());
@@ -538,31 +533,7 @@ public class BoxProvider extends DocumentsProvider {
                         new AsyncTask<Void, Void, String>() {
                             @Override
                             protected String doInBackground(Void... params) {
-
-                                uploadFile(documentId, tmp, new TransferManager.BoxTransferListener() {
-                                    @Override
-                                    public void onProgressChanged(long bytesCurrent, long bytesTotal) {
-
-                                        mBuilder.setProgress(100, (int) (100 * bytesCurrent / bytesTotal), false);
-                                        mNotifyManager.notify(id, mBuilder.build());
-                                    }
-
-                                    @Override
-                                    public void onFinished() {
-
-                                        String filename;
-                                        try {
-                                            filename = mDocumentIdParser.getBaseName(documentId);
-                                        } catch (FileNotFoundException e) {
-                                            filename = documentId;
-                                        }
-                                        mBuilder.setContentTitle("Uploading " + filename)
-                                                .setContentText("Upload complete")
-                                                .setSmallIcon(R.drawable.notification_template_icon_bg);
-                                        mBuilder.setProgress(100, 100, false);
-                                        mNotifyManager.notify(id, mBuilder.build());
-                                    }
-                                });
+								uploadFile(documentId, tmp, mService.getUploadTransferListener(boxUploadingFile));
                                 return documentId;
                             }
                         }.execute();
@@ -582,8 +553,6 @@ public class BoxProvider extends DocumentsProvider {
 
     private void uploadFile(String documentId, File tmp, TransferManager.BoxTransferListener boxTransferListener) {
         try {
-	    mService.addPendingUpload(documentId);
-	    broadcastUploadStatus(documentId, LocalBroadcastConstants.UPLOAD_STATUS_NEW);
             BoxVolume volume = getVolumeForId(documentId);
             List<String> splitPath = mDocumentIdParser.splitPath(
                     mDocumentIdParser.getFilePath(documentId));
@@ -591,28 +560,21 @@ public class BoxProvider extends DocumentsProvider {
             Log.i(TAG, "Navigating to folder");
             BoxNavigation navigation = traverseToFolder(volume, splitPath);
             Log.i(TAG, "Starting upload");
-            navigation.upload(basename, new FileInputStream(tmp), boxTransferListener);
+            BoxFile boxFile = navigation.upload(basename, new FileInputStream(tmp), boxTransferListener);
             navigation.commit();
-			mService.removePendingUpload(documentId);
-			broadcastUploadStatus(documentId, LocalBroadcastConstants.UPLOAD_STATUS_FINISHED);
+			Bundle extras = new Bundle();
+			extras.putParcelable(LocalBroadcastConstants.EXTRA_FILE, boxFile);
+			mService.removePendingUpload(documentId, LocalBroadcastConstants.UPLOAD_STATUS_FINISHED, extras);
         } catch (FileNotFoundException | QblStorageException e1) {
             Log.e(TAG, "Upload failed", e1);
 			try {
-				mService.removePendingUpload(documentId);
+				mService.removePendingUpload(documentId, LocalBroadcastConstants.UPLOAD_STATUS_FAILED, null);
 			} catch (FileNotFoundException e) {
 				//Should not be possible
 				Log.e(TAG, "Removing failed upload failed", e);
 			}
-			broadcastUploadStatus(documentId, LocalBroadcastConstants.UPLOAD_STATUS_FAILED);
         }
     }
-
-	private void broadcastUploadStatus(String documentId, int uploadStatus) {
-		Intent intent = new Intent(LocalBroadcastConstants.INTENT_UPLOAD_BROADCAST);
-		intent.putExtra(LocalBroadcastConstants.EXTRA_UPLOAD_DOCUMENT_ID, documentId);
-		intent.putExtra(LocalBroadcastConstants.EXTRA_UPLOAD_STATUS, uploadStatus);
-		LocalBroadcastManager.getInstance(getContext()).sendBroadcast(intent);
-	}
 
     private File downloadFile(final String documentId, final String mode, final CancellationSignal signal) throws FileNotFoundException {
 

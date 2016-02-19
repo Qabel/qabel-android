@@ -8,12 +8,8 @@ import android.widget.Toast;
 
 import org.spongycastle.util.encoders.Hex;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
-import java.net.URI;
 import java.util.Map;
 import java.util.UUID;
 
@@ -23,7 +19,6 @@ import de.qabel.core.drop.DropURL;
 import de.qabel.core.exceptions.QblDropPayloadSizeException;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.activities.MainActivity;
-import de.qabel.qabelbox.communication.VolumeFileTransferHelper;
 import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.helper.UIHelper;
 import de.qabel.qabelbox.services.LocalQabelService;
@@ -39,7 +34,7 @@ public class ShareHelper {
 
     private static String TAG = "ShareHelper";
 
-    public static void shareToQabelUser(final LocalQabelService mService, final MainActivity context, final BoxNavigation nav, final Contact contact, final Uri fileUri,final BoxObject boxFileOriginal) {
+    public static void shareToQabelUser(final LocalQabelService mService, final MainActivity context, final BoxNavigation nav, final Contact contact, final Uri fileUri, final BoxObject boxFileOriginal) {
 
         {
             new AsyncTask<Void, String[], String[]>() {
@@ -103,16 +98,13 @@ public class ShareHelper {
                             boxExternalReference = nav.createFileMetadata(mService.getActiveIdentity().getEcPublicKey(), boxFile);
                             String prefix;
 
-                            if(mService.getActiveIdentity().getPrefixes().size()>0)
-                            {
-                                prefix=mService.getActiveIdentity().getPrefixes().get(0).toString();
-                            }
-                            else
-                            {
+                            if (mService.getActiveIdentity().getPrefixes().size() > 0) {
+                                prefix = mService.getActiveIdentity().getPrefixes().get(0).toString();
+                            } else {
                                 //@ŧodo remove after prefixsrver push merged
-                                prefix=UUID.randomUUID().toString();
+                                prefix = UUID.randomUUID().toString();
                             }
-                            Log.v(TAG,"url: "+prefix+"/"+boxExternalReference.url);
+                            Log.v(TAG, "url: " + prefix + "/" + boxExternalReference.url);
                             return new String[]{
                                     /*prefix+"/"+  */  boxExternalReference.url, Hex.toHexString(boxExternalReference.key)
                             };

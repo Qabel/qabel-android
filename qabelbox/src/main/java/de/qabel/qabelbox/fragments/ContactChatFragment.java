@@ -207,9 +207,7 @@ public class ContactChatFragment extends BaseFragment {
 
                             if (boxObjects != null) {
                                 Toast.makeText(mActivity, R.string.shared_file_imported, Toast.LENGTH_SHORT).show();
-                            }
-                            else
-                            {
+                            } else {
                                 Toast.makeText(mActivity, R.string.cant_import_shared_file, Toast.LENGTH_SHORT).show();
                             }
                         }

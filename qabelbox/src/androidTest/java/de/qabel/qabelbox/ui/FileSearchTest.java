@@ -170,6 +170,7 @@ public class FileSearchTest {
         onView(withId(R.id.files_list)).check(matches(QabelMatcher.withListSize(fileCount + 1)));
         Spoon.screenshot(mActivity, "after_refresh");
         pressBack();
+        Spoon.screenshot(mActivity, "after_press_back");
         testIfFileBrowserDisplayed(fileCount + 1);
 
         //start new search

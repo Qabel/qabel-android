@@ -4,6 +4,7 @@ package de.qabel.qabelbox.ui;
  * Created by danny on 05.01.2016.
  */
 
+import android.content.Context;
 import android.os.PowerManager;
 import android.support.design.internal.NavigationMenuItemView;
 import android.support.test.rule.ActivityTestRule;
@@ -26,6 +27,7 @@ import de.qabel.core.config.Identity;
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.activities.MainActivity;
+import de.qabel.qabelbox.communication.URLs;
 import de.qabel.qabelbox.config.AppPreference;
 import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.services.LocalQabelService;
@@ -84,8 +86,11 @@ public class CreateIdentityTest {
 
     @Test
     public void addIdentity0Test() {
+        Context applicationContext = QabelBoxApplication.getInstance().getApplicationContext();
+        new AppPreference(applicationContext)
+                .setToken(applicationContext.getString(R.string.accountingServerInactiveToken));
+
         //clear all identities
-        new AppPreference(QabelBoxApplication.getInstance().getApplicationContext()).setToken(QabelBoxApplication.getInstance().getApplicationContext().getString(R.string.blockserver_magic_testtoken));
         LocalQabelService service = QabelBoxApplication.getInstance().getService();
         Identities identities = service.getIdentities();
         for (Identity identity :

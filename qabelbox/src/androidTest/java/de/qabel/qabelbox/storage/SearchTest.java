@@ -412,7 +412,7 @@ public class SearchTest extends AndroidTestCase {
 		if (o instanceof BoxFile) {
 			BoxFile tmp = (BoxFile) o;
 
-			return new BoxFile(tmp.block, tmp.name, tmp.size, tmp.mtime, tmp.key);
+			return new BoxFile(tmp.prefix, tmp.block, tmp.name, tmp.size, tmp.mtime, tmp.key);
 		} else {
 			BoxFolder tmp = (BoxFolder) o;
 

@@ -15,6 +15,7 @@ import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.net.URI;
 import java.util.Map;
+import java.util.UUID;
 
 import de.qabel.core.config.Contact;
 import de.qabel.core.drop.DropMessage;
@@ -91,16 +92,29 @@ public class ShareHelper {
                 protected String[] doInBackground(Void... params) {
 
                     try {
-
+                        Log.v(TAG, "fileuri: " + fileUri);
                         InputStream content = context.getContentResolver().openInputStream(fileUri);
                         BoxFile boxFile = nav.upload(boxFileOriginal.name, content, null);
+
                         nav.commit();
 
                         BoxExternalReference boxExternalReference = null;
                         try {
                             boxExternalReference = nav.createFileMetadata(mService.getActiveIdentity().getEcPublicKey(), boxFile);
+                            String prefix;
+
+                            if(mService.getActiveIdentity().getPrefixes().size()>0)
+                            {
+                                prefix=mService.getActiveIdentity().getPrefixes().get(0).toString();
+                            }
+                            else
+                            {
+                                //@ŧodo remove after prefixsrver push merged
+                                prefix=UUID.randomUUID().toString();
+                            }
+                            Log.v(TAG,"url: "+prefix+"/"+boxExternalReference.url);
                             return new String[]{
-                                    boxExternalReference.url, Hex.toHexString(boxExternalReference.key)
+                                    /*prefix+"/"+  */  boxExternalReference.url, Hex.toHexString(boxExternalReference.key)
                             };
                         } catch (QblStorageException e) {
                             e.printStackTrace();

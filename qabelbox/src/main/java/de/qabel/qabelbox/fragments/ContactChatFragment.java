@@ -219,7 +219,7 @@ public class ContactChatFragment extends BaseFragment {
 
                             try {
                                 mActivity.filesFragment.getBoxNavigation().attachExternal(boxExternalReference);
-
+                                mActivity.filesFragment.getBoxNavigation().commit();
                                 List<BoxObject> boxExternalFiles = null;
 
                                 boxExternalFiles = filesFragment.getBoxNavigation().listExternals();

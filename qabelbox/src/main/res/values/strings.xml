@@ -222,4 +222,5 @@
     <string name="messsage_file_shared">File successfully shared</string>
     <string name="cant_import_shared_file">Can\'t import shared file7</string>
     <string name="shared_file_imported">Shared file imported</string>
+    <string name="please_wait_attach_external_file">Please wait. Attaching external file to accocunt</string>
 </resources>

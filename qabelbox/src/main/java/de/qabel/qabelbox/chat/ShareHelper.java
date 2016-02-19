@@ -12,7 +12,6 @@ import org.spongycastle.util.encoders.Hex;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.Map;
-import java.util.UUID;
 
 import de.qabel.core.config.Contact;
 import de.qabel.core.drop.DropMessage;
@@ -34,21 +33,22 @@ import de.qabel.qabelbox.storage.BoxObject;
 public class ShareHelper {
 
     private static String TAG = "ShareHelper";
+
     @NonNull
     public static BoxExternalReference getBoxExternalReference(Contact contact, ChatMessageItem item) {
 
         ChatMessageItem.ShareMessagePayload payload = (ChatMessageItem.ShareMessagePayload) item.getData();
-        Log.d(TAG,"add "+payload.getURL()+" "+payload.getMessage()+" "+contact.getEcPublicKey()+" "+payload.getKey());
+        Log.d(TAG, "add " + payload.getURL() + " " + payload.getMessage() + " " + contact.getEcPublicKey() + " " + payload.getKey());
         return new BoxExternalReference(false, payload.getURL(), payload.getMessage(), contact.getEcPublicKey(), Hex.decode(payload.getKey()));
     }
 
     public static void shareToQabelUser(final LocalQabelService mService, final MainActivity context, final BoxNavigation nav, final Contact contact, final Uri fileUri, final BoxObject boxFileOriginal) {
+
         {
             new AsyncTask<Void, String[], String[]>() {
                 public AlertDialog waitMessage;
 
-                void share(String url, String key,String name) {
-
+                private void share(String url, String key, String name) {
                     final ChatServer cs = ChatServer.getInstance(mService.getActiveIdentity());
                     final DropMessage dm = cs.getShareDropMessage(name, url, key);
                     try {
@@ -79,7 +79,7 @@ public class ShareHelper {
 
                     super.onPostExecute(strings);
                     if (strings != null && strings.length == 3) {
-                        share(strings[0], strings[1],strings[2]);
+                        share(strings[0], strings[1], strings[2]);
                     }
                     waitMessage.dismiss();
                 }
@@ -108,7 +108,7 @@ public class ShareHelper {
                             nav.commit();*/
                             //end
                             return new String[]{
-                                      boxExternalReference.url, Hex.toHexString(boxExternalReference.key),boxExternalReference.name
+                                    boxExternalReference.url, Hex.toHexString(boxExternalReference.key), boxExternalReference.name
                             };
                         } catch (QblStorageException e) {
                             e.printStackTrace();

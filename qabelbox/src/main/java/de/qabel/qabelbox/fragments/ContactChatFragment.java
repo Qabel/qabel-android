@@ -1,5 +1,6 @@
 package de.qabel.qabelbox.fragments;
 
+import android.app.AlertDialog;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -16,8 +17,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import org.spongycastle.util.encoders.Hex;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -36,6 +35,7 @@ import de.qabel.qabelbox.chat.ChatMessageItem;
 import de.qabel.qabelbox.chat.ChatServer;
 import de.qabel.qabelbox.chat.ShareHelper;
 import de.qabel.qabelbox.exceptions.QblStorageException;
+import de.qabel.qabelbox.helper.UIHelper;
 import de.qabel.qabelbox.services.LocalQabelService;
 import de.qabel.qabelbox.storage.BoxExternalReference;
 import de.qabel.qabelbox.storage.BoxObject;
@@ -199,9 +199,11 @@ public class ContactChatFragment extends BaseFragment {
             public void onItemClick(ChatMessageItem item) {
 
                 if (item.getData() instanceof ChatMessageItem.ShareMessagePayload) {
-                    final BoxExternalReference boxExternalReference = ShareHelper.getBoxExternalReference(contact,item);
+                    final BoxExternalReference boxExternalReference = ShareHelper.getBoxExternalReference(contact, item);
                     final FilesFragment filesFragment = mActivity.filesFragment;
                     new AsyncTask<Void, Void, List<BoxObject>>() {
+                        AlertDialog wait;
+
                         @Override
                         protected void onPostExecute(List<BoxObject> boxObjects) {
 
@@ -210,6 +212,7 @@ public class ContactChatFragment extends BaseFragment {
                             } else {
                                 Toast.makeText(mActivity, R.string.cant_import_shared_file, Toast.LENGTH_SHORT).show();
                             }
+                            wait.dismiss();
                         }
 
                         @Override
@@ -230,13 +233,18 @@ public class ContactChatFragment extends BaseFragment {
                             }
                             return null;
                         }
+
+                        @Override
+                        protected void onPreExecute() {
+
+                            wait = UIHelper.showWaitMessage(mActivity, R.string.dialog_headline_info, R.string.please_wait_attach_external_file, false);
+                        }
                     }.executeOnExecutor(AsyncTask.SERIAL_EXECUTOR);
                 }
             }
         });
         contactListAdapter.notifyDataSetChanged();
     }
-
 
     @NonNull
     private ArrayList<ChatMessageItem> convertDropMessageToDatabaseMessage(Collection<DropMessage> messages) {

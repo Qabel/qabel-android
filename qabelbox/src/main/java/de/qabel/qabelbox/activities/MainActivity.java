@@ -33,9 +33,7 @@ import android.widget.Toast;
 import com.cocosw.bottomsheet.BottomSheet;
 
 import org.apache.commons.io.IOUtils;
-import org.spongycastle.util.encoders.Hex;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -44,20 +42,13 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import de.qabel.core.config.Contact;
 import de.qabel.core.config.Identity;
-import de.qabel.core.crypto.QblECKeyPair;
-import de.qabel.core.crypto.QblECPublicKey;
-import de.qabel.core.drop.DropMessage;
-import de.qabel.core.drop.DropURL;
-import de.qabel.core.exceptions.QblDropPayloadSizeException;
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.adapter.FilesAdapter;
-import de.qabel.qabelbox.chat.ChatServer;
 import de.qabel.qabelbox.chat.ShareHelper;
 import de.qabel.qabelbox.communication.VolumeFileTransferHelper;
 import de.qabel.qabelbox.dialogs.SelectContactForShareDialog;
@@ -75,7 +66,7 @@ import de.qabel.qabelbox.helper.Sanity;
 import de.qabel.qabelbox.helper.UIHelper;
 import de.qabel.qabelbox.providers.BoxProvider;
 import de.qabel.qabelbox.services.LocalQabelService;
-import de.qabel.qabelbox.storage.BoxExternalReference;
+import de.qabel.qabelbox.storage.BoxExternalFile;
 import de.qabel.qabelbox.storage.BoxFile;
 import de.qabel.qabelbox.storage.BoxFolder;
 import de.qabel.qabelbox.storage.BoxNavigation;
@@ -540,8 +531,6 @@ public class MainActivity extends CrashReportingActivity
         });
     }
 
-
-
     private void shareToQabelUser(final BoxObject boxObject) {
 
         if (mService.getContacts(mService.getActiveIdentity()).getContacts().size() == 0) {
@@ -559,7 +548,7 @@ public class MainActivity extends CrashReportingActivity
                     @Override
                     public void onContactSelected(Contact contact) {
 
-                        ShareHelper.shareToQabelUser( mService,self,filesFragment.getBoxNavigation(),contact,getUri(boxObject), boxObject);
+                        ShareHelper.shareToQabelUser(mService, self, filesFragment.getBoxNavigation(), contact, getUri(boxObject), boxObject);
                     }
                 });
             } else {
@@ -651,7 +640,11 @@ public class MainActivity extends CrashReportingActivity
                             protected Void doInBackground(Void... params) {
 
                                 try {
-                                    filesFragment.getBoxNavigation().delete(boxObject);
+                                    if (boxObject instanceof BoxExternalFile) {
+                                        filesFragment.getBoxNavigation().detachExternal(boxObject.name);
+                                    } else {
+                                        filesFragment.getBoxNavigation().delete(boxObject);
+                                    }
                                     filesFragment.getBoxNavigation().commit();
                                 } catch (QblStorageException e) {
                                     Log.e(TAG, "Cannot delete " + boxObject.name);

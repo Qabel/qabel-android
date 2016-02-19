@@ -23,7 +23,7 @@ public class FileMetadataTest {
 
 	@Before
 	public void setUp() throws Exception {
-		boxFile = new BoxFile("Block", "Name", 1000L, 1000L, new byte[]{0x00, 0x01, 0x02});
+		boxFile = new BoxFile("Prefix", "Block", "Name", 1000L, 1000L, new byte[]{0x00, 0x01, 0x02});
 		fileMetadata = new FileMetadata(OWNER, boxFile, new File(System.getProperty("java.io.tmpdir")));
 	}
 

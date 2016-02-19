@@ -77,6 +77,7 @@ public class VolumeFileTransferHelper {
             Log.e(TAG, "No valid url for uploading" + uri);
             return true;
         }
+        Log.d(TAG,"upload uri: "+uri.toString());
         cursor.moveToFirst();
         String displayName = cursor.getString(
                 cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));

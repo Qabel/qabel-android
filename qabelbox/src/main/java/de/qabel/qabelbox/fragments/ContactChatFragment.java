@@ -21,6 +21,7 @@ import org.spongycastle.util.encoders.Hex;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 import de.qabel.core.config.Contact;
@@ -36,6 +37,7 @@ import de.qabel.qabelbox.chat.ChatServer;
 import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.services.LocalQabelService;
 import de.qabel.qabelbox.storage.BoxExternalReference;
+import de.qabel.qabelbox.storage.BoxObject;
 
 /**
  * Activities that contain this fragment must implement the
@@ -193,26 +195,44 @@ public class ContactChatFragment extends BaseFragment {
 
         contactListAdapter.setOnItemClickListener(new ChatMessageAdapter.OnItemClickListener() {
             @Override
-            public void onItemClick(View view, int position) {
+            public void onItemClick(ChatMessageItem item) {
 
-
-
-                ChatMessageItem item = data.get(position);
                 if (item.getData() instanceof ChatMessageItem.ShareMessagePayload) {
                     ChatMessageItem.ShareMessagePayload payload = (ChatMessageItem.ShareMessagePayload) item.getData();
-                    BoxExternalReference boxExternalReference = new BoxExternalReference(false, payload.getURL(), payload.getMessage(), contact.getEcPublicKey(), Hex.decode(payload.getKey()));
-                    try {
-                        mActivity.filesFragment.getBoxNavigation().attachExternal(boxExternalReference);
-                        Toast.makeText(mActivity, R.string.shared_file_imported, Toast.LENGTH_SHORT).show();
-                    } catch (QblStorageException e) {
-                        e.printStackTrace();
-                        Log.e(TAG, "import share error", e);
-                        Toast.makeText(mActivity, R.string.cant_import_shared_file, Toast.LENGTH_SHORT).show();
-                    }
-                }
-                else
-                {
-                    //nothing to do if message a normal text message. maybe later copy and paste or other action
+                    final BoxExternalReference boxExternalReference = new BoxExternalReference(false, payload.getURL(), payload.getMessage(), contact.getEcPublicKey(), Hex.decode(payload.getKey()));
+                    final FilesFragment filesFragment = mActivity.filesFragment;
+                    new AsyncTask<Void, Void, List<BoxObject>>() {
+                        @Override
+                        protected void onPostExecute(List<BoxObject> boxObjects) {
+
+                            if (boxObjects != null) {
+                                Toast.makeText(mActivity, R.string.shared_file_imported, Toast.LENGTH_SHORT).show();
+                            }
+                            else
+                            {
+                                Toast.makeText(mActivity, R.string.cant_import_shared_file, Toast.LENGTH_SHORT).show();
+                            }
+                        }
+
+                        @Override
+                        protected List<BoxObject> doInBackground(Void... params) {
+
+                            try {
+                                mActivity.filesFragment.getBoxNavigation().attachExternal(boxExternalReference);
+                                Toast.makeText(mActivity, R.string.shared_file_imported, Toast.LENGTH_SHORT).show();
+                                List<BoxObject> boxExternalFiles = null;
+
+                                boxExternalFiles = filesFragment.getBoxNavigation().listExternals();
+                                for (BoxObject extFile : boxExternalFiles) {
+                                    Log.v(TAG, "external files " + extFile.name);
+                                }
+                                return boxExternalFiles;
+                            } catch (QblStorageException e) {
+                                e.printStackTrace();
+                            }
+                            return null;
+                        }
+                    }.executeOnExecutor(AsyncTask.SERIAL_EXECUTOR);
                 }
             }
         });

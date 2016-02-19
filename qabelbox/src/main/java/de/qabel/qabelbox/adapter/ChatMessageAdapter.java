@@ -78,14 +78,14 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<ChatMessageAdapter.
         public void onClick(View view) {
 
             if (onItemClickListener != null) {
-                onItemClickListener.onItemClick(view, getAdapterPosition());
+                onItemClickListener.onItemClick(mMessages.get( getAdapterPosition()));
             }
         }
     }
 
     public interface OnItemClickListener {
 
-        void onItemClick(View view, int position);
+        void onItemClick(ChatMessageItem item);
     }
 
     /**

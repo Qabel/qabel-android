@@ -11,8 +11,6 @@ import java.io.ByteArrayInputStream;
 import java.util.Map;
 
 import de.qabel.core.config.Contact;
-import de.qabel.core.crypto.QblECKeyPair;
-import de.qabel.core.crypto.QblECPublicKey;
 import de.qabel.core.drop.DropMessage;
 import de.qabel.core.drop.DropURL;
 import de.qabel.core.exceptions.QblDropPayloadSizeException;
@@ -32,18 +30,15 @@ public class ShareHelper {
 
     private static String TAG = "ShareHelper";
 
-
     public static void shareToQabelUser(final LocalQabelService mService, final MainActivity context, final BoxNavigation nav, final Contact contact, final BoxFile boxFileOriginal) {
-
         {
-
             new AsyncTask<Void, String[], String[]>() {
                 public AlertDialog waitMessage;
 
                 void share(String url, String key) {
 
                     final ChatServer cs = ChatServer.getInstance(mService.getActiveIdentity());
-                    final DropMessage dm = cs.getShareDropMessage( boxFileOriginal.name, url, key);
+                    final DropMessage dm = cs.getShareDropMessage(boxFileOriginal.name, url, key);
                     try {
                         mService.sendDropMessage(dm, contact, mService.getActiveIdentity(), new LocalQabelService.OnSendDropMessageResult() {
                             @Override
@@ -87,15 +82,12 @@ public class ShareHelper {
                 protected String[] doInBackground(Void... params) {
 
                     try {
-
-                        final QblECPublicKey OWNER = new QblECKeyPair().getPub();
-
                         BoxFile boxFile = nav.upload("foobar", new ByteArrayInputStream(new byte[100]), null);
                         nav.commit();
 
                         BoxExternalReference boxExternalReference = null;
                         try {
-                            boxExternalReference = nav.createFileMetadata(OWNER, boxFile);
+                            boxExternalReference = nav.createFileMetadata(mService.getActiveIdentity().getEcPublicKey(), boxFile);
                             return new String[]{
                                     boxExternalReference.url, Hex.toHexString(boxExternalReference.key)
                             };

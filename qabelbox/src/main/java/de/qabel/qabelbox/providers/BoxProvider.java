@@ -213,7 +213,7 @@ public class BoxProvider extends DocumentsProvider {
     public BoxVolume getVolumeForRoot(String identity, String prefix) {
 
         if (prefix == null) {
-            prefix = PREFIX;
+            throw new RuntimeException("No prefix supplied");
         }
         Identity retrievedIdentity = mService.getIdentities().getByKeyIdentifier(identity);
         if (retrievedIdentity == null) {

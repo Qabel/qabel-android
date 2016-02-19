@@ -124,7 +124,7 @@ public class VolumeFileTransferHelper {
 
         List<String> prefixes = identity.getPrefixes();
         if (prefixes.size() > 0) {
-            return prefixes.get(0) + BoxProvider.PATH_SEP;
+            return prefixes.get(0);
         } else {
             return HARDCODED_ROOT;
         }

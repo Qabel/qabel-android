@@ -54,7 +54,7 @@ public class SearchTest extends AndroidTestCase {
 
 		setup = false;
 
-		final String prefix = UUID.randomUUID().toString();
+		final String prefix = "test";
 
 		CryptoUtils utils = new CryptoUtils();
 			byte[] deviceID = utils.getRandomBytes(16);

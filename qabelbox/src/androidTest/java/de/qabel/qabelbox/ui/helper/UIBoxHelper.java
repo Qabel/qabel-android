@@ -129,7 +129,7 @@ public class UIBoxHelper {
         DropURL dropURL = new DropURL(dropServer, adjustableDropIdGenerator);
         Collection<DropURL> dropURLs = new ArrayList<>();
         dropURLs.add(dropURL);
-        String prefix = new PrefixGetter().getPrefix(QabelBoxApplication.getInstance().getApplicationContext());
+        String prefix = "test";
         Identity identity = new Identity(identName,
                 dropURLs, new QblECKeyPair());
         identity.getPrefixes().add(prefix);

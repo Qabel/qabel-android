@@ -32,39 +32,26 @@ public class VolumeFileTransferHelper {
     public static final String HARDCODED_ROOT = BoxProvider.DOCID_SEPARATOR
             + BoxProvider.BUCKET + BoxProvider.DOCID_SEPARATOR
             + BoxProvider.PREFIX + BoxProvider.DOCID_SEPARATOR + BoxProvider.PATH_SEP;
+
     public static void upload(final Context self, final Uri uri, final BoxNavigation boxNavigation, final BoxVolume boxVolume) {
         new AsyncTask<Void, Void, Void>() {
             @Override
             protected Void doInBackground(Void... params) {
-
-				String name;
-                Cursor returnCursor =
-                        self.getContentResolver().query(uri, null, null, null, null);
-				if (returnCursor != null) {
-					int nameIndex = returnCursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
-					returnCursor.moveToFirst();
-					name = returnCursor.getString(nameIndex);
-					returnCursor.close();
-				} else if (uri.toString().startsWith(URI_PREFIX_FILE)) {
-					File file = new File(uri.toString());
-					name = file.getName();
-				} else {
-					Log.e(TAG, "Cannot handle URI for upload: " + uri.toString());
-					return null;
-				}
-
-				Uri uploadUri = makeUri(name, boxNavigation, boxVolume);
-				try (InputStream content = self.getContentResolver().openInputStream(uri);
-					 OutputStream upload = self.getContentResolver().openOutputStream(uploadUri, "w") ){
-                    if (upload == null || content == null) {
-                        return null;
+                String name = getName(self, uri);
+	            if (name != null) {
+                    Uri uploadUri = makeUri(name, boxNavigation, boxVolume);
+                    try (InputStream content = self.getContentResolver().openInputStream(uri);
+                         OutputStream upload = self.getContentResolver().openOutputStream(uploadUri, "w") ){
+                        if (upload == null || content == null) {
+                            return null;
+                        }
+                        IOUtils.copy(content, upload);
+                    } catch (IOException e) {
+                        Log.e(TAG, "Upload failed", e);
                     }
-                    IOUtils.copy(content, upload);
-                } catch (IOException e) {
-                    Log.e(TAG, "Upload failed", e);
                 }
-                return null;
-            }
+				return null;
+			}
         }.execute();
     }
 
@@ -76,31 +63,45 @@ public class VolumeFileTransferHelper {
                 BoxProvider.AUTHORITY, folderId + name);
     }
 
+    private static String getName(Context context, Uri uri) {
+        String name;
+        Cursor returnCursor = context.getContentResolver().query(uri, null, null, null, null);
+        if (returnCursor != null) {
+            int nameIndex = returnCursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
+            returnCursor.moveToFirst();
+            name = returnCursor.getString(nameIndex);
+            returnCursor.close();
+        } else if (uri.toString().startsWith(URI_PREFIX_FILE)) {
+            File file = new File(uri.toString());
+            name = file.getName();
+        } else {
+            Log.e(TAG, "Cannot handle URI for upload: " + uri.toString());
+            return null;
+        }
+        return name;
+    }
+
 
     public static boolean uploadUri(Context context, Uri uri, String targetFolder, Identity identity) {
-        Cursor cursor = context.getContentResolver().query(uri, null, null, null, null);
-        if (cursor == null) {
-            Log.e(TAG, "No valid url for uploading" + uri);
-            return true;
-        }
-        cursor.moveToFirst();
-        String displayName = cursor.getString(
-                cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
-        Log.i(TAG, "Displayname: " + displayName);
-        String keyIdentifier = identity.getEcPublicKey()
-                .getReadableKeyIdentifier();
-        Uri uploadUri = DocumentsContract.buildDocumentUri(
-                BoxProvider.AUTHORITY, keyIdentifier + HARDCODED_ROOT + targetFolder + displayName);
-		try (OutputStream outputStream = context.getContentResolver().openOutputStream(uploadUri, "w");
-			 InputStream inputStream = context.getContentResolver().openInputStream(uri)) {
-			if (inputStream == null || outputStream == null) {
-				return false;
+		String name = getName(context, uri);
+
+		if (name != null) {
+			String keyIdentifier = identity.getEcPublicKey()
+					.getReadableKeyIdentifier();
+			Uri uploadUri = DocumentsContract.buildDocumentUri(
+					BoxProvider.AUTHORITY, keyIdentifier + HARDCODED_ROOT + targetFolder + name);
+			try (OutputStream outputStream = context.getContentResolver().openOutputStream(uploadUri, "w");
+				 InputStream inputStream = context.getContentResolver().openInputStream(uri)) {
+				if (inputStream == null || outputStream == null) {
+					return false;
+				}
+				IOUtils.copy(inputStream, outputStream);
+				inputStream.close();
+			} catch (IOException e) {
+				Log.e(TAG, "Error opening output stream for upload", e);
 			}
-			IOUtils.copy(inputStream, outputStream);
-			inputStream.close();
-        } catch (IOException e) {
-            Log.e(TAG, "Error opening output stream for upload", e);
-        }
+			return true;
+		}
         return false;
     }
 }

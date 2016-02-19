@@ -53,6 +53,7 @@ import de.qabel.core.config.Identity;
 import de.qabel.core.crypto.QblECKeyPair;
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
+import de.qabel.qabelbox.communication.VolumeFileTransferHelper;
 import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.exceptions.QblStorageNotFound;
 import de.qabel.qabelbox.services.LocalBroadcastConstants;
@@ -174,13 +175,14 @@ public class BoxProvider extends DocumentsProvider {
         for (Identity identity : identities.getIdentities()) {
             final MatrixCursor.RowBuilder row = result.newRow();
             String pub_key = identity.getEcPublicKey().getReadableKeyIdentifier();
+            String prefix = VolumeFileTransferHelper.getPrefixFromIdentity(identity);
             row.add(Root.COLUMN_ROOT_ID,
-                    mDocumentIdParser.buildId(pub_key, PREFIX, null));
+                    mDocumentIdParser.buildId(pub_key, prefix, null));
             row.add(Root.COLUMN_DOCUMENT_ID,
-                    mDocumentIdParser.buildId(pub_key, PREFIX, "/"));
+                    mDocumentIdParser.buildId(pub_key, prefix, "/"));
             row.add(Root.COLUMN_ICON, R.drawable.qabel_logo);
             row.add(Root.COLUMN_FLAGS, Root.FLAG_SUPPORTS_CREATE);
-            row.add(Root.COLUMN_TITLE, "Qabel Box " + PREFIX);
+            row.add(Root.COLUMN_TITLE, "Qabel Box");
             row.add(Root.COLUMN_SUMMARY, identity.getAlias());
         }
 

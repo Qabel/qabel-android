@@ -6,15 +6,20 @@ import org.apache.james.mime4j.MimeException;
 import org.apache.james.mime4j.parser.MimeStreamParser;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.spongycastle.crypto.InvalidCipherTextException;
+import org.spongycastle.crypto.params.KeyParameter;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.security.InvalidKeyException;
 import java.util.ArrayList;
 import java.util.List;
 
+import de.qabel.core.config.Contact;
 import de.qabel.core.config.Identity;
+import de.qabel.core.crypto.CryptoUtils;
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.communication.DropServer;
 import de.qabel.qabelbox.communication.model.ChatMessageItem;
@@ -38,6 +43,7 @@ public class ChatServer {
     private long currentId = System.currentTimeMillis();
     private final ArrayList<ChatMessagesDataBase.ChatMessageDatabaseItem> messages = new ArrayList<>();
     private Identity mIdentity;
+    CryptoUtils crypto;
 
     public static ChatServer getInstance() {
 
@@ -51,6 +57,7 @@ public class ChatServer {
 
         mInstance = this;
         mInstance.dropServer = new DropServer();
+        mInstance.crypto = new CryptoUtils();
         mInstance.dataBase = new ChatMessagesDataBase(QabelBoxApplication.getInstance(), currentIdentity);
     }
 
@@ -221,14 +228,16 @@ public class ChatServer {
      * @param dropId          receiver drop id
      * @param text            message to send
      * @param currentIdentity own identity
-     * @param receiver        receiver key
+     * @param contact         receiver
      */
-    public JSONObject sendTextMessage(final long ownId, String dropId, String text, Identity currentIdentity, String receiver) {
+    public JSONObject sendTextMessage(final long ownId, String dropId, String text, Identity currentIdentity, Contact contact) {
 
-        final JSONObject json = ChatMessageItem.getJsonToSend(dropId, text, currentIdentity, receiver);
+        final JSONObject json = ChatMessageItem.getJsonToSend(dropId, text, currentIdentity, contact.getEcPublicKey().getReadableKeyIdentifier().toString());
         Log.d(TAG, "send body: " + json.toString());
 
-        dropServer.push(dropId, json, new Callback() {
+        byte[] data = encrypt(contact, json);
+
+        dropServer.push(dropId, data, new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
 
@@ -252,6 +261,30 @@ public class ChatServer {
             }
         });
         return json;
+    }
+
+    protected byte[] encrypt(Contact contact, JSONObject json) {
+
+        ByteArrayInputStream plain = new ByteArrayInputStream(json.toString().getBytes());
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        try {
+            crypto.encryptStreamAuthenticatedSymmetric(plain, baos, new KeyParameter(contact.getEcPublicKey().getKey()), null);
+        } catch (InvalidKeyException e) {
+            Log.e(TAG, "error on encryption", e);
+        }
+        return baos.toByteArray();
+    }
+
+    protected byte[] decrypt(KeyParameter key, byte[] data) {
+
+        try {
+            byte[] associatedData = null;
+
+            return crypto.decrypt(key, null, data, associatedData);
+        } catch (InvalidCipherTextException e) {
+            Log.e(TAG, "error on decryption. Maybe message for other user", e);
+        }
+        return null;
     }
 
     private ChatMessagesDataBase.ChatMessageDatabaseItem getDataBaseItemFromJson(JSONObject json) {

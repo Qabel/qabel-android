@@ -109,7 +109,7 @@ public class ContactChatFragment extends BaseFragment {
                     Identity currentIdentity = QabelBoxApplication.getInstance().getService().getActiveIdentity();
                     long sendId = chatServer.getNextId();
 
-                    JSONObject message = chatServer.sendTextMessage(sendId, dropId, text, currentIdentity, contact.getEcPublicKey().getReadableKeyIdentifier().toString());
+                    JSONObject message = chatServer.sendTextMessage(sendId, dropId, text, currentIdentity, contact);
                     messageMap.put(sendId, message);
                 }
                 ;

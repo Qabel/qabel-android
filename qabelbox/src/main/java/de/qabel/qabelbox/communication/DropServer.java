@@ -21,20 +21,19 @@ public class DropServer extends BaseServer {
 
     /**
      * main function for server action
-     *
-     * @param url
-     * @param json
+     *  @param url
+     * @param data
      * @param callback
      * @param token
      */
-    private void doServerAction(String url, JSONObject json, Callback callback, String token) {
+    private void doServerAction(String url, byte[] data, Callback callback, String token) {
 
         Request.Builder builder = new Request.Builder()
                 .url(url);
-        if (json == null) {
+        if (data == null) {
             builder.get();
         } else {
-            RequestBody body = RequestBody.create(JSON, json.toString());
+            RequestBody body = RequestBody.create(JSON, data);
             builder.post(body);
         }
 
@@ -48,9 +47,13 @@ public class DropServer extends BaseServer {
     public void push(String dropid, JSONObject json, Callback callback) {
 
         AppPreference prefs = new AppPreference(QabelBoxApplication.getInstance().getApplicationContext());
-        doServerAction(urls.getDrop(dropid), json, callback, prefs.getToken());
+        doServerAction(urls.getDrop(dropid), json.toString().getBytes(), callback, prefs.getToken());
     }
+    public void push(String dropid, byte[] data, Callback callback) {
 
+        AppPreference prefs = new AppPreference(QabelBoxApplication.getInstance().getApplicationContext());
+        doServerAction(urls.getDrop(dropid), data, callback, prefs.getToken());
+    }
     public void pull(String dropid, Callback callback) {
 
         AppPreference app = new AppPreference(QabelBoxApplication.getInstance().getApplicationContext());

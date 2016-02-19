@@ -50,14 +50,12 @@ public class ChatMessagesDataBase extends SQLiteOpenHelper {
 
                     COL_LOAD_TIMESTAMP + " LONG NOT NULL);";
     private final String fullDBName;
-    private final Identity identity;
 
     public ChatMessagesDataBase(QabelBoxApplication context, Identity activeIdentity) {
 
         super(context, DATABASE_NAME + activeIdentity.getEcPublicKey().getReadableKeyIdentifier(), null, DATABASE_VERSION);
         fullDBName = DATABASE_NAME + activeIdentity.getEcPublicKey().getReadableKeyIdentifier();
         Log.d(TAG, "fulldbname: " + fullDBName);
-        this.identity = activeIdentity;
     }
 
     @Override
@@ -93,7 +91,7 @@ public class ChatMessagesDataBase extends SQLiteOpenHelper {
         values.put(COL_MESSAGE_RECEIVER, item.getReceiverKey());
         values.put(COL_MESSAGE_TIMESTAMP, item.time_stamp);
         values.put(COL_MESSAGE_PAYLOAD_TYPE, item.drop_payload_type);
-        values.put(COL_MESSAGE_PAYLOAD, item.drop_payload == null ? "" : item.drop_payload);
+        values.put(COL_MESSAGE_PAYLOAD, item.drop_payload== null ? "" : item.drop_payload);
         values.put(COL_MESSAGE_ISNEW, item.isNew);
 
         long id = getWritableDatabase().insert(TABLE_MESSAGE_NAME, null, values);
@@ -111,8 +109,7 @@ public class ChatMessagesDataBase extends SQLiteOpenHelper {
 
         Cursor cursor = database.query(TABLE_MESSAGE_NAME, getAllColumnsList(),
                 //selection
-                COL_MESSAGE_SENDER + "=? OR " +
-                        COL_MESSAGE_RECEIVER + "=",
+                COL_MESSAGE_SENDER + "=? OR " + COL_MESSAGE_RECEIVER + "=",
                 //selection args
                 new String[]{key, key},
                 null, null, null);
@@ -161,6 +158,7 @@ public class ChatMessagesDataBase extends SQLiteOpenHelper {
 
             while (!cursor.isAfterLast()) {
                 //should match all columns list
+                ChatMessageItem item=new ChatMessageItem();
                 items[i] = new ChatMessageItem();
                 items[i].id = cursor.getInt(0);
                 items[i].isNew = cursor.getShort(1);
@@ -182,6 +180,4 @@ public class ChatMessagesDataBase extends SQLiteOpenHelper {
             return null;
         }
     }
-
-
 }

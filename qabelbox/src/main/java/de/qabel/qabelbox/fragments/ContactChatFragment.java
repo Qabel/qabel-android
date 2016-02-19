@@ -17,12 +17,8 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Hashtable;
 import java.util.Map;
 
 import de.qabel.core.config.Contact;
@@ -58,9 +54,6 @@ public class ContactChatFragment extends BaseFragment {
     private TextView send;
     private EditText etText;
     private ChatServer chatServer;
-    Hashtable<Long, JSONObject> messageMap = new Hashtable();
-    private String contactPublicKey;
-    private String identityPublicKey;
 
     public static ContactChatFragment newInstance(Contact contact) {
 
@@ -83,8 +76,6 @@ public class ContactChatFragment extends BaseFragment {
         if (arguments != null) {
             contact = (Contact) arguments.getSerializable(ARG_IDENTITY);
         }
-        contactPublicKey = contact.getEcPublicKey().getReadableKeyIdentifier().toString();
-        identityPublicKey = QabelBoxApplication.getInstance().getService().getActiveIdentity().getEcPublicKey().toString();
         mActivity.toggle.setDrawerIndicatorEnabled(false);
         actionBar.setDisplayHomeAsUpEnabled(true);
         setActionBarBackListener();
@@ -112,7 +103,7 @@ public class ContactChatFragment extends BaseFragment {
                 if (text.length() > 0) {
 
                     try {
-                        DropMessage dropMessage = chatServer.getTextDropMessage(text);
+                        final DropMessage dropMessage = chatServer.getTextDropMessage(text);
                         final Identity identity = QabelBoxApplication.getInstance().getService().getActiveIdentity();
                         QabelBoxApplication.getInstance().getService().sendDropMessage(dropMessage, contact, identity, new LocalQabelService.OnSendDropMessageResult() {
                             @Override
@@ -125,8 +116,8 @@ public class ContactChatFragment extends BaseFragment {
                                         etText.setText("");
                                     }
                                 });
-                                ChatMessageItem newMessage = chatServer.createOwnMessage(identity, contact.getEcPublicKey().getReadableKeyIdentifier().toString(), text);
-                                chatServer.storeOwnInDb(newMessage);
+                                ChatMessageItem newMessage = chatServer.createOwnMessage(identity, contact.getEcPublicKey().getReadableKeyIdentifier().toString(), dropMessage.getDropPayload(), dropMessage.getDropPayloadType());
+                                chatServer.storeIntoDB(newMessage);
                                 messages.add(newMessage);
                                 getActivity().runOnUiThread(new Runnable() {
                                     @Override
@@ -150,7 +141,6 @@ public class ContactChatFragment extends BaseFragment {
         refreshMessagesAsync();
         actionBar.setSubtitle(contact.getAlias());
         mView = view;
-        long mId = chatServer.getNextId();
         refreshMessagesAsync();
 
         return view;
@@ -177,21 +167,6 @@ public class ContactChatFragment extends BaseFragment {
         }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
     }
 
-    private ChatMessageItem makeDummyEntry(String text) {
-
-        ChatMessageItem item = new ChatMessageItem();
-        item.time_stamp = System.currentTimeMillis();
-        item.sender = "sendkey";
-        JSONObject json = new JSONObject();
-        try {
-            json.put("message", "meine nachricht");
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        item.drop_payload = json.toString();
-        return item;
-    }
-
     /**
      * refresh ui
      *
@@ -200,7 +175,7 @@ public class ContactChatFragment extends BaseFragment {
     private void refreshContactList(Collection<DropMessage> pMessages) {
 
         if (contactListRecyclerView != null) {
-           messages = convertDropMessageToDatabaseMessage(pMessages);
+            messages = convertDropMessageToDatabaseMessage(pMessages);
             chatServer.addMessagesFromDataBase(messages);
             fillAdapter(messages);
         }
@@ -228,12 +203,12 @@ public class ContactChatFragment extends BaseFragment {
         for (DropMessage item : messages) {
             ChatMessageItem message = new ChatMessageItem();
             message.sender = item.getSenderKeyId();
-            message.time_stamp = item.getCreationDate().getTime();
-            message.drop_payload_type = item.getDropPayloadType();
-            message.drop_payload = item.getDropPayload();
             message.receiver = null;
-            message.isNew = 1;
+            message.time_stamp = item.getCreationDate().getTime();
             message.acknowledge_id = item.getAcknowledgeID();
+            message.drop_payload = item.getDropPayload();
+            message.drop_payload_type = item.getDropPayloadType();
+            message.isNew = 1;
             data.add(message);
         }
         return data;
@@ -251,7 +226,6 @@ public class ContactChatFragment extends BaseFragment {
 
         int id = item.getItemId();
         if (id == R.id.action_chat_detail_refresh) {
-            long mId = chatServer.getNextId();
             refreshMessagesAsync();
         }
 

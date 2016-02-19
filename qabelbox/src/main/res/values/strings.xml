@@ -212,4 +212,6 @@
     <string name="headline_contact_chat">Chat</string>
     <string name="btn_chat_send">Send</string>
     <string name="cant_send_message">Can\'t send message</string>
+    <string name="ShareToQabelUser">Share to Qabeluser</string>
+    <string name="fileshare_label_in_chatmessage">Shared file</string>
 </resources>

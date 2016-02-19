@@ -3,6 +3,7 @@
     <item android:id="@+id/open" android:title="@string/Open" android:icon="@drawable/ic_share_black"/>
     <item android:id="@+id/edit" android:title="@string/edit" android:icon="@drawable/ic_delete_black"/>
     <item android:id="@+id/share" android:title="@string/Share" android:icon="@drawable/ic_share_black"/>
+    <item android:id="@+id/shareto_qabeluser" android:title="@string/ShareToQabelUser" android:icon="@drawable/ic_share_black"/>
     <item android:id="@+id/delete" android:title="@string/Delete" android:icon="@drawable/ic_delete_black"/>
     <item android:id="@+id/export" android:title="@string/Export" android:icon="@drawable/ic_attach_file_black"/>
 </menu>

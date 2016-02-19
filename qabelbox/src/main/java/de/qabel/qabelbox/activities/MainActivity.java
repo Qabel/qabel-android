@@ -33,6 +33,7 @@ import android.widget.Toast;
 import com.cocosw.bottomsheet.BottomSheet;
 
 import org.apache.commons.io.IOUtils;
+import org.spongycastle.util.encoders.Hex;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -42,13 +43,20 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
+import de.qabel.core.config.Contact;
 import de.qabel.core.config.Identity;
+import de.qabel.core.drop.DropMessage;
+import de.qabel.core.drop.DropURL;
+import de.qabel.core.exceptions.QblDropPayloadSizeException;
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.adapter.FilesAdapter;
+import de.qabel.qabelbox.chat.ChatServer;
 import de.qabel.qabelbox.communication.VolumeFileTransferHelper;
+import de.qabel.qabelbox.dialogs.SelectContactForShareDialog;
 import de.qabel.qabelbox.dialogs.SelectIdentityForUploadDialog;
 import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.fragments.BaseFragment;
@@ -382,6 +390,7 @@ public class MainActivity extends CrashReportingActivity
     }
 
     private void shareIdentitySelected(final ArrayList<Uri> data, Identity activeIdentity) {
+
         toggle.setDrawerIndicatorEnabled(false);
         shareFragment = SelectUploadFolderFragment.newInstance(boxVolume, data, activeIdentity);
         getFragmentManager().beginTransaction()
@@ -504,6 +513,9 @@ public class MainActivity extends CrashReportingActivity
                                     case R.id.share:
                                         ExternalApps.share(self, getUri(boxObject), getMimeType(boxObject));
                                         break;
+                                    case R.id.shareto_qabeluser:
+                                        shareToQabelUser(boxObject);
+                                        break;
                                     case R.id.delete:
                                         delete(boxObject);
                                         break;
@@ -523,11 +535,47 @@ public class MainActivity extends CrashReportingActivity
         });
     }
 
+    private void shareToQabelUser(final BoxObject boxObject) {
+
+        if (boxObject instanceof BoxFile) {
+            BoxFile bf = (BoxFile) boxObject;
+            String url = "";//String url = boxVolume.getDocumentId();
+            shareToQabelUser(url, Hex.toHexString(bf.key));
+        }
+    }
+
+    private void shareToQabelUser(final String url, final String key) {
+
+        new SelectContactForShareDialog(self, new SelectContactForShareDialog.Result() {
+            @Override
+            public void onCancel() {
+
+            }
+
+            @Override
+            public void onContactSelected(Contact contact) {
+
+                DropMessage dm = ChatServer.getShareDropMessage(getString(R.string.fileshare_label_in_chatmessage), url, key);
+                try {
+                    mService.sendDropMessage(dm, contact, mService.getActiveIdentity(), new LocalQabelService.OnSendDropMessageResult() {
+                        @Override
+                        public void onSendDropResult(Map<DropURL, Boolean> deliveryStatus) {
+
+                        }
+                    });
+                } catch (QblDropPayloadSizeException e) {
+                    Log.e(TAG, "cant sned share", e);
+                }
+            }
+        });
+    }
+
     /**
      * open system show file dialog
      *
      * @param boxObject
      */
+
     public void showFile(BoxObject boxObject) {
 
         Uri uri = getUri(boxObject);
@@ -562,11 +610,13 @@ public class MainActivity extends CrashReportingActivity
 
         return URLConnection.guessContentTypeFromName(uri.toString());
     }
+
     //@todo move outside
     private String getMimeType(BoxObject boxObject) {
 
         return getMimeType(getUri(boxObject));
     }
+
     //@todo move outside
     private Uri getUri(BoxObject boxObject) {
 
@@ -730,6 +780,7 @@ public class MainActivity extends CrashReportingActivity
     public void onAbort() {
 
     }
+
     //@todo move outside
     public void createFolder(final String name, final BoxNavigation boxNavigation) {
 
@@ -797,8 +848,6 @@ public class MainActivity extends CrashReportingActivity
         selectFilesFragment();
     }
 
-
-
     @Override
     protected void onNewIntent(Intent intent) {
 
@@ -820,7 +869,6 @@ public class MainActivity extends CrashReportingActivity
             }
         }
     }
-
 
     @Override
     public void deleteIdentity(Identity identity) {
@@ -879,7 +927,7 @@ public class MainActivity extends CrashReportingActivity
     @Override
     protected void onDestroy() {
 
-        if (mServiceConnection != null&&mService!=null) {
+        if (mServiceConnection != null && mService != null) {
 
             unbindService(mServiceConnection);
         }

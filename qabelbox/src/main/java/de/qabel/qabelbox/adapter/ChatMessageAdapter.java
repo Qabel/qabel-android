@@ -42,6 +42,7 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<ChatMessageAdapter.
             @Override
             public int compare(ChatMessageItem o1, ChatMessageItem o2) {
 
+
                 return (o1.getTime() > o2.getTime() ? -1 : (o1.getTime() == o2.getTime() ? 0 : 1));
             }
         });

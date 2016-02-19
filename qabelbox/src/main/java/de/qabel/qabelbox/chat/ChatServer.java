@@ -19,14 +19,10 @@ import de.qabel.qabelbox.QabelBoxApplication;
 public class ChatServer {
 
     private static final String TAG = "ChatServer";
-    public static final String SHARE_NOTIFICATION = "box_share_notification";
-    public static final String BOX_MESSAGE = "box_message";
+
     private ChatMessagesDataBase dataBase;
     private static ChatServer mInstance;
     private final List<ChatServerCallback> callbacks = new ArrayList<>();
-    private long currentId = System.currentTimeMillis();
-    private final ArrayList<ChatMessageItem> messages = new ArrayList<>();
-    private Identity mIdentity;
 
     public static ChatServer getInstance() {
 
@@ -66,7 +62,9 @@ public class ChatServer {
 
     public Collection<DropMessage> refreshList() {
 
-        return QabelBoxApplication.getInstance().getService().retrieveDropMessages();
+        Collection<DropMessage> result = QabelBoxApplication.getInstance().getService().retrieveDropMessages();
+        sendCallbacksRefreshed();
+        return result;
     }
 
     public void addMessagesFromDataBase(ArrayList<ChatMessageItem> messages) {
@@ -74,8 +72,6 @@ public class ChatServer {
         ChatMessageItem[] result = dataBase.getAll();
         if (result != null) {
             for (ChatMessageItem item : result) {
-
-                Log.d(TAG, "add messages from database " + item.drop_payload);
                 messages.add(item);
             }
         }
@@ -83,32 +79,21 @@ public class ChatServer {
 
     /**
      * create own chat message to store in db
-     *
-     * @param receiverKey receiver key
-     * @param message     message
-     * @return
      */
-    public ChatMessageItem createOwnMessage(Identity mIdentity,String receiverKey, String message) {
+    public ChatMessageItem createOwnMessage(Identity mIdentity, String receiverKey, String payload, String payload_type) {
 
-        String identityPublicKey = mIdentity.getEcPublicKey().getReadableKeyIdentifier();
         ChatMessageItem item = new ChatMessageItem();
         item.time_stamp = System.currentTimeMillis();
-        item.sender = identityPublicKey;
+        item.sender = mIdentity.getEcPublicKey().getReadableKeyIdentifier();
         item.receiver = receiverKey;
-        JSONObject json = new JSONObject();
-        try {
-            json.put("message", message);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        item.drop_payload = json.toString();
-        item.drop_payload_type = ChatMessageItem.BOX_MESSAGE;
+        item.drop_payload = payload;
+        item.drop_payload_type = payload_type;
         item.isNew = 1;
 
         return item;
     }
 
-    private void storeIntoDB(ChatMessageItem item) {
+    public void storeIntoDB(ChatMessageItem item) {
 
         if (item != null) {
             dataBase.put(item);
@@ -125,14 +110,9 @@ public class ChatServer {
         }
     }
 
-    public synchronized long getNextId() {
-
-        return currentId++;
-    }
-
     public DropMessage getTextDropMessage(String message) {
 
-        String payload_type = BOX_MESSAGE;
+        String payload_type = ChatMessageItem.BOX_MESSAGE;
         JSONObject payloadJson = new JSONObject();
         try {
             payloadJson.put("message", message);
@@ -140,18 +120,27 @@ public class ChatServer {
             Log.e(TAG, "error on create json", e);
         }
         String payload = payloadJson.toString();
-        DropMessage dm = new DropMessage(QabelBoxApplication.getInstance().getService().getActiveIdentity(), payload, payload_type);
-        return dm;
+        return new DropMessage(QabelBoxApplication.getInstance().getService().getActiveIdentity(), payload, payload_type);
     }
 
-    public void storeOwnInDb(ChatMessageItem ownMessage) {
+    public static DropMessage getShareDropMessage(String message, String url, String key) {
 
-        dataBase.put(ownMessage);
+        String payload_type = ChatMessageItem.SHARE_NOTIFICATION;
+        JSONObject payloadJson = new JSONObject();
+        try {
+            payloadJson.put("message", message);
+            payloadJson.put("url", url);
+            payloadJson.put("key", key);
+        } catch (JSONException e) {
+            Log.e(TAG, "error on create json", e);
+        }
+        String payload = payloadJson.toString();
+        return new DropMessage(QabelBoxApplication.getInstance().getService().getActiveIdentity(), payload, payload_type);
     }
 
     public interface ChatServerCallback {
 
-        //chatlist refreshed
+        //droplist refreshed
         void onRefreshed();
     }
 }

@@ -39,6 +39,7 @@ import de.qabel.qabelbox.exceptions.QblStorageNameConflict;
 import de.qabel.qabelbox.exceptions.QblStorageNotFound;
 
 import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertThat;
 
 public class BoxTest extends AndroidTestCase {
@@ -145,7 +146,7 @@ public class BoxTest extends AndroidTestCase {
 
 	}
 
-	private void checkExternalReceivedBoxFile(BoxFile boxFile, BoxNavigation navOtherUser) throws QblStorageException {
+	private void checkExternalReceivedBoxFile(byte[] originalFile, BoxFile boxFile, BoxNavigation navOtherUser) throws QblStorageException, IOException {
 		List<BoxObject> boxExternalFiles = navOtherUser.listExternals();
 		assertThat(boxExternalFiles.size(), is(1));
 		assertTrue(boxExternalFiles.get(0) instanceof BoxExternalFile);
@@ -153,6 +154,9 @@ public class BoxTest extends AndroidTestCase {
 		assertThat(boxFile.name, is(equalTo(boxFileReceived.name)));
 		assertThat(boxFile.key, is(equalTo(boxFileReceived.key)));
 		assertThat(OWNER, is(equalTo(boxFileReceived.owner)));
+
+		InputStream inputStream = navOtherUser.download(boxFileReceived, null);
+		assertArrayEquals(originalFile, IOUtils.toByteArray(inputStream));
 	}
 
 	private BoxFile uploadFile(BoxNavigation nav, String name) throws QblStorageException, FileNotFoundException {
@@ -187,7 +191,7 @@ public class BoxTest extends AndroidTestCase {
 		BoxNavigation navOtherUser = volumeOtherUser.navigate();
 		navOtherUser.attachExternal(boxExternalReference);
 
-		checkExternalReceivedBoxFile(boxFile, navOtherUser);
+		checkExternalReceivedBoxFile(IOUtils.toByteArray(new FileInputStream(file)), boxFile, navOtherUser);
 	}
 
 	@Test
@@ -204,14 +208,14 @@ public class BoxTest extends AndroidTestCase {
 		BoxNavigation navOtherUser = volumeOtherUser.navigate();
 		navOtherUser.attachExternal(boxExternalReference);
 
-		checkExternalReceivedBoxFile(boxFile, navOtherUser);
+		checkExternalReceivedBoxFile(IOUtils.toByteArray(new FileInputStream(file)), boxFile, navOtherUser);
 
 		boxFile = nav.upload("foobar", new FileInputStream(file), null);
 		nav.commit();
 
 		// Check that updated file can still be read
 
-		checkExternalReceivedBoxFile(boxFile, navOtherUser);
+		checkExternalReceivedBoxFile(IOUtils.toByteArray(new FileInputStream(file)), boxFile, navOtherUser);
 	}
 
 	@Test
@@ -226,13 +230,13 @@ public class BoxTest extends AndroidTestCase {
 		BoxNavigation navOtherUser = volumeOtherUser.navigate();
 		navOtherUser.attachExternal(boxExternalReference);
 
-		checkExternalReceivedBoxFile(boxFile, navOtherUser);
+		checkExternalReceivedBoxFile(IOUtils.toByteArray(new FileInputStream(new File(testFileName))), boxFile, navOtherUser);
 
 		boxFile = uploadFile(nav, "foobar");
 
 		// Check that updated file can still be read
 
-		checkExternalReceivedBoxFile(boxFile, navOtherUser);
+		checkExternalReceivedBoxFile(IOUtils.toByteArray(new FileInputStream(new File(testFileName))), boxFile, navOtherUser);
 
 		// Remove FileMetadata and update file
 		nav.removeFileMetadata(boxFile);

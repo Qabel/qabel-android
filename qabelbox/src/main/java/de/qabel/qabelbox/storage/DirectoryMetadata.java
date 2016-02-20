@@ -49,6 +49,7 @@ class DirectoryMetadata {
 					" recipient BLOB NOT NULL," +
 					" type INTEGER NOT NULL )",
 			"CREATE TABLE files (" +
+					" prefix VARCHAR(255) NOT NULL," +
 					" block VARCHAR(255) NOT NULL," +
 					" name VARCHAR(255) NULL PRIMARY KEY," +
 					" size LONG NOT NULL," +
@@ -343,11 +344,11 @@ class DirectoryMetadata {
 		try {
 			statement = connection.createStatement();
 			ResultSet rs = statement.executeQuery(
-					"SELECT block, name, size, mtime, key, meta, metakey FROM files");
+					"SELECT prefix, block, name, size, mtime, key, meta, metakey FROM files");
 			List<BoxFile> files = new ArrayList<>();
 			while (rs.next()) {
-				files.add(new BoxFile(rs.getString(1),
-						rs.getString(2), rs.getLong(3), rs.getLong(4), rs.getBytes(5), rs.getString(6), rs.getBytes(7)));
+				files.add(new BoxFile(rs.getString(1), rs.getString(2),
+						rs.getString(3), rs.getLong(4), rs.getLong(5), rs.getBytes(6), rs.getString(7), rs.getBytes(8)));
 			}
 			return files;
 		} catch (SQLException e) {
@@ -372,14 +373,15 @@ class DirectoryMetadata {
 		PreparedStatement st = null;
 		try {
 			st = connection.prepareStatement(
-					"INSERT INTO files (block, name, size, mtime, key, meta, metakey) VALUES(?, ?, ?, ?, ?, ?, ?)");
-			st.setString(1, file.block);
-			st.setString(2, file.name);
-			st.setLong(3, file.size);
-			st.setLong(4, file.mtime);
-			st.setBytes(5, file.key);
-			st.setString(6, file.meta);
-			st.setBytes(7, file.metakey);
+					"INSERT INTO files (prefix, block, name, size, mtime, key, meta, metakey) VALUES(?, ?, ?, ?, ?, ?, ?, ?)");
+			st.setString(1, file.prefix);
+			st.setString(2, file.block);
+			st.setString(3, file.name);
+			st.setLong(4, file.size);
+			st.setLong(5, file.mtime);
+			st.setBytes(6, file.key);
+			st.setString(7, file.meta);
+			st.setBytes(8, file.metakey);
 			if (st.executeUpdate() != 1) {
 				throw new QblStorageException("Failed to insert file");
 			}
@@ -531,12 +533,12 @@ class DirectoryMetadata {
 		PreparedStatement statement = null;
 		try {
 			statement = connection.prepareStatement(
-					"SELECT block, name, size, mtime, key, meta, metakey FROM files WHERE name=?");
+					"SELECT prefix, block, name, size, mtime, key, meta, metakey FROM files WHERE name=?");
 			statement.setString(1, name);
 			ResultSet rs = statement.executeQuery();
 			if (rs.next()) {
-				return new BoxFile(rs.getString(1),
-						rs.getString(2), rs.getLong(3), rs.getLong(4), rs.getBytes(5), rs.getString(6), rs.getBytes(7));
+				return new BoxFile(rs.getString(1), rs.getString(2),
+						rs.getString(3), rs.getLong(4), rs.getLong(5), rs.getBytes(6), rs.getString(7), rs.getBytes(8));
 			}
 			return null;
 		} catch (SQLException e) {

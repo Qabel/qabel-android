@@ -104,10 +104,11 @@ public class ShareHelper {
                             boxExternalReference = nav.createFileMetadata(mService.getActiveIdentity().getEcPublicKey(), boxFile);
 
                             //@todo remove. add test
-                            /*nav.attachExternal(boxExternalReference);
-                            nav.commit();*/
+                            nav.attachExternal(boxExternalReference);
+                            nav.commit();
                             //end
                             return new String[]{
+                                    /*boxExternalReference.getPrefix()+boxExternalReference.getBlock()*/
                                     boxExternalReference.url, Hex.toHexString(boxExternalReference.key), boxExternalReference.name
                             };
                         } catch (QblStorageException e) {

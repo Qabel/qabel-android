@@ -1,15 +1,9 @@
 package de.qabel.qabelbox.chat;
 
-import android.support.annotation.NonNull;
 import android.util.Log;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import java.util.UUID;
-
-import de.qabel.core.config.Identity;
-import de.qabel.qabelbox.chat.ChatMessagesDataBase;
 
 /**
  * Created by danny on 16.02.16.
@@ -81,9 +75,10 @@ public class ChatMessageItem {
                 if (drop_payload_type.equals(SHARE_NOTIFICATION)) {
                     ShareMessagePayload message = new ShareMessagePayload();
                     try {
-                        message.message = new JSONObject(drop_payload).getString("message");
-                        message.url = new JSONObject(drop_payload).getString("url");
-                        message.key = new JSONObject(drop_payload).getString("key");
+                        JSONObject payload = new JSONObject(drop_payload);
+                        message.message = payload.getString("message");
+                        message.url = payload.getString("url");
+                        message.key = payload.getString("key");
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
@@ -123,8 +118,9 @@ public class ChatMessageItem {
 
             return url;
         }
-        public String getKey()
-        {
+
+        public String getKey() {
+
             return key;
         }
     }
@@ -132,8 +128,5 @@ public class ChatMessageItem {
     public static class MessagePayload {
 
     }
-
-
-
 }
 

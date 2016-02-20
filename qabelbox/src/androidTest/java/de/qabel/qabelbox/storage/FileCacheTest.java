@@ -45,7 +45,7 @@ public class FileCacheTest {
 	@NonNull
 	private BoxFile getBoxFile() {
 		Long now = System.currentTimeMillis()/ 1000;
-		return new BoxFile("ref", "name", 20L, now, null);
+		return new BoxFile("prefix", "block", "name", 20L, now, null);
 	}
 
 	@Test

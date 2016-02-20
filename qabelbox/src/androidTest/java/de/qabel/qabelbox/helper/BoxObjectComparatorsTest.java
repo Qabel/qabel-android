@@ -67,6 +67,6 @@ public class BoxObjectComparatorsTest {
 
 	@NonNull
 	private BoxFile getBoxFile(String name) {
-		return new BoxFile("", name, 0L, 0L, new byte[]{0x01, 0x02});
+		return new BoxFile("Prefix", "Block", name, 0L, 0L, new byte[]{0x01, 0x02});
 	}
 }

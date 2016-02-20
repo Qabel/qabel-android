@@ -273,13 +273,12 @@ public abstract class AbstractNavigation implements BoxNavigation {
 	public List<BoxObject> listExternals() throws QblStorageException {
 		List<BoxObject> boxExternals = new ArrayList<>();
 		for (BoxExternalReference boxExternalRefs : dm.listExternalReferences()) {
-			String[] splitURL = boxExternalRefs.url.split("/");
 			try {
-				File out = getMetadataFile(boxExternalRefs.url, boxExternalRefs.key);
+				File out = getMetadataFile(boxExternalRefs.getPrefix(), boxExternalRefs.getBlock(), boxExternalRefs.key);
 				if (boxExternalRefs.isFolder) {
 					//TODO: Check DirectoryMetadata handling
 					DirectoryMetadata directoryMetadata =
-							DirectoryMetadata.openDatabase(out, dm.deviceId, splitURL[1], dm.getTempDir());
+							DirectoryMetadata.openDatabase(out, dm.deviceId, boxExternalRefs.getBlock(), dm.getTempDir());
 					boxExternals.addAll(directoryMetadata.listFiles());
 					boxExternals.addAll(directoryMetadata.listFolders());
 				} else {
@@ -288,12 +287,12 @@ public abstract class AbstractNavigation implements BoxNavigation {
 				}
 			}
 			catch (QblStorageException e) {
-				Log.e(TAG, "Cannot load metadata file: " + boxExternalRefs.url);
+				Log.e(TAG, "Cannot load metadata file: " + boxExternalRefs.getPrefix() + '/' + boxExternalRefs.getBlock());
 				if (boxExternalRefs.isFolder) {
 					boxExternals.add(new BoxExternalFolder(boxExternalRefs.url, boxExternalRefs.name,
 							boxExternalRefs.key, false));
 				} else {
-					boxExternals.add(new BoxExternalFile(boxExternalRefs.owner, boxExternalRefs.url,
+					boxExternals.add(new BoxExternalFile(boxExternalRefs.owner, boxExternalRefs.getPrefix(), boxExternalRefs.getBlock(),
 							boxExternalRefs.name, boxExternalRefs.key, false));
 				}
 			}
@@ -302,9 +301,8 @@ public abstract class AbstractNavigation implements BoxNavigation {
 	}
 
 	@NonNull
-	private File getMetadataFile(String url, byte[] key) throws QblStorageException {
-		String[] splitURL = url.split("/");
-		File encryptedMetadata = blockingDownload(splitURL[0], splitURL[1], null);
+	private File getMetadataFile(String prefix, String block, byte[] key) throws QblStorageException {
+		File encryptedMetadata = blockingDownload(prefix, block, null);
 
 		File out = new File(context.getExternalCacheDir(), UUID.randomUUID().toString());
 
@@ -322,7 +320,7 @@ public abstract class AbstractNavigation implements BoxNavigation {
 						  @Nullable TransferManager.BoxTransferListener boxTransferListener) throws QblStorageException {
 		KeyParameter key = cryptoUtils.generateSymmetricKey();
 		String block = UUID.randomUUID().toString();
-		BoxFile boxFile = new BoxFile(block, name, null, 0L, key.getKey());
+		BoxFile boxFile = new BoxFile(prefix, block, name, null, 0L, key.getKey());
 		SimpleEntry<Long, Long> mtimeAndSize = uploadEncrypted(content, key, prefix, BLOCKS_PREFIX + block, boxTransferListener);
 		boxFile.mtime = mtimeAndSize.getKey();
 		boxFile.size = mtimeAndSize.getValue();
@@ -360,8 +358,7 @@ public abstract class AbstractNavigation implements BoxNavigation {
 	}
 
 	@Override
-	public InputStream download(BoxFile boxFile,
-								@Nullable TransferManager.BoxTransferListener boxTransferListener) throws QblStorageException {
+	public InputStream download(BoxFile boxFile, @Nullable TransferManager.BoxTransferListener boxTransferListener) throws QblStorageException {
 		File download = cache.get(boxFile);
 		cache.close();
 		if (download == null) {
@@ -386,17 +383,17 @@ public abstract class AbstractNavigation implements BoxNavigation {
 	@Override
 	public BoxExternalReference createFileMetadata(QblECPublicKey owner, BoxFile boxFile) throws QblStorageException {
 		if (boxFile.meta != null || boxFile.metakey != null) {
-			return new BoxExternalReference(false, boxFile.meta, boxFile.name, owner, boxFile.metakey);
+			return new BoxExternalReference(false, boxFile.prefix + '/' + boxFile.meta, boxFile.name, owner, boxFile.metakey);
 		}
-		String block = UUID.randomUUID().toString();
-		boxFile.meta = prefix + '/' + block;
+		String metaBlock = UUID.randomUUID().toString();
 		KeyParameter key = cryptoUtils.generateSymmetricKey();
+		boxFile.meta = metaBlock;
 		boxFile.metakey = key.getKey();
 
 		try {
 			FileMetadata fileMetadata = new FileMetadata(owner, boxFile, dm.getTempDir());
 			FileInputStream fileInputStream = new FileInputStream(fileMetadata.getPath());
-			uploadEncrypted(fileInputStream, key, prefix, block, null);
+			uploadEncrypted(fileInputStream, key, prefix, metaBlock, null);
 
 			// Overwrite = delete old file, upload new file
 			BoxFile oldFile = dm.getFile(boxFile.name);
@@ -407,7 +404,7 @@ public abstract class AbstractNavigation implements BoxNavigation {
 		} catch (QblStorageException | FileNotFoundException e) {
 			throw new QblStorageException("Could not create or upload FileMetadata", e);
 		}
-		return new BoxExternalReference(false, boxFile.meta, boxFile.name, owner, boxFile.metakey);
+		return new BoxExternalReference(false, boxFile.prefix + '/' + metaBlock, boxFile.name, owner, boxFile.metakey);
 	}
 
 	/**
@@ -421,12 +418,11 @@ public abstract class AbstractNavigation implements BoxNavigation {
 			return false;
 		}
 		try {
-			File out = getMetadataFile(boxFile.meta, boxFile.metakey);
+			File out = getMetadataFile(boxFile.prefix, boxFile.meta, boxFile.metakey);
 			FileMetadata fileMetadataOld = new FileMetadata(out);
 			FileMetadata fileMetadataNew = new FileMetadata(fileMetadataOld.getFile().owner, boxFile, dm.getTempDir());
 			FileInputStream fileInputStream = new FileInputStream(fileMetadataNew.getPath());
-			String[] splitURL = boxFile.meta.split("/");
-			uploadEncrypted(fileInputStream, new KeyParameter(boxFile.metakey), splitURL[0], splitURL[1], null);
+			uploadEncrypted(fileInputStream, new KeyParameter(boxFile.metakey), boxFile.prefix, boxFile.meta, null);
 		} catch (QblStorageException | FileNotFoundException e) {
 			Log.e(TAG, "Could not create or upload FileMetadata", e);
 			return false;
@@ -445,9 +441,8 @@ public abstract class AbstractNavigation implements BoxNavigation {
 		if (boxFile.meta == null || boxFile.metakey == null) {
 			return false;
 		}
-		String[] splitURL = boxFile.meta.split("/");
 
-		blockingDelete(splitURL[0], splitURL[1]);
+		blockingDelete(boxFile.prefix, boxFile.meta);
 		boxFile.meta = null;
 		boxFile.metakey = null;
 
@@ -476,7 +471,7 @@ public abstract class AbstractNavigation implements BoxNavigation {
 
 	private File refreshCache(BoxFile boxFile, @Nullable TransferManager.BoxTransferListener boxTransferListener) throws QblStorageNotFound {
 		logger.info("Refreshing cache: "+ boxFile.block);
-		File download = blockingDownload(prefix, BLOCKS_PREFIX + boxFile.block, boxTransferListener);
+		File download = blockingDownload(boxFile.prefix, BLOCKS_PREFIX + boxFile.block, boxTransferListener);
 		cache.put(boxFile, download);
 		cache.close();
 		return download;

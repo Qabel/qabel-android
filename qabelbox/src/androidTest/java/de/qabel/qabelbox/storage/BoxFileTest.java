@@ -8,6 +8,7 @@ import org.junit.Test;
 
 public class BoxFileTest extends AndroidTestCase {
 
+	private static final String PREFIX = "PREFIX";
 	private static final String NAME = "BoxFile";
 	private static final String BLOCK = "Block";
 	private static final Long SIZE = 1000L;
@@ -16,7 +17,7 @@ public class BoxFileTest extends AndroidTestCase {
 
 	@Test
 	public void testBoxFileParcelable() {
-		BoxFile boxFile = new BoxFile(NAME, BLOCK, SIZE, MTIME, KEY);
+		BoxFile boxFile = new BoxFile(PREFIX, NAME, BLOCK, SIZE, MTIME, KEY);
 		Bundle bundle = new Bundle();
 		bundle.putParcelable("FILE", boxFile);
 

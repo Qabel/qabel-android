@@ -19,6 +19,14 @@ public class BoxExternalReference {
 		this.key = key;
 	}
 
+	public String getPrefix() {
+		return url.split("/")[0];
+	}
+
+	public String getBlock() {
+		return url.split("/")[1];
+	}
+
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;

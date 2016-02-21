@@ -43,22 +43,6 @@ public class ChatMessageItem {
         return receiver;
     }
 
-/*    public Type getModelObject()
-
-    {
-
-        if (drop_payload_type == null) {
-            return null;
-        }
-        if (drop_payload_type.equals(SHARE_NOTIFICATION)) {
-            return Type.SHARE_NOTIFICATION;
-        } else if (drop_payload_type.equals(BOX_MESSAGE)) {
-            return Type.BOX_MESSAGE;
-        } else {
-            return Type.UNKNOWN;
-        }
-    }*/
-
     public MessagePayload getData() {
 
         if (drop_payload_type != null && drop_payload != null) {

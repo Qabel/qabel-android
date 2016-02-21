@@ -38,31 +38,33 @@ public class ShareHelper {
     public static BoxExternalReference getBoxExternalReference(Contact contact, ChatMessageItem item) {
 
         ChatMessageItem.ShareMessagePayload payload = (ChatMessageItem.ShareMessagePayload) item.getData();
-        Log.d(TAG, "add " + payload.getURL() + " " + payload.getMessage() + " " + contact.getEcPublicKey() + " " + payload.getKey());
         return new BoxExternalReference(false, payload.getURL(), payload.getMessage(), contact.getEcPublicKey(), Hex.decode(payload.getKey()));
     }
 
-    public static void shareToQabelUser(final LocalQabelService mService, final MainActivity context, final BoxNavigation nav, final Contact contact, final Uri fileUri, final BoxObject boxFileOriginal) {
+    public static void shareToQabelUser(final MainActivity mainActivity, final Contact contact, final Uri fileUri, final BoxObject boxFileOriginal) {
 
+        final BoxNavigation nav = mainActivity.filesFragment.getBoxNavigation();
+        final LocalQabelService mService = mainActivity.mService;
         {
             new AsyncTask<Void, String[], String[]>() {
                 public AlertDialog waitMessage;
 
                 private void share(String url, String key, String name) {
-                    final ChatServer cs = ChatServer.getInstance(mService.getActiveIdentity());
+
+                    final ChatServer cs = ChatServer.getInstance(mainActivity.mService.getActiveIdentity());
                     final DropMessage dm = cs.getShareDropMessage(name, url, key);
                     try {
                         mService.sendDropMessage(dm, contact, mService.getActiveIdentity(), new LocalQabelService.OnSendDropMessageResult() {
                             @Override
                             public void onSendDropResult(Map<DropURL, Boolean> deliveryStatus) {
 
-                                ChatMessageItem message = cs.createOwnMessage(mService.getActiveIdentity(), contact.getEcPublicKey().getReadableKeyIdentifier(), dm.getDropPayload(), dm.getDropPayloadType());
+                                ChatMessageItem message = cs.createOwnMessage(mainActivity.mService.getActiveIdentity(), contact.getEcPublicKey().getReadableKeyIdentifier(), dm.getDropPayload(), dm.getDropPayloadType());
                                 cs.storeIntoDB(message);
-                                context.runOnUiThread(new Runnable() {
+                                mainActivity.runOnUiThread(new Runnable() {
                                     @Override
                                     public void run() {
 
-                                        Toast.makeText(context, R.string.messsage_file_shared, Toast.LENGTH_SHORT).show();
+                                        Toast.makeText(mainActivity, R.string.messsage_file_shared, Toast.LENGTH_SHORT).show();
                                     }
                                 });
                             }
@@ -87,26 +89,21 @@ public class ShareHelper {
                 @Override
                 protected void onPreExecute() {
 
-                    waitMessage = UIHelper.showWaitMessage(context, R.string.dialog_headline_info, R.string.dialog_share_sending_in_progress, false);
+                    waitMessage = UIHelper.showWaitMessage(mainActivity, R.string.dialog_headline_info, R.string.dialog_share_sending_in_progress, false);
                 }
 
                 @Override
                 protected String[] doInBackground(Void... params) {
 
                     try {
-                        Log.v(TAG, "fileuri: " + fileUri);
-                        InputStream content = context.getContentResolver().openInputStream(fileUri);
-                        BoxFile boxFile = nav.upload(boxFileOriginal.name, content, null);
+                        InputStream content = mainActivity.getContentResolver().openInputStream(fileUri);
+                        BoxFile boxFile = nav.upload(contact.getAlias() + "-" + boxFileOriginal.name, content, null);
                         nav.commit();
-
+                        //@todo if this correct?
+                        nav.detachExternal(boxFile.name);
                         BoxExternalReference boxExternalReference = null;
                         try {
                             boxExternalReference = nav.createFileMetadata(mService.getActiveIdentity().getEcPublicKey(), boxFile);
-
-                            //@todo remove. add test
-                            nav.attachExternal(boxExternalReference);
-                            nav.commit();
-                            //end
                             return new String[]{
                                     /*boxExternalReference.getPrefix()+boxExternalReference.getBlock()*/
                                     boxExternalReference.url, Hex.toHexString(boxExternalReference.key), boxExternalReference.name

@@ -37,6 +37,7 @@ import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.providers.DocumentIdParser;
 import de.qabel.qabelbox.services.LocalBroadcastConstants;
 import de.qabel.qabelbox.services.LocalQabelService;
+import de.qabel.qabelbox.storage.BoxExternalReference;
 import de.qabel.qabelbox.storage.BoxFile;
 import de.qabel.qabelbox.storage.BoxFolder;
 import de.qabel.qabelbox.storage.BoxNavigation;
@@ -685,6 +686,7 @@ public class FilesFragment extends BaseFragment {
             if (uploadsInPath != null) {
                 for (BoxUploadingFile boxUploadingFile : uploadsInPath.values()) {
                     filesAdapter.remove(boxUploadingFile.name);
+
                     filesAdapter.add(boxUploadingFile);
                 }
             }

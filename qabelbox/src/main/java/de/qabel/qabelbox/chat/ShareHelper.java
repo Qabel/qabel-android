@@ -9,8 +9,6 @@ import android.widget.Toast;
 
 import org.spongycastle.util.encoders.Hex;
 
-import java.io.FileNotFoundException;
-import java.io.InputStream;
 import java.util.Map;
 
 import de.qabel.core.config.Contact;
@@ -25,15 +23,21 @@ import de.qabel.qabelbox.services.LocalQabelService;
 import de.qabel.qabelbox.storage.BoxExternalReference;
 import de.qabel.qabelbox.storage.BoxFile;
 import de.qabel.qabelbox.storage.BoxNavigation;
-import de.qabel.qabelbox.storage.BoxObject;
 
 /**
  * Created by danny on 19.02.16.
  */
 public class ShareHelper {
 
-    private static String TAG = "ShareHelper";
+    private static final String TAG = "ShareHelper";
 
+    /**
+     * convert chatmessageintem to boxexternalreferenz
+     *
+     * @param contact
+     * @param item
+     * @return
+     */
     @NonNull
     public static BoxExternalReference getBoxExternalReference(Contact contact, ChatMessageItem item) {
 
@@ -41,18 +45,52 @@ public class ShareHelper {
         return new BoxExternalReference(false, payload.getURL(), payload.getMessage(), contact.getEcPublicKey(), Hex.decode(payload.getKey()));
     }
 
-    public static void shareToQabelUser(final MainActivity mainActivity, final Contact contact, final Uri fileUri, final BoxObject boxFileOriginal) {
+    /**
+     * share file to contact.
+     * <p/>
+     * 1. Download boxoject
+     * 2. Upload with new key
+     * 3. BoxExternalReference
+     * 4. Send drop message
+     *
+     * @param mainActivity
+     * @param contact
+     * @param fileUri
+     * @param boxObject
+     */
+    public static void shareToQabelUser(final MainActivity mainActivity, final Contact contact, final Uri fileUri, final BoxFile boxObject) {
 
         final BoxNavigation nav = mainActivity.filesFragment.getBoxNavigation();
         final LocalQabelService mService = mainActivity.mService;
-        {
-            new AsyncTask<Void, String[], String[]>() {
-                public AlertDialog waitMessage;
+        final ChatServer cs = ChatServer.getInstance(mainActivity.mService.getActiveIdentity());
 
-                private void share(String url, String key, String name) {
+        new AsyncTask<Void, Integer, DropMessage>() {
+            public AlertDialog waitMessage;
 
-                    final ChatServer cs = ChatServer.getInstance(mainActivity.mService.getActiveIdentity());
-                    final DropMessage dm = cs.getShareDropMessage(name, url, key);
+            @Override
+            protected void onPreExecute() {
+                //show wait message
+                waitMessage = UIHelper.showWaitMessage(mainActivity, R.string.dialog_headline_info, R.string.dialog_share_sending_in_progress, false);
+            }
+
+            @Override
+            protected DropMessage doInBackground(Void... params) {
+
+                try {
+
+                    BoxExternalReference boxExternalReference = nav.createFileMetadata(mService.getActiveIdentity().getEcPublicKey(), boxObject);
+                    return cs.getShareDropMessage(boxExternalReference.name, boxExternalReference.url, Hex.toHexString(boxExternalReference.key));
+                } catch (QblStorageException e) {
+                    e.printStackTrace();
+                }
+                return null;
+            }
+
+            @Override
+            protected void onPostExecute(final DropMessage dm) {
+
+                //create parameter list
+                if (dm != null) {
                     try {
                         mService.sendDropMessage(dm, contact, mService.getActiveIdentity(), new LocalQabelService.OnSendDropMessageResult() {
                             @Override
@@ -73,52 +111,14 @@ public class ShareHelper {
                             QblDropPayloadSizeException e
                             ) {
                         Log.e(TAG, "cant send share", e);
+                        UIHelper.showDialogMessage(mainActivity, R.string.dialog_headline_warning, R.string.share_error_on_sending, e);
                     }
+                } else {
+                    UIHelper.showDialogMessage(mainActivity, R.string.dialog_headline_warning, R.string.share_error_on_sending);
                 }
-
-                @Override
-                protected void onPostExecute(String[] strings) {
-
-                    super.onPostExecute(strings);
-                    if (strings != null && strings.length == 3) {
-                        share(strings[0], strings[1], strings[2]);
-                    }
-                    waitMessage.dismiss();
-                }
-
-                @Override
-                protected void onPreExecute() {
-
-                    waitMessage = UIHelper.showWaitMessage(mainActivity, R.string.dialog_headline_info, R.string.dialog_share_sending_in_progress, false);
-                }
-
-                @Override
-                protected String[] doInBackground(Void... params) {
-
-                    try {
-                        InputStream content = mainActivity.getContentResolver().openInputStream(fileUri);
-                        BoxFile boxFile = nav.upload(contact.getAlias() + "-" + boxFileOriginal.name, content, null);
-                        nav.commit();
-                        //@todo if this correct?
-                        nav.detachExternal(boxFile.name);
-                        BoxExternalReference boxExternalReference = null;
-                        try {
-                            boxExternalReference = nav.createFileMetadata(mService.getActiveIdentity().getEcPublicKey(), boxFile);
-                            return new String[]{
-                                    /*boxExternalReference.getPrefix()+boxExternalReference.getBlock()*/
-                                    boxExternalReference.url, Hex.toHexString(boxExternalReference.key), boxExternalReference.name
-                            };
-                        } catch (QblStorageException e) {
-                            e.printStackTrace();
-                        }
-                    } catch (QblStorageException e) {
-                        e.printStackTrace();
-                    } catch (FileNotFoundException e) {
-                        e.printStackTrace();
-                    }
-                    return null;
-                }
-            }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-        }
+                //hide wait message
+                waitMessage.dismiss();
+            }
+        }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
     }
 }

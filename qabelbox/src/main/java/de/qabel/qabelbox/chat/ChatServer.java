@@ -120,7 +120,7 @@ public class ChatServer {
         return new DropMessage(QabelBoxApplication.getInstance().getService().getActiveIdentity(), payload, payload_type);
     }
 
-    public static DropMessage getShareDropMessage(String message, String url, String key) {
+    public  DropMessage getShareDropMessage(String message, String url, String key) {
 
         String payload_type = ChatMessageItem.SHARE_NOTIFICATION;
         JSONObject payloadJson = new JSONObject();

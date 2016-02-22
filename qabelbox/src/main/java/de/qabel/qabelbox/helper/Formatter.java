@@ -19,7 +19,7 @@ public class Formatter {
     private static final long MB = 1024 * 1024;
     private static final long GB = 1024 * 1024 * 1024;
 
-    private static final DateFormat dateTimeFormat = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT);
+    private static final DateFormat dateTimeFormat = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT);
     private static final DateFormat dateFormat = DateFormat.getDateInstance(DateFormat.MEDIUM);
 
     public static String formatFileSizeHumanReadable(Context context, long filesize) {

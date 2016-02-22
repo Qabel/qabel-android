@@ -324,6 +324,7 @@ public class MainActivity extends CrashReportingActivity
         Log.i(TAG, "Intent action: " + action);
 
         // Checks if a fragment should be launched
+
         if (type != null && intent != null && intent.getAction() != null) {
 
             switch (intent.getAction()) {
@@ -499,7 +500,7 @@ public class MainActivity extends CrashReportingActivity
             public void onItemLockClick(View view, final int position) {
 
                 final BoxObject boxObject = filesFragment.getFilesAdapter().get(position);
-                new BottomSheet.Builder(self).title(boxObject.name).sheet(R.menu.files_bottom_sheet)
+                BottomSheet.Builder sheet = new BottomSheet.Builder(self).title(boxObject.name).sheet(R.menu.files_bottom_sheet)
                         .listener(new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
@@ -520,20 +521,39 @@ public class MainActivity extends CrashReportingActivity
                                     case R.id.delete:
                                         delete(boxObject);
                                         break;
+                                    case R.id.unshare:
+                                        filesFragment.getBoxNavigation().removeFileMetadata((BoxFile) boxObject);
+                                        break;
                                     case R.id.export:
-                                        // Export handled in the MainActivity
-                                        if (boxObject instanceof BoxFolder) {
-                                            Toast.makeText(self, R.string.folder_export_not_implemented,
-                                                    Toast.LENGTH_SHORT).show();
-                                        } else {
-                                            onExport(filesFragment.getBoxNavigation(), boxObject);
-                                        }
+                                        onExport(filesFragment.getBoxNavigation(), boxObject);
                                         break;
                                 }
                             }
-                        }).show();
+                        });
+
+                filterSheet(boxObject, sheet);
+                sheet.show();
             }
         });
+    }
+
+    protected void filterSheet(BoxObject boxObject, BottomSheet.Builder sheet) {
+
+        if (!(boxObject instanceof BoxFile) || ((BoxFile) boxObject).isShared()) {
+            sheet.remove(R.id.unshare);
+        }
+        if (!(boxObject instanceof BoxFile)) {
+
+            sheet.remove(R.id.unshare);
+        }
+
+        if (!(boxObject instanceof BoxFile)) {
+            sheet.remove(R.id.open);
+            sheet.remove(R.id.export);
+            sheet.remove(R.id.edit);
+            sheet.remove(R.id.share);
+            sheet.remove(R.id.shareto_qabeluser);
+        }
     }
 
     private void shareToQabelUser(final BoxObject boxObject) {
@@ -553,7 +573,7 @@ public class MainActivity extends CrashReportingActivity
                     @Override
                     public void onContactSelected(Contact contact) {
 
-                        ShareHelper.shareToQabelUser( self,  contact, getUri(boxObject), boxObject);
+                        ShareHelper.shareToQabelUser(self, contact, getUri(boxObject), (BoxFile) boxObject);
                     }
                 });
             } else {

@@ -6,6 +6,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 /**
+ * class to store chatmessage in database
+ *
  * Created by danny on 16.02.16.
  */
 public class ChatMessageItem {

@@ -20,16 +20,6 @@ public class URLs {
         BASE_BLOCK = context.getString(R.string.accountingServer);
     }
 
-    public void setBaseAccountingURL(String url) {
-
-        BASE_ACCOUNTING = url;
-    }
-
-    public void setBaseBlockURL(String url) {
-
-        BASE_BLOCK = url;
-    }
-
     //
     //accounting server
     //
@@ -75,13 +65,5 @@ public class URLs {
         return BASE_BLOCK + "/api/v0/files/";
     }
 
-    /**
-     * get files url for block server
-     *
-     * @return
-     */
-    String getFilesBlock() {
 
-        return BASE_BLOCK + "/api/v0/";
-    }
 }

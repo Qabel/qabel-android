@@ -1,7 +1,7 @@
 package de.qabel.qabelbox.activities;
 
+import android.app.Activity;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
 
@@ -12,10 +12,10 @@ import de.qabel.qabelbox.helper.Sanity;
 /**
  * Created by danny on 11.01.2016.
  */
-public class SplashActivity extends CrashReportingActivity {
+public class WelcomeScreenActivity extends Activity {
 
     private final long SPLASH_TIME = 1500;
-    private SplashActivity mActivity;
+    private WelcomeScreenActivity mActivity;
     private AppPreference prefs;
 
     @Override
@@ -25,30 +25,13 @@ public class SplashActivity extends CrashReportingActivity {
         mActivity = this;
 
         overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
-        setContentView(R.layout.activity_splashscreen);
+        setContentView(R.layout.activity_welcomescreen);
         setupAppPreferences();
     }
 
     private void setupAppPreferences() {
 
         prefs = new AppPreference(this);
-        int lastAppStartVersion = prefs.getLastAppStartVersion();
-
-        int currentAppVersionCode = 0;
-        try {
-            currentAppVersionCode = getPackageManager().getPackageInfo(getPackageName(), 0).versionCode;
-        } catch (PackageManager.NameNotFoundException e) {
-            e.printStackTrace();
-        }
-        if (lastAppStartVersion == 0) {
-            prefs.setLastAppStartVersion(currentAppVersionCode);
-            //@todo show welcome
-        } else {
-            if (lastAppStartVersion != currentAppVersionCode) {
-                prefs.setLastAppStartVersion(currentAppVersionCode);
-                //@todo show whatsnew screen
-            }
-        }
     }
 
     @Override
@@ -71,12 +54,7 @@ public class SplashActivity extends CrashReportingActivity {
 
             private void startMainActivity() {
 
-                if (prefs.getWelcomeScreenShowedAt() == 0) {
-                    Intent intent = new Intent(mActivity, WelcomeScreenActivity.class);
-                    startActivity(intent);
-                    overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
-                    finish();
-                } else if (!Sanity.startWizardActivities(mActivity)) {
+                if (!Sanity.startWizardActivities(mActivity)) {
 
                     Intent intent = new Intent(mActivity, MainActivity.class);
                     intent.setAction("");

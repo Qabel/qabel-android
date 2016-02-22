@@ -471,65 +471,7 @@ public class MainActivity extends CrashReportingActivity
         }, null);
     }
 
-    //@todo move this to filesfragment
-    private void initFilesFragment() {
 
-        if (filesFragment != null) {
-            getFragmentManager().beginTransaction().remove(filesFragment).commit();
-        }
-        filesFragment = FilesFragment.newInstance(boxVolume);
-        filesFragment.setOnItemClickListener(new FilesAdapter.OnItemClickListener() {
-            @Override
-            public void onItemClick(View view, int position) {
-
-                final BoxObject boxObject = filesFragment.getFilesAdapter().get(position);
-                if (boxObject != null) {
-                    if (boxObject instanceof BoxFolder) {
-                        filesFragment.browseTo(((BoxFolder) boxObject));
-                    } else if (boxObject instanceof BoxFile) {
-                        // Open
-                        showFile(boxObject);
-                    }
-                }
-            }
-
-            @Override
-            public void onItemLockClick(View view, final int position) {
-
-                final BoxObject boxObject = filesFragment.getFilesAdapter().get(position);
-                new BottomSheet.Builder(self).title(boxObject.name).sheet(R.menu.files_bottom_sheet)
-                        .listener(new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-
-                                switch (which) {
-                                    case R.id.open:
-                                        ExternalApps.openExternApp(self, VolumeFileTransferHelper.getUri(boxObject, boxVolume, filesFragment.getBoxNavigation()), getMimeType(boxObject), Intent.ACTION_VIEW);
-                                        break;
-                                    case R.id.edit:
-                                        ExternalApps.openExternApp(self, VolumeFileTransferHelper.getUri(boxObject, boxVolume, filesFragment.getBoxNavigation()), getMimeType(boxObject), Intent.ACTION_EDIT);
-                                        break;
-                                    case R.id.share:
-                                        ExternalApps.share(self, VolumeFileTransferHelper.getUri(boxObject, boxVolume, filesFragment.getBoxNavigation()), getMimeType(boxObject));
-                                        break;
-                                    case R.id.delete:
-                                        delete(boxObject);
-                                        break;
-                                    case R.id.export:
-                                        // Export handled in the MainActivity
-                                        if (boxObject instanceof BoxFolder) {
-                                            Toast.makeText(self, R.string.folder_export_not_implemented,
-                                                    Toast.LENGTH_SHORT).show();
-                                        } else {
-                                            onExport(filesFragment.getBoxNavigation(), boxObject);
-                                        }
-                                        break;
-                                }
-                            }
-                        }).show();
-            }
-        });
-    }
 
     /**
      * open system show file dialog
@@ -789,6 +731,67 @@ public class MainActivity extends CrashReportingActivity
         selectFilesFragment();
     }
 
+    //@todo move this to filesfragment
+    private void initFilesFragment() {
+
+        if (filesFragment != null) {
+            getFragmentManager().beginTransaction().remove(filesFragment).commit();
+        }
+        filesFragment = FilesFragment.newInstance(boxVolume);
+        filesFragment.setOnItemClickListener(new FilesAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(View view, int position) {
+
+                final BoxObject boxObject = filesFragment.getFilesAdapter().get(position);
+                if (boxObject != null) {
+                    if (boxObject instanceof BoxFolder) {
+                        filesFragment.browseTo(((BoxFolder) boxObject));
+                    } else if (boxObject instanceof BoxFile) {
+                        // Open
+                        showFile(boxObject);
+                    }
+                }
+            }
+
+            @Override
+            public void onItemLockClick(View view, final int position) {
+
+                final BoxObject boxObject = filesFragment.getFilesAdapter().get(position);
+                new BottomSheet.Builder(self).title(boxObject.name).sheet(R.menu.files_bottom_sheet)
+                        .listener(new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+
+                                switch (which) {
+                                    case R.id.open:
+                                        ExternalApps.openExternApp(self, VolumeFileTransferHelper.getUri(boxObject, boxVolume, filesFragment.getBoxNavigation()), getMimeType(boxObject), Intent.ACTION_VIEW);
+                                        break;
+                                    case R.id.edit:
+                                        ExternalApps.openExternApp(self, VolumeFileTransferHelper.getUri(boxObject, boxVolume, filesFragment.getBoxNavigation()), getMimeType(boxObject), Intent.ACTION_EDIT);
+                                        break;
+                                    case R.id.share:
+                                        ExternalApps.share(self, VolumeFileTransferHelper.getUri(boxObject, boxVolume, filesFragment.getBoxNavigation()), getMimeType(boxObject));
+                                        break;
+                                    case R.id.delete:
+                                        delete(boxObject);
+                                        break;
+                                    case R.id.export:
+                                        // Export handled in the MainActivity
+                                        if (boxObject instanceof BoxFolder) {
+                                            Toast.makeText(self, R.string.folder_export_not_implemented,
+                                                    Toast.LENGTH_SHORT).show();
+                                        } else {
+                                            onExport(filesFragment.getBoxNavigation(), boxObject);
+                                        }
+                                        break;
+                                }
+                            }
+                        }).show();
+            }
+        });
+    }
+
+
     @Override
     protected void onNewIntent(Intent intent) {
 
@@ -872,7 +875,9 @@ public class MainActivity extends CrashReportingActivity
 
             unbindService(mServiceConnection);
         }
-        new CacheFileHelper().freeCacheAsynchron(QabelBoxApplication.getInstance().getApplicationContext());
+        if (isTaskRoot()) {
+            new CacheFileHelper().freeCacheAsynchron(QabelBoxApplication.getInstance().getApplicationContext());
+        }
         super.onDestroy();
     }
 

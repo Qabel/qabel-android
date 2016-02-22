@@ -12,14 +12,12 @@ public class URLs {
 
     private String BASE_ACCOUNTING;
     private String BASE_BLOCK;
-    private String BASE_DROP;
 
     public URLs() {
 
         Context context = QabelBoxApplication.getInstance().getApplicationContext();
         BASE_ACCOUNTING = context.getString(R.string.blockServer);
         BASE_BLOCK = context.getString(R.string.accountingServer);
-        BASE_DROP = context.getString(R.string.dropServer);
     }
 
     public void setBaseAccountingURL(String url) {
@@ -30,11 +28,6 @@ public class URLs {
     public void setBaseBlockURL(String url) {
 
         BASE_BLOCK = url;
-    }
-
-    public void setBaseDropURL(String url) {
-
-        BASE_DROP = url;
     }
 
     //
@@ -91,9 +84,4 @@ public class URLs {
 
         return BASE_BLOCK + "/api/v0/";
     }
-
-    String getDrop(String id) {
-        return BASE_DROP + "/"+id;
-    }
-
 }

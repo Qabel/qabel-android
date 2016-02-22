@@ -556,6 +556,7 @@ public abstract class AbstractNavigation implements BoxNavigation {
 		dm.deleteFile(file);
 		file.name = name;
 		dm.insertFile(file);
+		updateFileMetadata(file);
 		return file;
 	}
 

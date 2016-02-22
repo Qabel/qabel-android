@@ -219,6 +219,30 @@ public class BoxTest extends AndroidTestCase {
 	}
 
 	@Test
+	public void testShareAndRenameFile() throws QblStorageException, IOException {
+		BoxNavigation nav = volume.navigate();
+		File file = new File(testFileName);
+		BoxFile boxFile = nav.upload("foobar", new FileInputStream(file), null);
+		nav.commit();
+
+		BoxExternalReference boxExternalReference = nav.createFileMetadata(OWNER, boxFile);
+
+		// Share meta and metakey to other user
+
+		BoxNavigation navOtherUser = volumeOtherUser.navigate();
+		navOtherUser.attachExternal(boxExternalReference);
+
+		checkExternalReceivedBoxFile(IOUtils.toByteArray(new FileInputStream(file)), boxFile, navOtherUser);
+
+		nav.rename(boxFile, "barfoo");
+		nav.commit();
+
+		// Check that updated file can still be read
+
+		checkExternalReceivedBoxFile(IOUtils.toByteArray(new FileInputStream(file)), boxFile, navOtherUser);
+	}
+
+	@Test
 	public void testShareAndUpdateAndUnshareFile() throws QblStorageException, IOException {
 		BoxNavigation nav = volume.navigate();
 		BoxFile boxFile = uploadFile(nav, "foobar");

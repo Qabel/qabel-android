@@ -131,6 +131,9 @@ public class MainActivity extends CrashReportingActivity
             if (requestCode == REQUEST_CREATE_IDENTITY) {
                 if (data != null && data.hasExtra(CreateIdentityActivity.P_IDENTITY)) {
                     Identity identity = (Identity) data.getSerializableExtra(CreateIdentityActivity.P_IDENTITY);
+                    if (identity == null) {
+                        Log.w(TAG, "Recieved data with identity null");
+                    }
                     addIdentity(identity);
                 }
             }

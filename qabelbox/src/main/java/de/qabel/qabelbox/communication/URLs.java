@@ -1,13 +1,69 @@
 package de.qabel.qabelbox.communication;
 
+import android.content.Context;
+
+import de.qabel.qabelbox.QabelBoxApplication;
+import de.qabel.qabelbox.R;
+
 /**
  * Created by danny on 26.01.2016.
  */
 public class URLs {
 
-    final static String REGISTER = "https://test-accounting.qabel.de/api/v0/auth/registration/";
-    final static String LOGIN = "https://test-accounting.qabel.de/api/v0/auth/login/";
-    final static String LOGOUT = "https://test-accounting.qabel.de/api/v0/auth/logout/";
-    final static String PASSWORD_CHANGE = "https://test-accounting.qabel.de/api/v0/auth/password/change/";
-    final static String PASSWORD_RESET = "https://test-accounting.qabel.de/api/v0/auth/password/reset/";
+    private String BASE_ACCOUNTING;
+    private String BASE_BLOCK;
+
+    public URLs() {
+
+        Context context = QabelBoxApplication.getInstance().getApplicationContext();
+        BASE_ACCOUNTING = context.getString(R.string.blockServer);
+        BASE_BLOCK = context.getString(R.string.accountingServer);
+    }
+
+    //
+    //accounting server
+    //
+    String getRegister() {
+
+        return BASE_ACCOUNTING + "/api/v0/auth/registration/";
+    }
+
+    String getLogin() {
+
+        return BASE_ACCOUNTING + "/api/v0/auth/login/";
+    }
+
+    String getLogout() {
+
+        return BASE_ACCOUNTING + "/api/v0/auth/logout/";
+    }
+
+    String getPasswordChange() {
+
+        return BASE_ACCOUNTING + "/api/v0/auth/password/change/";
+    }
+
+    String getPasswordReset() {
+
+        return BASE_ACCOUNTING + "/api/v0/auth/password/reset/";
+    }
+
+    //prefix server
+    //
+    String getPrefix() {
+
+        return BASE_ACCOUNTING + "/api/v0/prefix/";
+    }
+
+    /**
+     * get files url for block server
+     *
+     * @return
+     */
+    String getFiles() {
+
+        return BASE_BLOCK + "/api/v0/files/";
+    }
+
+
 }

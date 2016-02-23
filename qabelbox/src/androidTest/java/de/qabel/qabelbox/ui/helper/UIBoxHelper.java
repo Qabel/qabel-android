@@ -29,6 +29,7 @@ import de.qabel.core.drop.AdjustableDropIdGenerator;
 import de.qabel.core.drop.DropIdGenerator;
 import de.qabel.core.drop.DropURL;
 import de.qabel.qabelbox.QabelBoxApplication;
+import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.activities.MainActivity;
 import de.qabel.qabelbox.communication.VolumeFileTransferHelper;
 import de.qabel.qabelbox.exceptions.QblStorageException;
@@ -125,7 +126,7 @@ public class UIBoxHelper {
 
     public Identity addIdentity(final String identName) {
 
-        URI uri = URI.create(QabelBoxApplication.DEFAULT_DROP_SERVER);
+        URI uri = URI.create(QabelBoxApplication.getInstance().getString(R.string.dropServer));
         DropServer dropServer = new DropServer(uri, "", true);
         DropIdGenerator adjustableDropIdGenerator = new AdjustableDropIdGenerator(2 * 8);
         DropURL dropURL = new DropURL(dropServer, adjustableDropIdGenerator);

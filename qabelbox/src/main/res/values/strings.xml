@@ -194,6 +194,7 @@
     <string name="cant_import_contact_already_exisits">Can\'t import contact. Contact already in contact list</string>
     <string name="messsage_enter_contact_manual">Please enter the details of the contact data. Alternativ, press back and import from file or scan contact with your camera.</string>
     <string name="share_into_app_select_identity">Please select your identity in there your want to place your selected files</string>
+    <string name="share_to_contact_message">Please select a contact with they you want to share this file</string>
     <string name="share_into_app_select_folder">Please select folder in there you want to uploading the files</string>
     <string name="headline_share_select_upload_identity">Select upload identity</string>
     <string name="share_into_app_canceled">The upload into Qabelbox was canceled!</string>
@@ -212,7 +213,26 @@
     <string name="infos">Infos</string>
     <string name="dummy_infos_text">This is the alpha version of QabelBox</string>
     <string name="contact_count">Contact count: %1</string>
+    <string name="chat_message_hint">Enter text</string>
+    <string name="refresh">Refresh</string>
+    <string name="headline_contact_chat">Chat</string>
+    <string name="btn_chat_send">Send</string>
+    <string name="cant_send_message">Can\'t send message</string>
+    <string name="ShareToQabelUser">Share to Qabeluser</string>
+    <string name="fileshare_label_in_chatmessage">Shared file %1</string>
+    <string name="headline_share_to_qabeluser">Share to QabelUser</string>
+    <string name="cant_share_contactlist_is_empty">Cant share file. You have no contact in contactlist</string>
+    <string name="share_only_files_possibility">Only files can be shared</string>
+    <string name="dialog_share_sending_in_progress">File is uploading for sharing</string>
+    <string name="messsage_file_shared">File successfully shared</string>
+    <string name="cant_import_shared_file">Can\'t import shared file7</string>
+    <string name="shared_file_imported">Shared file imported</string>
+    <string name="please_wait_attach_external_file">Please wait. Attaching external file to accocunt</string>
     <string name="upload_complete_notification_title">Upload complete</string>
     <string name="upload_in_progress_notification_content">Upload in progress: %s</string>
     <string name="message_file_cant_upload">File can\'t upload</string>
+    <string name="share_error_on_sending">Share not sended</string>
+    <string name="filebrowser_file_is_shared_to_other">Shared to other</string>
+    <string name="filebrowser_file_is_shared_from">Shared from %1</string>
+    <string name="Unshare">Unshare</string>
 </resources>

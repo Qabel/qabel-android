@@ -20,7 +20,6 @@ import android.provider.DocumentsContract.Root;
 import android.provider.DocumentsProvider;
 import android.provider.MediaStore.Video.Media;
 import android.support.annotation.NonNull;
-import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.NotificationCompat;
 import android.util.Log;
 
@@ -61,9 +60,11 @@ import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.exceptions.QblStorageNotFound;
 import de.qabel.qabelbox.services.LocalBroadcastConstants;
 import de.qabel.qabelbox.services.LocalQabelService;
+import de.qabel.qabelbox.storage.BoxExternalFile;
 import de.qabel.qabelbox.storage.BoxFile;
 import de.qabel.qabelbox.storage.BoxFolder;
 import de.qabel.qabelbox.storage.BoxNavigation;
+import de.qabel.qabelbox.storage.BoxObject;
 import de.qabel.qabelbox.storage.BoxUploadingFile;
 import de.qabel.qabelbox.storage.BoxVolume;
 import de.qabel.qabelbox.storage.TransferManager;
@@ -98,7 +99,7 @@ public class BoxProvider extends DocumentsProvider {
     AWSCredentials awsCredentials;
 
     private Map<String, BoxCursor> folderContentCache;
-	private Map<String, Integer> uploadNotifications;
+    private Map<String, Integer> uploadNotifications;
     private String currentFolder;
     protected LocalQabelService mService;
 
@@ -139,7 +140,7 @@ public class BoxProvider extends DocumentsProvider {
         QabelBoxApplication.boxProvider = this;
 
         folderContentCache = new HashMap<>();
-		uploadNotifications = new HashMap<>();
+        uploadNotifications = new HashMap<>();
         return true;
     }
 
@@ -509,7 +510,7 @@ public class BoxProvider extends DocumentsProvider {
         final boolean isRead = (mode.indexOf('r') != -1);
 
         if (isWrite) {
-			final BoxUploadingFile boxUploadingFile = mService.addPendingUpload(documentId, null);
+            final BoxUploadingFile boxUploadingFile = mService.addPendingUpload(documentId, null);
             // Attach a close listener if the document is opened in write mode.
             try {
                 Handler handler = new Handler(getContext().getMainLooper());
@@ -533,7 +534,8 @@ public class BoxProvider extends DocumentsProvider {
                         new AsyncTask<Void, Void, String>() {
                             @Override
                             protected String doInBackground(Void... params) {
-								uploadFile(documentId, tmp, mService.getUploadTransferListener(boxUploadingFile));
+
+                                uploadFile(documentId, tmp, mService.getUploadTransferListener(boxUploadingFile));
                                 return documentId;
                             }
                         }.execute();
@@ -552,6 +554,7 @@ public class BoxProvider extends DocumentsProvider {
     }
 
     private void uploadFile(String documentId, File tmp, TransferManager.BoxTransferListener boxTransferListener) {
+
         try {
             BoxVolume volume = getVolumeForId(documentId);
             List<String> splitPath = mDocumentIdParser.splitPath(
@@ -562,17 +565,17 @@ public class BoxProvider extends DocumentsProvider {
             Log.i(TAG, "Starting upload");
             BoxFile boxFile = navigation.upload(basename, new FileInputStream(tmp), boxTransferListener);
             navigation.commit();
-			Bundle extras = new Bundle();
-			extras.putParcelable(LocalBroadcastConstants.EXTRA_FILE, boxFile);
-			mService.removePendingUpload(documentId, LocalBroadcastConstants.UPLOAD_STATUS_FINISHED, extras);
+            Bundle extras = new Bundle();
+            extras.putParcelable(LocalBroadcastConstants.EXTRA_FILE, boxFile);
+            mService.removePendingUpload(documentId, LocalBroadcastConstants.UPLOAD_STATUS_FINISHED, extras);
         } catch (FileNotFoundException | QblStorageException e1) {
             Log.e(TAG, "Upload failed", e1);
-			try {
-				mService.removePendingUpload(documentId, LocalBroadcastConstants.UPLOAD_STATUS_FAILED, null);
-			} catch (FileNotFoundException e) {
-				//Should not be possible
-				Log.e(TAG, "Removing failed upload failed", e);
-			}
+            try {
+                mService.removePendingUpload(documentId, LocalBroadcastConstants.UPLOAD_STATUS_FAILED, null);
+            } catch (FileNotFoundException e) {
+                //Should not be possible
+                Log.e(TAG, "Removing failed upload failed", e);
+            }
         }
     }
 
@@ -665,11 +668,20 @@ public class BoxProvider extends DocumentsProvider {
             throws QblStorageException, FileNotFoundException {
 
         for (BoxFile file : navigation.listFiles()) {
+            Log.d(TAG, "find file: " + file.name);
             if (file.name.equals(basename)) {
                 return file;
             }
         }
-        throw new FileNotFoundException();
+        for (BoxObject file : navigation.listExternals()) {
+            Log.d(TAG, "find file: " + file.name);
+            if (file instanceof BoxExternalFile) {
+                if (file.name.equals(basename)) {
+                    return (BoxExternalFile)file;
+                }
+            }
+        }
+        throw new FileNotFoundException("can't find file in BoxNavigation: " + basename);
     }
 
     @Override

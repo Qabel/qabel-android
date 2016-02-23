@@ -19,7 +19,6 @@ import de.qabel.qabelbox.services.LocalQabelService;
 
 public class QabelBoxApplication extends Application {
 
-    public static final String DEFAULT_DROP_SERVER = "http://localhost";
     private static final String TAG = "QabelBoxApplication";
     private LocalQabelService mService;
 

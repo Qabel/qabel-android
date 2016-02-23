@@ -43,6 +43,7 @@
                 android:ellipsize="end"
                 android:lines="1"
                 />
+
         </LinearLayout>
     </LinearLayout>
 </android.support.v7.widget.CardView>

@@ -1,5 +1,7 @@
 package de.qabel.qabelbox.storage;
 
+import de.qabel.qabelbox.R;
+
 public class BoxUploadingFile extends BoxObject {
 
 	public long totalSize;
@@ -14,5 +16,10 @@ public class BoxUploadingFile extends BoxObject {
 			return 0;
 		}
 		return (int) (100 * uploadedSize / totalSize);
+	}
+
+	@Override
+	public int getBottomSheetMenuResId() {
+		return R.menu.box_uploading_file_bottom_sheet;
 	}
 }

@@ -493,7 +493,7 @@ public class MainActivity extends CrashReportingActivity
             public void onItemLockClick(View view, final int position) {
 
                 final BoxObject boxObject = filesFragment.getFilesAdapter().get(position);
-                new BottomSheet.Builder(self).title(boxObject.name).sheet(R.menu.files_bottom_sheet)
+                new BottomSheet.Builder(self).title(boxObject.name).sheet(boxObject.getBottomSheetMenuResId())
                         .listener(new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
@@ -511,14 +511,11 @@ public class MainActivity extends CrashReportingActivity
                                     case R.id.delete:
                                         delete(boxObject);
                                         break;
+									case R.id.cancel:
+										Toast.makeText(self, R.string.not_implemented, Toast.LENGTH_LONG).show();
+										break;
                                     case R.id.export:
-                                        // Export handled in the MainActivity
-                                        if (boxObject instanceof BoxFolder) {
-                                            Toast.makeText(self, R.string.folder_export_not_implemented,
-                                                    Toast.LENGTH_SHORT).show();
-                                        } else {
-                                            onExport(filesFragment.getBoxNavigation(), boxObject);
-                                        }
+										onExport(filesFragment.getBoxNavigation(), boxObject);
                                         break;
                                 }
                             }

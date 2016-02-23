@@ -2,7 +2,7 @@ package de.qabel.qabelbox.storage;
 
 import android.support.annotation.NonNull;
 
-public class BoxObject implements Comparable<BoxObject>  {
+public abstract class BoxObject implements Comparable<BoxObject>, BottomSheetMenu {
 	public String name;
 
 	public BoxObject(String name) {this.name = name;}

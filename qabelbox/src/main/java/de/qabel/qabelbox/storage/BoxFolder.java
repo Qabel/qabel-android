@@ -2,6 +2,8 @@ package de.qabel.qabelbox.storage;
 
 import java.util.Arrays;
 
+import de.qabel.qabelbox.R;
+
 public class BoxFolder extends BoxObject {
 	public byte[] key;
 	public String ref;
@@ -37,5 +39,10 @@ public class BoxFolder extends BoxObject {
 	@Override
 	protected BoxFolder clone() throws CloneNotSupportedException {
 		return new BoxFolder(ref,name,key);
+	}
+
+	@Override
+	public int getBottomSheetMenuResId() {
+		return R.menu.box_folder_bottom_sheet;
 	}
 }

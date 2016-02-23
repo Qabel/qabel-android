@@ -9,4 +9,5 @@
     <color name="grey_text_color">#ff555555</color>
     <color name="default_text_color">#cc000000</color>
     <color name="button_semi_transparent">#09000000</color>
+    <color name="bg_welcome_semitransparent">#11111111</color>
 </resources>

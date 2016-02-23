@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical">
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
 
     <FrameLayout
         android:id="@+id/footer"
@@ -11,23 +11,22 @@
         android:layout_alignParentBottom="true">
 
 
+        <de.qabel.qabelbox.views.ViewPagerParallax
+            android:id="@+id/pager"
+            xmlns:android="http://schemas.android.com/apk/res/android"
 
-        <de.qabel.qabelbox.views.TextViewFont
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+        <de.qabel.qabelbox.views.IconPageIndicator
+            android:id="@+id/titles"
+            android:layout_height="wrap_content"
+            android:layout_width="fill_parent" />
+        <ImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginTop="20dp"
-            android:gravity="center"
-            android:text="@string/splash_footer_text"
-
-            android:textSize="@dimen/textsize_splash" />
+            android:layout_gravity="right|top"
+            android:src="@drawable/welcome_github"/>
     </FrameLayout>
 
-    <FrameLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_above="@+id/footer">
 
-
-    </FrameLayout>
 </RelativeLayout>

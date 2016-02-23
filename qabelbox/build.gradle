@@ -96,6 +96,7 @@ dependencies {
     androidTestCompile 'com.android.support.test:rules:0.4'
     // Set this dependency to build and run Espresso tests
     androidTestCompile 'com.android.support.test.espresso:espresso-core:2.2.1'
+
     androidTestCompile('com.android.support.test.espresso:espresso-contrib:2.0') {
         exclude group: 'com.android.support', module: 'appcompat'
         exclude group: 'com.android.support', module: 'support-v4'
@@ -110,6 +111,8 @@ dependencies {
     compile 'com.squareup.okhttp3:okhttp:3.0.1'
     //download and handle images easy
     compile 'com.squareup.picasso:picasso:2.5.2'
+
+    //for more used sources, see license.txt
 }
 
 // for integration test of this plugin

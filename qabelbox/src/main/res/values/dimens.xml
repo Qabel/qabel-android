@@ -18,4 +18,5 @@
     <dimen name="border_small">4dp</dimen>
     <dimen name="border_middle">6dp</dimen>
     <dimen name="border_big">10dp</dimen>
+    <dimen name="textsize_welcome_screen">30sp</dimen>
 </resources>

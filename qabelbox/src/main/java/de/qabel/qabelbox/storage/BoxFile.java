@@ -5,6 +5,8 @@ import android.os.Parcelable;
 
 import java.util.Arrays;
 
+import de.qabel.qabelbox.R;
+
 public class BoxFile extends BoxObject implements Parcelable {
 	public String prefix;
 	public String block;
@@ -128,4 +130,8 @@ public class BoxFile extends BoxObject implements Parcelable {
 		}
 	};
 
+	@Override
+	public int getBottomSheetMenuResId() {
+		return R.menu.box_file_bottom_sheet;
+	}
 }

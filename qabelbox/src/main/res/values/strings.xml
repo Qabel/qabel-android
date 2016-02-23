@@ -228,4 +228,6 @@
     <string name="help_key_main_app_tou">ley_tou</string>
     <string name="help_key_main_app_licenses">key_licenses</string>
     <string name="help_key_main_app_about_us">key_about_us</string>
+    <string name="app_info_version_and_build">You use app version $1 from $2</string>
+    <string name="headline_main_help">Help</string>
 </resources>

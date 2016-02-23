@@ -77,7 +77,6 @@ public class WebViewHelpFragment extends BaseFragment {
     }
 
     private void configureWebView(WebView webView) {
-
     }
 
     @Override

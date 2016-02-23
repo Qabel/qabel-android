@@ -71,7 +71,7 @@ public class SplashActivity extends CrashReportingActivity {
 
             private void startMainActivity() {
 
-                if (prefs.getWelcomeScreenShowedAt() == 0) {
+                if (prefs.getWelcomeScreenShowedAt() != 0) {
                     Intent intent = new Intent(mActivity, WelcomeScreenActivity.class);
                     startActivity(intent);
                     overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);

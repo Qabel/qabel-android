@@ -54,6 +54,7 @@ import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.fragments.BaseFragment;
 import de.qabel.qabelbox.fragments.ContactFragment;
 import de.qabel.qabelbox.fragments.FilesFragment;
+import de.qabel.qabelbox.fragments.HelpMainFragment;
 import de.qabel.qabelbox.fragments.IdentitiesFragment;
 import de.qabel.qabelbox.fragments.ImageViewerFragment;
 import de.qabel.qabelbox.fragments.QRcodeFragment;
@@ -713,7 +714,7 @@ public class MainActivity extends CrashReportingActivity
         } else if (id == R.id.nav_browse) {
             selectFilesFragment();
         } else if (id == R.id.nav_help) {
-            UIHelper.showFunctionNotYetImplemented(this);
+            showHelperFragment();
         } else if (id == R.id.nav_inbox) {
             UIHelper.showFunctionNotYetImplemented(this);
         } else if (id == R.id.nav_settings) {
@@ -724,6 +725,11 @@ public class MainActivity extends CrashReportingActivity
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    private void showHelperFragment() {
+
+        getFragmentManager().beginTransaction().replace(R.id.fragment_container, new HelpMainFragment(), null).addToBackStack(null).commit();
     }
 
     @Override

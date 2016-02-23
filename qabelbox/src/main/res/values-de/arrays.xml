@@ -19,10 +19,10 @@
     <!--please don't change the order or count, it is references from WebViewHelperFragment with int
         It maps to localized files   -->
     <string-array name="help_asset_filenames">
-        <item>disclaimer_en.html</item>
-        <item>datapolicy_en.html</item>
-        <item>tou_en.html</item>
-        <item>licenses_en.html</item>
-        <item>aboutus_en.html</item>
+        <item>disclaimer_de.html</item>
+        <item>datapolicy_de.html</item>
+        <item>tou_de.html</item>
+        <item>licenses_de.html</item>
+        <item>aboutus_de.html</item>
     </string-array>
 </resources>

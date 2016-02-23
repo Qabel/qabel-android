@@ -47,6 +47,8 @@ public class WebViewHelpFragment extends BaseFragment {
         Bundle arguments = getArguments();
         if (arguments != null) {
             mode = arguments.getInt(PARAM_MODE);
+        } else {
+            new Throwable("Fragment have no arguments");
         }
         setHasOptionsMenu(true);
         mActivity.toggle.setDrawerIndicatorEnabled(false);
@@ -77,6 +79,7 @@ public class WebViewHelpFragment extends BaseFragment {
     }
 
     private void configureWebView(WebView webView) {
+
     }
 
     @Override

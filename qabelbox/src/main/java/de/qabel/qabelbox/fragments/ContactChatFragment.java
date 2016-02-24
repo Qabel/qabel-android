@@ -38,7 +38,11 @@ import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.helper.UIHelper;
 import de.qabel.qabelbox.services.LocalQabelService;
 import de.qabel.qabelbox.storage.BoxExternalReference;
+import de.qabel.qabelbox.storage.BoxFile;
+import de.qabel.qabelbox.storage.BoxFolder;
+import de.qabel.qabelbox.storage.BoxNavigation;
 import de.qabel.qabelbox.storage.BoxObject;
+import de.qabel.qabelbox.storage.BoxVolume;
 
 /**
  * Activities that contain this fragment must implement the
@@ -160,9 +164,7 @@ public class ContactChatFragment extends BaseFragment {
             protected void onPostExecute(Collection<DropMessage> dropMessages) {
 
                 messages.clear();
-
                 messages = convertDropMessageToDatabaseMessage(dropMessages);
-
                 refreshContactList(dropMessages);
             }
 
@@ -193,57 +195,178 @@ public class ContactChatFragment extends BaseFragment {
         contactListAdapter = new ChatMessageAdapter(data, contact);
         contactListAdapter.setEmptyView(emptyView);
         contactListRecyclerView.setAdapter(contactListAdapter);
+        contactListAdapter.setOnItemClickListener(getOnItemClickListener());
+        contactListAdapter.notifyDataSetChanged();
+    }
 
-        contactListAdapter.setOnItemClickListener(new ChatMessageAdapter.OnItemClickListener() {
+    @NonNull
+    private ChatMessageAdapter.OnItemClickListener getOnItemClickListener() {
+
+        return new ChatMessageAdapter.OnItemClickListener() {
+
             @Override
-            public void onItemClick(ChatMessageItem item) {
+            public void onItemClick(final ChatMessageItem item) {
 
+                LocalQabelService service = QabelBoxApplication.getInstance().getService();
+                //check if message is instance of sharemessage
                 if (item.getData() instanceof ChatMessageItem.ShareMessagePayload) {
-                    final BoxExternalReference boxExternalReference = ShareHelper.getBoxExternalReference(contact, item);
-                    final FilesFragment filesFragment = mActivity.filesFragment;
-                    new AsyncTask<Void, Void, List<BoxObject>>() {
-                        AlertDialog wait;
+                    //check if share from other (not my sended share)
+                    if (!item.getSenderKey().equals(service.getActiveIdentity().getEcPublicKey().getReadableKeyIdentifier())) {
+                        final FilesFragment filesFragment = mActivity.filesFragment;
+                        new AsyncTask<Void, Void, BoxNavigation>() {
+                            int errorId;
+                            public AlertDialog wait;
 
-                        @Override
-                        protected void onPostExecute(List<BoxObject> boxObjects) {
+                            @Override
+                            protected void onPreExecute() {
 
-                            if (boxObjects != null) {
-                                Toast.makeText(mActivity, R.string.shared_file_imported, Toast.LENGTH_SHORT).show();
-                            } else {
-                                Toast.makeText(mActivity, R.string.cant_import_shared_file, Toast.LENGTH_SHORT).show();
+                                wait = UIHelper.showWaitMessage(getActivity(), R.string.infos, R.string.message_please_wait, false);
                             }
-                            wait.dismiss();
-                        }
 
-                        @Override
-                        protected List<BoxObject> doInBackground(Void... params) {
+                            @Override
+                            protected BoxNavigation doInBackground(Void... params) {
 
-                            try {
-                                mActivity.filesFragment.getBoxNavigation().attachExternal(boxExternalReference);
-                                mActivity.filesFragment.getBoxNavigation().commit();
-                                List<BoxObject> boxExternalFiles = null;
-
-                                boxExternalFiles = filesFragment.getBoxNavigation().listExternals();
-                                for (BoxObject extFile : boxExternalFiles) {
-                                    Log.v(TAG, "external files " + extFile.name);
+                                //navigate to share folder or create this if not exists
+                                BoxNavigation nav = navigateToShareFolder(filesFragment.getBoxVolume());
+                                if (nav == null) {
+                                    errorId = R.string.message_cant_navigate_to_share_folder;
+                                    return null;
                                 }
-                                return boxExternalFiles;
-                            } catch (QblStorageException e) {
-                                e.printStackTrace();
+                                //check if shared file already exists or attached
+                                if (isAttached(nav, item)) {
+                                    errorId = R.string.message_cant_attach_external_file_exists;
+                                    return null;
+                                }
+                                return nav;
                             }
-                            return null;
-                        }
 
-                        @Override
-                        protected void onPreExecute() {
+                            @Override
+                            protected void onPostExecute(BoxNavigation boxNavigation) {
 
-                            wait = UIHelper.showWaitMessage(mActivity, R.string.dialog_headline_info, R.string.please_wait_attach_external_file, false);
-                        }
-                    }.executeOnExecutor(AsyncTask.SERIAL_EXECUTOR);
+                                wait.dismiss();
+                                if (boxNavigation == null) {
+                                    UIHelper.showDialogMessage(getActivity(), R.string.dialog_headline_info, errorId);
+                                } else {
+                                    BoxExternalReference boxExternalReference = ShareHelper.getBoxExternalReference(contact, item);
+                                    attachCheckedSharedFile(filesFragment, boxNavigation, boxExternalReference);
+                                }
+                            }
+                        }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+                    }
                 }
             }
-        });
-        contactListAdapter.notifyDataSetChanged();
+        };
+    }
+
+    /**
+     * attach a file to boxvolume. Call this after all checks done
+     *
+     * @param filesFragment
+     * @param nav
+     * @param boxExternalReference
+     */
+    protected void attachCheckedSharedFile(final FilesFragment filesFragment, final BoxNavigation nav, final BoxExternalReference boxExternalReference) {
+
+        new AsyncTask<Void, Void, List<BoxObject>>() {
+            AlertDialog wait;
+
+            @Override
+            protected void onPostExecute(List<BoxObject> boxObjects) {
+
+                if (boxObjects != null) {
+                    Toast.makeText(mActivity, R.string.shared_file_imported, Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(mActivity, R.string.cant_import_shared_file, Toast.LENGTH_SHORT).show();
+                }
+                filesFragment.setBoxNavigation(nav);
+                wait.dismiss();
+            }
+
+            @Override
+            protected List<BoxObject> doInBackground(Void... params) {
+
+                try {
+                    mActivity.filesFragment.getBoxNavigation().attachExternal(boxExternalReference);
+                    mActivity.filesFragment.getBoxNavigation().commit();
+                    List<BoxObject> boxExternalFiles = null;
+                    boxExternalFiles = filesFragment.getBoxNavigation().listExternals();
+                    return boxExternalFiles;
+                } catch (QblStorageException e) {
+                    Log.e(TAG, "can't attach shared file", e);
+                }
+                return null;
+            }
+
+            @Override
+            protected void onPreExecute() {
+
+                wait = UIHelper.showWaitMessage(mActivity, R.string.dialog_headline_info, R.string.please_wait_attach_external_file, false);
+            }
+        }.executeOnExecutor(AsyncTask.SERIAL_EXECUTOR);
+    }
+
+    /**
+     * navigate to share folder. if folder don't exists, create it.
+     *
+     * @param boxVolume
+     * @return
+     */
+    protected BoxNavigation navigateToShareFolder(BoxVolume boxVolume) {
+
+        try {
+
+            BoxNavigation nav = boxVolume.navigate();
+            List<BoxFolder> folders = nav.listFolders();
+
+            for (BoxFolder folder : folders) {
+                if (folder.equals(BoxFolder.RECEIVED_SHARE_NAME)) {
+                    nav.navigate(folder);
+                    return nav;
+                }
+            }
+            BoxFolder folder = nav.createFolder(BoxFolder.RECEIVED_SHARE_NAME);
+            nav.commit();
+            if (folder != null) {
+                nav.navigate(folder);
+            }
+            return nav;
+        } catch (QblStorageException e) {
+            Log.e(TAG, "error on navigate to share folder", e);
+        }
+        return null;
+    }
+
+    /**
+     * check if givien item already attached or exists in the share folder
+     *
+     * @param nav
+     * @param item
+     * @return
+     */
+    private boolean isAttached(BoxNavigation nav, ChatMessageItem item) {
+
+        ChatMessageItem.ShareMessagePayload payLoad = (ChatMessageItem.ShareMessagePayload) item.getData();
+        String fileNameToAdd = payLoad.getMessage();
+        try {
+            //go through external files
+            List<BoxObject> external = nav.listExternals();
+            for (BoxObject externalBoxObject : external) {
+                if (externalBoxObject.name.equals(fileNameToAdd)) {
+                    return true;
+                }
+            }
+            //go through files
+            List<BoxFile> files = nav.listFiles();
+            for (BoxObject boxOject : files) {
+                if (boxOject.name.equals(fileNameToAdd)) {
+                    return true;
+                }
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Error on parse share folder", e);
+            return false;
+        }
+        return true;
     }
 
     @NonNull

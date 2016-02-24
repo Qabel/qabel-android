@@ -79,6 +79,7 @@ public class ShareHelper {
                 try {
 
                     BoxExternalReference boxExternalReference = nav.createFileMetadata(mService.getActiveIdentity().getEcPublicKey(), boxObject);
+                    nav.commit();
                     return cs.getShareDropMessage(boxExternalReference.name, boxExternalReference.url, Hex.toHexString(boxExternalReference.key));
                 } catch (QblStorageException e) {
                     e.printStackTrace();

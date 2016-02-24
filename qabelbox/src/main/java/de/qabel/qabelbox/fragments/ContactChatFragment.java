@@ -319,7 +319,8 @@ public class ContactChatFragment extends BaseFragment {
             List<BoxFolder> folders = nav.listFolders();
 
             for (BoxFolder folder : folders) {
-                if (folder.equals(BoxFolder.RECEIVED_SHARE_NAME)) {
+
+                if (folder.name.equals(BoxFolder.RECEIVED_SHARE_NAME)) {
                     nav.navigate(folder);
                     return nav;
                 }
@@ -328,8 +329,12 @@ public class ContactChatFragment extends BaseFragment {
             nav.commit();
             if (folder != null) {
                 nav.navigate(folder);
+                return nav;
             }
-            return nav;
+            else
+            {
+                return null;
+            }
         } catch (QblStorageException e) {
             Log.e(TAG, "error on navigate to share folder", e);
         }
@@ -366,7 +371,7 @@ public class ContactChatFragment extends BaseFragment {
             Log.e(TAG, "Error on parse share folder", e);
             return false;
         }
-        return true;
+        return false;
     }
 
     @NonNull

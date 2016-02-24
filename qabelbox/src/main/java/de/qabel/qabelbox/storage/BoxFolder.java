@@ -4,7 +4,7 @@ import java.util.Arrays;
 
 public class BoxFolder extends BoxObject {
 
-	public static final String RECEIVED_SHARE_NAME = "/Shares";
+	public static final String RECEIVED_SHARE_NAME = "Incomming-Shares";
 	public byte[] key;
 	public String ref;
 

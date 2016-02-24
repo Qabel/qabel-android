@@ -142,16 +142,31 @@ public class BoxTest extends AndroidTestCase {
     public void tearDown() throws IOException {
     }
 
-	private void checkExternalReceivedBoxFile(BoxFile boxFile, BoxNavigation navOtherUser) throws QblStorageException {
-		List<BoxObject> boxExternalFiles = navOtherUser.listExternals();
-		assertThat(boxExternalFiles.size(), is(1));
-		assertTrue(boxExternalFiles.get(0) instanceof BoxExternalFile);
-		BoxExternalFile boxFileReceived = (BoxExternalFile) boxExternalFiles.get(0);
-		assertThat(boxFile.name, is(equalTo(boxFileReceived.name)));
-		assertThat(boxFile.key, is(equalTo(boxFileReceived.key)));
-		assertThat(OWNER, is(equalTo(boxFileReceived.owner)));
+    private void checkExternalReceivedBoxFile(byte[] originalFile, BoxFile boxFile, BoxNavigation navOtherUser) throws QblStorageException, IOException {
+            List<BoxObject> boxExternalFiles = navOtherUser.listExternals();
+            assertThat(boxExternalFiles.size(), is(1));
+            assertTrue(boxExternalFiles.get(0) instanceof BoxExternalFile);
+            BoxExternalFile boxFileReceived = (BoxExternalFile) boxExternalFiles.get(0);
+            assertThat(boxFile.name, is(equalTo(boxFileReceived.name)));
+            assertThat(boxFile.key, is(equalTo(boxFileReceived.key)));
+            assertThat(OWNER, is(equalTo(boxFileReceived.owner)));
 
-		InputStream inputStream = navOtherUser.download(boxFileReceived, null);
+            InputStream inputStream = navOtherUser.download(boxFileReceived, null);
+            assertArrayEquals(originalFile, IOUtils.toByteArray(inputStream));
+        }
+
+    private void checkExternalReceivedBoxFile(BoxFile boxFile, BoxNavigation navOtherUser) throws QblStorageException {
+
+        List<BoxObject> boxExternalFiles = navOtherUser.listExternals();
+        assertThat(boxExternalFiles.size(), is(1));
+        assertTrue(boxExternalFiles.get(0) instanceof BoxExternalFile);
+        BoxExternalFile boxFileReceived = (BoxExternalFile) boxExternalFiles.get(0);
+        assertThat(boxFile.name, is(equalTo(boxFileReceived.name)));
+        assertThat(boxFile.key, is(equalTo(boxFileReceived.key)));
+        assertThat(OWNER, is(equalTo(boxFileReceived.owner)));
+
+        InputStream inputStream = navOtherUser.download(boxFileReceived, null);
+
 		//assertArrayEquals(originalFile, IOUtils.toByteArray(inputStream));
 	}
 
@@ -228,7 +243,7 @@ public class BoxTest extends AndroidTestCase {
 		BoxNavigation navOtherUser = volumeOtherUser.navigate();
 		navOtherUser.attachExternal(boxExternalReference);
 
-		checkExternalReceivedBoxFile(IOUtils.toByteArray(new FileInputStream(file)), boxFile, navOtherUser);
+		checkExternalReceivedBoxFile(/*IOUtils.toByteArray(new FileInputStream(file)),*/ boxFile, navOtherUser);
 
 		nav.rename(boxFile, "barfoo");
 		nav.commit();

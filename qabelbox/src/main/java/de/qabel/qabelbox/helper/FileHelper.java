@@ -1,16 +1,23 @@
 package de.qabel.qabelbox.helper;
 
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.Charset;
 
 /**
  * Simple class to access file actions
  * Created by danny on 04.02.16.
  */
 public class FileHelper {
+
+    private static final String DEFAULT_ENCODING = "UTF-8";
+    public static final Charset UTF8 = Charset.forName(DEFAULT_ENCODING);
 
     public static JSONObject readFileAsJson(FileInputStream fis) throws JSONException, IOException {
 
@@ -27,5 +34,45 @@ public class FileHelper {
             fileContent.append(new String(buffer, 0, n));
         }
         return fileContent.toString();
+    }
+    public static byte[] readFileAsBinary(FileInputStream fis) throws IOException {
+
+        ByteArrayOutputStream baos=new ByteArrayOutputStream();
+
+        byte[] buffer = new byte[1024];
+        int n;
+        while ((n = fis.read(buffer)) != -1) {
+            baos.write(buffer,0,n);
+
+        }
+        return baos.toByteArray();
+    }
+
+    private static final int BUFFER_SIZE = 1024 * 4;
+
+    /**
+     * Reads and returns the rest of the given input stream as a byte array,
+     * closing the input stream afterwards.
+     */
+    public static byte[] toByteArray(InputStream is) throws IOException {
+        ByteArrayOutputStream output = new ByteArrayOutputStream();
+        try {
+            byte[] b = new byte[BUFFER_SIZE];
+            int n = 0;
+            while ((n = is.read(b)) != -1) {
+                output.write(b, 0, n);
+            }
+            return output.toByteArray();
+        } finally {
+            output.close();
+        }
+    }
+
+    /**
+     * Reads and returns the rest of the given input stream as a string, closing
+     * the input stream afterwards.
+     */
+    public static String toString(InputStream is) throws IOException {
+        return new String(toByteArray(is), UTF8);
     }
 }

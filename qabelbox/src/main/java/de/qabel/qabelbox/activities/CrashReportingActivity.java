@@ -19,7 +19,7 @@ public class CrashReportingActivity extends AppCompatActivity {
 
     private final String TAG = this.getClass().getSimpleName();
     private boolean handleCrashes = true;
-    private final boolean checkForUpdates = false;//set to true if certain users can upload new version via hockey app
+    private final boolean checkForUpdates = false;//set to true if certain users can uploadAndDeleteLocalfile new version via hockey app
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

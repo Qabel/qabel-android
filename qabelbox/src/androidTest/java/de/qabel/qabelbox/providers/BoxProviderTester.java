@@ -8,6 +8,7 @@ import android.support.annotation.Nullable;
 
 import org.spongycastle.util.encoders.Hex;
 
+import java.util.ArrayList;
 import java.util.UUID;
 
 import de.qabel.core.config.Identities;
@@ -26,7 +27,7 @@ public class BoxProviderTester extends BoxProvider {
 	public String lastID;
 	public QblECKeyPair keyPair;
 	public String rootDocId;
-	public final String prefix = UUID.randomUUID().toString();
+	public final String prefix = "test";
 	public static final String PUB_KEY = "8520f0098930a754748b7ddcb43ef75a0dbf3a0d26381af4eba4a98eaa9b4e6a";
 	public static final String PRIVATE_KEY = "77076d0a7318a57d3c16c17251b26645df4c2f87ebc0992ab177fba51db92c2a";
 	public Identity identity;
@@ -46,10 +47,12 @@ public class BoxProviderTester extends BoxProvider {
 		CryptoUtils utils = new CryptoUtils();
 		deviceID = utils.getRandomBytes(16);
 		keyPair = new QblECKeyPair(Hex.decode(PRIVATE_KEY));
-		rootDocId = PUB_KEY + BoxProvider.DOCID_SEPARATOR + BoxProvider.BUCKET
-				+ BoxProvider.DOCID_SEPARATOR + prefix + BoxProvider.DOCID_SEPARATOR
+		rootDocId = PUB_KEY + BoxProvider.DOCID_SEPARATOR + prefix + BoxProvider.DOCID_SEPARATOR
 				+ BoxProvider.PATH_SEP;
 		identity = new Identity("testuser", null, keyPair);
+		ArrayList<String> prefixes = new ArrayList<>();
+		prefixes.add(prefix);
+		identity.setPrefixes(prefixes);
 	}
 
 	private void initServiceForTests(Context context) {

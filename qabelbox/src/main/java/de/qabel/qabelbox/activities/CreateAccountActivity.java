@@ -16,7 +16,7 @@ import java.util.ArrayList;
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.communication.BoxAccountRegisterServer;
-import de.qabel.qabelbox.communication.SimpleJsonCallback;
+import de.qabel.qabelbox.communication.callbacks.SimpleJsonCallback;
 import de.qabel.qabelbox.config.AppPreference;
 import de.qabel.qabelbox.fragments.BaseIdentityFragment;
 import de.qabel.qabelbox.fragments.CreateAccountFinalFragment;

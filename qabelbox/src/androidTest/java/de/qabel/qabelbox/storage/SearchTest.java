@@ -1,19 +1,12 @@
+
 package de.qabel.qabelbox.storage;
 
 import android.test.AndroidTestCase;
 import android.util.Log;
 
-import com.amazonaws.auth.AWSCredentials;
-import com.amazonaws.mobileconnectors.s3.transferutility.TransferUtility;
-import com.amazonaws.services.s3.AmazonS3Client;
-import com.amazonaws.services.s3.model.DeleteObjectsRequest;
-import com.amazonaws.services.s3.model.ObjectListing;
-import com.amazonaws.services.s3.model.S3ObjectSummary;
-
 import org.junit.Test;
 
 import java.io.FileInputStream;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -24,14 +17,15 @@ import java.util.UUID;
 
 import de.qabel.core.crypto.CryptoUtils;
 import de.qabel.core.crypto.QblECKeyPair;
-import de.qabel.qabelbox.R;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
+
 /**
  * Created by cdemon on 15.12.2015.
  */
+
 public class SearchTest extends AndroidTestCase {
 
 	private final static String TAG = SearchTest.class.getName();
@@ -60,36 +54,16 @@ public class SearchTest extends AndroidTestCase {
 
 		setup = false;
 
-		AmazonS3Client s3Client = null;
-		final String bucket = "qabel";
-		final String prefix = UUID.randomUUID().toString();
+		final String prefix = "test";
 
-		try {
-			CryptoUtils utils = new CryptoUtils();
+		CryptoUtils utils = new CryptoUtils();
 			byte[] deviceID = utils.getRandomBytes(16);
 			QblECKeyPair keyPair = new QblECKeyPair();
 
-			AWSCredentials awsCredentials = new AWSCredentials() {
-				@Override
-				public String getAWSAccessKeyId() {
-					return getContext().getResources().getString(R.string.aws_user);
-				}
-
-				@Override
-				public String getAWSSecretKey() {
-					return getContext().getString(R.string.aws_password);
-				}
-			};
-			AWSCredentials credentials = awsCredentials;
-			s3Client = new AmazonS3Client(credentials);
-			assertNotNull(awsCredentials.getAWSAccessKeyId());
-			assertNotNull(awsCredentials.getAWSSecretKey());
-
-			TransferUtility transfer = new TransferUtility(s3Client, getContext());
-			BoxVolume volume = new BoxVolume(transfer, credentials, keyPair, bucket, prefix,
+		BoxVolume volume = new BoxVolume(keyPair, prefix,
 					deviceID, getContext());
 
-			volume.createIndex(bucket, prefix);
+		volume.createIndex();
 
 			Log.d(TAG, "VOL :" + volume.toString());
 
@@ -98,31 +72,9 @@ public class SearchTest extends AndroidTestCase {
 			setupFakeDirectoryStructure(nav);
 
 			setupBaseSearch(nav);
-		} finally {
-			if (s3Client != null) {
-				cleanUp(s3Client, bucket, prefix);
-			}
-		}
+
 
 		Log.d(TAG, "SETUP DONE");
-	}
-
-	public void cleanUp(AmazonS3Client s3Client, String bucket, String prefix) throws IOException {
-		ObjectListing listing = s3Client.listObjects(bucket, prefix);
-		List<DeleteObjectsRequest.KeyVersion> keys = new ArrayList<>();
-
-		for (S3ObjectSummary summary : listing.getObjectSummaries()) {
-			Log.d(TAG, "DELETE: " + summary.getKey());
-			keys.add(new DeleteObjectsRequest.KeyVersion(summary.getKey()));
-		}
-
-		if (keys.isEmpty()) {
-			return;
-		}
-
-		DeleteObjectsRequest deleteObjectsRequest = new DeleteObjectsRequest(bucket);
-		deleteObjectsRequest.setKeys(keys);
-		s3Client.deleteObjects(deleteObjectsRequest);
 	}
 
 	private void setupFakeDirectoryStructure(BoxNavigation nav) throws Exception {
@@ -433,3 +385,4 @@ public class SearchTest extends AndroidTestCase {
 		return clonedList;
 	}
 }
+

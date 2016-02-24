@@ -1,6 +1,5 @@
 package de.qabel.qabelbox.fragments;
 
-import android.app.Activity;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -19,9 +18,9 @@ import java.util.ArrayList;
 import de.qabel.core.config.Identity;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.adapter.FilesAdapter;
+import de.qabel.qabelbox.communication.VolumeFileTransferHelper;
 import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.storage.BoxFolder;
-import de.qabel.qabelbox.storage.BoxNavigation;
 import de.qabel.qabelbox.storage.BoxObject;
 import de.qabel.qabelbox.storage.BoxVolume;
 
@@ -30,7 +29,6 @@ public class SelectUploadFolderFragment extends FilesFragment {
     private final String TAG = this.getClass().getSimpleName();
     private ArrayList<Uri> uris;
     private RecyclerView.LayoutManager recyclerViewLayoutManager;
-    private OnSelectedUploadFolderListener mListener;
 
     private void loadIdentityFiles(final BoxVolume boxVolume) {
 
@@ -142,7 +140,7 @@ public class SelectUploadFolderFragment extends FilesFragment {
     private void uploadFiles() {
 
         for (int i = 0; i < uris.size(); i++) {
-            mListener.onFolderSelected(uris.get(i), boxNavigation);
+            VolumeFileTransferHelper.upload(getActivity(), uris.get(i), boxNavigation, mActivity.boxVolume);
         }
         Toast.makeText(getActivity(), getString(R.string.x_files_uploading).replace("%1", "" + uris.size()), Toast.LENGTH_SHORT).show();
         getFragmentManager().popBackStack();
@@ -157,25 +155,6 @@ public class SelectUploadFolderFragment extends FilesFragment {
         }
     }
 
-    @Override
-    public void onAttach(Activity activity) {
-
-        super.onAttach(activity);
-        try {
-            mListener = (OnSelectedUploadFolderListener) activity;
-        } catch (ClassCastException e) {
-            throw new ClassCastException(activity.toString()
-                    + " must implement OnSelectedUploadFolderListener");
-        }
-    }
-
-    @Override
-    public void onDetach() {
-
-        super.onDetach();
-        mListener = null;
-    }
-
     public static SelectUploadFolderFragment newInstance(BoxVolume boxVolume, ArrayList<Uri> data, Identity activeIdentity) {
 
         SelectUploadFolderFragment fragment = new SelectUploadFolderFragment();
@@ -183,13 +162,6 @@ public class SelectUploadFolderFragment extends FilesFragment {
         fragment.uris = data;
         fragment.loadIdentityFiles(fragment.getBoxVolume());
         return fragment;
-    }
-
-    public interface OnSelectedUploadFolderListener {
-
-        void onFolderSelected(Uri uri, BoxNavigation boxNavigation);
-
-        void onAbort();
     }
 
     @Override

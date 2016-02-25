@@ -292,6 +292,15 @@ public class BoxTest extends AndroidTestCase {
 		nav.commit();
 
 		assertThat(boxFile.isShared(), is(false));
+
+		// Check that BoxFile.meta and BoxFile.metakey is actually removed
+		// from DirectoryMetadata and thus null in reloaded BoxFile.
+		nav = volume.navigate();
+		BoxFile receivedBoxFile = nav.listFiles().get(0);
+
+		assertThat(boxFile, equalTo(receivedBoxFile));
+		assertThat(false, is(boxFile.isShared()));
+
 	}
 
 	@Test

@@ -127,7 +127,7 @@ public class ContactChatFragment extends BaseFragment {
 										etText.setText("");
 									}
 								});
-								ChatMessageItem newMessage = chatServer.createOwnMessage(identity, contact.getEcPublicKey().getReadableKeyIdentifier().toString(), dropMessage.getDropPayload(), dropMessage.getDropPayloadType());
+								ChatMessageItem newMessage = new ChatMessageItem(identity, contact.getEcPublicKey().getReadableKeyIdentifier().toString(), dropMessage.getDropPayload(), dropMessage.getDropPayloadType());
 								chatServer.storeIntoDB(newMessage);
 								messages.add(newMessage);
 								getActivity().runOnUiThread(new Runnable() {
@@ -283,7 +283,7 @@ public class ContactChatFragment extends BaseFragment {
 					Toast.makeText(mActivity, R.string.cant_import_shared_file, Toast.LENGTH_SHORT).show();
 				}
 				filesFragment.refresh();
-			//	filesFragment.setBoxNavigation(nav);
+				//	filesFragment.setBoxNavigation(nav);
 				wait.dismiss();
 			}
 
@@ -382,13 +382,7 @@ public class ContactChatFragment extends BaseFragment {
 
 		ArrayList<ChatMessageItem> data = new ArrayList<>();
 		for (DropMessage item : messages) {
-			ChatMessageItem message = new ChatMessageItem();
-			message.sender = item.getSenderKeyId();
-			message.receiver = null;
-			message.time_stamp = item.getCreationDate().getTime();
-			message.acknowledge_id = item.getAcknowledgeID();
-			message.drop_payload = item.getDropPayload();
-			message.drop_payload_type = item.getDropPayloadType();
+			ChatMessageItem message = new ChatMessageItem(item);
 			message.isNew = 1;
 			data.add(message);
 		}

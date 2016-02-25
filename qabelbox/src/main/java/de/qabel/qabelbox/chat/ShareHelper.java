@@ -1,6 +1,5 @@
 package de.qabel.qabelbox.chat;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
@@ -86,7 +85,7 @@ public class ShareHelper {
 	 * @param contact
 	 * @param boxObject
 	 */
-	public static void shareToQabelUser(final MainActivity mainActivity, final Contact contact, final BoxFile boxObject) {
+	private static void shareToQabelUser(final MainActivity mainActivity, final Contact contact, final BoxFile boxObject) {
 
 		final BoxNavigation nav = mainActivity.filesFragment.getBoxNavigation();
 		final LocalQabelService mService = mainActivity.mService;
@@ -121,7 +120,7 @@ public class ShareHelper {
 						mService.sendDropMessage(dm, contact, mService.getActiveIdentity(), new LocalQabelService.OnSendDropMessageResult() {
 							@Override
 							public void onSendDropResult(Map<DropURL, Boolean> deliveryStatus) {
-								ChatMessageItem message = cs.createOwnMessage(mainActivity.mService.getActiveIdentity(), contact.getEcPublicKey().getReadableKeyIdentifier(), dm.getDropPayload(), dm.getDropPayloadType());
+								ChatMessageItem message = new ChatMessageItem(mainActivity.mService.getActiveIdentity(), contact.getEcPublicKey().getReadableKeyIdentifier(), dm.getDropPayload(), dm.getDropPayloadType());
 								cs.storeIntoDB(message);
 								mainActivity.filesFragment.refresh();
 								mainActivity.runOnUiThread(new Runnable() {

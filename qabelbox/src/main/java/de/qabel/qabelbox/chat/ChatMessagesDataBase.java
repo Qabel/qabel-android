@@ -75,17 +75,19 @@ public class ChatMessagesDataBase extends SQLiteOpenHelper {
 		sqLiteDatabase.execSQL("DROP TABLE " + CREATE_TABLE_LOAD + ";");
 	}
 
-	private void remove(ChatMessageItem item) {
-
-		SQLiteDatabase database = getReadableDatabase();
-		int rows = database.delete(TABLE_MESSAGE_NAME, COL_MESSAGE_ID + "=?",
-				new String[]{"" + item.id});
-		Log.i(TAG, "entrys deleted with id: " + item.id + " count: " + rows);
+	@NonNull
+	private void removeMessageById(ChatMessageItem item) {
+		if (item.id > 0) {
+			SQLiteDatabase database = getReadableDatabase();
+			int rows = database.delete(TABLE_MESSAGE_NAME, COL_MESSAGE_ID + "=?",
+					new String[]{"" + item.id});
+			Log.i(TAG, "entrys deleted with id: " + item.id + " count: " + rows);
+		}
 	}
 
 	public long put(ChatMessageItem item) {
 
-		remove(item);
+		//remove(item);
 		Log.i(TAG, "Put into db: " + item.toString() + " " + item.getSenderKey() + " " + item.getReceiverKey());
 		ContentValues values = new ContentValues();
 
@@ -96,9 +98,9 @@ public class ChatMessagesDataBase extends SQLiteOpenHelper {
 		values.put(COL_MESSAGE_PAYLOAD, item.drop_payload == null ? "" : item.drop_payload);
 		values.put(COL_MESSAGE_ISNEW, item.isNew);
 
-		long id = getWritableDatabase().insert(TABLE_MESSAGE_NAME, null, values);
+		long id = getWritableDatabase().insertWithOnConflict(TABLE_MESSAGE_NAME, null, values, SQLiteDatabase.CONFLICT_IGNORE);
 		if (id == -1) {
-			Log.e(TAG, "Failed putting into db: " + item.toString());
+			Log.e(TAG, "Failed put into db: " + item.toString());
 		} else {
 			Log.v(TAG, "db entry putted " + COL_MESSAGE_PAYLOAD);
 		}
@@ -159,17 +161,17 @@ public class ChatMessagesDataBase extends SQLiteOpenHelper {
 			int i = 0;
 
 			while (!cursor.isAfterLast()) {
-				//should match all columns list
-				ChatMessageItem item = new ChatMessageItem();
-				items[i] = new ChatMessageItem();
-				items[i].id = cursor.getInt(0);
-				items[i].isNew = cursor.getShort(1);
-				items[i].time_stamp = cursor.getLong(2);
-				items[i].sender = cursor.getString(3);
-				items[i].receiver = cursor.getString(4);
-				items[i].acknowledge_id = cursor.getString(5);
-				items[i].drop_payload_type = cursor.getString(6);
-				items[i].drop_payload = cursor.getString(7);
+				items[i] = new ChatMessageItem(
+						cursor.getInt(0),
+						cursor.getShort(1),
+						cursor.getLong(2),
+						cursor.getString(3),
+						cursor.getString(4),
+						cursor.getString(5),
+						cursor.getString(6),
+						cursor.getString(7));
+
+
 				i++;
 				cursor.moveToNext();
 			}
@@ -194,15 +196,28 @@ public class ChatMessagesDataBase extends SQLiteOpenHelper {
 
 		ContentValues cv = new ContentValues();
 		cv.put(COL_MESSAGE_ISNEW, 0);
-		int count = database.update(TABLE_MESSAGE_NAME, cv, COL_MESSAGE_SENDER + "=" + c.getEcPublicKey().getReadableKeyIdentifier().toString(), null);
-		return count;
+		return database.update(TABLE_MESSAGE_NAME, cv, COL_MESSAGE_SENDER + "='" + c.getEcPublicKey().getReadableKeyIdentifier().toString() + "'", null);
 	}
 
 	public long getLastRetrievedDropMessageTime() {
-		return 0;
+		SQLiteDatabase database = getReadableDatabase();
+		Cursor cursor = database.query(TABLE_NAME_LOAD, new String[]{COL_LOAD_TIMESTAMP}, null, null, null, null, null);
+		if (cursor.getCount() == 0) {
+			return 0;
+		} else {
+			cursor.moveToFirst();
+			long time = cursor.getLong(0);
+			cursor.close();
+			return time;
+		}
+
 	}
 
 	public void setLastRetrivedDropMessagesTime(long time) {
+		SQLiteDatabase database = getReadableDatabase();
+		ContentValues values = new ContentValues();
+		values.put(COL_LOAD_TIMESTAMP, time);
 
+		database.replace(TABLE_NAME_LOAD, null, values);
 	}
 }

@@ -5,114 +5,150 @@ import android.util.Log;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import de.qabel.core.config.Identity;
+import de.qabel.core.drop.DropMessage;
+
 /**
  * class to store chatmessage in database
- *
+ * <p/>
  * Created by danny on 16.02.16.
  */
 public class ChatMessageItem {
 
-    public static final String SHARE_NOTIFICATION = "box_share_notification";
-    public static final String BOX_MESSAGE = "box_message";
+	public static final String SHARE_NOTIFICATION = "box_share_notification";
+	public static final String BOX_MESSAGE = "box_message";
 
-    //from json
-    public int version;
-    public long time_stamp;
-    public String sender;
-    public String receiver;
-    public String acknowledge_id;//key
-    public String drop_payload_type;//key
-    public String drop_payload;
-    private String TAG = this.getClass().getSimpleName();
+	//from json
+	public int version;
+	public long time_stamp;
+	public String sender;
+	public String receiver;
+	public String acknowledge_id;//key
+	public String drop_payload_type;//key
+	public String drop_payload;
+	private final String TAG = this.getClass().getSimpleName();
 
-    public short isNew = 1;//1 for new, 0 for old
-    public int id;
+	//inten values for db storage
+	public short isNew = 1;//1 for new, 0 for old
+	public int id = 0;
 
-    //inten values for db storage
+	public ChatMessageItem(int id, short isNew, long time_stamp, String sender, String receiver, String acknowledge_id, String drop_payload_type, String drop_payload)
+	{
+		this.id = id;
+		this.isNew = isNew;
+		this.time_stamp = time_stamp;
+		this.sender = sender;
+		this.receiver = receiver;
+		this.acknowledge_id = acknowledge_id;
+		this.drop_payload_type = drop_payload_type;
+		this.drop_payload = drop_payload;
+	}
 
-    public long getTime() {
 
-        return time_stamp;
-    }
+	public ChatMessageItem(DropMessage dm) {
+		sender = dm.getSenderKeyId();
+		acknowledge_id = dm.getAcknowledgeID();
+		version = dm.getVersion();
+		receiver = null;
+		drop_payload = dm.getDropPayload();
+		drop_payload_type = dm.getDropPayloadType();
+		time_stamp = dm.getCreationDate().getTime();
 
-    public String getSenderKey() {
 
-        return sender;
-    }
+	}
 
-    public String getReceiverKey() {
+	public ChatMessageItem(Identity mIdentity, String receiverKey, String payload, String payload_type) {
+		time_stamp = System.currentTimeMillis();
+		sender = mIdentity.getEcPublicKey().getReadableKeyIdentifier();
+		receiver = receiverKey;
+		drop_payload = payload;
+		drop_payload_type = payload_type;
+		isNew = 1;
+	}
 
-        return receiver;
-    }
+	public long getTime() {
 
-    public MessagePayload getData() {
+		return time_stamp;
+	}
 
-        if (drop_payload_type != null && drop_payload != null) {
-            if (drop_payload_type.equals(BOX_MESSAGE)) {
-                TextMessagePayload message = new TextMessagePayload();
-                try {
-                    message.message = new JSONObject(drop_payload).getString("message");
-                } catch (JSONException e) {
-                    Log.w(TAG, "no payload data field", e);
-                    return null;
-                }
-                return message;
-            } else {
-                if (drop_payload_type.equals(SHARE_NOTIFICATION)) {
-                    ShareMessagePayload message = new ShareMessagePayload();
-                    try {
-                        JSONObject payload = new JSONObject(drop_payload);
-                        message.message = payload.getString("message");
-                        message.url = payload.getString("url");
-                        message.key = payload.getString("key");
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                    return message;
-                }
-            }
-        }
-        return null;
-    }
+	public String getSenderKey() {
 
-    /**
-     * hold text message
-     */
-    public static class TextMessagePayload extends MessagePayload {
+		return sender;
+	}
 
-        String message;
+	public String getReceiverKey() {
 
-        public String getMessage() {
+		return receiver;
+	}
 
-            return message;
-        }
-    }
+	public MessagePayload getData() {
 
-    /**
-     * hold share message
-     */
-    public static class ShareMessagePayload extends MessagePayload {
+		if (drop_payload_type != null && drop_payload != null) {
+			if (drop_payload_type.equals(BOX_MESSAGE)) {
+				TextMessagePayload message = new TextMessagePayload();
+				try {
+					message.message = new JSONObject(drop_payload).getString("message");
+				} catch (JSONException e) {
+					Log.w(TAG, "no payload data field", e);
+					return null;
+				}
+				return message;
+			} else {
+				if (drop_payload_type.equals(SHARE_NOTIFICATION)) {
+					ShareMessagePayload message = new ShareMessagePayload();
+					try {
+						JSONObject payload = new JSONObject(drop_payload);
+						message.message = payload.getString("message");
+						message.url = payload.getString("url");
+						message.key = payload.getString("key");
+					} catch (JSONException e) {
+						e.printStackTrace();
+					}
+					return message;
+				}
+			}
+		}
+		return null;
+	}
 
-        String message, url, key;
+	/**
+	 * hold text message
+	 */
+	public static class TextMessagePayload extends MessagePayload {
 
-        public String getMessage() {
+		String message;
 
-            return message;
-        }
+		public String getMessage() {
 
-        public String getURL() {
+			return message;
+		}
+	}
 
-            return url;
-        }
+	/**
+	 * hold share message
+	 */
+	public static class ShareMessagePayload extends MessagePayload {
 
-        public String getKey() {
+		String message, url, key;
 
-            return key;
-        }
-    }
+		public String getMessage() {
 
-    public static class MessagePayload {
+			return message;
+		}
 
-    }
+		public String getURL() {
+
+			return url;
+		}
+
+		public String getKey() {
+
+			return key;
+		}
+	}
+
+	public static class MessagePayload {
+
+	}
 }
 

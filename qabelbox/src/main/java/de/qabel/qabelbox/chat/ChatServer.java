@@ -7,6 +7,7 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import de.qabel.core.config.Contact;
@@ -60,52 +61,41 @@ public class ChatServer {
 
 	public Collection<DropMessage> refreshList() {
 		long lastRetrieved = dataBase.getLastRetrievedDropMessageTime();
-
+		Log.d(TAG, "last retrieved dropmessage time " + lastRetrieved+" / "+System.currentTimeMillis());
 		Collection<DropMessage> result = QabelBoxApplication.getInstance().getService().retrieveDropMessages(lastRetrieved);
-		addMessagesToDataBase(result);
-		long last = 0;
 
-		//@todo replace this with header from server response. see
-		//@see https://github.com/Qabel/qabel-android/issues/272
 		if (result != null) {
+			Log.d(TAG,"new message count: "+result.size());
+			//store into db
 			for (DropMessage item : result) {
-				last = Math.max(item.getCreationDate().getTime(), last);
+				ChatMessageItem cms = new ChatMessageItem(item);
+				cms.isNew = 0;
+				dataBase.put(cms);
+			}
+
+			//@todo replace this with header from server response.
+			//@see https://github.com/Qabel/qabel-android/issues/272
+			for (DropMessage item : result) {
+				lastRetrieved = Math.max(item.getCreationDate().getTime(), lastRetrieved);
 			}
 		}
-		dataBase.setLastRetrivedDropMessagesTime(last);
+		lastRetrieved=0;
+		dataBase.setLastRetrivedDropMessagesTime(lastRetrieved);
+		Log.d(TAG, "new retrieved dropmessage time " + lastRetrieved);
+
 		sendCallbacksRefreshed();
 		return result;
 	}
 
-	private void addMessagesToDataBase(Collection<DropMessage> result) {
-		//@TODO: 25.02.16
-	}
 
 	public void addMessagesFromDataBase(ArrayList<ChatMessageItem> messages) {
 
 		ChatMessageItem[] result = dataBase.getAll();
 		if (result != null) {
-			for (ChatMessageItem item : result) {
-				messages.add(item);
-			}
+			Collections.addAll(messages, result);
 		}
 	}
 
-	/**
-	 * create own chat message to store in db
-	 */
-	public ChatMessageItem createOwnMessage(Identity mIdentity, String receiverKey, String payload, String payload_type) {
-
-		ChatMessageItem item = new ChatMessageItem();
-		item.time_stamp = System.currentTimeMillis();
-		item.sender = mIdentity.getEcPublicKey().getReadableKeyIdentifier();
-		item.receiver = receiverKey;
-		item.drop_payload = payload;
-		item.drop_payload_type = payload_type;
-		item.isNew = 1;
-
-		return item;
-	}
 
 	public void storeIntoDB(ChatMessageItem item) {
 

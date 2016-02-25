@@ -43,14 +43,12 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 
-import de.qabel.core.config.Contact;
 import de.qabel.core.config.Identity;
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.adapter.FilesAdapter;
 import de.qabel.qabelbox.chat.ShareHelper;
 import de.qabel.qabelbox.communication.VolumeFileTransferHelper;
-import de.qabel.qabelbox.dialogs.SelectContactForShareDialog;
 import de.qabel.qabelbox.dialogs.SelectIdentityForUploadDialog;
 import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.fragments.BaseFragment;
@@ -66,6 +64,7 @@ import de.qabel.qabelbox.helper.Sanity;
 import de.qabel.qabelbox.helper.UIHelper;
 import de.qabel.qabelbox.providers.BoxProvider;
 import de.qabel.qabelbox.services.LocalQabelService;
+import de.qabel.qabelbox.storage.BoxExternalFile;
 import de.qabel.qabelbox.storage.BoxFile;
 import de.qabel.qabelbox.storage.BoxFolder;
 import de.qabel.qabelbox.storage.BoxNavigation;
@@ -513,16 +512,17 @@ public class MainActivity extends CrashReportingActivity
 									case R.id.share:
 										ExternalApps.share(self, getUri(boxObject), getMimeType(boxObject));
 										break;
-									case R.id.shareto_qabeluser:
-										shareToQabelUser(boxObject);
+									case R.id.fordward:
+										ShareHelper.shareToQabelUser(self, mService, boxObject);
 										break;
 									case R.id.delete:
 										filesFragment.delete(boxObject);
 										break;
+									/*
+									//not decided if we want unshare in pk
 									case R.id.unshare:
-
 										filesFragment.unshare((BoxFile) boxObject);
-										break;
+										break;*/
 									case R.id.export:
 										onExport(filesFragment.getBoxNavigation(), boxObject);
 										break;
@@ -539,48 +539,19 @@ public class MainActivity extends CrashReportingActivity
 
 	protected void filterSheet(BoxObject boxObject, BottomSheet.Builder sheet) {
 
-		if (!(boxObject instanceof BoxFile) || !((BoxFile) boxObject).isShared()) {
-			sheet.remove(R.id.unshare);
+		if (boxObject instanceof BoxExternalFile) {
+			sheet.remove(R.id.edit);
+			sheet.remove(R.id.fordward);
 		}
-		if (!(boxObject instanceof BoxFile)) {
-
-			sheet.remove(R.id.unshare);
-		}
-
 		if (!(boxObject instanceof BoxFile)) {
 			sheet.remove(R.id.open);
 			sheet.remove(R.id.export);
 			sheet.remove(R.id.edit);
 			sheet.remove(R.id.share);
-			sheet.remove(R.id.shareto_qabeluser);
+			sheet.remove(R.id.fordward);
 		}
 	}
 
-	private void shareToQabelUser(final BoxObject boxObject) {
-
-		if (mService.getContacts(mService.getActiveIdentity()).getContacts().size() == 0) {
-			UIHelper.showDialogMessage(self, R.string.dialog_headline_info, R.string.cant_share_contactlist_is_empty);
-			;
-		} else {
-			if (boxObject instanceof BoxFile) {
-
-				new SelectContactForShareDialog(self, new SelectContactForShareDialog.Result() {
-					@Override
-					public void onCancel() {
-
-					}
-
-					@Override
-					public void onContactSelected(Contact contact) {
-
-						ShareHelper.shareToQabelUser(self, contact, (BoxFile) boxObject);
-					}
-				});
-			} else {
-				UIHelper.showDialogMessage(self, R.string.share_only_files_possibility, Toast.LENGTH_SHORT);
-			}
-		}
-	}
 
 	/**
 	 * open system show file dialog

@@ -218,7 +218,7 @@
     <string name="headline_contact_chat">Chat</string>
     <string name="btn_chat_send">Send</string>
     <string name="cant_send_message">Can\'t send message</string>
-    <string name="ShareToQabelUser">Share to Qabeluser</string>
+    <string name="ShareToQabelUser">Forward</string>
     <string name="fileshare_label_in_chatmessage">Shared file %1</string>
     <string name="headline_share_to_qabeluser">Share to QabelUser</string>
     <string name="cant_share_contactlist_is_empty">Cant share file. You have no contact in contactlist</string>
@@ -234,7 +234,7 @@
     <string name="share_error_on_sending">Share not sended</string>
     <string name="filebrowser_file_is_shared_to_other">Shared to other</string>
     <string name="filebrowser_file_is_shared_from">Shared from %1</string>
-    <string name="Unshare">Unshare</string>
+    <string name="Unshare">Revoke share</string>
     <string name="message_cant_attach_external_file_exists">Can\'t attach shared file. A file with this name exists already. Maybe you have attached the file times before</string>
     <string name="message_cant_navigate_to_share_folder">Can\'t navigate to share folder. Pls check your internet connection</string>
     <string name="message_please_wait">Please wait a moment</string>

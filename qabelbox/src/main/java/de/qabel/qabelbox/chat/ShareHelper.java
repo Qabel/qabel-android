@@ -1,5 +1,6 @@
 package de.qabel.qabelbox.chat;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
@@ -16,12 +17,14 @@ import de.qabel.core.drop.DropURL;
 import de.qabel.core.exceptions.QblDropPayloadSizeException;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.activities.MainActivity;
+import de.qabel.qabelbox.dialogs.SelectContactForShareDialog;
 import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.helper.UIHelper;
 import de.qabel.qabelbox.services.LocalQabelService;
 import de.qabel.qabelbox.storage.BoxExternalReference;
 import de.qabel.qabelbox.storage.BoxFile;
 import de.qabel.qabelbox.storage.BoxNavigation;
+import de.qabel.qabelbox.storage.BoxObject;
 
 /**
  * Created by danny on 19.02.16.
@@ -29,6 +32,33 @@ import de.qabel.qabelbox.storage.BoxNavigation;
 public class ShareHelper {
 
 	private static final String TAG = "ShareHelper";
+
+
+	public static void shareToQabelUser(final MainActivity self,LocalQabelService mService,final BoxObject boxObject) {
+
+		if (mService.getContacts(mService.getActiveIdentity()).getContacts().size() == 0) {
+			UIHelper.showDialogMessage(self, R.string.dialog_headline_info, R.string.cant_share_contactlist_is_empty);
+
+		} else {
+			if (boxObject instanceof BoxFile) {
+
+				new SelectContactForShareDialog(self, new SelectContactForShareDialog.Result() {
+					@Override
+					public void onCancel() {
+
+					}
+
+					@Override
+					public void onContactSelected(Contact contact) {
+
+						shareToQabelUser(self, contact, (BoxFile) boxObject);
+					}
+				});
+			} else {
+				UIHelper.showDialogMessage(self, R.string.share_only_files_possibility, Toast.LENGTH_SHORT);
+			}
+		}
+	}
 
 	/**
 	 * convert chatmessageintem to boxexternalreferenz

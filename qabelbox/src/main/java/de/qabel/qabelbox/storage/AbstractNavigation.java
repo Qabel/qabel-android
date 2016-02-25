@@ -396,39 +396,31 @@ public abstract class AbstractNavigation implements BoxNavigation {
 	@Override
 	public BoxExternalReference createFileMetadata(QblECPublicKey owner, BoxFile boxFile) throws QblStorageException {
 
-		try {
-			//check if file a received share
-			if (getMetadataFile(boxFile.prefix, boxFile.block, boxFile.key) != null) {
-				return new BoxExternalReference(false, boxFile.prefix + '/' + boxFile.meta, boxFile.name, owner, boxFile.metakey);
-			}
-		} catch (Exception ex) {
-			//no. create new
-			if (boxFile.meta != null || boxFile.metakey != null) {
-				return new BoxExternalReference(false, boxFile.prefix + '/' + boxFile.meta, boxFile.name, owner, boxFile.metakey);
-			}
-			String metaBlock = UUID.randomUUID().toString();
-			KeyParameter key = cryptoUtils.generateSymmetricKey();
-			boxFile.meta = metaBlock;
-			boxFile.metakey = key.getKey();
-
-			try {
-				FileMetadata fileMetadata = new FileMetadata(owner, boxFile, dm.getTempDir());
-				FileInputStream fileInputStream = new FileInputStream(fileMetadata.getPath());
-				uploadEncrypted(fileInputStream, key, prefix, metaBlock, null);
-
-				// Overwrite = delete old file, upload new file
-				BoxFile oldFile = dm.getFile(boxFile.name);
-				if (oldFile != null) {
-					dm.deleteFile(oldFile);
-				}
-				dm.insertFile(boxFile);
-			} catch (QblStorageException | FileNotFoundException e) {
-				throw new QblStorageException("Could not create or upload FileMetadata", e);
-			}
-			return new BoxExternalReference(false, boxFile.prefix + '/' + metaBlock, boxFile.name, owner, boxFile.metakey);
+		if (boxFile.meta != null || boxFile.metakey != null) {
+			return new BoxExternalReference(false, boxFile.prefix + '/' + boxFile.meta, boxFile.name, owner, boxFile.metakey);
 		}
-		//how can this position reached?
-		return null;
+		String metaBlock = UUID.randomUUID().toString();
+		KeyParameter key = cryptoUtils.generateSymmetricKey();
+		boxFile.meta = metaBlock;
+		boxFile.metakey = key.getKey();
+
+		try {
+			FileMetadata fileMetadata = new FileMetadata(owner, boxFile, dm.getTempDir());
+			FileInputStream fileInputStream = new FileInputStream(fileMetadata.getPath());
+			uploadEncrypted(fileInputStream, key, prefix, metaBlock, null);
+
+			// Overwrite = delete old file, upload new file
+			BoxFile oldFile = dm.getFile(boxFile.name);
+			if (oldFile != null) {
+				dm.deleteFile(oldFile);
+			}
+			dm.insertFile(boxFile);
+			reloadMetadata();
+		} catch (QblStorageException | FileNotFoundException e) {
+			throw new QblStorageException("Could not create or upload FileMetadata", e);
+		}
+		return new BoxExternalReference(false, boxFile.prefix + '/' + metaBlock, boxFile.name, owner, boxFile.metakey);
+
 	}
 
 	/**

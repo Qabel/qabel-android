@@ -1,5 +1,6 @@
 package de.qabel.qabelbox.activities;
 
+import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.content.ComponentName;
@@ -43,12 +44,14 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 
+import de.qabel.core.config.Contact;
 import de.qabel.core.config.Identity;
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.adapter.FilesAdapter;
 import de.qabel.qabelbox.chat.ShareHelper;
 import de.qabel.qabelbox.communication.VolumeFileTransferHelper;
+import de.qabel.qabelbox.dialogs.SelectContactForShareDialog;
 import de.qabel.qabelbox.dialogs.SelectIdentityForUploadDialog;
 import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.fragments.BaseFragment;
@@ -518,11 +521,9 @@ public class MainActivity extends CrashReportingActivity
 									case R.id.delete:
 										filesFragment.delete(boxObject);
 										break;
-									/*
-									//not decided if we want unshare in pk
 									case R.id.unshare:
 										filesFragment.unshare((BoxFile) boxObject);
-										break;*/
+										break;
 									case R.id.export:
 										onExport(filesFragment.getBoxNavigation(), boxObject);
 										break;
@@ -539,6 +540,13 @@ public class MainActivity extends CrashReportingActivity
 
 	protected void filterSheet(BoxObject boxObject, BottomSheet.Builder sheet) {
 
+		if (!(boxObject instanceof BoxFile) || !((BoxFile) boxObject).isShared()) {
+			sheet.remove(R.id.unshare);
+		}
+		if (!(boxObject instanceof BoxFile)) {
+
+			sheet.remove(R.id.unshare);
+		}
 		if (boxObject instanceof BoxExternalFile) {
 			sheet.remove(R.id.edit);
 			sheet.remove(R.id.fordward);

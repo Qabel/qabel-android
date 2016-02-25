@@ -545,6 +545,28 @@ public class FilesFragment extends BaseFragment {
 
 	public void unshare(final BoxFile boxObject) {
 		new AsyncTask<Void, Void, Boolean>() {
+			public AlertDialog wait;
+
+			@Override
+			protected void onPreExecute() {
+				wait=UIHelper.showWaitMessage(mActivity,R.string.dialog_headline_info,R.string.message_revoke_share,false);
+			}
+
+
+
+			@Override
+			protected Boolean doInBackground(Void... params) {
+				boolean ret = getBoxNavigation().removeFileMetadata(boxObject);
+				try {
+					getBoxNavigation().commit();
+				} catch (QblStorageException e) {
+					e.printStackTrace();
+					return false;
+				}
+				return ret;
+
+
+			}
 			@Override
 			protected void onPostExecute(Boolean success) {
 				if (success) {
@@ -554,13 +576,7 @@ public class FilesFragment extends BaseFragment {
 					UIHelper.showDialogMessage(mActivity, R.string.dialog_headline_warning, R.string.message_unshare_not_successfull, Toast.LENGTH_SHORT);
 
 				}
-
-			}
-
-			@Override
-			protected Boolean doInBackground(Void... params) {
-				return getBoxNavigation().removeFileMetadata(boxObject);
-
+				wait.dismiss();
 
 			}
 		}.executeOnExecutor(AsyncTask.SERIAL_EXECUTOR);

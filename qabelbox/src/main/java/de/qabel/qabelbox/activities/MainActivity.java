@@ -524,6 +524,7 @@ public class MainActivity extends CrashReportingActivity
 									case R.id.unshare:
 										filesFragment.unshare((BoxFile) boxObject);
 										break;
+
 									case R.id.export:
 										onExport(filesFragment.getBoxNavigation(), boxObject);
 										break;

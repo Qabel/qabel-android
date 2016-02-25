@@ -97,9 +97,7 @@ public class ShareHelper {
 
 			@Override
 			protected void onPreExecute() {
-				//show wait message
 				waitMessage = UIHelper.showWaitMessage(mainActivity, R.string.dialog_headline_info, R.string.dialog_share_sending_in_progress, false);
-
 			}
 
 			@Override

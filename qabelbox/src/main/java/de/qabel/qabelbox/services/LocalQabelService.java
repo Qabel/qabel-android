@@ -263,11 +263,11 @@ public class LocalQabelService extends Service {
      *
      * @return Retrieved, decrypted DropMessages.
      */
-    public Collection<DropMessage> retrieveDropMessages() {
+    public Collection<DropMessage> retrieveDropMessages(long sinceDate) {
         Collection<DropMessage> allMessages = new ArrayList<>();
         for (Identity identity : getIdentities().getIdentities()) {
             for (DropURL dropUrl : identity.getDropUrls()) {
-                Collection<DropMessage> results = this.retrieveDropMessages(dropUrl.getUri());
+                Collection<DropMessage> results = this.retrieveDropMessages(dropUrl.getUri(),sinceDate);
                 allMessages.addAll(results);
             }
         }
@@ -280,8 +280,8 @@ public class LocalQabelService extends Service {
      * @param uri URI where to retrieve the drop from
      * @return Retrieved, decrypted DropMessages.
      */
-    public Collection<DropMessage> retrieveDropMessages(URI uri) {
-        HTTPResult<Collection<byte[]>> cipherMessages = getDropMessages(uri);
+    public Collection<DropMessage> retrieveDropMessages(URI uri,long sinceDate) {
+        HTTPResult<Collection<byte[]>> cipherMessages = getDropMessages(uri,sinceDate);
         Collection<DropMessage> plainMessages = new ArrayList<>();
 
         List<Contact> ccc = new ArrayList<>(getContacts().getContacts());
@@ -340,8 +340,8 @@ public class LocalQabelService extends Service {
      * @param uri URI to receive DropMessages from
      * @return HTTPResult with collection of encrypted DropMessages.
      */
-    HTTPResult<Collection<byte[]>> getDropMessages(URI uri) {
-        return dropHTTP.receiveMessages(uri);
+    HTTPResult<Collection<byte[]>> getDropMessages(URI uri,long sinceDate) {
+        return dropHTTP.receiveMessages(uri,sinceDate);
     }
 
     public class LocalBinder extends Binder {

@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import de.qabel.core.config.Contact;
 import de.qabel.core.config.Identity;
 import de.qabel.core.drop.DropMessage;
 import de.qabel.qabelbox.QabelBoxApplication;
@@ -18,126 +19,136 @@ import de.qabel.qabelbox.QabelBoxApplication;
  */
 public class ChatServer {
 
-    private static final String TAG = "ChatServer";
+	private static final String TAG = "ChatServer";
 
-    private ChatMessagesDataBase dataBase;
-    private static ChatServer mInstance;
-    private final List<ChatServerCallback> callbacks = new ArrayList<>();
+	private ChatMessagesDataBase dataBase;
+	private static ChatServer mInstance;
+	private final List<ChatServerCallback> callbacks = new ArrayList<>();
 
-    public static ChatServer getInstance() {
+	public static ChatServer getInstance() {
 
-        if (mInstance == null) {
-            Log.e(TAG, "chatServer instance is null. Maybe forgot initialize with identity?");
-        }
-        return mInstance;
-    }
+		if (mInstance == null) {
+			Log.e(TAG, "chatServer instance is null. Maybe forgot initialize with identity?");
+		}
+		return mInstance;
+	}
 
-    private ChatServer(Identity currentIdentity) {
+	private ChatServer(Identity currentIdentity) {
 
-        mInstance = this;
-        mInstance.dataBase = new ChatMessagesDataBase(QabelBoxApplication.getInstance(), currentIdentity);
-    }
+		mInstance = this;
+		mInstance.dataBase = new ChatMessagesDataBase(QabelBoxApplication.getInstance(), currentIdentity);
+	}
 
-    public static ChatServer getInstance(Identity activeIdentity) {
-        mInstance = new ChatServer(activeIdentity);
-        return mInstance;
-    }
+	public static ChatServer getInstance(Identity activeIdentity) {
+		mInstance = new ChatServer(activeIdentity);
+		return mInstance;
+	}
 
-    public void addListener(ChatServerCallback callback) {
+	public void addListener(ChatServerCallback callback) {
 
-        callbacks.add(callback);
-    }
+		callbacks.add(callback);
+	}
 
-    public void removeListener(ChatServerCallback callback) {
+	public void removeListener(ChatServerCallback callback) {
 
-        callbacks.remove(callback);
-    }
+		callbacks.remove(callback);
+	}
 
-    /**
-     * click on refresh button
-     */
+	/**
+	 * click on refresh button
+	 */
 
-    public Collection<DropMessage> refreshList() {
+	public Collection<DropMessage> refreshList() {
+		long lastRetrieved=dataBase.getLastRetrievedDropMessageTime();
+		long now=System.currentTimeMillis();
+		Collection<DropMessage> result = QabelBoxApplication.getInstance().getService().retrieveDropMessages(0);
+		if(result.size()>0) {
+			dataBase.setLastRetrivedDropMessagesTime(now);
+		}
+		sendCallbacksRefreshed();
+		return result;
+	}
 
-        Collection<DropMessage> result = QabelBoxApplication.getInstance().getService().retrieveDropMessages();
-        sendCallbacksRefreshed();
-        return result;
-    }
+	public void addMessagesFromDataBase(ArrayList<ChatMessageItem> messages) {
 
-    public void addMessagesFromDataBase(ArrayList<ChatMessageItem> messages) {
+		ChatMessageItem[] result = dataBase.getAll();
+		if (result != null) {
+			for (ChatMessageItem item : result) {
+				messages.add(item);
+			}
+		}
+	}
 
-        ChatMessageItem[] result = dataBase.getAll();
-        if (result != null) {
-            for (ChatMessageItem item : result) {
-                messages.add(item);
-            }
-        }
-    }
+	/**
+	 * create own chat message to store in db
+	 */
+	public ChatMessageItem createOwnMessage(Identity mIdentity, String receiverKey, String payload, String payload_type) {
 
-    /**
-     * create own chat message to store in db
-     */
-    public ChatMessageItem createOwnMessage(Identity mIdentity, String receiverKey, String payload, String payload_type) {
+		ChatMessageItem item = new ChatMessageItem();
+		item.time_stamp = System.currentTimeMillis();
+		item.sender = mIdentity.getEcPublicKey().getReadableKeyIdentifier();
+		item.receiver = receiverKey;
+		item.drop_payload = payload;
+		item.drop_payload_type = payload_type;
+		item.isNew = 1;
 
-        ChatMessageItem item = new ChatMessageItem();
-        item.time_stamp = System.currentTimeMillis();
-        item.sender = mIdentity.getEcPublicKey().getReadableKeyIdentifier();
-        item.receiver = receiverKey;
-        item.drop_payload = payload;
-        item.drop_payload_type = payload_type;
-        item.isNew = 1;
+		return item;
+	}
 
-        return item;
-    }
+	public void storeIntoDB(ChatMessageItem item) {
 
-    public void storeIntoDB(ChatMessageItem item) {
+		if (item != null) {
+			dataBase.put(item);
+		}
+	}
 
-        if (item != null) {
-            dataBase.put(item);
-        }
-    }
+	/**
+	 * send all listener that chatmessage list was refrehsed
+	 */
+	private void sendCallbacksRefreshed() {
 
-    /**
-     * send all listener that chatmessage list was refrehsed
-     */
-    private void sendCallbacksRefreshed() {
+		for (ChatServerCallback callback : callbacks) {
+			callback.onRefreshed();
+		}
+	}
 
-        for (ChatServerCallback callback : callbacks) {
-            callback.onRefreshed();
-        }
-    }
+	public DropMessage getTextDropMessage(String message) {
 
-    public DropMessage getTextDropMessage(String message) {
+		String payload_type = ChatMessageItem.BOX_MESSAGE;
+		JSONObject payloadJson = new JSONObject();
+		try {
+			payloadJson.put("message", message);
+		} catch (JSONException e) {
+			Log.e(TAG, "error on create json", e);
+		}
+		String payload = payloadJson.toString();
+		return new DropMessage(QabelBoxApplication.getInstance().getService().getActiveIdentity(), payload, payload_type);
+	}
 
-        String payload_type = ChatMessageItem.BOX_MESSAGE;
-        JSONObject payloadJson = new JSONObject();
-        try {
-            payloadJson.put("message", message);
-        } catch (JSONException e) {
-            Log.e(TAG, "error on create json", e);
-        }
-        String payload = payloadJson.toString();
-        return new DropMessage(QabelBoxApplication.getInstance().getService().getActiveIdentity(), payload, payload_type);
-    }
+	public DropMessage getShareDropMessage(String message, String url, String key) {
 
-    public  DropMessage getShareDropMessage(String message, String url, String key) {
+		String payload_type = ChatMessageItem.SHARE_NOTIFICATION;
+		JSONObject payloadJson = new JSONObject();
+		try {
+			payloadJson.put("message", message);
+			payloadJson.put("url", url);
+			payloadJson.put("key", key);
+		} catch (JSONException e) {
+			Log.e(TAG, "error on create json", e);
+		}
+		String payload = payloadJson.toString();
+		return new DropMessage(QabelBoxApplication.getInstance().getService().getActiveIdentity(), payload, payload_type);
+	}
 
-        String payload_type = ChatMessageItem.SHARE_NOTIFICATION;
-        JSONObject payloadJson = new JSONObject();
-        try {
-            payloadJson.put("message", message);
-            payloadJson.put("url", url);
-            payloadJson.put("key", key);
-        } catch (JSONException e) {
-            Log.e(TAG, "error on create json", e);
-        }
-        String payload = payloadJson.toString();
-        return new DropMessage(QabelBoxApplication.getInstance().getService().getActiveIdentity(), payload, payload_type);
-    }
+	public boolean hasNewMessages(Contact c) {
+		return dataBase.getNewMessageCount(c) > 0;
+	}
+	public int setAllMessagesReaded(Contact c) {
+		return dataBase.setAllMessagesReaded(c);
+	}
+	public interface ChatServerCallback {
 
-    public interface ChatServerCallback {
-
-        //droplist refreshed
-        void onRefreshed();
-    }
+		//droplist refreshed
+		void onRefreshed();
+	}
 }

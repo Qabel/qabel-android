@@ -463,7 +463,11 @@ public abstract class AbstractNavigation implements BoxNavigation {
 		blockingDelete(boxFile.prefix, boxFile.meta);
 		boxFile.meta = null;
 		boxFile.metakey = null;
-
+		try {
+			reloadMetadata();
+		} catch (QblStorageException e) {
+			Log.e(TAG,"error until reload metadata",e);
+		}
 		return true;
 	}
 

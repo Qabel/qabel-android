@@ -29,7 +29,7 @@ android {
         applicationId "de.qabel.qabelbox"
         minSdkVersion 19
         targetSdkVersion 22
-        versionCode System.getenv("BUILD_NUMBER") as Integer ?: 0
+        versionCode System.getenv("BUILD_NUMBER") as Integer ?: 1
         versionName "1.0"
         //junit test
         testInstrumentationRunner "de.qabel.qabelbox.QblJUnitRunner"

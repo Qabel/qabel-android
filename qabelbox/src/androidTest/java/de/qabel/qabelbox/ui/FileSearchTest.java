@@ -72,14 +72,12 @@ public class FileSearchTest {
 
     @After
     public void cleanUp() {
-
         wakeLock.release();
         mSystemAnimations.enableAll();
     }
 
     @Before
     public void setUp() throws IOException, QblStorageException {
-
         mActivity = mActivityTestRule.getActivity();
         wakeLock = UIActionHelper.wakeupDevice(mActivity);
         mSystemAnimations = new SystemAnimations(mActivity);

@@ -203,6 +203,6 @@ public class ChatMessagesDataBase extends SQLiteOpenHelper {
 	}
 
 	public void setLastRetrivedDropMessagesTime(long time) {
-		
+
 	}
 }

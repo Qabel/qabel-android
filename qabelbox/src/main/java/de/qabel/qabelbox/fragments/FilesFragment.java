@@ -549,9 +549,8 @@ public class FilesFragment extends BaseFragment {
 
 			@Override
 			protected void onPreExecute() {
-				wait=UIHelper.showWaitMessage(mActivity,R.string.dialog_headline_info,R.string.message_revoke_share,false);
+				wait = UIHelper.showWaitMessage(mActivity, R.string.dialog_headline_info, R.string.message_revoke_share, false);
 			}
-
 
 
 			@Override
@@ -567,6 +566,7 @@ public class FilesFragment extends BaseFragment {
 
 
 			}
+
 			@Override
 			protected void onPostExecute(Boolean success) {
 				if (success) {

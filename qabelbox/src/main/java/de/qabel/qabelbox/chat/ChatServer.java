@@ -59,14 +59,26 @@ public class ChatServer {
 	 */
 
 	public Collection<DropMessage> refreshList() {
-		long lastRetrieved=dataBase.getLastRetrievedDropMessageTime();
-		long now=System.currentTimeMillis();
-		Collection<DropMessage> result = QabelBoxApplication.getInstance().getService().retrieveDropMessages(0);
-		if(result.size()>0) {
-			dataBase.setLastRetrivedDropMessagesTime(now);
+		long lastRetrieved = dataBase.getLastRetrievedDropMessageTime();
+
+		Collection<DropMessage> result = QabelBoxApplication.getInstance().getService().retrieveDropMessages(lastRetrieved);
+		addMessagesToDataBase(result);
+		long last = 0;
+
+		//@todo replace this with header from server response. see
+		//@see https://github.com/Qabel/qabel-android/issues/272
+		if (result != null) {
+			for (DropMessage item : result) {
+				last = Math.max(item.getCreationDate().getTime(), last);
+			}
 		}
+		dataBase.setLastRetrivedDropMessagesTime(last);
 		sendCallbacksRefreshed();
 		return result;
+	}
+
+	private void addMessagesToDataBase(Collection<DropMessage> result) {
+		//@TODO: 25.02.16
 	}
 
 	public void addMessagesFromDataBase(ArrayList<ChatMessageItem> messages) {
@@ -143,9 +155,11 @@ public class ChatServer {
 	public boolean hasNewMessages(Contact c) {
 		return dataBase.getNewMessageCount(c) > 0;
 	}
+
 	public int setAllMessagesReaded(Contact c) {
 		return dataBase.setAllMessagesReaded(c);
 	}
+
 	public interface ChatServerCallback {
 
 		//droplist refreshed

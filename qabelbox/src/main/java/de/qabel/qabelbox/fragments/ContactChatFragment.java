@@ -166,6 +166,7 @@ public class ContactChatFragment extends BaseFragment {
 				messages.clear();
 				messages = convertDropMessageToDatabaseMessage(dropMessages);
 				refreshContactList(dropMessages);
+				chatServer.setAllMessagesReaded(contact);
 			}
 
 			@Override

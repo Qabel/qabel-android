@@ -238,4 +238,6 @@
     <string name="message_cant_attach_external_file_exists">Can\'t attach shared file. A file with this name exists already. Maybe you have attached the file times before</string>
     <string name="message_cant_navigate_to_share_folder">Can\'t navigate to share folder. Pls check your internet connection</string>
     <string name="message_please_wait">Please wait a moment</string>
+    <string name="message_unshare_not_successfull">Can\'t revoke share</string>
+    <string name="message_unshare_successfull">Share successfully revoked</string>
 </resources>

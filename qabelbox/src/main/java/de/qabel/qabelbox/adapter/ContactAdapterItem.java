@@ -1,5 +1,7 @@
 package de.qabel.qabelbox.adapter;
 
+import java.util.HashSet;
+
 import de.qabel.core.config.Contact;
 
 /**
@@ -9,8 +11,7 @@ public class ContactAdapterItem extends Contact {
 	boolean hasNewMessages = false;
 
 	public ContactAdapterItem(Contact contact, boolean hasNewMessages) {
-		setAlias((contact.getAlias()));
-		setEcPublicKey((contact.getEcPublicKey()));
+		super(contact.getAlias(),contact.getDropUrls(),contact.getEcPublicKey());
 		setEmail((contact.getEmail()));
 		setPhone((contact.getPhone()));
 		this.hasNewMessages = hasNewMessages;

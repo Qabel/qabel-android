@@ -20,6 +20,7 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -126,14 +127,18 @@ public class ContactChatFragment extends BaseFragment {
 								boolean sended = false;
 								Log.v(TAG, "delivery status: " + deliveryStatus);
 								if (deliveryStatus != null) {
-
-									for (Map.Entry item : deliveryStatus.entrySet()) {
-										boolean data = deliveryStatus.get(item);
-										if (data == true) {
+									Iterator it = deliveryStatus.entrySet().iterator();
+									while (it.hasNext()) {
+										Map.Entry pair = (Map.Entry)it.next();
+										System.out.println(pair.getKey() + " = " + pair.getValue());
+										if((Boolean)pair.getValue()==true)
+										{
 											sended = true;
 										}
-										Log.d(TAG, "message send result: " + item.toString() + " " + data);
+										Log.d(TAG, "message send result: " + pair.toString() + " " + pair.getValue());
 									}
+
+
 									Log.d(TAG, "sended: " + sended);
 									if (sended) {
 										ChatMessageItem newMessage = new ChatMessageItem(identity, contact.getEcPublicKey().getReadableKeyIdentifier().toString(), dropMessage.getDropPayload(), dropMessage.getDropPayloadType());

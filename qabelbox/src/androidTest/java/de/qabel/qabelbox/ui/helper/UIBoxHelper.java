@@ -30,6 +30,7 @@ import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.activities.MainActivity;
 import de.qabel.qabelbox.communication.VolumeFileTransferHelper;
 import de.qabel.qabelbox.exceptions.QblStorageException;
+import de.qabel.qabelbox.helper.PrefixGetter;
 import de.qabel.qabelbox.providers.BoxProvider;
 import de.qabel.qabelbox.services.LocalQabelService;
 import de.qabel.qabelbox.storage.BoxVolume;

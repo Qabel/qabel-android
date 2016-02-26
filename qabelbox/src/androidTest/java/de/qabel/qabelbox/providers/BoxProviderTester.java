@@ -19,7 +19,7 @@ import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.config.AndroidPersistence;
 import de.qabel.qabelbox.config.QblSQLiteParams;
 import de.qabel.qabelbox.services.LocalQabelService;
-import de.qabel.qabelbox.ui.helper.PrefixGetter;
+import de.qabel.qabelbox.helper.PrefixGetter;
 
 public class BoxProviderTester extends BoxProvider {
 

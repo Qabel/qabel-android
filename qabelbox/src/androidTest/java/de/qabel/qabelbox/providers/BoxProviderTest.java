@@ -56,7 +56,7 @@ public class BoxProviderTest extends InstrumentationTestCase {
         Log.d(TAG, "setUp");
         Context applicationContext = QabelBoxApplication.getInstance().getApplicationContext();
         new AppPreference(applicationContext)
-                .setToken(applicationContext.getString(R.string.blockserver_magic_testtoken));
+                .setToken(applicationContext.getString(R.string.blockserver_real_testtoken));
         URLs.setBaseBlockURL(applicationContext.getString(R.string.testBlockServer));
 
         mContext = getInstrumentation().getTargetContext();

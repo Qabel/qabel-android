@@ -167,7 +167,7 @@ public class BoxProviderTest extends InstrumentationTestCase {
 		assertTrue(mProvider.isShowNotificationCalled);
 		assertTrue(mProvider.isUpdateNotificationCalled);
     }
-
+/*
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     public void testOpenDocumentForRW() throws IOException, QblStorageException, InterruptedException {
         // Upload a test payload
@@ -208,7 +208,7 @@ public class BoxProviderTest extends InstrumentationTestCase {
 		assertTrue(mProvider.isBroadcastNotificationCalled);
 		assertTrue(mProvider.isShowNotificationCalled);
 		assertTrue(mProvider.isUpdateNotificationCalled);
-	}
+	}*/
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     public void testCreateFile() {

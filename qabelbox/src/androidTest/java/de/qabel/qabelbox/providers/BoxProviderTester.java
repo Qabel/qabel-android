@@ -9,7 +9,6 @@ import android.support.annotation.Nullable;
 import org.spongycastle.util.encoders.Hex;
 
 import java.util.ArrayList;
-import java.util.UUID;
 
 import de.qabel.core.config.Identities;
 import de.qabel.core.config.Identity;
@@ -20,7 +19,6 @@ import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.config.AndroidPersistence;
 import de.qabel.qabelbox.config.QblSQLiteParams;
 import de.qabel.qabelbox.services.LocalQabelService;
-import de.qabel.qabelbox.storage.BoxUploadingFile;
 import de.qabel.qabelbox.ui.helper.PrefixGetter;
 
 public class BoxProviderTester extends BoxProvider {
@@ -46,7 +44,8 @@ public class BoxProviderTester extends BoxProvider {
 	}
 
 	private void setParametersForTests() {
-		prefix= new PrefixGetter().getPrefix(QabelBoxApplication.getInstance().getApplicationContext());
+
+		prefix = new PrefixGetter().getPrefix(QabelBoxApplication.getInstance().getApplicationContext());
 		CryptoUtils utils = new CryptoUtils();
 		deviceID = utils.getRandomBytes(16);
 		keyPair = new QblECKeyPair(Hex.decode(PRIVATE_KEY));

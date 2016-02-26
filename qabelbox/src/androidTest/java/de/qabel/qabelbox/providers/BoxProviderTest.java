@@ -119,7 +119,7 @@ public class BoxProviderTest extends InstrumentationTestCase {
 		assertThat(cursor.getCount(), is(1));
 		cursor.moveToFirst();
 		String documentId = cursor.getString(6);
-		assertThat(documentId, is(BoxProviderTester.PUB_KEY + VolumeFileTransferHelper.HARDCODED_ROOT));
+		assertThat(documentId, is(BoxProviderTester.PUB_KEY + VolumeFileTransferHelper.getHardcodedRootWithPrefix(mProvider.prefix)));
 
 	}
 

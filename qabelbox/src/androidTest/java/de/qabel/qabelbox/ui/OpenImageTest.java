@@ -111,7 +111,7 @@ public class OpenImageTest {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        Identity identity = mBoxHelper.addIdentity("spoon");
+        Identity identity = mBoxHelper.addIdentity(QabelBoxApplication.getInstance().getApplicationContext(),"spoon");
         mBoxHelper.setActiveIdentity(identity);
         uploadTestFiles();
     }

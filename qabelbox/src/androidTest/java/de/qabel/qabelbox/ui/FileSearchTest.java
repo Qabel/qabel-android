@@ -102,7 +102,7 @@ public class FileSearchTest {
             e.printStackTrace();
         }
 
-        Identity identity = mBoxHelper.addIdentity("spoon");
+        Identity identity = mBoxHelper.addIdentity(applicationContext,"spoon");
         uploadTestFiles();
     }
 

@@ -121,7 +121,7 @@ public class UIBoxHelper {
     }
 
 
-    public Identity addIdentity(final String identName) {
+    public Identity addIdentity(Context c,final String identName) {
 
         URI uri = URI.create(QabelBoxApplication.DEFAULT_DROP_SERVER);
         DropServer dropServer = new DropServer(uri, "", true);
@@ -129,7 +129,7 @@ public class UIBoxHelper {
         DropURL dropURL = new DropURL(dropServer, adjustableDropIdGenerator);
         Collection<DropURL> dropURLs = new ArrayList<>();
         dropURLs.add(dropURL);
-        String prefix = "test";
+        String prefix = new PrefixGetter().getPrefix(c);
         Identity identity = new Identity(identName,
                 dropURLs, new QblECKeyPair());
         identity.getPrefixes().add(prefix);

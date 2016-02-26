@@ -9,17 +9,17 @@ import android.support.annotation.Nullable;
 import org.spongycastle.util.encoders.Hex;
 
 import java.util.ArrayList;
+import java.util.UUID;
 
 import de.qabel.core.config.Identities;
 import de.qabel.core.config.Identity;
 import de.qabel.core.crypto.CryptoUtils;
 import de.qabel.core.crypto.QblECKeyPair;
 import de.qabel.core.exceptions.QblInvalidEncryptionKeyException;
-import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.config.AndroidPersistence;
 import de.qabel.qabelbox.config.QblSQLiteParams;
 import de.qabel.qabelbox.services.LocalQabelService;
-import de.qabel.qabelbox.helper.PrefixGetter;
+import de.qabel.qabelbox.storage.BoxUploadingFile;
 
 public class BoxProviderTester extends BoxProvider {
 
@@ -27,7 +27,7 @@ public class BoxProviderTester extends BoxProvider {
 	public String lastID;
 	public QblECKeyPair keyPair;
 	public String rootDocId;
-	public String prefix = "test";
+	public final String prefix = "test";
 	public static final String PUB_KEY = "8520f0098930a754748b7ddcb43ef75a0dbf3a0d26381af4eba4a98eaa9b4e6a";
 	public static final String PRIVATE_KEY = "77076d0a7318a57d3c16c17251b26645df4c2f87ebc0992ab177fba51db92c2a";
 	public Identity identity;
@@ -44,8 +44,6 @@ public class BoxProviderTester extends BoxProvider {
 	}
 
 	private void setParametersForTests() {
-
-		prefix = new PrefixGetter().getPrefix(QabelBoxApplication.getInstance().getApplicationContext());
 		CryptoUtils utils = new CryptoUtils();
 		deviceID = utils.getRandomBytes(16);
 		keyPair = new QblECKeyPair(Hex.decode(PRIVATE_KEY));

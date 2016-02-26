@@ -23,27 +23,14 @@ public class ChatServer {
 	private static final String TAG = "ChatServer";
 
 	private ChatMessagesDataBase dataBase;
-	private static ChatServer mInstance;
 	private final List<ChatServerCallback> callbacks = new ArrayList<>();
 
-	public static ChatServer getInstance() {
 
-		if (mInstance == null) {
-			Log.e(TAG, "chatServer instance is null. Maybe forgot initialize with identity?");
-		}
-		return mInstance;
+	public ChatServer(Identity currentIdentity) {
+
+		dataBase = new ChatMessagesDataBase(QabelBoxApplication.getInstance(), currentIdentity);
 	}
 
-	private ChatServer(Identity currentIdentity) {
-
-		mInstance = this;
-		mInstance.dataBase = new ChatMessagesDataBase(QabelBoxApplication.getInstance(), currentIdentity);
-	}
-
-	public static ChatServer getInstance(Identity activeIdentity) {
-		mInstance = new ChatServer(activeIdentity);
-		return mInstance;
-	}
 
 	public void addListener(ChatServerCallback callback) {
 
@@ -61,11 +48,11 @@ public class ChatServer {
 
 	public Collection<DropMessage> refreshList() {
 		long lastRetrieved = dataBase.getLastRetrievedDropMessageTime();
-		Log.d(TAG, "last retrieved dropmessage time " + lastRetrieved+" / "+System.currentTimeMillis());
+		Log.d(TAG, "last retrieved dropmessage time " + lastRetrieved + " / " + System.currentTimeMillis());
 		Collection<DropMessage> result = QabelBoxApplication.getInstance().getService().retrieveDropMessages(lastRetrieved);
 
 		if (result != null) {
-			Log.d(TAG,"new message count: "+result.size());
+			Log.d(TAG, "new message count: " + result.size());
 			//store into db
 			for (DropMessage item : result) {
 				ChatMessageItem cms = new ChatMessageItem(item);
@@ -79,7 +66,7 @@ public class ChatServer {
 				lastRetrieved = Math.max(item.getCreationDate().getTime(), lastRetrieved);
 			}
 		}
-		lastRetrieved=0;
+		lastRetrieved = 0;
 		dataBase.setLastRetrivedDropMessagesTime(lastRetrieved);
 		Log.d(TAG, "new retrieved dropmessage time " + lastRetrieved);
 

@@ -80,7 +80,7 @@ public class ContactChatFragment extends BaseFragment {
 
 		super.onCreate(savedInstanceState);
 
-		chatServer = ChatServer.getInstance();
+		chatServer = mActivity.chatServer;
 
 		setHasOptionsMenu(true);
 		Bundle arguments = getArguments();

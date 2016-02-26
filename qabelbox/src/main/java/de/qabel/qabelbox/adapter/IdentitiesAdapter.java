@@ -63,14 +63,15 @@ public class IdentitiesAdapter extends RecyclerView.Adapter<IdentitiesAdapter.Id
     @Override
     public IdentityViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View v = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.item_contacts, parent, false);
+                .inflate(R.layout.item_identities, parent, false);
         return new IdentityViewHolder(v);
     }
 
     @Override
     public void onBindViewHolder(IdentityViewHolder holder, int position) {
-        holder.mTextViewIdentityName.setText(mIdentities.get(position).getAlias());
-        holder.mTextViewIdentityDetails.setText("");
+		Identity item = mIdentities.get(position);
+        holder.mTextViewIdentityName.setText(item.getAlias());
+        holder.mTextViewIdentityDetails.setText(item.getEcPublicKey().getReadableKeyIdentifier());
     }
 
     @Override

@@ -87,7 +87,7 @@ public class ContactFragment extends BaseFragment {
 
 		super.onCreate(savedInstanceState);
 		self = this;
-		chatServer = ChatServer.getInstance(mActivity.mService.getActiveIdentity());
+		chatServer = mActivity.chatServer;
 		setHasOptionsMenu(true);
 		mActivity.registerReceiver(refreshContactListReceiver, new IntentFilter(Helper.INTENT_REFRESH_CONTACTLIST));
 		Bundle arguments = getArguments();

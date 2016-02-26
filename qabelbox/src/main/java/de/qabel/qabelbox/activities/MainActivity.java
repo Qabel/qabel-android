@@ -1,6 +1,5 @@
 package de.qabel.qabelbox.activities;
 
-import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.content.ComponentName;
@@ -44,14 +43,13 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 
-import de.qabel.core.config.Contact;
 import de.qabel.core.config.Identity;
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.adapter.FilesAdapter;
+import de.qabel.qabelbox.chat.ChatServer;
 import de.qabel.qabelbox.chat.ShareHelper;
 import de.qabel.qabelbox.communication.VolumeFileTransferHelper;
-import de.qabel.qabelbox.dialogs.SelectContactForShareDialog;
 import de.qabel.qabelbox.dialogs.SelectIdentityForUploadDialog;
 import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.fragments.BaseFragment;
@@ -122,6 +120,7 @@ public class MainActivity extends CrashReportingActivity
 	public LocalQabelService mService;
 	private ServiceConnection mServiceConnection;
 	private SelectUploadFolderFragment shareFragment;
+	public ChatServer chatServer;
 
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -347,19 +346,24 @@ public class MainActivity extends CrashReportingActivity
 					}
 					break;
 				default:
-					initFilesFragment();
-					selectFilesFragment();
+					initAndSelectFilesFragment();
 					break;
 			}
 		} else {
-			initFilesFragment();
-			selectFilesFragment();
+			initAndSelectFilesFragment();
 		}
+	}
+
+	private void initAndSelectFilesFragment() {
+		chatServer = new ChatServer(mService.getActiveIdentity());
+		initFilesFragment();
+		selectFilesFragment();
 	}
 
 	public void refreshFilesBrowser(Identity activeIdentity) {
 
 		textViewSelectedIdentity.setText(activeIdentity.getAlias());
+		chatServer = new ChatServer(activeIdentity);
 		initBoxVolume(activeIdentity);
 		initFilesFragment();
 	}
@@ -778,6 +782,7 @@ public class MainActivity extends CrashReportingActivity
 	public void changeActiveIdentity(Identity identity) {
 
 		mService.setActiveIdentity(identity);
+		chatServer = new ChatServer(identity);
 		textViewSelectedIdentity.setText(identity.getAlias());
 		if (filesFragment != null) {
 			getFragmentManager().beginTransaction().remove(filesFragment).commit();

@@ -89,7 +89,7 @@ public class ShareHelper {
 
 		final BoxNavigation nav = mainActivity.filesFragment.getBoxNavigation();
 		final LocalQabelService mService = mainActivity.mService;
-		final ChatServer cs = ChatServer.getInstance(mainActivity.mService.getActiveIdentity());
+		final ChatServer cs = mainActivity.chatServer;
 
 		new AsyncTask<Void, Integer, DropMessage>() {
 			public AlertDialog waitMessage;

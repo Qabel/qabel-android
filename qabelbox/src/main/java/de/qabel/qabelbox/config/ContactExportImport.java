@@ -25,7 +25,7 @@ public class ContactExportImport {
 	private static final String KEY_EMAIL = "email";
 	private static final String KEY_PHONE = "phone";
 	private static final String KEY_PUBLIC_KEY = "public_key";
-	private static final String KEY_DROP_URLS = "dropURLs";
+	private static final String KEY_DROP_URLS = "drop_urls";
 	private static final String KEY_CONTACTS = "contacts";
 
 

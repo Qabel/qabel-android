@@ -241,4 +241,6 @@
     <string name="message_unshare_not_successfull">Can\'t revoke share</string>
     <string name="message_unshare_successfull">Share successfully revoked</string>
     <string name="message_revoke_share">Revoking share</string>
+    <string name="settings_key_internal_reset_app_data">key_debug_reset_app_data</string>
+    <string name="message_chat_message_not_sended">Message NOT sended</string>
 </resources>

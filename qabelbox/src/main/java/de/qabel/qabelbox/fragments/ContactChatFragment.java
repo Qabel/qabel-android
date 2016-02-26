@@ -56,8 +56,7 @@ public class ContactChatFragment extends BaseFragment {
 	private Contact contact;
 	ArrayList<ChatMessageItem> messages = new ArrayList<>();
 
-	private View mView;
-	private ContactChatFragment fragment;
+
 	private RecyclerView contactListRecyclerView;
 	private View emptyView;
 	private LinearLayoutManager recyclerViewLayoutManager;
@@ -72,6 +71,7 @@ public class ContactChatFragment extends BaseFragment {
 		Bundle args = new Bundle();
 		args.putSerializable(ARG_IDENTITY, contact);
 		fragment.setArguments(args);
+		fragment.contact = contact;
 		return fragment;
 	}
 
@@ -83,18 +83,22 @@ public class ContactChatFragment extends BaseFragment {
 		chatServer = mActivity.chatServer;
 
 		setHasOptionsMenu(true);
-		Bundle arguments = getArguments();
+		//@todo reactivate this later. serialize contact ignore dropurls
+		/*Bundle arguments = getArguments();
 		if (arguments != null) {
 			contact = (Contact) arguments.getSerializable(ARG_IDENTITY);
 		}
+		else
+		{
+			new Throwable("No contact given");
+		}*/
 		mActivity.toggle.setDrawerIndicatorEnabled(false);
 		actionBar.setDisplayHomeAsUpEnabled(true);
 		setActionBarBackListener();
-		fragment = this;
 	}
 
 	@Override
-	public View onCreateView(final LayoutInflater inflater, ViewGroup container,
+	public View onCreateView(final LayoutInflater inflater, final ViewGroup container,
 							 Bundle savedInstanceState) {
 
 		final View view = inflater.inflate(R.layout.fragment_contact_chat, container, false);
@@ -119,24 +123,43 @@ public class ContactChatFragment extends BaseFragment {
 						QabelBoxApplication.getInstance().getService().sendDropMessage(dropMessage, contact, identity, new LocalQabelService.OnSendDropMessageResult() {
 							@Override
 							public void onSendDropResult(Map<DropURL, Boolean> deliveryStatus) {
+								boolean sended = false;
+								Log.v(TAG, "delivery status: " + deliveryStatus);
+								if (deliveryStatus != null) {
 
-								getActivity().runOnUiThread(new Runnable() {
-									@Override
-									public void run() {
-
-										etText.setText("");
+									for (Map.Entry item : deliveryStatus.entrySet()) {
+										boolean data = deliveryStatus.get(item);
+										if (data == true) {
+											sended = true;
+										}
+										Log.d(TAG, "message send result: " + item.toString() + " " + data);
 									}
-								});
-								ChatMessageItem newMessage = new ChatMessageItem(identity, contact.getEcPublicKey().getReadableKeyIdentifier().toString(), dropMessage.getDropPayload(), dropMessage.getDropPayloadType());
-								chatServer.storeIntoDB(newMessage);
-								messages.add(newMessage);
-								getActivity().runOnUiThread(new Runnable() {
-									@Override
-									public void run() {
+									Log.d(TAG, "sended: " + sended);
+									if (sended) {
+										ChatMessageItem newMessage = new ChatMessageItem(identity, contact.getEcPublicKey().getReadableKeyIdentifier().toString(), dropMessage.getDropPayload(), dropMessage.getDropPayloadType());
 
-										fillAdapter(messages);
+										chatServer.storeIntoDB(newMessage);
+										messages.add(newMessage);
+
+										getActivity().runOnUiThread(new Runnable() {
+											@Override
+											public void run() {
+												etText.setText("");
+												fillAdapter(messages);
+											}
+										});
 									}
-								});
+								}
+								if (!sended) {
+									getActivity().runOnUiThread(new Runnable() {
+										@Override
+										public void run() {
+											Toast.makeText(getActivity(), R.string.message_chat_message_not_sended, Toast.LENGTH_SHORT).show();
+										}
+									});
+
+								}
+
 							}
 						});
 					} catch (QblDropPayloadSizeException e) {
@@ -151,7 +174,6 @@ public class ContactChatFragment extends BaseFragment {
 
 		refreshMessagesAsync();
 		actionBar.setSubtitle(contact.getAlias());
-		mView = view;
 		refreshMessagesAsync();
 
 		return view;

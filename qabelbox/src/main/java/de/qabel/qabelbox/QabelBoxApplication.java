@@ -34,12 +34,10 @@ public class QabelBoxApplication extends Application {
 
 
     public BoxProvider getProvider() {
-
         return boxProvider;
     }
 
     public static QabelBoxApplication getInstance() {
-
         return mInstance;
     }
 

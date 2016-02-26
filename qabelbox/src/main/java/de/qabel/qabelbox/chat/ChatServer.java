@@ -25,7 +25,6 @@ public class ChatServer {
 	private ChatMessagesDataBase dataBase;
 	private final List<ChatServerCallback> callbacks = new ArrayList<>();
 
-
 	public ChatServer(Identity currentIdentity) {
 
 		dataBase = new ChatMessagesDataBase(QabelBoxApplication.getInstance(), currentIdentity);
@@ -48,8 +47,9 @@ public class ChatServer {
 
 	public Collection<DropMessage> refreshList() {
 		long lastRetrieved = dataBase.getLastRetrievedDropMessageTime();
+		lastRetrieved=0;
 		Log.d(TAG, "last retrieved dropmessage time " + lastRetrieved + " / " + System.currentTimeMillis());
-		Collection<DropMessage> result = QabelBoxApplication.getInstance().getService().retrieveDropMessages(lastRetrieved);
+		Collection<DropMessage> result = QabelBoxApplication.getInstance().getService().retrieveDropMessages(QabelBoxApplication.getInstance().getService().getActiveIdentity(),lastRetrieved);
 
 		if (result != null) {
 			Log.d(TAG, "new message count: " + result.size());

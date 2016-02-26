@@ -95,6 +95,7 @@ public class FileSearchTest {
         } catch (Exception e) {
 
         }
+	//	mBoxHelper.removeIdentity("spoon");
         Identity identity = mBoxHelper.addIdentity("spoon");
         mBoxHelper.setActiveIdentity(identity);
         uploadTestFiles(mBoxHelper.getCurrentIdentity());

@@ -8,6 +8,6 @@
 
     --<string name="testAccountingServer">http://192.168.1.41:9696</string>
     <string name="testBlockServer">http://192.168.1.41:8888</string>-
-
+    <string name="blockserver_magic_testtoken">MAGICFAIRY</string>
     <string name="accountingServerInactiveToken">35eecadd0558c6e04a282d8b5975a2ad094ace3b</string>
 </resources>

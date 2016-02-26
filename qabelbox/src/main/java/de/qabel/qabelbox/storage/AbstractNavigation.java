@@ -458,6 +458,17 @@ public abstract class AbstractNavigation implements BoxNavigation {
 		boxFile.meta = null;
 		boxFile.metakey = null;
 
+		try {
+			// Overwrite = delete old file, upload new file
+			BoxFile oldFile = dm.getFile(boxFile.name);
+			if (oldFile != null) {
+				dm.deleteFile(oldFile);
+			}
+			dm.insertFile(boxFile);
+			reloadMetadata();
+		} catch (QblStorageException e) {
+			Log.e(TAG,"error until reload metadata",e);
+		}
 		return true;
 	}
 

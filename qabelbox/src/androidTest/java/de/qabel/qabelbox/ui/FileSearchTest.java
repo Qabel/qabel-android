@@ -60,6 +60,7 @@ public class FileSearchTest {
     private final boolean mFillAccount = true;
     private PowerManager.WakeLock wakeLock;
     SystemAnimations mSystemAnimations;
+
     public FileSearchTest() throws IOException {
         //setup data before MainActivity launched. This avoid the call to create identity
         if (mFillAccount) {

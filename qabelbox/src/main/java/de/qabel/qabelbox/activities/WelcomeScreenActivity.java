@@ -5,10 +5,12 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
+import android.util.Log;
 
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.config.AppPreference;
-import de.qabel.qabelbox.fragments.ScreenSlidePageFragment;
+import de.qabel.qabelbox.fragments.WelcomeDisclaimerFragment;
+import de.qabel.qabelbox.fragments.WelcomeTextFragment;
 import de.qabel.qabelbox.views.IconPageIndicator;
 import de.qabel.qabelbox.views.IconPagerAdapter;
 import de.qabel.qabelbox.views.ViewPagerParallax;
@@ -18,12 +20,13 @@ import de.qabel.qabelbox.views.ViewPagerParallax;
  */
 public class WelcomeScreenActivity extends FragmentActivity {
 
-    private int oldPosition = 0;
-    private int offSet = 0;
+    private static final int NUM_PAGES = 5;
+    Fragment[] fragments = new Fragment[NUM_PAGES];
+    int[] messageIds = {R.string.message_welcome_screen1, R.string.message_welcome_screen2, R.string.message_welcome_screen3, R.string.message_welcome_screen4};
     /**
      * The number of pages (wizard steps) to show in this demo.
      */
-    private static final int NUM_PAGES = 5;
+
 
     /**
      * The pager widget, which handles animation and allows swiping horizontally to access previous
@@ -37,6 +40,7 @@ public class WelcomeScreenActivity extends FragmentActivity {
 
     private AppPreference prefs;
     private ScreenSlidePagerAdapter mPagerAdapter;
+    private String TAG = this.getClass().getSimpleName();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,7 +55,7 @@ public class WelcomeScreenActivity extends FragmentActivity {
         mPagerAdapter = new ScreenSlidePagerAdapter(getSupportFragmentManager());
         mPager.setAdapter(mPagerAdapter);
         //Bind the title indicator to the adapter
-        IconPageIndicator titleIndicator = (IconPageIndicator)findViewById(R.id.titles);
+        IconPageIndicator titleIndicator = (IconPageIndicator) findViewById(R.id.titles);
         titleIndicator.setViewPager(mPager);
         //titleIndicator.setOnPageChangeListener(mPageChangeListener);
     }
@@ -65,7 +69,7 @@ public class WelcomeScreenActivity extends FragmentActivity {
      * A simple pager adapter that represents 5 ScreenSlidePageFragment objects, in
      * sequence.
      */
-    private class ScreenSlidePagerAdapter extends FragmentStatePagerAdapter implements IconPagerAdapter{
+    private class ScreenSlidePagerAdapter extends FragmentStatePagerAdapter implements IconPagerAdapter {
 
         public ScreenSlidePagerAdapter(FragmentManager fm) {
 
@@ -75,7 +79,22 @@ public class WelcomeScreenActivity extends FragmentActivity {
         @Override
         public Fragment getItem(int position) {
 
-            return new ScreenSlidePageFragment();
+            Log.v(TAG, "fpa: getItem: " + position);
+            if (position >= 0 && position < fragments.length) {
+                if (fragments[position] == null) {
+                    if (position >= 0 && position < 4) {
+                        fragments[position] = WelcomeTextFragment.newInstance(messageIds[position]);
+                    } else if (position == 4) {
+                        fragments[position] = new WelcomeDisclaimerFragment();
+                    }
+                }
+                Log.d(TAG, fragments[position].toString());
+                return fragments[position];
+            } else {
+                Log.e(TAG, "getItem is out of range: " + position);
+                return null;
+            }
+
         }
 
         @Override

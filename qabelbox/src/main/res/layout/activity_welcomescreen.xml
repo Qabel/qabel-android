@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="vertical">
+    android:layout_width="match_parent"
+    android:background="@color/bg_welcome_semitransparent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
 
     <FrameLayout
         android:id="@+id/footer"
@@ -12,20 +13,22 @@
 
 
         <de.qabel.qabelbox.views.ViewPagerParallax
-            android:id="@+id/pager"
             xmlns:android="http://schemas.android.com/apk/res/android"
+            android:id="@+id/pager"
 
             android:layout_width="match_parent"
-            android:layout_height="match_parent"/>
+            android:layout_height="match_parent" />
+
         <de.qabel.qabelbox.views.IconPageIndicator
             android:id="@+id/titles"
-            android:layout_height="wrap_content"
-            android:layout_width="fill_parent" />
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content" />
+
         <ImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="right|top"
-            android:src="@drawable/welcome_github"/>
+            android:src="@drawable/welcome_github" />
     </FrameLayout>
 
 

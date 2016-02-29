@@ -32,7 +32,11 @@ public class VolumeFileTransferHelper {
 	private static final String URI_PREFIX_FILE = "file://";
     public static final String HARDCODED_ROOT = BoxProvider.DOCID_SEPARATOR
             + BoxProvider.PREFIX + BoxProvider.DOCID_SEPARATOR + BoxProvider.PATH_SEP;
-
+	public static final String getHardcodedRootWithPrefix(String prefix)
+	{
+		return BoxProvider.DOCID_SEPARATOR
+				+ prefix + BoxProvider.DOCID_SEPARATOR + BoxProvider.PATH_SEP;
+	}
     public static Uri getUri(BoxObject boxObject, BoxVolume boxVolume, BoxNavigation boxNavigation) {
 
         String path = boxNavigation.getPath(boxObject);

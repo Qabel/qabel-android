@@ -87,8 +87,8 @@ public class FileSearchTest {
     private void setupData() {
         Context applicationContext = QabelBoxApplication.getInstance().getApplicationContext();
         new AppPreference(applicationContext)
-                .setToken(applicationContext.getString(R.string.blockserver_magic_testtoken));
-        URLs.setBaseBlockURL(applicationContext.getString(R.string.testBlockServer));
+                .setToken(applicationContext.getString(R.string.blockserver_real_testtoken));
+        //URLs.setBaseBlockURL(applicationContext.getString(R.string.testBlockServer));
         mBoxHelper = new UIBoxHelper(mActivity);
         mBoxHelper.bindService(QabelBoxApplication.getInstance());
         try {
@@ -100,7 +100,7 @@ public class FileSearchTest {
             e.printStackTrace();
         }
 
-        Identity identity = mBoxHelper.addIdentity("spoon");
+        Identity identity = mBoxHelper.addIdentity(applicationContext,"spoon");
         uploadTestFiles();
     }
 

@@ -21,6 +21,7 @@ public class QabelBoxApplication extends Application {
 
     private static final String TAG = "QabelBoxApplication";
     private LocalQabelService mService;
+    public static final String DEFAULT_DROP_SERVER = "https://test-drop.qabel.de";
 
     private static QabelBoxApplication mInstance = null;
     public static BoxProvider boxProvider;
@@ -65,9 +66,7 @@ public class QabelBoxApplication extends Application {
             public void onServiceConnected(ComponentName name, IBinder service) {
                 LocalQabelService.LocalBinder binder = (LocalQabelService.LocalBinder) service;
                 mService = binder.getService();
-
                 Log.d(TAG, "Service binded");
-
             }
 
             @Override

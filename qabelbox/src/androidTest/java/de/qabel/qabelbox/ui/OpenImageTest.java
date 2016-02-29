@@ -60,7 +60,6 @@ import static org.hamcrest.core.AllOf.allOf;
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class OpenImageTest {
 
-    private final String TAG = this.getClass().getSimpleName();
     @Rule
     public ActivityTestRule<MainActivity> mActivityTestRule = new ActivityTestRule<>(MainActivity.class, false, true);
 
@@ -68,7 +67,7 @@ public class OpenImageTest {
     private UIBoxHelper mBoxHelper;
     private final boolean mFillAccount = true;
     private PowerManager.WakeLock wakeLock;
-    PicassoIdlingResource mPicassoIdlingResource = new PicassoIdlingResource();
+    private final PicassoIdlingResource mPicassoIdlingResource = new PicassoIdlingResource();
     private SystemAnimations mSystemAnimations;
 
     public OpenImageTest() throws IOException {
@@ -101,7 +100,7 @@ public class OpenImageTest {
 
     private void setupData() {
 
-        new AppPreference(QabelBoxApplication.getInstance().getApplicationContext()).setToken("dummytoken");
+        new AppPreference(QabelBoxApplication.getInstance().getApplicationContext()).setToken(QabelBoxApplication.getInstance().getApplicationContext().getString(R.string.blockserver_magic_testtoken));
         mBoxHelper = new UIBoxHelper(mActivity);
         mBoxHelper.bindService(QabelBoxApplication.getInstance());
         try {
@@ -110,21 +109,20 @@ public class OpenImageTest {
                 mBoxHelper.deleteIdentity(old);
             }
         } catch (Exception e) {
-
+            e.printStackTrace();
         }
         Identity identity = mBoxHelper.addIdentity("spoon");
         mBoxHelper.setActiveIdentity(identity);
-        uploadTestFiles(mBoxHelper.getCurrentIdentity());
+        uploadTestFiles();
     }
 
-    private void uploadTestFiles(Identity identity) {
+    private void uploadTestFiles() {
 
         int fileCount = 4;
-
-        mBoxHelper.uploadFile(identity, "defect.png", new byte[100], "");
-        mBoxHelper.uploadDrawableFile(identity, "file1.jpg", Bitmap.CompressFormat.JPEG, R.drawable.big_logo);
-        mBoxHelper.uploadDrawableFile(identity, "file2.png", Bitmap.CompressFormat.PNG, R.drawable.big_logo);
-        mBoxHelper.uploadDrawableFile(identity, "file3.png", Bitmap.CompressFormat.PNG, R.drawable.qabel_logo);
+        mBoxHelper.uploadFile(mBoxHelper.mBoxVolume, "defect.png", new byte[100], "");
+        mBoxHelper.uploadDrawableFile(mBoxHelper.mBoxVolume, "file1.jpg", Bitmap.CompressFormat.JPEG, R.drawable.big_logo);
+        mBoxHelper.uploadDrawableFile(mBoxHelper.mBoxVolume, "file2.png", Bitmap.CompressFormat.PNG, R.drawable.big_logo);
+        mBoxHelper.uploadDrawableFile(mBoxHelper.mBoxVolume, "file3.png", Bitmap.CompressFormat.PNG, R.drawable.qabel_logo);
 
         mBoxHelper.waitUntilFileCount(fileCount);
     }

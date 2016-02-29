@@ -128,10 +128,10 @@ public class FilesFragment extends BaseFragment {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 
-		super.onCreate(savedInstanceState);
-		setHasOptionsMenu(true);
-		if (actionBar != null) {
-			actionBar.setDisplayHomeAsUpEnabled(false);
+        super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
+        if (actionBar != null) {
+            actionBar.setDisplayHomeAsUpEnabled(false);
 
 			actionBar.setTitle(getTitle());
 		}
@@ -154,24 +154,24 @@ public class FilesFragment extends BaseFragment {
 			String documentId = intent.getStringExtra(LocalBroadcastConstants.EXTRA_UPLOAD_DOCUMENT_ID);
 			int uploadStatus = intent.getIntExtra(LocalBroadcastConstants.EXTRA_UPLOAD_STATUS, -1);
 
-			switch (uploadStatus) {
-				case LocalBroadcastConstants.UPLOAD_STATUS_NEW:
-					Log.d(TAG, "Received new upload: " + documentId);
-					fillAdapter(filesAdapter);
-					filesAdapter.notifyDataSetChanged();
-					break;
-				case LocalBroadcastConstants.UPLOAD_STATUS_FINISHED:
-					Log.d(TAG, "Received upload finished: " + documentId);
-					fillAdapter(filesAdapter);
-					filesAdapter.notifyDataSetChanged();
-					break;
-				case LocalBroadcastConstants.UPLOAD_STATUS_FAILED:
-					Log.d(TAG, "Received upload failed: " + documentId);
-					refresh();
-					break;
-			}
-		}
-	};
+            switch (uploadStatus) {
+                case LocalBroadcastConstants.UPLOAD_STATUS_NEW:
+                    Log.d(TAG, "Received new uploadAndDeleteLocalfile: " + documentId);
+                    fillAdapter(filesAdapter);
+                    filesAdapter.notifyDataSetChanged();
+                    break;
+                case LocalBroadcastConstants.UPLOAD_STATUS_FINISHED:
+                    Log.d(TAG, "Received upload finished: " + documentId);
+                    fillAdapter(filesAdapter);
+                    filesAdapter.notifyDataSetChanged();
+                    break;
+                case LocalBroadcastConstants.UPLOAD_STATUS_FAILED:
+                    Log.d(TAG, "Received uploadAndDeleteLocalfile failed: " + documentId);
+                    refresh();
+                    break;
+            }
+        }
+    };
 
 	@Override
 	public void onDestroy() {

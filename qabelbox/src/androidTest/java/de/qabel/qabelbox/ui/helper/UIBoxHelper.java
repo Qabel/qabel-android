@@ -12,10 +12,8 @@ import android.os.IBinder;
 import android.provider.DocumentsContract;
 import android.util.Log;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.output.ByteArrayOutputStream;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URI;
@@ -44,12 +42,13 @@ import de.qabel.qabelbox.storage.StorageSearch;
  */
 public class UIBoxHelper {
 
-	private final MainActivity mActivity;
-	private final String TAG = this.getClass().getSimpleName();
-	private LocalQabelService mService;
-	private BoxProvider provider;
-	public BoxVolume mBoxVolume;
-	private boolean finished = false;
+    @Deprecated
+    private final MainActivity mActivity;
+    private final String TAG = this.getClass().getSimpleName();
+    private LocalQabelService mService;
+    private BoxProvider provider;
+    public BoxVolume mBoxVolume;
+    private boolean finished = false;
 
 	public UIBoxHelper(MainActivity activity) {
 
@@ -101,69 +100,70 @@ public class UIBoxHelper {
 		return DocumentsContract.deleteDocument(activity.getContentResolver(), uploadUri);
 	}
 
-	public boolean uploadFile(Identity identity, String name, byte[] data, String targetFolder) {
+    public boolean uploadFile(BoxVolume boxVolume, String name, byte[] data, String path) {
+        try {
 
-		Log.d(TAG, "upload demo file " + name);
+            String folderId = boxVolume.getDocumentId(path);
+            Uri uploadUri = DocumentsContract.buildDocumentUri(
+                    BoxProvider.AUTHORITY, folderId + name);
+            Context self = QabelBoxApplication.getInstance().getApplicationContext();
 
-		String keyIdentifier = identity.getEcPublicKey()
-				.getReadableKeyIdentifier();
-		Uri uploadUri = DocumentsContract.buildDocumentUri(
-				BoxProvider.AUTHORITY, keyIdentifier + VolumeFileTransferHelper.HARDCODED_ROOT + targetFolder + name);
+            OutputStream upload = self.getContentResolver().openOutputStream(uploadUri, "w");
+            if (upload == null) {
+                return false;
+            }
+            upload.write(data);
+            upload.close();
+            return true;
+        } catch (IOException e) {
+            Log.e(TAG, "Upload failed", e);
+        }
+        return false;
 
-		try {
-			OutputStream outputStream = QabelBoxApplication.getInstance().getContentResolver().openOutputStream(uploadUri, "w");
-			if (outputStream == null) {
-				return false;
-			}
+    }
 
-			IOUtils.copy(new ByteArrayInputStream(data), outputStream);
-			outputStream.close();
-		} catch (IOException e) {
-			Log.e(TAG, "Error opening output stream for upload", e);
-		}
-
-		return true;
-	}
 
 	public Identity addIdentity(final String identName) {
 
-		URI uri = URI.create(QabelBoxApplication.getInstance().getString(R.string.dropServer));
-		DropServer dropServer = new DropServer(uri, "", true);
-		DropIdGenerator adjustableDropIdGenerator = new AdjustableDropIdGenerator(2 * 8);
-		DropURL dropURL = new DropURL(dropServer, adjustableDropIdGenerator);
-		Collection<DropURL> dropURLs = new ArrayList<>();
-		dropURLs.add(dropURL);
-		Identity identity = new Identity(identName,
-				dropURLs, new QblECKeyPair());
-		finished = false;
+        URI uri = URI.create(QabelBoxApplication.DEFAULT_DROP_SERVER);
+        DropServer dropServer = new DropServer(uri, "", true);
+        DropIdGenerator adjustableDropIdGenerator = new AdjustableDropIdGenerator(2 * 8);
+        DropURL dropURL = new DropURL(dropServer, adjustableDropIdGenerator);
+        Collection<DropURL> dropURLs = new ArrayList<>();
+        dropURLs.add(dropURL);
+        String prefix = "test";
+        Identity identity = new Identity(identName,
+                dropURLs, new QblECKeyPair());
+        identity.getPrefixes().add(prefix);
+        finished = false;
 
 		Log.d(TAG, "identity added " + identity.getAlias() + " " + identity.getEcPublicKey().getReadableKeyIdentifier());
 		mService.addIdentity(identity);
 		mService.setActiveIdentity(identity);
 
-		try {
-			initBoxVolume(identity);
-			mBoxVolume.navigate();
-		} catch (QblStorageException e) {
-			Log.e(TAG, "Cannot navigate to root", e);
-			try {
-				mBoxVolume.createIndex();
-				mBoxVolume.navigate();
-			} catch (QblStorageException e1) {
-				Log.e(TAG, "Creating a volume failed", e1);
-			}
-		}
+        try {
+            initBoxVolume(identity);
+
+        } catch (QblStorageException e) {
+            Log.e(TAG, "Cannot navigate to root", e);
+            try {
+                mBoxVolume.createIndex();
+                mBoxVolume.navigate();
+            } catch (QblStorageException e1) {
+                Log.e(TAG, "Creating a volume failed", e1);
+            }
+        }
 
 		return identity;
 	}
 
 	private void initBoxVolume(Identity activeIdentity) throws QblStorageException {
 
-		mBoxVolume = provider.getVolumeForRoot(
-				activeIdentity.getEcPublicKey().getReadableKeyIdentifier(),
-				null, null);
-		mBoxVolume.createIndex();
-	}
+        mBoxVolume = provider.getVolumeForRoot(
+                activeIdentity.getEcPublicKey().getReadableKeyIdentifier(),
+                VolumeFileTransferHelper.getPrefixFromIdentity(activeIdentity));
+        mBoxVolume.createIndex();
+    }
 
 	public void setActiveIdentity(Identity identity) {
 
@@ -198,30 +198,20 @@ public class UIBoxHelper {
 		}
 	}
 
-	/**
-	 * update drawable file
-	 *
-	 * @param identity identity to upload
-	 * @param filename filename to store in box
-	 * @param format   format type
-	 * @param id       resource id
-	 */
-	public void uploadDrawableFile(Identity identity, String filename, Bitmap.CompressFormat format, int id) {
+    /**
+     * update drawable file
+     *
+     * @param filename filename to store in box
+     * @param format   format type
+     * @param id       resource id
+     */
+    public void uploadDrawableFile(BoxVolume boxVolume, String filename, Bitmap.CompressFormat format, int id) {
 
-		Bitmap bitmap = BitmapFactory.decodeResource(QabelBoxApplication.getInstance().getResources(), id);
-		ByteArrayOutputStream baos = new ByteArrayOutputStream(100 * 1024);
-		bitmap.compress(format, 100, baos);
-		byte[] data = new byte[baos.size()];
-		System.arraycopy(baos.toByteArray(), 0, data, 0, baos.size());
-		uploadFile(identity, filename, data, "");
-	}
-
-	public void removeIdentity(String name) {
-		Identities identities = mService.getIdentities();
-		for (Identity i : identities.getIdentities()) {
-			if (i.getAlias().equals(name)) {
-				mService.deleteIdentity(i);
-			}
-		}
-	}
+        Bitmap bitmap = BitmapFactory.decodeResource(QabelBoxApplication.getInstance().getResources(), id);
+        ByteArrayOutputStream baos = new ByteArrayOutputStream(100 * 1024);
+        bitmap.compress(format, 100, baos);
+        byte[] data = new byte[baos.size()];
+        System.arraycopy(baos.toByteArray(), 0, data, 0, baos.size());
+        uploadFile(boxVolume, filename, data, "");
+    }
 }

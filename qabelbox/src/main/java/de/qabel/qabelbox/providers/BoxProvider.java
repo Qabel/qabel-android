@@ -23,10 +23,6 @@ import android.support.annotation.NonNull;
 import android.support.v7.app.NotificationCompat;
 import android.util.Log;
 
-import com.amazonaws.auth.AWSCredentials;
-import com.amazonaws.mobileconnectors.s3.transferutility.TransferUtility;
-import com.amazonaws.services.s3.AmazonS3Client;
-
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 
@@ -56,6 +52,7 @@ import de.qabel.core.config.Identity;
 import de.qabel.core.crypto.QblECKeyPair;
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
+import de.qabel.qabelbox.communication.VolumeFileTransferHelper;
 import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.exceptions.QblStorageNotFound;
 import de.qabel.qabelbox.services.LocalBroadcastConstants;
@@ -86,20 +83,15 @@ public class BoxProvider extends DocumentsProvider {
     public static final String AUTHORITY = "de.qabel.qabelbox.providers.documents";
     public static final String PATH_SEP = "/";
     public static final String DOCID_SEPARATOR = "::::";
-    public static final String BUCKET = "qabel";
-    public static final String PREFIX = "boxtest";
+    public static final String PREFIX = "test";
 
     DocumentIdParser mDocumentIdParser;
     private ThreadPoolExecutor mThreadPoolExecutor;
 
     private static final int KEEP_ALIVE_TIME = 1;
     private static final TimeUnit KEEP_ALIVE_TIME_UNIT = TimeUnit.SECONDS;
-    TransferUtility transferUtility;
-    AmazonS3Client amazonS3Client;
-    AWSCredentials awsCredentials;
 
     private Map<String, BoxCursor> folderContentCache;
-    private Map<String, Integer> uploadNotifications;
     private String currentFolder;
     protected LocalQabelService mService;
 
@@ -123,24 +115,9 @@ public class BoxProvider extends DocumentsProvider {
                 KEEP_ALIVE_TIME_UNIT,
                 new LinkedBlockingDeque<Runnable>());
 
-        awsCredentials = new AWSCredentials() {
-            @Override
-            public String getAWSAccessKeyId() {
-
-                return context.getResources().getString(R.string.aws_user);
-            }
-
-            @Override
-            public String getAWSSecretKey() {
-
-                return context.getResources().getString(R.string.aws_password);
-            }
-        };
-        amazonS3Client = new AmazonS3Client(awsCredentials);
         QabelBoxApplication.boxProvider = this;
 
         folderContentCache = new HashMap<>();
-        uploadNotifications = new HashMap<>();
         return true;
     }
 
@@ -174,15 +151,6 @@ public class BoxProvider extends DocumentsProvider {
                 .notifyChange(DocumentsContract.buildRootsUri(AUTHORITY), null);
     }
 
-    private void setUpTransferUtility() {
-
-        if (transferUtility == null) {
-            transferUtility = new TransferUtility(
-                    amazonS3Client,
-                    getContext().getApplicationContext());
-        }
-    }
-
     /**
      * Used to temporary inject the service if it is not ready yet
      *
@@ -208,15 +176,20 @@ public class BoxProvider extends DocumentsProvider {
         for (Identity identity : identities.getIdentities()) {
             final MatrixCursor.RowBuilder row = result.newRow();
             String pub_key = identity.getEcPublicKey().getReadableKeyIdentifier();
+            String prefix;
+            try {
+                prefix = identity.getPrefixes().get(0);
+            } catch (IndexOutOfBoundsException e) {
+                Log.e(TAG, "Could not find a prefix in identity " + pub_key);
+                continue;
+            }
             row.add(Root.COLUMN_ROOT_ID,
-                    mDocumentIdParser.buildId(pub_key,
-                            BUCKET, PREFIX, null));
+                    mDocumentIdParser.buildId(pub_key, prefix, null));
             row.add(Root.COLUMN_DOCUMENT_ID,
-                    mDocumentIdParser.buildId(pub_key,
-                            BUCKET, PREFIX, "/"));
+                    mDocumentIdParser.buildId(pub_key, prefix, "/"));
             row.add(Root.COLUMN_ICON, R.drawable.qabel_logo);
             row.add(Root.COLUMN_FLAGS, Root.FLAG_SUPPORTS_CREATE);
-            row.add(Root.COLUMN_TITLE, "Qabel Box " + PREFIX.substring(0, 7));
+            row.add(Root.COLUMN_TITLE, "Qabel Box");
             row.add(Root.COLUMN_SUMMARY, identity.getAlias());
         }
 
@@ -246,13 +219,10 @@ public class BoxProvider extends DocumentsProvider {
         return result.toArray(projection);
     }
 
-    public BoxVolume getVolumeForRoot(String identity, String bucket, String prefix) {
+    public BoxVolume getVolumeForRoot(String identity, String prefix) {
 
-        if (bucket == null) {
-            bucket = BUCKET;
-        }
         if (prefix == null) {
-            prefix = PREFIX;
+            throw new RuntimeException("No prefix supplied");
         }
         Identity retrievedIdentity = mService.getIdentities().getByKeyIdentifier(identity);
         if (retrievedIdentity == null) {
@@ -260,9 +230,7 @@ public class BoxProvider extends DocumentsProvider {
         }
         QblECKeyPair key = retrievedIdentity.getPrimaryKeyPair();
 
-        setUpTransferUtility();
-
-        return new BoxVolume(transferUtility, awsCredentials, key, bucket, prefix,
+        return new BoxVolume(key, prefix,
                 mService.getDeviceID(), getContext());
     }
 
@@ -317,7 +285,6 @@ public class BoxProvider extends DocumentsProvider {
 
         return getVolumeForRoot(
                 mDocumentIdParser.getIdentity(documentId),
-                mDocumentIdParser.getBucket(documentId),
                 mDocumentIdParser.getPrefix(documentId));
     }
 
@@ -518,7 +485,7 @@ public class BoxProvider extends DocumentsProvider {
                 if (isRead) {
                     tmp = downloadFile(documentId, mode, signal);
                 } else {
-                    tmp = File.createTempFile("upload", "", getContext().getExternalCacheDir());
+                    tmp = File.createTempFile("uploadAndDeleteLocalfile", "", getContext().getExternalCacheDir());
                 }
                 ParcelFileDescriptor.OnCloseListener onCloseListener = new ParcelFileDescriptor.OnCloseListener() {
                     @Override
@@ -562,7 +529,7 @@ public class BoxProvider extends DocumentsProvider {
             String basename = splitPath.remove(splitPath.size() - 1);
             Log.i(TAG, "Navigating to folder");
             BoxNavigation navigation = traverseToFolder(volume, splitPath);
-            Log.i(TAG, "Starting upload");
+            Log.i(TAG, "Starting uploadAndDeleteLocalfile");
             BoxFile boxFile = navigation.upload(basename, new FileInputStream(tmp), boxTransferListener);
             navigation.commit();
             Bundle extras = new Bundle();
@@ -616,6 +583,7 @@ public class BoxProvider extends DocumentsProvider {
             throws IOException, QblStorageException {
 
         final int id = 2;
+        //@todo notification handling into separate place
         final NotificationManager mNotifyManager = (NotificationManager) getContext().getSystemService(Context.NOTIFICATION_SERVICE);
         final NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(getContext());
         mBuilder.setContentTitle("Downloading " + mDocumentIdParser.getBaseName(documentId))
@@ -759,7 +727,6 @@ public class BoxProvider extends DocumentsProvider {
             String newPath = StringUtils.join(splitPath, "");
             String renamedId = mDocumentIdParser.buildId(
                     mDocumentIdParser.getIdentity(documentId),
-                    mDocumentIdParser.getBucket(documentId),
                     mDocumentIdParser.getPrefix(documentId),
                     newPath);
 

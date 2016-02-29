@@ -28,7 +28,7 @@ public class ContactExportImport {
 	private static final String KEY_DROP_URLS = "drop_urls";
 	private static final String KEY_CONTACTS = "contacts";
 
-
+ 
 	public static String exportContacts(Contacts contacts) throws JSONException {
 		JSONObject jsonObject = new JSONObject();
 		JSONArray jsonContacts = new JSONArray();
@@ -63,47 +63,50 @@ public class ContactExportImport {
 	}
 
 	/**
-     * Exports the {@link Contact} information as a JSON string from an {@link Identity}
-     * @param identity {@link Identity} to export {@link Contact} information from
-     * @return {@link Contact} information as JSON string
-     */
-    public static String exportIdentityAsContact(Identity identity) {
-        JSONObject jsonObject = new JSONObject();
-        JSONArray jsonDropUrls = new JSONArray();
-        try {
-            jsonObject.put(KEY_ALIAS, identity.getAlias());
+	 * Exports the {@link Contact} information as a JSON string from an {@link Identity}
+	 *
+	 * @param identity {@link Identity} to export {@link Contact} information from
+	 * @return {@link Contact} information as JSON string
+	 */
+	public static String exportIdentityAsContact(Identity identity) {
+		JSONObject jsonObject = new JSONObject();
+		JSONArray jsonDropUrls = new JSONArray();
+		try {
+			jsonObject.put(KEY_ALIAS, identity.getAlias());
 			jsonObject.put(KEY_EMAIL, identity.getEmail());
 			jsonObject.put(KEY_PHONE, identity.getPhone());
 			jsonObject.put(KEY_PUBLIC_KEY, identity.getKeyIdentifier());
-            for (DropURL dropURL : identity.getDropUrls()) {
-                jsonDropUrls.put(dropURL);
-            }
-            jsonObject.put(KEY_DROP_URLS, jsonDropUrls);
-        } catch (JSONException e) {
-            // Shouldn't be possible to trigger this exception
-            throw new RuntimeException("Cannot build JSONObject", e);
-        }
+			for (DropURL dropURL : identity.getDropUrls()) {
+				jsonDropUrls.put(dropURL);
+			}
+			jsonObject.put(KEY_DROP_URLS, jsonDropUrls);
+		} catch (JSONException e) {
+			// Shouldn't be possible to trigger this exception
+			throw new RuntimeException("Cannot build JSONObject", e);
+		}
 
-        return jsonObject.toString();
-    }
+		return jsonObject.toString();
+	}
 
-    /**
-     * Parse a {@link Contact} from a {@link Contact} JSON string
-     * @param identity {@link Identity} for setting the owner of the {@link Contact}
-     * @param json {@link Contact} JSON string
-     * @return {@link Contact} parsed from JSON string
-     * @throws JSONException
-     * @throws URISyntaxException
-     * @throws QblDropInvalidURL
-     */
-    public static Contact parseContactForIdentity(Identity identity, String json) throws JSONException, URISyntaxException, QblDropInvalidURL {
+	/**
+	 * Parse a {@link Contact} from a {@link Contact} JSON string
+	 *
+	 * @param identity {@link Identity} for setting the owner of the {@link Contact}
+	 * @param json     {@link Contact} JSON string
+	 * @return {@link Contact} parsed from JSON string
+	 * @throws JSONException
+	 * @throws URISyntaxException
+	 * @throws QblDropInvalidURL
+	 */
+	public static Contact parseContactForIdentity(Identity identity, String json) throws JSONException, URISyntaxException, QblDropInvalidURL {
 		return parseContactFromJSON(identity, json);
 	}
 
 	/**
 	 * Parse {@link Contacts} from a {@link Contacts} JSON string
+	 *
 	 * @param identity {@link Identity} for setting the owner of the {@link Contact}s
-	 * @param json {@link Contacts} JSON string
+	 * @param json     {@link Contacts} JSON string
 	 * @return {@link Contacts} parsed from JSON string
 	 * @throws JSONException
 	 * @throws URISyntaxException
@@ -123,12 +126,12 @@ public class ContactExportImport {
 	private static Contact parseContactFromJSON(Identity identity, String json) throws JSONException, URISyntaxException, QblDropInvalidURL {
 		JSONObject jsonObject = new JSONObject(json);
 
-        Collection<DropURL> dropURLs = new ArrayList<>();
-        String alias = jsonObject.getString(KEY_ALIAS);
-        JSONArray jsonDropURLS = jsonObject.getJSONArray(KEY_DROP_URLS);
-        for (int i = 0; i < jsonDropURLS.length(); i++) {
-            dropURLs.add(new DropURL(jsonDropURLS.getString(i)));
-        }
+		Collection<DropURL> dropURLs = new ArrayList<>();
+		String alias = jsonObject.getString(KEY_ALIAS);
+		JSONArray jsonDropURLS = jsonObject.getJSONArray(KEY_DROP_URLS);
+		for (int i = 0; i < jsonDropURLS.length(); i++) {
+			dropURLs.add(new DropURL(jsonDropURLS.getString(i)));
+		}
 		String keyIdentifier = jsonObject.getString(KEY_PUBLIC_KEY);
 
 		Contact contact = new Contact(alias, dropURLs, new QblECPublicKey(Hex.decode(keyIdentifier)));

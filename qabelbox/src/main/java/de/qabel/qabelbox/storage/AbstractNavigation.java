@@ -117,7 +117,7 @@ public abstract class AbstractNavigation implements BoxNavigation {
 
 	protected Long blockingUpload(String prefix, String name,
 								  File file, @Nullable TransferManager.BoxTransferListener boxTransferListener) {
-		int id = transferManager.upload(prefix, name, file, boxTransferListener);
+		int id = transferManager.uploadAndDeleteLocalfileOnSuccess(prefix, name, file, boxTransferListener);
 		transferManager.waitFor(id);
 		return currentSecondsFromEpoch();
 	}
@@ -336,7 +336,7 @@ public abstract class AbstractNavigation implements BoxNavigation {
 		SimpleEntry<Long, Long> mtimeAndSize = uploadEncrypted(content, key, prefix, BLOCKS_PREFIX + block, boxTransferListener);
 		boxFile.mtime = mtimeAndSize.getKey();
 		boxFile.size = mtimeAndSize.getValue();
-		// Overwrite = delete old file, upload new file
+		// Overwrite = delete old file, uploadAndDeleteLocalfile new file
 		BoxFile oldFile = dm.getFile(name);
 		if (oldFile != null) {
 			if (oldFile.meta != null && oldFile.metakey != null) {
@@ -355,7 +355,7 @@ public abstract class AbstractNavigation implements BoxNavigation {
 			InputStream content, KeyParameter key, String prefix, String block,
 			@Nullable TransferManager.BoxTransferListener boxTransferListener) throws QblStorageException {
 		try {
-			File tempFile = File.createTempFile("upload", "up", dm.getTempDir());
+			File tempFile = File.createTempFile("uploadAndDeleteLocalfile", "up", dm.getTempDir());
 			OutputStream outputStream = new FileOutputStream(tempFile);
 			if (!cryptoUtils.encryptStreamAuthenticatedSymmetric(content, outputStream, key, null)) {
 				throw new QblStorageException("Encryption failed");
@@ -409,7 +409,7 @@ public abstract class AbstractNavigation implements BoxNavigation {
 			FileInputStream fileInputStream = new FileInputStream(fileMetadata.getPath());
 			uploadEncrypted(fileInputStream, key, prefix, metaBlock, null);
 
-			// Overwrite = delete old file, upload new file
+			// Overwrite = delete old file, uploadAndDeleteLocalfile new file
 			BoxFile oldFile = dm.getFile(boxFile.name);
 			if (oldFile != null) {
 				dm.deleteFile(oldFile);
@@ -441,7 +441,7 @@ public abstract class AbstractNavigation implements BoxNavigation {
 			FileInputStream fileInputStream = new FileInputStream(fileMetadataNew.getPath());
 			uploadEncrypted(fileInputStream, new KeyParameter(boxFile.metakey), boxFile.prefix, boxFile.meta, null);
 		} catch (QblStorageException | FileNotFoundException e) {
-			Log.e(TAG, "Could not create or upload FileMetadata", e);
+			Log.e(TAG, "Could not create or uploadAndDeleteLocalfile FileMetadata", e);
 			return false;
 		}
 		return true;
@@ -512,7 +512,7 @@ public abstract class AbstractNavigation implements BoxNavigation {
 	private InputStream openStream(byte[] boxFileKey, File file) throws QblStorageException {
 		KeyParameter key = new KeyParameter(boxFileKey);
 		try {
-			File temp = File.createTempFile("upload", "down", dm.getTempDir());
+			File temp = File.createTempFile("uploadAndDeleteLocalfile", "down", dm.getTempDir());
 			if (!cryptoUtils.decryptFileAuthenticatedSymmetricAndValidateTag(
 					new FileInputStream(file), temp, key)
 					|| checkFile(temp)) {
@@ -587,6 +587,7 @@ public abstract class AbstractNavigation implements BoxNavigation {
 		dm.deleteFile(file);
 		file.name = name;
 		dm.insertFile(file);
+		updateFileMetadata(file);
 		return file;
 	}
 

@@ -1,4 +1,4 @@
-package de.qabel.qabelbox.communication;
+package de.qabel.qabelbox.communication.callbacks;
 
 import android.util.Log;
 
@@ -62,11 +62,14 @@ public abstract class SimpleJsonCallback implements Callback {
             onError(call, Reasons.InvalidResponse);
             return;
         }
-        String text;
+        String text=null;
         try {
             text = response.body().string();
         } catch (IOException e) {
-            Log.w(TAG, "server response can't parse", e);
+            Log.w(TAG, "server response can't parse ", e);
+            if (text != null) {
+                Log.v(TAG, text);
+            }
             onError(call, Reasons.Body);
             return;
         }

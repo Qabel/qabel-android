@@ -652,8 +652,6 @@ public class MainActivity extends CrashReportingActivity
             selectContactsFragment();
         } else if (id == R.id.nav_browse) {
             selectFilesFragment();
-        } else if (id == R.id.nav_help) {
-            UIHelper.showFunctionNotYetImplemented(this);
         } else if (id == R.id.nav_inbox) {
             UIHelper.showFunctionNotYetImplemented(this);
         } else if (id == R.id.nav_settings) {

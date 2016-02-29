@@ -87,7 +87,7 @@ public class ChatMessageItem {
 			if (drop_payload_type.equals(BOX_MESSAGE)) {
 				TextMessagePayload message = new TextMessagePayload();
 				try {
-					message.message = new JSONObject(drop_payload).getString("message");
+					message.message = new JSONObject(drop_payload).getString("msg");
 				} catch (JSONException e) {
 					Log.w(TAG, "no payload data field", e);
 					return null;
@@ -98,7 +98,7 @@ public class ChatMessageItem {
 					ShareMessagePayload message = new ShareMessagePayload();
 					try {
 						JSONObject payload = new JSONObject(drop_payload);
-						message.message = payload.getString("message");
+						message.message = payload.getString("msg");
 						message.url = payload.getString("url");
 						message.key = payload.getString("key");
 					} catch (JSONException e) {

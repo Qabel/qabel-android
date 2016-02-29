@@ -106,7 +106,7 @@ public class ChatServer {
 		String payload_type = ChatMessageItem.BOX_MESSAGE;
 		JSONObject payloadJson = new JSONObject();
 		try {
-			payloadJson.put("message", message);
+			payloadJson.put("msg", message);
 		} catch (JSONException e) {
 			Log.e(TAG, "error on create json", e);
 		}
@@ -119,7 +119,7 @@ public class ChatServer {
 		String payload_type = ChatMessageItem.SHARE_NOTIFICATION;
 		JSONObject payloadJson = new JSONObject();
 		try {
-			payloadJson.put("message", message);
+			payloadJson.put("msg", message);
 			payloadJson.put("url", url);
 			payloadJson.put("key", key);
 		} catch (JSONException e) {

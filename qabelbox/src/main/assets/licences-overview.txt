@@ -1,0 +1,29 @@
+Qabel Licence
+- Qabel
+
+
+Apache 2
+- Apache Commons
+- Android Open Source Project
+- GSON
+- Apache Httpcomponents
+- ZXing
+- (Hockey SDK)
+- Bottomsheet
+- OkHttp
+- Picasso
+
+Bouncy Castle Licence
+- Spongy Castle
+
+Hockey SDK Licence
+- (c) Microsoft Licence: https://github.com/bitstadium/HockeySDK-Android/blob/develop/LICENSE (permissive, no copy left)
+
+MIT Licence
+- SLF4J
+- SQLDroid 1.0.3
+- (Hockey SDK)
+
+
+
+

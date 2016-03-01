@@ -7,8 +7,8 @@
             android:title="@string/debug_send_feedback" />
         <Preference
             android:key="@string/settings_key_internal_reset_app_data"
-            android:summary="Clean all data without warning"
-            android:title="Clear app data" />
+            android:summary="@string/clear_app_data_summary"
+            android:title="@string/clear_app_data" />
 
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/general_settings">

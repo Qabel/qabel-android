@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="accountingServer">https://test-accounting.qabel.de</string>
     <string name="blockServer">https://test-block.qabel.de</string>
+    <string name="accountingServer">https://test-accounting.qabel.de</string>
+    <string name="dropServer">https://test-drop.qabel.de</string>
     <string name="testAccountingServer">http://192.168.1.41:9696</string>
     <string name="testBlockServer">http://192.168.1.41:8888</string>
     <string name="blockserver_magic_testtoken">MAGICFAIRY</string>

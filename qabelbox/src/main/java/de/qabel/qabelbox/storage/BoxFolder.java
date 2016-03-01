@@ -3,6 +3,8 @@ package de.qabel.qabelbox.storage;
 import java.util.Arrays;
 
 public class BoxFolder extends BoxObject {
+
+	public static final String RECEIVED_SHARE_NAME = "[Incomming shares]";
 	public byte[] key;
 	public String ref;
 

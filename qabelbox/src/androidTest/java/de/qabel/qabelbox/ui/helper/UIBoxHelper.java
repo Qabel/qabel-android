@@ -21,12 +21,14 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import de.qabel.core.config.DropServer;
+import de.qabel.core.config.Identities;
 import de.qabel.core.config.Identity;
 import de.qabel.core.crypto.QblECKeyPair;
 import de.qabel.core.drop.AdjustableDropIdGenerator;
 import de.qabel.core.drop.DropIdGenerator;
 import de.qabel.core.drop.DropURL;
 import de.qabel.qabelbox.QabelBoxApplication;
+import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.activities.MainActivity;
 import de.qabel.qabelbox.communication.VolumeFileTransferHelper;
 import de.qabel.qabelbox.exceptions.QblStorageException;
@@ -48,55 +50,55 @@ public class UIBoxHelper {
     public BoxVolume mBoxVolume;
     private boolean finished = false;
 
-    public UIBoxHelper(MainActivity activity) {
+	public UIBoxHelper(MainActivity activity) {
 
-        mActivity = activity;
-    }
+		mActivity = activity;
+	}
 
-    public void bindService(final QabelBoxApplication app) {
+	public void bindService(final QabelBoxApplication app) {
 
-        Intent serviceIntent = new Intent(app.getApplicationContext(), LocalQabelService.class);
-        finished = false;
-        app.stopService(serviceIntent);
-        app.bindService(serviceIntent, new ServiceConnection() {
+		Intent serviceIntent = new Intent(app.getApplicationContext(), LocalQabelService.class);
+		finished = false;
+		app.stopService(serviceIntent);
+		app.bindService(serviceIntent, new ServiceConnection() {
 
-            @Override
-            public void onServiceConnected(ComponentName name, IBinder service) {
+			@Override
+			public void onServiceConnected(ComponentName name, IBinder service) {
 
-                Log.d(TAG, "LocalQabelService connected");
+				Log.d(TAG, "LocalQabelService connected");
 
-                provider = app.getProvider();
+				provider = app.getProvider();
 
-                Log.i(TAG, "Provider: " + provider);
-                LocalQabelService.LocalBinder binder = (LocalQabelService.LocalBinder) service;
-                mService = binder.getService();
+				Log.i(TAG, "Provider: " + provider);
+				LocalQabelService.LocalBinder binder = (LocalQabelService.LocalBinder) service;
+				mService = binder.getService();
 
-                finished = true;
-            }
+				finished = true;
+			}
 
-            @Override
-            public void onServiceDisconnected(ComponentName name) {
+			@Override
+			public void onServiceDisconnected(ComponentName name) {
 
-                mService = null;
-            }
-        }, Context.BIND_AUTO_CREATE);
-        while (!finished) {
-            try {
-                Thread.sleep(100);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
-    }
+				mService = null;
+			}
+		}, Context.BIND_AUTO_CREATE);
+		while (!finished) {
+			try {
+				Thread.sleep(100);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
+	}
 
-    public boolean deleteFile(Activity activity, Identity identity, String name, String targetFolder) {
+	public boolean deleteFile(Activity activity, Identity identity, String name, String targetFolder) {
 
-        String keyIdentifier = identity.getEcPublicKey()
-                .getReadableKeyIdentifier();
-        Uri uploadUri = DocumentsContract.buildDocumentUri(
-                BoxProvider.AUTHORITY, keyIdentifier + VolumeFileTransferHelper.HARDCODED_ROOT + targetFolder + name);
-        return DocumentsContract.deleteDocument(activity.getContentResolver(), uploadUri);
-    }
+		String keyIdentifier = identity.getEcPublicKey()
+				.getReadableKeyIdentifier();
+		Uri uploadUri = DocumentsContract.buildDocumentUri(
+				BoxProvider.AUTHORITY, keyIdentifier + VolumeFileTransferHelper.HARDCODED_ROOT + targetFolder + name);
+		return DocumentsContract.deleteDocument(activity.getContentResolver(), uploadUri);
+	}
 
     public boolean uploadFile(BoxVolume boxVolume, String name, byte[] data, String path) {
         try {
@@ -121,7 +123,7 @@ public class UIBoxHelper {
     }
 
 
-    public Identity addIdentity(final String identName) {
+	public Identity addIdentity(final String identName) {
 
         URI uri = URI.create(QabelBoxApplication.DEFAULT_DROP_SERVER);
         DropServer dropServer = new DropServer(uri, "", true);
@@ -135,9 +137,9 @@ public class UIBoxHelper {
         identity.getPrefixes().add(prefix);
         finished = false;
 
-        Log.d(TAG, "identity added " + identity.getAlias() + " " + identity.getEcPublicKey().getReadableKeyIdentifier());
-        mService.addIdentity(identity);
-        mService.setActiveIdentity(identity);
+		Log.d(TAG, "identity added " + identity.getAlias() + " " + identity.getEcPublicKey().getReadableKeyIdentifier());
+		mService.addIdentity(identity);
+		mService.setActiveIdentity(identity);
 
         try {
             initBoxVolume(identity);
@@ -152,10 +154,10 @@ public class UIBoxHelper {
             }
         }
 
-        return identity;
-    }
+		return identity;
+	}
 
-    private void initBoxVolume(Identity activeIdentity) throws QblStorageException {
+	private void initBoxVolume(Identity activeIdentity) throws QblStorageException {
 
         mBoxVolume = provider.getVolumeForRoot(
                 activeIdentity.getEcPublicKey().getReadableKeyIdentifier(),
@@ -163,38 +165,38 @@ public class UIBoxHelper {
         mBoxVolume.createIndex();
     }
 
-    public void setActiveIdentity(Identity identity) {
+	public void setActiveIdentity(Identity identity) {
 
-        mService.setActiveIdentity(identity);
-    }
+		mService.setActiveIdentity(identity);
+	}
 
-    public void deleteIdentity(Identity identity) {
+	public void deleteIdentity(Identity identity) {
 
-        mService.deleteIdentity(identity);
-    }
+		mService.deleteIdentity(identity);
+	}
 
-    public Identity getCurrentIdentity() {
+	public Identity getCurrentIdentity() {
 
-        return mService.getActiveIdentity();
-    }
+		return mService.getActiveIdentity();
+	}
 
-    /**
-     * wait until the volume contain a defined count of files
-     *
-     * @param fileCount
-     */
-    public void waitUntilFileCount(int fileCount) {
+	/**
+	 * wait until the volume contain a defined count of files
+	 *
+	 * @param fileCount
+	 */
+	public void waitUntilFileCount(int fileCount) {
 
-        try {
-            while (
-                    new StorageSearch(mBoxVolume.navigate()).getResults().size() < fileCount) {
-                Log.d(TAG, "wait until all files uploaded");
-                Thread.sleep(500);
-            }
-        } catch (QblStorageException | InterruptedException e) {
-            e.printStackTrace();
-        }
-    }
+		try {
+			while (
+					new StorageSearch(mBoxVolume.navigate()).getResults().size() < fileCount) {
+				Log.d(TAG, "wait until all files uploaded");
+				Thread.sleep(500);
+			}
+		} catch (QblStorageException | InterruptedException e) {
+			e.printStackTrace();
+		}
+	}
 
     /**
      * update drawable file

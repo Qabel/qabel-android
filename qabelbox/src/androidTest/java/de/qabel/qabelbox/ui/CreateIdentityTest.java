@@ -74,6 +74,7 @@ public class CreateIdentityTest {
 		wakeLock.release();
 		mSystemAnimations.enableAll();
 		clearIdentities();
+		mBoxHelper.unbindService(QabelBoxApplication.getInstance());
 	}
 
 

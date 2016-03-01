@@ -54,7 +54,12 @@ public class UIBoxHelper {
 
 		mContext = activity;
 	}
+	public void unbindService(final QabelBoxApplication app) {
 
+		Intent serviceIntent = new Intent(app.getApplicationContext(), LocalQabelService.class);
+		finished = false;
+		app.stopService(serviceIntent);
+	}
 	public void bindService(final QabelBoxApplication app) {
 
 		Intent serviceIntent = new Intent(app.getApplicationContext(), LocalQabelService.class);
@@ -66,9 +71,7 @@ public class UIBoxHelper {
 			public void onServiceConnected(ComponentName name, IBinder service) {
 
 				Log.d(TAG, "LocalQabelService connected");
-
 				provider = app.getProvider();
-
 				Log.i(TAG, "Provider: " + provider);
 				LocalQabelService.LocalBinder binder = (LocalQabelService.LocalBinder) service;
 				mService = binder.getService();
@@ -256,4 +259,5 @@ public class UIBoxHelper {
 			e.printStackTrace();
 		}
 	}
+
 }

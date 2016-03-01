@@ -70,6 +70,7 @@ public class FileSearchTest {
 
 		wakeLock.release();
 		mSystemAnimations.enableAll();
+		mBoxHelper.unbindService(QabelBoxApplication.getInstance());
 	}
 
 	@Before

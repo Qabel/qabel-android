@@ -82,6 +82,7 @@ public class OpenImageTest {
         wakeLock.release();
         Espresso.unregisterIdlingResources(mPicassoIdlingResource);
         mSystemAnimations.enableAll();
+		mBoxHelper.unbindService(QabelBoxApplication.getInstance());
     }
 
     @Before

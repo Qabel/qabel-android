@@ -73,7 +73,6 @@ public class CreateIdentityTest {
 
 		wakeLock.release();
 		mSystemAnimations.enableAll();
-		clearIdentities();
 		mBoxHelper.unbindService(QabelBoxApplication.getInstance());
 	}
 
@@ -140,11 +139,12 @@ public class CreateIdentityTest {
 		//check if 2 identities displayer
 		//create spoon 2 identity
 		onView(withId(R.id.drawer_layout)).check(matches(isDisplayed())).perform(QabelViewAction.actionCloseDrawer());
-		UITestHelper.sleep(500);
-		onView(allOf(withText(identity2), withParent(withId(R.id.select_identity_layout)))).check(matches(isDisplayed()));
+		UITestHelper.sleep(1000);
 		onView(withId(R.id.drawer_layout)).check(matches(isDisplayed())).perform(QabelViewAction.actionOpenDrawer());
 		UITestHelper.sleep(1000);
 		onView(withId(R.id.imageViewExpandIdentity)).check(matches(isDisplayed())).perform(click());
+		UITestHelper.sleep(500);
+		onView(allOf(is(instanceOf(NavigationMenuItemView.class)), withText(identity))).check(matches(isDisplayed()));
 		onView(allOf(is(instanceOf(NavigationMenuItemView.class)), withText(identity2))).check(matches(isDisplayed()));
 
 		Spoon.screenshot(UITestHelper.getCurrentActivity(mActivity), "spoon1_2");

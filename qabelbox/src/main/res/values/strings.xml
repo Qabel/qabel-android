@@ -216,4 +216,7 @@
     <string name="upload_complete_notification_title">Upload complete</string>
     <string name="upload_in_progress_notification_content">Upload in progress: %s</string>
     <string name="message_file_cant_upload">File can\'t upload</string>
+
+    <string name="about.licence.item.fromhtml">%1 licenced\nThird Party Components:</string>
+    <string name="licence.header.intro">Qabel is Published under the QAPL:</string>
 </resources>

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:theme="">
+
+    <de.qabel.qabelbox.views.TextViewFont
+        android:id="@+id/about.licences.item.headline.txt"
+        style="@style/LicenceListFirstTextLine"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/about.licence.item.fromhtml"
+        android:textAlignment="center" />
+
+    <de.qabel.qabelbox.views.TextViewFont
+        android:id="@+id/about.licences.item.components.txt"
+        style="@style/LicenceListSecondTextLine"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="GSON\nMonkeyLib" />
+</LinearLayout>

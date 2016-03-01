@@ -92,8 +92,16 @@
         <item name="android:textSize">@dimen/textsize_list_first_line</item>
     </style>
 
+    <style name="LicenceListFirstTextLine" parent="ListFirstTextLine">
+        <item name="android:textAlignment">center</item>
+    </style>
+
     <style name="ListSecondTextLine">
         <item name="android:textSize">@dimen/textsize_list_second_line</item>
+    </style>
+
+    <style name="LicenceListSecondTextLine" parent="ListSecondTextLine">
+        <item name="android:textAlignment">center</item>
     </style>
 
     <style name="ListItemContactBackground">

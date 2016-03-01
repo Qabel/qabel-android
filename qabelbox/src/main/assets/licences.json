@@ -1,0 +1,36 @@
+{
+  "licences": [
+    {
+      "licence": "Apache 2",
+      "components": [
+        "Android Open Source Project",
+        "Apache Commons",
+        "Apache Httpcomponents",
+        "Bottomsheet",
+        "GSON",
+        "Hockey SDK",
+        "OkHttp",
+        "Picasso"
+      ]
+    },
+    {
+      "licence": "Bouncy Castle Licence",
+      "components": [
+        "Spongy Castle"
+      ]
+    },
+    {
+      "licence": "Hockey SDK Licence",
+      "components": [
+        "Hockey App"
+      ]
+    },
+    {
+      "licence": "MIT Licence",
+      "components": [
+        "SLF4J",
+        "SQLDroid 1.0.3"
+      ]
+    }
+  ]
+}

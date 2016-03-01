@@ -79,10 +79,13 @@ public class CreateIdentityTest {
 
 	@Before
 	public void setUp() throws IOException, QblStorageException {
-		UIBoxHelper.createTokenIfNeeded(false);
+
 		mActivity = mActivityTestRule.getActivity();
-		mBoxHelper = new UIBoxHelper(mActivity);
+		mBoxHelper = new UIBoxHelper(QabelBoxApplication.getInstance());
 		mBoxHelper.bindService(QabelBoxApplication.getInstance());
+		mBoxHelper.createTokenIfNeeded(false);
+
+
 		wakeLock = UIActionHelper.wakeupDevice(mActivity);
 		mSystemAnimations = new SystemAnimations(mActivity);
 		mSystemAnimations.disableAll();

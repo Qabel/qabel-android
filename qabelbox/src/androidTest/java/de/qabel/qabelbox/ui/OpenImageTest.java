@@ -98,9 +98,10 @@ public class OpenImageTest {
     }
 
     private void setupData() {
-		UIBoxHelper.createTokenIfNeeded(false);
-		mBoxHelper = new UIBoxHelper(mActivity);
+		mActivity = mActivityTestRule.getActivity();
+		mBoxHelper = new UIBoxHelper(QabelBoxApplication.getInstance());
 		mBoxHelper.bindService(QabelBoxApplication.getInstance());
+		mBoxHelper.createTokenIfNeeded(false);
         try {
             Identity old = mBoxHelper.getCurrentIdentity();
             if (old != null) {
@@ -109,8 +110,8 @@ public class OpenImageTest {
         } catch (Exception e) {
             e.printStackTrace();
         }
+		mBoxHelper.removeAllIdentities();
         Identity identity = mBoxHelper.addIdentity("spoon");
-        mBoxHelper.setActiveIdentity(identity);
         uploadTestFiles();
     }
 

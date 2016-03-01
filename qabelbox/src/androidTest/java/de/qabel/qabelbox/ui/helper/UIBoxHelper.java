@@ -43,23 +43,23 @@ import de.qabel.qabelbox.storage.StorageSearch;
 public class UIBoxHelper {
 
 	@Deprecated
-	private final Activity mActivity;
+	private final Context mContext;
 	private final String TAG = this.getClass().getSimpleName();
 	private LocalQabelService mService;
 	private BoxProvider provider;
 	public BoxVolume mBoxVolume;
 	private boolean finished = false;
 
-	public UIBoxHelper(Activity activity) {
+	public UIBoxHelper(Context activity) {
 
-		mActivity = activity;
+		mContext = activity;
 	}
 
 	public void bindService(final QabelBoxApplication app) {
 
 		Intent serviceIntent = new Intent(app.getApplicationContext(), LocalQabelService.class);
 		finished = false;
-		app.stopService(serviceIntent);
+		//app.stopService(serviceIntent);
 		app.bindService(serviceIntent, new ServiceConnection() {
 
 			@Override
@@ -131,7 +131,7 @@ public class UIBoxHelper {
 		DropURL dropURL = new DropURL(dropServer, adjustableDropIdGenerator);
 		Collection<DropURL> dropURLs = new ArrayList<>();
 		dropURLs.add(dropURL);
-		String prefix = "test";
+		String prefix=new PrefixGetter().getPrefix(mContext);
 		Identity identity = new Identity(identName,
 				dropURLs, new QblECKeyPair());
 		identity.getPrefixes().add(prefix);
@@ -220,7 +220,7 @@ public class UIBoxHelper {
 	 *
 	 * @param forceCreated set to true if create new forced
 	 */
-	public static void createTokenIfNeeded(boolean forceCreated) {
+	public void createTokenIfNeeded(boolean forceCreated) {
 		Context applicationContext = QabelBoxApplication.getInstance().getApplicationContext();
 		AppPreference prefs = new AppPreference(applicationContext);
 		if (forceCreated || prefs.getToken() == null) {

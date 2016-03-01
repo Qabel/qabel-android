@@ -31,6 +31,7 @@ import java.util.UUID;
 import de.qabel.core.crypto.CryptoUtils;
 import de.qabel.core.crypto.QblECKeyPair;
 import de.qabel.core.crypto.QblECPublicKey;
+import de.qabel.qabelbox.communication.URLs;
 import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.exceptions.QblStorageNameConflict;
 import de.qabel.qabelbox.exceptions.QblStorageNotFound;
@@ -43,6 +44,7 @@ public abstract class AbstractNavigation implements BoxNavigation {
 	private static final String TAG = "AbstractNavigation";
 	private final FileCache cache;
 	private final Context context;
+	protected final URLs urls;
 	protected byte[] dmKey;
 
 	protected DirectoryMetadata dm;
@@ -72,6 +74,7 @@ public abstract class AbstractNavigation implements BoxNavigation {
 		this.dmKey = dmKey;
 		this.context = context;
 		this.cache = new FileCache(context);
+		this.urls = new URLs();
 		cryptoUtils = new CryptoUtils();
 		if (parentBoxFolders != null) {
 			this.parentBoxFolders = parentBoxFolders;
@@ -283,6 +286,25 @@ public abstract class AbstractNavigation implements BoxNavigation {
 	}
 
 	@Override
+	public BoxObject getExternal(String name) throws QblStorageException {
+		for (BoxExternalReference boxExternalRefs : dm.listExternalReferences()) {
+			if (name.equals(boxExternalRefs.name)) {
+				return new BoxObject(name);
+			}
+		}
+		return null;
+	}
+
+	@Override
+	public List<BoxObject> listExternalNames() throws QblStorageException {
+		List<BoxObject> boxExternals = new ArrayList<>();
+		for (BoxExternalReference boxExternal : dm.listExternalReferences()) {
+			boxExternals.add(new BoxObject(boxExternal.name));
+		}
+		return boxExternals;
+	}
+
+	@Override
 	public List<BoxObject> listExternals() throws QblStorageException {
 		List<BoxObject> boxExternals = new ArrayList<>();
 		for (BoxExternalReference boxExternalRefs : dm.listExternalReferences()) {
@@ -397,7 +419,8 @@ public abstract class AbstractNavigation implements BoxNavigation {
 	public BoxExternalReference createFileMetadata(QblECPublicKey owner, BoxFile boxFile) throws QblStorageException {
 
 		if (boxFile.meta != null || boxFile.metakey != null) {
-			return new BoxExternalReference(false, boxFile.prefix + '/' + boxFile.meta, boxFile.name, owner, boxFile.metakey);
+			return new BoxExternalReference(false,
+					urls.getFiles() + boxFile.prefix + '/' + boxFile.meta, boxFile.name, owner, boxFile.metakey);
 		}
 		String metaBlock = UUID.randomUUID().toString();
 		KeyParameter key = cryptoUtils.generateSymmetricKey();
@@ -419,7 +442,8 @@ public abstract class AbstractNavigation implements BoxNavigation {
 		} catch (QblStorageException | FileNotFoundException e) {
 			throw new QblStorageException("Could not create or upload FileMetadata", e);
 		}
-		return new BoxExternalReference(false, boxFile.prefix + '/' + metaBlock, boxFile.name, owner, boxFile.metakey);
+		return new BoxExternalReference(false,
+				urls.getFiles() + boxFile.prefix + '/' + metaBlock, boxFile.name, owner, boxFile.metakey);
 
 	}
 
@@ -486,6 +510,11 @@ public abstract class AbstractNavigation implements BoxNavigation {
 	 */
 	@Override
 	public void attachExternal(BoxExternalReference boxExternalReference) throws QblStorageException {
+		File out = getMetadataFile(boxExternalReference.getPrefix(),
+				boxExternalReference.getBlock(), boxExternalReference.key);
+		FileMetadata fileMetadata = new FileMetadata(out);
+		BoxExternalFile file = fileMetadata.getFile();
+		boxExternalReference.name = file.name;
 		dm.insertExternalReference(boxExternalReference);
 	}
 

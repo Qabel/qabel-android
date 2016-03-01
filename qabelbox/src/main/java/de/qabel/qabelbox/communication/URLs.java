@@ -37,34 +37,34 @@ public class URLs {
     //
     //accounting server
     //
-    String getRegister() {
+    public String getRegister() {
 
         return BASE_ACCOUNTING + "/api/v0/auth/registration/";
     }
 
-    String getLogin() {
+    public String getLogin() {
 
         return BASE_ACCOUNTING + "/api/v0/auth/login/";
     }
 
-    String getLogout() {
+    public String getLogout() {
 
         return BASE_ACCOUNTING + "/api/v0/auth/logout/";
     }
 
-    String getPasswordChange() {
+    public String getPasswordChange() {
 
         return BASE_ACCOUNTING + "/api/v0/auth/password/change/";
     }
 
-    String getPasswordReset() {
+    public String getPasswordReset() {
 
         return BASE_ACCOUNTING + "/api/v0/auth/password/reset/";
     }
 
     //prefix server
     //
-    String getPrefix() {
+    public String getPrefix() {
 
         return BASE_ACCOUNTING + "/api/v0/prefix/";
     }
@@ -73,7 +73,7 @@ public class URLs {
      * get files url for block server
      * @return
      */
-    String getFiles() {
+    public String getFiles() {
 
         return BASE_BLOCK + "/api/v0/files/";
     }
@@ -83,7 +83,7 @@ public class URLs {
      *
      * @return
      */
-    String getFilesBlock() {
+    public String getFilesBlock() {
 
         return BASE_BLOCK + "/api/v0/";
     }

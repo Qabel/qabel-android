@@ -26,6 +26,11 @@ public interface BoxNavigation {
 
 	List<BoxFile> listFiles() throws QblStorageException;
 	List<BoxFolder> listFolders() throws QblStorageException;
+
+	BoxObject getExternal(String name) throws QblStorageException;
+
+	List<BoxObject> listExternalNames() throws QblStorageException;
+
 	List<BoxObject> listExternals() throws QblStorageException;
 
 	BoxFile upload(String name, InputStream content, @Nullable TransferManager.BoxTransferListener boxTransferListener) throws QblStorageException;

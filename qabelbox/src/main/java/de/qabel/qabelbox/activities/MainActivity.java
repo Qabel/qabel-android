@@ -739,42 +739,44 @@ public class MainActivity extends CrashReportingActivity
             public void onItemLockClick(View view, final int position) {
 
                 final BoxObject boxObject = filesFragment.getFilesAdapter().get(position);
-                new BottomSheet.Builder(self).title(boxObject.name).sheet(R.menu.files_bottom_sheet)
-                        .listener(new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
+	            BottomSheet.Builder sheet = new BottomSheet.Builder(self).title(boxObject.name).sheet(R.menu.files_bottom_sheet)
+			            .listener(new DialogInterface.OnClickListener() {
+				            @Override
+				            public void onClick(DialogInterface dialog, int which) {
 
-                                switch (which) {
-                                    case R.id.open:
-                                        ExternalApps.openExternApp(self, VolumeFileTransferHelper.getUri(boxObject, boxVolume, filesFragment.getBoxNavigation()), getMimeType(boxObject), Intent.ACTION_VIEW);
-                                        break;
-                                    case R.id.edit:
-                                        ExternalApps.openExternApp(self, VolumeFileTransferHelper.getUri(boxObject, boxVolume, filesFragment.getBoxNavigation()), getMimeType(boxObject), Intent.ACTION_EDIT);
-                                        break;
-                                    case R.id.share:
-                                        ExternalApps.share(self, VolumeFileTransferHelper.getUri(boxObject, boxVolume, filesFragment.getBoxNavigation()), getMimeType(boxObject));
-                                        break;
-	                                case R.id.fordward:
-		                                ShareHelper.shareToQabelUser(self, mService, boxObject);
-		                                break;
-	                                case R.id.delete:
-		                                filesFragment.delete(boxObject);
-		                                break;
-	                                case R.id.unshare:
-		                                filesFragment.unshare((BoxFile) boxObject);
-		                                break;
-                                    case R.id.export:
-                                        // Export handled in the MainActivity
-                                        if (boxObject instanceof BoxFolder) {
-                                            Toast.makeText(self, R.string.folder_export_not_implemented,
-                                                    Toast.LENGTH_SHORT).show();
-                                        } else {
-                                            onExport(filesFragment.getBoxNavigation(), boxObject);
-                                        }
-                                        break;
-                                }
-                            }
-                        }).show();
+					            switch (which) {
+						            case R.id.open:
+							            ExternalApps.openExternApp(self, VolumeFileTransferHelper.getUri(boxObject, boxVolume, filesFragment.getBoxNavigation()), getMimeType(boxObject), Intent.ACTION_VIEW);
+							            break;
+						            case R.id.edit:
+							            ExternalApps.openExternApp(self, VolumeFileTransferHelper.getUri(boxObject, boxVolume, filesFragment.getBoxNavigation()), getMimeType(boxObject), Intent.ACTION_EDIT);
+							            break;
+						            case R.id.share:
+							            ExternalApps.share(self, VolumeFileTransferHelper.getUri(boxObject, boxVolume, filesFragment.getBoxNavigation()), getMimeType(boxObject));
+							            break;
+						            case R.id.fordward:
+							            ShareHelper.shareToQabelUser(self, mService, boxObject);
+							            break;
+						            case R.id.delete:
+							            filesFragment.delete(boxObject);
+							            break;
+						            case R.id.unshare:
+							            filesFragment.unshare((BoxFile) boxObject);
+							            break;
+						            case R.id.export:
+							            // Export handled in the MainActivity
+							            if (boxObject instanceof BoxFolder) {
+								            Toast.makeText(self, R.string.folder_export_not_implemented,
+										            Toast.LENGTH_SHORT).show();
+							            } else {
+								            onExport(filesFragment.getBoxNavigation(), boxObject);
+							            }
+							            break;
+					            }
+				            }
+			            });
+	            filterSheet(boxObject, sheet);
+	            sheet.show();
             }
         });
     }

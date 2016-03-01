@@ -236,7 +236,7 @@ public class TransferManager {
                 switch (response.code()) {
                     case 200:
                     case 204:
-                    case 404: // 404 can be safley ignored
+                    case 404: // 404 can be safely ignored
                         break;
                     default:
                         QblServerException genericError = new QblServerException(response.code(), call.request().toString());

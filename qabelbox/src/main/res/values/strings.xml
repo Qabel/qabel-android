@@ -199,6 +199,6 @@
     <string name="create_idenity_cant_get_prefix">Could not retrieve a prefix from the server</string>
     <plurals name="uploadsNotificationTitle">
         <item quantity="one">Uploading</item>
-        <item quantity="other">Uploads remaining %d</item>
+        <item quantity="other">Uploads remaining</item>
     </plurals>
 </resources>

@@ -103,7 +103,7 @@ public class ContactChatFragment extends BaseFragment {
 							 Bundle savedInstanceState) {
 
 		final View view = inflater.inflate(R.layout.fragment_contact_chat, container, false);
-		contactListRecyclerView = (RecyclerView) view.findViewById(R.id.contact_list);
+		contactListRecyclerView = (RecyclerView) view.findViewById(R.id.contact_chat_list);
 		contactListRecyclerView.setHasFixedSize(true);
 		emptyView = view.findViewById(R.id.empty_view);
 		recyclerViewLayoutManager = new LinearLayoutManager(view.getContext());

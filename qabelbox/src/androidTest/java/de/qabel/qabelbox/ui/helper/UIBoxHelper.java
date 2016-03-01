@@ -260,4 +260,7 @@ public class UIBoxHelper {
 		}
 	}
 
+	public LocalQabelService getService() {
+		return mService;
+	}
 }

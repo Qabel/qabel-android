@@ -6,11 +6,9 @@ package de.qabel.qabelbox.ui;
 
 import android.os.PowerManager;
 import android.support.test.rule.ActivityTestRule;
-import android.widget.SeekBar;
 
 import com.squareup.spoon.Spoon;
 
-import org.hamcrest.Matchers;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
@@ -29,12 +27,10 @@ import de.qabel.qabelbox.activities.CreateAccountActivity;
 import de.qabel.qabelbox.config.AppPreference;
 import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.services.LocalQabelService;
-import de.qabel.qabelbox.ui.action.QabelViewAction;
 import de.qabel.qabelbox.ui.helper.SystemAnimations;
 import de.qabel.qabelbox.ui.helper.UIActionHelper;
 import de.qabel.qabelbox.ui.helper.UIBoxHelper;
 import de.qabel.qabelbox.ui.helper.UITestHelper;
-import de.qabel.qabelbox.ui.matcher.QabelMatcher;
 
 import static android.support.test.espresso.Espresso.closeSoftKeyboard;
 import static android.support.test.espresso.Espresso.onView;
@@ -99,13 +95,11 @@ public class CreateBoxAccountTest {
 		}
 		mBoxHelper.removeAllIdentities();
 		new AppPreference(QabelBoxApplication.getInstance()).setToken(null);
-
-
 	}
 
 
 	@Test
-	public void addIdentity1Test() throws Throwable {
+	public void createBoxAccountTest() throws Throwable {
 		clearIdentities();
 		onView(withText(R.string.create_box_account)).perform(click());
 		String accountName = UUID.randomUUID().toString().substring(0, 15).replace("-", "x");
@@ -114,7 +108,7 @@ public class CreateBoxAccountTest {
 		enterSingleLine(accountName, "name");
 		enterSingleLine(accountName + "@qabel.de", "email");
 
-//enter password 1 and press next
+		//enter password 1 and press next
 		onView(withId(R.id.et_password1)).check(matches(isDisplayed())).perform(click());
 		onView(withId(R.id.et_password1)).perform(typeText(password), pressImeActionButton());
 		closeSoftKeyboard();
@@ -150,40 +144,6 @@ public class CreateBoxAccountTest {
 		onView(withText(R.string.next)).perform(click());
 	}
 
-	protected void enterPassword(String password, int id, String screenName) throws Throwable {
 
-	}
-
-	private void createIdentity(String identity) throws Throwable {
-		createIdentityPerformEnterName(identity);
-		createIdentityPerformSetSecurityLevel();
-		createIdentityPerformConfirm();
-	}
-
-	private void createIdentityPerformEnterName(String identity) throws Throwable {
-		onView(withText(R.string.create_identity_create)).check(matches(isDisplayed())).perform(click());
-		onView(allOf(withClassName(endsWith("EditTextFont")))).perform(typeText(identity), pressImeActionButton());
-		onView(withText(R.string.create_identity_enter_name)).check(matches(isDisplayed()));
-		closeSoftKeyboard();
-
-		Spoon.screenshot(UITestHelper.getCurrentActivity(mActivity), "input");
-		UITestHelper.sleep(500);
-		onView(withText(R.string.next)).perform(click());
-		UITestHelper.sleep(500);
-	}
-
-	private void createIdentityPerformSetSecurityLevel() {
-		onView(withClassName(Matchers.equalTo(SeekBar.class.getName()))).perform(QabelViewAction.setProgress(2));
-		onView(allOf(withClassName(endsWith("SeekBar")))).check(matches(QabelMatcher.withProgress(2)));
-		onView(withText(R.string.next)).perform(click());
-		UITestHelper.sleep(500);
-	}
-
-	private void createIdentityPerformConfirm() {
-		onView(withText(R.string.create_identity_final)).check(matches(isDisplayed()));
-		onView(withText(R.string.finish)).perform(click());
-		onView(withText(R.string.headline_files)).check(matches(isDisplayed()));
-		UITestHelper.sleep(500);
-	}
 }
 

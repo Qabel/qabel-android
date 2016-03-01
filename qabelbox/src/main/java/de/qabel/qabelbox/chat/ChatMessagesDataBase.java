@@ -85,7 +85,7 @@ public class ChatMessagesDataBase extends SQLiteOpenHelper {
 		}
 	}
 
-	public long put(ChatMessageItem item) {
+	public void put(ChatMessageItem item) {
 
 		//remove(item);
 		Log.i(TAG, "Put into db: " + item.toString() + " " + item.getSenderKey() + " " + item.getReceiverKey());
@@ -97,14 +97,24 @@ public class ChatMessagesDataBase extends SQLiteOpenHelper {
 		values.put(COL_MESSAGE_PAYLOAD_TYPE, item.drop_payload_type);
 		values.put(COL_MESSAGE_PAYLOAD, item.drop_payload == null ? "" : item.drop_payload);
 		values.put(COL_MESSAGE_ISNEW, item.isNew);
-
-		long id = getWritableDatabase().insertWithOnConflict(TABLE_MESSAGE_NAME, null, values, SQLiteDatabase.CONFLICT_IGNORE);
-		if (id == -1) {
-			Log.e(TAG, "Failed put into db: " + item.toString());
-		} else {
-			Log.v(TAG, "db entry putted " + COL_MESSAGE_PAYLOAD);
+		if (getID(item.getSenderKey(), item.getTime() + "") > -1) {
+			long id = getWritableDatabase().insert(TABLE_MESSAGE_NAME, null, values);
+			if (id == -1) {
+				Log.e(TAG, "Failed put into db: " + item.toString());
+			} else {
+				Log.v(TAG, "db entry putted " + COL_MESSAGE_PAYLOAD);
+			}
 		}
-		return id;
+	}
+
+	private int getID(String sender, String timestamp) {
+		Cursor c = getWritableDatabase().query(TABLE_MESSAGE_NAME,
+				new String[]{COL_MESSAGE_ID},
+				COL_MESSAGE_SENDER + "=? and " + COL_MESSAGE_TIMESTAMP + "=?",
+				new String[]{sender, timestamp}, null, null, null, null);
+		if (c.moveToFirst()) //if the row exist then return the id
+			return c.getInt(c.getColumnIndex(COL_MESSAGE_ID));
+		return -1;
 	}
 
 	public ChatMessageItem[] get(String key) {

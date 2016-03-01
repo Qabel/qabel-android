@@ -130,7 +130,6 @@ public class ContactChatFragment extends BaseFragment {
 									Iterator it = deliveryStatus.entrySet().iterator();
 									while (it.hasNext()) {
 										Map.Entry pair = (Map.Entry)it.next();
-										System.out.println(pair.getKey() + " = " + pair.getValue());
 										if((Boolean)pair.getValue()==true)
 										{
 											sended = true;

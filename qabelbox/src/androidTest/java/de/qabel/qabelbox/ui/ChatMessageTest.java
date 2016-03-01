@@ -8,6 +8,7 @@ import android.graphics.Bitmap;
 import android.os.PowerManager;
 import android.support.design.internal.NavigationMenuItemView;
 import android.support.test.espresso.Espresso;
+import android.support.test.espresso.contrib.RecyclerViewActions;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.lifecycle.ActivityLifecycleMonitorRegistry;
 import android.util.Log;
@@ -44,12 +45,16 @@ import static android.support.test.espresso.action.ViewActions.click;
 import static android.support.test.espresso.action.ViewActions.pressImeActionButton;
 import static android.support.test.espresso.action.ViewActions.typeText;
 import static android.support.test.espresso.assertion.ViewAssertions.matches;
+import static android.support.test.espresso.matcher.ViewMatchers.hasDescendant;
 import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
+import static android.support.test.espresso.matcher.ViewMatchers.withClassName;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
+import static android.support.test.espresso.matcher.ViewMatchers.withParent;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
 import static android.test.MoreAsserts.assertNotEmpty;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.Matchers.allOf;
+import static org.hamcrest.Matchers.endsWith;
 import static org.hamcrest.Matchers.is;
 //import static de.qabel.qabelbox.ui.matcher.QabelMatcher.withDrawable;
 
@@ -62,7 +67,6 @@ public class ChatMessageTest {
 
 	@Rule
 	public ActivityTestRule<MainActivity> mActivityTestRule = new ActivityTestRule<>(MainActivity.class, false, true);
-
 	private MainActivity mActivity;
 	private UIBoxHelper mBoxHelper;
 	private final boolean mFillAccount = true;
@@ -155,12 +159,18 @@ public class ChatMessageTest {
 	protected void sendOneAndCheck(int messages) {
 		onView(withId(R.id.drawer_layout)).check(matches(isDisplayed())).perform(QabelViewAction.actionOpenDrawer());
 		UITestHelper.sleep(1000);
-		onView(withText(R.string.Contacts)).check(matches(isDisplayed())).perform(click());
-		Spoon.screenshot(mActivity, "contacts");
 
-		onView(withText("user1")).check(matches(isDisplayed())).perform(click());
+		onView(allOf(withText(R.string.Contacts), withParent(withClassName(endsWith("MenuView")))))
+				.perform(click());
+		Spoon.screenshot(mActivity, "contacts");
+		
+		//onView(withText("user1")).check(matches(isDisplayed())).perform(click());
+		onView(withId(R.id.contact_list))
+				.perform(RecyclerViewActions.actionOnItem(
+						hasDescendant(withText("user1")), click()));
+
 		onView(withId(R.id.etText)).check(matches(isDisplayed())).perform(click());
-		onView(withId(R.id.etText)).perform(typeText("text1"), pressImeActionButton());
+		onView(withId(R.id.etText)).perform(typeText("text" + messages), pressImeActionButton());
 		closeSoftKeyboard();
 		onView(withText(R.string.btn_chat_send)).check(matches(isDisplayed())).perform(click());
 		UITestHelper.sleep(1000);
@@ -179,13 +189,24 @@ public class ChatMessageTest {
 		onView(withId(R.id.drawer_layout)).check(matches(isDisplayed())).perform(QabelViewAction.actionOpenDrawer());
 		UITestHelper.sleep(1000);
 		onView(withText(R.string.Contacts)).check(matches(isDisplayed())).perform(click());
-		Spoon.screenshot(mActivity, "message"+messages);
+		Spoon.screenshot(mActivity, "message" + messages);
 
 		onView(withText("user2")).check(matches(isDisplayed())).perform(click());
 		onView(withId(R.id.contact_chat_list)).
 				check(matches(isDisplayed())).
 				check(matches(QabelMatcher.withListSize(messages)));
 		pressBack();
+
+		//go to user 2
+		onView(withId(R.id.drawer_layout)).check(matches(isDisplayed())).perform(QabelViewAction.actionOpenDrawer());
+		UITestHelper.sleep(1000);
+		onView(withId(R.id.imageViewExpandIdentity)).check(matches(isDisplayed())).perform(click());
+		UITestHelper.sleep(500);
+		onView(allOf(is(instanceOf(NavigationMenuItemView.class)), withText("user2"))).perform(click());
+		onView(withId(R.id.drawer_layout)).check(matches(isDisplayed())).perform(QabelViewAction.actionOpenDrawer());
+		UITestHelper.sleep(1000);
 	}
+
+
 }
 

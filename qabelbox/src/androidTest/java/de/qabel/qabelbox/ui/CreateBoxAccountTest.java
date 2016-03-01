@@ -5,7 +5,6 @@ package de.qabel.qabelbox.ui;
  */
 
 import android.os.PowerManager;
-import android.support.design.internal.NavigationMenuItemView;
 import android.support.test.rule.ActivityTestRule;
 import android.widget.SeekBar;
 
@@ -20,12 +19,14 @@ import org.junit.Test;
 import org.junit.runners.MethodSorters;
 
 import java.io.IOException;
+import java.util.UUID;
 
 import de.qabel.core.config.Identities;
 import de.qabel.core.config.Identity;
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
-import de.qabel.qabelbox.activities.CreateIdentityActivity;
+import de.qabel.qabelbox.activities.CreateAccountActivity;
+import de.qabel.qabelbox.config.AppPreference;
 import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.services.LocalQabelService;
 import de.qabel.qabelbox.ui.action.QabelViewAction;
@@ -37,7 +38,6 @@ import de.qabel.qabelbox.ui.matcher.QabelMatcher;
 
 import static android.support.test.espresso.Espresso.closeSoftKeyboard;
 import static android.support.test.espresso.Espresso.onView;
-import static android.support.test.espresso.Espresso.pressBack;
 import static android.support.test.espresso.action.ViewActions.click;
 import static android.support.test.espresso.action.ViewActions.pressImeActionButton;
 import static android.support.test.espresso.action.ViewActions.typeText;
@@ -45,12 +45,10 @@ import static android.support.test.espresso.assertion.ViewAssertions.matches;
 import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static android.support.test.espresso.matcher.ViewMatchers.withClassName;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
-import static android.support.test.espresso.matcher.ViewMatchers.withParent;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
-import static org.hamcrest.CoreMatchers.instanceOf;
+import static junit.framework.Assert.assertNotNull;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.endsWith;
-import static org.hamcrest.Matchers.is;
 
 /**
  * Tests for MainActivity.
@@ -60,9 +58,9 @@ import static org.hamcrest.Matchers.is;
 public class CreateBoxAccountTest {
 
 	@Rule
-	public ActivityTestRule<CreateIdentityActivity> mActivityTestRule = new ActivityTestRule<>(CreateIdentityActivity.class, false, true);
+	public ActivityTestRule<CreateAccountActivity> mActivityTestRule = new ActivityTestRule<>(CreateAccountActivity.class, false, true);
 
-	private CreateIdentityActivity mActivity;
+	private CreateAccountActivity mActivity;
 
 	private PowerManager.WakeLock wakeLock;
 	private SystemAnimations mSystemAnimations;
@@ -100,15 +98,8 @@ public class CreateBoxAccountTest {
 			service.deleteIdentity(identity);
 		}
 		mBoxHelper.removeAllIdentities();
+		new AppPreference(QabelBoxApplication.getInstance()).setToken(null);
 
-
-	}
-
-	public void openDrawer(String withIdentity) {
-		onView(withId(R.id.drawer_layout)).perform(QabelViewAction.actionOpenDrawer());
-		UITestHelper.sleep(500);
-		onView(allOf(withText(withIdentity), withParent(withId(R.id.select_identity_layout)))).check(matches(isDisplayed())).perform(click());
-		UITestHelper.sleep(2000);
 
 	}
 
@@ -116,39 +107,51 @@ public class CreateBoxAccountTest {
 	@Test
 	public void addIdentity1Test() throws Throwable {
 		clearIdentities();
+		onView(withText(R.string.create_box_account)).perform(click());
+		String accountName = UUID.randomUUID().toString().substring(0, 15).replace("-", "x");
+		String password = "passwort12$";
+		//enter name
+		enterSingleLine(accountName, "name");
+		enterSingleLine(accountName + "@qabel.de", "email");
+
+//enter password 1 and press next
+		onView(withId(R.id.et_password1)).check(matches(isDisplayed())).perform(click());
+		onView(withId(R.id.et_password1)).perform(typeText(password), pressImeActionButton());
+		closeSoftKeyboard();
+		//UITestHelper.sleep(500);
+		onView(withText(R.string.next)).perform(click());
+		Spoon.screenshot(UITestHelper.getCurrentActivity(mActivity), "passwordNotMatch");
+		onView(withText(R.string.ok)).perform(click());
+		//onView(allOf(withClassName(endsWith("nFont")))).perform(click());
+
+		//enter password 2 and press next
+		onView(withId(R.id.et_password2)).check(matches(isDisplayed())).perform(click());
+		onView(withId(R.id.et_password2)).perform(typeText(password), pressImeActionButton());
+		closeSoftKeyboard();
 		UITestHelper.sleep(500);
-		String identity = "spoon1";
-		String identity2 = "spoon2";
-		Spoon.screenshot(UITestHelper.getCurrentActivity(mActivity), "start");
+		onView(withText(R.string.next)).perform(click());
+		Spoon.screenshot(UITestHelper.getCurrentActivity(mActivity), "password2");
 
-		createIdentity(identity);
-		openDrawer(identity);
-		//go to add identity, enter no data and go back
-		onView(withText(R.string.add_identity)).check(matches(isDisplayed())).perform(click());
-		pressBack();
-		onView(withText(R.string.headline_files)).check(matches(isDisplayed()));
+		onView(withText(R.string.create_account_final_headline)).check(matches(isDisplayed()));
+		Spoon.screenshot(UITestHelper.getCurrentActivity(mActivity), "result");
+		onView(withText(R.string.btn_create_identity)).check(matches(isDisplayed())).perform(click());
 
-		//create spoon 2 identity
+		onView(withText(R.string.headline_add_identity)).check(matches(isDisplayed()));
+		assertNotNull(new AppPreference(QabelBoxApplication.getInstance()).getToken());
 
-		openDrawer(identity);
-		onView(withText(R.string.add_identity)).check(matches(isDisplayed())).perform(click());
-		Spoon.screenshot(UITestHelper.getCurrentActivity(mActivity), "spoon1");
-		//go to add identity, enter no data and go back
-		createIdentity(identity2);
+	}
+
+	protected void enterSingleLine(String accountName, String screenName) throws Throwable {
+		onView(withId(R.id.et_name)).check(matches(isDisplayed())).perform(click());
+		onView(allOf(withClassName(endsWith("EditTextFont")))).perform(typeText(accountName), pressImeActionButton());
+		closeSoftKeyboard();
+		Spoon.screenshot(UITestHelper.getCurrentActivity(mActivity), screenName);
 		UITestHelper.sleep(500);
-		//check if 2 identities displayer
-		//create spoon 2 identity
-		onView(withId(R.id.drawer_layout)).check(matches(isDisplayed())).perform(QabelViewAction.actionCloseDrawer());
-		UITestHelper.sleep(1000);
-		onView(withId(R.id.drawer_layout)).check(matches(isDisplayed())).perform(QabelViewAction.actionOpenDrawer());
-		UITestHelper.sleep(1000);
-		onView(withId(R.id.imageViewExpandIdentity)).check(matches(isDisplayed())).perform(click());
-		UITestHelper.sleep(500);
-		onView(allOf(is(instanceOf(NavigationMenuItemView.class)), withText(identity))).check(matches(isDisplayed()));
-		onView(allOf(is(instanceOf(NavigationMenuItemView.class)), withText(identity2))).check(matches(isDisplayed()));
+		onView(withText(R.string.next)).perform(click());
+	}
 
-		Spoon.screenshot(UITestHelper.getCurrentActivity(mActivity), "spoon1_2");
-		onView(withId(R.id.drawer_layout)).perform(QabelViewAction.actionCloseDrawer());
+	protected void enterPassword(String password, int id, String screenName) throws Throwable {
+
 	}
 
 	private void createIdentity(String identity) throws Throwable {

@@ -56,7 +56,7 @@ public class ChatServer {
 			for (DropMessage item : result) {
 				ChatMessageItem cms = new ChatMessageItem(item);
 				cms.isNew = 0;
-				dataBase.put(cms);
+				storeIntoDB(cms);
 			}
 
 			//@todo replace this with header from server response.

@@ -200,5 +200,6 @@
     <plurals name="uploadsNotificationTitle">
         <item quantity="one">Uploading</item>
         <item quantity="many">Uploads remaining</item>
+        <item quantity="other">Uploads remaining</item>
     </plurals>
 </resources>

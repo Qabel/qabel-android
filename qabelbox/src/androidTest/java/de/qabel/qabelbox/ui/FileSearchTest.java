@@ -4,6 +4,7 @@ package de.qabel.qabelbox.ui;
  * Created by danny on 05.01.2016.
  */
 
+import android.content.Context;
 import android.os.PowerManager;
 import android.support.test.rule.ActivityTestRule;
 import android.widget.SeekBar;
@@ -23,6 +24,8 @@ import de.qabel.core.config.Identity;
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.activities.MainActivity;
+import de.qabel.qabelbox.communication.BlockServer;
+import de.qabel.qabelbox.communication.URLs;
 import de.qabel.qabelbox.config.AppPreference;
 import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.storage.StorageSearch;
@@ -51,7 +54,6 @@ import static android.support.test.espresso.matcher.ViewMatchers.withId;
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class FileSearchTest {
 
-    private final String TAG = this.getClass().getSimpleName();
     @Rule
     public ActivityTestRule<MainActivity> mActivityTestRule = new ActivityTestRule<>(MainActivity.class, false, true);
 
@@ -59,6 +61,8 @@ public class FileSearchTest {
     private UIBoxHelper mBoxHelper;
     private final boolean mFillAccount = true;
     private PowerManager.WakeLock wakeLock;
+    private SystemAnimations mSystemAnimations;
+
     SystemAnimations mSystemAnimations;
 
     public FileSearchTest() throws IOException {
@@ -85,7 +89,10 @@ public class FileSearchTest {
     }
 
     private void setupData() {
-        new AppPreference(QabelBoxApplication.getInstance().getApplicationContext()).setToken("dummytoken");
+        Context applicationContext = QabelBoxApplication.getInstance().getApplicationContext();
+        new AppPreference(applicationContext)
+                .setToken(applicationContext.getString(R.string.blockserver_magic_testtoken));
+        URLs.setBaseBlockURL(applicationContext.getString(R.string.testBlockServer));
         mBoxHelper = new UIBoxHelper(mActivity);
         mBoxHelper.bindService(QabelBoxApplication.getInstance());
         try {
@@ -94,23 +101,32 @@ public class FileSearchTest {
                 mBoxHelper.deleteIdentity(old);
             }
         } catch (Exception e) {
-
+            e.printStackTrace();
         }
+
         Identity identity = mBoxHelper.addIdentity("spoon");
-        mBoxHelper.setActiveIdentity(identity);
-        uploadTestFiles(mBoxHelper.getCurrentIdentity());
+        uploadTestFiles();
     }
 
-    private void uploadTestFiles(Identity identity) {
+    private void uploadTestFiles() {
 
         int fileCount = 7;
-        mBoxHelper.uploadFile(identity, "testfile 2", new byte[1011], "");
-        mBoxHelper.uploadFile(identity, "red.png", new byte[1], "");
-        mBoxHelper.uploadFile(identity, "green.png", new byte[100], "");
-        mBoxHelper.uploadFile(identity, "blue.png", new byte[1011], "");
-        mBoxHelper.uploadFile(identity, "black_1.png", new byte[1011], "");
-        mBoxHelper.uploadFile(identity, "black_2.png", new byte[1024 * 10], "");
-        mBoxHelper.uploadFile(identity, "white.png", new byte[1011], "");
+        BlockServer bs = new BlockServer();
+        mBoxHelper.uploadFile(mBoxHelper.mBoxVolume, "testfile 2", new byte[1011], "");
+        mBoxHelper.uploadFile(mBoxHelper.mBoxVolume, "red.png", new byte[1], "");
+        mBoxHelper.uploadFile(mBoxHelper.mBoxVolume, "green.png", new byte[100], "");
+        mBoxHelper.uploadFile(mBoxHelper.mBoxVolume, "blue.png", new byte[1011], "");
+        mBoxHelper.uploadFile(mBoxHelper.mBoxVolume, "black_1.png", new byte[1011], "");
+        mBoxHelper.uploadFile(mBoxHelper.mBoxVolume, "black_2.png", new byte[1024 * 10], "");
+        mBoxHelper.uploadFile(mBoxHelper.mBoxVolume, "white.png", new byte[1011], "");
+
+        /*mBoxHelper.uploadFile(bs, identity, "testfile 2", new byte[1011], "");
+        mBoxHelper.uploadFile(bs, identity, "red.png", new byte[1], "");
+        mBoxHelper.uploadFile(bs, identity, "green.png", new byte[100], "");
+        mBoxHelper.uploadFile(bs, identity, "blue.png", new byte[1011], "");
+        mBoxHelper.uploadFile(bs, identity, "black_1.png", new byte[1011], "");
+        mBoxHelper.uploadFile(bs, identity, "black_2.png", new byte[1024 * 10], "");
+        mBoxHelper.uploadFile(bs, identity, "white.png", new byte[1011], "");*/
 
         mBoxHelper.waitUntilFileCount(fileCount);
     }
@@ -132,7 +148,7 @@ public class FileSearchTest {
         testSearchWithFilter("", 0, 10240, 7, false);
         testSearchWithFilter("", 9000, 10240, 1, false);
     }
-
+/*
     @Test
     public void search3CacheTest() throws QblStorageException {
 
@@ -148,14 +164,15 @@ public class FileSearchTest {
         int fileCount = new StorageSearch(mBoxHelper.mBoxVolume.navigate()).getResults().size();
         Spoon.screenshot(mActivity, "before_upload");
 
-        //upload file
-        mBoxHelper.uploadFile(mBoxHelper.getCurrentIdentity(), "black_3", new byte[1024], "");
+        //uploadAndDeleteLocalfile file
+        mBoxHelper.uploadFile(mBoxHelper.mBoxVolume, "black_3", new byte[1024], "");
         mBoxHelper.waitUntilFileCount(fileCount + 1);
 
         onView(withId(R.id.files_list)).perform(swipeDown());
         onView(withId(R.id.files_list)).check(matches(QabelMatcher.withListSize(fileCount + 1)));
         Spoon.screenshot(mActivity, "after_refresh");
         pressBack();
+        Spoon.screenshot(mActivity, "after_press_back");
         testIfFileBrowserDisplayed(fileCount + 1);
 
         //start new search
@@ -167,7 +184,7 @@ public class FileSearchTest {
         onView(withId(R.id.files_list)).check(matches(QabelMatcher.withListSize(3)));
         Spoon.screenshot(mActivity, "after_research");
         mBoxHelper.deleteFile(mActivity, mBoxHelper.getCurrentIdentity(), "black_3", "");
-    }
+    }*/
 
     /**
      * test if search result match the given. addition check if file browser displayed after back pressed

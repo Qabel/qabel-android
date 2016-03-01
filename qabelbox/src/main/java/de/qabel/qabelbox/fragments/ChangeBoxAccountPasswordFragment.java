@@ -21,7 +21,7 @@ import java.util.ArrayList;
 
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.communication.BoxAccountRegisterServer;
-import de.qabel.qabelbox.communication.SimpleJsonCallback;
+import de.qabel.qabelbox.communication.callbacks.SimpleJsonCallback;
 import de.qabel.qabelbox.helper.UIHelper;
 import okhttp3.Call;
 import okhttp3.Response;

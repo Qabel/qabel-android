@@ -2,9 +2,25 @@ package de.qabel.qabelbox.storage;
 
 import android.content.Context;
 
-import com.amazonaws.auth.AWSCredentials;
-import com.amazonaws.mobileconnectors.s3.transferutility.TransferUtility;
-import com.amazonaws.services.s3.AmazonS3Client;
+import org.apache.commons.io.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.spongycastle.crypto.InvalidCipherTextException;
+
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.ByteBuffer;
+import java.security.InvalidKeyException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
+import java.util.UUID;
 
 import de.qabel.core.crypto.CryptoUtils;
 import de.qabel.core.crypto.DecryptedPlaintext;
@@ -14,153 +30,128 @@ import de.qabel.qabelbox.exceptions.QblStorageNotFound;
 import de.qabel.qabelbox.providers.BoxProvider;
 import de.qabel.qabelbox.providers.DocumentIdParser;
 
-import org.apache.commons.io.IOUtils;
-import org.spongycastle.crypto.InvalidCipherTextException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.io.*;
-import java.nio.ByteBuffer;
-import java.security.InvalidKeyException;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.Arrays;
-import java.util.UUID;
-
 public class BoxVolume {
 
-	private static final Logger logger = LoggerFactory.getLogger(BoxVolume.class.getName());
-	private static final String PATH_ROOT = "/";
-	private final String rootId;
-	private final Context context;
-	private final String bucket;
+    private static final Logger logger = LoggerFactory.getLogger(BoxVolume.class.getName());
+    private static final String PATH_ROOT = "/";
+    private final String rootId;
+    private final Context context;
 
-	private TransferUtility transferUtility;
-	private QblECKeyPair keyPair;
-	private byte[] deviceId;
-	private CryptoUtils cryptoUtils;
-	private File tempDir;
-	private final TransferManager transferManager;
-	private String prefix;
+    private QblECKeyPair keyPair;
+    private byte[] deviceId;
+    private CryptoUtils cryptoUtils;
+    private File tempDir;
+    private final TransferManager transferManager;
+    private String prefix;
 
-	public BoxVolume(TransferUtility transferUtility, AWSCredentials credentials,
-	                 QblECKeyPair keyPair, String bucket, String prefix,
-	                 byte[] deviceId, Context context) {
-		this.transferUtility = transferUtility;
-		this.keyPair = keyPair;
-		this.deviceId = deviceId;
-		this.context = context;
-		cryptoUtils = new CryptoUtils();
-		tempDir = context.getCacheDir();
-		AmazonS3Client awsClient = new AmazonS3Client(credentials);
-		this.rootId = new DocumentIdParser().buildId(
-				keyPair.getPub().getReadableKeyIdentifier(), bucket, prefix, null);
-		transferManager = new TransferManager(transferUtility, awsClient, bucket, tempDir);
-		this.prefix = prefix;
-		this.bucket = bucket;
-	}
+    public BoxVolume(
+            QblECKeyPair keyPair, String prefix,
+            byte[] deviceId, Context context) {
 
-	public String getRootId() {
-		return rootId;
-	}
+        this.keyPair = keyPair;
+        this.deviceId = deviceId;
+        this.context = context;
+        cryptoUtils = new CryptoUtils();
+        tempDir = context.getCacheDir();
 
-	public String getDocumentId(String path) {
-		return rootId + BoxProvider.DOCID_SEPARATOR + path;
-	}
+        this.rootId = new DocumentIdParser().buildId(
+                keyPair.getPub().getReadableKeyIdentifier(), prefix, null);
+        transferManager = new TransferManager(tempDir);
+        this.prefix = prefix;
 
-	private InputStream blockingDownload(String name) throws QblStorageNotFound {
-		File tmp = transferManager.createTempFile();
-		int id = transferManager.download(prefix, name, tmp, null);
-		if (transferManager.waitFor(id)) {
-			try {
-				return new FileInputStream(tmp);
-			} catch (FileNotFoundException e) {
-				throw new QblStorageNotFound("Download failed");
-			}
-		} else {
-			throw new QblStorageNotFound("Download failed");
-		}
-	}
-
-	private void blockingUpload(String name,
-								InputStream inputStream) throws QblStorageException {
-		File tmp = transferManager.createTempFile();
-		try {
-			IOUtils.copy(inputStream, new FileOutputStream(tmp));
-		} catch (IOException e) {
-			throw new QblStorageException(e);
-		}
-		int id = transferManager.upload(prefix, name, tmp, null);
-		if (!transferManager.waitFor(id)) {
-			throw new QblStorageException("Upload failed");
-		}
-	}
+    }
 
 
-	public BoxNavigation navigate() throws QblStorageException {
-		return new FolderNavigation(prefix, getDirectoryMetadata(), keyPair, null, deviceId, transferManager,
-				this, PATH_ROOT, null, context);
-	}
+    public String getDocumentId(String path) {
+        return rootId + BoxProvider.DOCID_SEPARATOR + path;
+    }
 
-	DirectoryMetadata getDirectoryMetadata() throws QblStorageException {
-		String rootRef = getRootRef();
-		logger.info("Navigating to " + rootRef);
-		InputStream indexDl = blockingDownload(rootRef);
-		File tmp;
-		try {
-			byte[] encrypted = IOUtils.toByteArray(indexDl);
-			if (encrypted.length == 0) {
-				throw new QblStorageException("Empty file");
-			}
-			DecryptedPlaintext plaintext = cryptoUtils.readBox(keyPair, encrypted);
-			// Should work fine for the small metafiles
-			tmp = File.createTempFile("dir", "db", tempDir);
-			OutputStream out = new FileOutputStream(tmp);
-			out.write(plaintext.getPlaintext());
-			out.close();
-		} catch (IOException | InvalidCipherTextException | InvalidKeyException e) {
-			throw new QblStorageException(e);
-		}
-		return DirectoryMetadata.openDatabase(tmp, deviceId, rootRef, tempDir);
-	}
+    private InputStream blockingDownload(String name) throws QblStorageNotFound {
 
-	public String getRootRef() throws QblStorageException {
-		MessageDigest md;
-		try {
-			md = MessageDigest.getInstance("SHA-256");
-		} catch (NoSuchAlgorithmException e) {
-			throw new QblStorageException(e);
-		}
-		md.update(this.prefix.getBytes());
-		md.update(keyPair.getPrivateKey());
-		byte[] digest = md.digest();
-		byte[] firstBytes = Arrays.copyOfRange(digest, 0, 16);
-		ByteBuffer bb = ByteBuffer.wrap(firstBytes);
-		UUID uuid = new UUID(bb.getLong(), bb.getLong());
-		return uuid.toString();
-	}
+        File tmp = transferManager.createTempFile();
+        int id = transferManager.download(prefix, name, tmp, null);
+        if (transferManager.waitFor(id)) {
+            try {
+                return new FileInputStream(tmp);
+            } catch (FileNotFoundException e) {
+                throw new QblStorageNotFound("Download failed");
+            }
+        } else {
+            throw new QblStorageNotFound("Download failed");
+        }
+    }
 
-	public void createIndex() throws QblStorageException {
-		createIndex(bucket, prefix);
-	}
+    private void blockingUpload(String name,
+                                InputStream inputStream) throws QblStorageException {
 
-	public void createIndex(String bucket, String prefix) throws QblStorageException {
-		createIndex("https://" + bucket + ".s3.amazonaws.com/" + prefix);
-	}
+        File tmp = transferManager.createTempFile();
+        try {
+            IOUtils.copy(inputStream, new FileOutputStream(tmp));
+        } catch (IOException e) {
+            throw new QblStorageException(e);
+        }
+        int id = transferManager.uploadAndDeleteLocalfileOnSuccess(prefix, name, tmp, null);
+        if (!transferManager.waitFor(id)) {
+            throw new QblStorageException("Upload failed");
+        }
+    }
 
-	public void createIndex(String root) throws QblStorageException {
-		String rootRef = getRootRef();
-		DirectoryMetadata dm = DirectoryMetadata.newDatabase(root, deviceId, tempDir);
-		try {
-			byte[] plaintext = IOUtils.toByteArray(new FileInputStream(dm.path));
-			byte[] encrypted = cryptoUtils.createBox(keyPair, keyPair.getPub(), plaintext, 0);
-			blockingUpload(rootRef, new ByteArrayInputStream(encrypted));
-		} catch (IOException e) {
-			throw new QblStorageException(e);
-		} catch (InvalidKeyException e) {
-			throw new QblStorageException(e);
-		}
+    public BoxNavigation navigate() throws QblStorageException {
+        return new FolderNavigation(prefix, getDirectoryMetadata(), keyPair, null, deviceId, transferManager,
+                this, PATH_ROOT, null, context);
+    }
 
+    DirectoryMetadata getDirectoryMetadata() throws QblStorageException {
 
-	}
+        String rootRef = getRootRef();
+        logger.info("Navigating to " + rootRef);
+        InputStream indexDl = blockingDownload(rootRef);
+        File tmp;
+        try {
+            byte[] encrypted = IOUtils.toByteArray(indexDl);
+            if (encrypted.length == 0) {
+                throw new QblStorageException("Empty file");
+            }
+            DecryptedPlaintext plaintext = cryptoUtils.readBox(keyPair, encrypted);
+            // Should work fine for the small metafiles
+            tmp = File.createTempFile("dir", "db", tempDir);
+            OutputStream out = new FileOutputStream(tmp);
+            out.write(plaintext.getPlaintext());
+            out.close();
+        } catch (IOException | InvalidCipherTextException | InvalidKeyException e) {
+            throw new QblStorageException(e);
+        }
+        return DirectoryMetadata.openDatabase(tmp, deviceId, rootRef, tempDir);
+    }
+
+    public String getRootRef() throws QblStorageException {
+
+        MessageDigest md;
+        try {
+            md = MessageDigest.getInstance("SHA-256");
+        } catch (NoSuchAlgorithmException e) {
+            throw new QblStorageException(e);
+        }
+        md.update(this.prefix.getBytes());
+        md.update(keyPair.getPrivateKey());
+        byte[] digest = md.digest();
+        byte[] firstBytes = Arrays.copyOfRange(digest, 0, 16);
+        ByteBuffer bb = ByteBuffer.wrap(firstBytes);
+        UUID uuid = new UUID(bb.getLong(), bb.getLong());
+        return uuid.toString();
+    }
+
+    public void createIndex() throws QblStorageException {
+        String rootRef = getRootRef();
+        DirectoryMetadata dm = DirectoryMetadata.newDatabase(rootRef, deviceId, tempDir);
+        try {
+            byte[] plaintext = IOUtils.toByteArray(new FileInputStream(dm.path));
+            byte[] encrypted = cryptoUtils.createBox(keyPair, keyPair.getPub(), plaintext, 0);
+            blockingUpload(rootRef, new ByteArrayInputStream(encrypted));
+        } catch (IOException e) {
+            throw new QblStorageException(e);
+        } catch (InvalidKeyException e) {
+            throw new QblStorageException(e);
+        }
+    }
 }

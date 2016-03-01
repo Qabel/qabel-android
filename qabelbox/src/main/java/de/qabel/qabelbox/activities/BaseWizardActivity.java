@@ -33,7 +33,7 @@ public abstract class BaseWizardActivity extends CrashReportingActivity {
     private CreateIdentityHeaderFragment mIdentityHeaderFragment;
 
     protected BaseIdentityFragment[] fragments;
-    private int step = 0;
+    protected int step = 0;
     public int activityResult = RESULT_CANCELED;
     protected boolean mFirstRun;
     //values for create box account mode

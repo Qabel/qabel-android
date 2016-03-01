@@ -14,85 +14,89 @@ import de.qabel.qabelbox.helper.Sanity;
  */
 public class SplashActivity extends CrashReportingActivity {
 
-    private final long SPLASH_TIME = 1500;
-    private SplashActivity mActivity;
-    private AppPreference prefs;
+	private final long SPLASH_TIME = 1500;
+	private SplashActivity mActivity;
+	private AppPreference prefs;
+	final private String TAG = this.getClass().getSimpleName();
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
 
-        super.onCreate(savedInstanceState);
-        mActivity = this;
-        setupAppPreferences();
-        /*if (prefs.getWelcomeScreenShowedAt() == 0) {
+		super.onCreate(savedInstanceState);
+		mActivity = this;
+		setupAppPreferences();
+		/*if (prefs.getWelcomeScreenShowedAt() == 0) {
             Intent intent = new Intent(mActivity, WelcomeScreenActivity.class);
             startActivity(intent);
             overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
             finish();
             return;
         }*/
-        overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
-        setContentView(R.layout.activity_splashscreen);
+		overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+		setContentView(R.layout.activity_splashscreen);
+		setupAppPreferences();
 
-    }
 
-    private void setupAppPreferences() {
+	}
 
-        prefs = new AppPreference(this);
-        int lastAppStartVersion = prefs.getLastAppStartVersion();
+	private void setupAppPreferences() {
 
-        int currentAppVersionCode = 0;
-        try {
-            currentAppVersionCode = getPackageManager().getPackageInfo(getPackageName(), 0).versionCode;
-        } catch (PackageManager.NameNotFoundException e) {
-            e.printStackTrace();
-        }
-        if (lastAppStartVersion == 0) {
-            prefs.setLastAppStartVersion(currentAppVersionCode);
-            //@todo show welcome
-        } else {
-            if (lastAppStartVersion != currentAppVersionCode) {
-                prefs.setLastAppStartVersion(currentAppVersionCode);
-                //@todo show whatsnew screen
-            }
-        }
-    }
+		prefs = new AppPreference(this);
+		int lastAppStartVersion = prefs.getLastAppStartVersion();
 
-    @Override
-    public void onWindowFocusChanged(boolean hasFocus) {
+		int currentAppVersionCode = 0;
+		try {
+			currentAppVersionCode = getPackageManager().getPackageInfo(getPackageName(), 0).versionCode;
+		} catch (PackageManager.NameNotFoundException e) {
+			e.printStackTrace();
+		}
+		if (lastAppStartVersion == 0) {
+			prefs.setLastAppStartVersion(currentAppVersionCode);
+			//@todo show welcome
+		} else {
+			if (lastAppStartVersion != currentAppVersionCode) {
+				prefs.setLastAppStartVersion(currentAppVersionCode);
+				//@todo show whatsnew screen
+			}
+		}
+	}
 
-        super.onWindowFocusChanged(hasFocus);
-        if (hasFocus) {
-            startDelayedHandler();
-        }
-    }
+	@Override
+	public void onWindowFocusChanged(boolean hasFocus) {
 
-    private void startDelayedHandler() {
+		super.onWindowFocusChanged(hasFocus);
+		if (hasFocus) {
+			startDelayedHandler();
+		}
+	}
 
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
+	private void startDelayedHandler() {
 
-                startMainActivity();
-            }
+		new Handler().postDelayed(new Runnable() {
+			@Override
+			public void run() {
 
-            private void startMainActivity() {
+				startMainActivity();
+			}
+
+			private void startMainActivity() {
 /*
                 if (prefs.getWelcomeScreenShowedAt() == 0) {
                     Intent intent = new Intent(mActivity, WelcomeScreenActivity.class);
                     startActivity(intent);
                     overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
                     finish();
-                } else */if (!Sanity.startWizardActivities(mActivity)) {
+                } else */
+				if (!Sanity.startWizardActivities(mActivity)) {
 
-                    Intent intent = new Intent(mActivity, MainActivity.class);
-                    intent.setAction("");
-                    startActivity(intent);
-                    overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
-                    finish();
-                }
-            }
-        }
-                , SPLASH_TIME);
-    }
+					Intent intent = new Intent(mActivity, MainActivity.class);
+					intent.setAction("");
+					startActivity(intent);
+					overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+					finish();
+				}
+			}
+		}
+				, SPLASH_TIME);
+	}
 }

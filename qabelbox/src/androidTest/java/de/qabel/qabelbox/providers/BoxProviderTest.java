@@ -2,7 +2,6 @@ package de.qabel.qabelbox.providers;
 
 import android.annotation.TargetApi;
 import android.content.Context;
-import android.content.ContentResolver;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
@@ -11,11 +10,6 @@ import android.provider.DocumentsContract;
 import android.test.InstrumentationTestCase;
 import android.test.mock.MockContentResolver;
 import android.util.Log;
-
-import com.amazonaws.mobileconnectors.s3.transferutility.TransferUtility;
-import com.amazonaws.services.s3.model.DeleteObjectsRequest;
-import com.amazonaws.services.s3.model.ObjectListing;
-import com.amazonaws.services.s3.model.S3ObjectSummary;
 
 import org.apache.commons.io.IOUtils;
 
@@ -32,10 +26,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import de.qabel.core.crypto.CryptoUtils;
-import de.qabel.core.crypto.QblECKeyPair;
-import de.qabel.qabelbox.activities.MainActivity;
+import de.qabel.qabelbox.QabelBoxApplication;
+import de.qabel.qabelbox.R;
+import de.qabel.qabelbox.communication.URLs;
 import de.qabel.qabelbox.communication.VolumeFileTransferHelper;
+import de.qabel.qabelbox.config.AppPreference;
 import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.storage.BoxFolder;
 import de.qabel.qabelbox.storage.BoxNavigation;
@@ -47,7 +42,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 public class BoxProviderTest extends InstrumentationTestCase {
 
     private BoxVolume volume;
-    final String bucket = BoxProvider.BUCKET;
     private String testFileName;
     private MockContentResolver mContentResolver;
     public static String ROOT_DOC_ID;
@@ -60,6 +54,10 @@ public class BoxProviderTest extends InstrumentationTestCase {
     protected void setUp() throws Exception {
         super.setUp();
         Log.d(TAG, "setUp");
+        Context applicationContext = QabelBoxApplication.getInstance().getApplicationContext();
+        new AppPreference(applicationContext)
+                .setToken(applicationContext.getString(R.string.blockserver_magic_testtoken));
+        URLs.setBaseBlockURL(applicationContext.getString(R.string.testBlockServer));
 
         mContext = getInstrumentation().getTargetContext();
         mProvider = new BoxProviderTester();
@@ -69,11 +67,8 @@ public class BoxProviderTest extends InstrumentationTestCase {
         byte[] deviceID = getProvider().deviceID;
         BoxProviderTester provider = getProvider();
         ROOT_DOC_ID = provider.rootDocId;
-        provider.transferUtility = new TransferUtility(provider.amazonS3Client, mContext);
-
-        volume = new BoxVolume(provider.transferUtility, provider.awsCredentials,
-                provider.keyPair, bucket, provider.prefix, deviceID, mContext);
-        volume.createIndex(bucket, provider.prefix);
+        volume = new BoxVolume(provider.keyPair, provider.prefix, deviceID, mContext);
+        volume.createIndex();
 
         File tmpDir = new File(System.getProperty("java.io.tmpdir"));
         File file = File.createTempFile("testfile", "test", tmpDir);
@@ -95,17 +90,6 @@ public class BoxProviderTest extends InstrumentationTestCase {
     public void tearDown() throws Exception {
         super.tearDown();
         Log.d(TAG, "tearDown");
-        ObjectListing listing = getProvider().amazonS3Client.listObjects(bucket, getProvider().prefix);
-        List<DeleteObjectsRequest.KeyVersion> keys = new ArrayList<>();
-        for (S3ObjectSummary summary : listing.getObjectSummaries()) {
-            keys.add(new DeleteObjectsRequest.KeyVersion(summary.getKey()));
-        }
-        if (keys.isEmpty()) {
-            return;
-        }
-        DeleteObjectsRequest deleteObjectsRequest = new DeleteObjectsRequest(bucket);
-        deleteObjectsRequest.setKeys(keys);
-        getProvider().amazonS3Client.deleteObjects(deleteObjectsRequest);
     }
 
     public void testTraverseToFolder() throws QblStorageException {
@@ -170,7 +154,7 @@ public class BoxProviderTest extends InstrumentationTestCase {
         IOUtils.copy(new FileInputStream(file), outputStream);
         outputStream.close();
 
-        // wait for the upload in the background
+        // wait for the uploadAndDeleteLocalfile in the background
         // TODO: actually wait for it.
         Thread.sleep(10000l);
 
@@ -205,14 +189,14 @@ public class BoxProviderTest extends InstrumentationTestCase {
         byte[] dl = IOUtils.toByteArray(inputStream);
         assertThat("Downloaded file not correct", dl, is(testContent));
 
-        // Use the same file descriptor to upload new content
+        // Use the same file descriptor to uploadAndDeleteLocalfile new content
         OutputStream outputStream = new FileOutputStream(fileDescriptor);
         assertNotNull(outputStream);
         outputStream.write(6);
         outputStream.close();
         parcelFileDescriptor.close();
 
-        // wait for the upload in the background
+        // wait for the uploadAndDeleteLocalfile in the background
         // TODO: actually wait for it.
         Thread.sleep(4000L);
 
@@ -237,7 +221,7 @@ public class BoxProviderTest extends InstrumentationTestCase {
         Uri document = DocumentsContract.createDocument(mContentResolver, parentDocumentUri,
                 "image/png",
                 "testfile.png");
-        assertNotNull(document);
+        assertNotNull("Create document failed, no document Uri returned", document);
         assertThat(document.toString(), is(documentUri.toString()));
         query = mContentResolver.query(documentUri, null, null, null, null);
         assertNotNull("Document not created:" + documentUri.toString(), query);

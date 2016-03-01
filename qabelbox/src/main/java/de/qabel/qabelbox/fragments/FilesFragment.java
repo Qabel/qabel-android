@@ -128,7 +128,7 @@ public class FilesFragment extends BaseFragment {
         setHasOptionsMenu(true);
         if (actionBar != null) {
             actionBar.setDisplayHomeAsUpEnabled(false);
-			
+
 			actionBar.setTitle(getTitle());
 		}
 
@@ -152,7 +152,7 @@ public class FilesFragment extends BaseFragment {
 
             switch (uploadStatus) {
                 case LocalBroadcastConstants.UPLOAD_STATUS_NEW:
-                    Log.d(TAG, "Received new upload: " + documentId);
+                    Log.d(TAG, "Received new uploadAndDeleteLocalfile: " + documentId);
                     fillAdapter(filesAdapter);
                     filesAdapter.notifyDataSetChanged();
                     break;
@@ -162,7 +162,7 @@ public class FilesFragment extends BaseFragment {
                     filesAdapter.notifyDataSetChanged();
                     break;
                 case LocalBroadcastConstants.UPLOAD_STATUS_FAILED:
-                    Log.d(TAG, "Received upload failed: " + documentId);
+                    Log.d(TAG, "Received uploadAndDeleteLocalfile failed: " + documentId);
                     refresh();
                     break;
             }

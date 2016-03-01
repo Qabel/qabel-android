@@ -65,6 +65,8 @@ public class CreateBoxAccountTest {
 	public void setUp() throws IOException, QblStorageException {
 
 		mActivity = mActivityTestRule.getActivity();
+		mBoxHelper = new UIBoxHelper(mActivity);
+		mBoxHelper.bindService(QabelBoxApplication.getInstance());
 		Espresso.registerIdlingResources(mPicassoIdlingResource);
 		ActivityLifecycleMonitorRegistry
 				.getInstance()

@@ -4,7 +4,6 @@ package de.qabel.qabelbox.ui;
  * Created by danny on 05.01.2016.
  */
 
-import android.content.Context;
 import android.os.PowerManager;
 import android.support.design.internal.NavigationMenuItemView;
 import android.support.test.rule.ActivityTestRule;
@@ -27,7 +26,6 @@ import de.qabel.core.config.Identity;
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.activities.CreateIdentityActivity;
-import de.qabel.qabelbox.config.AppPreference;
 import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.services.LocalQabelService;
 import de.qabel.qabelbox.ui.action.QabelViewAction;
@@ -68,6 +66,7 @@ public class CreateIdentityTest {
 
 	private PowerManager.WakeLock wakeLock;
 	private SystemAnimations mSystemAnimations;
+	private UIBoxHelper mBoxHelper;
 
 	@After
 	public void cleanUp() {
@@ -82,6 +81,8 @@ public class CreateIdentityTest {
 	public void setUp() throws IOException, QblStorageException {
 		UIBoxHelper.createTokenIfNeeded(false);
 		mActivity = mActivityTestRule.getActivity();
+		mBoxHelper = new UIBoxHelper(mActivity);
+		mBoxHelper.bindService(QabelBoxApplication.getInstance());
 		wakeLock = UIActionHelper.wakeupDevice(mActivity);
 		mSystemAnimations = new SystemAnimations(mActivity);
 		mSystemAnimations.disableAll();
@@ -89,10 +90,6 @@ public class CreateIdentityTest {
 
 
 	public void clearIdentities() {
-		Context applicationContext = QabelBoxApplication.getInstance().getApplicationContext();
-		new AppPreference(applicationContext)
-				.setToken(applicationContext.getString(R.string.accountingServerInactiveToken));
-
 		//clear all identities
 		LocalQabelService service = QabelBoxApplication.getInstance().getService();
 		Identities identities = service.getIdentities();

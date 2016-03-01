@@ -99,7 +99,8 @@ public class OpenImageTest {
 
     private void setupData() {
 		UIBoxHelper.createTokenIfNeeded(false);
-        mBoxHelper.bindService(QabelBoxApplication.getInstance());
+		mBoxHelper = new UIBoxHelper(mActivity);
+		mBoxHelper.bindService(QabelBoxApplication.getInstance());
         try {
             Identity old = mBoxHelper.getCurrentIdentity();
             if (old != null) {

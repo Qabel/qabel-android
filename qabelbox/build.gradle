@@ -33,8 +33,9 @@ android {
         /*
         add code to automaticly generate version name and code,
         on base of timestamp or change it manual*/
-        versionCode 11
         versionName "V0.1.1-internal"
+        versionCode System.getenv("BUILD_NUMBER") as Integer ?: 1
+        versionName "1.0."+ (System.getenv("BUILD_NUMBER") as Integer ?: 1)
         //junit test
         testInstrumentationRunner "de.qabel.qabelbox.QblJUnitRunner"
         //ui tests

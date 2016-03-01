@@ -110,13 +110,6 @@ public class FileSearchTest {
 		mBoxHelper.uploadFile(mBoxHelper.mBoxVolume, "black_2.png", new byte[1024 * 10], "");
 		mBoxHelper.uploadFile(mBoxHelper.mBoxVolume, "white.png", new byte[1011], "");
 
-        /*mBoxHelper.uploadFile(bs, identity, "testfile 2", new byte[1011], "");
-		mBoxHelper.uploadFile(bs, identity, "red.png", new byte[1], "");
-        mBoxHelper.uploadFile(bs, identity, "green.png", new byte[100], "");
-        mBoxHelper.uploadFile(bs, identity, "blue.png", new byte[1011], "");
-        mBoxHelper.uploadFile(bs, identity, "black_1.png", new byte[1011], "");
-        mBoxHelper.uploadFile(bs, identity, "black_2.png", new byte[1024 * 10], "");
-        mBoxHelper.uploadFile(bs, identity, "white.png", new byte[1011], "");*/
 
 		mBoxHelper.waitUntilFileCount(fileCount);
 	}

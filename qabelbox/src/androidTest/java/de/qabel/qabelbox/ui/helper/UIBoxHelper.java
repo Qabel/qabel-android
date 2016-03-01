@@ -28,7 +28,6 @@ import de.qabel.core.drop.AdjustableDropIdGenerator;
 import de.qabel.core.drop.DropIdGenerator;
 import de.qabel.core.drop.DropURL;
 import de.qabel.qabelbox.QabelBoxApplication;
-import de.qabel.qabelbox.activities.MainActivity;
 import de.qabel.qabelbox.communication.VolumeFileTransferHelper;
 import de.qabel.qabelbox.config.AppPreference;
 import de.qabel.qabelbox.exceptions.QblStorageException;
@@ -44,14 +43,14 @@ import de.qabel.qabelbox.storage.StorageSearch;
 public class UIBoxHelper {
 
 	@Deprecated
-	private final MainActivity mActivity;
+	private final Activity mActivity;
 	private final String TAG = this.getClass().getSimpleName();
 	private LocalQabelService mService;
 	private BoxProvider provider;
 	public BoxVolume mBoxVolume;
 	private boolean finished = false;
 
-	public UIBoxHelper(MainActivity activity) {
+	public UIBoxHelper(Activity activity) {
 
 		mActivity = activity;
 	}

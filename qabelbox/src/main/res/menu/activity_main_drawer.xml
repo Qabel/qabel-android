@@ -5,22 +5,19 @@
         <item
             android:id="@+id/nav_contacts"
             android:icon="@drawable/ic_contacts_black"
-            android:title="@string/Contacts" />
+            android:title="@string/Contacts"/>
         <item
             android:id="@+id/nav_browse"
             android:icon="@android:drawable/ic_menu_gallery"
-            android:title="@string/filebrowser" />
-        <item
-            android:id="@+id/nav_inbox"
-            android:icon="@android:drawable/ic_menu_gallery"
-            android:title="@string/inbox" />
+            android:title="@string/filebrowser"/>
+
         <item
             android:id="@+id/nav_settings"
             android:icon="@android:drawable/ic_menu_preferences"
-            android:title="@string/action_settings" />
+            android:title="@string/action_settings"/>
         <item
             android:id="@+id/nav_help"
             android:icon="@android:drawable/ic_menu_help"
-            android:title="@string/help" />
+            android:title="@string/help"/>
     </group>
 </menu>

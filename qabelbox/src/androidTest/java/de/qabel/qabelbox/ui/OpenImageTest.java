@@ -32,7 +32,6 @@ import de.qabel.core.config.Identity;
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.activities.MainActivity;
-import de.qabel.qabelbox.config.AppPreference;
 import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.ui.helper.SystemAnimations;
 import de.qabel.qabelbox.ui.helper.UIActionHelper;
@@ -99,9 +98,7 @@ public class OpenImageTest {
     }
 
     private void setupData() {
-
-        new AppPreference(QabelBoxApplication.getInstance().getApplicationContext()).setToken(QabelBoxApplication.getInstance().getApplicationContext().getString(R.string.blockserver_magic_testtoken));
-        mBoxHelper = new UIBoxHelper(mActivity);
+		UIBoxHelper.createTokenIfNeeded(false);
         mBoxHelper.bindService(QabelBoxApplication.getInstance());
         try {
             Identity old = mBoxHelper.getCurrentIdentity();

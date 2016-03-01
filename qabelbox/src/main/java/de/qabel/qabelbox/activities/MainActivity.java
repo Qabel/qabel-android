@@ -209,16 +209,6 @@ public class MainActivity extends CrashReportingActivity
 		}
 	}
 
-	private boolean uploadUri(Uri uri, String targetFolder) {
-
-		Toast.makeText(self, R.string.uploading_file,
-				Toast.LENGTH_SHORT).show();
-		boolean result = VolumeFileTransferHelper.uploadUri(self, uri, targetFolder, mService.getActiveIdentity());
-		if (!result) {
-			Toast.makeText(self, R.string.message_file_cant_upload, Toast.LENGTH_SHORT).show();
-		}
-		return result;
-	}
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -633,8 +623,6 @@ public class MainActivity extends CrashReportingActivity
 			selectContactsFragment();
 		} else if (id == R.id.nav_browse) {
 			selectFilesFragment();
-		} else if (id == R.id.nav_help) {
-			UIHelper.showFunctionNotYetImplemented(this);
 		} else if (id == R.id.nav_settings) {
 			Intent intent = new Intent(this, SettingsActivity.class);
 			startActivityForResult(intent, REQUEST_SETTINGS);

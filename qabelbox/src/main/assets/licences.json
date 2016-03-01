@@ -1,7 +1,11 @@
 {
   "licences": [
     {
-      "licence": "Apache 2",
+      "licence": "QAPL",
+      "info": "QABEL bedankt sich bei:\npraemandatum GmbH\nden Unterstützern unserer Indiegogo Kampagne\nHinz\nund\nKunz"
+    },
+    {
+      "licence": "Apache 2.0 Licensed Third Party Components:",
       "components": [
         "Android Open Source Project",
         "Apache Commons",
@@ -14,19 +18,19 @@
       ]
     },
     {
-      "licence": "Bouncy Castle Licence",
+      "licence": "Bouncy Castle Licensed Third Party Components:",
       "components": [
         "Spongy Castle"
       ]
     },
     {
-      "licence": "Hockey SDK Licence",
+      "licence": "Hockey SDK Licenced Third Party Components:",
       "components": [
         "Hockey App"
       ]
     },
     {
-      "licence": "MIT Licence",
+      "licence": "MIT Licenced Third Party Components:",
       "components": [
         "SLF4J",
         "SQLDroid 1.0.3"

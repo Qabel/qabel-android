@@ -37,7 +37,7 @@
     <string name="confirm_delete_message">Möchten Sie %s löschen?</string>
     <string name="confirm_delete_title">Löschen?</string>
     <string name="contact_count">Kontakte: %1</string>
-    <string name="contact_deleted">Kontakt mit dem Namen %l gelöscht</string>
+    <string name="contact_deleted">Kontakt mit dem Namen %1 gelöscht</string>
     <string name="contact_export_successfully">Kontakt exportiert. Sie können diesen Kontakt nun weitergeben.</string>
     <string name="contact_import_failed">Importieren des Kontaktes fehlgeschlagen</string>
     <string name="contact_import_manual_failed">Importieren des Kontaktes fehlgeschlagen. Bitte überprüfen Sie die eingegebenen Daten</string>

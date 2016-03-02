@@ -70,7 +70,7 @@ public class ShareHelper {
 	public static BoxExternalReference getBoxExternalReference(Contact contact, ChatMessageItem item) {
 
 		ChatMessageItem.ShareMessagePayload payload = (ChatMessageItem.ShareMessagePayload) item.getData();
-		return new BoxExternalReference(false, payload.getURL(), payload.getMessage(), contact.getEcPublicKey(), Hex.decode(payload.getKey()));
+		return new BoxExternalReference(false, payload.getURL(), null, contact.getEcPublicKey(), Hex.decode(payload.getKey()));
 	}
 
 	/**

@@ -305,6 +305,11 @@ public class BoxProvider extends DocumentsProvider {
                 return;
             }
         }
+        BoxObject external = navigation.getExternal(basename);
+        if (external != null) {
+            insertFile(cursor, documentId, external);
+            return;
+        }
         throw new QblStorageNotFound("File not found");
     }
 
@@ -422,17 +427,23 @@ public class BoxProvider extends DocumentsProvider {
         for (BoxFile file : navigation.listFiles()) {
             insertFile(cursor, parentDocumentId + file.name, file);
         }
+        for (BoxObject file : navigation.listExternalNames()) {
+            insertFile(cursor, parentDocumentId + file.name, file);
+        }
     }
 
-    private void insertFile(MatrixCursor cursor, String documentId, BoxFile file) {
+    private void insertFile(MatrixCursor cursor, String documentId, BoxObject file) {
 
         final MatrixCursor.RowBuilder row = cursor.newRow();
+        String mimeType = URLConnection.guessContentTypeFromName(file.name);
+        if (mimeType == null) {
+            mimeType = "application/octet-stream";
+        }
         row.add(Document.COLUMN_DOCUMENT_ID, documentId);
         row.add(Document.COLUMN_DISPLAY_NAME, file.name);
         row.add(Document.COLUMN_SUMMARY, null);
         row.add(Document.COLUMN_FLAGS, Document.FLAG_SUPPORTS_WRITE);
-        row.add(Document.COLUMN_MIME_TYPE,
-                URLConnection.guessContentTypeFromName(file.name));
+        row.add(Document.COLUMN_MIME_TYPE, mimeType);
         row.add(Media.DATA, documentId);
     }
 

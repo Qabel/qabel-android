@@ -30,7 +30,7 @@ android {
         minSdkVersion 19
         targetSdkVersion 22
         versionCode System.getenv("BUILD_NUMBER") as Integer ?: 1
-        versionName "1.0."+ (System.getenv("BUILD_NUMBER") as Integer ?: 1)
+        versionName "0.2."+ (System.getenv("BUILD_NUMBER") as Integer ?: 0)
         //junit test
         testInstrumentationRunner "de.qabel.qabelbox.QblJUnitRunner"
         //ui tests
@@ -39,6 +39,12 @@ android {
         ndk {
             moduleName "curve25519"
         }
+    }
+    lintOptions {
+        checkReleaseBuilds false
+        // Or, if you prefer, you can continue to check for errors in release builds,
+        // but continue the build even when errors are found:
+        abortOnError false
     }
 
     buildTypes {

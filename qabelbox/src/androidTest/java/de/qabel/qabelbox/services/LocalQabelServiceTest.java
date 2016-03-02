@@ -133,14 +133,14 @@ public class LocalQabelServiceTest extends ServiceTestCase<LocalQabelServiceTest
 		lock.await();
 
 		Collection<DropMessage> dropMessages =
-				mService.retrieveDropMessages(URI.create("http://localhost/dropmessages"));
+				mService.retrieveDropMessages(URI.create("http://localhost/dropmessages"),0);
 
 		assertEquals(1, dropMessages.size());
 	}
 
 	public void testReceiveDropMessagesEmpty() {
 		Collection<DropMessage> dropMessages =
-				mService.retrieveDropMessages(URI.create("http://localhost/empty"));
+				mService.retrieveDropMessages(URI.create("http://localhost/empty"),0);
 
 		assertEquals(0, dropMessages.size());
 	}

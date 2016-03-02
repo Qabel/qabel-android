@@ -100,6 +100,7 @@ public class TransferManager {
                         String msg = "Unexpected status code (" + response.code() + " for " + call.request();
                         errors.put(id, new QblServerException(response.code(), call.request().toString()));
                         Log.e(TAG, msg);
+                        Log.e(TAG, response.message());
                         latches.get(id).countDown();
                 }
 
@@ -235,7 +236,7 @@ public class TransferManager {
                 switch (response.code()) {
                     case 200:
                     case 204:
-                    case 404: // 404 can be safley ignored
+                    case 404: // 404 can be safely ignored
                         break;
                     default:
                         QblServerException genericError = new QblServerException(response.code(), call.request().toString());

@@ -28,7 +28,7 @@ public class FileHelper {
 
         StringBuffer fileContent = new StringBuffer("");
 
-        byte[] buffer = new byte[1024];
+        byte[] buffer = new byte[4096];
         int n;
         while ((n = fis.read(buffer)) != -1) {
             fileContent.append(new String(buffer, 0, n));

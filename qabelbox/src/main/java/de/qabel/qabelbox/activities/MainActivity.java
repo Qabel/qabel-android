@@ -51,6 +51,7 @@ import de.qabel.qabelbox.adapter.FilesAdapter;
 import de.qabel.qabelbox.communication.VolumeFileTransferHelper;
 import de.qabel.qabelbox.dialogs.SelectIdentityForUploadDialog;
 import de.qabel.qabelbox.exceptions.QblStorageException;
+import de.qabel.qabelbox.fragments.AboutLicencesFragment;
 import de.qabel.qabelbox.fragments.BaseFragment;
 import de.qabel.qabelbox.fragments.ContactFragment;
 import de.qabel.qabelbox.fragments.FilesFragment;
@@ -78,6 +79,8 @@ public class MainActivity extends CrashReportingActivity
 
     public static final String TAG_FILES_FRAGMENT = "TAG_FILES_FRAGMENT";
     private static final String TAG_CONTACT_LIST_FRAGMENT = "TAG_CONTACT_LIST_FRAGMENT";
+    private static final String TAG_ABOUT_FRAGMENT = "TAG_ABOUT_FRAGMENT";
+
     private static final String TAG_MANAGE_IDENTITIES_FRAGMENT = "TAG_MANAGE_IDENTITIES_FRAGMENT";
     private static final String TAG_FILES_SHARE_INTO_APP_FRAGMENT = "TAG_FILES_SHARE_INTO_APP_FRAGMENT";
     private static final String TAG = "BoxMainActivity";
@@ -657,8 +660,10 @@ public class MainActivity extends CrashReportingActivity
         } else if (id == R.id.nav_inbox) {
             UIHelper.showFunctionNotYetImplemented(this);
         } else if (id == R.id.nav_settings) {
+            /*
             Intent intent = new Intent(this, SettingsActivity.class);
-            startActivityForResult(intent, REQUEST_SETTINGS);
+            startActivityForResult(intent, REQUEST_SETTINGS);*/
+            selectAboutFragment();
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -1075,6 +1080,16 @@ public class MainActivity extends CrashReportingActivity
                 .replace(R.id.fragment_container,
                         ContactFragment.newInstance(mService.getContacts(activeIdentity), activeIdentity),
                         TAG_CONTACT_LIST_FRAGMENT)
+                .commit();
+    }
+
+    private void selectAboutFragment() {
+
+        fab.show();
+        getFragmentManager().beginTransaction()
+                .replace(R.id.fragment_container,
+                        AboutLicencesFragment.newInstance(),
+                        TAG_ABOUT_FRAGMENT)
                 .commit();
     }
 

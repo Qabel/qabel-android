@@ -2,6 +2,7 @@ package de.qabel.qabelbox.fragments;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -40,14 +41,14 @@ public class AboutLicencesFragment extends BaseFragment {
 
         String content = null;
         try {
-            InputStream is = getActivity().getAssets().open("yourfilename.json");
+            InputStream is = getActivity().getAssets().open(filename);
             int size = is.available();
             byte[] buffer = new byte[size];
             is.read(buffer);
             is.close();
             content = new String(buffer, "UTF-8");
         } catch (IOException ex) {
-            ex.printStackTrace();
+            Log.e(TAG, "Could not read licencing info " + ex.toString());
             return null;
         }
         return content;
@@ -62,7 +63,8 @@ public class AboutLicencesFragment extends BaseFragment {
         super.onViewCreated(view, savedInstanceState);
         licensesList = (RecyclerView) view.findViewById(R.id.about_licences_list);
         try {
-            licensesList.setAdapter(new JSONLicencesAdapter(getActivity(), readJSONFromAssets("licenceinfo.json")));
+            licensesList.setAdapter(new JSONLicencesAdapter(getActivity(), readJSONFromAssets("licences.json")));
+            licensesList.setLayoutManager(new LinearLayoutManager(getActivity()));
         } catch (Exception e) {
             Log.e(TAG, "Could not read licence JSON: " + e.getMessage());
         }

@@ -217,6 +217,12 @@
     <string name="upload_in_progress_notification_content">Upload in progress: %s</string>
     <string name="message_file_cant_upload">File can\'t upload</string>
 
-    <string name="about.licence.item.fromhtml">%1 licenced\nThird Party Components:</string>
     <string name="licence.header.intro">Qabel is Published under the QAPL:</string>
+    <string name="about.header.qabel.company.qtxt">QABEL</string>
+    <string name="about.header.qabel.show.btn">Show QAPL</string>
+    <string name="about.header.qabel.thanks.header.txt"> bedankt sich bei:</string>
+    <string name="about.header.qabel.thanks.content.txt">praemandatum GmbH\nden Unterstützern unserer Indiegogo Kampagne\nHinz\nund\nKunz</string>
+
+    <string name="about.licences.item.show.btn">Show Licence</string>
+
 </resources>

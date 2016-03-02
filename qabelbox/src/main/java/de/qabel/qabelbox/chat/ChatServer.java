@@ -50,6 +50,7 @@ public class ChatServer {
 	public Collection<DropMessage> refreshList() {
 		long lastRetrieved = dataBase.getLastRetrievedDropMessageTime();
 		Log.d(TAG, "last retrieved dropmessage time " + lastRetrieved + " / " + System.currentTimeMillis());
+		String identityKey=QabelBoxApplication.getInstance().getService().getActiveIdentity().getEcPublicKey().getReadableKeyIdentifier();
 		Collection<DropMessage> result = QabelBoxApplication.getInstance().getService().retrieveDropMessages(QabelBoxApplication.getInstance().getService().getActiveIdentity(), lastRetrieved);
 
 		if (result != null) {
@@ -57,6 +58,7 @@ public class ChatServer {
 			//store into db
 			for (DropMessage item : result) {
 				ChatMessageItem cms = new ChatMessageItem(item);
+				cms.receiver=identityKey;
 				cms.isNew = 0;
 				storeIntoDB(cms);
 			}

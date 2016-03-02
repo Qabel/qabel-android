@@ -185,4 +185,5 @@
     <string name="headline_share_to_qabeluser">Freigabe an QabelUser</string>
     <string name="Unshare">Widerrufe Freigabe</string>
     <string name="message_cant_attach_external_file_exists">Anfügen der freigegebenen Datei nicht möglich. Eine Datei mit diesem Namen existiert bereits. Vielleicht haben Sie diese Datei schon ein Mal früher angefügt</string>
+    <string name="hockeyapp_feedback_response_button_text">Neue Nachricht senden</string>
 </resources>

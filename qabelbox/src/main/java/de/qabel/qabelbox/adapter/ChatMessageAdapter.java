@@ -20,139 +20,135 @@ import de.qabel.qabelbox.helper.Formatter;
 
 public class ChatMessageAdapter extends RecyclerView.Adapter<ChatMessageAdapter.ContactViewHolder> {
 
-    private final String TAG = getClass().getSimpleName();
-    private final String contactPublicKey;
-    private List<ChatMessageItem> mMessages = null;
-    private OnItemClickListener onItemClickListener;
-    private View emptyView;
+	private final String TAG = getClass().getSimpleName();
+	private final String contactPublicKey;
+	private List<ChatMessageItem> mMessages = null;
+	private OnItemClickListener onItemClickListener;
+	private View emptyView;
 
-    public ChatMessageAdapter(ArrayList<ChatMessageItem> allMessages, Contact contact) {
+	public ChatMessageAdapter(ArrayList<ChatMessageItem> allMessages, Contact contact) {
 
-        mMessages = new ArrayList<>();
+		mMessages = new ArrayList<>();
 
-        contactPublicKey = contact.getEcPublicKey().getReadableKeyIdentifier().toString();
-        for (ChatMessageItem message : allMessages) {
-            if (contactPublicKey.equals(message.getSenderKey()) || contactPublicKey.equals(message.getReceiverKey()))
+		contactPublicKey = contact.getEcPublicKey().getReadableKeyIdentifier().toString();
+		for (ChatMessageItem message : allMessages) {
+			if (contactPublicKey.equals(message.getSenderKey()) || contactPublicKey.equals(message.getReceiverKey())) {
+				mMessages.add(message);
+			}
+		}
+		Collections.sort(mMessages, new Comparator<ChatMessageItem>() {
+			@Override
+			public int compare(ChatMessageItem o1, ChatMessageItem o2) {
+				return (o1.getTime() > o2.getTime() ? -1 : (o1.getTime() == o2.getTime() ? 0 : 1));
+			}
+		});
 
-            {
-                mMessages.add(message);
-            }
-        }
-        Collections.sort(mMessages, new Comparator<ChatMessageItem>() {
-            @Override
-            public int compare(ChatMessageItem o1, ChatMessageItem o2) {
+		registerAdapterDataObserver(observer);
+	}
 
+	public ChatMessageItem getMessage(int position) {
 
-                return (o1.getTime() > o2.getTime() ? -1 : (o1.getTime() == o2.getTime() ? 0 : 1));
-            }
-        });
+		return mMessages.get(position);
+	}
 
-        registerAdapterDataObserver(observer);
-    }
+	class ContactViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
-    public ChatMessageItem getMessage(int position) {
+		public final TextView tvDate;
+		public final TextView tvText;
+		public final TextView mLink;
+		public final ImageView mImageView;
+		public final View mBg;
 
-        return mMessages.get(position);
-    }
+		public ContactViewHolder(View v) {
 
-    class ContactViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+			super(v);
+			v.setOnClickListener(this);
+			mBg = v.findViewById(R.id.chatTextLayout);
+			tvDate = (TextView) v.findViewById(R.id.tvDate);
+			tvText = (TextView) v.findViewById(R.id.tvText);
+			mLink = (TextView) v.findViewById(R.id.tvLink);
+			mImageView = (ImageView) v.findViewById(R.id.itemIcon);
+		}
 
-        public final TextView tvDate;
-        public final TextView tvText;
-        public final TextView mLink;
-        public final ImageView mImageView;
-        public final View mBg;
+		@Override
+		public void onClick(View view) {
 
-        public ContactViewHolder(View v) {
+			if (onItemClickListener != null) {
+				onItemClickListener.onItemClick(mMessages.get(getAdapterPosition()));
+			}
+		}
+	}
 
-            super(v);
-            v.setOnClickListener(this);
-            mBg = v.findViewById(R.id.chatTextLayout);
-            tvDate = (TextView) v.findViewById(R.id.tvDate);
-            tvText = (TextView) v.findViewById(R.id.tvText);
-            mLink = (TextView) v.findViewById(R.id.tvLink);
-            mImageView = (ImageView) v.findViewById(R.id.itemIcon);
-        }
+	public interface OnItemClickListener {
 
-        @Override
-        public void onClick(View view) {
+		void onItemClick(ChatMessageItem item);
+	}
 
-            if (onItemClickListener != null) {
-                onItemClickListener.onItemClick(mMessages.get( getAdapterPosition()));
-            }
-        }
-    }
+	/**
+	 * Sets the action to perform on item clicks
+	 *
+	 * @param onItemClickListener
+	 */
+	public void setOnItemClickListener(OnItemClickListener onItemClickListener) {
 
-    public interface OnItemClickListener {
+		this.onItemClickListener = onItemClickListener;
+	}
 
-        void onItemClick(ChatMessageItem item);
-    }
+	@Override
+	public ContactViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
 
-    /**
-     * Sets the action to perform on item clicks
-     *
-     * @param onItemClickListener
-     */
-    public void setOnItemClickListener(OnItemClickListener onItemClickListener) {
+		View v = LayoutInflater.from(parent.getContext())
+				.inflate(R.layout.item_chat_message, parent, false);
+		return new ContactViewHolder(v);
+	}
 
-        this.onItemClickListener = onItemClickListener;
-    }
+	@Override
+	public void onBindViewHolder(ContactViewHolder holder, int position) {
 
-    @Override
-    public ContactViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+		ChatMessageItem message = mMessages.get(position);
+		holder.tvDate.setText(Formatter.formatDateTimeShort(message.getTime()));
+		ChatMessageItem.MessagePayload messageData = message.getData();
+		if (messageData != null && messageData instanceof ChatMessageItem.TextMessagePayload) {
+			holder.tvText.setText(((ChatMessageItem.TextMessagePayload) messageData).getMessage());
+			holder.mLink.setVisibility(View.GONE);
+		} else if (messageData != null && messageData instanceof ChatMessageItem.ShareMessagePayload) {
+			holder.tvText.setText(((ChatMessageItem.ShareMessagePayload) messageData).getMessage());
+			holder.mLink.setText(((ChatMessageItem.ShareMessagePayload) messageData).getURL());
+			holder.mLink.setVisibility(View.VISIBLE);
+		}
+		if (contactPublicKey.equals(message.getSenderKey())) {
+			holder.mBg.setBackgroundResource(R.drawable.chat_in_message_bg);
+		} else {
+			holder.mBg.setBackgroundResource(R.drawable.chat_out_message_bg);
+		}
+	}
 
-        View v = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.item_chat_message, parent, false);
-        return new ContactViewHolder(v);
-    }
+	@Override
+	public int getItemCount() {
 
-    @Override
-    public void onBindViewHolder(ContactViewHolder holder, int position) {
+		return mMessages.size();
+	}
 
-        ChatMessageItem message = mMessages.get(position);
-        holder.tvDate.setText(Formatter.formatDateTimeShort(message.getTime()));
-        ChatMessageItem.MessagePayload messageData = message.getData();
-        if (messageData != null && messageData instanceof ChatMessageItem.TextMessagePayload) {
-            holder.tvText.setText(((ChatMessageItem.TextMessagePayload) messageData).getMessage());
-            holder.mLink.setVisibility(View.GONE);
-        } else if (messageData != null && messageData instanceof ChatMessageItem.ShareMessagePayload) {
-            holder.tvText.setText(((ChatMessageItem.ShareMessagePayload) messageData).getMessage());
-            holder.mLink.setText(((ChatMessageItem.ShareMessagePayload) messageData).getURL());
-            holder.mLink.setVisibility(View.VISIBLE);
-        }
-        if (contactPublicKey.equals(message.getSenderKey())) {
-            holder.mBg.setBackgroundResource(R.drawable.chat_in_message_bg);
-        } else {
-            holder.mBg.setBackgroundResource(R.drawable.chat_out_message_bg);
-        }
-    }
+	void updateEmptyView() {
 
-    @Override
-    public int getItemCount() {
+		if (emptyView != null) {
+			emptyView.setVisibility(getItemCount() > 0 ? View.GONE : View.VISIBLE);
+		}
+	}
 
-        return mMessages.size();
-    }
+	final RecyclerView.AdapterDataObserver observer = new RecyclerView.AdapterDataObserver() {
+		@Override
+		public void onChanged() {
 
-    void updateEmptyView() {
+			super.onChanged();
+			updateEmptyView();
+		}
+	};
 
-        if (emptyView != null) {
-            emptyView.setVisibility(getItemCount() > 0 ? View.GONE : View.VISIBLE);
-        }
-    }
+	public void setEmptyView(@Nullable View emptyView) {
 
-    final RecyclerView.AdapterDataObserver observer = new RecyclerView.AdapterDataObserver() {
-        @Override
-        public void onChanged() {
+		this.emptyView = emptyView;
 
-            super.onChanged();
-            updateEmptyView();
-        }
-    };
-
-    public void setEmptyView(@Nullable View emptyView) {
-
-        this.emptyView = emptyView;
-
-        updateEmptyView();
-    }
+		updateEmptyView();
+	}
 }

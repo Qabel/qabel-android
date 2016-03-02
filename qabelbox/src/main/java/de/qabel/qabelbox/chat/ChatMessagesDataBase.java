@@ -102,7 +102,7 @@ public class ChatMessagesDataBase extends SQLiteOpenHelper {
 			if (id == -1) {
 				Log.e(TAG, "Failed put into db: " + item.toString());
 			} else {
-				Log.v(TAG, "db entry putted " + COL_MESSAGE_PAYLOAD);
+				Log.v(TAG, "db entry putted " + item.drop_payload);
 			}
 		} else {
 			Log.d(TAG, "already in db");
@@ -120,7 +120,7 @@ public class ChatMessagesDataBase extends SQLiteOpenHelper {
 			Log.d(TAG, "id: " + id);
 			return id;
 		} else {
-			Log.d(TAG,"new item");
+			Log.d(TAG, "new item");
 			return -1;
 		}
 	}
@@ -131,7 +131,7 @@ public class ChatMessagesDataBase extends SQLiteOpenHelper {
 
 		Cursor cursor = database.query(TABLE_MESSAGE_NAME, getAllColumnsList(),
 				//selection
-				COL_MESSAGE_SENDER + "=? OR " + COL_MESSAGE_RECEIVER + "=",
+				COL_MESSAGE_SENDER + "=? OR " + COL_MESSAGE_RECEIVER + "=?",
 				//selection args
 				new String[]{key, key},
 				null, null, null);
@@ -172,7 +172,7 @@ public class ChatMessagesDataBase extends SQLiteOpenHelper {
 
 		try {
 			cursor.moveToFirst();
-
+			Log.d(TAG, "messages in db " + cursor.getCount());
 			int count = cursor.getCount();
 			Log.v(TAG, "database result count");
 			ChatMessageItem[] items = new ChatMessageItem[count];

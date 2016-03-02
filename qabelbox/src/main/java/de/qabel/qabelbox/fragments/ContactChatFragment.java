@@ -129,9 +129,8 @@ public class ContactChatFragment extends BaseFragment {
 								if (deliveryStatus != null) {
 									Iterator it = deliveryStatus.entrySet().iterator();
 									while (it.hasNext()) {
-										Map.Entry pair = (Map.Entry)it.next();
-										if((Boolean)pair.getValue()==true)
-										{
+										Map.Entry pair = (Map.Entry) it.next();
+										if ((Boolean) pair.getValue() == true) {
 											sended = true;
 										}
 										Log.d(TAG, "message send result: " + pair.toString() + " " + pair.getValue());
@@ -176,46 +175,40 @@ public class ContactChatFragment extends BaseFragment {
 		});
 		etText.setText("");
 
-		refreshMessagesAsync();
 		actionBar.setSubtitle(contact.getAlias());
 		refreshMessagesAsync();
 
 		return view;
 	}
 
+	boolean isSyncing = false;
+
 	protected void refreshMessagesAsync() {
+		if (!isSyncing) {
+			isSyncing = true;
+			new AsyncTask<Void, Void, Collection<DropMessage>>() {
+				@Override
+				protected void onPostExecute(Collection<DropMessage> dropMessages) {
 
-		new AsyncTask<Void, Void, Collection<DropMessage>>() {
-			@Override
-			protected void onPostExecute(Collection<DropMessage> dropMessages) {
+					messages.clear();
+					for (ChatMessageItem item : chatServer.getAllMessages(contact)) {
+						Log.v(TAG,"add message "+item.drop_payload);
+						messages.add(item);
+					}
+					chatServer.setAllMessagesReaded(contact);
+					fillAdapter(messages);
+					isSyncing = false;
+				}
 
-				messages.clear();
-				messages = convertDropMessageToDatabaseMessage(dropMessages);
-				refreshContactList(dropMessages);
-				chatServer.setAllMessagesReaded(contact);
-			}
-
-			@Override
-			protected Collection<DropMessage> doInBackground(Void... params) {
-
-				return chatServer.refreshList();
-			}
-		}.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-	}
-
-	/**
-	 * refresh ui
-	 *
-	 * @param pMessages
-	 */
-	private void refreshContactList(Collection<DropMessage> pMessages) {
-
-		if (contactListRecyclerView != null) {
-			messages = convertDropMessageToDatabaseMessage(pMessages);
-			chatServer.addMessagesFromDataBase(messages);
-			fillAdapter(messages);
+				@Override
+				protected Collection<DropMessage> doInBackground(Void... params) {
+					isSyncing = true;
+					return chatServer.refreshList();
+				}
+			}.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 		}
 	}
+
 
 	private void fillAdapter(final ArrayList<ChatMessageItem> data) {
 
@@ -242,7 +235,6 @@ public class ContactChatFragment extends BaseFragment {
 					if (!item.getSenderKey().equals(service.getActiveIdentity().getEcPublicKey().getReadableKeyIdentifier())) {
 						final FilesFragment filesFragment = mActivity.filesFragment;
 
-						String path = filesFragment.getBoxNavigation().getPath();
 
 						new AsyncTask<Void, Void, BoxNavigation>() {
 							int errorId;

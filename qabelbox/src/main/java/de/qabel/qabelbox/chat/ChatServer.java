@@ -7,7 +7,6 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
 import de.qabel.core.config.Contact;
@@ -48,7 +47,7 @@ public class ChatServer {
 	public Collection<DropMessage> refreshList() {
 		long lastRetrieved = dataBase.getLastRetrievedDropMessageTime();
 		Log.d(TAG, "last retrieved dropmessage time " + lastRetrieved + " / " + System.currentTimeMillis());
-		Collection<DropMessage> result = QabelBoxApplication.getInstance().getService().retrieveDropMessages(QabelBoxApplication.getInstance().getService().getActiveIdentity(),lastRetrieved);
+		Collection<DropMessage> result = QabelBoxApplication.getInstance().getService().retrieveDropMessages(QabelBoxApplication.getInstance().getService().getActiveIdentity(), lastRetrieved);
 
 		if (result != null) {
 			Log.d(TAG, "new message count: " + result.size());
@@ -71,15 +70,6 @@ public class ChatServer {
 
 		sendCallbacksRefreshed();
 		return result;
-	}
-
-
-	public void addMessagesFromDataBase(ArrayList<ChatMessageItem> messages) {
-
-		ChatMessageItem[] result = dataBase.getAll();
-		if (result != null) {
-			Collections.addAll(messages, result);
-		}
 	}
 
 
@@ -128,12 +118,17 @@ public class ChatServer {
 		return new DropMessage(QabelBoxApplication.getInstance().getService().getActiveIdentity(), payload, payload_type);
 	}
 
+
 	public boolean hasNewMessages(Contact c) {
 		return dataBase.getNewMessageCount(c) > 0;
 	}
 
 	public int setAllMessagesReaded(Contact c) {
 		return dataBase.setAllMessagesReaded(c);
+	}
+
+	public ChatMessageItem[] getAllMessages(Contact c) {
+		return dataBase.get(c.getEcPublicKey().getReadableKeyIdentifier());
 	}
 
 	public interface ChatServerCallback {

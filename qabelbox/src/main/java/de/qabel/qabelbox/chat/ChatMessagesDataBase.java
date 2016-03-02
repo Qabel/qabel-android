@@ -1,6 +1,7 @@
 package de.qabel.qabelbox.chat;
 
 import android.content.ContentValues;
+import android.content.Context;
 import android.database.Cursor;
 import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
@@ -11,7 +12,6 @@ import android.util.Log;
 
 import de.qabel.core.config.Contact;
 import de.qabel.core.config.Identity;
-import de.qabel.qabelbox.QabelBoxApplication;
 
 /**
  * class to store chat messages in database
@@ -19,7 +19,7 @@ import de.qabel.qabelbox.QabelBoxApplication;
 public class ChatMessagesDataBase extends SQLiteOpenHelper {
 
 	private static final int DATABASE_VERSION = 1;
-	public static final String DATABASE_NAME = "ChatMessages.db";
+	private static final String DATABASE_NAME = "ChatMessages.db";
 	private static final String TAG = "ChatMessagesDataBase";
 
 	//table for store last load
@@ -53,7 +53,7 @@ public class ChatMessagesDataBase extends SQLiteOpenHelper {
 					COL_LOAD_TIMESTAMP + " LONG NOT NULL);";
 	private final String fullDBName;
 
-	public ChatMessagesDataBase(QabelBoxApplication context, Identity activeIdentity) {
+	public ChatMessagesDataBase(Context context, Identity activeIdentity) {
 
 		super(context, DATABASE_NAME + activeIdentity.getEcPublicKey().getReadableKeyIdentifier(), null, DATABASE_VERSION);
 		fullDBName = DATABASE_NAME + activeIdentity.getEcPublicKey().getReadableKeyIdentifier();
@@ -75,19 +75,9 @@ public class ChatMessagesDataBase extends SQLiteOpenHelper {
 		sqLiteDatabase.execSQL("DROP TABLE " + CREATE_TABLE_LOAD + ";");
 	}
 
-	@NonNull
-	private void removeMessageById(ChatMessageItem item) {
-		if (item.id > 0) {
-			SQLiteDatabase database = getReadableDatabase();
-			int rows = database.delete(TABLE_MESSAGE_NAME, COL_MESSAGE_ID + "=?",
-					new String[]{"" + item.id});
-			Log.i(TAG, "entrys deleted with id: " + item.id + " count: " + rows);
-		}
-	}
 
 	public void put(ChatMessageItem item) {
 
-		//remove(item);
 		Log.i(TAG, "Put into db: " + item.toString() + " " + item.getSenderKey() + " " + item.getReceiverKey());
 		ContentValues values = new ContentValues();
 
@@ -97,7 +87,7 @@ public class ChatMessagesDataBase extends SQLiteOpenHelper {
 		values.put(COL_MESSAGE_PAYLOAD_TYPE, item.drop_payload_type);
 		values.put(COL_MESSAGE_PAYLOAD, item.drop_payload == null ? "" : item.drop_payload);
 		values.put(COL_MESSAGE_ISNEW, item.isNew);
-		if (getID(item.getSenderKey(), item.getTime() + "", item.drop_payload) <= -1) {
+		if (getID(item.getSenderKey(),item.getReceiverKey(), item.getTime() + "", item.drop_payload) <= -1) {
 			long id = getWritableDatabase().insert(TABLE_MESSAGE_NAME, null, values);
 			if (id == -1) {
 				Log.e(TAG, "Failed put into db: " + item.toString());
@@ -109,11 +99,20 @@ public class ChatMessagesDataBase extends SQLiteOpenHelper {
 		}
 	}
 
-	private int getID(String sender, String timestamp, String payload) {
+
+	private int getID(String sender, String receiver,String timestamp, String payload) {
+		if (sender == null) {
+			Log.e(TAG, "sender can't be null");
+			return -1;
+		}
+		if (receiver == null) {
+			Log.e(TAG, "sender can't be null");
+			return -1;
+		}
 		Cursor c = getWritableDatabase().query(TABLE_MESSAGE_NAME,
 				new String[]{COL_MESSAGE_ID},
-				COL_MESSAGE_SENDER + "=? and " + COL_MESSAGE_TIMESTAMP + "=? and " + COL_MESSAGE_PAYLOAD + "=?",
-				new String[]{sender, timestamp, payload}, null, null, null, null);
+				COL_MESSAGE_SENDER + "=? and " +COL_MESSAGE_RECEIVER + "=? and "+ COL_MESSAGE_TIMESTAMP + "=? and " + COL_MESSAGE_PAYLOAD + "=?",
+				new String[]{sender,receiver, timestamp, payload}, null, null, null, null);
 		if (c.moveToFirst()) //if the row exist then return the id
 		{
 			int id = c.getInt(c.getColumnIndex(COL_MESSAGE_ID));
@@ -214,7 +213,7 @@ public class ChatMessagesDataBase extends SQLiteOpenHelper {
 
 		ContentValues cv = new ContentValues();
 		cv.put(COL_MESSAGE_ISNEW, 0);
-		return database.update(TABLE_MESSAGE_NAME, cv, COL_MESSAGE_SENDER + "='" + c.getEcPublicKey().getReadableKeyIdentifier().toString() + "'", null);
+		return database.update(TABLE_MESSAGE_NAME, cv, COL_MESSAGE_SENDER + "='" + c.getEcPublicKey().getReadableKeyIdentifier() + "'", null);
 	}
 
 	public long getLastRetrievedDropMessageTime() {
@@ -237,5 +236,10 @@ public class ChatMessagesDataBase extends SQLiteOpenHelper {
 		values.put(COL_LOAD_TIMESTAMP, time);
 
 		database.replace(TABLE_NAME_LOAD, null, values);
+	}
+
+	public String getDBName() {
+
+		return fullDBName;
 	}
 }

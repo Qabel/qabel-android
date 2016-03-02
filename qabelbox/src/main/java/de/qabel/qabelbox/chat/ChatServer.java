@@ -21,7 +21,7 @@ public class ChatServer {
 
 	private static final String TAG = "ChatServer";
 
-	private ChatMessagesDataBase dataBase;
+	private final ChatMessagesDataBase dataBase;
 	private final List<ChatServerCallback> callbacks = new ArrayList<>();
 
 	public ChatServer(Identity currentIdentity) {

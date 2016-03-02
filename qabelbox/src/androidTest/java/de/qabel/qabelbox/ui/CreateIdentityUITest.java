@@ -57,7 +57,7 @@ import static org.hamcrest.Matchers.is;
  */
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
-public class CreateIdentityTest {
+public class CreateIdentityUITest {
 
 	@Rule
 	public ActivityTestRule<CreateIdentityActivity> mActivityTestRule = new ActivityTestRule<>(CreateIdentityActivity.class, false, true);

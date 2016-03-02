@@ -20,6 +20,9 @@ import de.qabel.qabelbox.QabelBoxApplication;
 public class ChatServer {
 
 	private static final String TAG = "ChatServer";
+	public static final String TAG_MESSAGE = "msg";
+	public static final String TAG_URL = "url";
+	public static final String TAG_KEY = "key";
 
 	private final ChatMessagesDataBase dataBase;
 	private final List<ChatServerCallback> callbacks = new ArrayList<>();
@@ -95,7 +98,7 @@ public class ChatServer {
 		String payload_type = ChatMessageItem.BOX_MESSAGE;
 		JSONObject payloadJson = new JSONObject();
 		try {
-			payloadJson.put("msg", message);
+			payloadJson.put(TAG_MESSAGE, message);
 		} catch (JSONException e) {
 			Log.e(TAG, "error on create json", e);
 		}
@@ -108,9 +111,9 @@ public class ChatServer {
 		String payload_type = ChatMessageItem.SHARE_NOTIFICATION;
 		JSONObject payloadJson = new JSONObject();
 		try {
-			payloadJson.put("msg", message);
-			payloadJson.put("url", url);
-			payloadJson.put("key", key);
+			payloadJson.put(TAG_MESSAGE, message);
+			payloadJson.put(TAG_URL, url);
+			payloadJson.put(TAG_KEY, key);
 		} catch (JSONException e) {
 			Log.e(TAG, "error on create json", e);
 		}

@@ -203,4 +203,5 @@
         <item quantity="one">Uploading</item>
         <item quantity="other">Uploads remaining: %d</item>
     </plurals>
+    <string name="hockeyapp_feedback_response_button_text"> Send a message</string>
 </resources>

@@ -742,6 +742,7 @@ public class FilesFragment extends BaseFragment {
 					setIsLoading(false);
 					updateSubtitle();
 					filesAdapter.notifyDataSetChanged();
+					browseToTask=null;
 				}
 			};
 			browseToTask.executeOnExecutor(serialExecutor);
@@ -908,6 +909,7 @@ public class FilesFragment extends BaseFragment {
 		if (browseToTask != null) {
 			Log.d(TAG, "Found a running browseToTask");
 			browseToTask.cancel(true);
+			browseToTask=null;
 			Log.d(TAG, "Canceled browserToTask");
 		}
 	}

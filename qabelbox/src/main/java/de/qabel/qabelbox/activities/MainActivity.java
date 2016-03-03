@@ -52,7 +52,6 @@ import de.qabel.qabelbox.chat.ShareHelper;
 import de.qabel.qabelbox.communication.VolumeFileTransferHelper;
 import de.qabel.qabelbox.dialogs.SelectIdentityForUploadDialog;
 import de.qabel.qabelbox.exceptions.QblStorageException;
-import de.qabel.qabelbox.fragments.AboutLicencesFragment;
 import de.qabel.qabelbox.fragments.BaseFragment;
 import de.qabel.qabelbox.fragments.ContactFragment;
 import de.qabel.qabelbox.fragments.FilesFragment;
@@ -78,7 +77,13 @@ public class MainActivity extends CrashReportingActivity
 		FilesFragment.FilesListListener,
 		IdentitiesFragment.IdentityListListener {
 
+	public static final String TAG_FILES_FRAGMENT = "TAG_FILES_FRAGMENT";
+	private static final String TAG_CONTACT_LIST_FRAGMENT = "TAG_CONTACT_LIST_FRAGMENT";
+	private static final String TAG_MANAGE_IDENTITIES_FRAGMENT = "TAG_MANAGE_IDENTITIES_FRAGMENT";
+	private static final String TAG_FILES_SHARE_INTO_APP_FRAGMENT = "TAG_FILES_SHARE_INTO_APP_FRAGMENT";
+	private static final String TAG = "MainActivity";
 	public static final String TAG_CONTACT_CHAT_FRAGMENT = "TAG_CONTACT_CHAT_FRAGMENT";
+	private static final int REQUEST_CODE_UPLOAD_FILE = 12;
 
 	private static final int REQUEST_CODE_CHOOSE_EXPORT = 14;
 	private static final int REQUEST_CREATE_IDENTITY = 16;
@@ -86,14 +91,6 @@ public class MainActivity extends CrashReportingActivity
 	public static final int REQUEST_EXPORT_IDENTITY = 18;
 	public static final int REQUEST_EXTERN_VIEWER_APP = 19;
 	public static final int REQUEST_EXTERN_SHARE_APP = 20;
-    public static final String TAG_FILES_FRAGMENT = "TAG_FILES_FRAGMENT";
-    private static final String TAG_CONTACT_LIST_FRAGMENT = "TAG_CONTACT_LIST_FRAGMENT";
-    private static final String TAG_ABOUT_FRAGMENT = "TAG_ABOUT_FRAGMENT";
-
-    private static final String TAG_MANAGE_IDENTITIES_FRAGMENT = "TAG_MANAGE_IDENTITIES_FRAGMENT";
-    private static final String TAG_FILES_SHARE_INTO_APP_FRAGMENT = "TAG_FILES_SHARE_INTO_APP_FRAGMENT";
-    private static final String TAG = "BoxMainActivity";
-    private static final int REQUEST_CODE_UPLOAD_FILE = 12;
 
 	public static final int REQUEST_EXPORT_IDENTITY_AS_CONTACT = 19;
 
@@ -573,6 +570,7 @@ public class MainActivity extends CrashReportingActivity
 							UIHelper.showDialogMessage(self, R.string.dialog_headline_warning, R.string.share_in_app_go_back_without_upload, R.string.yes, R.string.no, new DialogInterface.OnClickListener() {
 								@Override
 								public void onClick(DialogInterface dialog, int which) {
+
 									getFragmentManager().popBackStack();
 									//finish();
 								}
@@ -580,6 +578,7 @@ public class MainActivity extends CrashReportingActivity
 						}
 						break;
 					case TAG_FILES_FRAGMENT:
+
 						toggle.setDrawerIndicatorEnabled(true);
 						if (!filesFragment.handleBackPressed() && !filesFragment.browseToParent()) {
 							finishAffinity();
@@ -589,11 +588,7 @@ public class MainActivity extends CrashReportingActivity
 						super.onBackPressed();
 						break;
 					default:
-						if (getFragmentManager().getBackStackEntryCount() > 0) {
-							getFragmentManager().popBackStack();
-						} else {
-							finishAffinity();
-						}
+						getFragmentManager().popBackStack();
 				}
 			}
 		}
@@ -634,8 +629,6 @@ public class MainActivity extends CrashReportingActivity
 		} else if (id == R.id.nav_settings) {
 			Intent intent = new Intent(this, SettingsActivity.class);
 			startActivityForResult(intent, REQUEST_SETTINGS);
-		} else if (id == R.id.nav_about) {
-			selectAboutFragment();
 		}
 
 		DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -1066,17 +1059,7 @@ public class MainActivity extends CrashReportingActivity
 				.commit();
 	}
 
-    private void selectAboutFragment() {
-
-        fab.show();
-        getFragmentManager().beginTransaction()
-                .replace(R.id.fragment_container,
-						AboutLicencesFragment.newInstance(),
-						TAG_ABOUT_FRAGMENT)
-				.commit();
-    }
-
-    private void selectFilesFragment() {
+	private void selectFilesFragment() {
 
 		fab.show();
 		filesFragment.setIsLoading(false);

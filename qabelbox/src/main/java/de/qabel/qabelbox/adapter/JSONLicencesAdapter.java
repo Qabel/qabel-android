@@ -5,6 +5,7 @@ import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.text.Html;
 import android.text.SpannableString;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,6 +25,8 @@ import de.qabel.qabelbox.views.ButtonFont;
  * Created by Jan D.S. Wischweh <mail@wischweh.de> on 01.03.16.
  */
 public class JSONLicencesAdapter extends RecyclerView.Adapter<JSONLicencesAdapter.LicenceViewHolder> {
+
+    public static String TAG="JSONLicencesAdapter";
 
     enum TYPE {
         Header,
@@ -116,7 +119,7 @@ public class JSONLicencesAdapter extends RecyclerView.Adapter<JSONLicencesAdapte
                 this.content.setText(formattedText, TextView.BufferType.SPANNABLE);
                 this.showLicenceBtn.setOnClickListener(this);
             } catch (JSONException e) {
-                e.printStackTrace();
+                Log.e(TAG, "Could not parse licences JSON: " + e)
             }
         }
 

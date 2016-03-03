@@ -404,6 +404,7 @@ public class FilesFragment extends BaseFragment {
 
 					setIsLoading(false);
 					super.onCancelled(storageSearch);
+					searchTask = null;
 				}
 
 				@Override
@@ -414,6 +415,7 @@ public class FilesFragment extends BaseFragment {
 					//check if files found
 					if (storageSearch == null || storageSearch.filterOnlyFiles().getResults().size() == 0) {
 						Toast.makeText(getActivity(), R.string.no_entrys_found, Toast.LENGTH_SHORT).show();
+						searchTask = null;
 						return;
 					}
 					if (!mActivity.isFinishing() && !searchTask.isCancelled()) {
@@ -428,6 +430,7 @@ public class FilesFragment extends BaseFragment {
 						mActivity.toggle.setDrawerIndicatorEnabled(false);
 						getFragmentManager().beginTransaction().replace(R.id.fragment_container, fragment, FilesSearchResultFragment.TAG).addToBackStack(null).commit();
 					}
+					searchTask = null;
 				}
 
 				@Override
@@ -454,6 +457,7 @@ public class FilesFragment extends BaseFragment {
 
 		if (searchTask != null) {
 			searchTask.cancel(true);
+			searchTask = null;
 		}
 	}
 
@@ -530,7 +534,7 @@ public class FilesFragment extends BaseFragment {
 			removeSearchInActionbar(actionBar);
 			return true;
 		}
-		if (searchTask != null && ((!searchTask.isCancelled() && searchTask.getStatus() != AsyncTask.Status.FINISHED))) {
+		if (searchTask != null) {
 			cancelSearchTask();
 			return true;
 		}

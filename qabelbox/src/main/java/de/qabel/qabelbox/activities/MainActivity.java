@@ -78,13 +78,7 @@ public class MainActivity extends CrashReportingActivity
 		FilesFragment.FilesListListener,
 		IdentitiesFragment.IdentityListListener {
 
-	public static final String TAG_FILES_FRAGMENT = "TAG_FILES_FRAGMENT";
-	private static final String TAG_CONTACT_LIST_FRAGMENT = "TAG_CONTACT_LIST_FRAGMENT";
-	private static final String TAG_MANAGE_IDENTITIES_FRAGMENT = "TAG_MANAGE_IDENTITIES_FRAGMENT";
-	private static final String TAG_FILES_SHARE_INTO_APP_FRAGMENT = "TAG_FILES_SHARE_INTO_APP_FRAGMENT";
-	private static final String TAG = "MainActivity";
 	public static final String TAG_CONTACT_CHAT_FRAGMENT = "TAG_CONTACT_CHAT_FRAGMENT";
-	private static final int REQUEST_CODE_UPLOAD_FILE = 12;
 
 	private static final int REQUEST_CODE_CHOOSE_EXPORT = 14;
 	private static final int REQUEST_CREATE_IDENTITY = 16;
@@ -587,7 +581,6 @@ public class MainActivity extends CrashReportingActivity
 						}
 						break;
 					case TAG_FILES_FRAGMENT:
-
 						toggle.setDrawerIndicatorEnabled(true);
 						if (!filesFragment.handleBackPressed() && !filesFragment.browseToParent()) {
 							finishAffinity();
@@ -597,7 +590,11 @@ public class MainActivity extends CrashReportingActivity
 						super.onBackPressed();
 						break;
 					default:
-						getFragmentManager().popBackStack();
+						if (getFragmentManager().getBackStackEntryCount() > 0) {
+							getFragmentManager().popBackStack();
+						} else {
+							finishAffinity();
+						}
 				}
 			}
 		}
@@ -638,6 +635,8 @@ public class MainActivity extends CrashReportingActivity
 		} else if (id == R.id.nav_settings) {
 			Intent intent = new Intent(this, SettingsActivity.class);
 			startActivityForResult(intent, REQUEST_SETTINGS);
+		} else if (id == R.id.nav_about) {
+			selectAboutFragment();
 		}
 
 		DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -652,20 +651,14 @@ public class MainActivity extends CrashReportingActivity
 			@Override
 			protected Void doInBackground(Void... params) {
 
-        if (id == R.id.nav_contacts) {
-            selectContactsFragment();
-        } else if (id == R.id.nav_browse) {
-            selectFilesFragment();
-        } else if (id == R.id.nav_help) {
-            UIHelper.showFunctionNotYetImplemented(this);
-        } else if (id == R.id.nav_inbox) {
-            UIHelper.showFunctionNotYetImplemented(this);
-        } else if (id == R.id.nav_settings) {
-            /*
-            Intent intent = new Intent(this, SettingsActivity.class);
-            startActivityForResult(intent, REQUEST_SETTINGS);*/
-            selectAboutFragment();
-        }
+				try {
+					boxNavigation.createFolder(name);
+					boxNavigation.commit();
+				} catch (QblStorageException e) {
+					Log.e(TAG, "Failed creating folder " + name, e);
+				}
+				return null;
+			}
 
 			@Override
 			protected void onCancelled() {
@@ -1079,9 +1072,9 @@ public class MainActivity extends CrashReportingActivity
         fab.show();
         getFragmentManager().beginTransaction()
                 .replace(R.id.fragment_container,
-                        AboutLicencesFragment.newInstance(),
-                        TAG_ABOUT_FRAGMENT)
-                .commit();
+						AboutLicencesFragment.newInstance(),
+						TAG_ABOUT_FRAGMENT)
+				.commit();
     }
 
     private void selectFilesFragment() {

@@ -119,7 +119,7 @@ public class JSONLicencesAdapter extends RecyclerView.Adapter<JSONLicencesAdapte
                 this.content.setText(formattedText, TextView.BufferType.SPANNABLE);
                 this.showLicenceBtn.setOnClickListener(this);
             } catch (JSONException e) {
-                Log.e(TAG, "Could not parse licences JSON: " + e)
+                Log.e(TAG, "Could not parse licences JSON: " + e);
             }
         }
 

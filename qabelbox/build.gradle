@@ -14,7 +14,7 @@ spoon {
     instrumentationArgs = ["package=de.qabel.qabelbox.ui"]
     // To run a single method in TestCase
     //methodName = 'search3CacheTest'
-    adbTimeout = 60
+    adbTimeout = 90
 }
 
 

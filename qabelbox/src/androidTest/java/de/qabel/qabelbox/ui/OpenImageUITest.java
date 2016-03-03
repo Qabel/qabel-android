@@ -57,7 +57,7 @@ import static org.hamcrest.core.AllOf.allOf;
  */
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
-public class OpenImageTest {
+public class OpenImageUITest {
 
     @Rule
     public ActivityTestRule<MainActivity> mActivityTestRule = new ActivityTestRule<>(MainActivity.class, false, true);
@@ -69,7 +69,7 @@ public class OpenImageTest {
     private final PicassoIdlingResource mPicassoIdlingResource = new PicassoIdlingResource();
     private SystemAnimations mSystemAnimations;
 
-    public OpenImageTest() throws IOException {
+    public OpenImageUITest() throws IOException {
         //setup data before MainActivity launched. This avoid the call to create identity
         if (mFillAccount) {
             setupData();

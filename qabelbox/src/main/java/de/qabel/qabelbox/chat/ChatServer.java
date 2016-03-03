@@ -129,7 +129,7 @@ public class ChatServer {
 	}
 
 	public int setAllMessagesReaded(Contact c) {
-		return dataBase.setAllMessagesReaded(c);
+		return dataBase.setAllMessagesRead(c);
 	}
 
 	public ChatMessageItem[] getAllMessages(Contact c) {

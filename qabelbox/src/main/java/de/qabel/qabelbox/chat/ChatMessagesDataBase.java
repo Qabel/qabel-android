@@ -208,7 +208,7 @@ public class ChatMessagesDataBase extends SQLiteOpenHelper {
 
 	}
 
-	public int setAllMessagesReaded(Contact c) {
+	public int setAllMessagesRead(Contact c) {
 		SQLiteDatabase database = getReadableDatabase();
 
 		ContentValues cv = new ContentValues();

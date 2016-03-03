@@ -573,7 +573,6 @@ public class MainActivity extends CrashReportingActivity
 							UIHelper.showDialogMessage(self, R.string.dialog_headline_warning, R.string.share_in_app_go_back_without_upload, R.string.yes, R.string.no, new DialogInterface.OnClickListener() {
 								@Override
 								public void onClick(DialogInterface dialog, int which) {
-
 									getFragmentManager().popBackStack();
 									//finish();
 								}

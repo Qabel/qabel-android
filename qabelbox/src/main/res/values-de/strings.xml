@@ -2,5 +2,8 @@
 <resources>
     <string name="app_name">Qabel Box</string>
     <string name="splash_footer_text">Bitte vertrauen Sie uns nicht.\nEs ist nicht nötig.</string>
+    <string name="btn_welcome_back">Zurück</string>
+    <string name="btn_welcome_skip">Überspringen</string>
+    <string name="btn_welcome_accept">Akzeptieren</string>
 
 </resources>

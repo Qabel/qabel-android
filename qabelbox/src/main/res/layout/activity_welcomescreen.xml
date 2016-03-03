@@ -1,34 +1,71 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:background="@color/bg_welcome_semitransparent"
-    android:layout_height="match_parent"
-    android:orientation="vertical">
+                xmlns:tools="http://schemas.android.com/tools"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@color/bg_welcome_semitransparent"
+                android:orientation="vertical"
+                tools:context=".activities.WelcomeScreenActivity">
+
+    <LinearLayout
+        android:id="@+id/bottomActionBar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:layout_alignParentBottom="true"
+        android:background="?attr/colorPrimary"
+        android:orientation="horizontal"
+        android:paddingBottom="0dp"
+        android:paddingLeft="5dp"
+        android:paddingRight="5dp"
+        android:paddingTop="0dp"
+        android:weightSum="2">
+
+        <de.qabel.qabelbox.views.TextViewFont
+            android:id="@+id/ab_left"
+            style="@style/ActionBarBottomItem"
+            android:drawableLeft="@drawable/ic_icon_arrow_left"
+            android:layout_gravity="left|center_vertical"
+            android:gravity="left|center_vertical"
+            android:text="@string/btn_welcome_back"/>
+
+        <de.qabel.qabelbox.views.TextViewFont
+            android:id="@+id/ab_right"
+            style="@style/ActionBarBottomItem"
+
+            android:layout_gravity="right|center_vertical"
+            android:drawableRight="@drawable/ic_icon_arrow_right"
+            android:gravity="right|center_vertical"
+            android:text="@string/btn_welcome_skip"
+            />
+    </LinearLayout>
 
     <FrameLayout
         android:id="@+id/footer"
+
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true">
+        android:layout_height="match_parent"
+        android:layout_above="@id/bottomActionBar">
 
 
         <de.qabel.qabelbox.views.ViewPagerParallax
-            xmlns:android="http://schemas.android.com/apk/res/android"
             android:id="@+id/pager"
+            xmlns:android="http://schemas.android.com/apk/res/android"
 
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="match_parent"/>
 
         <de.qabel.qabelbox.views.IconPageIndicator
             android:id="@+id/titles"
             android:layout_width="fill_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|center_horizontal"
+            android:paddingBottom="@dimen/activity_vertical_margin"/>
 
         <ImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="right|top"
-            android:src="@drawable/welcome_github" />
+            android:src="@drawable/welcome_github"/>
     </FrameLayout>
 
 

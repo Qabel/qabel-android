@@ -11,4 +11,6 @@
     <color name="button_semi_transparent">#09000000</color>
     <color name="bg_welcome_semitransparent">#6b3ca0b3</color>
     <color name="welcome_shadow">#cc000000</color>
+    <color name="welcome_button_deactivated">#99ffffff</color>
+    <color name="welcome_button_activated">@color/white</color>
 </resources>

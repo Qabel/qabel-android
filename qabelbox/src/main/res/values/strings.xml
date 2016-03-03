@@ -253,4 +253,6 @@
     <string name="headline_welcome_screen2">\u0020Specs\n</string>
     <string name="headline_welcome_screen3">\u0020Identities\n</string>
     <string name="headline_welcome_screen4">\u0020Box Account\n</string>
+    <string name="github_url">https://github.com/Qabel</string>
+
 </resources>

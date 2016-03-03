@@ -25,13 +25,14 @@
             style="@style/ActionBarBottomItem"
             android:drawableLeft="@drawable/ic_icon_arrow_left"
             android:layout_gravity="left|center_vertical"
+            android:clickable="true"
             android:gravity="left|center_vertical"
             android:text="@string/btn_welcome_back"/>
 
         <de.qabel.qabelbox.views.TextViewFont
             android:id="@+id/ab_right"
             style="@style/ActionBarBottomItem"
-
+            android:clickable="true"
             android:layout_gravity="right|center_vertical"
             android:drawableRight="@drawable/ic_icon_arrow_right"
             android:gravity="right|center_vertical"

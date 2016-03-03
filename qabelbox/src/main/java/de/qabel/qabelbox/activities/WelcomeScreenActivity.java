@@ -1,5 +1,6 @@
 package de.qabel.qabelbox.activities;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
@@ -43,11 +44,14 @@ public class WelcomeScreenActivity extends FragmentActivity implements ViewPager
 	private String TAG = this.getClass().getSimpleName();
 	private TextView leftButton;
 	private TextView rightButton;
+	private int mCurrentPage = 0;
+	private WelcomeScreenActivity self;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 
 		super.onCreate(savedInstanceState);
+		self = this;
 		setContentView(R.layout.activity_welcomescreen);
 		setupAppPreferences();
 		createTextElements();
@@ -62,10 +66,35 @@ public class WelcomeScreenActivity extends FragmentActivity implements ViewPager
 		mPagerAdapter = new ScreenSlidePagerAdapter(getSupportFragmentManager());
 		mPager.setAdapter(mPagerAdapter);
 		mPager.addOnPageChangeListener(this);
-
+		setClickListeners();
 		IconPageIndicator titleIndicator = (IconPageIndicator) findViewById(R.id.titles);
 		titleIndicator.setViewPager(mPager);
 		onPageSelected(0);
+	}
+
+	private void setClickListeners() {
+		leftButton.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				if (mCurrentPage > 0) {
+					mPager.setCurrentItem(mCurrentPage - 1);
+				}
+			}
+		});
+		rightButton.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				if (mCurrentPage < NUM_PAGES - 1) {
+					mPager.setCurrentItem(NUM_PAGES - 1);
+				} else {
+					if (((WelcomeDisclaimerFragment) fragments[mCurrentPage]).getCheckedState()) {
+						finish();
+						Intent intent = new Intent(self, CreateAccountActivity.class);
+						startActivity(intent);
+					}
+				}
+			}
+		});
 	}
 
 	public void setRightButtonColor(int color) {
@@ -105,6 +134,7 @@ public class WelcomeScreenActivity extends FragmentActivity implements ViewPager
 		leftButton.setVisibility(state.leftTextVisibility);
 		rightButton.setVisibility(state.rightTextVisibility);
 		//last fragment contain dynamic style
+		mCurrentPage = position;
 		if (position < NUM_PAGES - 1) {
 			setRightButtonColor(getResources().getColor(R.color.welcome_button_activated));
 		} else {
@@ -118,13 +148,8 @@ public class WelcomeScreenActivity extends FragmentActivity implements ViewPager
 
 	@Override
 	public void onPageScrollStateChanged(int state) {
-
 	}
 
-	/**
-	 * A simple pager adapter that represents 5 ScreenSlidePageFragment objects, in
-	 * sequence.
-	 */
 	private class ScreenSlidePagerAdapter extends FragmentStatePagerAdapter implements IconPagerAdapter {
 
 		public ScreenSlidePagerAdapter(FragmentManager fm) {
@@ -161,6 +186,15 @@ public class WelcomeScreenActivity extends FragmentActivity implements ViewPager
 		public int getCount() {
 
 			return NUM_PAGES;
+		}
+	}
+
+	@Override
+	public void onBackPressed() {
+		if (mCurrentPage > 0) {
+			mPager.setCurrentItem(mCurrentPage - 1);
+		} else {
+			super.onBackPressed();
 		}
 	}
 

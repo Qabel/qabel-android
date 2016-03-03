@@ -8,10 +8,11 @@
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingTop="@dimen/padding_welcome_text_top">
+        >
 
         <LinearLayout
             android:layout_width="match_parent"
+            android:layout_marginTop="@dimen/padding_welcome_text_top"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:orientation="vertical">
@@ -64,6 +65,7 @@
                 android:orientation="vertical">
 
                 <de.qabel.qabelbox.views.ButtonFont
+                    android:id="@+id/btn_show_legal"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/btn_welcome_disclaimer_show_legal_notes"/>
@@ -97,6 +99,7 @@
                 android:orientation="vertical">
 
                 <de.qabel.qabelbox.views.ButtonFont
+                    android:id="@+id/btn_show_privacy"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/btn_welcome_disclaimer_show_privacy_notes"/>
@@ -147,12 +150,14 @@
                 android:orientation="vertical">
 
                 <de.qabel.qabelbox.views.ButtonFont
+                    android:id="@+id/btn_show_sources"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_horizontal"
                     android:text="@string/btn_welcome_disclaimer_show_sources_on_github"/>
 
                 <de.qabel.qabelbox.views.ButtonFont
+                    android:id="@+id/btn_show_qapl"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_horizontal"

@@ -45,7 +45,6 @@ public class WelcomeTextFragment extends Fragment {
 		setShader(before);
 		setShader(qabel);
 		setShader(after);
-
 		return view;
 	}
 

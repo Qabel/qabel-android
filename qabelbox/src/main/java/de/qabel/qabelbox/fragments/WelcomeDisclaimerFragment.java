@@ -1,18 +1,23 @@
 package de.qabel.qabelbox.fragments;
 
 import android.app.Activity;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.WebView;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.TextView;
 
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.activities.WelcomeScreenActivity;
+import de.qabel.qabelbox.helper.FileHelper;
+import de.qabel.qabelbox.helper.UIHelper;
 
 /**
  * Created by danny on 23.02.16.
@@ -21,6 +26,10 @@ public class WelcomeDisclaimerFragment extends Fragment {
 	private WelcomeScreenActivity mActivity;
 	private CheckBox cbLegal;
 	private CheckBox cbPrivacy;
+
+	enum Type {QAPL, PRIVACY, LEGAL}
+
+	;
 
 	@Override
 	public void onAttach(Activity activity) {
@@ -51,11 +60,11 @@ public class WelcomeDisclaimerFragment extends Fragment {
 		setSmallShader(cbLegal);
 		setSmallShader(cbPrivacy);
 
-		setClickListeners();
+		setClickListeners(view);
 		return view;
 	}
 
-	private void setClickListeners() {
+	private void setClickListeners(View view) {
 		cbPrivacy.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
 			@Override
 			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -66,6 +75,49 @@ public class WelcomeDisclaimerFragment extends Fragment {
 			@Override
 			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
 				updateRightButtonTextColor(isChecked && cbPrivacy.isChecked());
+			}
+		});
+		setClickListener(view, R.id.btn_show_qapl, Type.QAPL);
+		setClickListener(view, R.id.btn_show_privacy, Type.PRIVACY);
+		setClickListener(view, R.id.btn_show_legal, Type.LEGAL);
+
+
+		view.findViewById(R.id.btn_show_sources).setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				String url = getResources().getString(R.string.github_url);
+				Intent i = new Intent(Intent.ACTION_VIEW);
+				i.setData(Uri.parse(url));
+				startActivity(i);
+			}
+		});
+	}
+
+	private void setClickListener(View fragmentView, int view, final Type mode) {
+
+		fragmentView.findViewById(view).setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+
+				WebView webView = new WebView(getActivity());
+				String file="";
+				if(mode==Type.QAPL)
+				{
+					file = getResources().getString(R.string.FILE_QAPL_LICENSE);
+				}
+				if(mode==Type.PRIVACY)
+				{
+					file = getResources().getString(R.string.FILE_PRIVACY);
+				}
+				if(mode==Type.LEGAL)
+				{
+					file = getResources().getString(R.string.FILE_LEGAL);
+				}
+
+				webView.loadDataWithBaseURL("file:///android_asset/", FileHelper.loadFileFromAssets(getActivity(), "html/help/" + file),
+						"text/html", "utf-8", null);
+
+				UIHelper.showCustomeDialog(getActivity(), webView, R.string.ok, null);
 			}
 		});
 	}

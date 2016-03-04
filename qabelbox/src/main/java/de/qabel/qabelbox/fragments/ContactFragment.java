@@ -69,7 +69,7 @@ public class ContactFragment extends BaseFragment {
 	private BaseFragment self;
 	private TextView contactCount;
 	private View emptyView;
-	ChatServer chatServer;
+	private ChatServer chatServer;
 
 	public static ContactFragment newInstance(Contacts contacts, Identity identity) {
 
@@ -367,7 +367,7 @@ public class ContactFragment extends BaseFragment {
 		super.onStop();
 	}
 
-	private ChatServer.ChatServerCallback chatServerCallback = new ChatServer.ChatServerCallback() {
+	private final ChatServer.ChatServerCallback chatServerCallback = new ChatServer.ChatServerCallback() {
 
 		@Override
 		public void onRefreshed() {

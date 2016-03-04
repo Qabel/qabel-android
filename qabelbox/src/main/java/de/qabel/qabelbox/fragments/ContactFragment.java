@@ -48,252 +48,252 @@ import de.qabel.qabelbox.services.LocalQabelService;
  */
 public class ContactFragment extends BaseFragment {
 
-    private static final String ARG_CONTACTS = "ARG_CONTACTS";
-    private static final String ARG_IDENTITY = "ARG_IDENTITY";
-    private static final int REQUEST_IMPORT_CONTACT = 1000;
-    private static final String TAG = "ContactFragment";
+	private static final String ARG_CONTACTS = "ARG_CONTACTS";
+	private static final String ARG_IDENTITY = "ARG_IDENTITY";
+	private static final int REQUEST_IMPORT_CONTACT = 1000;
+	private static final String TAG = "ContactFragment";
 
-    private RecyclerView contactListRecyclerView;
-    private ContactsAdapter contactListAdapter;
-    private RecyclerView.LayoutManager recyclerViewLayoutManager;
+	private RecyclerView contactListRecyclerView;
+	private ContactsAdapter contactListAdapter;
+	private RecyclerView.LayoutManager recyclerViewLayoutManager;
 
-    private Contacts contacts;
-    private Identity identity;
-    private BaseFragment self;
-    private TextView contactCount;
-    private View emptyView;
+	private Contacts contacts;
+	private Identity identity;
+	private BaseFragment self;
+	private TextView contactCount;
+	private View emptyView;
 
-    public static ContactFragment newInstance(Contacts contacts, Identity identity) {
+	public static ContactFragment newInstance(Contacts contacts, Identity identity) {
 
-        ContactFragment fragment = new ContactFragment();
-        Bundle args = new Bundle();
-        args.putSerializable(ARG_CONTACTS, contacts);
-        args.putSerializable(ARG_IDENTITY, identity);
-        fragment.setArguments(args);
+		ContactFragment fragment = new ContactFragment();
+		Bundle args = new Bundle();
+		args.putSerializable(ARG_CONTACTS, contacts);
+		args.putSerializable(ARG_IDENTITY, identity);
+		fragment.setArguments(args);
 
-        return fragment;
-    }
+		return fragment;
+	}
 
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
 
-        super.onCreate(savedInstanceState);
-        self = this;
-        setHasOptionsMenu(true);
-        mActivity.registerReceiver(refreshContactListReceiver, new IntentFilter(Helper.INTENT_REFRESH_CONTACTLIST));
-        Bundle arguments = getArguments();
-        if (arguments != null) {
-            contacts = (Contacts) arguments.getSerializable(ARG_CONTACTS);
-            identity = (Identity) arguments.getSerializable(ARG_IDENTITY);
-        }
-    }
+		super.onCreate(savedInstanceState);
+		self = this;
+		setHasOptionsMenu(true);
+		mActivity.registerReceiver(refreshContactListReceiver, new IntentFilter(Helper.INTENT_REFRESH_CONTACTLIST));
+		Bundle arguments = getArguments();
+		if (arguments != null) {
+			contacts = (Contacts) arguments.getSerializable(ARG_CONTACTS);
+			identity = (Identity) arguments.getSerializable(ARG_IDENTITY);
+		}
+	}
 
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+	@Override
+	public View onCreateView(LayoutInflater inflater, ViewGroup container,
+							 Bundle savedInstanceState) {
 
-        View view = inflater.inflate(R.layout.fragment_contacts, container, false);
-        contactCount = (TextView) view.findViewById(R.id.contactCount);
-        contactListRecyclerView = (RecyclerView) view.findViewById(R.id.contact_list);
-        contactListRecyclerView.setHasFixedSize(true);
-        emptyView = view.findViewById(R.id.empty_view);
-        recyclerViewLayoutManager = new LinearLayoutManager(view.getContext());
-        contactListRecyclerView.setLayoutManager(recyclerViewLayoutManager);
-        refreshContactList(contacts);
+		View view = inflater.inflate(R.layout.fragment_contacts, container, false);
+		contactCount = (TextView) view.findViewById(R.id.contactCount);
+		contactListRecyclerView = (RecyclerView) view.findViewById(R.id.contact_list);
+		contactListRecyclerView.setHasFixedSize(true);
+		emptyView = view.findViewById(R.id.empty_view);
+		recyclerViewLayoutManager = new LinearLayoutManager(view.getContext());
+		contactListRecyclerView.setLayoutManager(recyclerViewLayoutManager);
+		refreshContactList(contacts);
 
-        return view;
-    }
+		return view;
+	}
 
-    private void setClickListener() {
+	private void setClickListener() {
 
-        contactListAdapter.setOnItemClickListener(new ContactsAdapter.OnItemClickListener() {
-            @Override
-            public void onItemClick(View view, final int position) {
+		contactListAdapter.setOnItemClickListener(new ContactsAdapter.OnItemClickListener() {
+			@Override
+			public void onItemClick(View view, final int position) {
 
-                final Contact contact = contactListAdapter.getContact(position);
-                UIHelper.showDialogMessage(getActivity(), getString(R.string.dialog_headline_warning),
-                        getString(R.string.dialog_message_delete_contact_question).replace("%1", contact.getAlias()),
-                        R.string.yes, R.string.no, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
+				final Contact contact = contactListAdapter.getContact(position);
+				UIHelper.showDialogMessage(getActivity(), getString(R.string.dialog_headline_warning),
+						getString(R.string.dialog_message_delete_contact_question).replace("%1", contact.getAlias()),
+						R.string.yes, R.string.no, new DialogInterface.OnClickListener() {
+							@Override
+							public void onClick(DialogInterface dialog, int which) {
 
-                                LocalQabelService service = QabelBoxApplication.getInstance().getService();
-                                service.deleteContact(contact);
-                                refreshContactList(service.getContacts(service.getActiveIdentity()));
-                                UIHelper.showDialogMessage(mActivity, R.string.dialog_headline_info, getString(R.string.contact_deleted).replace("%1", contact.getAlias()));
-                            }
-                        }, null);
-            }
-        });
-    }
+								LocalQabelService service = QabelBoxApplication.getInstance().getService();
+								service.deleteContact(contact);
+								refreshContactList(service.getContacts(service.getActiveIdentity()));
+								UIHelper.showDialogMessage(mActivity, R.string.dialog_headline_info, getString(R.string.contact_deleted).replace("%1", contact.getAlias()));
+							}
+						}, null);
+			}
+		});
+	}
 
-    /**
-     * add contact and show messages
-     *
-     * @param activity
-     * @param contact
-     */
-    public static void addContact(MainActivity activity, Contact contact) {
+	/**
+	 * add contact and show messages
+	 *
+	 * @param activity
+	 * @param contact
+	 */
+	public static void addContact(MainActivity activity, Contact contact) {
 
-        LocalQabelService service = QabelBoxApplication.getInstance().getService();
-        Iterator<Contact> iterator = service.getContacts(QabelBoxApplication.getInstance().getService().getActiveIdentity()).getContacts().iterator();
-        boolean exits = false;
-        while (iterator.hasNext()) {
-            Contact con = iterator.next();
-            if (con.getEcPublicKey().equals(contact.getEcPublicKey())) {
-                exits = true;
-                break;
-            }
-        }
-        if (exits) {
-            UIHelper.showDialogMessage(activity, R.string.dialog_headline_info, R.string.cant_import_contact_already_exisits);
-        } else {
-            service.addContact(
-                    contact);
+		LocalQabelService service = QabelBoxApplication.getInstance().getService();
+		Iterator<Contact> iterator = service.getContacts(QabelBoxApplication.getInstance().getService().getActiveIdentity()).getContacts().iterator();
+		boolean exits = false;
+		while (iterator.hasNext()) {
+			Contact con = iterator.next();
+			if (con.getEcPublicKey().equals(contact.getEcPublicKey())) {
+				exits = true;
+				break;
+			}
+		}
+		if (exits) {
+			UIHelper.showDialogMessage(activity, R.string.dialog_headline_info, R.string.cant_import_contact_already_exisits);
+		} else {
+			service.addContact(
+					contact);
 
-            sendRefreshContactList(activity);
-            UIHelper.showDialogMessage(activity, R.string.dialog_headline_info, R.string.contact_import_successfull);
-        }
-    }
+			sendRefreshContactList(activity);
+			UIHelper.showDialogMessage(activity, R.string.dialog_headline_info, R.string.contact_import_successfull);
+		}
+	}
 
-    private static void sendRefreshContactList(MainActivity activity) {
+	private static void sendRefreshContactList(MainActivity activity) {
 
-        Log.d(TAG, "send refresh intent");
-        Intent intent = new Intent(Helper.INTENT_REFRESH_CONTACTLIST);
-        activity.sendBroadcast(intent);
-    }
+		Log.d(TAG, "send refresh intent");
+		Intent intent = new Intent(Helper.INTENT_REFRESH_CONTACTLIST);
+		activity.sendBroadcast(intent);
+	}
 
-    @Override
-    public void onDestroy() {
+	@Override
+	public void onDestroy() {
 
-        Log.v(TAG, "unregisterReceiver");
-        mActivity.unregisterReceiver(refreshContactListReceiver);
-        super.onDestroy();
-    }
+		Log.v(TAG, "unregisterReceiver");
+		mActivity.unregisterReceiver(refreshContactListReceiver);
+		super.onDestroy();
+	}
 
-    private void refreshContactList(Contacts contacts) {
+	private void refreshContactList(Contacts contacts) {
 
-        if (contactListRecyclerView != null) {
-            int count = contacts.getContacts().size();
-            if (count == 0) {
-                contactCount.setVisibility(View.INVISIBLE);
-            } else {
-                contactCount.setText(getString(R.string.contact_count).replace("%1", "" + count));
-                contactCount.setVisibility(View.VISIBLE);
-            }
-            contactListAdapter = new ContactsAdapter(contacts);
-            contactListAdapter.setEmptyView(emptyView);
-            contactListRecyclerView.setAdapter(contactListAdapter);
-            setClickListener();
-            contactListAdapter.notifyDataSetChanged();
-        }
-    }
+		if (contactListRecyclerView != null) {
+			int count = contacts.getContacts().size();
+			if (count == 0) {
+				contactCount.setVisibility(View.INVISIBLE);
+			} else {
+				contactCount.setText(getString(R.string.contact_count).replace("%1", "" + count));
+				contactCount.setVisibility(View.VISIBLE);
+			}
+			contactListAdapter = new ContactsAdapter(contacts);
+			contactListAdapter.setEmptyView(emptyView);
+			contactListRecyclerView.setAdapter(contactListAdapter);
+			setClickListener();
+			contactListAdapter.notifyDataSetChanged();
+		}
+	}
 
-    @Override
-    public String getTitle() {
+	@Override
+	public String getTitle() {
 
-        return getString(R.string.headline_contacts);
-    }
+		return getString(R.string.headline_contacts);
+	}
 
-    @Override
-    public boolean isFabNeeded() {
+	@Override
+	public boolean isFabNeeded() {
 
-        return true;
-    }
+		return true;
+	}
 
-    @Override
-    public boolean handleFABAction() {
+	@Override
+	public boolean handleFABAction() {
 
-        new BottomSheet.Builder(mActivity).title(R.string.add_new_contact).sheet(R.menu.bottom_sheet_add_contact)
-                .listener(new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
+		new BottomSheet.Builder(mActivity).title(R.string.add_new_contact).sheet(R.menu.bottom_sheet_add_contact)
+				.listener(new DialogInterface.OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
 
-                        switch (which) {
-                            case R.id.add_contact_from_file:
-                                addContactByFile();
-                                break;
-                            case R.id.add_contact_via_qr:
-                                IntentIntegrator integrator = new IntentIntegrator(self);
-                                integrator.initiateScan();
-                                break;
-                            case R.id.add_contact_direct_input:
-                                selectAddContactFragment(QabelBoxApplication.getInstance().getService().getActiveIdentity());
-                                break;
-                        }
-                    }
-                }).show();
+						switch (which) {
+							case R.id.add_contact_from_file:
+								addContactByFile();
+								break;
+							case R.id.add_contact_via_qr:
+								IntentIntegrator integrator = new IntentIntegrator(self);
+								integrator.initiateScan();
+								break;
+							case R.id.add_contact_direct_input:
+								selectAddContactFragment(QabelBoxApplication.getInstance().getService().getActiveIdentity());
+								break;
+						}
+					}
+				}).show();
 
-        return true;
-    }
+		return true;
+	}
 
-    private void addContactByFile() {
+	private void addContactByFile() {
 
-        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
-        intent.addCategory(Intent.CATEGORY_OPENABLE);
-        intent.setType("*/*");
-        startActivityForResult(intent, REQUEST_IMPORT_CONTACT);
-    }
+		Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+		intent.addCategory(Intent.CATEGORY_OPENABLE);
+		intent.setType("*/*");
+		startActivityForResult(intent, REQUEST_IMPORT_CONTACT);
+	}
 
-    @Override
-    public void onActivityResult(int requestCode, int resultCode,
-                                 Intent resultData) {
+	@Override
+	public void onActivityResult(int requestCode, int resultCode,
+								 Intent resultData) {
 
-        if (resultCode == Activity.RESULT_OK) {
-            if (requestCode == REQUEST_IMPORT_CONTACT) {
-                if (resultData != null) {
-                    Uri uri = resultData.getData();
-                    try {
-                        ParcelFileDescriptor pfd = mActivity.getContentResolver().openFileDescriptor(uri, "r");
-                        FileInputStream fis = new FileInputStream(pfd.getFileDescriptor());
-                        String json = FileHelper.readFileAsText(fis);
-                        fis.close();
-                        Contact contact = ContactExportImport.parseContactForIdentity(QabelBoxApplication.getInstance().getService().getActiveIdentity(), json);
-                        addContact(mActivity, contact);
-                    } catch (Exception e) {
-                        Log.w(TAG, "add contact failed", e);
-                        UIHelper.showDialogMessage(mActivity, R.string.dialog_headline_warning, R.string.contact_import_failed, e);
-                    }
-                }
-            }
+		if (resultCode == Activity.RESULT_OK) {
+			if (requestCode == REQUEST_IMPORT_CONTACT) {
+				if (resultData != null) {
+					Uri uri = resultData.getData();
+					try {
+						ParcelFileDescriptor pfd = mActivity.getContentResolver().openFileDescriptor(uri, "r");
+						FileInputStream fis = new FileInputStream(pfd.getFileDescriptor());
+						String json = FileHelper.readFileAsText(fis);
+						fis.close();
+						Contact contact = ContactExportImport.parseContactForIdentity(QabelBoxApplication.getInstance().getService().getActiveIdentity(), json);
+						addContact(mActivity, contact);
+					} catch (Exception e) {
+						Log.w(TAG, "add contact failed", e);
+						UIHelper.showDialogMessage(mActivity, R.string.dialog_headline_warning, R.string.contact_import_failed, e);
+					}
+				}
+			}
 
-            IntentResult scanResult = IntentIntegrator.parseActivityResult(requestCode, resultCode, resultData);
-            if (scanResult != null && scanResult.getContents() != null) {
-                String[] result = scanResult.getContents().split("\\r?\\n");
-                if (result.length == 4 && result[0].equals("QABELCONTACT")) {
-                    try {
-                        DropURL dropURL = new DropURL(result[2]);
-                        Collection<DropURL> dropURLs = new ArrayList<>();
-                        dropURLs.add(dropURL);
+			IntentResult scanResult = IntentIntegrator.parseActivityResult(requestCode, resultCode, resultData);
+			if (scanResult != null && scanResult.getContents() != null) {
+				String[] result = scanResult.getContents().split("\\r?\\n");
+				if (result.length == 4 && result[0].equals("QABELCONTACT")) {
+					try {
+						DropURL dropURL = new DropURL(result[2]);
+						Collection<DropURL> dropURLs = new ArrayList<>();
+						dropURLs.add(dropURL);
 
-                        QblECPublicKey publicKey = new QblECPublicKey(Hex.decode(result[3]));
-                        Contact contact = new Contact(result[1], dropURLs, publicKey);
-                        ContactFragment.addContact(mActivity, contact);
-                    } catch (Exception e) {
-                        Log.w(TAG, "add contact failed", e);
-                        UIHelper.showDialogMessage(mActivity, R.string.dialog_headline_warning, R.string.contact_import_failed, e);
-                    }
-                }
-            }
-        }
-    }
+						QblECPublicKey publicKey = new QblECPublicKey(Hex.decode(result[3]));
+						Contact contact = new Contact(result[1], dropURLs, publicKey);
+						ContactFragment.addContact(mActivity, contact);
+					} catch (Exception e) {
+						Log.w(TAG, "add contact failed", e);
+						UIHelper.showDialogMessage(mActivity, R.string.dialog_headline_warning, R.string.contact_import_failed, e);
+					}
+				}
+			}
+		}
+	}
 
-    private void selectAddContactFragment(Identity identity) {
+	private void selectAddContactFragment(Identity identity) {
 
-        getFragmentManager().beginTransaction()
-                .replace(R.id.fragment_container, AddContactFragment.newInstance(identity), null)
-                .addToBackStack(null)
-                .commit();
-    }
+		getFragmentManager().beginTransaction()
+				.replace(R.id.fragment_container, AddContactFragment.newInstance(identity), null)
+				.addToBackStack(null)
+				.commit();
+	}
 
-    private final BroadcastReceiver refreshContactListReceiver = new BroadcastReceiver() {
+	private final BroadcastReceiver refreshContactListReceiver = new BroadcastReceiver() {
 
-        @Override
-        public void onReceive(Context context, Intent intent) {
+		@Override
+		public void onReceive(Context context, Intent intent) {
 
-            Log.v(TAG, "receive refresh contactlist event");
-            LocalQabelService service = QabelBoxApplication.getInstance().getService();
-            refreshContactList(service.getContacts(service.getActiveIdentity()));
-        }
-    };
+			Log.v(TAG, "receive refresh contactlist event");
+			LocalQabelService service = QabelBoxApplication.getInstance().getService();
+			refreshContactList(service.getContacts(service.getActiveIdentity()));
+		}
+	};
 }

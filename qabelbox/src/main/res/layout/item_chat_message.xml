@@ -18,6 +18,7 @@
         android:layout_gravity="center_vertical"
         android:orientation="vertical"
         android:paddingLeft="20dp"
+        android:paddingBottom="10dp"
         android:paddingRight="20dp">
 
         <de.qabel.qabelbox.views.TextViewFont
@@ -34,7 +35,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:ellipsize="end"
-            android:lines="1"
             android:textColor="@color/white"
             />
 
@@ -44,7 +44,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:ellipsize="end"
-            android:lines="1"
             android:textColor="@color/white"
             />
     </LinearLayout>

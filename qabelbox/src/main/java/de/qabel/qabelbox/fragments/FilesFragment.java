@@ -374,79 +374,88 @@ public class FilesFragment extends BaseFragment {
         super.onPause();
     }
 
-    /**
-     * start search
-     *
-     * @param searchText
-     */
-    private void startSearch(final String searchText) {
+	/**
+	 * start search
+	 *
+	 * @param searchText
+	 */
+	private void startSearch(final String searchText) {
+		if (browseToTask != null) {
+			Log.d(TAG, "BrowseTask is running. Will cancel it and start searching instead");
+			cancelBrowseToTask();
+			browseToTask = null;
+		}
+		if (!areTasksPending()) {
+			searchTask = new AsyncTask<String, Void, StorageSearch>() {
 
-        cancelSearchTask();
-        searchTask = new AsyncTask<String, Void, StorageSearch>() {
+				@Override
+				protected void onPreExecute() {
 
-            @Override
-            protected void onPreExecute() {
+					super.onPreExecute();
+					setIsLoading(true);
+				}
 
-                super.onPreExecute();
-                setIsLoading(true);
-            }
+				@Override
+				protected void onCancelled(StorageSearch storageSearch) {
 
-            @Override
-            protected void onCancelled(StorageSearch storageSearch) {
+					setIsLoading(false);
+					super.onCancelled(storageSearch);
+					searchTask = null;
+				}
 
-                setIsLoading(false);
-                super.onCancelled(storageSearch);
-            }
+				@Override
+				protected void onPostExecute(StorageSearch storageSearch) {
 
-            @Override
-            protected void onPostExecute(StorageSearch storageSearch) {
+					setIsLoading(false);
 
-                setIsLoading(false);
+					//check if files found
+					if (storageSearch == null || storageSearch.filterOnlyFiles().getResults().size() == 0) {
+						Toast.makeText(getActivity(), R.string.no_entrys_found, Toast.LENGTH_SHORT).show();
+						searchTask = null;
+						return;
+					}
+					if (!mActivity.isFinishing() && !searchTask.isCancelled()) {
+						boolean needRefresh = mCachedStorageSearch != null;
+						try {
+							mCachedStorageSearch = storageSearch.clone();
+						} catch (CloneNotSupportedException e) {
+							e.printStackTrace();
+						}
 
-                //check if files found
-                if (storageSearch == null || storageSearch.filterOnlyFiles().getResults().size() == 0) {
-                    Toast.makeText(getActivity(), R.string.no_entrys_found, Toast.LENGTH_SHORT).show();
-                    return;
-                }
-                if (!mActivity.isFinishing() && !searchTask.isCancelled()) {
-                    boolean needRefresh = mCachedStorageSearch != null;
-                    try {
-                        mCachedStorageSearch = storageSearch.clone();
-                    } catch (CloneNotSupportedException e) {
-                        e.printStackTrace();
-                    }
+						FilesSearchResultFragment fragment = FilesSearchResultFragment.newInstance(mCachedStorageSearch, searchText, needRefresh);
+						mActivity.toggle.setDrawerIndicatorEnabled(false);
+						getFragmentManager().beginTransaction().replace(R.id.fragment_container, fragment, FilesSearchResultFragment.TAG).addToBackStack(null).commit();
+					}
+					searchTask = null;
+				}
 
-                    FilesSearchResultFragment fragment = FilesSearchResultFragment.newInstance(mCachedStorageSearch, searchText, needRefresh);
-                    mActivity.toggle.setDrawerIndicatorEnabled(false);
-                    getFragmentManager().beginTransaction().replace(R.id.fragment_container, fragment, FilesSearchResultFragment.TAG).addToBackStack(null).commit();
-                }
-            }
+				@Override
+				protected StorageSearch doInBackground(String... params) {
 
-            @Override
-            protected StorageSearch doInBackground(String... params) {
+					try {
+						if (mCachedStorageSearch != null && mCachedStorageSearch.getResults().size() > 0) {
+							return mCachedStorageSearch;
+						}
 
-                try {
-                    if (mCachedStorageSearch != null && mCachedStorageSearch.getResults().size() > 0) {
-                        return mCachedStorageSearch;
-                    }
+						return new StorageSearch(mBoxVolume.navigate());
+					} catch (QblStorageException e) {
+						e.printStackTrace();
+					}
 
-                    return new StorageSearch(mBoxVolume.navigate());
-                } catch (QblStorageException e) {
-                    e.printStackTrace();
-                }
-
-                return null;
-            }
-        };
-        searchTask.executeOnExecutor(serialExecutor);
-    }
+					return null;
+				}
+			};
+			searchTask.executeOnExecutor(serialExecutor);
+		}
+	}
 
     private void cancelSearchTask() {
 
-        if (searchTask != null) {
-            searchTask.cancel(true);
-        }
-    }
+		if (searchTask != null) {
+			searchTask.cancel(true);
+			searchTask = null;
+		}
+	}
 
     /**
      * Sets visibility of loading spinner. Visibility is stored if method is invoked
@@ -517,14 +526,14 @@ public class FilesFragment extends BaseFragment {
      */
     public boolean handleBackPressed() {
 
-        if (isSearchOpened) {
-            removeSearchInActionbar(actionBar);
-            return true;
-        }
-        if (searchTask != null && ((!searchTask.isCancelled() && searchTask.getStatus() != AsyncTask.Status.FINISHED))) {
-            cancelSearchTask();
-            return true;
-        }
+		if (isSearchOpened) {
+			removeSearchInActionbar(actionBar);
+			return true;
+		}
+		if (searchTask != null) {
+			cancelSearchTask();
+			return true;
+		}
 
         return false;
     }
@@ -602,45 +611,50 @@ public class FilesFragment extends BaseFragment {
 
     public boolean browseToParent() {
 
-        cancelBrowseToTask();
+		if (!areTasksPending()) {
 
-        if (boxNavigation == null || !boxNavigation.hasParent()) {
-            return false;
-        }
+			if (boxNavigation == null || !boxNavigation.hasParent()) {
+				return false;
+			}
 
-        browseToTask = new AsyncTask<Void, Void, Void>() {
-            @Override
-            protected void onPreExecute() {
+			browseToTask = new AsyncTask<Void, Void, Void>() {
+				@Override
+				protected void onPreExecute() {
 
-                super.onPreExecute();
-                preBrowseTo();
-            }
+					super.onPreExecute();
+					preBrowseTo();
+				}
 
-            @Override
-            protected Void doInBackground(Void... voids) {
+				@Override
+				protected Void doInBackground(Void... voids) {
 
-                waitForBoxNavigation();
-                try {
-                    boxNavigation.navigateToParent();
-                    fillAdapter(filesAdapter);
-                } catch (QblStorageException e) {
-                    Log.d(TAG, "browseTo failed", e);
-                }
-                return null;
-            }
+					waitForBoxNavigation();
+					try {
+						boxNavigation.navigateToParent();
+						fillAdapter(filesAdapter);
+					} catch (QblStorageException e) {
+						Log.d(TAG, "browseTo failed", e);
+					}
+					return null;
+				}
 
-            @Override
-            protected void onPostExecute(Void aVoid) {
+				@Override
+				protected void onPostExecute(Void aVoid) {
 
-                super.onPostExecute(aVoid);
-                setIsLoading(false);
-                updateSubtitle();
-                filesAdapter.notifyDataSetChanged();
-            }
-        };
-        browseToTask.executeOnExecutor(serialExecutor);
-        return true;
-    }
+					super.onPostExecute(aVoid);
+					setIsLoading(false);
+					updateSubtitle();
+					filesAdapter.notifyDataSetChanged();
+					browseToTask=null;
+				}
+			};
+			browseToTask.executeOnExecutor(serialExecutor);
+			return true;
+		} else {
+			Log.w(TAG, "Other tasks are still pending. Will ignore this one");
+			return false;
+		}
+	}
 
     @Override
     public void updateSubtitle() {
@@ -730,60 +744,68 @@ public class FilesFragment extends BaseFragment {
         return true;
     }
 
-    public void browseTo(final BoxFolder navigateTo) {
+	public boolean areTasksPending() {
+		return browseToTask != null || searchTask != null;
+	}
 
-        Log.d(TAG, "Browsing to " + navigateTo.name);
-        cancelBrowseToTask();
-        browseToTask = new AsyncTask<Void, Void, Void>() {
-            @Override
-            protected void onPreExecute() {
+	public void browseTo(final BoxFolder navigateTo) {
 
-                super.onPreExecute();
-                preBrowseTo();
-            }
+		Log.d(TAG, "Browsing to " + navigateTo.name);
+		if (!areTasksPending()) {
+			browseToTask = new AsyncTask<Void, Void, Void>() {
+				@Override
+				protected void onPreExecute() {
 
-            @Override
-            protected Void doInBackground(Void... voids) {
+					super.onPreExecute();
+					preBrowseTo();
+				}
 
-                waitForBoxNavigation();
-                try {
-                    boxNavigation.navigate(navigateTo);
-                    fillAdapter(filesAdapter);
-                } catch (QblStorageException e) {
-                    Log.e(TAG, "browseTo failed", e);
-                }
-                return null;
-            }
+				@Override
+				protected Void doInBackground(Void... voids) {
 
-            @Override
-            protected void onPostExecute(Void aVoid) {
+					waitForBoxNavigation();
+					try {
+						boxNavigation.navigate(navigateTo);
+						fillAdapter(filesAdapter);
+					} catch (QblStorageException e) {
+						Log.e(TAG, "browseTo failed", e);
+					}
+					return null;
+				}
 
-                super.onPostExecute(aVoid);
-                setIsLoading(false);
-                updateSubtitle();
-                filesAdapter.notifyDataSetChanged();
-                browseToTask = null;
-            }
+				@Override
+				protected void onPostExecute(Void aVoid) {
 
-            @Override
-            protected void onCancelled() {
+					super.onPostExecute(aVoid);
+					setIsLoading(false);
+					updateSubtitle();
+					filesAdapter.notifyDataSetChanged();
+					browseToTask = null;
+				}
 
-                super.onCancelled();
-                setIsLoading(false);
-                browseToTask = null;
-                Toast.makeText(getActivity(), R.string.aborted,
-                        Toast.LENGTH_SHORT).show();
-            }
-        };
-        browseToTask.executeOnExecutor(serialExecutor);
-    }
+				@Override
+				protected void onCancelled() {
+
+					super.onCancelled();
+					setIsLoading(false);
+					browseToTask = null;
+					Toast.makeText(getActivity(), R.string.aborted,
+							Toast.LENGTH_SHORT).show();
+				}
+			};
+			browseToTask.executeOnExecutor(serialExecutor);
+		} else {
+			Log.w(TAG, "Other Task is still in progress. Will ignore this");
+		}
+	}
 
     private void cancelBrowseToTask() {
 
-        if (browseToTask != null) {
-            Log.d(TAG, "Found a running browseToTask");
-            browseToTask.cancel(true);
-            Log.d(TAG, "Canceled browserToTask");
-        }
-    }
+		if (browseToTask != null) {
+			Log.d(TAG, "Found a running browseToTask");
+			browseToTask.cancel(true);
+			browseToTask=null;
+			Log.d(TAG, "Canceled browserToTask");
+		}
+	}
 }

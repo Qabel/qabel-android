@@ -30,7 +30,6 @@ import org.spongycastle.util.encoders.Hex;
 import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
 
 import de.qabel.core.config.Contact;
 import de.qabel.core.config.Contacts;

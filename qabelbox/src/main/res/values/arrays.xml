@@ -6,10 +6,23 @@
         <item>fonts/Roboto-Italic.ttf</item>
         <item>fonts/Roboto-BoldItalic.ttf</item>
     </array>
-    <array name="fonts_with_qabel">
-        <item>fonts/Art Post.ttf</item>
-        <item>fonts/Art Post.ttf</item>
-        <item>fonts/Art Post.ttf</item>
-        <item>fonts/Art Post.ttf</item>
-    </array>
+
+    <!--please don't change the order or count, it is references from WebViewHelperFragment with int-->
+    <string-array name="help_headlines">
+        <item>Disclaimer</item>
+        <item>Data policy</item>
+        <item>Terms of use</item>
+        <item>Licenses</item>
+        <item>About us</item>
+    </string-array>
+
+    <!--please don't change the order or count, it is references from WebViewHelperFragment with int
+        It maps to localized files   -->
+    <string-array name="help_asset_filenames">
+        <item>disclaimer_en.html</item>
+        <item>datapolicy_en.html</item>
+        <item>tou_en.html</item>
+        <item>licenses_en.html</item>
+        <item>aboutus_en.html</item>
+    </string-array>
 </resources>

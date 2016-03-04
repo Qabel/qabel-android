@@ -26,8 +26,7 @@ public class BaseServer {
      * create new instance of http client and set timeouts
      */
     public BaseServer() {
-
-        urls = new URLs();
+        urls=new URLs();
         OkHttpClient.Builder builder = new OkHttpClient.Builder();
         builder.connectTimeout(15, TimeUnit.SECONDS); // connect timeout
         builder.readTimeout(15, TimeUnit.SECONDS);    // socket timeout

@@ -39,6 +39,7 @@ public class BoxAccountRegisterServer extends BaseServer {
                 .post(body);
         addHeader(token, builder);
         final Request request = builder.build();
+		Log.v(TAG,"request: "+request.toString()+" "+json.toString());
         client.newCall(request).enqueue(callback);
     }
 

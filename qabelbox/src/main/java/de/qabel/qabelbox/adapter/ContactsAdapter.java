@@ -1,6 +1,5 @@
 package de.qabel.qabelbox.adapter;
 
-import android.opengl.Visibility;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -13,7 +12,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Set;
 
 import de.qabel.core.config.Contact;
 import de.qabel.core.config.Contacts;
@@ -25,16 +23,17 @@ import de.qabel.qabelbox.R;
  */
 public class ContactsAdapter extends RecyclerView.Adapter<ContactsAdapter.ContactViewHolder> {
 
-    private final List<ContactAdapterItem> mContacts;
-    private OnItemClickListener onItemClickListener, onItemLongClickListener;
+    private final List<Contact> mContacts;
+    private OnItemClickListener onItemClickListener;
     private View emptyView;
 
-    public ContactsAdapter(ArrayList<ContactAdapterItem> contacts) {
+    public ContactsAdapter(Contacts contacts) {
 
-        mContacts = contacts;
+        mContacts = new ArrayList<>(contacts.getContacts());
         Collections.sort(mContacts, new Comparator<Contact>() {
             @Override
             public int compare(Contact lhs, Contact rhs) {
+
                 return lhs.getAlias().compareTo(rhs.getAlias());
             }
         });
@@ -47,21 +46,18 @@ public class ContactsAdapter extends RecyclerView.Adapter<ContactsAdapter.Contac
         return mContacts.get(position);
     }
 
-    class ContactViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener {
+    class ContactViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         public final TextView mTextViewContactName;
         public final TextView mTextViewContactDetails;
         public final ImageView mImageView;
-		private final View mNewMessageView;
 
-		public ContactViewHolder(View v) {
+        public ContactViewHolder(View v) {
 
             super(v);
             v.setOnClickListener(this);
-            v.setOnLongClickListener(this);
             mTextViewContactName = (TextView) v.findViewById(R.id.textViewItemName);
             mTextViewContactDetails = (TextView) v.findViewById(R.id.textViewItemDetail);
-			mNewMessageView=v.findViewById(R.id.newMessageIndicator);
             mImageView = (ImageView) v.findViewById(R.id.itemIcon);
         }
 
@@ -71,16 +67,6 @@ public class ContactsAdapter extends RecyclerView.Adapter<ContactsAdapter.Contac
             if (onItemClickListener != null) {
                 onItemClickListener.onItemClick(view, getAdapterPosition());
             }
-        }
-
-        @Override
-        public boolean onLongClick(View view) {
-
-            if (onItemLongClickListener != null) {
-                onItemLongClickListener.onItemClick(view, getAdapterPosition());
-                return true;
-            }
-            return false;
         }
     }
 
@@ -94,10 +80,9 @@ public class ContactsAdapter extends RecyclerView.Adapter<ContactsAdapter.Contac
      *
      * @param onItemClickListener
      */
-    public void setOnItemClickListener(OnItemClickListener onItemClickListener, OnItemClickListener onItemLongClickListener) {
+    public void setOnItemClickListener(OnItemClickListener onItemClickListener) {
 
         this.onItemClickListener = onItemClickListener;
-        this.onItemLongClickListener = onItemLongClickListener;
     }
 
     @Override
@@ -111,18 +96,8 @@ public class ContactsAdapter extends RecyclerView.Adapter<ContactsAdapter.Contac
     @Override
     public void onBindViewHolder(ContactViewHolder holder, int position) {
 
-		ContactAdapterItem item = mContacts.get(position);
-		holder.mTextViewContactName.setText(item.getAlias());
-        holder.mTextViewContactDetails.setText(item.getEcPublicKey().getReadableKeyIdentifier());
-		if(item.hasNewMessages)
-		{
-			holder.mNewMessageView.setVisibility(View.VISIBLE);
-		}
-		else
-		{
-			holder.mNewMessageView.setVisibility(View.INVISIBLE);
-		}
-
+        holder.mTextViewContactName.setText(mContacts.get(position).getAlias());
+        holder.mTextViewContactDetails.setText(mContacts.get(position).getEcPublicKey().getReadableKeyIdentifier());
     }
 
     @Override

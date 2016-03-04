@@ -130,7 +130,7 @@ public class CreateIdentityActivity extends BaseWizardActivity {
 
             private Identity createIdentity() {
 
-                URI uri = URI.create(getString(R.string.dropServer));
+                URI uri = URI.create(QabelBoxApplication.DEFAULT_DROP_SERVER);
                 DropServer dropServer = new DropServer(uri, "", true);
                 DropIdGenerator adjustableDropIdGenerator = new AdjustableDropIdGenerator((getIdentityDropBitsProgress() + 1) * 64);
                 DropURL dropURL = new DropURL(dropServer, adjustableDropIdGenerator);

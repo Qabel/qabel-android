@@ -23,7 +23,6 @@ public class ExternalApps {
 
         Intent shareIntent = new Intent(Intent.ACTION_SEND);
         shareIntent.setData(uri);
-        if(type!=null)
         shareIntent.setType(type);
         shareIntent.putExtra(Intent.EXTRA_SUBJECT, R.string.share_subject);
         shareIntent.putExtra(Intent.EXTRA_TITLE, R.string.share_subject);

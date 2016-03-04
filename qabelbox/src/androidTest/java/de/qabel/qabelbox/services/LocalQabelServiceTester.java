@@ -26,7 +26,7 @@ public class LocalQabelServiceTester extends LocalQabelService {
 	}
 
 	@Override
-	HTTPResult<Collection<byte[]>> getDropMessages(URI uri,long timestamp) {
+	HTTPResult<Collection<byte[]>> getDropMessages(URI uri) {
 		ArrayList<byte[]> mockDropMessages = new ArrayList<>();
 		HTTPResult<Collection<byte[]>> result = new HTTPResult<>();
 

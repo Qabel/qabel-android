@@ -22,7 +22,7 @@
             android:layout_width="96dp"
             android:layout_height="96dp"
             android:layout_marginTop="19dp"
-            android:src="@drawable/ic_qrcode_scan"/>
+            android:src="@drawable/qabel_logo"/>
 
         <LinearLayout
             android:layout_width="wrap_content"

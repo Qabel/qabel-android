@@ -10,7 +10,6 @@
     <dimen name="textsize_empty_view">@dimen/textsize_normal</dimen>
     <dimen name="textsize_identity_circle_initial">90sp</dimen>
     <dimen name="textsize_list_first_line">15sp</dimen>
-    <dimen name="textsize_list_first_line_half">7sp</dimen>
     <dimen name="textsize_list_second_line">14sp</dimen>
     <dimen name="textsize_normal">17sp</dimen>
     <dimen name="textsize_splash">20sp</dimen>
@@ -19,4 +18,13 @@
     <dimen name="border_small">4dp</dimen>
     <dimen name="border_middle">6dp</dimen>
     <dimen name="border_big">10dp</dimen>
+    <dimen name="textsize_welcome_screen">23sp</dimen>
+    <dimen name="textsize_welcome_checkbox">14sp</dimen>
+    <dimen name="welcome_shadow_dx">3dp</dimen>
+    <dimen name="welcome_shadow_dy">3dp</dimen>
+    <dimen name="welcome_text_padding_horizontal">20dp</dimen>
+    <dimen name="welcome_shadow_radius">5dp</dimen>
+    <dimen name="textsize_bottom_ab">18sp</dimen>
+    <dimen name="padding_welcome_text_top">30dp</dimen>
+    <dimen name="textsize_qabel_logo">25sp</dimen>
 </resources>

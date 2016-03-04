@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@color/bg_welcome_semitransparent"
+                android:orientation="vertical">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        >
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:orientation="vertical"
+            android:paddingTop="@dimen/padding_welcome_text_top">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:orientation="horizontal">
+
+                <de.qabel.qabelbox.views.TextViewQabelFont
+                    android:id="@+id/headline2"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal|bottom"
+                    android:gravity="center_horizontal"
+                    android:text="@string/message_welcome_qabel_big"
+                    android:textColor="@color/white"
+                    android:textSize="@dimen/textsize_qabel_logo"
+                    android:textStyle="normal"/>
+
+                <de.qabel.qabelbox.views.TextViewFont
+                    android:id="@+id/headline1"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal|bottom"
+                    android:gravity="center_horizontal"
+                    android:text="@string/message_welcome_disclaimer_headline"
+                    android:textColor="@color/white"
+                    android:textSize="@dimen/textsize_welcome_screen"
+                    android:textStyle="bold"/>
+            </LinearLayout>
+
+            <de.qabel.qabelbox.views.TextViewFont
+                android:id="@+id/welcome_text2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:text="@string/message_welcome_disclaimer_message_legal_note"
+                android:textColor="@color/white"
+                android:textSize="@dimen/textsize_welcome_screen"
+                android:textStyle="normal"/>
+            <!--legal notes-->
+
+
+            <de.qabel.qabelbox.views.ButtonFont
+                android:id="@+id/btn_show_legal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:text="@string/btn_welcome_disclaimer_show_legal_notes"/>
+
+            <de.qabel.qabelbox.views.CheckBoxFont
+                android:id="@+id/cb_welcome_legal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:text="@string/cb_welcome_disclaimer_legal_note_unchecked"
+                android:textColor="@color/white"/>
+
+
+            <!--legal notes-->
+            <de.qabel.qabelbox.views.TextViewFont
+                android:id="@+id/welcome_text3"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:text="@string/message_welcome_disclaimer_message_privacy_note"
+                android:textColor="@color/white"
+                android:textSize="@dimen/textsize_welcome_screen"
+                android:textStyle="normal"/>
+
+
+            <de.qabel.qabelbox.views.ButtonFont
+                android:id="@+id/btn_show_privacy"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:text="@string/btn_welcome_disclaimer_show_privacy_notes"/>
+
+            <de.qabel.qabelbox.views.CheckBoxFont
+                android:id="@+id/cb_welcome_privacy"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:text="@string/cb_welcome_disclaimer_privacy_note_unchecked"
+                android:textColor="@color/white"/>
+
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:orientation="horizontal">
+
+                <de.qabel.qabelbox.views.TextViewQabelFont
+                    android:id="@+id/welcome_text4"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal|bottom"
+                    android:gravity="center_horizontal"
+                    android:text="@string/message_welcome_qabel_big"
+                    android:textColor="@color/white"
+                    android:textSize="@dimen/textsize_qabel_logo"
+                    android:textStyle="normal"/>
+
+                <de.qabel.qabelbox.views.TextViewFont
+                    android:id="@+id/welcome_text5"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal|bottom"
+                    android:gravity="center_horizontal"
+
+                    android:text="@string/message_welcome_disclaimer_qabel_is_public_source"
+                    android:textColor="@color/white"
+                    android:textSize="@dimen/textsize_welcome_screen"
+                    android:textStyle="bold"/>
+            </LinearLayout>
+
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:orientation="vertical">
+
+                <de.qabel.qabelbox.views.ButtonFont
+                    android:id="@+id/btn_show_qapl"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:paddingTop="@dimen/activity_vertical_margin"
+                    android:text="@string/btn_welcome_disclaimer_show_qapl"/>
+            </LinearLayout>
+        </LinearLayout>
+    </ScrollView>
+</RelativeLayout>

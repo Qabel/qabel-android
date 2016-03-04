@@ -6,23 +6,20 @@ import android.os.AsyncTask;
 import android.util.Log;
 
 import java.io.File;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Created by danny on 15.02.2016.
  */
 public class CacheFileHelper {
 
-	private static AtomicBoolean isRunningTest;
-	private final String TAG = this.getClass().getSimpleName();
+    private final String TAG = this.getClass().getSimpleName();
 
     public void freeCacheAsynchron(Context context) {
 
 
         Log.d(TAG, "clear cache");
-		if(!isRunningTest()) {
-			clearCache(context);
-		}
+            clearCache(context);
+
     }
 
     void clearCache(final Context context) {
@@ -77,22 +74,5 @@ public class CacheFileHelper {
         }
         Log.d(TAG, "cache cleared before: " + fileSizes / 1024 + "kb, removed: " + deletedSize / 1024 + "kb");
     }
-
-	public static synchronized boolean isRunningTest () {
-		if (null == isRunningTest) {
-			boolean istest;
-
-			try {
-				Class.forName ("android.support.test.espresso.Espresso");
-				istest = true;
-			} catch (ClassNotFoundException e) {
-				istest = false;
-			}
-
-			isRunningTest = new AtomicBoolean(istest);
-		}
-
-		return isRunningTest.get();
-	}
 }
 

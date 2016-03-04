@@ -13,6 +13,7 @@ import de.qabel.core.drop.AdjustableDropIdGenerator;
 import de.qabel.core.drop.DropIdGenerator;
 import de.qabel.core.drop.DropURL;
 import de.qabel.qabelbox.QabelBoxApplication;
+import de.qabel.qabelbox.helper.PrefixGetter;
 
 /**
  * Created by danny on 02.03.16.
@@ -34,7 +35,7 @@ public class IdentityHelper {
 		Collection<DropURL> dropURLs = new ArrayList<>();
 		dropURLs.add(dropURL);
 		if (prefix == null) {
-			prefix = new de.qabel.qabelbox.ui.helper.PrefixGetter().getPrefix(context);
+			prefix = new PrefixGetter().getPrefix(context);
 		}
 		Identity identity = new Identity(identName,
 				dropURLs, new QblECKeyPair());

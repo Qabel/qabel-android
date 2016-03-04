@@ -71,6 +71,7 @@ public class BoxFile extends BoxObject implements Parcelable {
 	/**
 	 * Get if BoxFile is shared. Tests only if meta and metakey is not null, not if a share has been
 	 * successfully send to another user.
+	 *
 	 * @return True if BoxFile might be shared.
 	 */
 	public boolean isShared() {

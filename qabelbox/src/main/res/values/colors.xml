@@ -13,4 +13,5 @@
     <color name="welcome_shadow">#cc000000</color>
     <color name="welcome_button_deactivated">#99ffffff</color>
     <color name="welcome_button_activated">@color/white</color>
+    
 </resources>

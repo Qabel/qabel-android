@@ -25,7 +25,7 @@ import de.qabel.qabelbox.views.EditTextFont;
 public class UIHelper {
 
 	/**
-	 * show dialog with one button
+	 * show dialog with one buttonhelp
 	 */
 	public static void showDialogMessage(final Activity activity, final int headline, final int message, final int buttonOk, final int buttonCancel, final DialogInterface.OnClickListener buttonOkListener, final DialogInterface.OnClickListener buttonCancelListener) {
 
@@ -246,7 +246,7 @@ public class UIHelper {
 
 		final AlertDialog.Builder renameDialog = new AlertDialog.Builder(activity);
 
-	//	renameDialog.setTitle(title);
+		//	renameDialog.setTitle(title);
 
 
 		renameDialog.setView(layout);

@@ -54,7 +54,12 @@ public class UIBoxHelper {
 
 		mContext = activity;
 	}
+	public void unbindService(final QabelBoxApplication app) {
 
+		Intent serviceIntent = new Intent(app.getApplicationContext(), LocalQabelService.class);
+		finished = false;
+		app.stopService(serviceIntent);
+	}
 	public void bindService(final QabelBoxApplication app) {
 
 		Intent serviceIntent = new Intent(app.getApplicationContext(), LocalQabelService.class);
@@ -66,9 +71,7 @@ public class UIBoxHelper {
 			public void onServiceConnected(ComponentName name, IBinder service) {
 
 				Log.d(TAG, "LocalQabelService connected");
-
 				provider = app.getProvider();
-
 				Log.i(TAG, "Provider: " + provider);
 				LocalQabelService.LocalBinder binder = (LocalQabelService.LocalBinder) service;
 				mService = binder.getService();
@@ -131,7 +134,7 @@ public class UIBoxHelper {
 		DropURL dropURL = new DropURL(dropServer, adjustableDropIdGenerator);
 		Collection<DropURL> dropURLs = new ArrayList<>();
 		dropURLs.add(dropURL);
-		String prefix=new PrefixGetter().getPrefix(mContext);
+		String prefix=new de.qabel.qabelbox.ui.helper.PrefixGetter().getPrefix(mContext);
 		Identity identity = new Identity(identName,
 				dropURLs, new QblECKeyPair());
 		identity.getPrefixes().add(prefix);
@@ -255,5 +258,9 @@ public class UIBoxHelper {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+
+	public LocalQabelService getService() {
+		return mService;
 	}
 }

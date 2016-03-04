@@ -38,7 +38,7 @@
         android:layout_marginLeft="5dp"
         android:layout_toRightOf="@+id/fileFolderContainer"/>
 
-    <LinearLayout
+    <RelativeLayout
         style="@style/ListSecondTextLine"
         xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
@@ -52,27 +52,32 @@
 
         <de.qabel.qabelbox.views.TextViewFont
             android:id="@+id/textViewFolderDetailLeft"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             style="@style/ListSecondTextLine"
+            android:layout_alignParentLeft="true"
             android:layout_height="wrap_content"
-            android:layout_weight="2"
+
           />
 
-        <de.qabel.qabelbox.views.TextViewFont
-            android:id="@+id/textViewFolderDetailMiddle"
-            android:layout_width="0dp"
-            style="@style/ListSecondTextLine"
-            android:layout_height="wrap_content"
-            android:layout_weight="2"
-            />
+
 
         <de.qabel.qabelbox.views.TextViewFont
             android:id="@+id/textViewFolderDetailRight"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
+
             android:gravity="right"
+            android:layout_alignParentRight="true"
             android:textAlignment="gravity"
             style="@style/ListSecondTextLine"/>
-    </LinearLayout>
+        <de.qabel.qabelbox.views.TextViewFont
+            android:id="@+id/textViewFolderDetailMiddle"
+            android:layout_width="match_parent"
+            android:layout_below="@id/textViewFolderDetailLeft"
+            android:layout_alignParentLeft="true"
+            style="@style/ListSecondTextLine"
+            android:layout_height="wrap_content"
+
+            />
+    </RelativeLayout>
 </RelativeLayout>

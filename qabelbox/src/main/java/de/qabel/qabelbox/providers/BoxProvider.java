@@ -20,7 +20,6 @@ import android.provider.DocumentsContract.Root;
 import android.provider.DocumentsProvider;
 import android.provider.MediaStore.Video.Media;
 import android.support.annotation.NonNull;
-import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.NotificationCompat;
 import android.util.Log;
 
@@ -58,9 +57,11 @@ import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.exceptions.QblStorageNotFound;
 import de.qabel.qabelbox.services.LocalBroadcastConstants;
 import de.qabel.qabelbox.services.LocalQabelService;
+import de.qabel.qabelbox.storage.BoxExternalFile;
 import de.qabel.qabelbox.storage.BoxFile;
 import de.qabel.qabelbox.storage.BoxFolder;
 import de.qabel.qabelbox.storage.BoxNavigation;
+import de.qabel.qabelbox.storage.BoxObject;
 import de.qabel.qabelbox.storage.BoxUploadingFile;
 import de.qabel.qabelbox.storage.BoxVolume;
 import de.qabel.qabelbox.storage.TransferManager;
@@ -304,6 +305,11 @@ public class BoxProvider extends DocumentsProvider {
                 return;
             }
         }
+        BoxObject external = navigation.getExternal(basename);
+        if (external != null) {
+            insertFile(cursor, documentId, external);
+            return;
+        }
         throw new QblStorageNotFound("File not found");
     }
 
@@ -421,17 +427,23 @@ public class BoxProvider extends DocumentsProvider {
         for (BoxFile file : navigation.listFiles()) {
             insertFile(cursor, parentDocumentId + file.name, file);
         }
+        for (BoxObject file : navigation.listExternalNames()) {
+            insertFile(cursor, parentDocumentId + file.name, file);
+        }
     }
 
-    private void insertFile(MatrixCursor cursor, String documentId, BoxFile file) {
+    private void insertFile(MatrixCursor cursor, String documentId, BoxObject file) {
 
         final MatrixCursor.RowBuilder row = cursor.newRow();
+        String mimeType = URLConnection.guessContentTypeFromName(file.name);
+        if (mimeType == null) {
+            mimeType = "application/octet-stream";
+        }
         row.add(Document.COLUMN_DOCUMENT_ID, documentId);
         row.add(Document.COLUMN_DISPLAY_NAME, file.name);
         row.add(Document.COLUMN_SUMMARY, null);
         row.add(Document.COLUMN_FLAGS, Document.FLAG_SUPPORTS_WRITE);
-        row.add(Document.COLUMN_MIME_TYPE,
-                URLConnection.guessContentTypeFromName(file.name));
+        row.add(Document.COLUMN_MIME_TYPE, mimeType);
         row.add(Media.DATA, documentId);
     }
 
@@ -476,7 +488,7 @@ public class BoxProvider extends DocumentsProvider {
         final boolean isRead = (mode.indexOf('r') != -1);
 
         if (isWrite) {
-			final BoxUploadingFile boxUploadingFile = mService.addPendingUpload(documentId, null);
+            final BoxUploadingFile boxUploadingFile = mService.addPendingUpload(documentId, null);
             // Attach a close listener if the document is opened in write mode.
             try {
                 Handler handler = new Handler(getContext().getMainLooper());
@@ -500,7 +512,8 @@ public class BoxProvider extends DocumentsProvider {
                         new AsyncTask<Void, Void, String>() {
                             @Override
                             protected String doInBackground(Void... params) {
-								uploadFile(documentId, tmp, mService.getUploadTransferListener(boxUploadingFile));
+
+                                uploadFile(documentId, tmp, mService.getUploadTransferListener(boxUploadingFile));
                                 return documentId;
                             }
                         }.execute();
@@ -530,17 +543,17 @@ public class BoxProvider extends DocumentsProvider {
             Log.i(TAG, "Starting uploadAndDeleteLocalfile");
             BoxFile boxFile = navigation.upload(basename, new FileInputStream(tmp), boxTransferListener);
             navigation.commit();
-			Bundle extras = new Bundle();
-			extras.putParcelable(LocalBroadcastConstants.EXTRA_FILE, boxFile);
-			mService.removePendingUpload(documentId, LocalBroadcastConstants.UPLOAD_STATUS_FINISHED, extras);
+            Bundle extras = new Bundle();
+            extras.putParcelable(LocalBroadcastConstants.EXTRA_FILE, boxFile);
+            mService.removePendingUpload(documentId, LocalBroadcastConstants.UPLOAD_STATUS_FINISHED, extras);
         } catch (FileNotFoundException | QblStorageException e1) {
             Log.e(TAG, "Upload failed", e1);
-			try {
-				mService.removePendingUpload(documentId, LocalBroadcastConstants.UPLOAD_STATUS_FAILED, null);
-			} catch (FileNotFoundException e) {
-				//Should not be possible
-				Log.e(TAG, "Removing failed upload failed", e);
-			}
+            try {
+                mService.removePendingUpload(documentId, LocalBroadcastConstants.UPLOAD_STATUS_FAILED, null);
+            } catch (FileNotFoundException e) {
+                //Should not be possible
+                Log.e(TAG, "Removing failed upload failed", e);
+            }
         }
     }
 
@@ -634,11 +647,20 @@ public class BoxProvider extends DocumentsProvider {
             throws QblStorageException, FileNotFoundException {
 
         for (BoxFile file : navigation.listFiles()) {
+            Log.d(TAG, "find file: " + file.name);
             if (file.name.equals(basename)) {
                 return file;
             }
         }
-        throw new FileNotFoundException();
+        for (BoxObject file : navigation.listExternals()) {
+            Log.d(TAG, "find file: " + file.name);
+            if (file instanceof BoxExternalFile) {
+                if (file.name.equals(basename)) {
+                    return (BoxExternalFile)file;
+                }
+            }
+        }
+        throw new FileNotFoundException("can't find file in BoxNavigation: " + basename);
     }
 
     @Override

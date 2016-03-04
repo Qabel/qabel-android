@@ -1,7 +1,9 @@
 package de.qabel.qabelbox.adapter;
 
+import android.content.Context;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,8 +20,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import de.qabel.core.config.Contact;
+import de.qabel.core.config.Identity;
+import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.helper.BoxObjectComparators;
+import de.qabel.qabelbox.services.LocalQabelService;
 import de.qabel.qabelbox.storage.BoxExternalFile;
 import de.qabel.qabelbox.storage.BoxFile;
 import de.qabel.qabelbox.storage.BoxFolder;
@@ -29,19 +35,26 @@ import de.qabel.qabelbox.storage.BoxUploadingFile;
 public class FilesAdapter extends RecyclerView.Adapter<FilesAdapter.FilesViewHolder> {
 
     private final List<BoxObject> boxObjects;
-	private final Map<String, BoxObject> boxObjectsByName;
+    private final Map<String, BoxObject> boxObjectsByName;
+    private final Identity currentIdentity;
+    private final Context context;
+    private final LocalQabelService mService;
     private OnItemClickListener onItemClickListener;
-    private DateFormat dateFormat = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT);
-    View emptyView, loadingView;
+    private final DateFormat dateFormat = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT);
+    private View emptyView;
+    private View loadingView;
 
     public FilesAdapter(List<BoxObject> BoxObject) {
 
         boxObjects = BoxObject;
-		boxObjectsByName = new HashMap<>();
-		for (BoxObject boxObject : boxObjects) {
-			boxObjectsByName.put(boxObject.name, boxObject);
-		}
-		registerAdapterDataObserver(observer);
+        boxObjectsByName = new HashMap<>();
+        for (BoxObject boxObject : boxObjects) {
+            boxObjectsByName.put(boxObject.name, boxObject);
+        }
+        registerAdapterDataObserver(observer);
+        currentIdentity = QabelBoxApplication.getInstance().getService().getActiveIdentity();
+        context = QabelBoxApplication.getInstance().getApplicationContext();
+        mService = QabelBoxApplication.getInstance().getService();
     }
 
     class FilesViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener {
@@ -51,7 +64,7 @@ public class FilesAdapter extends RecyclerView.Adapter<FilesAdapter.FilesViewHol
         public final TextView mTextViewFolderDetailsMiddle;
         public final TextView mTextViewFolderDetailsRight;
         public final ImageView mImageView;
-		public final ProgressBar mProgressBar;
+        public final ProgressBar mProgressBar;
 
         public FilesViewHolder(View v) {
 
@@ -63,7 +76,7 @@ public class FilesAdapter extends RecyclerView.Adapter<FilesAdapter.FilesViewHol
             mTextViewFolderDetailsMiddle = (TextView) v.findViewById(R.id.textViewFolderDetailMiddle);
             mTextViewFolderDetailsRight = (TextView) v.findViewById(R.id.textViewFolderDetailRight);
             mImageView = (ImageView) v.findViewById(R.id.fileFolderIcon);
-			mProgressBar = (ProgressBar) v.findViewById(R.id.fileFolderProgress);
+            mProgressBar = (ProgressBar) v.findViewById(R.id.fileFolderProgress);
         }
 
         @Override
@@ -110,6 +123,7 @@ public class FilesAdapter extends RecyclerView.Adapter<FilesAdapter.FilesViewHol
 
         BoxObject boxObject = boxObjects.get(position);
         holder.mTextViewFolderName.setText(boxObject.name);
+        holder.mTextViewFolderDetailsRight.setVisibility(View.VISIBLE);
 //        if (boxObject.getShareCount() > 0) {
 //            holder.mTextViewFolderDetailsLeft.setText(context.getResources().getQuantityString(
 //                    R.plurals.sharedWith, boxObject.getShareCount(), boxObject.getShareCount()));
@@ -119,27 +133,56 @@ public class FilesAdapter extends RecyclerView.Adapter<FilesAdapter.FilesViewHol
             // Always set all ViewHolder fields, otherwise recycled views contain wrong data
             holder.mTextViewFolderDetailsLeft.setText("");
             holder.mTextViewFolderDetailsRight.setText("");
-			holder.mProgressBar.setVisibility(View.INVISIBLE);
+            holder.mTextViewFolderDetailsMiddle.setVisibility(View.GONE);
+
+            holder.mProgressBar.setVisibility(View.INVISIBLE);
         } else if (boxObject instanceof BoxExternalFile) {
             BoxExternalFile boxExternal = (BoxExternalFile) boxObject;
             holder.mImageView.setImageResource(R.drawable.ic_insert_drive_file_black);
-            // TODO: Only show a part of the key identifier until owner name is implemented
-            holder.mTextViewFolderDetailsLeft.setText("Owner: " + boxExternal.owner.getReadableKeyIdentifier().substring(0, 6));
-            holder.mTextViewFolderDetailsRight.setText("");
-			holder.mProgressBar.setVisibility(View.INVISIBLE);
-		} else if (boxObject instanceof BoxFile) {
+            if (boxExternal.getOwner().equals(currentIdentity.getEcPublicKey())) {
+                holder.mTextViewFolderDetailsLeft.setText(R.string.filebrowser_file_is_shared_to_other);
+            } else {
+                String owner = getOwner(boxExternal);
+                holder.mTextViewFolderDetailsLeft.setText(context.getString(R.string.filebrowser_file_is_shared_from).replace("%1", owner));
+            }
+            holder.mTextViewFolderDetailsRight.setVisibility(View.GONE);
+            holder.mTextViewFolderDetailsMiddle.setVisibility(View.VISIBLE);
+            holder.mProgressBar.setVisibility(View.INVISIBLE);
+        } else if (boxObject instanceof BoxFile) {
             BoxFile boxFile = (BoxFile) boxObject;
             holder.mTextViewFolderDetailsLeft.setText(formatModificationTime(boxFile));
             holder.mTextViewFolderDetailsRight.setText(FileUtils.byteCountToDisplaySize(boxFile.size));
+            if (boxFile.isShared()) {
+                holder.mTextViewFolderDetailsMiddle.setText(R.string.filebrowser_file_is_shared_to_other);
+                holder.mTextViewFolderDetailsMiddle.setVisibility(View.VISIBLE);
+            } else {
+                holder.mTextViewFolderDetailsMiddle.setVisibility(View.GONE);
+            }
             holder.mImageView.setImageResource(R.drawable.ic_insert_drive_file_black);
-			holder.mProgressBar.setVisibility(View.INVISIBLE);
-		} else if (boxObject instanceof BoxUploadingFile) {
-			holder.mTextViewFolderDetailsLeft.setText(R.string.uploading);
-			holder.mTextViewFolderDetailsRight.setText("");
-			holder.mImageView.setImageResource(R.drawable.ic_cloud_upload_black_24dp);
-			holder.mProgressBar.setVisibility(View.VISIBLE);
-		}
+            holder.mProgressBar.setVisibility(View.INVISIBLE);
+        } else if (boxObject instanceof BoxUploadingFile) {
+            holder.mTextViewFolderDetailsLeft.setText(R.string.uploading);
+            holder.mTextViewFolderDetailsRight.setText("");
+            holder.mTextViewFolderDetailsMiddle.setText("");
+            holder.mImageView.setImageResource(R.drawable.ic_cloud_upload_black_24dp);
+
+            holder.mProgressBar.setVisibility(View.VISIBLE);
+        }
         holder.mImageView.setAlpha(0.8f);
+    }
+
+    /**
+     * return file owner name or key if not in contact list
+     *
+     * @param boxExternal
+     * @return
+     */
+    private String getOwner(BoxExternalFile boxExternal) {
+
+        Contact contact = mService.getContacts().getByKeyIdentifier(boxExternal.getOwner().getReadableKeyIdentifier());
+        if (contact != null)
+            return contact.getAlias();
+        return boxExternal.owner.getReadableKeyIdentifier().substring(0, 6);
     }
 
     private String formatModificationTime(BoxFile boxFile) {
@@ -154,19 +197,22 @@ public class FilesAdapter extends RecyclerView.Adapter<FilesAdapter.FilesViewHol
     }
 
     public boolean add(BoxObject boxObject) {
-		boxObjectsByName.put(boxObject.name, boxObject);
+
+        boxObjectsByName.put(boxObject.name, boxObject);
         return boxObjects.add(boxObject);
     }
 
-	public boolean remove(BoxObject boxObject) {
-		boxObjectsByName.remove(boxObject.name);
-		return boxObjects.remove(boxObject);
-	}
+    public boolean remove(BoxObject boxObject) {
 
-	public boolean remove(String name) {
-		BoxObject toRemove = boxObjectsByName.remove(name);
-		return boxObjects.remove(toRemove);
-	}
+        boxObjectsByName.remove(boxObject.name);
+        return boxObjects.remove(boxObject);
+    }
+
+    public boolean remove(String name) {
+
+        BoxObject toRemove = boxObjectsByName.remove(name);
+        return boxObjects.remove(toRemove);
+    }
 
     public BoxObject get(int position) {
 
@@ -176,31 +222,35 @@ public class FilesAdapter extends RecyclerView.Adapter<FilesAdapter.FilesViewHol
         return null;
     }
 
-	public BoxObject get(String name) {
-		return boxObjectsByName.get(name);
-	}
+    public BoxObject get(String name) {
+
+        return boxObjectsByName.get(name);
+    }
 
     public void sort() {
+
         Collections.sort(boxObjects, BoxObjectComparators.alphabeticOrderDirectoriesFirstIgnoreCase());
     }
 
     public void clear() {
-		boxObjectsByName.clear();
+
+        boxObjectsByName.clear();
         boxObjects.clear();
     }
 
-	public boolean containsEqual(BoxObject object) {
-		for (BoxObject boxObject : boxObjects) {
-			if (object.equals(boxObject)) {
-				return true;
-			}
-		}
-		return false;
-	}
+    public boolean containsEqual(BoxObject object) {
 
-    boolean loaded = false;
+        for (BoxObject boxObject : boxObjects) {
+            if (object.equals(boxObject)) {
+                return true;
+            }
+        }
+        return false;
+    }
 
-    void updateEmptyView() {
+    private boolean loaded = false;
+
+    private void updateEmptyView() {
 
         if (loadingView != null) {
             int fileCount = boxObjects.size();
@@ -214,7 +264,7 @@ public class FilesAdapter extends RecyclerView.Adapter<FilesAdapter.FilesViewHol
         }
     }
 
-    final RecyclerView.AdapterDataObserver observer = new RecyclerView.AdapterDataObserver() {
+    private final RecyclerView.AdapterDataObserver observer = new RecyclerView.AdapterDataObserver() {
         @Override
         public void onChanged() {
 

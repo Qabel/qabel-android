@@ -25,4 +25,10 @@
         <item>licenses_en.html</item>
         <item>aboutus_en.html</item>
     </string-array>
+    <array name="fonts_with_qabel">
+        <item>fonts/Art Post.ttf</item>
+        <item>fonts/Art Post.ttf</item>
+        <item>fonts/Art Post.ttf</item>
+        <item>fonts/Art Post.ttf</item>
+    </array>
 </resources>

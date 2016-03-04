@@ -146,7 +146,7 @@ android:layout_gravity="center"
                     android:layout_height="wrap_content"
 
 
-                    android:text="Change"
+                    android:text="@string/change"
                     />
             </LinearLayout>
 

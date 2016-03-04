@@ -1058,8 +1058,7 @@ public class MainActivity extends CrashReportingActivity
 	private void selectContactsFragment() {
 
 		fab.show();
-		Identity activeIdentity = mService.getActiveIdentity();
-		contactFragment = ContactFragment.newInstance(mService.getContacts(activeIdentity), activeIdentity);
+		contactFragment = ContactFragment.newInstance();
 		getFragmentManager().beginTransaction()
 				.replace(R.id.fragment_container,
 						contactFragment,

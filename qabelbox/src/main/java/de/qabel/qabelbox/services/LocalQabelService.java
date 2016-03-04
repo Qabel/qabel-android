@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
@@ -51,6 +52,7 @@ import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.activities.MainActivity;
 import de.qabel.qabelbox.config.AndroidPersistence;
 import de.qabel.qabelbox.config.QblSQLiteParams;
+import de.qabel.qabelbox.exceptions.QblStorageEntityExistsException;
 import de.qabel.qabelbox.providers.DocumentIdParser;
 import de.qabel.qabelbox.storage.BoxFile;
 import de.qabel.qabelbox.storage.BoxUploadingFile;
@@ -155,8 +157,15 @@ public class LocalQabelService extends Service {
 		return contacts;
 	}
 
-	public void addContact(Contact contact) {
+	public void addContact(Contact contact) throws QblStorageEntityExistsException {
 		Contacts contacts = getContacts();
+		Iterator<Contact> iterator = contacts.getContacts().iterator();
+		while (iterator.hasNext()) {
+			Contact con = iterator.next();
+			if (con.getEcPublicKey().equals(contact.getEcPublicKey())) {
+				throw new QblStorageEntityExistsException(contact.getAlias());
+			}
+		}
 		contacts.put(contact);
 		persistence.updateEntity(contacts);
 	}

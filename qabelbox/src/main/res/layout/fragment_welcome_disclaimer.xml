@@ -12,10 +12,10 @@
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_marginTop="@dimen/padding_welcome_text_top"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:paddingTop="@dimen/padding_welcome_text_top">
 
             <LinearLayout
                 android:layout_width="wrap_content"
@@ -23,7 +23,7 @@
                 android:layout_gravity="center_horizontal"
                 android:orientation="horizontal">
 
-                <de.qabel.qabelbox.views.TextViewFont
+                <de.qabel.qabelbox.views.TextViewQabelFont
                     android:id="@+id/headline2"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -31,7 +31,7 @@
                     android:gravity="center_horizontal"
                     android:text="@string/message_welcome_qabel_big"
                     android:textColor="@color/white"
-                    android:textSize="@dimen/textsize_welcome_screen"
+                    android:textSize="@dimen/textsize_qabel_logo"
                     android:textStyle="normal"/>
 
                 <de.qabel.qabelbox.views.TextViewFont
@@ -55,28 +55,24 @@
                 android:text="@string/message_welcome_disclaimer_message_legal_note"
                 android:textColor="@color/white"
                 android:textSize="@dimen/textsize_welcome_screen"
-                android:textStyle="bold"/>
+                android:textStyle="normal"/>
             <!--legal notes-->
-            <LinearLayout
+
+
+            <de.qabel.qabelbox.views.ButtonFont
+                android:id="@+id/btn_show_legal"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
+                android:text="@string/btn_welcome_disclaimer_show_legal_notes"/>
 
-                android:orientation="vertical">
-
-                <de.qabel.qabelbox.views.ButtonFont
-                    android:id="@+id/btn_show_legal"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/btn_welcome_disclaimer_show_legal_notes"/>
-
-                <de.qabel.qabelbox.views.CheckBoxFont
-                    android:id="@+id/cb_welcome_legal"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/cb_welcome_disclaimer_legal_note"
-                    android:textColor="@color/white"/>
-            </LinearLayout>
+            <de.qabel.qabelbox.views.CheckBoxFont
+                android:id="@+id/cb_welcome_legal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:text="@string/cb_welcome_disclaimer_legal_note_unchecked"
+                android:textColor="@color/white"/>
 
 
             <!--legal notes-->
@@ -89,28 +85,24 @@
                 android:text="@string/message_welcome_disclaimer_message_privacy_note"
                 android:textColor="@color/white"
                 android:textSize="@dimen/textsize_welcome_screen"
-                android:textStyle="bold"/>
+                android:textStyle="normal"/>
 
-            <LinearLayout
+
+            <de.qabel.qabelbox.views.ButtonFont
+                android:id="@+id/btn_show_privacy"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
+                android:text="@string/btn_welcome_disclaimer_show_privacy_notes"/>
 
-                android:orientation="vertical">
+            <de.qabel.qabelbox.views.CheckBoxFont
+                android:id="@+id/cb_welcome_privacy"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:text="@string/cb_welcome_disclaimer_privacy_note_unchecked"
+                android:textColor="@color/white"/>
 
-                <de.qabel.qabelbox.views.ButtonFont
-                    android:id="@+id/btn_show_privacy"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/btn_welcome_disclaimer_show_privacy_notes"/>
-
-                <de.qabel.qabelbox.views.CheckBoxFont
-                    android:id="@+id/cb_welcome_privacy"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/cb_welcome_disclaimer_privacy_note"
-                    android:textColor="@color/white"/>
-            </LinearLayout>
 
             <LinearLayout
                 android:layout_width="wrap_content"
@@ -118,7 +110,7 @@
                 android:layout_gravity="center_horizontal"
                 android:orientation="horizontal">
 
-                <de.qabel.qabelbox.views.TextViewFont
+                <de.qabel.qabelbox.views.TextViewQabelFont
                     android:id="@+id/welcome_text4"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -126,7 +118,7 @@
                     android:gravity="center_horizontal"
                     android:text="@string/message_welcome_qabel_big"
                     android:textColor="@color/white"
-                    android:textSize="@dimen/textsize_welcome_screen"
+                    android:textSize="@dimen/textsize_qabel_logo"
                     android:textStyle="normal"/>
 
                 <de.qabel.qabelbox.views.TextViewFont
@@ -148,13 +140,6 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
                 android:orientation="vertical">
-
-                <de.qabel.qabelbox.views.ButtonFont
-                    android:id="@+id/btn_show_sources"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal"
-                    android:text="@string/btn_welcome_disclaimer_show_sources_on_github"/>
 
                 <de.qabel.qabelbox.views.ButtonFont
                     android:id="@+id/btn_show_qapl"

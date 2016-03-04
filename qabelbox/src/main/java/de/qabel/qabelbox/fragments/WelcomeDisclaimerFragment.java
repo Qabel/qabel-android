@@ -1,8 +1,6 @@
 package de.qabel.qabelbox.fragments;
 
 import android.app.Activity;
-import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -69,12 +67,28 @@ public class WelcomeDisclaimerFragment extends Fragment {
 			@Override
 			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
 				updateRightButtonTextColor(isChecked && cbLegal.isChecked());
+				if(isChecked)
+				{
+					cbPrivacy.setText(R.string.cb_welcome_disclaimer_privacy_note_checked);
+				}
+				else
+				{
+					cbPrivacy.setText(R.string.cb_welcome_disclaimer_privacy_note_unchecked);
+				}
 			}
 		});
 		cbLegal.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
 			@Override
 			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
 				updateRightButtonTextColor(isChecked && cbPrivacy.isChecked());
+				if(isChecked)
+				{
+					cbLegal.setText(R.string.cb_welcome_disclaimer_legal_note_checked);
+				}
+				else
+				{
+					cbLegal.setText(R.string.cb_welcome_disclaimer_legal_note_unchecked);
+				}
 			}
 		});
 		setClickListener(view, R.id.btn_show_qapl, Type.QAPL);
@@ -82,15 +96,7 @@ public class WelcomeDisclaimerFragment extends Fragment {
 		setClickListener(view, R.id.btn_show_legal, Type.LEGAL);
 
 
-		view.findViewById(R.id.btn_show_sources).setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				String url = getResources().getString(R.string.github_url);
-				Intent i = new Intent(Intent.ACTION_VIEW);
-				i.setData(Uri.parse(url));
-				startActivity(i);
-			}
-		});
+
 	}
 
 	private void setClickListener(View fragmentView, int view, final Type mode) {

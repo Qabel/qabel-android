@@ -1,6 +1,7 @@
 package de.qabel.qabelbox.activities;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
@@ -73,6 +74,15 @@ public class WelcomeScreenActivity extends FragmentActivity implements ViewPager
 	}
 
 	private void setClickListeners() {
+		findViewById(R.id.btn_show_sources).setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				String url = getResources().getString(R.string.github_url);
+				Intent i = new Intent(Intent.ACTION_VIEW);
+				i.setData(Uri.parse(url));
+				startActivity(i);
+			}
+		});
 		leftButton.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {

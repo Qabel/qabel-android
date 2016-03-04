@@ -26,4 +26,5 @@
     <dimen name="welcome_shadow_radius">5dp</dimen>
     <dimen name="textsize_bottom_ab">18sp</dimen>
     <dimen name="padding_welcome_text_top">30dp</dimen>
+    <dimen name="textsize_qabel_logo">25sp</dimen>
 </resources>

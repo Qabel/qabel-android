@@ -1058,7 +1058,7 @@ public class MainActivity extends CrashReportingActivity
 	private void selectContactsFragment() {
 
 		fab.show();
-		contactFragment = ContactFragment.newInstance();
+		contactFragment = new ContactFragment();
 		getFragmentManager().beginTransaction()
 				.replace(R.id.fragment_container,
 						contactFragment,

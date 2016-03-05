@@ -159,12 +159,8 @@ public class LocalQabelService extends Service {
 
 	public void addContact(Contact contact) throws QblStorageEntityExistsException {
 		Contacts contacts = getContacts();
-		Iterator<Contact> iterator = contacts.getContacts().iterator();
-		while (iterator.hasNext()) {
-			Contact con = iterator.next();
-			if (con.getEcPublicKey().equals(contact.getEcPublicKey())) {
-				throw new QblStorageEntityExistsException(contact.getAlias());
-			}
+		if(contacts.contains(contact)){
+			throw new QblStorageEntityExistsException(contact.getAlias());
 		}
 		contacts.put(contact);
 		persistence.updateEntity(contacts);

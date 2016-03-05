@@ -72,7 +72,7 @@ public class LocalQabelServiceTest extends ServiceTestCase<LocalQabelServiceTest
 		assertTrue(mService.getContacts(identity).getContacts().contains(contact));
 	}
 
-	public void testAddDublicateContact() throws QblStorageEntityExistsException {
+	public void testAddDuplicateContact() throws QblStorageEntityExistsException {
 		try {
 			mService.addContact(contact);
 			mService.addContact(contact);

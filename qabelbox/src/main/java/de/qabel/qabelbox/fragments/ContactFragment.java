@@ -67,10 +67,6 @@ public class ContactFragment extends BaseFragment {
 	private View emptyView;
 	ChatServer chatServer;
 
-	public static ContactFragment newInstance() {
-		return new ContactFragment();
-	}
-
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 

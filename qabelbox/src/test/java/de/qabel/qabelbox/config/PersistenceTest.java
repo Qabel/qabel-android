@@ -33,7 +33,6 @@ public class PersistenceTest {
 
 	@After
 	public void tearDown() throws Exception {
-		System.out.println("DISCONNECT");
 		persistenceAdapter.disconnect();
 	}
 

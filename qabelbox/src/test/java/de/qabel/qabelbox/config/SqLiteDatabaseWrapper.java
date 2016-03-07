@@ -26,8 +26,8 @@ public class SqLiteDatabaseWrapper extends DatabaseWrapperImpl<String> {
 		try {
 			//
 			Class.forName("org.sqlite.JDBC");
-			connection = DriverManager.getConnection("jdbc:sqlite:memory:");
-			connection.setAutoCommit(false);
+			//Use temporary memory database
+			connection = DriverManager.getConnection("jdbc:sqlite::memory:");
 			return true;
 		} catch (Exception e) {
 			System.err.println(e.getClass().getName() + ": " + e.getMessage());
@@ -37,7 +37,6 @@ public class SqLiteDatabaseWrapper extends DatabaseWrapperImpl<String> {
 
 	public void disconnect(){
 		try {
-			connection.commit();
 			connection.close();
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -60,7 +59,6 @@ public class SqLiteDatabaseWrapper extends DatabaseWrapperImpl<String> {
 	public boolean insert(Persistable entity) throws QblPersistenceException {
 		PreparedStatement statement = null;
 		try {
-			System.out.println("INSERT");
 			String sql = String.format(INSERT_STMT, getTableNameForClass(entity.getClass()));
 			statement = connection.prepareStatement(sql);
 			statement.setString(1, entity.getPersistenceID());
@@ -149,8 +147,6 @@ public class SqLiteDatabaseWrapper extends DatabaseWrapperImpl<String> {
 			ResultSet result = statement.executeQuery();
 			List<U> entityList = new ArrayList<>();
 			while (result.next()) {
-				System.out.println("ADD OBJ");
-				System.out.println(result.getString(1));
 				entityList.add((U) deserialize(result.getString(1), result.getBytes(2)));
 			}
 			return entityList;

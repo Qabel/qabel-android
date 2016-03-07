@@ -30,7 +30,6 @@ import org.spongycastle.util.encoders.Hex;
 import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
 
 import de.qabel.core.config.Contact;
 import de.qabel.core.config.Contacts;
@@ -45,6 +44,7 @@ import de.qabel.qabelbox.adapter.ContactAdapterItem;
 import de.qabel.qabelbox.adapter.ContactsAdapter;
 import de.qabel.qabelbox.chat.ChatServer;
 import de.qabel.qabelbox.config.ContactExportImport;
+import de.qabel.qabelbox.exceptions.QblStorageEntityExistsException;
 import de.qabel.qabelbox.helper.FileHelper;
 import de.qabel.qabelbox.helper.Helper;
 import de.qabel.qabelbox.helper.UIHelper;
@@ -55,8 +55,6 @@ import de.qabel.qabelbox.services.LocalQabelService;
  */
 public class ContactFragment extends BaseFragment {
 
-	private static final String ARG_CONTACTS = "ARG_CONTACTS";
-	private static final String ARG_IDENTITY = "ARG_IDENTITY";
 	private static final int REQUEST_IMPORT_CONTACT = 1000;
 	private static final String TAG = "ContactFragment";
 
@@ -64,23 +62,10 @@ public class ContactFragment extends BaseFragment {
 	private ContactsAdapter contactListAdapter;
 	private RecyclerView.LayoutManager recyclerViewLayoutManager;
 
-	private Contacts contacts;
-	private Identity identity;
 	private BaseFragment self;
 	private TextView contactCount;
 	private View emptyView;
 	ChatServer chatServer;
-
-	public static ContactFragment newInstance(Contacts contacts, Identity identity) {
-
-		ContactFragment fragment = new ContactFragment();
-		Bundle args = new Bundle();
-		args.putSerializable(ARG_CONTACTS, contacts);
-		args.putSerializable(ARG_IDENTITY, identity);
-		fragment.setArguments(args);
-
-		return fragment;
-	}
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -90,11 +75,6 @@ public class ContactFragment extends BaseFragment {
 		chatServer = mActivity.chatServer;
 		setHasOptionsMenu(true);
 		mActivity.registerReceiver(refreshContactListReceiver, new IntentFilter(Helper.INTENT_REFRESH_CONTACTLIST));
-		Bundle arguments = getArguments();
-		if (arguments != null) {
-			contacts = (Contacts) arguments.getSerializable(ARG_CONTACTS);
-			identity = (Identity) arguments.getSerializable(ARG_IDENTITY);
-		}
 	}
 
 	@Override
@@ -108,7 +88,7 @@ public class ContactFragment extends BaseFragment {
 		emptyView = view.findViewById(R.id.empty_view);
 		recyclerViewLayoutManager = new LinearLayoutManager(view.getContext());
 		contactListRecyclerView.setLayoutManager(recyclerViewLayoutManager);
-		refreshContactList(contacts);
+		refreshContactList();
 
 		return view;
 	}
@@ -161,7 +141,7 @@ public class ContactFragment extends BaseFragment {
 
 								LocalQabelService service = QabelBoxApplication.getInstance().getService();
 								service.deleteContact(contact);
-								refreshContactList(service.getContacts(service.getActiveIdentity()));
+								sendRefreshContactList(mActivity);
 								UIHelper.showDialogMessage(mActivity, R.string.dialog_headline_info, getString(R.string.contact_deleted).replace("%1", contact.getAlias()));
 							}
 						}, null);
@@ -177,25 +157,14 @@ public class ContactFragment extends BaseFragment {
 	 */
 	public static void addContact(MainActivity activity, Contact contact) {
 
-		LocalQabelService service = QabelBoxApplication.getInstance().getService();
-		Iterator<Contact> iterator = service.getContacts(QabelBoxApplication.getInstance().getService().getActiveIdentity()).getContacts().iterator();
-		boolean exits = false;
-		while (iterator.hasNext()) {
-			Contact con = iterator.next();
-			if (con.getEcPublicKey().equals(contact.getEcPublicKey())) {
-				exits = true;
-				break;
-			}
-		}
-		if (exits) {
-			UIHelper.showDialogMessage(activity, R.string.dialog_headline_info, R.string.cant_import_contact_already_exisits);
-		} else {
-			service.addContact(
-					contact);
-
-			sendRefreshContactList(activity);
+		try {
+			LocalQabelService service = QabelBoxApplication.getInstance().getService();
+			service.addContact(contact);
 			UIHelper.showDialogMessage(activity, R.string.dialog_headline_info, R.string.contact_import_successfull);
+		} catch (QblStorageEntityExistsException e) {
+			UIHelper.showDialogMessage(activity, R.string.dialog_headline_info, R.string.cant_import_contact_already_exisits);
 		}
+		sendRefreshContactList(activity);
 	}
 
 	private static void sendRefreshContactList(MainActivity activity) {
@@ -213,13 +182,12 @@ public class ContactFragment extends BaseFragment {
 		super.onDestroy();
 	}
 
-	private void refreshContactList(Contacts contacts) {
-
+	private void refreshContactList() {
 		if (contactListRecyclerView != null) {
+			Contacts contacts = QabelBoxApplication.getInstance().getService().getContacts();
 			final int count = contacts.getContacts().size();
 			ArrayList<ContactAdapterItem> items = new ArrayList<>();
 			for (Contact c : contacts.getContacts()) {
-
 				items.add(new ContactAdapterItem(c, chatServer.hasNewMessages(c)));
 			}
 			contactListAdapter = new ContactsAdapter(items);
@@ -247,13 +215,11 @@ public class ContactFragment extends BaseFragment {
 
 	@Override
 	public String getTitle() {
-
 		return getString(R.string.headline_contacts);
 	}
 
 	@Override
 	public boolean isFabNeeded() {
-
 		return true;
 	}
 
@@ -346,23 +312,19 @@ public class ContactFragment extends BaseFragment {
 
 		@Override
 		public void onReceive(Context context, Intent intent) {
-
 			Log.v(TAG, "receive refresh contactlist event");
-			LocalQabelService service = QabelBoxApplication.getInstance().getService();
-			refreshContactList(service.getContacts(service.getActiveIdentity()));
+			refreshContactList();
 		}
 	};
 
 	@Override
 	public void onStart() {
-
 		super.onStart();
 		chatServer.addListener(chatServerCallback);
 	}
 
 	@Override
 	public void onStop() {
-
 		chatServer.removeListener(chatServerCallback);
 		super.onStop();
 	}
@@ -372,7 +334,7 @@ public class ContactFragment extends BaseFragment {
 		@Override
 		public void onRefreshed() {
 			Log.d(TAG, "refreshed ");
-			refreshContactList(contacts);
+			sendRefreshContactList(mActivity);
 		}
 	};
 }

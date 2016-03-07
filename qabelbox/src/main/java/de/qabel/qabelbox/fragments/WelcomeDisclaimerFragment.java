@@ -123,7 +123,7 @@ public class WelcomeDisclaimerFragment extends Fragment {
 				webView.loadDataWithBaseURL("file:///android_asset/", FileHelper.loadFileFromAssets(getActivity(), "html/help/" + file),
 						"text/html", "utf-8", null);
 
-				UIHelper.showCustomeDialog(getActivity(), webView, R.string.ok, null);
+				UIHelper.showCustomDialog(getActivity(), webView, R.string.ok, null);
 			}
 		});
 	}

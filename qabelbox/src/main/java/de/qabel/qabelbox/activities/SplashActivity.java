@@ -5,6 +5,7 @@ import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
 
+import android.util.Log;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.config.AppPreference;
 import de.qabel.qabelbox.helper.Sanity;
@@ -48,7 +49,7 @@ public class SplashActivity extends CrashReportingActivity {
 		try {
 			currentAppVersionCode = getPackageManager().getPackageInfo(getPackageName(), 0).versionCode;
 		} catch (PackageManager.NameNotFoundException e) {
-			e.printStackTrace();
+			Log.e(TAG,"error setting up preferences", e);
 		}
 		if (lastAppStartVersion == 0) {
 			prefs.setLastAppStartVersion(currentAppVersionCode);

@@ -30,7 +30,7 @@ android {
         on base of timestamp or change it manual*/
 
         versionCode System.getenv("BUILD_NUMBER") as Integer ?: 1
-        versionName "1.0."+ (System.getenv("BUILD_NUMBER") as Integer ?: 1)
+        versionName "0.2." + (System.getenv("BUILD_NUMBER") as Integer ?: 1)
         //junit test
         testInstrumentationRunner "de.qabel.qabelbox.QblJUnitRunner"
         //ui tests
@@ -39,6 +39,13 @@ android {
         ndk {
             moduleName "curve25519"
         }
+    }
+
+    lintOptions {
+        checkReleaseBuilds false
+        // Or, if you prefer, you can continue to check for errors in release builds,
+        // but continue the build even when errors are found:
+        abortOnError false
     }
 
     buildTypes {
@@ -79,8 +86,8 @@ dependencies {
     compile 'com.madgag.spongycastle:prov:1.52.0.0'
     compile group: 'org.apache.httpcomponents', name: 'httpclient-android', version: '4.3.5.1'
     compile 'com.amazonaws:aws-android-sdk-s3:2.2.8'
-    compile group: 'org.apache.httpcomponents', name:'httpclient-android', version: '4.3.5.1'
-  //  compile 'com.amazonaws:aws-android-sdk-s3:2.2.8'
+    compile group: 'org.apache.httpcomponents', name: 'httpclient-android', version: '4.3.5.1'
+    //  compile 'com.amazonaws:aws-android-sdk-s3:2.2.8'
     compile project(':libqabel')
     compile 'com.madgag.spongycastle:core:1.52.0.0'
     compile 'org.sqldroid:sqldroid:1.0.3'

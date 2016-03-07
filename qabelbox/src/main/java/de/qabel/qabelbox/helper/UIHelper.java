@@ -12,11 +12,10 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-
-import java.io.IOException;
-
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.views.EditTextFont;
+
+import java.io.IOException;
 
 /**
  * Class to support app wide helper function
@@ -189,17 +188,12 @@ public class UIHelper {
 		});
 	}
 
-	public static void showCustomeDialog(Activity activity, int title, View layout, int ok, int cancel, final DialogInterface.OnClickListener okListener,
-
-										 final DialogInterface.OnClickListener cancelListener)
-
-	{
+	public static void showCustomDialog(Activity activity, int title, View layout, int ok, int cancel, final DialogInterface.OnClickListener okListener,
+										final DialogInterface.OnClickListener cancelListener) {
 
 		final AlertDialog.Builder renameDialog = new AlertDialog.Builder(activity);
 
 		renameDialog.setTitle(title);
-
-
 		renameDialog.setView(layout);
 
 		renameDialog.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
@@ -240,14 +234,11 @@ public class UIHelper {
 		});
 	}
 
-	public static void showCustomeDialog(Activity activity,View layout, int ok, final DialogInterface.OnClickListener okListener)
-
-	{
+	public static void showCustomDialog(Activity activity, View layout, int ok, final DialogInterface.OnClickListener okListener) {
 
 		final AlertDialog.Builder renameDialog = new AlertDialog.Builder(activity);
 
 		//	renameDialog.setTitle(title);
-
 
 		renameDialog.setView(layout);
 

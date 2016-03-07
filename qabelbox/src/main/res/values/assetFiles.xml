@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="FILE_QAPL_LICENSE">qapl.html</string>
+    <string name="FILE_PRIVACY">datapolicy_en.html</string>
+    <string name="FILE_LEGAL">legal_en.html</string>
+</resources>

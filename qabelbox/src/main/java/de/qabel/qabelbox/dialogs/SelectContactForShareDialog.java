@@ -11,7 +11,6 @@ import java.util.Iterator;
 import java.util.Set;
 
 import de.qabel.core.config.Contact;
-import de.qabel.core.config.Identity;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.activities.MainActivity;
 import de.qabel.qabelbox.helper.UIHelper;
@@ -43,7 +42,7 @@ public class SelectContactForShareDialog {
         ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<String>(activity, R.layout.view_spinner, spinnerArray);
         spinnerArrayAdapter.setDropDownViewResource(R.layout.view_spinner);
         mIdentitySpinner.setAdapter(spinnerArrayAdapter);
-        UIHelper.showCustomeDialog(activity, R.string.headline_share_to_qabeluser, view, R.string.ok, R.string.cancel, new DialogInterface.OnClickListener() {
+        UIHelper.showCustomDialog(activity, R.string.headline_share_to_qabeluser, view, R.string.ok, R.string.cancel, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
 

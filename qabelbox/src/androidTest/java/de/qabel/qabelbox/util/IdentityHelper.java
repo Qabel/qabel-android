@@ -1,4 +1,4 @@
-package de.qabel.qabelbox.util;
+package de.qabel.qabelbox.config;
 
 import android.content.Context;
 

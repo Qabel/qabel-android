@@ -1,6 +1,7 @@
 package de.qabel.qabelbox.persistence;
 
 import de.qabel.core.config.Persistable;
+import de.qabel.qabelbox.exceptions.QblPersistenceException;
 
 import java.util.List;
 

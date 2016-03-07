@@ -1,4 +1,4 @@
-package de.qabel.qabelbox.persistence;
+package de.qabel.qabelbox.exceptions;
 
 /**
  * Wraps SqlExceptions for adaptable Databases

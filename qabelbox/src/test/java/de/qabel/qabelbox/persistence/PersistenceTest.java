@@ -1,9 +1,7 @@
-package de.qabel.qabelbox.config;
+package de.qabel.qabelbox.persistence;
 
 import de.qabel.core.config.Persistable;
-import de.qabel.qabelbox.persistence.AndroidPersistence;
-import de.qabel.qabelbox.persistence.DatabaseWrapper;
-import de.qabel.qabelbox.persistence.QblSQLiteParams;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -22,7 +20,7 @@ public class PersistenceTest {
 
 	@Before
 	public void setUp() throws Exception {
-		persistenceAdapter = new SqLiteDatabaseWrapper(DB_NAME);
+		persistenceAdapter = new SqLiteDatabaseWrapper();
 		persistence = new AndroidPersistence(null) {
 			@Override
 			protected DatabaseWrapper createDatabaseWrapper(QblSQLiteParams params) {

@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import de.qabel.core.config.Persistable;
+import de.qabel.qabelbox.exceptions.QblPersistenceException;
 
 public class AndroidDatabaseWrapper extends DatabaseWrapperImpl<QblSQLiteParams> {
 
@@ -42,24 +43,24 @@ public class AndroidDatabaseWrapper extends DatabaseWrapperImpl<QblSQLiteParams>
 	public boolean insert(Persistable entity) {
 		ContentValues contentValues = new ContentValues();
 		contentValues.put(STR_ID, entity.getPersistenceID());
-		contentValues.put(STR_BLOB, serialize(entity.getPersistenceID(), entity));
+		contentValues.put(STR_BLOB, PersistenceUtil.serialize(entity.getPersistenceID(), entity));
 
-		return database.insert(getTableNameForClass(entity.getClass()), null, contentValues) != -1L;
+		return database.insert(PersistenceUtil.getTableNameForClass(entity.getClass()), null, contentValues) != -1L;
 	}
 
 	@Override
 	public boolean update(Persistable entity) {
 		ContentValues contentValues = new ContentValues();
-		contentValues.put(STR_BLOB, serialize(entity.getPersistenceID(), entity));
+		contentValues.put(STR_BLOB, PersistenceUtil.serialize(entity.getPersistenceID(), entity));
 
 		String[] whereArgs = {entity.getPersistenceID()};
-		return database.update(getTableNameForClass(entity.getClass()), contentValues, STR_ID_QUERY, whereArgs) != -1;
+		return database.update(PersistenceUtil.getTableNameForClass(entity.getClass()), contentValues, STR_ID_QUERY, whereArgs) != -1;
 	}
 
 	@Override
 	public boolean delete(String id, Class cls) {
 		String[] whereArgs = {id};
-		return database.delete(getTableNameForClass(cls), STR_ID_QUERY, whereArgs) == 1;
+		return database.delete(PersistenceUtil.getTableNameForClass(cls), STR_ID_QUERY, whereArgs) == 1;
 	}
 
 	@Override
@@ -69,11 +70,11 @@ public class AndroidDatabaseWrapper extends DatabaseWrapperImpl<QblSQLiteParams>
 
 		Cursor cursor = null;
 		try {
-			cursor = database.query(getTableNameForClass(cls), columns, STR_ID_QUERY,
+			cursor = database.query(PersistenceUtil.getTableNameForClass(cls), columns, STR_ID_QUERY,
 					selectionArgs, null, null, null);
 
 			if (cursor.moveToFirst()) {
-				return (U) deserialize(id, cursor.getBlob(0));
+				return (U) PersistenceUtil.deserialize(id, cursor.getBlob(0));
 			}
 		} catch (SQLiteException e) {
 			throw new QblPersistenceException(e);
@@ -93,11 +94,11 @@ public class AndroidDatabaseWrapper extends DatabaseWrapperImpl<QblSQLiteParams>
 
 		Cursor cursor = null;
 		try {
-			cursor = database.query(getTableNameForClass(cls), columns,
+			cursor = database.query(PersistenceUtil.getTableNameForClass(cls), columns,
 					null, null, null, null, null);
 			if (cursor.moveToFirst()) {
 				do {
-					objects.add((U) deserialize(cursor.getString(0),
+					objects.add((U) PersistenceUtil.deserialize(cursor.getString(0),
 							cursor.getBlob(1)));
 				} while (cursor.moveToNext());
 			}

@@ -1,12 +1,16 @@
-package de.qabel.qabelbox.config;
+package de.qabel.qabelbox.persistence;
 
-import de.qabel.core.config.Persistable;
-import de.qabel.qabelbox.persistence.DatabaseWrapperImpl;
-import de.qabel.qabelbox.persistence.QblPersistenceException;
-
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+
+import de.qabel.core.config.Persistable;
+import de.qabel.qabelbox.exceptions.QblPersistenceException;
 
 public class SqLiteDatabaseWrapper extends DatabaseWrapperImpl<String> {
 
@@ -15,11 +19,6 @@ public class SqLiteDatabaseWrapper extends DatabaseWrapperImpl<String> {
 	private static final String DELETE_STMT = "DELETE FROM %s WHERE " + STR_ID + " = :id";
 
 	private Connection connection;
-	private String databaseName;
-
-	public SqLiteDatabaseWrapper(String dbname){
-		this.databaseName = dbname;
-	}
 
 	@Override
 	public boolean connect() {
@@ -35,7 +34,7 @@ public class SqLiteDatabaseWrapper extends DatabaseWrapperImpl<String> {
 		}
 	}
 
-	public void disconnect(){
+	public void disconnect() {
 		try {
 			connection.close();
 		} catch (SQLException e) {
@@ -59,16 +58,16 @@ public class SqLiteDatabaseWrapper extends DatabaseWrapperImpl<String> {
 	public boolean insert(Persistable entity) throws QblPersistenceException {
 		PreparedStatement statement = null;
 		try {
-			String sql = String.format(INSERT_STMT, getTableNameForClass(entity.getClass()));
+			String sql = String.format(INSERT_STMT, PersistenceUtil.getTableNameForClass(entity.getClass()));
 			statement = connection.prepareStatement(sql);
 			statement.setString(1, entity.getPersistenceID());
-			statement.setBytes(2, serialize(entity.getPersistenceID(), entity));
+			statement.setBytes(2, PersistenceUtil.serialize(entity.getPersistenceID(), entity));
 			return statement.executeUpdate() == 1;
 		} catch (SQLException e) {
 			throw new QblPersistenceException(e);
 		} finally {
 			try {
-				if(statement != null){
+				if (statement != null) {
 					statement.close();
 				}
 			} catch (SQLException e) {
@@ -80,8 +79,8 @@ public class SqLiteDatabaseWrapper extends DatabaseWrapperImpl<String> {
 	public boolean update(Persistable entity) throws QblPersistenceException {
 		PreparedStatement statement = null;
 		try {
-			statement = connection.prepareStatement(String.format(UPDATE_STMT, getTableNameForClass(entity.getClass())));
-			statement.setBytes(1, serialize(entity.getPersistenceID(), entity));
+			statement = connection.prepareStatement(String.format(UPDATE_STMT, PersistenceUtil.getTableNameForClass(entity.getClass())));
+			statement.setBytes(1, PersistenceUtil.serialize(entity.getPersistenceID(), entity));
 			statement.setString(2, entity.getPersistenceID());
 			return statement.executeUpdate() == 1;
 		} catch (SQLException e) {
@@ -89,7 +88,7 @@ public class SqLiteDatabaseWrapper extends DatabaseWrapperImpl<String> {
 			throw new QblPersistenceException(e);
 		} finally {
 			try {
-				if(statement != null){
+				if (statement != null) {
 					statement.close();
 				}
 			} catch (SQLException e) {
@@ -101,14 +100,14 @@ public class SqLiteDatabaseWrapper extends DatabaseWrapperImpl<String> {
 	public boolean delete(String id, Class cls) throws QblPersistenceException {
 		PreparedStatement statement = null;
 		try {
-			statement = connection.prepareStatement(String.format(DELETE_STMT, getTableNameForClass(cls)));
+			statement = connection.prepareStatement(String.format(DELETE_STMT, PersistenceUtil.getTableNameForClass(cls)));
 			statement.setString(1, id);
 			return statement.executeUpdate() == 1;
 		} catch (SQLException e) {
 			throw new QblPersistenceException(e);
 		} finally {
 			try {
-				if(statement != null){
+				if (statement != null) {
 					statement.close();
 				}
 			} catch (SQLException e) {
@@ -120,17 +119,17 @@ public class SqLiteDatabaseWrapper extends DatabaseWrapperImpl<String> {
 	public <U extends Persistable> U getEntity(String id, Class<? extends U> cls) throws QblPersistenceException {
 		PreparedStatement statement = null;
 		try {
-			statement = connection.prepareStatement("SELECT " + STR_BLOB + " FROM " + getTableNameForClass(cls) + " WHERE " + STR_ID_QUERY);
+			statement = connection.prepareStatement("SELECT " + STR_BLOB + " FROM " + PersistenceUtil.getTableNameForClass(cls) + " WHERE " + STR_ID_QUERY);
 			statement.setString(1, id);
 			ResultSet result = statement.executeQuery();
 			if (result.next()) {
-				return (U) deserialize(id, result.getBytes(1));
+				return (U) PersistenceUtil.deserialize(id, result.getBytes(1));
 			}
 		} catch (SQLException e) {
 			throw new QblPersistenceException(e);
 		} finally {
 			try {
-				if(statement != null){
+				if (statement != null) {
 					statement.close();
 				}
 			} catch (SQLException e) {
@@ -143,18 +142,18 @@ public class SqLiteDatabaseWrapper extends DatabaseWrapperImpl<String> {
 	public <U extends Persistable> List<U> getEntities(Class<? extends U> cls) throws QblPersistenceException {
 		PreparedStatement statement = null;
 		try {
-			statement = connection.prepareStatement("SELECT " + STR_ID + ", " + STR_BLOB + " FROM " + getTableNameForClass(cls));
+			statement = connection.prepareStatement("SELECT " + STR_ID + ", " + STR_BLOB + " FROM " + PersistenceUtil.getTableNameForClass(cls));
 			ResultSet result = statement.executeQuery();
 			List<U> entityList = new ArrayList<>();
 			while (result.next()) {
-				entityList.add((U) deserialize(result.getString(1), result.getBytes(2)));
+				entityList.add((U) PersistenceUtil.deserialize(result.getString(1), result.getBytes(2)));
 			}
 			return entityList;
 		} catch (SQLException e) {
 			throw new QblPersistenceException(e);
 		} finally {
 			try {
-				if(statement != null){
+				if (statement != null) {
 					statement.close();
 				}
 			} catch (SQLException e) {

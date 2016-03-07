@@ -65,7 +65,6 @@ public class ContactFragment extends BaseFragment {
 	private RecyclerView.LayoutManager recyclerViewLayoutManager;
 
 	private Contacts contacts;
-	private Identity identity;
 	private BaseFragment self;
 	private TextView contactCount;
 	private View emptyView;
@@ -93,7 +92,6 @@ public class ContactFragment extends BaseFragment {
 		Bundle arguments = getArguments();
 		if (arguments != null) {
 			contacts = (Contacts) arguments.getSerializable(ARG_CONTACTS);
-			identity = (Identity) arguments.getSerializable(ARG_IDENTITY);
 		}
 	}
 
@@ -207,7 +205,6 @@ public class ContactFragment extends BaseFragment {
 
 	@Override
 	public void onDestroy() {
-
 		Log.v(TAG, "unregisterReceiver");
 		mActivity.unregisterReceiver(refreshContactListReceiver);
 		super.onDestroy();

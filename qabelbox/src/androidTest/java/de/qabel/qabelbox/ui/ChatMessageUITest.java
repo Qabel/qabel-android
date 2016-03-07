@@ -63,7 +63,7 @@ import static org.hamcrest.Matchers.is;
  */
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
-public class ChatMessageTest {
+public class ChatMessageUITest {
 
 	@Rule
 	public ActivityTestRule<MainActivity> mActivityTestRule = new ActivityTestRule<>(MainActivity.class, false, true);
@@ -77,7 +77,7 @@ public class ChatMessageTest {
 	private String contact1Json, contact2Json;
 	private String TAG = this.getClass().getSimpleName();
 
-	public ChatMessageTest() throws IOException {
+	public ChatMessageUITest() throws IOException {
 		//setup data before MainActivity launched. This avoid the call to create identity
 		if (mFillAccount) {
 			setupData();

@@ -51,7 +51,7 @@ import static org.hamcrest.Matchers.endsWith;
  */
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
-public class CreateBoxAccountTest {
+public class CreateBoxAccountUITest {
 
 	@Rule
 	public ActivityTestRule<CreateAccountActivity> mActivityTestRule = new ActivityTestRule<>(CreateAccountActivity.class, false, true);

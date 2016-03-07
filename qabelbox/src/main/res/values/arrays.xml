@@ -6,4 +6,10 @@
         <item>fonts/Roboto-Italic.ttf</item>
         <item>fonts/Roboto-BoldItalic.ttf</item>
     </array>
+    <array name="fonts_with_qabel">
+        <item>fonts/Art Post.ttf</item>
+        <item>fonts/Art Post.ttf</item>
+        <item>fonts/Art Post.ttf</item>
+        <item>fonts/Art Post.ttf</item>
+    </array>
 </resources>

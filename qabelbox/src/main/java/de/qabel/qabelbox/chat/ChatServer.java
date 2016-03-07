@@ -20,8 +20,11 @@ import de.qabel.qabelbox.QabelBoxApplication;
 public class ChatServer {
 
 	private static final String TAG = "ChatServer";
+	public static final String TAG_MESSAGE = "msg";
+	public static final String TAG_URL = "url";
+	public static final String TAG_KEY = "key";
 
-	private ChatMessagesDataBase dataBase;
+	private final ChatMessagesDataBase dataBase;
 	private final List<ChatServerCallback> callbacks = new ArrayList<>();
 
 	public ChatServer(Identity currentIdentity) {
@@ -47,6 +50,7 @@ public class ChatServer {
 	public Collection<DropMessage> refreshList() {
 		long lastRetrieved = dataBase.getLastRetrievedDropMessageTime();
 		Log.d(TAG, "last retrieved dropmessage time " + lastRetrieved + " / " + System.currentTimeMillis());
+		String identityKey=QabelBoxApplication.getInstance().getService().getActiveIdentity().getEcPublicKey().getReadableKeyIdentifier();
 		Collection<DropMessage> result = QabelBoxApplication.getInstance().getService().retrieveDropMessages(QabelBoxApplication.getInstance().getService().getActiveIdentity(), lastRetrieved);
 
 		if (result != null) {
@@ -54,6 +58,7 @@ public class ChatServer {
 			//store into db
 			for (DropMessage item : result) {
 				ChatMessageItem cms = new ChatMessageItem(item);
+				cms.receiver=identityKey;
 				cms.isNew = 0;
 				storeIntoDB(cms);
 			}
@@ -95,7 +100,7 @@ public class ChatServer {
 		String payload_type = ChatMessageItem.BOX_MESSAGE;
 		JSONObject payloadJson = new JSONObject();
 		try {
-			payloadJson.put("msg", message);
+			payloadJson.put(TAG_MESSAGE, message);
 		} catch (JSONException e) {
 			Log.e(TAG, "error on create json", e);
 		}
@@ -108,9 +113,9 @@ public class ChatServer {
 		String payload_type = ChatMessageItem.SHARE_NOTIFICATION;
 		JSONObject payloadJson = new JSONObject();
 		try {
-			payloadJson.put("msg", message);
-			payloadJson.put("url", url);
-			payloadJson.put("key", key);
+			payloadJson.put(TAG_MESSAGE, message);
+			payloadJson.put(TAG_URL, url);
+			payloadJson.put(TAG_KEY, key);
 		} catch (JSONException e) {
 			Log.e(TAG, "error on create json", e);
 		}
@@ -124,7 +129,7 @@ public class ChatServer {
 	}
 
 	public int setAllMessagesReaded(Contact c) {
-		return dataBase.setAllMessagesReaded(c);
+		return dataBase.setAllMessagesRead(c);
 	}
 
 	public ChatMessageItem[] getAllMessages(Contact c) {

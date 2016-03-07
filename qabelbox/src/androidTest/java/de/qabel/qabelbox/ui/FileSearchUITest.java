@@ -47,7 +47,7 @@ import static android.support.test.espresso.matcher.ViewMatchers.withId;
  */
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
-public class FileSearchTest {
+public class FileSearchUITest {
 
 	@Rule
 	public ActivityTestRule<MainActivity> mActivityTestRule = new ActivityTestRule<>(MainActivity.class, false, true);
@@ -58,7 +58,7 @@ public class FileSearchTest {
 	private PowerManager.WakeLock wakeLock;
 	SystemAnimations mSystemAnimations;
 
-	public FileSearchTest() throws IOException {
+	public FileSearchUITest() throws IOException {
 		//setup data before MainActivity launched. This avoid the call to create identity
 		if (mFillAccount) {
 			setupData();

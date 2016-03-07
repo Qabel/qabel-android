@@ -14,7 +14,7 @@ spoon {
     instrumentationArgs = ["package=de.qabel.qabelbox.ui"]
     // To run a single method in TestCase
     //methodName = 'search3CacheTest'
-    adbTimeout = 60
+    adbTimeout = 90
 }
 
 
@@ -84,7 +84,6 @@ dependencies {
     compile 'org.apache.james:apache-mime4j-core:0.7.2'
     compile 'com.madgag.spongycastle:prov:1.52.0.0'
     compile group: 'org.apache.httpcomponents', name:'httpclient-android', version: '4.3.5.1'
-  //  compile 'com.amazonaws:aws-android-sdk-s3:2.2.8'
     compile project(':libqabel')
     compile 'com.madgag.spongycastle:core:1.52.0.0'
     compile 'org.sqldroid:sqldroid:1.0.3'

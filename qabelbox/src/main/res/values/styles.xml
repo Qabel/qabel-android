@@ -92,8 +92,23 @@
         <item name="android:textSize">@dimen/textsize_list_first_line</item>
     </style>
 
+    <style name="LicenceListFirstTextLine" parent="ListFirstTextLine">
+        <item name="android:textAlignment">center</item>
+    </style>
+
     <style name="ListSecondTextLine">
         <item name="android:textSize">@dimen/textsize_list_second_line</item>
+    </style>
+
+    <style name="LicenceListSecondTextLine" parent="ListSecondTextLine">
+        <item name="android:textAlignment">center</item>
+    </style>
+
+    <style name="LicenceButton">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:gravity">left|center_vertical</item>
+        <item name="android:drawableRight">@drawable/ic_icon_arrow_right</item>
     </style>
 
     <style name="ListItemContactBackground">

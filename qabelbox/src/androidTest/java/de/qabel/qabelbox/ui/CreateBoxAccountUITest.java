@@ -23,6 +23,7 @@ import de.qabel.core.config.Identities;
 import de.qabel.core.config.Identity;
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
+import de.qabel.qabelbox.TestConstraints;
 import de.qabel.qabelbox.activities.CreateAccountActivity;
 import de.qabel.qabelbox.config.AppPreference;
 import de.qabel.qabelbox.exceptions.QblStorageException;
@@ -125,6 +126,8 @@ public class CreateBoxAccountUITest {
 		UITestHelper.sleep(500);
 		onView(withText(R.string.next)).perform(click());
 		Spoon.screenshot(UITestHelper.getCurrentActivity(mActivity), "password2");
+
+		UITestHelper.sleep(TestConstraints.SIMPLE_SERVER_ACTION_TIMEOUT);
 
 		onView(withText(R.string.create_account_final_headline)).check(matches(isDisplayed()));
 		Spoon.screenshot(UITestHelper.getCurrentActivity(mActivity), "result");

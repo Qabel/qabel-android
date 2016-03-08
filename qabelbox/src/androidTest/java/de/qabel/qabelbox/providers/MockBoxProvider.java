@@ -21,7 +21,7 @@ import de.qabel.qabelbox.config.QblSQLiteParams;
 import de.qabel.qabelbox.services.LocalQabelService;
 import de.qabel.qabelbox.storage.BoxUploadingFile;
 
-public class BoxProviderTester extends BoxProvider {
+public class MockBoxProvider extends BoxProvider {
 
 	public byte[] deviceID;
 	public String lastID;
@@ -41,6 +41,11 @@ public class BoxProviderTester extends BoxProvider {
 		setParametersForTests();
 		initServiceForTests(context);
 		attachInfoForTests(context);
+	}
+
+
+	public void mockBindToService(Context context) {
+		bindToService(context);
 	}
 
 	private void setParametersForTests() {

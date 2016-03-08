@@ -28,10 +28,12 @@ import java.util.List;
 
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
+import de.qabel.qabelbox.activities.MainActivity;
 import de.qabel.qabelbox.communication.URLs;
 import de.qabel.qabelbox.communication.VolumeFileTransferHelper;
 import de.qabel.qabelbox.config.AppPreference;
 import de.qabel.qabelbox.exceptions.QblStorageException;
+import de.qabel.qabelbox.helper.MockedBoxProviderTest;
 import de.qabel.qabelbox.storage.BoxFolder;
 import de.qabel.qabelbox.storage.BoxNavigation;
 import de.qabel.qabelbox.storage.BoxVolume;
@@ -39,36 +41,25 @@ import de.qabel.qabelbox.storage.BoxVolume;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-public class BoxProviderTest extends InstrumentationTestCase {
+public class BoxProviderTest extends MockedBoxProviderTest {
 
-    private BoxVolume volume;
     private String testFileName;
     private MockContentResolver mContentResolver;
     public static String ROOT_DOC_ID;
 
     private static final String TAG = "BoxProviderTest";
-    private BoxProviderTester mProvider;
     private Context mContext;
 
     @Override
-    protected void setUp() throws Exception {
-        super.setUp();
-        Log.d(TAG, "setUp");
-        Context applicationContext = QabelBoxApplication.getInstance().getApplicationContext();
-        new AppPreference(applicationContext)
-                .setToken(applicationContext.getString(R.string.blockserver_magic_testtoken));
-        URLs.setBaseBlockURL(applicationContext.getString(R.string.testBlockServer));
+    public Context getContext() {
+        return mContext;
+    }
 
+    @Override
+    public void setUp() throws Exception {
+        Log.d(TAG, "setUp");
         mContext = getInstrumentation().getTargetContext();
-        mProvider = new BoxProviderTester();
-        mProvider.bindToService(mContext);
-        mContentResolver = new MockContentResolver();
-        mContentResolver.addProvider(BoxProvider.AUTHORITY, mProvider);
-        byte[] deviceID = getProvider().deviceID;
-        BoxProviderTester provider = getProvider();
-        ROOT_DOC_ID = provider.rootDocId;
-        volume = new BoxVolume(provider.keyPair, provider.prefix, deviceID, mContext);
-        volume.createIndex();
+        super.setUp();
 
         File tmpDir = new File(System.getProperty("java.io.tmpdir"));
         File file = File.createTempFile("testfile", "test", tmpDir);
@@ -82,9 +73,7 @@ public class BoxProviderTest extends InstrumentationTestCase {
         testFileName = file.getAbsolutePath();
     }
 
-    BoxProviderTester getProvider() {
-        return mProvider;
-    }
+
 
     @Override
     public void tearDown() throws Exception {
@@ -94,7 +83,7 @@ public class BoxProviderTest extends InstrumentationTestCase {
 
     public void testTraverseToFolder() throws QblStorageException {
         BoxProvider provider = getProvider();
-        BoxNavigation rootNav = volume.navigate();
+        BoxNavigation rootNav = getVolume().navigate();
         BoxFolder folder = rootNav.createFolder("foobar");
         rootNav.commit();
         rootNav.createFolder("foobaz");
@@ -102,13 +91,13 @@ public class BoxProviderTest extends InstrumentationTestCase {
         List<BoxFolder> boxFolders = rootNav.listFolders();
         List<String> path = new ArrayList<>();
         path.add("");
-        BoxNavigation navigation = provider.traverseToFolder(volume, path);
+        BoxNavigation navigation = provider.traverseToFolder(getVolume(), path);
         assertThat(boxFolders, is(navigation.listFolders()));
         rootNav.navigate(folder);
         rootNav.createFolder("blub");
         rootNav.commit();
         path.add("foobar");
-        navigation = provider.traverseToFolder(volume, path);
+        navigation = provider.traverseToFolder(getVolume(), path);
         assertThat("Could not navigate to /foobar/",
                 rootNav.listFolders(), is(navigation.listFolders()));
 
@@ -119,12 +108,12 @@ public class BoxProviderTest extends InstrumentationTestCase {
         assertThat(cursor.getCount(), is(1));
         cursor.moveToFirst();
         String documentId = cursor.getString(6);
-        assertThat(documentId, is(BoxProviderTester.PUB_KEY + VolumeFileTransferHelper.HARDCODED_ROOT));
+        assertThat(documentId, is(MockBoxProvider.PUB_KEY + VolumeFileTransferHelper.HARDCODED_ROOT));
 
     }
 
     public void testOpenDocument() throws IOException, QblStorageException {
-        BoxNavigation rootNav = volume.navigate();
+        BoxNavigation rootNav = getVolume().navigate();
         rootNav.upload("testfile", new FileInputStream(new File(testFileName)), null);
         rootNav.commit();
         assertThat(rootNav.listFiles().size(), is(1));
@@ -163,15 +152,15 @@ public class BoxProviderTest extends InstrumentationTestCase {
         byte[] dl = IOUtils.toByteArray(inputStream);
         byte[] content = IOUtils.toByteArray(new FileInputStream(file));
         assertThat(dl, is(content));
-		assertTrue(mProvider.isBroadcastNotificationCalled);
-		assertTrue(mProvider.isShowNotificationCalled);
-		assertTrue(mProvider.isUpdateNotificationCalled);
+		assertTrue(getProvider().isBroadcastNotificationCalled);
+		assertTrue(getProvider().isShowNotificationCalled);
+		assertTrue(getProvider().isUpdateNotificationCalled);
     }
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     public void testOpenDocumentForRW() throws IOException, QblStorageException, InterruptedException {
         // Upload a test payload
-        BoxNavigation rootNav = volume.navigate();
+        BoxNavigation rootNav = getVolume().navigate();
         byte[] testContent = new byte[] {0,1,2,3,4,5};
         byte[] updatedContent = new byte[] {0,1,2,3,4,5,6};
         rootNav.upload("testfile", new ByteArrayInputStream(testContent), null);
@@ -205,9 +194,9 @@ public class BoxProviderTest extends InstrumentationTestCase {
         assertNotNull(inputStream);
         byte[] downloaded = IOUtils.toByteArray(dlInputStream);
         assertThat("Changes to the uploaded file not found", downloaded, is(updatedContent));
-		assertTrue(mProvider.isBroadcastNotificationCalled);
-		assertTrue(mProvider.isShowNotificationCalled);
-		assertTrue(mProvider.isUpdateNotificationCalled);
+		assertTrue(getProvider().isBroadcastNotificationCalled);
+		assertTrue(getProvider().isShowNotificationCalled);
+		assertTrue(getProvider().isUpdateNotificationCalled);
 	}
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
@@ -269,14 +258,14 @@ public class BoxProviderTest extends InstrumentationTestCase {
     }
 
     public void testGetDocumentId() throws QblStorageException {
-        assertThat(volume.getDocumentId("/"), is(ROOT_DOC_ID));
-        BoxNavigation navigate = volume.navigate();
-        assertThat(volume.getDocumentId(navigate.getPath()), is(ROOT_DOC_ID));
+        assertThat(getVolume().getDocumentId("/"), is(ROOT_DOC_ID));
+        BoxNavigation navigate = getVolume().navigate();
+        assertThat(getVolume().getDocumentId(navigate.getPath()), is(ROOT_DOC_ID));
         BoxFolder folder = navigate.createFolder("testfolder");
         assertThat(navigate.getPath(folder), is("/testfolder/"));
         navigate.commit();
         navigate.navigate(folder);
-        assertThat(volume.getDocumentId(navigate.getPath()), is(ROOT_DOC_ID + "testfolder/"));
+        assertThat(getVolume().getDocumentId(navigate.getPath()), is(ROOT_DOC_ID + "testfolder/"));
     }
 
 }

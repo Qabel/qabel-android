@@ -1,5 +1,8 @@
 package de.qabel.qabelbox.config;
 
+import android.net.Uri;
+import android.os.ParcelFileDescriptor;
+
 import org.json.JSONException;
 import org.junit.Before;
 import org.junit.Test;
@@ -22,6 +25,19 @@ public class ContactExportImportTest {
 
 	private static final String DROP_URL_1 = "http://localhost:6000/1234567890123456789012345678901234567891234";
 	private static final String DROP_URL_2 = "http://localhost:6000/0000000000000000000000000000000000000000000";
+
+	public static final String JSON_CONTACTLIST_WITH_INVALID_ENTRY="{\n" +
+			"\t\"contacts\": [{\n" +
+			"\t\t\"public_key\": \"7c879f241a891938d0be68fbc178ced6f926c95385f588fe8924d0d81a96a32a\",\n" +
+			"\t\t\"drop_urls\": [\"https://qdrop.prae.me/APlvHMq05d8ylgp64DW2AHFmdJj2hYDQXJiSnr-Holc\"],\n" +
+			"\t\t\"alias\": \"Zwei\"\n" +
+			"\t}, {\n" +
+			"\t\t\"public_key\": \"333b48c161f60bed0b116883aadac3c9217feff8225276561959d9b826944b69\",\n" +
+			"\t\t\"drop_urls\": [\"https://qdrop.prae.me/AI2X-QJ8WI2VtMgT0y302RyY3wU_RoAsqdaFQ9gf9fs\"],\n" +
+			"\t\t\"alias\": \"Eins\"\n" +
+			"\t}]\n" +
+			"}";
+
 
 	Identity identity;
 	Contact contact1;
@@ -100,4 +116,10 @@ public class ContactExportImportTest {
 		assertThat(identity.getPhone(), is(contact.getPhone()));
 		assertThat(identity.getEmail(), is(contact.getEmail()));
     }
+
+	public void testImportPartialValidContactsList() {
+
+	}
+
+
 }

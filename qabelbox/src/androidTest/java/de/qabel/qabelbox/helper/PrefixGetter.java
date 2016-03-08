@@ -1,4 +1,4 @@
-package de.qabel.qabelbox.ui.helper;
+package de.qabel.qabelbox.helper;
 
 import android.content.Context;
 import android.util.Log;

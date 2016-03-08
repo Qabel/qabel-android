@@ -3,8 +3,6 @@
     <string name="blockServer" translatable="false">https://test-block.qabel.de</string>
     <string name="accountingServer" translatable="false">https://test-accounting.qabel.de</string>
     <string name="dropServer" translatable="false">https://test-drop.qabel.de</string>
-    <string name="testAccountingServer" translatable="false">http://192.168.1.41:9696</string>
-    <string name="testBlockServer" translatable="false">http://192.168.1.41:8888</string>
-    <string name="blockserver_magic_testtoken" translatable="false">MAGICFAIRY</string>
-    <string name="accountingServerInactiveToken" translatable="false">35eecadd0558c6e04a282d8b5975a2ad094ace3b</string>
+
+
 </resources>

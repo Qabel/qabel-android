@@ -101,7 +101,7 @@ public class ContactExportImport {
 	 * @throws URISyntaxException
 	 * @throws QblDropInvalidURL
 	 */
-	public static Contact parseContactForIdentity(Identity identity, String json) throws JSONException, URISyntaxException, QblDropInvalidURL {
+	public static Contact parseContactForIdentity(Identity identity, JSONObject json) throws JSONException {
 		return parseContactFromJSON(identity, json);
 	}
 
@@ -110,24 +110,20 @@ public class ContactExportImport {
 	 * Parse {@link Contacts} from a {@link Contacts} JSON string
 	 *
 	 * @param identity {@link Identity} for setting the owner of the {@link Contact}s
-	 * @param json     {@link Contacts} JSON string
+	 * @param jsonObject     {@link Contacts} JSONObject
 	 * @return {@link Contacts} parsed from JSON string
 	 * @throws JSONException
 	 * @throws URISyntaxException
 	 * @throws QblDropInvalidURL
 	 */
-	public static Contacts parseContactsForIdentity(Identity identity, String json) throws JSONException {
+	public static Contacts parseContactsForIdentity(Identity identity, JSONObject jsonObject) throws JSONException {
 		Contacts contacts = new Contacts(identity);
-		JSONObject jsonObject = new JSONObject(json);
 		JSONArray jsonContacts = jsonObject.getJSONArray(KEY_CONTACTS);
+
 		for (int i = 0; i < jsonContacts.length(); i++) {
 			try {
-				contacts.put(parseContactFromJSON(identity, jsonContacts.getString(i)));
+				contacts.put(parseContactFromJSON(identity, jsonContacts.getJSONObject(i)));
 			} catch (JSONException e) {
-				Log.e(TAG,"Could not parese this contact. Will skip: "+e);
-			} catch (URISyntaxException e) {
-				Log.e(TAG,"Could not parese this contact. Will skip: "+e);
-			} catch (QblDropInvalidURL e) {
 				Log.e(TAG,"Could not parese this contact. Will skip: "+e);
 			}
 		}
@@ -137,15 +133,42 @@ public class ContactExportImport {
 		return contacts;
 	}
 
-	@NonNull
-	private static Contact parseContactFromJSON(Identity identity, String json) throws JSONException, URISyntaxException, QblDropInvalidURL {
-		JSONObject jsonObject = new JSONObject(json);
+	/**
+	 * Parses a JSON-String which can either be a contacts list or a single contact.
+	 * No matter what result will be wrapped in @see Contacts
+	 * @param identity
+	 * @param json
+	 * @return
+	 * @throws JSONException
+	 */
 
+	public static Contacts parse(Identity identity, String json) throws JSONException {
+		JSONObject jsonObject = new JSONObject(json);
+		if (jsonObject.has(KEY_CONTACTS)) {
+			return parseContactsForIdentity(identity,jsonObject);
+		} else {
+			Contact singleContact=parseContactForIdentity(identity, jsonObject);
+			Contacts wrapper=new Contacts(identity);
+			wrapper.put(singleContact);
+			return wrapper;
+		}
+
+	}
+
+
+	@NonNull
+	private static Contact parseContactFromJSON(Identity identity, JSONObject jsonObject) throws JSONException {
 		Collection<DropURL> dropURLs = new ArrayList<>();
 		String alias = jsonObject.getString(KEY_ALIAS);
 		JSONArray jsonDropURLS = jsonObject.getJSONArray(KEY_DROP_URLS);
 		for (int i = 0; i < jsonDropURLS.length(); i++) {
-			dropURLs.add(new DropURL(jsonDropURLS.getString(i)));
+			try {
+				dropURLs.add(new DropURL(jsonDropURLS.getString(i)));
+			} catch (URISyntaxException e) {
+				Log.w(TAG,"Could not parse uri: "+jsonDropURLS.getString(i)+" will ignore it",e);
+			} catch (QblDropInvalidURL e) {
+				Log.w(TAG,"Could not parse uri: "+jsonDropURLS.getString(i)+" will ignore it",e);
+			}
 		}
 		String keyIdentifier = jsonObject.getString(KEY_PUBLIC_KEY);
 

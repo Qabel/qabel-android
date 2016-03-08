@@ -2,7 +2,11 @@
 <resources>
     <string name="app_name">Qabel</string>
     <string name="splash_footer_text">Bitte vertrauen Sie uns nicht.\nEs ist nicht nötig.</string>
-    <string name="Contacts">Kontakte</string>
+    <string name="btn_welcome_back">Zurück</string>
+    <string name="btn_welcome_skip">Überspringen</string>
+    <string name="btn_welcome_accept">Akzeptieren</string>
+    <string name="headline_main_help">Hilfe</string>
+ <string name="Contacts">Kontakte</string>
     <string name="Delete">Löschen</string>
     <string name="Export">Exportieren</string>
     <string name="ExportAsContact">Exportiere deine Kontaktdaten</string>
@@ -41,8 +45,12 @@
     <string name="contact_export_successfully">Kontakt exportiert. Sie können diesen Kontakt nun weitergeben.</string>
     <string name="contact_import_failed">Importieren des Kontaktes fehlgeschlagen</string>
     <string name="contact_import_manual_failed">Importieren des Kontaktes fehlgeschlagen. Bitte überprüfen Sie die eingegebenen Daten</string>
-    <string name="contact_import_successfull">Kontakt importiert</string>
-    <string name="contact_list_empty">Sie haben noch keine Kontakte.\nBenutzen Sie den Knopf in der Ecke unten rechts, um Kontakte zu importieren</string>
+   <plurals name="contact_import_successfull">
+      <item quantity="one">Kontakt importiert</item>
+      <item quantity="other">%d Kontakte importiert</item>
+   </plurals>
+    <string name="contact_import_zero_additions">Keine neuen Kontakte gefunden</string>
+   <string name="contact_list_empty">Sie haben noch keine Kontakte.\nBenutzen Sie den Knopf in der Ecke unten rechts, um Kontakte zu importieren</string>
     <string name="contact_name">Name des Kontakts</string>
     <string name="contact_public_key">Öffentlicher Schlüssel</string>
     <string name="create_account_email">Bitte geben Sie Ihre E-Mail an. Mit dieser Adresse können Sie Ihren Account zurücksetzen</string>
@@ -97,7 +105,7 @@
     <string name="headline_add_contact">Kontakt hinzufügen</string>
     <string name="headline_add_identity">Identität hinzufügen</string>
     <string name="headline_contacts">Kontakte</string>
-    <string name="headline_create_box_account">Erstellen des Boxaccounts</string>
+    <string name="headline_create_box_account">Erstellen des Qabelaccounts</string>
     <string name="headline_filefilter">Filter</string>
     <string name="headline_files">Dateibrowser</string>
     <string name="headline_identities">Identitäten</string>

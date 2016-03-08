@@ -58,8 +58,8 @@
     <string name="create_identity_enter_all_data">Please fill in all fields</string>
     <string name="finish">Finish</string>
     <string name="create_identity_enter_name_hint">Alias of your identity</string>
-    <string name="identity_security_low">much traffic and high anonymity</string>
-    <string name="identity_security_high">little traffic and low anonymity</string>
+    <string name="identity_security_low">little traffic and low anonymity</string>
+    <string name="identity_security_high">much traffic and high anonymity</string>
     <string name="create_identity_create">Create a new identity</string>
     <string name="create_identity_import">Import an identity</string>
     <string name="function_not_yet_implenented">Function not yet implemented</string>

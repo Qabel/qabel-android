@@ -113,8 +113,8 @@
     <string name="headline_share_into_app">Hochladen</string>
     <string name="identity_export_failed">Konnte Identität nicht exportieren</string>
     <string name="identity_export_successfully">Identität exportiert. Die Datei enthält Ihren Schlüssel, verwahren Sie ihn sicher!</string>
-    <string name="identity_security_high">Wenig Datenverbrauch und geringe Anonymität</string>
-    <string name="identity_security_low">Viel Datenverbrauch und hohe Anonymität</string>
+    <string name="identity_security_high">Viel Datenverbrauch und hohe Anonymität</string>
+    <string name="identity_security_low">Wenig Datenverbrauch und geringe Anonymität</string>
     <string name="inbox">Eingang</string>
     <string name="infos">Infos</string>
     <string name="item_image">Ikon</string>

@@ -301,8 +301,11 @@ public class ContactFragment extends BaseFragment {
 						FileInputStream fis = new FileInputStream(pfd.getFileDescriptor());
 						String json = FileHelper.readFileAsText(fis);
 						fis.close();
-						Contact contact = ContactExportImport.parseContactForIdentity(QabelBoxApplication.getInstance().getService().getActiveIdentity(), json);
-						addContact(mActivity, contact);
+						Contacts contacts = ContactExportImport.parseContactsForIdentity(QabelBoxApplication.getInstance().getService().getActiveIdentity(), json);
+						for (Contact contact : contacts.getContacts()) {
+							addContact(mActivity, contact);
+						}
+
 					} catch (Exception e) {
 						Log.w(TAG, "add contact failed", e);
 						UIHelper.showDialogMessage(mActivity, R.string.dialog_headline_warning, R.string.contact_import_failed, e);

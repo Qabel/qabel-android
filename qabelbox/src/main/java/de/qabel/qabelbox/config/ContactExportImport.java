@@ -2,6 +2,7 @@ package de.qabel.qabelbox.config;
 
 
 import android.support.annotation.NonNull;
+import android.util.Log;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -20,6 +21,8 @@ import de.qabel.core.drop.DropURL;
 import de.qabel.core.exceptions.QblDropInvalidURL;
 
 public class ContactExportImport {
+
+	public static final String TAG="ContactExportImport";
 
 	private static final String KEY_ALIAS = "alias";
 	private static final String KEY_EMAIL = "email";
@@ -102,6 +105,7 @@ public class ContactExportImport {
 		return parseContactFromJSON(identity, json);
 	}
 
+	
 	/**
 	 * Parse {@link Contacts} from a {@link Contacts} JSON string
 	 *
@@ -112,12 +116,23 @@ public class ContactExportImport {
 	 * @throws URISyntaxException
 	 * @throws QblDropInvalidURL
 	 */
-	public static Contacts parseContactsForIdentity(Identity identity, String json) throws JSONException, URISyntaxException, QblDropInvalidURL {
+	public static Contacts parseContactsForIdentity(Identity identity, String json) throws JSONException {
 		Contacts contacts = new Contacts(identity);
 		JSONObject jsonObject = new JSONObject(json);
 		JSONArray jsonContacts = jsonObject.getJSONArray(KEY_CONTACTS);
 		for (int i = 0; i < jsonContacts.length(); i++) {
-			contacts.put(parseContactFromJSON(identity, jsonContacts.getString(i)));
+			try {
+				contacts.put(parseContactFromJSON(identity, jsonContacts.getString(i)));
+			} catch (JSONException e) {
+				Log.e(TAG,"Could not parese this contact. Will skip: "+e);
+			} catch (URISyntaxException e) {
+				Log.e(TAG,"Could not parese this contact. Will skip: "+e);
+			} catch (QblDropInvalidURL e) {
+				Log.e(TAG,"Could not parese this contact. Will skip: "+e);
+			}
+		}
+		if (contacts.getContacts().isEmpty()) {
+			throw new JSONException("Could not find a valid contact entry in "+KEY_CONTACTS);
 		}
 		return contacts;
 	}

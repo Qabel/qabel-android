@@ -11,7 +11,7 @@ import de.qabel.core.config.Identity;
 import de.qabel.qabelbox.chat.ChatMessageItem;
 import de.qabel.qabelbox.chat.ChatMessagesDataBase;
 import de.qabel.qabelbox.chat.ChatServer;
-import de.qabel.qabelbox.config.IdentityHelper;
+import de.qabel.qabelbox.util.IdentityHelper;
 
 import static android.support.test.InstrumentationRegistry.getTargetContext;
 import static org.hamcrest.MatcherAssert.assertThat;

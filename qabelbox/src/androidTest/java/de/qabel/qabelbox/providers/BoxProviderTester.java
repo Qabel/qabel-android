@@ -9,15 +9,17 @@ import android.support.annotation.Nullable;
 import org.spongycastle.util.encoders.Hex;
 
 import java.util.ArrayList;
+import java.util.UUID;
 
 import de.qabel.core.config.Identities;
 import de.qabel.core.config.Identity;
 import de.qabel.core.crypto.CryptoUtils;
 import de.qabel.core.crypto.QblECKeyPair;
 import de.qabel.core.exceptions.QblInvalidEncryptionKeyException;
-import de.qabel.qabelbox.persistence.AndroidPersistence;
-import de.qabel.qabelbox.persistence.QblSQLiteParams;
+import de.qabel.qabelbox.config.AndroidPersistence;
+import de.qabel.qabelbox.config.QblSQLiteParams;
 import de.qabel.qabelbox.services.LocalQabelService;
+import de.qabel.qabelbox.storage.BoxUploadingFile;
 
 public class BoxProviderTester extends BoxProvider {
 

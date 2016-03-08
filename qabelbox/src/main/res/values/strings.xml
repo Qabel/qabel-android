@@ -261,5 +261,11 @@
     <string name="github_url">https://github.com/Qabel</string>
     <string name="asset_qabel_font">fonts/Art Post.ttf</string>
     <string name="help">Help</string>
+    <string name="settings_box_quota" translatable="false">show_box_quota</string>
+    <string name="settings_title_box_quota">Quota</string>
+    <string name="used_storage">Used: %1$s of %2$s </string>
+    <string name="cannot_fetch_quota">Cannot fetch quota</string>
+    <string name="fetching_box_quota">Fetching quota…</string>
+    <string name="unlimited_storage">unlimited storage</string>
 
 </resources>

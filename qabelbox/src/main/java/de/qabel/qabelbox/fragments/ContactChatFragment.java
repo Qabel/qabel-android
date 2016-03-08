@@ -170,12 +170,13 @@ public class ContactChatFragment extends BaseFragment {
 						Log.e(TAG, "cant send message", e);
 					}
 				}
-				;
 			}
 		});
 		etText.setText("");
 
 		actionBar.setSubtitle(contact.getAlias());
+
+		refreshMessages();
 		refreshMessagesAsync();
 
 		return view;
@@ -189,14 +190,7 @@ public class ContactChatFragment extends BaseFragment {
 			new AsyncTask<Void, Void, Collection<DropMessage>>() {
 				@Override
 				protected void onPostExecute(Collection<DropMessage> dropMessages) {
-
-					messages.clear();
-					for (ChatMessageItem item : chatServer.getAllMessages(contact)) {
-						Log.v(TAG,"add message "+item.drop_payload);
-						messages.add(item);
-					}
-					chatServer.setAllMessagesReaded(contact);
-					fillAdapter(messages);
+					refreshMessages();
 					isSyncing = false;
 				}
 
@@ -207,6 +201,20 @@ public class ContactChatFragment extends BaseFragment {
 				}
 			}.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 		}
+	}
+
+	/**
+	 * Get the messages from the ChatServer and refreshes the local list and view.
+	 */
+	private void refreshMessages() {
+		ChatMessageItem[] items = chatServer.getAllMessages(contact);
+		messages.clear();
+		for (ChatMessageItem item : items) {
+			Log.v(TAG, "add message " + item.drop_payload);
+			messages.add(item);
+		}
+		chatServer.setAllMessagesReaded(contact);
+		fillAdapter(messages);
 	}
 
 

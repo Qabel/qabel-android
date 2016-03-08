@@ -14,6 +14,6 @@
             android:textColor="@color/white"
             android:textSize="@dimen/textsize_welcome_screen"
             android:layout_height="match_parent"
-            android:text="weclomedummy"/>
+            android:text="welcomedummy"/>
     </LinearLayout>
 </RelativeLayout>

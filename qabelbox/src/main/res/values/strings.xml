@@ -99,7 +99,7 @@
     <string name="change_boxaccount_password_message">Please enter a new password to change your Qabel account password.</string>
     <string name="dialog_headline_please_wait">Please wait</string>
     <string name="dialog_message_server_communication_is_running">Server communication is running</string>
-    <string name="headline_create_box_account">Create BoxAccount</string>
+    <string name="headline_create_box_account">Create Qabel account</string>
     <string name="server_access_not_successfully_retry_question">Server access failed. Do you want to retry?</string>
     <string name="no">No</string>
     <string name="yes">Yes</string>
@@ -230,10 +230,10 @@
     <string name="help_key_main_app_about_us">key_about_us</string>
     <string name="app_info_version_and_build">You use app version $1 from $2</string>
     <string name="headline_main_help">Help</string>
-    <string name="message_welcome_screen1">\nThis is an Ecosystem\n\nQabel is what we\n\nwant it to be\n\nCreate, Collaborate, Invent\n\nhave Fun!</string>
+    <string name="message_welcome_screen1">\nThis is an Ecosystem\n\nQabel is what we\nwant it to be\n\nCreate, Collaborate, Invent\n\nhave Fun!</string>
     <string name="message_welcome_screen2">End-to-end encrypted\nuploads and downloads\n\nSynchronisation over any number of devices\n\nSharing with other\nQabel users</string>
     <string name="message_welcome_screen3">Qabel allows you to manage\nmany identities with\nonly one account.\n\nYou can sync different\nidentities on different\ndevices and choose which\nidentities you want to\nshare with other people.\n\nBe Bob for your boss and\nAlice for your friends!</string>
-    <string name="message_welcome_screen4">We give you 2 GB\nof free storage\n\nyou just need to do create\na Qabel Box Account</string>
+    <string name="message_welcome_screen4">We give you 2 GB\nof free storage\n\nyou just need to do create\na Qabel Account</string>
     <string name="message_welcome_disclaimer_headline">\u0020License Stuff\n</string>
     <string name="message_welcome_disclaimer_message_legal_note">You have to agree\nto our legal notes</string>
     <string name="btn_welcome_disclaimer_show_legal_notes">Show Legal Notes</string>
@@ -257,7 +257,7 @@
     <string name="empty_text"/>
     <string name="headline_welcome_screen2">\u0020Specs\n</string>
     <string name="headline_welcome_screen3">\u0020Identities\n</string>
-    <string name="headline_welcome_screen4">\u0020Box Account\n</string>
+    <string name="headline_welcome_screen4">\u0020Qabel Account\n</string>
     <string name="github_url">https://github.com/Qabel</string>
     <string name="asset_qabel_font">fonts/Art Post.ttf</string>
     <string name="help">Help</string>

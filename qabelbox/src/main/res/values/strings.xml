@@ -246,7 +246,7 @@
     <string name="message_welcome_disclaimer_message_privacy_note">and to our\nPrivacy Notes</string>
     <string name="btn_welcome_disclaimer_show_privacy_notes">Show Privacy Notes</string>
 
-    <string name="message_welcome_disclaimer_qabel_is_public_source">\u0020ist published Source</string>
+    <string name="message_welcome_disclaimer_qabel_is_public_source">\u0020is published Source</string>
     <string name="btn_welcome_disclaimer_show_sources_on_github">Show Sources on GitHub</string>
     <string name="btn_welcome_disclaimer_show_qapl">Show QAPL</string>
     <string name="btn_welcome_back">Back</string>

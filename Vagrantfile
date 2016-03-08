@@ -64,7 +64,7 @@ SCRIPT
         git clone https://github.com/Qabel/qabel-block
     fi
     cd qabel-block/src
-    if [ ! - d ../venv ]; then
+    if [ ! -d ../venv ]; then
         virtualenv ../venv --no-site-packages --always-copy --python=python3.5
     fi
     source ../venv/bin/activate

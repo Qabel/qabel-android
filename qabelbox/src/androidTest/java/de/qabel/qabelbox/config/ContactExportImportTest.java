@@ -1,6 +1,7 @@
 package de.qabel.qabelbox.config;
 
 import org.json.JSONException;
+import org.json.JSONObject;
 import org.junit.Before;
 import org.junit.Test;
 import org.spongycastle.util.encoders.Hex;
@@ -38,14 +39,18 @@ public class ContactExportImportTest {
 
 	public static final String AT_ALIAS="Admiral Tolwyn";
 	public static final String AT_PUBLICKEYID="5a4b033b326840438e52f4fbe1d995da0b7276387d18862b9242767ca9cbb752";
-	public static final String AT_DROP="5a4b033b326840438e52f4fbe1d995da0b7276387d18862b9242767ca9cbb752";
+	public static final String AT_DROP="https://test-drop.qabel.de/Cg7hjB0zlQ3bubsGfRAAAAAAAAAAAAAAAAAAAAAAAAA";
 
 	public static final String ANGEL_ALIAS="Jeannette Devereaux";
 	public static final String ANGEL_PUBLICKEYID="e9468068367fbf3a98784bf3ec014aab7a9f4254a17af185f2811f6263c0405e";
 	public static final String ANGEL_DROP="https://test-drop.qabel.de/Cg7hjB0zlQ3bubsGfRrVggAAAAAAAAAAAAAAAAAAAAA";
 
 
-
+	public static final String JSON_SINGLE_CONTACT="{\n" +
+			"\t\"public_key\": \"7c879f241a891938d0be68fbc178ced6f926c95385f588fe8924d0d81a96a32a\",\n" +
+			"\t\"drop_urls\": [\"https://qdrop.prae.me/APlvHMq05d8ylgp64DW2AHFmdJj2hYDQXJiSnr-Holc\"],\n" +
+			"\t\"alias\": \"Zwei\"\n" +
+			"}";
 
 	public static final String JSON_CONTACTLIST_WITH_INVALID_ENTRY="{\n" +
 			"\t\"contacts\": [{\n" +
@@ -60,9 +65,9 @@ public class ContactExportImportTest {
 
 	public static final String JSON_CONTACTLIST_TIGERSCLAW="{\n" +
 			"\t\"contacts\": [{\n" +
-			"\t\t\"public_key\": \"\",\n" + MAVERICK_PUBLICKEYID+
-			"\t\t\"drop_urls\": [\"\"],\n" + MAVERICK_DROP+
-			"\t\t\"alias\": \"" + MAVERICK_ALIAS +
+			"\t\t\"public_key\": \""+ MAVERICK_PUBLICKEYID+"\",\n" +
+			"\t\t\"drop_urls\": [\""+ MAVERICK_DROP+"\"],\n" +
+			"\t\t\"alias\": \"" + MAVERICK_ALIAS+"\"\n" +
 			"\t}, {\n" +
 			"\t\t\"public_key\": \""+MANIAC_PUBLICKEYID+"\",\n" +
 			"\t\t\"drop_urls\": [\""+MANIAC_DROP+"\"],\n" +
@@ -126,7 +131,7 @@ public class ContactExportImportTest {
 	@Test
 	public void testExportImportContact() throws QblDropInvalidURL, JSONException, URISyntaxException {
 		String contactJSON = ContactExportImport.exportContact(contact1);
-		Contact importedContact1 = ContactExportImport.parseContactForIdentity(identity, contactJSON);
+		Contact importedContact1 = ContactExportImport.parseContactForIdentity(identity, new JSONObject(contactJSON));
 		assertContactEquals(contact1, importedContact1);
 	}
 
@@ -135,7 +140,7 @@ public class ContactExportImportTest {
 		contact1.setEmail("test@example.com");
 		contact1.setPhone("+491111111");
 		String contactJSON = ContactExportImport.exportContact(contact1);
-		Contact importedContact1 = ContactExportImport.parseContactForIdentity(identity, contactJSON);
+		Contact importedContact1 = ContactExportImport.parseContactForIdentity(identity, new JSONObject(contactJSON));
 		assertContactEquals(contact1, importedContact1);
 	}
 
@@ -143,7 +148,7 @@ public class ContactExportImportTest {
 	public void testExportImportContacts() throws JSONException, URISyntaxException, QblDropInvalidURL {
 		String contactsJSON = ContactExportImport.exportContacts(contacts);
 
-		Contacts importedContacts = ContactExportImport.parseContactsForIdentity(identity, contactsJSON);
+		Contacts importedContacts = ContactExportImport.parseContactsForIdentity(identity, new JSONObject(contactsJSON));
 
 		assertThat(importedContacts.getContacts().size(), is(2));
 		Contact importedContact1 = importedContacts.getByKeyIdentifier(contact1.getKeyIdentifier());
@@ -165,7 +170,7 @@ public class ContactExportImportTest {
     public void testImportExportedContactFromIdentity() throws URISyntaxException, QblDropInvalidURL, JSONException {
          String json = ContactExportImport.exportIdentityAsContact(identity);
         // Normally a contact wouldn't be imported for the belonging identity, but it doesn't matter for the test
-        Contact contact = ContactExportImport.parseContactForIdentity(identity, json);
+        Contact contact = ContactExportImport.parseContactForIdentity(identity, new JSONObject(json));
 
         assertThat(identity.getAlias(), is(contact.getAlias()));
         assertThat(identity.getDropUrls(), is(contact.getDropUrls()));
@@ -178,7 +183,7 @@ public class ContactExportImportTest {
 	@Test
 	public void testImportPartialValidContactsList() {
 		try {
-			Contacts result = ContactExportImport.parseContactsForIdentity(identity, JSON_CONTACTLIST_WITH_INVALID_ENTRY);
+			Contacts result = ContactExportImport.parseContactsForIdentity(identity, new JSONObject(JSON_CONTACTLIST_WITH_INVALID_ENTRY));
 			assertEquals(1, result.getContacts().size());
 			Contact first=result.getContacts().iterator().next();
 			Contact expectedContact=initContact("Eins","333b48c161f60bed0b116883aadac3c9217feff8225276561959d9b826944b69","https://qdrop.prae.me/AI2X-QJ8WI2VtMgT0y302RyY3wU_RoAsqdaFQ9gf9fs");
@@ -194,8 +199,21 @@ public class ContactExportImportTest {
 
 	}
 
-	public void testDetectLists() {
-		// Contacts tigersClawCrew=ContactExportImport.parse()
+	@Test
+	public void testDetectLists() throws URISyntaxException, QblDropInvalidURL {
+		try {
+			Contacts tigersClawCrew=ContactExportImport.parse(identity,JSON_CONTACTLIST_TIGERSCLAW);
+			assertEquals(4,tigersClawCrew.getContacts().size());
+
+			Contacts singleContact=ContactExportImport.parse(identity,JSON_SINGLE_CONTACT);
+			assertEquals(1,singleContact.getContacts().size());
+			Contact expectedContact=initContact("Zwei","7c879f241a891938d0be68fbc178ced6f926c95385f588fe8924d0d81a96a32a","https://qdrop.prae.me/APlvHMq05d8ylgp64DW2AHFmdJj2hYDQXJiSnr-Holc");
+			Contact myContact=singleContact.getContacts().iterator().next();
+			assertContactEquals(expectedContact,myContact);
+
+		} catch (JSONException e) {
+			fail("Could not parse valid list: "+e);
+		}
 
 	}
 

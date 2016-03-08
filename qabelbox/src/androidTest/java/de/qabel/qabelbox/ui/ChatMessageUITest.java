@@ -16,6 +16,7 @@ import android.util.Log;
 import com.squareup.picasso.PicassoIdlingResource;
 import com.squareup.spoon.Spoon;
 
+import org.json.JSONObject;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
@@ -126,14 +127,14 @@ public class ChatMessageUITest {
 		contact2Json = ContactExportImport.exportIdentityAsContact(user2);
 		mBoxHelper.setActiveIdentity(user1);
 		try {
-			mBoxHelper.getService().addContact(new ContactExportImport().parseContactForIdentity(user1, contact2Json));
+			mBoxHelper.getService().addContact(new ContactExportImport().parseContactForIdentity(user1, new JSONObject(contact2Json)));
 		} catch (Exception e) {
 			Log.e(TAG, "error on add contact", e);
 		}
 		assertNotEmpty(mBoxHelper.getService().getContacts().getContacts());
 		mBoxHelper.setActiveIdentity(user2);
 		try {
-			mBoxHelper.getService().addContact(new ContactExportImport().parseContactForIdentity(user2, contact1Json));
+			mBoxHelper.getService().addContact(new ContactExportImport().parseContactForIdentity(user2, new JSONObject(contact1Json)));
 		} catch (Exception e) {
 			Log.e(TAG, "error on add contact", e);
 		}

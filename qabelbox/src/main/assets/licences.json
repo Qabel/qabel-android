@@ -10,7 +10,8 @@
         "GSON",
         "Hockey SDK",
         "OkHttp",
-        "Picasso"
+        "Picasso",
+        "Roboto Font"
       ]
     },
     {
@@ -31,6 +32,18 @@
         "SLF4J",
         "SQLDroid 1.0.3"
       ]
-    }
+    },
+    {
+      "name": "Creative Commons Attribution 4.0 Licence:",
+      "components": [
+        "Google Material Design Icons"
+      ]
+    },
+    {
+      "name": "Community Icons - SIL Open Font License 1.1:",
+      "components": [
+        "Material Design Icons - based Icons"
+      ]
+    },
   ]
 }

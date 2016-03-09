@@ -117,7 +117,7 @@
     <string name="btn_reset_password">Reset password</string>
     <string name="create_account_reset_password_infos">Enter the email address associated with your account</string>
     <string name="listdata_loading">Loading</string>
-    <string name="file_list_empty">nothing here\nuploading something</string>
+    <string name="file_list_empty">nothing here\nupload something</string>
     <string name="contact_list_empty">nobody here\nimport someone</string>
     <string name="cant_read_identity">Could not read identity from file</string>
     <string name="identity_export_failed">Could export the identity</string>

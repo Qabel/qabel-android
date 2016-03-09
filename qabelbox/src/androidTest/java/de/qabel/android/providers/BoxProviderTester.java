@@ -9,7 +9,9 @@ import android.support.annotation.Nullable;
 import org.spongycastle.util.encoders.Hex;
 
 import java.util.ArrayList;
+import java.util.UUID;
 
+import de.qabel.android.providers.BoxProvider;
 import de.qabel.core.config.Identities;
 import de.qabel.core.config.Identity;
 import de.qabel.core.crypto.CryptoUtils;

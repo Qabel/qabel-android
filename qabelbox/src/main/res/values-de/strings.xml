@@ -192,7 +192,7 @@
     <string name="hockeyapp_feedback_response_button_text">Neue Nachricht senden</string>
     <string name="action_about">Über</string>
    <string name="used_storage">Belegt: %1$s von %2$s</string>
-   <string name="unlimited_storage">unbegrentem Speicherplatz</string>
+   <string name="unlimited_storage">unbegrenztem Speicherplatz</string>
    <string name="fetching_box_quota">Empfange Quota…</string>
    <string name="settings_title_box_quota">Quota</string>
    <string name="cannot_fetch_quota">Fehler beim Abrufen des Quotas</string>

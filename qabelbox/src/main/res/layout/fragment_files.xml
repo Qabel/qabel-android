@@ -5,7 +5,7 @@
              android:layout_width="match_parent"
              android:layout_height="match_parent"
              android:background="@color/background_material_light"
-             tools:context="de.qabel.qabelbox.fragments.ContactFragment">
+             tools:context="de.qabel.android.fragments.ContactFragment">
 
     <android.support.v4.widget.SwipeRefreshLayout
         android:id="@+id/swipeRefresh"
@@ -41,7 +41,7 @@
                     android:layout_gravity="center_vertical"
                     android:orientation="vertical">
 
-                    <de.qabel.qabelbox.views.TextViewFont
+                    <de.qabel.android.views.TextViewFont
                         style="@style/ListViewLoadingText"
                         android:text="@string/listdata_loading"
                         android:visibility="visible"/>
@@ -73,7 +73,7 @@
                         android:layout_height="wrap_content"
                         android:src="@drawable/files_empty"/>
 
-                    <de.qabel.qabelbox.views.TextViewFont
+                    <de.qabel.android.views.TextViewFont
                         style="@style/ListViewLoadingText"
                         android:layout_height="wrap_content"
                         android:gravity="center_horizontal"

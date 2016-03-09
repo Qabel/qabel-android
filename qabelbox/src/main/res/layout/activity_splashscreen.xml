@@ -16,7 +16,7 @@
             android:adjustViewBounds="true"
             android:src="@drawable/splash_footer" />
 
-        <de.qabel.qabelbox.views.TextViewFont
+        <de.qabel.android.views.TextViewFont
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"

@@ -74,6 +74,8 @@ dependencies {
     targetCompatibility = org.gradle.api.JavaVersion.VERSION_1_7
     compile fileTree(dir: 'libs', include: ['*.jar'])
     testCompile 'junit:junit:4.12'
+    testCompile 'org.xerial:sqlite-jdbc:3.8.11.2'
+    testCompile 'org.slf4j:slf4j-simple:1.7.12'
     compile 'com.android.support:recyclerview-v7:22.2.1'
     compile 'com.android.support:appcompat-v7:22.2.1'
     compile 'com.android.support:design:22.2.1'

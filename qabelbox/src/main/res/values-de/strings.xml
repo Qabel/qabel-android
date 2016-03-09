@@ -46,7 +46,7 @@
     <string name="contact_import_failed">Importieren des Kontaktes fehlgeschlagen</string>
     <string name="contact_import_manual_failed">Importieren des Kontaktes fehlgeschlagen. Bitte überprüfen Sie die eingegebenen Daten</string>
     <string name="contact_import_successfull">Kontakt importiert</string>
-    <string name="contact_list_empty">Sie haben noch keine Kontakte.\nBenutzen Sie den Knopf in der Ecke unten rechts, um Kontakte zu importieren</string>
+    <string name="contact_list_empty">noch niemand hier\nimportieren Sie jemanden</string>
     <string name="contact_name">Name des Kontakts</string>
     <string name="contact_public_key">Öffentlicher Schlüssel</string>
     <string name="create_account_email">Bitte geben Sie Ihre E-Mail an. Mit dieser Adresse können Sie Ihren Account zurücksetzen</string>
@@ -88,7 +88,7 @@
     <string name="edit">Bearbeiten</string>
     <string name="email_adress_invalid">Ihre E-Mail-Adresse ist ungültig. Bitte prüfen Sie die E-Mail-Adresse und versuchen Sie es erneut.</string>
     <string name="error_reason_io">Problem beim Lesen oder Schreiben</string>
-    <string name="file_list_empty">Der Ordner ist leer. Benutzen Sie den Knopf unten rechts, um Dateien hochzuladen.</string>
+    <string name="file_list_empty">noch nichts da\nladen Sie etwas hoch</string>
     <string name="filebrowser">Dateien</string>
     <string name="filter">Filter</string>
     <string name="filter_label_date">Datum</string>

@@ -1,4 +1,4 @@
-package de.qabel.qabelbox.config;
+package de.qabel.qabelbox.persistence;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;

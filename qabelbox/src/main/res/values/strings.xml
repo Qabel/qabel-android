@@ -194,11 +194,8 @@
     <string name="message_unshare_not_successfull">Can\'t revoke share</string>
     <string name="message_unshare_successfull">Share successfully revoked</string>
     <string name="message_revoke_share">Revoking share</string>
-    <string name="settings_key_internal_reset_app_data" translatable="false">key_debug_reset_app_data</string>
     <string name="message_chat_message_not_sended">Message NOT sended</string>
     <string name="create_idenity_cant_get_prefix">Could not retrieve a prefix from the server</string>
-    <string name="clear_app_data">Clear app data</string>
-    <string name="clear_app_data_summary">Clean all data without warning</string>
     <plurals name="uploadsNotificationTitle">
         <item quantity="one">Uploading</item>
         <item quantity="other">Uploads remaining: %d</item>

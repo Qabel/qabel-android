@@ -44,3 +44,5 @@ log/
 *.iml
 /qabelbox/local.properties
 /qabelbox/src/main/res/values/params.xml
+.vagrant
+qabel-block

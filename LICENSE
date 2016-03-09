@@ -208,6 +208,7 @@ The full license text may be accessed under <http://www.qabel.de>
 Used third party librarys
 1. -> see build.gradle
 2. -> DrawableMatcher.java from https://github.com/xrigau/droidcon-android-espresso/tree/master/app/src/instrumentTest/java/com/xrigau/droidcon/espresso/helper
+3. ->ViewPagerParalex.java from https://github.com/garrapeta/ParallaxViewPager/blob/master/LICENSE.txt
 
 Used third party assets
 ================================================

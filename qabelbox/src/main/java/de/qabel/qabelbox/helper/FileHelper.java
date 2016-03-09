@@ -1,12 +1,17 @@
 package de.qabel.qabelbox.helper;
 
 
+import android.content.Context;
+import android.content.res.AssetManager;
+import android.util.Log;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStream;
 import java.nio.charset.Charset;
 
@@ -19,9 +24,28 @@ public class FileHelper {
     private static final String DEFAULT_ENCODING = "UTF-8";
     public static final Charset UTF8 = Charset.forName(DEFAULT_ENCODING);
 
+    private static String TAG = "FileHelper";
+
     public static JSONObject readFileAsJson(FileInputStream fis) throws JSONException, IOException {
 
         return new JSONObject(readFileAsText(fis));
+    }
+
+    public static String loadFileFromAssets(Context c, String file) {
+
+        AssetManager assetManager = c.getAssets();
+
+        InputStream input = null;
+        try {
+            input = assetManager.open(file);
+            byte[] buffer = new byte[input.available()];
+            input.read(buffer);
+            input.close();
+            return new String(buffer);
+        } catch (IOException e) {
+            Log.e(TAG, "can't load file from assets", e);
+            return null;
+        }
     }
 
     public static String readFileAsText(FileInputStream fis) throws IOException {

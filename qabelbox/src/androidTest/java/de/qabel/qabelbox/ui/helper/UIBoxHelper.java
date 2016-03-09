@@ -31,6 +31,7 @@ import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.communication.VolumeFileTransferHelper;
 import de.qabel.qabelbox.config.AppPreference;
 import de.qabel.qabelbox.exceptions.QblStorageException;
+import de.qabel.qabelbox.helper.PrefixGetter;
 import de.qabel.qabelbox.helper.RealTokerGetter;
 import de.qabel.qabelbox.providers.BoxProvider;
 import de.qabel.qabelbox.services.LocalQabelService;
@@ -134,7 +135,7 @@ public class UIBoxHelper {
 		DropURL dropURL = new DropURL(dropServer, adjustableDropIdGenerator);
 		Collection<DropURL> dropURLs = new ArrayList<>();
 		dropURLs.add(dropURL);
-		String prefix=new de.qabel.qabelbox.ui.helper.PrefixGetter().getPrefix(mContext);
+		String prefix=new PrefixGetter().getPrefix(mContext);
 		Identity identity = new Identity(identName,
 				dropURLs, new QblECKeyPair());
 		identity.getPrefixes().add(prefix);

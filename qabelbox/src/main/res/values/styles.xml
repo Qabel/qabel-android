@@ -19,13 +19,17 @@
         <item name="alertDialogTheme">@style/AppCompatAlertDialogStyle</item>
     </style>
 
+    <style name="AppVPITheme" parent="AppTheme">
+        <item name="vpiIconPageIndicatorStyle">@style/Widget.IconPageIndicator</item>
+    </style>
+
     <style name="AppCompatAlertDialogStyle" parent="Theme.AppCompat.Light.Dialog.Alert">
         <item name="colorAccent">@color/colorAccent</item>
         <item name="android:textColorPrimary">@color/default_text_color</item>
 
     </style>
 
-    <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+    <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar"/>
 
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light">
         <item name="android:color">@color/white</item>
@@ -66,10 +70,12 @@
         <item name="android:textColor">@color/default_text_color</item>
         <item name="android:textSize">@dimen/textsize_normal</item>
     </style>
+
     <style name="SmallGreyMessageText">
         <item name="android:textColor">@color/grey_text_color</item>
         <item name="android:textSize">@dimen/textsize_small</item>
     </style>
+
     <style name="TextViewButton" parent="MessageText">
         <item name="android:paddingTop">5dp</item>
         <item name="android:paddingBottom">5dp</item>
@@ -138,7 +144,14 @@
     </style>
 
 
-
-
     <style name="Spinner"></style>
+
+    <style name="ActionBarBottomItem">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="android:textSize">@dimen/textsize_bottom_ab</item>
+    </style>
+
 </resources>

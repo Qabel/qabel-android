@@ -25,7 +25,10 @@
             style="@style/MessageText"
             android:layout_alignParentLeft="true"
             android:layout_below="@id/sb_security"
-            android:text="@string/identity_security_low"/>
+            android:text="@string/identity_security_low"
+            android:height="50dp"
+            android:width="140dp"
+            android:layout_marginLeft="5dp"/>
 
         <de.qabel.qabelbox.views.TextViewFont
             android:layout_width="wrap_content"
@@ -33,7 +36,9 @@
             android:layout_alignParentRight="true"
             style="@style/MessageText"
             android:layout_below="@id/sb_security"
-            android:text="@string/identity_security_high"/>
+            android:text="@string/identity_security_high"
+            android:width="140dp"
+            android:layout_marginRight="5dp"/>
     </RelativeLayout>
 
     <Space
@@ -47,7 +52,8 @@
         android:gravity="left"
         android:minLines="5"
         android:text="@string/create_identity_select_security"
-        style="@style/MessageText"/>
+        style="@style/MessageText"
+        android:layout_margin="5dp"/>
 
     <Space
         android:layout_width="wrap_content"

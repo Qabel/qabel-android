@@ -46,7 +46,7 @@
     <string name="contact_import_failed">Importieren des Kontaktes fehlgeschlagen</string>
     <string name="contact_import_manual_failed">Importieren des Kontaktes fehlgeschlagen. Bitte überprüfen Sie die eingegebenen Daten</string>
     <string name="contact_import_successfull">Kontakt importiert</string>
-    <string name="contact_list_empty">Sie haben noch keine Kontakte.\nBenutzen Sie den Knopf in der Ecke unten rechts, um Kontakte zu importieren</string>
+    <string name="contact_list_empty">noch niemand hier\nimportieren Sie jemanden</string>
     <string name="contact_name">Name des Kontakts</string>
     <string name="contact_public_key">Öffentlicher Schlüssel</string>
     <string name="create_account_email">Bitte geben Sie Ihre E-Mail an. Mit dieser Adresse können Sie Ihren Account zurücksetzen</string>
@@ -74,7 +74,7 @@
     <string name="create_identity_final">Sie können diese Identität nun zum Kommunizieren und Hochladen von Dateien verwenden</string>
     <string name="create_identity_final_create_identity">Ihre Identität ist nun verfügbar</string>
     <string name="create_identity_import">Importieren einer Identität</string>
-    <string name="create_identity_select_security">Wählen Sie den Grad der Verschleierung bei der Kommunikation mit anderen Nutzern. Ein höherer Grad verbraucht mehr Strom.</string>
+    <string name="create_identity_select_security">Wählen Sie den Grad der Anonymität gegenüber außenstehenden Beobachtern. Ein hoher Grad an Anonymität erzeugt mehr Datenverkehr, da Sie sich in einer größeren Gruppe von Nutzern verstecken. Wenn sie sich dafür entscheiden, weniger Datenverkehr zu erzeugen, muss die Gruppe der genannten Nutzer kleiner sein. Damit sinkt auch der Grad an Anonymität.</string>
     <string name="create_identity_successfull">Erfolgreich</string>
     <string name="debug_send_feedback">Feedback schreiben</string>
     <string name="debug_send_feedback_to_pm">Sagen Sie uns wie Ihnen Qabel gefällt und welche Vorschläge Sie haben</string>
@@ -88,7 +88,7 @@
     <string name="edit">Bearbeiten</string>
     <string name="email_adress_invalid">Ihre E-Mail-Adresse ist ungültig. Bitte prüfen Sie die E-Mail-Adresse und versuchen Sie es erneut.</string>
     <string name="error_reason_io">Problem beim Lesen oder Schreiben</string>
-    <string name="file_list_empty">Der Ordner ist leer. Benutzen Sie den Knopf unten rechts, um Dateien hochzuladen.</string>
+    <string name="file_list_empty">noch nichts da\nladen Sie etwas hoch</string>
     <string name="filebrowser">Dateien</string>
     <string name="filter">Filter</string>
     <string name="filter_label_date">Datum</string>
@@ -113,8 +113,8 @@
     <string name="headline_share_into_app">Hochladen</string>
     <string name="identity_export_failed">Konnte Identität nicht exportieren</string>
     <string name="identity_export_successfully">Identität exportiert. Die Datei enthält Ihren Schlüssel, verwahren Sie ihn sicher!</string>
-    <string name="identity_security_high">hoch</string>
-    <string name="identity_security_low">niedrig</string>
+    <string name="identity_security_high">Viel Datenverbrauch und hohe Anonymität</string>
+    <string name="identity_security_low">Wenig Datenverbrauch und geringe Anonymität</string>
     <string name="inbox">Eingang</string>
     <string name="infos">Infos</string>
     <string name="item_image">Ikon</string>
@@ -153,8 +153,6 @@
     <string name="uploading">hochladen</string>
     <string name="uploading_file">Datei </string>
     <string name="yes">Ja</string>
-    <string name="clear_app_data">App-Daten löschen</string>
-    <string name="clear_app_data_summary">Löscht alle App-Daten ohne eine Warnung</string>
     <string name="function_not_yet_implenented">Funktion ist noch nicht implementiert</string>
     <string name="refresh">Aktualisieren</string>
     <string name="btn_chat_send">Senden</string>

@@ -45,22 +45,6 @@ public class SettingsFragment extends PreferenceFragment {
                 return true;
             }
         });
-		findPreference(getString(R.string.settings_key_internal_reset_app_data)).setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-			@Override
-			public boolean onPreferenceClick(Preference preference) {
-				clearAllAppData(getActivity());
-				return true;
-			}
-		});
-
     }
-	public static void clearAllAppData(Context context) {
-		if (Build.VERSION_CODES.KITKAT <= Build.VERSION.SDK_INT) {
-			boolean ret=	((ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE))
-					.clearApplicationUserData(); // note: it has a return value!
-		} else {
-			// once minSdkVersion goes above 19 in a few years.
-		}
-	}
 }
 

@@ -66,7 +66,7 @@ public class URLs {
     //
     public String getPrefix() {
 
-        return BASE_ACCOUNTING + "/api/v0/prefix/";
+        return BASE_BLOCK + "/api/v0/prefix/";
     }
 
     /**

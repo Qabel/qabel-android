@@ -21,6 +21,8 @@ import org.junit.runners.MethodSorters;
 
 import java.io.IOException;
 
+import de.qabel.android.TestConstants;
+import de.qabel.android.communication.URLs;
 import de.qabel.core.config.Identities;
 import de.qabel.core.config.Identity;
 import de.qabel.android.QabelBoxApplication;
@@ -81,6 +83,7 @@ public class CreateIdentityUITest {
 	public void setUp() throws IOException, QblStorageException {
 
 		mActivity = mActivityTestRule.getActivity();
+		URLs.setBaseBlockURL(TestConstants.TESTING_BLOCK_URL);
 		mBoxHelper = new UIBoxHelper(QabelBoxApplication.getInstance());
 		mBoxHelper.bindService(QabelBoxApplication.getInstance());
 		mBoxHelper.createTokenIfNeeded(false);

@@ -25,6 +25,8 @@ import org.junit.runners.MethodSorters;
 
 import java.io.IOException;
 
+import de.qabel.android.TestConstants;
+import de.qabel.android.communication.URLs;
 import de.qabel.core.config.Identity;
 import de.qabel.android.QabelBoxApplication;
 import de.qabel.android.R;
@@ -90,6 +92,7 @@ public class ChatMessageUITest {
 		wakeLock.release();
 		Espresso.unregisterIdlingResources(mPicassoIdlingResource);
 		mSystemAnimations.enableAll();
+		URLs.setBaseBlockURL(mActivity.getString(R.string.testBlockServer));
 		mBoxHelper.unbindService(QabelBoxApplication.getInstance());
 	}
 
@@ -108,6 +111,7 @@ public class ChatMessageUITest {
 
 	private void setupData() {
 		mActivity = mActivityTestRule.getActivity();
+		URLs.setBaseBlockURL(TestConstants.TESTING_BLOCK_URL);
 		mBoxHelper = new UIBoxHelper(QabelBoxApplication.getInstance());
 		mBoxHelper.bindService(QabelBoxApplication.getInstance());
 		mBoxHelper.createTokenIfNeeded(false);

@@ -79,7 +79,7 @@ public class BoxProvider extends DocumentsProvider {
             Document.COLUMN_DISPLAY_NAME, Document.COLUMN_LAST_MODIFIED,
             Document.COLUMN_FLAGS, Document.COLUMN_SIZE, Media.DATA};
 
-    public static final String AUTHORITY = "de.qabel.qabelbox.providers.documents";
+    public static final String AUTHORITY = "de.qabel.android.providers.documents";
     public static final String PATH_SEP = "/";
     public static final String DOCID_SEPARATOR = "::::";
     public static final String PREFIX = "test";

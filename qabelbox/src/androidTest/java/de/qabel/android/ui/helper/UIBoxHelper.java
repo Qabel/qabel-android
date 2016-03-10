@@ -135,7 +135,7 @@ public class UIBoxHelper {
 		DropURL dropURL = new DropURL(dropServer, adjustableDropIdGenerator);
 		Collection<DropURL> dropURLs = new ArrayList<>();
 		dropURLs.add(dropURL);
-		String prefix=new PrefixGetter().getPrefix(mContext);
+		String prefix= "test";//new PrefixGetter().getPrefix(mContext);
 		Identity identity = new Identity(identName,
 				dropURLs, new QblECKeyPair());
 		identity.getPrefixes().add(prefix);
@@ -227,8 +227,10 @@ public class UIBoxHelper {
 	public void createTokenIfNeeded(boolean forceCreated) {
 		Context applicationContext = QabelBoxApplication.getInstance().getApplicationContext();
 		AppPreference prefs = new AppPreference(applicationContext);
-		if (forceCreated || prefs.getToken() == null) {
+		if (forceCreated && prefs.getToken() == null) {
 			prefs.setToken(new RealTokerGetter().getToken(applicationContext));
+		}else {
+			prefs.setToken("MAGICFAIRY");
 		}
 	}
 

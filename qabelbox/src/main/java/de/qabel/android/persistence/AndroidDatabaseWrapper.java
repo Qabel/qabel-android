@@ -5,10 +5,12 @@ import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
+import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import de.qabel.android.exceptions.QblStorageException;
 import de.qabel.core.config.Persistable;
 import de.qabel.android.exceptions.QblPersistenceException;
 
@@ -23,10 +25,13 @@ public class AndroidDatabaseWrapper extends DatabaseWrapperImpl<QblSQLiteParams>
 	}
 
 	@Override
-	public boolean connect() {
+	public boolean connect(){
 		dbHelper = new QblSQLiteOpenHelper(params.getContext(), params.getName(),
 				params.getFactory(), params.getVersion());
 		database = dbHelper.getWritableDatabase();
+		if(database.isReadOnly()){
+			Log.e(this.getClass().getSimpleName(),"Writable Database is readonly!");
+		}
 		return true;
 	}
 

@@ -87,4 +87,8 @@ public class URLs {
 
         return BASE_BLOCK + "/api/v0/";
     }
+
+	public String getProfile() {
+		return BASE_ACCOUNTING + "/api/v0/profile/";
+	}
 }

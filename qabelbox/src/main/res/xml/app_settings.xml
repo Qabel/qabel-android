@@ -20,5 +20,9 @@
             android:key="@string/settings_key_change_password"
             android:summary="@string/settings_change_account_password_summary"
             android:title="@string/settings_change_account_password" />
+        <Preference
+            android:key="@string/settings_box_quota"
+            android:summary=""
+            android:title="@string/settings_title_box_quota" />
     </PreferenceCategory>
 </PreferenceScreen>

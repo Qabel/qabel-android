@@ -227,9 +227,9 @@
     <string name="help_key_main_app_about_us">key_about_us</string>
     <string name="app_info_version_and_build">You use app version $1 from $2</string>
     <string name="headline_main_help">Help</string>
-    <string name="message_welcome_screen1">\nThis is an Ecosystem\n\nQabel is what we\nwant it to be\n\nCreate, Collaborate, Invent\n\nhave Fun!</string>
-    <string name="message_welcome_screen2">End-to-end encrypted\nuploads and downloads\n\nSynchronisation over any number of devices\n\nSharing with other\nQabel users</string>
-    <string name="message_welcome_screen3">Qabel allows you to manage\nmany identities with\nonly one account.\n\nYou can sync different\nidentities on different\ndevices and choose which\nidentities you want to\nshare with other people.\n\nBe Bob to your boss and\nAlice to your friends!</string>
+    <string name="message_welcome_screen1">\nQabel is a free,\npublished-source\ncryptography platform.\n\nBecome a part\nof the Qabel ecosystem.\n\nEnjoy!</string>
+    <string name="message_welcome_screen2">End-to-end encrypted uploads,\n downloads and data storage.\nMetadata obfuscation.\n2GB free storage.\nSynchronisation over any\n number of devices\nSharing with other\nQabel users.\nManagement of multiple\nidentities with only one Qabel\naccount within\none application.\nIntegrated short message\nservice.</string>
+    <string name="message_welcome_screen3">Qabel allows you to depict\nmany identities with\nonly one account.\n\nYou can sync different\nidentities on different\ndevices and choose which\nidentities you want to\nshare with other people.\n\nBe Bob for your boss and\nAlice for your friends!</string>
     <string name="message_welcome_screen4">We give you 2 GB\nof free storage\n\nyou just need to do create\na Qabel Account</string>
     <string name="message_welcome_disclaimer_headline">\u0020License Stuff\n</string>
     <string name="message_welcome_disclaimer_message_legal_note">You have to agree\nto our legal notes</string>
@@ -258,5 +258,6 @@
     <string name="github_url">https://github.com/Qabel</string>
     <string name="asset_qabel_font">fonts/Art Post.ttf</string>
     <string name="help">Help</string>
+    <string name="uploading_file">File</string>
 
 </resources>

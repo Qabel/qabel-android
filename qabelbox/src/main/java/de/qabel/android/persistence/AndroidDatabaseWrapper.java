@@ -83,6 +83,7 @@ public class AndroidDatabaseWrapper extends DatabaseWrapperImpl<QblSQLiteParams>
 				return (U) PersistenceUtil.deserialize(id, cursor.getBlob(0));
 			}
 		} catch (SQLiteException e) {
+			e.printStackTrace();
 			throw new QblPersistenceException(e);
 		} finally {
 			if (cursor != null) {

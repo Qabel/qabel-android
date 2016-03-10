@@ -33,20 +33,26 @@ public class AndroidPersistence extends Persistence<QblSQLiteParams> {
 	@Override
 	public boolean persistEntity(Persistable object) throws QblPersistenceException {
 
+		initClassTable(object.getClass());
+
+		databaseWrapper.insert(object);
+
+		return true;
+	}
+
+	private void initClassTable(Class clazz) {
 		String sql = "CREATE TABLE IF NOT EXISTS " +
-				getTableNameForClass(object.getClass()) +
+				getTableNameForClass(clazz) +
 				"(ID TEXT PRIMARY KEY NOT NULL," +
 				"BLOB BLOB NOT NULL)";
 
 		try {
 			databaseWrapper.execSQL(sql);
 		} catch (QblPersistenceException e) {
-			e.printStackTrace();
 			LOGGER.error("Cannot create table!", e.getException());
+			throw e;
 		}
 
-		databaseWrapper.insert(object);
-		return true;
 	}
 
 	@Override
@@ -82,6 +88,7 @@ public class AndroidPersistence extends Persistence<QblSQLiteParams> {
 	@Override
 	public <U extends Persistable> U getEntity(String id, Class<? extends U> cls) throws QblPersistenceException {
 		try {
+			initClassTable(cls);
 			return databaseWrapper.getEntity(id, cls);
 		} catch (QblPersistenceException e) {
 			LOGGER.debug("Couldn't get entity! " + e.getException().getLocalizedMessage());
@@ -92,6 +99,7 @@ public class AndroidPersistence extends Persistence<QblSQLiteParams> {
 	@Override
 	public <U extends Persistable> List<U> getEntities(Class<? extends U> cls) throws QblPersistenceException {
 		try {
+			initClassTable(cls);
 			return databaseWrapper.getEntities(cls);
 		} catch (QblPersistenceException e) {
 			LOGGER.info("Table does not exist!");

@@ -14,9 +14,9 @@ import de.qabel.android.exceptions.QblPersistenceException;
 
 public class SqLiteDatabaseWrapper extends DatabaseWrapperImpl<String> {
 
-	private static final String INSERT_STMT = "INSERT INTO %s (" + STR_ID + ", " + STR_BLOB + ") VALUES (:id, :value)";
-	private static final String UPDATE_STMT = "UPDATE %s SET " + STR_BLOB + " = :value WHERE " + STR_ID + " = :id";
-	private static final String DELETE_STMT = "DELETE FROM %s WHERE " + STR_ID + " = :id";
+	private static final String INSERT_STMT = "INSERT INTO %s (" + ID + ", " + BLOB + ") VALUES (:id, :value)";
+	private static final String UPDATE_STMT = "UPDATE %s SET " + BLOB + " = :value WHERE " + ID + " = :id";
+	private static final String DELETE_STMT = "DELETE FROM %s WHERE " + ID + " = :id";
 
 	private Connection connection;
 
@@ -119,7 +119,7 @@ public class SqLiteDatabaseWrapper extends DatabaseWrapperImpl<String> {
 	public <U extends Persistable> U getEntity(String id, Class<? extends U> cls) throws QblPersistenceException {
 		PreparedStatement statement = null;
 		try {
-			statement = connection.prepareStatement("SELECT " + STR_BLOB + " FROM " + PersistenceUtil.getTableNameForClass(cls) + " WHERE " + STR_ID_QUERY);
+			statement = connection.prepareStatement("SELECT " + BLOB + " FROM " + PersistenceUtil.getTableNameForClass(cls) + " WHERE " + ID_QUERY);
 			statement.setString(1, id);
 			ResultSet result = statement.executeQuery();
 			if (result.next()) {
@@ -142,7 +142,7 @@ public class SqLiteDatabaseWrapper extends DatabaseWrapperImpl<String> {
 	public <U extends Persistable> List<U> getEntities(Class<? extends U> cls) throws QblPersistenceException {
 		PreparedStatement statement = null;
 		try {
-			statement = connection.prepareStatement("SELECT " + STR_ID + ", " + STR_BLOB + " FROM " + PersistenceUtil.getTableNameForClass(cls));
+			statement = connection.prepareStatement("SELECT " + ID + ", " + BLOB + " FROM " + PersistenceUtil.getTableNameForClass(cls));
 			ResultSet result = statement.executeQuery();
 			List<U> entityList = new ArrayList<>();
 			while (result.next()) {

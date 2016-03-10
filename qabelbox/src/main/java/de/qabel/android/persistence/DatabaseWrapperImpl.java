@@ -7,8 +7,8 @@ package de.qabel.android.persistence;
  */
 public abstract class DatabaseWrapperImpl<T> implements DatabaseWrapper {
 
-	protected static final String STR_BLOB = "BLOB";
-	protected static final String STR_ID = "ID";
-	protected static final String STR_ID_QUERY = "ID = ?";
+	protected static final String BLOB = "BLOB";
+	protected static final String ID = "ID";
+	protected static final String ID_QUERY = "ID = ?";
 
 }

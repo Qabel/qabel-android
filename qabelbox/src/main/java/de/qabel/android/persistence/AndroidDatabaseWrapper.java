@@ -42,8 +42,8 @@ public class AndroidDatabaseWrapper extends DatabaseWrapperImpl<QblSQLiteParams>
 	@Override
 	public boolean insert(Persistable entity) {
 		ContentValues contentValues = new ContentValues();
-		contentValues.put(STR_ID, entity.getPersistenceID());
-		contentValues.put(STR_BLOB, PersistenceUtil.serialize(entity.getPersistenceID(), entity));
+		contentValues.put(ID, entity.getPersistenceID());
+		contentValues.put(BLOB, PersistenceUtil.serialize(entity.getPersistenceID(), entity));
 
 		return database.insert(PersistenceUtil.getTableNameForClass(entity.getClass()), null, contentValues) != -1L;
 	}
@@ -51,26 +51,26 @@ public class AndroidDatabaseWrapper extends DatabaseWrapperImpl<QblSQLiteParams>
 	@Override
 	public boolean update(Persistable entity) {
 		ContentValues contentValues = new ContentValues();
-		contentValues.put(STR_BLOB, PersistenceUtil.serialize(entity.getPersistenceID(), entity));
+		contentValues.put(BLOB, PersistenceUtil.serialize(entity.getPersistenceID(), entity));
 
 		String[] whereArgs = {entity.getPersistenceID()};
-		return database.update(PersistenceUtil.getTableNameForClass(entity.getClass()), contentValues, STR_ID_QUERY, whereArgs) != -1;
+		return database.update(PersistenceUtil.getTableNameForClass(entity.getClass()), contentValues, ID_QUERY, whereArgs) != -1;
 	}
 
 	@Override
 	public boolean delete(String id, Class cls) {
 		String[] whereArgs = {id};
-		return database.delete(PersistenceUtil.getTableNameForClass(cls), STR_ID_QUERY, whereArgs) == 1;
+		return database.delete(PersistenceUtil.getTableNameForClass(cls), ID_QUERY, whereArgs) == 1;
 	}
 
 	@Override
 	public <U extends Persistable> U getEntity(String id, Class<? extends U> cls) {
-		String[] columns = {STR_BLOB};
+		String[] columns = {BLOB};
 		String[] selectionArgs = {id};
 
 		Cursor cursor = null;
 		try {
-			cursor = database.query(PersistenceUtil.getTableNameForClass(cls), columns, STR_ID_QUERY,
+			cursor = database.query(PersistenceUtil.getTableNameForClass(cls), columns, ID_QUERY,
 					selectionArgs, null, null, null);
 
 			if (cursor.moveToFirst()) {
@@ -90,7 +90,7 @@ public class AndroidDatabaseWrapper extends DatabaseWrapperImpl<QblSQLiteParams>
 	public <U extends Persistable> List<U> getEntities(Class<? extends U> cls) throws QblPersistenceException {
 		List<U> objects = new ArrayList<>();
 
-		String[] columns = {STR_ID, STR_BLOB};
+		String[] columns = {ID, BLOB};
 
 		Cursor cursor = null;
 		try {

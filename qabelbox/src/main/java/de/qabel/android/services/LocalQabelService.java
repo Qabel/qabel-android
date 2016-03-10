@@ -31,6 +31,8 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.LinkedBlockingDeque;
 
+import de.qabel.android.persistence.AndroidPersistence;
+import de.qabel.android.persistence.QblSQLiteParams;
 import de.qabel.core.config.Contact;
 import de.qabel.core.config.Contacts;
 import de.qabel.core.config.Identities;
@@ -45,8 +47,6 @@ import de.qabel.core.http.DropHTTP;
 import de.qabel.core.http.HTTPResult;
 import de.qabel.android.R;
 import de.qabel.android.activities.MainActivity;
-import de.qabel.android.config.AndroidPersistence;
-import de.qabel.android.config.QblSQLiteParams;
 import de.qabel.android.exceptions.QblStorageEntityExistsException;
 import de.qabel.android.providers.DocumentIdParser;
 import de.qabel.android.storage.BoxFile;

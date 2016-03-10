@@ -2,18 +2,21 @@ package de.qabel.android.exceptions;
 
 /**
  * Wraps SqlExceptions for adaptable Databases
- *
  */
 public class QblPersistenceException extends RuntimeException {
 
-	public Exception e;
+	public Exception causeException;
 
-	public QblPersistenceException(Exception e){
-		this.e = e;
+	public QblPersistenceException() {
+
 	}
 
-	public Exception getException(){
-		return e;
+	public QblPersistenceException(Exception causeException) {
+		this.causeException = causeException;
+	}
+
+	public Exception getException() {
+		return causeException;
 	}
 
 }

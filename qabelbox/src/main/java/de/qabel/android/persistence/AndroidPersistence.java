@@ -1,15 +1,14 @@
 package de.qabel.android.persistence;
 
-import de.qabel.core.config.Persistable;
-import de.qabel.core.config.Persistence;
-import de.qabel.core.exceptions.QblInvalidEncryptionKeyException;
-import de.qabel.android.exceptions.QblPersistenceException;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
 import java.util.List;
+
+import de.qabel.android.exceptions.QblPersistenceException;
+import de.qabel.core.config.Persistable;
+import de.qabel.core.config.Persistence;
+import de.qabel.core.exceptions.QblInvalidEncryptionKeyException;
 
 public class AndroidPersistence extends Persistence<QblSQLiteParams> {
 
@@ -32,10 +31,7 @@ public class AndroidPersistence extends Persistence<QblSQLiteParams> {
 	}
 
 	@Override
-	public boolean persistEntity(Persistable object) {
-		if (object == null) {
-			throw new IllegalArgumentException("Arguments cannot be null!");
-		}
+	public boolean persistEntity(Persistable object) throws QblPersistenceException {
 
 		String sql = "CREATE TABLE IF NOT EXISTS " +
 				getTableNameForClass(object.getClass()) +
@@ -49,25 +45,27 @@ public class AndroidPersistence extends Persistence<QblSQLiteParams> {
 			LOGGER.error("Cannot create table!", e.getException());
 		}
 
-		return databaseWrapper.insert(object);
+		databaseWrapper.insert(object);
+		return true;
 	}
 
 	@Override
-	public boolean updateEntity(Persistable object) {
+	public boolean updateEntity(Persistable object) throws QblPersistenceException {
 		if (object == null) {
 			throw new IllegalArgumentException("Arguments cannot be null!");
 		}
 
 		if (getEntity(object.getPersistenceID(), object.getClass()) == null) {
 			LOGGER.info("Entity not stored!");
-			return false;
+			throw new QblPersistenceException();
 		}
 
-		return databaseWrapper.update(object);
+		databaseWrapper.update(object);
+		return true;
 	}
 
 	@Override
-	public boolean updateOrPersistEntity(Persistable object) {
+	public boolean updateOrPersistEntity(Persistable object) throws QblPersistenceException {
 		if (getEntity(object.getPersistenceID(), object.getClass()) == null) {
 			return persistEntity(object);
 		} else {
@@ -76,60 +74,38 @@ public class AndroidPersistence extends Persistence<QblSQLiteParams> {
 	}
 
 	@Override
-	public boolean removeEntity(String id, Class cls) {
-		if (id == null || cls == null) {
-			throw new IllegalArgumentException("Arguments cannot be null!");
-		}
-		if (id.isEmpty()) {
-			throw new IllegalArgumentException("ID cannot be empty!");
-		}
-
-		return databaseWrapper.delete(id, cls);
+	public boolean removeEntity(String id, Class cls) throws QblPersistenceException {
+		databaseWrapper.delete(id, cls);
+		return true;
 	}
 
 	@Override
-	public <U extends Persistable> U getEntity(String id, Class<? extends U> cls) {
-		if (id == null || cls == null) {
-			throw new IllegalArgumentException("Arguments cannot be null!");
-		}
-		if (id.isEmpty()) {
-			throw new IllegalArgumentException("ID cannot be empty!");
-		}
-
+	public <U extends Persistable> U getEntity(String id, Class<? extends U> cls) throws QblPersistenceException {
 		try {
 			return databaseWrapper.getEntity(id, cls);
 		} catch (QblPersistenceException e) {
 			LOGGER.debug("Couldn't get entity! " + e.getException().getLocalizedMessage());
+			throw e;
 		}
-		return null;
 	}
 
 	@Override
-	public <U extends Persistable> List<U> getEntities(Class<? extends U> cls) {
-		if (cls == null) {
-			throw new IllegalArgumentException("Arguments cannot be null!");
-		}
-
+	public <U extends Persistable> List<U> getEntities(Class<? extends U> cls) throws QblPersistenceException {
 		try {
 			return databaseWrapper.getEntities(cls);
 		} catch (QblPersistenceException e) {
 			LOGGER.info("Table does not exist!");
+			throw e;
 		}
-
-		return new ArrayList<>();
 	}
 
 	@Override
-	public boolean dropTable(Class cls) {
-		if (cls == null) {
-			throw new IllegalArgumentException("Arguments cannot be null!");
-		}
-
+	public boolean dropTable(Class cls) throws QblPersistenceException {
 		try {
 			databaseWrapper.execSQL("DROP TABLE " + getTableNameForClass(cls));
 		} catch (QblPersistenceException e) {
 			LOGGER.info("Table does not exist!");
-			return false;
+			throw e;
 		}
 		return true;
 	}

@@ -11,11 +11,11 @@ public interface DatabaseWrapper {
 
 	void execSQL(String sql) throws QblPersistenceException;
 
-	boolean insert(Persistable entity) throws QblPersistenceException;
+	void insert(Persistable entity) throws QblPersistenceException;
 
-	boolean update(Persistable entity) throws QblPersistenceException;
+	void update(Persistable entity) throws QblPersistenceException;
 
-	boolean delete(String id, Class cls) throws QblPersistenceException;
+	void delete(String id, Class cls) throws QblPersistenceException;
 
 	<U extends Persistable> U  getEntity(String id, Class<? extends U> cls) throws QblPersistenceException;
 

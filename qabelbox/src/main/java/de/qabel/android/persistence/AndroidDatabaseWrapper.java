@@ -9,6 +9,7 @@ import android.database.sqlite.SQLiteException;
 import java.util.ArrayList;
 import java.util.List;
 
+import de.qabel.android.exceptions.QblErrorCodes;
 import de.qabel.core.config.Persistable;
 import de.qabel.android.exceptions.QblPersistenceException;
 
@@ -40,27 +41,33 @@ public class AndroidDatabaseWrapper extends DatabaseWrapperImpl<QblSQLiteParams>
 	}
 
 	@Override
-	public boolean insert(Persistable entity) {
+	public void insert(Persistable entity) {
 		ContentValues contentValues = new ContentValues();
 		contentValues.put(ID, entity.getPersistenceID());
 		contentValues.put(BLOB, PersistenceUtil.serialize(entity.getPersistenceID(), entity));
 
-		return database.insert(PersistenceUtil.getTableNameForClass(entity.getClass()), null, contentValues) != -1L;
+		if (database.insert(PersistenceUtil.getTableNameForClass(entity.getClass()), null, contentValues) == -1L) {
+			throw new QblPersistenceException();
+		}
 	}
 
 	@Override
-	public boolean update(Persistable entity) {
+	public void update(Persistable entity) {
 		ContentValues contentValues = new ContentValues();
 		contentValues.put(BLOB, PersistenceUtil.serialize(entity.getPersistenceID(), entity));
 
 		String[] whereArgs = {entity.getPersistenceID()};
-		return database.update(PersistenceUtil.getTableNameForClass(entity.getClass()), contentValues, ID_QUERY, whereArgs) != -1;
+		if (database.update(PersistenceUtil.getTableNameForClass(entity.getClass()), contentValues, ID_QUERY, whereArgs) == -1) {
+			throw new QblPersistenceException();
+		}
 	}
 
 	@Override
-	public boolean delete(String id, Class cls) {
+	public void delete(String id, Class cls) {
 		String[] whereArgs = {id};
-		return database.delete(PersistenceUtil.getTableNameForClass(cls), ID_QUERY, whereArgs) == 1;
+		if (database.delete(PersistenceUtil.getTableNameForClass(cls), ID_QUERY, whereArgs) != 1) {
+			throw new QblPersistenceException();
+		}
 	}
 
 	@Override

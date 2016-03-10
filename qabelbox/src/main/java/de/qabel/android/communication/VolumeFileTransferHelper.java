@@ -125,6 +125,7 @@ public class VolumeFileTransferHelper {
     public static String getPrefixFromIdentity(Identity identity) {
 
         List<String> prefixes = identity.getPrefixes();
+        Log.d("PREFIXES: ", prefixes.toArray().toString());
         if (prefixes.size() > 0) {
             return prefixes.get(0);
         } else {

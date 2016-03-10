@@ -9,7 +9,6 @@ import android.database.sqlite.SQLiteException;
 import java.util.ArrayList;
 import java.util.List;
 
-import de.qabel.android.exceptions.QblErrorCodes;
 import de.qabel.core.config.Persistable;
 import de.qabel.android.exceptions.QblPersistenceException;
 

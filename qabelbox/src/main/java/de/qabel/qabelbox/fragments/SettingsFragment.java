@@ -1,9 +1,6 @@
 package de.qabel.qabelbox.fragments;
 
-import android.app.ActivityManager;
-import android.app.Fragment;
 import android.content.Context;
-import android.os.Build;
 import android.os.Bundle;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
@@ -33,7 +30,7 @@ public class SettingsFragment extends PreferenceFragment {
 	private int tryCount;
 	private Context context;
 
-	@Override
+    @Override
     public void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
@@ -61,24 +58,9 @@ public class SettingsFragment extends PreferenceFragment {
                 return true;
             }
         });
-		findPreference(getString(R.string.settings_key_internal_reset_app_data)).setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-			@Override
-			public boolean onPreferenceClick(Preference preference) {
-				clearAllAppData(getActivity());
-				return true;
-			}
-		});
 		findPreference(getString(R.string.settings_box_quota)).setSummary(R.string.fetching_box_quota);
 
 		loadQuotaInBackground();
-	}
-	public static void clearAllAppData(Context context) {
-		if (Build.VERSION_CODES.KITKAT <= Build.VERSION.SDK_INT) {
-			boolean ret=	((ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE))
-					.clearApplicationUserData(); // note: it has a return value!
-		} else {
-			// once minSdkVersion goes above 19 in a few years.
-		}
 	}
 
 	private void loadQuotaInBackground() {

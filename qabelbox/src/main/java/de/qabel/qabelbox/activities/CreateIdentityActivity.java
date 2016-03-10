@@ -233,9 +233,7 @@ public class CreateIdentityActivity extends BaseWizardActivity {
             prefix = result.prefix;
             return true;
         } catch (JSONException e) {
-            System.out.println(text);
-            if(text!=null&&text.startsWith("\"")&&text.charAt(text.length()-1)=='"')
-            {
+            if(text.startsWith("\"")&&text.charAt(text.length()-1)=='"') {
                 prefix=text.substring(1,text.length()-1);
                 Log.w(TAG, "prefix temp until server fix: "+prefix+" "+text);
                 return true;

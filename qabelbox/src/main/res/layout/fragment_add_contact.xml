@@ -12,14 +12,14 @@
         android:layout_height="match_parent"
         android:orientation="vertical">
 
-        <de.qabel.qabelbox.views.TextViewFont
+        <de.qabel.android.views.TextViewFont
             android:id="@+id/textView"
             style="@style/MessageText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/messsage_enter_contact_manual"/>
 
-        <de.qabel.qabelbox.views.EditTextFont
+        <de.qabel.android.views.EditTextFont
             android:id="@+id/editTextContactName"
             style="@style/EditText"
             android:layout_width="match_parent"
@@ -28,7 +28,7 @@
             android:hint="@string/contact_name"
             />
 
-        <de.qabel.qabelbox.views.EditTextFont
+        <de.qabel.android.views.EditTextFont
             android:id="@+id/editTextContactDropURL"
             style="@style/EditText"
             android:layout_width="match_parent"
@@ -38,7 +38,7 @@
             android:inputType="textUri"
             />
 
-        <de.qabel.qabelbox.views.EditTextFont
+        <de.qabel.android.views.EditTextFont
             android:id="@+id/editTextContactPublicKey"
             style="@style/EditText"
             android:layout_width="match_parent"

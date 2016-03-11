@@ -40,7 +40,7 @@
                 android:clickable="true"
                 android:orientation="horizontal">
 
-                <de.qabel.qabelbox.views.TextViewFont
+                <de.qabel.android.views.TextViewFont
                     android:id="@+id/textViewSelectedIdentity"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"

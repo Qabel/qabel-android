@@ -74,7 +74,7 @@
     <string name="create_identity_final">Sie können diese Identität nun zum Kommunizieren und Hochladen von Dateien verwenden</string>
     <string name="create_identity_final_create_identity">Ihre Identität ist nun verfügbar</string>
     <string name="create_identity_import">Importieren einer Identität</string>
-    <string name="create_identity_select_security">Wählen Sie den Grad der Verschleierung bei der Kommunikation mit anderen Nutzern. Ein höherer Grad verbraucht mehr Strom.</string>
+    <string name="create_identity_select_security">Wählen Sie den Grad der Anonymität gegenüber außenstehenden Beobachtern. Ein hoher Grad an Anonymität erzeugt mehr Datenverkehr, da Sie sich in einer größeren Gruppe von Nutzern verstecken. Wenn sie sich dafür entscheiden, weniger Datenverkehr zu erzeugen, muss die Gruppe der genannten Nutzer kleiner sein. Damit sinkt auch der Grad an Anonymität.</string>
     <string name="create_identity_successfull">Erfolgreich</string>
     <string name="debug_send_feedback">Feedback schreiben</string>
     <string name="debug_send_feedback_to_pm">Sagen Sie uns wie Ihnen Qabel gefällt und welche Vorschläge Sie haben</string>
@@ -113,8 +113,8 @@
     <string name="headline_share_into_app">Hochladen</string>
     <string name="identity_export_failed">Konnte Identität nicht exportieren</string>
     <string name="identity_export_successfully">Identität exportiert. Die Datei enthält Ihren Schlüssel, verwahren Sie ihn sicher!</string>
-    <string name="identity_security_high">hoch</string>
-    <string name="identity_security_low">niedrig</string>
+    <string name="identity_security_high">Viel Datenverbrauch und hohe Anonymität</string>
+    <string name="identity_security_low">Wenig Datenverbrauch und geringe Anonymität</string>
     <string name="inbox">Eingang</string>
     <string name="infos">Infos</string>
     <string name="item_image">Ikon</string>
@@ -189,30 +189,34 @@
     <string name="message_cant_attach_external_file_exists">Anfügen der freigegebenen Datei nicht möglich. Eine Datei mit diesem Namen existiert bereits. Vielleicht haben Sie diese Datei schon ein Mal früher angefügt</string>
     <string name="hockeyapp_feedback_response_button_text">Neue Nachricht senden</string>
     <string name="action_about">Über</string>
-    <string name="app_info_version_and_build">You use app version $1 from $2</string>
-    <string name="message_welcome_screen1">\nQabel ist eine kostenlose,\nquelloffene\nKryptographieplattform.\n\nWerden sie Teil des Qabel-Ökosytems.\n\nViel Spaß!</string>
-    <string name="message_welcome_screen2">Ende-zu-Ende verschlüsselter Upload, Download und  Speicherung.\nMetadatenverschleierung.\n2 GB kostenloser Speicher.\nSynchronisation über beliebig viele Endgeräte.\nSharing mit anderen Qabelnutzern.\nVerwaltung mehrerer Identitäten mit nur einem Qabelaccount und in einer Anmeldung.\nIntegrierter Kurznachrichtendienst.</string>
-    <string name="message_welcome_screen3">Qabel erlaubt es Ihnen,\nmehrere Identitäten in nur einem Account abzubilden.\nSie können verschiedene Identitäten auf verschiedenen Endgeräten synchronisieren und\nbestimmen, welche Identitäten Sie mit anderen Menschen teilen möchten.\nSeien sie Bob für Ihren Chef und Alice für Ihre Freunde!</string>
-    <string name="message_welcome_screen4">2 GB Speicher bekommen Sie von uns geschenkt.\n\nErstellen sie nun ihren Qabel-Account.</string>
-    <string name="message_welcome_disclaimer_headline">\u0020Lizenz Krams\n</string>
-    <string name="message_welcome_disclaimer_message_legal_note">Um fortzufahren,\nakzeptieren sie bitte\nunsere AGB und unsere\nDatenschutzerklärung.</string>
-    <string name="btn_welcome_disclaimer_show_legal_notes">Zeige AGB</string>
-
-    <string name="cb_welcome_disclaimer_legal_note_checked">AGB akzeptiert</string>
-    <string name="cb_welcome_disclaimer_legal_note_unchecked">AGB nicht akzeptiert</string>
-    <string name="cb_welcome_disclaimer_privacy_note_checked">Datenschutzerklärung akzeptiert</string>
-    <string name="cb_welcome_disclaimer_privacy_note_unchecked">Datenschutzerklärung nicht akzeptiert</string>
-
-    <string name="message_welcome_disclaimer_message_privacy_note"></string>
-    <string name="btn_welcome_disclaimer_show_privacy_notes">Zeige Datenschutzerklärung</string>
-
-    <string name="message_welcome_disclaimer_qabel_is_public_source">\u0020ist publizierter Quellcode</string>
-    <string name="btn_welcome_disclaimer_show_sources_on_github">Fork me on GitHub</string>
-    <string name="btn_welcome_disclaimer_show_qapl">Zeige QAPL</string>
+   <string name="FILE_LEGAL">legal_de.html</string>
+   <string name="FILE_PRIVACY">datapolicy_de.html</string>
+   <string name="FILE_QAPL_LICENSE">qapl.html</string>
+   <string name="btn_welcome_disclaimer_show_legal_notes">Zeige AGB</string>
+   <string name="btn_welcome_disclaimer_show_privacy_notes">Zeige Datenschutzerklärung</string>
+   <string name="btn_welcome_disclaimer_show_qapl">Zeige QAPL</string>
+   <string name="btn_welcome_disclaimer_show_sources_on_github">Auf GitHub anzeigen</string>
+   <string name="cb_welcome_disclaimer_legal_note_checked">AGB akzeptiert</string>
+   <string name="cb_welcome_disclaimer_legal_note_unchecked">AGB akzeptieren</string>
+   <string name="cb_welcome_disclaimer_privacy_note_checked">Datenschutzerklärung akzeptiert</string>
+   <string name="cb_welcome_disclaimer_privacy_note_unchecked">Datenschutzerklärung akzeptieren</string>
+   <string name="headline_welcome_screen1">Willkommen bei\u0020</string>
    <string name="headline_welcome_screen2">\u0020Funktionen\n</string>
    <string name="headline_welcome_screen3">\u0020Identitäten\n</string>
    <string name="headline_welcome_screen4">\u0020Account\n</string>
-   <string name="headline_welcome_screen1">Wilkommen bei\u0020</string>
+   <string name="help">Hilfe</string>
+   <string name="message_welcome_qabel_big">QABEL</string>
+   <string name="message_welcome_screen1">Qabel ist eine kostenlose,\nquelloffene\nKryptographieplattform.\n\nWerden Sie Teil\ndes Qabel-Ökosystems.\n\nViel Spaß!</string>
+   <string name="message_welcome_screen2">Ende-zu-Ende verschlüsselter\nUpload, Download und\nSpeicherung.\nMetadatenverschleierung.\n2 GB kostenloser Speicher.\nSynchronisation über beliebig\nviele Endgeräte.\nSharing mit anderen\nQabelnutzern.\nVerwaltung mehrerer Identitäten\nmit nur einem Qabel-Account\nund in nur einer Anmeldung.\nIntegrierter\nKurznachrichtendienst.</string>
+   <string name="message_welcome_screen3">Qabel erlaubt es Ihnen,\nmehrere Identitäten in nur\neinem Account abzubilden.\nSie Können verschiedene\nIdentitäten auf\nverschiedenen Endgeräten\nsynchronisieren und\nbestimmen, welche\nIdentitäten Sie mir anderen\nMenschen Teilen möchten.\nSeinen Sie Bob für\nIhren Chef und Alice für\nIhre Freunde!</string>
+   <string name="message_welcome_screen4">2 GB Speicher bekommen\nSie von uns geschenkt.\n\nErstellen Sie nun Ihren\nQabel-Account.</string>
+
+   <string name="upload_in_progress_notification_content">Hochladen ... %s</string>
+   <string name="app_info_version_and_build">You use app version $1 from $2</string>
+   <string name="message_welcome_disclaimer_headline">\u0020Lizenz Krams\n</string>
+   <string name="message_welcome_disclaimer_message_legal_note">Um fortzufahren,\nakzeptieren sie bitte\nunsere AGB und unsere\nDatenschutzerklärung.</string>
+   <string name="message_welcome_disclaimer_message_privacy_note"></string>
+   <string name="message_welcome_disclaimer_qabel_is_public_source">\u0020ist publizierter Quellcode</string>
    <string name="help_main_headline_tou">AGB</string>
    <string name="help_main_headline_data_policy">Datenschutzbestimmung</string>
    <string name="help_main_headline_about_us">Impressum</string>

@@ -1,5 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="de.qabel.qabelbox">
+    package="de.qabel.android">
     <!--
         Permissions required to automatically wake and unlock the phone/emulator if we're in
         development mode.  Add this as a debug manifest so the permissions won't be required by

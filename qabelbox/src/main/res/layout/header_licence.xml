@@ -14,7 +14,7 @@
         android:layout_centerHorizontal="true"
         android:adjustViewBounds="true" />
 
-    <de.qabel.qabelbox.views.TextViewFont
+    <de.qabel.android.views.TextViewFont
         android:id="@+id/licence_header_versioninfo"
         android:layout_below="@id/about_logo"
         android:layout_width="match_parent"
@@ -23,7 +23,7 @@
         android:layout_marginBottom="@dimen/activity_vertical_margin"
         style="@style/LicenceListFirstTextLine" />
 
-    <de.qabel.qabelbox.views.TextViewFont
+    <de.qabel.android.views.TextViewFont
         android:id="@+id/licence_header_intro"
         android:layout_below="@+id/licence_header_versioninfo"
         android:layout_width="wrap_content"
@@ -33,7 +33,7 @@
         android:layout_marginLeft="@dimen/activity_vertical_margin"
         style="@style/LicenceListFirstTextLine" />
 
-    <de.qabel.qabelbox.views.ButtonFont
+    <de.qabel.android.views.ButtonFont
         style="@style/LicenceButton"
         android:id="@+id/about.header.showlicence.btn"
         android:layout_below="@id/licence_header_intro"
@@ -49,13 +49,13 @@
         android:gravity="center_horizontal">
 
 
-        <de.qabel.qabelbox.views.QabelBrandingFont
+        <de.qabel.android.views.QabelBrandingFont
             style="@style/LicenceListFirstTextLine"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/about.header.qabel.company.qtxt" />
 
-        <de.qabel.qabelbox.views.TextViewFont
+        <de.qabel.android.views.TextViewFont
             android:layout_marginLeft="@dimen/textsize_list_first_line_half"
             style="@style/LicenceListFirstTextLine"
             android:layout_width="wrap_content"
@@ -66,7 +66,7 @@
     </LinearLayout>
 
 
-    <de.qabel.qabelbox.views.TextViewFont
+    <de.qabel.android.views.TextViewFont
         android:id="@+id/about.licences.item.components.txt"
         style="@style/LicenceListSecondTextLine"
         android:layout_width="match_parent"

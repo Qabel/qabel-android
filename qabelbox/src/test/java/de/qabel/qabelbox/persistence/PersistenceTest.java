@@ -1,4 +1,4 @@
-package de.qabel.qabelbox.persistence;
+package de.qabel.android.persistence;
 
 import de.qabel.core.config.Persistable;
 

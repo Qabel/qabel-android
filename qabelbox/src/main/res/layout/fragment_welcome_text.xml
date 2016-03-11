@@ -12,17 +12,15 @@
         android:paddingTop="@dimen/padding_welcome_text_top">
 
         <LinearLayout
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
+            android:layout_gravity="center_horizontal"
             android:orientation="vertical">
 
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:paddingLeft="@dimen/welcome_text_padding_horizontal"
-                android:paddingRight="@dimen/welcome_text_padding_horizontal"
+                android:layout_gravity="left"
                 android:orientation="horizontal">
 
                 <de.qabel.android.views.TextViewFont
@@ -30,7 +28,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_horizontal|bottom"
-                    android:gravity="left"                   
+                    android:gravity="left"
                     android:text=""
                     android:textColor="@color/white"
                     android:textSize="@dimen/textsize_welcome_screen"
@@ -64,7 +62,7 @@
                 android:id="@+id/welcome_message"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:layout_gravity="center_horizontal|bottom"
+                android:layout_gravity="left"
                 android:gravity="left"
                 android:text="@string/message_welcome_screen1"
                 android:textColor="@color/white"

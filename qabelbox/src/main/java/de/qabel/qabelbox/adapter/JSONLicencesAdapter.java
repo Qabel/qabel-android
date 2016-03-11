@@ -44,11 +44,13 @@ public class JSONLicencesAdapter extends RecyclerView.Adapter<JSONLicencesAdapte
     LayoutInflater inflater;
     Context ctx;
     JSONArray licencesJSON;
+    String qapl;
 
-    public JSONLicencesAdapter(Context context, JSONObject masterJSON) {
+    public JSONLicencesAdapter(Context context, JSONObject masterJSON, String qapl) {
         licencesJSON = masterJSON.optJSONArray(JSON_KEY_LICENCESROOT);
         ctx = context;
         inflater = LayoutInflater.from(ctx);
+        this.qapl = qapl;
     }
 
     @Override
@@ -56,7 +58,7 @@ public class JSONLicencesAdapter extends RecyclerView.Adapter<JSONLicencesAdapte
         TYPE type = TYPE.values()[viewType];
         switch (type) {
             case Header:
-                return new HeaderViewHolder(inflater.inflate(R.layout.header_licence, parent, false));
+                return new HeaderViewHolder(inflater.inflate(R.layout.header_licence, parent, false), qapl);
             case Info:
             default:
                 View v = inflater.inflate(R.layout.item_licence, parent, false);
@@ -132,8 +134,6 @@ public class JSONLicencesAdapter extends RecyclerView.Adapter<JSONLicencesAdapte
 
         @Override
         public void onClick(View v) {
-            // TODO: Implement Licence Screen
-            Toast.makeText(ctx, licenceText, Toast.LENGTH_SHORT).show();
             AlertDialog alertDialog = new AlertDialog.Builder(ctx).create();
 			alertDialog.setTitle(licenceText);
 			alertDialog.setMessage(licenceContentText);
@@ -150,16 +150,33 @@ public class JSONLicencesAdapter extends RecyclerView.Adapter<JSONLicencesAdapte
 
     class HeaderViewHolder extends LicenceViewHolder {
 
-        public HeaderViewHolder(View itemView) {
+        String qapl;
+
+        public HeaderViewHolder(View itemView, String qapl) {
             super(itemView);
             this.headline = (TextView) itemView.findViewById(R.id.licence_header_versioninfo);
             this.content = (TextView) itemView.findViewById(R.id.licence_header_intro);
             showLicenceBtn = (ButtonFont) itemView.findViewById(R.id.about_header_showlicence_btn);
+            this.qapl = qapl;
         }
 
         public void onBind(int position) {
             headline.setText(BuildConfig.VERSION_NAME);
             this.showLicenceBtn.setOnClickListener(this);
+        }
+
+        @Override
+        public void onClick(View v) {
+            AlertDialog alertDialog = new AlertDialog.Builder(ctx).create();
+            alertDialog.setTitle("QAPL");
+            alertDialog.setMessage(qapl);
+            alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
+                    new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                        }
+                    });
+            alertDialog.show();
         }
     }
 

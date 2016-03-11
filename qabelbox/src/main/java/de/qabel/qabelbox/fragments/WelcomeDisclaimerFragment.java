@@ -47,7 +47,6 @@ public class WelcomeDisclaimerFragment extends Fragment {
 		View view = inflater.inflate(R.layout.fragment_welcome_disclaimer, container, false);
 
 		setShader((TextView) view.findViewById(R.id.welcome_text2));
-		setShader((TextView) view.findViewById(R.id.welcome_text3));
 		setShader((TextView) view.findViewById(R.id.welcome_text4));
 		setShader((TextView) view.findViewById(R.id.welcome_text5));
 		setShader((TextView) view.findViewById(R.id.headline1));

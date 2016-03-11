@@ -30,7 +30,7 @@ android {
         on base of timestamp or change it manual*/
 
         versionCode System.getenv("BUILD_NUMBER") as Integer ?: 1
-        versionName "0.2." + (System.getenv("BUILD_NUMBER") as Integer ?: 1)
+        versionName "0.2." + (System.getenv("BUILD_NUMBER") as Integer ?: 2)
         //junit test
         testInstrumentationRunner "de.qabel.qabelbox.QblJUnitRunner"
         //ui tests
@@ -51,7 +51,6 @@ android {
     buildTypes {
         release {
             minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
 

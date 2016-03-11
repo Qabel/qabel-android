@@ -227,8 +227,10 @@ public class UIBoxHelper {
 	public void createTokenIfNeeded(boolean forceCreated) {
 		Context applicationContext = QabelBoxApplication.getInstance().getApplicationContext();
 		AppPreference prefs = new AppPreference(applicationContext);
-		if (forceCreated || prefs.getToken() == null) {
+		if (forceCreated && prefs.getToken() == null) {
 			prefs.setToken(new RealTokerGetter().getToken(applicationContext));
+		}else {
+			prefs.setToken("MAGICFAIRY");
 		}
 	}
 

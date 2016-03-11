@@ -1,7 +1,9 @@
 package de.qabel.qabelbox.adapter;
 
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.support.v7.widget.RecyclerView;
 import android.text.Html;
 import android.text.SpannableString;
@@ -37,6 +39,7 @@ public class JSONLicencesAdapter extends RecyclerView.Adapter<JSONLicencesAdapte
     private static final java.lang.String JSON_KEY_COMPONENTS_INFO = "info";
     private static final String JSON_KEY_COMPONENTS = "components";
     private static final String JSON_KEY_LICENCESROOT = "licences";
+    private static final String JSON_KEY_LICENCECONTENT = "content";
 
     LayoutInflater inflater;
     Context ctx;
@@ -92,6 +95,8 @@ public class JSONLicencesAdapter extends RecyclerView.Adapter<JSONLicencesAdapte
         public TextView content;
         public Button showLicenceBtn;
         public JSONObject licenceJSON;
+        public String licenceText;
+        private String licenceContentText;
 
         public LicenceViewHolder(View itemView) {
             super(itemView);
@@ -118,6 +123,8 @@ public class JSONLicencesAdapter extends RecyclerView.Adapter<JSONLicencesAdapte
                 SpannableString formattedText = new SpannableString(Html.fromHtml(content));
                 this.content.setText(formattedText, TextView.BufferType.SPANNABLE);
                 this.showLicenceBtn.setOnClickListener(this);
+                licenceText = licenceJSON.getString(JSON_KEY_LICENCENAME);
+                licenceContentText = licenceJSON.getString(JSON_KEY_LICENCECONTENT);
             } catch (JSONException e) {
                 Log.e(TAG, "Could not parse licences JSON: " + e);
             }
@@ -126,7 +133,17 @@ public class JSONLicencesAdapter extends RecyclerView.Adapter<JSONLicencesAdapte
         @Override
         public void onClick(View v) {
             // TODO: Implement Licence Screen
-            Toast.makeText(ctx, "Hier könnte Ihre Lizenz stehen", Toast.LENGTH_SHORT).show();
+            Toast.makeText(ctx, licenceText, Toast.LENGTH_SHORT).show();
+            AlertDialog alertDialog = new AlertDialog.Builder(ctx).create();
+			alertDialog.setTitle(licenceText);
+			alertDialog.setMessage(licenceContentText);
+			alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
+				new DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialog, int which) {
+						dialog.dismiss();
+					}
+				});
+			alertDialog.show();
         }
     }
 

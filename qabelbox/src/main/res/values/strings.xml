@@ -214,9 +214,7 @@
 
     <string name="help_main_headline_tou">Terms of use</string>
     <string name="help_main_headline_data_policy">Data policy</string>
-    <string name="help_main_headline_disclaimer">Disclaimer</string>
-    <string name="help_main_headline_licenses">Licenses</string>
-    <string name="help_main_headline_about_us">About us</string>
+    <string name="help_main_headline_about_us">Imprint</string>
     <string name="help_main_headline_app_infos">App infos</string>
     <string name="help_main_headline_app_version">App Version</string>
     <string name="help_key_main_app_version">key_appversion</string>

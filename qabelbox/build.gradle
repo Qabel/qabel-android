@@ -22,7 +22,7 @@ android {
     }
     defaultConfig {
         buildConfigField "long", "TIMESTAMP", System.currentTimeMillis() + "L"
-        applicationId "de.qabel.qabelbox"
+        applicationId "de.qabel.qabel"
         minSdkVersion 19
         targetSdkVersion 22
         /*

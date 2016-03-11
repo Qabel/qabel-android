@@ -8,7 +8,7 @@ spoon {
     // for debug output
     debug = true
     noAnimations = true
-    instrumentationArgs = ["package=de.qabel.qabelbox.ui"]
+    instrumentationArgs = ["package=de.qabel.android.ui"]
     adbTimeout = 60
 }
 
@@ -22,7 +22,7 @@ android {
     }
     defaultConfig {
         buildConfigField "long", "TIMESTAMP", System.currentTimeMillis() + "L"
-        applicationId "de.qabel.qabelbox"
+        applicationId "de.qabel.android"
         minSdkVersion 19
         targetSdkVersion 22
         /*
@@ -32,7 +32,7 @@ android {
         versionCode System.getenv("BUILD_NUMBER") as Integer ?: 1
         versionName "0.2." + (System.getenv("BUILD_NUMBER") as Integer ?: 1)
         //junit test
-        testInstrumentationRunner "de.qabel.qabelbox.QblJUnitRunner"
+        testInstrumentationRunner "de.qabel.android.QblJUnitRunner"
         //ui tests
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 

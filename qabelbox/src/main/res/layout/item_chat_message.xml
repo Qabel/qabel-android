@@ -21,7 +21,7 @@
         android:paddingBottom="10dp"
         android:paddingRight="20dp">
 
-        <de.qabel.qabelbox.views.TextViewFont
+        <de.qabel.android.views.TextViewFont
             android:id="@+id/tvDate"
             style="@style/ListFirstTextLine"
             android:layout_width="wrap_content"
@@ -29,7 +29,7 @@
             android:textColor="@color/white"/>
 
 
-        <de.qabel.qabelbox.views.TextViewFont
+        <de.qabel.android.views.TextViewFont
             android:id="@+id/tvText"
             style="@style/ListSecondTextLine"
             android:layout_width="wrap_content"
@@ -38,7 +38,7 @@
             android:textColor="@color/white"
             />
 
-        <de.qabel.qabelbox.views.TextViewFont
+        <de.qabel.android.views.TextViewFont
             android:id="@+id/tvLink"
             style="@style/ListSecondTextLine"
             android:layout_width="wrap_content"

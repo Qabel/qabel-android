@@ -151,7 +151,7 @@
     <string name="share_into_app_select_folder">Please select folder in which you want to upload the files</string>
     <string name="headline_share_select_upload_identity">Select upload identity</string>
     <string name="headline_share_into_app">Upload</string>
-    <string name="x_files_uploading">%1 files uploading to qabelbox</string>
+    <string name="x_files_uploading">%1 files uploading to Qabel</string>
     <string name="share_in_app_go_back_without_upload">Do you want to discard the share?</string>
     <string name="general_settings">General settings</string>
     <string name="settings_key_bugreporting_enabled" translatable="false">bugreporting_enabled</string>

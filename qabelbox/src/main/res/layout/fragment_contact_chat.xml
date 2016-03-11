@@ -13,7 +13,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true">
 
-        <de.qabel.qabelbox.views.ButtonFont
+        <de.qabel.android.views.ButtonFont
             android:id="@+id/bt_send"
             style="@style/TextViewButton"
             android:textColor="@color/white"
@@ -26,7 +26,7 @@
             android:gravity="center"
             android:text="@string/btn_chat_send"/>
 
-        <de.qabel.qabelbox.views.EditTextFont
+        <de.qabel.android.views.EditTextFont
             android:id="@+id/etText"
             style="@style/EditText"
             android:layout_width="match_parent"

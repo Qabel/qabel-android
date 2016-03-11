@@ -4,10 +4,10 @@
               android:layout_height="match_parent"
               android:orientation="vertical"
 
-              tools:context="de.qabel.qabelbox.fragments.ContactFragment"
+              tools:context="de.qabel.android.fragments.ContactFragment"
               android:background="@color/background_white">
 
-    <de.qabel.qabelbox.views.TextViewFont
+    <de.qabel.android.views.TextViewFont
         android:id="@+id/contactCount"
         style="@style/SmallGreyMessageText"
         android:layout_width="wrap_content"
@@ -44,7 +44,7 @@
                 android:layout_height="wrap_content"
                 android:src="@drawable/contacts_empty"/>
 
-            <de.qabel.qabelbox.views.TextViewFont
+            <de.qabel.android.views.TextViewFont
                 style="@style/ListViewLoadingText"
                 android:layout_height="wrap_content"
                 android:gravity="center_horizontal"

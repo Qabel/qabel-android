@@ -76,9 +76,7 @@ public class HelpMainFragment extends PreferenceFragment {
         appVersion.setSummary(getAppInfos());
 
         //set click listener for all other entrys
-        setClickListener(findPreference(getString(R.string.help_key_main_app_disclaimer)), WebViewHelpFragment.MODE_DISCLAIMER);
         setClickListener(findPreference(getString(R.string.help_key_main_app_data_policy)), WebViewHelpFragment.MODE_DATA_POLICY);
-        setClickListener(findPreference(getString(R.string.help_key_main_app_licenses)), WebViewHelpFragment.MODE_LICENSES);
         setClickListener(findPreference(getString(R.string.help_key_main_app_tou)), WebViewHelpFragment.MODE_TOU);
         setClickListener(findPreference(getString(R.string.help_key_main_app_about_us)), WebViewHelpFragment.MODE_ABOUT_US);
     }

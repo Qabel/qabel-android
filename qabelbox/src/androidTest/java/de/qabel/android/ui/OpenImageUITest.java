@@ -52,7 +52,6 @@ import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
 import static de.qabel.android.ui.matcher.QabelMatcher.withDrawable;
 import static org.hamcrest.core.AllOf.allOf;
-//import static de.qabel.qabelbox.ui.matcher.QabelMatcher.withDrawable;
 
 /**
  * Tests for MainActivity.

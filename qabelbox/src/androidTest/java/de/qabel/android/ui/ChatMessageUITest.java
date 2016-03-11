@@ -58,7 +58,6 @@ import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.endsWith;
 import static org.hamcrest.Matchers.is;
-//import static de.qabel.qabelbox.ui.matcher.QabelMatcher.withDrawable;
 
 /**
  * Tests for MainActivity.

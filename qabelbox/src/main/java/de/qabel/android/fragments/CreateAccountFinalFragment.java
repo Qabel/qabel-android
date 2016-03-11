@@ -44,7 +44,7 @@ public class CreateAccountFinalFragment extends BaseIdentityFragment {
                 Identity identityToSet = identities.getIdentities().iterator().next();
                 service.setActiveIdentity(identityToSet);
                 Identity setted = service.getActiveIdentity();
-                if (setted != null && setted.getAlias().equals(activeIdentity.getAlias())) {
+                if (setted != null && setted.getAlias() != null && setted.getAlias().equals(activeIdentity.getAlias())) {
                     //active identity set
                     needCreateIdentity = false;
                 } else {

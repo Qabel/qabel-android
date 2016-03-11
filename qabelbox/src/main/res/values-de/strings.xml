@@ -14,7 +14,7 @@
     <string name="Open">Öffnen</string>
     <string name="Rename">Umbenennen</string>
     <string name="Select">Auswählen</string>
-    <string name="Share">Teilen</string>
+    <string name="Send">Senden</string>
     <string name="ab_filesearch_hint">Stichwort eingeben</string>
     <string name="ab_use_filter"></string>
     <string name="aborted">Abgebrochen</string>
@@ -46,7 +46,7 @@
     <string name="contact_import_failed">Importieren des Kontaktes fehlgeschlagen</string>
     <string name="contact_import_manual_failed">Importieren des Kontaktes fehlgeschlagen. Bitte überprüfen Sie die eingegebenen Daten</string>
     <string name="contact_import_successfull">Kontakt importiert</string>
-    <string name="contact_list_empty">noch niemand hier\nimportieren Sie jemanden</string>
+    <string name="contact_list_empty">nSie haben noch keine Kontakte.\nBenutzen Sie den Knopf in der Ecke unten rechts, um Kontakte zu importieren</string>
     <string name="contact_name">Name des Kontakts</string>
     <string name="contact_public_key">Öffentlicher Schlüssel</string>
     <string name="create_account_email">Bitte geben Sie Ihre E-Mail an. Mit dieser Adresse können Sie Ihren Account zurücksetzen</string>
@@ -88,7 +88,7 @@
     <string name="edit">Bearbeiten</string>
     <string name="email_adress_invalid">Ihre E-Mail-Adresse ist ungültig. Bitte prüfen Sie die E-Mail-Adresse und versuchen Sie es erneut.</string>
     <string name="error_reason_io">Problem beim Lesen oder Schreiben</string>
-    <string name="file_list_empty">noch nichts da\nladen Sie etwas hoch</string>
+    <string name="file_list_empty">Der Ordner ist leer. Benutzen Sie den Knopf unten rechts, um Dateien hochzuladen.</string>
     <string name="filebrowser">Dateien</string>
     <string name="filter">Filter</string>
     <string name="filter_label_date">Datum</string>
@@ -168,25 +168,54 @@
     <string name="create_idenity_cant_get_prefix">Keinen Prefix vom Server erhalten</string>
     <string name="dialog_share_sending_in_progress">Datei wird hochgeladen, um geteilt zu werden</string>
     <string name="message_please_wait">Warten Sie bitte einen Moment</string>
-    <string name="message_revoke_share">Share wird entzogen</string>
-    <string name="ShareToQabelUser">Weiterleiten</string>
-    <string name="message_unshare_not_successfull">Share konnte nicht entzogen werden</string>
-    <string name="message_unshare_successfull">Share wurde erfolgreich entzogen</string>
+    <string name="message_revoke_share">Freigabe wird entzogen</string>
+    <string name="ShareToQabelUser">Teilen</string>
+    <string name="message_unshare_not_successfull">Freigabe konnte nicht entzogen werden</string>
+    <string name="message_unshare_successfull">Freigabe wurde erfolgreich entzogen</string>
     <string name="please_wait_attach_external_file">Bitte warten. Externe Datei wird zum Account hinzugefügt</string>
     <string name="message_chat_message_not_sended">Nachricht wurde nicht gesendet</string>
     <string name="upload_complete_notification_title">Hochladen abgeschlossen</string>
     <string name="messsage_file_shared">Datei erfolgreich geteilt</string>
     <string name="message_file_cant_upload">Datei konnte nicht hochgeladen werden</string>
     <string name="share_only_files_possibility">Nur Dateien können geteilt werden</string>
-    <string name="x_files_uploading">Es werden %1 Dateien zu qabelbox hochgeladen</string>
+    <string name="x_files_uploading">Es werden %1 Dateien zu Qabel hochgeladen</string>
     <string name="share_into_app_select_folder">Bitte suchen Sie eine Ordner aus, in den Sie die Dateien hochladen wollen</string>
     <string name="share_to_contact_message">Bitte wählen Sie einen Kontakt aus, mit dem Sie die Datei teilen wollen</string>
     <string name="share_error_on_sending">Freigabe wurde nicht gesendet</string>
     <string name="shared_file_imported">Freigegebene Datei importiert</string>
     <string name="message_cant_navigate_to_share_folder">Wechsel zum Freigabeordner nicht möglich. Überprüfen Sie bitte Ihre Internetverbindung</string>
     <string name="headline_share_to_qabeluser">Freigabe an QabelUser</string>
-    <string name="Unshare">Widerrufe Freigabe</string>
+    <string name="Unshare">Freigabe widerrufen</string>
     <string name="message_cant_attach_external_file_exists">Anfügen der freigegebenen Datei nicht möglich. Eine Datei mit diesem Namen existiert bereits. Vielleicht haben Sie diese Datei schon ein Mal früher angefügt</string>
     <string name="hockeyapp_feedback_response_button_text">Neue Nachricht senden</string>
     <string name="action_about">Über</string>
+    <string name="app_info_version_and_build">You use app version $1 from $2</string>
+    <string name="message_welcome_screen1">\nQabel ist eine kostenlose,\nquelloffene\nKryptographieplattform.\n\nWerden sie Teil des Qabel-Ökosytems.\n\nViel Spaß!</string>
+    <string name="message_welcome_screen2">Ende-zu-Ende verschlüsselter Upload, Download und  Speicherung.\nMetadatenverschleierung.\n2 GB kostenloser Speicher.\nSynchronisation über beliebig viele Endgeräte.\nSharing mit anderen Qabelnutzern.\nVerwaltung mehrerer Identitäten mit nur einem Qabelaccount und in einer Anmeldung.\nIntegrierter Kurznachrichtendienst.</string>
+    <string name="message_welcome_screen3">Qabel erlaubt es Ihnen,\nmehrere Identitäten in nur einem Account abzubilden.\nSie können verschiedene Identitäten auf verschiedenen Endgeräten synchronisieren und\nbestimmen, welche Identitäten Sie mit anderen Menschen teilen möchten.\nSeien sie Bob für Ihren Chef und Alice für Ihre Freunde!</string>
+    <string name="message_welcome_screen4">2 GB Speicher bekommen Sie von uns geschenkt.\n\nErstellen sie nun ihren Qabel-Account.</string>
+    <string name="message_welcome_disclaimer_headline">\u0020Lizenz Krams\n</string>
+    <string name="message_welcome_disclaimer_message_legal_note">Um fortzufahren,\nakzeptieren sie bitte\nunsere AGB und unsere\nDatenschutzerklärung.</string>
+    <string name="btn_welcome_disclaimer_show_legal_notes">Zeige AGB</string>
+
+    <string name="cb_welcome_disclaimer_legal_note_checked">AGB akzeptiert</string>
+    <string name="cb_welcome_disclaimer_legal_note_unchecked">AGB nicht akzeptiert</string>
+    <string name="cb_welcome_disclaimer_privacy_note_checked">Datenschutzerklärung akzeptiert</string>
+    <string name="cb_welcome_disclaimer_privacy_note_unchecked">Datenschutzerklärung nicht akzeptiert</string>
+
+    <string name="message_welcome_disclaimer_message_privacy_note"></string>
+    <string name="btn_welcome_disclaimer_show_privacy_notes">Zeige Datenschutzerklärung</string>
+
+    <string name="message_welcome_disclaimer_qabel_is_public_source">\u0020ist publizierter Quellcode</string>
+    <string name="btn_welcome_disclaimer_show_sources_on_github">Fork me on GitHub</string>
+    <string name="btn_welcome_disclaimer_show_qapl">Zeige QAPL</string>
+   <string name="headline_welcome_screen2">\u0020Funktionen\n</string>
+   <string name="headline_welcome_screen3">\u0020Identitäten\n</string>
+   <string name="headline_welcome_screen4">\u0020Account\n</string>
+   <string name="headline_welcome_screen1">Wilkommen bei\u0020</string>
+   <string name="help_main_headline_tou">AGB</string>
+   <string name="help_main_headline_data_policy">Datenschutzbestimmung</string>
+   <string name="help_main_headline_about_us">Impressum</string>
+   <string name="help_main_headline_app_infos">Awendungsinformationen</string>
+   <string name="help_main_headline_app_version">Anwendungsversion</string>
 </resources>

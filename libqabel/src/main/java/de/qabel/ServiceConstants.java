@@ -6,8 +6,8 @@ package de.qabel;
  */
 public interface ServiceConstants {
 
-    String SERVICE_PACKAGE_NAME = "de.qabel.qabelbox";
-    String SERVICE_CLASS_NAME = "de.qabel.qabelbox.service.QabelService";
+    String SERVICE_PACKAGE_NAME = "de.qabel.android";
+    String SERVICE_CLASS_NAME = "de.qabel.android.service.QabelService";
 
     int MSG_REGISTER_ON_TYPE = 0;
     int MSG_DROP_MESSAGE = 1;

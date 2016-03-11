@@ -123,9 +123,9 @@
             android:name="de.qabel.android.services.QabelService"
             android:enabled="true"
             android:exported="true"
-            android:permission="de.qabel.qabelbox.QABELSERVICE">
+            android:permission="de.qabel.android.QABELSERVICE">
             <intent-filter>
-                <action android:name="de.qabel.qabelbox.service.QabelService"></action>
+                <action android:name="de.qabel.android.service.QabelService"></action>
             </intent-filter>
         </service>
 
@@ -134,7 +134,7 @@
             android:enabled="true"
             android:exported="false">
             <intent-filter>
-                <action android:name="de.qabel.qabelbox.service.LocalQabelService"></action>
+                <action android:name="de.qabel.android.service.LocalQabelService"></action>
             </intent-filter>
         </service>
         <service
@@ -162,14 +162,14 @@
             android:name="de.qabel.android.services.QabelContentProvider"
             android:authorities="de.qabel.android.services.QabelContentProvider"
             android:exported="true"
-            android:readPermission="de.qabel.qabelbox.QABEL_READ_RESOURCES"
-            android:writePermission="de.qabel.qabelbox.QABEL_WRITE_RESOURCES">
+            android:readPermission="de.qabel.android.QABEL_READ_RESOURCES"
+            android:writePermission="de.qabel.android.QABEL_WRITE_RESOURCES">
             <path-permission
                 android:path="/contacts"
-                android:readPermission="de.qabel.qabelbox.QABEL_READ_CONTACTS" />
+                android:readPermission="de.qabel.android.QABEL_READ_CONTACTS" />
             <path-permission
                 android:path="/identities"
-                android:readPermission="de.qabel.qabelbox.QABEL_READ_IDENTITIES" />
+                android:readPermission="de.qabel.android.QABEL_READ_IDENTITIES" />
         </provider>
 
         <provider

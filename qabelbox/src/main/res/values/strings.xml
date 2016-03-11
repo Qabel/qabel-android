@@ -19,7 +19,7 @@
 
     <string name="upload">Upload</string>
     <string name="Delete">Delete</string>
-    <string name="Share">Share</string>
+    <string name="Send">Send</string>
     <string name="folderListingUpdateError">Could not update the folder listing</string>
     <string name="Export">Export</string>
     <string name="folder_export_not_implemented">Exporting folders is not implemented</string>
@@ -151,7 +151,7 @@
     <string name="share_into_app_select_folder">Please select folder in which you want to upload the files</string>
     <string name="headline_share_select_upload_identity">Select upload identity</string>
     <string name="headline_share_into_app">Upload</string>
-    <string name="x_files_uploading">%1 files uploading to qabelbox</string>
+    <string name="x_files_uploading">%1 files uploading to Qabel</string>
     <string name="share_in_app_go_back_without_upload">Do you want to discard the share?</string>
     <string name="general_settings">General settings</string>
     <string name="settings_key_bugreporting_enabled" translatable="false">bugreporting_enabled</string>
@@ -171,7 +171,7 @@
     <string name="headline_contact_chat">Chat</string>
     <string name="btn_chat_send">Send</string>
     <string name="cant_send_message">Can\'t send message</string>
-    <string name="ShareToQabelUser">Forward</string>
+    <string name="ShareToQabelUser">Share</string>
     <string name="fileshare_label_in_chatmessage">Shared file %1</string>
     <string name="headline_share_to_qabeluser">Share to QabelUser</string>
     <string name="cant_share_contactlist_is_empty">Cant share file. You have no contact in contactlist</string>
@@ -214,9 +214,7 @@
 
     <string name="help_main_headline_tou">Terms of use</string>
     <string name="help_main_headline_data_policy">Data policy</string>
-    <string name="help_main_headline_disclaimer">Disclaimer</string>
-    <string name="help_main_headline_licenses">Licenses</string>
-    <string name="help_main_headline_about_us">About us</string>
+    <string name="help_main_headline_about_us">Imprint</string>
     <string name="help_main_headline_app_infos">App infos</string>
     <string name="help_main_headline_app_version">App Version</string>
     <string name="help_key_main_app_version">key_appversion</string>
@@ -227,9 +225,9 @@
     <string name="help_key_main_app_about_us">key_about_us</string>
     <string name="app_info_version_and_build">You use app version $1 from $2</string>
     <string name="headline_main_help">Help</string>
-    <string name="message_welcome_screen1">\nThis is an Ecosystem\n\nQabel is what we\nwant it to be\n\nCreate, Collaborate, Invent\n\nhave Fun!</string>
-    <string name="message_welcome_screen2">End-to-end encrypted\nuploads and downloads\n\nSynchronisation over any number of devices\n\nSharing with other\nQabel users</string>
-    <string name="message_welcome_screen3">Qabel allows you to manage\nmany identities with\nonly one account.\n\nYou can sync different\nidentities on different\ndevices and choose which\nidentities you want to\nshare with other people.\n\nBe Bob for your boss and\nAlice for your friends!</string>
+    <string name="message_welcome_screen1"> This is an Ecosystem  Qabel is what we want it to be\nCreate, Collaborate, Invent\n  have Fun!</string>
+    <string name="message_welcome_screen2">End-to-end encrypted\nuploads and downloads\nSynchronisation over any number of devices\nSharing with other Qabel users</string>
+    <string name="message_welcome_screen3">Qabel allows you to manage many identities with only one account.\n\nYou can sync different identities on different devices and choose which identities you want to share with other people.\n\nBe Bob to your boss and Alice to your friends!</string>
     <string name="message_welcome_screen4">We give you 2 GB\nof free storage\n\nyou just need to do create\na Qabel Account</string>
     <string name="message_welcome_disclaimer_headline">\u0020License Stuff\n</string>
     <string name="message_welcome_disclaimer_message_legal_note">You have to agree\nto our legal notes</string>
@@ -252,9 +250,9 @@
     <string name="message_welcome_qabel_big">QABEL </string>
     <string name="headline_welcome_screen1">Welcome to\u0020</string>
     <string name="empty_text"/>
-    <string name="headline_welcome_screen2">\u0020Specs\n</string>
+    <string name="headline_welcome_screen2">\u0020Features\n</string>
     <string name="headline_welcome_screen3">\u0020Identities\n</string>
-    <string name="headline_welcome_screen4">\u0020Qabel Account\n</string>
+    <string name="headline_welcome_screen4">\u0020Account\n</string>
     <string name="github_url">https://github.com/Qabel</string>
     <string name="asset_qabel_font">fonts/Art Post.ttf</string>
     <string name="help">Help</string>

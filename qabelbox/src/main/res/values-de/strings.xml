@@ -189,4 +189,28 @@
     <string name="message_cant_attach_external_file_exists">Anfügen der freigegebenen Datei nicht möglich. Eine Datei mit diesem Namen existiert bereits. Vielleicht haben Sie diese Datei schon ein Mal früher angefügt</string>
     <string name="hockeyapp_feedback_response_button_text">Neue Nachricht senden</string>
     <string name="action_about">Über</string>
+       <string name="app_info_version_and_build">You use app version $1 from $2</string>
+    <string name="message_welcome_screen1">\nQabel ist eine kostenlose,\nquelloffene\nKryptographieplattform.\n\nWerden sie Teil des Qabel-Ökosytems.\n\nViel Spaß!</string>
+    <string name="message_welcome_screen2">Ende-zu-Ende verschlüsselter Upload, Download und  Speicherung.\nMetadatenverschleierung.\n2 GB kostenloser Speicher.\nSynchronisation über beliebig viele Endgeräte.\nSharing mit anderen Qabelnutzern.\nVerwaltung mehrerer Identitäten mit nur einem Qabelaccount und in einer Anmeldung.\nIntegrierter Kurznachrichtendienst.</string>
+    <string name="message_welcome_screen3">Qabel erlaubt es Ihnen,\nmehrere Identitäten in nur einem Account abzubilden.\nSie können verschiedene Identitäten auf verschiedenen Endgeräten synchronisieren und\nbestimmen, welche Identitäten Sie mit anderen Menschen teilen möchten.\nSeien sie Bob für Ihren Chef und Alice für Ihre Freunde!</string>
+    <string name="message_welcome_screen4">2 GB Speicher bekommen Sie von uns geschenkt.\n\nErstellen sie nun ihren Qabel-Account.</string>
+    <string name="message_welcome_disclaimer_headline">\u0020Lizenz Krams\n</string>
+    <string name="message_welcome_disclaimer_message_legal_note">Um fortzufahren,\nakzeptieren sie bitte\nunsere AGB und unsere\nDatenschutzerklärung.</string>
+    <string name="btn_welcome_disclaimer_show_legal_notes">Zeige AGB</string>
+
+    <string name="cb_welcome_disclaimer_legal_note_checked">AGB akzeptiert</string>
+    <string name="cb_welcome_disclaimer_legal_note_unchecked">AGB nicht akzeptiert</string>
+    <string name="cb_welcome_disclaimer_privacy_note_checked">Datenschutzerklärung akzeptiert</string>
+    <string name="cb_welcome_disclaimer_privacy_note_unchecked">Datenschutzerklärung nicht akzeptiert</string>
+
+    <string name="message_welcome_disclaimer_message_privacy_note"></string>
+    <string name="btn_welcome_disclaimer_show_privacy_notes">Zeige Datenschutzerklärung</string>
+
+    <string name="message_welcome_disclaimer_qabel_is_public_source">\u0020ist publizierter Quellcode</string>
+    <string name="btn_welcome_disclaimer_show_sources_on_github">Fork me on GitHub</string>
+    <string name="btn_welcome_disclaimer_show_qapl">Zeige QAPL</string>
+   <string name="headline_welcome_screen2">\u0020Funktionen\n</string>
+   <string name="headline_welcome_screen3">\u0020Identitäten\n</string>
+   <string name="headline_welcome_screen4">\u0020Account\n</string>
+   <string name="headline_welcome_screen1">Wilkommen bei\u0020</string>
 </resources>

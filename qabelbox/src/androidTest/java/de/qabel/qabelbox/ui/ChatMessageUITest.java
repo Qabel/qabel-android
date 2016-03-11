@@ -16,6 +16,7 @@ import android.util.Log;
 import com.squareup.picasso.PicassoIdlingResource;
 import com.squareup.spoon.Spoon;
 
+import org.json.JSONObject;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
@@ -28,7 +29,9 @@ import java.io.IOException;
 import de.qabel.core.config.Identity;
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
+import de.qabel.qabelbox.TestConstraints;
 import de.qabel.qabelbox.activities.MainActivity;
+import de.qabel.qabelbox.communication.URLs;
 import de.qabel.qabelbox.config.ContactExportImport;
 import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.ui.action.QabelViewAction;
@@ -107,6 +110,7 @@ public class ChatMessageUITest {
 	}
 
 	private void setupData() {
+		URLs.setBaseBlockURL("http://testing.qabel.de:8888");
 		mActivity = mActivityTestRule.getActivity();
 		mBoxHelper = new UIBoxHelper(QabelBoxApplication.getInstance());
 		mBoxHelper.bindService(QabelBoxApplication.getInstance());
@@ -126,14 +130,14 @@ public class ChatMessageUITest {
 		contact2Json = ContactExportImport.exportIdentityAsContact(user2);
 		mBoxHelper.setActiveIdentity(user1);
 		try {
-			mBoxHelper.getService().addContact(new ContactExportImport().parseContactForIdentity(user1, contact2Json));
+			mBoxHelper.getService().addContact(new ContactExportImport().parseContactForIdentity(user1, new JSONObject(contact2Json)));
 		} catch (Exception e) {
 			Log.e(TAG, "error on add contact", e);
 		}
 		assertNotEmpty(mBoxHelper.getService().getContacts().getContacts());
 		mBoxHelper.setActiveIdentity(user2);
 		try {
-			mBoxHelper.getService().addContact(new ContactExportImport().parseContactForIdentity(user2, contact1Json));
+			mBoxHelper.getService().addContact(new ContactExportImport().parseContactForIdentity(user2, new JSONObject(contact1Json)));
 		} catch (Exception e) {
 			Log.e(TAG, "error on add contact", e);
 		}

@@ -6,6 +6,7 @@ import android.support.test.espresso.intent.rule.IntentsTestRule;
 
 import com.squareup.spoon.Spoon;
 
+import org.json.JSONObject;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
@@ -136,7 +137,7 @@ public class FilesFragmentUITest {
 		testIdentity2 = mBoxHelper.addIdentity("spoon2");
 		String contactJSON = ContactExportImport.exportIdentityAsContact(testIdentity2);
 		try{
-			testContact = ContactExportImport.parseContactForIdentity(testIdentity, contactJSON);
+			testContact = ContactExportImport.parseContactForIdentity(testIdentity, new JSONObject(contactJSON));
 			mBoxHelper.getService().addContact(testContact);
 		}catch (Exception e){
 			//TODO Log Cant create testContact!

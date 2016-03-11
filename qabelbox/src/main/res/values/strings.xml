@@ -236,10 +236,10 @@
     <string name="message_welcome_screen4">We give you 2 GB\nof free storage\n\nyou just need to do create\na Qabel Account</string>
     <string name="message_welcome_disclaimer_headline">\u0020License Stuff\n</string>
     <string name="message_welcome_disclaimer_message_legal_note">You have to agree\nto our legal notes</string>
-    <string name="btn_welcome_disclaimer_show_legal_notes">Show Legal Notes</string>
+    <string name="btn_welcome_disclaimer_show_legal_notes">Show Terms of Service</string>
 
-    <string name="cb_welcome_disclaimer_legal_note_checked">Legal Notes Accepted</string>
-    <string name="cb_welcome_disclaimer_legal_note_unchecked">Accept Legal Notes</string>
+    <string name="cb_welcome_disclaimer_legal_note_checked">Terms of Service Accepted</string>
+    <string name="cb_welcome_disclaimer_legal_note_unchecked">Accept Terms of Service </string>
     <string name="cb_welcome_disclaimer_privacy_note_checked">Privacy Notes Accepted</string>
     <string name="cb_welcome_disclaimer_privacy_note_unchecked">Accept Privacy Notes</string>
 

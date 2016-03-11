@@ -16,11 +16,9 @@ import de.qabel.android.helper.FileHelper;
  */
 public class WebViewHelpFragment extends BaseFragment {
 
-    public static final int MODE_DISCLAIMER = 0;
-    public static final int MODE_DATA_POLICY = 1;
-    public static final int MODE_TOU = 2;
-    public static final int MODE_LICENSES = 3;
-    public static final int MODE_ABOUT_US = 4;
+    public static final int MODE_DATA_POLICY = 0;
+    public static final int MODE_TOU = 1;
+    public static final int MODE_ABOUT_US = 2;
     private static final String PARAM_MODE = "mode";
     private int mode;
 

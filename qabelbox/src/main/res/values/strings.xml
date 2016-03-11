@@ -214,9 +214,7 @@
 
     <string name="help_main_headline_tou">Terms of use</string>
     <string name="help_main_headline_data_policy">Data policy</string>
-    <string name="help_main_headline_disclaimer">Disclaimer</string>
-    <string name="help_main_headline_licenses">Licenses</string>
-    <string name="help_main_headline_about_us">About us</string>
+    <string name="help_main_headline_about_us">Imprint</string>
     <string name="help_main_headline_app_infos">App infos</string>
     <string name="help_main_headline_app_version">App Version</string>
     <string name="help_key_main_app_version">key_appversion</string>
@@ -252,9 +250,9 @@
     <string name="message_welcome_qabel_big">QABEL </string>
     <string name="headline_welcome_screen1">Welcome to\u0020</string>
     <string name="empty_text"/>
-    <string name="headline_welcome_screen2">\u0020Specs\n</string>
+    <string name="headline_welcome_screen2">\u0020Features\n</string>
     <string name="headline_welcome_screen3">\u0020Identities\n</string>
-    <string name="headline_welcome_screen4">\u0020Qabel Account\n</string>
+    <string name="headline_welcome_screen4">\u0020Account\n</string>
     <string name="github_url">https://github.com/Qabel</string>
     <string name="asset_qabel_font">fonts/Art Post.ttf</string>
     <string name="help">Help</string>

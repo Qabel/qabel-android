@@ -9,20 +9,16 @@
 
     <!--please don't change the order or count, it is references from WebViewHelperFragment with int-->
     <string-array name="help_headlines">
-        <item>Disclaimer</item>
-        <item>Data policy</item>
-        <item>Terms of use</item>
-        <item>Licenses</item>
-        <item>About us</item>
+        <item>Datenschutzbestimmung</item>
+        <item>AGB</item>
+        <item>Impressum</item>
     </string-array>
 
     <!--please don't change the order or count, it is references from WebViewHelperFragment with int
         It maps to localized files   -->
     <string-array name="help_asset_filenames">
-        <item>disclaimer_de.html</item>
         <item>datapolicy_de.html</item>
         <item>tou_de.html</item>
-        <item>licenses_de.html</item>
         <item>aboutus_de.html</item>
     </string-array>
 </resources>

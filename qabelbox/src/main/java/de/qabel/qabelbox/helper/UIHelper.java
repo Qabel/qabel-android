@@ -20,7 +20,10 @@ import java.io.IOException;
 /**
  * Class to support app wide helper function
  * Created by danny on 10.01.2016.
+ *
+ * @deprecated: This should be moved to an upper BaseFragment or BaseActivity class
  */
+@Deprecated
 public class UIHelper {
 
 	/**
@@ -76,6 +79,10 @@ public class UIHelper {
 	public static void showDialogMessage(Activity activity, int headline, String message) {
 
 		showDialogMessage(activity, activity.getString(headline), message, R.string.ok, Integer.MIN_VALUE, null, null);
+	}
+
+	public static void showDialogMessage(Activity activity, String headline, String message) {
+		showDialogMessage(activity, headline, message, R.string.ok, Integer.MIN_VALUE, null, null);
 	}
 
 	public static void showDialogMessage(Activity activity, int headline, int message, DialogInterface.OnClickListener buttonOkListener) {

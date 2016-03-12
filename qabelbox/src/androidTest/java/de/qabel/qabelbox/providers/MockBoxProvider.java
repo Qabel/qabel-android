@@ -19,7 +19,7 @@ import de.qabel.qabelbox.persistence.AndroidPersistence;
 import de.qabel.qabelbox.persistence.QblSQLiteParams;
 import de.qabel.qabelbox.services.LocalQabelService;
 
-public class BoxProviderTester extends BoxProvider {
+public class MockBoxProvider extends BoxProvider {
 
 	public byte[] deviceID;
 	public String lastID;
@@ -39,6 +39,11 @@ public class BoxProviderTester extends BoxProvider {
 		setParametersForTests();
 		initServiceForTests(context);
 		attachInfoForTests(context);
+	}
+
+
+	public void mockBindToService(Context context) {
+		bindToService(context);
 	}
 
 	private void setParametersForTests() {

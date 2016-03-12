@@ -25,7 +25,9 @@ import de.qabel.core.config.Identities;
 import de.qabel.core.config.Identity;
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
+import de.qabel.qabelbox.TestConstraints;
 import de.qabel.qabelbox.activities.CreateIdentityActivity;
+import de.qabel.qabelbox.communication.URLs;
 import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.services.LocalQabelService;
 import de.qabel.qabelbox.ui.action.QabelViewAction;
@@ -81,6 +83,7 @@ public class CreateIdentityUITest {
 	public void setUp() throws IOException, QblStorageException {
 
 		mActivity = mActivityTestRule.getActivity();
+		URLs.setBaseBlockURL("http://testing.qabel.de:8888");
 		mBoxHelper = new UIBoxHelper(QabelBoxApplication.getInstance());
 		mBoxHelper.bindService(QabelBoxApplication.getInstance());
 		mBoxHelper.createTokenIfNeeded(false);

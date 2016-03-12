@@ -210,56 +210,56 @@
     <string name="licence.header.intro">Qabel is Published under the QAPL:</string>
     <string name="about.header.qabel.company.qtxt">QABEL</string>
     <string name="about.header.qabel.show.btn">Show QaPL</string>
-    <string name="about.header.qabel.thanks.header.txt"> bedankt sich bei:</string>
-    <string name="about.header.qabel.thanks.content.txt">Alexander Hartmann
-Andreas Kassner
-Barabara Steuer
-Benjamin Schütze
-Britta Görtz
-Christian Burkert
-Daniel Kaminski
-Dennis Weber
-Dustin Fürst
-Frank Geise
-Frank Roebers
-Hanno Meetz
-Jens Kadenbach
-Jens Kassert
-Julian Seeger
-Lennart Henke
-Malte Zobel
-Marcus Amler
-Markus Kunert
-Markus Thimm
-Martha Lisiewitz
-Martin Linke
-Matthaeus Kozlowski
-Mike Hahm
-Mirco Pietsch
-Moritz Kaynert
-Moritz Schmidt
-Nicola Hauke
-Norbert Najderek
-Oliver Weidner
-Patrick Engelking
-Paul Rösler
-Peter Leppelt
-Philipp Schröder
-Reinhard Sczesny
-Rick
-Sascha Nanninga
-Sven Busche
-Sven Klose
-Tarkan Firat
-Thomas Schuster
-Valerie Whyte
-Wulf Bolte
-
-- Vielen anonym bleiben wollende Menschen aus Bürgerrechtskreisen, die es wahrlich nicht immer einfach haben
-- Den Betatestern
-- Den Menschen, die uns schon seit der Konzeptvorstellung wohlwollend begleiten
-- Den Unterstützern der Indigogo Kampagne
-    </string>
+    <string name="about.header.qabel.thanks.header.txt"> thanks:</string>
+   <string name="about.header.qabel.thanks.content.txt">Alexander Hartmann
+\nAndreas Kassner
+\nBarabara Steuer
+\nBenjamin Schütze
+\nBritta Görtz
+\nChristian Burkert
+\nDaniel Kaminski
+\nDennis Weber
+\nDustin Fürst
+\nFrank Geise
+\nFrank Roebers
+\nHanno Meetz
+\nJens Kadenbach
+\nJens Kassert
+\nJulian Seeger
+\nLennart Henke
+\nMalte Zobel
+\nMarcus Amler
+\nMarkus Kunert
+\nMarkus Thimm
+\nMartha Lisiewitz
+\nMartin Linke
+\nMatthaeus Kozlowski
+\nMike Hahm
+\nMirco Pietsch
+\nMoritz Kaynert
+\nMoritz Schmidt
+\nNicola Hauke
+\nNorbert Najderek
+\nOliver Weidner
+\nPatrick Engelking
+\nPaul Rösler
+\nPeter Leppelt
+\nPhilipp Schröder
+\nReinhard Sczesny
+\nRick
+\nSascha Nanninga
+\nSven Busche
+\nSven Klose
+\nTarkan Firat
+\nThomas Schuster
+\nValerie Whyte
+\nWulf Bolte
+\n
+\nMany people from civil rights groups who want to remain anonymous, who really don\'t always have it easy in life
+\nThe beta testers
+\nTo the people who accompany us since the concept presentation
+To all people who have supported our Indigogo Campaign
+   </string>
 
     <string name="about.licences.item.show.btn">Show Licence</string>
 

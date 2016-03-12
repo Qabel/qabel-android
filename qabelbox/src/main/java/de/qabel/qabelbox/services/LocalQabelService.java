@@ -506,7 +506,6 @@ public class LocalQabelService extends Service {
 		cachedFinishedUploads = Collections.synchronizedMap(new HashMap<String, Map<String, BoxFile>>());
 		uploadingQueue = new LinkedBlockingDeque<>();
 		self = this;
-		System.out.println("INIT SERVICE");
 	}
 
 	protected void initAndroidPersistence() {

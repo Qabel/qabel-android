@@ -219,7 +219,7 @@
     <string name="message_welcome_disclaimer_message_privacy_note"></string>
     <string name="message_welcome_disclaimer_qabel_is_public_source">\u0020ist publizierter Code</string>
     <string name="help_main_headline_tou">AGB</string>
-    <string name="help_main_headline_data_policy">Datenschutzbestimmung</string>
+    <string name="help_main_headline_data_policy">Datenschutzerklärung</string>
     <string name="help_main_headline_about_us">Impressum</string>
     <string name="help_main_headline_app_infos">Awendungsinformationen</string>
     <string name="help_main_headline_app_version">Anwendungsversion</string>

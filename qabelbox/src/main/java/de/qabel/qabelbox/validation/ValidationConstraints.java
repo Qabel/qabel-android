@@ -1,4 +1,4 @@
-package de.qabel.qabelbox.constraints;
+package de.qabel.qabelbox.validation;
 
 public class ValidationConstraints {
 

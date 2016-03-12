@@ -23,16 +23,18 @@ import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.communication.BoxAccountRegisterServer;
 import de.qabel.qabelbox.communication.callbacks.SimpleJsonCallback;
 import de.qabel.qabelbox.helper.UIHelper;
+import de.qabel.qabelbox.validation.PasswordValidator;
 import okhttp3.Call;
 import okhttp3.Response;
 
 /**
  * Created by danny on 19.01.16.
  */
-public class ChangeBoxAccountPasswordFragment extends PasswordFragment {
+public class ChangeBoxAccountPasswordFragment extends Fragment {
 
     private EditText etOldPassword, etPassword1, etPassword2;
     private final BoxAccountRegisterServer mBoxAccountServer = new BoxAccountRegisterServer();
+    private PasswordValidator validator = new PasswordValidator(this);
 
     @Nullable
     @Override
@@ -64,7 +66,7 @@ public class ChangeBoxAccountPasswordFragment extends PasswordFragment {
             String pw = etPassword1.getText().toString();
             String pwRepeat = etPassword2.getText().toString();
 
-            String check = validatePassword(null, pw, pwRepeat);
+            String check = validator.validate(null, pw, pwRepeat);
             if (check != null) {
                 UIHelper.showDialogMessage(getActivity(), R.string.dialog_headline_info, check);
                 return true;

@@ -9,17 +9,20 @@ import android.widget.EditText;
 
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.activities.BaseWizardActivity;
+import de.qabel.qabelbox.validation.PasswordValidator;
 
 /**
  * Created by danny on 19.01.16.
  */
-public class CreateAccountPasswordFragment extends PasswordFragment {
+public class CreateAccountPasswordFragment extends BaseIdentityFragment {
 
 	private EditText etPassword1;
 	private EditText etPassword2;
 	private BaseWizardActivity.NextChecker mChecker;
 
 	private String accountName;
+
+	private PasswordValidator validator = new PasswordValidator(this);
 
 	public static CreateAccountPasswordFragment newInstance(BaseWizardActivity.NextChecker checker) {
 
@@ -43,7 +46,7 @@ public class CreateAccountPasswordFragment extends PasswordFragment {
 	@Override
 	public String check() {
 
-		String validationMessage = this.validatePassword(accountName,
+		String validationMessage = this.validator.validate(accountName,
 				etPassword1.getText().toString(), etPassword2.getText().toString());
 		//check if pw1 match pw2
 		if (validationMessage == null) {

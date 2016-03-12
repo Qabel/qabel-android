@@ -44,7 +44,7 @@
         android:protectionLevel="dangerous" />
 
     <application
-        android:name="de.qabel.qabelbox.QabelBoxApplication"
+        android:name=".QabelBoxApplication"
         android:allowBackup="true"
         android:icon="@drawable/qabel_logo"
         android:label="@string/app_name"
@@ -123,9 +123,9 @@
             android:name=".services.QabelService"
             android:enabled="true"
             android:exported="true"
-            android:permission="de.qabel.qabelbox.QABELSERVICE">
+            android:permission=".QABELSERVICE">
             <intent-filter>
-                <action android:name="de.qabel.qabelbox.service.QabelService"></action>
+                <action android:name=".service.QabelService"></action>
             </intent-filter>
         </service>
 
@@ -134,7 +134,7 @@
             android:enabled="true"
             android:exported="false">
             <intent-filter>
-                <action android:name="de.qabel.qabelbox.service.LocalQabelService"></action>
+                <action android:name=".service.LocalQabelService"></action>
             </intent-filter>
         </service>
         <service

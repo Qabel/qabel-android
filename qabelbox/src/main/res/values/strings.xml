@@ -1,5 +1,4 @@
 <resources>
-    <string name="app_name">Qabel</string>
     <string name="splash_footer_text">Please do not trust us.\nIt is not necessary</string>
 
     <string name="Contacts">Contacts</string>

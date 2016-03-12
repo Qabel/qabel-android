@@ -209,7 +209,7 @@
     <string name="message_welcome_qabel_big">QABEL</string>
     <string name="message_welcome_screen1">Qabel ist eine kostenlose,\nquelloffene\nKryptographieplattform.\n\nWerden Sie Teil\ndes Qabel-Ökosystems.\n\nViel Spaß!</string>
     <string name="message_welcome_screen2">Ende-zu-Ende verschlüsselter\nUpload, Download und\nSpeicherung.\nMetadatenverschleierung.\n2 GB kostenloser Speicher.\nSynchronisation über beliebig\nviele Endgeräte.\nSharing mit anderen\nQabelnutzern.\nVerwaltung mehrerer Identitäten\nmit nur einem Qabel-Account\nund in nur einer Anmeldung.\nIntegrierter\nKurznachrichtendienst.</string>
-    <string name="message_welcome_screen3">Qabel erlaubt es Ihnen,\nmehrere Identitäten in nur\neinem Account abzubilden.\nSie können verschiedene\nIdentitäten auf\nverschiedenen Endgeräten\nsynchronisieren und\nbestimmen, welche\nIdentitäten Sie mit anderen\nMenschen Teilen möchten.\nSenen Sie Bob für\nIhren Chef und Alice für\nIhre Freunde!</string>
+    <string name="message_welcome_screen3">Qabel erlaubt es Ihnen,\nmehrere Identitäten in nur\neinem Account abzubilden.\nSie können verschiedene\nIdentitäten auf\nverschiedenen Endgeräten\nsynchronisieren und\nbestimmen, welche\nIdentitäten Sie mit anderen\nMenschen Teilen möchten.\nSeien Sie Bob für\nIhren Chef und Alice für\nIhre Freunde!</string>
     <string name="message_welcome_screen4">2 GB Speicher bekommen\nSie von uns geschenkt.\n\nErstellen Sie nun Ihren\nQabel-Account.</string>
 
     <string name="upload_in_progress_notification_content">Hochladen ... %s</string>

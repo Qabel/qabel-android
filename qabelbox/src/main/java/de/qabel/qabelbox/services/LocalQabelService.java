@@ -1,5 +1,6 @@
 package de.qabel.qabelbox.services;
 
+import android.app.AlarmManager;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -505,6 +506,7 @@ public class LocalQabelService extends Service {
 		cachedFinishedUploads = Collections.synchronizedMap(new HashMap<String, Map<String, BoxFile>>());
 		uploadingQueue = new LinkedBlockingDeque<>();
 		self = this;
+		System.out.println("INIT SERVICE");
 	}
 
 	protected void initAndroidPersistence() {

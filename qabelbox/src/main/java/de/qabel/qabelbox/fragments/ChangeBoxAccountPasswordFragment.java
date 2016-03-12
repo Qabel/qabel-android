@@ -29,7 +29,7 @@ import okhttp3.Response;
 /**
  * Created by danny on 19.01.16.
  */
-public class ChangeBoxAccountPasswordFragment extends Fragment {
+public class ChangeBoxAccountPasswordFragment extends PasswordFragment {
 
     private EditText etOldPassword, etPassword1, etPassword2;
     private final BoxAccountRegisterServer mBoxAccountServer = new BoxAccountRegisterServer();
@@ -61,7 +61,10 @@ public class ChangeBoxAccountPasswordFragment extends Fragment {
     public boolean onOptionsItemSelected(MenuItem item) {
 
         if (item.getItemId() == R.id.action_ok) {
-            String check = checkNewPassword();
+            String pw = etPassword1.getText().toString();
+            String pwRepeat = etPassword2.getText().toString();
+
+            String check = validatePassword(null, pw, pwRepeat);
             if (check != null) {
                 UIHelper.showDialogMessage(getActivity(), R.string.dialog_headline_info, check);
                 return true;
@@ -71,22 +74,6 @@ public class ChangeBoxAccountPasswordFragment extends Fragment {
             }
         }
         return false;
-    }
-
-    private String checkNewPassword() {
-
-        if (etOldPassword.getText().length() < 3) {
-            return getString(R.string.password_to_short);
-        }
-        if (etPassword1.getText().length() < 3) {
-            return getString(R.string.password_to_short);
-        }
-        //check if pw1 match pw2
-        if (!etPassword1.getText().toString().equals(etPassword2.getText().toString())) {
-            //no
-            return getString(R.string.create_account_passwords_dont_match);
-        }
-        return null;
     }
 
     private void sendChangePWRequest(final String oldPassword, final String newPassword1, final String newPassword2) {

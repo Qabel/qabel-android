@@ -31,6 +31,8 @@
     <string name="manage_identities">Manage Identities</string>
     <string name="Rename">Rename</string>
     <string name="alias_cannot_be_empty">Alias cannot be empty</string>
+    <string name="identity">An Identity</string>
+    <string name="boxaccount">A Qabelaccount</string>
     <string name="rename_identity">Rename %s</string>
     <string name="new_identity_name">Identity alias</string>
     <string name="confirm_delete_identity_header">Delete identity?</string>
@@ -170,7 +172,7 @@
     <string name="infos">Infos</string>
     <string name="dummy_infos_text">This is the alpha version of Qabel</string>
     <string name="contact_count">Contact count: %1</string>
-    <string name="message_step_is_needed_or_close_app"></string>
+    <string name="message_step_is_needed_or_close_app">%s is required to use Qabel. Are you sure you want close Qabel?</string>
     <string name="chat_message_hint">Enter text</string>
     <string name="refresh">Refresh</string>
     <string name="headline_contact_chat">Chat</string>

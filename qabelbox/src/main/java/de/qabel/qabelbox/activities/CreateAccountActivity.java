@@ -55,7 +55,12 @@ public class CreateAccountActivity extends BaseWizardActivity {
         return R.string.headline_create_box_account;
     }
 
-    /**
+	@Override
+	protected String getWizardEntityLabel() {
+		return getString(R.string.boxaccount);
+	}
+
+	/**
      * fill fragment list with fragments to navigate via wizard
      */
     @Override

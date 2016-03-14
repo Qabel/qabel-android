@@ -109,7 +109,9 @@
     <string name="skip_create_identity">Skipping identity creation</string>
     <string name="last_identity_delete_create_new">You have deleted your last identity. Create a new identity</string>
     <string name="server_access_failed_or_invalid_check_internet_connection">Server communication failed. Please check if you entered all data and that your internet connection is stable</string>
-    <string name="password_to_short">The password is too short</string>
+    <string name="password_to_short">This password is to short. It must contain at least 8 characters.</string>
+    <string name="password_contains_user">The password is too similar to the username</string>
+    <string name="password_digits_only">Numeric only passwords are not allowed.</string>
     <string name="email_adress_invalid">Your email address is invalid. Please check your email address and try it again.</string>
     <string name="btn_create_identity">Create identity</string>
     <string name="create_account_final_headline">Qabel account registered</string>

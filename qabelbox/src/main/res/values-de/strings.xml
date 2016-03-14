@@ -136,7 +136,9 @@
     <string name="no">Nein</string>
     <string name="no_entrys_found">Keine Dateien gefunden</string>
     <string name="ok">OK</string>
-    <string name="password_to_short">Das Passwort ist zu kurz</string>
+    <string name="password_to_short">Das Passwort ist zu kurz. Es muss mindestens 8 Zeichen lang sein.</string>
+    <string name="password_contains_user">Das Passwort ist dem Nutzernamen zu ähnlich.</string>
+    <string name="password_digits_only">Passwörter die nur aus Zahlen bestehen sind nicht erlaubt.</string>
     <string name="qrecode_scanner">QR Code Scanner</string>
     <string name="reason_for_error">Ursache: %1</string>
     <string name="rename_identity">Umbenennen von %s</string>

@@ -125,6 +125,10 @@ public class CreateIdentityUITest {
 		String identity2 = "spoon2";
 		Spoon.screenshot(UITestHelper.getCurrentActivity(mActivity), "start");
 
+		pressBack();
+		onView(withText(String.format(mActivity.getString(R.string.message_step_is_needed_or_close_app), R.string.identity)));
+		onView(withText(R.string.no)).perform(click());
+
 		createIdentity(identity);
 		openDrawer(identity);
 		//go to add identity, enter no data and go back

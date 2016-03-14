@@ -37,6 +37,7 @@ import de.qabel.qabelbox.ui.helper.UITestHelper;
 
 import static android.support.test.espresso.Espresso.closeSoftKeyboard;
 import static android.support.test.espresso.Espresso.onView;
+import static android.support.test.espresso.Espresso.pressBack;
 import static android.support.test.espresso.action.ViewActions.clearText;
 import static android.support.test.espresso.action.ViewActions.click;
 import static android.support.test.espresso.action.ViewActions.pressImeActionButton;
@@ -106,6 +107,10 @@ public class CreateBoxAccountUITest {
 	@Test
 	public void createBoxAccountTest() throws Throwable {
 		clearIdentities();
+		pressBack();
+		onView(withText(String.format(mActivity.getString(R.string.message_step_is_needed_or_close_app), R.string.boxaccount)));
+		onView(withText(R.string.no)).perform(click());
+
 		onView(withText(R.string.create_box_account)).perform(click());
 		String accountName = UUID.randomUUID().toString().substring(0, 15).replace("-", "x");
 		String failPassword = "12345678";

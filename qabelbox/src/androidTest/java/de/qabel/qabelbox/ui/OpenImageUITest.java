@@ -145,7 +145,7 @@ public class OpenImageUITest {
         Intents.init();
         Matcher<Intent> expectedIntent = allOf(hasAction(Intent.ACTION_CHOOSER));
         intending(expectedIntent).respondWith(activityResult);
-        onView(withId(R.id.view)).perform(click());
+        onView(withId(R.id.action_imageviewer_open)).perform(click());
         intended(expectedIntent);
         Intents.release();
 
@@ -166,8 +166,8 @@ public class OpenImageUITest {
                 .perform(RecyclerViewActions.actionOnItem(
                         hasDescendant(withText(file)), click()));
         onView(withId(R.id.image)).check(matches(isDisplayed()));
-        onView(withId(R.id.edit)).check(matches(isDisplayed()));
-        onView(withId(R.id.view)).check(matches(isDisplayed()));
+        onView(withId(R.id.action_imageviewer_edit)).check(matches(isDisplayed()));
+        onView(withId(R.id.action_imageviewer_open)).check(matches(isDisplayed()));
     }
 }
 

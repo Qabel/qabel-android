@@ -43,7 +43,7 @@ public class BaseServer {
      */
     protected void addHeader(String token, Request.Builder builder) {
 
-        String locale = Locale.getDefault().toString();
+        String locale = Locale.getDefault().getLanguage();
         builder.addHeader("Accept-Language", locale);
         builder.addHeader("Accept", "application/json");
         if (token != null) {

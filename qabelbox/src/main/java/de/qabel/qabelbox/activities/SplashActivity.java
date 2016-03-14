@@ -53,7 +53,6 @@ public class SplashActivity extends CrashReportingActivity {
 		}
 		if (lastAppStartVersion == 0) {
 			prefs.setLastAppStartVersion(currentAppVersionCode);
-			//@todo show welcome
 		} else {
 			if (lastAppStartVersion != currentAppVersionCode) {
 				prefs.setLastAppStartVersion(currentAppVersionCode);
@@ -76,7 +75,6 @@ public class SplashActivity extends CrashReportingActivity {
 		new Handler().postDelayed(new Runnable() {
 			@Override
 			public void run() {
-
 
                 if (prefs.getWelcomeScreenShowedAt() == 0) {
                     Intent intent = new Intent(mActivity, WelcomeScreenActivity.class);

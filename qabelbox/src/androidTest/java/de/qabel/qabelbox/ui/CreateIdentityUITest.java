@@ -25,10 +25,12 @@ import de.qabel.core.config.Identities;
 import de.qabel.core.config.Identity;
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
+import de.qabel.qabelbox.TestConstants;
 import de.qabel.qabelbox.TestConstraints;
 import de.qabel.qabelbox.activities.CreateIdentityActivity;
 import de.qabel.qabelbox.communication.URLs;
 import de.qabel.qabelbox.exceptions.QblStorageException;
+import de.qabel.qabelbox.helper.UIHelper;
 import de.qabel.qabelbox.services.LocalQabelService;
 import de.qabel.qabelbox.ui.action.QabelViewAction;
 import de.qabel.qabelbox.ui.helper.SystemAnimations;
@@ -83,7 +85,7 @@ public class CreateIdentityUITest {
 	public void setUp() throws IOException, QblStorageException {
 
 		mActivity = mActivityTestRule.getActivity();
-		URLs.setBaseBlockURL("http://testing.qabel.de:8888");
+		URLs.setBaseBlockURL(TestConstants.BLOCK_URL);
 		mBoxHelper = new UIBoxHelper(QabelBoxApplication.getInstance());
 		mBoxHelper.bindService(QabelBoxApplication.getInstance());
 		mBoxHelper.createTokenIfNeeded(false);
@@ -183,6 +185,7 @@ public class CreateIdentityUITest {
 	private void createIdentityPerformConfirm() {
 		onView(withText(R.string.create_identity_final)).check(matches(isDisplayed()));
 		onView(withText(R.string.finish)).perform(click());
+		UITestHelper.sleep(10000);
 		onView(withText(R.string.headline_files)).check(matches(isDisplayed()));
 		UITestHelper.sleep(500);
 	}

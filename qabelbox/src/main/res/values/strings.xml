@@ -19,7 +19,7 @@
 
     <string name="upload">Upload</string>
     <string name="Delete">Delete</string>
-    <string name="Share">Share</string>
+    <string name="Send">Send</string>
     <string name="folderListingUpdateError">Could not update the folder listing</string>
     <string name="Export">Export</string>
     <string name="folder_export_not_implemented">Exporting folders is not implemented</string>
@@ -140,9 +140,14 @@
     <string name="qrecode_scanner">QR-Code scanner</string>
     <string name="from_file">Import</string>
     <string name="direct_input">Manual input</string>
+
     <string name="contact_import_failed">Contact import failed</string>
     <string name="contact_import_manual_failed">Contact import failed. Please check if you entered the correct data</string>
-    <string name="contact_import_successfull">Contact imported</string>
+    <plurals name="contact_import_successfull">
+        <item quantity="one">Contact imported</item>
+        <item quantity="other">%d contacts imported</item>
+    </plurals>
+    <string name="contact_import_zero_additions">No new Contacts found</string>
     <string name="cant_import_contact_already_exisits">Can\'t import contact. Contact already in contact list</string>
     <string name="messsage_enter_contact_manual">Please enter the details of the contact. You can also abort this and import the contact from a file or QR code</string>
     <string name="share_into_app_select_identity">Please select the identity you want to use for the upload</string>
@@ -171,7 +176,7 @@
     <string name="headline_contact_chat">Chat</string>
     <string name="btn_chat_send">Send</string>
     <string name="cant_send_message">Can\'t send message</string>
-    <string name="ShareToQabelUser">Forward</string>
+    <string name="ShareToQabelUser">Share</string>
     <string name="fileshare_label_in_chatmessage">Shared file %1</string>
     <string name="headline_share_to_qabeluser">Share to QabelUser</string>
     <string name="cant_share_contactlist_is_empty">Cant share file. You have no contact in contactlist</string>
@@ -204,9 +209,57 @@
 
     <string name="licence.header.intro">Qabel is Published under the QAPL:</string>
     <string name="about.header.qabel.company.qtxt">QABEL</string>
-    <string name="about.header.qabel.show.btn">Show QAPL</string>
-    <string name="about.header.qabel.thanks.header.txt"> bedankt sich bei:</string>
-    <string name="about.header.qabel.thanks.content.txt">praemandatum GmbH\nden Unterstützern unserer Indiegogo Kampagne\nHinz\nund\nKunz</string>
+    <string name="about.header.qabel.show.btn">Show QaPL</string>
+    <string name="about.header.qabel.thanks.header.txt"> thanks:</string>
+   <string name="about.header.qabel.thanks.content.txt">Alexander Hartmann
+\nAndreas Kassner
+\nBarabara Steuer
+\nBenjamin Schütze
+\nBritta Görtz
+\nChristian Burkert
+\nDaniel Kaminski
+\nDennis Weber
+\nDustin Fürst
+\nFrank Geise
+\nFrank Roebers
+\nHanno Meetz
+\nJens Kadenbach
+\nJens Kassert
+\nJulian Seeger
+\nLennart Henke
+\nMalte Zobel
+\nMarcus Amler
+\nMarkus Kunert
+\nMarkus Thimm
+\nMartha Lisiewitz
+\nMartin Linke
+\nMatthaeus Kozlowski
+\nMike Hahm
+\nMirco Pietsch
+\nMoritz Kaynert
+\nMoritz Schmidt
+\nNicola Hauke
+\nNorbert Najderek
+\nOliver Weidner
+\nPatrick Engelking
+\nPaul Rösler
+\nPeter Leppelt
+\nPhilipp Schröder
+\nReinhard Sczesny
+\nRick
+\nSascha Nanninga
+\nSven Busche
+\nSven Klose
+\nTarkan Firat
+\nThomas Schuster
+\nValerie Whyte
+\nWulf Bolte
+\n
+\nMany people from civil rights groups who want to remain anonymous, who really don\'t always have it easy in life
+\nThe beta testers
+\nTo the people who accompany us since the concept presentation
+To all people who have supported our Indigogo Campaign
+   </string>
 
     <string name="about.licences.item.show.btn">Show Licence</string>
 
@@ -214,9 +267,7 @@
 
     <string name="help_main_headline_tou">Terms of use</string>
     <string name="help_main_headline_data_policy">Data policy</string>
-    <string name="help_main_headline_disclaimer">Disclaimer</string>
-    <string name="help_main_headline_licenses">Licenses</string>
-    <string name="help_main_headline_about_us">About us</string>
+    <string name="help_main_headline_about_us">Imprint</string>
     <string name="help_main_headline_app_infos">App infos</string>
     <string name="help_main_headline_app_version">App Version</string>
     <string name="help_key_main_app_version">key_appversion</string>
@@ -227,16 +278,16 @@
     <string name="help_key_main_app_about_us">key_about_us</string>
     <string name="app_info_version_and_build">You use app version $1 from $2</string>
     <string name="headline_main_help">Help</string>
-    <string name="message_welcome_screen1">\nThis is an Ecosystem\n\nQabel is what we\nwant it to be\n\nCreate, Collaborate, Invent\n\nhave Fun!</string>
-    <string name="message_welcome_screen2">End-to-end encrypted\nuploads and downloads\n\nSynchronisation over any number of devices\n\nSharing with other\nQabel users</string>
-    <string name="message_welcome_screen3">Qabel allows you to manage\nmany identities with\nonly one account.\n\nYou can sync different\nidentities on different\ndevices and choose which\nidentities you want to\nshare with other people.\n\nBe Bob for your boss and\nAlice for your friends!</string>
-    <string name="message_welcome_screen4">We give you 2 GB\nof free storage\n\nyou just need to do create\na Qabel Account</string>
+    <string name="message_welcome_screen1">\nQabel is a free,\npublished-source\ncryptography platform.\n\nBecome a part\nof the Qabel ecosystem.\n\nEnjoy!</string>
+    <string name="message_welcome_screen2">End-to-end encrypted uploads,\ndownloads and data storage.\nMetadata obfuscation.\n2GB free storage.\nSynchronisation over any\nnumber of devices\nSharing with other Qabel users.\nManagement of multiple\nidentities with only one Qabel\naccount within\none application.\nIntegrated short message\nservice.</string>
+    <string name="message_welcome_screen3">Qabel allows you to depict\nmany identities with\nonly one account.\n\nYou can sync different\nidentities on different\ndevices and choose which\nidentities you want to\nshare with other people.\n\nBe Bob for your boss and\nAlice for your friends!</string>
+    <string name="message_welcome_screen4">We give you 2 GB\nof free storage\n\nCreate your Qabel\naccount now.</string>
     <string name="message_welcome_disclaimer_headline">\u0020License Stuff\n</string>
     <string name="message_welcome_disclaimer_message_legal_note">You have to agree\nto our legal notes</string>
-    <string name="btn_welcome_disclaimer_show_legal_notes">Show Legal Notes</string>
+    <string name="btn_welcome_disclaimer_show_legal_notes">Show Terms of Service</string>
 
-    <string name="cb_welcome_disclaimer_legal_note_checked">Legal Notes Accepted</string>
-    <string name="cb_welcome_disclaimer_legal_note_unchecked">Accept Legal Notes</string>
+    <string name="cb_welcome_disclaimer_legal_note_checked">Terms of Service Accepted</string>
+    <string name="cb_welcome_disclaimer_legal_note_unchecked">Accept Terms of Service </string>
     <string name="cb_welcome_disclaimer_privacy_note_checked">Privacy Notes Accepted</string>
     <string name="cb_welcome_disclaimer_privacy_note_unchecked">Accept Privacy Notes</string>
 
@@ -252,9 +303,9 @@
     <string name="message_welcome_qabel_big">QABEL </string>
     <string name="headline_welcome_screen1">Welcome to\u0020</string>
     <string name="empty_text"/>
-    <string name="headline_welcome_screen2">\u0020Specs\n</string>
+    <string name="headline_welcome_screen2">\u0020Features\n</string>
     <string name="headline_welcome_screen3">\u0020Identities\n</string>
-    <string name="headline_welcome_screen4">\u0020Qabel Account\n</string>
+    <string name="headline_welcome_screen4">\u0020Account\n</string>
     <string name="github_url">https://github.com/Qabel</string>
     <string name="asset_qabel_font">fonts/Art Post.ttf</string>
     <string name="help">Help</string>

@@ -28,6 +28,7 @@ import de.qabel.core.drop.AdjustableDropIdGenerator;
 import de.qabel.core.drop.DropIdGenerator;
 import de.qabel.core.drop.DropURL;
 import de.qabel.qabelbox.QabelBoxApplication;
+import de.qabel.qabelbox.TestConstants;
 import de.qabel.qabelbox.communication.VolumeFileTransferHelper;
 import de.qabel.qabelbox.config.AppPreference;
 import de.qabel.qabelbox.exceptions.QblStorageException;
@@ -135,10 +136,9 @@ public class UIBoxHelper {
 		DropURL dropURL = new DropURL(dropServer, adjustableDropIdGenerator);
 		Collection<DropURL> dropURLs = new ArrayList<>();
 		dropURLs.add(dropURL);
-		String prefix=new PrefixGetter().getPrefix(mContext);
-		Identity identity = new Identity(identName,
-				dropURLs, new QblECKeyPair());
-		identity.getPrefixes().add(prefix);
+
+		Identity identity = new Identity(identName, dropURLs, new QblECKeyPair());
+		identity.getPrefixes().add(TestConstants.PREFIX);
 		finished = false;
 
 		Log.d(TAG, "identity added " + identity.getAlias() + " " + identity.getEcPublicKey().getReadableKeyIdentifier());
@@ -227,8 +227,10 @@ public class UIBoxHelper {
 	public void createTokenIfNeeded(boolean forceCreated) {
 		Context applicationContext = QabelBoxApplication.getInstance().getApplicationContext();
 		AppPreference prefs = new AppPreference(applicationContext);
-		if (forceCreated || prefs.getToken() == null) {
+		if (forceCreated && prefs.getToken() == null) {
 			prefs.setToken(new RealTokerGetter().getToken(applicationContext));
+		}else {
+			prefs.setToken(TestConstants.TOKEN);
 		}
 	}
 

@@ -25,8 +25,8 @@
             style="@style/MessageText"
             android:layout_alignParentLeft="true"
             android:layout_below="@id/sb_security"
-            android:text="@string/identity_security_low"
-            android:height="50dp"
+            android:text="@string/identity_security_high"
+            android:height="85dp"
             android:width="140dp"
             android:layout_marginLeft="5dp"/>
 
@@ -36,9 +36,9 @@
             android:layout_alignParentRight="true"
             style="@style/MessageText"
             android:layout_below="@id/sb_security"
-            android:text="@string/identity_security_high"
+            android:text="@string/identity_security_low"
             android:width="140dp"
-            android:layout_marginRight="5dp"/>
+            android:height="85dp"/>
     </RelativeLayout>
 
     <Space

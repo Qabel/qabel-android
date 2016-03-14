@@ -62,8 +62,14 @@ public class AboutLicencesFragment extends BaseFragment {
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         licensesList = (RecyclerView) view.findViewById(R.id.about_licences_list);
+        String qapl = null;
         try {
-            licensesList.setAdapter(new JSONLicencesAdapter(getActivity(), readJSONFromAssets("licences.json")));
+            qapl = readUTF8FromAssets("qapl.txt");
+        } catch (IOException e) {
+            Log.e(TAG, "Could not read qapl.txt");
+        }
+        try {
+            licensesList.setAdapter(new JSONLicencesAdapter(getActivity(), readJSONFromAssets("licences.json"), qapl));
             licensesList.setLayoutManager(new LinearLayoutManager(getActivity()));
         } catch (Exception e) {
             Log.e(TAG, "Could not read licence JSON: " + e.getMessage());

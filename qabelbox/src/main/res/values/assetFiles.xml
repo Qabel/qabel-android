@@ -2,5 +2,5 @@
 <resources>
     <string name="FILE_QAPL_LICENSE">qapl.html</string>
     <string name="FILE_PRIVACY">datapolicy_en.html</string>
-    <string name="FILE_LEGAL">legal_en.html</string>
+    <string name="FILE_LEGAL">tou_en.html</string>
 </resources>

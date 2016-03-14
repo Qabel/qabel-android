@@ -53,7 +53,6 @@ public class SplashActivity extends CrashReportingActivity {
 		}
 		if (lastAppStartVersion == 0) {
 			prefs.setLastAppStartVersion(currentAppVersionCode);
-			//@todo show welcome
 		} else {
 			if (lastAppStartVersion != currentAppVersionCode) {
 				prefs.setLastAppStartVersion(currentAppVersionCode);

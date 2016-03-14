@@ -37,6 +37,7 @@ import de.qabel.qabelbox.ui.helper.UITestHelper;
 
 import static android.support.test.espresso.Espresso.closeSoftKeyboard;
 import static android.support.test.espresso.Espresso.onView;
+import static android.support.test.espresso.action.ViewActions.clearText;
 import static android.support.test.espresso.action.ViewActions.click;
 import static android.support.test.espresso.action.ViewActions.pressImeActionButton;
 import static android.support.test.espresso.action.ViewActions.typeText;
@@ -107,20 +108,49 @@ public class CreateBoxAccountUITest {
 		clearIdentities();
 		onView(withText(R.string.create_box_account)).perform(click());
 		String accountName = UUID.randomUUID().toString().substring(0, 15).replace("-", "x");
+		String failPassword = "12345678";
 		String password = "passwort12$";
 		//enter name
 		enterSingleLine(accountName, "name");
 		enterSingleLine(accountName + "@qabel.de", "email");
 
-		//enter password 1 and press next
-		onView(withId(R.id.et_password1)).check(matches(isDisplayed())).perform(click());
+		//Check numeric validation
+		onView(withId(R.id.et_password1)).perform(typeText(failPassword), pressImeActionButton());
+		onView(withId(R.id.et_password2)).perform(typeText(failPassword), pressImeActionButton());
+		closeSoftKeyboard();
+		UITestHelper.sleep(500);
+		onView(withText(R.string.next)).perform(click());
+
+		onView(withText(R.string.password_digits_only)).check(matches(isDisplayed()));
+		Spoon.screenshot(UITestHelper.getCurrentActivity(mActivity), "numericPasswords");
+		onView(withText(R.string.ok)).perform(click());
+
+		onView(withId(R.id.et_password1)).perform(clearText());
+		onView(withId(R.id.et_password2)).perform(clearText());
+
+		//Check accountname in password validation
+		onView(withId(R.id.et_password1)).perform(typeText(failPassword + accountName), pressImeActionButton());
+		onView(withId(R.id.et_password2)).perform(typeText(failPassword + accountName), pressImeActionButton());
+		closeSoftKeyboard();
+		UITestHelper.sleep(500);
+		onView(withText(R.string.next)).perform(click());
+
+		onView(withText(R.string.password_contains_user)).check(matches(isDisplayed()));
+		Spoon.screenshot(UITestHelper.getCurrentActivity(mActivity), "accountNamePasswords");
+		onView(withText(R.string.ok)).perform(click());
+
+		onView(withId(R.id.et_password1)).perform(clearText());
+		onView(withId(R.id.et_password2)).perform(clearText());
+
+		//Check Passwords dont match
 		onView(withId(R.id.et_password1)).perform(typeText(password), pressImeActionButton());
 		closeSoftKeyboard();
-		//UITestHelper.sleep(500);
+		UITestHelper.sleep(500);
 		onView(withText(R.string.next)).perform(click());
+
 		Spoon.screenshot(UITestHelper.getCurrentActivity(mActivity), "passwordNotMatch");
+		onView(withText(R.string.create_account_passwords_dont_match)).check(matches(isDisplayed()));
 		onView(withText(R.string.ok)).perform(click());
-		//onView(allOf(withClassName(endsWith("nFont")))).perform(click());
 
 		//enter password 2 and press next
 		onView(withId(R.id.et_password2)).check(matches(isDisplayed())).perform(click());

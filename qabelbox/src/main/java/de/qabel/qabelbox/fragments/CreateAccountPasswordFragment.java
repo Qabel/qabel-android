@@ -22,7 +22,7 @@ public class CreateAccountPasswordFragment extends BaseIdentityFragment {
 
 	private String accountName;
 
-	private PasswordValidator validator = new PasswordValidator(this);
+	private PasswordValidator validator = new PasswordValidator();
 
 	public static CreateAccountPasswordFragment newInstance(BaseWizardActivity.NextChecker checker) {
 
@@ -46,14 +46,14 @@ public class CreateAccountPasswordFragment extends BaseIdentityFragment {
 	@Override
 	public String check() {
 
-		String validationMessage = this.validator.validate(accountName,
+		Integer validationMessage = this.validator.validate(accountName,
 				etPassword1.getText().toString(), etPassword2.getText().toString());
 		//check if pw1 match pw2
 		if (validationMessage == null) {
 			//yes, check password
 			return mChecker.check(etPassword1);
 		}
-		return validationMessage;
+		return getString(validationMessage);
 	}
 
 	public void setAccountName(String accountName) {

@@ -34,7 +34,7 @@ public class ChangeBoxAccountPasswordFragment extends Fragment {
 
     private EditText etOldPassword, etPassword1, etPassword2;
     private final BoxAccountRegisterServer mBoxAccountServer = new BoxAccountRegisterServer();
-    private PasswordValidator validator = new PasswordValidator(this);
+    private PasswordValidator validator = new PasswordValidator();
 
     @Nullable
     @Override
@@ -66,9 +66,9 @@ public class ChangeBoxAccountPasswordFragment extends Fragment {
             String pw = etPassword1.getText().toString();
             String pwRepeat = etPassword2.getText().toString();
 
-            String check = validator.validate(null, pw, pwRepeat);
+            Integer check = validator.validate(null, pw, pwRepeat);
             if (check != null) {
-                UIHelper.showDialogMessage(getActivity(), R.string.dialog_headline_info, check);
+                UIHelper.showDialogMessage(getActivity(), R.string.dialog_headline_info, getString(check));
                 return true;
             } else {
                 sendChangePWRequest(etOldPassword.getText().toString(), etPassword1.getText().toString(), etPassword2.getText().toString());

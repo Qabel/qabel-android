@@ -54,7 +54,6 @@ public class ImageViewerFragment extends BaseFragment {
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		// handle item selection
 		switch (item.getItemId()) {
 			case R.id.action_imageviewer_edit:
 				ExternalApps.openExternApp(getActivity(), uri, type, Intent.ACTION_EDIT);
@@ -85,11 +84,9 @@ public class ImageViewerFragment extends BaseFragment {
 		Picasso.with(getActivity())
 				.load(uri)
 				.error(R.drawable.image_loading_error)
-						//.placeholder(R.drawable.image_loading_animation)
 				.into(iv, new Callback() {
 					@Override
 					public void onSuccess() {
-
 						iv.setLayoutParams(new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT));
 						progressView.setVisibility(View.GONE);
 					}
@@ -103,7 +100,6 @@ public class ImageViewerFragment extends BaseFragment {
 		setActionBarBackListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-
 				getActivity().onBackPressed();
 			}
 		});

@@ -40,6 +40,7 @@
     <string name="confirm_delete_identity_message">Möchten Sie die Identität %s wirklich löschen? Diese Operation kann nicht rückgängig gemacht werden.</string>
     <string name="confirm_delete_message">Möchten Sie %s löschen?</string>
     <string name="confirm_delete_title">Löschen?</string>
+    <string name="message_step_is_needed_or_close_app">%s wird benötigt um Qabel zu benutzen. Möchten Sie Qabel jetzt schließen?</string>
     <string name="contact_count">Kontakte: %1</string>
     <string name="contact_deleted">Kontakt mit dem Namen %1 gelöscht</string>
     <string name="contact_export_successfully">Kontakt exportiert. Sie können diesen Kontakt nun weitergeben.</string>
@@ -70,6 +71,7 @@
     <string name="create_account_username_hint">Nutzername</string>
     <string name="create_box_account">Registrieren Sie einen Qabelaccount</string>
     <string name="create_folder">Ordner erstellen</string>
+    <string name="identity">Eine Identität</string>
     <string name="create_identity_already_exists">Diese Identität besteht bereits</string>
     <string name="create_identity_create">Erstellen einer Identität</string>
     <string name="create_identity_enter_all_data">Bitte füllen Sie alle Felder aus</string>
@@ -147,6 +149,7 @@
     <string name="settings_change_account_password">Passwort ändern</string>
     <string name="settings_change_account_password_summary">Passwort des Qabelaccounts ändern</string>
     <string name="settings_headline_boxaccount">Qabelaccount</string>
+    <string name="boxaccount">Ein Qabelaccount</string>
     <string name="share_in_app_go_back_without_upload">Möchten Sie das Teilen verwerfen?</string>
     <string name="share_into_app_canceled">Der Upload wurde abgebrochen</string>
     <string name="share_into_app_select_identity">Bitte wählen Sie die Identität für diesen Upload aus</string>

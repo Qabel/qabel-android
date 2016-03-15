@@ -86,7 +86,6 @@ dependencies {
     compile 'org.apache.james:apache-mime4j-core:0.7.2'
     compile 'com.madgag.spongycastle:prov:1.52.0.0'
     compile group: 'org.apache.httpcomponents', name: 'httpclient-android', version: '4.3.5.1'
-    compile group: 'org.apache.httpcomponents', name: 'httpclient-android', version: '4.3.5.1'
     compile project(':libqabel')
     compile 'com.madgag.spongycastle:core:1.52.0.0'
     compile 'org.sqldroid:sqldroid:1.0.3'
@@ -125,7 +124,6 @@ check << {
     assert project.tasks.spoon != null
     assert project.tasks.spoonFreeDebugTest != null
     assert project.tasks.spoonProDebugTest != null
-
     assert project.tasks.spoonFreeDebugTest.debug
     assert "$project.tasks.spoonFreeDebugTest.output".startsWith("$buildDir/custom-report-dir")
 

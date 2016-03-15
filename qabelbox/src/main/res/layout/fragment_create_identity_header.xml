@@ -43,7 +43,7 @@
                 android:gravity="center"
                 android:text="WW"
                 android:textColor="@color/white"
-                android:textSize="70sp"/>
+                android:textSize="@dimen/textsize_identity_circle_initial"/>
         </de.qabel.qabelbox.views.SquareFrameLayout>
 
         <LinearLayout

@@ -9,6 +9,9 @@ import org.spongycastle.util.encoders.Hex;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 
 import de.qabel.core.config.Contact;
 import de.qabel.core.config.Contacts;
@@ -17,6 +20,7 @@ import de.qabel.core.crypto.QblECKeyPair;
 import de.qabel.core.crypto.QblECPublicKey;
 import de.qabel.core.drop.DropURL;
 import de.qabel.core.exceptions.QblDropInvalidURL;
+import de.qabel.qabelbox.services.LocalQabelService;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
@@ -120,15 +124,23 @@ public class ContactExportImportTest {
 		contacts = new Contacts(identity);
 		contacts.put(contact1);
 		contacts.put(contact2);
-		mavericksContact=initContact(MAVERICK_ALIAS,MAVERICK_PUBLICKEYID,MAVERICK_DROP);
-		maniacsContact=initContact(MANIAC_ALIAS,MANIAC_PUBLICKEYID,MANIAC_DROP);
-		atsContact=initContact(AT_ALIAS,AT_PUBLICKEYID,AT_DROP);
-		angelsContact=initContact(ANGEL_ALIAS,ANGEL_PUBLICKEYID,ANGEL_DROP);
-
-
+		Iterator<Contact> contacts = initTestContacts().iterator();
+		mavericksContact = contacts.next();
+		maniacsContact = contacts.next();
+		atsContact = contacts.next();
+		angelsContact = contacts.next();
 	}
 
-	public Contact initContact(String alias, String publicKey, String... initialDropURLs) throws URISyntaxException, QblDropInvalidURL {
+	public static List<Contact> initTestContacts() throws URISyntaxException, QblDropInvalidURL {
+		List<Contact> result = new LinkedList<>();
+		result.add(initContact(MAVERICK_ALIAS, MAVERICK_PUBLICKEYID, MAVERICK_DROP));
+		result.add(initContact(MANIAC_ALIAS, MANIAC_PUBLICKEYID, MANIAC_DROP));
+		result.add(initContact(AT_ALIAS, AT_PUBLICKEYID, AT_DROP));
+		result.add(initContact(ANGEL_ALIAS, ANGEL_PUBLICKEYID, ANGEL_DROP));
+		return result;
+	}
+
+	public static Contact initContact(String alias, String publicKey, String... initialDropURLs) throws URISyntaxException, QblDropInvalidURL {
 		Collection<DropURL> dropURLs = new ArrayList<>();
 		for (String url : initialDropURLs) {
 			dropURLs.add(new DropURL(url));
@@ -214,14 +226,28 @@ public class ContactExportImportTest {
 			Contacts tigersClawCrew=ContactExportImport.parse(identity,JSON_CONTACTLIST_TIGERSCLAW);
 			assertEquals(4,tigersClawCrew.getContacts().size());
 
-			Contacts singleContact=ContactExportImport.parse(identity,JSON_SINGLE_CONTACT);
+			Contacts singleContact = ContactExportImport.parse(identity, JSON_SINGLE_CONTACT);
 			assertEquals(1,singleContact.getContacts().size());
-			Contact expectedContact=initContact("Zwei","7c879f241a891938d0be68fbc178ced6f926c95385f588fe8924d0d81a96a32a","https://qdrop.prae.me/APlvHMq05d8ylgp64DW2AHFmdJj2hYDQXJiSnr-Holc");
+			Contact expectedContact = initContact("Zwei", "7c879f241a891938d0be68fbc178ced6f926c95385f588fe8924d0d81a96a32a", "https://qdrop.prae.me/APlvHMq05d8ylgp64DW2AHFmdJj2hYDQXJiSnr-Holc");
 			Contact myContact=singleContact.getContacts().iterator().next();
 			assertContactEquals(expectedContact,myContact);
 
 		} catch (JSONException e) {
 			fail("Could not parse valid list: "+e);
+		}
+
+	}
+
+	public static void deleteTestContacts() {
+		LocalQabelService service = new LocalQabelService();
+		try {
+			for (Contact c : initTestContacts()) {
+				service.deleteContact(c);
+			}
+		} catch (URISyntaxException e) {
+			e.printStackTrace();
+		} catch (QblDropInvalidURL qblDropInvalidURL) {
+			qblDropInvalidURL.printStackTrace();
 		}
 
 	}

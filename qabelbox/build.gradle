@@ -34,12 +34,11 @@ android {
         //junit test
         testInstrumentationRunner "de.qabel.qabelbox.QblJUnitRunner"
         //ui tests
-        //testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
         ndk {
             moduleName "curve25519"
         }
-
     }
 
     lintOptions {

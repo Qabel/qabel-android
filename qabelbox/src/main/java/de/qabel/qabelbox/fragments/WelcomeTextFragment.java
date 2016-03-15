@@ -57,9 +57,9 @@ public class WelcomeTextFragment extends Fragment {
 	}
 
 	public static class TextElement {
-		int messageId;
-		int textBeforeQabelName;
-		int textAfterQabelName;
+		final int messageId;
+		final int textBeforeQabelName;
+		final int textAfterQabelName;
 
 		/**
 		 * create new text element

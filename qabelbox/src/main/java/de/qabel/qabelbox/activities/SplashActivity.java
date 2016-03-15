@@ -4,8 +4,8 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
-
 import android.util.Log;
+
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.config.AppPreference;
 import de.qabel.qabelbox.helper.Sanity;
@@ -26,7 +26,7 @@ public class SplashActivity extends CrashReportingActivity {
 		super.onCreate(savedInstanceState);
 		mActivity = this;
 		setupAppPreferences();
-		if (prefs.getWelcomeScreenShowedAt() == 0) {
+		if (prefs.getWelcomeScreenShownAt() == 0) {
 			Intent intent = new Intent(mActivity, WelcomeScreenActivity.class);
 			startActivity(intent);
 			overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
@@ -49,7 +49,7 @@ public class SplashActivity extends CrashReportingActivity {
 		try {
 			currentAppVersionCode = getPackageManager().getPackageInfo(getPackageName(), 0).versionCode;
 		} catch (PackageManager.NameNotFoundException e) {
-			Log.e(TAG,"error setting up preferences", e);
+			Log.e(TAG, "error setting up preferences", e);
 		}
 		if (lastAppStartVersion == 0) {
 			prefs.setLastAppStartVersion(currentAppVersionCode);
@@ -76,7 +76,7 @@ public class SplashActivity extends CrashReportingActivity {
 			@Override
 			public void run() {
 
-                if (prefs.getWelcomeScreenShowedAt() == 0) {
+                if (prefs.getWelcomeScreenShownAt() == 0) {
                     Intent intent = new Intent(mActivity, WelcomeScreenActivity.class);
                     startActivity(intent);
                     overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);

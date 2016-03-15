@@ -292,7 +292,8 @@ public class ContactFragment extends BaseFragment {
                             UIHelper.showDialogMessage(
                                     mActivity,
                                     mActivity.getString(R.string.dialog_headline_info),
-                                    mActivity.getResources().getQuantityString(R.plurals.contact_import_successfull, added, added));
+                                    mActivity.getResources().getString(R.string.contact_import_successfull, new String[]{String.valueOf(added), String.valueOf(contacts.getContacts().size())})
+                            );
                         } else {
                             UIHelper.showDialogMessage(
                                     mActivity,

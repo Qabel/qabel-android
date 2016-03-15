@@ -39,6 +39,7 @@ android {
         ndk {
             moduleName "curve25519"
         }
+
     }
 
     lintOptions {

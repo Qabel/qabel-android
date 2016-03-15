@@ -21,7 +21,6 @@ import de.qabel.core.exceptions.QblDropInvalidURL;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 public class ContactExportImportTest {
@@ -60,6 +59,16 @@ public class ContactExportImportTest {
 			"\t\t\"public_key\": \"333b48c161f60bed0b116883aadac3c9217feff8225276561959d9b826944b69\",\n" +
 			"\t\t\"drop_urls\": [\"https://qdrop.prae.me/AI2X-QJ8WI2VtMgT0y302RyY3wU_RoAsqdaFQ9gf9fs\"],\n" +
 			"\t\t\"alias\": \"Eins\"\n" +
+			"\t}]\n" +
+			"}";
+
+	public static final String JSON_CONTACTLIST_INVALID_ENTRIES = "{\n" +
+			"\t\"contacts\": [{\n" +
+			"\t\t\"public_key\": \"7c879f241a891938d0be68fbc178ced6f926c95385f588fe8924d0d81a96a32a\",\n" +
+			"\t\t\"drop_urls\": [\"https://qdrop.prae.me/APlvHMq05d8ylgp64DW2AHFmdJj2hYDQXJiSnr-Holc\"]\n" +
+			"\t}, {\n" +
+			"\t\t\"public_key\": \"333b48c161f60bed0b116883aadac3c9217feff8225276561959d9b826944b69\",\n" +
+			"\t\t\"drop_urls\": [\"https://qdrop.prae.me/AI2X-QJ8WI2VtMgT0y302RyY3wU_RoAsqdaFQ9gf9fs\"]\n" +
 			"\t}]\n" +
 			"}";
 
@@ -126,7 +135,7 @@ public class ContactExportImportTest {
 		}
 		QblECPublicKey pubKey=new QblECPublicKey(Hex.decode(publicKey));
 		return new Contact(alias,dropURLs,pubKey);
-	};
+	}
 
 	@Test
 	public void testExportImportContact() throws QblDropInvalidURL, JSONException, URISyntaxException {

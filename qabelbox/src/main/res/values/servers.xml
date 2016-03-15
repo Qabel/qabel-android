@@ -1,12 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-<<<<<<< HEAD
-    <string name="blockServer" translatable="false">https://test-block.qabel.de</string>
-    <string name="accountingServer" translatable="false">https://test-accounting.qabel.de</string>
-    <string name="dropServer" translatable="false">https://test-drop.qabel.de</string>
-=======
     <string name="blockServer" translatable="false">https://block.qabel.org</string>
     <string name="accountingServer" translatable="false">https://accounting.qabel.org</string>
     <string name="dropServer" translatable="false">https://drop.qabel.org</string>
->>>>>>> 738a414745b6b1735c82d5fdba54e8c63da4f2f1
 </resources>

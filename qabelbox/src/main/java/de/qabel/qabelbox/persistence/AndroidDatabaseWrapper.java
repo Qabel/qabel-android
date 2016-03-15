@@ -87,7 +87,7 @@ public class AndroidDatabaseWrapper extends DatabaseWrapperImpl<QblSQLiteParams>
 	}
 
 	@Override
-	public <U extends Persistable> List<U> getEntities(Class<? extends U> cls) throws QblPersistenceException {
+	public <U extends Persistable> List<U> 	getEntities(Class<? extends U> cls) throws QblPersistenceException {
 		List<U> objects = new ArrayList<>();
 
 		String[] columns = {STR_ID, STR_BLOB};

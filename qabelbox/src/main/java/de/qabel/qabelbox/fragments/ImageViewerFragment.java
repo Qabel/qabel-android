@@ -7,6 +7,7 @@ import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
@@ -23,98 +24,104 @@ import de.qabel.qabelbox.helper.ExternalApps;
  */
 public class ImageViewerFragment extends BaseFragment {
 
-    private Uri uri;
-    private String type;
+	private Uri uri;
+	private String type;
 
-    public static ImageViewerFragment newInstance(final Uri uri, String type) {
+	public static ImageViewerFragment newInstance(final Uri uri, String type) {
 
-        ImageViewerFragment fragment = new ImageViewerFragment();
-        fragment.uri = uri;
-        fragment.type = type;
-        return fragment;
-    }
+		ImageViewerFragment fragment = new ImageViewerFragment();
+		fragment.uri = uri;
+		fragment.type = type;
+		return fragment;
+	}
 
-    @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
 
-        super.onActivityCreated(savedInstanceState);
-        setHasOptionsMenu(true);
-    }
+		super.onCreate(savedInstanceState);
+		setHasOptionsMenu(true);
 
-    @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+	}
 
-        menu.clear();
-    }
+	@Override
+	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
 
-    @Override
-    public String getTitle() {
+		menu.clear();
+		super.onCreateOptionsMenu(menu, inflater);
+		inflater.inflate(R.menu.ab_imageviewer, menu);
+	}
 
-        return getString(R.string.headline_imageviewer);
-    }
 
-    @Nullable
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+			case R.id.action_imageviewer_edit:
+				ExternalApps.openExternApp(getActivity(), uri, type, Intent.ACTION_EDIT);
+				return true;
+			case R.id.action_imageviewer_open:
+				ExternalApps.openExternApp(getActivity(), uri, type, Intent.ACTION_VIEW);
+				return true;
 
-        View view = inflater.inflate(R.layout.fragment_imageviewer, container, false);
+			default:
+				return super.onOptionsItemSelected(item);
+		}
+	}
 
-        final ImageView iv = (ImageView) view.findViewById(R.id.image);
-        Picasso.with(getActivity())
-                .load(uri)
-                .error(R.drawable.image_loading_error)
-                .placeholder(R.drawable.image_loading_animation)
-                .into(iv, new Callback() {
-                    @Override
-                    public void onSuccess() {
+	@Override
+	public String getTitle() {
 
-                        iv.setLayoutParams(new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT));
-                    }
+		return getString(R.string.headline_imageviewer);
+	}
 
-                    @Override
-                    public void onError() {
+	@Nullable
+	@Override
+	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
-                    }
-                });
-        setClickListener(view);
-        setActionBarBackListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+		View view = inflater.inflate(R.layout.fragment_imageviewer, container, false);
 
-                getActivity().onBackPressed();
-            }
-        });
-        return view;
-    }
+		final ImageView iv = (ImageView) view.findViewById(R.id.image);
+		final View progressView = view.findViewById(R.id.pb_loading);
+		Picasso.with(getActivity())
+				.load(uri)
+				.error(R.drawable.image_loading_error)
+				.into(iv, new Callback() {
+					@Override
+					public void onSuccess() {
+						iv.setLayoutParams(new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT));
+						progressView.setVisibility(View.GONE);
+					}
 
-    private void setClickListener(View view) {
+					@Override
+					public void onError() {
+						progressView.setVisibility(View.GONE);
+					}
+				});
+		setClickListener(view);
+		setActionBarBackListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				getActivity().onBackPressed();
+			}
+		});
 
-        view.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+		return view;
+	}
 
-                getActivity().onBackPressed();
-            }
-        });
-        view.findViewById(R.id.view).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+	private void setClickListener(View view) {
 
-                ExternalApps.openExternApp(getActivity(), uri, type, Intent.ACTION_VIEW);
-            }
-        });
-        view.findViewById(R.id.edit).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+		view.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
 
-                ExternalApps.openExternApp(getActivity(), uri, type, Intent.ACTION_EDIT);
-            }
-        });
-    }
+				getActivity().onBackPressed();
+			}
+		});
 
-    @Override
-    public boolean supportBackButton() {
+	}
 
-        return true;
-    }
+	@Override
+	public boolean supportBackButton() {
+
+		return true;
+	}
 }

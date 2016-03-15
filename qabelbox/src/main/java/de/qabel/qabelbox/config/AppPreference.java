@@ -12,7 +12,7 @@ public class AppPreference {
     private final String P_TOKEN = "token";
     private final String P_LAST_APP_START_VERSION = "lastappstartversion";
     private final String P_LAST_APP_UPDATE_QUESTION_TIME = "lastupdatequestiontime";
-    private final String P_WELCOME_SCREEN_SHOWED_AT = "welcomescreenshowedat";
+    private final String P_WELCOME_SCREEN_SHOWN_AT = "welcomescreenshownat";
     private final long NEW_UPATE_QUESTION_TIME_INTERVAL = 1000 * 60 * 60 * 24 * 3l;
 
     public AppPreference(Context context) {
@@ -49,14 +49,14 @@ public class AppPreference {
 
         settings.edit().putLong(P_LAST_APP_UPDATE_QUESTION_TIME, time).commit();
     }
-    public long getWelcomeScreenShowedAt() {
+    public long getWelcomeScreenShownAt() {
 
-        return settings.getLong(P_WELCOME_SCREEN_SHOWED_AT, 0);
+        return settings.getLong(P_WELCOME_SCREEN_SHOWN_AT, 0);
     }
 
-    public void setWelcomeScreenShowedAt(long time) {
+    public void setWelcomeScreenShownAt(long time) {
 
-        settings.edit().putLong(P_WELCOME_SCREEN_SHOWED_AT, time).commit();
+        settings.edit().putLong(P_WELCOME_SCREEN_SHOWN_AT, time).commit();
     }
     public boolean shouldUpdateQuestionShowed(long currentTime) {
 

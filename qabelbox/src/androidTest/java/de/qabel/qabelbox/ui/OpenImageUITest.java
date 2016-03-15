@@ -31,7 +31,9 @@ import java.io.IOException;
 import de.qabel.core.config.Identity;
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
+import de.qabel.qabelbox.TestConstants;
 import de.qabel.qabelbox.activities.MainActivity;
+import de.qabel.qabelbox.communication.URLs;
 import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.ui.helper.SystemAnimations;
 import de.qabel.qabelbox.ui.helper.UIActionHelper;
@@ -100,6 +102,7 @@ public class OpenImageUITest {
 
     private void setupData() {
 		mActivity = mActivityTestRule.getActivity();
+        URLs.setBaseBlockURL(TestConstants.BLOCK_URL);
 		mBoxHelper = new UIBoxHelper(QabelBoxApplication.getInstance());
 		mBoxHelper.bindService(QabelBoxApplication.getInstance());
 		mBoxHelper.createTokenIfNeeded(false);
@@ -142,7 +145,7 @@ public class OpenImageUITest {
         Intents.init();
         Matcher<Intent> expectedIntent = allOf(hasAction(Intent.ACTION_CHOOSER));
         intending(expectedIntent).respondWith(activityResult);
-        onView(withId(R.id.view)).perform(click());
+        onView(withId(R.id.action_imageviewer_open)).perform(click());
         intended(expectedIntent);
         Intents.release();
 
@@ -163,8 +166,8 @@ public class OpenImageUITest {
                 .perform(RecyclerViewActions.actionOnItem(
                         hasDescendant(withText(file)), click()));
         onView(withId(R.id.image)).check(matches(isDisplayed()));
-        onView(withId(R.id.edit)).check(matches(isDisplayed()));
-        onView(withId(R.id.view)).check(matches(isDisplayed()));
+        onView(withId(R.id.action_imageviewer_edit)).check(matches(isDisplayed()));
+        onView(withId(R.id.action_imageviewer_open)).check(matches(isDisplayed()));
     }
 }
 

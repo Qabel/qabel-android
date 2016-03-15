@@ -26,7 +26,7 @@ public class SplashActivity extends CrashReportingActivity {
 		super.onCreate(savedInstanceState);
 		mActivity = this;
 		setupAppPreferences();
-		if (prefs.getWelcomeScreenShowedAt() == 0) {
+		if (prefs.getWelcomeScreenShownAt() == 0) {
 			Intent intent = new Intent(mActivity, WelcomeScreenActivity.class);
 			startActivity(intent);
 			overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
@@ -53,7 +53,6 @@ public class SplashActivity extends CrashReportingActivity {
 		}
 		if (lastAppStartVersion == 0) {
 			prefs.setLastAppStartVersion(currentAppVersionCode);
-			//@todo show welcome
 		} else {
 			if (lastAppStartVersion != currentAppVersionCode) {
 				prefs.setLastAppStartVersion(currentAppVersionCode);
@@ -76,12 +75,13 @@ public class SplashActivity extends CrashReportingActivity {
 		new Handler().postDelayed(new Runnable() {
 			@Override
 			public void run() {
-				if (prefs.getWelcomeScreenShowedAt() == 0) {
-					Intent intent = new Intent(mActivity, WelcomeScreenActivity.class);
-					startActivity(intent);
-					overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
-					finish();
-				} else if (!Sanity.startWizardActivities(mActivity)) {
+
+                if (prefs.getWelcomeScreenShownAt() == 0) {
+                    Intent intent = new Intent(mActivity, WelcomeScreenActivity.class);
+                    startActivity(intent);
+                    overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+                    finish();
+                } else if (!Sanity.startWizardActivities(mActivity)) {
 
 					Intent intent = new Intent(mActivity, MainActivity.class);
 					intent.setAction("");

@@ -1,5 +1,8 @@
 package de.qabel.qabelbox.repository;
 
+import java.util.List;
+
+import de.qabel.core.config.Contacts;
 import de.qabel.core.config.Persistence;
 
 /**
@@ -15,5 +18,38 @@ public class PeristenceContactRepositoryAndroidWrapper extends PersistenceContac
 
     public PeristenceContactRepositoryAndroidWrapper(Persistence<String> persistence) {
         super(persistence);
+    }
+
+    public void save(Contacts contacts) {
+        persistence.updateEntity(contacts);
+
+    }
+
+    public boolean updateOrPersistEntity(Contacts contacts) {
+        Contacts idFromRepo = null;
+        if (contacts != null) {
+            idFromRepo = persistence.getEntity(contacts.getPersistenceID(), Contacts.class);
+        }
+        if (idFromRepo != null) {
+            return persistence.updateEntity(idFromRepo);
+        } else {
+            return persistence.persistEntity(contacts);
+        }
+    }
+
+    public boolean update(Contacts contacts) {
+        Contacts idFromRepo = null;
+        if (contacts != null) {
+            idFromRepo = persistence.getEntity(contacts.getPersistenceID(), Contacts.class);
+        }
+        if (idFromRepo != null) {
+            return persistence.updateEntity(idFromRepo);
+        } else {
+            return false;
+        }
+    }
+
+    public List<Contacts> getAll() {
+        return persistence.getEntities(Contacts.class);
     }
 }

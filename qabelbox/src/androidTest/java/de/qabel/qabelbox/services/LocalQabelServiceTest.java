@@ -20,6 +20,8 @@ import de.qabel.core.drop.DropURL;
 import de.qabel.core.exceptions.QblDropInvalidURL;
 import de.qabel.core.exceptions.QblDropPayloadSizeException;
 import de.qabel.qabelbox.exceptions.QblStorageEntityExistsException;
+import de.qabel.qabelbox.repository.exception.EntityNotFoundExcepion;
+import de.qabel.qabelbox.repository.exception.PersistenceException;
 
 public class LocalQabelServiceTest extends ServiceTestCase<LocalQabelServiceTester> {
 
@@ -45,13 +47,47 @@ public class LocalQabelServiceTest extends ServiceTestCase<LocalQabelServiceTest
 		contact = new Contact("foo", null, new QblECKeyPair().getPub());
 	}
 
+	public void testAddIdentity() {
+		Identity newIdentity = new Identity("zbrazo", null, new QblECKeyPair());
+		mService.addIdentity(newIdentity);
+		try {
+			Identity retrivedFromRepo = mService.identityRepository.find(newIdentity.getKeyIdentifier());
+			assertNotNull(retrivedFromRepo);
+			assertIdentityPublicContentEquals(newIdentity, retrivedFromRepo);
+			Identity retrivedFromService = mService.getIdentities().getByKeyIdentifier(newIdentity.getKeyIdentifier());
+			assertNotNull(retrivedFromService);
+			assertIdentityPublicContentEquals(newIdentity, retrivedFromService);
+
+		} catch (EntityNotFoundExcepion entityNotFoundExcepion) {
+			entityNotFoundExcepion.printStackTrace();
+		} catch (PersistenceException e) {
+			e.printStackTrace();
+		}
+
+	}
+
+	private void assertIdentityPublicContentEquals(Identity lhsIdentity, Identity rhsIdentity) {
+		assertEquals(lhsIdentity.getAlias(), rhsIdentity.getAlias());
+		assertEquals(lhsIdentity.getEmail(), rhsIdentity.getEmail());
+		assertEquals(lhsIdentity.getKeyIdentifier(), rhsIdentity.getKeyIdentifier());
+		assertEquals(lhsIdentity.getEcPublicKey(), rhsIdentity.getEcPublicKey());
+		assertEquals(lhsIdentity.getPrefixes(), rhsIdentity.getPrefixes());
+
+
+	}
+
+
 	public void testRetrieveIdentity() {
 		Identities identities = mService.getIdentities();
 		assertTrue(identities.getIdentities().contains(identity));
 	}
 
 	public void testGetActiveIdentity() {
-		assertEquals(identity, mService.getActiveIdentity());
+		assertTrue(mService.getIdentities().getIdentities().size() >= 0);
+		Identity retrievedActiveIdentity = mService.getActiveIdentity();
+		assertTrue(mService.getIdentities().getIdentities().size() >= 0);
+		assertNotNull(retrievedActiveIdentity);
+		assertEquals(identity, retrievedActiveIdentity);
 	}
 
 	public void testDeleteIdentity() {

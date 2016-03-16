@@ -1,11 +1,4 @@
-package de.qabel.qabelbox.persistence;
-
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.Serializable;
+package de.qabel.qabelbox.repository.persistence;
 
 /**
  * Wraps the Database and allows to test with other databases.

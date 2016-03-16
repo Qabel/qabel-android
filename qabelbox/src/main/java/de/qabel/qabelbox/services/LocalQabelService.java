@@ -14,6 +14,23 @@ import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.NotificationCompat;
 import android.util.Log;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.spongycastle.util.encoders.Hex;
+
+import java.io.FileNotFoundException;
+import java.net.URI;
+import java.security.SecureRandom;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Queue;
+import java.util.concurrent.LinkedBlockingDeque;
+
 import de.qabel.core.config.Contact;
 import de.qabel.core.config.Contacts;
 import de.qabel.core.config.Identities;
@@ -23,27 +40,23 @@ import de.qabel.core.crypto.BinaryDropMessageV0;
 import de.qabel.core.crypto.CryptoUtils;
 import de.qabel.core.drop.DropMessage;
 import de.qabel.core.drop.DropURL;
-import de.qabel.core.exceptions.*;
+import de.qabel.core.exceptions.QblDropInvalidMessageSizeException;
+import de.qabel.core.exceptions.QblDropPayloadSizeException;
+import de.qabel.core.exceptions.QblInvalidEncryptionKeyException;
+import de.qabel.core.exceptions.QblSpoofedSenderException;
+import de.qabel.core.exceptions.QblVersionMismatchException;
 import de.qabel.core.http.DropHTTP;
 import de.qabel.core.http.HTTPResult;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.activities.MainActivity;
 import de.qabel.qabelbox.exceptions.QblStorageEntityExistsException;
-import de.qabel.qabelbox.persistence.AndroidPersistence;
-import de.qabel.qabelbox.persistence.QblSQLiteParams;
 import de.qabel.qabelbox.providers.DocumentIdParser;
+import de.qabel.qabelbox.repository.PeristenceContactRepositoryAndroidWrapper;
+import de.qabel.qabelbox.repository.persistence.AndroidPersistence;
+import de.qabel.qabelbox.repository.persistence.QblSQLiteParams;
 import de.qabel.qabelbox.storage.BoxFile;
 import de.qabel.qabelbox.storage.BoxUploadingFile;
 import de.qabel.qabelbox.storage.TransferManager;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.spongycastle.util.encoders.Hex;
-
-import java.io.FileNotFoundException;
-import java.net.URI;
-import java.security.SecureRandom;
-import java.util.*;
-import java.util.concurrent.LinkedBlockingDeque;
 
 public class LocalQabelService extends Service {
 
@@ -63,12 +76,12 @@ public class LocalQabelService extends Service {
 	protected static final String DB_NAME = "qabel-service";
 	protected static final int DB_VERSION = 1;
 	protected AndroidPersistence persistence;
+	protected PeristenceContactRepositoryAndroidWrapper contactRepository;
 	private DropHTTP dropHTTP;
 	private HashMap<String, Map<String, BoxUploadingFile>> pendingUploads;
 	private Queue<BoxUploadingFile> uploadingQueue;
 	private Map<String, Map<String, BoxFile>> cachedFinishedUploads;
 	private DocumentIdParser documentIdParser;
-	private Context self;
 
 	SharedPreferences sharedPreferences;
 
@@ -504,7 +517,6 @@ public class LocalQabelService extends Service {
 		documentIdParser = new DocumentIdParser();
 		cachedFinishedUploads = Collections.synchronizedMap(new HashMap<String, Map<String, BoxFile>>());
 		uploadingQueue = new LinkedBlockingDeque<>();
-		self = this;
 	}
 
 	protected void initAndroidPersistence() {

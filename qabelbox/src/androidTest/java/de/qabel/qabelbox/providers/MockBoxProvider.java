@@ -15,8 +15,8 @@ import de.qabel.core.config.Identity;
 import de.qabel.core.crypto.CryptoUtils;
 import de.qabel.core.crypto.QblECKeyPair;
 import de.qabel.core.exceptions.QblInvalidEncryptionKeyException;
-import de.qabel.qabelbox.persistence.AndroidPersistence;
-import de.qabel.qabelbox.persistence.QblSQLiteParams;
+import de.qabel.qabelbox.repository.persistence.AndroidPersistence;
+import de.qabel.qabelbox.repository.persistence.QblSQLiteParams;
 import de.qabel.qabelbox.services.LocalQabelService;
 
 public class MockBoxProvider extends BoxProvider {

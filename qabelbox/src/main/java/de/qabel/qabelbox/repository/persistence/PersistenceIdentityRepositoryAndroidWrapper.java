@@ -2,6 +2,7 @@ package de.qabel.qabelbox.repository.persistence;
 
 import android.util.Log;
 
+import de.qabel.core.config.Identities;
 import de.qabel.core.config.Identity;
 import de.qabel.core.config.Persistence;
 
@@ -45,6 +46,18 @@ public class PersistenceIdentityRepositoryAndroidWrapper extends PersistenceIden
         Identity idFromRepo = null;
         if (identity != null) {
             idFromRepo = persistence.getEntity(identity.getPersistenceID(), Identity.class);
+        }
+        if (idFromRepo != null) {
+            return persistence.updateEntity(idFromRepo);
+        } else {
+            return false;
+        }
+    }
+
+    public boolean update(Identities identity) {
+        Identities idFromRepo = null;
+        if (identity != null) {
+            idFromRepo = persistence.getEntity(identity.getPersistenceID(), Identities.class);
         }
         if (idFromRepo != null) {
             return persistence.updateEntity(idFromRepo);

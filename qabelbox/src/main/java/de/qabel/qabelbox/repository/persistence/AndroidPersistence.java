@@ -65,8 +65,8 @@ public class AndroidPersistence extends Persistence<String> {
 			e.printStackTrace();
 			LOGGER.error("Cannot create table!", e.getException());
 		}
-
-		return databaseWrapper.insert(object);
+		boolean success = databaseWrapper.insert(object);
+		return success;
 	}
 
 	@Override

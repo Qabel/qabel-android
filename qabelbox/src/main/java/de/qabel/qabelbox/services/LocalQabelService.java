@@ -102,6 +102,9 @@ public class LocalQabelService extends Service {
 
 	public void addIdentity(Identity identity) {
 		identityRepository.updateOrPersistEntity(identity);
+		Identities identities = getIdentities();
+		identities.put(identity);
+		identityRepository.update(identities);
 	}
 
 	public Identities getIdentities() {
@@ -130,6 +133,18 @@ public class LocalQabelService extends Service {
 
 	public void deleteIdentity(Identity identity) {
 		identityRepository.delete(identity);
+		Identities identities = null;
+		try {
+			identities = identityRepository.findAll();
+			identities.remove(identity);
+			identityRepository.update(identities);
+		} catch (EntityNotFoundExcepion entityNotFoundExcepion) {
+			entityNotFoundExcepion.printStackTrace();
+			Log.w(TAG, "Can not remove identity because it is not there. Should be safe to ignore this", entityNotFoundExcepion);
+		} catch (PersistenceException e) {
+			Log.e(TAG, "Could not update identities with removed identity", e);
+		}
+
 	}
 
 	/**

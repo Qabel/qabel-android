@@ -83,9 +83,9 @@ public class LocalQabelServiceTest extends ServiceTestCase<LocalQabelServiceTest
 	}
 
 	public void testGetActiveIdentity() {
-		assertTrue(mService.getIdentities().getIdentities().size() >= 0);
+		assertTrue(mService.getIdentities().getIdentities().size() > 0);
 		Identity retrievedActiveIdentity = mService.getActiveIdentity();
-		assertTrue(mService.getIdentities().getIdentities().size() >= 0);
+		assertTrue(mService.getIdentities().getIdentities().size() > 0);
 		assertNotNull(retrievedActiveIdentity);
 		assertEquals(identity, retrievedActiveIdentity);
 	}

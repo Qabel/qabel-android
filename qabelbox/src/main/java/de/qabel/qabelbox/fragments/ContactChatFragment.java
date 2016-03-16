@@ -73,6 +73,10 @@ public class ContactChatFragment extends BaseFragment {
 		args.putSerializable(ARG_IDENTITY, contact);
 		fragment.setArguments(args);
 		fragment.contact = contact;
+		//XXX DEV
+		contact.setEmail("test@test.de");
+		contact.setPhone("+049 190 666 666");
+		//XXX
 		return fragment;
 	}
 
@@ -174,8 +178,6 @@ public class ContactChatFragment extends BaseFragment {
 		});
 		etText.setText("");
 
-		actionBar.setSubtitle(contact.getAlias());
-
 		refreshMessages();
 		refreshMessagesAsync();
 
@@ -236,9 +238,10 @@ public class ContactChatFragment extends BaseFragment {
 			public void onItemClick(final ChatMessageItem item) {
 
 				LocalQabelService service = QabelBoxApplication.getInstance().getService();
-
+				System.out.println("CLICK");
 				//check if message is instance of sharemessage
 				if (item.getData() instanceof ChatMessageItem.ShareMessagePayload) {
+					System.out.println("SHARE MESSAGE");
 					//check if share from other (not my sended share)
 					if (!item.getSenderKey().equals(service.getActiveIdentity().getEcPublicKey().getReadableKeyIdentifier())) {
 						final FilesFragment filesFragment = mActivity.filesFragment;
@@ -282,7 +285,11 @@ public class ContactChatFragment extends BaseFragment {
 								}
 							}
 						}.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+					}else {
+						System.out.println("RECEIVED FILE");
 					}
+				}else {
+					System.out.println("NO SHARE MESSAGE");
 				}
 			}
 		};
@@ -441,8 +448,7 @@ public class ContactChatFragment extends BaseFragment {
 
 	@Override
 	public String getTitle() {
-
-		return getString(R.string.headline_contact_chat);
+		return contact.getAlias();
 	}
 
 	@Override

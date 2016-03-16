@@ -2,6 +2,7 @@ package de.qabel.qabelbox.adapter;
 
 import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
+import android.text.Layout;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -58,6 +59,7 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<ChatMessageAdapter.
 		public final TextView mLink;
 		public final ImageView mImageView;
 		public final View mBg;
+		public final View fileContainer;
 
 		public ContactViewHolder(View v) {
 
@@ -68,6 +70,7 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<ChatMessageAdapter.
 			tvText = (TextView) v.findViewById(R.id.tvText);
 			mLink = (TextView) v.findViewById(R.id.tvLink);
 			mImageView = (ImageView) v.findViewById(R.id.itemIcon);
+			fileContainer = v.findViewById(R.id.messageFileContainer);
 		}
 
 		@Override
@@ -106,15 +109,15 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<ChatMessageAdapter.
 	public void onBindViewHolder(ContactViewHolder holder, int position) {
 
 		ChatMessageItem message = mMessages.get(position);
-		holder.tvDate.setText(Formatter.formatDateTimeShort(message.getTime()));
+		holder.tvDate.setText(Formatter.formatDateTimeString(message.getTime()));
 		ChatMessageItem.MessagePayload messageData = message.getData();
 		if (messageData != null && messageData instanceof ChatMessageItem.TextMessagePayload) {
 			holder.tvText.setText(((ChatMessageItem.TextMessagePayload) messageData).getMessage());
-			holder.mLink.setVisibility(View.GONE);
+			holder.fileContainer.setVisibility(View.GONE);
 		} else if (messageData != null && messageData instanceof ChatMessageItem.ShareMessagePayload) {
 			holder.tvText.setText(((ChatMessageItem.ShareMessagePayload) messageData).getMessage());
-			holder.mLink.setText(((ChatMessageItem.ShareMessagePayload) messageData).getURL());
-			holder.mLink.setVisibility(View.VISIBLE);
+			//holder.mLink.setText(((ChatMessageItem.ShareMessagePayload) messageData).getURL());
+			holder.fileContainer.setVisibility(View.VISIBLE);
 		}
 		if (contactPublicKey.equals(message.getSenderKey())) {
 			holder.mBg.setBackgroundResource(R.drawable.chat_in_message_bg);

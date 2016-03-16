@@ -178,6 +178,7 @@
     <string name="dialog_share_sending_in_progress">Datei wird hochgeladen, um geteilt zu werden</string>
     <string name="message_please_wait">Warten Sie bitte einen Moment</string>
     <string name="message_revoke_share">Freigabe wird entzogen</string>
+    <string name="accept_share">Freigabe annehmen</string>
     <string name="ShareToQabelUser">Teilen</string>
     <string name="message_unshare_not_successfull">Freigabe konnte nicht entzogen werden</string>
     <string name="message_unshare_successfull">Freigabe wurde erfolgreich entzogen</string>

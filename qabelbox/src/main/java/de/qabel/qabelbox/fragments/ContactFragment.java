@@ -200,7 +200,7 @@ public class ContactFragment extends BaseFragment {
 											@Override
 											public void onClick(DialogInterface dialog, int which) {
 												service.deleteContact(contact);
-												sendRefreshContactList(mActivity);
+												sendRefreshContactList();
 												UIHelper.showDialogMessage(mActivity, R.string.dialog_headline_info, getString(R.string.contact_deleted).replace("%1", contact.getAlias()));
 											}
 										}, null);
@@ -216,22 +216,20 @@ public class ContactFragment extends BaseFragment {
 	/**
 	 * add contact and show messages
 	 *
-	 * @param activity
 	 * @param contact
 	 */
-	// TODO: Refactor: Two no-gos 1. Remove static, 2. remove activity argument
-	public static void addContactSilent(MainActivity activity, Contact contact) throws QblStorageEntityExistsException {
+	//TODO: Remove static
+	public static void addContactSilent(Contact contact) throws QblStorageEntityExistsException {
 		LocalQabelService service = QabelBoxApplication.getInstance().getService();
 		service.addContact(contact);
-		sendRefreshContactList(activity);
+		sendRefreshContactList();
 	}
 
 
-	private static void sendRefreshContactList(MainActivity activity) {
+	private static void sendRefreshContactList() {
 		Log.d(TAG, "send refresh intent");
 		Intent intent = new Intent(Helper.INTENT_REFRESH_CONTACTLIST);
-		activity.sendBroadcast(intent);
-
+		QabelBoxApplication.getInstance().getApplicationContext().sendBroadcast(intent);
 	}
 
 	@Override
@@ -351,7 +349,7 @@ public class ContactFragment extends BaseFragment {
 						Contacts contacts = ContactExportImport.parse(QabelBoxApplication.getInstance().getService().getActiveIdentity(), json);
 						for (Contact contact : contacts.getContacts()) {
 							try {
-								addContactSilent(mActivity, contact);
+								addContactSilent(contact);
 								added++;
 							} catch (QblStorageEntityExistsException existsException) {
 								Log.w(TAG, "found doublet's. Will ignore it", existsException);
@@ -386,7 +384,7 @@ public class ContactFragment extends BaseFragment {
 
 						QblECPublicKey publicKey = new QblECPublicKey(Hex.decode(result[3]));
 						Contact contact = new Contact(result[1], dropURLs, publicKey);
-						ContactFragment.addContactSilent(mActivity, contact);
+						ContactFragment.addContactSilent(contact);
 					} catch (Exception e) {
 						Log.w(TAG, "add contact failed", e);
 						UIHelper.showDialogMessage(mActivity, R.string.dialog_headline_warning, R.string.contact_import_failed, e);
@@ -430,7 +428,7 @@ public class ContactFragment extends BaseFragment {
 		@Override
 		public void onRefreshed() {
 			Log.d(TAG, "refreshed ");
-			sendRefreshContactList(mActivity);
+			sendRefreshContactList();
 		}
 	};
 }

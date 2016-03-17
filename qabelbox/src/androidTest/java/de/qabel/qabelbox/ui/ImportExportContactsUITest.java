@@ -1,7 +1,7 @@
 package de.qabel.qabelbox.ui;
 
-import android.graphics.Bitmap;
 import android.os.PowerManager;
+import android.support.test.espresso.contrib.RecyclerViewActions;
 import android.support.test.rule.ActivityTestRule;
 import android.util.Log;
 
@@ -24,12 +24,28 @@ import de.qabel.qabelbox.activities.MainActivity;
 import de.qabel.qabelbox.communication.URLs;
 import de.qabel.qabelbox.config.ContactExportImport;
 import de.qabel.qabelbox.exceptions.QblStorageException;
+import de.qabel.qabelbox.ui.action.QabelViewAction;
 import de.qabel.qabelbox.ui.helper.DocumentIntender;
 import de.qabel.qabelbox.ui.helper.SystemAnimations;
 import de.qabel.qabelbox.ui.helper.UIActionHelper;
 import de.qabel.qabelbox.ui.helper.UIBoxHelper;
+import de.qabel.qabelbox.ui.helper.UITestHelper;
 
-import static android.test.MoreAsserts.assertNotEmpty;
+import static android.support.test.espresso.Espresso.onView;
+import static android.support.test.espresso.action.ViewActions.click;
+import static android.support.test.espresso.action.ViewActions.longClick;
+import static android.support.test.espresso.assertion.ViewAssertions.matches;
+import static android.support.test.espresso.matcher.ViewMatchers.assertThat;
+import static android.support.test.espresso.matcher.ViewMatchers.hasDescendant;
+import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
+import static android.support.test.espresso.matcher.ViewMatchers.withClassName;
+import static android.support.test.espresso.matcher.ViewMatchers.withId;
+import static android.support.test.espresso.matcher.ViewMatchers.withParent;
+import static android.support.test.espresso.matcher.ViewMatchers.withText;
+import static junit.framework.Assert.assertNotNull;
+import static org.hamcrest.Matchers.allOf;
+import static org.hamcrest.Matchers.endsWith;
+import static org.hamcrest.Matchers.is;
 
 /**
  * Created by danny on 17.003.2016.
@@ -41,11 +57,12 @@ public class ImportExportContactsUITest {
 	private UIBoxHelper mBoxHelper;
 	private PowerManager.WakeLock wakeLock;
 	private SystemAnimations mSystemAnimations;
-	private Identity user1, user2;
-	private String contact1Json, contact2Json;
+	private Identity user1, user2, user3;
+	private String contact1Json, contact2Json, contact3Json;
 	private String TAG = this.getClass().getSimpleName();
 
 	DocumentIntender intender = new DocumentIntender();
+	private Identity identity;
 
 	public ImportExportContactsUITest() throws IOException {
 		setupData();
@@ -75,48 +92,57 @@ public class ImportExportContactsUITest {
 		mBoxHelper = new UIBoxHelper(QabelBoxApplication.getInstance());
 		mBoxHelper.bindService(QabelBoxApplication.getInstance());
 		mBoxHelper.createTokenIfNeeded(false);
-		try {
-			Identity old = mBoxHelper.getCurrentIdentity();
-			if (old != null) {
-				mBoxHelper.deleteIdentity(old);
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		mBoxHelper.removeAllIdentities();
+//		mBoxHelper.deleteAllContacts(identity);
+		mBoxHelper.deleteAllIdentities();
+		identity=mBoxHelper.addIdentity("spoon123");
+
+
 		user1 = mBoxHelper.addIdentity("user1");
 		user2 = mBoxHelper.addIdentity("user2");
+		user3 = mBoxHelper.addIdentity("user3");
+
+		mBoxHelper.setActiveIdentity(identity);
+
 		contact1Json = ContactExportImport.exportIdentityAsContact(user1);
 		contact2Json = ContactExportImport.exportIdentityAsContact(user2);
-		mBoxHelper.setActiveIdentity(user1);
-		try {
-			mBoxHelper.getService().addContact(new ContactExportImport().parseContactForIdentity(user1, new JSONObject(contact2Json)));
-		} catch (Exception e) {
-			Log.e(TAG, "error on add contact", e);
-		}
-		assertNotEmpty(mBoxHelper.getService().getContacts().getContacts());
-		mBoxHelper.setActiveIdentity(user2);
-		try {
-			mBoxHelper.getService().addContact(new ContactExportImport().parseContactForIdentity(user2, new JSONObject(contact1Json)));
-		} catch (Exception e) {
-			Log.e(TAG, "error on add contact", e);
-		}
-		assertNotEmpty(mBoxHelper.getService().getContacts().getContacts());
-		uploadTestFiles();
+		contact3Json = ContactExportImport.exportIdentityAsContact(user3);
+
+		assertThat(mBoxHelper.getService().getContacts().getContacts().size() ,is(0));
+		addContact(identity, contact1Json);
+		addContact(identity, contact2Json);
+		addContact(identity,contact3Json);
+		assertThat(mBoxHelper.getService().getContacts().getContacts().size() ,is(3));
+
+
 	}
 
-	private void uploadTestFiles() {
-
-		int fileCount = 1;
-		mBoxHelper.uploadDrawableFile(mBoxHelper.mBoxVolume, "file3.png", Bitmap.CompressFormat.PNG, R.drawable.qabel_logo);
-		mBoxHelper.waitUntilFileCount(fileCount);
+	private void addContact(Identity identity,String contactJSON) {
+		try {
+			mBoxHelper.getService().addContact(new ContactExportImport().parseContactForIdentity(identity, new JSONObject(contactJSON)));
+		} catch (Exception e) {
+			assertNotNull(e);
+			Log.e(TAG, "error on add contact", e);
+		}
 	}
+
 
 	@Test
 	public void testExportContact() {
 		Spoon.screenshot(mActivity, "exportOne");
 		File file1 = new File(mActivity.getCacheDir(), "testexportcontact");
+
+		onView(withId(R.id.drawer_layout)).check(matches(isDisplayed())).perform(QabelViewAction.actionOpenDrawer());
+		UITestHelper.sleep(1000);
+
+		onView(allOf(withText(R.string.Contacts), withParent(withClassName(endsWith("MenuView")))))
+				.perform(click());
+		Spoon.screenshot(mActivity, "contacts");
+
+		//onView(withText("user1")).check(matches(isDisplayed())).perform(click());
 		intender.handleAddFileIntent(file1);
+		onView(withId(R.id.contact_list))
+				.perform(RecyclerViewActions.actionOnItem(
+						hasDescendant(withText("user1")), longClick()));
 	}
 
 	@Test

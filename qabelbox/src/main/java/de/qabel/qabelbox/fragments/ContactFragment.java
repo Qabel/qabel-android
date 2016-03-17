@@ -329,7 +329,7 @@ public class ContactFragment extends BaseFragment {
 						UIHelper.showDialogMessage(activity, R.string.dialog_headline_info, message);
 
 					} catch (IOException | NullPointerException e) {
-						UIHelper.showDialogMessage(activity, R.string.dialog_headline_info, R.string.contact_export_failed, e);
+						UIHelper.showDialogMessage(activity, R.string.dialog_headline_warning, R.string.contact_export_failed, e);
 					}
 				}
 			}

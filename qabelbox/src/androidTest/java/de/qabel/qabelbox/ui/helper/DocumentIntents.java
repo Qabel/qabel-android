@@ -24,20 +24,26 @@ public class DocumentIntents {
 		Intent data = new Intent();
 		data.setData(Uri.fromFile(file));
 
-/*
-		Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
-		intent.addCategory(Intent.CATEGORY_OPENABLE);
-		intent.setType("application/json");
-		intent.putExtra(Intent.EXTRA_TITLE, type + "" + filename + "." + QabelSchema.FILE_SUFFIX_CONTACT);*/
-
-
 		Intents.intending(allOf(
 				hasAction(Intent.ACTION_CREATE_DOCUMENT),
-				//hasType("application/json"),
 				hasCategories(hasItem(Intent.CATEGORY_OPENABLE))
 		)).respondWith(
 				new Instrumentation.ActivityResult(Activity.RESULT_OK, data)
 		);
 
 	}
+	public void handleLoadFileIntent(File file) {
+
+		Intent data = new Intent();
+		data.setData(Uri.fromFile(file));
+
+		Intents.intending(allOf(
+				hasAction(Intent.ACTION_OPEN_DOCUMENT),
+				hasCategories(hasItem(Intent.CATEGORY_OPENABLE))
+		)).respondWith(
+				new Instrumentation.ActivityResult(Activity.RESULT_OK, data)
+		);
+
+	}
+
 }

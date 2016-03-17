@@ -44,9 +44,12 @@ public class CreateIdentityHeaderFragment extends Fragment {
         initialLayout.setVisibility(View.VISIBLE);
         tvName.setText(name);
         tvInitial.setText(getInitials(name));
-    }
 
-    private String getInitials(String name) {
+		tvInitial.forceLayout();
+		initialLayout.forceLayout();
+	}
+
+	private String getInitials(String name) {
 
         String[] names = name.split(" ");
         String result = "";

@@ -27,8 +27,8 @@ import de.qabel.qabelbox.views.ViewPagerParallax;
 public class WelcomeScreenActivity extends FragmentActivity implements ViewPager.OnPageChangeListener {
 
 	private static final int NUM_PAGES = 5;
-	Fragment[] fragments = new Fragment[NUM_PAGES];
-	ButtonStates[] buttonStates = new ButtonStates[NUM_PAGES];
+	private final Fragment[] fragments = new Fragment[NUM_PAGES];
+	private final ButtonStates[] buttonStates = new ButtonStates[NUM_PAGES];
 
 
 	/**
@@ -40,10 +40,10 @@ public class WelcomeScreenActivity extends FragmentActivity implements ViewPager
 	/**
 	 * The pager adapter, which provides the pages to the view pager widget.
 	 */
-	WelcomeTextFragment.TextElement[] textElements = new WelcomeTextFragment.TextElement[NUM_PAGES - 1];
+	private final WelcomeTextFragment.TextElement[] textElements = new WelcomeTextFragment.TextElement[NUM_PAGES - 1];
 	private AppPreference prefs;
 	private ScreenSlidePagerAdapter mPagerAdapter;
-	private String TAG = this.getClass().getSimpleName();
+	private final String TAG = this.getClass().getSimpleName();
 	private TextView leftButton;
 	private TextView rightButton;
 	private int mCurrentPage = 0;
@@ -100,7 +100,7 @@ public class WelcomeScreenActivity extends FragmentActivity implements ViewPager
 				} else {
 					if (((WelcomeDisclaimerFragment) fragments[mCurrentPage]).getCheckedState()) {
 						finish();
-						prefs.setWelcomeScreenShowedAt(System.currentTimeMillis());
+						prefs.setWelcomeScreenShownAt(System.currentTimeMillis());
 						Intent intent = new Intent(self, CreateAccountActivity.class);
 						startActivity(intent);
 					}
@@ -211,10 +211,10 @@ public class WelcomeScreenActivity extends FragmentActivity implements ViewPager
 	}
 
 	class ButtonStates {
-		int leftTextId;
-		int rightTextId;
-		int leftTextVisibility;
-		int rightTextVisibility;
+		final int leftTextId;
+		final int rightTextId;
+		final int leftTextVisibility;
+		final int rightTextVisibility;
 
 		ButtonStates(int leftId, int rightId, int leftVisibility, int rightVisibility) {
 			leftTextId = leftId;

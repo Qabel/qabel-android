@@ -27,8 +27,6 @@ public class WelcomeDisclaimerFragment extends Fragment {
 
 	enum Type {QAPL, PRIVACY, LEGAL}
 
-	;
-
 	@Override
 	public void onAttach(Activity activity) {
 		super.onAttach(activity);
@@ -66,12 +64,9 @@ public class WelcomeDisclaimerFragment extends Fragment {
 			@Override
 			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
 				updateRightButtonTextColor(isChecked && cbLegal.isChecked());
-				if(isChecked)
-				{
+				if (isChecked) {
 					cbPrivacy.setText(R.string.cb_welcome_disclaimer_privacy_note_checked);
-				}
-				else
-				{
+				} else {
 					cbPrivacy.setText(R.string.cb_welcome_disclaimer_privacy_note_unchecked);
 				}
 			}
@@ -80,12 +75,9 @@ public class WelcomeDisclaimerFragment extends Fragment {
 			@Override
 			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
 				updateRightButtonTextColor(isChecked && cbPrivacy.isChecked());
-				if(isChecked)
-				{
+				if (isChecked) {
 					cbLegal.setText(R.string.cb_welcome_disclaimer_legal_note_checked);
-				}
-				else
-				{
+				} else {
 					cbLegal.setText(R.string.cb_welcome_disclaimer_legal_note_unchecked);
 				}
 			}
@@ -93,7 +85,6 @@ public class WelcomeDisclaimerFragment extends Fragment {
 		setClickListener(view, R.id.btn_show_qapl, Type.QAPL);
 		setClickListener(view, R.id.btn_show_privacy, Type.PRIVACY);
 		setClickListener(view, R.id.btn_show_legal, Type.LEGAL);
-
 
 
 	}
@@ -105,17 +96,14 @@ public class WelcomeDisclaimerFragment extends Fragment {
 			public void onClick(View v) {
 
 				WebView webView = new WebView(getActivity());
-				String file="";
-				if(mode==Type.QAPL)
-				{
+				String file = "";
+				if (mode == Type.QAPL) {
 					file = getResources().getString(R.string.FILE_QAPL_LICENSE);
 				}
-				if(mode==Type.PRIVACY)
-				{
+				if (mode == Type.PRIVACY) {
 					file = getResources().getString(R.string.FILE_PRIVACY);
 				}
-				if(mode==Type.LEGAL)
-				{
+				if (mode == Type.LEGAL) {
 					file = getResources().getString(R.string.FILE_LEGAL);
 				}
 

@@ -73,6 +73,11 @@ public class CreateIdentityActivity extends BaseWizardActivity {
     }
 
     @Override
+    protected String getWizardEntityLabel() {
+        return getString(R.string.identity);
+    }
+
+    @Override
     public void handleNextClick() {
 
         super.handleNextClick();

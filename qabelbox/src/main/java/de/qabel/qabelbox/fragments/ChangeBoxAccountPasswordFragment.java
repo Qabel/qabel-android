@@ -23,6 +23,7 @@ import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.communication.BoxAccountRegisterServer;
 import de.qabel.qabelbox.communication.callbacks.SimpleJsonCallback;
 import de.qabel.qabelbox.helper.UIHelper;
+import de.qabel.qabelbox.validation.PasswordValidator;
 import okhttp3.Call;
 import okhttp3.Response;
 
@@ -33,6 +34,7 @@ public class ChangeBoxAccountPasswordFragment extends Fragment {
 
     private EditText etOldPassword, etPassword1, etPassword2;
     private final BoxAccountRegisterServer mBoxAccountServer = new BoxAccountRegisterServer();
+    private PasswordValidator validator = new PasswordValidator();
 
     @Nullable
     @Override
@@ -61,9 +63,12 @@ public class ChangeBoxAccountPasswordFragment extends Fragment {
     public boolean onOptionsItemSelected(MenuItem item) {
 
         if (item.getItemId() == R.id.action_ok) {
-            String check = checkNewPassword();
+            String pw = etPassword1.getText().toString();
+            String pwRepeat = etPassword2.getText().toString();
+
+            Integer check = validator.validate(null, pw, pwRepeat);
             if (check != null) {
-                UIHelper.showDialogMessage(getActivity(), R.string.dialog_headline_info, check);
+                UIHelper.showDialogMessage(getActivity(), R.string.dialog_headline_info, getString(check));
                 return true;
             } else {
                 sendChangePWRequest(etOldPassword.getText().toString(), etPassword1.getText().toString(), etPassword2.getText().toString());
@@ -71,22 +76,6 @@ public class ChangeBoxAccountPasswordFragment extends Fragment {
             }
         }
         return false;
-    }
-
-    private String checkNewPassword() {
-
-        if (etOldPassword.getText().length() < 3) {
-            return getString(R.string.password_to_short);
-        }
-        if (etPassword1.getText().length() < 3) {
-            return getString(R.string.password_to_short);
-        }
-        //check if pw1 match pw2
-        if (!etPassword1.getText().toString().equals(etPassword2.getText().toString())) {
-            //no
-            return getString(R.string.create_account_passwords_dont_match);
-        }
-        return null;
     }
 
     private void sendChangePWRequest(final String oldPassword, final String newPassword1, final String newPassword2) {

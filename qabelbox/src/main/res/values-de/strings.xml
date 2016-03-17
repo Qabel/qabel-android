@@ -278,4 +278,7 @@
 Den Unterstützern der Indigogo Kampagne
     </string>
     <string name="about.header.qabel.thanks.header.txt"> bedankt sich bei:</string>
+    <string name="cant_export_contacts">Kontakte konnten nicht exportiert werden</string>
+    <string name="contact_export_all">Alle Kontakte exportieren</string>
+    <string name="contact_export_failed">Identity konnte nicht exportiert werden</string>
 </resources>

@@ -51,6 +51,7 @@ import de.qabel.qabelbox.exceptions.QblStorageEntityExistsException;
 import de.qabel.qabelbox.helper.FileHelper;
 import de.qabel.qabelbox.helper.Helper;
 import de.qabel.qabelbox.helper.UIHelper;
+import de.qabel.qabelbox.repository.exception.PersistenceException;
 import de.qabel.qabelbox.services.LocalQabelService;
 
 /**
@@ -144,9 +145,13 @@ public class ContactFragment extends BaseFragment {
                             public void onClick(DialogInterface dialog, int which) {
 
                                 LocalQabelService service = QabelBoxApplication.getInstance().getService();
-                                service.deleteContact(contact);
-                                sendRefreshContactList(mActivity);
-                                UIHelper.showDialogMessage(mActivity, R.string.dialog_headline_info, getString(R.string.contact_deleted).replace("%1", contact.getAlias()));
+                                try {
+                                    service.deleteContact(contact);
+                                    sendRefreshContactList(mActivity);
+                                    UIHelper.showDialogMessage(mActivity, R.string.dialog_headline_info, getString(R.string.contact_deleted).replace("%1", contact.getAlias()));
+                                } catch (PersistenceException e) {
+                                    UIHelper.showDialogMessage(mActivity, R.string.dialog_headline_warning, R.string.dialog_message_delete_error);
+                                }
                             }
                         }, null);
             }
@@ -160,10 +165,16 @@ public class ContactFragment extends BaseFragment {
      * @param contact
      */
     // TODO: Refactor: Two no-gos 1. Remove static, 2. remove activity argument
-    public static void addContactSilent(MainActivity activity, Contact contact) throws QblStorageEntityExistsException {
+    public static boolean addContactSilent(MainActivity activity, Contact contact) throws QblStorageEntityExistsException {
         LocalQabelService service = QabelBoxApplication.getInstance().getService();
-        service.addContact(contact);
-        sendRefreshContactList(activity);
+        try {
+            service.addContact(contact);
+            sendRefreshContactList(activity);
+            return true;
+        } catch (PersistenceException e) {
+            Log.e(TAG, "Could not add contact", e);
+            return false;
+        }
     }
 
     public void addContactWithResultDialog(MainActivity activity, Contact contact) {

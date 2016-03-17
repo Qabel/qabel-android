@@ -9,6 +9,7 @@ import android.widget.Toast;
 import org.spongycastle.util.encoders.Hex;
 
 import java.util.Map;
+import java.util.Set;
 
 import de.qabel.core.config.Contact;
 import de.qabel.core.drop.DropMessage;
@@ -19,6 +20,7 @@ import de.qabel.qabelbox.activities.MainActivity;
 import de.qabel.qabelbox.dialogs.SelectContactForShareDialog;
 import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.helper.UIHelper;
+import de.qabel.qabelbox.repository.exception.PersistenceException;
 import de.qabel.qabelbox.services.LocalQabelService;
 import de.qabel.qabelbox.storage.BoxExternalReference;
 import de.qabel.qabelbox.storage.BoxFile;
@@ -34,8 +36,13 @@ public class ShareHelper {
 
 
 	public static void shareToQabelUser(final MainActivity self,LocalQabelService mService,final BoxObject boxObject) {
-
-		if (mService.getContacts(mService.getActiveIdentity()).getContacts().size() == 0) {
+		Set<Contact> contacts = null;
+		try {
+			contacts = mService.getContacts(mService.getActiveIdentity()).getContacts();
+		} catch (PersistenceException e) {
+			Log.e(TAG, "Could not retrieve contacts for " + mService.getActiveIdentity().getAlias());
+		}
+		if (contacts == null || contacts.size() == 0) {
 			UIHelper.showDialogMessage(self, R.string.dialog_headline_info, R.string.cant_share_contactlist_is_empty);
 
 		} else {

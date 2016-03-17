@@ -9,8 +9,8 @@ import de.qabel.qabelbox.repository.IdentityRepository;
 import de.qabel.qabelbox.repository.exception.EntityNotFoundExcepion;
 import de.qabel.qabelbox.repository.exception.PersistenceException;
 
-public class PersistenceIdentityRepositoryDefaultImpl extends AbstractCachedPersistenceRepository<Identity> implements IdentityRepository {
-    public PersistenceIdentityRepositoryDefaultImpl(Persistence<String> persistence) {
+public class PersistenceIdentityRepositoryImpl extends AbstractCachedPersistenceRepository<Identity> implements IdentityRepository {
+    public PersistenceIdentityRepositoryImpl(Persistence<String> persistence) {
         super(persistence);
     }
 

@@ -20,6 +20,7 @@ import de.qabel.core.crypto.QblECKeyPair;
 import de.qabel.core.crypto.QblECPublicKey;
 import de.qabel.core.drop.DropURL;
 import de.qabel.core.exceptions.QblDropInvalidURL;
+import de.qabel.qabelbox.repository.exception.PersistenceException;
 import de.qabel.qabelbox.services.LocalQabelService;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -238,7 +239,7 @@ public class ContactExportImportTest {
 
 	}
 
-	public static void deleteTestContacts() {
+	public static void deleteTestContacts() throws PersistenceException {
 		LocalQabelService service = new LocalQabelService();
 		try {
 			for (Contact c : initTestContacts()) {

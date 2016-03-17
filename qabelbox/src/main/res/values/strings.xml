@@ -307,5 +307,6 @@ To all people who have supported our Indigogo Campaign
     <string name="github_url">https://github.com/Qabel</string>
     <string name="asset_qabel_font">fonts/Art Post.ttf</string>
     <string name="help">Help</string>
+    <string name="dialog_message_delete_error">Could not remove contact</string>
 
 </resources>

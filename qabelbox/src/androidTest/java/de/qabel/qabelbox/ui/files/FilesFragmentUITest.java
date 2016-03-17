@@ -27,6 +27,7 @@ import de.qabel.qabelbox.activities.MainActivity;
 import de.qabel.qabelbox.communication.BlockServer;
 import de.qabel.qabelbox.config.ContactExportImport;
 import de.qabel.qabelbox.exceptions.QblStorageException;
+import de.qabel.qabelbox.repository.exception.PersistenceException;
 import de.qabel.qabelbox.ui.helper.SystemAnimations;
 import de.qabel.qabelbox.ui.helper.UIActionHelper;
 import de.qabel.qabelbox.ui.helper.UIBoxHelper;
@@ -109,7 +110,11 @@ public class FilesFragmentUITest {
 		for(ExampleFile exampleFile : exampleFiles){
 			mBoxHelper.deleteFile(mActivity, testIdentity, exampleFile.getName(), "");
 		}
-		mBoxHelper.getService().deleteContact(testContact);
+		try {
+			mBoxHelper.getService().deleteContact(testContact);
+		} catch (PersistenceException e) {
+			e.printStackTrace();
+		}
 		mBoxHelper.deleteIdentity(testIdentity);
 		mBoxHelper.deleteIdentity(testIdentity2);
 

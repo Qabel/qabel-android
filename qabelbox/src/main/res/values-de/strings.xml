@@ -275,4 +275,5 @@ Den Unterstützern der Indigogo Kampagne
     <string name="about.header.qabel.thanks.header.txt"> bedankt sich bei:</string>
     <string name="contact_import_successfull_many">%1$d / %2$d Kontakte importiert</string>
     <string name="contact_import_successfull">Kontakt importiert</string>
+    <string name="dialog_message_delete_error">Kontakt konnte nicht gelöscht werden</string>
 </resources>

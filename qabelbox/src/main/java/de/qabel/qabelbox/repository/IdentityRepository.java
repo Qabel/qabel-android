@@ -16,4 +16,6 @@ public interface IdentityRepository {
     Identities findAll() throws EntityNotFoundExcepion, PersistenceException;
 
     void save(Identity identity) throws PersistenceException;
+
+
 }

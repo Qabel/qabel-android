@@ -36,6 +36,7 @@ import de.qabel.core.config.Contact;
 import de.qabel.core.config.Contacts;
 import de.qabel.core.config.Identities;
 import de.qabel.core.config.Identity;
+import de.qabel.core.config.Persistence;
 import de.qabel.core.crypto.AbstractBinaryDropMessage;
 import de.qabel.core.crypto.BinaryDropMessageV0;
 import de.qabel.core.crypto.CryptoUtils;
@@ -52,11 +53,13 @@ import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.activities.MainActivity;
 import de.qabel.qabelbox.exceptions.QblStorageEntityExistsException;
 import de.qabel.qabelbox.providers.DocumentIdParser;
-import de.qabel.qabelbox.repository.PeristenceContactRepositoryAndroidWrapper;
+import de.qabel.qabelbox.repository.ContactRepository;
+import de.qabel.qabelbox.repository.IdentityRepositoryDeleteable;
+import de.qabel.qabelbox.repository.PersistenceContactRepositoryDefaultImpl;
 import de.qabel.qabelbox.repository.exception.EntityNotFoundExcepion;
 import de.qabel.qabelbox.repository.exception.PersistenceException;
 import de.qabel.qabelbox.repository.persistence.AndroidPersistence;
-import de.qabel.qabelbox.repository.persistence.PersistenceIdentityRepositoryAndroidWrapper;
+import de.qabel.qabelbox.repository.persistence.IdentityRepositoryDeleteableImplementation;
 import de.qabel.qabelbox.repository.persistence.QblSQLiteParams;
 import de.qabel.qabelbox.storage.BoxFile;
 import de.qabel.qabelbox.storage.BoxUploadingFile;
@@ -79,9 +82,9 @@ public class LocalQabelService extends Service {
 
 	protected static final String DB_NAME = "qabel-service";
 	protected static final int DB_VERSION = 1;
-	protected AndroidPersistence persistence;
-	protected PeristenceContactRepositoryAndroidWrapper contactRepository;
-	protected PersistenceIdentityRepositoryAndroidWrapper identityRepository;
+	protected Persistence persistence;
+	protected ContactRepository contactRepository;
+	protected IdentityRepositoryDeleteable identityRepository;
 	private DropHTTP dropHTTP;
 	private HashMap<String, Map<String, BoxUploadingFile>> pendingUploads;
 	private Queue<BoxUploadingFile> uploadingQueue;
@@ -101,11 +104,21 @@ public class LocalQabelService extends Service {
 	}
 
 	public void addIdentity(Identity identity) {
+		try {
+			identityRepository.save(identity);
+		} catch (PersistenceException e) {
+			Log.e(TAG, "Could not add Identity", e);
+		}
+
+		/*
 		persistence.updateOrPersistEntity(identity);
 		//identityRepository.updateOrPersistEntity(identity);
 		Identities identities = getIdentities();
 		identities.put(identity);
+		// TODO operate on the Interface only
+		//identityRepository.save(identities); function in interface does not exist yet
 		identityRepository.update(identities);
+		*/
 	}
 
 	public Identities getIdentities() {
@@ -133,26 +146,12 @@ public class LocalQabelService extends Service {
 	}
 
 	public void deleteIdentity(Identity identity) {
-		delete(identity);
-		Identities identities = null;
 		try {
-			identities = identityRepository.findAll();
-			identities.remove(identity);
-			identityRepository.update(identities);
+			identityRepository.delete(identity);
 		} catch (EntityNotFoundExcepion entityNotFoundExcepion) {
-			entityNotFoundExcepion.printStackTrace();
 			Log.w(TAG, "Can not remove identity because it is not there. Should be safe to ignore this", entityNotFoundExcepion);
 		} catch (PersistenceException e) {
 			Log.e(TAG, "Could not update identities with removed identity", e);
-		}
-
-	}
-
-	private void delete(Identity identity) {
-		if (identity != null) {
-			persistence.removeEntity(identity.getPersistenceID(), Identity.class);
-		} else {
-			Log.w(TAG, "delete(null): Will ignore call to delete null object");
 		}
 	}
 
@@ -177,7 +176,13 @@ public class LocalQabelService extends Service {
 	 * @return List of all contacts
 	 */
 	public Contacts getContacts() {
-		return getContacts(getActiveIdentity());
+		try {
+			return getContacts(getActiveIdentity());
+		} catch (PersistenceException e) {
+			// TODO: This should be reported by crash reporting silently
+			Log.e(TAG, "Could not get contacts for " + getActiveIdentity().getAlias(), e);
+			return new Contacts(getActiveIdentity());
+		}
 	}
 
 	/**
@@ -186,29 +191,12 @@ public class LocalQabelService extends Service {
 	 * @param identity selected identity
 	 * @return List of contacts owned by the identity
 	 */
-	public Contacts getContacts(@NonNull Identity identity) {
-		List<Contacts> entities = contactRepository.getAll();
-		for (Contacts contacts : entities) {
-			if (contacts.getIdentity().equals(identity)) {
-				return contacts;
-			}
-		}
-		// If nothing is there create a new empty Contacts
-		Contacts contacts = new Contacts(identity);
-		// TODO: replace with call to ContatctRepository interface (i.e. save() )
-		/*
-		if (identity!=null) {
-			try {
-				identityRepository.save(identity);
-			} catch (PersistenceException e) {
-				Log.e(TAG,"Could not persist identity "+identity,e);
-			}
-		}
-		*/
-		updateOrPersistEntity(contacts);
-		return contacts;
+	public Contacts getContacts(@NonNull Identity identity) throws PersistenceException {
+		return contactRepository.find(identity);
 	}
 
+	/*
+	@Deprecated
 	private boolean updateOrPersistEntity(Contacts contacts) {
 		Contacts idFromRepo = null;
 		if (contacts != null) {
@@ -220,49 +208,43 @@ public class LocalQabelService extends Service {
 			return persistence.persistEntity(contacts);
 		}
 	}
+	*/
 
-	public void addContact(Contact contact) throws QblStorageEntityExistsException {
+
+	public void addContact(Contact contact) throws QblStorageEntityExistsException, PersistenceException {
 		Contacts contacts = getContacts();
 		if(contacts.contains(contact)){
 			throw new QblStorageEntityExistsException(contact.getAlias());
 		}
-		contacts.put(contact);
-		contactRepository.save(contacts);
+		contactRepository.save(contact, getActiveIdentity());
 	}
 
-	public void addContact(Contact contact, Identity identity) throws QblStorageEntityExistsException {
+	public void addContact(Contact contact, Identity identity) throws QblStorageEntityExistsException, PersistenceException {
 		Contacts contacts = getContacts(identity);
 		if (contacts.contains(contact)) {
 			throw new QblStorageEntityExistsException(contact.getAlias());
 		}
-		contacts.put(contact);
-		contactRepository.save(contacts);
+		contactRepository.save(contact, identity);
 	}
 
-	public void deleteContact(Contact contact) {
-		Contacts contacts = getContacts();
-		contacts.remove(contact);
-		contactRepository.save(contacts);
+	public void deleteContact(Contact contact) throws PersistenceException {
+		contactRepository.delete(contact, getActiveIdentity());
 	}
 
-	public void deleteContact(Contact contact, Identity identity) {
-		Contacts contacts = getContacts(identity);
-		contacts.remove(contact);
-		contactRepository.save(contacts);
+	public void deleteContact(Contact contact, Identity identity) throws PersistenceException {
+		contactRepository.delete(contact, identity);
 	}
 
 	public void modifyContact(Contact contact) {
-		Contacts contacts = getContacts();
-		contacts.remove(contact);
-		contacts.put(contact);
-		contactRepository.save(contacts);
+		try {
+			contactRepository.save(contact, getActiveIdentity());
+		} catch (PersistenceException e) {
+			e.printStackTrace();
+		}
 	}
 
-	public void modifyContact(Contact contact, Identity identity) {
-		Contacts contacts = getContacts(identity);
-		contacts.remove(contact);
-		contacts.put(contact);
-		contactRepository.save(contacts);
+	public void modifyContact(Contact contact, Identity identity) throws PersistenceException {
+		contactRepository.save(contact, identity);
 	}
 
 	/**
@@ -270,10 +252,12 @@ public class LocalQabelService extends Service {
 	 *
 	 * @return Map of each identity to its contacts
 	 */
-	public Map<Identity, Contacts> getAllContacts() {
+	// TODO: Move to interface (?)
+	public Map<Identity, Contacts> getAllContacts() throws EntityNotFoundExcepion, PersistenceException {
 		Map<Identity, Contacts> contactMap = new HashMap<>();
-		for (Contacts contacts : contactRepository.getAll()) {
-			contactMap.put(contacts.getIdentity(), contacts);
+		Identities identities = identityRepository.findAll();
+		for (Identity identity : identities.getIdentities()) {
+			contactMap.put(identity, contactRepository.find(identity));
 		}
 		return contactMap;
 	}
@@ -596,8 +580,8 @@ public class LocalQabelService extends Service {
 			return;
 		}
 		this.persistence = androidPersistence;
-		this.identityRepository = new PersistenceIdentityRepositoryAndroidWrapper(androidPersistence);
-		this.contactRepository = new PeristenceContactRepositoryAndroidWrapper(androidPersistence);
+		this.identityRepository = new IdentityRepositoryDeleteableImplementation(androidPersistence);
+		this.contactRepository = new PersistenceContactRepositoryDefaultImpl(androidPersistence);
 	}
 
 	protected void initSharedPreferences() {

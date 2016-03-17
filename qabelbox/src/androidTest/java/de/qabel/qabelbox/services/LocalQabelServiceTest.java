@@ -137,15 +137,18 @@ public class LocalQabelServiceTest extends ServiceTestCase<LocalQabelServiceTest
 	public void testGetAllContacts() throws QblStorageEntityExistsException {
 		mService.addContact(contact);
 		Identity secondIdentity = new Identity("bar", null, new QblECKeyPair());
-		mService.addIdentity(identity);
+		mService.addIdentity(secondIdentity);
+
 		Contact secondContact = new Contact("blub", null, new QblECKeyPair().getPub());
 		mService.addContact(secondContact, secondIdentity);
+
 		Map<Identity, Contacts> contacts = mService.getAllContacts();
 		assertEquals(2, contacts.size());
 		assertTrue(contacts.containsKey(identity));
 		assertTrue(contacts.containsKey(secondIdentity));
 		assertTrue(contacts.get(identity).getContacts().contains(contact));
-		assertTrue(contacts.get(secondIdentity).getContacts().contains(secondContact));
+		Contacts secondIdentitiesContacts = contacts.get(secondIdentity);
+		assertTrue(secondIdentitiesContacts.getContacts().contains(secondContact));
 	}
 
 	public void testSendAndReceiveDropMessage() throws QblDropPayloadSizeException, URISyntaxException, QblDropInvalidURL, InterruptedException, QblStorageEntityExistsException {

@@ -193,10 +193,13 @@ public class LocalQabelService extends Service {
 		contactRepository.save(contacts);
 	}
 
-	public void addContact(Contact contact, Identity identity) {
+	public void addContact(Contact contact, Identity identity) throws QblStorageEntityExistsException {
 		Contacts contacts = getContacts(identity);
+		if (contacts.contains(contact)) {
+			throw new QblStorageEntityExistsException(contact.getAlias());
+		}
 		contacts.put(contact);
-		contactRepository.update(contacts);
+		contactRepository.save(contacts);
 	}
 
 	public void deleteContact(Contact contact) {

@@ -160,7 +160,7 @@
 
         <provider
             android:name=".services.QabelContentProvider"
-            android:authorities="de.qabel.qabelbox.services.QabelContentProvider"
+            android:authorities="${applicationId}.services.QabelContentProvider"
             android:exported="true"
             android:readPermission="de.qabel.qabelbox.QABEL_READ_RESOURCES"
             android:writePermission="de.qabel.qabelbox.QABEL_WRITE_RESOURCES">
@@ -174,7 +174,7 @@
 
         <provider
             android:name=".providers.BoxProvider"
-            android:authorities="de.qabel.qabelbox.providers.documents"
+            android:authorities="${applicationId}.providers.documents"
             android:enabled="true"
             android:exported="true"
             android:grantUriPermissions="true"

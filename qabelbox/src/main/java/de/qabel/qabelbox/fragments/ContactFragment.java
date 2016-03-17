@@ -148,9 +148,7 @@ public class ContactFragment extends BaseFragment {
 	private void startExportFileChooser(String filename, String type, String data) {
 
 		Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
-
 		intent.addCategory(Intent.CATEGORY_OPENABLE);
-
 		intent.setType("application/json");
 		intent.putExtra(Intent.EXTRA_TITLE, type + "" + filename + "." + QabelSchema.FILE_SUFFIX_CONTACT);
 		dataToExport = data;

@@ -5,7 +5,7 @@ import android.support.annotation.NonNull;
 import de.qabel.core.config.Identities;
 import de.qabel.core.config.Identity;
 import de.qabel.core.config.Persistence;
-import de.qabel.qabelbox.repository.IdentityRepositoryDeleteable;
+import de.qabel.qabelbox.repository.DeletableIdentityRepository;
 import de.qabel.qabelbox.repository.exception.EntityNotFoundExcepion;
 import de.qabel.qabelbox.repository.exception.PersistenceException;
 
@@ -13,7 +13,7 @@ import de.qabel.qabelbox.repository.exception.PersistenceException;
  * Created by Jan D.S. Wischweh <mail@wischweh.de> on 16.03.16.
  */
 @Deprecated
-public class IdentityRepositoryDeleteableImplementation extends PersistenceIdentityRepositoryImpl implements IdentityRepositoryDeleteable {
+public class IdentityRepositoryDeleteableImplementation extends PersistenceIdentityRepositoryImpl implements DeletableIdentityRepository {
     private static final String TAG = "PersistenceIdentity";
 
     public IdentityRepositoryDeleteableImplementation(Persistence<String> persistence) {

@@ -54,7 +54,7 @@ import de.qabel.qabelbox.activities.MainActivity;
 import de.qabel.qabelbox.exceptions.QblStorageEntityExistsException;
 import de.qabel.qabelbox.providers.DocumentIdParser;
 import de.qabel.qabelbox.repository.ContactRepository;
-import de.qabel.qabelbox.repository.IdentityRepositoryDeleteable;
+import de.qabel.qabelbox.repository.DeletableIdentityRepository;
 import de.qabel.qabelbox.repository.PersistenceContactRepositoryDefaultImpl;
 import de.qabel.qabelbox.repository.exception.EntityNotFoundExcepion;
 import de.qabel.qabelbox.repository.exception.PersistenceException;
@@ -84,7 +84,7 @@ public class LocalQabelService extends Service {
 	protected static final int DB_VERSION = 1;
 	protected Persistence persistence;
 	protected ContactRepository contactRepository;
-	protected IdentityRepositoryDeleteable identityRepository;
+	protected DeletableIdentityRepository identityRepository;
 	private DropHTTP dropHTTP;
 	private HashMap<String, Map<String, BoxUploadingFile>> pendingUploads;
 	private Queue<BoxUploadingFile> uploadingQueue;

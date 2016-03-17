@@ -1,7 +1,6 @@
 package de.qabel.qabelbox.repository.persistence;
 
 import de.qabel.core.config.Identities;
-import de.qabel.core.config.Identity;
 import de.qabel.core.config.Persistence;
 
 /**
@@ -15,19 +14,6 @@ public class PersistenceIdentityRepositoryAndroidWrapper extends PersistenceIden
         super(persistence);
     }
 
-
-    public boolean update(Identity identity) {
-
-        Identity idFromRepo = null;
-        if (identity != null) {
-            idFromRepo = persistence.getEntity(identity.getPersistenceID(), Identity.class);
-        }
-        if (idFromRepo != null) {
-            return persistence.updateEntity(idFromRepo);
-        } else {
-            return false;
-        }
-    }
 
     public boolean update(Identities identity) {
         Identities idFromRepo = null;

@@ -162,7 +162,13 @@ public class LocalQabelService extends Service {
 	 * @param identity known identity with modifid data
 	 */
 	public void modifyIdentity(Identity identity) {
-		identityRepository.update(identity);
+		try {
+			identityRepository.save(identity);
+		} catch (PersistenceException e) {
+			// TODO: Check if we need to catch this in a calling method
+			Log.e(TAG, "Could not update identity", e);
+		}
+		// identityRepository.update(identity);
 	}
 
 	/**

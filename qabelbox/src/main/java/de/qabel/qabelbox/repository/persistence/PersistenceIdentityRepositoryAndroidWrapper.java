@@ -17,23 +17,6 @@ public class PersistenceIdentityRepositoryAndroidWrapper extends PersistenceIden
         super(persistence);
     }
 
-    public PersistenceIdentityRepositoryAndroidWrapper(AndroidPersistence androidPersistence) {
-        super(androidPersistence);
-    }
-
-
-    public boolean updateOrPersistEntity(Identity identity) {
-        Identity idFromRepo = null;
-        if (identity != null) {
-            idFromRepo = persistence.getEntity(identity.getPersistenceID(), Identity.class);
-        }
-        if (idFromRepo != null) {
-            return persistence.updateEntity(idFromRepo);
-        } else {
-            return persistence.persistEntity(identity);
-        }
-    }
-
     public void delete(Identity identity) {
         if (identity != null) {
             persistence.removeEntity(identity.getPersistenceID(), Identity.class);

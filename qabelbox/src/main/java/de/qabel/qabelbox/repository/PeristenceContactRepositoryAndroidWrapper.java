@@ -21,33 +21,10 @@ public class PeristenceContactRepositoryAndroidWrapper extends PersistenceContac
     }
 
     public void save(Contacts contacts) {
+        // TODO: persistence.updateOrPersistEntity() ?
         persistence.updateEntity(contacts);
-
     }
 
-    public boolean updateOrPersistEntity(Contacts contacts) {
-        Contacts idFromRepo = null;
-        if (contacts != null) {
-            idFromRepo = persistence.getEntity(contacts.getPersistenceID(), Contacts.class);
-        }
-        if (idFromRepo != null) {
-            return persistence.updateEntity(idFromRepo);
-        } else {
-            return persistence.persistEntity(contacts);
-        }
-    }
-
-    public boolean update(Contacts contacts) {
-        Contacts idFromRepo = null;
-        if (contacts != null) {
-            idFromRepo = persistence.getEntity(contacts.getPersistenceID(), Contacts.class);
-        }
-        if (idFromRepo != null) {
-            return persistence.updateEntity(idFromRepo);
-        } else {
-            return false;
-        }
-    }
 
     public List<Contacts> getAll() {
         return persistence.getEntities(Contacts.class);

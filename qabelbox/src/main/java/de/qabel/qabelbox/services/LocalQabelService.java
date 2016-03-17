@@ -101,7 +101,8 @@ public class LocalQabelService extends Service {
 	}
 
 	public void addIdentity(Identity identity) {
-		identityRepository.updateOrPersistEntity(identity);
+		persistence.updateOrPersistEntity(identity);
+		//identityRepository.updateOrPersistEntity(identity);
 		Identities identities = getIdentities();
 		identities.put(identity);
 		identityRepository.update(identities);
@@ -180,8 +181,30 @@ public class LocalQabelService extends Service {
 		}
 		// If nothing is there create a new empty Contacts
 		Contacts contacts = new Contacts(identity);
-		contactRepository.updateOrPersistEntity(contacts);
+		// TODO: replace with call to ContatctRepository interface (i.e. save() )
+		/*
+		if (identity!=null) {
+			try {
+				identityRepository.save(identity);
+			} catch (PersistenceException e) {
+				Log.e(TAG,"Could not persist identity "+identity,e);
+			}
+		}
+		*/
+		updateOrPersistEntity(contacts);
 		return contacts;
+	}
+
+	private boolean updateOrPersistEntity(Contacts contacts) {
+		Contacts idFromRepo = null;
+		if (contacts != null) {
+			idFromRepo = persistence.getEntity(contacts.getPersistenceID(), Contacts.class);
+		}
+		if (idFromRepo != null) {
+			return persistence.updateEntity(idFromRepo);
+		} else {
+			return persistence.persistEntity(contacts);
+		}
 	}
 
 	public void addContact(Contact contact) throws QblStorageEntityExistsException {

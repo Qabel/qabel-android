@@ -103,32 +103,28 @@ public class ImportExportContactsUITest {
 		mBoxHelper.createTokenIfNeeded(false);
 		mBoxHelper.deleteAllIdentities();
 		identity = mBoxHelper.addIdentity("spoon123");
-
-
 		createTestContacts();
 	}
 
 	private void createTestContacts() {
-		Identity user1 = mBoxHelper.addIdentity("user1");
-		Identity user2 = mBoxHelper.addIdentity("user2");
-		Identity user3 = mBoxHelper.addIdentity("user3");
 
 		mBoxHelper.setActiveIdentity(identity);
-
-		String contact1Json = ContactExportImport.exportIdentityAsContact(user1);
-		String contact2Json = ContactExportImport.exportIdentityAsContact(user2);
-		String contact3Json = ContactExportImport.exportIdentityAsContact(user3);
-
 		assertThat(mBoxHelper.getService().getContacts().getContacts().size(), is(0));
-		addContact(identity, contact1Json);
-		addContact(identity, contact2Json);
-		addContact(identity, contact3Json);
+		createContact("user1");
+		createContact("user2");
+		createContact("user3");
 		assertThat(mBoxHelper.getService().getContacts().getContacts().size(), is(3));
 	}
 
-	private void addContact(Identity identity, String contactJSON) {
+	private void createContact(String name) {
+		Identity identity = mBoxHelper.createIdentity(name);
+		String json = ContactExportImport.exportIdentityAsContact(identity);
+		addContact( json);
+	}
+
+	private void addContact(String contactJSON) {
 		try {
-			mBoxHelper.getService().addContact(new ContactExportImport().parseContactForIdentity(identity, new JSONObject(contactJSON)));
+			mBoxHelper.getService().addContact(new ContactExportImport().parseContactForIdentity(null, new JSONObject(contactJSON)));
 		} catch (Exception e) {
 			assertNotNull(e);
 			Log.e(TAG, "error on add contact", e);
@@ -142,7 +138,6 @@ public class ImportExportContactsUITest {
 
 	private void goToContacts() {
 		DrawerActions.openDrawer(R.id.drawer_layout);
-
 		onView(allOf(withText(R.string.Contacts), withParent(withClassName(endsWith("MenuView")))))
 				.perform(click());
 		Spoon.screenshot(mActivity, "contacts");
@@ -159,6 +154,7 @@ public class ImportExportContactsUITest {
 			return null;
 		}
 	}
+
 	@Test
 	public void testExportSingleContact() {
 
@@ -243,8 +239,6 @@ public class ImportExportContactsUITest {
 			e.printStackTrace();
 		}
 	}
-
-
 
 
 }

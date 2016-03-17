@@ -133,7 +133,7 @@ public class LocalQabelService extends Service {
 	}
 
 	public void deleteIdentity(Identity identity) {
-		identityRepository.delete(identity);
+		delete(identity);
 		Identities identities = null;
 		try {
 			identities = identityRepository.findAll();
@@ -146,6 +146,14 @@ public class LocalQabelService extends Service {
 			Log.e(TAG, "Could not update identities with removed identity", e);
 		}
 
+	}
+
+	private void delete(Identity identity) {
+		if (identity != null) {
+			persistence.removeEntity(identity.getPersistenceID(), Identity.class);
+		} else {
+			Log.w(TAG, "delete(null): Will ignore call to delete null object");
+		}
 	}
 
 	/**

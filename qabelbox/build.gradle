@@ -13,7 +13,6 @@ spoon {
 }
 
 
-
 android {
     compileSdkVersion 22
     buildToolsVersion '23.0.2'

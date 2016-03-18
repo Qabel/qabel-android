@@ -4,8 +4,7 @@ import android.os.PowerManager;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.espresso.contrib.DrawerActions;
 import android.support.test.espresso.contrib.RecyclerViewActions;
-import android.support.test.espresso.intent.Intents;
-import android.support.test.rule.ActivityTestRule;
+import android.support.test.espresso.intent.rule.IntentsTestRule;
 import android.util.Log;
 
 import com.squareup.spoon.Spoon;
@@ -19,7 +18,6 @@ import org.junit.Test;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 
 import de.qabel.core.config.Contact;
@@ -37,6 +35,7 @@ import de.qabel.qabelbox.ui.helper.DocumentIntents;
 import de.qabel.qabelbox.ui.helper.SystemAnimations;
 import de.qabel.qabelbox.ui.helper.UIActionHelper;
 import de.qabel.qabelbox.ui.helper.UIBoxHelper;
+import de.qabel.qabelbox.ui.helper.UITestHelper;
 
 import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.Espresso.openActionBarOverflowOrOptionsMenu;
@@ -63,7 +62,7 @@ import static org.hamcrest.Matchers.is;
  */
 public class ImportExportContactsUITest {
 	@Rule
-	public ActivityTestRule<MainActivity> mActivityTestRule = new ActivityTestRule<>(MainActivity.class, false, true);
+	public IntentsTestRule<MainActivity> mActivityTestRule = new IntentsTestRule<>(MainActivity.class, false, true);
 	private MainActivity mActivity;
 	private UIBoxHelper mBoxHelper;
 	private PowerManager.WakeLock wakeLock;
@@ -119,12 +118,12 @@ public class ImportExportContactsUITest {
 	private void createContact(String name) {
 		Identity identity = mBoxHelper.createIdentity(name);
 		String json = ContactExportImport.exportIdentityAsContact(identity);
-		addContact( json);
+		addContact(json);
 	}
 
 	private void addContact(String contactJSON) {
 		try {
-			mBoxHelper.getService().addContact(new ContactExportImport().parseContactForIdentity(null, new JSONObject(contactJSON)));
+			mBoxHelper.getService().addContact(ContactExportImport.parseContactForIdentity(null, new JSONObject(contactJSON)));
 		} catch (Exception e) {
 			assertNotNull(e);
 			Log.e(TAG, "error on add contact", e);
@@ -157,7 +156,6 @@ public class ImportExportContactsUITest {
 
 	@Test
 	public void testExportSingleContact() {
-
 		String userName = "user1";
 		File file1 = new File(mActivity.getCacheDir(), "testexportcontact");
 		assertNotNull(file1);
@@ -167,10 +165,9 @@ public class ImportExportContactsUITest {
 				.perform(RecyclerViewActions.actionOnItem(
 						hasDescendant(withText(userName)), longClick()));
 		Spoon.screenshot(mActivity, "exportOne");
-		Intents.init();
+
 		intending.handleSaveFileIntent(file1);
 		onView(withText(R.string.Export)).check(matches(isDisplayed())).perform(click());
-		Intents.release();
 		checkMessageBox();
 
 		try {
@@ -185,17 +182,15 @@ public class ImportExportContactsUITest {
 
 	@Test
 	public void testExportManyContact() {
-
 		File file1 = new File(mActivity.getCacheDir(), "testexportallcontact");
 		assertNotNull(file1);
 		goToContacts();
 		openActionBarOverflowOrOptionsMenu(InstrumentationRegistry.getTargetContext());
 
 		Spoon.screenshot(mActivity, "exportAll");
-		Intents.init();
+
 		intending.handleSaveFileIntent(file1);
 		onView(withText(R.string.contact_export_all)).perform(click());
-		Intents.release();
 		checkMessageBox();
 
 		try {
@@ -214,31 +209,17 @@ public class ImportExportContactsUITest {
 		Identity importUser1 = mBoxHelper.addIdentity(userToImport);
 		String exportUser = ContactExportImport.exportIdentityAsContact(importUser1);
 		File file1 = new File(mActivity.getCacheDir(), "testexportallcontact");
-		saveJsonIntoFile(exportUser, file1);
+		UITestHelper.saveJsonIntoFile(exportUser, file1);
 
 		assertNotNull(file1);
 		goToContacts();
 		onView(withId(R.id.fab)).perform(click());
 
 		Spoon.screenshot(mActivity, "exportAll");
-		Intents.init();
+
 		intending.handleLoadFileIntent(file1);
 		onView(withText(R.string.from_file)).perform(click());
-		Intents.release();
 		checkMessageBox();
 		onView(withText(userToImport)).check(matches(isDisplayed()));
-
 	}
-
-	private void saveJsonIntoFile(String exportUser, File file1) {
-		try {
-			FileOutputStream fos = new FileOutputStream(file1);
-			fos.write(exportUser.getBytes());
-			fos.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-
-
 }

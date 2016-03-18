@@ -5,13 +5,10 @@ package de.qabel.qabelbox.ui;
  */
 
 import android.os.PowerManager;
-import android.support.design.internal.NavigationMenuItemView;
 import android.support.test.rule.ActivityTestRule;
-import android.widget.SeekBar;
 
 import com.squareup.spoon.Spoon;
 
-import org.hamcrest.Matchers;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
@@ -26,11 +23,9 @@ import de.qabel.core.config.Identity;
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.TestConstants;
-import de.qabel.qabelbox.TestConstraints;
 import de.qabel.qabelbox.activities.CreateIdentityActivity;
 import de.qabel.qabelbox.communication.URLs;
 import de.qabel.qabelbox.exceptions.QblStorageException;
-import de.qabel.qabelbox.helper.UIHelper;
 import de.qabel.qabelbox.services.LocalQabelService;
 import de.qabel.qabelbox.ui.action.QabelViewAction;
 import de.qabel.qabelbox.ui.helper.SystemAnimations;
@@ -46,15 +41,15 @@ import static android.support.test.espresso.action.ViewActions.click;
 import static android.support.test.espresso.action.ViewActions.pressImeActionButton;
 import static android.support.test.espresso.action.ViewActions.typeText;
 import static android.support.test.espresso.assertion.ViewAssertions.matches;
+import static android.support.test.espresso.contrib.DrawerActions.closeDrawer;
+import static android.support.test.espresso.contrib.DrawerActions.openDrawer;
 import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static android.support.test.espresso.matcher.ViewMatchers.withClassName;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static android.support.test.espresso.matcher.ViewMatchers.withParent;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
-import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.endsWith;
-import static org.hamcrest.Matchers.is;
 
 /**
  * Tests for MainActivity.
@@ -94,6 +89,7 @@ public class CreateIdentityUITest {
 		wakeLock = UIActionHelper.wakeupDevice(mActivity);
 		mSystemAnimations = new SystemAnimations(mActivity);
 		mSystemAnimations.disableAll();
+		clearIdentities();
 	}
 
 
@@ -109,11 +105,10 @@ public class CreateIdentityUITest {
 
 	}
 
-	public void openDrawer(String withIdentity) {
-		onView(withId(R.id.drawer_layout)).perform(QabelViewAction.actionOpenDrawer());
-		UITestHelper.sleep(500);
+	public void openDrawerWithIdentity(String withIdentity) {
+		openDrawer(R.id.drawer_layout);
 		onView(allOf(withText(withIdentity), withParent(withId(R.id.select_identity_layout)))).check(matches(isDisplayed())).perform(click());
-		UITestHelper.sleep(2000);
+		UITestHelper.sleep(800);
 	}
 
 
@@ -130,7 +125,7 @@ public class CreateIdentityUITest {
 		onView(withText(R.string.no)).perform(click());
 
 		createIdentity(identity);
-		openDrawer(identity);
+		openDrawerWithIdentity(identity);
 		//go to add identity, enter no data and go back
 		onView(withText(R.string.add_identity)).check(matches(isDisplayed())).perform(click());
 		pressBack();
@@ -140,7 +135,7 @@ public class CreateIdentityUITest {
 		UITestHelper.sleep(500);
 
 		//create spoon 2 identity
-		openDrawer(identity);
+		openDrawerWithIdentity(identity);
 
 		onView(withText(R.string.add_identity)).check(matches(isDisplayed())).perform(click());
 		Spoon.screenshot(UITestHelper.getCurrentActivity(mActivity), "spoon1");
@@ -148,17 +143,16 @@ public class CreateIdentityUITest {
 		createIdentity(identity2);
 		UITestHelper.sleep(500);
 		//check if 2 identities displayed
-		onView(withId(R.id.drawer_layout)).check(matches(isDisplayed())).perform(QabelViewAction.actionCloseDrawer());
-		UITestHelper.sleep(1000);
-		onView(withId(R.id.drawer_layout)).check(matches(isDisplayed())).perform(QabelViewAction.actionOpenDrawer());
-		UITestHelper.sleep(1000);
+		closeDrawer(R.id.drawer_layout);
+		openDrawer(R.id.drawer_layout);
 		onView(withId(R.id.imageViewExpandIdentity)).check(matches(isDisplayed())).perform(click());
 		UITestHelper.sleep(500);
-		onView(allOf(is(instanceOf(NavigationMenuItemView.class)), withText(identity))).check(matches(isDisplayed()));
-		onView(allOf(is(instanceOf(NavigationMenuItemView.class)), withText(identity2))).check(matches(isDisplayed()));
-
+		onView(allOf(withText(identity), withParent(withClassName(endsWith("MenuItemView")))))
+				.check(matches(isDisplayed()));
+		onView(allOf(withText(identity2), withParent(withClassName(endsWith("MenuItemView")))))
+				.check(matches(isDisplayed()));
 		Spoon.screenshot(UITestHelper.getCurrentActivity(mActivity), "spoon1_2");
-		onView(withId(R.id.drawer_layout)).perform(QabelViewAction.actionCloseDrawer());
+		closeDrawer(R.id.drawer_layout);
 	}
 
 	private void createIdentity(String identity) throws Throwable {
@@ -180,10 +174,12 @@ public class CreateIdentityUITest {
 	}
 
 	private void createIdentityPerformSetSecurityLevel() {
-		onView(withClassName(Matchers.equalTo(SeekBar.class.getName()))).perform(QabelViewAction.setProgress(2));
+		//onView(withClassName(Matchers.equalTo(SeekBar.class.getName()))).perform(QabelViewAction.setProgress(2));
+		onView(allOf(withClassName(endsWith("SeekBar")))).perform(QabelViewAction.setProgress(2));
 		onView(allOf(withClassName(endsWith("SeekBar")))).check(matches(QabelMatcher.withProgress(2)));
 		onView(withText(R.string.next)).perform(click());
 		UITestHelper.sleep(500);
+		//sb_security
 	}
 
 	private void createIdentityPerformConfirm() {

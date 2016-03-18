@@ -6,7 +6,6 @@ package de.qabel.qabelbox.ui;
 
 import android.graphics.Bitmap;
 import android.os.PowerManager;
-import android.support.design.internal.NavigationMenuItemView;
 import android.support.test.espresso.Espresso;
 import android.support.test.espresso.contrib.RecyclerViewActions;
 import android.support.test.rule.ActivityTestRule;
@@ -30,12 +29,10 @@ import de.qabel.core.config.Identity;
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.TestConstants;
-import de.qabel.qabelbox.TestConstraints;
 import de.qabel.qabelbox.activities.MainActivity;
 import de.qabel.qabelbox.communication.URLs;
 import de.qabel.qabelbox.config.ContactExportImport;
 import de.qabel.qabelbox.exceptions.QblStorageException;
-import de.qabel.qabelbox.ui.action.QabelViewAction;
 import de.qabel.qabelbox.ui.helper.SystemAnimations;
 import de.qabel.qabelbox.ui.helper.UIActionHelper;
 import de.qabel.qabelbox.ui.helper.UIBoxHelper;
@@ -49,6 +46,7 @@ import static android.support.test.espresso.action.ViewActions.click;
 import static android.support.test.espresso.action.ViewActions.pressImeActionButton;
 import static android.support.test.espresso.action.ViewActions.typeText;
 import static android.support.test.espresso.assertion.ViewAssertions.matches;
+import static android.support.test.espresso.contrib.DrawerActions.openDrawer;
 import static android.support.test.espresso.matcher.ViewMatchers.hasDescendant;
 import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static android.support.test.espresso.matcher.ViewMatchers.withClassName;
@@ -56,10 +54,8 @@ import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static android.support.test.espresso.matcher.ViewMatchers.withParent;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
 import static android.test.MoreAsserts.assertNotEmpty;
-import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.endsWith;
-import static org.hamcrest.Matchers.is;
 //import static de.qabel.qabelbox.ui.matcher.QabelMatcher.withDrawable;
 
 /**
@@ -162,14 +158,13 @@ public class ChatMessageUITest {
 	}
 
 	protected void sendOneAndCheck(int messages) {
-		onView(withId(R.id.drawer_layout)).check(matches(isDisplayed())).perform(QabelViewAction.actionOpenDrawer());
-		UITestHelper.sleep(1000);
+		openDrawer(R.id.drawer_layout);
 
-		onView(allOf(withText(R.string.Contacts), withParent(withClassName(endsWith("MenuView")))))
+		onView(allOf(withText(R.string.Contacts), withParent(withClassName(endsWith("MenuItemView")))))
 				.perform(click());
+		//onView(allOf(is(instanceOf(NavigationMenuItemView.class)), withText(R.string.Contacts))).perform(click());
 		Spoon.screenshot(mActivity, "contacts");
-		
-		//onView(withText("user1")).check(matches(isDisplayed())).perform(click());
+
 		onView(withId(R.id.contact_list))
 				.perform(RecyclerViewActions.actionOnItem(
 						hasDescendant(withText("user1")), click()));
@@ -186,13 +181,14 @@ public class ChatMessageUITest {
 		pressBack();
 
 		//go to identity user 1
-		onView(withId(R.id.drawer_layout)).check(matches(isDisplayed())).perform(QabelViewAction.actionOpenDrawer());
-		UITestHelper.sleep(1000);
+		openDrawer(R.id.drawer_layout);
 		onView(withId(R.id.imageViewExpandIdentity)).check(matches(isDisplayed())).perform(click());
 		UITestHelper.sleep(500);
-		onView(allOf(is(instanceOf(NavigationMenuItemView.class)), withText("user1"))).perform(click());
-		onView(withId(R.id.drawer_layout)).check(matches(isDisplayed())).perform(QabelViewAction.actionOpenDrawer());
-		UITestHelper.sleep(1000);
+
+		onView(allOf(withText("user1"), withParent(withClassName(endsWith("MenuItemView")))))
+				.perform(click());
+
+		openDrawer(R.id.drawer_layout);
 		onView(withText(R.string.Contacts)).check(matches(isDisplayed())).perform(click());
 		Spoon.screenshot(mActivity, "message" + messages);
 
@@ -203,13 +199,12 @@ public class ChatMessageUITest {
 		pressBack();
 
 		//go to user 2
-		onView(withId(R.id.drawer_layout)).check(matches(isDisplayed())).perform(QabelViewAction.actionOpenDrawer());
-		UITestHelper.sleep(1000);
+		openDrawer(R.id.drawer_layout);
 		onView(withId(R.id.imageViewExpandIdentity)).check(matches(isDisplayed())).perform(click());
 		UITestHelper.sleep(500);
-		onView(allOf(is(instanceOf(NavigationMenuItemView.class)), withText("user2"))).perform(click());
-		onView(withId(R.id.drawer_layout)).check(matches(isDisplayed())).perform(QabelViewAction.actionOpenDrawer());
-		UITestHelper.sleep(1000);
+		onView(allOf(withText("user2"), withParent(withClassName(endsWith("MenuItemView")))))
+				.perform(click());
+		openDrawer(R.id.drawer_layout);
 	}
 
 

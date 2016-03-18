@@ -125,6 +125,7 @@ public class MainActivity extends CrashReportingActivity
 	private SelectUploadFolderFragment shareFragment;
 	public ChatServer chatServer;
 	private ContactFragment contactFragment;
+	private View header;
 
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -637,8 +638,7 @@ public class MainActivity extends CrashReportingActivity
 			startActivityForResult(intent, REQUEST_SETTINGS);
 		} else if (id == R.id.nav_about) {
 			selectAboutFragment();
-		}
-		else if (id == R.id.nav_help) {
+		} else if (id == R.id.nav_help) {
 			selectHelpFragment();
 		}
 		DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -900,14 +900,19 @@ public class MainActivity extends CrashReportingActivity
 		drawer.setDrawerListener(toggle);
 		toggle.syncState();
 
+
 		setDrawerLocked(false);
 
 		final NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+		//for api v23
+		header = navigationView.getHeaderView(0);
+		//for api <v23
+		//header = navigationView;
 		navigationView.setNavigationItemSelectedListener(this);
 
 		// Map QR-Code indent to alias textview in nav_header_main
-		textViewSelectedIdentity = (TextView) navigationView.findViewById(R.id.textViewSelectedIdentity);
-		findViewById(R.id.qabelLogo).setOnClickListener(new View.OnClickListener() {
+		textViewSelectedIdentity = (TextView) header.findViewById(R.id.textViewSelectedIdentity);
+		header.findViewById(R.id.qabelLogo).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
 
@@ -916,8 +921,8 @@ public class MainActivity extends CrashReportingActivity
 			}
 		});
 
-		imageViewExpandIdentity = (ImageView) navigationView.findViewById(R.id.imageViewExpandIdentity);
-		findViewById(R.id.select_identity_layout).setOnClickListener(new View.OnClickListener() {
+		imageViewExpandIdentity = (ImageView) header.findViewById(R.id.imageViewExpandIdentity);
+		header.findViewById(R.id.select_identity_layout).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
 
@@ -1077,6 +1082,7 @@ public class MainActivity extends CrashReportingActivity
 						TAG_ABOUT_FRAGMENT)
 				.commit();
 	}
+
 	private void selectAboutFragment() {
 
 		fab.show();

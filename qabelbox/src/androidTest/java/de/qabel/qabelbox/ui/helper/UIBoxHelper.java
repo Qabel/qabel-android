@@ -10,6 +10,7 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.IBinder;
 import android.provider.DocumentsContract;
+import android.support.annotation.NonNull;
 import android.util.Log;
 
 import org.apache.commons.io.output.ByteArrayOutputStream;
@@ -21,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Set;
 
+import de.qabel.core.config.Contact;
 import de.qabel.core.config.DropServer;
 import de.qabel.core.config.Identity;
 import de.qabel.core.crypto.QblECKeyPair;
@@ -32,12 +34,14 @@ import de.qabel.qabelbox.TestConstants;
 import de.qabel.qabelbox.communication.VolumeFileTransferHelper;
 import de.qabel.qabelbox.config.AppPreference;
 import de.qabel.qabelbox.exceptions.QblStorageException;
-import de.qabel.qabelbox.helper.PrefixGetter;
 import de.qabel.qabelbox.helper.RealTokerGetter;
 import de.qabel.qabelbox.providers.BoxProvider;
 import de.qabel.qabelbox.services.LocalQabelService;
 import de.qabel.qabelbox.storage.BoxVolume;
 import de.qabel.qabelbox.storage.StorageSearch;
+
+import static junit.framework.Assert.assertNotNull;
+import static junit.framework.Assert.assertNull;
 
 /**
  * Created by danny on 18.01.16.
@@ -56,12 +60,14 @@ public class UIBoxHelper {
 
 		mContext = activity;
 	}
+
 	public void unbindService(final QabelBoxApplication app) {
 
 		Intent serviceIntent = new Intent(app.getApplicationContext(), LocalQabelService.class);
 		finished = false;
 		app.stopService(serviceIntent);
 	}
+
 	public void bindService(final QabelBoxApplication app) {
 
 		Intent serviceIntent = new Intent(app.getApplicationContext(), LocalQabelService.class);
@@ -111,38 +117,30 @@ public class UIBoxHelper {
 			String folderId = boxVolume.getDocumentId(path);
 			Uri uploadUri = DocumentsContract.buildDocumentUri(
 					BoxProvider.AUTHORITY, folderId + name);
+			Log.d(TAG, "upload test file " + name + " " + data.length);
 			Context self = QabelBoxApplication.getInstance().getApplicationContext();
 
 			OutputStream upload = self.getContentResolver().openOutputStream(uploadUri, "w");
-			if (upload == null) {
-				return false;
-			}
+			assertNotNull(upload);
 			upload.write(data);
 			upload.close();
+			Log.d(TAG, "Upload successfully");
 			return true;
 		} catch (IOException e) {
 			Log.e(TAG, "Upload failed", e);
+			assertNotNull(e);
 		}
+
 		return false;
 
 	}
 
 
-	public Identity addIdentity(final String identName) {
+	public Identity addIdentity(final String identityName) {
 
-		URI uri = URI.create(QabelBoxApplication.DEFAULT_DROP_SERVER);
-		DropServer dropServer = new DropServer(uri, "", true);
-		DropIdGenerator adjustableDropIdGenerator = new AdjustableDropIdGenerator(2 * 8);
-		DropURL dropURL = new DropURL(dropServer, adjustableDropIdGenerator);
-		Collection<DropURL> dropURLs = new ArrayList<>();
-		dropURLs.add(dropURL);
-
-		Identity identity = new Identity(identName, dropURLs, new QblECKeyPair());
-		identity.getPrefixes().add(TestConstants.PREFIX);
-		finished = false;
-
-		Log.d(TAG, "identity added " + identity.getAlias() + " " + identity.getEcPublicKey().getReadableKeyIdentifier());
+		Identity identity = createIdentity(identityName);
 		mService.addIdentity(identity);
+		Log.d(TAG, "identity added " + identity.getAlias() + " " + identity.getEcPublicKey().getReadableKeyIdentifier());
 		mService.setActiveIdentity(identity);
 
 		try {
@@ -158,6 +156,20 @@ public class UIBoxHelper {
 			}
 		}
 
+		return identity;
+	}
+
+	@NonNull
+	public Identity createIdentity(String identityName) {
+		URI uri = URI.create(QabelBoxApplication.DEFAULT_DROP_SERVER);
+		DropServer dropServer = new DropServer(uri, "", true);
+		DropIdGenerator adjustableDropIdGenerator = new AdjustableDropIdGenerator(2 * 8);
+		DropURL dropURL = new DropURL(dropServer, adjustableDropIdGenerator);
+		Collection<DropURL> dropURLs = new ArrayList<>();
+		dropURLs.add(dropURL);
+
+		Identity identity = new Identity(identityName, dropURLs, new QblECKeyPair());
+		identity.getPrefixes().add(TestConstants.PREFIX);
 		return identity;
 	}
 
@@ -191,13 +203,15 @@ public class UIBoxHelper {
 	 */
 	public void waitUntilFileCount(int fileCount) {
 
+		//@todo: create better way
 		try {
-			while (
-					new StorageSearch(mBoxVolume.navigate()).getResults().size() < fileCount) {
-				Log.d(TAG, "wait until all files uploaded");
-				Thread.sleep(500);
+			int a;
+			while ((a = new StorageSearch(mBoxVolume.navigate()).getResults().size()) < fileCount) {
+				Log.d(TAG, "wait until all files uploaded " + a + " " + fileCount);
+				Thread.sleep(800);
 			}
 		} catch (QblStorageException | InterruptedException e) {
+			assertNull(e);
 			e.printStackTrace();
 		}
 	}
@@ -227,9 +241,9 @@ public class UIBoxHelper {
 	public void createTokenIfNeeded(boolean forceCreated) {
 		Context applicationContext = QabelBoxApplication.getInstance().getApplicationContext();
 		AppPreference prefs = new AppPreference(applicationContext);
-		if (forceCreated && prefs.getToken() == null) {
+		if (forceCreated || prefs.getToken() == null) {
 			prefs.setToken(new RealTokerGetter().getToken(applicationContext));
-		}else {
+		} else {
 			prefs.setToken(TestConstants.TOKEN);
 		}
 	}
@@ -265,5 +279,25 @@ public class UIBoxHelper {
 
 	public LocalQabelService getService() {
 		return mService;
+	}
+
+	public void deleteAllContacts(Identity identity) {
+		Set<Contact> contacts = mService.getContacts(identity).getContacts();
+		for (Contact c : contacts) {
+			Log.d(TAG, "delete contact: " + c.getAlias());
+			mService.deleteContact(c);
+		}
+	}
+
+	public void deleteAllIdentities() {
+		try {
+			Identity old = getCurrentIdentity();
+			if (old != null) {
+				deleteIdentity(old);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		removeAllIdentities();
 	}
 }

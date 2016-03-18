@@ -5,6 +5,10 @@ import android.app.ActivityManager;
 import android.support.test.runner.lifecycle.ActivityLifecycleMonitorRegistry;
 import android.support.test.runner.lifecycle.Stage;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+
 import de.qabel.qabelbox.QabelBoxApplication;
 
 import static android.support.test.espresso.Espresso.onView;
@@ -29,7 +33,15 @@ public class UITestHelper {
 
         onView(withText(textId)).inRoot(withDecorView(not(activity.getWindow().getDecorView()))).check(matches(isDisplayed()));
     }
-
+	public static void saveJsonIntoFile(String exportUser, File file1) {
+		try {
+			FileOutputStream fos = new FileOutputStream(file1);
+			fos.write(exportUser.getBytes());
+			fos.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
     public static void sleep(int ms) {
 
         try {

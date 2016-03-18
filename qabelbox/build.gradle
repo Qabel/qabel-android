@@ -15,7 +15,7 @@ spoon {
 
 
 android {
-    compileSdkVersion 22
+    compileSdkVersion 23
     buildToolsVersion '23.0.2'
     dexOptions {
         jumboMode true
@@ -75,10 +75,10 @@ dependencies {
     testCompile 'junit:junit:4.12'
     testCompile 'org.xerial:sqlite-jdbc:3.8.11.2'
     testCompile 'org.slf4j:slf4j-simple:1.7.12'
-    compile 'com.android.support:recyclerview-v7:22.2.1'
-    compile 'com.android.support:appcompat-v7:22.2.1'
-    compile 'com.android.support:design:22.2.1'
-    compile 'com.android.support:cardview-v7:22.0.+'
+    compile 'com.android.support:recyclerview-v7:23.2.1'
+    compile 'com.android.support:appcompat-v7:23.2.1'
+    compile 'com.android.support:design:23.2.1'
+    compile 'com.android.support:cardview-v7:23.0.+'
     compile 'org.slf4j:slf4j-android:1.7.12'
     compile 'com.google.code.gson:gson:2.4'
     compile 'org.apache.commons:commons-lang3:3.4'
@@ -101,7 +101,7 @@ dependencies {
     androidTestCompile 'com.android.support.test.espresso:espresso-core:2.2.2'
 // include espresso-intents
 
-    androidTestCompile('com.android.support.test.espresso:espresso-contrib:2.2') {
+    androidTestCompile('com.android.support.test.espresso:espresso-contrib:2.2.2') {
         exclude group: 'com.android.support', module: 'appcompat'
         exclude group: 'com.android.support', module: 'support-v4'
         exclude module: 'recyclerview-v7'

@@ -137,7 +137,7 @@ public class ImportExportContactsUITest {
 
 	private void goToContacts() {
 		DrawerActions.openDrawer(R.id.drawer_layout);
-		onView(allOf(withText(R.string.Contacts), withParent(withClassName(endsWith("MenuView")))))
+		onView(allOf(withText(R.string.Contacts), withParent(withClassName(endsWith("MenuItemView")))))
 				.perform(click());
 		Spoon.screenshot(mActivity, "contacts");
 	}

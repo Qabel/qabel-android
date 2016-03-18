@@ -89,6 +89,7 @@ public class CreateIdentityUITest {
 		wakeLock = UIActionHelper.wakeupDevice(mActivity);
 		mSystemAnimations = new SystemAnimations(mActivity);
 		mSystemAnimations.disableAll();
+		clearIdentities();
 	}
 
 
@@ -107,7 +108,7 @@ public class CreateIdentityUITest {
 	public void openDrawerWithIdentity(String withIdentity) {
 		openDrawer(R.id.drawer_layout);
 		onView(allOf(withText(withIdentity), withParent(withId(R.id.select_identity_layout)))).check(matches(isDisplayed())).perform(click());
-		UITestHelper.sleep(2000);
+		UITestHelper.sleep(800);
 	}
 
 

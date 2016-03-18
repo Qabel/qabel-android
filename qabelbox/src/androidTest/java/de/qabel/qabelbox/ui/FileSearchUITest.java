@@ -24,8 +24,8 @@ import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.TestConstants;
 import de.qabel.qabelbox.activities.MainActivity;
-import de.qabel.qabelbox.communication.BlockServer;
 import de.qabel.qabelbox.communication.URLs;
+import de.qabel.qabelbox.config.AppPreference;
 import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.ui.helper.SystemAnimations;
 import de.qabel.qabelbox.ui.helper.UIActionHelper;
@@ -56,15 +56,13 @@ public class FileSearchUITest {
 
 	private MainActivity mActivity;
 	private UIBoxHelper mBoxHelper;
-	private final boolean mFillAccount = true;
+
 	private PowerManager.WakeLock wakeLock;
 	SystemAnimations mSystemAnimations;
 
 	public FileSearchUITest() throws IOException {
 		//setup data before MainActivity launched. This avoid the call to create identity
-		if (mFillAccount) {
-			setupData();
-		}
+		setupData();
 	}
 
 	@After
@@ -87,9 +85,12 @@ public class FileSearchUITest {
 	private void setupData() {
 		mActivity = mActivityTestRule.getActivity();
 		URLs.setBaseBlockURL(TestConstants.BLOCK_URL);
+		new AppPreference(QabelBoxApplication.getInstance().getApplicationContext()).setToken(TestConstants.TOKEN);
+
+
 		mBoxHelper = new UIBoxHelper(QabelBoxApplication.getInstance());
 		mBoxHelper.bindService(QabelBoxApplication.getInstance());
-		mBoxHelper.createTokenIfNeeded(false);
+
 
 		try {
 			Identity old = mBoxHelper.getCurrentIdentity();
@@ -100,14 +101,13 @@ public class FileSearchUITest {
 			e.printStackTrace();
 		}
 		mBoxHelper.removeAllIdentities();
-		Identity identity = mBoxHelper.addIdentity("spoon");
+		mBoxHelper.addIdentity("spoon");
 		uploadTestFiles();
 	}
 
 	private void uploadTestFiles() {
 
 		int fileCount = 7;
-		BlockServer bs = new BlockServer();
 		mBoxHelper.uploadFile(mBoxHelper.mBoxVolume, "testfile 2", new byte[1011], "");
 		mBoxHelper.uploadFile(mBoxHelper.mBoxVolume, "red.png", new byte[1], "");
 		mBoxHelper.uploadFile(mBoxHelper.mBoxVolume, "green.png", new byte[100], "");
@@ -115,7 +115,6 @@ public class FileSearchUITest {
 		mBoxHelper.uploadFile(mBoxHelper.mBoxVolume, "black_1.png", new byte[1011], "");
 		mBoxHelper.uploadFile(mBoxHelper.mBoxVolume, "black_2.png", new byte[1024 * 10], "");
 		mBoxHelper.uploadFile(mBoxHelper.mBoxVolume, "white.png", new byte[1011], "");
-
 
 		mBoxHelper.waitUntilFileCount(fileCount);
 	}

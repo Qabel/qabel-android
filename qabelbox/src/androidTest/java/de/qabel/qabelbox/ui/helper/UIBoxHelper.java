@@ -40,6 +40,8 @@ import de.qabel.qabelbox.services.LocalQabelService;
 import de.qabel.qabelbox.storage.BoxVolume;
 import de.qabel.qabelbox.storage.StorageSearch;
 
+import static junit.framework.Assert.assertNotNull;
+
 /**
  * Created by danny on 18.01.16.
  */
@@ -114,17 +116,17 @@ public class UIBoxHelper {
 			String folderId = boxVolume.getDocumentId(path);
 			Uri uploadUri = DocumentsContract.buildDocumentUri(
 					BoxProvider.AUTHORITY, folderId + name);
+			Log.d(TAG,"upload test file "+name+" "+data.length);
 			Context self = QabelBoxApplication.getInstance().getApplicationContext();
 
 			OutputStream upload = self.getContentResolver().openOutputStream(uploadUri, "w");
-			if (upload == null) {
-				return false;
-			}
+			assertNotNull(upload);
 			upload.write(data);
 			upload.close();
 			return true;
 		} catch (IOException e) {
 			Log.e(TAG, "Upload failed", e);
+			assertNotNull(e);
 		}
 		return false;
 
@@ -198,11 +200,12 @@ public class UIBoxHelper {
 	 */
 	public void waitUntilFileCount(int fileCount) {
 
+		//@todo: create better way
 		try {
-			while (
-					new StorageSearch(mBoxVolume.navigate()).getResults().size() < fileCount) {
-				Log.d(TAG, "wait until all files uploaded");
-				Thread.sleep(500);
+			int a;
+			while ((a = new StorageSearch(mBoxVolume.navigate()).getResults().size()) < fileCount) {
+				Log.d(TAG, "wait until all files uploaded " + a + " " + fileCount);
+				Thread.sleep(800);
 			}
 		} catch (QblStorageException | InterruptedException e) {
 			e.printStackTrace();
@@ -234,7 +237,7 @@ public class UIBoxHelper {
 	public void createTokenIfNeeded(boolean forceCreated) {
 		Context applicationContext = QabelBoxApplication.getInstance().getApplicationContext();
 		AppPreference prefs = new AppPreference(applicationContext);
-		if (forceCreated && prefs.getToken() == null) {
+		if (forceCreated || prefs.getToken() == null) {
 			prefs.setToken(new RealTokerGetter().getToken(applicationContext));
 		} else {
 			prefs.setToken(TestConstants.TOKEN);
@@ -277,7 +280,7 @@ public class UIBoxHelper {
 	public void deleteAllContacts(Identity identity) {
 		Set<Contact> contacts = mService.getContacts(identity).getContacts();
 		for (Contact c : contacts) {
-			Log.d(TAG,"delete contact: "+c.getAlias());
+			Log.d(TAG, "delete contact: " + c.getAlias());
 			mService.deleteContact(c);
 		}
 	}

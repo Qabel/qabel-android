@@ -24,7 +24,7 @@ android {
         buildConfigField "long", "TIMESTAMP", System.currentTimeMillis() + "L"
         applicationId "de.qabel.qabel"
         minSdkVersion 19
-        targetSdkVersion 22
+        targetSdkVersion 23
         /*
         add code to automaticly generate version name and code,
         on base of timestamp or change it manual*/

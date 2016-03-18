@@ -22,9 +22,10 @@ import de.qabel.core.config.Contact;
 import de.qabel.core.config.Identity;
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
+import de.qabel.qabelbox.TestConstants;
 import de.qabel.qabelbox.TestConstraints;
 import de.qabel.qabelbox.activities.MainActivity;
-import de.qabel.qabelbox.communication.BlockServer;
+import de.qabel.qabelbox.communication.URLs;
 import de.qabel.qabelbox.config.ContactExportImport;
 import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.ui.helper.SystemAnimations;
@@ -58,7 +59,6 @@ public class FilesFragmentUITest {
 
 	private MainActivity mActivity;
 	private UIBoxHelper mBoxHelper;
-	private final boolean mFillAccount = true;
 	private PowerManager.WakeLock wakeLock;
 	private SystemAnimations mSystemAnimations;
 
@@ -70,11 +70,11 @@ public class FilesFragmentUITest {
 	private List<ExampleFile> exampleFiles = Arrays.asList(
 			new ExampleFile("testfile 2", new byte[1011]),
 			new ExampleFile("red.png", new byte[1]),
-			new ExampleFile("green.png",new byte[100]),
-			new ExampleFile("black_1.png",new byte[1011]),
-			new ExampleFile("black_2.png",new byte[1024*10]),
-			new ExampleFile("white.png",new byte[1011]),
-			new ExampleFile("blue.png",new byte[1011]));
+			new ExampleFile("green.png", new byte[100]),
+			new ExampleFile("black_1.png", new byte[1011]),
+			new ExampleFile("black_2.png", new byte[1024 * 10]),
+			new ExampleFile("white.png", new byte[1011]),
+			new ExampleFile("blue.png", new byte[1011]));
 
 	private class ExampleFile {
 
@@ -98,17 +98,16 @@ public class FilesFragmentUITest {
 
 	public FilesFragmentUITest() throws Exception {
 		//setup data before MainActivity launched. This avoid the call to create identity
-		if (mFillAccount) {
-			setupData();
-		}
+		setupData();
 	}
 
 	@After
 	public void cleanUp() {
 
-		for(ExampleFile exampleFile : exampleFiles){
+		for (ExampleFile exampleFile : exampleFiles) {
 			mBoxHelper.deleteFile(mActivity, testIdentity, exampleFile.getName(), "");
 		}
+		mBoxHelper.createTokenIfNeeded(false);
 		mBoxHelper.getService().deleteContact(testContact);
 		mBoxHelper.deleteIdentity(testIdentity);
 		mBoxHelper.deleteIdentity(testIdentity2);
@@ -120,8 +119,8 @@ public class FilesFragmentUITest {
 
 	@Before
 	public void setUp() throws IOException, QblStorageException {
-
 		mActivity = mActivityTestRule.getActivity();
+		URLs.setBaseBlockURL(TestConstants.BLOCK_URL);
 		wakeLock = UIActionHelper.wakeupDevice(mActivity);
 		mSystemAnimations = new SystemAnimations(mActivity);
 		mSystemAnimations.disableAll();
@@ -136,10 +135,10 @@ public class FilesFragmentUITest {
 		testIdentity = mBoxHelper.addIdentity("spoon");
 		testIdentity2 = mBoxHelper.addIdentity("spoon2");
 		String contactJSON = ContactExportImport.exportIdentityAsContact(testIdentity2);
-		try{
+		try {
 			testContact = ContactExportImport.parseContactForIdentity(testIdentity, new JSONObject(contactJSON));
 			mBoxHelper.getService().addContact(testContact);
-		}catch (Exception e){
+		} catch (Exception e) {
 			//TODO Log Cant create testContact!
 			throw e;
 		}
@@ -149,8 +148,7 @@ public class FilesFragmentUITest {
 
 	//Upload the example files
 	private void uploadTestFiles() {
-		BlockServer bs = new BlockServer();
-		for(ExampleFile exampleFile : exampleFiles){
+		for (ExampleFile exampleFile : exampleFiles) {
 			mBoxHelper.uploadFile(mBoxHelper.mBoxVolume, exampleFile.getName(), exampleFile.getData(), "");
 		}
 		mBoxHelper.waitUntilFileCount(exampleFiles.size());

@@ -904,7 +904,10 @@ public class MainActivity extends CrashReportingActivity
 		setDrawerLocked(false);
 
 		final NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+		//for api v23
 		header = navigationView.getHeaderView(0);
+		//for api <v23
+		//header = navigationView;
 		navigationView.setNavigationItemSelectedListener(this);
 
 		// Map QR-Code indent to alias textview in nav_header_main

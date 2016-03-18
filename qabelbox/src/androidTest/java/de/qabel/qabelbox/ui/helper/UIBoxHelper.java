@@ -41,6 +41,7 @@ import de.qabel.qabelbox.storage.BoxVolume;
 import de.qabel.qabelbox.storage.StorageSearch;
 
 import static junit.framework.Assert.assertNotNull;
+import static junit.framework.Assert.assertNull;
 
 /**
  * Created by danny on 18.01.16.
@@ -116,18 +117,20 @@ public class UIBoxHelper {
 			String folderId = boxVolume.getDocumentId(path);
 			Uri uploadUri = DocumentsContract.buildDocumentUri(
 					BoxProvider.AUTHORITY, folderId + name);
-			Log.d(TAG,"upload test file "+name+" "+data.length);
+			Log.d(TAG, "upload test file " + name + " " + data.length);
 			Context self = QabelBoxApplication.getInstance().getApplicationContext();
 
 			OutputStream upload = self.getContentResolver().openOutputStream(uploadUri, "w");
 			assertNotNull(upload);
 			upload.write(data);
 			upload.close();
+			Log.d(TAG, "Upload successfully");
 			return true;
 		} catch (IOException e) {
 			Log.e(TAG, "Upload failed", e);
 			assertNotNull(e);
 		}
+
 		return false;
 
 	}
@@ -208,6 +211,7 @@ public class UIBoxHelper {
 				Thread.sleep(800);
 			}
 		} catch (QblStorageException | InterruptedException e) {
+			assertNull(e);
 			e.printStackTrace();
 		}
 	}

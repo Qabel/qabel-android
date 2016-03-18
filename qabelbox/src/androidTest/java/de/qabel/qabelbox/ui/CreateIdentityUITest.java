@@ -5,13 +5,10 @@ package de.qabel.qabelbox.ui;
  */
 
 import android.os.PowerManager;
-import android.support.design.internal.NavigationMenuItemView;
 import android.support.test.rule.ActivityTestRule;
-import android.widget.SeekBar;
 
 import com.squareup.spoon.Spoon;
 
-import org.hamcrest.Matchers;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
@@ -51,10 +48,8 @@ import static android.support.test.espresso.matcher.ViewMatchers.withClassName;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static android.support.test.espresso.matcher.ViewMatchers.withParent;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
-import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.endsWith;
-import static org.hamcrest.Matchers.is;
 
 /**
  * Tests for MainActivity.
@@ -151,9 +146,10 @@ public class CreateIdentityUITest {
 		openDrawer(R.id.drawer_layout);
 		onView(withId(R.id.imageViewExpandIdentity)).check(matches(isDisplayed())).perform(click());
 		UITestHelper.sleep(500);
-		onView(allOf(is(instanceOf(NavigationMenuItemView.class)), withText(identity))).check(matches(isDisplayed()));
-		onView(allOf(is(instanceOf(NavigationMenuItemView.class)), withText(identity2))).check(matches(isDisplayed()));
-
+		onView(allOf(withText(identity), withParent(withClassName(endsWith("MenuItemView")))))
+				.check(matches(isDisplayed()));
+		onView(allOf(withText(identity2), withParent(withClassName(endsWith("MenuItemView")))))
+				.check(matches(isDisplayed()));
 		Spoon.screenshot(UITestHelper.getCurrentActivity(mActivity), "spoon1_2");
 		closeDrawer(R.id.drawer_layout);
 	}
@@ -177,10 +173,12 @@ public class CreateIdentityUITest {
 	}
 
 	private void createIdentityPerformSetSecurityLevel() {
-		onView(withClassName(Matchers.equalTo(SeekBar.class.getName()))).perform(QabelViewAction.setProgress(2));
+		//onView(withClassName(Matchers.equalTo(SeekBar.class.getName()))).perform(QabelViewAction.setProgress(2));
+		onView(allOf(withClassName(endsWith("SeekBar")))).perform(QabelViewAction.setProgress(2));
 		onView(allOf(withClassName(endsWith("SeekBar")))).check(matches(QabelMatcher.withProgress(2)));
 		onView(withText(R.string.next)).perform(click());
 		UITestHelper.sleep(500);
+		//sb_security
 	}
 
 	private void createIdentityPerformConfirm() {

@@ -6,7 +6,6 @@ package de.qabel.qabelbox.ui;
 
 import android.graphics.Bitmap;
 import android.os.PowerManager;
-import android.support.design.internal.NavigationMenuItemView;
 import android.support.test.espresso.Espresso;
 import android.support.test.espresso.contrib.RecyclerViewActions;
 import android.support.test.rule.ActivityTestRule;
@@ -55,10 +54,8 @@ import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static android.support.test.espresso.matcher.ViewMatchers.withParent;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
 import static android.test.MoreAsserts.assertNotEmpty;
-import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.endsWith;
-import static org.hamcrest.Matchers.is;
 //import static de.qabel.qabelbox.ui.matcher.QabelMatcher.withDrawable;
 
 /**
@@ -163,10 +160,11 @@ public class ChatMessageUITest {
 	protected void sendOneAndCheck(int messages) {
 		openDrawer(R.id.drawer_layout);
 
-		onView(allOf(withText(R.string.Contacts), withParent(withClassName(endsWith("MenuView")))))
+		onView(allOf(withText(R.string.Contacts), withParent(withClassName(endsWith("MenuItemView")))))
 				.perform(click());
+		//onView(allOf(is(instanceOf(NavigationMenuItemView.class)), withText(R.string.Contacts))).perform(click());
 		Spoon.screenshot(mActivity, "contacts");
-		
+
 		onView(withId(R.id.contact_list))
 				.perform(RecyclerViewActions.actionOnItem(
 						hasDescendant(withText("user1")), click()));
@@ -186,7 +184,9 @@ public class ChatMessageUITest {
 		openDrawer(R.id.drawer_layout);
 		onView(withId(R.id.imageViewExpandIdentity)).check(matches(isDisplayed())).perform(click());
 		UITestHelper.sleep(500);
-		onView(allOf(is(instanceOf(NavigationMenuItemView.class)), withText("user1"))).perform(click());
+
+		onView(allOf(withText("user1"), withParent(withClassName(endsWith("MenuItemView")))))
+				.perform(click());
 
 		openDrawer(R.id.drawer_layout);
 		onView(withText(R.string.Contacts)).check(matches(isDisplayed())).perform(click());
@@ -202,7 +202,8 @@ public class ChatMessageUITest {
 		openDrawer(R.id.drawer_layout);
 		onView(withId(R.id.imageViewExpandIdentity)).check(matches(isDisplayed())).perform(click());
 		UITestHelper.sleep(500);
-		onView(allOf(is(instanceOf(NavigationMenuItemView.class)), withText("user2"))).perform(click());
+		onView(allOf(withText("user2"), withParent(withClassName(endsWith("MenuItemView")))))
+				.perform(click());
 		openDrawer(R.id.drawer_layout);
 	}
 

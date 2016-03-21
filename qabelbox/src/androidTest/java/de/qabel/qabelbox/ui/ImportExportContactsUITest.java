@@ -173,7 +173,7 @@ public class ImportExportContactsUITest {
                 .perform(RecyclerViewActions.actionOnItem(
                         hasDescendant(withText(userName)), longClick()));
         Spoon.screenshot(mActivity, "exportOne");
-        if (canHandleIntenings()) {
+        if (canHandleIntening()) {
             Intents.init();
             intending.handleSaveFileIntent(file1);
             onView(withText(R.string.Export)).check(matches(isDisplayed())).perform(click());
@@ -185,7 +185,9 @@ public class ImportExportContactsUITest {
             ContactFragment contactFragment = (ContactFragment) mActivity.getFragmentManager().findFragmentById(R.id.fragment_container);
             contactFragment.enableDocumentProvider(false);
             final LocalQabelService service = QabelBoxApplication.getInstance().getService();
-            contactFragment.exportContact(service.getContacts().getContacts().iterator().next());
+            Contact contact=service.getContacts().getContacts().iterator().next();
+            userName=contact.getAlias();
+            contactFragment.exportContact(contact);
             contactFragment.onActivityResult(ContactFragment.REQUEST_EXPORT_CONTACT, Activity.RESULT_OK, data);
 
         }
@@ -210,7 +212,7 @@ public class ImportExportContactsUITest {
         openActionBarOverflowOrOptionsMenu(InstrumentationRegistry.getTargetContext());
 
         Spoon.screenshot(mActivity, "exportAll");
-        if (canHandleIntenings()) {
+        if (canHandleIntening()) {
             Intents.init();
             intending.handleSaveFileIntent(file1);
             onView(withText(R.string.contact_export_all)).perform(click());
@@ -247,7 +249,7 @@ public class ImportExportContactsUITest {
         goToContacts();
         onView(withId(R.id.fab)).perform(click());
 
-        if (canHandleIntenings()) {
+        if (canHandleIntening()) {
             Spoon.screenshot(mActivity, "importSingle");
             Intents.init();
             intending.handleLoadFileIntent(file1);
@@ -272,7 +274,7 @@ public class ImportExportContactsUITest {
      *
      * @return
      */
-    private boolean canHandleIntenings() {
+    private boolean canHandleIntening() {
         return android.os.Build.VERSION.SDK_INT < 23;
     }
 

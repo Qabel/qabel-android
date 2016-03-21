@@ -25,15 +25,21 @@ import org.junit.Test;
 import org.junit.runners.MethodSorters;
 
 import java.io.IOException;
+import java.util.Set;
 
+import de.qabel.core.config.Contact;
+import de.qabel.core.config.Contacts;
 import de.qabel.core.config.Identity;
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.TestConstants;
 import de.qabel.qabelbox.activities.MainActivity;
+import de.qabel.qabelbox.chat.ChatMessageItem;
 import de.qabel.qabelbox.communication.URLs;
 import de.qabel.qabelbox.config.ContactExportImport;
 import de.qabel.qabelbox.exceptions.QblStorageException;
+import de.qabel.qabelbox.helper.UIHelper;
+import de.qabel.qabelbox.services.LocalQabelService;
 import de.qabel.qabelbox.ui.helper.SystemAnimations;
 import de.qabel.qabelbox.ui.helper.UIActionHelper;
 import de.qabel.qabelbox.ui.helper.UIBoxHelper;
@@ -68,144 +74,171 @@ import static org.hamcrest.Matchers.is;
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class ChatMessageUITest {
 
-	@Rule
-	public ActivityTestRule<MainActivity> mActivityTestRule = new ActivityTestRule<>(MainActivity.class, false, true);
-	private MainActivity mActivity;
-	private UIBoxHelper mBoxHelper;
-	private final boolean mFillAccount = true;
-	private PowerManager.WakeLock wakeLock;
-	private final PicassoIdlingResource mPicassoIdlingResource = new PicassoIdlingResource();
-	private SystemAnimations mSystemAnimations;
-	private Identity user1, user2;
-	private String contact1Json, contact2Json;
-	private String TAG = this.getClass().getSimpleName();
+    @Rule
+    public ActivityTestRule<MainActivity> mActivityTestRule = new ActivityTestRule<>(MainActivity.class, false, true);
+    private MainActivity mActivity;
+    private UIBoxHelper mBoxHelper;
+    private final boolean mFillAccount = true;
+    private PowerManager.WakeLock wakeLock;
+    private SystemAnimations mSystemAnimations;
+    private Identity user1, user2;
+    private String contact1Json, contact2Json;
+    private String TAG = this.getClass().getSimpleName();
+    private Contact contact2, contact1;
 
-	public ChatMessageUITest() throws IOException {
-		//setup data before MainActivity launched. This avoid the call to create identity
-		if (mFillAccount) {
-			setupData();
-		}
-	}
+    public ChatMessageUITest() throws IOException {
+        //setup data before MainActivity launched. This avoid the call to create identity
+        if (mFillAccount) {
+            setupData();
+        }
+    }
 
-	@After
-	public void cleanUp() {
+    @After
+    public void cleanUp() {
 
-		wakeLock.release();
-		Espresso.unregisterIdlingResources(mPicassoIdlingResource);
-		mSystemAnimations.enableAll();
-		mBoxHelper.unbindService(QabelBoxApplication.getInstance());
-	}
+        wakeLock.release();
 
-	@Before
-	public void setUp() throws IOException, QblStorageException {
+        mSystemAnimations.enableAll();
+        mBoxHelper.unbindService(QabelBoxApplication.getInstance());
+    }
 
-		mActivity = mActivityTestRule.getActivity();
-		Espresso.registerIdlingResources(mPicassoIdlingResource);
-		ActivityLifecycleMonitorRegistry
-				.getInstance()
-				.addLifecycleCallback(mPicassoIdlingResource);
-		wakeLock = UIActionHelper.wakeupDevice(mActivity);
-		mSystemAnimations = new SystemAnimations(mActivity);
-		mSystemAnimations.disableAll();
-	}
+    @Before
+    public void setUp() throws IOException, QblStorageException {
 
-	private void setupData() {
-		URLs.setBaseBlockURL(TestConstants.BLOCK_URL);
-		mActivity = mActivityTestRule.getActivity();
-		mBoxHelper = new UIBoxHelper(QabelBoxApplication.getInstance());
-		mBoxHelper.bindService(QabelBoxApplication.getInstance());
-		mBoxHelper.createTokenIfNeeded(false);
-		try {
-			Identity old = mBoxHelper.getCurrentIdentity();
-			if (old != null) {
-				mBoxHelper.deleteIdentity(old);
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		mBoxHelper.removeAllIdentities();
-		user1 = mBoxHelper.addIdentity("user1");
-		user2 = mBoxHelper.addIdentity("user2");
-		contact1Json = ContactExportImport.exportIdentityAsContact(user1);
-		contact2Json = ContactExportImport.exportIdentityAsContact(user2);
-		mBoxHelper.setActiveIdentity(user1);
-		try {
-			mBoxHelper.getService().addContact(new ContactExportImport().parseContactForIdentity(user1, new JSONObject(contact2Json)));
-		} catch (Exception e) {
-			Log.e(TAG, "error on add contact", e);
-		}
-		assertNotEmpty(mBoxHelper.getService().getContacts().getContacts());
-		mBoxHelper.setActiveIdentity(user2);
-		try {
-			mBoxHelper.getService().addContact(new ContactExportImport().parseContactForIdentity(user2, new JSONObject(contact1Json)));
-		} catch (Exception e) {
-			Log.e(TAG, "error on add contact", e);
-		}
-		assertNotEmpty(mBoxHelper.getService().getContacts().getContacts());
-		uploadTestFiles();
-	}
+        mActivity = mActivityTestRule.getActivity();
+        wakeLock = UIActionHelper.wakeupDevice(mActivity);
+        mSystemAnimations = new SystemAnimations(mActivity);
+        mSystemAnimations.disableAll();
+    }
 
-	private void uploadTestFiles() {
+    private void setupData() {
+        URLs.setBaseBlockURL(TestConstants.BLOCK_URL);
+        mActivity = mActivityTestRule.getActivity();
+        mBoxHelper = new UIBoxHelper(QabelBoxApplication.getInstance());
+        mBoxHelper.bindService(QabelBoxApplication.getInstance());
+        mBoxHelper.createTokenIfNeeded(false);
+        try {
+            Identity old = mBoxHelper.getCurrentIdentity();
+            if (old != null) {
+                mBoxHelper.deleteIdentity(old);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        mBoxHelper.removeAllIdentities();
+        user1 = mBoxHelper.addIdentity("user1");
+        user2 = mBoxHelper.addIdentity("user2");
+        contact1Json = ContactExportImport.exportIdentityAsContact(user1);
+        contact2Json = ContactExportImport.exportIdentityAsContact(user2);
+        mBoxHelper.setActiveIdentity(user1);
+        try {
+            mBoxHelper.getService().addContact(new ContactExportImport().parseContactForIdentity(user1, new JSONObject(contact2Json)));
+        } catch (Exception e) {
+            Log.e(TAG, "error on add contact", e);
+        }
+        assertNotEmpty(mBoxHelper.getService().getContacts().getContacts());
+        mBoxHelper.setActiveIdentity(user2);
+        try {
+            mBoxHelper.getService().addContact(new ContactExportImport().parseContactForIdentity(user2, new JSONObject(contact1Json)));
+        } catch (Exception e) {
+            Log.e(TAG, "error on add contact", e);
+        }
+        assertNotEmpty(mBoxHelper.getService().getContacts().getContacts());
+        uploadTestFiles();
+    }
 
-		int fileCount = 1;
-		mBoxHelper.uploadDrawableFile(mBoxHelper.mBoxVolume, "file3.png", Bitmap.CompressFormat.PNG, R.drawable.qabel_logo);
-		mBoxHelper.waitUntilFileCount(fileCount);
-	}
+    private void uploadTestFiles() {
 
-	@Test
-	public void testSendMessage() {
-		mPicassoIdlingResource.init(mActivity);
-		Spoon.screenshot(mActivity, "empty");
-		sendOneAndCheck(1);
-		sendOneAndCheck(2);
-	}
+        int fileCount = 1;
+        mBoxHelper.uploadDrawableFile(mBoxHelper.mBoxVolume, "file3.png", Bitmap.CompressFormat.PNG, R.drawable.qabel_logo);
+        mBoxHelper.waitUntilFileCount(fileCount);
+    }
+/*
+    @Test
+    public void testSendMessage() {
+        Spoon.screenshot(mActivity, "empty");
+        sendOneAndCheck(1);
+        sendOneAndCheck(2);
+    }*/
 
-	protected void sendOneAndCheck(int messages) {
-		openDrawer(R.id.drawer_layout);
+    protected void sendOneAndCheck(int messages) {
+        openDrawer(R.id.drawer_layout);
 
-		onView(allOf(withText(R.string.Contacts), withParent(withClassName(endsWith("MenuView")))))
-				.perform(click());
-		Spoon.screenshot(mActivity, "contacts");
-		
-		onView(withId(R.id.contact_list))
-				.perform(RecyclerViewActions.actionOnItem(
-						hasDescendant(withText("user1")), click()));
+        onView(allOf(withText(R.string.Contacts), withParent(withClassName(endsWith("MenuView")))))
+                .perform(click());
+        Spoon.screenshot(mActivity, "contacts");
 
-		onView(withId(R.id.etText)).check(matches(isDisplayed())).perform(click());
-		onView(withId(R.id.etText)).perform(typeText("text" + messages), pressImeActionButton());
-		closeSoftKeyboard();
-		onView(withText(R.string.btn_chat_send)).check(matches(isDisplayed())).perform(click());
-		UITestHelper.sleep(1000);
+        onView(withId(R.id.contact_list))
+                .perform(RecyclerViewActions.actionOnItem(
+                        hasDescendant(withText("user1")), click()));
 
-		onView(withId(R.id.contact_chat_list)).
-				check(matches(isDisplayed())).
-				check(matches(QabelMatcher.withListSize(messages)));
-		pressBack();
+        onView(withId(R.id.etText)).check(matches(isDisplayed())).perform(click());
+        onView(withId(R.id.etText)).perform(typeText("text" + messages), pressImeActionButton());
+        closeSoftKeyboard();
+        onView(withText(R.string.btn_chat_send)).check(matches(isDisplayed())).perform(click());
+        UITestHelper.sleep(1000);
 
-		//go to identity user 1
-		openDrawer(R.id.drawer_layout);
-		onView(withId(R.id.imageViewExpandIdentity)).check(matches(isDisplayed())).perform(click());
-		UITestHelper.sleep(500);
-		onView(allOf(is(instanceOf(NavigationMenuItemView.class)), withText("user1"))).perform(click());
+        onView(withId(R.id.contact_chat_list)).
+                check(matches(isDisplayed())).
+                check(matches(QabelMatcher.withListSize(messages)));
+        pressBack();
 
-		openDrawer(R.id.drawer_layout);
-		onView(withText(R.string.Contacts)).check(matches(isDisplayed())).perform(click());
-		Spoon.screenshot(mActivity, "message" + messages);
+        //go to identity user 1
+        openDrawer(R.id.drawer_layout);
+        onView(withId(R.id.imageViewExpandIdentity)).check(matches(isDisplayed())).perform(click());
+        UITestHelper.sleep(500);
+        onView(allOf(is(instanceOf(NavigationMenuItemView.class)), withText("user1"))).perform(click());
 
-		onView(withText("user2")).check(matches(isDisplayed())).perform(click());
-		onView(withId(R.id.contact_chat_list)).
-				check(matches(isDisplayed())).
-				check(matches(QabelMatcher.withListSize(messages)));
-		pressBack();
+        openDrawer(R.id.drawer_layout);
+        onView(withText(R.string.Contacts)).check(matches(isDisplayed())).perform(click());
+        Spoon.screenshot(mActivity, "message" + messages);
 
-		//go to user 2
-		openDrawer(R.id.drawer_layout);
-		onView(withId(R.id.imageViewExpandIdentity)).check(matches(isDisplayed())).perform(click());
-		UITestHelper.sleep(500);
-		onView(allOf(is(instanceOf(NavigationMenuItemView.class)), withText("user2"))).perform(click());
-		openDrawer(R.id.drawer_layout);
-	}
+        onView(withText("user2")).check(matches(isDisplayed())).perform(click());
+        onView(withId(R.id.contact_chat_list)).
+                check(matches(isDisplayed())).
+                check(matches(QabelMatcher.withListSize(messages)));
+        pressBack();
+
+        //go to user 2
+        openDrawer(R.id.drawer_layout);
+        onView(withId(R.id.imageViewExpandIdentity)).check(matches(isDisplayed())).perform(click());
+        UITestHelper.sleep(500);
+        onView(allOf(is(instanceOf(NavigationMenuItemView.class)), withText("user2"))).perform(click());
+        openDrawer(R.id.drawer_layout);
+    }
+
+    @Test
+    public void testNewMessageVisualization() {
+        LocalQabelService service = QabelBoxApplication.getInstance().getService();
+        Set<Contact> contacts = service.getContacts().getContacts();
+
+        contact1 = contacts.iterator().next();
+        contact2 = contacts.iterator().next();
+
+        openDrawer(R.id.drawer_layout);
+
+        onView(allOf(withText(R.string.Contacts), withParent(withClassName(endsWith("MenuView")))))
+                .perform(click());
+        Spoon.screenshot(mActivity, "contacts");
 
 
+        ChatMessageItem item1 = createNewChatMessageItem(contact1.getEcPublicKey().toString(), service.getActiveIdentity().getEcPublicKey().toString());
+        mActivity.chatServer.storeIntoDB(item1);
+        mActivity.chatServer.refreshList();
+        mActivity.chatServer.sendCallbacksRefreshed();
+        onView(withId(R.id.action_contact_refresh)).perform(click());
+        UITestHelper.sleep(1000);
+        onView(withId(R.id.contact_list))
+                .perform(RecyclerViewActions.actionOnItem(
+                        hasDescendant(withText(contact2.getAlias())), click()));
+        onView(withId(R.id.contact_chat_list)).
+                check(matches(isDisplayed())).
+                check(matches(QabelMatcher.withListSize(1)));
+        pressBack();
+    }
+
+    private ChatMessageItem createNewChatMessageItem(String sender, String receiver) {
+        return new ChatMessageItem(0, (short) 1, System.currentTimeMillis(), sender, receiver, null, ChatMessageItem.BOX_MESSAGE, mActivity.chatServer.getTextDropMessagePayload("test123").toString());
+    }
 }
 

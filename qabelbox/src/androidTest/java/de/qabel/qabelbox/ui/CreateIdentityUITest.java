@@ -114,8 +114,10 @@ public class CreateIdentityUITest {
 		onView(allOf(withText(withIdentity), withParent(withId(R.id.select_identity_layout)))).check(matches(isDisplayed())).perform(click());
 		UITestHelper.sleep(2000);
 	}
-
-
+	@Test
+	public void addIdentity0Test() throws Throwable {
+		clearIdentities();
+	}
 	@Test
 	public void addIdentity1Test() throws Throwable {
 		clearIdentities();

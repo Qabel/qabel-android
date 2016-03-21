@@ -115,7 +115,7 @@ public class OpenImageUITest {
             e.printStackTrace();
         }
 		mBoxHelper.removeAllIdentities();
-        Identity identity = mBoxHelper.addIdentity("spoon");
+        mBoxHelper.addIdentity("spoon");
         uploadTestFiles();
     }
 

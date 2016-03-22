@@ -56,8 +56,8 @@ public class ContactExportImportTest {
 
 
 	public static final String JSON_SINGLE_CONTACT="{\n" +
-			"\t\"public_key\": \"7c879f241a891938d0be68fbc178ced6f926c95385f588fe8924d0d81a96a32a\",\n" +
-			"\t\"drop_urls\": [\"https://qdrop.prae.me/APlvHMq05d8ylgp64DW2AHFmdJj2hYDQXJiSnr-Holc\"],\n" +
+            "\t\"public_key\": \"" + CONTACT_PUBLICKEYID + "\",\n" +
+            "\t\"drop_urls\": [\"" + CONTACT_DROP + "\"],\n" +
             "\t\"alias\": \"" + CONTACT_ALIAS + "\"\n" +
             "}";
 
@@ -215,8 +215,8 @@ public class ContactExportImportTest {
             assertEquals(1, parseResult.getSkippedContacts());
             assertEquals(1, parseResult.getContacts().getContacts().size());
             Contact first = parseResult.getContacts().getContacts().iterator().next();
-            Contact expectedContact=initContact("Eins","333b48c161f60bed0b116883aadac3c9217feff8225276561959d9b826944b69","https://qdrop.prae.me/AI2X-QJ8WI2VtMgT0y302RyY3wU_RoAsqdaFQ9gf9fs");
-			assertContactEquals(expectedContact, first);
+            Contact expectedContact = initContact("Eins", CONTACT_PUBLICKEYID, CONTACT_DROP);
+            assertContactEquals(expectedContact, first);
 		} catch (JSONException e) {
 			fail("Could not parse JSON: "+e);
 		} catch (URISyntaxException e) {

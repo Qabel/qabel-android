@@ -90,7 +90,7 @@
     <string name="dialog_message_delete_contact_question">Möchten Sie wirklich den Kontakt %1 löschen?</string>
     <string name="dialog_message_server_communication_is_running">Kommunikation mit dem Server läuft</string>
     <string name="direct_input">Manuelle Eingabe</string>
-    <string name="dummy_infos_text">Dies ist die Alphaversion von Qabel</string>
+    <string name="dummy_infos_text">Dies ist die Betaversion von Qabel</string>
     <string name="edit">Bearbeiten</string>
     <string name="email_adress_invalid">Ihre E-Mail-Adresse ist ungültig. Bitte prüfen Sie die E-Mail-Adresse und versuchen Sie es erneut.</string>
     <string name="error_reason_io">Problem beim Lesen oder Schreiben</string>

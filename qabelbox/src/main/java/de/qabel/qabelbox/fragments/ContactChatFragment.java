@@ -13,8 +13,10 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -58,7 +60,7 @@ public class ContactChatFragment extends BaseFragment {
 	ArrayList<ChatMessageItem> messages = new ArrayList<>();
 
 
-	private RecyclerView contactListRecyclerView;
+	private ListView contactListRecyclerView;
 	private View emptyView;
 	private LinearLayoutManager recyclerViewLayoutManager;
 	private ChatMessageAdapter contactListAdapter;
@@ -73,10 +75,6 @@ public class ContactChatFragment extends BaseFragment {
 		args.putSerializable(ARG_IDENTITY, contact);
 		fragment.setArguments(args);
 		fragment.contact = contact;
-		//XXX DEV
-		contact.setEmail("test@test.de");
-		contact.setPhone("+049 190 666 666");
-		//XXX
 		return fragment;
 	}
 
@@ -107,12 +105,9 @@ public class ContactChatFragment extends BaseFragment {
 							 Bundle savedInstanceState) {
 
 		final View view = inflater.inflate(R.layout.fragment_contact_chat, container, false);
-		contactListRecyclerView = (RecyclerView) view.findViewById(R.id.contact_chat_list);
-		contactListRecyclerView.setHasFixedSize(true);
+		contactListRecyclerView = (ListView) view.findViewById(R.id.contact_chat_list);
 		emptyView = view.findViewById(R.id.empty_view);
-		recyclerViewLayoutManager = new LinearLayoutManager(view.getContext());
-		recyclerViewLayoutManager.setReverseLayout(true);
-		contactListRecyclerView.setLayoutManager(recyclerViewLayoutManager);
+
 		etText = (EditText) view.findViewById(R.id.etText);
 		send = (Button) view.findViewById(R.id.bt_send);
 		send.setOnClickListener(new View.OnClickListener() {
@@ -238,14 +233,14 @@ public class ContactChatFragment extends BaseFragment {
 			public void onItemClick(final ChatMessageItem item) {
 
 				LocalQabelService service = QabelBoxApplication.getInstance().getService();
-				System.out.println("CLICK");
+
 				//check if message is instance of sharemessage
 				if (item.getData() instanceof ChatMessageItem.ShareMessagePayload) {
-					System.out.println("SHARE MESSAGE");
+
+					final FilesFragment filesFragment = mActivity.filesFragment;
+
 					//check if share from other (not my sended share)
 					if (!item.getSenderKey().equals(service.getActiveIdentity().getEcPublicKey().getReadableKeyIdentifier())) {
-						final FilesFragment filesFragment = mActivity.filesFragment;
-
 
 						new AsyncTask<Void, Void, BoxNavigation>() {
 							int errorId;
@@ -285,11 +280,7 @@ public class ContactChatFragment extends BaseFragment {
 								}
 							}
 						}.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-					}else {
-						System.out.println("RECEIVED FILE");
 					}
-				}else {
-					System.out.println("NO SHARE MESSAGE");
 				}
 			}
 		};

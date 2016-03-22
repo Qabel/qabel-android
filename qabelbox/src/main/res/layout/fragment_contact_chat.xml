@@ -37,13 +37,16 @@
             />
     </RelativeLayout>
 
-    <android.support.v7.widget.RecyclerView
+    <ListView
         android:id="@+id/contact_chat_list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_above="@id/etLayout"
         android:layout_gravity="center_horizontal|top"
-        android:scrollbars="vertical"/>
-
+        android:scrollbars="vertical"
+        android:dividerHeight="0dp"
+        android:divider="@null"
+        android:stackFromBottom="true"
+        android:transcriptMode="normal"/>
 
 </RelativeLayout>

@@ -172,7 +172,7 @@
     <string name="dialog_message_delete_contact_question">Do you really delete the contact %1?</string>
     <string name="contact_deleted">Contact with name %1 deleted</string>
     <string name="infos">Infos</string>
-    <string name="dummy_infos_text">This is the alpha version of Qabel</string>
+    <string name="dummy_infos_text">This is the beta version of Qabel</string>
     <string name="contact_count">Contact count: %1</string>
     <string name="message_step_is_needed_or_close_app">%s is required to use Qabel. Are you sure you want close Qabel?</string>
     <string name="chat_message_hint">Enter text</string>

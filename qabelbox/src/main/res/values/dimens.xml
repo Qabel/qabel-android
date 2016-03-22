@@ -8,7 +8,7 @@
     <dimen name="textsize_ab_edittext">18sp</dimen>
     <dimen name="textsize_edittext">17sp</dimen>
     <dimen name="textsize_empty_view">@dimen/textsize_normal</dimen>
-    <dimen name="textsize_identity_circle_initial">90sp</dimen>
+    <dimen name="textsize_identity_circle_initial">70sp</dimen>
     <dimen name="textsize_list_first_line">15sp</dimen>
     <dimen name="textsize_list_first_line_half">7sp</dimen>
     <dimen name="textsize_list_second_line">14sp</dimen>

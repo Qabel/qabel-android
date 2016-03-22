@@ -116,7 +116,7 @@ public abstract class BaseWizardActivity extends CrashReportingActivity {
                 finish();
             } else {
 
-                UIHelper.showDialogMessage(this, R.string.dialog_headline_warning, R.string.message_step_is_needed_or_close_app, R.string.yes, R.string.no, new DialogInterface.OnClickListener() {
+                UIHelper.showDialogMessage(this, getString(R.string.dialog_headline_warning), String.format(getString(R.string.message_step_is_needed_or_close_app), getWizardEntityLabel()), R.string.yes, R.string.no, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
 
@@ -241,4 +241,6 @@ public abstract class BaseWizardActivity extends CrashReportingActivity {
 
         String check(View view);
     }
+
+    protected abstract String getWizardEntityLabel();
 }

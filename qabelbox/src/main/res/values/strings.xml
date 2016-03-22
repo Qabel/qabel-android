@@ -31,6 +31,8 @@
     <string name="manage_identities">Manage Identities</string>
     <string name="Rename">Rename</string>
     <string name="alias_cannot_be_empty">Alias cannot be empty</string>
+    <string name="identity">An Identity</string>
+    <string name="boxaccount">A Qabelaccount</string>
     <string name="rename_identity">Rename %s</string>
     <string name="new_identity_name">Identity alias</string>
     <string name="confirm_delete_identity_header">Delete identity?</string>
@@ -107,7 +109,9 @@
     <string name="skip_create_identity">Skipping identity creation</string>
     <string name="last_identity_delete_create_new">You have deleted your last identity. Create a new identity</string>
     <string name="server_access_failed_or_invalid_check_internet_connection">Server communication failed. Please check if you entered all data and that your internet connection is stable</string>
-    <string name="password_to_short">The password is too short</string>
+    <string name="password_to_short">This password is to short. It must contain at least 8 characters.</string>
+    <string name="password_contains_user">The password is too similar to the username</string>
+    <string name="password_digits_only">Numeric only passwords are not allowed.</string>
     <string name="email_adress_invalid">Your email address is invalid. Please check your email address and try it again.</string>
     <string name="btn_create_identity">Create identity</string>
     <string name="create_account_final_headline">Qabel account registered</string>
@@ -120,12 +124,15 @@
     <string name="file_list_empty">nothing here\nupload something</string>
     <string name="contact_list_empty">nobody here\nimport someone</string>
     <string name="cant_read_identity">Could not read identity from file</string>
-    <string name="identity_export_failed">Could export the identity</string>
+    <string name="identity_export_failed">Could not export the identity</string>
     <string name="identity_export_successfully">Identity exported. This file contains your key, keep it safe!</string>
     <string name="ExportAsContact">Save your contact details</string>
     <string name="error_reason_io">Error when reading or writing</string>
     <string name="reason_for_error">Reason: %1</string>
-    <string name="contact_export_successfully">Contact exported. You can share this contact to your friends.</string>
+    <plurals name="contact_export_successfully">
+        <item quantity="one">Contact exported. You can share this contact to your friends.</item>
+        <item quantity="other">%d Contacts exported. You can share this contact to your friends.</item>
+    </plurals>
     <string name="ExportAsContactWithQRcode">Share</string>
     <string name="headline_qrcode">QRCode</string>
     <string name="Open">Open</string>
@@ -168,7 +175,7 @@
     <string name="infos">Infos</string>
     <string name="dummy_infos_text">This is the alpha version of Qabel</string>
     <string name="contact_count">Contact count: %1</string>
-    <string name="message_step_is_needed_or_close_app"></string>
+    <string name="message_step_is_needed_or_close_app">%s is required to use Qabel. Are you sure you want close Qabel?</string>
     <string name="chat_message_hint">Enter text</string>
     <string name="refresh">Refresh</string>
     <string name="headline_contact_chat">Chat</string>
@@ -217,10 +224,15 @@
 \nChristian Burkert
 \nDaniel Kaminski
 \nDennis Weber
+\nDieta Heilmann
 \nDustin Fürst
+\nElmar Lay
+\nErik Nikolov
+\nFabian Träger
 \nFrank Geise
 \nFrank Roebers
 \nHanno Meetz
+\nHaris Adamopoulou
 \nJens Kadenbach
 \nJens Kassert
 \nJulian Seeger
@@ -268,12 +280,12 @@ To all people who have supported our Indigogo Campaign
     <string name="help_main_headline_about_us">Imprint</string>
     <string name="help_main_headline_app_infos">App infos</string>
     <string name="help_main_headline_app_version">App Version</string>
-    <string name="help_key_main_app_version">key_appversion</string>
-    <string name="help_key_main_app_disclaimer">key_disclaimer</string>
-    <string name="help_key_main_app_data_policy">key_data_policy</string>
-    <string name="help_key_main_app_tou">ley_tou</string>
-    <string name="help_key_main_app_licenses">key_licenses</string>
-    <string name="help_key_main_app_about_us">key_about_us</string>
+    <string name="help_key_main_app_version" translatable="false">key_appversion</string>
+    <string name="help_key_main_app_disclaimer" translatable="false">key_disclaimer</string>
+    <string name="help_key_main_app_data_policy" translatable="false">key_data_policy</string>
+    <string name="help_key_main_app_tou" translatable="false">ley_tou</string>
+    <string name="help_key_main_app_licenses" translatable="false">key_licenses</string>
+    <string name="help_key_main_app_about_us" translatable="false">key_about_us</string>
     <string name="app_info_version_and_build">You use app version $1 from $2</string>
     <string name="headline_main_help">Help</string>
     <string name="message_welcome_screen1">\nQabel is a free,\npublished-source\ncryptography platform.\n\nBecome a part\nof the Qabel ecosystem.\n\nEnjoy!</string>
@@ -300,13 +312,15 @@ To all people who have supported our Indigogo Campaign
     <string name="btn_welcome_accept">Accept</string>
     <string name="message_welcome_qabel_big">QABEL </string>
     <string name="headline_welcome_screen1">Welcome to\u0020</string>
-    <string name="empty_text"/>
+    <string name="empty_text" translatable="false"/>
     <string name="headline_welcome_screen2">\u0020Features\n</string>
     <string name="headline_welcome_screen3">\u0020Identities\n</string>
     <string name="headline_welcome_screen4">\u0020Account\n</string>
-    <string name="github_url">https://github.com/Qabel</string>
+    <string name="github_url" translatable="false">https://github.com/Qabel</string>
     <string name="asset_qabel_font">fonts/Art Post.ttf</string>
     <string name="help">Help</string>
-    <string name="dialog_message_delete_error">Could not remove contact</string>
+    <string name="contact_export_all">Export all contacts</string>
+    <string name="cant_export_contacts">Can\'t export contacts</string>
+    <string name="contact_export_failed">Could not export the identity</string>
 
 </resources>

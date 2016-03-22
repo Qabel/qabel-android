@@ -285,26 +285,37 @@ public class ContactFragment extends BaseFragment {
                     Uri uri = resultData.getData();
 
                     try {
-                        int added=0;
                         ParcelFileDescriptor pfd = mActivity.getContentResolver().openFileDescriptor(uri, "r");
                         FileInputStream fis = new FileInputStream(pfd.getFileDescriptor());
                         String json = FileHelper.readFileAsText(fis);
                         fis.close();
-                        Contacts contacts = ContactExportImport.parse(QabelBoxApplication.getInstance().getService().getActiveIdentity(), json);
-                        for (Contact contact : contacts.getContacts()) {
+                        ContactExportImport.ContactsParseResult contactsParseResult = ContactExportImport.parse(QabelBoxApplication.getInstance().getService().getActiveIdentity(), json);
+                        int added = 0;
+                        int failed = contactsParseResult.getSkippedContacts();
+                        for (Contact contact : contactsParseResult.getContacts().getContacts()) {
                             try {
                                 addContactSilent(mActivity, contact);
                                 added++;
                             } catch (QblStorageEntityExistsException existsException) {
+                                failed++;
                                 Log.w(TAG, "found doublette. Will ignore it", existsException);
                             }
                         }
                         if (added>0) {
-                            UIHelper.showDialogMessage(
-                                    mActivity,
-                                    mActivity.getString(R.string.dialog_headline_info),
-                                    mActivity.getResources().getString(R.string.contact_import_successfull, new String[]{String.valueOf(added), String.valueOf(contacts.getContacts().size())})
-                            );
+                            if (added == 1 && failed == 0) {
+                                UIHelper.showDialogMessage(
+                                        mActivity,
+                                        mActivity.getString(R.string.dialog_headline_info),
+                                        mActivity.getResources().getString(R.string.contact_import_successfull, added, (added + failed))
+                                );
+                            } else {
+                                UIHelper.showDialogMessage(
+                                        mActivity,
+                                        mActivity.getString(R.string.dialog_headline_info),
+                                        mActivity.getResources().getString(R.string.contact_import_successfull_many, added, (added + failed))
+                                );
+                            }
+
                         } else {
                             UIHelper.showDialogMessage(
                                     mActivity,

@@ -33,6 +33,11 @@ public class ContactExportImportTest {
 	private static final String DROP_URL_1 = "http://localhost:6000/1234567890123456789012345678901234567891234";
 	private static final String DROP_URL_2 = "http://localhost:6000/0000000000000000000000000000000000000000000";
 
+    public static final String CONTACT_ALIAS = "Eins";
+    public static final String CONTACT_PUBLICKEYID = "a3a4208bd545701f3bcd5eee508cd0f83e4a56f1518c6159ecd96f2ff86de172";
+    public static final String CONTACT_DROP = "https://test-drop.qabel.de/AIXqM7n_hjTfpgPrvsDeWX6dc2Yn4F7OfyCtlX52Zkk";
+
+
 	public static final String MAVERICK_ALIAS="Christopher Blair";
 	public static final String MAVERICK_PUBLICKEYID="b3a4208bd545701f3bcd5eee508cd0f83e4a56f1518c6159ecd96f2ff86de172";
 	public static final String MAVERICK_DROP="https://test-drop.qabel.de/AIXqM7n_hjTfpgPrvsDeWX6dc2Yn4F7OfyCtlX52Zkk";
@@ -53,17 +58,17 @@ public class ContactExportImportTest {
 	public static final String JSON_SINGLE_CONTACT="{\n" +
 			"\t\"public_key\": \"7c879f241a891938d0be68fbc178ced6f926c95385f588fe8924d0d81a96a32a\",\n" +
 			"\t\"drop_urls\": [\"https://qdrop.prae.me/APlvHMq05d8ylgp64DW2AHFmdJj2hYDQXJiSnr-Holc\"],\n" +
-			"\t\"alias\": \"Zwei\"\n" +
-			"}";
+            "\t\"alias\": \"" + CONTACT_ALIAS + "\"\n" +
+            "}";
 
 	public static final String JSON_CONTACTLIST_WITH_INVALID_ENTRY="{\n" +
 			"\t\"contacts\": [{\n" +
 			"\t\t\"public_key\": \"7c879f241a891938d0be68fbc178ced6f926c95385f588fe8924d0d81a96a32a\",\n" +
 			"\t\t\"drop_urls\": [\"https://qdrop.prae.me/APlvHMq05d8ylgp64DW2AHFmdJj2hYDQXJiSnr-Holc\"]\n" +
 			"\t}, {\n" +
-			"\t\t\"public_key\": \"333b48c161f60bed0b116883aadac3c9217feff8225276561959d9b826944b69\",\n" +
-			"\t\t\"drop_urls\": [\"https://qdrop.prae.me/AI2X-QJ8WI2VtMgT0y302RyY3wU_RoAsqdaFQ9gf9fs\"],\n" +
-			"\t\t\"alias\": \"Eins\"\n" +
+            "\t\t\"public_key\": \"" + CONTACT_PUBLICKEYID + "\",\n" +
+            "\t\t\"drop_urls\": [\"" + CONTACT_DROP + "\"],\n" +
+            "\t\t\"alias\": \"Eins\"\n" +
 			"\t}]\n" +
 			"}";
 
@@ -170,13 +175,14 @@ public class ContactExportImportTest {
 	public void testExportImportContacts() throws JSONException, URISyntaxException, QblDropInvalidURL {
 		String contactsJSON = ContactExportImport.exportContacts(contacts);
 
-		Contacts importedContacts = ContactExportImport.parseContactsForIdentity(identity, new JSONObject(contactsJSON));
+        ContactExportImport.ContactsParseResult importedContactsParseResult = ContactExportImport.parseContactsForIdentity(identity, new JSONObject(contactsJSON));
 
-		assertThat(importedContacts.getContacts().size(), is(2));
-		Contact importedContact1 = importedContacts.getByKeyIdentifier(contact1.getKeyIdentifier());
-		Contact importedContact2 = importedContacts.getByKeyIdentifier(contact2.getKeyIdentifier());
+        assertThat(importedContactsParseResult.getContacts().getContacts().size(), is(2));
+        Contact importedContact1 = importedContactsParseResult.getContacts().getByKeyIdentifier(contact1.getKeyIdentifier());
+        Contact importedContact2 = importedContactsParseResult.getContacts().getByKeyIdentifier(contact2.getKeyIdentifier());
 
-		assertContactEquals(contact1, importedContact1);
+        assertEquals(0, importedContactsParseResult.getSkippedContacts());
+        assertContactEquals(contact1, importedContact1);
 		assertContactEquals(contact2, importedContact2);
 	}
 
@@ -205,10 +211,11 @@ public class ContactExportImportTest {
 	@Test
 	public void testImportPartialValidContactsList() {
 		try {
-			Contacts result = ContactExportImport.parseContactsForIdentity(identity, new JSONObject(JSON_CONTACTLIST_WITH_INVALID_ENTRY));
-			assertEquals(1, result.getContacts().size());
-			Contact first=result.getContacts().iterator().next();
-			Contact expectedContact=initContact("Eins","333b48c161f60bed0b116883aadac3c9217feff8225276561959d9b826944b69","https://qdrop.prae.me/AI2X-QJ8WI2VtMgT0y302RyY3wU_RoAsqdaFQ9gf9fs");
+            ContactExportImport.ContactsParseResult parseResult = ContactExportImport.parseContactsForIdentity(identity, new JSONObject(JSON_CONTACTLIST_WITH_INVALID_ENTRY));
+            assertEquals(1, parseResult.getSkippedContacts());
+            assertEquals(1, parseResult.getContacts().getContacts().size());
+            Contact first = parseResult.getContacts().getContacts().iterator().next();
+            Contact expectedContact=initContact("Eins","333b48c161f60bed0b116883aadac3c9217feff8225276561959d9b826944b69","https://qdrop.prae.me/AI2X-QJ8WI2VtMgT0y302RyY3wU_RoAsqdaFQ9gf9fs");
 			assertContactEquals(expectedContact, first);
 		} catch (JSONException e) {
 			fail("Could not parse JSON: "+e);
@@ -224,14 +231,16 @@ public class ContactExportImportTest {
 	@Test
 	public void testDetectLists() throws URISyntaxException, QblDropInvalidURL {
 		try {
-			Contacts tigersClawCrew=ContactExportImport.parse(identity,JSON_CONTACTLIST_TIGERSCLAW);
-			assertEquals(4,tigersClawCrew.getContacts().size());
+            ContactExportImport.ContactsParseResult tigersClawCrewParseResult = ContactExportImport.parse(identity, JSON_CONTACTLIST_TIGERSCLAW);
+            assertEquals(4, tigersClawCrewParseResult.getContacts().getContacts().size());
+            assertEquals(0, tigersClawCrewParseResult.getSkippedContacts());
 
-			Contacts singleContact = ContactExportImport.parse(identity, JSON_SINGLE_CONTACT);
-			assertEquals(1,singleContact.getContacts().size());
-			Contact expectedContact = initContact("Zwei", "7c879f241a891938d0be68fbc178ced6f926c95385f588fe8924d0d81a96a32a", "https://qdrop.prae.me/APlvHMq05d8ylgp64DW2AHFmdJj2hYDQXJiSnr-Holc");
-			Contact myContact=singleContact.getContacts().iterator().next();
-			assertContactEquals(expectedContact,myContact);
+            ContactExportImport.ContactsParseResult singleContactParseResult = ContactExportImport.parse(identity, JSON_SINGLE_CONTACT);
+            assertEquals(1, singleContactParseResult.getContacts().getContacts().size());
+            Contact expectedContact = initContact("Eins", CONTACT_PUBLICKEYID, CONTACT_DROP);
+            assertEquals(0, singleContactParseResult.getSkippedContacts());
+            Contact myContact = singleContactParseResult.getContacts().getContacts().iterator().next();
+            assertContactEquals(expectedContact, myContact);
 
 		} catch (JSONException e) {
 			fail("Could not parse valid list: "+e);

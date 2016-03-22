@@ -10,6 +10,7 @@ import android.support.test.espresso.ViewInteraction;
 import android.support.test.espresso.action.ViewActions;
 import android.test.ActivityInstrumentationTestCase2;
 import android.test.suitebuilder.annotation.MediumTest;
+import android.util.Log;
 
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
@@ -18,13 +19,18 @@ import org.junit.Test;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.LinkedList;
 import java.util.List;
 
 import de.qabel.core.config.Contact;
+import de.qabel.core.exceptions.QblDropInvalidURL;
+import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.activities.MainActivity;
 import de.qabel.qabelbox.config.ContactExportImportTest;
+import de.qabel.qabelbox.repository.exception.PersistenceException;
+import de.qabel.qabelbox.services.LocalQabelService;
 import de.qabel.qabelbox.ui.action.QabelViewAction;
 import de.qabel.qabelbox.ui.helper.SystemAnimations;
 import de.qabel.qabelbox.ui.helper.UIActionHelper;
@@ -45,25 +51,54 @@ import static org.hamcrest.Matchers.endsWith;
 /**
  * Created by Jan D.S. Wischweh <mail@wischweh.de> on 07.03.16.
  */
-public class ImportContactsTest extends ActivityInstrumentationTestCase2<MainActivity> {
+public class ImportContactsFeedbackTest extends ActivityInstrumentationTestCase2<MainActivity> {
+
+    public static final String COOKIEMONSTER_ALIAS = "Cookie Monster";
+    public static final String COOKIEMONSTER_PUBLICKEYID = "be14d35443af65a750c941fbd20ea16d678a03ac0f3c3bf42448776252a81234";
+    public static final String COOKIEMONSTER_DROP = "https://test-drop.qabel.de/AIXqM7n_hjTfpgPrvsDeWX6dc2Yn4F7OfyCtlX52Zkk";
+
+    public static final String JSON_SINGLE_CONTACT = "{\n" +
+            "\t\"public_key\": \"" + COOKIEMONSTER_PUBLICKEYID + "\",\n" +
+            "\t\"drop_urls\": [\"" + COOKIEMONSTER_DROP + "\"],\n" +
+            "\t\"alias\": \"" + COOKIEMONSTER_ALIAS + "\"\n" +
+            "}";
+
+    public static final String JSON_CONTACTLIST_WITH_INVALID_ENTRY = "{\n" +
+            "\t\"contacts\": [{\n" +
+            "\t\t\"public_key\": \"7c879f241a891938d0be68fbc178ced6f926c95385f588fe8924d0d81a96a32a\",\n" +
+            "\t\t\"drop_urls\": [\"https://qdrop.prae.me/APlvHMq05d8ylgp64DW2AHFmdJj2hYDQXJiSnr-Holc\"]\n" +
+            "\t}, {\n" +
+            "\t\t\"public_key\": \"" + COOKIEMONSTER_PUBLICKEYID + "\",\n" +
+            "\t\t\"drop_urls\": [\"" + COOKIEMONSTER_DROP + "\"],\n" +
+            "\t\t\"alias\": \"" + COOKIEMONSTER_ALIAS + "\"\n" +
+            "\t}]\n" +
+            "}";
+
+
+    public static String DEBUG_TAG = "ImportContactsFeedbackTest";
 
     private PowerManager.WakeLock wakeLock;
     SystemAnimations mSystemAnimations;
     List<Contact> testContacts = new LinkedList<>();
+    Contact cookieMonster;
 
-
-    public ImportContactsTest() {
+    public ImportContactsFeedbackTest() {
         super(MainActivity.class);
     }
 
     @Before
-    public void setUp() {
+    public void setUp() throws URISyntaxException, QblDropInvalidURL {
         wakeLock = UIActionHelper.wakeupDevice(getActivity());
         mSystemAnimations = new SystemAnimations(getActivity());
         mSystemAnimations.disableAll();
         navigateToContacts();
+        initTestContacts();
 
+    }
 
+    private void initTestContacts() throws URISyntaxException, QblDropInvalidURL {
+        testContacts = ContactExportImportTest.initTestContacts();
+        cookieMonster = ContactExportImportTest.initContact(COOKIEMONSTER_ALIAS, COOKIEMONSTER_PUBLICKEYID, COOKIEMONSTER_DROP);
 
     }
 
@@ -86,7 +121,7 @@ public class ImportContactsTest extends ActivityInstrumentationTestCase2<MainAct
     @Test
     @MediumTest
     public void testImportSuccessOne() throws IOException, IntentFilter.MalformedMimeTypeException {
-        MainActivity activityAfterImport = instrumentationReturnWithImportJSON(ContactExportImportTest.JSON_SINGLE_CONTACT);
+        MainActivity activityAfterImport = instrumentationReturnWithImportJSON(JSON_SINGLE_CONTACT);
         String expectedText = getInstrumentation().getTargetContext().getString(R.string.contact_import_successfull);
         ViewInteraction dialog = onView(withText(expectedText)).inRoot(isDialog());
         dialog.check(matches(isDisplayed()));
@@ -94,7 +129,7 @@ public class ImportContactsTest extends ActivityInstrumentationTestCase2<MainAct
 
     @Test
     public void testPartialImportSuccess() throws IOException, IntentFilter.MalformedMimeTypeException {
-        MainActivity activityAfterImport = instrumentationReturnWithImportJSON(ContactExportImportTest.JSON_CONTACTLIST_WITH_INVALID_ENTRY);
+        MainActivity activityAfterImport = instrumentationReturnWithImportJSON(JSON_CONTACTLIST_WITH_INVALID_ENTRY);
         String expectedText = getInstrumentation().getTargetContext().getString(R.string.contact_import_successfull_many, 1, 2);
         ViewInteraction dialog = onView(withText(expectedText)).inRoot(isDialog());
         dialog.check(matches(isDisplayed()));
@@ -128,16 +163,29 @@ public class ImportContactsTest extends ActivityInstrumentationTestCase2<MainAct
         returnIntent.setData(Uri.fromFile(tmpFile));
 
         Instrumentation.ActivityResult activityResult = new Instrumentation.ActivityResult(Activity.RESULT_OK, returnIntent);
-        Instrumentation.ActivityMonitor returnTheTmpFileMobitor = new Instrumentation.ActivityMonitor(pickFilter, activityResult, true);
-        getInstrumentation().addMonitor(returnTheTmpFileMobitor);
+        Instrumentation.ActivityMonitor returnTheTmpFileMonitor = new Instrumentation.ActivityMonitor(pickFilter, activityResult, true);
+        getInstrumentation().addMonitor(returnTheTmpFileMonitor);
         onView(withId(R.id.fab)).perform(ViewActions.click());
         UITestHelper.sleep(1000);
         onView(withText(R.string.from_file)).inRoot(isDialog()).perform(ViewActions.click());
-        return (MainActivity) getInstrumentation().waitForMonitorWithTimeout(returnTheTmpFileMobitor, 5);
+        return (MainActivity) getInstrumentation().waitForMonitorWithTimeout(returnTheTmpFileMonitor, 5);
     }
 
     private void removeTestContacts() {
-        // TODO: implement
+        LocalQabelService service = QabelBoxApplication.getInstance().getService();
+        for (Contact contact : testContacts) {
+            try {
+                service.deleteContact(contact);
+            } catch (PersistenceException e) {
+                Log.e(DEBUG_TAG, "Could not remove contact " + contact, e);
+            }
+        }
+        try {
+            service.deleteContact(cookieMonster);
+        } catch (PersistenceException e) {
+            Log.e(DEBUG_TAG, "Could not remove contact " + cookieMonster, e);
+
+        }
     }
 
 

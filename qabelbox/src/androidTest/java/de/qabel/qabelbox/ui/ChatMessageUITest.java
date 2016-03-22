@@ -8,14 +8,20 @@ import android.graphics.Bitmap;
 import android.os.PowerManager;
 import android.support.design.internal.NavigationMenuItemView;
 import android.support.test.espresso.Espresso;
+import android.support.test.espresso.ViewInteraction;
 import android.support.test.espresso.contrib.RecyclerViewActions;
+import android.support.test.espresso.matcher.BoundedMatcher;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.lifecycle.ActivityLifecycleMonitorRegistry;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.widget.ListView;
 
 import com.squareup.picasso.PicassoIdlingResource;
 import com.squareup.spoon.Spoon;
 
+import org.hamcrest.Description;
+import org.hamcrest.Matcher;
 import org.json.JSONObject;
 import org.junit.After;
 import org.junit.Before;
@@ -49,6 +55,7 @@ import static android.support.test.espresso.action.ViewActions.typeText;
 import static android.support.test.espresso.assertion.ViewAssertions.matches;
 import static android.support.test.espresso.contrib.DrawerActions.openDrawer;
 import static android.support.test.espresso.matcher.ViewMatchers.hasDescendant;
+import static android.support.test.espresso.matcher.ViewMatchers.isAssignableFrom;
 import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static android.support.test.espresso.matcher.ViewMatchers.withClassName;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
@@ -166,10 +173,16 @@ public class ChatMessageUITest {
 		onView(allOf(withText(R.string.Contacts), withParent(withClassName(endsWith("MenuView")))))
 				.perform(click());
 		Spoon.screenshot(mActivity, "contacts");
-		
-		onView(withId(R.id.contact_list))
-				.perform(RecyclerViewActions.actionOnItem(
-						hasDescendant(withText("user1")), click()));
+
+		//ContactList and click on user
+		onView(withId(R.id.contact_list)).check(matches(isDisplayed()));
+		onView(withText("user1")).perform(click());
+
+		//ChatView is displayed
+		onView(withId(R.id.contact_chat_list)).check(matches(isDisplayed()));
+
+		//Check Username is displayed in chatview
+		QabelMatcher.matchToolbarTitle("user1").check(matches(isDisplayed()));
 
 		onView(withId(R.id.etText)).check(matches(isDisplayed())).perform(click());
 		onView(withId(R.id.etText)).perform(typeText("text" + messages), pressImeActionButton());
@@ -205,7 +218,6 @@ public class ChatMessageUITest {
 		onView(allOf(is(instanceOf(NavigationMenuItemView.class)), withText("user2"))).perform(click());
 		openDrawer(R.id.drawer_layout);
 	}
-
 
 }
 

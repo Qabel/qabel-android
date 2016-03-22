@@ -33,6 +33,7 @@ import de.qabel.core.drop.DropURL;
 import de.qabel.core.exceptions.QblDropPayloadSizeException;
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
+import de.qabel.qabelbox.activities.MainActivity;
 import de.qabel.qabelbox.adapter.ChatMessageAdapter;
 import de.qabel.qabelbox.chat.ChatMessageItem;
 import de.qabel.qabelbox.chat.ChatServer;
@@ -95,7 +96,7 @@ public class ContactChatFragment extends BaseFragment {
 		{
 			new Throwable("No contact given");
 		}*/
-		mActivity.toggle.setDrawerIndicatorEnabled(false);
+		((MainActivity)getActivity()).toggle.setDrawerIndicatorEnabled(false);
 		actionBar.setDisplayHomeAsUpEnabled(true);
 		setActionBarBackListener();
 	}

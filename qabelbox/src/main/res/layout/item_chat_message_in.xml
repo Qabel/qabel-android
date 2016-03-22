@@ -8,15 +8,20 @@
     android:layout_height="wrap_content"
     android:layout_gravity="center_horizontal"
     android:orientation="horizontal">
-
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="25sp"
+        android:layout_marginTop="10sp"
+        android:background="@drawable/chat_in_left"/>
     <RelativeLayout
         android:id="@+id/chatTextLayout"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_vertical"
-        android:background="@drawable/chat_in_message_bg"
+        android:background="@drawable/chat_in_round_box"
         android:orientation="vertical"
-        android:padding="5sp"
+        android:layout_marginTop="5sp"
+        android:layout_marginBottom="5sp"
         android:layout_marginRight="40sp">
 
         <de.qabel.qabelbox.views.TextViewFont
@@ -24,10 +29,8 @@
             style="@style/ListSecondTextLine"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="15sp"
             android:layout_alignParentStart="true"
             android:layout_alignParentTop="true"
-            android:ellipsize="end"
             android:text="This is an example Message"
             android:textColor="@color/white"/>
 
@@ -37,7 +40,6 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="5sp"
             android:layout_marginRight="5sp"
-            android:layout_marginLeft="15sp"
             android:layout_below="@+id/tvText"
             android:background="@drawable/round_box"
             android:padding="0sp"
@@ -52,16 +54,16 @@
                 android:background="@drawable/ic_insert_drive_file_black"/>
 
             <LinearLayout
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_toRightOf="@+id/messageFileIcon">
 
                 <de.qabel.qabelbox.views.TextViewFont
                     android:id="@+id/tvLink"
                     style="@style/ListSecondTextLine"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical|left"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center_vertical|left"
                     android:ellipsize="end"
                     android:text="@string/accept_share"
                     android:textColor="@color/text_black"/>
@@ -74,9 +76,7 @@
             android:layout_height="wrap_content"
             android:layout_below="@+id/messageFileContainer"
             android:layout_alignParentLeft="true"
-            android:layout_marginBottom="5sp"
             android:layout_marginTop="5sp"
-            android:layout_marginLeft="15sp"
             android:text="Fr. 15.39"
             android:textColor="@color/white"
             android:textSize="12sp"/>

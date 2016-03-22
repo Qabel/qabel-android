@@ -29,7 +29,7 @@ import org.json.JSONException;
 import org.spongycastle.util.encoders.Hex;
 
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -47,6 +47,7 @@ import de.qabel.qabelbox.adapter.ContactAdapterItem;
 import de.qabel.qabelbox.adapter.ContactsAdapter;
 import de.qabel.qabelbox.chat.ChatServer;
 import de.qabel.qabelbox.config.ContactExportImport;
+import de.qabel.qabelbox.config.QabelSchema;
 import de.qabel.qabelbox.exceptions.QblStorageEntityExistsException;
 import de.qabel.qabelbox.helper.FileHelper;
 import de.qabel.qabelbox.helper.Helper;
@@ -58,17 +59,20 @@ import de.qabel.qabelbox.services.LocalQabelService;
  */
 public class ContactFragment extends BaseFragment {
 
-    private static final int REQUEST_IMPORT_CONTACT = 1000;
+    public static final int REQUEST_IMPORT_CONTACT = 1000;
+    public static final int REQUEST_EXPORT_CONTACT = 1001;
     private static final String TAG = "ContactFragment";
 
     private RecyclerView contactListRecyclerView;
     private ContactsAdapter contactListAdapter;
-    private RecyclerView.LayoutManager recyclerViewLayoutManager;
 
-	private BaseFragment self;
-	private TextView contactCount;
-	private View emptyView;
-	private ChatServer chatServer;
+    private BaseFragment self;
+    private TextView contactCount;
+    private View emptyView;
+    private ChatServer chatServer;
+    private String dataToExport;
+    private int exportedContactCount;
+    private boolean useDocumentProvider = true;//used for tests
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -90,7 +94,7 @@ public class ContactFragment extends BaseFragment {
         contactListRecyclerView = (RecyclerView) view.findViewById(R.id.contact_list);
         contactListRecyclerView.setHasFixedSize(true);
         emptyView = view.findViewById(R.id.empty_view);
-        recyclerViewLayoutManager = new LinearLayoutManager(view.getContext());
+        RecyclerView.LayoutManager recyclerViewLayoutManager = new LinearLayoutManager(view.getContext());
         contactListRecyclerView.setLayoutManager(recyclerViewLayoutManager);
         refreshContactList();
 
@@ -101,14 +105,14 @@ public class ContactFragment extends BaseFragment {
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
 
         menu.clear();
-        inflater.inflate(R.menu.ab_chat_refresh, menu);
+        inflater.inflate(R.menu.ab_contacts, menu);
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
 
         int id = item.getItemId();
-        if (id == R.id.action_chat_refresh) {
+        if (id == R.id.action_contact_refresh) {
 
             new AsyncTask<Void, Void, Collection<DropMessage>>() {
                 @Override
@@ -118,7 +122,50 @@ public class ContactFragment extends BaseFragment {
                 }
             }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
         }
+        if (id == R.id.action_contact_export_all) {
+            exportAllContacts();
+
+        }
         return super.onOptionsItemSelected(item);
+    }
+
+    public void enableDocumentProvider(boolean value) {
+        useDocumentProvider = value;
+    }
+
+    public void exportAllContacts() {
+        try {
+            LocalQabelService service = QabelBoxApplication.getInstance().getService();
+            Contacts contacts = service.getContacts(service.getActiveIdentity());
+            exportedContactCount = contacts.getContacts().size();
+            if (exportedContactCount > 0) {
+                String contactJson = ContactExportImport.exportContacts(contacts);
+                startExportFileChooser("", QabelSchema.FILE_PREFIX_CONTACTS, contactJson);
+            }
+
+        } catch (JSONException e) {
+            Log.e(TAG, "error on export contacts", e);
+            UIHelper.showDialogMessage(getActivity(), R.string.dialog_headline_warning, R.string.cant_export_contacts);
+        }
+    }
+
+
+    private void startExportFileChooser(String filename, String type, String data) {
+        dataToExport = data;
+        if (useDocumentProvider) {
+            Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
+            intent.addCategory(Intent.CATEGORY_OPENABLE);
+            intent.setType("application/json");
+            intent.putExtra(Intent.EXTRA_TITLE, type + "" + filename + "." + QabelSchema.FILE_SUFFIX_CONTACT);
+            startActivityForResult(intent, ContactFragment.REQUEST_EXPORT_CONTACT);
+        }
+    }
+
+    public void exportContact(Contact contact) {
+        exportedContactCount = 1;
+        String contactJson = ContactExportImport.exportContact(contact);
+        startExportFileChooser(contact.getAlias(), QabelSchema.FILE_PREFIX_CONTACT, contactJson);
+
     }
 
     private void setClickListener() {
@@ -135,51 +182,59 @@ public class ContactFragment extends BaseFragment {
 
             @Override
             public void onItemClick(View view, final int position) {
+                longContactClickAction(position);
 
-                final Contact contact = contactListAdapter.getContact(position);
-                UIHelper.showDialogMessage(getActivity(), getString(R.string.dialog_headline_warning),
-                        getString(R.string.dialog_message_delete_contact_question).replace("%1", contact.getAlias()),
-                        R.string.yes, R.string.no, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-
-                                LocalQabelService service = QabelBoxApplication.getInstance().getService();
-                                service.deleteContact(contact);
-                                sendRefreshContactList(mActivity);
-                                UIHelper.showDialogMessage(mActivity, R.string.dialog_headline_info, getString(R.string.contact_deleted).replace("%1", contact.getAlias()));
-                            }
-                        }, null);
             }
         });
+    }
+
+    private void longContactClickAction(final int position) {
+        final Contact contact = contactListAdapter.getContact(position);
+        final LocalQabelService service = QabelBoxApplication.getInstance().getService();
+        new BottomSheet.Builder(mActivity).title(contact.getAlias()).sheet(R.menu.bottom_sheet_contactlist)
+                .listener(new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                        switch (which) {
+                            case R.id.contact_list_item_delete:
+
+                                UIHelper.showDialogMessage(getActivity(), getString(R.string.dialog_headline_warning),
+                                        getString(R.string.dialog_message_delete_contact_question).replace("%1", contact.getAlias()),
+                                        R.string.yes, R.string.no, new DialogInterface.OnClickListener() {
+                                            @Override
+                                            public void onClick(DialogInterface dialog, int which) {
+                                                service.deleteContact(contact);
+                                                sendRefreshContactList();
+                                                UIHelper.showDialogMessage(mActivity, R.string.dialog_headline_info, getString(R.string.contact_deleted).replace("%1", contact.getAlias()));
+                                            }
+                                        }, null);
+                                break;
+                            case R.id.contact_list_item_export:
+                                exportContact(contact);
+                                break;
+                        }
+                    }
+                }).show();
     }
 
     /**
      * add contact and show messages
      *
-     * @param activity
      * @param contact
      */
-    // TODO: Refactor: Two no-gos 1. Remove static, 2. remove activity argument
-    public static void addContactSilent(MainActivity activity, Contact contact) throws QblStorageEntityExistsException {
+    //TODO: Remove static
+    public static void addContactSilent(Contact contact) throws QblStorageEntityExistsException {
         LocalQabelService service = QabelBoxApplication.getInstance().getService();
         service.addContact(contact);
-        sendRefreshContactList(activity);
-    }
-
-    public void addContactWithResultDialog(MainActivity activity, Contact contact) {
-        try {
-            addContactSilent(activity,contact);
-            UIHelper.showDialogMessage(activity, getActivity().getResources().getString(R.string.dialog_headline_info), getActivity().getResources().getQuantityString(R.plurals.contact_import_successfull,1,1));
-        } catch (QblStorageEntityExistsException e) {
-            UIHelper.showDialogMessage(activity, R.string.dialog_headline_info, R.string.cant_import_contact_already_exisits);
-        }
+        sendRefreshContactList();
     }
 
 
-    private static void sendRefreshContactList(MainActivity activity) {
+    private static void sendRefreshContactList() {
         Log.d(TAG, "send refresh intent");
         Intent intent = new Intent(Helper.INTENT_REFRESH_CONTACTLIST);
-        activity.sendBroadcast(intent);
+        QabelBoxApplication.getInstance().getApplicationContext().sendBroadcast(intent);
     }
 
     @Override
@@ -269,12 +324,29 @@ public class ContactFragment extends BaseFragment {
                                  Intent resultData) {
 
         if (resultCode == Activity.RESULT_OK) {
+
+            if (requestCode == REQUEST_EXPORT_CONTACT) {
+                if (resultData != null) {
+                    Uri uri = resultData.getData();
+                    Activity activity = getActivity();
+                    try (ParcelFileDescriptor pfd = mActivity.getContentResolver().openFileDescriptor(uri, "w");
+                         FileOutputStream fileOutputStream = new FileOutputStream(pfd.getFileDescriptor())) {
+                        fileOutputStream.write(dataToExport.getBytes());
+                        String message = getResources().getQuantityString(R.plurals.contact_export_successfully, exportedContactCount, exportedContactCount);
+                        UIHelper.showDialogMessage(activity, R.string.dialog_headline_info, message);
+
+                    } catch (IOException | NullPointerException e) {
+                        UIHelper.showDialogMessage(activity, R.string.dialog_headline_warning, R.string.contact_export_failed, e);
+                    }
+                }
+            }
+
             if (requestCode == REQUEST_IMPORT_CONTACT) {
                 if (resultData != null) {
                     Uri uri = resultData.getData();
 
                     try {
-                        int added=0;
+                        int added = 0;
                         ParcelFileDescriptor pfd = mActivity.getContentResolver().openFileDescriptor(uri, "r");
                         FileInputStream fis = new FileInputStream(pfd.getFileDescriptor());
                         String json = FileHelper.readFileAsText(fis);
@@ -282,13 +354,13 @@ public class ContactFragment extends BaseFragment {
                         Contacts contacts = ContactExportImport.parse(QabelBoxApplication.getInstance().getService().getActiveIdentity(), json);
                         for (Contact contact : contacts.getContacts()) {
                             try {
-                                addContactSilent(mActivity, contact);
+                                addContactSilent(contact);
                                 added++;
                             } catch (QblStorageEntityExistsException existsException) {
-                                Log.w(TAG, "found doublette. Will ignore it", existsException);
+                                Log.w(TAG, "found doublet's. Will ignore it", existsException);
                             }
                         }
-                        if (added>0) {
+                        if (added > 0) {
                             UIHelper.showDialogMessage(
                                     mActivity,
                                     mActivity.getString(R.string.dialog_headline_info),
@@ -300,12 +372,8 @@ public class ContactFragment extends BaseFragment {
                                     mActivity.getString(R.string.contact_import_zero_additions)
                             );
                         }
-                    } catch (FileNotFoundException notFoundException) {
-                        UIHelper.showDialogMessage(mActivity, R.string.dialog_headline_warning, R.string.contact_import_failed, notFoundException);
-                    } catch (IOException ioException) {
+                    } catch (IOException | JSONException ioException) {
                         UIHelper.showDialogMessage(mActivity, R.string.dialog_headline_warning, R.string.contact_import_failed, ioException);
-                    } catch (JSONException jsonException) {
-                        UIHelper.showDialogMessage(mActivity, R.string.dialog_headline_warning, R.string.contact_import_failed, jsonException);
                     }
                 }
             }
@@ -321,7 +389,7 @@ public class ContactFragment extends BaseFragment {
 
                         QblECPublicKey publicKey = new QblECPublicKey(Hex.decode(result[3]));
                         Contact contact = new Contact(result[1], dropURLs, publicKey);
-                        ContactFragment.addContactSilent(mActivity, contact);
+                        ContactFragment.addContactSilent(contact);
                     } catch (Exception e) {
                         Log.w(TAG, "add contact failed", e);
                         UIHelper.showDialogMessage(mActivity, R.string.dialog_headline_warning, R.string.contact_import_failed, e);
@@ -360,12 +428,12 @@ public class ContactFragment extends BaseFragment {
         super.onStop();
     }
 
-    private ChatServer.ChatServerCallback chatServerCallback = new ChatServer.ChatServerCallback() {
+    private final ChatServer.ChatServerCallback chatServerCallback = new ChatServer.ChatServerCallback() {
 
         @Override
         public void onRefreshed() {
             Log.d(TAG, "refreshed ");
-            sendRefreshContactList(mActivity);
+            sendRefreshContactList();
         }
     };
 }

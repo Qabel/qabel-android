@@ -23,8 +23,8 @@ public class ChatMessageItem {
 	public long time_stamp;
 	public String sender;
 	public String receiver;
-	public String acknowledge_id;//key
-	public String drop_payload_type;//key
+	public String acknowledge_id;
+	public String drop_payload_type;
 	public String drop_payload;
 	private final String TAG = this.getClass().getSimpleName();
 

@@ -139,7 +139,9 @@ public class ChatServer {
 	public ChatMessageItem[] getAllMessages(Contact c) {
 		return dataBase.get(c.getEcPublicKey().getReadableKeyIdentifier());
 	}
-
+	public ChatMessageItem[] getAllMessages() {
+		return dataBase.getAll();
+	}
 	public interface ChatServerCallback {
 
 		//droplist refreshed

@@ -79,11 +79,8 @@ public class DrawableMatcher extends TypeSafeMatcher<View> {
     }
 
     private boolean isSameDrawable(Drawable drawable) {
-        if (drawable == null) {
-            return false;
-        }
-        return expectedDrawable.getConstantState().equals(drawable.getConstantState());
-    }
+		return drawable != null && expectedDrawable.getConstantState().equals(drawable.getConstantState());
+	}
 
     @Override
     public void describeTo(Description description) {

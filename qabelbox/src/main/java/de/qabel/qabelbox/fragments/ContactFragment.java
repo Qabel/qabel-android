@@ -351,8 +351,10 @@ public class ContactFragment extends BaseFragment {
                         FileInputStream fis = new FileInputStream(pfd.getFileDescriptor());
                         String json = FileHelper.readFileAsText(fis);
                         fis.close();
-                        Contacts contacts = ContactExportImport.parse(QabelBoxApplication.getInstance().getService().getActiveIdentity(), json);
-                        for (Contact contact : contacts.getContacts()) {
+                        ContactExportImport.ContactsParseResult contactsParseResult = ContactExportImport.parse(QabelBoxApplication.getInstance().getService().getActiveIdentity(), json);
+                        int added = 0;
+                        int failed = contactsParseResult.getSkippedContacts();
+                        for (Contact contact : contactsParseResult.getContacts().getContacts()) {
                             try {
                                 addContactSilent(contact);
                                 added++;

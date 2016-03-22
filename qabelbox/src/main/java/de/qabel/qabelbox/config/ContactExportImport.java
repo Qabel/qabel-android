@@ -116,22 +116,23 @@ public class ContactExportImport {
 	 * @throws URISyntaxException
 	 * @throws QblDropInvalidURL
 	 */
-	public static Contacts parseContactsForIdentity(Identity identity, JSONObject jsonObject) throws JSONException {
-		Contacts contacts = new Contacts(identity);
+    public static ContactsParseResult parseContactsForIdentity(Identity identity, JSONObject jsonObject) throws JSONException {
+        Contacts contacts = new Contacts(identity);
 		JSONArray jsonContacts = jsonObject.getJSONArray(KEY_CONTACTS);
-
-		for (int i = 0; i < jsonContacts.length(); i++) {
+        int skipped = 0;
+        for (int i = 0; i < jsonContacts.length(); i++) {
 			try {
 				contacts.put(parseContactFromJSON(identity, jsonContacts.getJSONObject(i)));
 			} catch (JSONException e) {
-				Log.e(TAG,"Could not parese this contact. Will skip: "+e);
+                skipped++;
+                Log.e(TAG,"Could not parese this contact. Will skip: "+e);
 			}
 		}
 		if (contacts.getContacts().isEmpty()) {
 			throw new JSONException("Could not find a valid contact entry in "+KEY_CONTACTS);
 		}
-		return contacts;
-	}
+        return new SimpleContactsParseResult(contacts, skipped);
+    }
 
 	/**
 	 * Parses a JSON-String which can either be a contacts list or a single contact.
@@ -142,16 +143,16 @@ public class ContactExportImport {
 	 * @throws JSONException
 	 */
 
-	public static Contacts parse(Identity identity, String json) throws JSONException {
-		JSONObject jsonObject = new JSONObject(json);
+    public static ContactsParseResult parse(Identity identity, String json) throws JSONException {
+        JSONObject jsonObject = new JSONObject(json);
 		if (jsonObject.has(KEY_CONTACTS)) {
 			return parseContactsForIdentity(identity,jsonObject);
 		} else {
 			Contact singleContact=parseContactForIdentity(identity, jsonObject);
 			Contacts wrapper=new Contacts(identity);
 			wrapper.put(singleContact);
-			return wrapper;
-		}
+            return new SimpleContactsParseResult(wrapper, 0);
+        }
 
 	}
 
@@ -181,4 +182,32 @@ public class ContactExportImport {
 		}
 		return contact;
 	}
+
+    public interface ContactsParseResult {
+        Contacts getContacts();
+
+        int getSkippedContacts();
+    }
+
+    public static class SimpleContactsParseResult implements ContactsParseResult
+
+    {
+        Contacts contacts;
+        int skippedContacts;
+
+        public SimpleContactsParseResult(Contacts contacts, int skippedContacts) {
+            this.contacts = contacts;
+            this.skippedContacts = skippedContacts;
+        }
+
+        @Override
+        public Contacts getContacts() {
+            return contacts;
+        }
+
+        @Override
+        public int getSkippedContacts() {
+            return skippedContacts;
+        }
+    }
 }

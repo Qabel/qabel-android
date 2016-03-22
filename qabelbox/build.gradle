@@ -51,6 +51,12 @@ android {
         release {
             minifyEnabled false
         }
+
+        debug {
+            applicationIdSuffix '.debug'
+            versionNameSuffix '-DEBUG'
+        }
+
     }
 
     packagingOptions {

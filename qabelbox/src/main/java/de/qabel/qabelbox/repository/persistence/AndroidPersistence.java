@@ -1,23 +1,33 @@
-package de.qabel.qabelbox.persistence;
+package de.qabel.qabelbox.repository.persistence;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.security.InvalidParameterException;
+import java.util.ArrayList;
+import java.util.List;
 
 import de.qabel.core.config.Persistable;
 import de.qabel.core.config.Persistence;
 import de.qabel.core.exceptions.QblInvalidEncryptionKeyException;
 import de.qabel.qabelbox.exceptions.QblPersistenceException;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.List;
-
-public class AndroidPersistence extends Persistence<QblSQLiteParams> {
+/**
+ * The historic implementation of the AndroidPersistence.
+ *
+ * @deprecated because it should follow the desktop architecture and fullfill SOLID
+ */
+@Deprecated
+public class AndroidPersistence extends Persistence<String> {
 
 	private DatabaseWrapper databaseWrapper;
+	QblSQLiteParams databaseParams;
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(AndroidPersistence.class.getName());
 
 	public AndroidPersistence(QblSQLiteParams params) throws QblInvalidEncryptionKeyException {
+		this.databaseParams = params;
 		this.databaseWrapper = createDatabaseWrapper(params);
 		connect(params);
 	}
@@ -26,9 +36,16 @@ public class AndroidPersistence extends Persistence<QblSQLiteParams> {
 		return new AndroidDatabaseWrapper(params);
 	}
 
-	@Override
 	protected boolean connect(QblSQLiteParams qblSQLiteParams) {
 		return databaseWrapper.connect();
+	}
+
+	@Override
+	protected boolean connect(String databasename) {
+		if (!databaseParams.getName().equals(databasename)) {
+			throw new InvalidParameterException("Databasename " + databasename + " does not match with current configuration " + databaseParams.getName());
+		}
+		return connect(databaseParams);
 	}
 
 	@Override
@@ -48,8 +65,8 @@ public class AndroidPersistence extends Persistence<QblSQLiteParams> {
 			e.printStackTrace();
 			LOGGER.error("Cannot create table!", e.getException());
 		}
-
-		return databaseWrapper.insert(object);
+		boolean success = databaseWrapper.insert(object);
+		return success;
 	}
 
 	@Override

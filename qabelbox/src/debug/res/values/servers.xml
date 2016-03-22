@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="blockServer" translatable="false">https://test-block.qabel.de</string>
+    <string name="accountingServer" translatable="false">https://test-accounting.qabel.de</string>
+    <string name="dropServer" translatable="false">https://test-drop.qabel.de</string>
+</resources>

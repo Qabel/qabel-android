@@ -20,6 +20,8 @@ import de.qabel.core.drop.DropURL;
 import de.qabel.core.exceptions.QblDropInvalidURL;
 import de.qabel.core.exceptions.QblDropPayloadSizeException;
 import de.qabel.qabelbox.exceptions.QblStorageEntityExistsException;
+import de.qabel.qabelbox.repository.exception.EntityNotFoundExcepion;
+import de.qabel.qabelbox.repository.exception.PersistenceException;
 
 public class LocalQabelServiceTest extends ServiceTestCase<LocalQabelServiceTester> {
 
@@ -45,13 +47,47 @@ public class LocalQabelServiceTest extends ServiceTestCase<LocalQabelServiceTest
 		contact = new Contact("foo", null, new QblECKeyPair().getPub());
 	}
 
+	public void testAddIdentity() {
+		Identity newIdentity = new Identity("zbrazo", null, new QblECKeyPair());
+		mService.addIdentity(newIdentity);
+		try {
+			Identity retrivedFromRepo = mService.identityRepository.find(newIdentity.getKeyIdentifier());
+			assertNotNull(retrivedFromRepo);
+			assertIdentityPublicContentEquals(newIdentity, retrivedFromRepo);
+			Identity retrivedFromService = mService.getIdentities().getByKeyIdentifier(newIdentity.getKeyIdentifier());
+			assertNotNull(retrivedFromService);
+			assertIdentityPublicContentEquals(newIdentity, retrivedFromService);
+
+		} catch (EntityNotFoundExcepion entityNotFoundExcepion) {
+			entityNotFoundExcepion.printStackTrace();
+		} catch (PersistenceException e) {
+			e.printStackTrace();
+		}
+
+	}
+
+	private void assertIdentityPublicContentEquals(Identity lhsIdentity, Identity rhsIdentity) {
+		assertEquals(lhsIdentity.getAlias(), rhsIdentity.getAlias());
+		assertEquals(lhsIdentity.getEmail(), rhsIdentity.getEmail());
+		assertEquals(lhsIdentity.getKeyIdentifier(), rhsIdentity.getKeyIdentifier());
+		assertEquals(lhsIdentity.getEcPublicKey(), rhsIdentity.getEcPublicKey());
+		assertEquals(lhsIdentity.getPrefixes(), rhsIdentity.getPrefixes());
+
+
+	}
+
+
 	public void testRetrieveIdentity() {
 		Identities identities = mService.getIdentities();
 		assertTrue(identities.getIdentities().contains(identity));
 	}
 
 	public void testGetActiveIdentity() {
-		assertEquals(identity, mService.getActiveIdentity());
+		assertTrue(mService.getIdentities().getIdentities().size() > 0);
+		Identity retrievedActiveIdentity = mService.getActiveIdentity();
+		assertTrue(mService.getIdentities().getIdentities().size() > 0);
+		assertNotNull(retrievedActiveIdentity);
+		assertEquals(identity, retrievedActiveIdentity);
 	}
 
 	public void testDeleteIdentity() {
@@ -68,8 +104,12 @@ public class LocalQabelServiceTest extends ServiceTestCase<LocalQabelServiceTest
 	}
 
 	public void testAddContact() throws QblStorageEntityExistsException {
-		mService.addContact(contact);
-		assertTrue(mService.getContacts(identity).getContacts().contains(contact));
+		try {
+			mService.addContact(contact);
+			assertTrue(mService.getContacts(identity).getContacts().contains(contact));
+		} catch (PersistenceException e) {
+			fail("Unexpected PersistenceException " + e);
+		}
 	}
 
 	public void testAddDuplicateContact() throws QblStorageEntityExistsException {
@@ -78,38 +118,65 @@ public class LocalQabelServiceTest extends ServiceTestCase<LocalQabelServiceTest
 			mService.addContact(contact);
 		}catch (QblStorageEntityExistsException e){
 			return;
+		} catch (PersistenceException e) {
+			fail("Unexpected PersistenceException " + e);
 		}
 		fail("Expected QblStorageEntityExistsException");
 	}
 
 	public void testDeleteContact() throws QblStorageEntityExistsException {
-		mService.addContact(contact);
-		assertTrue(mService.getContacts(identity).getContacts().contains(contact));
-		mService.deleteContact(contact);
-		assertFalse(mService.getContacts(identity).getContacts().contains(contact));
+		try {
+			mService.addContact(contact);
+			assertTrue(mService.getContacts(identity).getContacts().contains(contact));
+			mService.deleteContact(contact);
+			assertFalse(mService.getContacts(identity).getContacts().contains(contact));
+		} catch (PersistenceException e) {
+			fail("Unexpected PersistenceException " + e);
+		}
 	}
 
 	public void testModifyContact() throws QblStorageEntityExistsException {
-		mService.addContact(contact);
-		contact.setAlias("bar");
-		mService.modifyContact(contact);
-		assertTrue(mService.getContacts(identity).getContacts().contains(contact));
-		contact.setAlias("foo");
-		assertFalse(mService.getContacts(identity).getContacts().contains(contact));
+		try {
+			mService.addContact(contact);
+			assertTrue(mService.getContacts(identity).getContacts().contains(contact));
+			contact.setAlias("bar");
+			mService.modifyContact(contact);
+			assertTrue(mService.getContacts(identity).getContacts().contains(contact));
+
+			contact.setAlias("foo");
+			// TODO: Next line is not true for any cached implementation, because we hold the same reference as the cache
+			// assertFalse(mService.getContacts(identity).getContacts().contains(contact));
+			contact = new Contact("foo", null, new QblECKeyPair().getPub());
+			assertFalse(mService.getContacts(identity).getContacts().contains(contact));
+		} catch (PersistenceException e) {
+			fail("Unexpected PersistenceException " + e);
+		}
 	}
 
 	public void testGetAllContacts() throws QblStorageEntityExistsException {
-		mService.addContact(contact);
-		Identity secondIdentity = new Identity("bar", null, new QblECKeyPair());
-		mService.addIdentity(identity);
-		Contact secondContact = new Contact("blub", null, new QblECKeyPair().getPub());
-		mService.addContact(secondContact, secondIdentity);
-		Map<Identity, Contacts> contacts = mService.getAllContacts();
-		assertEquals(2, contacts.size());
-		assertTrue(contacts.containsKey(identity));
-		assertTrue(contacts.containsKey(secondIdentity));
-		assertTrue(contacts.get(identity).getContacts().contains(contact));
-		assertTrue(contacts.get(secondIdentity).getContacts().contains(secondContact));
+		try {
+			mService.addContact(contact);
+			Identity secondIdentity = new Identity("bar", null, new QblECKeyPair());
+			mService.addIdentity(secondIdentity);
+
+			Contact secondContact = new Contact("blub", null, new QblECKeyPair().getPub());
+			mService.addContact(secondContact, secondIdentity);
+
+			Map<Identity, Contacts> contacts = null;
+			try {
+				contacts = mService.getAllContacts();
+			} catch (EntityNotFoundExcepion entityNotFoundExcepion) {
+				fail("Contacts not found");
+			}
+			assertEquals(2, contacts.size());
+			assertTrue(contacts.containsKey(identity));
+			assertTrue(contacts.containsKey(secondIdentity));
+			assertTrue(contacts.get(identity).getContacts().contains(contact));
+			Contacts secondIdentitiesContacts = contacts.get(secondIdentity);
+			assertTrue(secondIdentitiesContacts.getContacts().contains(secondContact));
+		} catch (PersistenceException e) {
+			fail("Unexpected PersistenceException " + e);
+		}
 	}
 
 	public void testSendAndReceiveDropMessage() throws QblDropPayloadSizeException, URISyntaxException, QblDropInvalidURL, InterruptedException, QblStorageEntityExistsException {
@@ -126,9 +193,12 @@ public class LocalQabelServiceTest extends ServiceTestCase<LocalQabelServiceTest
 
 		mService.addIdentity(senderIdentity);
 		mService.addIdentity(receiverIdentity);
-		mService.addContact(recipientContact);
-		mService.addContact(senderContact);
-
+		try {
+			mService.addContact(recipientContact);
+			mService.addContact(senderContact);
+		} catch (PersistenceException e) {
+			fail("Unexpected PersistenceException: " + e);
+		}
 		DropMessage dropMessage = new DropMessage(senderIdentity, "DropPayload", "DropPayloadType");
 
 		final CountDownLatch lock = new CountDownLatch(1);

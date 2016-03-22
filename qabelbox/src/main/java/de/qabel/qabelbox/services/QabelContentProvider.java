@@ -21,6 +21,8 @@ import de.qabel.QabelContentProviderConstants;
 import de.qabel.core.config.Contact;
 import de.qabel.core.config.Contacts;
 import de.qabel.core.config.Identity;
+import de.qabel.qabelbox.repository.exception.EntityNotFoundExcepion;
+import de.qabel.qabelbox.repository.exception.PersistenceException;
 
 /**
  * QabelResourceProvider provides access to Qabel resources like Contacts and Identities for
@@ -78,13 +80,19 @@ public class QabelContentProvider extends ContentProvider {
     private Cursor queryContacts() {
         MatrixCursor cursor = new MatrixCursor(QabelContentProviderConstants.CONTACT_COLUMN_NAMES);
 
-        for (Contacts contacts: mService.getAllContacts().values()) {
-            for (Contact contact : contacts.getContacts()) {
-                String[] values = new String[]{contact.getAlias(),
-                        contacts.getIdentity().getKeyIdentifier(),
-                        contact.getKeyIdentifier()};
-                cursor.addRow(values);
+        try {
+            for (Contacts contacts : mService.getAllContacts().values()) {
+                for (Contact contact : contacts.getContacts()) {
+                    String[] values = new String[]{contact.getAlias(),
+                            contacts.getIdentity().getKeyIdentifier(),
+                            contact.getKeyIdentifier()};
+                    cursor.addRow(values);
+                }
             }
+        } catch (EntityNotFoundExcepion entityNotFoundExcepion) {
+            Log.e(TAG, "Could not retreive contacts", entityNotFoundExcepion);
+        } catch (PersistenceException e) {
+            Log.e(TAG, "Could not retreive contacts", e);
         }
         return cursor;
     }

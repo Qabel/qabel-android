@@ -150,10 +150,8 @@
 
     <string name="contact_import_failed">Contact import failed</string>
     <string name="contact_import_manual_failed">Contact import failed. Please check if you entered the correct data</string>
-    <plurals name="contact_import_successfull">
-        <item quantity="one">Contact imported</item>
-        <item quantity="other">%d contacts imported</item>
-    </plurals>
+    <string name="contact_import_successfull">Contact imported</string>
+    <string name="contact_import_successfull_many">%1$d / %2$d Contacts imported</string>
     <string name="contact_import_zero_additions">No new Contacts found</string>
     <string name="cant_import_contact_already_exisits">Can\'t import contact. Contact already in contact list</string>
     <string name="messsage_enter_contact_manual">Please enter the details of the contact. You can also abort this and import the contact from a file or QR code</string>
@@ -314,7 +312,7 @@ To all people who have supported our Indigogo Campaign
     <string name="btn_welcome_accept">Accept</string>
     <string name="message_welcome_qabel_big">QABEL </string>
     <string name="headline_welcome_screen1">Welcome to\u0020</string>
-    <string name="empty_text" translatable="false"/>
+    <string name="empty_text" translatable="false" />
     <string name="headline_welcome_screen2">\u0020Features\n</string>
     <string name="headline_welcome_screen3">\u0020Identities\n</string>
     <string name="headline_welcome_screen4">\u0020Account\n</string>
@@ -324,5 +322,7 @@ To all people who have supported our Indigogo Campaign
     <string name="contact_export_all">Export all contacts</string>
     <string name="cant_export_contacts">Can\'t export contacts</string>
     <string name="contact_export_failed">Could not export the identity</string>
+    <string name="contact_export_successfully">Contact exported. You can now pass on this contact.</string>
+    <string name="dialog_message_delete_error">Could not delete contact</string>
 
 </resources>

@@ -14,9 +14,6 @@ import de.qabel.core.config.Identities;
 import de.qabel.core.config.Identity;
 import de.qabel.core.crypto.CryptoUtils;
 import de.qabel.core.crypto.QblECKeyPair;
-import de.qabel.core.exceptions.QblInvalidEncryptionKeyException;
-import de.qabel.qabelbox.persistence.AndroidPersistence;
-import de.qabel.qabelbox.persistence.QblSQLiteParams;
 import de.qabel.qabelbox.services.LocalQabelService;
 
 public class MockBoxProvider extends BoxProvider {
@@ -101,17 +98,6 @@ public class MockBoxProvider extends BoxProvider {
 		protected void initSharedPreferences() {
 		}
 
-		@Override
-		protected void initAndroidPersistence() {
-			AndroidPersistence androidPersistence;
-			QblSQLiteParams params = new QblSQLiteParams(context, DB_NAME, null, DB_VERSION);
-			try {
-				androidPersistence = new AndroidPersistence(params);
-			} catch (QblInvalidEncryptionKeyException e) {
-				return;
-			}
-			this.persistence = androidPersistence;
-		}
 
 		@Override
 		public Identities getIdentities() {

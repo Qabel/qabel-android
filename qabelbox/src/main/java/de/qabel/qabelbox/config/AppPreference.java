@@ -49,6 +49,7 @@ public class AppPreference {
 
         settings.edit().putLong(P_LAST_APP_UPDATE_QUESTION_TIME, time).commit();
     }
+
     public long getWelcomeScreenShownAt() {
 
         return settings.getLong(P_WELCOME_SCREEN_SHOWN_AT, 0);

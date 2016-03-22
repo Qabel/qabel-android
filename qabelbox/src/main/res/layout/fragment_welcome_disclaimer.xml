@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent"
-              android:layout_marginTop="@dimen/padding_welcome_text_top"
-              android:background="@color/bg_welcome_semitransparent"
-              android:orientation="vertical"
-    >
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_marginTop="@dimen/padding_welcome_text_top"
+    android:background="@color/bg_welcome_semitransparent"
+    android:orientation="vertical">
 
     <ScrollView
         android:layout_width="match_parent"
@@ -20,8 +19,7 @@
             android:gravity="center_horizontal"
             android:orientation="vertical"
             android:paddingTop="@dimen/padding_welcome_text_top"
-            android:layout_marginTop="25dp"
-            >
+            android:layout_marginTop="25dp">
 
             <LinearLayout
                 android:layout_width="wrap_content"

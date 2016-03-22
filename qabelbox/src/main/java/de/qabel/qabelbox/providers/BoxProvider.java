@@ -50,9 +50,9 @@ import java.util.concurrent.TimeUnit;
 import de.qabel.core.config.Identities;
 import de.qabel.core.config.Identity;
 import de.qabel.core.crypto.QblECKeyPair;
+import de.qabel.qabelbox.BuildConfig;
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
-import de.qabel.qabelbox.communication.VolumeFileTransferHelper;
 import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.exceptions.QblStorageNotFound;
 import de.qabel.qabelbox.services.LocalBroadcastConstants;
@@ -80,7 +80,7 @@ public class BoxProvider extends DocumentsProvider {
             Document.COLUMN_DISPLAY_NAME, Document.COLUMN_LAST_MODIFIED,
             Document.COLUMN_FLAGS, Document.COLUMN_SIZE, Media.DATA};
 
-    public static final String AUTHORITY = "de.qabel.qabelbox.providers.documents";
+    public static final String AUTHORITY = BuildConfig.APPLICATION_ID + ".providers.documents";
     public static final String PATH_SEP = "/";
     public static final String DOCID_SEPARATOR = "::::";
     public static final String PREFIX = "test";

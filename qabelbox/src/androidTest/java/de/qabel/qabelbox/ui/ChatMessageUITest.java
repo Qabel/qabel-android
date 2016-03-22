@@ -96,6 +96,46 @@ public class ChatMessageUITest {
 		mSystemAnimations.disableAll();
 	}
 
+	@Test
+	public void testSendMessage() {
+		Spoon.screenshot(mActivity, "empty");
+		sendOneAndCheck(1);
+		sendOneAndCheck(2);
+	}
+
+	/**
+	 * test visualization of chatmessage. messages direct injected with ui
+	 */
+	@Test
+	public void testNewMessageVisualization() {
+
+		//prepaire data
+		LocalQabelService service = QabelBoxApplication.getInstance().getService();
+
+		String identityKey = service.getActiveIdentity().getEcPublicKey().getReadableKeyIdentifier();
+		contact1 = createContact("contact1");
+		contact2 = createContact("contact2");
+		ChatServer chatServer = mActivity.chatServer;
+		String contact1Alias = contact1.getAlias();
+		String contact2Alias = contact2.getAlias();
+
+		String contact1Key = contact1.getEcPublicKey().getReadableKeyIdentifier();
+		String contact2Key = contact2.getEcPublicKey().getReadableKeyIdentifier();
+
+		//start test... go to contact fragment
+		openDrawer(R.id.drawer_layout);
+		onView(allOf(withText(R.string.Contacts), withParent(withClassName(endsWith("MenuView")))))
+				.perform(click());
+		Spoon.screenshot(mActivity, "contacts");
+		int messageCount = chatServer.getAllMessages(contact1).length;
+		Log.d(TAG, "count: " + messageCount);
+
+		addMessageFromOneContact(identityKey, chatServer, contact1Alias, contact1Key);
+		addMessageFromTwoContacts(identityKey, chatServer, contact1Alias, contact2Alias, contact1Key, contact2Key);
+		addOwnMessage(chatServer, contact1Alias, contact2Alias, contact1Key);
+
+	}
+
 	private void setupData() {
 		URLs.setBaseBlockURL(TestConstants.BLOCK_URL);
 		mActivity = mActivityTestRule.getActivity();
@@ -284,44 +324,6 @@ public class ChatMessageUITest {
 		return new ChatMessageItem(-1, (short) 1, System.currentTimeMillis() + System.nanoTime() % 1000, sender, receiver, message, ChatMessageItem.BOX_MESSAGE, mActivity.chatServer.getTextDropMessagePayload(message));
 	}
 
-	@Test
-	public void testSendMessage() {
-		Spoon.screenshot(mActivity, "empty");
-		sendOneAndCheck(1);
-		sendOneAndCheck(2);
-	}
 
-	/**
-	 * test visualization of chatmessage. messages direct injected with ui
-	 */
-	@Test
-	public void testNewMessageVisualization() {
-
-		//prepaire data
-		LocalQabelService service = QabelBoxApplication.getInstance().getService();
-
-		String identityKey = service.getActiveIdentity().getEcPublicKey().getReadableKeyIdentifier();
-		contact1 = createContact("contact1");
-		contact2 = createContact("contact2");
-		ChatServer chatServer = mActivity.chatServer;
-		String contact1Alias = contact1.getAlias();
-		String contact2Alias = contact2.getAlias();
-
-		String contact1Key = contact1.getEcPublicKey().getReadableKeyIdentifier();
-		String contact2Key = contact2.getEcPublicKey().getReadableKeyIdentifier();
-
-		//start test... go to contact fragment
-		openDrawer(R.id.drawer_layout);
-		onView(allOf(withText(R.string.Contacts), withParent(withClassName(endsWith("MenuView")))))
-				.perform(click());
-		Spoon.screenshot(mActivity, "contacts");
-		int messageCount = chatServer.getAllMessages(contact1).length;
-		Log.d(TAG, "count: " + messageCount);
-
-		addMessageFromOneContact(identityKey, chatServer, contact1Alias, contact1Key);
-		addMessageFromTwoContacts(identityKey, chatServer, contact1Alias, contact2Alias, contact1Key, contact2Key);
-		addOwnMessage(chatServer, contact1Alias, contact2Alias, contact1Key);
-
-	}
 }
 

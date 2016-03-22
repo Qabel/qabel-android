@@ -5,6 +5,7 @@ import android.support.test.espresso.matcher.BoundedMatcher;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ListView;
 import android.widget.SeekBar;
 
@@ -25,7 +26,7 @@ public class QabelMatcher {
             @Override
             public boolean matchesSafely(final View view) {
 
-                return ((ListView) view).getChildCount() == size;
+                return ((ViewGroup) view).getChildCount() == size;
             }
 
             @Override

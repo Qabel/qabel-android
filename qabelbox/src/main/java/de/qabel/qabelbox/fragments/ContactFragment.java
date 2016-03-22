@@ -52,7 +52,6 @@ import de.qabel.qabelbox.exceptions.QblStorageEntityExistsException;
 import de.qabel.qabelbox.helper.FileHelper;
 import de.qabel.qabelbox.helper.Helper;
 import de.qabel.qabelbox.helper.UIHelper;
-import de.qabel.qabelbox.repository.exception.PersistenceException;
 import de.qabel.qabelbox.services.LocalQabelService;
 
 /**

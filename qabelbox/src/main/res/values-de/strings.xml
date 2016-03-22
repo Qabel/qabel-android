@@ -281,4 +281,7 @@ Den Unterstützern der Indigogo Kampagne
     <string name="contact_import_successfull_many">%1$d / %2$d Kontakte importiert</string>
     <string name="contact_import_successfull">Kontakt importiert</string>
     <string name="dialog_message_delete_error">Kontakt konnte nicht gelöscht werden</string>
+    <string name="contact_export_all">Alle Kontakte exportieren</string>
+    <string name="contact_export_failed">Exportieren der Identität fehlgeschlagen</string>
+    <string name="message_step_is_needed_or_close_app">Um Qabel zu benutzen benötigen SIe %s. Wollen Sie Qabel schließen?</string>
 </resources>

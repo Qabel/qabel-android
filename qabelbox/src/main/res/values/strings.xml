@@ -312,7 +312,7 @@ To all people who have supported our Indigogo Campaign
     <string name="btn_welcome_accept">Accept</string>
     <string name="message_welcome_qabel_big">QABEL </string>
     <string name="headline_welcome_screen1">Welcome to\u0020</string>
-    <string name="empty_text" translatable="false"/>
+    <string name="empty_text" translatable="false" />
     <string name="headline_welcome_screen2">\u0020Features\n</string>
     <string name="headline_welcome_screen3">\u0020Identities\n</string>
     <string name="headline_welcome_screen4">\u0020Account\n</string>
@@ -322,5 +322,7 @@ To all people who have supported our Indigogo Campaign
     <string name="contact_export_all">Export all contacts</string>
     <string name="cant_export_contacts">Can\'t export contacts</string>
     <string name="contact_export_failed">Could not export the identity</string>
+    <string name="contact_export_successfully">Contact exported. You can now pass on this contact.</string>
+    <string name="dialog_message_delete_error">Could not delete contact</string>
 
 </resources>

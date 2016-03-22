@@ -4,9 +4,7 @@ import android.app.FragmentTransaction;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -115,7 +113,7 @@ public abstract class BaseWizardActivity extends CrashReportingActivity {
             if (canExit) {
                 finish();
             } else {
-
+                // TODO: This approach might be a bit shaky in some languages. Better store the whole msg string in xml instead of composing it here.
                 UIHelper.showDialogMessage(this, getString(R.string.dialog_headline_warning), String.format(getString(R.string.message_step_is_needed_or_close_app), getWizardEntityLabel()), R.string.yes, R.string.no, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {

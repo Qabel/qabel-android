@@ -277,7 +277,7 @@ public class UIBoxHelper {
 	public void deleteAllContacts(Identity identity) {
 		Set<Contact> contacts = mService.getContacts(identity).getContacts();
 		for (Contact c : contacts) {
-			Log.d(TAG,"delete contact: "+c.getAlias());
+			Log.d(TAG, "delete contact: " + c.getAlias());
 			mService.deleteContact(c);
 		}
 	}

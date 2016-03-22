@@ -59,7 +59,7 @@ public class CreateAccountActivity extends BaseWizardActivity {
 	protected String getWizardEntityLabel() {
 		return getString(R.string.boxaccount);
 	}
-    
+
 	/**
 	 * fill fragment list with fragments to navigate via wizard
 	 */

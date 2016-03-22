@@ -137,16 +137,14 @@ public class ChatMessagesDataBase extends SQLiteOpenHelper {
 				//selection args
 				new String[]{key, key},
 				null, null, null);
-
 		return createResultList(cursor);
 	}
 
 	@NonNull
 	private String[] getAllColumnsList() {
-
+		//colums
 		return new String[]
 				{
-						//colums
 						COL_MESSAGE_ID,
 						COL_MESSAGE_ISNEW,
 						COL_LOAD_TIMESTAMP,

@@ -627,7 +627,9 @@ public class MainActivity extends CrashReportingActivity
 	public boolean onNavigationItemSelected(MenuItem item) {
 		// Handle navigation view item clicks here.
 		int id = item.getItemId();
-
+		if (id == R.id.nav_tellafriend) {
+			ShareHelper.tellAFriend(this);
+		}
 		if (id == R.id.nav_contacts) {
 			selectContactsFragment();
 		} else if (id == R.id.nav_browse) {
@@ -637,8 +639,7 @@ public class MainActivity extends CrashReportingActivity
 			startActivityForResult(intent, REQUEST_SETTINGS);
 		} else if (id == R.id.nav_about) {
 			selectAboutFragment();
-		}
-		else if (id == R.id.nav_help) {
+		} else if (id == R.id.nav_help) {
 			selectHelpFragment();
 		}
 		DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -1077,6 +1078,7 @@ public class MainActivity extends CrashReportingActivity
 						TAG_ABOUT_FRAGMENT)
 				.commit();
 	}
+
 	private void selectAboutFragment() {
 
 		fab.show();

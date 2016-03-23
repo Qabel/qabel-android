@@ -7,6 +7,7 @@ package de.qabel.qabelbox.ui;
 import android.os.PowerManager;
 import android.support.design.internal.NavigationMenuItemView;
 import android.support.test.rule.ActivityTestRule;
+import android.test.FlakyTest;
 import android.widget.SeekBar;
 
 import com.squareup.spoon.Spoon;
@@ -119,14 +120,16 @@ public class CreateIdentityUITest {
 		clearIdentities();
 	}
 	@Test
-	public void addIdentity1Test() throws Throwable {
+    @FlakyTest
+    public void addIdentity1Test() throws Throwable {
 		clearIdentities();
 		UITestHelper.sleep(500);
 		String identity = "spoon1";
 		String identity2 = "spoon2";
 		Spoon.screenshot(UITestHelper.getCurrentActivity(mActivity), "start");
 
-		pressBack();
+        UITestHelper.sleep(500);
+        pressBack();
 		onView(withText(String.format(mActivity.getString(R.string.message_step_is_needed_or_close_app), R.string.identity)));
 		onView(withText(R.string.no)).perform(click());
 

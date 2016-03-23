@@ -8,7 +8,7 @@ spoon {
     // for debug output
     debug = true
     noAnimations = true
-    instrumentationArgs = ["package=de.qabel.qabelbox.ui"]
+    instrumentationArgs = ["package=de.qabel.qabel.ui"]
     adbTimeout = 60
 }
 
@@ -33,7 +33,7 @@ android {
         //junit test
         testInstrumentationRunner "de.qabel.qabelbox.QblJUnitRunner"
         //ui tests
-        //testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
         ndk {
             moduleName "curve25519"
@@ -50,6 +50,9 @@ android {
     buildTypes {
         release {
             minifyEnabled false
+        }
+        debug {
+            applicationIdSuffix ".debug"
         }
     }
 

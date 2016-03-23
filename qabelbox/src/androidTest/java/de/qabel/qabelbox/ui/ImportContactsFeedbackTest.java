@@ -11,7 +11,6 @@ import android.support.test.espresso.action.ViewActions;
 import android.support.test.espresso.contrib.DrawerActions;
 import android.test.ActivityInstrumentationTestCase2;
 import android.test.suitebuilder.annotation.MediumTest;
-import android.util.Log;
 
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
@@ -31,7 +30,6 @@ import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.activities.MainActivity;
 import de.qabel.qabelbox.config.ContactExportImportTest;
 import de.qabel.qabelbox.services.LocalQabelService;
-import de.qabel.qabelbox.ui.action.QabelViewAction;
 import de.qabel.qabelbox.ui.helper.SystemAnimations;
 import de.qabel.qabelbox.ui.helper.UIActionHelper;
 import de.qabel.qabelbox.ui.helper.UITestHelper;
@@ -51,6 +49,7 @@ import static org.hamcrest.Matchers.endsWith;
 /**
  * Created by Jan D.S. Wischweh <mail@wischweh.de> on 07.03.16.
  */
+
 public class ImportContactsFeedbackTest extends ActivityInstrumentationTestCase2<MainActivity> {
 
     public static final String COOKIEMONSTER_ALIAS = "Cookie Monster";

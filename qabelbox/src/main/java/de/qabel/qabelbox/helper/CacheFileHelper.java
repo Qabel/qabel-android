@@ -13,83 +13,81 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public class CacheFileHelper {
 
-	private static AtomicBoolean isRunningTest;
 	private final String TAG = this.getClass().getSimpleName();
+	private static AtomicBoolean isRunningTest;
+	private final String[] fileDeletePrefixes = new String[]{"download", "dir", "uploadAnd"};
 
-    public void freeCacheAsynchron(Context context) {
+	public void freeCacheAsynchron(Context context) {
 
 
-        Log.d(TAG, "clear cache");
-		if(!isRunningTest()) {
+		Log.d(TAG, "clear cache");
+		if (!isRunningTest()) {
 			clearCache(context);
+		} else {
+			Log.d(TAG, "skip clear cache. test is rumning");
 		}
-    }
+	}
 
-    void clearCache(final Context context) {
+	private void clearCache(final Context context) {
 
-        new AsyncTask<Void, Void, Void>() {
-            @Override
-            protected Void doInBackground(Void... params) {
+		new AsyncTask<Void, Void, Void>() {
+			@Override
+			protected Void doInBackground(Void... params) {
 
-                deleteFiles(context);
-                Log.d(TAG, "cache cleared");
-                return null;
-            }
-        }.executeOnExecutor(AsyncTask.SERIAL_EXECUTOR);
-    }
+				deleteFiles(context);
+				return null;
+			}
+		}.executeOnExecutor(AsyncTask.SERIAL_EXECUTOR);
+	}
 
-    public void deleteFiles(Context context) {
+	private void deleteFiles(Context context) {
 
-        File cacheDir = context.getCacheDir();
+		File cacheDir = context.getCacheDir();
+		File[] files = cacheDir.listFiles();
 
-        File[] files = cacheDir.listFiles();
-        long fileSizes = 0;
-        for (File file : files) {
-            fileSizes += file.length();
-        }
+		//calculate file size before delete any files
+		long fileSizes = 0;
+		for (File file : files) {
+			fileSizes += file.length();
+		}
 
-        //clear all upload files
-        long deletedSize = 0;
-        if (files != null) {
-            for (File file : files) {
-                if (file.getName().startsWith("upload")) {
-                    //delete all upload files
-                    Log.v(TAG, "delete upload file " + file.getName() + " " + file.length());
-                    deletedSize += file.length();
-                    file.delete();
-                } else {
-                    if (file.getName().startsWith("download") && file.length() > 1024 * 1024) {
-                        Log.v(TAG, "delete download file " + file.getName() + " " + file.length());
-                        deletedSize += file.length();
-                        file.delete();
-                    }
-                    else
-                    {
-                        if (file.getName().startsWith("dir"))
-                        {
-                            Log.v(TAG, "delete dir file " + file.getName() + " " + file.length());
-                            deletedSize += file.length();
-                            file.delete();
-                        }
-                    }
-                }
-            }
-        }
-        Log.d(TAG, "cache cleared before: " + fileSizes / 1024 + "kb, removed: " + deletedSize / 1024 + "kb");
-    }
+		//clear files
+		long deletedSize = 0;
+		for (File file : files) {
+			if (shouldFileDeleted(file.getName())) {
+				Log.v(TAG, "delete file " + file.getName() + " " + file.length());
+				deletedSize += file.length();
+				if (!file.delete()) {
+					Log.w(TAG, "error on remove file " + file.getName());
+				}
+			}
+		}
 
-	public static synchronized boolean isRunningTest () {
+		//show result
+		Log.d(TAG, "cache cleared done. before: " + fileSizes / 1024 + "kb, removed: " + deletedSize / 1024 + "kb");
+	}
+
+	private boolean shouldFileDeleted(String name) {
+		for (String prefix : fileDeletePrefixes) {
+			if (name.startsWith(prefix)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private static synchronized boolean isRunningTest() {
 		if (null == isRunningTest) {
-			boolean istest;
+			boolean isTest;
 
 			try {
-				Class.forName ("android.support.test.espresso.Espresso");
-				istest = true;
+				Class.forName("android.support.test.espresso.Espresso");
+				isTest = true;
 			} catch (ClassNotFoundException e) {
-				istest = false;
+				isTest = false;
 			}
 
-			isRunningTest = new AtomicBoolean(istest);
+			isRunningTest = new AtomicBoolean(isTest);
 		}
 
 		return isRunningTest.get();

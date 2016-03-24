@@ -174,7 +174,7 @@
 
         <provider
             android:name=".providers.BoxProvider"
-            android:authorities=".providers.documents"
+            android:authorities="${applicationId}.providers.documents"
             android:enabled="true"
             android:exported="true"
             android:grantUriPermissions="true"

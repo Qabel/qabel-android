@@ -32,8 +32,7 @@ public class ChatMessageItem {
 	public short isNew = 1;//1 for new, 0 for old
 	public int id = 0;
 
-	public ChatMessageItem(int id, short isNew, long time_stamp, String sender, String receiver, String acknowledge_id, String drop_payload_type, String drop_payload)
-	{
+	public ChatMessageItem(int id, short isNew, long time_stamp, String sender, String receiver, String acknowledge_id, String drop_payload_type, String drop_payload) {
 		this.id = id;
 		this.isNew = isNew;
 		this.time_stamp = time_stamp;

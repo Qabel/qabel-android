@@ -21,85 +21,85 @@ import static org.hamcrest.Matchers.is;
 
 public class QabelMatcher {
 
-    public static Matcher<View> withListSize(final int size) {
+	public static Matcher<View> withListSize(final int size) {
 
-        return new TypeSafeMatcher<View>() {
-            @Override
-            public boolean matchesSafely(final View view) {
-                return ((RecyclerView) view).getChildCount() == size;
-            }
+		return new TypeSafeMatcher<View>() {
+			@Override
+			public boolean matchesSafely(final View view) {
+				return ((RecyclerView) view).getChildCount() == size;
+			}
 
-            @Override
-            public void describeTo(final Description description) {
+			@Override
+			public void describeTo(final Description description) {
 
-                description.appendText("ListView should have " + size + " items");
-            }
-        };
-    }
+				description.appendText("ListView should have " + size + " items");
+			}
+		};
+	}
 
-    public static ViewInteraction matchToolbarTitle(
-            CharSequence title) {
+	public static ViewInteraction matchToolbarTitle(
+			CharSequence title) {
 
-        return onView(isAssignableFrom(Toolbar.class))
-                .check(matches(withToolbarTitle(is(title))));
-    }
+		return onView(isAssignableFrom(Toolbar.class))
+				.check(matches(withToolbarTitle(is(title))));
+	}
 
-    private static Matcher<Object> withToolbarTitle(
-            final Matcher<CharSequence> textMatcher) {
+	private static Matcher<Object> withToolbarTitle(
+			final Matcher<CharSequence> textMatcher) {
 
-        return new BoundedMatcher<Object, Toolbar>(Toolbar.class) {
-            @Override
-            public boolean matchesSafely(Toolbar toolbar) {
+		return new BoundedMatcher<Object, Toolbar>(Toolbar.class) {
+			@Override
+			public boolean matchesSafely(Toolbar toolbar) {
 
-                return textMatcher.matches(toolbar.getTitle());
-            }
+				return textMatcher.matches(toolbar.getTitle());
+			}
 
-            @Override
-            public void describeTo(Description description) {
+			@Override
+			public void describeTo(Description description) {
 
-                description.appendText("match with toolbar title: ");
-                textMatcher.describeTo(description);
-            }
-        };
-    }
+				description.appendText("match with toolbar title: ");
+				textMatcher.describeTo(description);
+			}
+		};
+	}
 
-    public static Matcher<View> withProgress(final int expectedProgress) {
-        return new BoundedMatcher<View, SeekBar>(SeekBar.class) {
-            @Override
-            public void describeTo(Description description) {
-                description.appendText("expected: ");
-                description.appendText("" + expectedProgress);
-            }
+	public static Matcher<View> withProgress(final int expectedProgress) {
+		return new BoundedMatcher<View, SeekBar>(SeekBar.class) {
+			@Override
+			public void describeTo(Description description) {
+				description.appendText("expected: ");
+				description.appendText("" + expectedProgress);
+			}
 
-            @Override
-            public boolean matchesSafely(SeekBar seekBar) {
-                return seekBar.getProgress() == expectedProgress;
-            }
-        };
-    }
-
-
-    public static Matcher<View> withDrawable(final int resourceId) {
-        return new DrawableMatcher(resourceId);
-    }
+			@Override
+			public boolean matchesSafely(SeekBar seekBar) {
+				return seekBar.getProgress() == expectedProgress;
+			}
+		};
+	}
 
 
-    public static ViewAssertion isVisible() {
-        return new ViewAssertion() {
-            public void check(View view, NoMatchingViewException noView) {
-                assertThat(view, new VisibilityMatcher(View.VISIBLE));
-            }
-        };
-    }
+	public static Matcher<View> withDrawable(final int resourceId) {
+		return new DrawableMatcher(resourceId);
+	}
 
 
-    public static ViewAssertion isInvisible() {
-        return new ViewAssertion() {
-            public void check(View view, NoMatchingViewException noView) {
-                assertThat(view, new VisibilityMatcher(View.INVISIBLE));
-            }
-        };
-    }
+	public static ViewAssertion isVisible() {
+		return new ViewAssertion() {
+			public void check(View view, NoMatchingViewException noView) {
+				assertThat(view, new VisibilityMatcher(View.VISIBLE));
+			}
+		};
+	}
+
+
+	public static ViewAssertion isInvisible() {
+		return new ViewAssertion() {
+			public void check(View view, NoMatchingViewException noView) {
+				assertThat(view, new VisibilityMatcher(View.INVISIBLE));
+			}
+		};
+	}
 
 
 }

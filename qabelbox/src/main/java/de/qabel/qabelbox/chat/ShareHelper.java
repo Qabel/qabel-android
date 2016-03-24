@@ -33,7 +33,7 @@ public class ShareHelper {
 	private static final String TAG = "ShareHelper";
 
 
-	public static void shareToQabelUser(final MainActivity self,LocalQabelService mService,final BoxObject boxObject) {
+	public static void shareToQabelUser(final MainActivity self, LocalQabelService mService, final BoxObject boxObject) {
 
 		if (mService.getContacts(mService.getActiveIdentity()).getContacts().size() == 0) {
 			UIHelper.showDialogMessage(self, R.string.dialog_headline_info, R.string.cant_share_contactlist_is_empty);

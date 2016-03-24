@@ -10,8 +10,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Created by danny on 15.02.2016.
- *
- * class to clear cache after app is closed. 
+ * <p/>
+ * class to clear cache after app is closed.
  */
 public class CacheFileHelper {
 

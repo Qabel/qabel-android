@@ -10,6 +10,7 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.IBinder;
 import android.provider.DocumentsContract;
+import android.support.annotation.NonNull;
 import android.util.Log;
 
 import org.apache.commons.io.output.ByteArrayOutputStream;
@@ -21,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Set;
 
+import de.qabel.core.config.Contact;
 import de.qabel.core.config.DropServer;
 import de.qabel.core.config.Identity;
 import de.qabel.core.crypto.QblECKeyPair;
@@ -32,7 +34,6 @@ import de.qabel.qabelbox.TestConstants;
 import de.qabel.qabelbox.communication.VolumeFileTransferHelper;
 import de.qabel.qabelbox.config.AppPreference;
 import de.qabel.qabelbox.exceptions.QblStorageException;
-import de.qabel.qabelbox.helper.PrefixGetter;
 import de.qabel.qabelbox.helper.RealTokerGetter;
 import de.qabel.qabelbox.providers.BoxProvider;
 import de.qabel.qabelbox.services.LocalQabelService;
@@ -56,12 +57,14 @@ public class UIBoxHelper {
 
 		mContext = activity;
 	}
+
 	public void unbindService(final QabelBoxApplication app) {
 
 		Intent serviceIntent = new Intent(app.getApplicationContext(), LocalQabelService.class);
 		finished = false;
 		app.stopService(serviceIntent);
 	}
+
 	public void bindService(final QabelBoxApplication app) {
 
 		Intent serviceIntent = new Intent(app.getApplicationContext(), LocalQabelService.class);
@@ -128,22 +131,11 @@ public class UIBoxHelper {
 	}
 
 
-	public Identity addIdentity(final String identName) {
+	public Identity addIdentity(final String identityName) {
 
-		URI uri = URI.create(QabelBoxApplication.DEFAULT_DROP_SERVER);
-		DropServer dropServer = new DropServer(uri, "", true);
-		DropIdGenerator adjustableDropIdGenerator = new AdjustableDropIdGenerator(2 * 8);
-		DropURL dropURL = new DropURL(dropServer, adjustableDropIdGenerator);
-		Collection<DropURL> dropURLs = new ArrayList<>();
-		dropURLs.add(dropURL);
-
-		Identity identity = new Identity(identName,
-				dropURLs, new QblECKeyPair());
-		identity.getPrefixes().add(TestConstants.PREFIX);
-		finished = false;
-
-		Log.d(TAG, "identity added " + identity.getAlias() + " " + identity.getEcPublicKey().getReadableKeyIdentifier());
+		Identity identity = createIdentity(identityName);
 		mService.addIdentity(identity);
+		Log.d(TAG, "identity added " + identity.getAlias() + " " + identity.getEcPublicKey().getReadableKeyIdentifier());
 		mService.setActiveIdentity(identity);
 
 		try {
@@ -159,6 +151,20 @@ public class UIBoxHelper {
 			}
 		}
 
+		return identity;
+	}
+
+	@NonNull
+	public Identity createIdentity(String identityName) {
+		URI uri = URI.create(QabelBoxApplication.DEFAULT_DROP_SERVER);
+		DropServer dropServer = new DropServer(uri, "", true);
+		DropIdGenerator adjustableDropIdGenerator = new AdjustableDropIdGenerator(2 * 8);
+		DropURL dropURL = new DropURL(dropServer, adjustableDropIdGenerator);
+		Collection<DropURL> dropURLs = new ArrayList<>();
+		dropURLs.add(dropURL);
+
+		Identity identity = new Identity(identityName, dropURLs, new QblECKeyPair());
+		identity.getPrefixes().add(TestConstants.PREFIX);
 		return identity;
 	}
 
@@ -233,7 +239,6 @@ public class UIBoxHelper {
 		}else {
 			prefs.setToken(TestConstants.TOKEN);
 		}
-	}
 
 	/**
 	 * remove the token from prefs
@@ -266,5 +271,25 @@ public class UIBoxHelper {
 
 	public LocalQabelService getService() {
 		return mService;
+	}
+
+	public void deleteAllContacts(Identity identity) {
+		Set<Contact> contacts = mService.getContacts(identity).getContacts();
+		for (Contact c : contacts) {
+			Log.d(TAG,"delete contact: "+c.getAlias());
+			mService.deleteContact(c);
+		}
+	}
+
+	public void deleteAllIdentities() {
+		try {
+			Identity old = getCurrentIdentity();
+			if (old != null) {
+				deleteIdentity(old);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		removeAllIdentities();
 	}
 }

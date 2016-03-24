@@ -39,6 +39,7 @@
     <string name="confirm_delete_identity_message">Möchten Sie die Identität %s wirklich löschen? Diese Operation kann nicht rückgängig gemacht werden.</string>
     <string name="confirm_delete_message">Möchten Sie %s löschen?</string>
     <string name="confirm_delete_title">Löschen?</string>
+    <string name="message_step_is_needed_or_close_app">%s wird benötigt um Qabel zu benutzen. Möchten Sie Qabel jetzt schließen?</string>
     <string name="contact_count">Kontakte: %1</string>
     <string name="contact_deleted">Kontakt mit dem Namen %1 gelöscht</string>
     <string name="contact_export_successfully">Kontakt exportiert. Sie können diesen Kontakt nun weitergeben.</string>
@@ -69,6 +70,7 @@
     <string name="create_account_username_hint">Nutzername</string>
     <string name="create_box_account">Registrieren Sie einen Qabelaccount</string>
     <string name="create_folder">Ordner erstellen</string>
+    <string name="identity">Eine Identität</string>
     <string name="create_identity_already_exists">Diese Identität besteht bereits</string>
     <string name="create_identity_create">Erstellen einer Identität</string>
     <string name="create_identity_enter_all_data">Bitte füllen Sie alle Felder aus</string>
@@ -133,7 +135,9 @@
     <string name="no">Nein</string>
     <string name="no_entrys_found">Keine Dateien gefunden</string>
     <string name="ok">OK</string>
-    <string name="password_to_short">Das Passwort ist zu kurz</string>
+    <string name="password_to_short">Das Passwort ist zu kurz. Es muss mindestens 8 Zeichen lang sein.</string>
+    <string name="password_contains_user">Das Passwort ist dem Nutzernamen zu ähnlich.</string>
+    <string name="password_digits_only">Passwörter die nur aus Zahlen bestehen sind nicht erlaubt.</string>
     <string name="qrecode_scanner">QR Code Scanner</string>
     <string name="reason_for_error">Ursache: %1</string>
     <string name="rename_identity">Umbenennen von %s</string>
@@ -144,6 +148,7 @@
     <string name="settings_change_account_password">Passwort ändern</string>
     <string name="settings_change_account_password_summary">Passwort des Qabelaccounts ändern</string>
     <string name="settings_headline_boxaccount">Qabelaccount</string>
+    <string name="boxaccount">Ein Qabelaccount</string>
     <string name="share_in_app_go_back_without_upload">Möchten Sie das Teilen verwerfen?</string>
     <string name="share_into_app_canceled">Der Upload wurde abgebrochen</string>
     <string name="share_into_app_select_identity">Bitte wählen Sie die Identität für diesen Upload aus</string>
@@ -194,7 +199,7 @@
     <string name="action_about">Über</string>
     <string name="btn_welcome_disclaimer_show_legal_notes">Zeige AGB</string>
     <string name="btn_welcome_disclaimer_show_privacy_notes">Zeige Datenschutzerklärung</string>
-    <string name="btn_welcome_disclaimer_show_qapl">Zeige QAPL</string>
+    <string name="btn_welcome_disclaimer_show_qapl">Zeige QaPL</string>
     <string name="btn_welcome_disclaimer_show_sources_on_github">Auf GitHub anzeigen</string>
     <string name="cb_welcome_disclaimer_legal_note_checked">AGB akzeptiert</string>
     <string name="cb_welcome_disclaimer_legal_note_unchecked">AGB akzeptieren</string>
@@ -208,18 +213,76 @@
     <string name="message_welcome_qabel_big">QABEL</string>
     <string name="message_welcome_screen1">Qabel ist eine kostenlose,\nquelloffene\nKryptographieplattform.\n\nWerden Sie Teil\ndes Qabel-Ökosystems.\n\nViel Spaß!</string>
     <string name="message_welcome_screen2">Ende-zu-Ende verschlüsselter\nUpload, Download und\nSpeicherung.\nMetadatenverschleierung.\n2 GB kostenloser Speicher.\nSynchronisation über beliebig\nviele Endgeräte.\nSharing mit anderen\nQabelnutzern.\nVerwaltung mehrerer Identitäten\nmit nur einem Qabel-Account\nund in nur einer Anmeldung.\nIntegrierter\nKurznachrichtendienst.</string>
-    <string name="message_welcome_screen3">Qabel erlaubt es Ihnen,\nmehrere Identitäten in nur\neinem Account abzubilden.\nSie können verschiedene\nIdentitäten auf\nverschiedenen Endgeräten\nsynchronisieren und\nbestimmen, welche\nIdentitäten Sie mit anderen\nMenschen Teilen möchten.\nSeinen Sie Bob für\nIhren Chef und Alice für\nIhre Freunde!</string>
+    <string name="message_welcome_screen3">Qabel erlaubt es Ihnen,\nmehrere Identitäten in nur\neinem Account abzubilden.\nSie können verschiedene\nIdentitäten auf\nverschiedenen Endgeräten\nsynchronisieren und\nbestimmen, welche\nIdentitäten Sie mit anderen\nMenschen Teilen möchten.\nSeien Sie Bob für\nIhren Chef und Alice für\nIhre Freunde!</string>
     <string name="message_welcome_screen4">2 GB Speicher bekommen\nSie von uns geschenkt.\n\nErstellen Sie nun Ihren\nQabel-Account.</string>
 
     <string name="upload_in_progress_notification_content">Hochladen ... %s</string>
     <string name="app_info_version_and_build">You use app version $1 from $2</string>
-    <string name="message_welcome_disclaimer_headline">\u0020Lizenz Krams\n</string>
+    <string name="message_welcome_disclaimer_headline">\u0020Vertragliches\n</string>
     <string name="message_welcome_disclaimer_message_legal_note">Um fortzufahren,\nakzeptieren sie bitte\nunsere AGB und unsere\nDatenschutzerklärung.</string>
     <string name="message_welcome_disclaimer_message_privacy_note"></string>
     <string name="message_welcome_disclaimer_qabel_is_public_source">\u0020ist publizierter Code</string>
     <string name="help_main_headline_tou">AGB</string>
-    <string name="help_main_headline_data_policy">Datenschutzbestimmung</string>
+    <string name="help_main_headline_data_policy">Datenschutzerklärung</string>
     <string name="help_main_headline_about_us">Impressum</string>
     <string name="help_main_headline_app_infos">Awendungsinformationen</string>
     <string name="help_main_headline_app_version">Anwendungsversion</string>
+   <string name="about.header.qabel.thanks.content.txt">Alexander Hartmann
+\nAndreas Kassner
+\nBarabara Steuer
+\nBenjamin Schütze
+\nBritta Görtz
+\nChristian Burkert
+\nDaniel Kaminski
+\nDennis Weber
+\nDustin Fürst
+\nFrank Geise
+\nFrank Roebers
+\nHanno Meetz
+\nJens Kadenbach
+\nJens Kassert
+\nJulian Seeger
+\nLennart Henke
+\nMalte Zobel
+\nMarcus Amler
+\nMarkus Kunert
+\nMarkus Thimm
+\nMartha Lisiewitz
+\nMartin Linke
+\nMatthaeus Kozlowski
+\nMike Hahm
+\nMirco Pietsch
+\nMoritz Kaynert
+\nMoritz Schmidt
+\nNicola Hauke
+\nNorbert Najderek
+\nOliver Weidner
+\nPatrick Engelking
+\nPaul Rösler
+\nPeter Leppelt
+\nPhilipp Schröder
+\nReinhard Sczesny
+\nRick
+\nSascha Nanninga
+\nSven Busche
+\nSven Klose
+\nTarkan Firat
+\nThomas Schuster
+\nValerie Whyte
+\nWulf Bolte
+\n
+\nVielen anonym bleiben wollende Menschen aus Bürgerrechtskreisen, die es wahrlich nicht immer einfach haben
+\nDen Betatestern
+\nDen Menschen, die uns schon seit der Konzeptvorstellung wohlwollend begleiten
+Den Unterstützern der Indigogo Kampagne
+    </string>
+    <string name="about.header.qabel.thanks.header.txt"> bedankt sich bei:</string>
+    <string name="cant_export_contacts">Kontakte konnten nicht exportiert werden</string>
+    <string name="contact_export_all">Alle Kontakte exportieren</string>
+    <plurals name="contact_export_successfully">
+        <item quantity="one">Kontakt wurde exportiert. Sie können diesen Kontakt mit Ihren Freunden teilen.</item>
+        <item quantity="other">%d Kontakte exportiert. Sie können diese Kontakte mit Ihren Freunden teilen.</item>
+    </plurals>
+
+    <string name="contact_export_failed">Kontakt konnte nicht exportiert werden</string>
 </resources>

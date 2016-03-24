@@ -103,6 +103,7 @@ public class OpenImageUITest {
 
     private void setupData() {
 		mActivity = mActivityTestRule.getActivity();
+        URLs.setBaseBlockURL(TestConstants.BLOCK_URL);
 		mBoxHelper = new UIBoxHelper(QabelBoxApplication.getInstance());
 		mBoxHelper.bindService(QabelBoxApplication.getInstance());
 		mBoxHelper.createTokenIfNeeded(false);
@@ -115,7 +116,7 @@ public class OpenImageUITest {
             e.printStackTrace();
         }
 		mBoxHelper.removeAllIdentities();
-        Identity identity = mBoxHelper.addIdentity("spoon");
+        mBoxHelper.addIdentity("spoon");
         uploadTestFiles();
     }
 
@@ -123,8 +124,8 @@ public class OpenImageUITest {
 
         int fileCount = 4;
         mBoxHelper.uploadFile(mBoxHelper.mBoxVolume, "defect.png", new byte[100], "");
-        mBoxHelper.uploadDrawableFile(mBoxHelper.mBoxVolume, "file1.jpg", Bitmap.CompressFormat.JPEG, R.drawable.big_logo);
-        mBoxHelper.uploadDrawableFile(mBoxHelper.mBoxVolume, "file2.png", Bitmap.CompressFormat.PNG, R.drawable.big_logo);
+        mBoxHelper.uploadDrawableFile(mBoxHelper.mBoxVolume, "file1.jpg", Bitmap.CompressFormat.JPEG, R.drawable.splash_logo);
+        mBoxHelper.uploadDrawableFile(mBoxHelper.mBoxVolume, "file2.png", Bitmap.CompressFormat.PNG, R.drawable.splash_logo);
         mBoxHelper.uploadDrawableFile(mBoxHelper.mBoxVolume, "file3.png", Bitmap.CompressFormat.PNG, R.drawable.qabel_logo);
 
         mBoxHelper.waitUntilFileCount(fileCount);
@@ -145,7 +146,7 @@ public class OpenImageUITest {
         Intents.init();
         Matcher<Intent> expectedIntent = allOf(hasAction(Intent.ACTION_CHOOSER));
         intending(expectedIntent).respondWith(activityResult);
-        onView(withId(R.id.view)).perform(click());
+        onView(withId(R.id.action_imageviewer_open)).perform(click());
         intended(expectedIntent);
         Intents.release();
 
@@ -166,8 +167,8 @@ public class OpenImageUITest {
                 .perform(RecyclerViewActions.actionOnItem(
                         hasDescendant(withText(file)), click()));
         onView(withId(R.id.image)).check(matches(isDisplayed()));
-        onView(withId(R.id.edit)).check(matches(isDisplayed()));
-        onView(withId(R.id.view)).check(matches(isDisplayed()));
+        onView(withId(R.id.action_imageviewer_edit)).check(matches(isDisplayed()));
+        onView(withId(R.id.action_imageviewer_open)).check(matches(isDisplayed()));
     }
 }
 

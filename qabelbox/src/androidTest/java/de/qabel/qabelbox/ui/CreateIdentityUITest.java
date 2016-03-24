@@ -44,6 +44,8 @@ import static android.support.test.espresso.action.ViewActions.click;
 import static android.support.test.espresso.action.ViewActions.pressImeActionButton;
 import static android.support.test.espresso.action.ViewActions.typeText;
 import static android.support.test.espresso.assertion.ViewAssertions.matches;
+import static android.support.test.espresso.contrib.DrawerActions.closeDrawer;
+import static android.support.test.espresso.contrib.DrawerActions.openDrawer;
 import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static android.support.test.espresso.matcher.ViewMatchers.withClassName;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
@@ -107,14 +109,15 @@ public class CreateIdentityUITest {
 
 	}
 
-	public void openDrawer(String withIdentity) {
-		onView(withId(R.id.drawer_layout)).perform(QabelViewAction.actionOpenDrawer());
-		UITestHelper.sleep(500);
+	public void openDrawerWithIdentity(String withIdentity) {
+		openDrawer(R.id.drawer_layout);
 		onView(allOf(withText(withIdentity), withParent(withId(R.id.select_identity_layout)))).check(matches(isDisplayed())).perform(click());
 		UITestHelper.sleep(2000);
 	}
-
-
+	@Test
+	public void addIdentity0Test() throws Throwable {
+		clearIdentities();
+	}
 	@Test
 	public void addIdentity1Test() throws Throwable {
 		clearIdentities();
@@ -123,8 +126,12 @@ public class CreateIdentityUITest {
 		String identity2 = "spoon2";
 		Spoon.screenshot(UITestHelper.getCurrentActivity(mActivity), "start");
 
+		pressBack();
+		onView(withText(String.format(mActivity.getString(R.string.message_step_is_needed_or_close_app), R.string.identity)));
+		onView(withText(R.string.no)).perform(click());
+
 		createIdentity(identity);
-		openDrawer(identity);
+		openDrawerWithIdentity(identity);
 		//go to add identity, enter no data and go back
 		onView(withText(R.string.add_identity)).check(matches(isDisplayed())).perform(click());
 		pressBack();
@@ -134,7 +141,7 @@ public class CreateIdentityUITest {
 		UITestHelper.sleep(500);
 
 		//create spoon 2 identity
-		openDrawer(identity);
+		openDrawerWithIdentity(identity);
 
 		onView(withText(R.string.add_identity)).check(matches(isDisplayed())).perform(click());
 		Spoon.screenshot(UITestHelper.getCurrentActivity(mActivity), "spoon1");
@@ -142,17 +149,15 @@ public class CreateIdentityUITest {
 		createIdentity(identity2);
 		UITestHelper.sleep(500);
 		//check if 2 identities displayed
-		onView(withId(R.id.drawer_layout)).check(matches(isDisplayed())).perform(QabelViewAction.actionCloseDrawer());
-		UITestHelper.sleep(1000);
-		onView(withId(R.id.drawer_layout)).check(matches(isDisplayed())).perform(QabelViewAction.actionOpenDrawer());
-		UITestHelper.sleep(1000);
+		closeDrawer(R.id.drawer_layout);
+		openDrawer(R.id.drawer_layout);
 		onView(withId(R.id.imageViewExpandIdentity)).check(matches(isDisplayed())).perform(click());
 		UITestHelper.sleep(500);
 		onView(allOf(is(instanceOf(NavigationMenuItemView.class)), withText(identity))).check(matches(isDisplayed()));
 		onView(allOf(is(instanceOf(NavigationMenuItemView.class)), withText(identity2))).check(matches(isDisplayed()));
 
 		Spoon.screenshot(UITestHelper.getCurrentActivity(mActivity), "spoon1_2");
-		onView(withId(R.id.drawer_layout)).perform(QabelViewAction.actionCloseDrawer());
+		closeDrawer(R.id.drawer_layout);
 	}
 
 	private void createIdentity(String identity) throws Throwable {
@@ -183,6 +188,7 @@ public class CreateIdentityUITest {
 	private void createIdentityPerformConfirm() {
 		onView(withText(R.string.create_identity_final)).check(matches(isDisplayed()));
 		onView(withText(R.string.finish)).perform(click());
+		UITestHelper.sleep(10000);
 		onView(withText(R.string.headline_files)).check(matches(isDisplayed()));
 		UITestHelper.sleep(500);
 	}

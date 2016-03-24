@@ -24,21 +24,18 @@ public class CreateIdentityEditTextFragment extends BaseIdentityFragment {
     private BaseWizardActivity.NextChecker mChecker;
 
     public static CreateIdentityEditTextFragment newInstance(int messageId, int editTextHintId, BaseWizardActivity.NextChecker checker) {
-
-        CreateIdentityEditTextFragment fragment = new CreateIdentityEditTextFragment();
-        fragment.mMessageId = messageId;
-        fragment.mEditTextHintId = editTextHintId;
-        fragment.mChecker = checker;
-        return fragment;
+        return newInstance(messageId, editTextHintId, checker, null);
     }
 
-    public static CreateIdentityEditTextFragment newInstance(int messageId, int editTextHintId, BaseWizardActivity.NextChecker checker, int textInputType) {
+    public static CreateIdentityEditTextFragment newInstance(int messageId, int editTextHintId, BaseWizardActivity.NextChecker checker, Integer textInputType) {
 
         CreateIdentityEditTextFragment fragment = new CreateIdentityEditTextFragment();
         fragment.mMessageId = messageId;
         fragment.mEditTextHintId = editTextHintId;
         fragment.mChecker = checker;
-        fragment.inputType = textInputType;
+        if(textInputType != null){
+            fragment.inputType = textInputType;
+        }
         return fragment;
     }
 

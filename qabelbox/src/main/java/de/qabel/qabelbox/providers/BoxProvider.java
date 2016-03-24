@@ -632,7 +632,7 @@ public class BoxProvider extends DocumentsProvider {
         }
         mBuilder.setContentTitle("Downloading " + filename)
                 .setContentText("Download complete")
-                .setSmallIcon(R.drawable.notification_template_icon_bg);
+                .setSmallIcon(R.drawable.qabel_logo);
         mBuilder.setProgress(100, 100, false);
         mNotifyManager.notify(id, mBuilder.build());
         File out = new File(getContext().getExternalCacheDir(), basename);

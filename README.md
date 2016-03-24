@@ -23,9 +23,9 @@ This project provides a Client for <a href="https://qabel.de"><img alt="Qabel" s
 
 # Introduction
 
-<img src="https://files.qabel.de/img/qabel_app_screenshot_720x1280_1.2_dateimanager_de.png" width="280px"/>
-<img src="https://files.qabel.de/img/qabel_app_screenshot_720x1280_1.3_seitenmenue_de.png" width="280px"/>
-<img src="https://files.qabel.de/img/qabel_app_screenshot_720x1280_1.5_identitaeten_de.png" width="280px"/>
+<img src="https://files.qabel.de/img/qabel_app_screenshot_720x1280_1.2_dateimanager_en.png" width="280px"/>
+<img src="https://files.qabel.de/img/qabel_app_screenshot_720x1280_1.3_seitenmenue_en.png" width="280px"/>
+<img src="https://files.qabel.de/img/qabel_app_screenshot_720x1280_1.5_identitaeten_en.png" width="280px"/>
 
 
 For a comprehensive documentation of the whole Qabel Platform use https://qabel.de as the main source of information. http://qabel.github.io/docs/ may provide additional technical information.

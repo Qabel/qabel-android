@@ -176,7 +176,7 @@ public class BoxProviderTest extends MockedBoxProviderTest {
 
 		// wait for the uploadAndDeleteLocalfile in the background
 		// TODO: actually wait for it.
-		Thread.sleep(4000L);
+		Thread.sleep(10000L);
 
 		// check the uploaded new content
 		InputStream dlInputStream = mockContentResolver.openInputStream(documentUri);

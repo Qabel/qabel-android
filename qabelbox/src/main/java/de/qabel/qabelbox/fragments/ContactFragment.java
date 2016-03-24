@@ -343,38 +343,7 @@ public class ContactFragment extends BaseFragment {
 
             if (requestCode == REQUEST_IMPORT_CONTACT) {
                 if (resultData != null) {
-                    Uri uri = resultData.getData();
-
-                    try {
-                        int added = 0;
-                        ParcelFileDescriptor pfd = mActivity.getContentResolver().openFileDescriptor(uri, "r");
-                        FileInputStream fis = new FileInputStream(pfd.getFileDescriptor());
-                        String json = FileHelper.readFileAsText(fis);
-                        fis.close();
-                        Contacts contacts = ContactExportImport.parse(QabelBoxApplication.getInstance().getService().getActiveIdentity(), json);
-                        for (Contact contact : contacts.getContacts()) {
-                            try {
-                                addContactSilent(contact);
-                                added++;
-                            } catch (QblStorageEntityExistsException existsException) {
-                                Log.w(TAG, "found doublet's. Will ignore it", existsException);
-                            }
-                        }
-                        if (added > 0) {
-                            UIHelper.showDialogMessage(
-                                    mActivity,
-                                    mActivity.getString(R.string.dialog_headline_info),
-                                    mActivity.getResources().getQuantityString(R.plurals.contact_import_successfull, added, added));
-                        } else {
-                            UIHelper.showDialogMessage(
-                                    mActivity,
-                                    mActivity.getString(R.string.dialog_headline_info),
-                                    mActivity.getString(R.string.contact_import_zero_additions)
-                            );
-                        }
-                    } catch (IOException | JSONException ioException) {
-                        UIHelper.showDialogMessage(mActivity, R.string.dialog_headline_warning, R.string.contact_import_failed, ioException);
-                    }
+					importContactFromUri(mActivity,resultData);
                 }
             }
 
@@ -399,7 +368,42 @@ public class ContactFragment extends BaseFragment {
         }
     }
 
-    private void selectAddContactFragment(Identity identity) {
+	public static void importContactFromUri(MainActivity mActivity,Intent resultData) {
+		Uri uri = resultData.getData();
+
+		try {
+            int added = 0;
+            ParcelFileDescriptor pfd = mActivity.getContentResolver().openFileDescriptor(uri, "r");
+            FileInputStream fis = new FileInputStream(pfd.getFileDescriptor());
+            String json = FileHelper.readFileAsText(fis);
+            fis.close();
+            Contacts contacts = ContactExportImport.parse(QabelBoxApplication.getInstance().getService().getActiveIdentity(), json);
+            for (Contact contact : contacts.getContacts()) {
+                try {
+                    addContactSilent(contact);
+                    added++;
+                } catch (QblStorageEntityExistsException existsException) {
+                    Log.w(TAG, "found doublet's. Will ignore it", existsException);
+                }
+            }
+            if (added > 0) {
+                UIHelper.showDialogMessage(
+					mActivity,
+					mActivity.getString(R.string.dialog_headline_info),
+					mActivity.getResources().getQuantityString(R.plurals.contact_import_successfull, added, added));
+            } else {
+                UIHelper.showDialogMessage(
+                        mActivity,
+                        mActivity.getString(R.string.dialog_headline_info),
+                        mActivity.getString(R.string.contact_import_zero_additions)
+                );
+            }
+        } catch (IOException | JSONException ioException) {
+            UIHelper.showDialogMessage(mActivity, R.string.dialog_headline_warning, R.string.contact_import_failed, ioException);
+        }
+	}
+
+	private void selectAddContactFragment(Identity identity) {
 
         getFragmentManager().beginTransaction()
                 .replace(R.id.fragment_container, AddContactFragment.newInstance(identity), null)

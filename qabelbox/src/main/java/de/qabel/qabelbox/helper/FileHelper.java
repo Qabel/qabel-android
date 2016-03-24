@@ -12,7 +12,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStream;
 import java.nio.charset.Charset;
 
 /**
@@ -26,7 +25,7 @@ public class FileHelper {
 
     private static String TAG = "FileHelper";
 
-    public static JSONObject readFileAsJson(FileInputStream fis) throws JSONException, IOException {
+    public static JSONObject readFileAsJson(InputStream fis) throws JSONException, IOException {
 
         return new JSONObject(readFileAsText(fis));
     }
@@ -48,7 +47,7 @@ public class FileHelper {
         }
     }
 
-    public static String readFileAsText(FileInputStream fis) throws IOException {
+    public static String readFileAsText(InputStream fis) throws IOException {
 
         StringBuffer fileContent = new StringBuffer("");
 

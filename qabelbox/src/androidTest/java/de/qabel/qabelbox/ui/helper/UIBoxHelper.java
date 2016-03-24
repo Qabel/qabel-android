@@ -236,9 +236,10 @@ public class UIBoxHelper {
 		AppPreference prefs = new AppPreference(applicationContext);
 		if (forceCreated && prefs.getToken() == null) {
 			prefs.setToken(new RealTokerGetter().getToken(applicationContext));
-		}else {
+		} else {
 			prefs.setToken(TestConstants.TOKEN);
 		}
+	}
 
 	/**
 	 * remove the token from prefs

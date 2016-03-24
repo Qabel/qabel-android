@@ -120,7 +120,6 @@ public class CreateIdentityUITest {
 		clearIdentities();
 	}
 	@Test
-    @FlakyTest
     public void addIdentity1Test() throws Throwable {
 		clearIdentities();
 		UITestHelper.sleep(500);

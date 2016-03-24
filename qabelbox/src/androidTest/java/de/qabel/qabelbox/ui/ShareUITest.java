@@ -39,7 +39,7 @@ import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.is;
 
 /**
- * Created by danny on 17.003.2016.
+ * Created by danny on 17.03.2016.
  */
 public class ShareUITest {
 	@Rule

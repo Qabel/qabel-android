@@ -8,8 +8,8 @@ public class QblJUnitRunner extends AndroidJUnitRunner{
     @Override
     public void onCreate(Bundle arguments) {
         arguments.putString("disableAnalytics", "true");
-        arguments.putString("notPackage", "de.qabel.qabelbox.ui");
-        super.onCreate(arguments);
+		arguments.putString("notPackage", BuildConfig.APPLICATION_ID + ".ui");
+		super.onCreate(arguments);
     }
 
 }

@@ -599,7 +599,7 @@ public class BoxProvider extends DocumentsProvider {
         final NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(getContext());
         mBuilder.setContentTitle("Downloading " + mDocumentIdParser.getBaseName(documentId))
                 .setContentText("Download in progress")
-                .setSmallIcon(R.drawable.notification_template_icon_bg);
+                .setSmallIcon(R.drawable.qabel_logo);
         mBuilder.setProgress(100, 0, false);
         mNotifyManager.notify(id, mBuilder.build());
 

@@ -10,11 +10,11 @@
 		android:title="@string/Delete"/>
 	<item
 		android:id="@+id/identities_export"
-		android:icon="@drawable/ic_action_export"
+		android:icon="@drawable/ic_export"
 		android:title="@string/Export"/>
 	<item
 		android:id="@+id/identities_export_as_contact"
-		android:icon="@drawable/ic_action_export"
+		android:icon="@drawable/ic_export"
 		android:title="@string/ExportAsContact"/>
 	<item
 		android:id="@+id/identities_export_as_contact_qrcode"

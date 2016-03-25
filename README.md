@@ -40,7 +40,7 @@ Qabel consists of multiple Projects:
 
 # Install
 
-Official distributions of the [Qabel Android Client](https://github.com/Qabel/qabel-android)) are provided by the [official Qabel website](https://qabel.de) at https://qabel.de/de/qabelnow .
+Official distributions of the [Qabel Android Client](https://github.com/Qabel/qabel-android) are provided by the [official Qabel website](https://qabel.de) at https://qabel.de/de/qabelnow and via [Google Play](https://play.google.com/store/apps/details?id=de.qabel.qabel).
 Everything below this line describes the usage of the Qabel Android Client for development purposes.
 
 # <a name="getting_started"></a>Getting started

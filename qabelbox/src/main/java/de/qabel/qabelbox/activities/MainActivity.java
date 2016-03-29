@@ -452,7 +452,7 @@ public class MainActivity extends CrashReportingActivity
 
 	private void filesFragmentBottomSheet() {
 
-		new BottomSheet.Builder(self).sheet(R.menu.create_bottom_sheet)
+		new BottomSheet.Builder(self).sheet(R.menu.bottom_sheet_files_add)
 				.listener(new DialogInterface.OnClickListener() {
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
@@ -747,7 +747,7 @@ public class MainActivity extends CrashReportingActivity
 			public void onItemLockClick(View view, final int position) {
 
 				final BoxObject boxObject = filesFragment.getFilesAdapter().get(position);
-				BottomSheet.Builder sheet = new BottomSheet.Builder(self).title(boxObject.name).sheet(R.menu.files_bottom_sheet)
+				BottomSheet.Builder sheet = new BottomSheet.Builder(self).title(boxObject.name).sheet(R.menu.bottom_sheet_files)
 						.listener(new DialogInterface.OnClickListener() {
 							@Override
 							public void onClick(DialogInterface dialog, int which) {

@@ -6,6 +6,7 @@ package de.qabel.qabelbox.ui;
 
 import android.os.PowerManager;
 import android.support.test.rule.ActivityTestRule;
+import android.text.InputType;
 
 import com.squareup.spoon.Spoon;
 
@@ -46,10 +47,12 @@ import static android.support.test.espresso.assertion.ViewAssertions.matches;
 import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static android.support.test.espresso.matcher.ViewMatchers.withClassName;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
+import static android.support.test.espresso.matcher.ViewMatchers.withInputType;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
 import static junit.framework.Assert.assertNotNull;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.endsWith;
+import static org.hamcrest.Matchers.is;
 
 /**
  * Tests for MainActivity.
@@ -116,8 +119,8 @@ public class CreateBoxAccountUITest {
 		String failPassword = "12345678";
 		String password = "passwort12$";
 		//enter name
-		enterSingleLine(accountName, "name");
-		enterSingleLine(accountName + "@qabel.de", "email");
+		enterSingleLine(accountName, "name", false);
+		enterSingleLine(accountName + "@qabel.de", "email", true);
 
 		//Check numeric validation
 		onView(withId(R.id.et_password1)).perform(typeText(failPassword), pressImeActionButton());
@@ -176,8 +179,13 @@ public class CreateBoxAccountUITest {
 
 	}
 
-	protected void enterSingleLine(String accountName, String screenName) throws Throwable {
+	protected void enterSingleLine(String accountName, String screenName, boolean checkFieldsIsEmail) throws Throwable {
 		onView(withId(R.id.et_name)).check(matches(isDisplayed())).perform(click());
+		if(checkFieldsIsEmail){
+			onView(withId(R.id.et_name)).check(matches(withInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS)));
+		}else {
+			onView(withId(R.id.et_name)).check(matches(withInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_NORMAL)));
+		}
 		onView(allOf(withClassName(endsWith("EditTextFont")))).perform(typeText(accountName), pressImeActionButton());
 		closeSoftKeyboard();
 		Spoon.screenshot(UITestHelper.getCurrentActivity(mActivity), screenName);

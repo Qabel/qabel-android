@@ -4,6 +4,7 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.support.annotation.NonNull;
+import android.text.InputType;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
@@ -100,7 +101,7 @@ public class CreateAccountActivity extends BaseWizardActivity {
 				setEMail(editText);
 				return null;
 			}
-		});
+		}, InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
 
 		//enter email address fragment
 		fragments[3] = CreateAccountPasswordFragment.newInstance(new NextChecker() {

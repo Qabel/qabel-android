@@ -84,6 +84,7 @@ public class CreateBoxAccountUITest {
 
 		mActivity = mActivityTestRule.getActivity();
 		URLs.setBaseBlockURL(TestConstants.BLOCK_URL);
+		URLs.setBaseAccountingURL(TestConstants.ACCOUNTING_URL);
 		mBoxHelper = new UIBoxHelper(QabelBoxApplication.getInstance());
 		mBoxHelper.bindService(QabelBoxApplication.getInstance());
 		mBoxHelper.createTokenIfNeeded(false);

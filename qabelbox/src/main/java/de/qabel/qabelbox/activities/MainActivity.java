@@ -366,23 +366,30 @@ public class MainActivity extends CrashReportingActivity
 		}
 	}
 
+	/**
+	 * handle open view resolver to open the correct import tool
+	 *
+	 * @param intent
+	 */
 	private void handleActionViewResolver(Intent intent) {
-		Uri uri = intent.getData();
-		String realPath = FileHelper.getRealPathFromURI(self, uri);
+		final Uri uri = intent.getData();
+		final String realPath = FileHelper.getRealPathFromURI(self, uri);
 		String extension = FilenameUtils.getExtension(realPath);
-		//grep spaces from extension like test.qco (1)
-		extension = extension.split(" ")[0];
-		if (extension.equals(QabelSchema.FILE_SUFFIX_CONTACT)) {
-			new ContactBaseFragment().importContactFromUri(self, uri);
-		} else if (extension.equals(QabelSchema.FILE_SUFFIX_IDENTITY)) {
-			if (
-				new CreateIdentityMainFragment().importIdentity(self, intent)) {
-				UIHelper.showDialogMessage(self, R.string.infos, R.string.idenity_imported);
-			}
-		} else {
-			UIHelper.showDialogMessage(this, R.string.infos, R.string.cant_import_file_type_is_unknown);
-		}
 
+		//grep spaces from extension like test.qco (1)
+		if (extension != null && extension.length() > 0) {
+			extension = extension.split(" ")[0];
+			if (QabelSchema.FILE_SUFFIX_CONTACT.equals(extension)) {
+				new ContactBaseFragment().importContactFromUri(self, uri);
+			} else if (QabelSchema.FILE_SUFFIX_IDENTITY.equals(extension)) {
+				if (
+					new CreateIdentityMainFragment().importIdentity(self, intent)) {
+					UIHelper.showDialogMessage(self, R.string.infos, R.string.idenity_imported);
+				}
+			} else {
+				UIHelper.showDialogMessage(this, R.string.infos, R.string.cant_import_file_type_is_unknown);
+			}
+		}
 	}
 
 	private void initAndSelectFilesFragment() {

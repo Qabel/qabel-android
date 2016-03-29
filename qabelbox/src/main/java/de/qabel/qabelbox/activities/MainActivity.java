@@ -55,6 +55,7 @@ import de.qabel.qabelbox.dialogs.SelectIdentityForUploadDialog;
 import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.fragments.AboutLicencesFragment;
 import de.qabel.qabelbox.fragments.BaseFragment;
+import de.qabel.qabelbox.fragments.ContactBaseFragment;
 import de.qabel.qabelbox.fragments.ContactFragment;
 import de.qabel.qabelbox.fragments.FilesFragment;
 import de.qabel.qabelbox.fragments.HelpMainFragment;
@@ -360,7 +361,7 @@ public class MainActivity extends CrashReportingActivity
 	}
 
 	private void handleActionViewResolver(Intent intent) {
-		ContactFragment.importContactFromUri(self, intent);
+		new ContactBaseFragment().importContactFromUri(self, intent);
 
 	}
 

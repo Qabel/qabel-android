@@ -1,6 +1,5 @@
 package de.qabel.qabelbox.fragments;
 
-import android.app.Fragment;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -9,7 +8,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.EditText;
 
 import org.spongycastle.util.encoders.Hex;
@@ -28,109 +26,102 @@ import de.qabel.qabelbox.helper.UIHelper;
  * Activities that contain this fragment must implement the
  * to handle interaction events.
  */
-public class AddContactFragment extends BaseFragment {
+public class AddContactFragment extends ContactBaseFragment {
 
-    private static final String ARG_IDENTITY = "Identity";
-    private final String TAG = this.getClass().getSimpleName();
-    private Fragment fragment;
-    private Identity identity;
-    private EditText editTextContactName;
-    private EditText editTextDropURL;
-    private EditText editTextPublicKey;
-    private Button buttonAdd;
+	private static final String ARG_IDENTITY = "Identity";
+	private final String TAG = this.getClass().getSimpleName();
+	private EditText editTextContactName;
+	private EditText editTextDropURL;
+	private EditText editTextPublicKey;
 
-    private View mView;
+	private View mView;
 
-    public static AddContactFragment newInstance(Identity identity) {
+	public static AddContactFragment newInstance(Identity identity) {
 
-        AddContactFragment fragment = new AddContactFragment();
-        Bundle args = new Bundle();
-        args.putSerializable(ARG_IDENTITY, identity);
-        fragment.setArguments(args);
-        return fragment;
-    }
+		AddContactFragment fragment = new AddContactFragment();
+		Bundle args = new Bundle();
+		args.putSerializable(ARG_IDENTITY, identity);
+		fragment.setArguments(args);
+		return fragment;
+	}
 
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
 
-        super.onCreate(savedInstanceState);
-        setHasOptionsMenu(true);
-        Bundle arguments = getArguments();
-        if (arguments != null) {
-            identity = (Identity) arguments.getSerializable(ARG_IDENTITY);
-        }
-        mActivity.toggle.setDrawerIndicatorEnabled(false);
-        actionBar.setDisplayHomeAsUpEnabled(true);
-        setActionBarBackListener();
-        fragment = this;
-    }
+		super.onCreate(savedInstanceState);
+		setHasOptionsMenu(true);
+		mActivity.toggle.setDrawerIndicatorEnabled(false);
+		actionBar.setDisplayHomeAsUpEnabled(true);
+		setActionBarBackListener();
 
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+	}
 
-        final View view = inflater.inflate(R.layout.fragment_add_contact, container, false);
+	@Override
+	public View onCreateView(LayoutInflater inflater, ViewGroup container,
+							 Bundle savedInstanceState) {
 
-        editTextContactName = (EditText) view.findViewById(R.id.editTextContactName);
-        editTextDropURL = (EditText) view.findViewById(R.id.editTextContactDropURL);
-        editTextPublicKey = (EditText) view.findViewById(R.id.editTextContactPublicKey);
+		final View view = inflater.inflate(R.layout.fragment_add_contact, container, false);
 
-        mView = view;
-        return view;
-    }
+		editTextContactName = (EditText) view.findViewById(R.id.editTextContactName);
+		editTextDropURL = (EditText) view.findViewById(R.id.editTextContactDropURL);
+		editTextPublicKey = (EditText) view.findViewById(R.id.editTextContactPublicKey);
 
-    private void add() {
+		mView = view;
+		return view;
+	}
 
-        try {
-            DropURL dropURL = new DropURL(editTextDropURL.getText().toString());
+	private void add() {
 
-            Collection<DropURL> dropURLs = new ArrayList<>();
-            dropURLs.add(dropURL);
+		try {
+			DropURL dropURL = new DropURL(editTextDropURL.getText().toString());
 
-            QblECPublicKey publicKey = new QblECPublicKey(
-                    Hex.decode(editTextPublicKey.getText().toString()));
-            Contact contact = new Contact(editTextContactName.getText().toString(), dropURLs, publicKey);
-            ContactFragment.addContactSilent( contact);
-        } catch (Exception e) {
-            Log.w(TAG, "add contact failed", e);
-            UIHelper.showDialogMessage(mActivity, R.string.dialog_headline_warning, R.string.contact_import_manual_failed, e);
-        }
-        UIHelper.hideKeyboard(getActivity(), mView);
-    }
+			Collection<DropURL> dropURLs = new ArrayList<>();
+			dropURLs.add(dropURL);
 
-    @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+			QblECPublicKey publicKey = new QblECPublicKey(
+				Hex.decode(editTextPublicKey.getText().toString()));
+			Contact contact = new Contact(editTextContactName.getText().toString(), dropURLs, publicKey);
+			addContactSilent(contact);
+		} catch (Exception e) {
+			Log.w(TAG, "add contact failed", e);
+			UIHelper.showDialogMessage(mActivity, R.string.dialog_headline_warning, R.string.contact_import_manual_failed, e);
+		}
+		UIHelper.hideKeyboard(getActivity(), mView);
+	}
 
-        menu.clear();
-        inflater.inflate(R.menu.ab_add, menu);
-    }
+	@Override
+	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
+		menu.clear();
+		inflater.inflate(R.menu.ab_add, menu);
+	}
 
-        int id = item.getItemId();
-        if (id == R.id.action_add) {
-            add();
-        }
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
 
-        return super.onOptionsItemSelected(item);
-    }
+		int id = item.getItemId();
+		if (id == R.id.action_add) {
+			add();
+		}
 
-    @Override
-    public boolean isFabNeeded() {
+		return super.onOptionsItemSelected(item);
+	}
 
-        return false;
-    }
+	@Override
+	public boolean isFabNeeded() {
 
-    @Override
-    public String getTitle() {
+		return false;
+	}
 
-        return getString(R.string.headline_add_contact);
-    }
+	@Override
+	public String getTitle() {
 
-    @Override
-    public boolean supportBackButton() {
+		return getString(R.string.headline_add_contact);
+	}
 
-        return true;
-    }
+	@Override
+	public boolean supportBackButton() {
+
+		return true;
+	}
 }

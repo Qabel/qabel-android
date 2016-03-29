@@ -49,20 +49,17 @@ import de.qabel.qabelbox.storage.BoxVolume;
  * Activities that contain this fragment must implement the
  * to handle interaction events.
  */
-public class ContactChatFragment extends BaseFragment {
+public class ContactChatFragment extends ContactBaseFragment {
 
 	private static final String ARG_IDENTITY = "Identity";
 	private final String TAG = this.getClass().getSimpleName();
 
 	private Contact contact;
-	ArrayList<ChatMessageItem> messages = new ArrayList<>();
+	private final ArrayList<ChatMessageItem> messages = new ArrayList<>();
 
 
 	private RecyclerView contactListRecyclerView;
 	private View emptyView;
-	private LinearLayoutManager recyclerViewLayoutManager;
-	private ChatMessageAdapter contactListAdapter;
-	private TextView send;
 	private EditText etText;
 	private ChatServer chatServer;
 
@@ -106,11 +103,11 @@ public class ContactChatFragment extends BaseFragment {
 		contactListRecyclerView = (RecyclerView) view.findViewById(R.id.contact_chat_list);
 		contactListRecyclerView.setHasFixedSize(true);
 		emptyView = view.findViewById(R.id.empty_view);
-		recyclerViewLayoutManager = new LinearLayoutManager(view.getContext());
+		LinearLayoutManager recyclerViewLayoutManager = new LinearLayoutManager(view.getContext());
 		recyclerViewLayoutManager.setReverseLayout(true);
 		contactListRecyclerView.setLayoutManager(recyclerViewLayoutManager);
 		etText = (EditText) view.findViewById(R.id.etText);
-		send = (Button) view.findViewById(R.id.bt_send);
+		TextView send = (Button) view.findViewById(R.id.bt_send);
 		send.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -130,7 +127,7 @@ public class ContactChatFragment extends BaseFragment {
 									Iterator it = deliveryStatus.entrySet().iterator();
 									while (it.hasNext()) {
 										Map.Entry pair = (Map.Entry) it.next();
-										if ((Boolean) pair.getValue() == true) {
+										if ((Boolean) pair.getValue()) {
 											sended = true;
 										}
 										Log.d(TAG, "message send result: " + pair.toString() + " " + pair.getValue());
@@ -139,7 +136,7 @@ public class ContactChatFragment extends BaseFragment {
 
 									Log.d(TAG, "sended: " + sended);
 									if (sended) {
-										ChatMessageItem newMessage = new ChatMessageItem(identity, contact.getEcPublicKey().getReadableKeyIdentifier().toString(), dropMessage.getDropPayload(), dropMessage.getDropPayloadType());
+										ChatMessageItem newMessage = new ChatMessageItem(identity, contact.getEcPublicKey().getReadableKeyIdentifier(), dropMessage.getDropPayload(), dropMessage.getDropPayloadType());
 
 										chatServer.storeIntoDB(newMessage);
 										messages.add(newMessage);
@@ -182,9 +179,9 @@ public class ContactChatFragment extends BaseFragment {
 		return view;
 	}
 
-	boolean isSyncing = false;
+	private boolean isSyncing = false;
 
-	protected void refreshMessagesAsync() {
+	private void refreshMessagesAsync() {
 		if (!isSyncing) {
 			isSyncing = true;
 			new AsyncTask<Void, Void, Collection<DropMessage>>() {
@@ -220,7 +217,7 @@ public class ContactChatFragment extends BaseFragment {
 
 	private void fillAdapter(final ArrayList<ChatMessageItem> data) {
 
-		contactListAdapter = new ChatMessageAdapter(data, contact);
+		ChatMessageAdapter contactListAdapter = new ChatMessageAdapter(data, contact);
 		contactListAdapter.setEmptyView(emptyView);
 		contactListRecyclerView.setAdapter(contactListAdapter);
 		contactListAdapter.setOnItemClickListener(getOnItemClickListener());
@@ -295,7 +292,7 @@ public class ContactChatFragment extends BaseFragment {
 	 * @param nav
 	 * @param boxExternalReference
 	 */
-	protected void attachCheckedSharedFile(final FilesFragment filesFragment, final BoxNavigation nav, final BoxExternalReference boxExternalReference) {
+	private void attachCheckedSharedFile(final FilesFragment filesFragment, final BoxNavigation nav, final BoxExternalReference boxExternalReference) {
 
 		new AsyncTask<Void, Void, List<BoxObject>>() {
 			AlertDialog wait;
@@ -319,7 +316,7 @@ public class ContactChatFragment extends BaseFragment {
 				try {
 					nav.attachExternal(boxExternalReference);
 					nav.commit();
-					List<BoxObject> boxExternalFiles = null;
+					List<BoxObject> boxExternalFiles;
 					boxExternalFiles = nav.listExternals();
 					return boxExternalFiles;
 				} catch (QblStorageException e) {
@@ -342,7 +339,7 @@ public class ContactChatFragment extends BaseFragment {
 	 * @param boxVolume
 	 * @return
 	 */
-	protected BoxNavigation navigateToShareFolder(BoxVolume boxVolume) {
+	private BoxNavigation navigateToShareFolder(BoxVolume boxVolume) {
 
 		try {
 
@@ -371,7 +368,7 @@ public class ContactChatFragment extends BaseFragment {
 	}
 
 	/**
-	 * check if givien item already attached or exists in the share folder
+	 * check if given item already attached or exists in the share folder
 	 *
 	 * @param nav
 	 * @param item
@@ -403,17 +400,6 @@ public class ContactChatFragment extends BaseFragment {
 		return false;
 	}
 
-	@NonNull
-	private ArrayList<ChatMessageItem> convertDropMessageToDatabaseMessage(Collection<DropMessage> messages) {
-
-		ArrayList<ChatMessageItem> data = new ArrayList<>();
-		for (DropMessage item : messages) {
-			ChatMessageItem message = new ChatMessageItem(item);
-			message.isNew = 1;
-			data.add(message);
-		}
-		return data;
-	}
 
 	@Override
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
@@ -465,7 +451,7 @@ public class ContactChatFragment extends BaseFragment {
 		super.onStop();
 	}
 
-	private ChatServer.ChatServerCallback chatServerCallback = new ChatServer.ChatServerCallback() {
+	private final ChatServer.ChatServerCallback chatServerCallback = new ChatServer.ChatServerCallback() {
 
 		@Override
 		public void onRefreshed() {

@@ -5,7 +5,11 @@
         development mode.  Add this as a debug manifest so the permissions won't be required by
         your production app.
 	-->
-	
+    <application>
+    <instrumentation
+        android:name="android.test.InstrumentationTestRunner"
+        android:targetPackage="de.qabel.qabelbox.test" />
+    </application>
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.DISABLE_KEYGUARD" />
     <uses-permission android:name="android.permission.SET_ANIMATION_SCALE" />

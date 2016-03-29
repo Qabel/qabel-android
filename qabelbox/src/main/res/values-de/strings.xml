@@ -174,7 +174,7 @@
     <string name="cant_send_message">Nachricht konnte nicht gesendet werden</string>
     <string name="cant_import_shared_file">Konnte die geteilte Datei nicht importieren</string>
     <string name="cant_share_contactlist_is_empty">Datei kann nicht geteilt werden. Sie haben keine Kontakte in der Kontaktliste</string>
-    <string name="create_idenity_cant_get_prefix">Keinen Prefix vom Server erhalten</string>
+    <string name="create_idenity_cant_get_prefix">Fehler beim Abrufen des Prefixes</string>
     <string name="dialog_share_sending_in_progress">Datei wird hochgeladen, um geteilt zu werden</string>
     <string name="message_please_wait">Warten Sie bitte einen Moment</string>
     <string name="message_revoke_share">Freigabe wird entzogen</string>

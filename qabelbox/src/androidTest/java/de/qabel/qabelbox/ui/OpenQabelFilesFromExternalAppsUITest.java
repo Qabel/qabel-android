@@ -11,13 +11,11 @@ import com.squareup.spoon.Spoon;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.After;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
@@ -30,9 +28,10 @@ import de.qabel.qabelbox.communication.URLs;
 import de.qabel.qabelbox.config.ContactExportImport;
 import de.qabel.qabelbox.config.IdentityExportImport;
 import de.qabel.qabelbox.config.QabelSchema;
-import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.helper.FileHelper;
 import de.qabel.qabelbox.ui.helper.UIBoxHelper;
+import de.qabel.qabelbox.ui.helper.UITestHelper;
+import de.qabel.qabelbox.ui.matcher.QabelMatcher;
 
 import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.action.ViewActions.click;
@@ -52,33 +51,28 @@ import static org.hamcrest.Matchers.endsWith;
 /**
  * Created by danny on 17.003.2016.
  */
-public class OpenQCOUITest {
+public class OpenQabelFilesFromExternalAppsUITest {
 	@Rule
 	public ActivityTestRule<MainActivity> mActivityTestRule = new ActivityTestRule<>(MainActivity.class, false, false);
 	private MainActivity mActivity;
 	private UIBoxHelper mBoxHelper;
-	private final String TAG = this.getClass().getSimpleName();
 
-	public OpenQCOUITest() throws IOException {
+	public OpenQabelFilesFromExternalAppsUITest() throws IOException {
+	
 		setupData();
 	}
 
 	@After
 	public void cleanUp() {
-
 		mBoxHelper.unbindService(QabelBoxApplication.getInstance());
 	}
 
-	@Before
-	public void setUp() throws IOException, QblStorageException {
-
-	}
 
 	@Test
 	public void testOpenQcoFileFromExternal() {
 		String userToImport = "contact1";
 		File tempQcoFile = createQcoFile(userToImport, QabelSchema.FILE_SUFFIX_CONTACT);
-
+		createIdentityIfNeeded();
 		launchExternalIntent(Uri.fromFile(tempQcoFile));
 		checkMessageBox();
 		tempQcoFile.delete();
@@ -88,24 +82,35 @@ public class OpenQCOUITest {
 
 	}
 
-	/*@Test
+
+	/**
+	 * open app with file extension but with ne ready app
+	 */
+	@Test
 	public void testOpenQcoSanityFromExternal() {
 		String userToImport = "contact1";
 		File tempQcoFile = createQcoFile(userToImport, QabelSchema.FILE_SUFFIX_CONTACT);
-
+		mBoxHelper.deleteAllIdentities();
 		launchExternalIntent(Uri.fromFile(tempQcoFile));
-		checkMessageBox();
-		tempQcoFile.delete();
-		goToContacts();
-		Spoon.screenshot(mActivity, "openQCO");
-		onView(withText(userToImport)).check(matches(isDisplayed()));
+		mActivity = mActivityTestRule.getActivity();
+		try {
+			Spoon.screenshot(UITestHelper.getCurrentActivity(mActivity), "openQCOWithNoIdentity");
+		} catch (Throwable throwable) {
+			//indicate no error on tested code
+		}
 
-	}*/
+		QabelMatcher.matchToolbarTitle(mActivity.getString(R.string.headline_add_identity))
+			.check(matches(isDisplayed()));
+	}
 
+	/**
+	 * open a file with unknown extension
+	 */
 	@Test
 	public void testOpenUnknownFileTypeFromExternal() {
 		String userToImport = "contact1";
 		File tempQcoFile = createQcoFile(userToImport, ".unknown");
+		createIdentityIfNeeded();
 		launchExternalIntent(Uri.fromFile(tempQcoFile));
 		onView(withText(R.string.cant_import_file_type_is_unknown)).check(matches(isDisplayed()));
 		Spoon.screenshot(mActivity, "openQCO");
@@ -113,20 +118,22 @@ public class OpenQCOUITest {
 		tempQcoFile.delete();
 	}
 
+	/**
+	 * open a corrupt contact file
+	 */
 	@Test
 	public void testOpenCorruptContactFromExternal() {
 		String userToImport = "defectcontaact";
-		File tempQcoFile = createQcoFile(userToImport,  QabelSchema.FILE_SUFFIX_CONTACT);
+		File tempQcoFile = createQcoFile(userToImport, QabelSchema.FILE_SUFFIX_CONTACT);
 		try {
 			FileOutputStream fis = new FileOutputStream(tempQcoFile);
 			fis.write(1);
 			fis.close();
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
 		} catch (IOException e) {
 			e.printStackTrace();
+			assertNull(e);
 		}
-
+		createIdentityIfNeeded();
 		launchExternalIntent(Uri.fromFile(tempQcoFile));
 		Spoon.screenshot(mActivity, "corruptContact");
 		onView(withText(R.string.contact_import_failed)).check(matches(isDisplayed()));
@@ -134,11 +141,14 @@ public class OpenQCOUITest {
 		tempQcoFile.delete();
 	}
 
+	/**
+	 * open a valid identity file
+	 */
 	@Test
 	public void testOpenQidFileFromExternal() {
 		String userToImport = "identity1.qid";
 		File tempQidFile = createQIDFile(userToImport);
-
+		createIdentityIfNeeded();
 		launchExternalIntent(Uri.fromFile(tempQidFile));
 		onView(withText(R.string.idenity_imported)).check(matches(isDisplayed()));
 		onView(withText(R.string.ok)).check(matches(isDisplayed())).perform(click());
@@ -161,6 +171,11 @@ public class OpenQCOUITest {
 
 	}
 
+	private void createIdentityIfNeeded() {
+		if (mBoxHelper.getCurrentIdentity() == null) {
+			mBoxHelper.addIdentity("spoon");
+		}
+	}
 
 	private void checkMessageBox() {
 		onView(withText(R.string.dialog_headline_info)).check(matches(isDisplayed()));
@@ -174,15 +189,15 @@ public class OpenQCOUITest {
 		Spoon.screenshot(mActivity, "contacts");
 	}
 
-	private JSONObject checkFile(File file1) {
+	private void checkFile(File file1) {
 		try {
 			FileInputStream fis = new FileInputStream(file1);
 			assertTrue(file1.exists());
-			return new JSONObject(FileHelper.readFileAsText(fis));
+			JSONObject object = new JSONObject(FileHelper.readFileAsText(fis));
+			object.length();
 		} catch (IOException | JSONException e) {
 			e.printStackTrace();
 			assertNull(e);
-			return null;
 		}
 	}
 

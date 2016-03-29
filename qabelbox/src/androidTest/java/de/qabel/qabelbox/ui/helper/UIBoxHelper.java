@@ -58,6 +58,10 @@ public class UIBoxHelper {
 		mContext = activity;
 	}
 
+	public UIBoxHelper() {
+		mContext=QabelBoxApplication.getInstance().getApplicationContext();
+	}
+
 	public void unbindService(final QabelBoxApplication app) {
 
 		Intent serviceIntent = new Intent(app.getApplicationContext(), LocalQabelService.class);

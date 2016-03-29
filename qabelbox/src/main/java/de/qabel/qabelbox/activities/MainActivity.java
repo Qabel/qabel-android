@@ -374,7 +374,18 @@ public class MainActivity extends CrashReportingActivity
 	 */
 	private void handleActionViewResolver(Intent intent) {
 		final Uri uri = intent.getData();
-		final String realPath = FileHelper.getRealPathFromURI(self, uri);
+		String realPath;
+		//check if schema content, then get real path and filename
+		if (ContentResolver.SCHEME_CONTENT.compareTo(intent.getScheme()) == 0) {
+			realPath = FileHelper.getRealPathFromURI(self, uri);
+			if (realPath == null) {
+				realPath = uri.toString();
+				Log.d(TAG, "can't get real path. try to use uri " + realPath);
+			}
+		} else {
+			//schema is file
+			realPath = intent.getDataString();
+		}
 		String extension = FilenameUtils.getExtension(realPath);
 
 		//grep spaces from extension like test.qco (1)

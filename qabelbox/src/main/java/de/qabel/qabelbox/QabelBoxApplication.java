@@ -70,7 +70,6 @@ public class QabelBoxApplication extends Application {
 
 			@Override
 			public void onServiceDisconnected(ComponentName name) {
-
 				mService = null;
 			}
 		};

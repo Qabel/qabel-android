@@ -108,6 +108,9 @@ public class FileHelper {
 		String[] proj = {MediaStore.Images.Media.DATA};
 		CursorLoader loader = new CursorLoader(context, contentUri, proj, null, null, null);
 		Cursor cursor = loader.loadInBackground();
+		if (cursor == null) {
+			return null;
+		}
 		int column_index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
 		cursor.moveToFirst();
 		String result = cursor.getString(column_index);

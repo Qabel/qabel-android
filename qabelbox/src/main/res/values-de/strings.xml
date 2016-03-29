@@ -21,7 +21,7 @@
     <string name="action_settings">Einstellungen</string>
     <string name="add">Hinzufügen</string>
     <string name="add_folder_header">Ordner erstellen</string>
-    <string name="add_folder_name">Ordnernamen eingeben</string>
+    <string name="add_folder_name">Bitte geben Sie einen Ordnername ein</string>
     <string name="add_identity">Identität hinzufügen</string>
     <string name="add_new_contact">Kontakt hinzufügen</string>
     <string name="alias_cannot_be_empty">Alias darf nicht leer sein</string>

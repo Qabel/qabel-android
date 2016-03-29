@@ -51,20 +51,19 @@ import static org.hamcrest.Matchers.endsWith;
 /**
  * Created by danny on 17.003.2016.
  */
-public class OpenQabelFilesFromExternalAppsUITest {
+public class OpenQabelFilesFromExternalAppsUITest extends UIBoxHelper {
 	@Rule
 	public ActivityTestRule<MainActivity> mActivityTestRule = new ActivityTestRule<>(MainActivity.class, false, false);
 	private MainActivity mActivity;
-	private UIBoxHelper mBoxHelper;
 
 	public OpenQabelFilesFromExternalAppsUITest() throws IOException {
-	
+
 		setupData();
 	}
 
 	@After
 	public void cleanUp() {
-		mBoxHelper.unbindService(QabelBoxApplication.getInstance());
+		unbindService(QabelBoxApplication.getInstance());
 	}
 
 
@@ -90,7 +89,7 @@ public class OpenQabelFilesFromExternalAppsUITest {
 	public void testOpenQcoSanityFromExternal() {
 		String userToImport = "contact1";
 		File tempQcoFile = createQcoFile(userToImport, QabelSchema.FILE_SUFFIX_CONTACT);
-		mBoxHelper.deleteAllIdentities();
+		deleteAllIdentities();
 		launchExternalIntent(Uri.fromFile(tempQcoFile));
 		mActivity = mActivityTestRule.getActivity();
 		try {
@@ -163,17 +162,17 @@ public class OpenQabelFilesFromExternalAppsUITest {
 	private void setupData() {
 		URLs.setBaseBlockURL(TestConstants.BLOCK_URL);
 		mActivity = mActivityTestRule.getActivity();
-		mBoxHelper = new UIBoxHelper(QabelBoxApplication.getInstance());
-		mBoxHelper.bindService(QabelBoxApplication.getInstance());
-		mBoxHelper.createTokenIfNeeded(false);
-		mBoxHelper.deleteAllIdentities();
-		mBoxHelper.addIdentity("spoon");
+
+		bindService(QabelBoxApplication.getInstance());
+		createTokenIfNeeded(false);
+		deleteAllIdentities();
+		addIdentity("spoon");
 
 	}
 
 	private void createIdentityIfNeeded() {
-		if (mBoxHelper.getCurrentIdentity() == null) {
-			mBoxHelper.addIdentity("spoon");
+		if (getCurrentIdentity() == null) {
+			addIdentity("spoon");
 		}
 	}
 
@@ -211,7 +210,7 @@ public class OpenQabelFilesFromExternalAppsUITest {
 
 	@NonNull
 	private File createQcoFile(String name, String fileExtension) {
-		Identity importUser1 = mBoxHelper.createIdentity(name);
+		Identity importUser1 = createIdentity(name);
 		String exportUser = ContactExportImport.exportIdentityAsContact(importUser1);
 		File tmpDir = new File(System.getProperty("java.io.tmpdir"));
 		File file1 = new File(tmpDir, name + "." + fileExtension);
@@ -222,7 +221,7 @@ public class OpenQabelFilesFromExternalAppsUITest {
 
 	@NonNull
 	private File createQIDFile(String identityName) {
-		Identity identity = mBoxHelper.createIdentity(identityName);
+		Identity identity = createIdentity(identityName);
 		String exportUser = IdentityExportImport.exportIdentity(identity);
 		File tmpDir = new File(System.getProperty("java.io.tmpdir"));
 		File file1 = new File(tmpDir, identityName + "." + QabelSchema.FILE_SUFFIX_IDENTITY);

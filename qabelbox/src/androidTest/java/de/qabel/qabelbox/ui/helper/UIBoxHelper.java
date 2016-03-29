@@ -45,7 +45,6 @@ import de.qabel.qabelbox.storage.StorageSearch;
  */
 public class UIBoxHelper {
 
-	@Deprecated
 	private final Context mContext;
 	private final String TAG = this.getClass().getSimpleName();
 	private LocalQabelService mService;
@@ -59,7 +58,7 @@ public class UIBoxHelper {
 	}
 
 	public UIBoxHelper() {
-		mContext=QabelBoxApplication.getInstance().getApplicationContext();
+		mContext = QabelBoxApplication.getInstance().getApplicationContext();
 	}
 
 	public void unbindService(final QabelBoxApplication app) {
@@ -106,9 +105,9 @@ public class UIBoxHelper {
 	public boolean deleteFile(Activity activity, Identity identity, String name, String targetFolder) {
 
 		String keyIdentifier = identity.getEcPublicKey()
-				.getReadableKeyIdentifier();
+			.getReadableKeyIdentifier();
 		Uri uploadUri = DocumentsContract.buildDocumentUri(
-				BoxProvider.AUTHORITY, keyIdentifier + VolumeFileTransferHelper.HARDCODED_ROOT + targetFolder + name);
+			BoxProvider.AUTHORITY, keyIdentifier + VolumeFileTransferHelper.HARDCODED_ROOT + targetFolder + name);
 		return DocumentsContract.deleteDocument(activity.getContentResolver(), uploadUri);
 	}
 
@@ -117,7 +116,7 @@ public class UIBoxHelper {
 
 			String folderId = boxVolume.getDocumentId(path);
 			Uri uploadUri = DocumentsContract.buildDocumentUri(
-					BoxProvider.AUTHORITY, folderId + name);
+				BoxProvider.AUTHORITY, folderId + name);
 			Context self = QabelBoxApplication.getInstance().getApplicationContext();
 
 			OutputStream upload = self.getContentResolver().openOutputStream(uploadUri, "w");
@@ -175,8 +174,8 @@ public class UIBoxHelper {
 	private void initBoxVolume(Identity activeIdentity) throws QblStorageException {
 
 		mBoxVolume = provider.getVolumeForRoot(
-				activeIdentity.getEcPublicKey().getReadableKeyIdentifier(),
-				VolumeFileTransferHelper.getPrefixFromIdentity(activeIdentity));
+			activeIdentity.getEcPublicKey().getReadableKeyIdentifier(),
+			VolumeFileTransferHelper.getPrefixFromIdentity(activeIdentity));
 		mBoxVolume.createIndex();
 	}
 
@@ -204,7 +203,7 @@ public class UIBoxHelper {
 
 		try {
 			while (
-					new StorageSearch(mBoxVolume.navigate()).getResults().size() < fileCount) {
+				new StorageSearch(mBoxVolume.navigate()).getResults().size() < fileCount) {
 				Log.d(TAG, "wait until all files uploaded");
 				Thread.sleep(500);
 			}
@@ -281,7 +280,7 @@ public class UIBoxHelper {
 	public void deleteAllContacts(Identity identity) {
 		Set<Contact> contacts = mService.getContacts(identity).getContacts();
 		for (Contact c : contacts) {
-			Log.d(TAG,"delete contact: "+c.getAlias());
+			Log.d(TAG, "delete contact: " + c.getAlias());
 			mService.deleteContact(c);
 		}
 	}

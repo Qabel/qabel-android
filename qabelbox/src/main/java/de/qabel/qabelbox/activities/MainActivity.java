@@ -290,6 +290,7 @@ public class MainActivity extends CrashReportingActivity
 
 				LocalQabelService.LocalBinder binder = (LocalQabelService.LocalBinder) service;
 				mService = binder.getService();
+				QabelBoxApplication.getInstance().serviceCreatedOutside(mService);
 				onLocalServiceConnected(getIntent());
 			}
 

@@ -118,11 +118,11 @@
 				<category android:name="android.intent.category.BROWSABLE"/>
 				<action android:name="android.intent.action.VIEW"/>
 				<category android:name="android.intent.category.DEFAULT"/>
-				<data
-					android:host="*"
-					android:mimeType="*/*"
-					android:pathPattern=".*\\.qco"
-					android:scheme="file"/>
+
+				<data android:host="*"/>
+				<data android:mimeType="application/json"/>
+				<data android:scheme="content"/>
+				<data android:scheme="file"/>
 
 			</intent-filter>
 		</activity>

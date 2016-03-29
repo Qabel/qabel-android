@@ -324,5 +324,7 @@ To all people who have supported our Indigogo Campaign
     <string name="contact_export_all">Export all contacts</string>
     <string name="cant_export_contacts">Can\'t export contacts</string>
     <string name="contact_export_failed">Could not export the identity</string>
+	<string name="cant_import_file_type_is_unknown">Can\'t import file. The file type is unknown</string>
+	<string name="idenity_imported">Identity successfully imported</string>
 
 </resources>

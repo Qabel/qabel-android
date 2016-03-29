@@ -42,7 +42,7 @@ public class ContactBaseFragment extends BaseFragment {
 	private boolean useDocumentProvider = true;//used for tests
 	protected int exportedContactCount;
 
-	protected void exportContact(Contact contact) {
+	public void exportContact(Contact contact) {
 		exportedContactCount = 1;
 		String contactJson = ContactExportImport.exportContact(contact);
 		startExportFileChooser(contact.getAlias(), QabelSchema.FILE_PREFIX_CONTACT, contactJson);
@@ -67,7 +67,7 @@ public class ContactBaseFragment extends BaseFragment {
 		}
 	}
 
-	protected void exportAllContacts() {
+	public void exportAllContacts() {
 		try {
 			LocalQabelService service = QabelBoxApplication.getInstance().getService();
 			Contacts contacts = service.getContacts(service.getActiveIdentity());
@@ -104,9 +104,11 @@ public class ContactBaseFragment extends BaseFragment {
 		QabelBoxApplication.getInstance().getApplicationContext().sendBroadcast(intent);
 	}
 
-	public void importContactFromUri(MainActivity mActivity, Intent resultData) {
-		Uri uri = resultData.getData();
 
+	public void importContactFromUri(MainActivity mActivity, Uri uri) {
+
+
+		Log.d(TAG, "import contact from uri " + uri);
 		try {
 			int added = 0;
 			ParcelFileDescriptor pfd = mActivity.getContentResolver().openFileDescriptor(uri, "r");

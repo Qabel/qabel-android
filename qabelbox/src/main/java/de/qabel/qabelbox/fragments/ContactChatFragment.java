@@ -62,6 +62,7 @@ public class ContactChatFragment extends ContactBaseFragment {
 	private View emptyView;
 	private EditText etText;
 	private ChatServer chatServer;
+	private boolean isSyncing = false;
 
 	public static ContactChatFragment newInstance(Contact contact) {
 
@@ -115,57 +116,7 @@ public class ContactChatFragment extends ContactBaseFragment {
 				final String text = etText.getText().toString();
 				if (text.length() > 0) {
 
-					try {
-						final DropMessage dropMessage = chatServer.getTextDropMessage(text);
-						final Identity identity = QabelBoxApplication.getInstance().getService().getActiveIdentity();
-						QabelBoxApplication.getInstance().getService().sendDropMessage(dropMessage, contact, identity, new LocalQabelService.OnSendDropMessageResult() {
-							@Override
-							public void onSendDropResult(Map<DropURL, Boolean> deliveryStatus) {
-								boolean sended = false;
-								Log.v(TAG, "delivery status: " + deliveryStatus);
-								if (deliveryStatus != null) {
-									Iterator it = deliveryStatus.entrySet().iterator();
-									while (it.hasNext()) {
-										Map.Entry pair = (Map.Entry) it.next();
-										if ((Boolean) pair.getValue()) {
-											sended = true;
-										}
-										Log.d(TAG, "message send result: " + pair.toString() + " " + pair.getValue());
-									}
-
-
-									Log.d(TAG, "sended: " + sended);
-									if (sended) {
-										ChatMessageItem newMessage = new ChatMessageItem(identity, contact.getEcPublicKey().getReadableKeyIdentifier(), dropMessage.getDropPayload(), dropMessage.getDropPayloadType());
-
-										chatServer.storeIntoDB(newMessage);
-										messages.add(newMessage);
-
-										getActivity().runOnUiThread(new Runnable() {
-											@Override
-											public void run() {
-												etText.setText("");
-												fillAdapter(messages);
-											}
-										});
-									}
-								}
-								if (!sended) {
-									getActivity().runOnUiThread(new Runnable() {
-										@Override
-										public void run() {
-											Toast.makeText(getActivity(), R.string.message_chat_message_not_sended, Toast.LENGTH_SHORT).show();
-										}
-									});
-
-								}
-
-							}
-						});
-					} catch (QblDropPayloadSizeException e) {
-						Toast.makeText(getActivity(), R.string.cant_send_message, Toast.LENGTH_SHORT).show();
-						Log.e(TAG, "cant send message", e);
-					}
+					sendMessage(text);
 				}
 			}
 		});
@@ -179,7 +130,59 @@ public class ContactChatFragment extends ContactBaseFragment {
 		return view;
 	}
 
-	private boolean isSyncing = false;
+	private void sendMessage(String text) {
+		try {
+			final DropMessage dropMessage = chatServer.getTextDropMessage(text);
+			final Identity identity = QabelBoxApplication.getInstance().getService().getActiveIdentity();
+			QabelBoxApplication.getInstance().getService().sendDropMessage(dropMessage, contact, identity, new LocalQabelService.OnSendDropMessageResult() {
+				@Override
+				public void onSendDropResult(Map<DropURL, Boolean> deliveryStatus) {
+					boolean sended = false;
+					Log.v(TAG, "delivery status: " + deliveryStatus);
+					if (deliveryStatus != null) {
+						Iterator it = deliveryStatus.entrySet().iterator();
+						while (it.hasNext()) {
+							Map.Entry pair = (Map.Entry) it.next();
+							if ((Boolean) pair.getValue()) {
+								sended = true;
+							}
+							Log.d(TAG, "message send result: " + pair.toString() + " " + pair.getValue());
+						}
+
+						Log.d(TAG, "sended: " + sended);
+						if (sended) {
+							ChatMessageItem newMessage = new ChatMessageItem(identity, contact.getEcPublicKey().getReadableKeyIdentifier(), dropMessage.getDropPayload(), dropMessage.getDropPayloadType());
+
+							chatServer.storeIntoDB(newMessage);
+							messages.add(newMessage);
+
+							getActivity().runOnUiThread(new Runnable() {
+								@Override
+								public void run() {
+									etText.setText("");
+									fillAdapter(messages);
+								}
+							});
+						}
+					}
+					if (!sended) {
+						getActivity().runOnUiThread(new Runnable() {
+							@Override
+							public void run() {
+								Toast.makeText(getActivity(), R.string.message_chat_message_not_sended, Toast.LENGTH_SHORT).show();
+							}
+						});
+
+					}
+
+				}
+			});
+		} catch (QblDropPayloadSizeException e) {
+			Toast.makeText(getActivity(), R.string.cant_send_message, Toast.LENGTH_SHORT).show();
+			Log.e(TAG, "cant send message", e);
+		}
+	}
+
 
 	private void refreshMessagesAsync() {
 		if (!isSyncing) {

@@ -69,7 +69,6 @@ public class ContactFragment extends ContactBaseFragment {
 		chatServer = mActivity.chatServer;
 		setHasOptionsMenu(true);
 		mActivity.registerReceiver(refreshContactListReceiver, new IntentFilter(Helper.INTENT_REFRESH_CONTACTLIST));
-
 	}
 
 	@Override
@@ -84,13 +83,11 @@ public class ContactFragment extends ContactBaseFragment {
 		RecyclerView.LayoutManager recyclerViewLayoutManager = new LinearLayoutManager(view.getContext());
 		contactListRecyclerView.setLayoutManager(recyclerViewLayoutManager);
 		refreshContactList();
-
 		return view;
 	}
 
 	@Override
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-
 		menu.clear();
 		inflater.inflate(R.menu.ab_contacts, menu);
 	}
@@ -255,7 +252,6 @@ public class ContactFragment extends ContactBaseFragment {
 								 Intent resultData) {
 
 		if (resultCode == Activity.RESULT_OK) {
-
 			if (requestCode == REQUEST_EXPORT_CONTACT) {
 				if (resultData != null) {
 					exportContact(resultData);
@@ -264,7 +260,7 @@ public class ContactFragment extends ContactBaseFragment {
 
 			if (requestCode == REQUEST_IMPORT_CONTACT) {
 				if (resultData != null) {
-					importContactFromUri(mActivity, resultData);
+					importContactFromUri(mActivity, resultData.getData());
 				}
 			}
 

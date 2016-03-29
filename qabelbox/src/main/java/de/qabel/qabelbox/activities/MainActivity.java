@@ -32,6 +32,7 @@ import android.widget.Toast;
 
 import com.cocosw.bottomsheet.BottomSheet;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 
 import java.io.IOException;
@@ -51,12 +52,14 @@ import de.qabel.qabelbox.adapter.FilesAdapter;
 import de.qabel.qabelbox.chat.ChatServer;
 import de.qabel.qabelbox.chat.ShareHelper;
 import de.qabel.qabelbox.communication.VolumeFileTransferHelper;
+import de.qabel.qabelbox.config.QabelSchema;
 import de.qabel.qabelbox.dialogs.SelectIdentityForUploadDialog;
 import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.fragments.AboutLicencesFragment;
 import de.qabel.qabelbox.fragments.BaseFragment;
 import de.qabel.qabelbox.fragments.ContactBaseFragment;
 import de.qabel.qabelbox.fragments.ContactFragment;
+import de.qabel.qabelbox.fragments.CreateIdentityMainFragment;
 import de.qabel.qabelbox.fragments.FilesFragment;
 import de.qabel.qabelbox.fragments.HelpMainFragment;
 import de.qabel.qabelbox.fragments.IdentitiesFragment;
@@ -65,6 +68,7 @@ import de.qabel.qabelbox.fragments.QRcodeFragment;
 import de.qabel.qabelbox.fragments.SelectUploadFolderFragment;
 import de.qabel.qabelbox.helper.CacheFileHelper;
 import de.qabel.qabelbox.helper.ExternalApps;
+import de.qabel.qabelbox.helper.FileHelper;
 import de.qabel.qabelbox.helper.Sanity;
 import de.qabel.qabelbox.helper.UIHelper;
 import de.qabel.qabelbox.providers.BoxProvider;
@@ -330,8 +334,10 @@ public class MainActivity extends CrashReportingActivity
 
 			switch (intent.getAction()) {
 				case Intent.ACTION_VIEW:
-					if (scheme.compareTo(ContentResolver.SCHEME_FILE) == 0) {
+					if (scheme.compareTo(ContentResolver.SCHEME_FILE) == 0 || scheme.compareTo(ContentResolver.SCHEME_CONTENT) == 0) {
+
 						handleActionViewResolver(intent);
+
 					}
 					break;
 				case Intent.ACTION_SEND:
@@ -361,7 +367,21 @@ public class MainActivity extends CrashReportingActivity
 	}
 
 	private void handleActionViewResolver(Intent intent) {
-		new ContactBaseFragment().importContactFromUri(self, intent);
+		Uri uri = intent.getData();
+		String realPath = FileHelper.getRealPathFromURI(self, uri);
+		String extension = FilenameUtils.getExtension(realPath);
+		//grep spaces from extension like test.qco (1)
+		extension = extension.split(" ")[0];
+		if (extension.equals(QabelSchema.FILE_SUFFIX_CONTACT)) {
+			new ContactBaseFragment().importContactFromUri(self, uri);
+		} else if (extension.equals(QabelSchema.FILE_SUFFIX_IDENTITY)) {
+			if (
+				new CreateIdentityMainFragment().importIdentity(self, intent)) {
+				UIHelper.showDialogMessage(self, R.string.infos, R.string.idenity_imported);
+			}
+		} else {
+			UIHelper.showDialogMessage(this, R.string.infos, R.string.cant_import_file_type_is_unknown);
+		}
 
 	}
 

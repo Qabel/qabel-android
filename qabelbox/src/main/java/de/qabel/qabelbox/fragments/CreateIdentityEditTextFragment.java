@@ -2,6 +2,7 @@ package de.qabel.qabelbox.fragments;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.text.InputType;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,14 +20,22 @@ public class CreateIdentityEditTextFragment extends BaseIdentityFragment {
     private EditText editText;
     private int mMessageId;
     private int mEditTextHintId;
+    private Integer inputType;
     private BaseWizardActivity.NextChecker mChecker;
 
     public static CreateIdentityEditTextFragment newInstance(int messageId, int editTextHintId, BaseWizardActivity.NextChecker checker) {
+        return newInstance(messageId, editTextHintId, checker, null);
+    }
+
+    public static CreateIdentityEditTextFragment newInstance(int messageId, int editTextHintId, BaseWizardActivity.NextChecker checker, Integer textInputType) {
 
         CreateIdentityEditTextFragment fragment = new CreateIdentityEditTextFragment();
         fragment.mMessageId = messageId;
         fragment.mEditTextHintId = editTextHintId;
         fragment.mChecker = checker;
+        if(textInputType != null){
+            fragment.inputType = textInputType;
+        }
         return fragment;
     }
 
@@ -41,6 +50,9 @@ public class CreateIdentityEditTextFragment extends BaseIdentityFragment {
         editText = (EditText) view.findViewById(R.id.et_name);
         tvMessage.setText(mMessageId);
         editText.setHint(mEditTextHintId);
+        if(inputType != null){
+            editText.setInputType(InputType.TYPE_CLASS_TEXT | inputType);
+        }
         return view;
     }
 

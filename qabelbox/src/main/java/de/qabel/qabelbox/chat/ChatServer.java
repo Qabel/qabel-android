@@ -50,7 +50,7 @@ public class ChatServer {
 	public Collection<DropMessage> refreshList() {
 		long lastRetrieved = dataBase.getLastRetrievedDropMessageTime();
 		Log.d(TAG, "last retrieved dropmessage time " + lastRetrieved + " / " + System.currentTimeMillis());
-		String identityKey=QabelBoxApplication.getInstance().getService().getActiveIdentity().getEcPublicKey().getReadableKeyIdentifier();
+		String identityKey = QabelBoxApplication.getInstance().getService().getActiveIdentity().getEcPublicKey().getReadableKeyIdentifier();
 		Collection<DropMessage> result = QabelBoxApplication.getInstance().getService().retrieveDropMessages(QabelBoxApplication.getInstance().getService().getActiveIdentity(), lastRetrieved);
 
 		if (result != null) {
@@ -58,7 +58,7 @@ public class ChatServer {
 			//store into db
 			for (DropMessage item : result) {
 				ChatMessageItem cms = new ChatMessageItem(item);
-				cms.receiver=identityKey;
+				cms.receiver = identityKey;
 				cms.isNew = 0;
 				storeIntoDB(cms);
 			}
@@ -88,7 +88,7 @@ public class ChatServer {
 	/**
 	 * send all listener that chatmessage list was refrehsed
 	 */
-	private void sendCallbacksRefreshed() {
+	public void sendCallbacksRefreshed() {
 
 		for (ChatServerCallback callback : callbacks) {
 			callback.onRefreshed();
@@ -98,14 +98,18 @@ public class ChatServer {
 	public DropMessage getTextDropMessage(String message) {
 
 		String payload_type = ChatMessageItem.BOX_MESSAGE;
+		String payload = getTextDropMessagePayload(message);
+		return new DropMessage(QabelBoxApplication.getInstance().getService().getActiveIdentity(), payload, payload_type);
+	}
+
+	public String getTextDropMessagePayload(String message) {
 		JSONObject payloadJson = new JSONObject();
 		try {
 			payloadJson.put(TAG_MESSAGE, message);
 		} catch (JSONException e) {
 			Log.e(TAG, "error on create json", e);
 		}
-		String payload = payloadJson.toString();
-		return new DropMessage(QabelBoxApplication.getInstance().getService().getActiveIdentity(), payload, payload_type);
+		return payloadJson.toString();
 	}
 
 	public DropMessage getShareDropMessage(String message, String url, String key) {
@@ -134,6 +138,10 @@ public class ChatServer {
 
 	public ChatMessageItem[] getAllMessages(Contact c) {
 		return dataBase.get(c.getEcPublicKey().getReadableKeyIdentifier());
+	}
+
+	public ChatMessageItem[] getAllMessages() {
+		return dataBase.getAll();
 	}
 
 	public interface ChatServerCallback {

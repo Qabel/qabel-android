@@ -46,3 +46,4 @@ log/
 /qabelbox/src/main/res/values/params.xml
 .vagrant
 qabel-block
+*.orig

@@ -79,7 +79,7 @@ public class CreateBoxAccountUITest extends UIBoxHelper {
 	public void setUp() throws IOException, QblStorageException {
 
 		mActivity = mActivityTestRule.getActivity();
-		URLs.setBaseBlockURL(TestConstants.BLOCK_URL);
+		URLs.setBaseAccountingURL(TestConstants.ACCOUNTING_URL);
 
 		bindService(QabelBoxApplication.getInstance());
 		createTokenIfNeeded(false);

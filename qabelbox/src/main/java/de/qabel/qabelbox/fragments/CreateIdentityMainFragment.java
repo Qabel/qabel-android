@@ -25,9 +25,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URISyntaxException;
 
-/**
- * Created by danny on 19.01.16.
- */
 public class CreateIdentityMainFragment extends BaseIdentityFragment implements View.OnClickListener {
 
     private Button mCreateIdentity;

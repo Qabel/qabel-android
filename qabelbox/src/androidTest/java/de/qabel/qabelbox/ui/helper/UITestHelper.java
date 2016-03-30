@@ -17,9 +17,6 @@ import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
 import static org.hamcrest.Matchers.not;
 
-/**
- * Created by danny on 18.01.16.
- */
 public class UITestHelper {
 
     public void deleteAppData() {

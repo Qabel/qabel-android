@@ -27,9 +27,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 
-/**
- * Created by danny on 29.03.16.
- */
 public class ContactBaseFragment extends BaseFragment {
     public static final int REQUEST_IMPORT_CONTACT = 1000;
     public static final int REQUEST_EXPORT_CONTACT = 1001;

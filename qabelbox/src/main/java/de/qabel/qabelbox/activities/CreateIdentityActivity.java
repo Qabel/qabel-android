@@ -29,9 +29,6 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
 
-/**
- * Created by danny on 11.01.2016.
- */
 public class CreateIdentityActivity extends BaseWizardActivity {
 
     public static final int REQUEST_CODE_IMPORT_IDENTITY = 1;

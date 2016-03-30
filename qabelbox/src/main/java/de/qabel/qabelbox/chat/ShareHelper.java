@@ -25,9 +25,6 @@ import org.spongycastle.util.encoders.Hex;
 
 import java.util.Map;
 
-/**
- * Created by danny on 19.02.16.
- */
 public class ShareHelper {
 
     private static final String TAG = "ShareHelper";

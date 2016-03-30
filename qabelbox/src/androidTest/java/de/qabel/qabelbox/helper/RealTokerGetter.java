@@ -14,9 +14,6 @@ import java.util.concurrent.CountDownLatch;
 
 import static junit.framework.Assert.assertNotNull;
 
-/**
- * Created by danny on 01.03.16.
- */
 public class RealTokerGetter {
     private String TAG = "RealTokenGetter";
     String token = null;

@@ -19,9 +19,6 @@ import de.qabel.qabelbox.views.IconPageIndicator;
 import de.qabel.qabelbox.views.IconPagerAdapter;
 import de.qabel.qabelbox.views.ViewPagerParallax;
 
-/**
- * Created by danny on 11.01.2016.
- */
 public class WelcomeScreenActivity extends FragmentActivity implements ViewPager.OnPageChangeListener {
 
     private static final int NUM_PAGES = 5;

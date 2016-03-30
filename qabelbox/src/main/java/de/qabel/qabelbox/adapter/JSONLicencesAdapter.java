@@ -20,9 +20,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-/**
- * Created by Jan D.S. Wischweh <mail@wischweh.de> on 01.03.16.
- */
 public class JSONLicencesAdapter extends RecyclerView.Adapter<JSONLicencesAdapter.LicenceViewHolder> {
 
     public static String TAG = "JSONLicencesAdapter";

@@ -1,8 +1,5 @@
 package de.qabel.qabelbox.ui;
 
-/**
- * Created by danny on 05.01.2016.
- */
 
 import android.os.PowerManager;
 import android.support.test.rule.ActivityTestRule;

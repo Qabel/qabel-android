@@ -11,9 +11,6 @@ import android.widget.TextView;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.activities.BaseWizardActivity;
 
-/**
- * Created by danny on 19.01.16.
- */
 public class CreateIdentityEditTextFragment extends BaseIdentityFragment {
 
     private EditText editText;

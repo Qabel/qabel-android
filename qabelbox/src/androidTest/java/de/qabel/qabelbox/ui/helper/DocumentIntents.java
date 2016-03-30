@@ -14,9 +14,6 @@ import static android.support.test.espresso.intent.matcher.IntentMatchers.hasCat
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.core.AllOf.allOf;
 
-/**
- * Created by danny on 17.03.16.
- */
 public class DocumentIntents {
 
     public void handleSaveFileIntent(File file) {

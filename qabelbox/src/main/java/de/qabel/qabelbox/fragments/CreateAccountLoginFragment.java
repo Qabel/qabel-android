@@ -19,9 +19,6 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 
-/**
- * Created by danny on 19.01.16.
- */
 public class CreateAccountLoginFragment extends BaseIdentityFragment {
 
     private EditText etPassword;
@@ -55,14 +52,12 @@ public class CreateAccountLoginFragment extends BaseIdentityFragment {
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-
         menu.clear();
         inflater.inflate(R.menu.ab_next, menu);
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-
         int id = item.getItemId();
         if (id == R.id.action_ok) {
             String check = checkData();
@@ -78,7 +73,6 @@ public class CreateAccountLoginFragment extends BaseIdentityFragment {
     }
 
     private String checkData() {
-
         if (etPassword.getText().toString().length() < 3 || etUserName.getText().toString().length() == 0) {
             return getString(R.string.create_account_enter_all_data);
         }
@@ -86,7 +80,6 @@ public class CreateAccountLoginFragment extends BaseIdentityFragment {
     }
 
     private void login(final String username, final String password) {
-
         final AlertDialog dialog = UIHelper.showWaitMessage(mActivity, R.string.dialog_headline_please_wait, R.string.dialog_message_server_communication_is_running, false);
         final SimpleJsonCallback callback = createCallback(username, password, dialog);
         mBoxAccountServer.login(username, password, callback);
@@ -94,11 +87,8 @@ public class CreateAccountLoginFragment extends BaseIdentityFragment {
 
     @NonNull
     private SimpleJsonCallback createCallback(final String username, final String password, final AlertDialog dialog) {
-
         return new SimpleJsonCallback() {
-
             void showRetryDialog() {
-
                 UIHelper.showDialogMessage(getActivity(), R.string.dialog_headline_info, R.string.server_access_not_successfully_retry_question, R.string.yes, R.string.no, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
@@ -116,7 +106,6 @@ public class CreateAccountLoginFragment extends BaseIdentityFragment {
             }
 
             protected void onError(final Call call, Reasons reasons) {
-
                 if (reasons == Reasons.IOException && retryCount++ < 3) {
                     mBoxAccountServer.login(username, password, this);
                 } else {
@@ -126,7 +115,6 @@ public class CreateAccountLoginFragment extends BaseIdentityFragment {
             }
 
             protected void onSuccess(Call call, Response response, JSONObject json) {
-
                 BoxAccountRegisterServer.ServerResponse result = BoxAccountRegisterServer.parseJson(json);
                 if (result.token != null && result.token.length() > 5) {
                     new AppPreference(getActivity()).setToken(result.token);
@@ -146,7 +134,6 @@ public class CreateAccountLoginFragment extends BaseIdentityFragment {
             }
 
             private String generateErrorMessage(BoxAccountRegisterServer.ServerResponse result) {
-
                 ArrayList<String> message = new ArrayList<>();
                 if (result.non_field_errors != null) {
                     message.add(result.non_field_errors);
@@ -158,7 +145,7 @@ public class CreateAccountLoginFragment extends BaseIdentityFragment {
                     message.add(result.username);
                 }
 
-                String errorText = "";
+                String errorText;
                 if (message.size() == 0) {
                     errorText = getString(R.string.server_access_failed_or_invalid_check_internet_connection);
                 } else {
@@ -174,9 +161,7 @@ public class CreateAccountLoginFragment extends BaseIdentityFragment {
 
     @Override
     public String check() {
-
         UIHelper.showDialogMessage(getActivity(), R.string.dialog_headline_info, R.string.function_not_yet_implenented);
-        //return mChecker.check(editText);
         return null;
     }
 }

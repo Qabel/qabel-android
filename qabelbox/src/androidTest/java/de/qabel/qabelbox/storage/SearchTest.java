@@ -13,9 +13,6 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
 
-/**
- * Created by cdemon on 15.12.2015.
- */
 
 public class SearchTest extends AndroidTestCase {
 

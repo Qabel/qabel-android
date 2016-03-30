@@ -12,9 +12,6 @@ import java.util.GregorianCalendar;
 import java.util.Locale;
 import java.util.regex.Pattern;
 
-/**
- * Created by danny on 14.01.2016.
- */
 public class Formatter {
 
     private static final long KB = 1024;

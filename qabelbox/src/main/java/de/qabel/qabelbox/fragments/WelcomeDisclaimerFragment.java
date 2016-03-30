@@ -16,9 +16,6 @@ import de.qabel.qabelbox.activities.WelcomeScreenActivity;
 import de.qabel.qabelbox.helper.FileHelper;
 import de.qabel.qabelbox.helper.UIHelper;
 
-/**
- * Created by danny on 23.02.16.
- */
 public class WelcomeDisclaimerFragment extends Fragment {
     private WelcomeScreenActivity mActivity;
     private CheckBox cbLegal;

@@ -17,9 +17,6 @@ import de.qabel.qabelbox.helper.Formatter;
 
 import java.util.Date;
 
-/**
- * Created by danny on 25.01.2016.
- */
 public class HelpMainFragment extends PreferenceFragment {
 
     final public static String APP_PREF_NAME = "appsettings";

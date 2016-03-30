@@ -38,9 +38,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Set;
 
-/**
- * Created by danny on 18.01.16.
- */
 public class UIBoxHelper {
 
 

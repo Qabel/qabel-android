@@ -9,9 +9,6 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import de.qabel.qabelbox.R;
 
-/**
- * Created by danny on 23.02.16.
- */
 public class WelcomeTextFragment extends Fragment {
 
     private static final String KEY_MESSAGE_ID = "messageid";

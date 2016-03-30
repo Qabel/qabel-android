@@ -6,9 +6,6 @@ import android.preference.PreferenceFragment;
 import de.qabel.qabelbox.R;
 import net.hockeyapp.android.FeedbackManager;
 
-/**
- * Created by danny on 25.01.2016.
- */
 public class SettingsFragment extends PreferenceFragment {
 
     final public static String APP_PREF_NAME = "appsettings";

@@ -9,9 +9,6 @@ import de.qabel.qabelbox.activities.CreateIdentityActivity;
 import de.qabel.qabelbox.config.AppPreference;
 import de.qabel.qabelbox.services.LocalQabelService;
 
-/**
- * Created by danny on 10.02.16.
- */
 public class Sanity {
 
     /**

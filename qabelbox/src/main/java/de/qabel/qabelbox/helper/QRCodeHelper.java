@@ -15,9 +15,6 @@ import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
 import de.qabel.core.config.Identity;
 
-/**
- * Created by danny on 04.02.16.
- */
 public class QRCodeHelper {
 
     private static final String TAG = "QRCodeHelper";

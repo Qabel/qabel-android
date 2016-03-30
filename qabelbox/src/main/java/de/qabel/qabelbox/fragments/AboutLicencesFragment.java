@@ -16,9 +16,6 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.io.InputStream;
 
-/**
- * Created by r-hold on 29.02.16.
- */
 public class AboutLicencesFragment extends BaseFragment {
 
     static final String TAG = "AboutLicencesFragment";

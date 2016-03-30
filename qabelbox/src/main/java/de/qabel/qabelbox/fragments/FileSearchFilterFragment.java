@@ -14,9 +14,6 @@ import org.apache.commons.lang3.time.DateUtils;
 import java.util.Calendar;
 import java.util.Date;
 
-/**
- * Created by danny on 14.01.2016.
- */
 public class FileSearchFilterFragment extends BaseFragment implements SeekBar.OnSeekBarChangeListener {
     private FilterData mFilterData;
     private CallbackListener mListener;

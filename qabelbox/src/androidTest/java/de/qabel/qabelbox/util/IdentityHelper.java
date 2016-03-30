@@ -14,9 +14,6 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
 
-/**
- * Created by danny on 02.03.16.
- */
 public class IdentityHelper {
     /**
      * create identity onthefile

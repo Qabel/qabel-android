@@ -48,9 +48,6 @@ import static android.support.test.espresso.matcher.ViewMatchers.*;
 import static junit.framework.Assert.*;
 import static org.hamcrest.Matchers.*;
 
-/**
- * Created by danny on 17.003.2016.
- */
 public class ImportExportContactsUITest {
     @Rule
     public ActivityTestRule<MainActivity> mActivityTestRule = new ActivityTestRule<>(MainActivity.class, false, true);

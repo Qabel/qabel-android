@@ -16,9 +16,6 @@ import de.qabel.qabelbox.storage.StorageSearch;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Created by danny on 08.01.2016.
- */
 public class FilesSearchResultFragment extends FilesFragment {
 
     protected static final String TAG = FilesFragment.class.getSimpleName();

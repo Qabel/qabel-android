@@ -12,9 +12,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-/**
- * Created by danny on 17.02.16.
- */
 public class ChatServer {
 
     private static final String TAG = "ChatServer";

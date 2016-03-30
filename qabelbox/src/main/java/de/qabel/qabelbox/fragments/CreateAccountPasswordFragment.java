@@ -10,9 +10,6 @@ import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.activities.BaseWizardActivity;
 import de.qabel.qabelbox.validation.PasswordValidator;
 
-/**
- * Created by danny on 19.01.16.
- */
 public class CreateAccountPasswordFragment extends BaseIdentityFragment {
 
     private EditText etPassword1;

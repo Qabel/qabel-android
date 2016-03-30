@@ -20,9 +20,6 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 
-/**
- * Created by danny on 19.01.16.
- */
 public class ChangeBoxAccountPasswordFragment extends Fragment {
 
     private EditText etOldPassword, etPassword1, etPassword2;

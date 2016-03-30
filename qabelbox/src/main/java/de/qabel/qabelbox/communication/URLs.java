@@ -4,9 +4,6 @@ import android.content.Context;
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
 
-/**
- * Created by danny on 26.01.2016.
- */
 public class URLs {
 
     private static String BASE_ACCOUNTING;

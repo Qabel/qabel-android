@@ -5,9 +5,6 @@ import android.util.AttributeSet;
 import android.widget.EditText;
 import de.qabel.qabelbox.helper.FontHelper;
 
-/**
- * Created by danny on 12.01.2016.
- */
 public class EditTextFont extends EditText {
     public EditTextFont(Context context) {
         super(context);

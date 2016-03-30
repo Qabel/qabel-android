@@ -3,9 +3,6 @@ package de.qabel.qabelbox.config;
 import android.content.Context;
 import android.content.SharedPreferences;
 
-/**
- * Created by danny on 27.01.16.
- */
 public class AppPreference {
 
     private final SharedPreferences settings;

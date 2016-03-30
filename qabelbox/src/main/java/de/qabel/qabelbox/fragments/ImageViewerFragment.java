@@ -12,9 +12,6 @@ import com.squareup.picasso.Picasso;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.helper.ExternalApps;
 
-/**
- * Created by danny on 02.02.16.
- */
 public class ImageViewerFragment extends BaseFragment {
 
     private Uri uri;

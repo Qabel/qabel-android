@@ -6,9 +6,6 @@ import android.net.Uri;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.activities.MainActivity;
 
-/**
- * Created by danny on 03.02.16.
- */
 public class ExternalApps {
 
     /**

@@ -9,9 +9,6 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import de.qabel.qabelbox.R;
 
-/**
- * Created by danny on 19.01.16.
- */
 public class CreateIdentityHeaderFragment extends Fragment {
 
     private ViewGroup logoLayout;

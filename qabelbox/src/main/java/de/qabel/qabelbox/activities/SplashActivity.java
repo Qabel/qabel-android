@@ -9,9 +9,6 @@ import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.config.AppPreference;
 import de.qabel.qabelbox.helper.Sanity;
 
-/**
- * Created by danny on 11.01.2016.
- */
 public class SplashActivity extends CrashReportingActivity {
 
     private final long SPLASH_TIME = 1500;

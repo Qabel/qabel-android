@@ -2,9 +2,6 @@ package de.qabel.qabelbox.adapter;
 
 import de.qabel.core.config.Contact;
 
-/**
- * Created by danny on 25.02.16.
- */
 public class ContactAdapterItem extends Contact {
     boolean hasNewMessages = false;
 

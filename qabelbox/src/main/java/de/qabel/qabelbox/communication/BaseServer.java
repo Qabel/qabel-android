@@ -11,9 +11,6 @@ import org.json.JSONObject;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
-/**
- * Created by danny on 11.02.16.
- */
 public class BaseServer {
 
     protected final OkHttpClient client;

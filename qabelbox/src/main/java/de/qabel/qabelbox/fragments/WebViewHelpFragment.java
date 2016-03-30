@@ -6,9 +6,6 @@ import android.webkit.WebView;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.helper.FileHelper;
 
-/**
- * Created by danny on 23.02.16.
- */
 public class WebViewHelpFragment extends BaseFragment {
 
     public static final int MODE_DATA_POLICY = 0;

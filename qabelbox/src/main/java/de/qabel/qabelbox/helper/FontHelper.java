@@ -6,9 +6,6 @@ import android.widget.TextView;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.views.TextViewQabelFont;
 
-/**
- * Created by danny on 12.01.2016.
- */
 public class FontHelper {
 
     private Typeface[] fonts;

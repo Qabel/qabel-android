@@ -8,9 +8,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import de.qabel.qabelbox.R;
 
-/**
- * Created by danny on 23.02.16.
- */
 public class ScreenSlidePageFragment extends Fragment {
 
     @Nullable

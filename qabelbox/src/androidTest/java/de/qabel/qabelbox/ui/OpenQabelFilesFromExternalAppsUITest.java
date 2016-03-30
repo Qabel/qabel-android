@@ -39,9 +39,6 @@ import static junit.framework.Assert.*;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.endsWith;
 
-/**
- * Created by danny on 17.003.2016.
- */
 public class OpenQabelFilesFromExternalAppsUITest extends UIBoxHelper {
     @Rule
     public ActivityTestRule<MainActivity> mActivityTestRule = new ActivityTestRule<>(MainActivity.class, false, false);

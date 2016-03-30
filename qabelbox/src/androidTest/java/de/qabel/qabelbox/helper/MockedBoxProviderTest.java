@@ -19,9 +19,6 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-/**
- * Created by Jan D.S. Wischweh <mail@wischweh.de> on 07.03.16.
- */
 public abstract class MockedBoxProviderTest extends InstrumentationTestCase {
 
     MockBoxProvider mockProvider;

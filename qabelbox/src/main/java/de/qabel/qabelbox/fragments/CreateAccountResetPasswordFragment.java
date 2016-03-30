@@ -17,9 +17,6 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 
-/**
- * Created by danny on 19.01.16.
- */
 public class CreateAccountResetPasswordFragment extends BaseIdentityFragment {
 
     private TextView etEMail;

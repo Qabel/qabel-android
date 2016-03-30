@@ -8,9 +8,6 @@ import org.hamcrest.Matcher;
 
 import static android.support.test.espresso.matcher.ViewMatchers.isAssignableFrom;
 
-/**
- * Created by danny on 22.01.16.
- */
 public class QabelViewAction {
     public static ViewAction setProgress(final int progress) {
         return new ViewAction() {

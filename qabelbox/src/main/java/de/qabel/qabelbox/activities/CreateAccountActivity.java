@@ -23,9 +23,6 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 
-/**
- * Created by danny on 11.01.2016.
- */
 public class CreateAccountActivity extends BaseWizardActivity {
 
     private static final int FRAGMENT_ENTER_NAME = 1;

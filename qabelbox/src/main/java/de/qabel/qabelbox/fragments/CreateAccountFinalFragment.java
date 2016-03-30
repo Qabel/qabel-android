@@ -12,9 +12,6 @@ import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.services.LocalQabelService;
 
-/**
- * Created by danny on 19.01.16.
- */
 public class CreateAccountFinalFragment extends BaseIdentityFragment {
 
     private TextView tvSuccess, tvMessage;

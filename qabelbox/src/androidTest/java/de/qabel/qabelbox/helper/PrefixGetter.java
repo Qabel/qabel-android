@@ -12,9 +12,6 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.util.concurrent.CountDownLatch;
 
-/**
- * Created by danny on 15.02.2016.
- */
 public class PrefixGetter {
 
     private String prefix = null;

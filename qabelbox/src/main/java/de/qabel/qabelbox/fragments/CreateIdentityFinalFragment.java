@@ -7,9 +7,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import de.qabel.qabelbox.R;
 
-/**
- * Created by danny on 19.01.16.
- */
 public class CreateIdentityFinalFragment extends BaseIdentityFragment {
 
     @Nullable

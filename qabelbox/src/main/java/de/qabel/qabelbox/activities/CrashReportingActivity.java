@@ -10,9 +10,6 @@ import de.qabel.qabelbox.fragments.SettingsFragment;
 import net.hockeyapp.android.CrashManager;
 import net.hockeyapp.android.UpdateManager;
 
-/**
- * Created by danny on 05.02.16.
- */
 public class CrashReportingActivity extends AppCompatActivity {
 
     private final String TAG = this.getClass().getSimpleName();

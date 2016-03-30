@@ -59,7 +59,7 @@ public class ChatServer {
 			for (DropMessage item : result) {
 				ChatMessageItem cms = new ChatMessageItem(item);
 				cms.receiver = identityKey;
-				cms.isNew = 0;
+				cms.isNew = 1;
 				storeIntoDB(cms);
 			}
 

@@ -114,14 +114,8 @@ public class ContactFragment extends BaseFragment {
         int id = item.getItemId();
         if (id == R.id.action_contact_refresh) {
 
-            new AsyncTask<Void, Void, Collection<DropMessage>>() {
-                @Override
-                protected Collection<DropMessage> doInBackground(Void... params) {
-
-                    return chatServer.refreshList();
-                }
-            }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-        }
+			pullDropMessagesAsync();
+		}
         if (id == R.id.action_contact_export_all) {
             exportAllContacts();
 
@@ -129,7 +123,17 @@ public class ContactFragment extends BaseFragment {
         return super.onOptionsItemSelected(item);
     }
 
-    public void enableDocumentProvider(boolean value) {
+	private void pullDropMessagesAsync() {
+		new AsyncTask<Void, Void, Collection<DropMessage>>() {
+			@Override
+			protected Collection<DropMessage> doInBackground(Void... params) {
+
+				return chatServer.refreshList();
+			}
+		}.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+	}
+
+	public void enableDocumentProvider(boolean value) {
         useDocumentProvider = value;
     }
 
@@ -230,8 +234,13 @@ public class ContactFragment extends BaseFragment {
         sendRefreshContactList();
     }
 
+	@Override
+	public void onResume() {
+		super.onResume();
+		pullDropMessagesAsync();
+	}
 
-    private static void sendRefreshContactList() {
+	private static void sendRefreshContactList() {
         Log.d(TAG, "send refresh intent");
         Intent intent = new Intent(Helper.INTENT_REFRESH_CONTACTLIST);
         QabelBoxApplication.getInstance().getApplicationContext().sendBroadcast(intent);

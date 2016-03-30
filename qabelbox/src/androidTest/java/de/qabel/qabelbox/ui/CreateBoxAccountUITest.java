@@ -242,6 +242,8 @@ public class CreateBoxAccountUITest extends UIBoxHelper {
 		onView(withId(R.id.et_name)).perform(clearText());
 	}
 
+
+
 	private void enterSingleLine(String accountName, String screenName, boolean checkFieldsIsEmail) throws Throwable {
 		onView(withId(R.id.et_name)).check(matches(isDisplayed())).perform(click());
 		if (checkFieldsIsEmail) {
@@ -254,7 +256,7 @@ public class CreateBoxAccountUITest extends UIBoxHelper {
 		Spoon.screenshot(UITestHelper.getCurrentActivity(mActivity), screenName);
 
 		onView(withText(R.string.next)).perform(click());
-		UITestHelper.sleep(500);
+		UITestHelper.sleep(1000);
 	}
 
 

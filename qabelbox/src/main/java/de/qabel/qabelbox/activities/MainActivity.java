@@ -1,7 +1,6 @@
 package de.qabel.qabelbox.activities;
 
 import android.app.Fragment;
-import android.app.FragmentManager;
 import android.app.FragmentManager.OnBackStackChangedListener;
 import android.content.*;
 import android.net.Uri;
@@ -29,16 +28,10 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
-import com.cocosw.bottomsheet.BottomSheet;
 import com.cocosw.bottomsheet.BottomSheet.Builder;
 import de.qabel.core.config.Identity;
 import de.qabel.qabelbox.QabelBoxApplication;
-import de.qabel.qabelbox.R;
-import de.qabel.qabelbox.R.drawable;
-import de.qabel.qabelbox.R.id;
-import de.qabel.qabelbox.R.layout;
-import de.qabel.qabelbox.R.menu;
-import de.qabel.qabelbox.R.string;
+import de.qabel.qabelbox.R.*;
 import de.qabel.qabelbox.adapter.FilesAdapter;
 import de.qabel.qabelbox.adapter.FilesAdapter.OnItemClickListener;
 import de.qabel.qabelbox.chat.ChatServer;
@@ -70,7 +63,6 @@ public class MainActivity extends CrashReportingActivity
         implements OnNavigationItemSelectedListener,
         FilesListListener,
         IdentityListListener {
-
     public static final String TAG_CONTACT_CHAT_FRAGMENT = "TAG_CONTACT_CHAT_FRAGMENT";
 
     private static final int REQUEST_CODE_CHOOSE_EXPORT = 14;
@@ -122,7 +114,6 @@ public class MainActivity extends CrashReportingActivity
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-
         final Uri uri;
         if (requestCode == REQUEST_EXTERN_VIEWER_APP) {
             Log.d(TAG, "result from extern app " + resultCode);
@@ -169,10 +160,8 @@ public class MainActivity extends CrashReportingActivity
                     uri = data.getData();
                     Log.i(TAG, "Deleting file: " + uri);
                     new AsyncTask<Uri, Void, Boolean>() {
-
                         @Override
                         protected Boolean doInBackground(Uri... params) {
-
                             return DocumentsContract.deleteDocument(getContentResolver(), params[0]);
                         }
                     }.execute(uri);
@@ -182,10 +171,8 @@ public class MainActivity extends CrashReportingActivity
                     uri = data.getData();
                     Log.i(TAG, "Export uri chosen: " + uri);
                     new AsyncTask<Void, Void, Void>() {
-
                         @Override
                         protected Void doInBackground(Void... params) {
-
                             try {
                                 InputStream inputStream = getContentResolver().openInputStream(exportUri);
                                 OutputStream outputStream = getContentResolver().openOutputStream(uri);
@@ -211,7 +198,6 @@ public class MainActivity extends CrashReportingActivity
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
         super.onCreate(savedInstanceState);
         Log.d(TAG, "onCreate " + hashCode());
         Intent serviceIntent = new Intent(this, LocalQabelService.class);
@@ -255,7 +241,6 @@ public class MainActivity extends CrashReportingActivity
         if (getFragmentManager().getBackStackEntryCount() == 0 || activeFragment instanceof BaseFragment && !((BaseFragment) activeFragment).supportBackButton()) {
             if (activeFragment instanceof SelectUploadFolderFragment) {
             } else {
-
                 getSupportActionBar().setDisplayHomeAsUpEnabled(false);
                 toggle.setDrawerIndicatorEnabled(true);
             }
@@ -263,7 +248,6 @@ public class MainActivity extends CrashReportingActivity
     }
 
     private void addBackStackListener() {
-
         getFragmentManager().addOnBackStackChangedListener(new OnBackStackChangedListener() {
             @Override
             public void onBackStackChanged() {
@@ -274,12 +258,9 @@ public class MainActivity extends CrashReportingActivity
 
     @NonNull
     private ServiceConnection getServiceConnection() {
-
         return new ServiceConnection() {
-
             @Override
             public void onServiceConnected(ComponentName name, IBinder service) {
-
                 LocalBinder binder = (LocalBinder) service;
                 mService = binder.getService();
                 QabelBoxApplication.getInstance().serviceCreatedOutside(mService);
@@ -288,14 +269,12 @@ public class MainActivity extends CrashReportingActivity
 
             @Override
             public void onServiceDisconnected(ComponentName name) {
-
                 mService = null;
             }
         };
     }
 
     private void onLocalServiceConnected(Intent intent) {
-
         Log.d(TAG, "LocalQabelService connected");
         if (mService.getActiveIdentity() == null) {
             mService.setActiveIdentity(mService.getIdentities().getIdentities().iterator().next());
@@ -328,7 +307,6 @@ public class MainActivity extends CrashReportingActivity
             switch (intent.getAction()) {
                 case Intent.ACTION_VIEW:
                     if (scheme.compareTo(ContentResolver.SCHEME_FILE) == 0 || scheme.compareTo(ContentResolver.SCHEME_CONTENT) == 0) {
-
                         handleActionViewResolver(intent);
 
                     }
@@ -395,13 +373,11 @@ public class MainActivity extends CrashReportingActivity
     }
 
     private void initAndSelectFilesFragment() {
-
         initFilesFragment();
         selectFilesFragment();
     }
 
     public void refreshFilesBrowser(Identity activeIdentity) {
-
         textViewSelectedIdentity.setText(activeIdentity.getAlias());
 
         initBoxVolume(activeIdentity);
@@ -410,7 +386,6 @@ public class MainActivity extends CrashReportingActivity
     }
 
     private void shareIntoApp(final ArrayList<Uri> data) {
-
         fab.hide();
 
         final Set<Identity> identities = mService.getIdentities().getIdentities();
@@ -418,14 +393,12 @@ public class MainActivity extends CrashReportingActivity
             new SelectIdentityForUploadDialog(self, new Result() {
                 @Override
                 public void onCancel() {
-
                     UIHelper.showDialogMessage(self, string.dialog_headline_warning, string.share_into_app_canceled);
                     onBackPressed();
                 }
 
                 @Override
                 public void onIdentitySelected(Identity identity) {
-
                     changeActiveIdentity(identity);
 
                     shareIdentitySelected(data, identity);
@@ -438,7 +411,6 @@ public class MainActivity extends CrashReportingActivity
     }
 
     private void shareIdentitySelected(final ArrayList<Uri> data, Identity activeIdentity) {
-
         toggle.setDrawerIndicatorEnabled(false);
         shareFragment = SelectUploadFolderFragment.newInstance(boxVolume, data, activeIdentity);
         getFragmentManager().beginTransaction()
@@ -449,18 +421,15 @@ public class MainActivity extends CrashReportingActivity
     }
 
     private void initBoxVolume(Identity activeIdentity) {
-
         boxVolume = provider.getVolumeForRoot(
                 activeIdentity.getEcPublicKey().getReadableKeyIdentifier(),
                 VolumeFileTransferHelper.getPrefixFromIdentity(activeIdentity));
     }
 
     private void initFloatingActionButton() {
-
         fab.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-
                 Fragment activeFragment = getFragmentManager().findFragmentById(id.fragment_container);
                 String activeFragmentTag = activeFragment.getTag();
                 if (activeFragment instanceof BaseFragment) {
@@ -487,12 +456,10 @@ public class MainActivity extends CrashReportingActivity
     }
 
     private void filesFragmentBottomSheet() {
-
         new Builder(self).sheet(menu.bottom_sheet_files_add)
                 .listener(new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-
                         switch (which) {
                             case id.create_folder:
                                 newFolderDialog();
@@ -509,11 +476,9 @@ public class MainActivity extends CrashReportingActivity
     }
 
     private void newFolderDialog() {
-
         UIHelper.showEditTextDialog(this, string.add_folder_header, string.add_folder_name, string.ok, string.cancel, new EditTextDialogClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which, EditText editText) {
-
                 UIHelper.hideKeyboard(self, editText);
                 String newFolderName = editText.getText().toString();
                 if (!newFolderName.equals("")) {
@@ -525,12 +490,10 @@ public class MainActivity extends CrashReportingActivity
 
 
     protected void filterSheet(BoxObject boxObject, Builder sheet) {
-
         if (!(boxObject instanceof BoxFile) || !((BoxFile) boxObject).isShared()) {
             sheet.remove(id.unshare);
         }
         if (!(boxObject instanceof BoxFile)) {
-
             sheet.remove(id.unshare);
         }
         if (boxObject instanceof BoxExternalFile) {
@@ -551,7 +514,6 @@ public class MainActivity extends CrashReportingActivity
      */
 
     public void showFile(BoxObject boxObject) {
-
         Uri uri = VolumeFileTransferHelper.getUri(boxObject, boxVolume, filesFragment.getBoxNavigation());
         String type = getMimeType(uri);
         Log.v(TAG, "Mime type: " + type);
@@ -581,25 +543,21 @@ public class MainActivity extends CrashReportingActivity
 
     //@todo move outside
     private String getMimeType(BoxObject boxObject) {
-
         return getMimeType(VolumeFileTransferHelper.getUri(boxObject, boxVolume, filesFragment.getBoxNavigation()));
     }
 
     //@todo move outside
     private String getMimeType(Uri uri) {
-
         return URLConnection.guessContentTypeFromName(uri.toString());
     }
 
 
     @Override
     public void onBackPressed() {
-
         DrawerLayout drawer = (DrawerLayout) findViewById(id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else {
-
             Fragment activeFragment = getFragmentManager().findFragmentById(id.fragment_container);
             if (activeFragment == null) {
                 super.onBackPressed();
@@ -689,11 +647,9 @@ public class MainActivity extends CrashReportingActivity
 
     //@todo move outside
     public void createFolder(final String name, final BoxNavigation boxNavigation) {
-
         new AsyncTask<Void, Void, Void>() {
             @Override
             protected Void doInBackground(Void... params) {
-
                 try {
                     boxNavigation.createFolder(name);
                     boxNavigation.commit();
@@ -705,21 +661,18 @@ public class MainActivity extends CrashReportingActivity
 
             @Override
             protected void onCancelled() {
-
                 filesFragment.setIsLoading(false);
                 showAbortMessage();
             }
 
             @Override
             protected void onPreExecute() {
-
                 selectFilesFragment();
                 filesFragment.setIsLoading(true);
             }
 
             @Override
             protected void onPostExecute(Void aVoid) {
-
                 super.onPostExecute(aVoid);
                 refresh();
             }
@@ -727,13 +680,11 @@ public class MainActivity extends CrashReportingActivity
     }
 
     public void selectIdentity(Identity identity) {
-
         changeActiveIdentity(identity);
         selectFilesFragment();
     }
 
     public void addIdentity(Identity identity) {
-
         mService.addIdentity(identity);
         changeActiveIdentity(identity);
         provider.notifyRootsUpdated();
@@ -743,7 +694,6 @@ public class MainActivity extends CrashReportingActivity
     }
 
     public void changeActiveIdentity(Identity identity) {
-
         mService.setActiveIdentity(identity);
         textViewSelectedIdentity.setText(identity.getAlias());
         if (filesFragment != null) {
@@ -759,7 +709,6 @@ public class MainActivity extends CrashReportingActivity
 
     //@todo move this to filesfragment
     private void initFilesFragment() {
-
         if (filesFragment != null) {
             getFragmentManager().beginTransaction().remove(filesFragment).commit();
         }
@@ -767,7 +716,6 @@ public class MainActivity extends CrashReportingActivity
         filesFragment.setOnItemClickListener(new OnItemClickListener() {
             @Override
             public void onItemClick(View view, int position) {
-
                 final BoxObject boxObject = filesFragment.getFilesAdapter().get(position);
                 if (boxObject != null) {
                     if (boxObject instanceof BoxFolder) {
@@ -781,13 +729,11 @@ public class MainActivity extends CrashReportingActivity
 
             @Override
             public void onItemLockClick(View view, final int position) {
-
                 final BoxObject boxObject = filesFragment.getFilesAdapter().get(position);
                 Builder sheet = new Builder(self).title(boxObject.name).sheet(menu.bottom_sheet_files)
                         .listener(new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-
                                 switch (which) {
                                     case id.open:
                                         ExternalApps.openExternApp(self, VolumeFileTransferHelper.getUri(boxObject, boxVolume, filesFragment.getBoxNavigation()), getMimeType(boxObject), Intent.ACTION_VIEW);
@@ -828,14 +774,12 @@ public class MainActivity extends CrashReportingActivity
 
     @Override
     protected void onNewIntent(Intent intent) {
-
         Log.d(TAG, "onCreateOnIntent");
         onLocalServiceConnected(intent);
     }
 
     @Override
     public void onScrolledToBottom(boolean scrolledToBottom) {
-
         if (scrolledToBottom) {
             fab.hide();
         } else {
@@ -850,14 +794,12 @@ public class MainActivity extends CrashReportingActivity
 
     @Override
     public void deleteIdentity(Identity identity) {
-
         provider.notifyRootsUpdated();
         mService.deleteIdentity(identity);
         if (mService.getIdentities().getIdentities().size() == 0) {
             UIHelper.showDialogMessage(this, string.dialog_headline_info, string.last_identity_delete_create_new, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
-
                     selectAddIdentityFragment();
                 }
             });
@@ -868,7 +810,6 @@ public class MainActivity extends CrashReportingActivity
 
     @Override
     public void modifyIdentity(Identity identity) {
-
         provider.notifyRootsUpdated();
         mService.modifyIdentity(identity);
         textViewSelectedIdentity.setText(mService.getActiveIdentity().getAlias());
@@ -880,7 +821,6 @@ public class MainActivity extends CrashReportingActivity
      */
     //@todo move outside
     public void onExport(BoxNavigation boxNavigation, BoxObject boxObject) {
-
         String path = boxNavigation.getPath(boxObject);
         String documentId = boxVolume.getDocumentId(path);
         Uri uri = DocumentsContract.buildDocumentUri(
@@ -904,9 +844,7 @@ public class MainActivity extends CrashReportingActivity
 
     @Override
     protected void onDestroy() {
-
         if (mServiceConnection != null && mService != null) {
-
             unbindService(mServiceConnection);
         }
         if (isTaskRoot()) {
@@ -917,12 +855,10 @@ public class MainActivity extends CrashReportingActivity
 
     @Override
     public void onDoRefresh(final FilesFragment filesFragment, final BoxNavigation boxNavigation, final FilesAdapter filesAdapter) {
-
         filesFragment.refresh();
     }
 
     private void setDrawerLocked(boolean locked) {
-
         if (locked) {
             drawer.setDrawerListener(null);
             drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
@@ -934,7 +870,6 @@ public class MainActivity extends CrashReportingActivity
     }
 
     private void initDrawer() {
-
         drawer = (DrawerLayout) findViewById(id.drawer_layout);
         toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, string.navigation_drawer_open, string.navigation_drawer_close);
@@ -951,7 +886,6 @@ public class MainActivity extends CrashReportingActivity
         findViewById(id.qabelLogo).setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-
                 drawer.closeDrawer(GravityCompat.START);
                 showQRCode(self, mService.getActiveIdentity());
             }
@@ -961,7 +895,6 @@ public class MainActivity extends CrashReportingActivity
         findViewById(id.select_identity_layout).setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-
                 if (identityMenuExpanded) {
                     imageViewExpandIdentity.setImageResource(drawable.ic_arrow_drop_down_black);
                     navigationView.getMenu().clear();
@@ -975,7 +908,6 @@ public class MainActivity extends CrashReportingActivity
                     Collections.sort(identityList, new Comparator<Identity>() {
                         @Override
                         public int compare(Identity lhs, Identity rhs) {
-
                             return lhs.getAlias().compareTo(rhs.getAlias());
                         }
                     });
@@ -986,7 +918,6 @@ public class MainActivity extends CrashReportingActivity
                                 .setOnMenuItemClickListener(new OnMenuItemClickListener() {
                                     @Override
                                     public boolean onMenuItemClick(MenuItem item) {
-
                                         drawer.closeDrawer(GravityCompat.START);
                                         selectIdentity(identity);
                                         return true;
@@ -999,7 +930,6 @@ public class MainActivity extends CrashReportingActivity
                             .setOnMenuItemClickListener(new OnMenuItemClickListener() {
                                 @Override
                                 public boolean onMenuItemClick(MenuItem item) {
-
                                     drawer.closeDrawer(GravityCompat.START);
                                     selectAddIdentityFragment();
                                     return true;
@@ -1011,7 +941,6 @@ public class MainActivity extends CrashReportingActivity
                             .setOnMenuItemClickListener(new OnMenuItemClickListener() {
                                 @Override
                                 public boolean onMenuItemClick(MenuItem item) {
-
                                     drawer.closeDrawer(GravityCompat.START);
                                     selectManageIdentitiesFragment();
                                     return true;
@@ -1025,17 +954,14 @@ public class MainActivity extends CrashReportingActivity
         drawer.setDrawerListener(new DrawerListener() {
             @Override
             public void onDrawerSlide(View drawerView, float slideOffset) {
-
             }
 
             @Override
             public void onDrawerOpened(View drawerView) {
-
             }
 
             @Override
             public void onDrawerClosed(View drawerView) {
-
                 navigationView.getMenu().clear();
                 navigationView.inflateMenu(menu.activity_main_drawer);
                 imageViewExpandIdentity.setImageResource(drawable.ic_arrow_drop_down_black);
@@ -1044,7 +970,6 @@ public class MainActivity extends CrashReportingActivity
 
             @Override
             public void onDrawerStateChanged(int newState) {
-
             }
         });
     }
@@ -1057,7 +982,6 @@ public class MainActivity extends CrashReportingActivity
     }
 
     private void selectAddIdentityFragment() {
-
         Intent i = new Intent(self, CreateIdentityActivity.class);
         int identitiesCount = mService.getIdentities().getIdentities().size();
         i.putExtra(CreateIdentityActivity.FIRST_RUN, identitiesCount == 0 ? true : false);

@@ -7,7 +7,6 @@ import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
 import android.view.View;
 import android.widget.LinearLayout;
-import android.widget.LinearLayout.LayoutParams;
 
 /**
  * A simple extension of a regular linear layout that supports the divider API
@@ -17,7 +16,6 @@ import android.widget.LinearLayout.LayoutParams;
  * {@link android.widget.FrameLayout} so it can receive the margin.
  */
 class IcsLinearLayout extends LinearLayout {
-
     private static final int[] LL = new int[]{
         /* 0 */ attr.divider,
         /* 1 */ attr.showDividers,
@@ -34,7 +32,6 @@ class IcsLinearLayout extends LinearLayout {
     private int mDividerPadding;
 
     public IcsLinearLayout(Context context, int themeAttr) {
-
         super(context);
 
         TypedArray a = context.obtainStyledAttributes(null, LL, themeAttr, 0);
@@ -46,7 +43,6 @@ class IcsLinearLayout extends LinearLayout {
 
     @Override
     public void setDividerDrawable(Drawable divider) {
-
         if (divider == mDivider) {
             return;
         }
@@ -64,7 +60,6 @@ class IcsLinearLayout extends LinearLayout {
 
     @Override
     protected void measureChildWithMargins(View child, int parentWidthMeasureSpec, int widthUsed, int parentHeightMeasureSpec, int heightUsed) {
-
         final int index = indexOfChild(child);
         final int orientation = getOrientation();
         final LayoutParams params = (LayoutParams) child.getLayoutParams();
@@ -93,7 +88,6 @@ class IcsLinearLayout extends LinearLayout {
 
     @Override
     protected void onDraw(Canvas canvas) {
-
         if (mDivider != null) {
             if (getOrientation() == VERTICAL) {
                 drawDividersVertical(canvas);
@@ -105,7 +99,6 @@ class IcsLinearLayout extends LinearLayout {
     }
 
     private void drawDividersVertical(Canvas canvas) {
-
         final int count = getChildCount();
         for (int i = 0; i < count; i++) {
             final View child = getChildAt(i);
@@ -133,7 +126,6 @@ class IcsLinearLayout extends LinearLayout {
     }
 
     private void drawDividersHorizontal(Canvas canvas) {
-
         final int count = getChildCount();
         for (int i = 0; i < count; i++) {
             final View child = getChildAt(i);
@@ -161,21 +153,18 @@ class IcsLinearLayout extends LinearLayout {
     }
 
     private void drawHorizontalDivider(Canvas canvas, int top) {
-
         mDivider.setBounds(getPaddingLeft() + mDividerPadding, top,
                 getWidth() - getPaddingRight() - mDividerPadding, top + mDividerHeight);
         mDivider.draw(canvas);
     }
 
     private void drawVerticalDivider(Canvas canvas, int left) {
-
         mDivider.setBounds(left, getPaddingTop() + mDividerPadding,
                 left + mDividerWidth, getHeight() - getPaddingBottom() - mDividerPadding);
         mDivider.draw(canvas);
     }
 
     private boolean hasDividerBeforeChildAt(int childIndex) {
-
         if (childIndex == 0 || childIndex == getChildCount()) {
             return false;
         }

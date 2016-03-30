@@ -9,10 +9,8 @@ import android.support.annotation.Nullable;
 import android.view.*;
 import android.widget.EditText;
 import android.widget.TextView;
-import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.R.id;
 import de.qabel.qabelbox.R.layout;
-import de.qabel.qabelbox.R.menu;
 import de.qabel.qabelbox.R.string;
 import de.qabel.qabelbox.communication.BoxAccountRegisterServer;
 import de.qabel.qabelbox.communication.BoxAccountRegisterServer.ServerResponse;
@@ -26,7 +24,6 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 
 public class CreateAccountLoginFragment extends BaseIdentityFragment {
-
     private EditText etPassword;
     private TextView etUserName;
 
@@ -37,7 +34,6 @@ public class CreateAccountLoginFragment extends BaseIdentityFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle
             savedInstanceState) {
-
         View view = inflater.inflate(layout.fragment_create_account_login, container, false);
         etUserName = (TextView) view.findViewById(id.et_username);
         etPassword = (EditText) view.findViewById(id.et_password);
@@ -46,7 +42,6 @@ public class CreateAccountLoginFragment extends BaseIdentityFragment {
         resetPassword.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
                 getFragmentManager().popBackStack();
                 CreateAccountResetPasswordFragment fragment = new CreateAccountResetPasswordFragment();
                 getActivity().getFragmentManager().beginTransaction().replace(id.fragment_container_content, fragment).addToBackStack(null).commit();
@@ -98,14 +93,12 @@ public class CreateAccountLoginFragment extends BaseIdentityFragment {
                 UIHelper.showDialogMessage(getActivity(), string.dialog_headline_info, string.server_access_not_successfully_retry_question, string.yes, string.no, new OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-
                                 login(username, password);
                             }
                         }
                         , new OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-
                                 dialog.dismiss();
                             }
                         });
@@ -129,7 +122,6 @@ public class CreateAccountLoginFragment extends BaseIdentityFragment {
                     getActivity().runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-
                             dialog.dismiss();
                             mActivity.completeWizard();
                         }

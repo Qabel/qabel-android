@@ -14,7 +14,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 public class IdentityExportImport {
-
     private static final String KEY_ID = "id";
     private static final String KEY_ALIAS = "alias";
     private static final String KEY_EMAIL = "email";

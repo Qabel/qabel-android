@@ -10,13 +10,7 @@ import okhttp3.RequestBody;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-/**
- * Created by danny on 26.01.2016.
- * <p/>
- * class to handle the register server network action
- */
 public class BoxAccountRegisterServer extends BaseServer {
-
     private static final String TAG = "BoxAccountServer";
 
     private static final String JSON_KEY = "key";
@@ -35,7 +29,6 @@ public class BoxAccountRegisterServer extends BaseServer {
      * main function for server action
      */
     private void doServerAction(String url, JSONObject json, Callback callback, String token) {
-
         RequestBody body = RequestBody.create(JSON, json.toString());
         Builder builder = new Builder()
                 .url(url)
@@ -51,7 +44,6 @@ public class BoxAccountRegisterServer extends BaseServer {
     }
 
     public void register(String username, String password1, String password2, String email, Callback callback) {
-
         JSONObject json = new JSONObject();
         try {
             json.put(JSON_USERNAME, username);
@@ -66,7 +58,6 @@ public class BoxAccountRegisterServer extends BaseServer {
     }
 
     public void login(String username, String password, Callback callback) {
-
         JSONObject json = new JSONObject();
         try {
             json.put(JSON_USERNAME, username);
@@ -79,13 +70,11 @@ public class BoxAccountRegisterServer extends BaseServer {
     }
 
     public void logout(Context context, Callback callback) {
-
         JSONObject json = new JSONObject();
         doServerAction(urls.getLogout(), json, callback, new AppPreference(context).getToken());
     }
 
     public void changePassword(Context context, String old_password, String new_password1, String new_password2, Callback callback) {
-
         JSONObject json = new JSONObject();
         try {
             json.put(JSON_PASSWORD_NEW_1, new_password1);
@@ -99,7 +88,6 @@ public class BoxAccountRegisterServer extends BaseServer {
     }
 
     public void resetPassword(String email, Callback callback) {
-
         JSONObject json = new JSONObject();
         try {
             json.put(JSON_EMAIL, email);
@@ -114,7 +102,6 @@ public class BoxAccountRegisterServer extends BaseServer {
      * parse all know server response fields, if available
      */
     public static ServerResponse parseJson(JSONObject json) {
-
         ServerResponse response = new ServerResponse();
         response.token = getJsonString(JSON_KEY, json);
         response.username = getJsonString(JSON_USERNAME, json);
@@ -135,7 +122,6 @@ public class BoxAccountRegisterServer extends BaseServer {
      * hold all possibility server response fields
      */
     public static final class ServerResponse {
-
         public String token;
         public String username;
         public String password1;

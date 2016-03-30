@@ -14,7 +14,6 @@ import de.qabel.core.drop.AdjustableDropIdGenerator;
 import de.qabel.core.drop.DropIdGenerator;
 import de.qabel.core.drop.DropURL;
 import de.qabel.qabelbox.QabelBoxApplication;
-import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.R.string;
 import de.qabel.qabelbox.communication.PrefixServer;
 import de.qabel.qabelbox.communication.PrefixServer.ServerResponse;
@@ -32,7 +31,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 public class CreateIdentityActivity extends BaseWizardActivity {
-
     public static final int REQUEST_CODE_IMPORT_IDENTITY = 1;
 
     private String TAG = getClass().getSimpleName();
@@ -45,7 +43,6 @@ public class CreateIdentityActivity extends BaseWizardActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
         super.onCreate(savedInstanceState);
         if (QabelBoxApplication.getInstance().getService().getIdentities().getIdentities().size() > 0) {
             canExit = true;
@@ -55,13 +52,11 @@ public class CreateIdentityActivity extends BaseWizardActivity {
 
     @Override
     protected String getHeaderFragmentText() {
-
         return mIdentityName;
     }
 
     @Override
     protected int getActionBarTitle() {
-
         return string.headline_add_identity;
     }
 
@@ -72,7 +67,6 @@ public class CreateIdentityActivity extends BaseWizardActivity {
 
     @Override
     public void handleNextClick() {
-
         super.handleNextClick();
         if (step > 0 && tryCount != 3 && prefix == null) {
             loadPrefixInBackground();
@@ -84,13 +78,11 @@ public class CreateIdentityActivity extends BaseWizardActivity {
      */
     @Override
     protected BaseIdentityFragment[] getFragmentList() {
-
         BaseIdentityFragment fragments[] = new BaseIdentityFragment[4];
         fragments[0] = new CreateIdentityMainFragment();
         fragments[1] = CreateIdentityEditTextFragment.newInstance(string.create_identity_enter_name, string.create_identity_enter_name_hint, new NextChecker() {
             @Override
             public String check(View view) {
-
                 String editText = ((EditText) view).getText().toString().trim();
                 boolean error = editText.length() < 1;
                 if (error) {
@@ -112,7 +104,6 @@ public class CreateIdentityActivity extends BaseWizardActivity {
         fragments[2] = CreateIdentityDropBitsFragment.newInstance(new NextChecker() {
             @Override
             public String check(View view) {
-
                 if (prefix == null) {
                     tryCount = 0;
                     loadPrefixInBackground();
@@ -127,7 +118,6 @@ public class CreateIdentityActivity extends BaseWizardActivity {
             }
 
             private Identity createIdentity() {
-
                 URI uri = URI.create(getString(string.dropServer));
                 DropServer dropServer = new DropServer(uri, "", true);
                 DropIdGenerator adjustableDropIdGenerator = new AdjustableDropIdGenerator((getIdentityDropBitsProgress() + 1) * 64);
@@ -142,7 +132,6 @@ public class CreateIdentityActivity extends BaseWizardActivity {
             }
 
             private void addIdentity(Identity identity) {
-
                 LocalQabelService mService = QabelBoxApplication.getInstance().getService();
                 mService.addIdentity(identity);
                 if (mService.getActiveIdentity() == null) {
@@ -157,7 +146,6 @@ public class CreateIdentityActivity extends BaseWizardActivity {
 
     @Override
     public void completeWizard() {
-
         Intent result = new Intent();
         result.putExtra(P_IDENTITY, mNewIdentity);
         setResult(activityResult, result);
@@ -170,37 +158,30 @@ public class CreateIdentityActivity extends BaseWizardActivity {
     }
 
     public void setIdentityName(String text) {
-
         mIdentityName = text;
     }
 
     public String getIdentityName() {
-
         return mIdentityName;
     }
 
     public void setIdentityDropBitsProgress(int progress) {
-
         mIdentityDropProgress = progress;
     }
 
     public int getIdentityDropBitsProgress() {
-
         return mIdentityDropProgress;
     }
 
     public void setCreatedIdentity(Identity identity) {
-
         mNewIdentity = identity;
     }
 
     private void loadPrefixInBackground() {
-
         if (tryCount < 3) {
             new PrefixServer().getPrefix(this, new Callback() {
                 @Override
                 public void onFailure(Call call, IOException e) {
-
                     Log.d(TAG, "Server communication failed: ", e);
                     tryCount++;
                     loadPrefixInBackground();
@@ -208,7 +189,6 @@ public class CreateIdentityActivity extends BaseWizardActivity {
 
                 @Override
                 public void onResponse(Call call, Response response) throws IOException {
-
                     int code = response.code();
 
                     Log.d(TAG, "Server response code: " + response.code());

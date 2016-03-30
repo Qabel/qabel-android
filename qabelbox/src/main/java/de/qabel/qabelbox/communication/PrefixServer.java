@@ -9,20 +9,13 @@ import okhttp3.Request.Builder;
 import okhttp3.RequestBody;
 import org.json.JSONObject;
 
-/**
- * Created by danny on 11.02.2016.
- * <p/>
- * class to handle prefix server network action
- */
 public class PrefixServer extends BaseServer {
-
     private static final String TAG = "PrefixServer";
 
     /**
      * main function for server action
      */
     private void doServerAction(String url, Callback callback, String token) {
-
         Builder builder = new Builder()
                 .post(RequestBody.create(JSON, "{}"))
                 .url(url);
@@ -33,7 +26,6 @@ public class PrefixServer extends BaseServer {
     }
 
     public void getPrefix(Context context, Callback callback) {
-
         doServerAction(urls.getPrefix(), callback, new AppPreference(context).getToken());
     }
 
@@ -41,7 +33,6 @@ public class PrefixServer extends BaseServer {
      * parse all know server response fields, if available
      */
     public static ServerResponse parseJson(JSONObject json) {
-
         ServerResponse response = new ServerResponse();
         response.prefix = getJsonString("prefix", json);
         response.detail = getJsonString("detail", json);
@@ -50,7 +41,6 @@ public class PrefixServer extends BaseServer {
     }
 
     public static final class ServerResponse {
-
         public String prefix;
         public String detail;
     }

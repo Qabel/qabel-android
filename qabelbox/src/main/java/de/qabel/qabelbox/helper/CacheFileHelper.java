@@ -8,18 +8,14 @@ import java.io.File;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * Created by danny on 15.02.2016.
- * <p/>
  * class to clear cache after app is closed.
  */
 public class CacheFileHelper {
-
     private final String TAG = getClass().getSimpleName();
     private static AtomicBoolean isRunningTest;
     private final String[] fileDeletePrefixes = new String[]{"download", "dir", "uploadAnd"};
 
     public void freeCacheAsynchron(Context context) {
-
 
         Log.d(TAG, "clear cache");
         if (!isRunningTest()) {
@@ -30,11 +26,9 @@ public class CacheFileHelper {
     }
 
     private void clearCache(final Context context) {
-
         new AsyncTask<Void, Void, Void>() {
             @Override
             protected Void doInBackground(Void... params) {
-
                 deleteFiles(context);
                 return null;
             }
@@ -42,7 +36,6 @@ public class CacheFileHelper {
     }
 
     private void deleteFiles(Context context) {
-
         File cacheDir = context.getCacheDir();
         File[] files = cacheDir.listFiles();
 

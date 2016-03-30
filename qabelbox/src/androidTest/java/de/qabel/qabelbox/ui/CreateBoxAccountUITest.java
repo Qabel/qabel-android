@@ -1,13 +1,11 @@
 package de.qabel.qabelbox.ui;
 
 
-import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
 import android.support.test.rule.ActivityTestRule;
 import android.text.InputType;
 import com.squareup.spoon.Spoon;
 import de.qabel.qabelbox.QabelBoxApplication;
-import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.R.id;
 import de.qabel.qabelbox.R.string;
 import de.qabel.qabelbox.TestConstants;
@@ -42,13 +40,9 @@ import static junit.framework.Assert.assertNull;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.endsWith;
 
-/**
- * Tests for MainActivity.
- */
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class CreateBoxAccountUITest extends UIBoxHelper {
-
     @Rule
     public ActivityTestRule<CreateAccountActivity> mActivityTestRule = new ActivityTestRule<>(CreateAccountActivity.class, false, true);
 
@@ -60,7 +54,6 @@ public class CreateBoxAccountUITest extends UIBoxHelper {
 
     @After
     public void cleanUp() {
-
         wakeLock.release();
         mSystemAnimations.enableAll();
         unbindService(QabelBoxApplication.getInstance());
@@ -69,7 +62,6 @@ public class CreateBoxAccountUITest extends UIBoxHelper {
 
     @Before
     public void setUp() throws IOException, QblStorageException {
-
         mActivity = mActivityTestRule.getActivity();
         URLs.setBaseAccountingURL(TestConstants.ACCOUNTING_URL);
 

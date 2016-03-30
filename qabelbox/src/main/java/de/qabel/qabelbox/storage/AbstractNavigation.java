@@ -25,7 +25,6 @@ import java.util.AbstractMap.SimpleEntry;
 import java.util.*;
 
 public abstract class AbstractNavigation implements BoxNavigation {
-
     private static final Logger logger = LoggerFactory.getLogger(AbstractNavigation.class.getName());
     public static final String BLOCKS_PREFIX = "blocks/";
     private static final String TAG = "AbstractNavigation";
@@ -416,7 +415,6 @@ public abstract class AbstractNavigation implements BoxNavigation {
      */
     @Override
     public BoxExternalReference createFileMetadata(QblECPublicKey owner, BoxFile boxFile) throws QblStorageException {
-
         if (boxFile.meta != null || boxFile.metakey != null) {
             return new BoxExternalReference(false,
                     urls.getFiles() + boxFile.prefix + '/' + boxFile.meta, boxFile.name, owner, boxFile.metakey);

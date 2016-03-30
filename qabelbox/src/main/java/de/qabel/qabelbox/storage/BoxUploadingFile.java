@@ -1,7 +1,6 @@
 package de.qabel.qabelbox.storage;
 
 public class BoxUploadingFile extends BoxObject {
-
     public long totalSize;
     public long uploadedSize;
 

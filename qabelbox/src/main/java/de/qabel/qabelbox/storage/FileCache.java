@@ -12,7 +12,6 @@ import de.qabel.qabelbox.storage.FileCacheContract.FileEntry;
 import java.io.File;
 
 class FileCache extends SQLiteOpenHelper {
-
     private static final String CREATE_TABLE =
             "CREATE TABLE IF NOT EXISTS " + FileEntry.TABLE_NAME + "( " +
                     FileEntry.COL_REF + " TEXT NOT NULL," +

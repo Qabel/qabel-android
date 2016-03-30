@@ -18,7 +18,6 @@ import android.provider.DocumentsContract.Root;
 import android.provider.DocumentsProvider;
 import android.provider.MediaStore.Video.Media;
 import android.support.annotation.NonNull;
-import android.support.v7.app.NotificationCompat;
 import android.support.v7.app.NotificationCompat.Builder;
 import android.util.Log;
 import de.qabel.core.config.Identities;
@@ -26,7 +25,6 @@ import de.qabel.core.config.Identity;
 import de.qabel.core.crypto.QblECKeyPair;
 import de.qabel.qabelbox.BuildConfig;
 import de.qabel.qabelbox.QabelBoxApplication;
-import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.R.drawable;
 import de.qabel.qabelbox.R.string;
 import de.qabel.qabelbox.exceptions.QblStorageException;
@@ -45,7 +43,6 @@ import java.util.*;
 import java.util.concurrent.*;
 
 public class BoxProvider extends DocumentsProvider {
-
     private static final String TAG = "BoxProvider";
 
     public static final String[] DEFAULT_ROOT_PROJECTION = new
@@ -75,7 +72,6 @@ public class BoxProvider extends DocumentsProvider {
 
     @Override
     public boolean onCreate() {
-
         final Context context = getContext();
         if (context == null) {
             Log.e(TAG, "No context available in BoxProvider, exiting");
@@ -100,12 +96,10 @@ public class BoxProvider extends DocumentsProvider {
     }
 
     void bindToService(Context context) {
-
         Intent intent = new Intent(context, LocalQabelService.class);
         context.bindService(intent, new ServiceConnection() {
             @Override
             public void onServiceConnected(ComponentName name, IBinder service) {
-
                 LocalBinder binder = (LocalBinder) service;
                 mService = binder.getService();
                 notifyRootsUpdated();
@@ -113,7 +107,6 @@ public class BoxProvider extends DocumentsProvider {
 
             @Override
             public void onServiceDisconnected(ComponentName name) {
-
                 mService = null;
             }
         }, Context.BIND_AUTO_CREATE);
@@ -124,7 +117,6 @@ public class BoxProvider extends DocumentsProvider {
      * This happens if identities or prefixes changed.
      */
     public void notifyRootsUpdated() {
-
         getContext().getContentResolver()
                 .notifyChange(DocumentsContract.buildRootsUri(AUTHORITY), null);
     }
@@ -133,7 +125,6 @@ public class BoxProvider extends DocumentsProvider {
      * Used to temporary inject the service if it is not ready yet
      */
     public void setLocalService(LocalQabelService service) {
-
         if (mService == null) {
             mService = service;
         }
@@ -141,7 +132,6 @@ public class BoxProvider extends DocumentsProvider {
 
     @Override
     public Cursor queryRoots(String[] projection) throws FileNotFoundException {
-
         String[] netProjection = reduceProjection(projection, DEFAULT_ROOT_PROJECTION);
 
         MatrixCursor result = new MatrixCursor(netProjection);
@@ -173,7 +163,6 @@ public class BoxProvider extends DocumentsProvider {
     }
 
     private String[] reduceProjection(String[] projection, String[] supportedProjection) {
-
         if (projection == null) {
             return supportedProjection;
         }
@@ -196,7 +185,6 @@ public class BoxProvider extends DocumentsProvider {
     }
 
     public BoxVolume getVolumeForRoot(String identity, String prefix) {
-
         if (prefix == null) {
             throw new RuntimeException("No prefix supplied");
         }
@@ -213,7 +201,6 @@ public class BoxProvider extends DocumentsProvider {
     @Override
     public Cursor queryDocument(String documentId, String[] projection)
             throws FileNotFoundException {
-
         MatrixCursor cursor = createCursor(projection, false);
         String logInfos = shrinkDocumentId(documentId);
         if (projection != null) {
@@ -249,7 +236,6 @@ public class BoxProvider extends DocumentsProvider {
     }
 
     private String shrinkDocumentId(String documentId) {
-
         if (documentId == null) {
             return null;
         }
@@ -258,7 +244,6 @@ public class BoxProvider extends DocumentsProvider {
     }
 
     private BoxVolume getVolumeForId(String documentId) throws FileNotFoundException {
-
         return getVolumeForRoot(
                 mDocumentIdParser.getIdentity(documentId),
                 mDocumentIdParser.getPrefix(documentId));
@@ -266,7 +251,6 @@ public class BoxProvider extends DocumentsProvider {
 
     void insertFileByName(MatrixCursor cursor, BoxNavigation navigation,
                           String documentId, String basename) throws QblStorageException {
-
         for (BoxFolder folder : navigation.listFolders()) {
             Log.d(TAG, "Checking folder:" + folder.name);
             if (basename.equals(folder.name)) {
@@ -290,7 +274,6 @@ public class BoxProvider extends DocumentsProvider {
     }
 
     void insertRootDoc(MatrixCursor cursor, String documentId) {
-
         final RowBuilder row = cursor.newRow();
         row.add(Document.COLUMN_DOCUMENT_ID, documentId);
         row.add(Document.COLUMN_DISPLAY_NAME, "Root");
@@ -302,7 +285,6 @@ public class BoxProvider extends DocumentsProvider {
     @Override
     public Cursor queryChildDocuments(String parentDocumentId, String[] projection, String sortOrder)
             throws FileNotFoundException {
-
         Log.d(TAG, "Query Child Documents: " + parentDocumentId);
         BoxCursor cursor = folderContentCache.get(parentDocumentId);
         boolean cacheHit = cursor != null;
@@ -332,7 +314,6 @@ public class BoxProvider extends DocumentsProvider {
      * @return Fully initialized cursor with the directory listing as rows
      */
     private BoxCursor createBoxCursor(String parentDocumentId, String[] projection) throws FileNotFoundException {
-
         Log.v(TAG, "createBoxCursor");
         BoxCursor cursor = createCursor(projection, false);
 
@@ -358,7 +339,6 @@ public class BoxProvider extends DocumentsProvider {
      */
     private void asyncChildDocuments(final String parentDocumentId, final String[] projection,
                                      BoxCursor result) {
-
         Log.v(TAG, "asyncChildDocuments");
         final Uri uri = DocumentsContract.buildChildDocumentsUri(AUTHORITY, parentDocumentId);
         // tell the original cursor how he gets notified
@@ -368,7 +348,6 @@ public class BoxProvider extends DocumentsProvider {
         mThreadPoolExecutor.execute(new Runnable() {
             @Override
             public void run() {
-
                 try {
                     createBoxCursor(parentDocumentId, projection);
                 } catch (FileNotFoundException e) {
@@ -383,7 +362,6 @@ public class BoxProvider extends DocumentsProvider {
 
     @NonNull
     private BoxCursor createCursor(String[] projection, final boolean extraLoading) {
-
         String[] reduced = reduceProjection(projection, DEFAULT_DOCUMENT_PROJECTION);
         BoxCursor cursor = new BoxCursor(reduced);
         cursor.setExtraLoading(extraLoading);
@@ -391,7 +369,6 @@ public class BoxProvider extends DocumentsProvider {
     }
 
     private void insertFolderListing(MatrixCursor cursor, BoxNavigation navigation, String parentDocumentId) throws QblStorageException {
-
         for (BoxFolder folder : navigation.listFolders()) {
             insertFolder(cursor, parentDocumentId + folder.name + PATH_SEP, folder);
         }
@@ -404,7 +381,6 @@ public class BoxProvider extends DocumentsProvider {
     }
 
     private void insertFile(MatrixCursor cursor, String documentId, BoxObject file) {
-
         final RowBuilder row = cursor.newRow();
         String mimeType = URLConnection.guessContentTypeFromName(file.name);
         if (mimeType == null) {
@@ -419,7 +395,6 @@ public class BoxProvider extends DocumentsProvider {
     }
 
     private void insertFolder(MatrixCursor cursor, String documentId, BoxFolder folder) {
-
         final RowBuilder row = cursor.newRow();
         row.add(Document.COLUMN_DOCUMENT_ID, documentId);
         row.add(Document.COLUMN_DISPLAY_NAME, folder.name);
@@ -429,7 +404,6 @@ public class BoxProvider extends DocumentsProvider {
     }
 
     BoxNavigation traverseToFolder(BoxVolume volume, List<String> filePath) throws QblStorageException {
-
         Log.d(TAG, "Traversing to " + filePath);
         BoxNavigation navigation = volume.navigate();
         PARTS:
@@ -453,7 +427,6 @@ public class BoxProvider extends DocumentsProvider {
     public ParcelFileDescriptor openDocument(final String documentId,
                                              final String mode, final CancellationSignal signal)
             throws FileNotFoundException {
-
         Log.d(TAG, "Open document: " + documentId);
         final boolean isWrite = mode.indexOf('w') != -1;
         final boolean isRead = mode.indexOf('r') != -1;
@@ -483,7 +456,6 @@ public class BoxProvider extends DocumentsProvider {
                         new AsyncTask<Void, Void, String>() {
                             @Override
                             protected String doInBackground(Void... params) {
-
                                 uploadFile(documentId, tmp, mService.getUploadTransferListener(boxUploadingFile));
                                 return documentId;
                             }
@@ -503,7 +475,6 @@ public class BoxProvider extends DocumentsProvider {
     }
 
     private void uploadFile(String documentId, File tmp, BoxTransferListener boxTransferListener) {
-
         try {
             BoxVolume volume = getVolumeForId(documentId);
             List<String> splitPath = mDocumentIdParser.splitPath(
@@ -529,13 +500,10 @@ public class BoxProvider extends DocumentsProvider {
     }
 
     private File downloadFile(final String documentId, final String mode, final CancellationSignal signal) throws FileNotFoundException {
-
         final Future<File> future
                 = mThreadPoolExecutor.submit(new Callable<File>() {
-
             @Override
             public File call() throws Exception {
-
                 return getFile(signal, documentId);
             }
         });
@@ -543,7 +511,6 @@ public class BoxProvider extends DocumentsProvider {
             signal.setOnCancelListener(new OnCancelListener() {
                 @Override
                 public void onCancel() {
-
                     Log.d(TAG, "openDocument cancelling");
                     future.cancel(true);
                 }
@@ -563,7 +530,6 @@ public class BoxProvider extends DocumentsProvider {
 
     private File getFile(CancellationSignal signal, final String documentId)
             throws IOException, QblStorageException {
-
         final int id = 2;
         //@todo notification handling into separate place
         final NotificationManager mNotifyManager = (NotificationManager) getContext().getSystemService(Context.NOTIFICATION_SERVICE);
@@ -582,17 +548,14 @@ public class BoxProvider extends DocumentsProvider {
         BoxNavigation navigation = traverseToFolder(volume, strings);
         BoxFile file = findFileinList(basename, navigation);
         InputStream inputStream = navigation.download(file, new BoxTransferListener() {
-
             @Override
             public void onProgressChanged(long bytesCurrent, long bytesTotal) {
-
                 mBuilder.setProgress(100, (int) (100 * bytesCurrent / bytesTotal), false);
                 mNotifyManager.notify(id, mBuilder.build());
             }
 
             @Override
             public void onFinished() {
-
             }
         });
         String filename;
@@ -616,7 +579,6 @@ public class BoxProvider extends DocumentsProvider {
 
     private BoxFile findFileinList(String basename, BoxNavigation navigation)
             throws QblStorageException, FileNotFoundException {
-
         for (BoxFile file : navigation.listFiles()) {
             Log.d(TAG, "find file: " + file.name);
             if (file.name.equals(basename)) {
@@ -636,14 +598,12 @@ public class BoxProvider extends DocumentsProvider {
 
     @Override
     public String createDocument(String parentDocumentId, String mimeType, String displayName) throws FileNotFoundException {
-
         Log.d(TAG, "createDocument: " + parentDocumentId + "; " + mimeType + "; " + displayName);
 
         String parentPath = mDocumentIdParser.getFilePath(parentDocumentId);
         BoxVolume volume = getVolumeForId(parentDocumentId);
 
         try {
-
             BoxNavigation navigation = traverseToFolder(volume, mDocumentIdParser.splitPath(parentPath));
 
             if (mimeType.equals(Document.MIME_TYPE_DIR)) {
@@ -662,7 +622,6 @@ public class BoxProvider extends DocumentsProvider {
 
     @Override
     public void deleteDocument(String documentId) throws FileNotFoundException {
-
         Log.d(TAG, "deleteDocument: " + documentId);
 
         String path = mDocumentIdParser.getFilePath(documentId);
@@ -695,7 +654,6 @@ public class BoxProvider extends DocumentsProvider {
 
     @Override
     public String renameDocument(String documentId, String displayName) throws FileNotFoundException {
-
         Log.d(TAG, "renameDocument: " + documentId + " to " + displayName);
 
         String path = mDocumentIdParser.getFilePath(documentId);
@@ -734,23 +692,19 @@ public class BoxProvider extends DocumentsProvider {
     }
 
     class BoxCursor extends MatrixCursor {
-
         private boolean extraLoading;
         private String error;
 
         public BoxCursor(String[] columnNames) {
-
             super(columnNames);
         }
 
         public void setExtraLoading(boolean loading) {
-
             extraLoading = loading;
         }
 
         @Override
         public Bundle getExtras() {
-
             Bundle bundle = new Bundle();
             bundle.putBoolean(DocumentsContract.EXTRA_LOADING, extraLoading);
             if (error != null) {
@@ -760,7 +714,6 @@ public class BoxProvider extends DocumentsProvider {
         }
 
         public void setError(String error) {
-
             this.error = error;
         }
     }

@@ -1,7 +1,6 @@
 package de.qabel;
 
 public interface QabelContentProviderConstants {
-
     String CONTENT_AUTHORITY = "de.qabel.qabelbox.services.QabelContentProvider";
     String CONTENT_CONTACTS = "contacts";
     String CONTENT_IDENTITIES = "identities";

@@ -13,7 +13,6 @@ import android.support.v7.widget.RecyclerView.LayoutManager;
 import android.util.Log;
 import android.view.*;
 import android.widget.TextView;
-import com.cocosw.bottomsheet.BottomSheet;
 import com.cocosw.bottomsheet.BottomSheet.Builder;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
@@ -24,12 +23,7 @@ import de.qabel.core.crypto.QblECPublicKey;
 import de.qabel.core.drop.DropMessage;
 import de.qabel.core.drop.DropURL;
 import de.qabel.qabelbox.QabelBoxApplication;
-import de.qabel.qabelbox.R;
-import de.qabel.qabelbox.R.id;
-import de.qabel.qabelbox.R.layout;
-import de.qabel.qabelbox.R.menu;
-import de.qabel.qabelbox.R.plurals;
-import de.qabel.qabelbox.R.string;
+import de.qabel.qabelbox.R.*;
 import de.qabel.qabelbox.activities.MainActivity;
 import de.qabel.qabelbox.adapter.ContactAdapterItem;
 import de.qabel.qabelbox.adapter.ContactsAdapter;
@@ -56,7 +50,6 @@ import java.util.Collection;
  * Fragment that shows a contact list.
  */
 public class ContactFragment extends BaseFragment {
-
     public static final int REQUEST_IMPORT_CONTACT = 1000;
     public static final int REQUEST_EXPORT_CONTACT = 1001;
     private static final String TAG = "ContactFragment";
@@ -74,7 +67,6 @@ public class ContactFragment extends BaseFragment {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-
         super.onCreate(savedInstanceState);
         self = this;
         chatServer = mActivity.chatServer;
@@ -86,7 +78,6 @@ public class ContactFragment extends BaseFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-
         View view = inflater.inflate(layout.fragment_contacts, container, false);
         contactCount = (TextView) view.findViewById(id.contactCount);
         contactListRecyclerView = (RecyclerView) view.findViewById(id.contact_list);
@@ -101,17 +92,14 @@ public class ContactFragment extends BaseFragment {
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-
         menu.clear();
         inflater.inflate(menu.ab_contacts, menu);
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-
         int id = item.getItemId();
         if (id == id.action_contact_refresh) {
-
             pullDropMessagesAsync();
         }
         if (id == id.action_contact_export_all) {
@@ -125,7 +113,6 @@ public class ContactFragment extends BaseFragment {
         new AsyncTask<Void, Void, Collection<DropMessage>>() {
             @Override
             protected Collection<DropMessage> doInBackground(Void... params) {
-
                 return chatServer.refreshList();
             }
         }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
@@ -171,17 +158,13 @@ public class ContactFragment extends BaseFragment {
     }
 
     private void setClickListener() {
-
         contactListAdapter.setOnItemClickListener(new OnItemClickListener() {
-
             @Override
             public void onItemClick(View view, final int position) {
-
                 final Contact contact = contactListAdapter.getContact(position);
                 getFragmentManager().beginTransaction().add(id.fragment_container, ContactChatFragment.newInstance(contact), MainActivity.TAG_CONTACT_CHAT_FRAGMENT).addToBackStack(MainActivity.TAG_CONTACT_CHAT_FRAGMENT).commit();
             }
         }, new OnItemClickListener() {
-
             @Override
             public void onItemClick(View view, final int position) {
                 longContactClickAction(position);
@@ -197,7 +180,6 @@ public class ContactFragment extends BaseFragment {
                 .listener(new OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-
                         switch (which) {
                             case id.contact_list_item_delete:
 
@@ -263,7 +245,6 @@ public class ContactFragment extends BaseFragment {
             getActivity().runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-
                     if (count == 0) {
                         contactCount.setVisibility(View.INVISIBLE);
                     } else {
@@ -292,12 +273,10 @@ public class ContactFragment extends BaseFragment {
 
     @Override
     public boolean handleFABAction() {
-
         new Builder(mActivity).title(string.add_new_contact).sheet(menu.bottom_sheet_add_contact)
                 .listener(new OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-
                         switch (which) {
                             case id.add_contact_from_file:
                                 addContactByFile();
@@ -317,7 +296,6 @@ public class ContactFragment extends BaseFragment {
     }
 
     private void addContactByFile() {
-
         Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
         intent.addCategory(Intent.CATEGORY_OPENABLE);
         intent.setType("*/*");
@@ -327,9 +305,7 @@ public class ContactFragment extends BaseFragment {
     @Override
     public void onActivityResult(int requestCode, int resultCode,
                                  Intent resultData) {
-
         if (resultCode == Activity.RESULT_OK) {
-
             if (requestCode == REQUEST_EXPORT_CONTACT) {
                 if (resultData != null) {
                     Uri uri = resultData.getData();
@@ -405,7 +381,6 @@ public class ContactFragment extends BaseFragment {
     }
 
     private void selectAddContactFragment(Identity identity) {
-
         getFragmentManager().beginTransaction()
                 .replace(id.fragment_container, AddContactFragment.newInstance(identity), null)
                 .addToBackStack(null)
@@ -413,7 +388,6 @@ public class ContactFragment extends BaseFragment {
     }
 
     private final BroadcastReceiver refreshContactListReceiver = new BroadcastReceiver() {
-
         @Override
         public void onReceive(Context context, Intent intent) {
             Log.v(TAG, "receive refresh contactlist event");
@@ -434,7 +408,6 @@ public class ContactFragment extends BaseFragment {
     }
 
     private final ChatServerCallback chatServerCallback = new ChatServerCallback() {
-
         @Override
         public void onRefreshed() {
             Log.d(TAG, "refreshed ");

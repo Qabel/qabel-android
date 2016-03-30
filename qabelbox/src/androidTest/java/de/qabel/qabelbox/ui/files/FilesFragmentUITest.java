@@ -1,14 +1,12 @@
 package de.qabel.qabelbox.ui.files;
 
 import android.content.Intent;
-import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
 import android.support.test.espresso.intent.rule.IntentsTestRule;
 import com.squareup.spoon.Spoon;
 import de.qabel.core.config.Contact;
 import de.qabel.core.config.Identity;
 import de.qabel.qabelbox.QabelBoxApplication;
-import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.R.id;
 import de.qabel.qabelbox.R.string;
 import de.qabel.qabelbox.TestConstants;
@@ -46,7 +44,6 @@ import static org.hamcrest.Matchers.*;
  */
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class FilesFragmentUITest {
-
     @Rule
     public IntentsTestRule<MainActivity> mActivityTestRule = new IntentsTestRule<>(MainActivity.class, false, true);
 
@@ -71,7 +68,6 @@ public class FilesFragmentUITest {
             new ExampleFile("blue.png", new byte[1011]));
 
     private class ExampleFile {
-
         private String name;
         private byte[] data;
 
@@ -99,7 +95,6 @@ public class FilesFragmentUITest {
 
     @After
     public void cleanUp() {
-
         for (ExampleFile exampleFile : exampleFiles) {
             mBoxHelper.deleteFile(mActivity, testIdentity, exampleFile.getName(), "");
         }
@@ -114,7 +109,6 @@ public class FilesFragmentUITest {
 
     @Before
     public void setUp() throws IOException, QblStorageException {
-
         URLs.setBaseBlockURL(TestConstants.BLOCK_URL);
         mActivity = mActivityTestRule.getActivity();
         wakeLock = UIActionHelper.wakeupDevice(mActivity);

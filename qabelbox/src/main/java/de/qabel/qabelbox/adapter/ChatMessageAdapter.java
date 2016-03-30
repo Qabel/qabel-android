@@ -2,7 +2,6 @@ package de.qabel.qabelbox.adapter;
 
 import android.database.DataSetObserver;
 import android.support.annotation.Nullable;
-import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.RecyclerView.ViewHolder;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,7 +11,6 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 import de.qabel.core.config.Contact;
-import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.R.id;
 import de.qabel.qabelbox.R.layout;
 import de.qabel.qabelbox.chat.ChatMessageItem;
@@ -27,7 +25,6 @@ import java.util.Comparator;
 import java.util.List;
 
 public class ChatMessageAdapter extends BaseAdapter {
-
     private final String TAG = getClass().getSimpleName();
     private final String contactPublicKey;
     private List<ChatMessageItem> mMessages;
@@ -35,7 +32,6 @@ public class ChatMessageAdapter extends BaseAdapter {
     private View emptyView;
 
     public ChatMessageAdapter(ArrayList<ChatMessageItem> allMessages, Contact contact) {
-
         mMessages = new ArrayList<>();
 
         contactPublicKey = contact.getEcPublicKey().getReadableKeyIdentifier().toString();
@@ -55,7 +51,6 @@ public class ChatMessageAdapter extends BaseAdapter {
     }
 
     public ChatMessageItem getMessage(int position) {
-
         return mMessages.get(position);
     }
 
@@ -108,7 +103,6 @@ public class ChatMessageAdapter extends BaseAdapter {
     }
 
     class ContactViewHolder extends ViewHolder implements OnClickListener {
-
         private ChatMessageItem messageItem;
 
         public final TextView tvDate;
@@ -154,7 +148,6 @@ public class ChatMessageAdapter extends BaseAdapter {
     }
 
     public interface OnItemClickListener {
-
         void onItemClick(ChatMessageItem item);
     }
 
@@ -162,13 +155,11 @@ public class ChatMessageAdapter extends BaseAdapter {
      * Sets the action to perform on item clicks
      */
     public void setOnItemClickListener(OnItemClickListener onItemClickListener) {
-
         this.onItemClickListener = onItemClickListener;
     }
 
 	/*@Override
     public ContactViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-
 		View v = LayoutInflater.from(parent.getContext())
 				.inflate(R.layout.item_chat_message_out, parent, false);
 		return new ContactViewHolder(v);
@@ -183,14 +174,12 @@ public class ChatMessageAdapter extends BaseAdapter {
     final DataSetObserver observer = new DataSetObserver() {
         @Override
         public void onChanged() {
-
             super.onChanged();
             updateEmptyView();
         }
     };
 
     public void setEmptyView(@Nullable View emptyView) {
-
         this.emptyView = emptyView;
 
         updateEmptyView();

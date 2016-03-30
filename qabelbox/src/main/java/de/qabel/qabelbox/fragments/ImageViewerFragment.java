@@ -6,26 +6,21 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.view.*;
 import android.view.View.OnClickListener;
-import android.widget.FrameLayout;
 import android.widget.FrameLayout.LayoutParams;
 import android.widget.ImageView;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
-import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.R.drawable;
 import de.qabel.qabelbox.R.id;
 import de.qabel.qabelbox.R.layout;
-import de.qabel.qabelbox.R.menu;
 import de.qabel.qabelbox.R.string;
 import de.qabel.qabelbox.helper.ExternalApps;
 
 public class ImageViewerFragment extends BaseFragment {
-
     private Uri uri;
     private String type;
 
     public static ImageViewerFragment newInstance(final Uri uri, String type) {
-
         ImageViewerFragment fragment = new ImageViewerFragment();
         fragment.uri = uri;
         fragment.type = type;
@@ -34,7 +29,6 @@ public class ImageViewerFragment extends BaseFragment {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
 
@@ -42,7 +36,6 @@ public class ImageViewerFragment extends BaseFragment {
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-
         menu.clear();
         super.onCreateOptionsMenu(menu, inflater);
         inflater.inflate(menu.ab_imageviewer, menu);
@@ -66,14 +59,12 @@ public class ImageViewerFragment extends BaseFragment {
 
     @Override
     public String getTitle() {
-
         return getString(string.headline_imageviewer);
     }
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-
         View view = inflater.inflate(layout.fragment_imageviewer, container, false);
 
         final ImageView iv = (ImageView) view.findViewById(id.image);
@@ -105,11 +96,9 @@ public class ImageViewerFragment extends BaseFragment {
     }
 
     private void setClickListener(View view) {
-
         view.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-
                 getActivity().onBackPressed();
             }
         });
@@ -118,7 +107,6 @@ public class ImageViewerFragment extends BaseFragment {
 
     @Override
     public boolean supportBackButton() {
-
         return true;
     }
 }

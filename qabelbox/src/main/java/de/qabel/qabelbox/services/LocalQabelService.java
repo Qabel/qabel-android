@@ -12,7 +12,6 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
-import android.support.v7.app.NotificationCompat;
 import android.support.v7.app.NotificationCompat.Builder;
 import android.util.Log;
 import de.qabel.core.config.Contact;
@@ -27,7 +26,6 @@ import de.qabel.core.drop.DropURL;
 import de.qabel.core.exceptions.*;
 import de.qabel.core.http.DropHTTP;
 import de.qabel.core.http.HTTPResult;
-import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.R.drawable;
 import de.qabel.qabelbox.R.plurals;
 import de.qabel.qabelbox.R.string;
@@ -38,7 +36,6 @@ import de.qabel.qabelbox.persistence.QblSQLiteParams;
 import de.qabel.qabelbox.providers.DocumentIdParser;
 import de.qabel.qabelbox.storage.BoxFile;
 import de.qabel.qabelbox.storage.BoxUploadingFile;
-import de.qabel.qabelbox.storage.TransferManager;
 import de.qabel.qabelbox.storage.TransferManager.BoxTransferListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,7 +48,6 @@ import java.util.*;
 import java.util.concurrent.LinkedBlockingDeque;
 
 public class LocalQabelService extends Service {
-
     private static final Logger LOGGER = LoggerFactory.getLogger(LocalQabelService.class.getName());
 
     private static final String TAG = "LocalQabelService";
@@ -525,7 +521,6 @@ public class LocalQabelService extends Service {
     protected void initSharedPreferences() {
         sharedPreferences = getSharedPreferences(getClass().getCanonicalName(), MODE_PRIVATE);
         if (!sharedPreferences.getBoolean(PREF_DEVICE_ID_CREATED, false)) {
-
             CryptoUtils cryptoUtils = new CryptoUtils();
             byte[] deviceID = cryptoUtils.getRandomBytes(NUM_BYTES_DEVICE_ID);
 

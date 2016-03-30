@@ -8,7 +8,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.R.id;
 import de.qabel.qabelbox.R.layout;
 import de.qabel.qabelbox.adapter.JSONLicencesAdapter;
@@ -19,7 +18,6 @@ import java.io.IOException;
 import java.io.InputStream;
 
 public class AboutLicencesFragment extends BaseFragment {
-
     static final String TAG = "AboutLicencesFragment";
     RecyclerView licensesList;
 
@@ -35,7 +33,6 @@ public class AboutLicencesFragment extends BaseFragment {
     }
 
     public String readUTF8FromAssets(String filename) throws IOException {
-
         String content = null;
         try {
             InputStream is = getActivity().getAssets().open(filename);

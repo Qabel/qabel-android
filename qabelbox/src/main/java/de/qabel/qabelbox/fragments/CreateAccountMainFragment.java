@@ -7,12 +7,10 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.Button;
-import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.R.id;
 import de.qabel.qabelbox.R.layout;
 
 public class CreateAccountMainFragment extends BaseIdentityFragment implements OnClickListener {
-
     private Button mCreateAccount;
     private Button mLogin;
 

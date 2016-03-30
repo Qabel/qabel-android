@@ -26,7 +26,6 @@ import java.util.Comparator;
  * return null values.
  */
 public class QabelContentProvider extends ContentProvider {
-
     private static final UriMatcher uriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
     private static final int CONTACTS = 1;
     private static final int IDENTITIES = 2;

@@ -9,13 +9,7 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 
-/**
- * Created by danny on 26.01.2016.
- * <p/>
- * Class to simple handle a server response.
- */
 public abstract class SimpleJsonCallback implements Callback {
-
     private final String TAG = "callback";
     protected int retryCount;
 
@@ -39,14 +33,12 @@ public abstract class SimpleJsonCallback implements Callback {
 
     @Override
     public void onFailure(Call call, IOException e) {
-
         Log.w(TAG, "error on network action", e);
         onError(call, Reasons.IOException);
     }
 
     @Override
     public void onResponse(Call call, Response response) {
-
         int code = response.code();
         Log.v(TAG, "callback onResponse " + response + " " + code);
 

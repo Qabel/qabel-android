@@ -14,7 +14,6 @@ import java.io.IOException;
 import java.util.concurrent.CountDownLatch;
 
 public class PrefixGetter {
-
     private String prefix;
     private final String TAG = "PrefixGetter";
 

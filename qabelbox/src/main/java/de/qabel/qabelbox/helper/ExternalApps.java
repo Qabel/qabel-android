@@ -3,12 +3,10 @@ package de.qabel.qabelbox.helper;
 import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
-import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.R.string;
 import de.qabel.qabelbox.activities.MainActivity;
 
 public class ExternalApps {
-
     /**
      * start share dialog
      *
@@ -17,7 +15,6 @@ public class ExternalApps {
      * @param type     mimetype
      */
     public static void share(Activity activity, Uri uri, String type) {
-
         Intent shareIntent = new Intent(Intent.ACTION_SEND);
         shareIntent.setData(uri);
         if (type != null) {
@@ -40,7 +37,6 @@ public class ExternalApps {
      * @param action   send action, e.g. ACTION_VIEW, ACTION_EDIT
      */
     public static void openExternApp(Activity activity, Uri uri, String type, String action) {
-
         Intent viewIntent = new Intent();
         viewIntent.setDataAndType(uri, type);
         viewIntent.setAction(action);

@@ -6,7 +6,6 @@ import android.app.AlertDialog.Builder;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
-import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.RecyclerView.Adapter;
 import android.support.v7.widget.RecyclerView.ViewHolder;
 import android.text.Html;
@@ -19,7 +18,6 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.TextView.BufferType;
 import de.qabel.qabelbox.BuildConfig;
-import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.R.id;
 import de.qabel.qabelbox.R.layout;
 import de.qabel.qabelbox.adapter.JSONLicencesAdapter.LicenceViewHolder;
@@ -29,7 +27,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 public class JSONLicencesAdapter extends Adapter<LicenceViewHolder> {
-
     public static String TAG = "JSONLicencesAdapter";
 
     enum TYPE {
@@ -152,7 +149,6 @@ public class JSONLicencesAdapter extends Adapter<LicenceViewHolder> {
 
 
     class HeaderViewHolder extends LicenceViewHolder {
-
         String qapl;
 
         public HeaderViewHolder(View itemView, String qapl) {

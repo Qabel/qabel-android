@@ -42,7 +42,6 @@ import java.util.Set;
 
 public class UIBoxHelper {
 
-
     private final String TAG = getClass().getSimpleName();
     private LocalQabelService mService;
     private BoxProvider provider;
@@ -56,22 +55,18 @@ public class UIBoxHelper {
     }
 
     public void unbindService(final QabelBoxApplication app) {
-
         Intent serviceIntent = new Intent(app.getApplicationContext(), LocalQabelService.class);
         finished = false;
         app.stopService(serviceIntent);
     }
 
     public void bindService(final QabelBoxApplication app) {
-
         Intent serviceIntent = new Intent(app.getApplicationContext(), LocalQabelService.class);
         finished = false;
         //app.stopService(serviceIntent);
         app.bindService(serviceIntent, new ServiceConnection() {
-
             @Override
             public void onServiceConnected(ComponentName name, IBinder service) {
-
                 Log.d(TAG, "LocalQabelService connected");
                 provider = app.getProvider();
                 Log.i(TAG, "Provider: " + provider);
@@ -83,7 +78,6 @@ public class UIBoxHelper {
 
             @Override
             public void onServiceDisconnected(ComponentName name) {
-
                 mService = null;
             }
         }, Context.BIND_AUTO_CREATE);
@@ -97,7 +91,6 @@ public class UIBoxHelper {
     }
 
     public boolean deleteFile(Activity activity, Identity identity, String name, String targetFolder) {
-
         String keyIdentifier = identity.getEcPublicKey()
                 .getReadableKeyIdentifier();
         Uri uploadUri = DocumentsContract.buildDocumentUri(
@@ -107,7 +100,6 @@ public class UIBoxHelper {
 
     public boolean uploadFile(BoxVolume boxVolume, String name, byte[] data, String path) {
         try {
-
             String folderId = boxVolume.getDocumentId(path);
             Uri uploadUri = DocumentsContract.buildDocumentUri(
                     BoxProvider.AUTHORITY, folderId + name);
@@ -129,7 +121,6 @@ public class UIBoxHelper {
 
 
     public Identity addIdentity(final String identityName) {
-
         Identity identity = createIdentity(identityName);
         mService.addIdentity(identity);
         Log.d(TAG, "identity added " + identity.getAlias() + " " + identity.getEcPublicKey().getReadableKeyIdentifier());
@@ -166,7 +157,6 @@ public class UIBoxHelper {
     }
 
     private void initBoxVolume(Identity activeIdentity) throws QblStorageException {
-
         mBoxVolume = provider.getVolumeForRoot(
                 activeIdentity.getEcPublicKey().getReadableKeyIdentifier(),
                 VolumeFileTransferHelper.getPrefixFromIdentity(activeIdentity));
@@ -174,17 +164,14 @@ public class UIBoxHelper {
     }
 
     public void setActiveIdentity(Identity identity) {
-
         mService.setActiveIdentity(identity);
     }
 
     public void deleteIdentity(Identity identity) {
-
         mService.deleteIdentity(identity);
     }
 
     public Identity getCurrentIdentity() {
-
         return mService.getActiveIdentity();
     }
 
@@ -192,7 +179,6 @@ public class UIBoxHelper {
      * wait until the volume contain a defined count of files
      */
     public void waitUntilFileCount(int fileCount) {
-
         try {
             while (
                     new StorageSearch(mBoxVolume.navigate()).getResults().size() < fileCount) {
@@ -212,7 +198,6 @@ public class UIBoxHelper {
      * @param id       resource id
      */
     public void uploadDrawableFile(BoxVolume boxVolume, String filename, CompressFormat format, int id) {
-
         Bitmap bitmap = BitmapFactory.decodeResource(QabelBoxApplication.getInstance().getResources(), id);
         ByteArrayOutputStream baos = new ByteArrayOutputStream(100 * 1024);
         bitmap.compress(format, 100, baos);

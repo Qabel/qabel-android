@@ -19,19 +19,15 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
 public class QabelMatcher {
-
     public static Matcher<View> withListSize(final int size) {
-
         return new TypeSafeMatcher<View>() {
             @Override
             public boolean matchesSafely(final View view) {
-
                 return ((ViewGroup) view).getChildCount() == size;
             }
 
             @Override
             public void describeTo(final Description description) {
-
                 description.appendText("ListView should have " + size + " items");
             }
         };
@@ -39,24 +35,20 @@ public class QabelMatcher {
 
     public static ViewInteraction matchToolbarTitle(
             CharSequence title) {
-
         return onView(isAssignableFrom(Toolbar.class))
                 .check(matches(withToolbarTitle(is(title))));
     }
 
     private static Matcher<Object> withToolbarTitle(
             final Matcher<CharSequence> textMatcher) {
-
         return new BoundedMatcher<Object, Toolbar>(Toolbar.class) {
             @Override
             public boolean matchesSafely(Toolbar toolbar) {
-
                 return textMatcher.matches(toolbar.getTitle());
             }
 
             @Override
             public void describeTo(Description description) {
-
                 description.appendText("match with toolbar title: ");
                 textMatcher.describeTo(description);
             }

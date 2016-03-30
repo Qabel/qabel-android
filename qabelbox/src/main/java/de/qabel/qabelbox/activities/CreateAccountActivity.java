@@ -11,7 +11,6 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 import de.qabel.qabelbox.QabelBoxApplication;
-import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.R.string;
 import de.qabel.qabelbox.communication.BoxAccountRegisterServer;
 import de.qabel.qabelbox.communication.BoxAccountRegisterServer.ServerResponse;
@@ -27,7 +26,6 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 
 public class CreateAccountActivity extends BaseWizardActivity {
-
     private static final int FRAGMENT_ENTER_NAME = 1;
     private static final int FRAGMENT_ENTER_EMAIL = 2;
     private static final int FRAGMENT_ENTER_PASSWORD = 3;
@@ -44,13 +42,11 @@ public class CreateAccountActivity extends BaseWizardActivity {
 
     @Override
     protected String getHeaderFragmentText() {
-
         return mBoxAccountName;
     }
 
     @Override
     protected int getActionBarTitle() {
-
         return string.headline_create_box_account;
     }
 
@@ -64,7 +60,6 @@ public class CreateAccountActivity extends BaseWizardActivity {
      */
     @Override
     protected BaseIdentityFragment[] getFragmentList() {
-
         BaseIdentityFragment fragments[] = new BaseIdentityFragment[5];
         //main fragment with login and registrate new account button
         fragments[0] = new CreateAccountMainFragment();
@@ -73,7 +68,6 @@ public class CreateAccountActivity extends BaseWizardActivity {
         fragments[1] = CreateIdentityEditTextFragment.newInstance(string.create_account_enter_name_infos, string.create_account_name_hint, new NextChecker() {
             @Override
             public String check(View view) {
-
                 String editText = ((EditText) view).getText().toString().trim();
                 String result = checkBoxAccountName(editText);
                 if (result != null) {
@@ -89,7 +83,6 @@ public class CreateAccountActivity extends BaseWizardActivity {
         fragments[2] = CreateIdentityEditTextFragment.newInstance(string.create_account_email, string.create_account_email_hint, new NextChecker() {
             @Override
             public String check(View view) {
-
                 String editText = ((EditText) view).getText().toString().trim();
                 String result = checkEMailAddress(editText);
                 if (result != null) {
@@ -105,7 +98,6 @@ public class CreateAccountActivity extends BaseWizardActivity {
         fragments[3] = CreateAccountPasswordFragment.newInstance(new NextChecker() {
             @Override
             public String check(View view) {
-
                 String editText = ((EditText) view).getText().toString().trim();
                 setPassword(editText, editText);
                 return null;
@@ -118,7 +110,6 @@ public class CreateAccountActivity extends BaseWizardActivity {
     }
 
     private String checkEMailAddress(String editText) {
-
         boolean error = editText.length() < 1;
         if (error) {
             return getString(string.create_identity_enter_all_data);
@@ -134,7 +125,6 @@ public class CreateAccountActivity extends BaseWizardActivity {
     }
 
     private String checkBoxAccountName(String accountName) {
-
         if (accountName.length() < 1) {
             return getString(string.create_account_enter_all_data);
         }
@@ -146,7 +136,6 @@ public class CreateAccountActivity extends BaseWizardActivity {
 
     @Override
     public void completeWizard() {
-
         if (QabelBoxApplication.getInstance().getService().getIdentities().getIdentities().size() > 0) {
             //fallback if identity exists after box account created. this case should never thrown
             Log.e(TAG, "Identity exist after create box account");
@@ -176,22 +165,17 @@ public class CreateAccountActivity extends BaseWizardActivity {
 
     @NonNull
     private SimpleJsonCallback createCallback(final String username, final String password1, final String password2, final String email, final AlertDialog dialog) {
-
         return new SimpleJsonCallback() {
-
             void showRetryDialog() {
-
                 UIHelper.showDialogMessage(mActivity, string.dialog_headline_info, string.server_access_not_successfully_retry_question, string.yes, string.no, new OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-
                                 register(username, password1, password2, email);
                             }
                         }
                         , new OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-
                                 dialog.dismiss();
                             }
                         });
@@ -199,7 +183,6 @@ public class CreateAccountActivity extends BaseWizardActivity {
 
             @Override
             protected void onError(final Call call, Reasons reasons) {
-
                 if (reasons == Reasons.IOException && retryCount++ < 3) {
                     mBoxAccountServer.register(username, password1, password2, email, this);
                 } else {
@@ -210,7 +193,6 @@ public class CreateAccountActivity extends BaseWizardActivity {
 
             @Override
             protected void onSuccess(Call call, Response response, JSONObject json) {
-
                 ServerResponse result = BoxAccountRegisterServer.parseJson(json);
 
                 //user entered only the username and server send ok
@@ -232,7 +214,6 @@ public class CreateAccountActivity extends BaseWizardActivity {
             }
 
             private String generateErrorMessage(ServerResponse result) {
-
                 ArrayList<String> message = new ArrayList<>();
                 if (step >= FRAGMENT_ENTER_PASSWORD) {
                     //all dialogs filled out. check all
@@ -286,7 +267,6 @@ public class CreateAccountActivity extends BaseWizardActivity {
 
     @Override
     protected void updateActionBar(int step) {
-
         super.updateActionBar(step);
         //override next button text with create identity
         if (step == fragments.length - 1) {
@@ -313,7 +293,6 @@ public class CreateAccountActivity extends BaseWizardActivity {
     }
 
     private void setPassword(String password1, String password2) {
-
         mBoxAccountPassword1 = password1;
         mBoxAccountPassword2 = password2;
     }

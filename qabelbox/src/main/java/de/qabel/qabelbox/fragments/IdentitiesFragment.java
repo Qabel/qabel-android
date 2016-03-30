@@ -1,7 +1,6 @@
 package de.qabel.qabelbox.fragments;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
 import android.app.Fragment;
 import android.content.DialogInterface;
@@ -21,7 +20,6 @@ import android.widget.Toast;
 import com.cocosw.bottomsheet.BottomSheet;
 import de.qabel.core.config.Identities;
 import de.qabel.core.config.Identity;
-import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.R.id;
 import de.qabel.qabelbox.R.layout;
 import de.qabel.qabelbox.R.menu;
@@ -42,7 +40,6 @@ import java.io.IOException;
  * Fragment that shows an identity list.
  */
 public class IdentitiesFragment extends BaseFragment {
-
     private static final String ARG_IDENTITIES = "ARG_IDENTITIES";
 
     private RecyclerView identityListRecyclerView;
@@ -57,7 +54,6 @@ public class IdentitiesFragment extends BaseFragment {
     private Activity activity;
 
     public static IdentitiesFragment newInstance(Identities identities) {
-
         IdentitiesFragment fragment = new IdentitiesFragment();
         Bundle args = new Bundle();
         args.putSerializable(ARG_IDENTITIES, identities);
@@ -78,7 +74,6 @@ public class IdentitiesFragment extends BaseFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-
         View view = inflater.inflate(layout.fragment_identities, container, false);
 
         identityListRecyclerView = (RecyclerView) view.findViewById(id.identity_list);
@@ -94,20 +89,17 @@ public class IdentitiesFragment extends BaseFragment {
         identityListAdapter.setOnItemClickListener(new OnItemClickListener() {
             @Override
             public void onItemClick(View view, int position) {
-
                 final Identity identity = identityListAdapter.get(position);
                 new BottomSheet.Builder(activity).title(identity.getAlias()).sheet(menu.bottom_sheet_identities)
                         .listener(new OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-
                                 switch (which) {
                                     case id.identities_rename:
 
                                         UIHelper.showEditTextDialog(getActivity(), String.format(getString(string.rename_identity), identity.getAlias()), getString(string.new_identity_name), string.ok, string.cancel, new EditTextDialogClickListener() {
                                             @Override
                                             public void onClick(DialogInterface dialog, int which, EditText editText) {
-
                                                 String newAlias = editText.getText().toString();
                                                 if (newAlias.equals("")) {
                                                     Toast.makeText(activity, string.alias_cannot_be_empty, Toast.LENGTH_LONG)
@@ -132,7 +124,6 @@ public class IdentitiesFragment extends BaseFragment {
                                         confirmDelete.setPositiveButton(string.ok, new OnClickListener() {
                                             @Override
                                             public void onClick(DialogInterface dialog, int whichButton) {
-
                                                 mListener.deleteIdentity(identity);
                                                 identityListAdapter.remove(identity);
                                                 identityListAdapter.notifyDataSetChanged();
@@ -142,7 +133,6 @@ public class IdentitiesFragment extends BaseFragment {
                                         confirmDelete.setNegativeButton(string.cancel, new OnClickListener() {
                                             @Override
                                             public void onClick(DialogInterface dialog, int whichButton) {
-
                                             }
                                         });
                                         confirmDelete.show();
@@ -168,17 +158,14 @@ public class IdentitiesFragment extends BaseFragment {
 
 
     private void exportIdentity(Identity identity) {
-
         startExportFileChooser(identity, QabelSchema.FILE_PREFIX_IDENTITY, QabelSchema.FILE_SUFFIX_IDENTITY, MainActivity.REQUEST_EXPORT_IDENTITY);
     }
 
     private void exportIdentityAsContact(Identity identity) {
-
         startExportFileChooser(identity, QabelSchema.FILE_PREFIX_CONTACT, QabelSchema.FILE_SUFFIX_CONTACT, MainActivity.REQUEST_EXPORT_IDENTITY_AS_CONTACT);
     }
 
     private void startExportFileChooser(Identity identity, String type, String filesuffix, int requestCode) {
-
         Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
 
         intent.addCategory(Intent.CATEGORY_OPENABLE);
@@ -193,7 +180,6 @@ public class IdentitiesFragment extends BaseFragment {
     @Override
     public void onActivityResult(int requestCode, int resultCode,
                                  Intent resultData) {
-
         if (resultCode == Activity.RESULT_OK) {
             if (requestCode == MainActivity.REQUEST_EXPORT_IDENTITY || requestCode == MainActivity.REQUEST_EXPORT_IDENTITY_AS_CONTACT) {
                 if (resultData != null) {
@@ -218,7 +204,6 @@ public class IdentitiesFragment extends BaseFragment {
 
     @Override
     public void onAttach(Activity activity) {
-
         super.onAttach(activity);
         this.activity = activity;
         try {
@@ -231,19 +216,16 @@ public class IdentitiesFragment extends BaseFragment {
 
     @Override
     public void onDetach() {
-
         super.onDetach();
         mListener = null;
     }
 
     @Override
     public String getTitle() {
-
         return getString(string.headline_identities);
     }
 
     public interface IdentityListListener {
-
         void deleteIdentity(Identity identity);
 
         void modifyIdentity(Identity identity);
@@ -251,13 +233,11 @@ public class IdentitiesFragment extends BaseFragment {
 
     @Override
     public boolean isFabNeeded() {
-
         return true;
     }
 
     @Override
     public boolean supportBackButton() {
-
         return false;
     }
 }

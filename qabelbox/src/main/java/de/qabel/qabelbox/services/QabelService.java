@@ -7,7 +7,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.*;
-import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationCompat.Builder;
 import android.util.Log;
 import de.qabel.ServiceConstants;
@@ -16,7 +15,6 @@ import de.qabel.core.config.Identity;
 import de.qabel.core.drop.DropMessage;
 import de.qabel.core.drop.DropURL;
 import de.qabel.core.exceptions.QblDropPayloadSizeException;
-import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.R.color;
 import de.qabel.qabelbox.R.drawable;
 import de.qabel.qabelbox.services.LocalQabelService.LocalBinder;
@@ -37,7 +35,6 @@ import java.util.Map;
  */
 @SuppressWarnings("JavadocReference")
 public class QabelService extends Service {
-
     private static final int SERVICE_NOTIFICATION_ID = 1;
     private static final String LOG_TAG_QABEL_SERVICE = "Qabel-Service";
     public static final String TAG = "QabelService";
@@ -49,7 +46,6 @@ public class QabelService extends Service {
     private LocalQabelService mService;
 
     class IncomingHandlerThread extends Thread {
-
         private Messenger mMessenger;
 
         public Messenger getmMessenger() {
@@ -61,7 +57,6 @@ public class QabelService extends Service {
             Looper.prepare();
 
             mMessenger = new Messenger(new Handler() {
-
                 @Override
                 public void handleMessage(Message msg) {
                     switch (msg.what) {

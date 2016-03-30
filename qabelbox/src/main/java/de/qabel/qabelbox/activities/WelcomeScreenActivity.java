@@ -7,18 +7,12 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
-import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.TextView;
-import de.qabel.qabelbox.R;
-import de.qabel.qabelbox.R.color;
-import de.qabel.qabelbox.R.drawable;
-import de.qabel.qabelbox.R.id;
-import de.qabel.qabelbox.R.layout;
-import de.qabel.qabelbox.R.string;
+import de.qabel.qabelbox.R.*;
 import de.qabel.qabelbox.config.AppPreference;
 import de.qabel.qabelbox.fragments.WelcomeDisclaimerFragment;
 import de.qabel.qabelbox.fragments.WelcomeTextFragment;
@@ -28,7 +22,6 @@ import de.qabel.qabelbox.views.IconPagerAdapter;
 import de.qabel.qabelbox.views.ViewPagerParallax;
 
 public class WelcomeScreenActivity extends FragmentActivity implements OnPageChangeListener {
-
     private static final int NUM_PAGES = 5;
     private final Fragment[] fragments = new Fragment[NUM_PAGES];
     private final ButtonStates[] buttonStates = new ButtonStates[NUM_PAGES];
@@ -54,7 +47,6 @@ public class WelcomeScreenActivity extends FragmentActivity implements OnPageCha
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
         super.onCreate(savedInstanceState);
         self = this;
         setContentView(layout.activity_welcomescreen);
@@ -137,12 +129,10 @@ public class WelcomeScreenActivity extends FragmentActivity implements OnPageCha
 
     @Override
     public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-
     }
 
     @Override
     public void onPageSelected(int position) {
-
         ButtonStates state = buttonStates[position];
         leftButton.setText(state.leftTextId);
         rightButton.setText(state.rightTextId);
@@ -166,15 +156,12 @@ public class WelcomeScreenActivity extends FragmentActivity implements OnPageCha
     }
 
     private class ScreenSlidePagerAdapter extends FragmentStatePagerAdapter implements IconPagerAdapter {
-
         public ScreenSlidePagerAdapter(FragmentManager fm) {
-
             super(fm);
         }
 
         @Override
         public Fragment getItem(int position) {
-
             if (position >= 0 && position < fragments.length) {
                 if (fragments[position] == null) {
                     if (position >= 0 && position < NUM_PAGES - 1) {
@@ -199,7 +186,6 @@ public class WelcomeScreenActivity extends FragmentActivity implements OnPageCha
 
         @Override
         public int getCount() {
-
             return NUM_PAGES;
         }
     }

@@ -1,12 +1,9 @@
 package de.qabel.qabelbox.validation;
 
-import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.R.string;
 
 public class PasswordValidator {
-
     public Integer validate(String accountName, String password, String passwordRepeat) {
-
         if (password.length() < ValidationConstraints.PASSWORD_MIN_LENGTH) {
             return string.password_to_short;
         }

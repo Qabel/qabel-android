@@ -2,7 +2,6 @@ package de.qabel.qabelbox.fragments;
 
 import android.app.Activity;
 import android.app.Fragment;
-import android.app.FragmentManager;
 import android.app.FragmentManager.OnBackStackChangedListener;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
@@ -14,7 +13,6 @@ import android.preference.PreferenceFragment;
 import android.view.Menu;
 import android.view.MenuInflater;
 import de.qabel.qabelbox.BuildConfig;
-import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.R.id;
 import de.qabel.qabelbox.R.string;
 import de.qabel.qabelbox.R.xml;
@@ -24,13 +22,11 @@ import de.qabel.qabelbox.helper.Formatter;
 import java.util.Date;
 
 public class HelpMainFragment extends PreferenceFragment {
-
     public static final String APP_PREF_NAME = "appsettings";
     private MainActivity mActivity;
 
     @Override
     public void onAttach(Activity activity) {
-
         super.onAttach(activity);
         getFragmentManager().addOnBackStackChangedListener(backstackListener);
         if (activity instanceof MainActivity) {
@@ -42,20 +38,17 @@ public class HelpMainFragment extends PreferenceFragment {
 
     @Override
     public void onDetach() {
-
         getFragmentManager().removeOnBackStackChangedListener(backstackListener);
         super.onDetach();
     }
 
     @Override
     public void onStart() {
-
         super.onStart();
         setTitleAndActionbar();
     }
 
     protected void setTitleAndActionbar() {
-
         mActivity.getSupportActionBar().setTitle(string.headline_main_help);
         mActivity.getSupportActionBar().setDisplayHomeAsUpEnabled(false);
         mActivity.toggle.setDrawerIndicatorEnabled(true);
@@ -64,7 +57,6 @@ public class HelpMainFragment extends PreferenceFragment {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
         // Define the settings file to use by this settings fragment
@@ -85,16 +77,13 @@ public class HelpMainFragment extends PreferenceFragment {
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-
         menu.clear();
     }
 
     private void setClickListener(Preference preference, final int mode) {
-
         preference.setOnPreferenceClickListener(new OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
-
                 getFragmentManager().beginTransaction().add(id.fragment_container, WebViewHelpFragment.newInstance(mode), null).addToBackStack(null).commit();
                 return false;
             }
@@ -102,7 +91,6 @@ public class HelpMainFragment extends PreferenceFragment {
     }
 
     public String getAppInfos() {
-
         PackageManager manager = getActivity().getPackageManager();
         PackageInfo info = null;
         try {
@@ -117,7 +105,6 @@ public class HelpMainFragment extends PreferenceFragment {
     }
 
     String getBuildDate() {
-
         return Formatter.formatDateShort(new Date(BuildConfig.TIMESTAMP));
     }
 

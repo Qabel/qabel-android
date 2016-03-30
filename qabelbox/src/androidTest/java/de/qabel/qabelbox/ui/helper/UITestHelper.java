@@ -7,7 +7,6 @@ import android.content.SharedPreferences;
 import android.support.test.runner.lifecycle.ActivityLifecycleMonitorRegistry;
 import android.support.test.runner.lifecycle.Stage;
 import de.qabel.qabelbox.QabelBoxApplication;
-import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.R.string;
 import de.qabel.qabelbox.fragments.SettingsFragment;
 
@@ -19,20 +18,16 @@ import static android.support.test.espresso.matcher.ViewMatchers.withText;
 import static org.hamcrest.Matchers.not;
 
 public class UITestHelper {
-
     public void deleteAppData() {
-
         ((ActivityManager) QabelBoxApplication.getInstance().getSystemService(Activity.ACTIVITY_SERVICE))
                 .clearApplicationUserData();
     }
 
     public void isToastMessageDisplayed(Activity activity, int textId) {
-
         onView(withText(textId)).inRoot(withDecorView(not(activity.getWindow().getDecorView()))).check(matches(isDisplayed()));
     }
 
     public static void sleep(int ms) {
-
         try {
             Thread.sleep(ms);
         } catch (InterruptedException e) {
@@ -41,12 +36,10 @@ public class UITestHelper {
     }
 
     public static Activity getCurrentActivity(Activity mActivity) throws Throwable {
-
         final Activity[] activity = new Activity[1];
         mActivity.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-
                 activity[0] = ActivityLifecycleMonitorRegistry.getInstance()
                         .getActivitiesInStage(Stage.RESUMED).iterator().next();
             }
@@ -58,7 +51,6 @@ public class UITestHelper {
     }
 
     public static void disableBugReporting(Context context) {
-
         SharedPreferences preferences = context.getSharedPreferences(
                 SettingsFragment.APP_PREF_NAME,
                 Context.MODE_PRIVATE);

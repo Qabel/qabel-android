@@ -1,6 +1,5 @@
 package de.qabel.qabelbox.ui;
 
-import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
 import android.support.design.internal.NavigationMenuItemView;
 import android.support.test.espresso.ViewAssertion;
@@ -11,7 +10,6 @@ import com.squareup.spoon.Spoon;
 import de.qabel.core.config.Contact;
 import de.qabel.core.config.Identity;
 import de.qabel.qabelbox.QabelBoxApplication;
-import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.R.drawable;
 import de.qabel.qabelbox.R.id;
 import de.qabel.qabelbox.R.string;
@@ -49,7 +47,6 @@ import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.Matchers.*;
 
 public class ChatMessageUITest {
-
     @Rule
     public ActivityTestRule<MainActivity> mActivityTestRule = new ActivityTestRule<>(MainActivity.class, false, true);
     private MainActivity mActivity;
@@ -73,7 +70,6 @@ public class ChatMessageUITest {
 
     @Before
     public void setUp() throws IOException, QblStorageException {
-
         mActivity = mActivityTestRule.getActivity();
         URLs.setBaseBlockURL(TestConstants.BLOCK_URL);
         wakeLock = UIActionHelper.wakeupDevice(mActivity);
@@ -93,7 +89,6 @@ public class ChatMessageUITest {
      */
     @Test
     public void testNewMessageVisualization() {
-
         //prepaire data
         LocalQabelService service = QabelBoxApplication.getInstance().getService();
 

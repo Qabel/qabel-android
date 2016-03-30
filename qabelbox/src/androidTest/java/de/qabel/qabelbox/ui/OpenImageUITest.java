@@ -2,12 +2,9 @@ package de.qabel.qabelbox.ui;
 
 
 import android.app.Activity;
-import android.app.Instrumentation;
 import android.app.Instrumentation.ActivityResult;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
-import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
 import android.support.test.espresso.Espresso;
 import android.support.test.espresso.contrib.RecyclerViewActions;
@@ -18,7 +15,6 @@ import com.squareup.picasso.PicassoIdlingResource;
 import com.squareup.spoon.Spoon;
 import de.qabel.core.config.Identity;
 import de.qabel.qabelbox.QabelBoxApplication;
-import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.R.drawable;
 import de.qabel.qabelbox.R.id;
 import de.qabel.qabelbox.TestConstants;
@@ -46,13 +42,8 @@ import static de.qabel.qabelbox.ui.matcher.QabelMatcher.withDrawable;
 import static org.hamcrest.core.AllOf.allOf;
 //import static de.qabel.qabelbox.ui.matcher.QabelMatcher.withDrawable;
 
-/**
- * Tests for MainActivity.
- */
-
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class OpenImageUITest {
-
     @Rule
     public ActivityTestRule<MainActivity> mActivityTestRule = new ActivityTestRule<>(MainActivity.class, false, true);
 
@@ -72,7 +63,6 @@ public class OpenImageUITest {
 
     @After
     public void cleanUp() {
-
         wakeLock.release();
         Espresso.unregisterIdlingResources(mPicassoIdlingResource);
         mSystemAnimations.enableAll();
@@ -81,7 +71,6 @@ public class OpenImageUITest {
 
     @Before
     public void setUp() throws IOException, QblStorageException {
-
         mActivity = mActivityTestRule.getActivity();
         URLs.setBaseBlockURL(TestConstants.BLOCK_URL);
         Espresso.registerIdlingResources(mPicassoIdlingResource);
@@ -113,7 +102,6 @@ public class OpenImageUITest {
     }
 
     private void uploadTestFiles() {
-
         int fileCount = 4;
         mBoxHelper.uploadFile(mBoxHelper.mBoxVolume, "defect.png", new byte[100], "");
         mBoxHelper.uploadDrawableFile(mBoxHelper.mBoxVolume, "file1.jpg", CompressFormat.JPEG, drawable.splash_logo);
@@ -125,7 +113,6 @@ public class OpenImageUITest {
 
     @Test
     public void testOpenFiles() {
-
         Spoon.screenshot(mActivity, "startup");
         mPicassoIdlingResource.init(mActivity);
         testFile("file1.jpg");
@@ -154,7 +141,6 @@ public class OpenImageUITest {
     }
 
     private void testFile(String file) {
-
         onView(withId(id.files_list))
                 .perform(RecyclerViewActions.actionOnItem(
                         hasDescendant(withText(file)), click()));

@@ -14,10 +14,8 @@ import de.qabel.core.drop.DropMessage;
 import de.qabel.core.drop.DropURL;
 import de.qabel.core.exceptions.QblDropPayloadSizeException;
 import de.qabel.qabelbox.QabelBoxApplication;
-import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.R.id;
 import de.qabel.qabelbox.R.layout;
-import de.qabel.qabelbox.R.menu;
 import de.qabel.qabelbox.R.string;
 import de.qabel.qabelbox.activities.MainActivity;
 import de.qabel.qabelbox.adapter.ChatMessageAdapter;
@@ -41,7 +39,6 @@ import java.util.Map.Entry;
  * to handle interaction events.
  */
 public class ContactChatFragment extends ContactBaseFragment {
-
     private static final String ARG_IDENTITY = "Identity";
     private final String TAG = getClass().getSimpleName();
 
@@ -56,7 +53,6 @@ public class ContactChatFragment extends ContactBaseFragment {
     private boolean isSyncing;
 
     public static ContactChatFragment newInstance(Contact contact) {
-
         ContactChatFragment fragment = new ContactChatFragment();
         Bundle args = new Bundle();
         args.putSerializable(ARG_IDENTITY, contact);
@@ -67,7 +63,6 @@ public class ContactChatFragment extends ContactBaseFragment {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-
         super.onCreate(savedInstanceState);
 
         chatServer = mActivity.chatServer;
@@ -90,7 +85,6 @@ public class ContactChatFragment extends ContactBaseFragment {
     @Override
     public View onCreateView(final LayoutInflater inflater, final ViewGroup container,
                              Bundle savedInstanceState) {
-
         final View view = inflater.inflate(layout.fragment_contact_chat, container, false);
         contactListRecyclerView = (ListView) view.findViewById(id.contact_chat_list);
         emptyView = view.findViewById(id.empty_view);
@@ -99,10 +93,8 @@ public class ContactChatFragment extends ContactBaseFragment {
         send.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-
                 final String text = etText.getText().toString();
                 if (text.length() > 0) {
-
                     sendMessage(text);
                 }
             }
@@ -204,7 +196,6 @@ public class ContactChatFragment extends ContactBaseFragment {
 
 
     private void fillAdapter(final ArrayList<ChatMessageItem> data) {
-
         ChatMessageAdapter contactListAdapter = new ChatMessageAdapter(data, contact);
         contactListAdapter.setEmptyView(emptyView);
         contactListRecyclerView.setAdapter(contactListAdapter);
@@ -214,22 +205,17 @@ public class ContactChatFragment extends ContactBaseFragment {
 
     @NonNull
     private OnItemClickListener getOnItemClickListener() {
-
         return new OnItemClickListener() {
-
             @Override
             public void onItemClick(final ChatMessageItem item) {
-
                 LocalQabelService service = QabelBoxApplication.getInstance().getService();
 
                 //check if message is instance of sharemessage
                 if (item.getData() instanceof ShareMessagePayload) {
-
                     final FilesFragment filesFragment = mActivity.filesFragment;
 
                     //check if share from other (not my sended share)
                     if (!item.getSenderKey().equals(service.getActiveIdentity().getEcPublicKey().getReadableKeyIdentifier())) {
-
                         new AsyncTask<Void, Void, BoxNavigation>() {
                             int errorId;
                             public AlertDialog wait;
@@ -241,7 +227,6 @@ public class ContactChatFragment extends ContactBaseFragment {
 
                             @Override
                             protected BoxNavigation doInBackground(Void... params) {
-
                                 //navigate to share folder or create this if not exists
                                 BoxNavigation nav = navigateToShareFolder(filesFragment.getBoxVolume());
                                 if (nav == null) {
@@ -258,7 +243,6 @@ public class ContactChatFragment extends ContactBaseFragment {
 
                             @Override
                             protected void onPostExecute(BoxNavigation boxNavigation) {
-
                                 wait.dismiss();
                                 if (boxNavigation == null) {
                                     UIHelper.showDialogMessage(getActivity(), string.dialog_headline_info, errorId);
@@ -278,13 +262,11 @@ public class ContactChatFragment extends ContactBaseFragment {
      * attach a file to boxvolume. Call this after all checks done
      */
     private void attachCheckedSharedFile(final FilesFragment filesFragment, final BoxNavigation nav, final BoxExternalReference boxExternalReference) {
-
         new AsyncTask<Void, Void, List<BoxObject>>() {
             AlertDialog wait;
 
             @Override
             protected void onPostExecute(List<BoxObject> boxObjects) {
-
                 if (boxObjects != null) {
                     Toast.makeText(mActivity, string.shared_file_imported, Toast.LENGTH_SHORT).show();
                 } else {
@@ -297,7 +279,6 @@ public class ContactChatFragment extends ContactBaseFragment {
 
             @Override
             protected List<BoxObject> doInBackground(Void... params) {
-
                 try {
                     nav.attachExternal(boxExternalReference);
                     nav.commit();
@@ -312,7 +293,6 @@ public class ContactChatFragment extends ContactBaseFragment {
 
             @Override
             protected void onPreExecute() {
-
                 wait = UIHelper.showWaitMessage(mActivity, string.dialog_headline_info, string.please_wait_attach_external_file, false);
             }
         }.executeOnExecutor(AsyncTask.SERIAL_EXECUTOR);
@@ -322,14 +302,11 @@ public class ContactChatFragment extends ContactBaseFragment {
      * navigate to share folder. if folder don't exists, create it.
      */
     private BoxNavigation navigateToShareFolder(BoxVolume boxVolume) {
-
         try {
-
             BoxNavigation nav = boxVolume.navigate();
             List<BoxFolder> folders = nav.listFolders();
 
             for (BoxFolder folder : folders) {
-
                 if (folder.name.equals(BoxFolder.RECEIVED_SHARE_NAME)) {
                     nav.navigate(folder);
                     return nav;
@@ -353,7 +330,6 @@ public class ContactChatFragment extends ContactBaseFragment {
      * check if given item already attached or exists in the share folder
      */
     private boolean isAttached(BoxNavigation nav, ChatMessageItem item) {
-
         ShareMessagePayload payLoad = (ShareMessagePayload) item.getData();
         String fileNameToAdd = payLoad.getMessage();
         try {
@@ -381,14 +357,12 @@ public class ContactChatFragment extends ContactBaseFragment {
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-
         menu.clear();
         inflater.inflate(menu.ab_chat_detail_refresh, menu);
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-
         int id = item.getItemId();
         if (id == id.action_chat_detail_refresh) {
             refreshMessagesAsync();
@@ -399,7 +373,6 @@ public class ContactChatFragment extends ContactBaseFragment {
 
     @Override
     public boolean isFabNeeded() {
-
         return false;
     }
 
@@ -410,29 +383,24 @@ public class ContactChatFragment extends ContactBaseFragment {
 
     @Override
     public boolean supportBackButton() {
-
         return true;
     }
 
     @Override
     public void onStart() {
-
         super.onStart();
         chatServer.addListener(chatServerCallback);
     }
 
     @Override
     public void onStop() {
-
         chatServer.removeListener(chatServerCallback);
         super.onStop();
     }
 
     private final ChatServerCallback chatServerCallback = new ChatServerCallback() {
-
         @Override
         public void onRefreshed() {
-
         }
     };
 }

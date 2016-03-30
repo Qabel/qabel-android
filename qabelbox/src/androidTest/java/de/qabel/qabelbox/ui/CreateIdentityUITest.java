@@ -1,7 +1,6 @@
 package de.qabel.qabelbox.ui;
 
 
-import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
 import android.support.design.internal.NavigationMenuItemView;
 import android.support.test.rule.ActivityTestRule;
@@ -10,7 +9,6 @@ import com.squareup.spoon.Spoon;
 import de.qabel.core.config.Identities;
 import de.qabel.core.config.Identity;
 import de.qabel.qabelbox.QabelBoxApplication;
-import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.R.id;
 import de.qabel.qabelbox.R.string;
 import de.qabel.qabelbox.TestConstants;
@@ -24,7 +22,6 @@ import de.qabel.qabelbox.ui.helper.UIActionHelper;
 import de.qabel.qabelbox.ui.helper.UIBoxHelper;
 import de.qabel.qabelbox.ui.helper.UITestHelper;
 import de.qabel.qabelbox.ui.matcher.QabelMatcher;
-import org.hamcrest.Matchers;
 import org.junit.*;
 import org.junit.runners.MethodSorters;
 
@@ -47,7 +44,6 @@ import static org.hamcrest.Matchers.*;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class CreateIdentityUITest {
-
     @Rule
     public ActivityTestRule<CreateIdentityActivity> mActivityTestRule = new ActivityTestRule<>(CreateIdentityActivity.class, false, true);
 
@@ -59,7 +55,6 @@ public class CreateIdentityUITest {
 
     @After
     public void cleanUp() {
-
         wakeLock.release();
         mSystemAnimations.enableAll();
         mBoxHelper.unbindService(QabelBoxApplication.getInstance());
@@ -68,7 +63,6 @@ public class CreateIdentityUITest {
 
     @Before
     public void setUp() throws IOException, QblStorageException {
-
         mActivity = mActivityTestRule.getActivity();
         URLs.setBaseBlockURL(TestConstants.BLOCK_URL);
         mBoxHelper = new UIBoxHelper(QabelBoxApplication.getInstance());

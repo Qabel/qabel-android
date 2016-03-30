@@ -27,7 +27,6 @@ import android.support.v4.view.ViewPager.OnPageChangeListener;
  * number and the current visible view.
  */
 public interface PageIndicator extends OnPageChangeListener {
-
     /**
      * Bind the indicator to a ViewPager.
      */

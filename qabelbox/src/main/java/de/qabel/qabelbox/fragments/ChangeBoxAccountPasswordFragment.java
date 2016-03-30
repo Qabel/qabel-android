@@ -10,10 +10,8 @@ import android.support.annotation.Nullable;
 import android.view.*;
 import android.widget.EditText;
 import android.widget.Toast;
-import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.R.id;
 import de.qabel.qabelbox.R.layout;
-import de.qabel.qabelbox.R.menu;
 import de.qabel.qabelbox.R.string;
 import de.qabel.qabelbox.communication.BoxAccountRegisterServer;
 import de.qabel.qabelbox.communication.BoxAccountRegisterServer.ServerResponse;
@@ -27,7 +25,6 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 
 public class ChangeBoxAccountPasswordFragment extends Fragment {
-
     private EditText etOldPassword, etPassword1, etPassword2;
     private final BoxAccountRegisterServer mBoxAccountServer = new BoxAccountRegisterServer();
     private PasswordValidator validator = new PasswordValidator();
@@ -36,7 +33,6 @@ public class ChangeBoxAccountPasswordFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle
             savedInstanceState) {
-
         View view = inflater.inflate(layout.fragment_change_box_account_password, container, false);
 
         etOldPassword = (EditText) view.findViewById(id.et_old_password);
@@ -50,14 +46,12 @@ public class ChangeBoxAccountPasswordFragment extends Fragment {
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-
         menu.clear();
         inflater.inflate(menu.ab_next, menu);
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-
         if (item.getItemId() == id.action_ok) {
             String pw = etPassword1.getText().toString();
             String pwRepeat = etPassword2.getText().toString();
@@ -75,7 +69,6 @@ public class ChangeBoxAccountPasswordFragment extends Fragment {
     }
 
     private void sendChangePWRequest(final String oldPassword, final String newPassword1, final String newPassword2) {
-
         final AlertDialog dialog = UIHelper.showWaitMessage(getActivity(), string.dialog_headline_please_wait, string.dialog_message_server_communication_is_running, false);
 
         final SimpleJsonCallback callback = createCallback(oldPassword, newPassword1, newPassword2, dialog);
@@ -85,22 +78,17 @@ public class ChangeBoxAccountPasswordFragment extends Fragment {
 
     @NonNull
     private SimpleJsonCallback createCallback(final String oldPassword, final String newPassword1, final String newPassword2, final AlertDialog dialog) {
-
         return new SimpleJsonCallback() {
-
             void showRetryDialog() {
-
                 UIHelper.showDialogMessage(getActivity(), string.dialog_headline_info, string.server_access_not_successfully_retry_question, string.yes, string.no, new OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-
                                 sendChangePWRequest(oldPassword, newPassword1, newPassword2);
                             }
                         }
                         , new OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-
                                 dialog.dismiss();
                             }
                         });
@@ -108,7 +96,6 @@ public class ChangeBoxAccountPasswordFragment extends Fragment {
 
             @Override
             protected void onError(final Call call, Reasons reasons) {
-
                 if (reasons == Reasons.IOException && retryCount++ < 3) {
                     mBoxAccountServer.changePassword(getActivity(), oldPassword, newPassword1, newPassword2, this);
                 } else {
@@ -119,14 +106,11 @@ public class ChangeBoxAccountPasswordFragment extends Fragment {
 
             @Override
             protected void onSuccess(Call call, Response response, JSONObject json) {
-
                 final ServerResponse result = BoxAccountRegisterServer.parseJson(json);
                 if (result.success != null) {
-
                     getActivity().runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-
                             dialog.dismiss();
                             getActivity().onBackPressed();
                             Toast.makeText(getActivity(), result.success, Toast.LENGTH_SHORT).show();
@@ -135,7 +119,6 @@ public class ChangeBoxAccountPasswordFragment extends Fragment {
                 } else
 
                 {
-
                     String errorText = generateErrorMessage(result);
                     dialog.dismiss();
                     UIHelper.showDialogMessage(getActivity(), string.dialog_headline_info, errorText);
@@ -143,7 +126,6 @@ public class ChangeBoxAccountPasswordFragment extends Fragment {
             }
 
             private String generateErrorMessage(ServerResponse result) {
-
                 ArrayList<String> message = new ArrayList<>();
                 if (result.non_field_errors != null) {
                     message.add(result.non_field_errors);

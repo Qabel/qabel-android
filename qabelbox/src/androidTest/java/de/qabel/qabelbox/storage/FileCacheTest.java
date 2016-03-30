@@ -17,7 +17,6 @@ import static org.junit.Assert.assertThat;
 
 @RunWith(AndroidJUnit4.class)
 public class FileCacheTest {
-
     private FileCache mHelper;
     private File testFile;
     private FileCache mCache;

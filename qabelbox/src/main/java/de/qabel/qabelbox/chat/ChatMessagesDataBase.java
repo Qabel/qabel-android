@@ -16,7 +16,6 @@ import de.qabel.core.config.Identity;
  * class to store chat messages in database
  */
 public class ChatMessagesDataBase extends SQLiteOpenHelper {
-
     private static final int DATABASE_VERSION = 1;
     private static final String DATABASE_NAME = "ChatMessages.db";
     private static final String TAG = "ChatMessagesDataBase";
@@ -53,7 +52,6 @@ public class ChatMessagesDataBase extends SQLiteOpenHelper {
     private final String fullDBName;
 
     public ChatMessagesDataBase(Context context, Identity activeIdentity) {
-
         super(context, DATABASE_NAME + activeIdentity.getEcPublicKey().getReadableKeyIdentifier(), null, DATABASE_VERSION);
         fullDBName = DATABASE_NAME + activeIdentity.getEcPublicKey().getReadableKeyIdentifier();
         Log.d(TAG, "fulldbname: " + fullDBName);
@@ -61,7 +59,6 @@ public class ChatMessagesDataBase extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase sqLiteDatabase) {
-
         Log.v(TAG, CREATE_TABLE);
         sqLiteDatabase.execSQL(CREATE_TABLE);
         sqLiteDatabase.execSQL(CREATE_TABLE_LOAD);
@@ -69,14 +66,12 @@ public class ChatMessagesDataBase extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase sqLiteDatabase, int from, int to) {
-
         sqLiteDatabase.execSQL("DROP TABLE " + TABLE_MESSAGE_NAME + ";");
         sqLiteDatabase.execSQL("DROP TABLE " + CREATE_TABLE_LOAD + ";");
     }
 
 
     public void put(ChatMessageItem item) {
-
         Log.i(TAG, "Put into db: " + item + " " + item.getSenderKey() + " " + item.getReceiverKey());
         ContentValues values = new ContentValues();
 
@@ -126,7 +121,6 @@ public class ChatMessagesDataBase extends SQLiteOpenHelper {
     }
 
     public ChatMessageItem[] get(String key) {
-
         SQLiteDatabase database = getReadableDatabase();
 
         Cursor cursor = database.query(TABLE_MESSAGE_NAME, getAllColumnsList(),
@@ -154,7 +148,6 @@ public class ChatMessagesDataBase extends SQLiteOpenHelper {
     }
 
     public ChatMessageItem[] getAll() {
-
         SQLiteDatabase database = getReadableDatabase();
 
         Cursor cursor = database.query(TABLE_MESSAGE_NAME, getAllColumnsList(),
@@ -167,7 +160,6 @@ public class ChatMessagesDataBase extends SQLiteOpenHelper {
 
     @Nullable
     private ChatMessageItem[] createResultList(Cursor cursor) {
-
         try {
             cursor.moveToFirst();
             Log.d(TAG, "messages in db " + cursor.getCount());

@@ -6,7 +6,6 @@ import android.net.Uri;
 import android.os.ParcelFileDescriptor;
 import android.test.InstrumentationTestCase;
 import android.test.mock.MockContentResolver;
-import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.R.string;
 import de.qabel.qabelbox.communication.URLs;
 import de.qabel.qabelbox.config.AppPreference;
@@ -21,7 +20,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 
 public abstract class MockedBoxProviderTest extends InstrumentationTestCase {
-
     MockBoxProvider mockProvider;
     protected MockContentResolver mockContentResolver;
     private BoxVolume volume;
@@ -41,7 +39,6 @@ public abstract class MockedBoxProviderTest extends InstrumentationTestCase {
     }
 
     protected void configureTestServer() {
-
         new AppPreference(getContext())
                 .setToken(getContext().getString(string.blockserver_magic_testtoken));
         URLs.setBaseBlockURL(getContext().getString(string.testBlockServer));
@@ -75,7 +72,6 @@ public abstract class MockedBoxProviderTest extends InstrumentationTestCase {
     }
 
     public void injectFile(String filename, String content) {
-
     }
 
 

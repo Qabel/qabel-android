@@ -10,7 +10,6 @@ import de.qabel.core.config.Contacts;
 import de.qabel.core.crypto.QblECPublicKey;
 import de.qabel.core.drop.DropURL;
 import de.qabel.qabelbox.QabelBoxApplication;
-import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.R.plurals;
 import de.qabel.qabelbox.R.string;
 import de.qabel.qabelbox.activities.MainActivity;
@@ -100,7 +99,6 @@ public class ContactBaseFragment extends BaseFragment {
 
 
     public void importContactFromUri(MainActivity mActivity, Uri uri) {
-
 
         Log.d(TAG, "import contact from uri " + uri);
         try {

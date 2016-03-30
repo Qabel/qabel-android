@@ -1,10 +1,8 @@
 package de.qabel.qabelbox.ui.matcher;
 
 import android.content.Context;
-import android.content.res.Resources;
 import android.content.res.Resources.NotFoundException;
 import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.os.Build.VERSION;
 import android.os.Build.VERSION_CODES;
 import android.view.View;
@@ -14,7 +12,6 @@ import org.hamcrest.Description;
 import org.hamcrest.TypeSafeMatcher;
 
 public class DrawableMatcher extends TypeSafeMatcher<View> {
-
     private final int resourceId;
 
     public DrawableMatcher(int resourceId) {

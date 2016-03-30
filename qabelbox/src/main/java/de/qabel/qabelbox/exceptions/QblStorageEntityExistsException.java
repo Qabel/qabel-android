@@ -1,7 +1,6 @@
 package de.qabel.qabelbox.exceptions;
 
 public class QblStorageEntityExistsException extends QblStorageException {
-
     public QblStorageEntityExistsException(Throwable e) {
         super(e);
     }

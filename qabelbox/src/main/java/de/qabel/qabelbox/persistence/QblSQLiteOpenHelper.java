@@ -6,7 +6,6 @@ import android.database.sqlite.SQLiteDatabase.CursorFactory;
 import android.database.sqlite.SQLiteOpenHelper;
 
 class QblSQLiteOpenHelper extends SQLiteOpenHelper {
-
     private static final String CREATE_TABLE = "CREATE TABLE IF NOT EXISTS CONFIG (ID TEXT PRIMARY KEY NOT NULL, DATA TEXT NOT NULL)";
 
     public QblSQLiteOpenHelper(Context context, String name, CursorFactory factory, int version) {
@@ -20,6 +19,5 @@ class QblSQLiteOpenHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase sqLiteDatabase, int i, int i1) {
-
     }
 }

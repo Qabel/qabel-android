@@ -8,7 +8,6 @@ import de.qabel.qabelbox.storage.BoxUploadingFile;
 import java.util.Comparator;
 
 public class BoxObjectComparators {
-
     public static Comparator<BoxObject> alphabeticOrderDirectoriesFirstIgnoreCase() {
         return new Comparator<BoxObject>() {
             @Override

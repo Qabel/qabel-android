@@ -2,7 +2,6 @@ package de.qabel.qabelbox.helper;
 
 import android.content.Context;
 import android.content.res.Resources;
-import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.R.string;
 
 import java.text.DateFormat;
@@ -14,7 +13,6 @@ import java.util.Locale;
 import java.util.regex.Pattern;
 
 public class Formatter {
-
     private static final long KB = 1024;
     private static final long MB = 1024 * 1024;
     private static final long GB = 1024 * 1024 * 1024;
@@ -24,7 +22,6 @@ public class Formatter {
     private static final DateFormat timeFormat = DateFormat.getTimeInstance(DateFormat.SHORT);
 
     public static String formatFileSizeHumanReadable(Context context, long filesize) {
-
         String result;
         DecimalFormat df = new DecimalFormat("#.##");
         Resources res = context.getResources();
@@ -41,22 +38,18 @@ public class Formatter {
     }
 
     public static String formatDateShort(Date date) {
-
         return dateFormat.format(date);
     }
 
     public static String formatDateShort(long date) {
-
         return formatDateShort(new Date(date));
     }
 
     public static String formatDateTimeShort(Date date) {
-
         return dateTimeFormat.format(date);
     }
 
     public static String formatDateTimeShort(long date) {
-
         return formatDateTimeShort(new Date(date));
     }
 
@@ -82,7 +75,6 @@ public class Formatter {
     }
 
     public static boolean isEMailValid(String email) {
-
         final String EMAIL_PATTERN = "^.+@.+$";
         Pattern pattern = Pattern.compile(EMAIL_PATTERN);
         return pattern.matcher(email).matches();

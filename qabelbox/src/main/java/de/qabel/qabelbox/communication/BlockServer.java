@@ -11,20 +11,13 @@ import okhttp3.RequestBody;
 
 import java.io.File;
 
-/**
- * Created by danny on 11.02.2016.
- * <p/>
- * class to handle prefix server network action
- */
 public class BlockServer extends BaseServer {
-
     private static final String TAG = "PrefixServer";
     public static final String BLOCKS = "blocks/";
     private int currentId;
     private final int suffixId;
 
     public BlockServer() {
-
         //maybe it can be bether to create a unique id. but normally we have only one instance in boxvolume of blockserver so it should no collision occurs
         suffixId = getClass().hashCode() % 0xffff * 0x10000;
     }
@@ -53,28 +46,23 @@ public class BlockServer extends BaseServer {
     }
 
     public void downloadFile(Context context, String prefix, String path, Callback callback) {
-
         doServerAction(context, prefix, path, "GET", null, callback);
     }
 
     public void uploadFile(Context context, String prefix, String path, byte[] data, Callback callback) {
-
         doServerAction(context, prefix, path, "POST", RequestBody.create(JSON, data), callback);
     }
 
     public void uploadFile(Context context, String prefix, String name, File file, Callback callback) {
-
         doServerAction(context, prefix, name, "POST", RequestBody.create(JSON, file), callback);
 
     }
 
     public void deleteFile(Context context, String prefix, String path, Callback callback) {
-
         doServerAction(context, prefix, path, "DELETE", null, callback);
     }
 
     public synchronized int getNextId() {
-
         return suffixId + currentId++ + (int) System.currentTimeMillis() % 1000000;
     }
 }

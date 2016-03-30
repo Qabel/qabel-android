@@ -6,7 +6,6 @@ import android.widget.TextView;
 import de.qabel.qabelbox.helper.FontHelper;
 
 public class TextViewFont extends TextView {
-
     public TextViewFont(Context context) {
         super(context);
         FontHelper.getInstance().setCustomeFonts(this);

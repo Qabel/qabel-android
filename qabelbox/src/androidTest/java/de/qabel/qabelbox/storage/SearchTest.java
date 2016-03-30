@@ -15,7 +15,6 @@ import static org.junit.Assert.assertThat;
 
 
 public class SearchTest extends AndroidTestCase {
-
     private static final String TAG = SearchTest.class.getName();
 
     //will represent a filled resultset after setUp()
@@ -67,7 +66,6 @@ public class SearchTest extends AndroidTestCase {
     }
 
     private void setupFakeDirectoryStructure(BoxNavigation nav) throws Exception {
-
         String testFile = BoxTest.createTestFile();
         String smallFile = BoxTest.smallTestFile().getAbsolutePath();
 
@@ -111,7 +109,6 @@ public class SearchTest extends AndroidTestCase {
     }
 
     private void debug(BoxNavigation nav) throws Exception {
-
         for (BoxFile file : nav.listFiles()) {
             Log.d(TAG, "FILE: " + file.name);
         }
@@ -143,7 +140,6 @@ public class SearchTest extends AndroidTestCase {
 
     @Test
     public void testCollectAll() throws Exception {
-
         Log.d(TAG, "collectAll");
 
         for (BoxObject o : searchResults) {
@@ -190,7 +186,6 @@ public class SearchTest extends AndroidTestCase {
 
     @Test
     public void testFilterBySize() throws Exception {
-
         StorageSearch search = new StorageSearch(searchResults).filterByNameCaseSensitive("level1");
         assertEquals(3, search.getResults().size());
 
@@ -221,7 +216,6 @@ public class SearchTest extends AndroidTestCase {
 
     @Test
     public void testFilterByFileOrDir() throws Exception {
-
         List<BoxObject> objs = new StorageSearch(searchResults).filterByNameCaseSensitive("level1")
                 .filterOnlyDirectories().getResults();
         assertEquals(1, objs.size());
@@ -242,7 +236,6 @@ public class SearchTest extends AndroidTestCase {
 
     @Test
     public void testFilterByDate() throws Exception {
-
         List<BoxFile> files = StorageSearch.toBoxFiles(searchResults);
         assertEquals(5, files.size());
 
@@ -279,7 +272,6 @@ public class SearchTest extends AndroidTestCase {
 
     @Test
     public void testSortByName() throws Exception {
-
         StorageSearch search = StorageSearch.createStorageSearchFromList(searchResults).sortCaseInsensitiveByName();
         assertEquals("dir1-level1-one", search.getResults().get(0).name);
 
@@ -295,7 +287,6 @@ public class SearchTest extends AndroidTestCase {
 
     @Test
     public void testFilterByExtension() throws Exception {
-
         List<BoxObject> lst = new StorageSearch(searchResults).filterByExtension("bin").getResults();
 
         assertEquals(5, lst.size());
@@ -315,7 +306,6 @@ public class SearchTest extends AndroidTestCase {
 
     @Test
     public void testFindByPath() throws Exception {
-
         StorageSearch search = new StorageSearch(searchResults, pathMapping);
 
         List<BoxObject> lst = search.filterByName("small").getResults();
@@ -327,7 +317,6 @@ public class SearchTest extends AndroidTestCase {
 
     @Test
     public void testFindPathByBoxObject() throws Exception {
-
         StorageSearch search = new StorageSearch(searchResults, pathMapping);
 
         List<BoxObject> results = search.getResults();
@@ -349,7 +338,6 @@ public class SearchTest extends AndroidTestCase {
     }
 
     private BoxObject clone(BoxObject o) {
-
         if (o instanceof BoxFile) {
             BoxFile tmp = (BoxFile) o;
 
@@ -362,7 +350,6 @@ public class SearchTest extends AndroidTestCase {
     }
 
     private List<BoxObject> createClonedList(List<BoxObject> input) {
-
         List<BoxObject> clonedList = new ArrayList<>();
 
         for (BoxObject o : input) {

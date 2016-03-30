@@ -13,7 +13,6 @@ import java.util.Collection;
  * "http://localhost/dropmessages" as the URI.
  */
 public class LocalQabelServiceTester extends LocalQabelService {
-
     ArrayList<byte[]> dropMessages = new ArrayList<>();
 
     @Override

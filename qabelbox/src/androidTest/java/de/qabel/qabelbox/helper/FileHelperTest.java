@@ -4,7 +4,6 @@ import android.test.InstrumentationTestCase;
 import org.junit.Test;
 
 public class FileHelperTest extends InstrumentationTestCase {
-
     private static final String CONTENT = "This a Testfile.";
 
     @Test

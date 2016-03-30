@@ -5,21 +5,18 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.R.string;
 import de.qabel.qabelbox.fragments.SettingsFragment;
 import net.hockeyapp.android.CrashManager;
 import net.hockeyapp.android.UpdateManager;
 
 public class CrashReportingActivity extends AppCompatActivity {
-
     private final String TAG = getClass().getSimpleName();
     private boolean handleCrashes = true;
     private final boolean checkForUpdates = false;//set to true if certain users can uploadAndDeleteLocalfile new version via hockey app
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
         super.onCreate(savedInstanceState);
         if (checkForUpdates) {
             // Remove this for store / production builds!
@@ -29,7 +26,6 @@ public class CrashReportingActivity extends AppCompatActivity {
 
     @Override
     protected void onPause() {
-
         super.onPause();
         if (checkForUpdates) {
             UpdateManager.unregister();
@@ -42,13 +38,11 @@ public class CrashReportingActivity extends AppCompatActivity {
      * @param handleCrashes set to true if crash tracking should be on
      */
     public void enableCrashHandling(boolean handleCrashes) {
-
         this.handleCrashes = handleCrashes;
     }
 
     @Override
     public void onResume() {
-
         super.onResume();
 
         if (handleCrashes) {

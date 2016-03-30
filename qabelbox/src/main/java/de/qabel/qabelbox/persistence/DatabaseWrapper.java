@@ -6,7 +6,6 @@ import de.qabel.qabelbox.exceptions.QblPersistenceException;
 import java.util.List;
 
 public interface DatabaseWrapper {
-
     boolean connect();
 
     void execSQL(String sql) throws QblPersistenceException;

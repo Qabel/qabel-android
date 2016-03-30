@@ -29,7 +29,6 @@ public class RealTokerGetter {
         server.register(un, pw1, pw1, email, new SimpleJsonCallback() {
                     @Override
                     protected void onError(final Call call, Reasons reasons) {
-
                         Log.e(TAG, "cant create new token");
                         latch.countDown();
                     }

@@ -5,8 +5,6 @@ import android.content.Context;
 import android.content.res.AssetManager;
 import android.database.Cursor;
 import android.net.Uri;
-import android.provider.MediaStore;
-import android.provider.MediaStore.Images;
 import android.provider.MediaStore.Images.Media;
 import android.support.v4.content.CursorLoader;
 import android.util.Log;
@@ -19,24 +17,17 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
 
-/**
- * Simple class to access file actions
- * Created by danny on 04.02.16.
- */
 public class FileHelper {
-
     private static final String DEFAULT_ENCODING = "UTF-8";
     public static final Charset UTF8 = Charset.forName(DEFAULT_ENCODING);
 
     private static String TAG = "FileHelper";
 
     public static JSONObject readFileAsJson(InputStream fis) throws JSONException, IOException {
-
         return new JSONObject(readFileAsText(fis));
     }
 
     public static String loadFileFromAssets(Context c, String file) {
-
         AssetManager assetManager = c.getAssets();
 
         InputStream input = null;
@@ -53,7 +44,6 @@ public class FileHelper {
     }
 
     public static String readFileAsText(InputStream fis) throws IOException {
-
         StringBuffer fileContent = new StringBuffer("");
 
         byte[] buffer = new byte[4096];
@@ -65,7 +55,6 @@ public class FileHelper {
     }
 
     public static byte[] readFileAsBinary(FileInputStream fis) throws IOException {
-
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
         byte[] buffer = new byte[1024];

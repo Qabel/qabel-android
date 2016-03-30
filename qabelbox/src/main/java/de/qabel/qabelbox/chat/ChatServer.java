@@ -13,7 +13,6 @@ import java.util.Collection;
 import java.util.List;
 
 public class ChatServer {
-
     private static final String TAG = "ChatServer";
     public static final String TAG_MESSAGE = "msg";
     public static final String TAG_URL = "url";
@@ -23,18 +22,15 @@ public class ChatServer {
     private final List<ChatServerCallback> callbacks = new ArrayList<>();
 
     public ChatServer(Identity currentIdentity) {
-
         dataBase = new ChatMessagesDataBase(QabelBoxApplication.getInstance(), currentIdentity);
     }
 
 
     public void addListener(ChatServerCallback callback) {
-
         callbacks.add(callback);
     }
 
     public void removeListener(ChatServerCallback callback) {
-
         callbacks.remove(callback);
     }
 
@@ -74,7 +70,6 @@ public class ChatServer {
 
 
     public void storeIntoDB(ChatMessageItem item) {
-
         if (item != null) {
             dataBase.put(item);
         }
@@ -84,14 +79,12 @@ public class ChatServer {
      * send all listener that chatmessage list was refrehsed
      */
     public void sendCallbacksRefreshed() {
-
         for (ChatServerCallback callback : callbacks) {
             callback.onRefreshed();
         }
     }
 
     public DropMessage getTextDropMessage(String message) {
-
         String payload_type = ChatMessageItem.BOX_MESSAGE;
         String payload = getTextDropMessagePayload(message);
         return new DropMessage(QabelBoxApplication.getInstance().getService().getActiveIdentity(), payload, payload_type);
@@ -108,7 +101,6 @@ public class ChatServer {
     }
 
     public DropMessage getShareDropMessage(String message, String url, String key) {
-
         String payload_type = ChatMessageItem.SHARE_NOTIFICATION;
         JSONObject payloadJson = new JSONObject();
         try {
@@ -140,7 +132,6 @@ public class ChatServer {
     }
 
     public interface ChatServerCallback {
-
         //droplist refreshed
         void onRefreshed();
     }

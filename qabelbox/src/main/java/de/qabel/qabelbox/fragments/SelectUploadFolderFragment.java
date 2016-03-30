@@ -3,16 +3,12 @@ package de.qabel.qabelbox.fragments;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.RecyclerView.LayoutManager;
 import android.util.Log;
 import android.view.*;
 import android.view.View.OnClickListener;
 import android.widget.Toast;
 import de.qabel.core.config.Identity;
-import de.qabel.qabelbox.R;
-import de.qabel.qabelbox.R.id;
-import de.qabel.qabelbox.R.menu;
 import de.qabel.qabelbox.R.string;
 import de.qabel.qabelbox.adapter.FilesAdapter;
 import de.qabel.qabelbox.adapter.FilesAdapter.OnItemClickListener;
@@ -25,13 +21,11 @@ import de.qabel.qabelbox.storage.BoxVolume;
 import java.util.ArrayList;
 
 public class SelectUploadFolderFragment extends FilesFragment {
-
     private final String TAG = getClass().getSimpleName();
     private ArrayList<Uri> uris;
     private LayoutManager recyclerViewLayoutManager;
 
     private void loadIdentityFiles(final BoxVolume boxVolume) {
-
         mBoxVolume = boxVolume;
         filesAdapter = new FilesAdapter(new ArrayList<BoxObject>());
 
@@ -40,14 +34,12 @@ public class SelectUploadFolderFragment extends FilesFragment {
         new AsyncTask<Void, Void, Void>() {
             @Override
             protected void onPreExecute() {
-
                 super.onPreExecute();
                 setIsLoading(true);
             }
 
             @Override
             protected Void doInBackground(Void... params) {
-
                 try {
                     setBoxNavigation(boxVolume.navigate());
                 } catch (QblStorageException e) {
@@ -68,7 +60,6 @@ public class SelectUploadFolderFragment extends FilesFragment {
 
             @Override
             protected void onPostExecute(Void aVoid) {
-
                 super.onPostExecute(aVoid);
                 setIsLoading(false);
 
@@ -79,17 +70,14 @@ public class SelectUploadFolderFragment extends FilesFragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-
         mActivity.fab.hide();
         return super.onCreateView(inflater, container, savedInstanceState);
     }
 
     private void setClickListener(final FilesAdapter filesAdapter) {
-
         filesAdapter.setOnItemClickListener(new OnItemClickListener() {
             @Override
             public void onItemClick(View view, int position) {
-
                 final BoxObject boxObject = filesAdapter.get(position);
                 if (boxObject != null) {
                     if (boxObject instanceof BoxFolder) {
@@ -100,35 +88,30 @@ public class SelectUploadFolderFragment extends FilesFragment {
 
             @Override
             public void onItemLockClick(View view, int position) {
-
             }
         });
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-
         super.onCreate(savedInstanceState);
         actionBar.setDisplayHomeAsUpEnabled(true);
         mActivity.toggle.setDrawerIndicatorEnabled(false);
         setActionBarBackListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-
             }
         });
     }
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-
         menu.clear();
         inflater.inflate(menu.ab_upload, menu);
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-
         int id = item.getItemId();
         if (id == id.action_upload) {
             uploadFiles();
@@ -138,7 +121,6 @@ public class SelectUploadFolderFragment extends FilesFragment {
     }
 
     private void uploadFiles() {
-
         for (int i = 0; i < uris.size(); i++) {
             VolumeFileTransferHelper.upload(getActivity(), uris.get(i), boxNavigation, mActivity.boxVolume);
         }
@@ -148,7 +130,6 @@ public class SelectUploadFolderFragment extends FilesFragment {
 
     @Override
     public void setAdapter(FilesAdapter adapter) {
-
         filesAdapter = adapter;
         if (filesListRecyclerView != null) {
             filesListRecyclerView.setAdapter(filesAdapter);
@@ -157,7 +138,6 @@ public class SelectUploadFolderFragment extends FilesFragment {
     }
 
     public static SelectUploadFolderFragment newInstance(BoxVolume boxVolume, ArrayList<Uri> data, Identity activeIdentity) {
-
         SelectUploadFolderFragment fragment = new SelectUploadFolderFragment();
         fillFragmentData(boxVolume, fragment);
         fragment.uris = data;
@@ -167,19 +147,16 @@ public class SelectUploadFolderFragment extends FilesFragment {
 
     @Override
     public String getTitle() {
-
         return getString(string.headline_select_upload_folder);
     }
 
     @Override
     public boolean isFabNeeded() {
-
         return false;
     }
 
     @Override
     public boolean supportBackButton() {
-
         return true;
     }
 }

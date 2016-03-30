@@ -3,7 +3,6 @@ package de.qabel.qabelbox.communication;
 import android.util.Log;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
-import okhttp3.Request;
 import okhttp3.Request.Builder;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -13,7 +12,6 @@ import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
 public class BaseServer {
-
     protected final OkHttpClient client;
     protected final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
     private static final String TAG = "BaseServer";
@@ -23,7 +21,6 @@ public class BaseServer {
      * create new instance of http client and set timeouts
      */
     public BaseServer() {
-
         urls = new URLs();
         OkHttpClient.Builder builder = new OkHttpClient.Builder();
         builder.connectTimeout(15, TimeUnit.SECONDS); // connect timeout
@@ -39,7 +36,6 @@ public class BaseServer {
      * @param builder builder to fill with header
      */
     protected void addHeader(String token, Builder builder) {
-
         String locale = Locale.getDefault().getLanguage();
         builder.addHeader("Accept-Language", locale);
         builder.addHeader("Accept", "application/json");
@@ -56,7 +52,6 @@ public class BaseServer {
      * @param json json object
      */
     protected static String getJsonString(String key, JSONObject json) {
-
         if (json.has(key)) {
             try {
                 JSONArray array = json.getJSONArray(key);

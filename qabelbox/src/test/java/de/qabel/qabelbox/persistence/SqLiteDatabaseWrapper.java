@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SqLiteDatabaseWrapper extends DatabaseWrapperImpl<String> {
-
     private static final String INSERT_STMT = "INSERT INTO %s (" + STR_ID + ", " + STR_BLOB + ") VALUES (:id, :value)";
     private static final String UPDATE_STMT = "UPDATE %s SET " + STR_BLOB + " = :value WHERE " + STR_ID + " = :id";
     private static final String DELETE_STMT = "DELETE FROM %s WHERE " + STR_ID + " = :id";

@@ -22,7 +22,6 @@ import java.util.Arrays;
 import java.util.UUID;
 
 public class BoxVolume {
-
     private static final Logger logger = LoggerFactory.getLogger(BoxVolume.class.getName());
     private static final String PATH_ROOT = "/";
     private final String rootId;
@@ -38,7 +37,6 @@ public class BoxVolume {
     public BoxVolume(
             QblECKeyPair keyPair, String prefix,
             byte[] deviceId, Context context) {
-
         this.keyPair = keyPair;
         this.deviceId = deviceId;
         this.context = context;
@@ -58,7 +56,6 @@ public class BoxVolume {
     }
 
     private InputStream blockingDownload(String name) throws QblStorageNotFound {
-
         File tmp = transferManager.createTempFile();
         int id = transferManager.download(prefix, name, tmp, null);
         if (transferManager.waitFor(id)) {
@@ -74,7 +71,6 @@ public class BoxVolume {
 
     private void blockingUpload(String name,
                                 InputStream inputStream) throws QblStorageException {
-
         File tmp = transferManager.createTempFile();
         try {
             IOUtils.copy(inputStream, new FileOutputStream(tmp));
@@ -93,7 +89,6 @@ public class BoxVolume {
     }
 
     DirectoryMetadata getDirectoryMetadata() throws QblStorageException {
-
         String rootRef = getRootRef();
         logger.info("Navigating to " + rootRef);
         InputStream indexDl = blockingDownload(rootRef);
@@ -116,7 +111,6 @@ public class BoxVolume {
     }
 
     public String getRootRef() throws QblStorageException {
-
         MessageDigest md;
         try {
             md = MessageDigest.getInstance("SHA-256");

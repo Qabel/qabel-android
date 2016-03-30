@@ -331,6 +331,7 @@ public class ChatMessageUITest {
 
 	private void refreshContactView(ChatServer chatServer) {
 		chatServer.sendCallbacksRefreshed();
+		UITestHelper.sleep(500);
 	}
 
 	private ChatMessageItem createNewChatMessageItem(String sender, String receiver, String message) {

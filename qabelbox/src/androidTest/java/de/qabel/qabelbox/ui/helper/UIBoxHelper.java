@@ -45,7 +45,7 @@ import de.qabel.qabelbox.storage.StorageSearch;
  */
 public class UIBoxHelper {
 
-	private final Context mContext;
+
 	private final String TAG = this.getClass().getSimpleName();
 	private LocalQabelService mService;
 	private BoxProvider provider;
@@ -53,12 +53,9 @@ public class UIBoxHelper {
 	private boolean finished = false;
 
 	public UIBoxHelper(Context activity) {
-
-		mContext = activity;
 	}
 
 	public UIBoxHelper() {
-		mContext = QabelBoxApplication.getInstance().getApplicationContext();
 	}
 
 	public void unbindService(final QabelBoxApplication app) {

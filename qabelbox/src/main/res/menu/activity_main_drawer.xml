@@ -1,26 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <group android:checkableBehavior="single">
-        <item
-            android:id="@+id/nav_contacts"
-            android:icon="@drawable/account_multiple"
-            android:title="@string/Contacts"/>
-        <item
-            android:id="@+id/nav_browse"
-            android:icon="@drawable/ic_folder_black"
-            android:title="@string/filebrowser" />
-        <item
-            android:id="@+id/nav_settings"
-            android:icon="@drawable/ic_settings_black"
-            android:title="@string/action_settings" />
-        <item
-            android:id="@+id/nav_about"
-            android:icon="@drawable/information"
-            android:title="@string/action_about" />
-        <item
-            android:id="@+id/nav_help"
-            android:icon="@android:drawable/ic_menu_help"
-            android:title="@string/help"/>
-    </group>
+	<group android:checkableBehavior="single">
+		<item
+			android:id="@+id/nav_contacts"
+			android:icon="@drawable/account_multiple"
+			android:title="@string/Contacts"/>
+		<item
+			android:id="@+id/nav_browse"
+			android:icon="@drawable/ic_folder_black"
+			android:title="@string/filebrowser"/>
+
+		<item
+			android:id="@+id/nav_settings"
+			android:icon="@drawable/ic_settings_black"
+			android:title="@string/action_settings"/>
+		<item
+			android:id="@+id/nav_tellafriend"
+			android:icon="@drawable/ic_heart"
+			android:title="@string/action_tellafriend"/>
+		<item
+			android:id="@+id/nav_about"
+			android:icon="@drawable/information"
+			android:title="@string/action_about"/>
+		<item
+			android:id="@+id/nav_help"
+			android:icon="@android:drawable/ic_menu_help"
+			android:title="@string/help"/>
+	</group>
 </menu>

@@ -35,6 +35,8 @@ android {
         //ui tests
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
+        testApplicationId "de.qabel.test"
+
         ndk {
             moduleName "curve25519"
         }
@@ -50,6 +52,11 @@ android {
     buildTypes {
         release {
             minifyEnabled false
+            resValue 'string', 'app_name', '"Qabel"'
+        }
+        debug {
+            applicationIdSuffix ".debug"
+            resValue 'string', 'app_name', '"Qabel (Debug)"'
         }
     }
 

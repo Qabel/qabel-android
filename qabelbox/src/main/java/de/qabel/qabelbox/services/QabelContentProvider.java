@@ -21,6 +21,7 @@ import de.qabel.QabelContentProviderConstants;
 import de.qabel.core.config.Contact;
 import de.qabel.core.config.Contacts;
 import de.qabel.core.config.Identity;
+import de.qabel.qabelbox.BuildConfig;
 
 /**
  * QabelResourceProvider provides access to Qabel resources like Contacts and Identities for
@@ -36,12 +37,13 @@ public class QabelContentProvider extends ContentProvider {
     private static final int CONTACTS = 1;
     private static final int IDENTITIES = 2;
     private static final String TAG = "QabelContentProvider";
+    private static final String CONTENT_AUTHORITY = BuildConfig.APPLICATION_ID + ".services.QabelContentProvider";
 
     private boolean resourcesReady = false;
 
     static {
-        uriMatcher.addURI(QabelContentProviderConstants.CONTENT_AUTHORITY, QabelContentProviderConstants.CONTENT_CONTACTS, CONTACTS);
-        uriMatcher.addURI(QabelContentProviderConstants.CONTENT_AUTHORITY, QabelContentProviderConstants.CONTENT_IDENTITIES, IDENTITIES);
+        uriMatcher.addURI(CONTENT_AUTHORITY, QabelContentProviderConstants.CONTENT_CONTACTS, CONTACTS);
+        uriMatcher.addURI(CONTENT_AUTHORITY, QabelContentProviderConstants.CONTENT_IDENTITIES, IDENTITIES);
     }
 
     private LocalQabelService mService;

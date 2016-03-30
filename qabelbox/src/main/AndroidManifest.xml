@@ -8,44 +8,43 @@
 	<uses-permission android:name="android.permission.READ_SYNC_SETTINGS"/>
 	<uses-permission android:name="android.permission.WRITE_SYNC_SETTINGS"/>
 	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
-	<uses-permission android:name="android.permission.GET_TASKS"/>
 	<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
 	<uses-permission android:name="android.permission.AUTHENTICATE_ACCOUNTS"/>
 
 	<permission
-		android:name="de.qabel.qabelbox.QABELSERVICE"
+		android:name=".QABELSERVICE"
 		android:label="Use QabelService"
 		android:protectionLevel="dangerous"/>
 
 	<permission
-		android:name="de.qabel.qabelbox.QABEL_READ_RESOURCES"
+		android:name=".QABEL_READ_RESOURCES"
 		android:label="Read Qabel Resources"
 		android:protectionLevel="dangerous"/>
 	<permission
-		android:name="de.qabel.qabelbox.QABEL_WRITE_RESOURCES"
+		android:name=".QABEL_WRITE_RESOURCES"
 		android:label="Write Qabel Resources"
 		android:protectionLevel="dangerous"/>
 
 	<permission
-		android:name="de.qabel.qabelbox.QABEL_READ_CONTACTS"
+		android:name=".QABEL_READ_CONTACTS"
 		android:label="Read Qabel Contacts"
 		android:protectionLevel="dangerous"/>
 	<permission
-		android:name="de.qabel.qabelbox.QABEL_WRITE_CONTACTS"
+		android:name=".QABEL_WRITE_CONTACTS"
 		android:label="Write Qabel Contacts"
 		android:protectionLevel="dangerous"/>
 
 	<permission
-		android:name="de.qabel.qabelbox.QABEL_READ_IDENTITIES"
+		android:name=".QABEL_READ_IDENTITIES"
 		android:label="Read Qabel Identities"
 		android:protectionLevel="dangerous"/>
 	<permission
-		android:name="de.qabel.qabelbox.QABEL_WRITE_IDENTITIES"
+		android:name=".QABEL_WRITE_IDENTITIES"
 		android:label="Write Qabel Identities"
 		android:protectionLevel="dangerous"/>
 
 	<application
-		android:name="de.qabel.qabelbox.QabelBoxApplication"
+		android:name=".QabelBoxApplication"
 		android:allowBackup="true"
 		android:icon="@mipmap/ic_launcher"
 		android:label="@string/app_name"
@@ -125,15 +124,16 @@
 				<data android:scheme="file"/>
 
 			</intent-filter>
+
 		</activity>
 
 		<service
 			android:name=".services.QabelService"
 			android:enabled="true"
 			android:exported="true"
-			android:permission="de.qabel.qabelbox.QABELSERVICE">
+			android:permission=".QABELSERVICE">
 			<intent-filter>
-				<action android:name="de.qabel.qabelbox.service.QabelService"></action>
+				<action android:name=".service.QabelService"></action>
 			</intent-filter>
 		</service>
 
@@ -142,7 +142,7 @@
 			android:enabled="true"
 			android:exported="false">
 			<intent-filter>
-				<action android:name="de.qabel.qabelbox.service.LocalQabelService"></action>
+				<action android:name=".service.LocalQabelService"></action>
 			</intent-filter>
 		</service>
 		<service
@@ -168,21 +168,21 @@
 
 		<provider
 			android:name=".services.QabelContentProvider"
-			android:authorities="de.qabel.qabelbox.services.QabelContentProvider"
+			android:authorities=".services.QabelContentProvider"
 			android:exported="true"
-			android:readPermission="de.qabel.qabelbox.QABEL_READ_RESOURCES"
-			android:writePermission="de.qabel.qabelbox.QABEL_WRITE_RESOURCES">
+			android:readPermission=".QABEL_READ_RESOURCES"
+			android:writePermission=".QABEL_WRITE_RESOURCES">
 			<path-permission
 				android:path="/contacts"
-				android:readPermission="de.qabel.qabelbox.QABEL_READ_CONTACTS"/>
+				android:readPermission=".QABEL_READ_CONTACTS"/>
 			<path-permission
 				android:path="/identities"
-				android:readPermission="de.qabel.qabelbox.QABEL_READ_IDENTITIES"/>
+				android:readPermission=".QABEL_READ_IDENTITIES"/>
 		</provider>
 
 		<provider
 			android:name=".providers.BoxProvider"
-			android:authorities="de.qabel.qabelbox.providers.documents"
+			android:authorities="${applicationId}.providers.documents"
 			android:enabled="true"
 			android:exported="true"
 			android:grantUriPermissions="true"
@@ -190,6 +190,7 @@
 			<intent-filter>
 				<action android:name="android.content.action.DOCUMENTS_PROVIDER"/>
 			</intent-filter>
+
 		</provider>
 	</application>
 

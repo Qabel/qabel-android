@@ -50,6 +50,7 @@ import java.util.concurrent.TimeUnit;
 import de.qabel.core.config.Identities;
 import de.qabel.core.config.Identity;
 import de.qabel.core.crypto.QblECKeyPair;
+import de.qabel.qabelbox.BuildConfig;
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.communication.VolumeFileTransferHelper;
@@ -80,7 +81,7 @@ public class BoxProvider extends DocumentsProvider {
             Document.COLUMN_DISPLAY_NAME, Document.COLUMN_LAST_MODIFIED,
             Document.COLUMN_FLAGS, Document.COLUMN_SIZE, Media.DATA};
 
-    public static final String AUTHORITY = "de.qabel.qabelbox.providers.documents";
+    public static final String AUTHORITY = BuildConfig.APPLICATION_ID + ".providers.documents";
     public static final String PATH_SEP = "/";
     public static final String DOCID_SEPARATOR = "::::";
     public static final String PREFIX = "test";
@@ -599,7 +600,7 @@ public class BoxProvider extends DocumentsProvider {
         final NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(getContext());
         mBuilder.setContentTitle("Downloading " + mDocumentIdParser.getBaseName(documentId))
                 .setContentText("Download in progress")
-                .setSmallIcon(R.drawable.notification_template_icon_bg);
+                .setSmallIcon(R.drawable.qabel_logo);
         mBuilder.setProgress(100, 0, false);
         mNotifyManager.notify(id, mBuilder.build());
 
@@ -632,7 +633,7 @@ public class BoxProvider extends DocumentsProvider {
         }
         mBuilder.setContentTitle("Downloading " + filename)
                 .setContentText("Download complete")
-                .setSmallIcon(R.drawable.notification_template_icon_bg);
+                .setSmallIcon(R.drawable.qabel_logo);
         mBuilder.setProgress(100, 100, false);
         mNotifyManager.notify(id, mBuilder.build());
         File out = new File(getContext().getExternalCacheDir(), basename);

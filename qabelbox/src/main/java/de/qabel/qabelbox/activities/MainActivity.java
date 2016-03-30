@@ -93,13 +93,15 @@ public class MainActivity extends CrashReportingActivity
 	public static final int REQUEST_EXPORT_IDENTITY = 18;
 	public static final int REQUEST_EXTERN_VIEWER_APP = 19;
 	public static final int REQUEST_EXTERN_SHARE_APP = 20;
+
 	public static final String TAG_FILES_FRAGMENT = "TAG_FILES_FRAGMENT";
 	private static final String TAG_CONTACT_LIST_FRAGMENT = "TAG_CONTACT_LIST_FRAGMENT";
 	private static final String TAG_ABOUT_FRAGMENT = "TAG_ABOUT_FRAGMENT";
-
+	private static final String TAG_HELP_FRAGMENT = "TAG_HELP_FRAGMENT";
 	private static final String TAG_MANAGE_IDENTITIES_FRAGMENT = "TAG_MANAGE_IDENTITIES_FRAGMENT";
 	private static final String TAG_FILES_SHARE_INTO_APP_FRAGMENT = "TAG_FILES_SHARE_INTO_APP_FRAGMENT";
 	private static final String TAG = "BoxMainActivity";
+
 	private static final int REQUEST_CODE_UPLOAD_FILE = 12;
 
 	public static final int REQUEST_EXPORT_IDENTITY_AS_CONTACT = 19;
@@ -245,37 +247,41 @@ public class MainActivity extends CrashReportingActivity
 		addBackStackListener();
 	}
 
+	private void handleMainFragmentChange() {
+		// Set FAB visibility according to currently visible fragment
+		Fragment activeFragment = getFragmentManager().findFragmentById(R.id.fragment_container);
+
+		if (activeFragment instanceof BaseFragment) {
+			BaseFragment fragment = ((BaseFragment) activeFragment);
+			toolbar.setTitle(fragment.getTitle());
+			if (fragment.isFabNeeded()) {
+				fab.show();
+			} else {
+				fab.hide();
+			}
+			if (!fragment.supportSubtitle()) {
+				toolbar.setSubtitle(null);
+			} else {
+				fragment.updateSubtitle();
+			}
+		}
+		//check if navigation drawer need to reset
+		if (getFragmentManager().getBackStackEntryCount() == 0 || (activeFragment instanceof BaseFragment) && !((BaseFragment) activeFragment).supportBackButton()) {
+			if (activeFragment instanceof SelectUploadFolderFragment) {
+			} else {
+
+				getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+				toggle.setDrawerIndicatorEnabled(true);
+			}
+		}
+	}
+
 	private void addBackStackListener() {
 
 		getFragmentManager().addOnBackStackChangedListener(new FragmentManager.OnBackStackChangedListener() {
 			@Override
 			public void onBackStackChanged() {
-				// Set FAB visibility according to currently visible fragment
-				Fragment activeFragment = getFragmentManager().findFragmentById(R.id.fragment_container);
-
-				if (activeFragment instanceof BaseFragment) {
-					BaseFragment fragment = ((BaseFragment) activeFragment);
-					toolbar.setTitle(fragment.getTitle());
-					if (fragment.isFabNeeded()) {
-						fab.show();
-					} else {
-						fab.hide();
-					}
-					if (!fragment.supportSubtitle()) {
-						toolbar.setSubtitle(null);
-					} else {
-						fragment.updateSubtitle();
-					}
-				}
-				//check if navigation drawer need to reset
-				if (getFragmentManager().getBackStackEntryCount() == 0 || (activeFragment instanceof BaseFragment) && !((BaseFragment) activeFragment).supportBackButton()) {
-					if (activeFragment instanceof SelectUploadFolderFragment) {
-					} else {
-
-						getSupportActionBar().setDisplayHomeAsUpEnabled(false);
-						toggle.setDrawerIndicatorEnabled(true);
-					}
-				}
+				handleMainFragmentChange();
 			}
 		});
 	}
@@ -679,7 +685,9 @@ public class MainActivity extends CrashReportingActivity
 	public boolean onNavigationItemSelected(MenuItem item) {
 		// Handle navigation view item clicks here.
 		int id = item.getItemId();
-
+		if (id == R.id.nav_tellafriend) {
+			ShareHelper.tellAFriend(this);
+		}
 		if (id == R.id.nav_contacts) {
 			selectContactsFragment();
 		} else if (id == R.id.nav_browse) {
@@ -1060,7 +1068,6 @@ public class MainActivity extends CrashReportingActivity
 	}
 
 	public static void showQRCode(MainActivity activity, Identity identity) {
-
 		activity.getFragmentManager().beginTransaction()
 			.replace(R.id.fragment_container, QRcodeFragment.newInstance(identity), null)
 			.addToBackStack(null)
@@ -1082,70 +1089,51 @@ public class MainActivity extends CrashReportingActivity
 	}
 
 	private void showAbortMessage() {
-
 		Toast.makeText(self, R.string.aborted,
 			Toast.LENGTH_SHORT).show();
 	}
 
 	private void refresh() {
-
 		onDoRefresh(filesFragment, filesFragment.getBoxNavigation(), filesFragment.getFilesAdapter());
 	}
 
-    /*
+	/*
 		FRAGMENT SELECTION METHODS
-    */
-
+	*/
 	private void selectManageIdentitiesFragment() {
-
-		fab.show();
-
-		getFragmentManager().beginTransaction()
-			.replace(R.id.fragment_container,
-				IdentitiesFragment.newInstance(mService.getIdentities()),
-				TAG_MANAGE_IDENTITIES_FRAGMENT)
-			.addToBackStack(null)
-			.commit();
+		showMainFragment(IdentitiesFragment.newInstance(mService.getIdentities()),
+				TAG_MANAGE_IDENTITIES_FRAGMENT);
 	}
 
 	private void selectContactsFragment() {
-
-		fab.show();
 		contactFragment = new ContactFragment();
-		getFragmentManager().beginTransaction()
-			.replace(R.id.fragment_container,
-				contactFragment,
-				TAG_CONTACT_LIST_FRAGMENT)
-			.commit();
+		showMainFragment(contactFragment, TAG_CONTACT_LIST_FRAGMENT);
 	}
 
 	private void selectHelpFragment() {
-
-		fab.show();
-		getFragmentManager().beginTransaction()
-			.replace(R.id.fragment_container,
-				new HelpMainFragment(),
-				TAG_ABOUT_FRAGMENT)
-			.commit();
+		showMainFragment(new HelpMainFragment(), TAG_HELP_FRAGMENT);
 	}
 
 	private void selectAboutFragment() {
-
-		fab.show();
-		getFragmentManager().beginTransaction()
-			.replace(R.id.fragment_container,
-				AboutLicencesFragment.newInstance(),
-				TAG_ABOUT_FRAGMENT)
-			.commit();
+		showMainFragment(AboutLicencesFragment.newInstance(), TAG_ABOUT_FRAGMENT);
 	}
 
 	private void selectFilesFragment() {
-
-		fab.show();
+		filesFragment.navigateBackToRoot();
 		filesFragment.setIsLoading(false);
+		showMainFragment(filesFragment, TAG_FILES_FRAGMENT);
+	}
+
+	private void showMainFragment(Fragment fragment, String tag) {
 		getFragmentManager().beginTransaction()
-			.replace(R.id.fragment_container, filesFragment, TAG_FILES_FRAGMENT)
-			.commit();
-		filesFragment.updateSubtitle();
+				.replace(R.id.fragment_container, fragment, tag).commit();
+		try {
+			while (getFragmentManager().executePendingTransactions()) {
+				Thread.sleep(50);
+			}
+		} catch (InterruptedException e) {
+			Log.e(TAG, "Error waiting for fragment change", e);
+		}
+		handleMainFragmentChange();
 	}
 }

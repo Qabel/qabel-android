@@ -91,6 +91,7 @@ public class OpenImageUITest {
     public void setUp() throws IOException, QblStorageException {
 
         mActivity = mActivityTestRule.getActivity();
+        URLs.setBaseBlockURL(TestConstants.BLOCK_URL);
         Espresso.registerIdlingResources(mPicassoIdlingResource);
         ActivityLifecycleMonitorRegistry
                 .getInstance()

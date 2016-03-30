@@ -128,10 +128,10 @@ public class FilesFragment extends BaseFragment {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 
-        super.onCreate(savedInstanceState);
-        setHasOptionsMenu(true);
-        if (actionBar != null) {
-            actionBar.setDisplayHomeAsUpEnabled(false);
+		super.onCreate(savedInstanceState);
+		setHasOptionsMenu(true);
+		if (actionBar != null) {
+			actionBar.setDisplayHomeAsUpEnabled(false);
 
 			actionBar.setTitle(getTitle());
 		}
@@ -154,24 +154,24 @@ public class FilesFragment extends BaseFragment {
 			String documentId = intent.getStringExtra(LocalBroadcastConstants.EXTRA_UPLOAD_DOCUMENT_ID);
 			int uploadStatus = intent.getIntExtra(LocalBroadcastConstants.EXTRA_UPLOAD_STATUS, -1);
 
-            switch (uploadStatus) {
-                case LocalBroadcastConstants.UPLOAD_STATUS_NEW:
-                    Log.d(TAG, "Received new uploadAndDeleteLocalfile: " + documentId);
-                    fillAdapter(filesAdapter);
-                    filesAdapter.notifyDataSetChanged();
-                    break;
-                case LocalBroadcastConstants.UPLOAD_STATUS_FINISHED:
-                    Log.d(TAG, "Received upload finished: " + documentId);
-                    fillAdapter(filesAdapter);
-                    filesAdapter.notifyDataSetChanged();
-                    break;
-                case LocalBroadcastConstants.UPLOAD_STATUS_FAILED:
-                    Log.d(TAG, "Received uploadAndDeleteLocalfile failed: " + documentId);
-                    refresh();
-                    break;
-            }
-        }
-    };
+			switch (uploadStatus) {
+				case LocalBroadcastConstants.UPLOAD_STATUS_NEW:
+					Log.d(TAG, "Received new uploadAndDeleteLocalfile: " + documentId);
+					fillAdapter(filesAdapter);
+					filesAdapter.notifyDataSetChanged();
+					break;
+				case LocalBroadcastConstants.UPLOAD_STATUS_FINISHED:
+					Log.d(TAG, "Received upload finished: " + documentId);
+					fillAdapter(filesAdapter);
+					filesAdapter.notifyDataSetChanged();
+					break;
+				case LocalBroadcastConstants.UPLOAD_STATUS_FAILED:
+					Log.d(TAG, "Received uploadAndDeleteLocalfile failed: " + documentId);
+					refresh();
+					break;
+			}
+		}
+	};
 
 	@Override
 	public void onDestroy() {
@@ -233,6 +233,50 @@ public class FilesFragment extends BaseFragment {
 			}
 		});
 		return view;
+	}
+
+	public void navigateBackToRoot() {
+		if (!areTasksPending()) {
+
+			if (boxNavigation == null || !boxNavigation.hasParent()) {
+				return;
+			}
+
+			browseToTask = new AsyncTask<Void, Void, Void>() {
+				@Override
+				protected void onPreExecute() {
+
+					super.onPreExecute();
+					preBrowseTo();
+				}
+
+				@Override
+				protected Void doInBackground(Void... voids) {
+
+					waitForBoxNavigation();
+					try {
+						boxNavigation.navigateToRoot();
+						fillAdapter(filesAdapter);
+					} catch (QblStorageException e) {
+						Log.d(TAG, "browseTo failed", e);
+					}
+					return null;
+				}
+
+				@Override
+				protected void onPostExecute(Void aVoid) {
+
+					super.onPostExecute(aVoid);
+					setIsLoading(false);
+					updateSubtitle();
+					filesAdapter.notifyDataSetChanged();
+					browseToTask = null;
+				}
+			};
+			browseToTask.executeOnExecutor(serialExecutor);
+		} else {
+			Log.w(TAG, "Other tasks are still pending. Will ignore this one");
+		}
 	}
 
 	protected void setupLoadingViews(View view) {
@@ -746,7 +790,7 @@ public class FilesFragment extends BaseFragment {
 					setIsLoading(false);
 					updateSubtitle();
 					filesAdapter.notifyDataSetChanged();
-					browseToTask=null;
+					browseToTask = null;
 				}
 			};
 			browseToTask.executeOnExecutor(serialExecutor);
@@ -913,7 +957,7 @@ public class FilesFragment extends BaseFragment {
 		if (browseToTask != null) {
 			Log.d(TAG, "Found a running browseToTask");
 			browseToTask.cancel(true);
-			browseToTask=null;
+			browseToTask = null;
 			Log.d(TAG, "Canceled browserToTask");
 		}
 	}

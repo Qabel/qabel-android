@@ -13,8 +13,10 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -31,6 +33,7 @@ import de.qabel.core.drop.DropURL;
 import de.qabel.core.exceptions.QblDropPayloadSizeException;
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
+import de.qabel.qabelbox.activities.MainActivity;
 import de.qabel.qabelbox.adapter.ChatMessageAdapter;
 import de.qabel.qabelbox.chat.ChatMessageItem;
 import de.qabel.qabelbox.chat.ChatServer;
@@ -58,7 +61,7 @@ public class ContactChatFragment extends BaseFragment {
 	ArrayList<ChatMessageItem> messages = new ArrayList<>();
 
 
-	private RecyclerView contactListRecyclerView;
+	private ListView contactListRecyclerView;
 	private View emptyView;
 	private LinearLayoutManager recyclerViewLayoutManager;
 	private ChatMessageAdapter contactListAdapter;
@@ -93,7 +96,7 @@ public class ContactChatFragment extends BaseFragment {
 		{
 			new Throwable("No contact given");
 		}*/
-		mActivity.toggle.setDrawerIndicatorEnabled(false);
+		((MainActivity)getActivity()).toggle.setDrawerIndicatorEnabled(false);
 		actionBar.setDisplayHomeAsUpEnabled(true);
 		setActionBarBackListener();
 	}
@@ -103,12 +106,9 @@ public class ContactChatFragment extends BaseFragment {
 							 Bundle savedInstanceState) {
 
 		final View view = inflater.inflate(R.layout.fragment_contact_chat, container, false);
-		contactListRecyclerView = (RecyclerView) view.findViewById(R.id.contact_chat_list);
-		contactListRecyclerView.setHasFixedSize(true);
+		contactListRecyclerView = (ListView) view.findViewById(R.id.contact_chat_list);
 		emptyView = view.findViewById(R.id.empty_view);
-		recyclerViewLayoutManager = new LinearLayoutManager(view.getContext());
-		recyclerViewLayoutManager.setReverseLayout(true);
-		contactListRecyclerView.setLayoutManager(recyclerViewLayoutManager);
+
 		etText = (EditText) view.findViewById(R.id.etText);
 		send = (Button) view.findViewById(R.id.bt_send);
 		send.setOnClickListener(new View.OnClickListener() {
@@ -174,8 +174,6 @@ public class ContactChatFragment extends BaseFragment {
 		});
 		etText.setText("");
 
-		actionBar.setSubtitle(contact.getAlias());
-
 		refreshMessages();
 		refreshMessagesAsync();
 
@@ -239,10 +237,11 @@ public class ContactChatFragment extends BaseFragment {
 
 				//check if message is instance of sharemessage
 				if (item.getData() instanceof ChatMessageItem.ShareMessagePayload) {
+
+					final FilesFragment filesFragment = mActivity.filesFragment;
+
 					//check if share from other (not my sended share)
 					if (!item.getSenderKey().equals(service.getActiveIdentity().getEcPublicKey().getReadableKeyIdentifier())) {
-						final FilesFragment filesFragment = mActivity.filesFragment;
-
 
 						new AsyncTask<Void, Void, BoxNavigation>() {
 							int errorId;
@@ -441,8 +440,7 @@ public class ContactChatFragment extends BaseFragment {
 
 	@Override
 	public String getTitle() {
-
-		return getString(R.string.headline_contact_chat);
+		return contact.getAlias();
 	}
 
 	@Override

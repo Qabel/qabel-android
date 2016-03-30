@@ -7,6 +7,8 @@ import android.support.test.espresso.matcher.BoundedMatcher;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ListView;
 import android.widget.SeekBar;
 
 import org.hamcrest.Description;
@@ -23,12 +25,12 @@ public class QabelMatcher {
 
 	public static Matcher<View> withListSize(final int size) {
 
-		return new TypeSafeMatcher<View>() {
-			@Override
-			public boolean matchesSafely(final View view) {
-				return ((RecyclerView) view).getChildCount() == size;
-			}
+        return new TypeSafeMatcher<View>() {
+            @Override
+            public boolean matchesSafely(final View view) {
 
+                return ((ViewGroup) view).getChildCount() == size;
+            }
 			@Override
 			public void describeTo(final Description description) {
 

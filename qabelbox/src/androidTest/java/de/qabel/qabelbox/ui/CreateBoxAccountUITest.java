@@ -52,7 +52,6 @@ import static android.support.test.espresso.matcher.ViewMatchers.withText;
 import static junit.framework.Assert.assertNotNull;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.endsWith;
-import static org.hamcrest.Matchers.is;
 
 /**
  * Tests for MainActivity.
@@ -116,40 +115,39 @@ public class CreateBoxAccountUITest {
 
 		onView(withText(R.string.create_box_account)).perform(click());
 		String accountName = UUID.randomUUID().toString().substring(0, 15).replace("-", "x");
+		String failName="test";
+		String failEMail="test@test.";
+		String failEmailExisits="test@test.de";
 		String failPassword = "12345678";
 		String password = "passwort12$";
+
 		//enter name
+		testNameExists(failName);
 		enterSingleLine(accountName, "name", false);
+
+		//enter email
+		testEMailExists(failEmailExisits);
+		testFailEmail(failEMail);
 		enterSingleLine(accountName + "@qabel.de", "email", true);
 
-		//Check numeric validation
-		onView(withId(R.id.et_password1)).perform(typeText(failPassword), pressImeActionButton());
-		onView(withId(R.id.et_password2)).perform(typeText(failPassword), pressImeActionButton());
-		closeSoftKeyboard();
-		UITestHelper.sleep(500);
-		onView(withText(R.string.next)).perform(click());
+		//check password
+		checkNumericPassword(failPassword);
+		checkBadPassword(accountName, failPassword);
+		checkPassword(password);
 
-		onView(withText(R.string.password_digits_only)).check(matches(isDisplayed()));
-		Spoon.screenshot(UITestHelper.getCurrentActivity(mActivity), "numericPasswords");
-		onView(withText(R.string.ok)).perform(click());
+		checkSuccess();
+	}
 
-		onView(withId(R.id.et_password1)).perform(clearText());
-		onView(withId(R.id.et_password2)).perform(clearText());
+	private void checkSuccess() throws Throwable {
+		onView(withText(R.string.create_account_final_headline)).check(matches(isDisplayed()));
+		Spoon.screenshot(UITestHelper.getCurrentActivity(mActivity), "result");
+		onView(withText(R.string.btn_create_identity)).check(matches(isDisplayed())).perform(click());
 
-		//Check accountname in password validation
-		onView(withId(R.id.et_password1)).perform(typeText(failPassword + accountName), pressImeActionButton());
-		onView(withId(R.id.et_password2)).perform(typeText(failPassword + accountName), pressImeActionButton());
-		closeSoftKeyboard();
-		UITestHelper.sleep(500);
-		onView(withText(R.string.next)).perform(click());
+		onView(withText(R.string.headline_add_identity)).check(matches(isDisplayed()));
+		assertNotNull(new AppPreference(QabelBoxApplication.getInstance()).getToken());
+	}
 
-		onView(withText(R.string.password_contains_user)).check(matches(isDisplayed()));
-		Spoon.screenshot(UITestHelper.getCurrentActivity(mActivity), "accountNamePasswords");
-		onView(withText(R.string.ok)).perform(click());
-
-		onView(withId(R.id.et_password1)).perform(clearText());
-		onView(withId(R.id.et_password2)).perform(clearText());
-
+	private void checkPassword(String password) throws Throwable {
 		//Check Passwords dont match
 		onView(withId(R.id.et_password1)).perform(typeText(password), pressImeActionButton());
 		closeSoftKeyboard();
@@ -169,14 +167,59 @@ public class CreateBoxAccountUITest {
 		Spoon.screenshot(UITestHelper.getCurrentActivity(mActivity), "password2");
 
 		UITestHelper.sleep(TestConstraints.SIMPLE_SERVER_ACTION_TIMEOUT);
+	}
 
-		onView(withText(R.string.create_account_final_headline)).check(matches(isDisplayed()));
-		Spoon.screenshot(UITestHelper.getCurrentActivity(mActivity), "result");
-		onView(withText(R.string.btn_create_identity)).check(matches(isDisplayed())).perform(click());
+	private void checkBadPassword(String accountName, String failPassword) throws Throwable {
+		//Check accountname in password validation
+		onView(withId(R.id.et_password1)).perform(typeText(failPassword + accountName), pressImeActionButton());
+		onView(withId(R.id.et_password2)).perform(typeText(failPassword + accountName), pressImeActionButton());
+		closeSoftKeyboard();
+		UITestHelper.sleep(500);
+		onView(withText(R.string.next)).perform(click());
 
-		onView(withText(R.string.headline_add_identity)).check(matches(isDisplayed()));
-		assertNotNull(new AppPreference(QabelBoxApplication.getInstance()).getToken());
+		onView(withText(R.string.password_contains_user)).check(matches(isDisplayed()));
+		Spoon.screenshot(UITestHelper.getCurrentActivity(mActivity), "accountNamePasswords");
+		onView(withText(R.string.ok)).perform(click());
 
+		onView(withId(R.id.et_password1)).perform(clearText());
+		onView(withId(R.id.et_password2)).perform(clearText());
+	}
+
+	private void checkNumericPassword(String failPassword) throws Throwable {
+		//Check numeric validation
+		onView(withId(R.id.et_password1)).perform(typeText(failPassword), pressImeActionButton());
+		onView(withId(R.id.et_password2)).perform(typeText(failPassword), pressImeActionButton());
+		closeSoftKeyboard();
+		UITestHelper.sleep(500);
+		onView(withText(R.string.next)).perform(click());
+
+		onView(withText(R.string.password_digits_only)).check(matches(isDisplayed()));
+		Spoon.screenshot(UITestHelper.getCurrentActivity(mActivity), "numericPasswords");
+		onView(withText(R.string.ok)).perform(click());
+
+		onView(withId(R.id.et_password1)).perform(clearText());
+		onView(withId(R.id.et_password2)).perform(clearText());
+	}
+
+	private void testFailEmail(String failEMail) throws Throwable {
+		enterSingleLine(failEMail, "failEmail", true);
+		onView(withText(R.string.dialog_headline_info)).check(matches(isDisplayed()));
+		onView(withText(R.string.ok)).check(matches(isDisplayed())).perform(click());
+		onView(withId(R.id.et_name)).perform(clearText());
+	}
+
+	private void testEMailExists(String failEMail) throws Throwable {
+		enterSingleLine(failEMail, "emailExists", true);
+		onView(withText(R.string.dialog_headline_info)).check(matches(isDisplayed()));
+		onView(withText(R.string.ok)).check(matches(isDisplayed())).perform(click());
+		onView(withId(R.id.et_name)).perform(clearText());
+	}
+
+	private void testNameExists(String failName) throws Throwable {
+		enterSingleLine(failName, "nameExists", false);
+		onView(withText(R.string.dialog_headline_info)).check(matches(isDisplayed()));
+		onView(withText(R.string.ok)).check(matches(isDisplayed())).perform(click());
+		onView(withId(R.id.et_name)).perform(clearText());
 	}
 
 	protected void enterSingleLine(String accountName, String screenName, boolean checkFieldsIsEmail) throws Throwable {
@@ -189,8 +232,9 @@ public class CreateBoxAccountUITest {
 		onView(allOf(withClassName(endsWith("EditTextFont")))).perform(typeText(accountName), pressImeActionButton());
 		closeSoftKeyboard();
 		Spoon.screenshot(UITestHelper.getCurrentActivity(mActivity), screenName);
-		UITestHelper.sleep(500);
+
 		onView(withText(R.string.next)).perform(click());
+		UITestHelper.sleep(500);
 	}
 
 

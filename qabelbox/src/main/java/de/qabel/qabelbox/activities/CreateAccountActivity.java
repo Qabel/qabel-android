@@ -34,6 +34,10 @@ import okhttp3.Response;
  */
 public class CreateAccountActivity extends BaseWizardActivity {
 
+	private static final int FRAGMENT_ENTER_NAME = 1;
+	private static final int FRAGMENT_EMAIL = 2;
+	private static final int FRAGMENT_PASSWORD = 3;
+
 	private final String TAG = this.getClass().getSimpleName();
 
 	private String mBoxAccountName;
@@ -60,7 +64,7 @@ public class CreateAccountActivity extends BaseWizardActivity {
 	protected String getWizardEntityLabel() {
 		return getString(R.string.boxaccount);
 	}
-    
+
 	/**
 	 * fill fragment list with fragments to navigate via wizard
 	 */
@@ -135,15 +139,14 @@ public class CreateAccountActivity extends BaseWizardActivity {
 		this.mBoxAccountEMail = editText;
 	}
 
-	private String checkBoxAccountName(String editText) {
+	private String checkBoxAccountName(String accountName) {
 
-		if (editText.length() < 1) {
+		if (accountName.length() < 1) {
 			return getString(R.string.create_account_enter_all_data);
 		}
-		if (editText.length() > 32) {
+		if (accountName.length() > 32) {
 			return getString(R.string.create_account_maximum_32_chars);
 		}
-
 		return null;
 	}
 
@@ -194,7 +197,7 @@ public class CreateAccountActivity extends BaseWizardActivity {
 						register(username, password1, password2, email);
 					}
 				}
-						, new DialogInterface.OnClickListener() {
+					, new DialogInterface.OnClickListener() {
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
 
@@ -216,16 +219,16 @@ public class CreateAccountActivity extends BaseWizardActivity {
 			protected void onSuccess(Call call, Response response, JSONObject json) {
 
 				BoxAccountRegisterServer.ServerResponse result = BoxAccountRegisterServer.parseJson(json);
+
+				//user entered only the username and server send ok
+				if (step < FRAGMENT_PASSWORD && generateErrorMessage(result).isEmpty()) {
+					showNextUIThread(dialog);
+					return;
+				}
+
 				if (result.token != null && result.token.length() > 5) {
 					new AppPreference(mActivity).setToken(result.token);
-					runOnUiThread(new Runnable() {
-						@Override
-						public void run() {
-
-							dialog.dismiss();
-							mActivity.showNextFragment();
-						}
-					});
+					showNextUIThread(dialog);
 				} else {
 					String errorText = generateErrorMessage(result);
 					dialog.dismiss();
@@ -236,24 +239,33 @@ public class CreateAccountActivity extends BaseWizardActivity {
 			private String generateErrorMessage(BoxAccountRegisterServer.ServerResponse result) {
 
 				ArrayList<String> message = new ArrayList<>();
-				if (result.non_field_errors != null) {
-					message.add(result.non_field_errors);
+				if (step >= FRAGMENT_PASSWORD) {
+					//all dialogs filled out. check all
+					if (result.non_field_errors != null) {
+						message.add(result.non_field_errors);
+					}
+
+					if (result.password1 != null) {
+						message.add(result.password1);
+					}
+					if (result.password2 != null) {
+						message.add(result.password2);
+					}
 				}
-				if (result.password1 != null) {
-					message.add(result.password1);
-				}
-				if (result.password2 != null) {
-					message.add(result.password2);
-				}
-				if (result.email != null) {
-					message.add(result.email);
+				if (step >= FRAGMENT_EMAIL) {
+					if (result.email != null) {
+						message.add(result.email);
+					}
 				}
 				if (result.username != null) {
 					message.add(result.username);
 				}
 				String errorText = "";
+
 				if (message.size() == 0) {
-					errorText = getString(R.string.server_access_failed_or_invalid_check_internet_connection);
+					if (step >= FRAGMENT_PASSWORD) {
+						errorText = getString(R.string.server_access_failed_or_invalid_check_internet_connection);
+					}
 				} else {
 					errorText = "- " + message.get(0);
 					for (int i = 1; i < message.size(); i++) {
@@ -263,6 +275,16 @@ public class CreateAccountActivity extends BaseWizardActivity {
 				return errorText;
 			}
 		};
+	}
+
+	private void showNextUIThread(final AlertDialog dialog) {
+		runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				dialog.dismiss();
+				mActivity.showNextFragment();
+			}
+		});
 	}
 
 	@Override
@@ -277,7 +299,15 @@ public class CreateAccountActivity extends BaseWizardActivity {
 
 	@Override
 	protected boolean canShowNext(int step) {
-
+		if (step == FRAGMENT_ENTER_NAME) {
+			register(mBoxAccountName, null, null, null);
+			return false;
+		}
+		if (step == FRAGMENT_EMAIL) {
+			register(mBoxAccountName, null, null, mBoxAccountEMail);
+			return false;
+		}
+		// @todo
 		if (step == fragments.length - 2) {
 			register(mBoxAccountName, mBoxAccountPassword1, mBoxAccountPassword2, mBoxAccountEMail);
 			return false;

@@ -124,21 +124,8 @@ public class BoxVolume {
         return DirectoryMetadata.openDatabase(tmp, deviceId, rootRef, tempDir);
     }
 
-    public String getRootRef() throws QblStorageException {
-
-        MessageDigest md;
-        try {
-            md = MessageDigest.getInstance("SHA-256");
-        } catch (NoSuchAlgorithmException e) {
-            throw new QblStorageException(e);
-        }
-        md.update(this.prefix.getBytes());
-        md.update(keyPair.getPrivateKey());
-        byte[] digest = md.digest();
-        byte[] firstBytes = Arrays.copyOfRange(digest, 0, 16);
-        ByteBuffer bb = ByteBuffer.wrap(firstBytes);
-        UUID uuid = new UUID(bb.getLong(), bb.getLong());
-        return uuid.toString();
+    public String getRootRef() {
+        return keyPair.getRootRef(this.prefix);
     }
 
     public void createIndex() throws QblStorageException {

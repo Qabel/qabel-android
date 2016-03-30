@@ -35,8 +35,8 @@ import okhttp3.Response;
 public class CreateAccountActivity extends BaseWizardActivity {
 
 	private static final int FRAGMENT_ENTER_NAME = 1;
-	private static final int FRAGMENT_EMAIL = 2;
-	private static final int FRAGMENT_PASSWORD = 3;
+	private static final int FRAGMENT_ENTER_EMAIL = 2;
+	private static final int FRAGMENT_ENTER_PASSWORD = 3;
 
 	private final String TAG = this.getClass().getSimpleName();
 
@@ -175,11 +175,8 @@ public class CreateAccountActivity extends BaseWizardActivity {
 	}
 
 	private void register(final String username, final String password1, final String password2, final String email) {
-
 		final AlertDialog dialog = UIHelper.showWaitMessage(this, R.string.dialog_headline_please_wait, R.string.dialog_message_server_communication_is_running, false);
-
 		final SimpleJsonCallback callback = createCallback(username, password1, password2, email, dialog);
-
 		mBoxAccountServer.register(username, password1, password2, email, callback);
 	}
 
@@ -221,12 +218,14 @@ public class CreateAccountActivity extends BaseWizardActivity {
 				BoxAccountRegisterServer.ServerResponse result = BoxAccountRegisterServer.parseJson(json);
 
 				//user entered only the username and server send ok
-				if (step < FRAGMENT_PASSWORD && generateErrorMessage(result).isEmpty()) {
+				Log.d(TAG, "step: " + step);
+				if (step < FRAGMENT_ENTER_PASSWORD && generateErrorMessage(result).isEmpty()) {
 					showNextUIThread(dialog);
 					return;
 				}
 
 				if (result.token != null && result.token.length() > 5) {
+					Log.d(TAG, "store token");
 					new AppPreference(mActivity).setToken(result.token);
 					showNextUIThread(dialog);
 				} else {
@@ -239,7 +238,7 @@ public class CreateAccountActivity extends BaseWizardActivity {
 			private String generateErrorMessage(BoxAccountRegisterServer.ServerResponse result) {
 
 				ArrayList<String> message = new ArrayList<>();
-				if (step >= FRAGMENT_PASSWORD) {
+				if (step >= FRAGMENT_ENTER_PASSWORD) {
 					//all dialogs filled out. check all
 					if (result.non_field_errors != null) {
 						message.add(result.non_field_errors);
@@ -252,7 +251,8 @@ public class CreateAccountActivity extends BaseWizardActivity {
 						message.add(result.password2);
 					}
 				}
-				if (step >= FRAGMENT_EMAIL) {
+				if (step >= FRAGMENT_ENTER_EMAIL) {
+					//only email and username filled out
 					if (result.email != null) {
 						message.add(result.email);
 					}
@@ -263,7 +263,8 @@ public class CreateAccountActivity extends BaseWizardActivity {
 				String errorText = "";
 
 				if (message.size() == 0) {
-					if (step >= FRAGMENT_PASSWORD) {
+					if (step >= FRAGMENT_ENTER_PASSWORD) {
+						//no token or message, but all fields filled out
 						errorText = getString(R.string.server_access_failed_or_invalid_check_internet_connection);
 					}
 				} else {
@@ -282,7 +283,7 @@ public class CreateAccountActivity extends BaseWizardActivity {
 			@Override
 			public void run() {
 				dialog.dismiss();
-				mActivity.showNextFragment();
+				showNextFragment();
 			}
 		});
 	}
@@ -303,12 +304,11 @@ public class CreateAccountActivity extends BaseWizardActivity {
 			register(mBoxAccountName, null, null, null);
 			return false;
 		}
-		if (step == FRAGMENT_EMAIL) {
+		if (step == FRAGMENT_ENTER_EMAIL) {
 			register(mBoxAccountName, null, null, mBoxAccountEMail);
 			return false;
 		}
-		// @todo
-		if (step == fragments.length - 2) {
+		if (step == FRAGMENT_ENTER_PASSWORD) {
 			register(mBoxAccountName, mBoxAccountPassword1, mBoxAccountPassword2, mBoxAccountEMail);
 			return false;
 		} else {

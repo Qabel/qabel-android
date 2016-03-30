@@ -183,6 +183,10 @@ public class CreateBoxAccountUITest extends UIBoxHelper {
 		onView(withText(R.string.next)).perform(click());
 		Spoon.screenshot(UITestHelper.getCurrentActivity(mActivity), "password2");
 
+		waitForServer();
+	}
+
+	private void waitForServer() {
 		UITestHelper.sleep(TestConstraints.SIMPLE_SERVER_ACTION_TIMEOUT);
 	}
 
@@ -223,6 +227,7 @@ public class CreateBoxAccountUITest extends UIBoxHelper {
 
 	private void testFailEmail(String failEMail) throws Throwable {
 		enterSingleLine(failEMail, "failEmail", true);
+		waitForServer();
 		onView(withText(R.string.dialog_headline_info)).check(matches(isDisplayed()));
 		onView(withText(R.string.ok)).check(matches(isDisplayed())).perform(click());
 		onView(withId(R.id.et_name)).perform(clearText());
@@ -230,6 +235,7 @@ public class CreateBoxAccountUITest extends UIBoxHelper {
 
 	private void testEMailExists(String failEMail) throws Throwable {
 		enterSingleLine(failEMail, "emailExists", true);
+		waitForServer();
 		onView(withText(R.string.dialog_headline_info)).check(matches(isDisplayed()));
 		onView(withText(R.string.ok)).check(matches(isDisplayed())).perform(click());
 		onView(withId(R.id.et_name)).perform(clearText());
@@ -237,6 +243,7 @@ public class CreateBoxAccountUITest extends UIBoxHelper {
 
 	private void testNameExists(String failName) throws Throwable {
 		enterSingleLine(failName, "nameExists", false);
+		waitForServer();
 		onView(withText(R.string.dialog_headline_info)).check(matches(isDisplayed()));
 		onView(withText(R.string.ok)).check(matches(isDisplayed())).perform(click());
 		onView(withId(R.id.et_name)).perform(clearText());
@@ -256,7 +263,7 @@ public class CreateBoxAccountUITest extends UIBoxHelper {
 		Spoon.screenshot(UITestHelper.getCurrentActivity(mActivity), screenName);
 
 		onView(withText(R.string.next)).perform(click());
-		UITestHelper.sleep(1000);
+		UITestHelper.sleep(500);
 	}
 
 

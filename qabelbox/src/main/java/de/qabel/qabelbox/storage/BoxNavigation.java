@@ -21,6 +21,9 @@ public interface BoxNavigation {
 
 	boolean hasParent();
 	void navigateToParent() throws QblStorageException;
+
+	void navigateToRoot() throws QblStorageException;
+
 	void navigate(BoxFolder target) throws QblStorageException;
 	BoxNavigation navigate(BoxExternalReference target);
 

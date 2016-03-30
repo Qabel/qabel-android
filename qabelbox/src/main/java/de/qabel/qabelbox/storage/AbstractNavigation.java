@@ -144,6 +144,17 @@ public abstract class AbstractNavigation implements BoxNavigation {
 		}
 	}
 
+	@Override
+	public void navigateToRoot() throws QblStorageException {
+		BoxFolder root = null;
+		if (hasParent()) {
+			while (hasParent()) {
+				root = parentBoxFolders.pop();
+			}
+			doNavigate(root, false);
+		}
+	}
+
 	/**
 	 * Navigates to a direct subfolder.
 	 *
@@ -497,7 +508,7 @@ public abstract class AbstractNavigation implements BoxNavigation {
 			dm.insertFile(boxFile);
 			reloadMetadata();
 		} catch (QblStorageException e) {
-			Log.e(TAG,"error until reload metadata",e);
+			Log.e(TAG, "error until reload metadata", e);
 		}
 		return true;
 	}

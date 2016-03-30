@@ -1,14 +1,9 @@
 package de.qabel.qabelbox.ui;
 
-/**
- * Created by danny on 05.01.2016.
- */
-
 import android.os.PowerManager;
 import android.support.design.internal.NavigationMenuItemView;
 import android.support.test.espresso.ViewAssertion;
 import android.support.test.espresso.ViewInteraction;
-import android.support.test.espresso.contrib.RecyclerViewActions;
 import android.support.test.rule.ActivityTestRule;
 import android.util.Log;
 
@@ -37,6 +32,7 @@ import de.qabel.qabelbox.services.LocalQabelService;
 import de.qabel.qabelbox.ui.helper.SystemAnimations;
 import de.qabel.qabelbox.ui.helper.UIActionHelper;
 import de.qabel.qabelbox.ui.helper.UIBoxHelper;
+import de.qabel.qabelbox.ui.helper.UITestHelper;
 import de.qabel.qabelbox.ui.matcher.QabelMatcher;
 
 import static android.support.test.espresso.Espresso.closeSoftKeyboard;
@@ -48,7 +44,6 @@ import static android.support.test.espresso.action.ViewActions.typeText;
 import static android.support.test.espresso.assertion.ViewAssertions.matches;
 import static android.support.test.espresso.contrib.DrawerActions.openDrawer;
 import static android.support.test.espresso.matcher.ViewMatchers.assertThat;
-import static android.support.test.espresso.matcher.ViewMatchers.hasDescendant;
 import static android.support.test.espresso.matcher.ViewMatchers.hasSibling;
 import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static android.support.test.espresso.matcher.ViewMatchers.withClassName;
@@ -180,14 +175,22 @@ public class ChatMessageUITest {
 				.perform(click());
 		Spoon.screenshot(mActivity, "contacts");
 
-		onView(withId(R.id.contact_list))
-				.perform(RecyclerViewActions.actionOnItem(
-						hasDescendant(withText("user1")), click()));
+		//ContactList and click on user
+		onView(withId(R.id.contact_list)).check(matches(isDisplayed()));
+		onView(withText("user1")).perform(click());
+
+		//ChatView is displayed
+		onView(withId(R.id.contact_chat_list)).check(matches(isDisplayed()));
+
+		//Check Username is displayed in chatview
+		QabelMatcher.matchToolbarTitle("user1").check(matches(isDisplayed()));
 
 		onView(withId(R.id.etText)).check(matches(isDisplayed())).perform(click());
 		onView(withId(R.id.etText)).perform(typeText("text" + messages), pressImeActionButton());
 		closeSoftKeyboard();
 		onView(withText(R.string.btn_chat_send)).check(matches(isDisplayed())).perform(click());
+
+		UITestHelper.sleep(200);
 
 		onView(withId(R.id.contact_chat_list)).
 				check(matches(isDisplayed())).
@@ -303,7 +306,9 @@ public class ChatMessageUITest {
 	private void addOwnMessage(ChatServer chatServer, String contact1Alias, String contact2Alias, String contact1Key) {
 		ChatMessageItem item = new ChatMessageItem(chatServer.getTextDropMessage("ownmessage"));
 		item.receiver = contact1Key;
+		item.sender = QabelBoxApplication.getInstance().getService().getActiveIdentity().getEcPublicKey().getReadableKeyIdentifier();
 		item.isNew = 0;
+
 		chatServer.storeIntoDB(item);
 		refreshContactView(chatServer);
 		checkVisibilityState(contact2Alias, QabelMatcher.isInvisible());
@@ -323,7 +328,6 @@ public class ChatMessageUITest {
 	private ChatMessageItem createNewChatMessageItem(String sender, String receiver, String message) {
 		return new ChatMessageItem(-1, (short) 1, System.currentTimeMillis() + System.nanoTime() % 1000, sender, receiver, message, ChatMessageItem.BOX_MESSAGE, mActivity.chatServer.getTextDropMessagePayload(message));
 	}
-
 
 }
 

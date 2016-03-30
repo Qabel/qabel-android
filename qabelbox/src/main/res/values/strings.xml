@@ -175,7 +175,7 @@
     <string name="dialog_message_delete_contact_question">Do you really delete the contact %1?</string>
     <string name="contact_deleted">Contact with name %1 deleted</string>
     <string name="infos">Infos</string>
-    <string name="dummy_infos_text">This is the alpha version of Qabel</string>
+    <string name="dummy_infos_text">This is the beta version of Qabel</string>
     <string name="contact_count">Contact count: %1</string>
     <string name="message_step_is_needed_or_close_app">%s is required to use Qabel. Are you sure you want close Qabel?</string>
     <string name="chat_message_hint">Enter text</string>
@@ -186,6 +186,7 @@
     <string name="ShareToQabelUser">Share</string>
     <string name="fileshare_label_in_chatmessage">Shared file %1</string>
     <string name="headline_share_to_qabeluser">Share to QabelUser</string>
+    <string name="accept_share">Accept share</string>
     <string name="cant_share_contactlist_is_empty">Cant share file. You have no contact in contactlist</string>
     <string name="share_only_files_possibility">Only files can be shared</string>
     <string name="dialog_share_sending_in_progress">File is uploading for sharing</string>

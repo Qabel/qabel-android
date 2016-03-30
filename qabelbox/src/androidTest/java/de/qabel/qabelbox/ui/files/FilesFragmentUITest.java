@@ -22,9 +22,11 @@ import de.qabel.core.config.Contact;
 import de.qabel.core.config.Identity;
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
+import de.qabel.qabelbox.TestConstants;
 import de.qabel.qabelbox.TestConstraints;
 import de.qabel.qabelbox.activities.MainActivity;
 import de.qabel.qabelbox.communication.BlockServer;
+import de.qabel.qabelbox.communication.URLs;
 import de.qabel.qabelbox.config.ContactExportImport;
 import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.ui.helper.SystemAnimations;
@@ -121,6 +123,7 @@ public class FilesFragmentUITest {
 	@Before
 	public void setUp() throws IOException, QblStorageException {
 
+		URLs.setBaseBlockURL(TestConstants.BLOCK_URL);
 		mActivity = mActivityTestRule.getActivity();
 		wakeLock = UIActionHelper.wakeupDevice(mActivity);
 		mSystemAnimations = new SystemAnimations(mActivity);

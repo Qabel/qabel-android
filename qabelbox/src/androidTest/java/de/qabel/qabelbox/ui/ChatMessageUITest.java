@@ -86,6 +86,7 @@ public class ChatMessageUITest {
 	public void setUp() throws IOException, QblStorageException {
 
 		mActivity = mActivityTestRule.getActivity();
+		URLs.setBaseBlockURL(TestConstants.BLOCK_URL);
 		wakeLock = UIActionHelper.wakeupDevice(mActivity);
 		mSystemAnimations = new SystemAnimations(mActivity);
 		mSystemAnimations.disableAll();

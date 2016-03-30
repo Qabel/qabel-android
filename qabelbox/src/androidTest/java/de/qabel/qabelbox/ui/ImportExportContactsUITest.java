@@ -3,7 +3,9 @@ package de.qabel.qabelbox.ui;
 import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Build.VERSION;
 import android.os.PowerManager;
+import android.os.PowerManager.WakeLock;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.espresso.contrib.DrawerActions;
 import android.support.test.espresso.contrib.RecyclerViewActions;
@@ -16,6 +18,8 @@ import de.qabel.core.config.Contacts;
 import de.qabel.core.config.Identity;
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
+import de.qabel.qabelbox.R.id;
+import de.qabel.qabelbox.R.string;
 import de.qabel.qabelbox.TestConstants;
 import de.qabel.qabelbox.activities.MainActivity;
 import de.qabel.qabelbox.communication.URLs;
@@ -53,9 +57,9 @@ public class ImportExportContactsUITest {
     public ActivityTestRule<MainActivity> mActivityTestRule = new ActivityTestRule<>(MainActivity.class, false, true);
     private MainActivity mActivity;
     private UIBoxHelper mBoxHelper;
-    private PowerManager.WakeLock wakeLock;
+    private WakeLock wakeLock;
     private SystemAnimations mSystemAnimations;
-    private final String TAG = this.getClass().getSimpleName();
+    private final String TAG = getClass().getSimpleName();
 
     private final DocumentIntents intending = new DocumentIntents();
     private Identity identity;
@@ -119,13 +123,13 @@ public class ImportExportContactsUITest {
     }
 
     private void checkMessageBox() {
-        onView(withText(R.string.dialog_headline_info)).check(matches(isDisplayed()));
-        onView(withText(R.string.ok)).check(matches(isDisplayed())).perform(click());
+        onView(withText(string.dialog_headline_info)).check(matches(isDisplayed()));
+        onView(withText(string.ok)).check(matches(isDisplayed())).perform(click());
     }
 
     private void goToContacts() {
-        DrawerActions.openDrawer(R.id.drawer_layout);
-        onView(allOf(withText(R.string.Contacts), withParent(withClassName(endsWith("MenuView")))))
+        DrawerActions.openDrawer(id.drawer_layout);
+        onView(allOf(withText(string.Contacts), withParent(withClassName(endsWith("MenuView")))))
                 .perform(click());
         Spoon.screenshot(mActivity, "contacts");
     }
@@ -150,20 +154,20 @@ public class ImportExportContactsUITest {
         assertNotNull(file1);
         goToContacts();
 
-        onView(withId(R.id.contact_list))
+        onView(withId(id.contact_list))
                 .perform(RecyclerViewActions.actionOnItem(
                         hasDescendant(withText(userName)), longClick()));
         Spoon.screenshot(mActivity, "exportOne");
         if (canHandleIntening()) {
             Intents.init();
             intending.handleSaveFileIntent(file1);
-            onView(withText(R.string.Export)).check(matches(isDisplayed())).perform(click());
+            onView(withText(string.Export)).check(matches(isDisplayed())).perform(click());
             Intents.release();
         } else {
             pressBack();
             Intent data = new Intent();
             data.setData(Uri.fromFile(file1));
-            ContactFragment contactFragment = (ContactFragment) mActivity.getFragmentManager().findFragmentById(R.id.fragment_container);
+            ContactFragment contactFragment = (ContactFragment) mActivity.getFragmentManager().findFragmentById(id.fragment_container);
             contactFragment.enableDocumentProvider(false);
             final LocalQabelService service = QabelBoxApplication.getInstance().getService();
             Contact contact = service.getContacts().getContacts().iterator().next();
@@ -196,14 +200,14 @@ public class ImportExportContactsUITest {
         if (canHandleIntening()) {
             Intents.init();
             intending.handleSaveFileIntent(file1);
-            onView(withText(R.string.contact_export_all)).perform(click());
+            onView(withText(string.contact_export_all)).perform(click());
             Intents.release();
             checkMessageBox();
         } else {
             pressBack();
             Intent data = new Intent();
             data.setData(Uri.fromFile(file1));
-            ContactFragment contactFragment = (ContactFragment) mActivity.getFragmentManager().findFragmentById(R.id.fragment_container);
+            ContactFragment contactFragment = (ContactFragment) mActivity.getFragmentManager().findFragmentById(id.fragment_container);
             contactFragment.enableDocumentProvider(false);
             contactFragment.exportAllContacts();
             contactFragment.onActivityResult(ContactFragment.REQUEST_EXPORT_CONTACT, Activity.RESULT_OK, data);
@@ -228,19 +232,19 @@ public class ImportExportContactsUITest {
 
         assertNotNull(file1);
         goToContacts();
-        onView(withId(R.id.fab)).perform(click());
+        onView(withId(id.fab)).perform(click());
 
         if (canHandleIntening()) {
             Spoon.screenshot(mActivity, "importSingle");
             Intents.init();
             intending.handleLoadFileIntent(file1);
-            onView(withText(R.string.from_file)).perform(click());
+            onView(withText(string.from_file)).perform(click());
             Intents.release();
         } else {
             pressBack();
             Intent data = new Intent();
             data.setData(Uri.fromFile(file1));
-            ContactFragment contactFragment = (ContactFragment) mActivity.getFragmentManager().findFragmentById(R.id.fragment_container);
+            ContactFragment contactFragment = (ContactFragment) mActivity.getFragmentManager().findFragmentById(id.fragment_container);
             contactFragment.enableDocumentProvider(false);
             contactFragment.onActivityResult(ContactFragment.REQUEST_IMPORT_CONTACT, Activity.RESULT_OK, data);
 
@@ -254,7 +258,7 @@ public class ImportExportContactsUITest {
      * return true if os can handle intedings
      */
     private boolean canHandleIntening() {
-        return android.os.Build.VERSION.SDK_INT < 23;
+        return VERSION.SDK_INT < 23;
     }
 
     private void saveJsonIntoFile(String exportUser, File file1) {

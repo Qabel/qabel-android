@@ -19,7 +19,7 @@ public class BoxExternalReference {
         this.url = url;
         this.owner = owner;
         this.key = key;
-        this.baseUrl = new URLs().getFiles();
+        baseUrl = new URLs().getFiles();
     }
 
     public String getPrefix() {
@@ -58,7 +58,7 @@ public class BoxExternalReference {
 
     @Override
     public int hashCode() {
-        int result = (isFolder ? 1 : 0);
+        int result = isFolder ? 1 : 0;
         result = 31 * result + (url != null ? url.hashCode() : 0);
         result = 31 * result + (owner != null ? owner.hashCode() : 0);
         result = 31 * result + (key != null ? Arrays.hashCode(key) : 0);

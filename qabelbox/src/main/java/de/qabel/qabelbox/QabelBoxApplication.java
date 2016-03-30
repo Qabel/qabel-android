@@ -10,6 +10,7 @@ import android.support.annotation.NonNull;
 import android.util.Log;
 import de.qabel.qabelbox.providers.BoxProvider;
 import de.qabel.qabelbox.services.LocalQabelService;
+import de.qabel.qabelbox.services.LocalQabelService.LocalBinder;
 import org.spongycastle.jce.provider.BouncyCastleProvider;
 
 import java.security.Security;
@@ -20,7 +21,7 @@ public class QabelBoxApplication extends Application {
     private LocalQabelService mService;
     public static final String DEFAULT_DROP_SERVER = "https://test-drop.qabel.de";
 
-    private static QabelBoxApplication mInstance = null;
+    private static QabelBoxApplication mInstance;
     public static BoxProvider boxProvider;
 
     static {
@@ -61,7 +62,7 @@ public class QabelBoxApplication extends Application {
         return new ServiceConnection() {
             @Override
             public void onServiceConnected(ComponentName name, IBinder service) {
-                LocalQabelService.LocalBinder binder = (LocalQabelService.LocalBinder) service;
+                LocalBinder binder = (LocalBinder) service;
                 mService = binder.getService();
                 Log.d(TAG, "Service binded");
             }

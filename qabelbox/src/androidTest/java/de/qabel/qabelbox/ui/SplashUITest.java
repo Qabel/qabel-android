@@ -2,10 +2,12 @@ package de.qabel.qabelbox.ui;
 
 
 import android.os.PowerManager;
+import android.os.PowerManager.WakeLock;
 import android.support.test.rule.ActivityTestRule;
 import com.squareup.spoon.Spoon;
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
+import de.qabel.qabelbox.R.string;
 import de.qabel.qabelbox.activities.SplashActivity;
 import de.qabel.qabelbox.config.AppPreference;
 import de.qabel.qabelbox.exceptions.QblStorageException;
@@ -34,7 +36,7 @@ public class SplashUITest {
 
     private SplashActivity mActivity;
 
-    private PowerManager.WakeLock wakeLock;
+    private WakeLock wakeLock;
     private SystemAnimations mSystemAnimations;
 
     public SplashUITest() throws IOException {
@@ -61,7 +63,7 @@ public class SplashUITest {
 
     @Test
     public void testShowSplashScreen() {
-        onView(withText(R.string.splash_footer_text)).check(matches(isDisplayed()));
+        onView(withText(string.splash_footer_text)).check(matches(isDisplayed()));
         Spoon.screenshot(mActivity, "splashscreen");
 
 

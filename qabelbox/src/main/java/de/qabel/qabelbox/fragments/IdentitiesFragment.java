@@ -2,14 +2,17 @@ package de.qabel.qabelbox.fragments;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.AlertDialog.Builder;
 import android.app.Fragment;
 import android.content.DialogInterface;
+import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.ParcelFileDescriptor;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.RecyclerView.LayoutManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,12 +22,18 @@ import com.cocosw.bottomsheet.BottomSheet;
 import de.qabel.core.config.Identities;
 import de.qabel.core.config.Identity;
 import de.qabel.qabelbox.R;
+import de.qabel.qabelbox.R.id;
+import de.qabel.qabelbox.R.layout;
+import de.qabel.qabelbox.R.menu;
+import de.qabel.qabelbox.R.string;
 import de.qabel.qabelbox.activities.MainActivity;
 import de.qabel.qabelbox.adapter.IdentitiesAdapter;
+import de.qabel.qabelbox.adapter.IdentitiesAdapter.OnItemClickListener;
 import de.qabel.qabelbox.config.ContactExportImport;
 import de.qabel.qabelbox.config.IdentityExportImport;
 import de.qabel.qabelbox.config.QabelSchema;
 import de.qabel.qabelbox.helper.UIHelper;
+import de.qabel.qabelbox.helper.UIHelper.EditTextDialogClickListener;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -38,7 +47,7 @@ public class IdentitiesFragment extends BaseFragment {
 
     private RecyclerView identityListRecyclerView;
     private IdentitiesAdapter identityListAdapter;
-    private RecyclerView.LayoutManager recyclerViewLayoutManager;
+    private LayoutManager recyclerViewLayoutManager;
 
     private Identity identityToExport;
     private Identities identities;
@@ -70,9 +79,9 @@ public class IdentitiesFragment extends BaseFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        View view = inflater.inflate(R.layout.fragment_identities, container, false);
+        View view = inflater.inflate(layout.fragment_identities, container, false);
 
-        identityListRecyclerView = (RecyclerView) view.findViewById(R.id.identity_list);
+        identityListRecyclerView = (RecyclerView) view.findViewById(id.identity_list);
         identityListRecyclerView.setHasFixedSize(true);
 
         recyclerViewLayoutManager = new LinearLayoutManager(view.getContext());
@@ -82,26 +91,26 @@ public class IdentitiesFragment extends BaseFragment {
         identityListAdapter.sort();
         identityListRecyclerView.setAdapter(identityListAdapter);
 
-        identityListAdapter.setOnItemClickListener(new IdentitiesAdapter.OnItemClickListener() {
+        identityListAdapter.setOnItemClickListener(new OnItemClickListener() {
             @Override
             public void onItemClick(View view, int position) {
 
                 final Identity identity = identityListAdapter.get(position);
-                new BottomSheet.Builder(activity).title(identity.getAlias()).sheet(R.menu.bottom_sheet_identities)
-                        .listener(new DialogInterface.OnClickListener() {
+                new BottomSheet.Builder(activity).title(identity.getAlias()).sheet(menu.bottom_sheet_identities)
+                        .listener(new OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
 
                                 switch (which) {
-                                    case R.id.identities_rename:
+                                    case id.identities_rename:
 
-                                        UIHelper.showEditTextDialog(getActivity(), String.format(getString(R.string.rename_identity), identity.getAlias()), getString(R.string.new_identity_name), R.string.ok, R.string.cancel, new UIHelper.EditTextDialogClickListener() {
+                                        UIHelper.showEditTextDialog(getActivity(), String.format(getString(string.rename_identity), identity.getAlias()), getString(string.new_identity_name), string.ok, string.cancel, new EditTextDialogClickListener() {
                                             @Override
                                             public void onClick(DialogInterface dialog, int which, EditText editText) {
 
                                                 String newAlias = editText.getText().toString();
                                                 if (newAlias.equals("")) {
-                                                    Toast.makeText(activity, R.string.alias_cannot_be_empty, Toast.LENGTH_LONG)
+                                                    Toast.makeText(activity, string.alias_cannot_be_empty, Toast.LENGTH_LONG)
                                                             .show();
                                                 } else {
                                                     identity.setAlias(newAlias);
@@ -112,15 +121,16 @@ public class IdentitiesFragment extends BaseFragment {
                                             }
                                         }, null);
                                         break;
-                                    case R.id.identities_delete:
-                                        AlertDialog.Builder confirmDelete = new AlertDialog.Builder(activity);
+                                    case id.identities_delete:
+                                        Builder confirmDelete = new Builder(activity);
 
-                                        confirmDelete.setTitle(R.string.confirm_delete_identity_header);
+                                        confirmDelete.setTitle(string.confirm_delete_identity_header);
                                         confirmDelete.setMessage(
-                                                String.format(getString(R.string.confirm_delete_identity_message)
+                                                String.format(getString(string.confirm_delete_identity_message)
                                                         , identity.getAlias()));
 
-                                        confirmDelete.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                                        confirmDelete.setPositiveButton(string.ok, new OnClickListener() {
+                                            @Override
                                             public void onClick(DialogInterface dialog, int whichButton) {
 
                                                 mListener.deleteIdentity(identity);
@@ -129,20 +139,21 @@ public class IdentitiesFragment extends BaseFragment {
                                             }
                                         });
 
-                                        confirmDelete.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                                        confirmDelete.setNegativeButton(string.cancel, new OnClickListener() {
+                                            @Override
                                             public void onClick(DialogInterface dialog, int whichButton) {
 
                                             }
                                         });
                                         confirmDelete.show();
                                         break;
-                                    case R.id.identities_export:
+                                    case id.identities_export:
                                         exportIdentity(identity);
                                         break;
-                                    case R.id.identities_export_as_contact:
+                                    case id.identities_export_as_contact:
                                         exportIdentityAsContact(identity);
                                         break;
-                                    case R.id.identities_export_as_contact_qrcode:
+                                    case id.identities_export_as_contact_qrcode:
                                         MainActivity.showQRCode(mActivity, identity);
 
                                         //QRCodeHelper.exportIdentityAsContactWithQR(getActivity(), identity);
@@ -191,14 +202,14 @@ public class IdentitiesFragment extends BaseFragment {
                     try (ParcelFileDescriptor pfd = mActivity.getContentResolver().openFileDescriptor(uri, "w");
                          FileOutputStream fileOutputStream = new FileOutputStream(pfd.getFileDescriptor())) {
                         if (requestCode == MainActivity.REQUEST_EXPORT_IDENTITY_AS_CONTACT) {
-                            fileOutputStream.write((ContactExportImport.exportIdentityAsContact(identityToExport)).getBytes());
-                            UIHelper.showDialogMessage(activity, R.string.dialog_headline_info, R.string.contact_export_successfully);
+                            fileOutputStream.write(ContactExportImport.exportIdentityAsContact(identityToExport).getBytes());
+                            UIHelper.showDialogMessage(activity, string.dialog_headline_info, string.contact_export_successfully);
                         } else {
-                            fileOutputStream.write((IdentityExportImport.exportIdentity(identityToExport)).getBytes());
-                            UIHelper.showDialogMessage(activity, R.string.dialog_headline_info, R.string.identity_export_successfully);
+                            fileOutputStream.write(IdentityExportImport.exportIdentity(identityToExport).getBytes());
+                            UIHelper.showDialogMessage(activity, string.dialog_headline_info, string.identity_export_successfully);
                         }
                     } catch (IOException e) {
-                        UIHelper.showDialogMessage(activity, R.string.dialog_headline_info, R.string.identity_export_failed, e);
+                        UIHelper.showDialogMessage(activity, string.dialog_headline_info, string.identity_export_failed, e);
                     }
                 }
             }
@@ -213,7 +224,7 @@ public class IdentitiesFragment extends BaseFragment {
         try {
             mListener = (IdentityListListener) activity;
         } catch (ClassCastException e) {
-            throw new ClassCastException(activity.toString()
+            throw new ClassCastException(activity
                     + " must implement IdentityListListener");
         }
     }
@@ -228,7 +239,7 @@ public class IdentitiesFragment extends BaseFragment {
     @Override
     public String getTitle() {
 
-        return getString(R.string.headline_identities);
+        return getString(string.headline_identities);
     }
 
     public interface IdentityListListener {
@@ -244,6 +255,7 @@ public class IdentitiesFragment extends BaseFragment {
         return true;
     }
 
+    @Override
     public boolean supportBackButton() {
 
         return false;

@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.*;
 import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.NotificationCompat.Builder;
 import android.util.Log;
 import de.qabel.ServiceConstants;
 import de.qabel.core.config.Contact;
@@ -16,6 +17,10 @@ import de.qabel.core.drop.DropMessage;
 import de.qabel.core.drop.DropURL;
 import de.qabel.core.exceptions.QblDropPayloadSizeException;
 import de.qabel.qabelbox.R;
+import de.qabel.qabelbox.R.color;
+import de.qabel.qabelbox.R.drawable;
+import de.qabel.qabelbox.services.LocalQabelService.LocalBinder;
+import de.qabel.qabelbox.services.LocalQabelService.OnSendDropMessageResult;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -81,7 +86,7 @@ public class QabelService extends Service {
                                 Log.i(LOG_TAG_QABEL_SERVICE, "Sending received DropMessage");
                                 try {
                                     mService.sendDropMessage(dropMessage, recipient, sender,
-                                            new LocalQabelService.OnSendDropMessageResult() {
+                                            new OnSendDropMessageResult() {
                                                 @Override
                                                 public void onSendDropResult(Map<DropURL, Boolean> deliveryStatus) {
                                                     //TODO: Ignored for now
@@ -145,7 +150,7 @@ public class QabelService extends Service {
         bindService(intent, new ServiceConnection() {
             @Override
             public void onServiceConnected(ComponentName name, IBinder service) {
-                LocalQabelService.LocalBinder binder = (LocalQabelService.LocalBinder) service;
+                LocalBinder binder = (LocalBinder) service;
                 mService = binder.getService();
             }
 
@@ -159,13 +164,13 @@ public class QabelService extends Service {
     }
 
     private void setNotification(String text) {
-        NotificationCompat.Builder mBuilder =
-                new NotificationCompat.Builder(this)
-                        .setSmallIcon(R.drawable.notification_template_icon_bg)
+        Builder mBuilder =
+                new Builder(this)
+                        .setSmallIcon(drawable.notification_template_icon_bg)
                         .setContentTitle("Qabel Service")
                         .setContentText(text)
-                        .setSmallIcon(R.drawable.qabel_logo)
-                        .setColor(getResources().getColor(R.color.colorPrimary));
+                        .setSmallIcon(drawable.qabel_logo)
+                        .setColor(getResources().getColor(color.colorPrimary));
 
         mNotificationManager.notify(SERVICE_NOTIFICATION_ID, mBuilder.build());
     }

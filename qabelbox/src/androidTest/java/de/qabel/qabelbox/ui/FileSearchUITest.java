@@ -2,12 +2,15 @@ package de.qabel.qabelbox.ui;
 
 
 import android.os.PowerManager;
+import android.os.PowerManager.WakeLock;
 import android.support.test.rule.ActivityTestRule;
 import android.widget.SeekBar;
 import com.squareup.spoon.Spoon;
 import de.qabel.core.config.Identity;
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
+import de.qabel.qabelbox.R.id;
+import de.qabel.qabelbox.R.string;
 import de.qabel.qabelbox.TestConstants;
 import de.qabel.qabelbox.activities.MainActivity;
 import de.qabel.qabelbox.communication.BlockServer;
@@ -43,7 +46,7 @@ public class FileSearchUITest {
     private MainActivity mActivity;
     private UIBoxHelper mBoxHelper;
     private final boolean mFillAccount = true;
-    private PowerManager.WakeLock wakeLock;
+    private WakeLock wakeLock;
     SystemAnimations mSystemAnimations;
 
     public FileSearchUITest() throws IOException {
@@ -169,11 +172,11 @@ public class FileSearchUITest {
      */
     private void testSearch(String text, int results) {
 
-        onView(withId(R.id.action_search)).perform(click());
-        onView(withHint(R.string.ab_filesearch_hint)).perform(typeText(text), pressImeActionButton());
+        onView(withId(id.action_search)).perform(click());
+        onView(withHint(string.ab_filesearch_hint)).perform(typeText(text), pressImeActionButton());
         closeSoftKeyboard();
 
-        onView(withId(R.id.files_list)).check(matches(QabelMatcher.withListSize(results)));
+        onView(withId(id.files_list)).check(matches(QabelMatcher.withListSize(results)));
         Spoon.screenshot(mActivity, "results_" + text);
         pressBack();
         testIfFileBrowserDisplayed(7);
@@ -181,9 +184,9 @@ public class FileSearchUITest {
 
     private void testIfFileBrowserDisplayed(int count) {
 
-        QabelMatcher.matchToolbarTitle(mActivity.getString(R.string.headline_files))
+        QabelMatcher.matchToolbarTitle(mActivity.getString(string.headline_files))
                 .check(matches(isDisplayed()));
-        onView(withId(R.id.files_list)).check(matches(QabelMatcher.withListSize(count)));
+        onView(withId(id.files_list)).check(matches(QabelMatcher.withListSize(count)));
     }
 
     /**
@@ -194,19 +197,19 @@ public class FileSearchUITest {
      */
     private void testSearchWithFilter(String text, int fileSizeMin, int fileSizeMax, int results, boolean screenShot) {
 
-        onView(withId(R.id.action_search)).perform(click());
-        onView(withHint(R.string.ab_filesearch_hint)).perform(typeText(text), pressImeActionButton());
+        onView(withId(id.action_search)).perform(click());
+        onView(withHint(string.ab_filesearch_hint)).perform(typeText(text), pressImeActionButton());
         closeSoftKeyboard();
         UITestHelper.sleep(800);
-        onView(withId(R.id.action_ok)).check(matches(isDisplayed())).perform(click());
-        ((SeekBar) mActivity.findViewById(R.id.sbFileSizeMin)).setProgress(fileSizeMin);
-        ((SeekBar) mActivity.findViewById(R.id.sbFileSizeMax)).setProgress(fileSizeMax);
+        onView(withId(id.action_ok)).check(matches(isDisplayed())).perform(click());
+        ((SeekBar) mActivity.findViewById(id.sbFileSizeMin)).setProgress(fileSizeMin);
+        ((SeekBar) mActivity.findViewById(id.sbFileSizeMax)).setProgress(fileSizeMax);
         if (screenShot) {
             Spoon.screenshot(mActivity, "filter_" + fileSizeMin + "_" + fileSizeMax);
         }
-        onView(withId(R.id.action_use_filter)).perform(click());
+        onView(withId(id.action_use_filter)).perform(click());
 
-        onView(withId(R.id.files_list)).
+        onView(withId(id.files_list)).
                 check(matches(isDisplayed())).
                 check(matches(QabelMatcher.withListSize(results)));
         if (screenShot) {

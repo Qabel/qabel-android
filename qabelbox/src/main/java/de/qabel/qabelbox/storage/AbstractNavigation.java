@@ -12,6 +12,7 @@ import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.exceptions.QblStorageNameConflict;
 import de.qabel.qabelbox.exceptions.QblStorageNotFound;
 import de.qabel.qabelbox.providers.BoxProvider;
+import de.qabel.qabelbox.storage.TransferManager.BoxTransferListener;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.NotImplementedException;
 import org.slf4j.Logger;
@@ -56,11 +57,11 @@ public abstract class AbstractNavigation implements BoxNavigation {
         this.deviceId = deviceId;
         this.transferManager = transferManager;
         this.boxVolume = boxVolume;
-        this.currentPath = path;
+        currentPath = path;
         this.dmKey = dmKey;
         this.context = context;
-        this.cache = new FileCache(context);
-        this.urls = new URLs();
+        cache = new FileCache(context);
+        urls = new URLs();
         cryptoUtils = new CryptoUtils();
         if (parentBoxFolders != null) {
             this.parentBoxFolders = parentBoxFolders;
@@ -69,10 +70,12 @@ public abstract class AbstractNavigation implements BoxNavigation {
         }
     }
 
+    @Override
     public String getPath() {
         return currentPath;
     }
 
+    @Override
     public String getPath(BoxObject object) {
         if (object instanceof BoxFolder) {
             return currentPath + object.name + BoxProvider.PATH_SEP;
@@ -94,7 +97,7 @@ public abstract class AbstractNavigation implements BoxNavigation {
         return filepath.substring(filepath.lastIndexOf('/') + 1, filepath.length());
     }
 
-    protected File blockingDownload(String prefix, String name, TransferManager.BoxTransferListener boxTransferListener) throws QblStorageNotFound {
+    protected File blockingDownload(String prefix, String name, BoxTransferListener boxTransferListener) throws QblStorageNotFound {
         File file = transferManager.createTempFile();
         int id = transferManager.download(prefix, name, file, boxTransferListener);
         if (transferManager.waitFor(id)) {
@@ -105,7 +108,7 @@ public abstract class AbstractNavigation implements BoxNavigation {
     }
 
     protected Long blockingUpload(String prefix, String name,
-                                  File file, @Nullable TransferManager.BoxTransferListener boxTransferListener) {
+                                  File file, @Nullable BoxTransferListener boxTransferListener) {
         int id = transferManager.uploadAndDeleteLocalfileOnSuccess(prefix, name, file, boxTransferListener);
         transferManager.waitFor(id);
         return currentSecondsFromEpoch();
@@ -185,7 +188,7 @@ public abstract class AbstractNavigation implements BoxNavigation {
                 if (cryptoUtils.decryptFileAuthenticatedSymmetricAndValidateTag(
                         new FileInputStream(indexDl), tmp, keyParameter)) {
                     dm = DirectoryMetadata.openDatabase(
-                            tmp, deviceId, target.ref, this.dm.getTempDir());
+                            tmp, deviceId, target.ref, dm.getTempDir());
                     dmKey = target.key;
                 }
             }
@@ -205,7 +208,7 @@ public abstract class AbstractNavigation implements BoxNavigation {
             logger.info("Could not reload metadata");
         }
         // the remote version has changed from the _old_ version
-        if ((updatedDM != null) && (!Arrays.equals(version, updatedDM.getVersion()))) {
+        if (updatedDM != null && !Arrays.equals(version, updatedDM.getVersion())) {
             logger.info("Conflicting version");
             // ignore our local directory metadata
             // all changes that are not inserted in the new dm are _lost_!
@@ -261,7 +264,7 @@ public abstract class AbstractNavigation implements BoxNavigation {
     }
 
     private String conflictName(BoxFile local) {
-        return local.name + "_conflict_" + local.mtime.toString();
+        return local.name + "_conflict_" + local.mtime;
     }
 
     protected abstract void uploadDirectoryMetadata() throws QblStorageException;
@@ -347,7 +350,7 @@ public abstract class AbstractNavigation implements BoxNavigation {
 
     @Override
     public BoxFile upload(String name, InputStream content,
-                          @Nullable TransferManager.BoxTransferListener boxTransferListener) throws QblStorageException {
+                          @Nullable BoxTransferListener boxTransferListener) throws QblStorageException {
         KeyParameter key = cryptoUtils.generateSymmetricKey();
         String block = UUID.randomUUID().toString();
         BoxFile boxFile = new BoxFile(prefix, block, name, null, 0L, key.getKey());
@@ -371,7 +374,7 @@ public abstract class AbstractNavigation implements BoxNavigation {
 
     protected SimpleEntry<Long, Long> uploadEncrypted(
             InputStream content, KeyParameter key, String prefix, String block,
-            @Nullable TransferManager.BoxTransferListener boxTransferListener) throws QblStorageException {
+            @Nullable BoxTransferListener boxTransferListener) throws QblStorageException {
         try {
             File tempFile = File.createTempFile("uploadAndDeleteLocalfile", "up", dm.getTempDir());
             OutputStream outputStream = new FileOutputStream(tempFile);
@@ -388,7 +391,7 @@ public abstract class AbstractNavigation implements BoxNavigation {
     }
 
     @Override
-    public InputStream download(BoxFile boxFile, @Nullable TransferManager.BoxTransferListener boxTransferListener) throws QblStorageException {
+    public InputStream download(BoxFile boxFile, @Nullable BoxTransferListener boxTransferListener) throws QblStorageException {
         File download = cache.get(boxFile);
         cache.close();
         if (download == null) {
@@ -524,7 +527,7 @@ public abstract class AbstractNavigation implements BoxNavigation {
         dm.deleteExternalReference(name);
     }
 
-    private File refreshCache(BoxFile boxFile, @Nullable TransferManager.BoxTransferListener boxTransferListener) throws QblStorageNotFound {
+    private File refreshCache(BoxFile boxFile, @Nullable BoxTransferListener boxTransferListener) throws QblStorageNotFound {
         logger.info("Refreshing cache: " + boxFile.block);
         File download = blockingDownload(boxFile.prefix, BLOCKS_PREFIX + boxFile.block, boxTransferListener);
         cache.put(boxFile, download);

@@ -2,14 +2,20 @@ package de.qabel.qabelbox.fragments;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.AlertDialog.Builder;
 import android.content.*;
+import android.content.DialogInterface.OnClickListener;
 import android.os.AsyncTask;
+import android.os.AsyncTask.Status;
 import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.RecyclerView.LayoutManager;
+import android.support.v7.widget.RecyclerView.OnScrollListener;
 import android.util.Log;
 import android.view.*;
 import android.view.inputmethod.EditorInfo;
@@ -17,10 +23,17 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.TextView.OnEditorActionListener;
 import android.widget.Toast;
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
+import de.qabel.qabelbox.R.drawable;
+import de.qabel.qabelbox.R.id;
+import de.qabel.qabelbox.R.layout;
+import de.qabel.qabelbox.R.menu;
+import de.qabel.qabelbox.R.string;
 import de.qabel.qabelbox.adapter.FilesAdapter;
+import de.qabel.qabelbox.adapter.FilesAdapter.OnItemClickListener;
 import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.helper.UIHelper;
 import de.qabel.qabelbox.providers.DocumentIdParser;
@@ -37,7 +50,7 @@ public class FilesFragment extends BaseFragment {
     protected BoxNavigation boxNavigation;
     public RecyclerView filesListRecyclerView;
     protected FilesAdapter filesAdapter;
-    private RecyclerView.LayoutManager recyclerViewLayoutManager;
+    private LayoutManager recyclerViewLayoutManager;
     private boolean isLoading;
     private FilesListListener mListener;
     protected SwipeRefreshLayout swipeRefreshLayout;
@@ -45,7 +58,7 @@ public class FilesFragment extends BaseFragment {
     private AsyncTask<Void, Void, Void> browseToTask;
 
     private MenuItem mSearchAction;
-    private boolean isSearchOpened = false;
+    private boolean isSearchOpened;
     private EditText edtSeach;
     protected BoxVolume mBoxVolume;
     private AsyncTask<String, Void, StorageSearch> searchTask;
@@ -173,10 +186,10 @@ public class FilesFragment extends BaseFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        View view = inflater.inflate(R.layout.fragment_files, container, false);
+        View view = inflater.inflate(layout.fragment_files, container, false);
         setupLoadingViews(view);
-        swipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.swipeRefresh);
-        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+        swipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(id.swipeRefresh);
+        swipeRefreshLayout.setOnRefreshListener(new OnRefreshListener() {
             @Override
             public void onRefresh() {
 
@@ -191,7 +204,7 @@ public class FilesFragment extends BaseFragment {
                 swipeRefreshLayout.setRefreshing(isLoading);
             }
         });
-        filesListRecyclerView = (RecyclerView) view.findViewById(R.id.files_list);
+        filesListRecyclerView = (RecyclerView) view.findViewById(id.files_list);
         filesListRecyclerView.setHasFixedSize(true);
 
         recyclerViewLayoutManager = new LinearLayoutManager(view.getContext());
@@ -199,7 +212,7 @@ public class FilesFragment extends BaseFragment {
 
         filesListRecyclerView.setAdapter(filesAdapter);
 
-        filesListRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+        filesListRecyclerView.addOnScrollListener(new OnScrollListener() {
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
 
@@ -263,9 +276,9 @@ public class FilesFragment extends BaseFragment {
 
     protected void setupLoadingViews(View view) {
 
-        mEmptyView = view.findViewById(R.id.empty_view);
-        mLoadingView = view.findViewById(R.id.loading_view);
-        final ProgressBar pg = (ProgressBar) view.findViewById(R.id.pb_firstloading);
+        mEmptyView = view.findViewById(id.empty_view);
+        mLoadingView = view.findViewById(id.loading_view);
+        final ProgressBar pg = (ProgressBar) view.findViewById(id.pb_firstloading);
         pg.setIndeterminate(true);
         pg.setEnabled(true);
         if (filesAdapter != null) {
@@ -280,7 +293,7 @@ public class FilesFragment extends BaseFragment {
         try {
             mListener = (FilesListListener) activity;
         } catch (ClassCastException e) {
-            throw new ClassCastException(activity.toString()
+            throw new ClassCastException(activity
                     + " must implement FilesListListener");
         }
     }
@@ -290,20 +303,20 @@ public class FilesFragment extends BaseFragment {
 
         menu.clear();
         super.onCreateOptionsMenu(menu, inflater);
-        inflater.inflate(R.menu.ab_files, menu);
+        inflater.inflate(menu.ab_files, menu);
     }
 
     @Override
     public void onPrepareOptionsMenu(Menu menu) {
 
-        mSearchAction = menu.findItem(R.id.action_search);
+        mSearchAction = menu.findItem(id.action_search);
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // handle item selection
         switch (item.getItemId()) {
-            case R.id.action_search:
+            case id.action_search:
                 if (!isSearchRunning()) {
                     handleMenuSearch();
                 } else if (isSearchOpened) {
@@ -322,7 +335,7 @@ public class FilesFragment extends BaseFragment {
 
             return true;
         }
-        return searchTask != null && ((!searchTask.isCancelled() && searchTask.getStatus() != AsyncTask.Status.FINISHED));
+        return searchTask != null && !searchTask.isCancelled() && searchTask.getStatus() != Status.FINISHED;
     }
 
     /**
@@ -343,13 +356,13 @@ public class FilesFragment extends BaseFragment {
     private void openSearchInActionBar(final ActionBar action) {
 
         action.setDisplayShowCustomEnabled(true);
-        action.setCustomView(R.layout.ab_search_field);
+        action.setCustomView(layout.ab_search_field);
         action.setDisplayShowTitleEnabled(false);
 
-        edtSeach = (EditText) action.getCustomView().findViewById(R.id.edtSearch);
+        edtSeach = (EditText) action.getCustomView().findViewById(id.edtSearch);
 
         //add editor action listener
-        edtSeach.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+        edtSeach.setOnEditorActionListener(new OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
 
@@ -369,7 +382,7 @@ public class FilesFragment extends BaseFragment {
         InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.showSoftInput(edtSeach, InputMethodManager.SHOW_IMPLICIT);
         mActivity.fab.hide();
-        mSearchAction.setIcon(R.drawable.ic_ab_close);
+        mSearchAction.setIcon(drawable.ic_ab_close);
         isSearchOpened = true;
     }
 
@@ -386,7 +399,7 @@ public class FilesFragment extends BaseFragment {
         imm.hideSoftInputFromWindow(edtSeach.getWindowToken(), 0);
 
         imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.RESULT_HIDDEN);
-        mSearchAction.setIcon(R.drawable.ic_ab_search);
+        mSearchAction.setIcon(drawable.ic_ab_search);
         action.setTitle(getTitle());
         isSearchOpened = false;
         mActivity.fab.show();
@@ -435,7 +448,7 @@ public class FilesFragment extends BaseFragment {
 
                     //check if files found
                     if (storageSearch == null || storageSearch.filterOnlyFiles().getResults().size() == 0) {
-                        Toast.makeText(getActivity(), R.string.no_entrys_found, Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getActivity(), string.no_entrys_found, Toast.LENGTH_SHORT).show();
                         searchTask = null;
                         return;
                     }
@@ -449,7 +462,7 @@ public class FilesFragment extends BaseFragment {
 
                         FilesSearchResultFragment fragment = FilesSearchResultFragment.newInstance(mCachedStorageSearch, searchText, needRefresh);
                         mActivity.toggle.setDrawerIndicatorEnabled(false);
-                        getFragmentManager().beginTransaction().replace(R.id.fragment_container, fragment, FilesSearchResultFragment.TAG).addToBackStack(null).commit();
+                        getFragmentManager().beginTransaction().replace(id.fragment_container, fragment, FilesSearchResultFragment.TAG).addToBackStack(null).commit();
                     }
                     searchTask = null;
                 }
@@ -515,7 +528,7 @@ public class FilesFragment extends BaseFragment {
         return filesAdapter;
     }
 
-    public void setOnItemClickListener(FilesAdapter.OnItemClickListener onItemClickListener) {
+    public void setOnItemClickListener(OnItemClickListener onItemClickListener) {
 
         filesAdapter.setOnItemClickListener(onItemClickListener);
     }
@@ -539,7 +552,7 @@ public class FilesFragment extends BaseFragment {
     @Override
     public String getTitle() {
 
-        return getString(R.string.headline_files);
+        return getString(string.headline_files);
     }
 
     /**
@@ -577,7 +590,7 @@ public class FilesFragment extends BaseFragment {
 
             @Override
             protected void onPreExecute() {
-                wait = UIHelper.showWaitMessage(mActivity, R.string.dialog_headline_info, R.string.message_revoke_share, false);
+                wait = UIHelper.showWaitMessage(mActivity, string.dialog_headline_info, string.message_revoke_share, false);
             }
 
 
@@ -599,9 +612,9 @@ public class FilesFragment extends BaseFragment {
             protected void onPostExecute(Boolean success) {
                 if (success) {
                     refresh();
-                    Toast.makeText(mActivity, R.string.message_unshare_successfull, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(mActivity, string.message_unshare_successfull, Toast.LENGTH_SHORT).show();
                 } else {
-                    UIHelper.showDialogMessage(mActivity, R.string.dialog_headline_warning, R.string.message_unshare_not_successfull, Toast.LENGTH_SHORT);
+                    UIHelper.showDialogMessage(mActivity, string.dialog_headline_warning, string.message_unshare_not_successfull, Toast.LENGTH_SHORT);
 
                 }
                 wait.dismiss();
@@ -613,11 +626,11 @@ public class FilesFragment extends BaseFragment {
 
     public void delete(final BoxObject boxObject) {
 
-        new AlertDialog.Builder(mActivity)
-                .setTitle(R.string.confirm_delete_title)
+        new Builder(mActivity)
+                .setTitle(string.confirm_delete_title)
                 .setMessage(String.format(
-                        getResources().getString(R.string.confirm_delete_message), boxObject.name))
-                .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                        getResources().getString(string.confirm_delete_message), boxObject.name))
+                .setPositiveButton(string.ok, new OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
 
@@ -658,7 +671,7 @@ public class FilesFragment extends BaseFragment {
                         }.execute();
                     }
                 })
-                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                .setNegativeButton(string.cancel, new OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
 
@@ -716,7 +729,7 @@ public class FilesFragment extends BaseFragment {
 
     private void showAbortMessage() {
 
-        Toast.makeText(mActivity, R.string.aborted,
+        Toast.makeText(mActivity, string.aborted,
                 Toast.LENGTH_SHORT).show();
     }
 
@@ -918,7 +931,7 @@ public class FilesFragment extends BaseFragment {
                     super.onCancelled();
                     setIsLoading(false);
                     browseToTask = null;
-                    Toast.makeText(getActivity(), R.string.aborted,
+                    Toast.makeText(getActivity(), string.aborted,
                             Toast.LENGTH_SHORT).show();
                 }
             };

@@ -1,11 +1,13 @@
 package de.qabel.qabelbox.views;
 
+import android.R.attr;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
 import android.view.View;
 import android.widget.LinearLayout;
+import android.widget.LinearLayout.LayoutParams;
 
 /**
  * A simple extension of a regular linear layout that supports the divider API
@@ -17,9 +19,9 @@ import android.widget.LinearLayout;
 class IcsLinearLayout extends LinearLayout {
 
     private static final int[] LL = new int[]{
-        /* 0 */ android.R.attr.divider,
-        /* 1 */ android.R.attr.showDividers,
-        /* 2 */ android.R.attr.dividerPadding,
+        /* 0 */ attr.divider,
+        /* 1 */ attr.showDividers,
+        /* 2 */ attr.dividerPadding,
     };
     private static final int LL_DIVIDER = 0;
     private static final int LL_SHOW_DIVIDER = 1;
@@ -36,12 +38,13 @@ class IcsLinearLayout extends LinearLayout {
         super(context);
 
         TypedArray a = context.obtainStyledAttributes(null, LL, themeAttr, 0);
-        setDividerDrawable(a.getDrawable(IcsLinearLayout.LL_DIVIDER));
+        setDividerDrawable(a.getDrawable(LL_DIVIDER));
         mDividerPadding = a.getDimensionPixelSize(LL_DIVIDER_PADDING, 0);
         mShowDividers = a.getInteger(LL_SHOW_DIVIDER, SHOW_DIVIDER_NONE);
         a.recycle();
     }
 
+    @Override
     public void setDividerDrawable(Drawable divider) {
 
         if (divider == mDivider) {
@@ -109,7 +112,7 @@ class IcsLinearLayout extends LinearLayout {
 
             if (child != null && child.getVisibility() != GONE) {
                 if (hasDividerBeforeChildAt(i)) {
-                    final android.widget.LinearLayout.LayoutParams lp = (android.widget.LinearLayout.LayoutParams) child.getLayoutParams();
+                    final LayoutParams lp = (LayoutParams) child.getLayoutParams();
                     final int top = child.getTop() - lp.topMargin/* - mDividerHeight*/;
                     drawHorizontalDivider(canvas, top);
                 }
@@ -137,7 +140,7 @@ class IcsLinearLayout extends LinearLayout {
 
             if (child != null && child.getVisibility() != GONE) {
                 if (hasDividerBeforeChildAt(i)) {
-                    final android.widget.LinearLayout.LayoutParams lp = (android.widget.LinearLayout.LayoutParams) child.getLayoutParams();
+                    final LayoutParams lp = (LayoutParams) child.getLayoutParams();
                     final int left = child.getLeft() - lp.leftMargin/* - mDividerWidth*/;
                     drawVerticalDivider(canvas, left);
                 }

@@ -9,7 +9,10 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.TextView;
 import de.qabel.qabelbox.R;
+import de.qabel.qabelbox.R.id;
+import de.qabel.qabelbox.R.layout;
 import de.qabel.qabelbox.activities.BaseWizardActivity;
+import de.qabel.qabelbox.activities.BaseWizardActivity.NextChecker;
 
 public class CreateIdentityEditTextFragment extends BaseIdentityFragment {
 
@@ -17,13 +20,13 @@ public class CreateIdentityEditTextFragment extends BaseIdentityFragment {
     private int mMessageId;
     private int mEditTextHintId;
     private Integer inputType;
-    private BaseWizardActivity.NextChecker mChecker;
+    private NextChecker mChecker;
 
-    public static CreateIdentityEditTextFragment newInstance(int messageId, int editTextHintId, BaseWizardActivity.NextChecker checker) {
+    public static CreateIdentityEditTextFragment newInstance(int messageId, int editTextHintId, NextChecker checker) {
         return newInstance(messageId, editTextHintId, checker, null);
     }
 
-    public static CreateIdentityEditTextFragment newInstance(int messageId, int editTextHintId, BaseWizardActivity.NextChecker checker, Integer textInputType) {
+    public static CreateIdentityEditTextFragment newInstance(int messageId, int editTextHintId, NextChecker checker, Integer textInputType) {
 
         CreateIdentityEditTextFragment fragment = new CreateIdentityEditTextFragment();
         fragment.mMessageId = messageId;
@@ -40,10 +43,10 @@ public class CreateIdentityEditTextFragment extends BaseIdentityFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle
             savedInstanceState) {
 
-        View view = inflater.inflate(R.layout.fragment_create_identity_edittext, container, false);
+        View view = inflater.inflate(layout.fragment_create_identity_edittext, container, false);
 
-        TextView tvMessage = ((TextView) view.findViewById(R.id.tv_message));
-        editText = (EditText) view.findViewById(R.id.et_name);
+        TextView tvMessage = (TextView) view.findViewById(id.tv_message);
+        editText = (EditText) view.findViewById(id.et_name);
         tvMessage.setText(mMessageId);
         editText.setHint(mEditTextHintId);
         if (inputType != null) {

@@ -11,6 +11,7 @@ import de.qabel.core.config.Contact;
 import de.qabel.core.config.Contacts;
 import de.qabel.core.config.Identity;
 import de.qabel.qabelbox.BuildConfig;
+import de.qabel.qabelbox.services.LocalQabelService.LocalBinder;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -32,7 +33,7 @@ public class QabelContentProvider extends ContentProvider {
     private static final String TAG = "QabelContentProvider";
     private static final String CONTENT_AUTHORITY = BuildConfig.APPLICATION_ID + ".services.QabelContentProvider";
 
-    private boolean resourcesReady = false;
+    private boolean resourcesReady;
 
     static {
         uriMatcher.addURI(CONTENT_AUTHORITY, QabelContentProviderConstants.CONTENT_CONTACTS, CONTACTS);
@@ -55,7 +56,7 @@ public class QabelContentProvider extends ContentProvider {
         context.bindService(intent, new ServiceConnection() {
             @Override
             public void onServiceConnected(ComponentName name, IBinder service) {
-                LocalQabelService.LocalBinder binder = (LocalQabelService.LocalBinder) service;
+                LocalBinder binder = (LocalBinder) service;
                 mService = binder.getService();
                 resourcesReady = true;
             }
@@ -109,12 +110,10 @@ public class QabelContentProvider extends ContentProvider {
             return null;
         }
         switch (uriMatcher.match(uri)) {
-            case CONTACTS: {
+            case CONTACTS:
                 return queryContacts();
-            }
-            case IDENTITIES: {
+            case IDENTITIES:
                 return queryIdentities();
-            }
             default:
         }
         return null;

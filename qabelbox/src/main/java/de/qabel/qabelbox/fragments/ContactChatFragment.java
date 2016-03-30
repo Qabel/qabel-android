@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.util.Log;
 import android.view.*;
+import android.view.View.OnClickListener;
 import android.widget.*;
 import de.qabel.core.config.Contact;
 import de.qabel.core.config.Identity;
@@ -14,17 +15,26 @@ import de.qabel.core.drop.DropURL;
 import de.qabel.core.exceptions.QblDropPayloadSizeException;
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
+import de.qabel.qabelbox.R.id;
+import de.qabel.qabelbox.R.layout;
+import de.qabel.qabelbox.R.menu;
+import de.qabel.qabelbox.R.string;
 import de.qabel.qabelbox.activities.MainActivity;
 import de.qabel.qabelbox.adapter.ChatMessageAdapter;
+import de.qabel.qabelbox.adapter.ChatMessageAdapter.OnItemClickListener;
 import de.qabel.qabelbox.chat.ChatMessageItem;
+import de.qabel.qabelbox.chat.ChatMessageItem.ShareMessagePayload;
 import de.qabel.qabelbox.chat.ChatServer;
+import de.qabel.qabelbox.chat.ChatServer.ChatServerCallback;
 import de.qabel.qabelbox.chat.ShareHelper;
 import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.helper.UIHelper;
 import de.qabel.qabelbox.services.LocalQabelService;
+import de.qabel.qabelbox.services.LocalQabelService.OnSendDropMessageResult;
 import de.qabel.qabelbox.storage.*;
 
 import java.util.*;
+import java.util.Map.Entry;
 
 /**
  * Activities that contain this fragment must implement the
@@ -33,7 +43,7 @@ import java.util.*;
 public class ContactChatFragment extends ContactBaseFragment {
 
     private static final String ARG_IDENTITY = "Identity";
-    private final String TAG = this.getClass().getSimpleName();
+    private final String TAG = getClass().getSimpleName();
 
     private Contact contact;
     private final ArrayList<ChatMessageItem> messages = new ArrayList<>();
@@ -43,7 +53,7 @@ public class ContactChatFragment extends ContactBaseFragment {
     private View emptyView;
     private EditText etText;
     private ChatServer chatServer;
-    private boolean isSyncing = false;
+    private boolean isSyncing;
 
     public static ContactChatFragment newInstance(Contact contact) {
 
@@ -81,12 +91,12 @@ public class ContactChatFragment extends ContactBaseFragment {
     public View onCreateView(final LayoutInflater inflater, final ViewGroup container,
                              Bundle savedInstanceState) {
 
-        final View view = inflater.inflate(R.layout.fragment_contact_chat, container, false);
-        contactListRecyclerView = (ListView) view.findViewById(R.id.contact_chat_list);
-        emptyView = view.findViewById(R.id.empty_view);
-        etText = (EditText) view.findViewById(R.id.etText);
-        TextView send = (Button) view.findViewById(R.id.bt_send);
-        send.setOnClickListener(new View.OnClickListener() {
+        final View view = inflater.inflate(layout.fragment_contact_chat, container, false);
+        contactListRecyclerView = (ListView) view.findViewById(id.contact_chat_list);
+        emptyView = view.findViewById(id.empty_view);
+        etText = (EditText) view.findViewById(id.etText);
+        TextView send = (Button) view.findViewById(id.bt_send);
+        send.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
 
@@ -109,7 +119,7 @@ public class ContactChatFragment extends ContactBaseFragment {
         try {
             final DropMessage dropMessage = chatServer.getTextDropMessage(text);
             final Identity identity = QabelBoxApplication.getInstance().getService().getActiveIdentity();
-            QabelBoxApplication.getInstance().getService().sendDropMessage(dropMessage, contact, identity, new LocalQabelService.OnSendDropMessageResult() {
+            QabelBoxApplication.getInstance().getService().sendDropMessage(dropMessage, contact, identity, new OnSendDropMessageResult() {
                 @Override
                 public void onSendDropResult(Map<DropURL, Boolean> deliveryStatus) {
                     boolean sended = false;
@@ -117,11 +127,11 @@ public class ContactChatFragment extends ContactBaseFragment {
                     if (deliveryStatus != null) {
                         Iterator it = deliveryStatus.entrySet().iterator();
                         while (it.hasNext()) {
-                            Map.Entry pair = (Map.Entry) it.next();
+                            Entry pair = (Entry) it.next();
                             if ((Boolean) pair.getValue()) {
                                 sended = true;
                             }
-                            Log.d(TAG, "message send result: " + pair.toString() + " " + pair.getValue());
+                            Log.d(TAG, "message send result: " + pair + " " + pair.getValue());
                         }
 
                         Log.d(TAG, "sended: " + sended);
@@ -144,7 +154,7 @@ public class ContactChatFragment extends ContactBaseFragment {
                         getActivity().runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                Toast.makeText(getActivity(), R.string.message_chat_message_not_sended, Toast.LENGTH_SHORT).show();
+                                Toast.makeText(getActivity(), string.message_chat_message_not_sended, Toast.LENGTH_SHORT).show();
                             }
                         });
 
@@ -153,7 +163,7 @@ public class ContactChatFragment extends ContactBaseFragment {
                 }
             });
         } catch (QblDropPayloadSizeException e) {
-            Toast.makeText(getActivity(), R.string.cant_send_message, Toast.LENGTH_SHORT).show();
+            Toast.makeText(getActivity(), string.cant_send_message, Toast.LENGTH_SHORT).show();
             Log.e(TAG, "cant send message", e);
         }
     }
@@ -203,9 +213,9 @@ public class ContactChatFragment extends ContactBaseFragment {
     }
 
     @NonNull
-    private ChatMessageAdapter.OnItemClickListener getOnItemClickListener() {
+    private OnItemClickListener getOnItemClickListener() {
 
-        return new ChatMessageAdapter.OnItemClickListener() {
+        return new OnItemClickListener() {
 
             @Override
             public void onItemClick(final ChatMessageItem item) {
@@ -213,7 +223,7 @@ public class ContactChatFragment extends ContactBaseFragment {
                 LocalQabelService service = QabelBoxApplication.getInstance().getService();
 
                 //check if message is instance of sharemessage
-                if (item.getData() instanceof ChatMessageItem.ShareMessagePayload) {
+                if (item.getData() instanceof ShareMessagePayload) {
 
                     final FilesFragment filesFragment = mActivity.filesFragment;
 
@@ -226,7 +236,7 @@ public class ContactChatFragment extends ContactBaseFragment {
 
                             @Override
                             protected void onPreExecute() {
-                                wait = UIHelper.showWaitMessage(getActivity(), R.string.infos, R.string.message_please_wait, false);
+                                wait = UIHelper.showWaitMessage(getActivity(), string.infos, string.message_please_wait, false);
                             }
 
                             @Override
@@ -235,12 +245,12 @@ public class ContactChatFragment extends ContactBaseFragment {
                                 //navigate to share folder or create this if not exists
                                 BoxNavigation nav = navigateToShareFolder(filesFragment.getBoxVolume());
                                 if (nav == null) {
-                                    errorId = R.string.message_cant_navigate_to_share_folder;
+                                    errorId = string.message_cant_navigate_to_share_folder;
                                     return null;
                                 }
                                 //check if shared file already exists or attached
                                 if (isAttached(nav, item)) {
-                                    errorId = R.string.message_cant_attach_external_file_exists;
+                                    errorId = string.message_cant_attach_external_file_exists;
                                     return null;
                                 }
                                 return nav;
@@ -251,7 +261,7 @@ public class ContactChatFragment extends ContactBaseFragment {
 
                                 wait.dismiss();
                                 if (boxNavigation == null) {
-                                    UIHelper.showDialogMessage(getActivity(), R.string.dialog_headline_info, errorId);
+                                    UIHelper.showDialogMessage(getActivity(), string.dialog_headline_info, errorId);
                                 } else {
                                     BoxExternalReference boxExternalReference = ShareHelper.getBoxExternalReference(contact, item);
                                     attachCheckedSharedFile(filesFragment, boxNavigation, boxExternalReference);
@@ -276,9 +286,9 @@ public class ContactChatFragment extends ContactBaseFragment {
             protected void onPostExecute(List<BoxObject> boxObjects) {
 
                 if (boxObjects != null) {
-                    Toast.makeText(mActivity, R.string.shared_file_imported, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(mActivity, string.shared_file_imported, Toast.LENGTH_SHORT).show();
                 } else {
-                    Toast.makeText(mActivity, R.string.cant_import_shared_file, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(mActivity, string.cant_import_shared_file, Toast.LENGTH_SHORT).show();
                 }
                 filesFragment.refresh();
                 //	filesFragment.setBoxNavigation(nav);
@@ -303,7 +313,7 @@ public class ContactChatFragment extends ContactBaseFragment {
             @Override
             protected void onPreExecute() {
 
-                wait = UIHelper.showWaitMessage(mActivity, R.string.dialog_headline_info, R.string.please_wait_attach_external_file, false);
+                wait = UIHelper.showWaitMessage(mActivity, string.dialog_headline_info, string.please_wait_attach_external_file, false);
             }
         }.executeOnExecutor(AsyncTask.SERIAL_EXECUTOR);
     }
@@ -344,7 +354,7 @@ public class ContactChatFragment extends ContactBaseFragment {
      */
     private boolean isAttached(BoxNavigation nav, ChatMessageItem item) {
 
-        ChatMessageItem.ShareMessagePayload payLoad = (ChatMessageItem.ShareMessagePayload) item.getData();
+        ShareMessagePayload payLoad = (ShareMessagePayload) item.getData();
         String fileNameToAdd = payLoad.getMessage();
         try {
             //go through external files
@@ -373,14 +383,14 @@ public class ContactChatFragment extends ContactBaseFragment {
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
 
         menu.clear();
-        inflater.inflate(R.menu.ab_chat_detail_refresh, menu);
+        inflater.inflate(menu.ab_chat_detail_refresh, menu);
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
 
         int id = item.getItemId();
-        if (id == R.id.action_chat_detail_refresh) {
+        if (id == id.action_chat_detail_refresh) {
             refreshMessagesAsync();
         }
 
@@ -418,7 +428,7 @@ public class ContactChatFragment extends ContactBaseFragment {
         super.onStop();
     }
 
-    private final ChatServer.ChatServerCallback chatServerCallback = new ChatServer.ChatServerCallback() {
+    private final ChatServerCallback chatServerCallback = new ChatServerCallback() {
 
         @Override
         public void onRefreshed() {

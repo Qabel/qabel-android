@@ -4,12 +4,18 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.RecyclerView.LayoutManager;
 import android.util.Log;
 import android.view.*;
+import android.view.View.OnClickListener;
 import android.widget.Toast;
 import de.qabel.core.config.Identity;
 import de.qabel.qabelbox.R;
+import de.qabel.qabelbox.R.id;
+import de.qabel.qabelbox.R.menu;
+import de.qabel.qabelbox.R.string;
 import de.qabel.qabelbox.adapter.FilesAdapter;
+import de.qabel.qabelbox.adapter.FilesAdapter.OnItemClickListener;
 import de.qabel.qabelbox.communication.VolumeFileTransferHelper;
 import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.storage.BoxFolder;
@@ -20,9 +26,9 @@ import java.util.ArrayList;
 
 public class SelectUploadFolderFragment extends FilesFragment {
 
-    private final String TAG = this.getClass().getSimpleName();
+    private final String TAG = getClass().getSimpleName();
     private ArrayList<Uri> uris;
-    private RecyclerView.LayoutManager recyclerViewLayoutManager;
+    private LayoutManager recyclerViewLayoutManager;
 
     private void loadIdentityFiles(final BoxVolume boxVolume) {
 
@@ -80,14 +86,14 @@ public class SelectUploadFolderFragment extends FilesFragment {
 
     private void setClickListener(final FilesAdapter filesAdapter) {
 
-        filesAdapter.setOnItemClickListener(new FilesAdapter.OnItemClickListener() {
+        filesAdapter.setOnItemClickListener(new OnItemClickListener() {
             @Override
             public void onItemClick(View view, int position) {
 
                 final BoxObject boxObject = filesAdapter.get(position);
                 if (boxObject != null) {
                     if (boxObject instanceof BoxFolder) {
-                        browseTo(((BoxFolder) boxObject));
+                        browseTo((BoxFolder) boxObject);
                     }
                 }
             }
@@ -105,7 +111,7 @@ public class SelectUploadFolderFragment extends FilesFragment {
         super.onCreate(savedInstanceState);
         actionBar.setDisplayHomeAsUpEnabled(true);
         mActivity.toggle.setDrawerIndicatorEnabled(false);
-        setActionBarBackListener(new View.OnClickListener() {
+        setActionBarBackListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
 
@@ -117,14 +123,14 @@ public class SelectUploadFolderFragment extends FilesFragment {
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
 
         menu.clear();
-        inflater.inflate(R.menu.ab_upload, menu);
+        inflater.inflate(menu.ab_upload, menu);
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
 
         int id = item.getItemId();
-        if (id == R.id.action_upload) {
+        if (id == id.action_upload) {
             uploadFiles();
             return true;
         }
@@ -136,10 +142,11 @@ public class SelectUploadFolderFragment extends FilesFragment {
         for (int i = 0; i < uris.size(); i++) {
             VolumeFileTransferHelper.upload(getActivity(), uris.get(i), boxNavigation, mActivity.boxVolume);
         }
-        Toast.makeText(getActivity(), getString(R.string.x_files_uploading).replace("%1", "" + uris.size()), Toast.LENGTH_SHORT).show();
+        Toast.makeText(getActivity(), getString(string.x_files_uploading).replace("%1", "" + uris.size()), Toast.LENGTH_SHORT).show();
         getFragmentManager().popBackStack();
     }
 
+    @Override
     public void setAdapter(FilesAdapter adapter) {
 
         filesAdapter = adapter;
@@ -161,7 +168,7 @@ public class SelectUploadFolderFragment extends FilesFragment {
     @Override
     public String getTitle() {
 
-        return getString(R.string.headline_select_upload_folder);
+        return getString(string.headline_select_upload_folder);
     }
 
     @Override
@@ -170,6 +177,7 @@ public class SelectUploadFolderFragment extends FilesFragment {
         return false;
     }
 
+    @Override
     public boolean supportBackButton() {
 
         return true;

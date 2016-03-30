@@ -16,7 +16,7 @@ import static org.junit.Assert.assertThat;
 
 public class SearchTest extends AndroidTestCase {
 
-    private final static String TAG = SearchTest.class.getName();
+    private static final String TAG = SearchTest.class.getName();
 
     //will represent a filled resultset after setUp()
     //
@@ -34,6 +34,7 @@ public class SearchTest extends AndroidTestCase {
 
     private static boolean setup = true;
 
+    @Override
     public void setUp() throws Exception {
         if (!setup) {
             //setting up the directory structure takes time and so it is only made once - @AfterClass is not available here, so the cleanup is done, too
@@ -53,7 +54,7 @@ public class SearchTest extends AndroidTestCase {
 
         volume.createIndex();
 
-        Log.d(TAG, "VOL :" + volume.toString());
+        Log.d(TAG, "VOL :" + volume);
 
         BoxNavigation nav = volume.navigate();
 
@@ -126,7 +127,7 @@ public class SearchTest extends AndroidTestCase {
 
     private void debug(BoxObject o) {
         if (o instanceof BoxFile) {
-            BoxFile f = ((BoxFile) o);
+            BoxFile f = (BoxFile) o;
             Log.d(TAG, "FILE: " + o.name + " @" + f.size + " D: " + f.mtime);
         } else {
             Log.d(TAG, "DIR : " + o.name);

@@ -9,6 +9,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import de.qabel.qabelbox.R;
+import de.qabel.qabelbox.R.id;
+import de.qabel.qabelbox.R.layout;
 import de.qabel.qabelbox.adapter.JSONLicencesAdapter;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -29,7 +31,7 @@ public class AboutLicencesFragment extends BaseFragment {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_aboutlicences, container, false);
+        return inflater.inflate(layout.fragment_aboutlicences, container, false);
     }
 
     public String readUTF8FromAssets(String filename) throws IOException {
@@ -43,7 +45,7 @@ public class AboutLicencesFragment extends BaseFragment {
             is.close();
             content = new String(buffer, "UTF-8");
         } catch (IOException ex) {
-            Log.e(TAG, "Could not read licencing info " + ex.toString());
+            Log.e(TAG, "Could not read licencing info " + ex);
             return null;
         }
         return content;
@@ -56,7 +58,7 @@ public class AboutLicencesFragment extends BaseFragment {
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        licensesList = (RecyclerView) view.findViewById(R.id.about_licences_list);
+        licensesList = (RecyclerView) view.findViewById(id.about_licences_list);
         String qapl = null;
         try {
             qapl = readUTF8FromAssets("qapl.txt");

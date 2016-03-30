@@ -2,15 +2,16 @@ package de.qabel.qabelbox.persistence;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteDatabase.CursorFactory;
 
 public class QblSQLiteParams {
 
     private final Context context;
     private final String name;
-    private final SQLiteDatabase.CursorFactory factory;
+    private final CursorFactory factory;
     private final int version;
 
-    public QblSQLiteParams(Context context, String name, SQLiteDatabase.CursorFactory factory, int version) {
+    public QblSQLiteParams(Context context, String name, CursorFactory factory, int version) {
         this.context = context;
         this.name = name;
         this.factory = factory;
@@ -25,7 +26,7 @@ public class QblSQLiteParams {
         return name;
     }
 
-    public SQLiteDatabase.CursorFactory getFactory() {
+    public CursorFactory getFactory() {
         return factory;
     }
 

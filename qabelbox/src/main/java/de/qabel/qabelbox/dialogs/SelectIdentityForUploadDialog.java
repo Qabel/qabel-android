@@ -2,12 +2,16 @@ package de.qabel.qabelbox.dialogs;
 
 import android.app.Activity;
 import android.content.DialogInterface;
+import android.content.DialogInterface.OnClickListener;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 import de.qabel.core.config.Identity;
 import de.qabel.qabelbox.R;
+import de.qabel.qabelbox.R.id;
+import de.qabel.qabelbox.R.layout;
+import de.qabel.qabelbox.R.string;
 import de.qabel.qabelbox.activities.MainActivity;
 import de.qabel.qabelbox.helper.UIHelper;
 
@@ -24,8 +28,8 @@ public class SelectIdentityForUploadDialog {
 
         LayoutInflater inflater = (LayoutInflater)
                 activity.getSystemService(Activity.LAYOUT_INFLATER_SERVICE);
-        View view = inflater.inflate(R.layout.dialog_select_identity, null);
-        final Spinner mIdentitySpinner = (Spinner) view.findViewById(R.id.spinner_identities);
+        View view = inflater.inflate(layout.dialog_select_identity, null);
+        final Spinner mIdentitySpinner = (Spinner) view.findViewById(id.spinner_identities);
 
         final Set<Identity> identities = activity.mService.getIdentities().getIdentities();
         final String[] spinnerArray = new String[identities.size()];
@@ -38,10 +42,10 @@ public class SelectIdentityForUploadDialog {
             i++;
         }
 
-        ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<String>(activity, R.layout.view_spinner, spinnerArray);
-        spinnerArrayAdapter.setDropDownViewResource(R.layout.view_spinner);
+        ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<String>(activity, layout.view_spinner, spinnerArray);
+        spinnerArrayAdapter.setDropDownViewResource(layout.view_spinner);
         mIdentitySpinner.setAdapter(spinnerArrayAdapter);
-        UIHelper.showCustomDialog(activity, R.string.headline_share_into_app, view, R.string.ok, R.string.cancel, new DialogInterface.OnClickListener() {
+        UIHelper.showCustomDialog(activity, string.headline_share_into_app, view, string.ok, string.cancel, new OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
 
@@ -49,7 +53,7 @@ public class SelectIdentityForUploadDialog {
                         result.onIdentitySelected(identity);
                     }
                 }
-                , new DialogInterface.OnClickListener() {
+                , new OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
 

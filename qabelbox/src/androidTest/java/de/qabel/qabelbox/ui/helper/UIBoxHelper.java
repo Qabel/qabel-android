@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.graphics.Bitmap;
+import android.graphics.Bitmap.CompressFormat;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.IBinder;
@@ -27,6 +28,7 @@ import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.helper.RealTokerGetter;
 import de.qabel.qabelbox.providers.BoxProvider;
 import de.qabel.qabelbox.services.LocalQabelService;
+import de.qabel.qabelbox.services.LocalQabelService.LocalBinder;
 import de.qabel.qabelbox.storage.BoxVolume;
 import de.qabel.qabelbox.storage.StorageSearch;
 import org.apache.commons.io.output.ByteArrayOutputStream;
@@ -41,11 +43,11 @@ import java.util.Set;
 public class UIBoxHelper {
 
 
-    private final String TAG = this.getClass().getSimpleName();
+    private final String TAG = getClass().getSimpleName();
     private LocalQabelService mService;
     private BoxProvider provider;
     public BoxVolume mBoxVolume;
-    private boolean finished = false;
+    private boolean finished;
 
     public UIBoxHelper(Context activity) {
     }
@@ -73,7 +75,7 @@ public class UIBoxHelper {
                 Log.d(TAG, "LocalQabelService connected");
                 provider = app.getProvider();
                 Log.i(TAG, "Provider: " + provider);
-                LocalQabelService.LocalBinder binder = (LocalQabelService.LocalBinder) service;
+                LocalBinder binder = (LocalBinder) service;
                 mService = binder.getService();
 
                 finished = true;
@@ -209,7 +211,7 @@ public class UIBoxHelper {
      * @param format   format type
      * @param id       resource id
      */
-    public void uploadDrawableFile(BoxVolume boxVolume, String filename, Bitmap.CompressFormat format, int id) {
+    public void uploadDrawableFile(BoxVolume boxVolume, String filename, CompressFormat format, int id) {
 
         Bitmap bitmap = BitmapFactory.decodeResource(QabelBoxApplication.getInstance().getResources(), id);
         ByteArrayOutputStream baos = new ByteArrayOutputStream(100 * 1024);

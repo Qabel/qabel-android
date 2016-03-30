@@ -1,7 +1,9 @@
 package de.qabel.qabelbox.activities;
 
+import android.R.anim;
 import android.app.FragmentTransaction;
 import android.content.DialogInterface;
+import android.content.DialogInterface.OnClickListener;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
@@ -10,13 +12,17 @@ import android.view.MenuItem;
 import android.view.View;
 import de.qabel.core.accounting.AccountingHTTP;
 import de.qabel.qabelbox.R;
+import de.qabel.qabelbox.R.id;
+import de.qabel.qabelbox.R.layout;
+import de.qabel.qabelbox.R.menu;
+import de.qabel.qabelbox.R.string;
 import de.qabel.qabelbox.fragments.BaseIdentityFragment;
 import de.qabel.qabelbox.fragments.CreateIdentityHeaderFragment;
 import de.qabel.qabelbox.helper.UIHelper;
 
 public abstract class BaseWizardActivity extends CrashReportingActivity {
 
-    private String TAG = this.getClass().getSimpleName();
+    private String TAG = getClass().getSimpleName();
 
     public static final String FIRST_RUN = "first_run";
 
@@ -27,12 +33,12 @@ public abstract class BaseWizardActivity extends CrashReportingActivity {
     private CreateIdentityHeaderFragment mIdentityHeaderFragment;
 
     protected BaseIdentityFragment[] fragments;
-    protected int step = 0;
+    protected int step;
     public int activityResult = RESULT_CANCELED;
     protected boolean mFirstRun;
     //values for create box account mode
     AccountingHTTP mAccounting;
-    protected boolean canExit = false;
+    protected boolean canExit;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,8 +46,8 @@ public abstract class BaseWizardActivity extends CrashReportingActivity {
         super.onCreate(savedInstanceState);
         mActivity = this;
         mFirstRun = getIntent().getBooleanExtra(FIRST_RUN, true);
-        overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
-        setContentView(R.layout.activity_create_identity);
+        overridePendingTransition(anim.fade_in, anim.fade_out);
+        setContentView(layout.activity_create_identity);
         setupToolbar();
         createFragments();
         actionBar.setTitle(getActionBarTitle());
@@ -49,7 +55,7 @@ public abstract class BaseWizardActivity extends CrashReportingActivity {
 
     private void setupToolbar() {
 
-        Toolbar mToolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar mToolbar = (Toolbar) findViewById(id.toolbar);
         setSupportActionBar(mToolbar);
         actionBar = getSupportActionBar();
         assert getSupportActionBar() != null;
@@ -73,8 +79,8 @@ public abstract class BaseWizardActivity extends CrashReportingActivity {
         mIdentityHeaderFragment = new CreateIdentityHeaderFragment();
         fragments = getFragmentList();
         FragmentTransaction ft = getFragmentManager().beginTransaction();
-        ft.add(R.id.fragment_container_content, fragments[0]);
-        ft.add(R.id.fragment_container_header, mIdentityHeaderFragment);
+        ft.add(id.fragment_container_content, fragments[0]);
+        ft.add(id.fragment_container_header, mIdentityHeaderFragment);
         ft.commit();
     }
 
@@ -110,13 +116,13 @@ public abstract class BaseWizardActivity extends CrashReportingActivity {
                 finish();
             } else {
 
-                UIHelper.showDialogMessage(this, getString(R.string.dialog_headline_warning), String.format(getString(R.string.message_step_is_needed_or_close_app), getWizardEntityLabel()), R.string.yes, R.string.no, new DialogInterface.OnClickListener() {
+                UIHelper.showDialogMessage(this, getString(string.dialog_headline_warning), String.format(getString(string.message_step_is_needed_or_close_app), getWizardEntityLabel()), string.yes, string.no, new OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
 
                         finish();
                     }
-                }, new DialogInterface.OnClickListener() {
+                }, new OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
 
@@ -131,8 +137,8 @@ public abstract class BaseWizardActivity extends CrashReportingActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
 
-        getMenuInflater().inflate(R.menu.ab_create_identity, menu);
-        mActionNext = menu.findItem(R.id.action_next);
+        getMenuInflater().inflate(menu.ab_create_identity, menu);
+        mActionNext = menu.findItem(id.action_next);
         updateActionBar(step);
         return true;
     }
@@ -140,7 +146,7 @@ public abstract class BaseWizardActivity extends CrashReportingActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
 
-        if (item.getItemId() == R.id.action_next) {
+        if (item.getItemId() == id.action_next) {
             handleNextClick();
             return true;
         }
@@ -150,11 +156,11 @@ public abstract class BaseWizardActivity extends CrashReportingActivity {
 
     public void handleNextClick() {
 
-        String check = ((BaseIdentityFragment) getFragmentManager().findFragmentById(R.id.fragment_container_content)).check();
+        String check = ((BaseIdentityFragment) getFragmentManager().findFragmentById(id.fragment_container_content)).check();
         //check if fragment ready to go to the next step
         if (check != null) {
             //no, show error message
-            UIHelper.showDialogMessage(this, R.string.dialog_headline_info, check);
+            UIHelper.showDialogMessage(this, string.dialog_headline_info, check);
         } else {
 
             //check if currently last step
@@ -188,7 +194,7 @@ public abstract class BaseWizardActivity extends CrashReportingActivity {
         actionBar.setDisplayUseLogoEnabled(false);
 
         mIdentityHeaderFragment.updateUI(getHeaderFragmentText());
-        getFragmentManager().beginTransaction().replace(R.id.fragment_container_content, fragments[step]).addToBackStack(null).commit();
+        getFragmentManager().beginTransaction().replace(id.fragment_container_content, fragments[step]).addToBackStack(null).commit();
         updateActionBar(step);
     }
 
@@ -206,19 +212,19 @@ public abstract class BaseWizardActivity extends CrashReportingActivity {
             mActionNext.setVisible(true);
             actionBar.setDisplayShowHomeEnabled(true);
             actionBar.setHomeButtonEnabled(true);
-            mActionNext.setTitle(R.string.next);
+            mActionNext.setTitle(string.next);
         } else {
             mActionNext.setVisible(true);
             actionBar.setDisplayHomeAsUpEnabled(false);
             actionBar.setDisplayShowTitleEnabled(false);
-            mActionNext.setTitle(R.string.finish);
+            mActionNext.setTitle(string.finish);
         }
 
         //update subtitle
         if (step == 0) {
             actionBar.setSubtitle(null);
         } else if (step < fragments.length - 1) {
-            actionBar.setSubtitle(getString(R.string.step_x_from_y).replace("$1", step + "").replace("$2", (fragments.length - 2) + ""));
+            actionBar.setSubtitle(getString(string.step_x_from_y).replace("$1", step + "").replace("$2", (fragments.length - 2) + ""));
         }
     }
 

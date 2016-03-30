@@ -8,6 +8,7 @@ import android.support.test.runner.lifecycle.ActivityLifecycleMonitorRegistry;
 import android.support.test.runner.lifecycle.Stage;
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
+import de.qabel.qabelbox.R.string;
 import de.qabel.qabelbox.fragments.SettingsFragment;
 
 import static android.support.test.espresso.Espresso.onView;
@@ -61,6 +62,6 @@ public class UITestHelper {
         SharedPreferences preferences = context.getSharedPreferences(
                 SettingsFragment.APP_PREF_NAME,
                 Context.MODE_PRIVATE);
-        preferences.edit().putBoolean(context.getString(R.string.settings_key_bugreporting_enabled), false).commit();
+        preferences.edit().putBoolean(context.getString(string.settings_key_bugreporting_enabled), false).commit();
     }
 }

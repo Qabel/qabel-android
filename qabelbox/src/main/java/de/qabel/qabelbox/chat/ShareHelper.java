@@ -12,11 +12,15 @@ import de.qabel.core.drop.DropMessage;
 import de.qabel.core.drop.DropURL;
 import de.qabel.core.exceptions.QblDropPayloadSizeException;
 import de.qabel.qabelbox.R;
+import de.qabel.qabelbox.R.string;
 import de.qabel.qabelbox.activities.MainActivity;
+import de.qabel.qabelbox.chat.ChatMessageItem.ShareMessagePayload;
 import de.qabel.qabelbox.dialogs.SelectContactForShareDialog;
+import de.qabel.qabelbox.dialogs.SelectContactForShareDialog.Result;
 import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.helper.UIHelper;
 import de.qabel.qabelbox.services.LocalQabelService;
+import de.qabel.qabelbox.services.LocalQabelService.OnSendDropMessageResult;
 import de.qabel.qabelbox.storage.BoxExternalReference;
 import de.qabel.qabelbox.storage.BoxFile;
 import de.qabel.qabelbox.storage.BoxNavigation;
@@ -33,20 +37,20 @@ public class ShareHelper {
 
         Intent sharingIntent = new Intent(Intent.ACTION_SEND);
         sharingIntent.setType("text/plain");
-        sharingIntent.putExtra(Intent.EXTRA_SUBJECT, activity.getString(R.string.tellAFriendSubject));
-        sharingIntent.putExtra(Intent.EXTRA_TEXT, activity.getString(R.string.tellAFriendMessage));
-        activity.startActivity(Intent.createChooser(sharingIntent, activity.getResources().getText(R.string.share_via)));
+        sharingIntent.putExtra(Intent.EXTRA_SUBJECT, activity.getString(string.tellAFriendSubject));
+        sharingIntent.putExtra(Intent.EXTRA_TEXT, activity.getString(string.tellAFriendMessage));
+        activity.startActivity(Intent.createChooser(sharingIntent, activity.getResources().getText(string.share_via)));
     }
 
     public static void shareToQabelUser(final MainActivity self, LocalQabelService mService, final BoxObject boxObject) {
 
         if (mService.getContacts(mService.getActiveIdentity()).getContacts().size() == 0) {
-            UIHelper.showDialogMessage(self, R.string.dialog_headline_info, R.string.cant_share_contactlist_is_empty);
+            UIHelper.showDialogMessage(self, string.dialog_headline_info, string.cant_share_contactlist_is_empty);
 
         } else {
             if (boxObject instanceof BoxFile) {
 
-                new SelectContactForShareDialog(self, new SelectContactForShareDialog.Result() {
+                new SelectContactForShareDialog(self, new Result() {
                     @Override
                     public void onCancel() {
 
@@ -59,7 +63,7 @@ public class ShareHelper {
                     }
                 });
             } else {
-                UIHelper.showDialogMessage(self, R.string.share_only_files_possibility, Toast.LENGTH_SHORT);
+                UIHelper.showDialogMessage(self, string.share_only_files_possibility, Toast.LENGTH_SHORT);
             }
         }
     }
@@ -70,7 +74,7 @@ public class ShareHelper {
     @NonNull
     public static BoxExternalReference getBoxExternalReference(Contact contact, ChatMessageItem item) {
 
-        ChatMessageItem.ShareMessagePayload payload = (ChatMessageItem.ShareMessagePayload) item.getData();
+        ShareMessagePayload payload = (ShareMessagePayload) item.getData();
         return new BoxExternalReference(false, payload.getURL(), null, contact.getEcPublicKey(), Hex.decode(payload.getKey()));
     }
 
@@ -93,7 +97,7 @@ public class ShareHelper {
 
             @Override
             protected void onPreExecute() {
-                waitMessage = UIHelper.showWaitMessage(mainActivity, R.string.dialog_headline_info, R.string.dialog_share_sending_in_progress, false);
+                waitMessage = UIHelper.showWaitMessage(mainActivity, string.dialog_headline_info, string.dialog_share_sending_in_progress, false);
             }
 
             @Override
@@ -114,7 +118,7 @@ public class ShareHelper {
 
                 if (dm != null) {
                     try {
-                        mService.sendDropMessage(dm, contact, mService.getActiveIdentity(), new LocalQabelService.OnSendDropMessageResult() {
+                        mService.sendDropMessage(dm, contact, mService.getActiveIdentity(), new OnSendDropMessageResult() {
                             @Override
                             public void onSendDropResult(Map<DropURL, Boolean> deliveryStatus) {
                                 ChatMessageItem message = new ChatMessageItem(mainActivity.mService.getActiveIdentity(), contact.getEcPublicKey().getReadableKeyIdentifier(), dm.getDropPayload(), dm.getDropPayloadType());
@@ -123,7 +127,7 @@ public class ShareHelper {
                                 mainActivity.runOnUiThread(new Runnable() {
                                     @Override
                                     public void run() {
-                                        Toast.makeText(mainActivity, R.string.messsage_file_shared, Toast.LENGTH_SHORT).show();
+                                        Toast.makeText(mainActivity, string.messsage_file_shared, Toast.LENGTH_SHORT).show();
                                     }
                                 });
 
@@ -131,10 +135,10 @@ public class ShareHelper {
                         });
                     } catch (QblDropPayloadSizeException e) {
                         Log.e(TAG, "cant send share", e);
-                        UIHelper.showDialogMessage(mainActivity, R.string.dialog_headline_warning, R.string.share_error_on_sending, e);
+                        UIHelper.showDialogMessage(mainActivity, string.dialog_headline_warning, string.share_error_on_sending, e);
                     }
                 } else {
-                    UIHelper.showDialogMessage(mainActivity, R.string.dialog_headline_warning, R.string.share_error_on_sending);
+                    UIHelper.showDialogMessage(mainActivity, string.dialog_headline_warning, string.share_error_on_sending);
                 }
                 //hide wait message
                 waitMessage.dismiss();

@@ -20,12 +20,13 @@ package de.qabel.qabelbox.views;
  */
 
 import android.support.v4.view.ViewPager;
+import android.support.v4.view.ViewPager.OnPageChangeListener;
 
 /**
  * A PageIndicator is responsible to show an visual indicator on the total views
  * number and the current visible view.
  */
-public interface PageIndicator extends ViewPager.OnPageChangeListener {
+public interface PageIndicator extends OnPageChangeListener {
 
     /**
      * Bind the indicator to a ViewPager.
@@ -48,7 +49,7 @@ public interface PageIndicator extends ViewPager.OnPageChangeListener {
     /**
      * Set a page change listener which will receive forwarded events.
      */
-    void setOnPageChangeListener(ViewPager.OnPageChangeListener listener);
+    void setOnPageChangeListener(OnPageChangeListener listener);
 
     /**
      * Notify the indicator that the fragment list has changed.

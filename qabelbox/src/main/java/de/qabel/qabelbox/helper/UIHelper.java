@@ -1,18 +1,26 @@
 package de.qabel.qabelbox.helper;
 
+import android.R.id;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.AlertDialog.Builder;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.DialogInterface.OnClickListener;
+import android.content.DialogInterface.OnShowListener;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewGroup.LayoutParams;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import de.qabel.qabelbox.R;
+import de.qabel.qabelbox.R.dimen;
+import de.qabel.qabelbox.R.string;
+import de.qabel.qabelbox.R.style;
 import de.qabel.qabelbox.views.EditTextFont;
 
 import java.io.IOException;
@@ -29,7 +37,7 @@ public class UIHelper {
     /**
      * show dialog with one buttonhelp
      */
-    public static void showDialogMessage(final Activity activity, final int headline, final int message, final int buttonOk, final int buttonCancel, final DialogInterface.OnClickListener buttonOkListener, final DialogInterface.OnClickListener buttonCancelListener) {
+    public static void showDialogMessage(final Activity activity, final int headline, final int message, final int buttonOk, final int buttonCancel, final OnClickListener buttonOkListener, final OnClickListener buttonCancelListener) {
 
         showDialogMessage(activity, activity.getString(headline), activity.getString(message), buttonOk, buttonCancel, buttonOkListener, buttonCancelListener);
     }
@@ -37,10 +45,10 @@ public class UIHelper {
     /**
      * show dialog with one button
      */
-    public static void showDialogMessage(final Activity activity, final String headline, final String message, final int buttonOk, final int buttonCancel, final DialogInterface.OnClickListener buttonOkListener, final DialogInterface.OnClickListener buttonCancelListener) {
+    public static void showDialogMessage(final Activity activity, final String headline, final String message, final int buttonOk, final int buttonCancel, final OnClickListener buttonOkListener, final OnClickListener buttonCancelListener) {
 
-        final AlertDialog.Builder builder =
-                new AlertDialog.Builder(activity);
+        final Builder builder =
+                new Builder(activity);
         builder.setTitle(headline);
         builder.setMessage(message);
         builder.setPositiveButton(buttonOk, buttonOkListener);
@@ -54,12 +62,12 @@ public class UIHelper {
             public void run() {
 
                 final AlertDialog dialog = builder.create();
-                dialog.setOnShowListener(new DialogInterface.OnShowListener() {
+                dialog.setOnShowListener(new OnShowListener() {
                     @Override
                     public void onShow(DialogInterface dialog1) {
 
-                        fontHelper.setCustomeFonts((TextView) dialog.findViewById(android.R.id.message));
-                        fontHelper.setCustomeFonts((TextView) dialog.findViewById(android.R.id.title));
+                        fontHelper.setCustomeFonts((TextView) dialog.findViewById(id.message));
+                        fontHelper.setCustomeFonts((TextView) dialog.findViewById(id.title));
 
                         fontHelper.setCustomeFonts(dialog.getButton(AlertDialog.BUTTON_POSITIVE));
                         fontHelper.setCustomeFonts(dialog.getButton(AlertDialog.BUTTON_NEGATIVE));
@@ -73,21 +81,21 @@ public class UIHelper {
 
     public static void showDialogMessage(Activity activity, int headline, int message) {
 
-        showDialogMessage(activity, headline, message, R.string.ok, Integer.MIN_VALUE, null, null);
+        showDialogMessage(activity, headline, message, string.ok, Integer.MIN_VALUE, null, null);
     }
 
     public static void showDialogMessage(Activity activity, int headline, String message) {
 
-        showDialogMessage(activity, activity.getString(headline), message, R.string.ok, Integer.MIN_VALUE, null, null);
+        showDialogMessage(activity, activity.getString(headline), message, string.ok, Integer.MIN_VALUE, null, null);
     }
 
     public static void showDialogMessage(Activity activity, String headline, String message) {
-        showDialogMessage(activity, headline, message, R.string.ok, Integer.MIN_VALUE, null, null);
+        showDialogMessage(activity, headline, message, string.ok, Integer.MIN_VALUE, null, null);
     }
 
-    public static void showDialogMessage(Activity activity, int headline, int message, DialogInterface.OnClickListener buttonOkListener) {
+    public static void showDialogMessage(Activity activity, int headline, int message, OnClickListener buttonOkListener) {
 
-        showDialogMessage(activity, headline, message, R.string.ok, Integer.MIN_VALUE, buttonOkListener, null);
+        showDialogMessage(activity, headline, message, string.ok, Integer.MIN_VALUE, buttonOkListener, null);
     }
 
     public static void showDialogMessage(Activity activity, int headline, int message, int buttonOk) {
@@ -97,7 +105,7 @@ public class UIHelper {
 
     public static void showFunctionNotYetImplemented(Activity activity) {
 
-        showDialogMessage(activity, R.string.dialog_headline_info, R.string.function_not_yet_implenented);
+        showDialogMessage(activity, string.dialog_headline_info, string.function_not_yet_implenented);
     }
 
     /**
@@ -105,21 +113,21 @@ public class UIHelper {
      */
     public static AlertDialog showWaitMessage(final Activity activity, int headline, int message, boolean cancelable) {
 
-        AlertDialog.Builder builder =
-                new AlertDialog.Builder(activity, R.style.AppCompatAlertDialogStyle);
+        Builder builder =
+                new Builder(activity, style.AppCompatAlertDialogStyle);
         builder.setTitle(headline);
         builder.setMessage(message);
 
         builder.setCancelable(cancelable);
         final AlertDialog dialog = builder.create();
 
-        dialog.setOnShowListener(new DialogInterface.OnShowListener() {
+        dialog.setOnShowListener(new OnShowListener() {
             @Override
             public void onShow(DialogInterface dialog1) {
 
                 final FontHelper fontHelper = FontHelper.getInstance();
-                fontHelper.setCustomeFonts((TextView) dialog.findViewById(android.R.id.message));
-                fontHelper.setCustomeFonts((TextView) dialog.findViewById(android.R.id.title));
+                fontHelper.setCustomeFonts((TextView) dialog.findViewById(id.message));
+                fontHelper.setCustomeFonts((TextView) dialog.findViewById(id.title));
             }
         });
 
@@ -144,20 +152,21 @@ public class UIHelper {
 
     {
 
-        final AlertDialog.Builder renameDialog = new AlertDialog.Builder(activity);
+        final Builder renameDialog = new Builder(activity);
 
         renameDialog.setTitle(title);
         renameDialog.setMessage(message);
         LinearLayout layout = new LinearLayout(activity);
 
-        layout.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        layout.setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
         final EditTextFont editTextNewFolder = new EditTextFont(activity);
-        int p = (int) activity.getResources().getDimension(R.dimen.activity_horizontal_margin);
+        int p = (int) activity.getResources().getDimension(dimen.activity_horizontal_margin);
         layout.setPadding(p, p, p, p);
-        layout.addView(editTextNewFolder, new ActionBar.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        layout.addView(editTextNewFolder, new ActionBar.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
         renameDialog.setView(layout);
 
-        renameDialog.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+        renameDialog.setPositiveButton(string.ok, new OnClickListener() {
+            @Override
             public void onClick(DialogInterface dialog, int whichButton) {
 
                 if (okListener != null) {
@@ -166,7 +175,8 @@ public class UIHelper {
             }
         });
 
-        renameDialog.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+        renameDialog.setNegativeButton(string.cancel, new OnClickListener() {
+            @Override
             public void onClick(DialogInterface dialog, int whichButton) {
 
                 if (cancelListener != null) {
@@ -180,12 +190,12 @@ public class UIHelper {
             public void run() {
 
                 final AlertDialog dialog = renameDialog.create();
-                dialog.setOnShowListener(new DialogInterface.OnShowListener() {
+                dialog.setOnShowListener(new OnShowListener() {
                     @Override
                     public void onShow(DialogInterface dialog1) {
 
-                        fontHelper.setCustomeFonts((TextView) dialog.findViewById(android.R.id.message));
-                        fontHelper.setCustomeFonts((TextView) dialog.findViewById(android.R.id.title));
+                        fontHelper.setCustomeFonts((TextView) dialog.findViewById(id.message));
+                        fontHelper.setCustomeFonts((TextView) dialog.findViewById(id.title));
 
                         fontHelper.setCustomeFonts(dialog.getButton(AlertDialog.BUTTON_POSITIVE));
                         fontHelper.setCustomeFonts(dialog.getButton(AlertDialog.BUTTON_NEGATIVE));
@@ -197,15 +207,16 @@ public class UIHelper {
         });
     }
 
-    public static void showCustomDialog(Activity activity, int title, View layout, int ok, int cancel, final DialogInterface.OnClickListener okListener,
-                                        final DialogInterface.OnClickListener cancelListener) {
+    public static void showCustomDialog(Activity activity, int title, View layout, int ok, int cancel, final OnClickListener okListener,
+                                        final OnClickListener cancelListener) {
 
-        final AlertDialog.Builder renameDialog = new AlertDialog.Builder(activity);
+        final Builder renameDialog = new Builder(activity);
 
         renameDialog.setTitle(title);
         renameDialog.setView(layout);
 
-        renameDialog.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+        renameDialog.setPositiveButton(string.ok, new OnClickListener() {
+            @Override
             public void onClick(DialogInterface dialog, int whichButton) {
 
                 if (okListener != null) {
@@ -214,7 +225,8 @@ public class UIHelper {
             }
         });
 
-        renameDialog.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+        renameDialog.setNegativeButton(string.cancel, new OnClickListener() {
+            @Override
             public void onClick(DialogInterface dialog, int whichButton) {
 
                 if (cancelListener != null) {
@@ -228,12 +240,12 @@ public class UIHelper {
             public void run() {
 
                 final AlertDialog dialog = renameDialog.create();
-                dialog.setOnShowListener(new DialogInterface.OnShowListener() {
+                dialog.setOnShowListener(new OnShowListener() {
                     @Override
                     public void onShow(DialogInterface dialog1) {
 
-                        fontHelper.setCustomeFonts((TextView) dialog.findViewById(android.R.id.message));
-                        fontHelper.setCustomeFonts((TextView) dialog.findViewById(android.R.id.title));
+                        fontHelper.setCustomeFonts((TextView) dialog.findViewById(id.message));
+                        fontHelper.setCustomeFonts((TextView) dialog.findViewById(id.title));
 
                         fontHelper.setCustomeFonts(dialog.getButton(AlertDialog.BUTTON_POSITIVE));
                         fontHelper.setCustomeFonts(dialog.getButton(AlertDialog.BUTTON_NEGATIVE));
@@ -245,15 +257,16 @@ public class UIHelper {
         });
     }
 
-    public static void showCustomDialog(Activity activity, View layout, int ok, final DialogInterface.OnClickListener okListener) {
+    public static void showCustomDialog(Activity activity, View layout, int ok, final OnClickListener okListener) {
 
-        final AlertDialog.Builder renameDialog = new AlertDialog.Builder(activity);
+        final Builder renameDialog = new Builder(activity);
 
         //	renameDialog.setTitle(title);
 
         renameDialog.setView(layout);
 
-        renameDialog.setPositiveButton(ok, new DialogInterface.OnClickListener() {
+        renameDialog.setPositiveButton(ok, new OnClickListener() {
+            @Override
             public void onClick(DialogInterface dialog, int whichButton) {
 
                 if (okListener != null) {
@@ -269,12 +282,12 @@ public class UIHelper {
             public void run() {
 
                 final AlertDialog dialog = renameDialog.create();
-                dialog.setOnShowListener(new DialogInterface.OnShowListener() {
+                dialog.setOnShowListener(new OnShowListener() {
                     @Override
                     public void onShow(DialogInterface dialog1) {
 
-                        fontHelper.setCustomeFonts((TextView) dialog.findViewById(android.R.id.message));
-                        fontHelper.setCustomeFonts((TextView) dialog.findViewById(android.R.id.title));
+                        fontHelper.setCustomeFonts((TextView) dialog.findViewById(id.message));
+                        fontHelper.setCustomeFonts((TextView) dialog.findViewById(id.title));
 
                         fontHelper.setCustomeFonts(dialog.getButton(AlertDialog.BUTTON_POSITIVE));
 
@@ -297,9 +310,9 @@ public class UIHelper {
 
     private static String getUserReadableMessage(Activity activity, Exception e) {
 
-        String reason = activity.getString(R.string.reason_for_error);
+        String reason = activity.getString(string.reason_for_error);
         if (e instanceof IOException) {
-            return " " + reason.replace("%1", activity.getString(R.string.error_reason_io));
+            return " " + reason.replace("%1", activity.getString(string.error_reason_io));
         }
         return null;
     }

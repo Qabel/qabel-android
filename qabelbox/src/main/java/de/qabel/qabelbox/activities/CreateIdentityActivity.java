@@ -15,7 +15,9 @@ import de.qabel.core.drop.DropIdGenerator;
 import de.qabel.core.drop.DropURL;
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
+import de.qabel.qabelbox.R.string;
 import de.qabel.qabelbox.communication.PrefixServer;
+import de.qabel.qabelbox.communication.PrefixServer.ServerResponse;
 import de.qabel.qabelbox.fragments.*;
 import de.qabel.qabelbox.services.LocalQabelService;
 import okhttp3.Call;
@@ -33,13 +35,13 @@ public class CreateIdentityActivity extends BaseWizardActivity {
 
     public static final int REQUEST_CODE_IMPORT_IDENTITY = 1;
 
-    private String TAG = this.getClass().getSimpleName();
+    private String TAG = getClass().getSimpleName();
 
     private String mIdentityName;
     private int mIdentityDropProgress = Integer.MIN_VALUE;
     private Identity mNewIdentity;
-    private String prefix = null;
-    int tryCount = 0;
+    private String prefix;
+    int tryCount;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,12 +62,12 @@ public class CreateIdentityActivity extends BaseWizardActivity {
     @Override
     protected int getActionBarTitle() {
 
-        return R.string.headline_add_identity;
+        return string.headline_add_identity;
     }
 
     @Override
     protected String getWizardEntityLabel() {
-        return getString(R.string.identity);
+        return getString(string.identity);
     }
 
     @Override
@@ -85,21 +87,21 @@ public class CreateIdentityActivity extends BaseWizardActivity {
 
         BaseIdentityFragment fragments[] = new BaseIdentityFragment[4];
         fragments[0] = new CreateIdentityMainFragment();
-        fragments[1] = CreateIdentityEditTextFragment.newInstance(R.string.create_identity_enter_name, R.string.create_identity_enter_name_hint, new NextChecker() {
+        fragments[1] = CreateIdentityEditTextFragment.newInstance(string.create_identity_enter_name, string.create_identity_enter_name_hint, new NextChecker() {
             @Override
             public String check(View view) {
 
                 String editText = ((EditText) view).getText().toString().trim();
                 boolean error = editText.length() < 1;
                 if (error) {
-                    return getString(R.string.create_identity_enter_all_data);
+                    return getString(string.create_identity_enter_all_data);
                 }
 
                 Identities identities = QabelBoxApplication.getInstance().getService().getIdentities();
                 if (identities != null) {
                     for (Identity identity : identities.getIdentities()) {
                         if (identity.getAlias().equals(editText)) {
-                            return getString(R.string.create_identity_already_exists);
+                            return getString(string.create_identity_already_exists);
                         }
                     }
                 }
@@ -114,7 +116,7 @@ public class CreateIdentityActivity extends BaseWizardActivity {
                 if (prefix == null) {
                     tryCount = 0;
                     loadPrefixInBackground();
-                    return getString(R.string.create_idenity_cant_get_prefix);
+                    return getString(string.create_idenity_cant_get_prefix);
                 }
                 setIdentityDropBitsProgress(((SeekBar) view).getProgress());
                 Identity identity = createIdentity();
@@ -126,7 +128,7 @@ public class CreateIdentityActivity extends BaseWizardActivity {
 
             private Identity createIdentity() {
 
-                URI uri = URI.create(getString(R.string.dropServer));
+                URI uri = URI.create(getString(string.dropServer));
                 DropServer dropServer = new DropServer(uri, "", true);
                 DropIdGenerator adjustableDropIdGenerator = new AdjustableDropIdGenerator((getIdentityDropBitsProgress() + 1) * 64);
                 DropURL dropURL = new DropURL(dropServer, adjustableDropIdGenerator);
@@ -226,7 +228,7 @@ public class CreateIdentityActivity extends BaseWizardActivity {
     public boolean parsePrefix(Response response) throws IOException {
         String text = response.body().string();
         try {
-            PrefixServer.ServerResponse result = PrefixServer.parseJson(new JSONObject(text));
+            ServerResponse result = PrefixServer.parseJson(new JSONObject(text));
             Log.d(TAG, "prefix: " + result.prefix);
             prefix = result.prefix;
             return true;

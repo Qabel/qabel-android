@@ -7,6 +7,9 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import de.qabel.core.config.Identity;
 import de.qabel.qabelbox.R;
+import de.qabel.qabelbox.R.id;
+import de.qabel.qabelbox.R.layout;
+import de.qabel.qabelbox.R.string;
 import de.qabel.qabelbox.helper.QRCodeHelper;
 
 public class QRcodeFragment extends BaseFragment {
@@ -53,15 +56,15 @@ public class QRcodeFragment extends BaseFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        final View view = inflater.inflate(R.layout.fragment_barcode_shower, container, false);
+        final View view = inflater.inflate(layout.fragment_barcode_shower, container, false);
 
-        editTextContactName = (TextView) view.findViewById(R.id.editTextContactName);
-        editTextDropURL = (TextView) view.findViewById(R.id.editTextContactDropURL);
-        editTextPublicKey = (TextView) view.findViewById(R.id.editTextContactPublicKey);
+        editTextContactName = (TextView) view.findViewById(id.editTextContactName);
+        editTextDropURL = (TextView) view.findViewById(id.editTextContactDropURL);
+        editTextPublicKey = (TextView) view.findViewById(id.editTextContactPublicKey);
         editTextContactName.setText(identity.getAlias());
         editTextDropURL.setText(identity.getDropUrls().toArray()[0].toString());
         editTextPublicKey.setText(identity.getKeyIdentifier());
-        ImageView imageView = (ImageView) view.findViewById(R.id.qrcode);
+        ImageView imageView = (ImageView) view.findViewById(id.qrcode);
         QRCodeHelper.generateQRCode(getActivity(), identity, imageView);
         return view;
     }
@@ -75,7 +78,7 @@ public class QRcodeFragment extends BaseFragment {
     @Override
     public String getTitle() {
 
-        return getString(R.string.headline_qrcode);
+        return getString(string.headline_qrcode);
     }
 
     @Override

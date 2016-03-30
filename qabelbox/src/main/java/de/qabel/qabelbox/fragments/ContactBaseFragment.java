@@ -11,6 +11,8 @@ import de.qabel.core.crypto.QblECPublicKey;
 import de.qabel.core.drop.DropURL;
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
+import de.qabel.qabelbox.R.plurals;
+import de.qabel.qabelbox.R.string;
 import de.qabel.qabelbox.activities.MainActivity;
 import de.qabel.qabelbox.config.ContactExportImport;
 import de.qabel.qabelbox.config.QabelSchema;
@@ -31,7 +33,7 @@ public class ContactBaseFragment extends BaseFragment {
     public static final int REQUEST_IMPORT_CONTACT = 1000;
     public static final int REQUEST_EXPORT_CONTACT = 1001;
 
-    private final String TAG = this.getClass().getSimpleName();
+    private final String TAG = getClass().getSimpleName();
     protected String dataToExport;
     private boolean useDocumentProvider = true;//used for tests
     protected int exportedContactCount;
@@ -56,7 +58,7 @@ public class ContactBaseFragment extends BaseFragment {
                 addContactSilent(contact);
             } catch (Exception e) {
                 Log.w(TAG, "add contact failed", e);
-                UIHelper.showDialogMessage(mActivity, R.string.dialog_headline_warning, R.string.contact_import_failed, e);
+                UIHelper.showDialogMessage(mActivity, string.dialog_headline_warning, string.contact_import_failed, e);
             }
         }
     }
@@ -73,7 +75,7 @@ public class ContactBaseFragment extends BaseFragment {
 
         } catch (JSONException e) {
             Log.e(TAG, "error on export contacts", e);
-            UIHelper.showDialogMessage(getActivity(), R.string.dialog_headline_warning, R.string.cant_export_contacts);
+            UIHelper.showDialogMessage(getActivity(), string.dialog_headline_warning, string.cant_export_contacts);
         }
     }
 
@@ -119,17 +121,17 @@ public class ContactBaseFragment extends BaseFragment {
             if (added > 0) {
                 UIHelper.showDialogMessage(
                         mActivity,
-                        mActivity.getString(R.string.dialog_headline_info),
-                        mActivity.getResources().getQuantityString(R.plurals.contact_import_successfull, added, added));
+                        mActivity.getString(string.dialog_headline_info),
+                        mActivity.getResources().getQuantityString(plurals.contact_import_successfull, added, added));
             } else {
                 UIHelper.showDialogMessage(
                         mActivity,
-                        mActivity.getString(R.string.dialog_headline_info),
-                        mActivity.getString(R.string.contact_import_zero_additions)
+                        mActivity.getString(string.dialog_headline_info),
+                        mActivity.getString(string.contact_import_zero_additions)
                 );
             }
         } catch (IOException | JSONException ioException) {
-            UIHelper.showDialogMessage(mActivity, R.string.dialog_headline_warning, R.string.contact_import_failed, ioException);
+            UIHelper.showDialogMessage(mActivity, string.dialog_headline_warning, string.contact_import_failed, ioException);
         }
     }
 

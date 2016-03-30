@@ -9,6 +9,10 @@ import de.qabel.core.config.Identity;
 import de.qabel.core.crypto.QblECPublicKey;
 import de.qabel.core.drop.DropURL;
 import de.qabel.qabelbox.R;
+import de.qabel.qabelbox.R.id;
+import de.qabel.qabelbox.R.layout;
+import de.qabel.qabelbox.R.menu;
+import de.qabel.qabelbox.R.string;
 import de.qabel.qabelbox.helper.UIHelper;
 import org.spongycastle.util.encoders.Hex;
 
@@ -22,7 +26,7 @@ import java.util.Collection;
 public class AddContactFragment extends ContactBaseFragment {
 
     private static final String ARG_IDENTITY = "Identity";
-    private final String TAG = this.getClass().getSimpleName();
+    private final String TAG = getClass().getSimpleName();
     private EditText editTextContactName;
     private EditText editTextDropURL;
     private EditText editTextPublicKey;
@@ -53,11 +57,11 @@ public class AddContactFragment extends ContactBaseFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        final View view = inflater.inflate(R.layout.fragment_add_contact, container, false);
+        final View view = inflater.inflate(layout.fragment_add_contact, container, false);
 
-        editTextContactName = (EditText) view.findViewById(R.id.editTextContactName);
-        editTextDropURL = (EditText) view.findViewById(R.id.editTextContactDropURL);
-        editTextPublicKey = (EditText) view.findViewById(R.id.editTextContactPublicKey);
+        editTextContactName = (EditText) view.findViewById(id.editTextContactName);
+        editTextDropURL = (EditText) view.findViewById(id.editTextContactDropURL);
+        editTextPublicKey = (EditText) view.findViewById(id.editTextContactPublicKey);
 
         mView = view;
         return view;
@@ -77,7 +81,7 @@ public class AddContactFragment extends ContactBaseFragment {
             addContactSilent(contact);
         } catch (Exception e) {
             Log.w(TAG, "add contact failed", e);
-            UIHelper.showDialogMessage(mActivity, R.string.dialog_headline_warning, R.string.contact_import_manual_failed, e);
+            UIHelper.showDialogMessage(mActivity, string.dialog_headline_warning, string.contact_import_manual_failed, e);
         }
         UIHelper.hideKeyboard(getActivity(), mView);
     }
@@ -86,14 +90,14 @@ public class AddContactFragment extends ContactBaseFragment {
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
 
         menu.clear();
-        inflater.inflate(R.menu.ab_add, menu);
+        inflater.inflate(menu.ab_add, menu);
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
 
         int id = item.getItemId();
-        if (id == R.id.action_add) {
+        if (id == id.action_add) {
             add();
         }
 
@@ -109,7 +113,7 @@ public class AddContactFragment extends ContactBaseFragment {
     @Override
     public String getTitle() {
 
-        return getString(R.string.headline_add_contact);
+        return getString(string.headline_add_contact);
     }
 
     @Override

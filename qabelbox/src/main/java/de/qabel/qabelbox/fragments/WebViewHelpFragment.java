@@ -4,6 +4,9 @@ import android.os.Bundle;
 import android.view.*;
 import android.webkit.WebView;
 import de.qabel.qabelbox.R;
+import de.qabel.qabelbox.R.array;
+import de.qabel.qabelbox.R.id;
+import de.qabel.qabelbox.R.layout;
 import de.qabel.qabelbox.helper.FileHelper;
 
 public class WebViewHelpFragment extends BaseFragment {
@@ -17,7 +20,7 @@ public class WebViewHelpFragment extends BaseFragment {
     @Override
     public String getTitle() {
 
-        return getResources().getStringArray(R.array.help_headlines)[mode];
+        return getResources().getStringArray(array.help_headlines)[mode];
     }
 
     public static WebViewHelpFragment newInstance(int mode) {
@@ -56,9 +59,9 @@ public class WebViewHelpFragment extends BaseFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        final View view = inflater.inflate(R.layout.fragment_webview, container, false);
-        WebView webView = (WebView) view.findViewById(R.id.webview);
-        String file = getResources().getStringArray(R.array.help_asset_filenames)[mode];
+        final View view = inflater.inflate(layout.fragment_webview, container, false);
+        WebView webView = (WebView) view.findViewById(id.webview);
+        String file = getResources().getStringArray(array.help_asset_filenames)[mode];
 
         webView.loadDataWithBaseURL("file:///android_asset/", FileHelper.loadFileFromAssets(getActivity(), "html/help/" + file),
                 "text/html", "utf-8", null);

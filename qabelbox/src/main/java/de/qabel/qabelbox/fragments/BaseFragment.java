@@ -4,7 +4,9 @@ import android.app.Activity;
 import android.app.Fragment;
 import android.support.v7.app.ActionBar;
 import android.view.View;
+import android.view.View.OnClickListener;
 import de.qabel.qabelbox.R;
+import de.qabel.qabelbox.R.string;
 import de.qabel.qabelbox.activities.MainActivity;
 
 import java.util.concurrent.Executor;
@@ -24,7 +26,7 @@ public abstract class BaseFragment extends Fragment {
      * @return title for fragment
      */
     public String getTitle() {
-        return getString(R.string.app_name);
+        return getString(string.app_name);
     }
 
     /**
@@ -62,7 +64,7 @@ public abstract class BaseFragment extends Fragment {
      */
     protected void setActionBarBackListener() {
 
-        mActivity.toggle.setToolbarNavigationClickListener(new View.OnClickListener() {
+        mActivity.toggle.setToolbarNavigationClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
 
@@ -74,9 +76,9 @@ public abstract class BaseFragment extends Fragment {
     /**
      * set own back listener in actionbar
      */
-    protected void setActionBarBackListener(final View.OnClickListener listener) {
+    protected void setActionBarBackListener(final OnClickListener listener) {
 
-        mActivity.toggle.setToolbarNavigationClickListener(new View.OnClickListener() {
+        mActivity.toggle.setToolbarNavigationClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
 

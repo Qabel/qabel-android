@@ -28,6 +28,7 @@ import android.view.View;
 import android.widget.HorizontalScrollView;
 import android.widget.ImageView;
 import de.qabel.qabelbox.R;
+import de.qabel.qabelbox.R.attr;
 
 import static android.view.ViewGroup.LayoutParams.FILL_PARENT;
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
@@ -55,7 +56,7 @@ public class IconPageIndicator extends HorizontalScrollView implements PageIndic
         super(context, attrs);
         setHorizontalScrollBarEnabled(false);
 
-        mIconsLayout = new IcsLinearLayout(context, R.attr.vpiIconPageIndicatorStyle);
+        mIconsLayout = new IcsLinearLayout(context, attr.vpiIconPageIndicatorStyle);
         addView(mIconsLayout, new LayoutParams(WRAP_CONTENT, FILL_PARENT, Gravity.CENTER));
     }
 
@@ -66,6 +67,7 @@ public class IconPageIndicator extends HorizontalScrollView implements PageIndic
             removeCallbacks(mIconSelector);
         }
         mIconSelector = new Runnable() {
+            @Override
             public void run() {
 
                 final int scrollPos = iconView.getLeft() - (getWidth() - iconView.getWidth()) / 2;
@@ -138,13 +140,14 @@ public class IconPageIndicator extends HorizontalScrollView implements PageIndic
         notifyDataSetChanged();
     }
 
+    @Override
     public void notifyDataSetChanged() {
 
         mIconsLayout.removeAllViews();
         IconPagerAdapter iconAdapter = (IconPagerAdapter) mViewPager.getAdapter();
         int count = iconAdapter.getCount();
         for (int i = 0; i < count; i++) {
-            ImageView view = new ImageView(getContext(), null, R.attr.vpiIconPageIndicatorStyle);
+            ImageView view = new ImageView(getContext(), null, attr.vpiIconPageIndicatorStyle);
             view.setImageResource(iconAdapter.getIconResId(i));
             mIconsLayout.addView(view);
         }
@@ -174,7 +177,7 @@ public class IconPageIndicator extends HorizontalScrollView implements PageIndic
         int tabCount = mIconsLayout.getChildCount();
         for (int i = 0; i < tabCount; i++) {
             View child = mIconsLayout.getChildAt(i);
-            boolean isSelected = (i == item);
+            boolean isSelected = i == item;
             child.setSelected(isSelected);
             if (isSelected) {
                 animateToIcon(item);

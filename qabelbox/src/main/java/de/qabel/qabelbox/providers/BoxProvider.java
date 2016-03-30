@@ -7,8 +7,11 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.database.Cursor;
 import android.database.MatrixCursor;
+import android.database.MatrixCursor.RowBuilder;
 import android.net.Uri;
 import android.os.*;
+import android.os.CancellationSignal.OnCancelListener;
+import android.os.ParcelFileDescriptor.OnCloseListener;
 import android.provider.DocumentsContract;
 import android.provider.DocumentsContract.Document;
 import android.provider.DocumentsContract.Root;
@@ -16,6 +19,7 @@ import android.provider.DocumentsProvider;
 import android.provider.MediaStore.Video.Media;
 import android.support.annotation.NonNull;
 import android.support.v7.app.NotificationCompat;
+import android.support.v7.app.NotificationCompat.Builder;
 import android.util.Log;
 import de.qabel.core.config.Identities;
 import de.qabel.core.config.Identity;
@@ -23,11 +27,15 @@ import de.qabel.core.crypto.QblECKeyPair;
 import de.qabel.qabelbox.BuildConfig;
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
+import de.qabel.qabelbox.R.drawable;
+import de.qabel.qabelbox.R.string;
 import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.exceptions.QblStorageNotFound;
 import de.qabel.qabelbox.services.LocalBroadcastConstants;
 import de.qabel.qabelbox.services.LocalQabelService;
+import de.qabel.qabelbox.services.LocalQabelService.LocalBinder;
 import de.qabel.qabelbox.storage.*;
+import de.qabel.qabelbox.storage.TransferManager.BoxTransferListener;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 
@@ -98,7 +106,7 @@ public class BoxProvider extends DocumentsProvider {
             @Override
             public void onServiceConnected(ComponentName name, IBinder service) {
 
-                LocalQabelService.LocalBinder binder = (LocalQabelService.LocalBinder) service;
+                LocalBinder binder = (LocalBinder) service;
                 mService = binder.getService();
                 notifyRootsUpdated();
             }
@@ -142,7 +150,7 @@ public class BoxProvider extends DocumentsProvider {
         }
         Identities identities = mService.getIdentities();
         for (Identity identity : identities.getIdentities()) {
-            final MatrixCursor.RowBuilder row = result.newRow();
+            final RowBuilder row = result.newRow();
             String pub_key = identity.getEcPublicKey().getReadableKeyIdentifier();
             String prefix;
             try {
@@ -155,7 +163,7 @@ public class BoxProvider extends DocumentsProvider {
                     mDocumentIdParser.buildId(pub_key, prefix, null));
             row.add(Root.COLUMN_DOCUMENT_ID,
                     mDocumentIdParser.buildId(pub_key, prefix, "/"));
-            row.add(Root.COLUMN_ICON, R.drawable.qabel_logo);
+            row.add(Root.COLUMN_ICON, drawable.qabel_logo);
             row.add(Root.COLUMN_FLAGS, Root.FLAG_SUPPORTS_CREATE);
             row.add(Root.COLUMN_TITLE, "Qabel Box");
             row.add(Root.COLUMN_SUMMARY, identity.getAlias());
@@ -283,7 +291,7 @@ public class BoxProvider extends DocumentsProvider {
 
     void insertRootDoc(MatrixCursor cursor, String documentId) {
 
-        final MatrixCursor.RowBuilder row = cursor.newRow();
+        final RowBuilder row = cursor.newRow();
         row.add(Document.COLUMN_DOCUMENT_ID, documentId);
         row.add(Document.COLUMN_DISPLAY_NAME, "Root");
         row.add(Document.COLUMN_SUMMARY, null);
@@ -297,7 +305,7 @@ public class BoxProvider extends DocumentsProvider {
 
         Log.d(TAG, "Query Child Documents: " + parentDocumentId);
         BoxCursor cursor = folderContentCache.get(parentDocumentId);
-        boolean cacheHit = (cursor != null);
+        boolean cacheHit = cursor != null;
         if (parentDocumentId.equals(currentFolder) && cacheHit) {
             // best case: we are still in the same folder and we got a cache hit
             Log.d(TAG, "Up to date cached data found");
@@ -365,7 +373,7 @@ public class BoxProvider extends DocumentsProvider {
                     createBoxCursor(parentDocumentId, projection);
                 } catch (FileNotFoundException e) {
                     BoxCursor cursor = createCursor(projection, false);
-                    cursor.setError(getContext().getString(R.string.folderListingUpdateError));
+                    cursor.setError(getContext().getString(string.folderListingUpdateError));
                     folderContentCache.put(parentDocumentId, cursor);
                 }
                 getContext().getContentResolver().notifyChange(uri, null);
@@ -397,7 +405,7 @@ public class BoxProvider extends DocumentsProvider {
 
     private void insertFile(MatrixCursor cursor, String documentId, BoxObject file) {
 
-        final MatrixCursor.RowBuilder row = cursor.newRow();
+        final RowBuilder row = cursor.newRow();
         String mimeType = URLConnection.guessContentTypeFromName(file.name);
         if (mimeType == null) {
             mimeType = "application/octet-stream";
@@ -412,7 +420,7 @@ public class BoxProvider extends DocumentsProvider {
 
     private void insertFolder(MatrixCursor cursor, String documentId, BoxFolder folder) {
 
-        final MatrixCursor.RowBuilder row = cursor.newRow();
+        final RowBuilder row = cursor.newRow();
         row.add(Document.COLUMN_DOCUMENT_ID, documentId);
         row.add(Document.COLUMN_DISPLAY_NAME, folder.name);
         row.add(Document.COLUMN_SUMMARY, null);
@@ -422,7 +430,7 @@ public class BoxProvider extends DocumentsProvider {
 
     BoxNavigation traverseToFolder(BoxVolume volume, List<String> filePath) throws QblStorageException {
 
-        Log.d(TAG, "Traversing to " + filePath.toString());
+        Log.d(TAG, "Traversing to " + filePath);
         BoxNavigation navigation = volume.navigate();
         PARTS:
         for (String part : filePath) {
@@ -447,8 +455,8 @@ public class BoxProvider extends DocumentsProvider {
             throws FileNotFoundException {
 
         Log.d(TAG, "Open document: " + documentId);
-        final boolean isWrite = (mode.indexOf('w') != -1);
-        final boolean isRead = (mode.indexOf('r') != -1);
+        final boolean isWrite = mode.indexOf('w') != -1;
+        final boolean isRead = mode.indexOf('r') != -1;
 
         if (isWrite) {
             final BoxUploadingFile boxUploadingFile = mService.addPendingUpload(documentId, null);
@@ -461,7 +469,7 @@ public class BoxProvider extends DocumentsProvider {
                 } else {
                     tmp = File.createTempFile("uploadAndDeleteLocalfile", "", getContext().getExternalCacheDir());
                 }
-                ParcelFileDescriptor.OnCloseListener onCloseListener = new ParcelFileDescriptor.OnCloseListener() {
+                OnCloseListener onCloseListener = new OnCloseListener() {
                     @Override
                     public void onClose(IOException e) {
                         // Update the file with the cloud server.  The client is done writing.
@@ -494,7 +502,7 @@ public class BoxProvider extends DocumentsProvider {
         }
     }
 
-    private void uploadFile(String documentId, File tmp, TransferManager.BoxTransferListener boxTransferListener) {
+    private void uploadFile(String documentId, File tmp, BoxTransferListener boxTransferListener) {
 
         try {
             BoxVolume volume = getVolumeForId(documentId);
@@ -532,7 +540,7 @@ public class BoxProvider extends DocumentsProvider {
             }
         });
         if (signal != null) {
-            signal.setOnCancelListener(new CancellationSignal.OnCancelListener() {
+            signal.setOnCancelListener(new OnCancelListener() {
                 @Override
                 public void onCancel() {
 
@@ -559,10 +567,10 @@ public class BoxProvider extends DocumentsProvider {
         final int id = 2;
         //@todo notification handling into separate place
         final NotificationManager mNotifyManager = (NotificationManager) getContext().getSystemService(Context.NOTIFICATION_SERVICE);
-        final NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(getContext());
+        final Builder mBuilder = new Builder(getContext());
         mBuilder.setContentTitle("Downloading " + mDocumentIdParser.getBaseName(documentId))
                 .setContentText("Download in progress")
-                .setSmallIcon(R.drawable.qabel_logo);
+                .setSmallIcon(drawable.qabel_logo);
         mBuilder.setProgress(100, 0, false);
         mNotifyManager.notify(id, mBuilder.build());
 
@@ -573,7 +581,7 @@ public class BoxProvider extends DocumentsProvider {
 
         BoxNavigation navigation = traverseToFolder(volume, strings);
         BoxFile file = findFileinList(basename, navigation);
-        InputStream inputStream = navigation.download(file, new TransferManager.BoxTransferListener() {
+        InputStream inputStream = navigation.download(file, new BoxTransferListener() {
 
             @Override
             public void onProgressChanged(long bytesCurrent, long bytesTotal) {
@@ -595,7 +603,7 @@ public class BoxProvider extends DocumentsProvider {
         }
         mBuilder.setContentTitle("Downloading " + filename)
                 .setContentText("Download complete")
-                .setSmallIcon(R.drawable.qabel_logo);
+                .setSmallIcon(drawable.qabel_logo);
         mBuilder.setProgress(100, 100, false);
         mNotifyManager.notify(id, mBuilder.build());
         File out = new File(getContext().getExternalCacheDir(), basename);
@@ -737,9 +745,10 @@ public class BoxProvider extends DocumentsProvider {
 
         public void setExtraLoading(boolean loading) {
 
-            this.extraLoading = loading;
+            extraLoading = loading;
         }
 
+        @Override
         public Bundle getExtras() {
 
             Bundle bundle = new Bundle();

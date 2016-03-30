@@ -365,10 +365,9 @@ class DirectoryMetadata {
 
     void insertFile(BoxFile file) throws QblStorageException {
         int type = isA(file.name);
-        if ((type != TYPE_NONE) && (type != TYPE_FILE)) {
+        if (type != TYPE_NONE && type != TYPE_FILE) {
             throw new QblStorageNameConflict(file.name);
         }
-        ;
         PreparedStatement st = null;
         try {
             st = connection.prepareStatement(
@@ -430,7 +429,7 @@ class DirectoryMetadata {
 
     void insertExternalReference(BoxExternalReference file) throws QblStorageException {
         int type = isA(file.name);
-        if ((type != TYPE_NONE) && (type != TYPE_FILE)) {
+        if (type != TYPE_NONE && type != TYPE_FILE) {
             throw new QblStorageNameConflict(file.name);
         }
         try (PreparedStatement st = connection.prepareStatement(
@@ -465,7 +464,7 @@ class DirectoryMetadata {
 
     void insertFolder(BoxFolder folder) throws QblStorageException {
         int type = isA(folder.name);
-        if ((type != TYPE_NONE) && (type != TYPE_FOLDER)) {
+        if (type != TYPE_NONE && type != TYPE_FOLDER) {
             throw new QblStorageNameConflict(folder.name);
         }
         try {

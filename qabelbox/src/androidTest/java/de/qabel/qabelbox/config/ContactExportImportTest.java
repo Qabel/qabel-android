@@ -125,8 +125,6 @@ public class ContactExportImportTest {
         return new Contact(alias, dropURLs, pubKey);
     }
 
-    ;
-
     @Test
     public void testExportImportContact() throws QblDropInvalidURL, JSONException, URISyntaxException {
         String contactJSON = ContactExportImport.exportContact(contact1);

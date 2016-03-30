@@ -3,6 +3,7 @@ package de.qabel.qabelbox.helper;
 import android.content.Context;
 import android.content.res.Resources;
 import de.qabel.qabelbox.R;
+import de.qabel.qabelbox.R.string;
 
 import java.text.DateFormat;
 import java.text.DecimalFormat;
@@ -28,13 +29,13 @@ public class Formatter {
         DecimalFormat df = new DecimalFormat("#.##");
         Resources res = context.getResources();
         if (filesize < KB) {
-            result = filesize + " " + res.getString(R.string.unit_filesyste_bytes);
+            result = filesize + " " + res.getString(string.unit_filesyste_bytes);
         } else if (filesize < MB) {
-            result = df.format((double) filesize / KB) + " " + res.getString(R.string.unit_filesyste_kb);
+            result = df.format((double) filesize / KB) + " " + res.getString(string.unit_filesyste_kb);
         } else if (filesize < GB) {
-            result = df.format((double) filesize / MB) + " " + res.getString(R.string.unit_filesyste_mb);
+            result = df.format((double) filesize / MB) + " " + res.getString(string.unit_filesyste_mb);
         } else {
-            result = df.format((double) filesize / GB) + " " + res.getString(R.string.unit_filesyste_gb);
+            result = df.format((double) filesize / GB) + " " + res.getString(string.unit_filesyste_gb);
         }
         return result.replace(",", ".");
     }
@@ -63,8 +64,8 @@ public class Formatter {
      * Formats a Date to a String like "Fr. 20:35" or "15.02.15 20:35" if the date is more than a week in the past.
      */
     public static String formatDateTimeString(long time) {
-        Calendar current = GregorianCalendar.getInstance();
-        Calendar date = GregorianCalendar.getInstance();
+        Calendar current = Calendar.getInstance();
+        Calendar date = Calendar.getInstance();
         date.setTimeInMillis(time);
         Date dateObj = new Date(time);
 

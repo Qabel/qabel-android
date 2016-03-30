@@ -59,6 +59,7 @@ public class FolderNavigation extends AbstractNavigation {
         }
     }
 
+    @Override
     protected DirectoryMetadata reloadMetadata() throws QblStorageException {
         if (currentPath.equals("/")) {
             return reloadMetadataRoot();
@@ -93,7 +94,7 @@ public class FolderNavigation extends AbstractNavigation {
             byte[] encrypted = FileHelper.toByteArray(new FileInputStream(indexDl));
             DecryptedPlaintext plaintext = cryptoUtils.readBox(keyPair, encrypted);
             tmp = File.createTempFile("dir", "db", dm.getTempDir());
-            logger.info("Using " + tmp.toString() + " for the metadata file");
+            logger.info("Using " + tmp + " for the metadata file");
             OutputStream out = new FileOutputStream(tmp);
             out.write(plaintext.getPlaintext());
             out.close();

@@ -2,10 +2,13 @@ package de.qabel.qabelbox.ui;
 
 
 import android.os.PowerManager;
+import android.os.PowerManager.WakeLock;
 import android.support.test.espresso.action.ViewActions;
 import android.support.test.rule.ActivityTestRule;
 import com.squareup.spoon.Spoon;
 import de.qabel.qabelbox.R;
+import de.qabel.qabelbox.R.id;
+import de.qabel.qabelbox.R.string;
 import de.qabel.qabelbox.activities.WelcomeScreenActivity;
 import de.qabel.qabelbox.config.AppPreference;
 import de.qabel.qabelbox.exceptions.QblStorageException;
@@ -38,7 +41,7 @@ public class WelcomeScreenUITest {
 
     private WelcomeScreenActivity mActivity;
 
-    private PowerManager.WakeLock wakeLock;
+    private WakeLock wakeLock;
     private SystemAnimations mSystemAnimations;
     private AppPreference prefs;
 
@@ -69,21 +72,21 @@ public class WelcomeScreenUITest {
     @Test
     public void testWelcomeScreenSlide() {
         prefs.setWelcomeScreenShownAt(0);
-        int pagerId = R.id.pager;
-        onView(withId(R.id.btn_show_sources)).check(matches(isDisplayed()));
-        onView(withText(R.string.headline_welcome_screen1)).check(matches(isDisplayed()));
+        int pagerId = id.pager;
+        onView(withId(id.btn_show_sources)).check(matches(isDisplayed()));
+        onView(withText(string.headline_welcome_screen1)).check(matches(isDisplayed()));
 
         Spoon.screenshot(mActivity, "welcome1");
         onView(withId(pagerId)).perform(swipeLeft());
-        onView(withText(R.string.headline_welcome_screen2)).check(matches(isDisplayed()));
+        onView(withText(string.headline_welcome_screen2)).check(matches(isDisplayed()));
         Spoon.screenshot(mActivity, "welcome2");
 
         onView(withId(pagerId)).perform(swipeLeft());
-        onView(withText(R.string.headline_welcome_screen3)).check(matches(isDisplayed()));
+        onView(withText(string.headline_welcome_screen3)).check(matches(isDisplayed()));
         Spoon.screenshot(mActivity, "welcome3");
 
         onView(withId(pagerId)).perform(swipeLeft());
-        onView(withText(R.string.headline_welcome_screen4)).check(matches(isDisplayed()));
+        onView(withText(string.headline_welcome_screen4)).check(matches(isDisplayed()));
         Spoon.screenshot(mActivity, "welcome4");
 
         onView(withId(pagerId)).perform(swipeLeft());
@@ -94,7 +97,7 @@ public class WelcomeScreenUITest {
     @Test
     public void testWelcomeScreenDisclaimer() {
         prefs.setWelcomeScreenShownAt(0);
-        int pagerId = R.id.pager;
+        int pagerId = id.pager;
         onView(withId(pagerId)).perform(swipeLeft());
         onView(withId(pagerId)).perform(swipeLeft());
         onView(withId(pagerId)).perform(swipeLeft());
@@ -102,50 +105,50 @@ public class WelcomeScreenUITest {
 
         Spoon.screenshot(mActivity, "disclaimer_main");
         //click privacy
-        onView(withId(R.id.btn_show_privacy)).check(matches(isDisplayed())).perform(click());
+        onView(withId(id.btn_show_privacy)).check(matches(isDisplayed())).perform(click());
         Spoon.screenshot(mActivity, "privacy");
         pressBack();
-        onView(withText(R.string.message_welcome_disclaimer_headline)).check(matches(isDisplayed()));
+        onView(withText(string.message_welcome_disclaimer_headline)).check(matches(isDisplayed()));
 
         //click qabel
-        onView(withId(R.id.layout_show_qabel)).perform(ViewActions.scrollTo()).check(matches(isDisplayed())).perform(click());
+        onView(withId(id.layout_show_qabel)).perform(ViewActions.scrollTo()).check(matches(isDisplayed())).perform(click());
         Spoon.screenshot(mActivity, "qabl");
         pressBack();
-        onView(withText(R.string.message_welcome_disclaimer_headline)).check(matches(isDisplayed()));
+        onView(withText(string.message_welcome_disclaimer_headline)).check(matches(isDisplayed()));
 
         //go back
-        onView(withText(R.string.btn_welcome_back)).perform(click());
-        onView(withText(R.string.headline_welcome_screen4)).check(matches(isDisplayed()));
-        onView(withText(R.string.btn_welcome_skip)).check(matches(isDisplayed())).perform(click());
+        onView(withText(string.btn_welcome_back)).perform(click());
+        onView(withText(string.headline_welcome_screen4)).check(matches(isDisplayed()));
+        onView(withText(string.btn_welcome_skip)).check(matches(isDisplayed())).perform(click());
 
 
         //click legal
-        onView(withId(R.id.btn_show_legal)).check(matches(isDisplayed())).perform(click());
+        onView(withId(id.btn_show_legal)).check(matches(isDisplayed())).perform(click());
         Spoon.screenshot(mActivity, "legal");
         pressBack();
-        onView(withText(R.string.message_welcome_disclaimer_headline)).check(matches(isDisplayed()));
+        onView(withText(string.message_welcome_disclaimer_headline)).check(matches(isDisplayed()));
 
 
         //click without accept cbs
-        onView(withText(R.string.btn_welcome_accept)).perform(click());
-        onView(withText(R.string.message_welcome_disclaimer_headline)).check(matches(isDisplayed()));
+        onView(withText(string.btn_welcome_accept)).perform(click());
+        onView(withText(string.message_welcome_disclaimer_headline)).check(matches(isDisplayed()));
 
         //accept cb
-        onView(withText(R.string.cb_welcome_disclaimer_legal_note_unchecked)).check(matches(isDisplayed()));
-        onView(withId(R.id.cb_welcome_legal)).perform(click());
-        onView(withText(R.string.cb_welcome_disclaimer_legal_note_checked)).check(matches(isDisplayed()));
+        onView(withText(string.cb_welcome_disclaimer_legal_note_unchecked)).check(matches(isDisplayed()));
+        onView(withId(id.cb_welcome_legal)).perform(click());
+        onView(withText(string.cb_welcome_disclaimer_legal_note_checked)).check(matches(isDisplayed()));
 
-        onView(withText(R.string.cb_welcome_disclaimer_privacy_note_unchecked)).check(matches(isDisplayed()));
-        onView(withId(R.id.cb_welcome_privacy)).perform(click());
-        onView(withText(R.string.cb_welcome_disclaimer_privacy_note_checked)).check(matches(isDisplayed()));
-        onView(withText(R.string.cb_welcome_disclaimer_legal_note_checked)).check(matches(isDisplayed()));
+        onView(withText(string.cb_welcome_disclaimer_privacy_note_unchecked)).check(matches(isDisplayed()));
+        onView(withId(id.cb_welcome_privacy)).perform(click());
+        onView(withText(string.cb_welcome_disclaimer_privacy_note_checked)).check(matches(isDisplayed()));
+        onView(withText(string.cb_welcome_disclaimer_legal_note_checked)).check(matches(isDisplayed()));
 
         //click accept
-        onView(withText(R.string.btn_welcome_accept)).perform(click());
+        onView(withText(string.btn_welcome_accept)).perform(click());
         assertTrue(prefs.getWelcomeScreenShownAt() > 0);
 
         //check if create box account in foreground
-        QabelMatcher.matchToolbarTitle(mActivity.getString(R.string.headline_create_box_account))
+        QabelMatcher.matchToolbarTitle(mActivity.getString(string.headline_create_box_account))
                 .check(matches(isDisplayed()));
 
     }

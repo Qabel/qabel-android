@@ -5,9 +5,11 @@ import android.test.AndroidTestCase;
 import android.util.Log;
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
+import de.qabel.qabelbox.R.string;
 import de.qabel.qabelbox.config.AppPreference;
 import de.qabel.qabelbox.exceptions.QblServerException;
 import de.qabel.qabelbox.exceptions.QblStorageException;
+import de.qabel.qabelbox.storage.TransferManager.BoxTransferListener;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
@@ -29,16 +31,17 @@ public class TransferManagerTest extends AndroidTestCase {
     TransferManager transferManager;
 
     public void configureTestServer() {
-        new AppPreference(QabelBoxApplication.getInstance().getApplicationContext()).setToken(QabelBoxApplication.getInstance().getApplicationContext().getString(R.string.blockserver_magic_testtoken));
+        new AppPreference(QabelBoxApplication.getInstance().getApplicationContext()).setToken(QabelBoxApplication.getInstance().getApplicationContext().getString(string.blockserver_magic_testtoken));
     }
 
+    @Override
     @Before
     public void setUp() throws IOException, QblStorageException {
         configureTestServer();
         tempDir = new File(System.getProperty("java.io.tmpdir"), "testtmp");
         tempDir.mkdir();
         transferManager = new TransferManager(tempDir);
-        testFileNameOnServer = "testfile_" + UUID.randomUUID().toString();
+        testFileNameOnServer = "testfile_" + UUID.randomUUID();
     }
 
 
@@ -70,6 +73,7 @@ public class TransferManagerTest extends AndroidTestCase {
     }
 
 
+    @Override
     @After
     public void tearDown() throws IOException {
         syncDelete(testFileNameOnServer);
@@ -77,14 +81,14 @@ public class TransferManagerTest extends AndroidTestCase {
     }
 
     private int syncUpload(final String nameOnServer, final File sourceFile) {
-        TransferManager.BoxTransferListener listner = new VerboseTransferManagerListener(sourceFile + " -> " + nameOnServer, "uploading");
+        BoxTransferListener listner = new VerboseTransferManagerListener(sourceFile + " -> " + nameOnServer, "uploading");
         int transferId = transferManager.uploadAndDeleteLocalfileOnSuccess(prefix, nameOnServer, sourceFile, listner);
         transferManager.waitFor(transferId);
         return transferId;
     }
 
     private int syncDownload(final String nameOnServer, final File targetFile) {
-        TransferManager.BoxTransferListener listner = new VerboseTransferManagerListener(nameOnServer + " -> " + targetFile, "uploading");
+        BoxTransferListener listner = new VerboseTransferManagerListener(nameOnServer + " -> " + targetFile, "uploading");
         int transferId = transferManager.download(prefix, nameOnServer, targetFile, listner);
         transferManager.waitFor(transferId);
         return transferId;
@@ -218,7 +222,7 @@ public class TransferManagerTest extends AndroidTestCase {
         }
     }
 
-    class VerboseTransferManagerListener implements TransferManager.BoxTransferListener {
+    class VerboseTransferManagerListener implements BoxTransferListener {
 
         String fileName;
         String mode;

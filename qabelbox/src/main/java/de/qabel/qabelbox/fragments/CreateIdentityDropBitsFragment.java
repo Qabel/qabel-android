@@ -7,14 +7,17 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.SeekBar;
 import de.qabel.qabelbox.R;
+import de.qabel.qabelbox.R.id;
+import de.qabel.qabelbox.R.layout;
 import de.qabel.qabelbox.activities.BaseWizardActivity;
+import de.qabel.qabelbox.activities.BaseWizardActivity.NextChecker;
 
 public class CreateIdentityDropBitsFragment extends BaseIdentityFragment {
 
     private SeekBar sbSecurity;
-    private BaseWizardActivity.NextChecker mChecker;
+    private NextChecker mChecker;
 
-    public static CreateIdentityDropBitsFragment newInstance(BaseWizardActivity.NextChecker checker) {
+    public static CreateIdentityDropBitsFragment newInstance(NextChecker checker) {
 
         CreateIdentityDropBitsFragment fragment = new CreateIdentityDropBitsFragment();
 
@@ -26,8 +29,8 @@ public class CreateIdentityDropBitsFragment extends BaseIdentityFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
-        View view = inflater.inflate(R.layout.fragment_create_identity_drop_bits, container, false);
-        sbSecurity = (SeekBar) view.findViewById(R.id.sb_security);
+        View view = inflater.inflate(layout.fragment_create_identity_drop_bits, container, false);
+        sbSecurity = (SeekBar) view.findViewById(id.sb_security);
         return view;
     }
 

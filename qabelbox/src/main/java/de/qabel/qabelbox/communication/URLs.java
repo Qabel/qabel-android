@@ -3,6 +3,7 @@ package de.qabel.qabelbox.communication;
 import android.content.Context;
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
+import de.qabel.qabelbox.R.string;
 
 public class URLs {
 
@@ -13,10 +14,10 @@ public class URLs {
 
         Context context = QabelBoxApplication.getInstance().getApplicationContext();
         if (BASE_ACCOUNTING == null) {
-            BASE_ACCOUNTING = context.getString(R.string.accountingServer);
+            BASE_ACCOUNTING = context.getString(string.accountingServer);
         }
         if (BASE_BLOCK == null) {
-            BASE_BLOCK = context.getString(R.string.blockServer);
+            BASE_BLOCK = context.getString(string.blockServer);
         }
     }
 

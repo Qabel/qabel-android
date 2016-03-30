@@ -9,6 +9,8 @@ import com.squareup.spoon.Spoon;
 import de.qabel.core.config.Identity;
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
+import de.qabel.qabelbox.R.id;
+import de.qabel.qabelbox.R.string;
 import de.qabel.qabelbox.TestConstants;
 import de.qabel.qabelbox.activities.MainActivity;
 import de.qabel.qabelbox.communication.URLs;
@@ -86,7 +88,7 @@ public class OpenQabelFilesFromExternalAppsUITest extends UIBoxHelper {
             //indicate no error on tested code
         }
 
-        QabelMatcher.matchToolbarTitle(mActivity.getString(R.string.headline_add_identity))
+        QabelMatcher.matchToolbarTitle(mActivity.getString(string.headline_add_identity))
                 .check(matches(isDisplayed()));
     }
 
@@ -99,9 +101,9 @@ public class OpenQabelFilesFromExternalAppsUITest extends UIBoxHelper {
         File tempQcoFile = createQcoFile(userToImport, ".unknown");
         createIdentityIfNeeded();
         launchExternalIntent(Uri.fromFile(tempQcoFile));
-        onView(withText(R.string.cant_import_file_type_is_unknown)).check(matches(isDisplayed()));
+        onView(withText(string.cant_import_file_type_is_unknown)).check(matches(isDisplayed()));
         Spoon.screenshot(mActivity, "openQCO");
-        onView(withText(R.string.ok)).check(matches(isDisplayed())).perform(click());
+        onView(withText(string.ok)).check(matches(isDisplayed())).perform(click());
         tempQcoFile.delete();
     }
 
@@ -123,8 +125,8 @@ public class OpenQabelFilesFromExternalAppsUITest extends UIBoxHelper {
         createIdentityIfNeeded();
         launchExternalIntent(Uri.fromFile(tempQcoFile));
         Spoon.screenshot(mActivity, "corruptContact");
-        onView(withText(R.string.contact_import_failed)).check(matches(isDisplayed()));
-        onView(withText(R.string.ok)).check(matches(isDisplayed())).perform(click());
+        onView(withText(string.contact_import_failed)).check(matches(isDisplayed()));
+        onView(withText(string.ok)).check(matches(isDisplayed())).perform(click());
         tempQcoFile.delete();
     }
 
@@ -137,11 +139,11 @@ public class OpenQabelFilesFromExternalAppsUITest extends UIBoxHelper {
         File tempQidFile = createQIDFile(userToImport);
         createIdentityIfNeeded();
         launchExternalIntent(Uri.fromFile(tempQidFile));
-        onView(withText(R.string.idenity_imported)).check(matches(isDisplayed()));
-        onView(withText(R.string.ok)).check(matches(isDisplayed())).perform(click());
+        onView(withText(string.idenity_imported)).check(matches(isDisplayed()));
+        onView(withText(string.ok)).check(matches(isDisplayed())).perform(click());
         tempQidFile.delete();
-        openDrawer(R.id.drawer_layout);
-        onView(withId(R.id.select_identity_layout)).check(matches(isDisplayed())).perform(click());
+        openDrawer(id.drawer_layout);
+        onView(withId(id.select_identity_layout)).check(matches(isDisplayed())).perform(click());
         onView(withText(userToImport)).check(matches(isDisplayed()));
 
 
@@ -165,13 +167,13 @@ public class OpenQabelFilesFromExternalAppsUITest extends UIBoxHelper {
     }
 
     private void checkMessageBox() {
-        onView(withText(R.string.dialog_headline_info)).check(matches(isDisplayed()));
-        onView(withText(R.string.ok)).check(matches(isDisplayed())).perform(click());
+        onView(withText(string.dialog_headline_info)).check(matches(isDisplayed()));
+        onView(withText(string.ok)).check(matches(isDisplayed())).perform(click());
     }
 
     private void goToContacts() {
-        DrawerActions.openDrawer(R.id.drawer_layout);
-        onView(allOf(withText(R.string.Contacts), withParent(withClassName(endsWith("MenuView")))))
+        openDrawer(id.drawer_layout);
+        onView(allOf(withText(string.Contacts), withParent(withClassName(endsWith("MenuView")))))
                 .perform(click());
         Spoon.screenshot(mActivity, "contacts");
     }

@@ -2,6 +2,7 @@ package de.qabel.qabelbox.activities;
 
 import android.app.Fragment;
 import android.app.FragmentManager;
+import android.app.FragmentManager.OnBackStackChangedListener;
 import android.content.*;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -11,34 +12,50 @@ import android.provider.DocumentsContract;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
+import android.support.design.widget.NavigationView.OnNavigationItemSelectedListener;
 import android.support.design.widget.Snackbar;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v4.widget.DrawerLayout.DrawerListener;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MenuItem.OnMenuItemClickListener;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.cocosw.bottomsheet.BottomSheet;
+import com.cocosw.bottomsheet.BottomSheet.Builder;
 import de.qabel.core.config.Identity;
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
+import de.qabel.qabelbox.R.drawable;
+import de.qabel.qabelbox.R.id;
+import de.qabel.qabelbox.R.layout;
+import de.qabel.qabelbox.R.menu;
+import de.qabel.qabelbox.R.string;
 import de.qabel.qabelbox.adapter.FilesAdapter;
+import de.qabel.qabelbox.adapter.FilesAdapter.OnItemClickListener;
 import de.qabel.qabelbox.chat.ChatServer;
 import de.qabel.qabelbox.chat.ShareHelper;
 import de.qabel.qabelbox.communication.VolumeFileTransferHelper;
 import de.qabel.qabelbox.config.QabelSchema;
 import de.qabel.qabelbox.dialogs.SelectIdentityForUploadDialog;
+import de.qabel.qabelbox.dialogs.SelectIdentityForUploadDialog.Result;
 import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.fragments.*;
+import de.qabel.qabelbox.fragments.FilesFragment.FilesListListener;
+import de.qabel.qabelbox.fragments.IdentitiesFragment.IdentityListListener;
 import de.qabel.qabelbox.helper.*;
+import de.qabel.qabelbox.helper.UIHelper.EditTextDialogClickListener;
 import de.qabel.qabelbox.providers.BoxProvider;
 import de.qabel.qabelbox.services.LocalQabelService;
+import de.qabel.qabelbox.services.LocalQabelService.LocalBinder;
 import de.qabel.qabelbox.storage.*;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
@@ -50,9 +67,9 @@ import java.net.URLConnection;
 import java.util.*;
 
 public class MainActivity extends CrashReportingActivity
-        implements NavigationView.OnNavigationItemSelectedListener,
-        FilesFragment.FilesListListener,
-        IdentitiesFragment.IdentityListListener {
+        implements OnNavigationItemSelectedListener,
+        FilesListListener,
+        IdentityListListener {
 
     public static final String TAG_CONTACT_CHAT_FRAGMENT = "TAG_CONTACT_CHAT_FRAGMENT";
 
@@ -126,7 +143,7 @@ public class MainActivity extends CrashReportingActivity
             if (data != null) {
                 if (requestCode == REQUEST_CODE_OPEN) {
                     uri = data.getData();
-                    Log.i(TAG, "Uri: " + uri.toString());
+                    Log.i(TAG, "Uri: " + uri);
                     Intent viewIntent = new Intent();
                     String type = URLConnection.guessContentTypeFromName(uri.toString());
                     Log.i(TAG, "Mime type: " + type);
@@ -150,7 +167,7 @@ public class MainActivity extends CrashReportingActivity
                 }
                 if (requestCode == REQUEST_CODE_DELETE_FILE) {
                     uri = data.getData();
-                    Log.i(TAG, "Deleting file: " + uri.toString());
+                    Log.i(TAG, "Deleting file: " + uri);
                     new AsyncTask<Uri, Void, Boolean>() {
 
                         @Override
@@ -163,7 +180,7 @@ public class MainActivity extends CrashReportingActivity
                 }
                 if (requestCode == REQUEST_CODE_CHOOSE_EXPORT) {
                     uri = data.getData();
-                    Log.i(TAG, "Export uri chosen: " + uri.toString());
+                    Log.i(TAG, "Export uri chosen: " + uri);
                     new AsyncTask<Void, Void, Void>() {
 
                         @Override
@@ -196,18 +213,18 @@ public class MainActivity extends CrashReportingActivity
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
-        Log.d(TAG, "onCreate " + this.hashCode());
+        Log.d(TAG, "onCreate " + hashCode());
         Intent serviceIntent = new Intent(this, LocalQabelService.class);
         mServiceConnection = getServiceConnection();
         if (Sanity.startWizardActivities(this)) {
             Log.d(TAG, "started wizard dialog");
             return;
         }
-        setContentView(R.layout.activity_main);
-        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setContentView(layout.activity_main);
+        toolbar = (Toolbar) findViewById(id.toolbar);
         setSupportActionBar(toolbar);
-        appBarMain = findViewById(R.id.app_bap_main);
-        fab = (FloatingActionButton) findViewById(R.id.fab);
+        appBarMain = findViewById(id.app_bap_main);
+        fab = (FloatingActionButton) findViewById(id.fab);
         self = this;
         initFloatingActionButton();
 
@@ -218,10 +235,10 @@ public class MainActivity extends CrashReportingActivity
 
     private void handleMainFragmentChange() {
         // Set FAB visibility according to currently visible fragment
-        Fragment activeFragment = getFragmentManager().findFragmentById(R.id.fragment_container);
+        Fragment activeFragment = getFragmentManager().findFragmentById(id.fragment_container);
 
         if (activeFragment instanceof BaseFragment) {
-            BaseFragment fragment = ((BaseFragment) activeFragment);
+            BaseFragment fragment = (BaseFragment) activeFragment;
             toolbar.setTitle(fragment.getTitle());
             if (fragment.isFabNeeded()) {
                 fab.show();
@@ -235,7 +252,7 @@ public class MainActivity extends CrashReportingActivity
             }
         }
         //check if navigation drawer need to reset
-        if (getFragmentManager().getBackStackEntryCount() == 0 || (activeFragment instanceof BaseFragment) && !((BaseFragment) activeFragment).supportBackButton()) {
+        if (getFragmentManager().getBackStackEntryCount() == 0 || activeFragment instanceof BaseFragment && !((BaseFragment) activeFragment).supportBackButton()) {
             if (activeFragment instanceof SelectUploadFolderFragment) {
             } else {
 
@@ -247,7 +264,7 @@ public class MainActivity extends CrashReportingActivity
 
     private void addBackStackListener() {
 
-        getFragmentManager().addOnBackStackChangedListener(new FragmentManager.OnBackStackChangedListener() {
+        getFragmentManager().addOnBackStackChangedListener(new OnBackStackChangedListener() {
             @Override
             public void onBackStackChanged() {
                 handleMainFragmentChange();
@@ -263,7 +280,7 @@ public class MainActivity extends CrashReportingActivity
             @Override
             public void onServiceConnected(ComponentName name, IBinder service) {
 
-                LocalQabelService.LocalBinder binder = (LocalQabelService.LocalBinder) service;
+                LocalBinder binder = (LocalBinder) service;
                 mService = binder.getService();
                 QabelBoxApplication.getInstance().serviceCreatedOutside(mService);
                 onLocalServiceConnected(getIntent());
@@ -369,10 +386,10 @@ public class MainActivity extends CrashReportingActivity
             } else if (QabelSchema.FILE_SUFFIX_IDENTITY.equals(extension)) {
                 if (
                         new CreateIdentityMainFragment().importIdentity(self, intent)) {
-                    UIHelper.showDialogMessage(self, R.string.infos, R.string.idenity_imported);
+                    UIHelper.showDialogMessage(self, string.infos, string.idenity_imported);
                 }
             } else {
-                UIHelper.showDialogMessage(this, R.string.infos, R.string.cant_import_file_type_is_unknown);
+                UIHelper.showDialogMessage(this, string.infos, string.cant_import_file_type_is_unknown);
             }
         }
     }
@@ -398,11 +415,11 @@ public class MainActivity extends CrashReportingActivity
 
         final Set<Identity> identities = mService.getIdentities().getIdentities();
         if (identities.size() > 1) {
-            new SelectIdentityForUploadDialog(self, new SelectIdentityForUploadDialog.Result() {
+            new SelectIdentityForUploadDialog(self, new Result() {
                 @Override
                 public void onCancel() {
 
-                    UIHelper.showDialogMessage(self, R.string.dialog_headline_warning, R.string.share_into_app_canceled);
+                    UIHelper.showDialogMessage(self, string.dialog_headline_warning, string.share_into_app_canceled);
                     onBackPressed();
                 }
 
@@ -425,7 +442,7 @@ public class MainActivity extends CrashReportingActivity
         toggle.setDrawerIndicatorEnabled(false);
         shareFragment = SelectUploadFolderFragment.newInstance(boxVolume, data, activeIdentity);
         getFragmentManager().beginTransaction()
-                .add(R.id.fragment_container,
+                .add(id.fragment_container,
                         shareFragment, TAG_FILES_SHARE_INTO_APP_FRAGMENT)
                 .addToBackStack(null)
                 .commit();
@@ -440,11 +457,11 @@ public class MainActivity extends CrashReportingActivity
 
     private void initFloatingActionButton() {
 
-        fab.setOnClickListener(new View.OnClickListener() {
+        fab.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
 
-                Fragment activeFragment = getFragmentManager().findFragmentById(R.id.fragment_container);
+                Fragment activeFragment = getFragmentManager().findFragmentById(id.fragment_container);
                 String activeFragmentTag = activeFragment.getTag();
                 if (activeFragment instanceof BaseFragment) {
                     BaseFragment bf = (BaseFragment) activeFragment;
@@ -471,16 +488,16 @@ public class MainActivity extends CrashReportingActivity
 
     private void filesFragmentBottomSheet() {
 
-        new BottomSheet.Builder(self).sheet(R.menu.bottom_sheet_files_add)
+        new Builder(self).sheet(menu.bottom_sheet_files_add)
                 .listener(new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
 
                         switch (which) {
-                            case R.id.create_folder:
+                            case id.create_folder:
                                 newFolderDialog();
                                 break;
-                            case R.id.upload_file:
+                            case id.upload_file:
                                 Intent intentOpen = new Intent(Intent.ACTION_OPEN_DOCUMENT);
                                 intentOpen.addCategory(Intent.CATEGORY_OPENABLE);
                                 intentOpen.setType("*/*");
@@ -493,7 +510,7 @@ public class MainActivity extends CrashReportingActivity
 
     private void newFolderDialog() {
 
-        UIHelper.showEditTextDialog(this, R.string.add_folder_header, R.string.add_folder_name, R.string.ok, R.string.cancel, new UIHelper.EditTextDialogClickListener() {
+        UIHelper.showEditTextDialog(this, string.add_folder_header, string.add_folder_name, string.ok, string.cancel, new EditTextDialogClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which, EditText editText) {
 
@@ -507,25 +524,25 @@ public class MainActivity extends CrashReportingActivity
     }
 
 
-    protected void filterSheet(BoxObject boxObject, BottomSheet.Builder sheet) {
+    protected void filterSheet(BoxObject boxObject, Builder sheet) {
 
         if (!(boxObject instanceof BoxFile) || !((BoxFile) boxObject).isShared()) {
-            sheet.remove(R.id.unshare);
+            sheet.remove(id.unshare);
         }
         if (!(boxObject instanceof BoxFile)) {
 
-            sheet.remove(R.id.unshare);
+            sheet.remove(id.unshare);
         }
         if (boxObject instanceof BoxExternalFile) {
-            sheet.remove(R.id.edit);
-            sheet.remove(R.id.fordward);
+            sheet.remove(id.edit);
+            sheet.remove(id.fordward);
         }
         if (!(boxObject instanceof BoxFile)) {
-            sheet.remove(R.id.open);
-            sheet.remove(R.id.export);
-            sheet.remove(R.id.edit);
-            sheet.remove(R.id.share);
-            sheet.remove(R.id.fordward);
+            sheet.remove(id.open);
+            sheet.remove(id.export);
+            sheet.remove(id.edit);
+            sheet.remove(id.share);
+            sheet.remove(id.fordward);
         }
     }
 
@@ -538,13 +555,13 @@ public class MainActivity extends CrashReportingActivity
         Uri uri = VolumeFileTransferHelper.getUri(boxObject, boxVolume, filesFragment.getBoxNavigation());
         String type = getMimeType(uri);
         Log.v(TAG, "Mime type: " + type);
-        Log.v(TAG, "Uri: " + uri.toString() + " " + uri.toString().length());
+        Log.v(TAG, "Uri: " + uri + " " + uri.toString().length());
 
         //check if file type is image
         if (type != null && type.indexOf("image") == 0) {
             ImageViewerFragment viewerFragment = ImageViewerFragment.newInstance(uri, type);
             getFragmentManager().beginTransaction()
-                    .replace(R.id.fragment_container, viewerFragment).addToBackStack(null)
+                    .replace(id.fragment_container, viewerFragment).addToBackStack(null)
                     .commit();
             toggle.setDrawerIndicatorEnabled(false);
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -578,12 +595,12 @@ public class MainActivity extends CrashReportingActivity
     @Override
     public void onBackPressed() {
 
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        DrawerLayout drawer = (DrawerLayout) findViewById(id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else {
 
-            Fragment activeFragment = getFragmentManager().findFragmentById(R.id.fragment_container);
+            Fragment activeFragment = getFragmentManager().findFragmentById(id.fragment_container);
             if (activeFragment == null) {
                 super.onBackPressed();
                 return;
@@ -594,7 +611,7 @@ public class MainActivity extends CrashReportingActivity
                 switch (activeFragment.getTag()) {
                     case TAG_FILES_SHARE_INTO_APP_FRAGMENT:
                         if (!shareFragment.handleBackPressed() && !shareFragment.browseToParent()) {
-                            UIHelper.showDialogMessage(self, R.string.dialog_headline_warning, R.string.share_in_app_go_back_without_upload, R.string.yes, R.string.no, new DialogInterface.OnClickListener() {
+                            UIHelper.showDialogMessage(self, string.dialog_headline_warning, string.share_in_app_go_back_without_upload, string.yes, string.no, new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
                                     getFragmentManager().popBackStack();
@@ -626,7 +643,7 @@ public class MainActivity extends CrashReportingActivity
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.ab_main, menu);
+        getMenuInflater().inflate(menu.ab_main, menu);
         return true;
     }
 
@@ -637,9 +654,9 @@ public class MainActivity extends CrashReportingActivity
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        if (id == R.id.action_infos) {
-            String text = getString(R.string.dummy_infos_text);
-            UIHelper.showDialogMessage(self, R.string.dialog_headline_info, text);
+        if (id == id.action_infos) {
+            String text = getString(string.dummy_infos_text);
+            UIHelper.showDialogMessage(self, string.dialog_headline_info, text);
             return true;
         }
 
@@ -650,22 +667,22 @@ public class MainActivity extends CrashReportingActivity
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
         int id = item.getItemId();
-        if (id == R.id.nav_tellafriend) {
+        if (id == id.nav_tellafriend) {
             ShareHelper.tellAFriend(this);
         }
-        if (id == R.id.nav_contacts) {
+        if (id == id.nav_contacts) {
             selectContactsFragment();
-        } else if (id == R.id.nav_browse) {
+        } else if (id == id.nav_browse) {
             selectFilesFragment();
-        } else if (id == R.id.nav_settings) {
+        } else if (id == id.nav_settings) {
             Intent intent = new Intent(this, SettingsActivity.class);
             startActivityForResult(intent, REQUEST_SETTINGS);
-        } else if (id == R.id.nav_about) {
+        } else if (id == id.nav_about) {
             selectAboutFragment();
-        } else if (id == R.id.nav_help) {
+        } else if (id == id.nav_help) {
             selectHelpFragment();
         }
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        DrawerLayout drawer = (DrawerLayout) findViewById(id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
@@ -747,14 +764,14 @@ public class MainActivity extends CrashReportingActivity
             getFragmentManager().beginTransaction().remove(filesFragment).commit();
         }
         filesFragment = FilesFragment.newInstance(boxVolume);
-        filesFragment.setOnItemClickListener(new FilesAdapter.OnItemClickListener() {
+        filesFragment.setOnItemClickListener(new OnItemClickListener() {
             @Override
             public void onItemClick(View view, int position) {
 
                 final BoxObject boxObject = filesFragment.getFilesAdapter().get(position);
                 if (boxObject != null) {
                     if (boxObject instanceof BoxFolder) {
-                        filesFragment.browseTo(((BoxFolder) boxObject));
+                        filesFragment.browseTo((BoxFolder) boxObject);
                     } else if (boxObject instanceof BoxFile) {
                         // Open
                         showFile(boxObject);
@@ -766,34 +783,34 @@ public class MainActivity extends CrashReportingActivity
             public void onItemLockClick(View view, final int position) {
 
                 final BoxObject boxObject = filesFragment.getFilesAdapter().get(position);
-                BottomSheet.Builder sheet = new BottomSheet.Builder(self).title(boxObject.name).sheet(R.menu.bottom_sheet_files)
+                Builder sheet = new Builder(self).title(boxObject.name).sheet(menu.bottom_sheet_files)
                         .listener(new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
 
                                 switch (which) {
-                                    case R.id.open:
+                                    case id.open:
                                         ExternalApps.openExternApp(self, VolumeFileTransferHelper.getUri(boxObject, boxVolume, filesFragment.getBoxNavigation()), getMimeType(boxObject), Intent.ACTION_VIEW);
                                         break;
-                                    case R.id.edit:
+                                    case id.edit:
                                         ExternalApps.openExternApp(self, VolumeFileTransferHelper.getUri(boxObject, boxVolume, filesFragment.getBoxNavigation()), getMimeType(boxObject), Intent.ACTION_EDIT);
                                         break;
-                                    case R.id.share:
+                                    case id.share:
                                         ExternalApps.share(self, VolumeFileTransferHelper.getUri(boxObject, boxVolume, filesFragment.getBoxNavigation()), getMimeType(boxObject));
                                         break;
-                                    case R.id.fordward:
+                                    case id.fordward:
                                         ShareHelper.shareToQabelUser(self, mService, boxObject);
                                         break;
-                                    case R.id.delete:
+                                    case id.delete:
                                         filesFragment.delete(boxObject);
                                         break;
-                                    case R.id.unshare:
+                                    case id.unshare:
                                         filesFragment.unshare((BoxFile) boxObject);
                                         break;
-                                    case R.id.export:
+                                    case id.export:
                                         // Export handled in the MainActivity
                                         if (boxObject instanceof BoxFolder) {
-                                            Toast.makeText(self, R.string.folder_export_not_implemented,
+                                            Toast.makeText(self, string.folder_export_not_implemented,
                                                     Toast.LENGTH_SHORT).show();
                                         } else {
                                             onExport(filesFragment.getBoxNavigation(), boxObject);
@@ -822,7 +839,7 @@ public class MainActivity extends CrashReportingActivity
         if (scrolledToBottom) {
             fab.hide();
         } else {
-            Fragment activeFragment = getFragmentManager().findFragmentById(R.id.fragment_container);
+            Fragment activeFragment = getFragmentManager().findFragmentById(id.fragment_container);
             if (activeFragment != null) {
                 if (activeFragment instanceof BaseFragment && ((BaseFragment) activeFragment).handleFABAction()) {
                     fab.show();
@@ -837,7 +854,7 @@ public class MainActivity extends CrashReportingActivity
         provider.notifyRootsUpdated();
         mService.deleteIdentity(identity);
         if (mService.getIdentities().getIdentities().size() == 0) {
-            UIHelper.showDialogMessage(this, R.string.dialog_headline_info, R.string.last_identity_delete_create_new, new DialogInterface.OnClickListener() {
+            UIHelper.showDialogMessage(this, string.dialog_headline_info, string.last_identity_delete_create_new, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
 
@@ -918,20 +935,20 @@ public class MainActivity extends CrashReportingActivity
 
     private void initDrawer() {
 
-        drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        drawer = (DrawerLayout) findViewById(id.drawer_layout);
         toggle = new ActionBarDrawerToggle(
-                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+                this, drawer, toolbar, string.navigation_drawer_open, string.navigation_drawer_close);
         drawer.setDrawerListener(toggle);
         toggle.syncState();
 
         setDrawerLocked(false);
 
-        final NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        final NavigationView navigationView = (NavigationView) findViewById(id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
         // Map QR-Code indent to alias textview in nav_header_main
-        textViewSelectedIdentity = (TextView) navigationView.findViewById(R.id.textViewSelectedIdentity);
-        findViewById(R.id.qabelLogo).setOnClickListener(new View.OnClickListener() {
+        textViewSelectedIdentity = (TextView) navigationView.findViewById(id.textViewSelectedIdentity);
+        findViewById(id.qabelLogo).setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
 
@@ -940,18 +957,18 @@ public class MainActivity extends CrashReportingActivity
             }
         });
 
-        imageViewExpandIdentity = (ImageView) navigationView.findViewById(R.id.imageViewExpandIdentity);
-        findViewById(R.id.select_identity_layout).setOnClickListener(new View.OnClickListener() {
+        imageViewExpandIdentity = (ImageView) navigationView.findViewById(id.imageViewExpandIdentity);
+        findViewById(id.select_identity_layout).setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
 
                 if (identityMenuExpanded) {
-                    imageViewExpandIdentity.setImageResource(R.drawable.ic_arrow_drop_down_black);
+                    imageViewExpandIdentity.setImageResource(drawable.ic_arrow_drop_down_black);
                     navigationView.getMenu().clear();
-                    navigationView.inflateMenu(R.menu.activity_main_drawer);
+                    navigationView.inflateMenu(menu.activity_main_drawer);
                     identityMenuExpanded = false;
                 } else {
-                    imageViewExpandIdentity.setImageResource(R.drawable.ic_arrow_drop_up_black);
+                    imageViewExpandIdentity.setImageResource(drawable.ic_arrow_drop_up_black);
                     navigationView.getMenu().clear();
                     List<Identity> identityList = new ArrayList<>(
                             mService.getIdentities().getIdentities());
@@ -965,8 +982,8 @@ public class MainActivity extends CrashReportingActivity
                     for (final Identity identity : identityList) {
                         navigationView.getMenu()
                                 .add(NAV_GROUP_IDENTITIES, Menu.NONE, Menu.NONE, identity.getAlias())
-                                .setIcon(R.drawable.ic_perm_identity_black)
-                                .setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+                                .setIcon(drawable.ic_perm_identity_black)
+                                .setOnMenuItemClickListener(new OnMenuItemClickListener() {
                                     @Override
                                     public boolean onMenuItemClick(MenuItem item) {
 
@@ -977,9 +994,9 @@ public class MainActivity extends CrashReportingActivity
                                 });
                     }
                     navigationView.getMenu()
-                            .add(NAV_GROUP_IDENTITY_ACTIONS, Menu.NONE, Menu.NONE, R.string.add_identity)
-                            .setIcon(R.drawable.ic_add_circle_black)
-                            .setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+                            .add(NAV_GROUP_IDENTITY_ACTIONS, Menu.NONE, Menu.NONE, string.add_identity)
+                            .setIcon(drawable.ic_add_circle_black)
+                            .setOnMenuItemClickListener(new OnMenuItemClickListener() {
                                 @Override
                                 public boolean onMenuItemClick(MenuItem item) {
 
@@ -989,9 +1006,9 @@ public class MainActivity extends CrashReportingActivity
                                 }
                             });
                     navigationView.getMenu()
-                            .add(NAV_GROUP_IDENTITY_ACTIONS, Menu.NONE, Menu.NONE, R.string.manage_identities)
-                            .setIcon(R.drawable.ic_settings_black)
-                            .setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+                            .add(NAV_GROUP_IDENTITY_ACTIONS, Menu.NONE, Menu.NONE, string.manage_identities)
+                            .setIcon(drawable.ic_settings_black)
+                            .setOnMenuItemClickListener(new OnMenuItemClickListener() {
                                 @Override
                                 public boolean onMenuItemClick(MenuItem item) {
 
@@ -1005,7 +1022,7 @@ public class MainActivity extends CrashReportingActivity
             }
         });
 
-        drawer.setDrawerListener(new DrawerLayout.DrawerListener() {
+        drawer.setDrawerListener(new DrawerListener() {
             @Override
             public void onDrawerSlide(View drawerView, float slideOffset) {
 
@@ -1020,8 +1037,8 @@ public class MainActivity extends CrashReportingActivity
             public void onDrawerClosed(View drawerView) {
 
                 navigationView.getMenu().clear();
-                navigationView.inflateMenu(R.menu.activity_main_drawer);
-                imageViewExpandIdentity.setImageResource(R.drawable.ic_arrow_drop_down_black);
+                navigationView.inflateMenu(menu.activity_main_drawer);
+                imageViewExpandIdentity.setImageResource(drawable.ic_arrow_drop_down_black);
                 identityMenuExpanded = false;
             }
 
@@ -1034,7 +1051,7 @@ public class MainActivity extends CrashReportingActivity
 
     public static void showQRCode(MainActivity activity, Identity identity) {
         activity.getFragmentManager().beginTransaction()
-                .replace(R.id.fragment_container, QRcodeFragment.newInstance(identity), null)
+                .replace(id.fragment_container, QRcodeFragment.newInstance(identity), null)
                 .addToBackStack(null)
                 .commit();
     }
@@ -1054,7 +1071,7 @@ public class MainActivity extends CrashReportingActivity
     }
 
     private void showAbortMessage() {
-        Toast.makeText(self, R.string.aborted,
+        Toast.makeText(self, string.aborted,
                 Toast.LENGTH_SHORT).show();
     }
 
@@ -1091,7 +1108,7 @@ public class MainActivity extends CrashReportingActivity
 
     private void showMainFragment(Fragment fragment, String tag) {
         getFragmentManager().beginTransaction()
-                .replace(R.id.fragment_container, fragment, tag).commit();
+                .replace(id.fragment_container, fragment, tag).commit();
         try {
             while (getFragmentManager().executePendingTransactions()) {
                 Thread.sleep(50);

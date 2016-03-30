@@ -1,11 +1,14 @@
 package de.qabel.qabelbox.activities;
 
+import android.R.anim;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
 import de.qabel.qabelbox.R;
+import de.qabel.qabelbox.R.layout;
 import de.qabel.qabelbox.config.AppPreference;
 import de.qabel.qabelbox.helper.Sanity;
 
@@ -14,7 +17,7 @@ public class SplashActivity extends CrashReportingActivity {
     private final long SPLASH_TIME = 1500;
     private SplashActivity mActivity;
     private AppPreference prefs;
-    final private String TAG = this.getClass().getSimpleName();
+    private final String TAG = getClass().getSimpleName();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,12 +28,12 @@ public class SplashActivity extends CrashReportingActivity {
         if (prefs.getWelcomeScreenShownAt() == 0) {
             Intent intent = new Intent(mActivity, WelcomeScreenActivity.class);
             startActivity(intent);
-            overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+            overridePendingTransition(anim.fade_in, anim.fade_out);
             finish();
             return;
         }
-        overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
-        setContentView(R.layout.activity_splashscreen);
+        overridePendingTransition(anim.fade_in, anim.fade_out);
+        setContentView(layout.activity_splashscreen);
         setupAppPreferences();
 
 
@@ -44,7 +47,7 @@ public class SplashActivity extends CrashReportingActivity {
         int currentAppVersionCode = 0;
         try {
             currentAppVersionCode = getPackageManager().getPackageInfo(getPackageName(), 0).versionCode;
-        } catch (PackageManager.NameNotFoundException e) {
+        } catch (NameNotFoundException e) {
             Log.e(TAG, "error setting up preferences", e);
         }
         if (lastAppStartVersion == 0) {
@@ -75,14 +78,14 @@ public class SplashActivity extends CrashReportingActivity {
                                           if (prefs.getWelcomeScreenShownAt() == 0) {
                                               Intent intent = new Intent(mActivity, WelcomeScreenActivity.class);
                                               startActivity(intent);
-                                              overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+                                              overridePendingTransition(anim.fade_in, anim.fade_out);
                                               finish();
                                           } else if (!Sanity.startWizardActivities(mActivity)) {
 
                                               Intent intent = new Intent(mActivity, MainActivity.class);
                                               intent.setAction("");
                                               startActivity(intent);
-                                              overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+                                              overridePendingTransition(anim.fade_in, anim.fade_out);
                                               finish();
                                           }
                                       }

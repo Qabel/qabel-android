@@ -24,11 +24,11 @@ public class ChatMessageItem {
     public String acknowledge_id;
     public String drop_payload_type;
     public String drop_payload;
-    private final String TAG = this.getClass().getSimpleName();
+    private final String TAG = getClass().getSimpleName();
 
     //inten values for db storage
     public short isNew = 1;//1 for new, 0 for old
-    public int id = 0;
+    public int id;
 
     public ChatMessageItem(int id, short isNew, long time_stamp, String sender, String receiver, String acknowledge_id, String drop_payload_type, String drop_payload) {
         this.id = id;
@@ -45,7 +45,7 @@ public class ChatMessageItem {
     public ChatMessageItem(DropMessage dm) {
         sender = dm.getSenderKeyId();
         acknowledge_id = dm.getAcknowledgeID();
-        version = dm.getVersion();
+        version = DropMessage.getVersion();
         receiver = null;
         drop_payload = dm.getDropPayload();
         drop_payload_type = dm.getDropPayloadType();

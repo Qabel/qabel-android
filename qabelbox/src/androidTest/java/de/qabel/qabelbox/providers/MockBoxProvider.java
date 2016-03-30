@@ -1,6 +1,7 @@
 package de.qabel.qabelbox.providers;
 
 import android.Manifest;
+import android.Manifest.permission;
 import android.content.Context;
 import android.content.pm.ProviderInfo;
 import android.os.Bundle;
@@ -66,8 +67,8 @@ public class MockBoxProvider extends BoxProvider {
         info.authority = AUTHORITY;
         info.exported = true;
         info.grantUriPermissions = true;
-        info.readPermission = Manifest.permission.MANAGE_DOCUMENTS;
-        info.writePermission = Manifest.permission.MANAGE_DOCUMENTS;
+        info.readPermission = permission.MANAGE_DOCUMENTS;
+        info.writePermission = permission.MANAGE_DOCUMENTS;
         attachInfo(context, info);
     }
 
@@ -108,7 +109,7 @@ public class MockBoxProvider extends BoxProvider {
             } catch (QblInvalidEncryptionKeyException e) {
                 return;
             }
-            this.persistence = androidPersistence;
+            persistence = androidPersistence;
         }
 
         @Override

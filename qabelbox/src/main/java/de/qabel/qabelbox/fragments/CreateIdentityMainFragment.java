@@ -7,12 +7,16 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.Button;
 import de.qabel.core.config.Identity;
 import de.qabel.core.exceptions.QblDropInvalidURL;
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
+import de.qabel.qabelbox.R.id;
+import de.qabel.qabelbox.R.layout;
+import de.qabel.qabelbox.R.string;
 import de.qabel.qabelbox.activities.CreateIdentityActivity;
 import de.qabel.qabelbox.config.IdentityExportImport;
 import de.qabel.qabelbox.helper.UIHelper;
@@ -25,7 +29,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URISyntaxException;
 
-public class CreateIdentityMainFragment extends BaseIdentityFragment implements View.OnClickListener {
+public class CreateIdentityMainFragment extends BaseIdentityFragment implements OnClickListener {
 
     private Button mCreateIdentity;
     private Button mImportIdentity;
@@ -34,9 +38,9 @@ public class CreateIdentityMainFragment extends BaseIdentityFragment implements 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
-        View view = inflater.inflate(R.layout.fragment_create_identity_main, container, false);
-        mCreateIdentity = (Button) view.findViewById(R.id.bt_create_identity);
-        mImportIdentity = (Button) view.findViewById(R.id.bt_import_identity);
+        View view = inflater.inflate(layout.fragment_create_identity_main, container, false);
+        mCreateIdentity = (Button) view.findViewById(id.bt_create_identity);
+        mImportIdentity = (Button) view.findViewById(id.bt_import_identity);
         mCreateIdentity.setOnClickListener(this);
         mImportIdentity.setOnClickListener(this);
         return view;
@@ -97,7 +101,7 @@ public class CreateIdentityMainFragment extends BaseIdentityFragment implements 
                 }
                 return true;
             } catch (IOException | JSONException | URISyntaxException | QblDropInvalidURL e) {
-                UIHelper.showDialogMessage(activity, R.string.dialog_headline_info, R.string.cant_read_identity);
+                UIHelper.showDialogMessage(activity, string.dialog_headline_info, string.cant_read_identity);
             }
         }
         return false;

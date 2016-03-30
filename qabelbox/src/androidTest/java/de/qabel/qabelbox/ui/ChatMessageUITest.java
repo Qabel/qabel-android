@@ -125,7 +125,7 @@ public class ChatMessageUITest {
 		//start test... go to contact fragment
 		openDrawer(R.id.drawer_layout);
 		onView(allOf(withText(R.string.Contacts), withParent(withClassName(endsWith("MenuView")))))
-				.perform(click());
+			.perform(click());
 		Spoon.screenshot(mActivity, "contacts");
 		int messageCount = chatServer.getAllMessages(contact1).length;
 		Log.d(TAG, "count: " + messageCount);
@@ -177,12 +177,12 @@ public class ChatMessageUITest {
 		openDrawer(R.id.drawer_layout);
 
 		onView(allOf(withText(R.string.Contacts), withParent(withClassName(endsWith("MenuView")))))
-				.perform(click());
+			.perform(click());
 		Spoon.screenshot(mActivity, "contacts");
 
 		onView(withId(R.id.contact_list))
-				.perform(RecyclerViewActions.actionOnItem(
-						hasDescendant(withText("user1")), click()));
+			.perform(RecyclerViewActions.actionOnItem(
+				hasDescendant(withText("user1")), click()));
 
 		onView(withId(R.id.etText)).check(matches(isDisplayed())).perform(click());
 		onView(withId(R.id.etText)).perform(typeText("text" + messages), pressImeActionButton());
@@ -190,8 +190,8 @@ public class ChatMessageUITest {
 		onView(withText(R.string.btn_chat_send)).check(matches(isDisplayed())).perform(click());
 
 		onView(withId(R.id.contact_chat_list)).
-				check(matches(isDisplayed())).
-				check(matches(QabelMatcher.withListSize(messages)));
+			check(matches(isDisplayed())).
+			check(matches(QabelMatcher.withListSize(messages)));
 		pressBack();
 
 		//go to identity user 1
@@ -202,11 +202,12 @@ public class ChatMessageUITest {
 		openDrawer(R.id.drawer_layout);
 		onView(withText(R.string.Contacts)).check(matches(isDisplayed())).perform(click());
 		Spoon.screenshot(mActivity, "message" + messages);
-
+		checkVisibilityState("user2", QabelMatcher.isVisible());
 		onView(withText("user2")).check(matches(isDisplayed())).perform(click());
+
 		onView(withId(R.id.contact_chat_list)).
-				check(matches(isDisplayed())).
-				check(matches(QabelMatcher.withListSize(messages)));
+			check(matches(isDisplayed())).
+			check(matches(QabelMatcher.withListSize(messages)));
 		pressBack();
 
 		//go to user 2
@@ -312,6 +313,13 @@ public class ChatMessageUITest {
 		pressBack();
 	}
 
+	/**
+	 * check if new message indicator displayed
+	 *
+	 * @param alias      contact name
+	 * @param visibility viewAssertion eg visibile or inVisible
+	 * @return ViewInteraction
+	 */
 	private ViewInteraction checkVisibilityState(String alias, ViewAssertion visibility) {
 		return onView(allOf(QabelMatcher.withDrawable(R.drawable.ic_visibility), hasSibling(withText(alias)))).check(visibility);
 	}

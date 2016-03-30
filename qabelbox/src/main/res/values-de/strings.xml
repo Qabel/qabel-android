@@ -141,7 +141,7 @@
     <string name="qrecode_scanner">QR Code Scanner</string>
     <string name="reason_for_error">Ursache: %1</string>
     <string name="rename_identity">Umbenennen von %s</string>
-    <string name="server_access_failed_or_invalid_check_internet_connection">Kommunikation mit dem Server ist fehlgeschlagen. Bitte prüfen Sie, ob Sie alle Daten eingegeben haben und über eine Verbindung zum Internet verfügen</string>
+    <string name="server_access_failed_or_invalid_check_internet_connection">Die Kommunikation mit dem Server ist fehlgeschlagen. Bitte prüfen Sie, ob Sie alle Daten eingegeben haben und über eine Verbindung zum Internet verfügen</string>
     <string name="server_access_not_successfully_retry_question">Zugriff auf den Server ist fehlgeschlagen. Erneut versuchen?</string>
     <string name="settings_bugreporting">Fehlerberichte</string>
     <string name="settings_bugreporting_enable_summary">Sie werden vor dem Senden von Berichten erneut um Erlaubnis gefragt</string>

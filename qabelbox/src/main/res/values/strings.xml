@@ -326,6 +326,6 @@ To all people who have supported our Indigogo Campaign
 	<string name="contact_export_failed">Could not export the identity</string>
 	<string name="tellAFriendSubject">You’ve been invited to join Qabel</string>
 	<string name="tellAFriendMessage">For the moment this gives you the opportunity to use Qabel Box. Qabel Box is an end-to-end encrypted online data storage. It does not only enable you to store data end-to-end encrypted online, but also to share this data freely and end-to-end encrypted with others. Moreover Qabel obfuscates most of the accumulated metadata. Qabel is constantly expanding. So it will be possible for you in the future to end-to-end encrypt all your digital communication with the easy to use platform Qabel across applications. Become a part of the Qabel ecosystem and start now:\r\n\r\n<a href="https://qabel.de/en/qabelnow">https://qabel.de/en/qabelnow</a>\r\n\r\nFor more information visit at\r\n\r\n<a href="https://qabel.de/en">https://qabel.de/en</a></string>
-	<string name="action_tellafriend">Tell a friend</string>
+	<string name="action_tellafriend">Invitation</string>
 
 </resources>

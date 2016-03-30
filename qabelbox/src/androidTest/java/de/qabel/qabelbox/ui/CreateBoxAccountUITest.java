@@ -19,12 +19,14 @@ import org.junit.runners.MethodSorters;
 
 import java.io.IOException;
 import java.util.UUID;
+import java.util.concurrent.CountDownLatch;
 
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.TestConstants;
 import de.qabel.qabelbox.TestConstraints;
 import de.qabel.qabelbox.activities.CreateAccountActivity;
+import de.qabel.qabelbox.communication.BoxAccountRegisterServer;
 import de.qabel.qabelbox.communication.URLs;
 import de.qabel.qabelbox.config.AppPreference;
 import de.qabel.qabelbox.exceptions.QblStorageException;
@@ -32,6 +34,9 @@ import de.qabel.qabelbox.ui.helper.SystemAnimations;
 import de.qabel.qabelbox.ui.helper.UIActionHelper;
 import de.qabel.qabelbox.ui.helper.UIBoxHelper;
 import de.qabel.qabelbox.ui.helper.UITestHelper;
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.Response;
 
 import static android.support.test.espresso.Espresso.closeSoftKeyboard;
 import static android.support.test.espresso.Espresso.onView;
@@ -47,6 +52,7 @@ import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static android.support.test.espresso.matcher.ViewMatchers.withInputType;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
 import static junit.framework.Assert.assertNotNull;
+import static junit.framework.Assert.assertNull;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.endsWith;
 
@@ -112,6 +118,7 @@ public class CreateBoxAccountUITest extends UIBoxHelper {
 		String failPassword = "12345678";
 		String password = "passwort12$";
 
+		createExistingUser(duplicateName, duplicateEMail, password);
 		//enter name
 		testNameExists(duplicateName);
 		enterSingleLine(accountName, "name", false);
@@ -127,6 +134,27 @@ public class CreateBoxAccountUITest extends UIBoxHelper {
 		checkPassword(password);
 
 		checkSuccess();
+	}
+
+	private void createExistingUser(String duplicateName, String duplicateEMail, String password) {
+		final CountDownLatch cl = new CountDownLatch(1);
+		new BoxAccountRegisterServer().register(duplicateName, password, password, duplicateEMail, new Callback() {
+			@Override
+			public void onFailure(Call call, IOException e) {
+				cl.countDown();
+			}
+
+			@Override
+			public void onResponse(Call call, Response response) throws IOException {
+				cl.countDown();
+			}
+		});
+		try {
+			cl.await();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+			assertNull(e);
+		}
 	}
 
 	private void checkSuccess() throws Throwable {

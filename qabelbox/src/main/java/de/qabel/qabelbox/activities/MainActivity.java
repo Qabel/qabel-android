@@ -633,7 +633,9 @@ public class MainActivity extends CrashReportingActivity
 	public boolean onNavigationItemSelected(MenuItem item) {
 		// Handle navigation view item clicks here.
 		int id = item.getItemId();
-
+		if (id == R.id.nav_tellafriend) {
+			ShareHelper.tellAFriend(this);
+		}
 		if (id == R.id.nav_contacts) {
 			selectContactsFragment();
 		} else if (id == R.id.nav_browse) {

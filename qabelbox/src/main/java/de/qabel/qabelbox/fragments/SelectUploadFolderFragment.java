@@ -5,16 +5,8 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
+import android.view.*;
 import android.widget.Toast;
-
-import java.util.ArrayList;
-
 import de.qabel.core.config.Identity;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.adapter.FilesAdapter;
@@ -23,6 +15,8 @@ import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.storage.BoxFolder;
 import de.qabel.qabelbox.storage.BoxObject;
 import de.qabel.qabelbox.storage.BoxVolume;
+
+import java.util.ArrayList;
 
 public class SelectUploadFolderFragment extends FilesFragment {
 

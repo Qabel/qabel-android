@@ -1,13 +1,8 @@
 package de.qabel.qabelbox.storage;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.Hashtable;
-import java.util.List;
-
 import de.qabel.qabelbox.exceptions.QblStorageException;
+
+import java.util.*;
 
 /**
  * Represents a search across a BoxVolume path.
@@ -22,7 +17,6 @@ public class StorageSearch {
      * Inits the results with all available files and directories.
      *
      * @param navigation The path from which on the search should begin
-     * @throws QblStorageException
      */
     public StorageSearch(BoxNavigation navigation) throws QblStorageException {
         this.navigation = navigation;
@@ -31,8 +25,6 @@ public class StorageSearch {
 
     /**
      * Construct a search using a resultset and don't hit the storage volume.
-     *
-     * @param results
      */
     public StorageSearch(List<BoxObject> results) {
         this.results = results;
@@ -200,10 +192,6 @@ public class StorageSearch {
 
     /**
      * This method will filter by last modified and return only files.
-     *
-     * @param date
-     * @param minDate
-     * @return
      */
     public StorageSearch filterByDate(Date date, boolean minDate) {
 
@@ -211,7 +199,7 @@ public class StorageSearch {
 
         for (BoxObject o : results) {
             if (o instanceof BoxFile) {
-                Date boxDate = new Date(((BoxFile) o).mtime*1000);
+                Date boxDate = new Date(((BoxFile) o).mtime * 1000);
                 boolean isBeforeMinimumDate = boxDate.before(date) && date.getTime() != boxDate.getTime();
                 boolean isAfterMaximumDate = boxDate.after(date);
                 boolean isInvalid = (minDate && isBeforeMinimumDate) || (!minDate && isAfterMaximumDate);
@@ -351,9 +339,9 @@ public class StorageSearch {
             }
             if (item instanceof BoxExternalFile) {
                 clone.add(((BoxExternalFile) item).clone());
-            } else if (item instanceof BoxExternalFolder){
-				clone.add(((BoxExternalFolder) item).clone());
-			} else if (item instanceof BoxFolder) {
+            } else if (item instanceof BoxExternalFolder) {
+                clone.add(((BoxExternalFolder) item).clone());
+            } else if (item instanceof BoxFolder) {
                 clone.add(((BoxFolder) item).clone());
             }
         }

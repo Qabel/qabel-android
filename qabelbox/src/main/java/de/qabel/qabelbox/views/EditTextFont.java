@@ -3,7 +3,6 @@ package de.qabel.qabelbox.views;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.widget.EditText;
-
 import de.qabel.qabelbox.helper.FontHelper;
 
 /**

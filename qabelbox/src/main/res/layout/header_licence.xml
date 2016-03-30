@@ -1,77 +1,77 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
 
     <ImageView
-        android:id="@+id/about_logo"
-        android:layout_margin="@dimen/activity_vertical_margin"
-        android:layout_width="150dp"
-        android:scaleType="fitCenter"
-        android:layout_height="wrap_content"
-        android:src="@drawable/splash_logo"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-        android:adjustViewBounds="true" />
+            android:id="@+id/about_logo"
+            android:layout_margin="@dimen/activity_vertical_margin"
+            android:layout_width="150dp"
+            android:scaleType="fitCenter"
+            android:layout_height="wrap_content"
+            android:src="@drawable/splash_logo"
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true"
+            android:adjustViewBounds="true"/>
 
     <de.qabel.qabelbox.views.TextViewFont
-        android:id="@+id/licence_header_versioninfo"
-        android:layout_below="@id/about_logo"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="v-1.-1.-1 omega"
-        android:layout_marginBottom="@dimen/activity_vertical_margin"
-        style="@style/LicenceListFirstTextLine" />
+            android:id="@+id/licence_header_versioninfo"
+            android:layout_below="@id/about_logo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="v-1.-1.-1 omega"
+            android:layout_marginBottom="@dimen/activity_vertical_margin"
+            style="@style/LicenceListFirstTextLine"/>
 
     <de.qabel.qabelbox.views.TextViewFont
-        android:id="@+id/licence_header_intro"
-        android:layout_below="@+id/licence_header_versioninfo"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/licence.header.intro"
-        android:layout_alignParentLeft="true"
-        android:layout_marginLeft="@dimen/activity_vertical_margin"
-        style="@style/LicenceListFirstTextLine" />
+            android:id="@+id/licence_header_intro"
+            android:layout_below="@+id/licence_header_versioninfo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/licence.header.intro"
+            android:layout_alignParentLeft="true"
+            android:layout_marginLeft="@dimen/activity_vertical_margin"
+            style="@style/LicenceListFirstTextLine"/>
 
     <de.qabel.qabelbox.views.ButtonFont
-        style="@style/LicenceButton"
-        android:id="@+id/about.header.showlicence.btn"
-        android:layout_below="@id/licence_header_intro"
-        android:text="@string/about.header.qabel.show.btn" />
+            style="@style/LicenceButton"
+            android:id="@+id/about.header.showlicence.btn"
+            android:layout_below="@id/licence_header_intro"
+            android:text="@string/about.header.qabel.show.btn"/>
 
     <LinearLayout
-        android:id="@+id/about.thanks.header.ll"
-        android:layout_below="@id/about.header.showlicence.btn"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_centerHorizontal="true"
-        android:gravity="center_horizontal">
+            android:id="@+id/about.thanks.header.ll"
+            android:layout_below="@id/about.header.showlicence.btn"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_centerHorizontal="true"
+            android:gravity="center_horizontal">
 
 
         <de.qabel.qabelbox.views.QabelBrandingFont
-            style="@style/LicenceListFirstTextLine"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/about.header.qabel.company.qtxt" />
+                style="@style/LicenceListFirstTextLine"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/about.header.qabel.company.qtxt"/>
 
         <de.qabel.qabelbox.views.TextViewFont
-            android:layout_marginLeft="@dimen/textsize_list_first_line_half"
-            style="@style/LicenceListFirstTextLine"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/about.header.qabel.thanks.header.txt"
-            android:textAlignment="center" />
+                android:layout_marginLeft="@dimen/textsize_list_first_line_half"
+                style="@style/LicenceListFirstTextLine"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/about.header.qabel.thanks.header.txt"
+                android:textAlignment="center"/>
 
     </LinearLayout>
 
 
     <de.qabel.qabelbox.views.TextViewFont
-        android:id="@+id/about.licences.item.components.txt"
-        style="@style/LicenceListSecondTextLine"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/about.thanks.header.ll"
-        android:text="@string/about.header.qabel.thanks.content.txt" />
+            android:id="@+id/about.licences.item.components.txt"
+            style="@style/LicenceListSecondTextLine"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/about.thanks.header.ll"
+            android:text="@string/about.header.qabel.thanks.content.txt"/>
 
 </RelativeLayout>

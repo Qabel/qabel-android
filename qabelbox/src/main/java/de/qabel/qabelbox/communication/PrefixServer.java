@@ -2,13 +2,11 @@ package de.qabel.qabelbox.communication;
 
 import android.content.Context;
 import android.util.Log;
-
-import org.json.JSONObject;
-
 import de.qabel.qabelbox.config.AppPreference;
 import okhttp3.Callback;
 import okhttp3.Request;
 import okhttp3.RequestBody;
+import org.json.JSONObject;
 
 /**
  * Created by danny on 11.02.2016.
@@ -21,10 +19,6 @@ public class PrefixServer extends BaseServer {
 
     /**
      * main function for server action
-     *
-     * @param url
-     * @param callback
-     * @param token
      */
     private void doServerAction(String url, Callback callback, String token) {
 
@@ -44,9 +38,6 @@ public class PrefixServer extends BaseServer {
 
     /**
      * parse all know server response fields, if available
-     *
-     * @param json
-     * @return
      */
     public static ServerResponse parseJson(JSONObject json) {
 

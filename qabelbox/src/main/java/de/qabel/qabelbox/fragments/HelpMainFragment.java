@@ -10,13 +10,12 @@ import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.view.Menu;
 import android.view.MenuInflater;
-
-import java.util.Date;
-
 import de.qabel.qabelbox.BuildConfig;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.activities.MainActivity;
 import de.qabel.qabelbox.helper.Formatter;
+
+import java.util.Date;
 
 /**
  * Created by danny on 25.01.2016.

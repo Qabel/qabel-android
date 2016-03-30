@@ -7,7 +7,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-
 import de.qabel.qabelbox.R;
 
 /**
@@ -45,11 +44,11 @@ public class CreateIdentityHeaderFragment extends Fragment {
         tvName.setText(name);
         tvInitial.setText(getInitials(name));
 
-		tvInitial.forceLayout();
-		initialLayout.forceLayout();
-	}
+        tvInitial.forceLayout();
+        initialLayout.forceLayout();
+    }
 
-	private String getInitials(String name) {
+    private String getInitials(String name) {
 
         String[] names = name.split(" ");
         String result = "";

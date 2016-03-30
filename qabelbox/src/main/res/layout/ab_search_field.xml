@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="horizontal">
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal">
 
     <de.qabel.qabelbox.views.EditTextFont
-        android:id="@+id/edtSearch"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="@string/ab_filesearch_hint"
-        android:imeOptions="actionSearch"
-        android:inputType="text"
-        android:textSize="@dimen/textsize_ab_edittext"
-        android:textColor="@color/white"
-        android:textCursorDrawable="@null"/>
+            android:id="@+id/edtSearch"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/ab_filesearch_hint"
+            android:imeOptions="actionSearch"
+            android:inputType="text"
+            android:textSize="@dimen/textsize_ab_edittext"
+            android:textColor="@color/white"
+            android:textCursorDrawable="@null"/>
 
 </LinearLayout>

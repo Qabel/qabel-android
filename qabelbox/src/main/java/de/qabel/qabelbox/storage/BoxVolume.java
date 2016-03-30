@@ -1,27 +1,6 @@
 package de.qabel.qabelbox.storage;
 
 import android.content.Context;
-
-import org.apache.commons.io.IOUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.spongycastle.crypto.InvalidCipherTextException;
-
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.nio.ByteBuffer;
-import java.security.InvalidKeyException;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.Arrays;
-import java.util.UUID;
-
 import de.qabel.core.crypto.CryptoUtils;
 import de.qabel.core.crypto.DecryptedPlaintext;
 import de.qabel.core.crypto.QblECKeyPair;
@@ -29,6 +8,18 @@ import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.exceptions.QblStorageNotFound;
 import de.qabel.qabelbox.providers.BoxProvider;
 import de.qabel.qabelbox.providers.DocumentIdParser;
+import org.apache.commons.io.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.spongycastle.crypto.InvalidCipherTextException;
+
+import java.io.*;
+import java.nio.ByteBuffer;
+import java.security.InvalidKeyException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
+import java.util.UUID;
 
 public class BoxVolume {
 

@@ -1,51 +1,51 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:padding="@dimen/activity_horizontal_margin"
-    >
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="@dimen/activity_horizontal_margin"
+>
 
     <LinearLayout
-        android:layout_width="match_parent"
+            android:layout_width="match_parent"
 
-        android:layout_height="match_parent"
-        android:orientation="vertical">
+            android:layout_height="match_parent"
+            android:orientation="vertical">
 
         <de.qabel.qabelbox.views.TextViewFont
-            android:id="@+id/textView"
-            style="@style/MessageText"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/messsage_enter_contact_manual"/>
+                android:id="@+id/textView"
+                style="@style/MessageText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/messsage_enter_contact_manual"/>
 
         <de.qabel.qabelbox.views.EditTextFont
-            android:id="@+id/editTextContactName"
-            style="@style/EditText"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:drawableStart="@drawable/ic_perm_identity_black"
-            android:hint="@string/contact_name"
-            />
+                android:id="@+id/editTextContactName"
+                style="@style/EditText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:drawableStart="@drawable/ic_perm_identity_black"
+                android:hint="@string/contact_name"
+        />
 
         <de.qabel.qabelbox.views.EditTextFont
-            android:id="@+id/editTextContactDropURL"
-            style="@style/EditText"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:drawableStart="@drawable/ic_share_black"
-            android:hint="@string/contact_drop_url"
-            android:inputType="textUri"
-            />
+                android:id="@+id/editTextContactDropURL"
+                style="@style/EditText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:drawableStart="@drawable/ic_share_black"
+                android:hint="@string/contact_drop_url"
+                android:inputType="textUri"
+        />
 
         <de.qabel.qabelbox.views.EditTextFont
-            android:id="@+id/editTextContactPublicKey"
-            style="@style/EditText"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:drawableStart="@drawable/ic_settings_black"
-            android:hint="@string/contact_public_key"
-            />
+                android:id="@+id/editTextContactPublicKey"
+                style="@style/EditText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:drawableStart="@drawable/ic_settings_black"
+                android:hint="@string/contact_public_key"
+        />
 
 
     </LinearLayout>

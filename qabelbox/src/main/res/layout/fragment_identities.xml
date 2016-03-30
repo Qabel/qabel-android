@@ -5,20 +5,20 @@
              android:background="@color/background_white">
 
     <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_gravity="left|top">
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="left|top">
 
         <android.support.v7.widget.RecyclerView
-            android:id="@+id/identity_list"
-            android:scrollbars="vertical"
-            android:layout_width="match_parent"
-            android:layout_height="226dp"
-            android:layout_gravity="center_horizontal|top"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true"
-            android:layout_alignParentTop="true" />
+                android:id="@+id/identity_list"
+                android:scrollbars="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="226dp"
+                android:layout_gravity="center_horizontal|top"
+                android:layout_alignParentBottom="true"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentTop="true"/>
 
     </RelativeLayout>
 

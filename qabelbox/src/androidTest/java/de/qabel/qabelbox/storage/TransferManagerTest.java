@@ -3,7 +3,11 @@ package de.qabel.qabelbox.storage;
 
 import android.test.AndroidTestCase;
 import android.util.Log;
-
+import de.qabel.qabelbox.QabelBoxApplication;
+import de.qabel.qabelbox.R;
+import de.qabel.qabelbox.config.AppPreference;
+import de.qabel.qabelbox.exceptions.QblServerException;
+import de.qabel.qabelbox.exceptions.QblStorageException;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
@@ -13,12 +17,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.UUID;
-
-import de.qabel.qabelbox.QabelBoxApplication;
-import de.qabel.qabelbox.R;
-import de.qabel.qabelbox.config.AppPreference;
-import de.qabel.qabelbox.exceptions.QblServerException;
-import de.qabel.qabelbox.exceptions.QblStorageException;
 
 
 public class TransferManagerTest extends AndroidTestCase {
@@ -112,7 +110,7 @@ public class TransferManagerTest extends AndroidTestCase {
     public void testUploadBlock() {
         File smallFileToUpload = null;
         smallFileToUpload = smallTestFile();
-        int uploadId = syncUpload("blocks/"+testFileNameOnServer, smallFileToUpload);
+        int uploadId = syncUpload("blocks/" + testFileNameOnServer, smallFileToUpload);
         assertTransferManagerWasSuccesful(uploadId);
         assertFalse(smallFileToUpload.exists());
     }

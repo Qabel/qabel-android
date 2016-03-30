@@ -6,7 +6,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.PowerManager;
 import android.view.WindowManager;
-
 import de.qabel.qabelbox.activities.MainActivity;
 
 /**

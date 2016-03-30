@@ -3,13 +3,12 @@ package de.qabel.qabelbox.communication;
 import android.content.Context;
 import android.net.Uri;
 import android.util.Log;
-
-import java.io.File;
-
 import de.qabel.qabelbox.config.AppPreference;
 import okhttp3.Callback;
 import okhttp3.Request;
 import okhttp3.RequestBody;
+
+import java.io.File;
 
 /**
  * Created by danny on 11.02.2016.
@@ -32,7 +31,7 @@ public class BlockServer extends BaseServer {
 
     private void doServerAction(Context context, String prefix, String path, String method, RequestBody body, Callback callback) {
         String apiURL = urls.getFiles();
-	    Uri.Builder uriBuilder = Uri.parse(apiURL).buildUpon()
+        Uri.Builder uriBuilder = Uri.parse(apiURL).buildUpon()
                 .appendPath(prefix);
         if (path.startsWith(BLOCKS)) {
             uriBuilder.appendPath("blocks");

@@ -1,11 +1,8 @@
 package de.qabel.qabelbox.views;
 
-import android.annotation.TargetApi;
 import android.content.Context;
-import android.os.Build;
 import android.util.AttributeSet;
 import android.widget.FrameLayout;
-import android.widget.ImageView;
 
 /**
  * Created by danny on 12.01.2016.

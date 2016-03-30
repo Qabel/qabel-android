@@ -7,7 +7,11 @@ import android.os.AsyncTask;
 import android.provider.DocumentsContract;
 import android.provider.OpenableColumns;
 import android.util.Log;
-
+import de.qabel.core.config.Identity;
+import de.qabel.qabelbox.providers.BoxProvider;
+import de.qabel.qabelbox.storage.BoxNavigation;
+import de.qabel.qabelbox.storage.BoxObject;
+import de.qabel.qabelbox.storage.BoxVolume;
 import org.apache.commons.io.IOUtils;
 
 import java.io.File;
@@ -15,12 +19,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
-
-import de.qabel.core.config.Identity;
-import de.qabel.qabelbox.providers.BoxProvider;
-import de.qabel.qabelbox.storage.BoxNavigation;
-import de.qabel.qabelbox.storage.BoxObject;
-import de.qabel.qabelbox.storage.BoxVolume;
 
 /**
  * Class to hold uploadAndDeleteLocalfile/download on separate place
@@ -118,9 +116,6 @@ public class VolumeFileTransferHelper {
 
     /**
      * get first prefix from identity
-     *
-     * @param identity
-     * @return
      */
     public static String getPrefixFromIdentity(Identity identity) {
 

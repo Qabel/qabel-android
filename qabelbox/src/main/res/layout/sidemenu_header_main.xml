@@ -12,50 +12,50 @@
               android:theme="@style/ThemeOverlay.AppCompat.Dark">
 
     <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:gravity="start"
-        android:orientation="horizontal">
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="start"
+            android:orientation="horizontal">
 
         <ImageView
-            android:id="@+id/qabelLogo"
-            android:layout_width="96dp"
-            android:layout_height="96dp"
-            android:layout_marginTop="19dp"
-            android:src="@drawable/ic_qrcode_scan"/>
+                android:id="@+id/qabelLogo"
+                android:layout_width="96dp"
+                android:layout_height="96dp"
+                android:layout_marginTop="19dp"
+                android:src="@drawable/ic_qrcode_scan"/>
 
         <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-
-            android:layout_alignParentRight="true"
-            android:layout_below="@+id/qabelLogo"
-            android:orientation="vertical">
-
-            <LinearLayout
-                android:id="@+id/select_identity_layout"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="right"
-                android:clickable="true"
-                android:orientation="horizontal">
+
+                android:layout_alignParentRight="true"
+                android:layout_below="@+id/qabelLogo"
+                android:orientation="vertical">
+
+            <LinearLayout
+                    android:id="@+id/select_identity_layout"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="right"
+                    android:clickable="true"
+                    android:orientation="horizontal">
 
                 <de.qabel.qabelbox.views.TextViewFont
-                    android:id="@+id/textViewSelectedIdentity"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:clickable="false"
-                    android:gravity="right"
-                    android:minWidth="100dp"
-                    android:textSize="20dp"
-                    />
+                        android:id="@+id/textViewSelectedIdentity"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:clickable="false"
+                        android:gravity="right"
+                        android:minWidth="100dp"
+                        android:textSize="20dp"
+                />
 
                 <ImageView
-                    android:id="@+id/imageViewExpandIdentity"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:clickable="false"
-                    android:src="@drawable/ic_arrow_drop_down_black"/>
+                        android:id="@+id/imageViewExpandIdentity"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:clickable="false"
+                        android:src="@drawable/ic_arrow_drop_down_black"/>
             </LinearLayout>
 
 

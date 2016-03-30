@@ -6,7 +6,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-
 import de.qabel.core.config.Identities;
 import de.qabel.core.config.Identity;
 import de.qabel.qabelbox.QabelBoxApplication;

@@ -6,14 +6,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
-
-import java.util.Iterator;
-import java.util.Set;
-
 import de.qabel.core.config.Contact;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.activities.MainActivity;
 import de.qabel.qabelbox.helper.UIHelper;
+
+import java.util.Iterator;
+import java.util.Set;
 
 /**
  * class to show identitiy list dialog for uploading

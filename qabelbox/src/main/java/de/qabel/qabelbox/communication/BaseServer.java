@@ -1,17 +1,15 @@
 package de.qabel.qabelbox.communication;
 
 import android.util.Log;
-
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
-
-import okhttp3.MediaType;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
 
 /**
  * Created by danny on 11.02.16.
@@ -22,6 +20,7 @@ public class BaseServer {
     protected final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
     private static final String TAG = "BaseServer";
     URLs urls;
+
     /**
      * create new instance of http client and set timeouts
      */
@@ -57,7 +56,6 @@ public class BaseServer {
      *
      * @param key  json keyword
      * @param json json object
-     * @return
      */
     protected static String getJsonString(String key, JSONObject json) {
 

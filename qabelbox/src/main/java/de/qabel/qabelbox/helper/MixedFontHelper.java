@@ -4,12 +4,11 @@ import android.content.Context;
 import android.graphics.Typeface;
 import android.widget.TextView;
 import de.qabel.qabelbox.R;
-import de.qabel.qabelbox.R.array;
 
 public class MixedFontHelper {
 
     private Typeface[] fonts;
-    private static MixedFontHelper instance;
+    private static MixedFontHelper instance = null;
 
     private MixedFontHelper() {
         // Exists only to defeat instantiation.
@@ -26,7 +25,7 @@ public class MixedFontHelper {
     private void loadCustomeFonts(Context context) {
 
         //load fonts in fixed order, 0=normal, 1=bold, 2=italic, 3=bolditalic
-        String[] fontList = context.getResources().getStringArray(array.fonts_with_qabel);
+        String[] fontList = context.getResources().getStringArray(R.array.fonts_with_qabel);
         fonts = new Typeface[fontList.length];
 
 

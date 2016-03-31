@@ -10,9 +10,6 @@ import de.qabel.core.config.Identities;
 import de.qabel.core.config.Identity;
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
-import de.qabel.qabelbox.R.id;
-import de.qabel.qabelbox.R.layout;
-import de.qabel.qabelbox.R.string;
 import de.qabel.qabelbox.services.LocalQabelService;
 
 public class CreateAccountFinalFragment extends BaseIdentityFragment {
@@ -24,12 +21,12 @@ public class CreateAccountFinalFragment extends BaseIdentityFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
-        View v = inflater.inflate(layout.fragment_create_identity_final, container, false);
-        tvSuccess = (TextView) v.findViewById(id.tv_success);
-        tvMessage = (TextView) v.findViewById(id.tv_message);
+        View v = inflater.inflate(R.layout.fragment_create_identity_final, container, false);
+        tvSuccess = (TextView) v.findViewById(R.id.tv_success);
+        tvMessage = (TextView) v.findViewById(R.id.tv_message);
         //override identity messages
-        tvMessage.setText(string.create_account_final);
-        tvSuccess.setText(string.create_account_final_headline);
+        tvMessage.setText(R.string.create_account_final);
+        tvSuccess.setText(R.string.create_account_final_headline);
         LocalQabelService service = QabelBoxApplication.getInstance().getService();
         Identities identities = service.getIdentities();
         if (identities == null || identities.getIdentities().size() == 0) {
@@ -43,10 +40,15 @@ public class CreateAccountFinalFragment extends BaseIdentityFragment {
                 Identity identityToSet = identities.getIdentities().iterator().next();
                 service.setActiveIdentity(identityToSet);
                 Identity setted = service.getActiveIdentity();
-                needCreateIdentity = !(setted != null && setted.getAlias().equals(activeIdentity.getAlias()));
+                if (setted != null && setted.getAlias().equals(activeIdentity.getAlias())) {
+                    //active identity set
+                    needCreateIdentity = false;
+                } else {
+                    needCreateIdentity = true;
+                }
             }
             if (needCreateIdentity) {
-                tvMessage.setText(string.create_identity_final_create_identity);
+                tvMessage.setText(R.string.create_identity_final_create_identity);
             }
         }
         return v;

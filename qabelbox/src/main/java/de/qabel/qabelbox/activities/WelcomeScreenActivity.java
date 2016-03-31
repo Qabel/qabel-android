@@ -8,26 +8,18 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.util.Log;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.widget.TextView;
 import de.qabel.qabelbox.R;
-import de.qabel.qabelbox.R.color;
-import de.qabel.qabelbox.R.drawable;
-import de.qabel.qabelbox.R.id;
-import de.qabel.qabelbox.R.layout;
-import de.qabel.qabelbox.R.string;
 import de.qabel.qabelbox.config.AppPreference;
 import de.qabel.qabelbox.fragments.WelcomeDisclaimerFragment;
 import de.qabel.qabelbox.fragments.WelcomeTextFragment;
-import de.qabel.qabelbox.fragments.WelcomeTextFragment.TextElement;
 import de.qabel.qabelbox.views.IconPageIndicator;
 import de.qabel.qabelbox.views.IconPagerAdapter;
 import de.qabel.qabelbox.views.ViewPagerParallax;
 
-public class WelcomeScreenActivity extends FragmentActivity implements OnPageChangeListener {
+public class WelcomeScreenActivity extends FragmentActivity implements ViewPager.OnPageChangeListener {
 
     private static final int NUM_PAGES = 5;
     private final Fragment[] fragments = new Fragment[NUM_PAGES];
@@ -43,13 +35,13 @@ public class WelcomeScreenActivity extends FragmentActivity implements OnPageCha
     /**
      * The pager adapter, which provides the pages to the view pager widget.
      */
-    private final TextElement[] textElements = new TextElement[NUM_PAGES - 1];
+    private final WelcomeTextFragment.TextElement[] textElements = new WelcomeTextFragment.TextElement[NUM_PAGES - 1];
     private AppPreference prefs;
     private ScreenSlidePagerAdapter mPagerAdapter;
-    private final String TAG = getClass().getSimpleName();
+    private final String TAG = this.getClass().getSimpleName();
     private TextView leftButton;
     private TextView rightButton;
-    private int mCurrentPage;
+    private int mCurrentPage = 0;
     private WelcomeScreenActivity self;
 
     @Override
@@ -57,37 +49,37 @@ public class WelcomeScreenActivity extends FragmentActivity implements OnPageCha
 
         super.onCreate(savedInstanceState);
         self = this;
-        setContentView(layout.activity_welcomescreen);
+        setContentView(R.layout.activity_welcomescreen);
         setupAppPreferences();
         createTextElements();
         createButtonStates();
 
-        leftButton = (TextView) findViewById(id.ab_left);
-        rightButton = (TextView) findViewById(id.ab_right);
+        leftButton = (TextView) findViewById(R.id.ab_left);
+        rightButton = (TextView) findViewById(R.id.ab_right);
         // Instantiate a ViewPager and a PagerAdapter.
-        mPager = (ViewPagerParallax) findViewById(id.pager);
+        mPager = (ViewPagerParallax) findViewById(R.id.pager);
         mPager.set_max_pages(NUM_PAGES);
-        mPager.setBackgroundAsset(drawable.welcome_big_bg);
+        mPager.setBackgroundAsset(R.drawable.welcome_big_bg);
         mPagerAdapter = new ScreenSlidePagerAdapter(getSupportFragmentManager());
         mPager.setAdapter(mPagerAdapter);
         mPager.addOnPageChangeListener(this);
         setClickListeners();
-        IconPageIndicator titleIndicator = (IconPageIndicator) findViewById(id.titles);
+        IconPageIndicator titleIndicator = (IconPageIndicator) findViewById(R.id.titles);
         titleIndicator.setViewPager(mPager);
         onPageSelected(0);
     }
 
     private void setClickListeners() {
-        findViewById(id.btn_show_sources).setOnClickListener(new OnClickListener() {
+        findViewById(R.id.btn_show_sources).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String url = getResources().getString(string.github_url);
+                String url = getResources().getString(R.string.github_url);
                 Intent i = new Intent(Intent.ACTION_VIEW);
                 i.setData(Uri.parse(url));
                 startActivity(i);
             }
         });
-        leftButton.setOnClickListener(new OnClickListener() {
+        leftButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (mCurrentPage > 0) {
@@ -95,7 +87,7 @@ public class WelcomeScreenActivity extends FragmentActivity implements OnPageCha
                 }
             }
         });
-        rightButton.setOnClickListener(new OnClickListener() {
+        rightButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (mCurrentPage < NUM_PAGES - 1) {
@@ -117,18 +109,18 @@ public class WelcomeScreenActivity extends FragmentActivity implements OnPageCha
     }
 
     private void createButtonStates() {
-        buttonStates[0] = new ButtonStates(string.empty_text, string.btn_welcome_skip, View.INVISIBLE, View.VISIBLE);
-        buttonStates[1] = new ButtonStates(string.btn_welcome_back, string.btn_welcome_skip, View.VISIBLE, View.VISIBLE);
-        buttonStates[2] = new ButtonStates(string.btn_welcome_back, string.btn_welcome_skip, View.VISIBLE, View.VISIBLE);
-        buttonStates[3] = new ButtonStates(string.btn_welcome_back, string.btn_welcome_skip, View.VISIBLE, View.VISIBLE);
-        buttonStates[4] = new ButtonStates(string.btn_welcome_back, string.btn_welcome_accept, View.VISIBLE, View.VISIBLE);
+        buttonStates[0] = new ButtonStates(R.string.empty_text, R.string.btn_welcome_skip, View.INVISIBLE, View.VISIBLE);
+        buttonStates[1] = new ButtonStates(R.string.btn_welcome_back, R.string.btn_welcome_skip, View.VISIBLE, View.VISIBLE);
+        buttonStates[2] = new ButtonStates(R.string.btn_welcome_back, R.string.btn_welcome_skip, View.VISIBLE, View.VISIBLE);
+        buttonStates[3] = new ButtonStates(R.string.btn_welcome_back, R.string.btn_welcome_skip, View.VISIBLE, View.VISIBLE);
+        buttonStates[4] = new ButtonStates(R.string.btn_welcome_back, R.string.btn_welcome_accept, View.VISIBLE, View.VISIBLE);
     }
 
     private void createTextElements() {
-        textElements[0] = new TextElement(string.message_welcome_screen1, string.headline_welcome_screen1, string.empty_text);
-        textElements[1] = new TextElement(string.message_welcome_screen2, string.empty_text, string.headline_welcome_screen2);
-        textElements[2] = new TextElement(string.message_welcome_screen3, string.empty_text, string.headline_welcome_screen3);
-        textElements[3] = new TextElement(string.message_welcome_screen4, string.empty_text, string.headline_welcome_screen4);
+        textElements[0] = new WelcomeTextFragment.TextElement(R.string.message_welcome_screen1, R.string.headline_welcome_screen1, R.string.empty_text);
+        textElements[1] = new WelcomeTextFragment.TextElement(R.string.message_welcome_screen2, R.string.empty_text, R.string.headline_welcome_screen2);
+        textElements[2] = new WelcomeTextFragment.TextElement(R.string.message_welcome_screen3, R.string.empty_text, R.string.headline_welcome_screen3);
+        textElements[3] = new WelcomeTextFragment.TextElement(R.string.message_welcome_screen4, R.string.empty_text, R.string.headline_welcome_screen4);
     }
 
     private void setupAppPreferences() {
@@ -151,12 +143,12 @@ public class WelcomeScreenActivity extends FragmentActivity implements OnPageCha
         //last fragment contain dynamic style
         mCurrentPage = position;
         if (position < NUM_PAGES - 1) {
-            setRightButtonColor(getResources().getColor(color.welcome_button_activated));
+            setRightButtonColor(getResources().getColor(R.color.welcome_button_activated));
         } else {
             if (fragments[position] == null || !((WelcomeDisclaimerFragment) fragments[position]).getCheckedState()) {
-                setRightButtonColor(getResources().getColor(color.welcome_button_deactivated));
+                setRightButtonColor(getResources().getColor(R.color.welcome_button_deactivated));
             } else {
-                setRightButtonColor(getResources().getColor(color.welcome_button_activated));
+                setRightButtonColor(getResources().getColor(R.color.welcome_button_activated));
             }
         }
     }
@@ -194,7 +186,7 @@ public class WelcomeScreenActivity extends FragmentActivity implements OnPageCha
 
         @Override
         public int getIconResId(int index) {
-            return drawable.welcome_vp_indicator;
+            return R.drawable.welcome_vp_indicator;
         }
 
         @Override

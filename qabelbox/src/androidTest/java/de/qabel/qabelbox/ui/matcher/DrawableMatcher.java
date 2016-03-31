@@ -2,11 +2,8 @@ package de.qabel.qabelbox.ui.matcher;
 
 import android.content.Context;
 import android.content.res.Resources;
-import android.content.res.Resources.NotFoundException;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
-import android.os.Build.VERSION;
-import android.os.Build.VERSION_CODES;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -22,8 +19,8 @@ public class DrawableMatcher extends TypeSafeMatcher<View> {
         this.resourceId = resourceId;
     }
 
-    private String resourceName;
-    private Drawable expectedDrawable;
+    private String resourceName = null;
+    private Drawable expectedDrawable = null;
 
     @Override
     public boolean matchesSafely(View target) {
@@ -45,13 +42,13 @@ public class DrawableMatcher extends TypeSafeMatcher<View> {
 
     private void loadDrawableFromResources(Context context) {
         try {
-            if (VERSION.SDK_INT < VERSION_CODES.LOLLIPOP) {
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
                 expectedDrawable = context.getResources().getDrawable(resourceId);
             } else {
                 expectedDrawable = context.getDrawable(resourceId);
             }
             resourceName = context.getResources().getResourceEntryName(resourceId);
-        } catch (NotFoundException ignored) {
+        } catch (Resources.NotFoundException ignored) {
             // view could be from a context unaware of the resource id.
         }
     }

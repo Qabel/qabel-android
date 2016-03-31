@@ -2,7 +2,6 @@ package de.qabel.qabelbox.fragments;
 
 
 import android.app.DatePickerDialog;
-import android.app.DatePickerDialog.OnDateSetListener;
 import android.app.Dialog;
 import android.app.DialogFragment;
 import android.os.Bundle;
@@ -13,7 +12,7 @@ import java.util.Calendar;
 
 
 public class DatePickerFragment extends DialogFragment implements
-        OnDateSetListener {
+        DatePickerDialog.OnDateSetListener {
     private CallbackListener mCallback;
     private long mMaxDate;
     private long mMinDate;
@@ -33,7 +32,6 @@ public class DatePickerFragment extends DialogFragment implements
         return dialog;
     }
 
-    @Override
     public void onDateSet(DatePicker view, int year, int month, int day) {
         Log.d("DatePicker", "Date = " + year + " " + month + " " + day);
         mCallback.onSuccess(year, month, day);

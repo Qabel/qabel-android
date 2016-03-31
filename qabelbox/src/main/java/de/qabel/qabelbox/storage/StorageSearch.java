@@ -142,7 +142,7 @@ public class StorageSearch {
             if (o instanceof BoxFile) {
                 BoxFile f = (BoxFile) o;
 
-                if (minSize && f.size >= size || !minSize && f.size <= size) {
+                if ((minSize && f.size >= size) || (!minSize && f.size <= size)) {
                     filtered.add(o);
                 }
             }
@@ -202,7 +202,7 @@ public class StorageSearch {
                 Date boxDate = new Date(((BoxFile) o).mtime * 1000);
                 boolean isBeforeMinimumDate = boxDate.before(date) && date.getTime() != boxDate.getTime();
                 boolean isAfterMaximumDate = boxDate.after(date);
-                boolean isInvalid = minDate && isBeforeMinimumDate || !minDate && isAfterMaximumDate;
+                boolean isInvalid = (minDate && isBeforeMinimumDate) || (!minDate && isAfterMaximumDate);
 
                 if (!isInvalid) {
                     filtered.add(o);
@@ -218,7 +218,7 @@ public class StorageSearch {
     public StorageSearch filterOnlyFiles() {
 
         List<BoxObject> filtered = new ArrayList<>();
-        filtered.addAll(toBoxFiles(results));
+        filtered.addAll(StorageSearch.toBoxFiles(results));
         results = filtered;
 
         return this;
@@ -227,7 +227,7 @@ public class StorageSearch {
     public StorageSearch filterOnlyDirectories() {
 
         List<BoxObject> filtered = new ArrayList<>();
-        filtered.addAll(toBoxFolders(results));
+        filtered.addAll(StorageSearch.toBoxFolders(results));
         results = filtered;
 
         return this;
@@ -244,11 +244,11 @@ public class StorageSearch {
 
             //BoxObject does not implement equals (failed as pathMapping-key), but normal equals might work here?
             if (o instanceof BoxFile && tgt instanceof BoxFile) {
-                if (o.equals(tgt)) {
+                if (((BoxFile) o).equals((BoxFile) tgt)) {
                     return path;
                 }
             } else if (o instanceof BoxFolder && tgt instanceof BoxFolder) {
-                if (o.equals(tgt)) {
+                if (((BoxFolder) o).equals((BoxFolder) tgt)) {
                     return path;
                 }
             }
@@ -279,7 +279,6 @@ public class StorageSearch {
         if (caseSensitive) {
             Collections.sort(results, new Comparator<BoxObject>() {
 
-                @Override
                 public int compare(BoxObject o1, BoxObject o2) {
                     String s1 = o1.name;
                     String s2 = o2.name;
@@ -289,7 +288,6 @@ public class StorageSearch {
         } else {
             Collections.sort(results, new Comparator<BoxObject>() {
 
-                @Override
                 public int compare(BoxObject o1, BoxObject o2) {
                     String s1 = o1.name;
                     String s2 = o2.name;

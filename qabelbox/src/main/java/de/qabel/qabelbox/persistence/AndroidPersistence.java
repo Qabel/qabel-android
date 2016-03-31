@@ -17,7 +17,7 @@ public class AndroidPersistence extends Persistence<QblSQLiteParams> {
     private static final Logger LOGGER = LoggerFactory.getLogger(AndroidPersistence.class.getName());
 
     public AndroidPersistence(QblSQLiteParams params) throws QblInvalidEncryptionKeyException {
-        databaseWrapper = createDatabaseWrapper(params);
+        this.databaseWrapper = createDatabaseWrapper(params);
         connect(params);
     }
 

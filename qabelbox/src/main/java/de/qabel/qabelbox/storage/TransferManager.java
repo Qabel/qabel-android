@@ -58,7 +58,7 @@ public class TransferManager {
      */
     public int uploadAndDeleteLocalfileOnSuccess(String prefix, String name, final File localfile, @Nullable final BoxTransferListener boxTransferListener) {
 
-        Log.d(TAG, "uploadAndDeleteLocalfile " + prefix + " " + name + " " + localfile);
+        Log.d(TAG, "uploadAndDeleteLocalfile " + prefix + " " + name + " " + localfile.toString());
         final int id = blockServer.getNextId();
         latches.put(id, new CountDownLatch(1));
         blockServer.uploadFile(context, prefix, name, localfile, new Callback() {
@@ -119,7 +119,7 @@ public class TransferManager {
      */
     public int download(String prefix, String name, final File file, @Nullable final BoxTransferListener boxTransferListener) {
 
-        Log.d(TAG, "download " + prefix + " " + name + " " + file);
+        Log.d(TAG, "download " + prefix + " " + name + " " + file.toString());
 
         final int id = blockServer.getNextId();
         latches.put(id, new CountDownLatch(1));

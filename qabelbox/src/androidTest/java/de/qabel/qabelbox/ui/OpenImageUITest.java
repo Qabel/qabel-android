@@ -3,12 +3,9 @@ package de.qabel.qabelbox.ui;
 
 import android.app.Activity;
 import android.app.Instrumentation;
-import android.app.Instrumentation.ActivityResult;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.Bitmap.CompressFormat;
 import android.os.PowerManager;
-import android.os.PowerManager.WakeLock;
 import android.support.test.espresso.Espresso;
 import android.support.test.espresso.contrib.RecyclerViewActions;
 import android.support.test.espresso.intent.Intents;
@@ -19,8 +16,6 @@ import com.squareup.spoon.Spoon;
 import de.qabel.core.config.Identity;
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
-import de.qabel.qabelbox.R.drawable;
-import de.qabel.qabelbox.R.id;
 import de.qabel.qabelbox.TestConstants;
 import de.qabel.qabelbox.activities.MainActivity;
 import de.qabel.qabelbox.communication.URLs;
@@ -59,7 +54,7 @@ public class OpenImageUITest {
     private MainActivity mActivity;
     private UIBoxHelper mBoxHelper;
     private final boolean mFillAccount = true;
-    private WakeLock wakeLock;
+    private PowerManager.WakeLock wakeLock;
     private final PicassoIdlingResource mPicassoIdlingResource = new PicassoIdlingResource();
     private SystemAnimations mSystemAnimations;
 
@@ -116,9 +111,9 @@ public class OpenImageUITest {
 
         int fileCount = 4;
         mBoxHelper.uploadFile(mBoxHelper.mBoxVolume, "defect.png", new byte[100], "");
-        mBoxHelper.uploadDrawableFile(mBoxHelper.mBoxVolume, "file1.jpg", CompressFormat.JPEG, drawable.splash_logo);
-        mBoxHelper.uploadDrawableFile(mBoxHelper.mBoxVolume, "file2.png", CompressFormat.PNG, drawable.splash_logo);
-        mBoxHelper.uploadDrawableFile(mBoxHelper.mBoxVolume, "file3.png", CompressFormat.PNG, drawable.qabel_logo);
+        mBoxHelper.uploadDrawableFile(mBoxHelper.mBoxVolume, "file1.jpg", Bitmap.CompressFormat.JPEG, R.drawable.splash_logo);
+        mBoxHelper.uploadDrawableFile(mBoxHelper.mBoxVolume, "file2.png", Bitmap.CompressFormat.PNG, R.drawable.splash_logo);
+        mBoxHelper.uploadDrawableFile(mBoxHelper.mBoxVolume, "file3.png", Bitmap.CompressFormat.PNG, R.drawable.qabel_logo);
 
         mBoxHelper.waitUntilFileCount(fileCount);
     }
@@ -133,34 +128,34 @@ public class OpenImageUITest {
         pressBack();
         testFile("file2.png");
         Spoon.screenshot(mActivity, "open_png");
-        ActivityResult activityResult = new ActivityResult(
+        Instrumentation.ActivityResult activityResult = new Instrumentation.ActivityResult(
                 Activity.RESULT_OK, new Intent());
         Intents.init();
         Matcher<Intent> expectedIntent = allOf(hasAction(Intent.ACTION_CHOOSER));
         intending(expectedIntent).respondWith(activityResult);
-        onView(withId(id.action_imageviewer_open)).perform(click());
+        onView(withId(R.id.action_imageviewer_open)).perform(click());
         intended(expectedIntent);
         Intents.release();
 
-        onView(withId(id.image)).perform(click());
+        onView(withId(R.id.image)).perform(click());
     }
 
     @Test
     public void testDefectFiles() {
         mPicassoIdlingResource.init(mActivity);
         testFile("defect.png");
-        onView(withDrawable(drawable.image_loading_error)).check(matches(isDisplayed()));
+        onView(withDrawable(R.drawable.image_loading_error)).check(matches(isDisplayed()));
         Spoon.screenshot(mActivity, "open_defect_file");
     }
 
     private void testFile(String file) {
 
-        onView(withId(id.files_list))
+        onView(withId(R.id.files_list))
                 .perform(RecyclerViewActions.actionOnItem(
                         hasDescendant(withText(file)), click()));
-        onView(withId(id.image)).check(matches(isDisplayed()));
-        onView(withId(id.action_imageviewer_edit)).check(matches(isDisplayed()));
-        onView(withId(id.action_imageviewer_open)).check(matches(isDisplayed()));
+        onView(withId(R.id.image)).check(matches(isDisplayed()));
+        onView(withId(R.id.action_imageviewer_edit)).check(matches(isDisplayed()));
+        onView(withId(R.id.action_imageviewer_open)).check(matches(isDisplayed()));
     }
 }
 

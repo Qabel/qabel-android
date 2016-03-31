@@ -3,22 +3,15 @@ package de.qabel.qabelbox.adapter;
 import android.database.DataSetObserver;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.RecyclerView.ViewHolder;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 import de.qabel.core.config.Contact;
 import de.qabel.qabelbox.R;
-import de.qabel.qabelbox.R.id;
-import de.qabel.qabelbox.R.layout;
 import de.qabel.qabelbox.chat.ChatMessageItem;
-import de.qabel.qabelbox.chat.ChatMessageItem.MessagePayload;
-import de.qabel.qabelbox.chat.ChatMessageItem.ShareMessagePayload;
-import de.qabel.qabelbox.chat.ChatMessageItem.TextMessagePayload;
 import de.qabel.qabelbox.helper.Formatter;
 
 import java.util.ArrayList;
@@ -30,7 +23,7 @@ public class ChatMessageAdapter extends BaseAdapter {
 
     private final String TAG = getClass().getSimpleName();
     private final String contactPublicKey;
-    private List<ChatMessageItem> mMessages;
+    private List<ChatMessageItem> mMessages = null;
     private OnItemClickListener onItemClickListener;
     private View emptyView;
 
@@ -47,7 +40,7 @@ public class ChatMessageAdapter extends BaseAdapter {
         Collections.sort(mMessages, new Comparator<ChatMessageItem>() {
             @Override
             public int compare(ChatMessageItem o1, ChatMessageItem o2) {
-                return o1.getTime() > o2.getTime() ? 1 : o1.getTime() == o2.getTime() ? 0 : -1;
+                return (o1.getTime() > o2.getTime() ? 1 : (o1.getTime() == o2.getTime() ? 0 : -1));
             }
         });
 
@@ -80,14 +73,14 @@ public class ChatMessageAdapter extends BaseAdapter {
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         if (getItemViewType(position) == INCOMING) {
-            if (convertView == null || convertView.getId() == id.checkMessageOut) {
+            if (convertView == null || convertView.getId() == R.id.checkMessageOut) {
                 convertView = LayoutInflater.from(parent.getContext())
-                        .inflate(layout.item_chat_message_in, parent, false);
+                        .inflate(R.layout.item_chat_message_in, parent, false);
             }
         } else {
-            if (convertView == null || convertView.getId() == id.checkMessageIn) {
+            if (convertView == null || convertView.getId() == R.id.checkMessageIn) {
                 convertView = LayoutInflater.from(parent.getContext())
-                        .inflate(layout.item_chat_message_out, parent, false);
+                        .inflate(R.layout.item_chat_message_out, parent, false);
             }
         }
 
@@ -104,10 +97,10 @@ public class ChatMessageAdapter extends BaseAdapter {
 
     @Override
     public int getItemViewType(int position) {
-        return getMessage(position).getSenderKey().equals(contactPublicKey) ? INCOMING : OUTGOING;
+        return this.getMessage(position).getSenderKey().equals(contactPublicKey) ? INCOMING : OUTGOING;
     }
 
-    class ContactViewHolder extends ViewHolder implements OnClickListener {
+    class ContactViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         private ChatMessageItem messageItem;
 
@@ -121,12 +114,12 @@ public class ChatMessageAdapter extends BaseAdapter {
         public ContactViewHolder(View v, ChatMessageItem message) {
             super(v);
             v.setOnClickListener(this);
-            mBg = v.findViewById(id.chatTextLayout);
-            tvDate = (TextView) v.findViewById(id.tvDate);
-            tvText = (TextView) v.findViewById(id.tvText);
-            mLink = (TextView) v.findViewById(id.tvLink);
-            mImageView = (ImageView) v.findViewById(id.itemIcon);
-            fileContainer = v.findViewById(id.messageFileContainer);
+            mBg = v.findViewById(R.id.chatTextLayout);
+            tvDate = (TextView) v.findViewById(R.id.tvDate);
+            tvText = (TextView) v.findViewById(R.id.tvText);
+            mLink = (TextView) v.findViewById(R.id.tvLink);
+            mImageView = (ImageView) v.findViewById(R.id.itemIcon);
+            fileContainer = v.findViewById(R.id.messageFileContainer);
             applyData(message);
         }
 
@@ -138,14 +131,14 @@ public class ChatMessageAdapter extends BaseAdapter {
         }
 
         public void applyData(ChatMessageItem message) {
-            messageItem = message;
+            this.messageItem = message;
             tvDate.setText(Formatter.formatDateTimeString(message.getTime()));
-            MessagePayload messageData = message.getData();
-            if (messageData != null && messageData instanceof TextMessagePayload) {
-                tvText.setText(((TextMessagePayload) messageData).getMessage());
+            ChatMessageItem.MessagePayload messageData = message.getData();
+            if (messageData != null && messageData instanceof ChatMessageItem.TextMessagePayload) {
+                tvText.setText(((ChatMessageItem.TextMessagePayload) messageData).getMessage());
                 fileContainer.setVisibility(View.GONE);
-            } else if (messageData != null && messageData instanceof ShareMessagePayload) {
-                tvText.setText(((ShareMessagePayload) messageData).getMessage());
+            } else if (messageData != null && messageData instanceof ChatMessageItem.ShareMessagePayload) {
+                tvText.setText(((ChatMessageItem.ShareMessagePayload) messageData).getMessage());
                 //holder.mLink.setText(((ChatMessageItem.ShareMessagePayload) messageData).getURL());
                 fileContainer.setVisibility(View.VISIBLE);
             }

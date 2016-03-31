@@ -2,13 +2,11 @@ package de.qabel.qabelbox.helper;
 
 import android.app.Activity;
 import android.graphics.Bitmap;
-import android.graphics.Bitmap.Config;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
-import android.view.View.MeasureSpec;
 import android.widget.ImageView;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.WriterException;
@@ -39,7 +37,7 @@ public class QRCodeHelper {
             protected void onPreExecute() {
 
                 super.onPreExecute();
-                iv.measure(MeasureSpec.EXACTLY, MeasureSpec.EXACTLY);
+                iv.measure(View.MeasureSpec.EXACTLY, View.MeasureSpec.EXACTLY);
                 size = iv.getMeasuredWidth();
                 DisplayMetrics metrics = new DisplayMetrics();
                 activity.getWindowManager().getDefaultDisplay().getMetrics(metrics);
@@ -52,7 +50,7 @@ public class QRCodeHelper {
 
                 String text = "QABELCONTACT\n"
                         + identities[0].getAlias() + "\n"
-                        + identities[0].getDropUrls().toArray()[0] + "\n"
+                        + identities[0].getDropUrls().toArray()[0].toString() + "\n"
                         + identities[0].getKeyIdentifier();
 
                 QRCodeWriter writer = new QRCodeWriter();
@@ -67,11 +65,11 @@ public class QRCodeHelper {
                         bitMatrix.getRow(y, row);
                         int[] rowArray = row.getBitArray();
                         for (int x = 0; x < width; x++) {
-                            data[x + yy] = (rowArray[x / 32] >>> (x & 0x1f) & 1) != 0 ? Color.BLACK : Color.WHITE;
+                            data[x + yy] = ((rowArray[x / 32] >>> (x & 0x1f)) & 1) != 0 ? Color.BLACK : Color.WHITE;
                         }
                     }
 
-                    return Bitmap.createBitmap(data, 0, width, width, height, Config.RGB_565);
+                    return Bitmap.createBitmap(data, 0, width, width, height, Bitmap.Config.RGB_565);
                 } catch (WriterException e) {
                     e.printStackTrace();
                 }

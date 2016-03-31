@@ -6,7 +6,6 @@ import android.util.Log;
 import de.qabel.qabelbox.config.AppPreference;
 import okhttp3.Callback;
 import okhttp3.Request;
-import okhttp3.Request.Builder;
 import okhttp3.RequestBody;
 
 import java.io.File;
@@ -18,15 +17,16 @@ import java.io.File;
  */
 public class BlockServer extends BaseServer {
 
-    private static final String TAG = "PrefixServer";
+    private final static String TAG = "PrefixServer";
     public static final String BLOCKS = "blocks/";
-    private int currentId;
+    private int currentId = 0;
     private final int suffixId;
 
     public BlockServer() {
 
+        super();
         //maybe it can be bether to create a unique id. but normally we have only one instance in boxvolume of blockserver so it should no collision occurs
-        suffixId = getClass().hashCode() % 0xffff * 0x10000;
+        suffixId = (this.getClass().hashCode() % 0xffff) * 0x10000;
     }
 
     private void doServerAction(Context context, String prefix, String path, String method, RequestBody body, Callback callback) {
@@ -40,14 +40,14 @@ public class BlockServer extends BaseServer {
         String url = uriBuilder
                 .appendPath(path)
                 .build().toString();
-        Builder builder = new Builder()
+        Request.Builder builder = new Request.Builder()
                 .url(url);
 
         builder = builder.method(method, body);
 
         addHeader(new AppPreference(context).getToken(), builder);
         Request request = builder.build();
-        Log.v(TAG, "blockserver request " + request);
+        Log.v(TAG, "blockserver request " + request.toString());
 
         client.newCall(request).enqueue(callback);
     }
@@ -75,6 +75,6 @@ public class BlockServer extends BaseServer {
 
     public synchronized int getNextId() {
 
-        return suffixId + currentId++ + (int) System.currentTimeMillis() % 1000000;
+        return (suffixId + (currentId++) + (int) (System.currentTimeMillis()) % 1000000);
     }
 }

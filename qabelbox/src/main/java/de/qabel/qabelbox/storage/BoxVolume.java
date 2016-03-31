@@ -45,7 +45,7 @@ public class BoxVolume {
         cryptoUtils = new CryptoUtils();
         tempDir = context.getCacheDir();
 
-        rootId = new DocumentIdParser().buildId(
+        this.rootId = new DocumentIdParser().buildId(
                 keyPair.getPub().getReadableKeyIdentifier(), prefix, null);
         transferManager = new TransferManager(tempDir);
         this.prefix = prefix;
@@ -123,7 +123,7 @@ public class BoxVolume {
         } catch (NoSuchAlgorithmException e) {
             throw new QblStorageException(e);
         }
-        md.update(prefix.getBytes());
+        md.update(this.prefix.getBytes());
         md.update(keyPair.getPrivateKey());
         byte[] digest = md.digest();
         byte[] firstBytes = Arrays.copyOfRange(digest, 0, 16);

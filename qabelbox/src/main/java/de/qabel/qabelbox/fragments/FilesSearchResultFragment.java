@@ -3,20 +3,12 @@ package de.qabel.qabelbox.fragments;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
 import android.util.Log;
 import android.view.*;
-import android.view.View.OnClickListener;
 import de.qabel.qabelbox.R;
-import de.qabel.qabelbox.R.id;
-import de.qabel.qabelbox.R.menu;
-import de.qabel.qabelbox.R.string;
 import de.qabel.qabelbox.activities.MainActivity;
 import de.qabel.qabelbox.adapter.FilesAdapter;
-import de.qabel.qabelbox.adapter.FilesAdapter.OnItemClickListener;
 import de.qabel.qabelbox.exceptions.QblStorageException;
-import de.qabel.qabelbox.fragments.FileSearchFilterFragment.CallbackListener;
-import de.qabel.qabelbox.fragments.FileSearchFilterFragment.FilterData;
 import de.qabel.qabelbox.storage.BoxFile;
 import de.qabel.qabelbox.storage.BoxObject;
 import de.qabel.qabelbox.storage.StorageSearch;
@@ -29,7 +21,7 @@ public class FilesSearchResultFragment extends FilesFragment {
     protected static final String TAG = FilesFragment.class.getSimpleName();
     private StorageSearch mSearchResult;
     private String mSearchText;
-    private FilterData mFilterData = new FilterData();
+    private FileSearchFilterFragment.FilterData mFilterData = new FileSearchFilterFragment.FilterData();
     private AsyncTask<String, Void, StorageSearch> searchTask;
     private boolean mNeedRefresh;
     private MenuItem mFilterItem;
@@ -54,7 +46,7 @@ public class FilesSearchResultFragment extends FilesFragment {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
         actionBar.setDisplayHomeAsUpEnabled(true);
-        setActionBarBackListener(new OnClickListener() {
+        setActionBarBackListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
@@ -86,8 +78,8 @@ public class FilesSearchResultFragment extends FilesFragment {
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
 
         menu.clear();
-        inflater.inflate(menu.ab_files_search_result, menu);
-        mFilterItem = menu.findItem(id.action_ok);
+        inflater.inflate(R.menu.ab_files_search_result, menu);
+        mFilterItem = menu.findItem(R.id.action_ok);
     }
 
     @Override
@@ -95,7 +87,7 @@ public class FilesSearchResultFragment extends FilesFragment {
 
         int id = item.getItemId();
 
-        if (id == id.action_ok) {
+        if (id == R.id.action_ok) {
             handleFilterAction();
             return true;
         }
@@ -108,7 +100,7 @@ public class FilesSearchResultFragment extends FilesFragment {
      */
     private void setClickListener() {
 
-        setOnItemClickListener(new OnItemClickListener() {
+        setOnItemClickListener(new FilesAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(View view, int position) {
 
@@ -141,7 +133,7 @@ public class FilesSearchResultFragment extends FilesFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
         View v = super.onCreateView(inflater, container, savedInstanceState);
-        swipeRefreshLayout.setOnRefreshListener(new OnRefreshListener() {
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
 
@@ -223,25 +215,25 @@ public class FilesSearchResultFragment extends FilesFragment {
     @Override
     public String getTitle() {
 
-        return getString(string.headline_searchresult);
+        return getString(R.string.headline_searchresult);
     }
 
     private void handleFilterAction() {
 
-        FileSearchFilterFragment fragment = FileSearchFilterFragment.newInstance(mFilterData, mSearchResult, new CallbackListener() {
+        FileSearchFilterFragment fragment = FileSearchFilterFragment.newInstance(mFilterData, mSearchResult, new FileSearchFilterFragment.CallbackListener() {
             @Override
-            public void onSuccess(FilterData data) {
+            public void onSuccess(FileSearchFilterFragment.FilterData data) {
 
                 filterData(data);
             }
         });
         mActivity.toggle.setDrawerIndicatorEnabled(false);
-        getFragmentManager().beginTransaction().add(id.fragment_container, fragment).addToBackStack(null).commit();
+        getFragmentManager().beginTransaction().add(R.id.fragment_container, fragment).addToBackStack(null).commit();
     }
 
-    private void filterData(FilterData data) {
+    private void filterData(FileSearchFilterFragment.FilterData data) {
 
-        mFilterData = data;
+        this.mFilterData = data;
 
         StorageSearch result;
         try {

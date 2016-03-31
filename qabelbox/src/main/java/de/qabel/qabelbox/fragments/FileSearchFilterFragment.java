@@ -2,15 +2,9 @@ package de.qabel.qabelbox.fragments;
 
 import android.os.Bundle;
 import android.view.*;
-import android.view.View.OnClickListener;
 import android.widget.SeekBar;
-import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
 import de.qabel.qabelbox.R;
-import de.qabel.qabelbox.R.id;
-import de.qabel.qabelbox.R.layout;
-import de.qabel.qabelbox.R.menu;
-import de.qabel.qabelbox.R.string;
 import de.qabel.qabelbox.helper.Formatter;
 import de.qabel.qabelbox.storage.BoxFile;
 import de.qabel.qabelbox.storage.BoxObject;
@@ -20,7 +14,7 @@ import org.apache.commons.lang3.time.DateUtils;
 import java.util.Calendar;
 import java.util.Date;
 
-public class FileSearchFilterFragment extends BaseFragment implements OnSeekBarChangeListener {
+public class FileSearchFilterFragment extends BaseFragment implements SeekBar.OnSeekBarChangeListener {
     private FilterData mFilterData;
     private CallbackListener mListener;
     private TextView mTvMinFileSize;
@@ -32,8 +26,8 @@ public class FileSearchFilterFragment extends BaseFragment implements OnSeekBarC
     long mMaxFileSize;
     long mMinDate;
     long mMaxDate;
-    long mNewMinDate;
-    long mNewMaxDate;
+    long mNewMinDate = 0;
+    long mNewMaxDate = 0;
 
     private SeekBar mSbFileSizeMin;
     private SeekBar mSbFileSizeMax;
@@ -59,15 +53,15 @@ public class FileSearchFilterFragment extends BaseFragment implements OnSeekBarC
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        final View view = inflater.inflate(layout.fragment_files_search_filter, container, false);
-        mTvMinFileSize = (TextView) view.findViewById(id.tvMinFileSize);
-        mTvMaxFileSize = (TextView) view.findViewById(id.tvMaxFileSize);
-        mTvMinDate = (TextView) view.findViewById(id.tvMinDate);
-        mTvMaxDate = (TextView) view.findViewById(id.tvMaxDate);
-        mSbFileSizeMin = (SeekBar) view.findViewById(id.sbFileSizeMin);
-        mSbFileSizeMax = (SeekBar) view.findViewById(id.sbFileSizeMax);
-        btSelectMinDate = (TextView) view.findViewById(id.btMinDate);
-        btSelectMaxDate = (TextView) view.findViewById(id.btMaxDate);
+        final View view = inflater.inflate(R.layout.fragment_files_search_filter, container, false);
+        mTvMinFileSize = (TextView) view.findViewById(R.id.tvMinFileSize);
+        mTvMaxFileSize = (TextView) view.findViewById(R.id.tvMaxFileSize);
+        mTvMinDate = (TextView) view.findViewById(R.id.tvMinDate);
+        mTvMaxDate = (TextView) view.findViewById(R.id.tvMaxDate);
+        mSbFileSizeMin = (SeekBar) view.findViewById(R.id.sbFileSizeMin);
+        mSbFileSizeMax = (SeekBar) view.findViewById(R.id.sbFileSizeMax);
+        btSelectMinDate = (TextView) view.findViewById(R.id.btMinDate);
+        btSelectMaxDate = (TextView) view.findViewById(R.id.btMaxDate);
         updateInitialUI();
         mSbFileSizeMin.setOnSeekBarChangeListener(this);
         mSbFileSizeMax.setOnSeekBarChangeListener(this);
@@ -76,7 +70,7 @@ public class FileSearchFilterFragment extends BaseFragment implements OnSeekBarC
     }
 
     private void setDateButtonClickListener() {
-        btSelectMinDate.setOnClickListener(new OnClickListener() {
+        btSelectMinDate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 DatePickerFragment newFragment = DatePickerFragment.newInstance(mMinDate, mMaxDate, mMinDate, new DatePickerFragment.CallbackListener() {
@@ -96,7 +90,7 @@ public class FileSearchFilterFragment extends BaseFragment implements OnSeekBarC
                 newFragment.show(getFragmentManager(), "datePicker");
             }
         });
-        btSelectMaxDate.setOnClickListener(new OnClickListener() {
+        btSelectMaxDate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 DatePickerFragment newFragment = DatePickerFragment.newInstance(mMinDate, mMaxDate, mMaxDate, new DatePickerFragment.CallbackListener() {
@@ -173,7 +167,7 @@ public class FileSearchFilterFragment extends BaseFragment implements OnSeekBarC
 
     @Override
     public String getTitle() {
-        return getString(string.headline_filefilter);
+        return getString(R.string.headline_filefilter);
     }
 
     @Override
@@ -184,13 +178,13 @@ public class FileSearchFilterFragment extends BaseFragment implements OnSeekBarC
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         menu.clear();
-        inflater.inflate(menu.ab_files_search_filter, menu);
+        inflater.inflate(R.menu.ab_files_search_filter, menu);
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
-        if (id == id.action_use_filter) {
+        if (id == R.id.action_use_filter) {
             getFragmentManager().popBackStack();
             mFilterData.mFileSizeMin = (int) (mSbFileSizeMin.getProgress() + mMinFileSize);
             mFilterData.mFileSizeMax = (int) (mSbFileSizeMax.getProgress() + mMinFileSize);
@@ -239,7 +233,7 @@ public class FileSearchFilterFragment extends BaseFragment implements OnSeekBarC
     public static class FilterData {
         Date mDateMin;
         Date mDateMax;
-        int mFileSizeMin;
+        int mFileSizeMin = 0;
         int mFileSizeMax = Integer.MAX_VALUE;
     }
 

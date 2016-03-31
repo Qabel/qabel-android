@@ -7,7 +7,7 @@ import de.qabel.qabelbox.adapter.BoxSyncAdapter;
 
 public class BoxSyncService extends Service {
 
-    private static BoxSyncAdapter boxSyncAdapter;
+    private static BoxSyncAdapter boxSyncAdapter = null;
     // Object to use as a thread-safe lock (from official Android documentation!!)
     private static final Object syncAdapterLock = new Object();
 

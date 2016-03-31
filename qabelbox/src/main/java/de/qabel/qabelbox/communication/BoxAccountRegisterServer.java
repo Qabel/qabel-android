@@ -5,7 +5,6 @@ import android.util.Log;
 import de.qabel.qabelbox.config.AppPreference;
 import okhttp3.Callback;
 import okhttp3.Request;
-import okhttp3.Request.Builder;
 import okhttp3.RequestBody;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -17,7 +16,7 @@ import org.json.JSONObject;
  */
 public class BoxAccountRegisterServer extends BaseServer {
 
-    private static final String TAG = "BoxAccountServer";
+    private final static String TAG = "BoxAccountServer";
 
     private static final String JSON_KEY = "key";
     private static final String JSON_USERNAME = "username";
@@ -37,12 +36,12 @@ public class BoxAccountRegisterServer extends BaseServer {
     private void doServerAction(String url, JSONObject json, Callback callback, String token) {
 
         RequestBody body = RequestBody.create(JSON, json.toString());
-        Builder builder = new Builder()
+        Request.Builder builder = new Request.Builder()
                 .url(url)
                 .post(body);
         addHeader(token, builder);
         final Request request = builder.build();
-        Log.v(TAG, "request: " + request);
+        Log.v(TAG, "request: " + request.toString());
         client.newCall(request).enqueue(callback);
     }
 
@@ -134,7 +133,7 @@ public class BoxAccountRegisterServer extends BaseServer {
     /**
      * hold all possibility server response fields
      */
-    public static final class ServerResponse {
+    public final static class ServerResponse {
 
         public String token;
         public String username;

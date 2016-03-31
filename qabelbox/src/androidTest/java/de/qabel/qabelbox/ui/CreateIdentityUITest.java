@@ -2,7 +2,6 @@ package de.qabel.qabelbox.ui;
 
 
 import android.os.PowerManager;
-import android.os.PowerManager.WakeLock;
 import android.support.design.internal.NavigationMenuItemView;
 import android.support.test.rule.ActivityTestRule;
 import android.widget.SeekBar;
@@ -11,8 +10,6 @@ import de.qabel.core.config.Identities;
 import de.qabel.core.config.Identity;
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
-import de.qabel.qabelbox.R.id;
-import de.qabel.qabelbox.R.string;
 import de.qabel.qabelbox.TestConstants;
 import de.qabel.qabelbox.activities.CreateIdentityActivity;
 import de.qabel.qabelbox.communication.URLs;
@@ -53,7 +50,7 @@ public class CreateIdentityUITest {
 
     private CreateIdentityActivity mActivity;
 
-    private WakeLock wakeLock;
+    private PowerManager.WakeLock wakeLock;
     private SystemAnimations mSystemAnimations;
     private UIBoxHelper mBoxHelper;
 
@@ -95,8 +92,8 @@ public class CreateIdentityUITest {
     }
 
     public void openDrawerWithIdentity(String withIdentity) {
-        openDrawer(id.drawer_layout);
-        onView(allOf(withText(withIdentity), withParent(withId(id.select_identity_layout)))).check(matches(isDisplayed())).perform(click());
+        openDrawer(R.id.drawer_layout);
+        onView(allOf(withText(withIdentity), withParent(withId(R.id.select_identity_layout)))).check(matches(isDisplayed())).perform(click());
         UITestHelper.sleep(2000);
     }
 
@@ -114,15 +111,15 @@ public class CreateIdentityUITest {
         Spoon.screenshot(UITestHelper.getCurrentActivity(mActivity), "start");
 
         pressBack();
-        onView(withText(String.format(mActivity.getString(string.message_step_is_needed_or_close_app), string.identity)));
-        onView(withText(string.no)).perform(click());
+        onView(withText(String.format(mActivity.getString(R.string.message_step_is_needed_or_close_app), R.string.identity)));
+        onView(withText(R.string.no)).perform(click());
 
         createIdentity(identity);
         openDrawerWithIdentity(identity);
         //go to add identity, enter no data and go back
-        onView(withText(string.add_identity)).check(matches(isDisplayed())).perform(click());
+        onView(withText(R.string.add_identity)).check(matches(isDisplayed())).perform(click());
         pressBack();
-        onView(withText(string.headline_files)).check(matches(isDisplayed()));
+        onView(withText(R.string.headline_files)).check(matches(isDisplayed()));
 
         // Wait for back is performed
         UITestHelper.sleep(500);
@@ -130,21 +127,21 @@ public class CreateIdentityUITest {
         //create spoon 2 identity
         openDrawerWithIdentity(identity);
 
-        onView(withText(string.add_identity)).check(matches(isDisplayed())).perform(click());
+        onView(withText(R.string.add_identity)).check(matches(isDisplayed())).perform(click());
         Spoon.screenshot(UITestHelper.getCurrentActivity(mActivity), "spoon1");
         //go to add identity, enter no data and go back
         createIdentity(identity2);
         UITestHelper.sleep(500);
         //check if 2 identities displayed
-        closeDrawer(id.drawer_layout);
-        openDrawer(id.drawer_layout);
-        onView(withId(id.imageViewExpandIdentity)).check(matches(isDisplayed())).perform(click());
+        closeDrawer(R.id.drawer_layout);
+        openDrawer(R.id.drawer_layout);
+        onView(withId(R.id.imageViewExpandIdentity)).check(matches(isDisplayed())).perform(click());
         UITestHelper.sleep(500);
         onView(allOf(is(instanceOf(NavigationMenuItemView.class)), withText(identity))).check(matches(isDisplayed()));
         onView(allOf(is(instanceOf(NavigationMenuItemView.class)), withText(identity2))).check(matches(isDisplayed()));
 
         Spoon.screenshot(UITestHelper.getCurrentActivity(mActivity), "spoon1_2");
-        closeDrawer(id.drawer_layout);
+        closeDrawer(R.id.drawer_layout);
     }
 
     private void createIdentity(String identity) throws Throwable {
@@ -154,29 +151,29 @@ public class CreateIdentityUITest {
     }
 
     private void createIdentityPerformEnterName(String identity) throws Throwable {
-        onView(withText(string.create_identity_create)).check(matches(isDisplayed())).perform(click());
+        onView(withText(R.string.create_identity_create)).check(matches(isDisplayed())).perform(click());
         onView(allOf(withClassName(endsWith("EditTextFont")))).perform(typeText(identity), pressImeActionButton());
-        onView(withText(string.create_identity_enter_name)).check(matches(isDisplayed()));
+        onView(withText(R.string.create_identity_enter_name)).check(matches(isDisplayed()));
         closeSoftKeyboard();
 
         Spoon.screenshot(UITestHelper.getCurrentActivity(mActivity), "input");
         UITestHelper.sleep(500);
-        onView(withText(string.next)).perform(click());
+        onView(withText(R.string.next)).perform(click());
         UITestHelper.sleep(500);
     }
 
     private void createIdentityPerformSetSecurityLevel() {
-        onView(withClassName(equalTo(SeekBar.class.getName()))).perform(QabelViewAction.setProgress(2));
+        onView(withClassName(Matchers.equalTo(SeekBar.class.getName()))).perform(QabelViewAction.setProgress(2));
         onView(allOf(withClassName(endsWith("SeekBar")))).check(matches(QabelMatcher.withProgress(2)));
-        onView(withText(string.next)).perform(click());
+        onView(withText(R.string.next)).perform(click());
         UITestHelper.sleep(500);
     }
 
     private void createIdentityPerformConfirm() {
-        onView(withText(string.create_identity_final)).check(matches(isDisplayed()));
-        onView(withText(string.finish)).perform(click());
+        onView(withText(R.string.create_identity_final)).check(matches(isDisplayed()));
+        onView(withText(R.string.finish)).perform(click());
         UITestHelper.sleep(10000);
-        onView(withText(string.headline_files)).check(matches(isDisplayed()));
+        onView(withText(R.string.headline_files)).check(matches(isDisplayed()));
         UITestHelper.sleep(500);
     }
 }

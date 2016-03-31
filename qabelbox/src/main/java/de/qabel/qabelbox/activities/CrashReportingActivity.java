@@ -6,14 +6,13 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import de.qabel.qabelbox.R;
-import de.qabel.qabelbox.R.string;
 import de.qabel.qabelbox.fragments.SettingsFragment;
 import net.hockeyapp.android.CrashManager;
 import net.hockeyapp.android.UpdateManager;
 
 public class CrashReportingActivity extends AppCompatActivity {
 
-    private final String TAG = getClass().getSimpleName();
+    private final String TAG = this.getClass().getSimpleName();
     private boolean handleCrashes = true;
     private final boolean checkForUpdates = false;//set to true if certain users can uploadAndDeleteLocalfile new version via hockey app
 
@@ -23,7 +22,7 @@ public class CrashReportingActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         if (checkForUpdates) {
             // Remove this for store / production builds!
-            UpdateManager.register(this, getString(string.hockeykey));
+            UpdateManager.register(this, getString(R.string.hockeykey));
         }
     }
 
@@ -55,9 +54,9 @@ public class CrashReportingActivity extends AppCompatActivity {
             SharedPreferences preferences = getSharedPreferences(
                     SettingsFragment.APP_PREF_NAME,
                     Context.MODE_PRIVATE);
-            if (preferences.getBoolean(getString(string.settings_key_bugreporting_enabled), true)) {
+            if (preferences.getBoolean(getString(R.string.settings_key_bugreporting_enabled), true)) {
                 Log.v(TAG, "install crash reporting handler");
-                CrashManager.register(this, getString(string.hockeykey));
+                CrashManager.register(this, getString(R.string.hockeykey));
             } else {
                 Log.d(TAG, "crash reporting DISABLED");
             }

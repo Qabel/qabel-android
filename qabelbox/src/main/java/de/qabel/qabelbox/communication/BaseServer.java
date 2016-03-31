@@ -4,7 +4,6 @@ import android.util.Log;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
-import okhttp3.Request.Builder;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -38,7 +37,7 @@ public class BaseServer {
      * @param token   token or null if server no token needed
      * @param builder builder to fill with header
      */
-    protected void addHeader(String token, Builder builder) {
+    protected void addHeader(String token, Request.Builder builder) {
 
         String locale = Locale.getDefault().getLanguage();
         builder.addHeader("Accept-Language", locale);

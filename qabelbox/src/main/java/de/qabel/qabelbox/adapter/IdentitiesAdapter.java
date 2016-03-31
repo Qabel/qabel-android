@@ -1,20 +1,14 @@
 package de.qabel.qabelbox.adapter;
 
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.RecyclerView.Adapter;
-import android.support.v7.widget.RecyclerView.ViewHolder;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 import de.qabel.core.config.Identities;
 import de.qabel.core.config.Identity;
 import de.qabel.qabelbox.R;
-import de.qabel.qabelbox.R.id;
-import de.qabel.qabelbox.R.layout;
-import de.qabel.qabelbox.adapter.IdentitiesAdapter.IdentityViewHolder;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -25,7 +19,7 @@ import java.util.List;
  * Identities adapter provides data for a Identity list in a RecyclerView. Allows to externally
  * set click actions on ViewHolders by setOnItemClickListener.
  */
-public class IdentitiesAdapter extends Adapter<IdentityViewHolder> {
+public class IdentitiesAdapter extends RecyclerView.Adapter<IdentitiesAdapter.IdentityViewHolder> {
     private final List<Identity> mIdentities;
     private OnItemClickListener onItemClickListener;
 
@@ -33,7 +27,7 @@ public class IdentitiesAdapter extends Adapter<IdentityViewHolder> {
         mIdentities = new ArrayList<>(identities.getIdentities());
     }
 
-    class IdentityViewHolder extends ViewHolder implements OnClickListener {
+    class IdentityViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         public final TextView mTextViewIdentityName;
         public final TextView mTextViewIdentityDetails;
         public final ImageView mImageView;
@@ -41,9 +35,9 @@ public class IdentitiesAdapter extends Adapter<IdentityViewHolder> {
         public IdentityViewHolder(View v) {
             super(v);
             v.setOnClickListener(this);
-            mTextViewIdentityName = (TextView) v.findViewById(id.textViewItemName);
-            mTextViewIdentityDetails = (TextView) v.findViewById(id.textViewItemDetail);
-            mImageView = (ImageView) v.findViewById(id.itemIcon);
+            mTextViewIdentityName = (TextView) v.findViewById(R.id.textViewItemName);
+            mTextViewIdentityDetails = (TextView) v.findViewById(R.id.textViewItemDetail);
+            mImageView = (ImageView) v.findViewById(R.id.itemIcon);
         }
 
         @Override
@@ -68,7 +62,7 @@ public class IdentitiesAdapter extends Adapter<IdentityViewHolder> {
     @Override
     public IdentityViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View v = LayoutInflater.from(parent.getContext())
-                .inflate(layout.item_identities, parent, false);
+                .inflate(R.layout.item_identities, parent, false);
         return new IdentityViewHolder(v);
     }
 

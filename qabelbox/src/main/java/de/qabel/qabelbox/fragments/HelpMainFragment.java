@@ -3,21 +3,15 @@ package de.qabel.qabelbox.fragments;
 import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentManager;
-import android.app.FragmentManager.OnBackStackChangedListener;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
-import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Bundle;
 import android.preference.Preference;
-import android.preference.Preference.OnPreferenceClickListener;
 import android.preference.PreferenceFragment;
 import android.view.Menu;
 import android.view.MenuInflater;
 import de.qabel.qabelbox.BuildConfig;
 import de.qabel.qabelbox.R;
-import de.qabel.qabelbox.R.id;
-import de.qabel.qabelbox.R.string;
-import de.qabel.qabelbox.R.xml;
 import de.qabel.qabelbox.activities.MainActivity;
 import de.qabel.qabelbox.helper.Formatter;
 
@@ -25,7 +19,7 @@ import java.util.Date;
 
 public class HelpMainFragment extends PreferenceFragment {
 
-    public static final String APP_PREF_NAME = "appsettings";
+    final public static String APP_PREF_NAME = "appsettings";
     private MainActivity mActivity;
 
     @Override
@@ -56,7 +50,7 @@ public class HelpMainFragment extends PreferenceFragment {
 
     protected void setTitleAndActionbar() {
 
-        mActivity.getSupportActionBar().setTitle(string.headline_main_help);
+        mActivity.getSupportActionBar().setTitle(R.string.headline_main_help);
         mActivity.getSupportActionBar().setDisplayHomeAsUpEnabled(false);
         mActivity.toggle.setDrawerIndicatorEnabled(true);
         mActivity.fab.hide();
@@ -71,16 +65,16 @@ public class HelpMainFragment extends PreferenceFragment {
         getPreferenceManager().setSharedPreferencesName(APP_PREF_NAME);
 
         // Load the preferences from an XML resource
-        addPreferencesFromResource(xml.app_main_help);
+        addPreferencesFromResource(R.xml.app_main_help);
 
         //set app version infos
-        Preference appVersion = findPreference(getString(string.help_key_main_app_version));
+        Preference appVersion = findPreference(getString(R.string.help_key_main_app_version));
         appVersion.setSummary(getAppInfos());
 
         //set click listener for all other entrys
-        setClickListener(findPreference(getString(string.help_key_main_app_data_policy)), WebViewHelpFragment.MODE_DATA_POLICY);
-        setClickListener(findPreference(getString(string.help_key_main_app_tou)), WebViewHelpFragment.MODE_TOU);
-        setClickListener(findPreference(getString(string.help_key_main_app_about_us)), WebViewHelpFragment.MODE_ABOUT_US);
+        setClickListener(findPreference(getString(R.string.help_key_main_app_data_policy)), WebViewHelpFragment.MODE_DATA_POLICY);
+        setClickListener(findPreference(getString(R.string.help_key_main_app_tou)), WebViewHelpFragment.MODE_TOU);
+        setClickListener(findPreference(getString(R.string.help_key_main_app_about_us)), WebViewHelpFragment.MODE_ABOUT_US);
     }
 
     @Override
@@ -91,11 +85,11 @@ public class HelpMainFragment extends PreferenceFragment {
 
     private void setClickListener(Preference preference, final int mode) {
 
-        preference.setOnPreferenceClickListener(new OnPreferenceClickListener() {
+        preference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
 
-                getFragmentManager().beginTransaction().add(id.fragment_container, WebViewHelpFragment.newInstance(mode), null).addToBackStack(null).commit();
+                getFragmentManager().beginTransaction().add(R.id.fragment_container, WebViewHelpFragment.newInstance(mode), null).addToBackStack(null).commit();
                 return false;
             }
         });
@@ -108,12 +102,12 @@ public class HelpMainFragment extends PreferenceFragment {
         try {
             info = manager.getPackageInfo(
                     getActivity().getPackageName(), 0);
-        } catch (NameNotFoundException e) {
+        } catch (PackageManager.NameNotFoundException e) {
             e.printStackTrace();
         }
 
         String version = info.versionName;
-        return getString(string.app_info_version_and_build).replace("$1", info.versionName).replace("$2", getBuildDate());
+        return getString(R.string.app_info_version_and_build).replace("$1", info.versionName).replace("$2", getBuildDate());
     }
 
     String getBuildDate() {
@@ -121,11 +115,11 @@ public class HelpMainFragment extends PreferenceFragment {
         return Formatter.formatDateShort(new Date(BuildConfig.TIMESTAMP));
     }
 
-    OnBackStackChangedListener backstackListener = new OnBackStackChangedListener() {
+    FragmentManager.OnBackStackChangedListener backstackListener = new FragmentManager.OnBackStackChangedListener() {
         @Override
         public void onBackStackChanged() {
             // Set FAB visibility according to currently visible fragment
-            Fragment activeFragment = getFragmentManager().findFragmentById(id.fragment_container);
+            Fragment activeFragment = getFragmentManager().findFragmentById(R.id.fragment_container);
             if (activeFragment instanceof HelpMainFragment) {
                 setTitleAndActionbar();
             }

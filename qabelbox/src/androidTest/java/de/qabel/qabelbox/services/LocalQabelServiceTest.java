@@ -12,7 +12,6 @@ import de.qabel.core.drop.DropURL;
 import de.qabel.core.exceptions.QblDropInvalidURL;
 import de.qabel.core.exceptions.QblDropPayloadSizeException;
 import de.qabel.qabelbox.exceptions.QblStorageEntityExistsException;
-import de.qabel.qabelbox.services.LocalQabelService.OnSendDropMessageResult;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -37,7 +36,7 @@ public class LocalQabelServiceTest extends ServiceTestCase<LocalQabelServiceTest
         getContext().deleteDatabase(LocalQabelServiceTester.DB_NAME);
         Intent intent = new Intent(getContext(), LocalQabelServiceTester.class);
         startService(intent);
-        mService = getService();
+        this.mService = getService();
         identity = new Identity("foo", null, new QblECKeyPair());
         mService.addIdentity(identity);
         mService.setActiveIdentity(identity);
@@ -134,7 +133,7 @@ public class LocalQabelServiceTest extends ServiceTestCase<LocalQabelServiceTest
         final CountDownLatch lock = new CountDownLatch(1);
 
         mService.sendDropMessage(dropMessage, recipientContact, senderIdentity,
-                new OnSendDropMessageResult() {
+                new LocalQabelService.OnSendDropMessageResult() {
                     @Override
                     public void onSendDropResult(Map<DropURL, Boolean> deliveryStatus) {
                         lock.countDown();

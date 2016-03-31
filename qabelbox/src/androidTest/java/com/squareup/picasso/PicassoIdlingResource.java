@@ -35,7 +35,7 @@ public class PicassoIdlingResource implements IdlingResource, ActivityLifecycleC
 
     @Override
     public void registerIdleTransitionCallback(ResourceCallback resourceCallback) {
-        callback = resourceCallback;
+        this.callback = resourceCallback;
     }
 
     void notifyDone() {

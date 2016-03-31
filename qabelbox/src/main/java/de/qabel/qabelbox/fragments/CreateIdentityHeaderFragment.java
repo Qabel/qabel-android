@@ -8,8 +8,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 import de.qabel.qabelbox.R;
-import de.qabel.qabelbox.R.id;
-import de.qabel.qabelbox.R.layout;
 
 public class CreateIdentityHeaderFragment extends Fragment {
 
@@ -22,11 +20,11 @@ public class CreateIdentityHeaderFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
-        View view = inflater.inflate(layout.fragment_create_identity_header, container, false);
-        logoLayout = (ViewGroup) view.findViewById(id.logo_layout);
-        initialLayout = (ViewGroup) view.findViewById(id.initial_layout);
-        tvInitial = (TextView) view.findViewById(id.tv_initial);
-        tvName = (TextView) view.findViewById(id.tv_name);
+        View view = inflater.inflate(R.layout.fragment_create_identity_header, container, false);
+        logoLayout = (ViewGroup) view.findViewById(R.id.logo_layout);
+        initialLayout = (ViewGroup) view.findViewById(R.id.initial_layout);
+        tvInitial = (TextView) view.findViewById(R.id.tv_initial);
+        tvName = (TextView) view.findViewById(R.id.tv_name);
         updateUI(null);
         return view;
     }

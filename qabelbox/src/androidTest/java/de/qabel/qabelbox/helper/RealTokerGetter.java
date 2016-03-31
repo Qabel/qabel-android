@@ -3,7 +3,6 @@ package de.qabel.qabelbox.helper;
 import android.content.Context;
 import android.util.Log;
 import de.qabel.qabelbox.communication.BoxAccountRegisterServer;
-import de.qabel.qabelbox.communication.BoxAccountRegisterServer.ServerResponse;
 import de.qabel.qabelbox.communication.callbacks.SimpleJsonCallback;
 import de.qabel.qabelbox.config.AppPreference;
 import okhttp3.Call;
@@ -17,7 +16,7 @@ import static junit.framework.Assert.assertNotNull;
 
 public class RealTokerGetter {
     private String TAG = "RealTokenGetter";
-    String token;
+    String token = null;
 
     public String getToken(final Context context) {
         BoxAccountRegisterServer server = new BoxAccountRegisterServer();
@@ -27,17 +26,15 @@ public class RealTokerGetter {
         final CountDownLatch latch = new CountDownLatch(1);
         Log.d(TAG, "get new real token");
         server.register(un, pw1, pw1, email, new SimpleJsonCallback() {
-                    @Override
                     protected void onError(final Call call, Reasons reasons) {
 
                         Log.e(TAG, "cant create new token");
                         latch.countDown();
                     }
 
-                    @Override
                     protected void onSuccess(Call call, Response response, JSONObject json) {
-                        ServerResponse result = BoxAccountRegisterServer.parseJson(json);
-                        Log.d(TAG, "token success message " + response.code() + " " + json);
+                        BoxAccountRegisterServer.ServerResponse result = BoxAccountRegisterServer.parseJson(json);
+                        Log.d(TAG, "token success message " + response.code() + " " + json.toString());
                         if (result.token != null && result.token.length() > 5) {
                             new AppPreference(context).setToken(result.token);
                             token = result.token;

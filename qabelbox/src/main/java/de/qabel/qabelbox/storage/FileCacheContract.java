@@ -7,7 +7,7 @@ public final class FileCacheContract {
     public FileCacheContract() {
     }
 
-    public abstract static class FileEntry implements BaseColumns {
+    public static abstract class FileEntry implements BaseColumns {
 
         public static final String TABLE_NAME = "cache";
         public static final String COL_REF = "ref";

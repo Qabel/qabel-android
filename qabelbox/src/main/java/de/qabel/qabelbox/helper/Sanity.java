@@ -1,6 +1,5 @@
 package de.qabel.qabelbox.helper;
 
-import android.R.anim;
 import android.app.Activity;
 import android.content.Intent;
 import de.qabel.qabelbox.QabelBoxApplication;
@@ -26,7 +25,7 @@ public class Sanity {
             Intent intent = new Intent(activity, CreateAccountActivity.class);
             intent.putExtra(BaseWizardActivity.FIRST_RUN, true);
             activity.startActivity(intent);
-            activity.overridePendingTransition(anim.fade_in, anim.fade_out);
+            activity.overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
             activity.finish();
             return true;
         } else {
@@ -35,7 +34,7 @@ public class Sanity {
                 Intent intent = new Intent(activity, CreateIdentityActivity.class);
                 intent.putExtra(BaseWizardActivity.FIRST_RUN, true);
                 activity.startActivity(intent);
-                activity.overridePendingTransition(anim.fade_in, anim.fade_out);
+                activity.overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
                 activity.finish();
                 return true;
             } else {

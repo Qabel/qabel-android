@@ -13,7 +13,6 @@ import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.NotificationCompat;
-import android.support.v7.app.NotificationCompat.Builder;
 import android.util.Log;
 import de.qabel.core.config.Contact;
 import de.qabel.core.config.Contacts;
@@ -28,9 +27,6 @@ import de.qabel.core.exceptions.*;
 import de.qabel.core.http.DropHTTP;
 import de.qabel.core.http.HTTPResult;
 import de.qabel.qabelbox.R;
-import de.qabel.qabelbox.R.drawable;
-import de.qabel.qabelbox.R.plurals;
-import de.qabel.qabelbox.R.string;
 import de.qabel.qabelbox.activities.MainActivity;
 import de.qabel.qabelbox.exceptions.QblStorageEntityExistsException;
 import de.qabel.qabelbox.persistence.AndroidPersistence;
@@ -39,7 +35,6 @@ import de.qabel.qabelbox.providers.DocumentIdParser;
 import de.qabel.qabelbox.storage.BoxFile;
 import de.qabel.qabelbox.storage.BoxUploadingFile;
 import de.qabel.qabelbox.storage.TransferManager;
-import de.qabel.qabelbox.storage.TransferManager.BoxTransferListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spongycastle.util.encoders.Hex;
@@ -52,7 +47,7 @@ import java.util.concurrent.LinkedBlockingDeque;
 
 public class LocalQabelService extends Service {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(LocalQabelService.class.getName());
+    private final static Logger LOGGER = LoggerFactory.getLogger(LocalQabelService.class.getName());
 
     private static final String TAG = "LocalQabelService";
     private static final String PREF_LAST_ACTIVE_IDENTITY = "PREF_LAST_ACTIVE_IDENTITY";
@@ -263,7 +258,7 @@ public class LocalQabelService extends Service {
         Collection<DropMessage> allMessages = new ArrayList<>();
         for (Identity identity : getIdentities().getIdentities()) {
             for (DropURL dropUrl : identity.getDropUrls()) {
-                Collection<DropMessage> results = retrieveDropMessages(dropUrl.getUri(), sinceDate);
+                Collection<DropMessage> results = this.retrieveDropMessages(dropUrl.getUri(), sinceDate);
                 allMessages.addAll(results);
             }
         }
@@ -279,7 +274,7 @@ public class LocalQabelService extends Service {
         Collection<DropMessage> allMessages = new ArrayList<>();
 
         for (DropURL dropUrl : identity.getDropUrls()) {
-            Collection<DropMessage> results = retrieveDropMessages(dropUrl.getUri(), sinceDate);
+            Collection<DropMessage> results = this.retrieveDropMessages(dropUrl.getUri(), sinceDate);
             allMessages.addAll(results);
 
         }
@@ -353,7 +348,7 @@ public class LocalQabelService extends Service {
      * @return HTTPResult with collection of encrypted DropMessages.
      */
     HTTPResult<Collection<byte[]>> getDropMessages(URI uri, long sinceDate) {
-        Log.v(TAG, "retrieveDropMessage: " + uri + " at: " + sinceDate);
+        Log.v(TAG, "retrieveDropMessage: " + uri.toString() + " at: " + sinceDate);
         return dropHTTP.receiveMessages(uri, sinceDate);
     }
 
@@ -430,12 +425,12 @@ public class LocalQabelService extends Service {
     protected void updateNotification() {
         BoxUploadingFile boxUploadingFile = uploadingQueue.peek();
         if (boxUploadingFile != null) {
-            showNotification(getResources().getQuantityString(plurals.uploadsNotificationTitle,
+            showNotification(getResources().getQuantityString(R.plurals.uploadsNotificationTitle,
                     uploadingQueue.size(), uploadingQueue.size()),
-                    String.format(getString(string.upload_in_progress_notification_content), boxUploadingFile.name),
+                    String.format(getString(R.string.upload_in_progress_notification_content), boxUploadingFile.name),
                     boxUploadingFile.getUploadStatusPercent());
         } else {
-            showNotification(getString(string.upload_complete_notification_title), null, 100);
+            showNotification((getString(R.string.upload_complete_notification_title)), null, 100);
         }
     }
 
@@ -446,10 +441,10 @@ public class LocalQabelService extends Service {
         PendingIntent intent = PendingIntent.getActivity(this, 0,
                 notificationIntent, 0);
 
-        Builder builder = new Builder(this);
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
         builder.setContentTitle(contentTitle)
                 .setContentText(contentText)
-                .setSmallIcon(drawable.qabel_logo)
+                .setSmallIcon(R.drawable.qabel_logo)
                 .setProgress(100, progress, false)
                 .setContentIntent(intent);
 
@@ -460,8 +455,8 @@ public class LocalQabelService extends Service {
         notifyManager.notify(UPLOAD_NOTIFICATION_ID, builder.build());
     }
 
-    public BoxTransferListener getUploadTransferListener(final BoxUploadingFile boxUploadingFile) {
-        return new BoxTransferListener() {
+    public TransferManager.BoxTransferListener getUploadTransferListener(final BoxUploadingFile boxUploadingFile) {
+        return new TransferManager.BoxTransferListener() {
             @Override
             public void onProgressChanged(long bytesCurrent, long bytesTotal) {
                 boxUploadingFile.totalSize = bytesTotal;
@@ -519,17 +514,17 @@ public class LocalQabelService extends Service {
             Log.e(TAG, "Invalid database password!");
             return;
         }
-        persistence = androidPersistence;
+        this.persistence = androidPersistence;
     }
 
     protected void initSharedPreferences() {
-        sharedPreferences = getSharedPreferences(getClass().getCanonicalName(), MODE_PRIVATE);
+        sharedPreferences = getSharedPreferences(this.getClass().getCanonicalName(), MODE_PRIVATE);
         if (!sharedPreferences.getBoolean(PREF_DEVICE_ID_CREATED, false)) {
 
             CryptoUtils cryptoUtils = new CryptoUtils();
             byte[] deviceID = cryptoUtils.getRandomBytes(NUM_BYTES_DEVICE_ID);
 
-            Log.d(getClass().getName(), "New device ID: " + Hex.toHexString(deviceID));
+            Log.d(this.getClass().getName(), "New device ID: " + Hex.toHexString(deviceID));
 
             sharedPreferences.edit().putString(PREF_DEVICE_ID, Hex.toHexString(deviceID))
                     .putBoolean(PREF_DEVICE_ID_CREATED, true)

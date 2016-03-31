@@ -6,8 +6,6 @@ import android.content.res.AssetManager;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.MediaStore;
-import android.provider.MediaStore.Images;
-import android.provider.MediaStore.Images.Media;
 import android.support.v4.content.CursorLoader;
 import android.util.Log;
 import org.json.JSONException;
@@ -106,13 +104,13 @@ public class FileHelper {
     }
 
     public static String getRealPathFromURI(Context context, Uri contentUri) {
-        String[] proj = {Media.DATA};
+        String[] proj = {MediaStore.Images.Media.DATA};
         CursorLoader loader = new CursorLoader(context, contentUri, proj, null, null, null);
         Cursor cursor = loader.loadInBackground();
         if (cursor == null) {
             return null;
         }
-        int column_index = cursor.getColumnIndexOrThrow(Media.DATA);
+        int column_index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
         cursor.moveToFirst();
         String result = cursor.getString(column_index);
         cursor.close();

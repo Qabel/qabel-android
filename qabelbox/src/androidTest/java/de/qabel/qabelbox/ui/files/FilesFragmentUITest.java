@@ -2,15 +2,12 @@ package de.qabel.qabelbox.ui.files;
 
 import android.content.Intent;
 import android.os.PowerManager;
-import android.os.PowerManager.WakeLock;
 import android.support.test.espresso.intent.rule.IntentsTestRule;
 import com.squareup.spoon.Spoon;
 import de.qabel.core.config.Contact;
 import de.qabel.core.config.Identity;
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
-import de.qabel.qabelbox.R.id;
-import de.qabel.qabelbox.R.string;
 import de.qabel.qabelbox.TestConstants;
 import de.qabel.qabelbox.TestConstraints;
 import de.qabel.qabelbox.activities.MainActivity;
@@ -53,7 +50,7 @@ public class FilesFragmentUITest {
     private MainActivity mActivity;
     private UIBoxHelper mBoxHelper;
     private final boolean mFillAccount = true;
-    private WakeLock wakeLock;
+    private PowerManager.WakeLock wakeLock;
     private SystemAnimations mSystemAnimations;
 
     private Identity testIdentity;
@@ -157,17 +154,17 @@ public class FilesFragmentUITest {
         Spoon.screenshot(mActivity, "startup");
         onView(withText(exampleFiles.get(0).getName())).perform(longClick());
 
-        onView(withText(string.ShareToQabelUser)).perform(click());
+        onView(withText(R.string.ShareToQabelUser)).perform(click());
 
         //Check labels and spinner are visible.
-        onView(withText(string.headline_share_to_qabeluser)).check(matches(isDisplayed()));
-        onView(withText(string.share_to_contact_message)).check(matches(isDisplayed()));
-        onView(withId(id.spinner_identities)).check(matches(isDisplayed()));
+        onView(withText(R.string.headline_share_to_qabeluser)).check(matches(isDisplayed()));
+        onView(withText(R.string.share_to_contact_message)).check(matches(isDisplayed()));
+        onView(withId(R.id.spinner_identities)).check(matches(isDisplayed()));
 
         //Check Contact is Visible
         onView(withText(testContact.getAlias())).check(matches(isDisplayed()));
 
-        onView(withText(string.ok)).perform(click());
+        onView(withText(R.string.ok)).perform(click());
 
         UITestHelper.sleep(50);
 
@@ -178,7 +175,7 @@ public class FilesFragmentUITest {
         UITestHelper.sleep(TestConstraints.SIMPLE_SERVER_ACTION_TIMEOUT);
 
         //Check success message
-        onView(withText(string.messsage_file_shared)).inRoot(withDecorView(not(is(mActivity.getWindow().getDecorView())))).check(matches(isDisplayed()));
+        onView(withText(R.string.messsage_file_shared)).inRoot(withDecorView(not(is(mActivity.getWindow().getDecorView())))).check(matches(isDisplayed()));
 
         Spoon.screenshot(mActivity, "after");
     }
@@ -188,12 +185,12 @@ public class FilesFragmentUITest {
         Spoon.screenshot(mActivity, "startup");
         onView(withText(exampleFiles.get(0).getName())).perform(longClick());
 
-        onView(withText(string.Send)).perform(click());
+        onView(withText(R.string.Send)).perform(click());
 
         UITestHelper.sleep(1000);
 
         //Check Chooser
-        intended(allOf(hasAction(Intent.ACTION_CHOOSER), hasExtra(Intent.EXTRA_TITLE, mActivity.getString(string.share_via))));
+        intended(allOf(hasAction(Intent.ACTION_CHOOSER), hasExtra(Intent.EXTRA_TITLE, mActivity.getString(R.string.share_via))));
     }
 
 }

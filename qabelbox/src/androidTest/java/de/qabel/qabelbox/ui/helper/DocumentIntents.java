@@ -3,7 +3,6 @@ package de.qabel.qabelbox.ui.helper;
 
 import android.app.Activity;
 import android.app.Instrumentation;
-import android.app.Instrumentation.ActivityResult;
 import android.content.Intent;
 import android.net.Uri;
 import android.support.test.espresso.intent.Intents;
@@ -26,7 +25,7 @@ public class DocumentIntents {
                 hasAction(Intent.ACTION_CREATE_DOCUMENT),
                 hasCategories(hasItem(Intent.CATEGORY_OPENABLE))
         )).respondWith(
-                new ActivityResult(Activity.RESULT_OK, data)
+                new Instrumentation.ActivityResult(Activity.RESULT_OK, data)
         );
 
     }
@@ -40,7 +39,7 @@ public class DocumentIntents {
                 hasAction(Intent.ACTION_OPEN_DOCUMENT),
                 hasCategories(hasItem(Intent.CATEGORY_OPENABLE))
         )).respondWith(
-                new ActivityResult(Activity.RESULT_OK, data)
+                new Instrumentation.ActivityResult(Activity.RESULT_OK, data)
         );
 
     }

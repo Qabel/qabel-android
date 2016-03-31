@@ -7,7 +7,6 @@ import android.os.ParcelFileDescriptor;
 import android.test.InstrumentationTestCase;
 import android.test.mock.MockContentResolver;
 import de.qabel.qabelbox.R;
-import de.qabel.qabelbox.R.string;
 import de.qabel.qabelbox.communication.URLs;
 import de.qabel.qabelbox.config.AppPreference;
 import de.qabel.qabelbox.exceptions.QblStorageException;
@@ -31,7 +30,6 @@ public abstract class MockedBoxProviderTest extends InstrumentationTestCase {
 
     public abstract Context getContext();
 
-    @Override
     @Before
     public void setUp() throws Exception {
         configureTestServer();
@@ -43,8 +41,8 @@ public abstract class MockedBoxProviderTest extends InstrumentationTestCase {
     protected void configureTestServer() {
 
         new AppPreference(getContext())
-                .setToken(getContext().getString(string.blockserver_magic_testtoken));
-        URLs.setBaseBlockURL(getContext().getString(string.testBlockServer));
+                .setToken(getContext().getString(R.string.blockserver_magic_testtoken));
+        URLs.setBaseBlockURL(getContext().getString(R.string.testBlockServer));
 
 
     }

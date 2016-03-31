@@ -2,7 +2,6 @@ package de.qabel.qabelbox.fragments;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
-import android.content.DialogInterface.OnClickListener;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -10,12 +9,7 @@ import android.view.*;
 import android.widget.EditText;
 import android.widget.TextView;
 import de.qabel.qabelbox.R;
-import de.qabel.qabelbox.R.id;
-import de.qabel.qabelbox.R.layout;
-import de.qabel.qabelbox.R.menu;
-import de.qabel.qabelbox.R.string;
 import de.qabel.qabelbox.communication.BoxAccountRegisterServer;
-import de.qabel.qabelbox.communication.BoxAccountRegisterServer.ServerResponse;
 import de.qabel.qabelbox.communication.callbacks.SimpleJsonCallback;
 import de.qabel.qabelbox.config.AppPreference;
 import de.qabel.qabelbox.helper.UIHelper;
@@ -38,10 +32,10 @@ public class CreateAccountLoginFragment extends BaseIdentityFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle
             savedInstanceState) {
 
-        View view = inflater.inflate(layout.fragment_create_account_login, container, false);
-        etUserName = (TextView) view.findViewById(id.et_username);
-        etPassword = (EditText) view.findViewById(id.et_password);
-        resetPassword = view.findViewById(id.reset_password);
+        View view = inflater.inflate(R.layout.fragment_create_account_login, container, false);
+        etUserName = ((TextView) view.findViewById(R.id.et_username));
+        etPassword = (EditText) view.findViewById(R.id.et_password);
+        resetPassword = view.findViewById(R.id.reset_password);
 
         resetPassword.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -49,7 +43,7 @@ public class CreateAccountLoginFragment extends BaseIdentityFragment {
 
                 getFragmentManager().popBackStack();
                 CreateAccountResetPasswordFragment fragment = new CreateAccountResetPasswordFragment();
-                getActivity().getFragmentManager().beginTransaction().replace(id.fragment_container_content, fragment).addToBackStack(null).commit();
+                getActivity().getFragmentManager().beginTransaction().replace(R.id.fragment_container_content, fragment).addToBackStack(null).commit();
             }
         });
         setHasOptionsMenu(true);
@@ -59,16 +53,16 @@ public class CreateAccountLoginFragment extends BaseIdentityFragment {
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         menu.clear();
-        inflater.inflate(menu.ab_next, menu);
+        inflater.inflate(R.menu.ab_next, menu);
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
-        if (id == id.action_ok) {
+        if (id == R.id.action_ok) {
             String check = checkData();
             if (check != null) {
-                UIHelper.showDialogMessage(getActivity(), string.dialog_headline_info, check);
+                UIHelper.showDialogMessage(getActivity(), R.string.dialog_headline_info, check);
                 return true;
             }
             login(etUserName.getText().toString(), etPassword.getText().toString());
@@ -80,13 +74,13 @@ public class CreateAccountLoginFragment extends BaseIdentityFragment {
 
     private String checkData() {
         if (etPassword.getText().toString().length() < 3 || etUserName.getText().toString().length() == 0) {
-            return getString(string.create_account_enter_all_data);
+            return getString(R.string.create_account_enter_all_data);
         }
         return null;
     }
 
     private void login(final String username, final String password) {
-        final AlertDialog dialog = UIHelper.showWaitMessage(mActivity, string.dialog_headline_please_wait, string.dialog_message_server_communication_is_running, false);
+        final AlertDialog dialog = UIHelper.showWaitMessage(mActivity, R.string.dialog_headline_please_wait, R.string.dialog_message_server_communication_is_running, false);
         final SimpleJsonCallback callback = createCallback(username, password, dialog);
         mBoxAccountServer.login(username, password, callback);
     }
@@ -95,14 +89,14 @@ public class CreateAccountLoginFragment extends BaseIdentityFragment {
     private SimpleJsonCallback createCallback(final String username, final String password, final AlertDialog dialog) {
         return new SimpleJsonCallback() {
             void showRetryDialog() {
-                UIHelper.showDialogMessage(getActivity(), string.dialog_headline_info, string.server_access_not_successfully_retry_question, string.yes, string.no, new OnClickListener() {
+                UIHelper.showDialogMessage(getActivity(), R.string.dialog_headline_info, R.string.server_access_not_successfully_retry_question, R.string.yes, R.string.no, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
 
                                 login(username, password);
                             }
                         }
-                        , new OnClickListener() {
+                        , new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
 
@@ -111,7 +105,6 @@ public class CreateAccountLoginFragment extends BaseIdentityFragment {
                         });
             }
 
-            @Override
             protected void onError(final Call call, Reasons reasons) {
                 if (reasons == Reasons.IOException && retryCount++ < 3) {
                     mBoxAccountServer.login(username, password, this);
@@ -121,9 +114,8 @@ public class CreateAccountLoginFragment extends BaseIdentityFragment {
                 }
             }
 
-            @Override
             protected void onSuccess(Call call, Response response, JSONObject json) {
-                ServerResponse result = BoxAccountRegisterServer.parseJson(json);
+                BoxAccountRegisterServer.ServerResponse result = BoxAccountRegisterServer.parseJson(json);
                 if (result.token != null && result.token.length() > 5) {
                     new AppPreference(getActivity()).setToken(result.token);
                     getActivity().runOnUiThread(new Runnable() {
@@ -137,11 +129,11 @@ public class CreateAccountLoginFragment extends BaseIdentityFragment {
                 } else {
                     String text = generateErrorMessage(result);
                     dialog.dismiss();
-                    UIHelper.showDialogMessage(getActivity(), string.dialog_headline_info, text);
+                    UIHelper.showDialogMessage(getActivity(), R.string.dialog_headline_info, text);
                 }
             }
 
-            private String generateErrorMessage(ServerResponse result) {
+            private String generateErrorMessage(BoxAccountRegisterServer.ServerResponse result) {
                 ArrayList<String> message = new ArrayList<>();
                 if (result.non_field_errors != null) {
                     message.add(result.non_field_errors);
@@ -155,7 +147,7 @@ public class CreateAccountLoginFragment extends BaseIdentityFragment {
 
                 String errorText;
                 if (message.size() == 0) {
-                    errorText = getString(string.server_access_failed_or_invalid_check_internet_connection);
+                    errorText = getString(R.string.server_access_failed_or_invalid_check_internet_connection);
                 } else {
                     errorText = "- " + message.get(0);
                     for (int i = 1; i < message.size(); i++) {
@@ -169,7 +161,7 @@ public class CreateAccountLoginFragment extends BaseIdentityFragment {
 
     @Override
     public String check() {
-        UIHelper.showDialogMessage(getActivity(), string.dialog_headline_info, string.function_not_yet_implenented);
+        UIHelper.showDialogMessage(getActivity(), R.string.dialog_headline_info, R.string.function_not_yet_implenented);
         return null;
     }
 }

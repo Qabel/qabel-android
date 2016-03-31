@@ -2,13 +2,10 @@ package de.qabel.qabelbox.ui.helper;
 
 import android.app.Activity;
 import android.app.KeyguardManager;
-import android.app.KeyguardManager.KeyguardLock;
 import android.content.Context;
 import android.content.Intent;
 import android.os.PowerManager;
-import android.os.PowerManager.WakeLock;
 import android.view.WindowManager;
-import android.view.WindowManager.LayoutParams;
 import de.qabel.qabelbox.activities.MainActivity;
 
 public class UIActionHelper {
@@ -36,15 +33,15 @@ public class UIActionHelper {
         context.startActivity(intent);
     }
 
-    public static WakeLock wakeupDevice(final Activity activity) {
+    public static PowerManager.WakeLock wakeupDevice(final Activity activity) {
 
         KeyguardManager keyguardManager = (KeyguardManager) activity.getSystemService(Context.KEYGUARD_SERVICE);
-        final KeyguardLock keyguardLock = keyguardManager.newKeyguardLock("Unlock!");
+        final KeyguardManager.KeyguardLock keyguardLock = keyguardManager.newKeyguardLock("Unlock!");
         keyguardLock.disableKeyguard();
 
 
         PowerManager powerManager = (PowerManager) activity.getSystemService(Context.POWER_SERVICE);
-        WakeLock wakeLock = powerManager.newWakeLock(PowerManager.FULL_WAKE_LOCK | PowerManager.ACQUIRE_CAUSES_WAKEUP | PowerManager.ON_AFTER_RELEASE, "Wakeup!");
+        PowerManager.WakeLock wakeLock = powerManager.newWakeLock(PowerManager.FULL_WAKE_LOCK | PowerManager.ACQUIRE_CAUSES_WAKEUP | PowerManager.ON_AFTER_RELEASE, "Wakeup!");
         wakeLock.acquire();
         UITestHelper.sleep(500);
         //wait until display is unlocked
@@ -52,10 +49,10 @@ public class UIActionHelper {
             @Override
             public void run() {
 
-                activity.getWindow().addFlags(LayoutParams.FLAG_SHOW_WHEN_LOCKED | LayoutParams.FLAG_DISMISS_KEYGUARD
-                        | LayoutParams.FLAG_KEEP_SCREEN_ON
-                        | LayoutParams.FLAG_TURN_SCREEN_ON
-                        | LayoutParams.FLAG_ALLOW_LOCK_WHILE_SCREEN_ON);
+                activity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED | WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD
+                        | WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
+                        | WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
+                        | WindowManager.LayoutParams.FLAG_ALLOW_LOCK_WHILE_SCREEN_ON);
             }
         });
         UITestHelper.sleep(500);

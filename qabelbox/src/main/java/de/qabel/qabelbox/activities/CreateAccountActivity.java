@@ -2,7 +2,6 @@ package de.qabel.qabelbox.activities;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
-import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.text.InputType;
@@ -12,9 +11,7 @@ import android.widget.EditText;
 import android.widget.Toast;
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
-import de.qabel.qabelbox.R.string;
 import de.qabel.qabelbox.communication.BoxAccountRegisterServer;
-import de.qabel.qabelbox.communication.BoxAccountRegisterServer.ServerResponse;
 import de.qabel.qabelbox.communication.callbacks.SimpleJsonCallback;
 import de.qabel.qabelbox.config.AppPreference;
 import de.qabel.qabelbox.fragments.*;
@@ -32,7 +29,7 @@ public class CreateAccountActivity extends BaseWizardActivity {
     private static final int FRAGMENT_ENTER_EMAIL = 2;
     private static final int FRAGMENT_ENTER_PASSWORD = 3;
 
-    private final String TAG = getClass().getSimpleName();
+    private final String TAG = this.getClass().getSimpleName();
 
     private String mBoxAccountName;
 
@@ -51,12 +48,12 @@ public class CreateAccountActivity extends BaseWizardActivity {
     @Override
     protected int getActionBarTitle() {
 
-        return string.headline_create_box_account;
+        return R.string.headline_create_box_account;
     }
 
     @Override
     protected String getWizardEntityLabel() {
-        return getString(string.boxaccount);
+        return getString(R.string.boxaccount);
     }
 
     /**
@@ -70,7 +67,7 @@ public class CreateAccountActivity extends BaseWizardActivity {
         fragments[0] = new CreateAccountMainFragment();
 
         //enter box name fragment
-        fragments[1] = CreateIdentityEditTextFragment.newInstance(string.create_account_enter_name_infos, string.create_account_name_hint, new NextChecker() {
+        fragments[1] = CreateIdentityEditTextFragment.newInstance(R.string.create_account_enter_name_infos, R.string.create_account_name_hint, new NextChecker() {
             @Override
             public String check(View view) {
 
@@ -86,7 +83,7 @@ public class CreateAccountActivity extends BaseWizardActivity {
         });
 
         //enter email address fragment
-        fragments[2] = CreateIdentityEditTextFragment.newInstance(string.create_account_email, string.create_account_email_hint, new NextChecker() {
+        fragments[2] = CreateIdentityEditTextFragment.newInstance(R.string.create_account_email, R.string.create_account_email_hint, new NextChecker() {
             @Override
             public String check(View view) {
 
@@ -121,25 +118,25 @@ public class CreateAccountActivity extends BaseWizardActivity {
 
         boolean error = editText.length() < 1;
         if (error) {
-            return getString(string.create_identity_enter_all_data);
+            return getString(R.string.create_identity_enter_all_data);
         }
         if (!Formatter.isEMailValid(editText)) {
-            return getString(string.email_adress_invalid);
+            return getString(R.string.email_adress_invalid);
         }
         return null;
     }
 
     private void setEMail(String editText) {
-        mBoxAccountEMail = editText;
+        this.mBoxAccountEMail = editText;
     }
 
     private String checkBoxAccountName(String accountName) {
 
         if (accountName.length() < 1) {
-            return getString(string.create_account_enter_all_data);
+            return getString(R.string.create_account_enter_all_data);
         }
         if (accountName.length() > 32) {
-            return getString(string.create_account_maximum_32_chars);
+            return getString(R.string.create_account_maximum_32_chars);
         }
         return null;
     }
@@ -150,7 +147,7 @@ public class CreateAccountActivity extends BaseWizardActivity {
         if (QabelBoxApplication.getInstance().getService().getIdentities().getIdentities().size() > 0) {
             //fallback if identity exists after box account created. this case should never thrown
             Log.e(TAG, "Identity exist after create box account");
-            Toast.makeText(mActivity, string.skip_create_identity, Toast.LENGTH_SHORT).show();
+            Toast.makeText(mActivity, R.string.skip_create_identity, Toast.LENGTH_SHORT).show();
 
             finish();
             Intent i = new Intent(mActivity, MainActivity.class);
@@ -169,7 +166,7 @@ public class CreateAccountActivity extends BaseWizardActivity {
     }
 
     private void register(final String username, final String password1, final String password2, final String email) {
-        final AlertDialog dialog = UIHelper.showWaitMessage(this, string.dialog_headline_please_wait, string.dialog_message_server_communication_is_running, false);
+        final AlertDialog dialog = UIHelper.showWaitMessage(this, R.string.dialog_headline_please_wait, R.string.dialog_message_server_communication_is_running, false);
         final SimpleJsonCallback callback = createCallback(username, password1, password2, email, dialog);
         mBoxAccountServer.register(username, password1, password2, email, callback);
     }
@@ -181,14 +178,14 @@ public class CreateAccountActivity extends BaseWizardActivity {
 
             void showRetryDialog() {
 
-                UIHelper.showDialogMessage(mActivity, string.dialog_headline_info, string.server_access_not_successfully_retry_question, string.yes, string.no, new OnClickListener() {
+                UIHelper.showDialogMessage(mActivity, R.string.dialog_headline_info, R.string.server_access_not_successfully_retry_question, R.string.yes, R.string.no, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
 
                                 register(username, password1, password2, email);
                             }
                         }
-                        , new OnClickListener() {
+                        , new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
 
@@ -197,7 +194,6 @@ public class CreateAccountActivity extends BaseWizardActivity {
                         });
             }
 
-            @Override
             protected void onError(final Call call, Reasons reasons) {
 
                 if (reasons == Reasons.IOException && retryCount++ < 3) {
@@ -208,10 +204,9 @@ public class CreateAccountActivity extends BaseWizardActivity {
                 }
             }
 
-            @Override
             protected void onSuccess(Call call, Response response, JSONObject json) {
 
-                ServerResponse result = BoxAccountRegisterServer.parseJson(json);
+                BoxAccountRegisterServer.ServerResponse result = BoxAccountRegisterServer.parseJson(json);
 
                 //user entered only the username and server send ok
                 Log.d(TAG, "step: " + step);
@@ -227,11 +222,11 @@ public class CreateAccountActivity extends BaseWizardActivity {
                 } else {
                     String errorText = generateErrorMessage(result);
                     dialog.dismiss();
-                    UIHelper.showDialogMessage(mActivity, string.dialog_headline_info, errorText);
+                    UIHelper.showDialogMessage(mActivity, R.string.dialog_headline_info, errorText);
                 }
             }
 
-            private String generateErrorMessage(ServerResponse result) {
+            private String generateErrorMessage(BoxAccountRegisterServer.ServerResponse result) {
 
                 ArrayList<String> message = new ArrayList<>();
                 if (step >= FRAGMENT_ENTER_PASSWORD) {
@@ -261,7 +256,7 @@ public class CreateAccountActivity extends BaseWizardActivity {
                 if (message.size() == 0) {
                     if (step >= FRAGMENT_ENTER_PASSWORD) {
                         //no token or message, but all fields filled out
-                        errorText = getString(string.server_access_failed_or_invalid_check_internet_connection);
+                        errorText = getString(R.string.server_access_failed_or_invalid_check_internet_connection);
                     }
                 } else {
                     errorText = "- " + message.get(0);
@@ -290,7 +285,7 @@ public class CreateAccountActivity extends BaseWizardActivity {
         super.updateActionBar(step);
         //override next button text with create identity
         if (step == fragments.length - 1) {
-            mActionNext.setTitle(string.btn_create_identity);
+            mActionNext.setTitle(R.string.btn_create_identity);
         }
     }
 

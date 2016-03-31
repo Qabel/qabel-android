@@ -84,7 +84,7 @@ public class VolumeFileTransferHelper {
             File file = new File(uri.toString());
             name = file.getName();
         } else {
-            Log.e(TAG, "Cannot handle URI for upload: " + uri);
+            Log.e(TAG, "Cannot handle URI for upload: " + uri.toString());
             return null;
         }
         return name;

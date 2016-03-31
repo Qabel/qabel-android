@@ -3,7 +3,6 @@ package de.qabel.qabelbox.helper;
 import android.content.Context;
 import android.util.Log;
 import de.qabel.qabelbox.communication.PrefixServer;
-import de.qabel.qabelbox.communication.PrefixServer.ServerResponse;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Response;
@@ -15,7 +14,7 @@ import java.util.concurrent.CountDownLatch;
 
 public class PrefixGetter {
 
-    private String prefix;
+    private String prefix = null;
     private final String TAG = "PrefixGetter";
 
     public String getPrefix(Context context) {
@@ -32,7 +31,7 @@ public class PrefixGetter {
             public void onResponse(Call call, Response response) throws IOException {
                 String text = response.body().string();
                 try {
-                    ServerResponse result = PrefixServer.parseJson(new JSONObject(text));
+                    PrefixServer.ServerResponse result = PrefixServer.parseJson(new JSONObject(text));
                     Log.d(TAG, "prefix: " + result.prefix);
                     prefix = result.prefix;
 

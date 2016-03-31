@@ -3,13 +3,8 @@ package de.qabel.qabelbox.adapter;
 import android.content.Context;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.RecyclerView.Adapter;
-import android.support.v7.widget.RecyclerView.AdapterDataObserver;
-import android.support.v7.widget.RecyclerView.ViewHolder;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.View.OnClickListener;
-import android.view.View.OnLongClickListener;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
@@ -18,11 +13,6 @@ import de.qabel.core.config.Contact;
 import de.qabel.core.config.Identity;
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
-import de.qabel.qabelbox.R.drawable;
-import de.qabel.qabelbox.R.id;
-import de.qabel.qabelbox.R.layout;
-import de.qabel.qabelbox.R.string;
-import de.qabel.qabelbox.adapter.FilesAdapter.FilesViewHolder;
 import de.qabel.qabelbox.helper.BoxObjectComparators;
 import de.qabel.qabelbox.services.LocalQabelService;
 import de.qabel.qabelbox.storage.*;
@@ -31,7 +21,7 @@ import org.apache.commons.io.FileUtils;
 import java.text.DateFormat;
 import java.util.*;
 
-public class FilesAdapter extends Adapter<FilesViewHolder> {
+public class FilesAdapter extends RecyclerView.Adapter<FilesAdapter.FilesViewHolder> {
 
     private final List<BoxObject> boxObjects;
     private final Map<String, BoxObject> boxObjectsByName;
@@ -56,7 +46,7 @@ public class FilesAdapter extends Adapter<FilesViewHolder> {
         mService = QabelBoxApplication.getInstance().getService();
     }
 
-    class FilesViewHolder extends ViewHolder implements OnClickListener, OnLongClickListener {
+    class FilesViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener {
 
         public final TextView mTextViewFolderName;
         public final TextView mTextViewFolderDetailsLeft;
@@ -70,12 +60,12 @@ public class FilesAdapter extends Adapter<FilesViewHolder> {
             super(v);
             v.setOnClickListener(this);
             v.setOnLongClickListener(this);
-            mTextViewFolderName = (TextView) v.findViewById(id.textViewFolderName);
-            mTextViewFolderDetailsLeft = (TextView) v.findViewById(id.textViewFolderDetailLeft);
-            mTextViewFolderDetailsMiddle = (TextView) v.findViewById(id.textViewFolderDetailMiddle);
-            mTextViewFolderDetailsRight = (TextView) v.findViewById(id.textViewFolderDetailRight);
-            mImageView = (ImageView) v.findViewById(id.fileFolderIcon);
-            mProgressBar = (ProgressBar) v.findViewById(id.fileFolderProgress);
+            mTextViewFolderName = (TextView) v.findViewById(R.id.textViewFolderName);
+            mTextViewFolderDetailsLeft = (TextView) v.findViewById(R.id.textViewFolderDetailLeft);
+            mTextViewFolderDetailsMiddle = (TextView) v.findViewById(R.id.textViewFolderDetailMiddle);
+            mTextViewFolderDetailsRight = (TextView) v.findViewById(R.id.textViewFolderDetailRight);
+            mImageView = (ImageView) v.findViewById(R.id.fileFolderIcon);
+            mProgressBar = (ProgressBar) v.findViewById(R.id.fileFolderProgress);
         }
 
         @Override
@@ -113,7 +103,7 @@ public class FilesAdapter extends Adapter<FilesViewHolder> {
     public FilesViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
 
         View v = LayoutInflater.from(parent.getContext())
-                .inflate(layout.item_files, parent, false);
+                .inflate(R.layout.item_files, parent, false);
         return new FilesViewHolder(v);
     }
 
@@ -128,7 +118,7 @@ public class FilesAdapter extends Adapter<FilesViewHolder> {
         //                    R.plurals.sharedWith, boxObject.getShareCount(), boxObject.getShareCount()));
         //        }
         if (boxObject instanceof BoxFolder) {
-            holder.mImageView.setImageResource(drawable.ic_folder_black);
+            holder.mImageView.setImageResource(R.drawable.ic_folder_black);
             // Always set all ViewHolder fields, otherwise recycled views contain wrong data
             holder.mTextViewFolderDetailsLeft.setText("");
             holder.mTextViewFolderDetailsRight.setText("");
@@ -137,12 +127,12 @@ public class FilesAdapter extends Adapter<FilesViewHolder> {
             holder.mProgressBar.setVisibility(View.INVISIBLE);
         } else if (boxObject instanceof BoxExternalFile) {
             BoxExternalFile boxExternal = (BoxExternalFile) boxObject;
-            holder.mImageView.setImageResource(drawable.ic_insert_drive_file_black);
+            holder.mImageView.setImageResource(R.drawable.ic_insert_drive_file_black);
             if (boxExternal.getOwner().equals(currentIdentity.getEcPublicKey())) {
-                holder.mTextViewFolderDetailsLeft.setText(string.filebrowser_file_is_shared_to_other);
+                holder.mTextViewFolderDetailsLeft.setText(R.string.filebrowser_file_is_shared_to_other);
             } else {
                 String owner = getOwner(boxExternal);
-                holder.mTextViewFolderDetailsLeft.setText(context.getString(string.filebrowser_file_is_shared_from).replace("%1", owner));
+                holder.mTextViewFolderDetailsLeft.setText(context.getString(R.string.filebrowser_file_is_shared_from).replace("%1", owner));
             }
             holder.mTextViewFolderDetailsRight.setVisibility(View.GONE);
             holder.mTextViewFolderDetailsMiddle.setVisibility(View.VISIBLE);
@@ -152,18 +142,18 @@ public class FilesAdapter extends Adapter<FilesViewHolder> {
             holder.mTextViewFolderDetailsLeft.setText(formatModificationTime(boxFile));
             holder.mTextViewFolderDetailsRight.setText(FileUtils.byteCountToDisplaySize(boxFile.size));
             if (boxFile.isShared()) {
-                holder.mTextViewFolderDetailsMiddle.setText(string.filebrowser_file_is_shared_to_other);
+                holder.mTextViewFolderDetailsMiddle.setText(R.string.filebrowser_file_is_shared_to_other);
                 holder.mTextViewFolderDetailsMiddle.setVisibility(View.VISIBLE);
             } else {
                 holder.mTextViewFolderDetailsMiddle.setVisibility(View.GONE);
             }
-            holder.mImageView.setImageResource(drawable.ic_insert_drive_file_black);
+            holder.mImageView.setImageResource(R.drawable.ic_insert_drive_file_black);
             holder.mProgressBar.setVisibility(View.INVISIBLE);
         } else if (boxObject instanceof BoxUploadingFile) {
-            holder.mTextViewFolderDetailsLeft.setText(string.uploading);
+            holder.mTextViewFolderDetailsLeft.setText(R.string.uploading);
             holder.mTextViewFolderDetailsRight.setText("");
             holder.mTextViewFolderDetailsMiddle.setText("");
-            holder.mImageView.setImageResource(drawable.ic_cloud_upload_black_24dp);
+            holder.mImageView.setImageResource(R.drawable.ic_cloud_upload_black_24dp);
 
             holder.mProgressBar.setVisibility(View.VISIBLE);
         }
@@ -245,7 +235,7 @@ public class FilesAdapter extends Adapter<FilesViewHolder> {
         return false;
     }
 
-    private boolean loaded;
+    private boolean loaded = false;
 
     private void updateEmptyView() {
 
@@ -261,7 +251,7 @@ public class FilesAdapter extends Adapter<FilesViewHolder> {
         }
     }
 
-    private final AdapterDataObserver observer = new AdapterDataObserver() {
+    private final RecyclerView.AdapterDataObserver observer = new RecyclerView.AdapterDataObserver() {
         @Override
         public void onChanged() {
 

@@ -2,7 +2,6 @@ package de.qabel.qabelbox.storage;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.os.Parcelable.Creator;
 
 import java.util.Arrays;
 
@@ -76,7 +75,7 @@ public class BoxFile extends BoxObject implements Parcelable {
         this.size = size;
         this.mtime = mtime;
         this.meta = meta;
-        metakey = metaKey;
+        this.metakey = metaKey;
         this.key = key;
     }
 
@@ -92,7 +91,10 @@ public class BoxFile extends BoxObject implements Parcelable {
      * @return True if BoxFile might be shared.
      */
     public boolean isShared() {
-        return meta != null && metakey != null;
+        if (meta != null && metakey != null) {
+            return true;
+        }
+        return false;
     }
 
     protected BoxFile(Parcel in) {
@@ -117,21 +119,21 @@ public class BoxFile extends BoxObject implements Parcelable {
         dest.writeString(block);
         dest.writeByteArray(key);
         if (size == null) {
-            dest.writeByte((byte) 0x00);
+            dest.writeByte((byte) (0x00));
         } else {
-            dest.writeByte((byte) 0x01);
+            dest.writeByte((byte) (0x01));
             dest.writeLong(size);
         }
         if (mtime == null) {
-            dest.writeByte((byte) 0x00);
+            dest.writeByte((byte) (0x00));
         } else {
-            dest.writeByte((byte) 0x01);
+            dest.writeByte((byte) (0x01));
             dest.writeLong(mtime);
         }
     }
 
     @SuppressWarnings("unused")
-    public static final Creator<BoxFile> CREATOR = new Creator<BoxFile>() {
+    public static final Parcelable.Creator<BoxFile> CREATOR = new Parcelable.Creator<BoxFile>() {
         @Override
         public BoxFile createFromParcel(Parcel in) {
             return new BoxFile(in);

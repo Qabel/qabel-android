@@ -86,7 +86,6 @@ public class QabelMatcher {
 
     public static ViewAssertion isVisible() {
         return new ViewAssertion() {
-            @Override
             public void check(View view, NoMatchingViewException noView) {
                 assertThat(view, new VisibilityMatcher(View.VISIBLE));
             }
@@ -96,7 +95,6 @@ public class QabelMatcher {
 
     public static ViewAssertion isInvisible() {
         return new ViewAssertion() {
-            @Override
             public void check(View view, NoMatchingViewException noView) {
                 assertThat(view, new VisibilityMatcher(View.INVISIBLE));
             }

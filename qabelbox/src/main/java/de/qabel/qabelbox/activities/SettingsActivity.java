@@ -1,16 +1,11 @@
 package de.qabel.qabelbox.activities;
 
-import android.R.anim;
 import android.app.FragmentTransaction;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
-import android.view.View.OnClickListener;
 import de.qabel.qabelbox.R;
-import de.qabel.qabelbox.R.id;
-import de.qabel.qabelbox.R.layout;
-import de.qabel.qabelbox.R.string;
 import de.qabel.qabelbox.fragments.SettingsFragment;
 
 public class SettingsActivity extends CrashReportingActivity {
@@ -22,16 +17,16 @@ public class SettingsActivity extends CrashReportingActivity {
 
         super.onCreate(savedInstanceState);
         mActivity = this;
-        overridePendingTransition(anim.fade_in, anim.fade_out);
-        setContentView(layout.activity_settings);
+        overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+        setContentView(R.layout.activity_settings);
         setupToolbar();
         createFragments();
-        actionBar.setTitle(string.headline_settings);
+        actionBar.setTitle(R.string.headline_settings);
     }
 
     private void setupToolbar() {
 
-        Toolbar mToolbar = (Toolbar) findViewById(id.toolbar);
+        Toolbar mToolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(mToolbar);
         actionBar = getSupportActionBar();
         assert getSupportActionBar() != null;
@@ -39,7 +34,7 @@ public class SettingsActivity extends CrashReportingActivity {
         actionBar.setDisplayHomeAsUpEnabled(true);
         actionBar.setHomeButtonEnabled(true);
 
-        mToolbar.setNavigationOnClickListener(new OnClickListener() {
+        mToolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
@@ -52,7 +47,7 @@ public class SettingsActivity extends CrashReportingActivity {
     private void createFragments() {
         SettingsFragment fragment = new SettingsFragment();
         FragmentTransaction ft = getFragmentManager().beginTransaction();
-        ft.add(id.fragment_container_content, fragment);
+        ft.add(R.id.fragment_container_content, fragment);
         ft.commit();
     }
 

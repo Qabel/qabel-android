@@ -77,7 +77,7 @@ public class ChatMessagesDataBase extends SQLiteOpenHelper {
 
     public void put(ChatMessageItem item) {
 
-        Log.i(TAG, "Put into db: " + item + " " + item.getSenderKey() + " " + item.getReceiverKey());
+        Log.i(TAG, "Put into db: " + item.toString() + " " + item.getSenderKey() + " " + item.getReceiverKey());
         ContentValues values = new ContentValues();
 
         values.put(COL_MESSAGE_SENDER, item.getSenderKey());
@@ -89,7 +89,7 @@ public class ChatMessagesDataBase extends SQLiteOpenHelper {
         if (getID(item.getSenderKey(), item.getReceiverKey(), item.getTime() + "", item.drop_payload) <= -1) {
             long id = getWritableDatabase().insert(TABLE_MESSAGE_NAME, null, values);
             if (id == -1) {
-                Log.e(TAG, "Failed put into db: " + item);
+                Log.e(TAG, "Failed put into db: " + item.toString());
             } else {
                 Log.v(TAG, "db entry putted " + item.drop_payload + " id:" + id);
             }

@@ -11,7 +11,6 @@ import de.qabel.core.crypto.QblECPublicKey;
 import de.qabel.core.drop.DropURL;
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
-import de.qabel.qabelbox.R.string;
 import de.qabel.qabelbox.communication.URLs;
 import de.qabel.qabelbox.config.AppPreference;
 import de.qabel.qabelbox.exceptions.QblStorageException;
@@ -56,11 +55,10 @@ public class BoxTest extends AndroidTestCase {
     public void configureTestServer() {
         Context applicationContext = QabelBoxApplication.getInstance().getApplicationContext();
         new AppPreference(applicationContext)
-                .setToken(applicationContext.getString(string.blockserver_magic_testtoken));
-        URLs.setBaseBlockURL(applicationContext.getString(string.testBlockServer));
+                .setToken(applicationContext.getString(R.string.blockserver_magic_testtoken));
+        URLs.setBaseBlockURL(applicationContext.getString(R.string.testBlockServer));
     }
 
-    @Override
     @Before
     public void setUp() throws IOException, QblStorageException {
         configureTestServer();
@@ -129,7 +127,6 @@ public class BoxTest extends AndroidTestCase {
         return file;
     }
 
-    @Override
     public void tearDown() throws IOException {
     }
 

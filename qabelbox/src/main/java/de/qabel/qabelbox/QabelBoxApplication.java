@@ -17,8 +17,7 @@ import java.security.Security;
 public class QabelBoxApplication extends Application {
 
     private static final String TAG = "QabelBoxApplication";
-    vate LocalQabelService
-    mService;
+    private LocalQabelService mService;
     public static final String DEFAULT_DROP_SERVER = "https://test-drop.qabel.de";
 
     private static QabelBoxApplication mInstance = null;

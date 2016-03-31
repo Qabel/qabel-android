@@ -526,16 +526,16 @@ public class MainActivity extends CrashReportingActivity
 
 	private void newFolderDialog() {
 		UIHelper.showEditTextDialog(this, R.string.add_folder_header, R.string.add_folder_name, R.string.ok, R.string.cancel, new UIHelper.EditTextDialogClickListener() {
-			@Override
-			public void onClick(DialogInterface dialog, int which, EditText editText) {
-				UIHelper.hideKeyboard(self, editText);
-				String newFolderName = editText.getText().toString();
-				if (!newFolderName.equals("")) {
-					createFolder(newFolderName, filesFragment.getBoxNavigation());
-				}
-			}
-		}, null);
-	}
+            @Override
+            public void onClick(DialogInterface dialog, int which, EditText editText) {
+                UIHelper.hideKeyboard(self, editText);
+                String newFolderName = editText.getText().toString();
+                if (!newFolderName.equals("")) {
+                    createFolder(newFolderName, filesFragment.getBoxNavigation());
+                }
+            }
+        }, null);
+    }
 
 
     protected void filterSheet(BoxObject boxObject, BottomSheet.Builder sheet) {
@@ -544,7 +544,6 @@ public class MainActivity extends CrashReportingActivity
             sheet.remove(R.id.unshare);
         }
         if (!(boxObject instanceof BoxFile)) {
-
             sheet.remove(R.id.unshare);
         }
         if (boxObject instanceof BoxExternalFile) {
@@ -557,6 +556,9 @@ public class MainActivity extends CrashReportingActivity
             sheet.remove(R.id.edit);
             sheet.remove(R.id.share);
             sheet.remove(R.id.fordward);
+        }
+        if (!(boxObject instanceof BoxFolder)) {
+            sheet.remove(R.id.rename_folder);
         }
     }
 
@@ -816,6 +818,9 @@ public class MainActivity extends CrashReportingActivity
                                         break;
                                     case R.id.fordward:
                                         ShareHelper.shareToQabelUser(self, mService, boxObject);
+                                        break;
+                                    case R.id.rename_folder:
+                                        filesFragment.rename(boxObject);
                                         break;
                                     case R.id.delete:
                                         filesFragment.delete(boxObject);

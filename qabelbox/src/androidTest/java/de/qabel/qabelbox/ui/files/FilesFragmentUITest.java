@@ -235,6 +235,12 @@ public class FilesFragmentUITest {
 		fail("Expected behavior not specified yet");
 	}
 
+    @Ignore
+    @Test
+    public void testCreateFolderEmptyName() {
+        fail("Expected behavior not specified yet");
+    }
+
 
 	@Test
 	public void testRenameFolder() {
@@ -249,7 +255,8 @@ public class FilesFragmentUITest {
 			.check(doesNotExist());
 	}
 
-	@Test
+
+    @Test
 	public void testRenameFolderNameConflict() {
 		String nameBefore = "A new folder is born";
 		String nameAfter = StringUtils.reverse(nameBefore);

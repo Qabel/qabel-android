@@ -332,5 +332,6 @@ To all people who have supported our Indigogo Campaign
 	<string name="idenity_imported">Identity successfully imported</string>
 	<string name="rename_folder">rename folder</string>
 	<string name="error_folder_already_exists">folder already exists</string>
+    <string name="files.dialog.rename.folder.header">Rename folder</string>
 
 </resources>

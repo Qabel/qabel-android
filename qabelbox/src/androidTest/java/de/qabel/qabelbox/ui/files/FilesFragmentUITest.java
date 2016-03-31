@@ -48,6 +48,7 @@ import static android.support.test.espresso.matcher.ViewMatchers.withText;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
+import static org.junit.Assert.fail;
 
 /**
  * UI Tests for FilesFragment
@@ -202,6 +203,28 @@ public class FilesFragmentUITest {
 
 		//Check Chooser
 		intended(allOf(hasAction(Intent.ACTION_CHOOSER), hasExtra(Intent.EXTRA_TITLE, mActivity.getString(R.string.share_via))));
+	}
+
+	@Test
+	public void testCreateFolder() {
+		fail("Nor implementent, yet");
+	}
+
+
+	@Test
+	public void testCreateFolderNameConflict() {
+		fail("Nor implementent, yet");
+	}
+
+
+	@Test
+	public void testRenameFolder() {
+		fail("Nor implementent, yet");
+	}
+
+	@Test
+	public void testRenameFolderNameConflict() {
+		fail("Nor implementent, yet");
 	}
 
 }

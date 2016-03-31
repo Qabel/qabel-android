@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class AndroidDatabaseWrapper extends DatabaseWrapperImpl<QblSQLiteParams> {
+
     private QblSQLiteOpenHelper dbHelper;
     private SQLiteDatabase database;
     private QblSQLiteParams params;

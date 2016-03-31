@@ -8,6 +8,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 public class PasswordValidatorTest {
+
     private PasswordValidator passwordValidator = new PasswordValidator();
 
     private static final String ACCOUNT_NAME = "test";

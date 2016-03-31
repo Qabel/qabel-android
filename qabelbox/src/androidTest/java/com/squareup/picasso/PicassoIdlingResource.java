@@ -58,6 +58,7 @@ public class PicassoIdlingResource implements IdlingResource, ActivityLifecycleC
     }
 
     public void init(Activity activity) {
+
         picassoWeakReference = new WeakReference<>(Picasso.with(activity));
     }
 }

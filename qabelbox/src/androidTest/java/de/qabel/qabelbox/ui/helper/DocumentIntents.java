@@ -2,6 +2,7 @@ package de.qabel.qabelbox.ui.helper;
 
 
 import android.app.Activity;
+import android.app.Instrumentation;
 import android.app.Instrumentation.ActivityResult;
 import android.content.Intent;
 import android.net.Uri;
@@ -15,7 +16,9 @@ import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.core.AllOf.allOf;
 
 public class DocumentIntents {
+
     public void handleSaveFileIntent(File file) {
+
         Intent data = new Intent();
         data.setData(Uri.fromFile(file));
 
@@ -29,6 +32,7 @@ public class DocumentIntents {
     }
 
     public void handleLoadFileIntent(File file) {
+
         Intent data = new Intent();
         data.setData(Uri.fromFile(file));
 

@@ -1,10 +1,12 @@
 package de.qabel.qabelbox.ui;
 
 
+import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
 import android.support.test.espresso.action.ViewActions;
 import android.support.test.rule.ActivityTestRule;
 import com.squareup.spoon.Spoon;
+import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.R.id;
 import de.qabel.qabelbox.R.string;
 import de.qabel.qabelbox.activities.WelcomeScreenActivity;
@@ -33,6 +35,7 @@ import static junit.framework.Assert.assertTrue;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class WelcomeScreenUITest {
+
     @Rule
     public ActivityTestRule<WelcomeScreenActivity> mActivityTestRule = new ActivityTestRule<>(WelcomeScreenActivity.class, false, true);
 
@@ -43,16 +46,19 @@ public class WelcomeScreenUITest {
     private AppPreference prefs;
 
     public WelcomeScreenUITest() throws IOException {
+
     }
 
     @After
     public void cleanUp() {
+
         wakeLock.release();
         mSystemAnimations.enableAll();
     }
 
     @Before
     public void setUp() throws IOException, QblStorageException {
+
         mActivity = mActivityTestRule.getActivity();
 
         wakeLock = UIActionHelper.wakeupDevice(mActivity);

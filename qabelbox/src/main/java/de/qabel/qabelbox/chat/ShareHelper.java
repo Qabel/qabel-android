@@ -11,6 +11,7 @@ import de.qabel.core.config.Contact;
 import de.qabel.core.drop.DropMessage;
 import de.qabel.core.drop.DropURL;
 import de.qabel.core.exceptions.QblDropPayloadSizeException;
+import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.R.string;
 import de.qabel.qabelbox.activities.MainActivity;
 import de.qabel.qabelbox.chat.ChatMessageItem.ShareMessagePayload;
@@ -29,9 +30,11 @@ import org.spongycastle.util.encoders.Hex;
 import java.util.Map;
 
 public class ShareHelper {
+
     private static final String TAG = "ShareHelper";
 
     public static void tellAFriend(Activity activity) {
+
         Intent sharingIntent = new Intent(Intent.ACTION_SEND);
         sharingIntent.setType("text/plain");
         sharingIntent.putExtra(Intent.EXTRA_SUBJECT, activity.getString(string.tellAFriendSubject));
@@ -40,18 +43,22 @@ public class ShareHelper {
     }
 
     public static void shareToQabelUser(final MainActivity self, LocalQabelService mService, final BoxObject boxObject) {
+
         if (mService.getContacts(mService.getActiveIdentity()).getContacts().size() == 0) {
             UIHelper.showDialogMessage(self, string.dialog_headline_info, string.cant_share_contactlist_is_empty);
 
         } else {
             if (boxObject instanceof BoxFile) {
+
                 new SelectContactForShareDialog(self, new Result() {
                     @Override
                     public void onCancel() {
+
                     }
 
                     @Override
                     public void onContactSelected(Contact contact) {
+
                         shareToQabelUser(self, contact, (BoxFile) boxObject);
                     }
                 });
@@ -66,6 +73,7 @@ public class ShareHelper {
      */
     @NonNull
     public static BoxExternalReference getBoxExternalReference(Contact contact, ChatMessageItem item) {
+
         ShareMessagePayload payload = (ShareMessagePayload) item.getData();
         return new BoxExternalReference(false, payload.getURL(), null, contact.getEcPublicKey(), Hex.decode(payload.getKey()));
     }
@@ -79,6 +87,7 @@ public class ShareHelper {
      * 4. Send drop message
      */
     private static void shareToQabelUser(final MainActivity mainActivity, final Contact contact, final BoxFile boxObject) {
+
         final BoxNavigation nav = mainActivity.filesFragment.getBoxNavigation();
         final LocalQabelService mService = mainActivity.mService;
         final ChatServer cs = mainActivity.chatServer;
@@ -93,6 +102,7 @@ public class ShareHelper {
 
             @Override
             protected DropMessage doInBackground(Void... params) {
+
                 try {
                     BoxExternalReference boxExternalReference = nav.createFileMetadata(mService.getActiveIdentity().getEcPublicKey(), boxObject);
                     nav.commit();
@@ -105,6 +115,7 @@ public class ShareHelper {
 
             @Override
             protected void onPostExecute(final DropMessage dm) {
+
                 if (dm != null) {
                     try {
                         mService.sendDropMessage(dm, contact, mService.getActiveIdentity(), new OnSendDropMessageResult() {

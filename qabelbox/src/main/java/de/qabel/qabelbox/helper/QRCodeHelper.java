@@ -7,6 +7,7 @@ import android.graphics.Color;
 import android.os.AsyncTask;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.View;
 import android.view.View.MeasureSpec;
 import android.widget.ImageView;
 import com.google.zxing.BarcodeFormat;
@@ -17,14 +18,18 @@ import com.google.zxing.qrcode.QRCodeWriter;
 import de.qabel.core.config.Identity;
 
 public class QRCodeHelper {
+
     private static final String TAG = "QRCodeHelper";
 
     public static void generateQRCode(final Activity activity, final Identity identity, final ImageView iv) {
+
         new AsyncTask<Identity, Void, Bitmap>() {
+
             public int size;
 
             @Override
             protected void onPostExecute(Bitmap bitmap) {
+
                 if (bitmap != null && iv != null && iv.isAttachedToWindow()) {
                     iv.setImageBitmap(bitmap);
                 }
@@ -32,6 +37,7 @@ public class QRCodeHelper {
 
             @Override
             protected void onPreExecute() {
+
                 super.onPreExecute();
                 iv.measure(MeasureSpec.EXACTLY, MeasureSpec.EXACTLY);
                 size = iv.getMeasuredWidth();
@@ -43,6 +49,7 @@ public class QRCodeHelper {
 
             @Override
             protected Bitmap doInBackground(Identity... identities) {
+
                 String text = "QABELCONTACT\n"
                         + identities[0].getAlias() + "\n"
                         + identities[0].getDropUrls().toArray()[0] + "\n"

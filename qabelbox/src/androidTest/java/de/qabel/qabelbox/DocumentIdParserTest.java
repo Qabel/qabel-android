@@ -17,6 +17,7 @@ import static org.hamcrest.core.Is.is;
 
 @RunWith(AndroidJUnit4.class)
 public class DocumentIdParserTest extends TestCase {
+
     private DocumentIdParser p;
     private QblECKeyPair key;
     private String pub;

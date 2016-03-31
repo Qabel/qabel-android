@@ -22,6 +22,7 @@ import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 
 public class LocalQabelServiceTest extends ServiceTestCase<LocalQabelServiceTester> {
+
     private LocalQabelServiceTester mService;
     private Identity identity;
     private Contact contact;

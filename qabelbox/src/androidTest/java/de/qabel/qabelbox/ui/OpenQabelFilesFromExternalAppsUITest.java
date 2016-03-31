@@ -3,10 +3,12 @@ package de.qabel.qabelbox.ui;
 import android.content.Intent;
 import android.net.Uri;
 import android.support.annotation.NonNull;
+import android.support.test.espresso.contrib.DrawerActions;
 import android.support.test.rule.ActivityTestRule;
 import com.squareup.spoon.Spoon;
 import de.qabel.core.config.Identity;
 import de.qabel.qabelbox.QabelBoxApplication;
+import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.R.id;
 import de.qabel.qabelbox.R.string;
 import de.qabel.qabelbox.TestConstants;
@@ -45,6 +47,7 @@ public class OpenQabelFilesFromExternalAppsUITest extends UIBoxHelper {
     private MainActivity mActivity;
 
     public OpenQabelFilesFromExternalAppsUITest() throws IOException {
+
         setupData();
     }
 

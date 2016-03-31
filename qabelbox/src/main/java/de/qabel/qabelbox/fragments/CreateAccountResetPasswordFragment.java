@@ -8,8 +8,10 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.view.*;
 import android.widget.TextView;
+import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.R.id;
 import de.qabel.qabelbox.R.layout;
+import de.qabel.qabelbox.R.menu;
 import de.qabel.qabelbox.R.string;
 import de.qabel.qabelbox.communication.BoxAccountRegisterServer;
 import de.qabel.qabelbox.communication.BoxAccountRegisterServer.ServerResponse;
@@ -22,6 +24,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 
 public class CreateAccountResetPasswordFragment extends BaseIdentityFragment {
+
     private TextView etEMail;
     private final BoxAccountRegisterServer mBoxAccountServer = new BoxAccountRegisterServer();
 
@@ -29,6 +32,7 @@ public class CreateAccountResetPasswordFragment extends BaseIdentityFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle
             savedInstanceState) {
+
         View view = inflater.inflate(layout.fragment_create_account_reset_password, container, false);
         etEMail = (TextView) view.findViewById(id.et_email);
 
@@ -38,12 +42,14 @@ public class CreateAccountResetPasswordFragment extends BaseIdentityFragment {
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+
         menu.clear();
         inflater.inflate(menu.ab_next, menu);
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+
         int id = item.getItemId();
         if (id == id.action_ok) {
             String check = checkData();
@@ -59,6 +65,7 @@ public class CreateAccountResetPasswordFragment extends BaseIdentityFragment {
     }
 
     private String checkData() {
+
         if (etEMail.getText().toString().length() < 3 || etEMail.getText().toString().length() == 0) {
             return getString(string.create_account_enter_all_data);
         }
@@ -66,6 +73,7 @@ public class CreateAccountResetPasswordFragment extends BaseIdentityFragment {
     }
 
     private void resetPassword(final String email) {
+
         final AlertDialog dialog = UIHelper.showWaitMessage(mActivity, string.dialog_headline_please_wait, string.dialog_message_server_communication_is_running, false);
 
         final SimpleJsonCallback callback = createCallback(email, dialog);
@@ -75,17 +83,22 @@ public class CreateAccountResetPasswordFragment extends BaseIdentityFragment {
 
     @NonNull
     private SimpleJsonCallback createCallback(final String email, final AlertDialog dialog) {
+
         return new SimpleJsonCallback() {
+
             void showRetryDialog() {
+
                 UIHelper.showDialogMessage(getActivity(), string.dialog_headline_info, string.server_access_not_successfully_retry_question, string.yes, string.no, new OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
+
                                 resetPassword(email);
                             }
                         }
                         , new OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
+
                                 dialog.dismiss();
                             }
                         });
@@ -93,6 +106,7 @@ public class CreateAccountResetPasswordFragment extends BaseIdentityFragment {
 
             @Override
             protected void onError(final Call call, Reasons reasons) {
+
                 if (reasons == Reasons.IOException && retryCount++ < 3) {
                     mBoxAccountServer.resetPassword(email, this);
                 } else {
@@ -103,11 +117,14 @@ public class CreateAccountResetPasswordFragment extends BaseIdentityFragment {
 
             @Override
             protected void onSuccess(Call call, Response response, JSONObject json) {
+
                 final ServerResponse result = BoxAccountRegisterServer.parseJson(json);
                 if (result.success != null) {
+
                     getActivity().runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
+
                             dialog.dismiss();
 
                             getActivity().onBackPressed();
@@ -122,6 +139,7 @@ public class CreateAccountResetPasswordFragment extends BaseIdentityFragment {
             }
 
             private String generateErrorMessage(ServerResponse result) {
+
                 ArrayList<String> message = new ArrayList<>();
                 if (result.non_field_errors != null) {
                     message.add(result.non_field_errors);

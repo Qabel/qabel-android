@@ -1,6 +1,7 @@
 package de.qabel.qabelbox.views;
 
 public interface IconPagerAdapter {
+
     /**
      * Get icon representing the page at {@code index} in the adapter.
      */

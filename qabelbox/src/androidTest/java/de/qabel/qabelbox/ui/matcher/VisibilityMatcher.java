@@ -5,6 +5,7 @@ import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 
 class VisibilityMatcher extends BaseMatcher<View> {
+
     private final int visibility;
 
     public VisibilityMatcher(int visibility) {
@@ -26,6 +27,7 @@ class VisibilityMatcher extends BaseMatcher<View> {
 
     @Override
     public boolean matches(Object o) {
+
         if (o == null) {
             if (visibility == View.GONE || visibility == View.INVISIBLE) {
                 return true;

@@ -23,6 +23,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 public class ContactExportImportTest {
+
     private static final String DROP_URL_1 = "http://localhost:6000/1234567890123456789012345678901234567891234";
     private static final String DROP_URL_2 = "http://localhost:6000/0000000000000000000000000000000000000000000";
 

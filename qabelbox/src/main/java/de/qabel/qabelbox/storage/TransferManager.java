@@ -19,6 +19,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 
 public class TransferManager {
+
     private static final Logger logger = LoggerFactory.getLogger(TransferManager.class.getName());
     private static final String TAG = "TransferManager";
     private final File tempDir;
@@ -28,6 +29,7 @@ public class TransferManager {
     private final Context context;
 
     public TransferManager(File tempDir) {
+
         this.tempDir = tempDir;
         latches = new ConcurrentHashMap<>();
         errors = new HashMap<>();
@@ -36,6 +38,7 @@ public class TransferManager {
     }
 
     public File createTempFile() {
+
         try {
             return File.createTempFile("download", "", tempDir);
         } catch (IOException e) {
@@ -54,12 +57,14 @@ public class TransferManager {
      * @return new download id
      */
     public int uploadAndDeleteLocalfileOnSuccess(String prefix, String name, final File localfile, @Nullable final BoxTransferListener boxTransferListener) {
+
         Log.d(TAG, "uploadAndDeleteLocalfile " + prefix + " " + name + " " + localfile);
         final int id = blockServer.getNextId();
         latches.put(id, new CountDownLatch(1));
         blockServer.uploadFile(context, prefix, name, localfile, new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
+
                 errors.put(id, e);
                 Log.e(TAG, "error uploading to " + call.request(), e);
                 if (boxTransferListener != null) {
@@ -70,6 +75,7 @@ public class TransferManager {
 
             @Override
             public void onResponse(Call call, Response response) throws IOException {
+
 
                 int status = response.code();
                 switch (status) {
@@ -112,6 +118,7 @@ public class TransferManager {
      * @return new download id
      */
     public int download(String prefix, String name, final File file, @Nullable final BoxTransferListener boxTransferListener) {
+
         Log.d(TAG, "download " + prefix + " " + name + " " + file);
 
         final int id = blockServer.getNextId();
@@ -153,6 +160,7 @@ public class TransferManager {
      * read stream from server
      */
     private void readStreamFromServer(Response response, File file, @Nullable BoxTransferListener boxTransferListener) throws IOException {
+
         InputStream is = response.body().byteStream();
         BufferedInputStream input = new BufferedInputStream(is);
         OutputStream output = new FileOutputStream(file);
@@ -182,6 +190,7 @@ public class TransferManager {
      * @return true if no error occurs
      */
     public boolean waitFor(int id) {
+
         logger.info("Waiting for " + id);
         try {
             latches.get(id).await();
@@ -229,6 +238,7 @@ public class TransferManager {
     }
 
     public interface BoxTransferListener {
+
         void onProgressChanged(long bytesCurrent, long bytesTotal);
 
         void onFinished();

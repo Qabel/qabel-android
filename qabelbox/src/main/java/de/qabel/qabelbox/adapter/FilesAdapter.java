@@ -2,6 +2,7 @@ package de.qabel.qabelbox.adapter;
 
 import android.content.Context;
 import android.support.annotation.Nullable;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.RecyclerView.Adapter;
 import android.support.v7.widget.RecyclerView.AdapterDataObserver;
 import android.support.v7.widget.RecyclerView.ViewHolder;
@@ -16,6 +17,7 @@ import android.widget.TextView;
 import de.qabel.core.config.Contact;
 import de.qabel.core.config.Identity;
 import de.qabel.qabelbox.QabelBoxApplication;
+import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.R.drawable;
 import de.qabel.qabelbox.R.id;
 import de.qabel.qabelbox.R.layout;
@@ -30,6 +32,7 @@ import java.text.DateFormat;
 import java.util.*;
 
 public class FilesAdapter extends Adapter<FilesViewHolder> {
+
     private final List<BoxObject> boxObjects;
     private final Map<String, BoxObject> boxObjectsByName;
     private final Identity currentIdentity;
@@ -41,6 +44,7 @@ public class FilesAdapter extends Adapter<FilesViewHolder> {
     private View loadingView;
 
     public FilesAdapter(List<BoxObject> BoxObject) {
+
         boxObjects = BoxObject;
         boxObjectsByName = new HashMap<>();
         for (BoxObject boxObject : boxObjects) {
@@ -53,6 +57,7 @@ public class FilesAdapter extends Adapter<FilesViewHolder> {
     }
 
     class FilesViewHolder extends ViewHolder implements OnClickListener, OnLongClickListener {
+
         public final TextView mTextViewFolderName;
         public final TextView mTextViewFolderDetailsLeft;
         public final TextView mTextViewFolderDetailsMiddle;
@@ -61,6 +66,7 @@ public class FilesAdapter extends Adapter<FilesViewHolder> {
         public final ProgressBar mProgressBar;
 
         public FilesViewHolder(View v) {
+
             super(v);
             v.setOnClickListener(this);
             v.setOnLongClickListener(this);
@@ -74,6 +80,7 @@ public class FilesAdapter extends Adapter<FilesViewHolder> {
 
         @Override
         public void onClick(View view) {
+
             if (onItemClickListener != null) {
                 onItemClickListener.onItemClick(view, getAdapterPosition());
             }
@@ -81,6 +88,7 @@ public class FilesAdapter extends Adapter<FilesViewHolder> {
 
         @Override
         public boolean onLongClick(View view) {
+
             if (onItemClickListener != null) {
                 onItemClickListener.onItemLockClick(view, getAdapterPosition());
                 return true;
@@ -90,17 +98,20 @@ public class FilesAdapter extends Adapter<FilesViewHolder> {
     }
 
     public interface OnItemClickListener {
+
         void onItemClick(View view, int position);
 
         void onItemLockClick(View view, int position);
     }
 
     public void setOnItemClickListener(OnItemClickListener onItemClickListener) {
+
         this.onItemClickListener = onItemClickListener;
     }
 
     @Override
     public FilesViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+
         View v = LayoutInflater.from(parent.getContext())
                 .inflate(layout.item_files, parent, false);
         return new FilesViewHolder(v);
@@ -108,6 +119,7 @@ public class FilesAdapter extends Adapter<FilesViewHolder> {
 
     @Override
     public void onBindViewHolder(FilesViewHolder holder, int position) {
+
         BoxObject boxObject = boxObjects.get(position);
         holder.mTextViewFolderName.setText(boxObject.name);
         holder.mTextViewFolderDetailsRight.setVisibility(View.VISIBLE);
@@ -162,6 +174,7 @@ public class FilesAdapter extends Adapter<FilesViewHolder> {
      * return file owner name or key if not in contact list
      */
     private String getOwner(BoxExternalFile boxExternal) {
+
         Contact contact = mService.getContacts().getByKeyIdentifier(boxExternal.getOwner().getReadableKeyIdentifier());
         if (contact != null) {
             return contact.getAlias();
@@ -170,30 +183,36 @@ public class FilesAdapter extends Adapter<FilesViewHolder> {
     }
 
     private String formatModificationTime(BoxFile boxFile) {
+
         return dateFormat.format(new Date(boxFile.mtime * 1000));
     }
 
     @Override
     public int getItemCount() {
+
         return boxObjects.size();
     }
 
     public boolean add(BoxObject boxObject) {
+
         boxObjectsByName.put(boxObject.name, boxObject);
         return boxObjects.add(boxObject);
     }
 
     public boolean remove(BoxObject boxObject) {
+
         boxObjectsByName.remove(boxObject.name);
         return boxObjects.remove(boxObject);
     }
 
     public boolean remove(String name) {
+
         BoxObject toRemove = boxObjectsByName.remove(name);
         return boxObjects.remove(toRemove);
     }
 
     public BoxObject get(int position) {
+
         if (position < boxObjects.size()) {
             return boxObjects.get(position);
         }
@@ -201,19 +220,23 @@ public class FilesAdapter extends Adapter<FilesViewHolder> {
     }
 
     public BoxObject get(String name) {
+
         return boxObjectsByName.get(name);
     }
 
     public void sort() {
+
         Collections.sort(boxObjects, BoxObjectComparators.alphabeticOrderDirectoriesFirstIgnoreCase());
     }
 
     public void clear() {
+
         boxObjectsByName.clear();
         boxObjects.clear();
     }
 
     public boolean containsEqual(BoxObject object) {
+
         for (BoxObject boxObject : boxObjects) {
             if (object.equals(boxObject)) {
                 return true;
@@ -225,6 +248,7 @@ public class FilesAdapter extends Adapter<FilesViewHolder> {
     private boolean loaded;
 
     private void updateEmptyView() {
+
         if (loadingView != null) {
             int fileCount = boxObjects.size();
             if (fileCount > 0 || loadingView.getVisibility() != View.VISIBLE || loaded) {
@@ -240,12 +264,14 @@ public class FilesAdapter extends Adapter<FilesViewHolder> {
     private final AdapterDataObserver observer = new AdapterDataObserver() {
         @Override
         public void onChanged() {
+
             super.onChanged();
             updateEmptyView();
         }
     };
 
     public void setEmptyView(@Nullable View emptyView, View loadingView) {
+
         this.emptyView = emptyView;
         this.loadingView = loadingView;
         updateEmptyView();

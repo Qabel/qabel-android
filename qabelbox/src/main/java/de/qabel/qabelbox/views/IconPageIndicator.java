@@ -27,6 +27,7 @@ import android.view.Gravity;
 import android.view.View;
 import android.widget.HorizontalScrollView;
 import android.widget.ImageView;
+import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.R.attr;
 
 import static android.view.ViewGroup.LayoutParams.FILL_PARENT;
@@ -37,6 +38,7 @@ import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
  * across different configurations or circumstances.
  */
 public class IconPageIndicator extends HorizontalScrollView implements PageIndicator {
+
     private final IcsLinearLayout mIconsLayout;
 
     private ViewPager mViewPager;
@@ -45,10 +47,12 @@ public class IconPageIndicator extends HorizontalScrollView implements PageIndic
     private int mSelectedIndex;
 
     public IconPageIndicator(Context context) {
+
         this(context, null);
     }
 
     public IconPageIndicator(Context context, AttributeSet attrs) {
+
         super(context, attrs);
         setHorizontalScrollBarEnabled(false);
 
@@ -57,6 +61,7 @@ public class IconPageIndicator extends HorizontalScrollView implements PageIndic
     }
 
     private void animateToIcon(final int position) {
+
         final View iconView = mIconsLayout.getChildAt(position);
         if (mIconSelector != null) {
             removeCallbacks(mIconSelector);
@@ -64,6 +69,7 @@ public class IconPageIndicator extends HorizontalScrollView implements PageIndic
         mIconSelector = new Runnable() {
             @Override
             public void run() {
+
                 final int scrollPos = iconView.getLeft() - (getWidth() - iconView.getWidth()) / 2;
                 smoothScrollTo(scrollPos, 0);
                 mIconSelector = null;
@@ -74,6 +80,7 @@ public class IconPageIndicator extends HorizontalScrollView implements PageIndic
 
     @Override
     public void onAttachedToWindow() {
+
         super.onAttachedToWindow();
         if (mIconSelector != null) {
             // Re-post the selector we saved
@@ -83,6 +90,7 @@ public class IconPageIndicator extends HorizontalScrollView implements PageIndic
 
     @Override
     public void onDetachedFromWindow() {
+
         super.onDetachedFromWindow();
         if (mIconSelector != null) {
             removeCallbacks(mIconSelector);
@@ -91,6 +99,7 @@ public class IconPageIndicator extends HorizontalScrollView implements PageIndic
 
     @Override
     public void onPageScrollStateChanged(int arg0) {
+
         if (mListener != null) {
             mListener.onPageScrollStateChanged(arg0);
         }
@@ -98,6 +107,7 @@ public class IconPageIndicator extends HorizontalScrollView implements PageIndic
 
     @Override
     public void onPageScrolled(int arg0, float arg1, int arg2) {
+
         if (mListener != null) {
             mListener.onPageScrolled(arg0, arg1, arg2);
         }
@@ -105,6 +115,7 @@ public class IconPageIndicator extends HorizontalScrollView implements PageIndic
 
     @Override
     public void onPageSelected(int arg0) {
+
         setCurrentItem(arg0);
         if (mListener != null) {
             mListener.onPageSelected(arg0);
@@ -113,6 +124,7 @@ public class IconPageIndicator extends HorizontalScrollView implements PageIndic
 
     @Override
     public void setViewPager(ViewPager view) {
+
         if (mViewPager == view) {
             return;
         }
@@ -130,6 +142,7 @@ public class IconPageIndicator extends HorizontalScrollView implements PageIndic
 
     @Override
     public void notifyDataSetChanged() {
+
         mIconsLayout.removeAllViews();
         IconPagerAdapter iconAdapter = (IconPagerAdapter) mViewPager.getAdapter();
         int count = iconAdapter.getCount();
@@ -147,12 +160,14 @@ public class IconPageIndicator extends HorizontalScrollView implements PageIndic
 
     @Override
     public void setViewPager(ViewPager view, int initialPosition) {
+
         setViewPager(view);
         setCurrentItem(initialPosition);
     }
 
     @Override
     public void setCurrentItem(int item) {
+
         if (mViewPager == null) {
             throw new IllegalStateException("ViewPager has not been bound.");
         }
@@ -172,6 +187,7 @@ public class IconPageIndicator extends HorizontalScrollView implements PageIndic
 
     @Override
     public void setOnPageChangeListener(OnPageChangeListener listener) {
+
         mListener = listener;
     }
 }

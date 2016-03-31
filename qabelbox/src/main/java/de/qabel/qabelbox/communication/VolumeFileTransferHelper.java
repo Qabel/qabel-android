@@ -20,13 +20,19 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
 
+/**
+ * Class to hold uploadAndDeleteLocalfile/download on separate place
+ * Created by danny on 10.02.16.
+ */
 public class VolumeFileTransferHelper {
+
     private static final String TAG = "DownloadUploadHelper";
     private static final String URI_PREFIX_FILE = "file://";
     public static final String HARDCODED_ROOT = BoxProvider.DOCID_SEPARATOR
             + BoxProvider.PREFIX + BoxProvider.DOCID_SEPARATOR + BoxProvider.PATH_SEP;
 
     public static Uri getUri(BoxObject boxObject, BoxVolume boxVolume, BoxNavigation boxNavigation) {
+
         String path = boxNavigation.getPath(boxObject);
         String documentId = boxVolume.getDocumentId(path);
         return DocumentsContract.buildDocumentUri(
@@ -34,9 +40,11 @@ public class VolumeFileTransferHelper {
     }
 
     public static void upload(final Context self, final Uri uri, final BoxNavigation boxNavigation, final BoxVolume boxVolume) {
+
         new AsyncTask<Void, Void, Void>() {
             @Override
             protected Void doInBackground(Void... params) {
+
                 String name = getName(self, uri);
                 if (name != null) {
                     Uri uploadUri = makeUri(name, boxNavigation, boxVolume);
@@ -56,6 +64,7 @@ public class VolumeFileTransferHelper {
     }
 
     private static Uri makeUri(String name, BoxNavigation boxNavigation, BoxVolume boxVolume) {
+
         String path = boxNavigation.getPath();
         String folderId = boxVolume.getDocumentId(path);
         return DocumentsContract.buildDocumentUri(
@@ -63,6 +72,7 @@ public class VolumeFileTransferHelper {
     }
 
     private static String getName(Context context, Uri uri) {
+
         String name;
         Cursor returnCursor = context.getContentResolver().query(uri, null, null, null, null);
         if (returnCursor != null) {
@@ -81,6 +91,7 @@ public class VolumeFileTransferHelper {
     }
 
     public static boolean uploadUri(Context context, Uri uri, String targetFolder, Identity identity) {
+
         String name = getName(context, uri);
 
         if (name != null) {
@@ -103,7 +114,11 @@ public class VolumeFileTransferHelper {
         return false;
     }
 
+    /**
+     * get first prefix from identity
+     */
     public static String getPrefixFromIdentity(Identity identity) {
+
         List<String> prefixes = identity.getPrefixes();
         if (prefixes.size() > 0) {
             return prefixes.get(0);

@@ -3,12 +3,14 @@ package de.qabel.qabelbox.fragments;
 import android.os.Bundle;
 import android.view.*;
 import android.webkit.WebView;
+import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.R.array;
 import de.qabel.qabelbox.R.id;
 import de.qabel.qabelbox.R.layout;
 import de.qabel.qabelbox.helper.FileHelper;
 
 public class WebViewHelpFragment extends BaseFragment {
+
     public static final int MODE_DATA_POLICY = 0;
     public static final int MODE_TOU = 1;
     public static final int MODE_ABOUT_US = 2;
@@ -17,10 +19,12 @@ public class WebViewHelpFragment extends BaseFragment {
 
     @Override
     public String getTitle() {
+
         return getResources().getStringArray(array.help_headlines)[mode];
     }
 
     public static WebViewHelpFragment newInstance(int mode) {
+
         final WebViewHelpFragment fragment = new WebViewHelpFragment();
         Bundle b = new Bundle();
         b.putInt(PARAM_MODE, mode);
@@ -30,6 +34,7 @@ public class WebViewHelpFragment extends BaseFragment {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
         Bundle arguments = getArguments();
@@ -46,12 +51,14 @@ public class WebViewHelpFragment extends BaseFragment {
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+
         menu.clear();
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+
         final View view = inflater.inflate(layout.fragment_webview, container, false);
         WebView webView = (WebView) view.findViewById(id.webview);
         String file = getResources().getStringArray(array.help_asset_filenames)[mode];
@@ -65,15 +72,18 @@ public class WebViewHelpFragment extends BaseFragment {
     }
 
     private void configureWebView(WebView webView) {
+
     }
 
     @Override
     public boolean supportBackButton() {
+
         return true;
     }
 
     @Override
     public boolean isFabNeeded() {
+
         return false;
     }
 }

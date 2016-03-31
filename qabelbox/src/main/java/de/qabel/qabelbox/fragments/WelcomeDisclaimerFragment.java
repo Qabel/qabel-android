@@ -13,7 +13,12 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.TextView;
-import de.qabel.qabelbox.R.*;
+import de.qabel.qabelbox.R;
+import de.qabel.qabelbox.R.color;
+import de.qabel.qabelbox.R.dimen;
+import de.qabel.qabelbox.R.id;
+import de.qabel.qabelbox.R.layout;
+import de.qabel.qabelbox.R.string;
 import de.qabel.qabelbox.activities.WelcomeScreenActivity;
 import de.qabel.qabelbox.helper.FileHelper;
 import de.qabel.qabelbox.helper.UIHelper;
@@ -39,6 +44,7 @@ public class WelcomeDisclaimerFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+
         View view = inflater.inflate(layout.fragment_welcome_disclaimer, container, false);
 
         setShader((TextView) view.findViewById(id.welcome_text2));
@@ -87,9 +93,11 @@ public class WelcomeDisclaimerFragment extends Fragment {
     }
 
     private void setClickListener(View fragmentView, int view, final Type mode) {
+
         fragmentView.findViewById(view).setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 WebView webView = new WebView(getActivity());
                 String file = "";
                 if (mode == Type.QAPL) {
@@ -111,6 +119,7 @@ public class WelcomeDisclaimerFragment extends Fragment {
     }
 
     private void updateRightButtonTextColor(boolean allChecked) {
+
         if (allChecked) {
             mActivity.setRightButtonColor(getResources().getColor(color.welcome_button_activated));
         } else {

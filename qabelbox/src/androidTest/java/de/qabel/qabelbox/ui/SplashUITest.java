@@ -1,10 +1,12 @@
 package de.qabel.qabelbox.ui;
 
 
+import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
 import android.support.test.rule.ActivityTestRule;
 import com.squareup.spoon.Spoon;
 import de.qabel.qabelbox.QabelBoxApplication;
+import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.R.string;
 import de.qabel.qabelbox.activities.SplashActivity;
 import de.qabel.qabelbox.config.AppPreference;
@@ -28,6 +30,7 @@ import static android.support.test.espresso.matcher.ViewMatchers.withText;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class SplashUITest {
+
     @Rule
     public ActivityTestRule<SplashActivity> mActivityTestRule = new ActivityTestRule<>(SplashActivity.class, false, true);
 
@@ -42,12 +45,14 @@ public class SplashUITest {
 
     @After
     public void cleanUp() {
+
         wakeLock.release();
         mSystemAnimations.enableAll();
     }
 
     @Before
     public void setUp() throws IOException, QblStorageException {
+
         mActivity = mActivityTestRule.getActivity();
 
         wakeLock = UIActionHelper.wakeupDevice(mActivity);

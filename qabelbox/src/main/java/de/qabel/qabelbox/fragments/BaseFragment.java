@@ -5,13 +5,19 @@ import android.app.Fragment;
 import android.support.v7.app.ActionBar;
 import android.view.View;
 import android.view.View.OnClickListener;
+import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.R.string;
 import de.qabel.qabelbox.activities.MainActivity;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
+/**
+ * Base Fragment
+ * Created by danny on 08.01.2016.
+ */
 public abstract class BaseFragment extends Fragment {
+
     protected static Executor serialExecutor = Executors.newSingleThreadExecutor();
     protected ActionBar actionBar;
     protected MainActivity mActivity;
@@ -27,11 +33,13 @@ public abstract class BaseFragment extends Fragment {
      * @return true if floating action button used
      */
     public boolean isFabNeeded() {
+
         return false;
     }
 
     @Override
     public void onAttach(Activity activity) {
+
         super.onAttach(activity);
         mActivity = (MainActivity) getActivity();
         actionBar = mActivity.getSupportActionBar();
@@ -39,6 +47,7 @@ public abstract class BaseFragment extends Fragment {
 
     @Override
     public void onResume() {
+
         super.onResume();
         if (actionBar != null) {
             actionBar.setTitle(getTitle());
@@ -54,9 +63,11 @@ public abstract class BaseFragment extends Fragment {
      * set own back listener in actionbar
      */
     protected void setActionBarBackListener() {
+
         mActivity.toggle.setToolbarNavigationClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 mActivity.onBackPressed();
             }
         });
@@ -66,9 +77,11 @@ public abstract class BaseFragment extends Fragment {
      * set own back listener in actionbar
      */
     protected void setActionBarBackListener(final OnClickListener listener) {
+
         mActivity.toggle.setToolbarNavigationClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 if (listener != null) {
                     listener.onClick(v);
                 }
@@ -81,6 +94,7 @@ public abstract class BaseFragment extends Fragment {
      * @return true if fragment handle back button. otherwise return false to display sideMenu icon
      */
     public boolean supportBackButton() {
+
         return false;
     }
 
@@ -88,6 +102,7 @@ public abstract class BaseFragment extends Fragment {
      * @return true if fragment handle back button. otherwise return false to display sideMenu icon
      */
     public boolean supportSubtitle() {
+
         return false;
     }
 
@@ -95,12 +110,15 @@ public abstract class BaseFragment extends Fragment {
      * handle hardware back button
      */
     public void onBackPressed() {
+
     }
 
     public void updateSubtitle() {
+
     }
 
     public boolean handleFABAction() {
+
         return false;
     }
 }

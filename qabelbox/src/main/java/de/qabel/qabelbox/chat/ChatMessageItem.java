@@ -6,7 +6,13 @@ import de.qabel.core.drop.DropMessage;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+/**
+ * class to store chatmessage in database
+ * <p/>
+ * Created by danny on 16.02.16.
+ */
 public class ChatMessageItem {
+
     public static final String SHARE_NOTIFICATION = "box_share_notification";
     public static final String BOX_MESSAGE = "box_message";
 
@@ -58,18 +64,22 @@ public class ChatMessageItem {
     }
 
     public long getTime() {
+
         return time_stamp;
     }
 
     public String getSenderKey() {
+
         return sender;
     }
 
     public String getReceiverKey() {
+
         return receiver;
     }
 
     public MessagePayload getData() {
+
         if (drop_payload_type != null && drop_payload != null) {
             if (drop_payload_type.equals(BOX_MESSAGE)) {
                 TextMessagePayload message = new TextMessagePayload();
@@ -102,9 +112,11 @@ public class ChatMessageItem {
      * hold text message
      */
     public static class TextMessagePayload extends MessagePayload {
+
         String message;
 
         public String getMessage() {
+
             return message;
         }
     }
@@ -113,22 +125,27 @@ public class ChatMessageItem {
      * hold share message
      */
     public static class ShareMessagePayload extends MessagePayload {
+
         String message, url, key;
 
         public String getMessage() {
+
             return message;
         }
 
         public String getURL() {
+
             return url;
         }
 
         public String getKey() {
+
             return key;
         }
     }
 
     public static class MessagePayload {
+
     }
 }
 

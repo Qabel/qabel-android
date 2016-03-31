@@ -6,12 +6,14 @@ import android.view.*;
 import android.widget.ImageView;
 import android.widget.TextView;
 import de.qabel.core.config.Identity;
+import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.R.id;
 import de.qabel.qabelbox.R.layout;
 import de.qabel.qabelbox.R.string;
 import de.qabel.qabelbox.helper.QRCodeHelper;
 
 public class QRcodeFragment extends BaseFragment {
+
     private static final String ARG_IDENTITY = "Identity";
     private Fragment fragment;
     private Identity identity;
@@ -20,6 +22,7 @@ public class QRcodeFragment extends BaseFragment {
     private TextView editTextPublicKey;
 
     public static QRcodeFragment newInstance(Identity identity) {
+
         QRcodeFragment fragment = new QRcodeFragment();
         Bundle args = new Bundle();
         args.putSerializable(ARG_IDENTITY, identity);
@@ -29,6 +32,7 @@ public class QRcodeFragment extends BaseFragment {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         mActivity.toggle.setDrawerIndicatorEnabled(false);
         actionBar.setDisplayHomeAsUpEnabled(true);
@@ -43,6 +47,7 @@ public class QRcodeFragment extends BaseFragment {
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+
         super.onCreateOptionsMenu(menu, inflater);
         menu.clear();
     }
@@ -50,6 +55,7 @@ public class QRcodeFragment extends BaseFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+
         final View view = inflater.inflate(layout.fragment_barcode_shower, container, false);
 
         editTextContactName = (TextView) view.findViewById(id.editTextContactName);
@@ -65,16 +71,19 @@ public class QRcodeFragment extends BaseFragment {
 
     @Override
     public boolean isFabNeeded() {
+
         return false;
     }
 
     @Override
     public String getTitle() {
+
         return getString(string.headline_qrcode);
     }
 
     @Override
     public boolean supportBackButton() {
+
         return true;
     }
 }

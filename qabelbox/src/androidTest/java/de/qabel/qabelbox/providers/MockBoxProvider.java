@@ -1,5 +1,6 @@
 package de.qabel.qabelbox.providers;
 
+import android.Manifest;
 import android.Manifest.permission;
 import android.content.Context;
 import android.content.pm.ProviderInfo;
@@ -18,6 +19,7 @@ import org.spongycastle.util.encoders.Hex;
 import java.util.ArrayList;
 
 public class MockBoxProvider extends BoxProvider {
+
     public byte[] deviceID;
     public String lastID;
     public QblECKeyPair keyPair;
@@ -72,6 +74,7 @@ public class MockBoxProvider extends BoxProvider {
 
 
     private class MockedLocalQabelService extends LocalQabelService {
+
         private final Context context;
 
         public MockedLocalQabelService(Context context) {

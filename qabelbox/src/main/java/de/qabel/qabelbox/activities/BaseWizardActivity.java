@@ -11,14 +11,17 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import de.qabel.core.accounting.AccountingHTTP;
+import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.R.id;
 import de.qabel.qabelbox.R.layout;
+import de.qabel.qabelbox.R.menu;
 import de.qabel.qabelbox.R.string;
 import de.qabel.qabelbox.fragments.BaseIdentityFragment;
 import de.qabel.qabelbox.fragments.CreateIdentityHeaderFragment;
 import de.qabel.qabelbox.helper.UIHelper;
 
 public abstract class BaseWizardActivity extends CrashReportingActivity {
+
     private String TAG = getClass().getSimpleName();
 
     public static final String FIRST_RUN = "first_run";
@@ -39,6 +42,7 @@ public abstract class BaseWizardActivity extends CrashReportingActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         mActivity = this;
         mFirstRun = getIntent().getBooleanExtra(FIRST_RUN, true);
@@ -50,6 +54,7 @@ public abstract class BaseWizardActivity extends CrashReportingActivity {
     }
 
     private void setupToolbar() {
+
         Toolbar mToolbar = (Toolbar) findViewById(id.toolbar);
         setSupportActionBar(mToolbar);
         actionBar = getSupportActionBar();
@@ -63,12 +68,14 @@ public abstract class BaseWizardActivity extends CrashReportingActivity {
         mToolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 onBackPressed();
             }
         });
     }
 
     private void createFragments() {
+
         mIdentityHeaderFragment = new CreateIdentityHeaderFragment();
         fragments = getFragmentList();
         FragmentTransaction ft = getFragmentManager().beginTransaction();
@@ -79,9 +86,11 @@ public abstract class BaseWizardActivity extends CrashReportingActivity {
 
     @Override
     public void onBackPressed() {
+
         int fragmentCount = getFragmentManager().getBackStackEntryCount();
         //check backstack if fragments exists
         if (step < fragments.length && fragmentCount > 0) {
+
             //check if last fragment displayed
             if (fragmentCount == fragments.length - 1) {
                 //complete wizard
@@ -106,14 +115,17 @@ public abstract class BaseWizardActivity extends CrashReportingActivity {
             if (canExit) {
                 finish();
             } else {
+
                 UIHelper.showDialogMessage(this, getString(string.dialog_headline_warning), String.format(getString(string.message_step_is_needed_or_close_app), getWizardEntityLabel()), string.yes, string.no, new OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
+
                         finish();
                     }
                 }, new OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
+
                     }
                 });
             }
@@ -124,6 +136,7 @@ public abstract class BaseWizardActivity extends CrashReportingActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+
         getMenuInflater().inflate(menu.ab_create_identity, menu);
         mActionNext = menu.findItem(id.action_next);
         updateActionBar(step);
@@ -132,6 +145,7 @@ public abstract class BaseWizardActivity extends CrashReportingActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+
         if (item.getItemId() == id.action_next) {
             handleNextClick();
             return true;
@@ -141,12 +155,14 @@ public abstract class BaseWizardActivity extends CrashReportingActivity {
     }
 
     public void handleNextClick() {
+
         String check = ((BaseIdentityFragment) getFragmentManager().findFragmentById(id.fragment_container_content)).check();
         //check if fragment ready to go to the next step
         if (check != null) {
             //no, show error message
             UIHelper.showDialogMessage(this, string.dialog_headline_info, check);
         } else {
+
             //check if currently last step
             if (step == fragments.length - 1) {
                 activityResult = RESULT_OK;
@@ -169,6 +185,7 @@ public abstract class BaseWizardActivity extends CrashReportingActivity {
     }
 
     protected void showNextFragment() {
+
         step++;
         if (step == fragments.length - 1) {
             canExit = true;
@@ -187,6 +204,7 @@ public abstract class BaseWizardActivity extends CrashReportingActivity {
      * @param step current step number
      */
     protected void updateActionBar(int step) {
+
         //update icons
         if (step == 0) {
             mActionNext.setVisible(false);
@@ -217,6 +235,7 @@ public abstract class BaseWizardActivity extends CrashReportingActivity {
     public abstract void completeWizard();
 
     public interface NextChecker {
+
         String check(View view);
     }
 

@@ -5,6 +5,7 @@ import android.content.*;
 import android.os.Bundle;
 
 public class BoxSyncAdapter extends AbstractThreadedSyncAdapter {
+
     ContentResolver mContentResolver;
     Context context;
 

@@ -1,7 +1,11 @@
 package de.qabel;
 
 
+/**
+ * Interface for service related constants
+ */
 public interface ServiceConstants {
+
     String SERVICE_PACKAGE_NAME = "de.qabel.qabelbox";
     String SERVICE_CLASS_NAME = "de.qabel.qabelbox.service.QabelService";
 

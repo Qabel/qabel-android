@@ -14,6 +14,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
 public class BoxObjectComparatorsTest {
+
     @Test
     public void testAlphabeticOrderFoldersFirst() {
         List<BoxObject> objects = getShuffledObjects();

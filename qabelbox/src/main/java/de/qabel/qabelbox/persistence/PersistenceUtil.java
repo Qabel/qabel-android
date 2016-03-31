@@ -3,6 +3,7 @@ package de.qabel.qabelbox.persistence;
 import java.io.*;
 
 class PersistenceUtil {
+
     protected static String getTableNameForClass(Class cls) {
         return '\'' + cls.getCanonicalName() + '\'';
     }

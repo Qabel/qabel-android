@@ -5,10 +5,12 @@ import android.app.Fragment;
 import de.qabel.qabelbox.activities.BaseWizardActivity;
 
 public class BaseIdentityFragment extends Fragment {
+
     protected BaseWizardActivity mActivity;
 
     @Override
     public void onAttach(Activity activity) {
+
         super.onAttach(activity);
         mActivity = (BaseWizardActivity) activity;
     }

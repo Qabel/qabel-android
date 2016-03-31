@@ -1,9 +1,11 @@
 package de.qabel.qabelbox.persistence;
 
 import android.content.Context;
+import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteDatabase.CursorFactory;
 
 public class QblSQLiteParams {
+
     private final Context context;
     private final String name;
     private final CursorFactory factory;

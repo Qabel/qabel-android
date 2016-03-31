@@ -8,8 +8,10 @@ import de.qabel.core.config.Contact;
 import de.qabel.core.config.Identity;
 import de.qabel.core.crypto.QblECPublicKey;
 import de.qabel.core.drop.DropURL;
+import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.R.id;
 import de.qabel.qabelbox.R.layout;
+import de.qabel.qabelbox.R.menu;
 import de.qabel.qabelbox.R.string;
 import de.qabel.qabelbox.helper.UIHelper;
 import org.spongycastle.util.encoders.Hex;
@@ -22,6 +24,7 @@ import java.util.Collection;
  * to handle interaction events.
  */
 public class AddContactFragment extends ContactBaseFragment {
+
     private static final String ARG_IDENTITY = "Identity";
     private final String TAG = getClass().getSimpleName();
     private EditText editTextContactName;
@@ -31,6 +34,7 @@ public class AddContactFragment extends ContactBaseFragment {
     private View mView;
 
     public static AddContactFragment newInstance(Identity identity) {
+
         AddContactFragment fragment = new AddContactFragment();
         Bundle args = new Bundle();
         args.putSerializable(ARG_IDENTITY, identity);
@@ -40,6 +44,7 @@ public class AddContactFragment extends ContactBaseFragment {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
         mActivity.toggle.setDrawerIndicatorEnabled(false);
@@ -51,6 +56,7 @@ public class AddContactFragment extends ContactBaseFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+
         final View view = inflater.inflate(layout.fragment_add_contact, container, false);
 
         editTextContactName = (EditText) view.findViewById(id.editTextContactName);
@@ -62,6 +68,7 @@ public class AddContactFragment extends ContactBaseFragment {
     }
 
     private void add() {
+
         try {
             DropURL dropURL = new DropURL(editTextDropURL.getText().toString());
 
@@ -81,12 +88,14 @@ public class AddContactFragment extends ContactBaseFragment {
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+
         menu.clear();
         inflater.inflate(menu.ab_add, menu);
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+
         int id = item.getItemId();
         if (id == id.action_add) {
             add();
@@ -97,16 +106,19 @@ public class AddContactFragment extends ContactBaseFragment {
 
     @Override
     public boolean isFabNeeded() {
+
         return false;
     }
 
     @Override
     public String getTitle() {
+
         return getString(string.headline_add_contact);
     }
 
     @Override
     public boolean supportBackButton() {
+
         return true;
     }
 }

@@ -7,6 +7,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.BitmapFactory.Options;
 import android.graphics.Canvas;
 import android.graphics.Rect;
+import android.os.Build;
 import android.os.Build.VERSION;
 import android.os.Build.VERSION_CODES;
 import android.os.Debug;
@@ -19,6 +20,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 public class ViewPagerParallax extends ViewPager {
+
     private int background_id = -1;
     private int background_saved_id = -1;
     private int saved_width = -1;
@@ -41,15 +43,18 @@ public class ViewPagerParallax extends ViewPager {
     private static final String TAG = "ViewPagerParallax";
 
     public ViewPagerParallax(Context context) {
+
         super(context);
     }
 
     public ViewPagerParallax(Context context, AttributeSet attrs) {
+
         super(context, attrs);
     }
 
     @SuppressLint("NewApi")
     private int sizeOf(Bitmap data) {
+
         if (VERSION.SDK_INT < VERSION_CODES.HONEYCOMB_MR1) {
             return data.getRowBytes() * data.getHeight();
         } else {
@@ -58,6 +63,7 @@ public class ViewPagerParallax extends ViewPager {
     }
 
     private void set_new_background() {
+
         if (background_id == -1) {
             return;
         }
@@ -155,6 +161,7 @@ public class ViewPagerParallax extends ViewPager {
 
     @Override
     protected void onPageScrolled(int position, float offset, int offsetPixels) {
+
         super.onPageScrolled(position, offset, offsetPixels);
         current_position = position;
         current_offset = offset;
@@ -162,6 +169,7 @@ public class ViewPagerParallax extends ViewPager {
 
     @Override
     protected void onDraw(Canvas canvas) {
+
         super.onDraw(canvas);
         if (!isInEditMode()) {
             if (!insufficientMemory && parallaxEnabled) {
@@ -181,17 +189,20 @@ public class ViewPagerParallax extends ViewPager {
     }
 
     public void set_max_pages(int num_max_pages) {
+
         max_num_pages = num_max_pages;
         set_new_background();
     }
 
     public void setBackgroundAsset(int res_id) {
+
         background_id = res_id;
         set_new_background();
     }
 
     @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
+
         super.onLayout(changed, l, t, r, b);
         if (!insufficientMemory && parallaxEnabled) {
             set_new_background();
@@ -200,12 +211,14 @@ public class ViewPagerParallax extends ViewPager {
 
     @Override
     public void setCurrentItem(int item) {
+
         super.setCurrentItem(item);
         current_position = item;
     }
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
+
         if (pagingEnabled) {
             return super.onTouchEvent(event);
         }
@@ -226,6 +239,7 @@ public class ViewPagerParallax extends ViewPager {
     }
 
     public boolean isPagingEnabled() {
+
         return pagingEnabled;
     }
 
@@ -233,10 +247,12 @@ public class ViewPagerParallax extends ViewPager {
      * Enables or disables paging for this ViewPagerParallax.
      */
     public void setPagingEnabled(boolean pagingEnabled) {
+
         this.pagingEnabled = pagingEnabled;
     }
 
     public boolean isParallaxEnabled() {
+
         return parallaxEnabled;
     }
 
@@ -244,11 +260,13 @@ public class ViewPagerParallax extends ViewPager {
      * Enables or disables parallax effect for this ViewPagerParallax.
      */
     public void setParallaxEnabled(boolean parallaxEnabled) {
+
         this.parallaxEnabled = parallaxEnabled;
     }
 
     @Override
     protected void onDetachedFromWindow() {
+
         if (saved_bitmap != null) {
             saved_bitmap.recycle();
             saved_bitmap = null;

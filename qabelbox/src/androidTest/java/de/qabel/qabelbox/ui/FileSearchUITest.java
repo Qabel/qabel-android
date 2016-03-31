@@ -1,12 +1,14 @@
 package de.qabel.qabelbox.ui;
 
 
+import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
 import android.support.test.rule.ActivityTestRule;
 import android.widget.SeekBar;
 import com.squareup.spoon.Spoon;
 import de.qabel.core.config.Identity;
 import de.qabel.qabelbox.QabelBoxApplication;
+import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.R.id;
 import de.qabel.qabelbox.R.string;
 import de.qabel.qabelbox.TestConstants;
@@ -37,6 +39,7 @@ import static android.support.test.espresso.matcher.ViewMatchers.*;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class FileSearchUITest {
+
     @Rule
     public ActivityTestRule<MainActivity> mActivityTestRule = new ActivityTestRule<>(MainActivity.class, false, true);
 
@@ -55,6 +58,7 @@ public class FileSearchUITest {
 
     @After
     public void cleanUp() {
+
         wakeLock.release();
         mSystemAnimations.enableAll();
         mBoxHelper.unbindService(QabelBoxApplication.getInstance());
@@ -62,6 +66,7 @@ public class FileSearchUITest {
 
     @Before
     public void setUp() throws IOException, QblStorageException {
+
         mActivity = mActivityTestRule.getActivity();
         wakeLock = UIActionHelper.wakeupDevice(mActivity);
         mSystemAnimations = new SystemAnimations(mActivity);
@@ -89,6 +94,7 @@ public class FileSearchUITest {
     }
 
     private void uploadTestFiles() {
+
         int fileCount = 7;
         BlockServer bs = new BlockServer();
         mBoxHelper.uploadFile(mBoxHelper.mBoxVolume, "testfile 2", new byte[1011], "");
@@ -105,6 +111,7 @@ public class FileSearchUITest {
 
     @Test
     public void search1ByNamesTest() {
+
         Spoon.screenshot(mActivity, "startup");
         testSearch("black", 2);
         testSearch("", 7);
@@ -114,6 +121,7 @@ public class FileSearchUITest {
 
     @Test
     public void search2FilterTest() {
+
         testSearchWithFilter("", 0, 2048, 6, true);
         testSearchWithFilter("", 0, 10240, 7, false);
         testSearchWithFilter("", 9000, 10240, 1, false);
@@ -121,6 +129,7 @@ public class FileSearchUITest {
 /*
     @Test
     public void search3CacheTest() throws QblStorageException {
+
         String text = "";
         int results = 7;
 
@@ -162,6 +171,7 @@ public class FileSearchUITest {
      * @param results excepted results
      */
     private void testSearch(String text, int results) {
+
         onView(withId(id.action_search)).perform(click());
         onView(withHint(string.ab_filesearch_hint)).perform(typeText(text), pressImeActionButton());
         closeSoftKeyboard();
@@ -173,6 +183,7 @@ public class FileSearchUITest {
     }
 
     private void testIfFileBrowserDisplayed(int count) {
+
         QabelMatcher.matchToolbarTitle(mActivity.getString(string.headline_files))
                 .check(matches(isDisplayed()));
         onView(withId(id.files_list)).check(matches(QabelMatcher.withListSize(count)));
@@ -185,6 +196,7 @@ public class FileSearchUITest {
      * @param results excepted results
      */
     private void testSearchWithFilter(String text, int fileSizeMin, int fileSizeMax, int results, boolean screenShot) {
+
         onView(withId(id.action_search)).perform(click());
         onView(withHint(string.ab_filesearch_hint)).perform(typeText(text), pressImeActionButton());
         closeSoftKeyboard();

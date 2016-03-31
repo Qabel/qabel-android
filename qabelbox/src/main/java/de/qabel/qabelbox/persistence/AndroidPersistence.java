@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class AndroidPersistence extends Persistence<QblSQLiteParams> {
+
     private DatabaseWrapper databaseWrapper;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AndroidPersistence.class.getName());

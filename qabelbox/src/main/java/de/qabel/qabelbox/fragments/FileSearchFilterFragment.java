@@ -6,8 +6,10 @@ import android.view.View.OnClickListener;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
+import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.R.id;
 import de.qabel.qabelbox.R.layout;
+import de.qabel.qabelbox.R.menu;
 import de.qabel.qabelbox.R.string;
 import de.qabel.qabelbox.helper.Formatter;
 import de.qabel.qabelbox.storage.BoxFile;
@@ -208,6 +210,7 @@ public class FileSearchFilterFragment extends BaseFragment implements OnSeekBarC
     @Override
     public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
         if (seekBar == mSbFileSizeMax) {
+
             mTvMaxFileSize.setText(Formatter.formatFileSizeHumanReadable(getActivity(), progress + mMinFileSize));
         }
         if (seekBar == mSbFileSizeMin) {
@@ -218,10 +221,12 @@ public class FileSearchFilterFragment extends BaseFragment implements OnSeekBarC
 
     @Override
     public void onStartTrackingTouch(SeekBar seekBar) {
+
     }
 
     @Override
     public void onStopTrackingTouch(SeekBar seekBar) {
+
         if (seekBar == mSbFileSizeMin && mSbFileSizeMin.getProgress() > mSbFileSizeMax.getProgress()) {
             mSbFileSizeMax.setProgress(mSbFileSizeMin.getProgress());
         } else {

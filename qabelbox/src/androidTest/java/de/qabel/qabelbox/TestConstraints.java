@@ -1,6 +1,10 @@
 package de.qabel.qabelbox;
 
+/**
+ * Contains Constrains for tests
+ */
 public class TestConstraints {
+
     /**
      * Timeout for simple server actions like create box account.
      */

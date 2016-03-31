@@ -7,6 +7,7 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.View.OnClickListener;
+import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.R.id;
 import de.qabel.qabelbox.R.layout;
 import de.qabel.qabelbox.R.string;
@@ -18,6 +19,7 @@ public class SettingsActivity extends CrashReportingActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         mActivity = this;
         overridePendingTransition(anim.fade_in, anim.fade_out);
@@ -28,6 +30,7 @@ public class SettingsActivity extends CrashReportingActivity {
     }
 
     private void setupToolbar() {
+
         Toolbar mToolbar = (Toolbar) findViewById(id.toolbar);
         setSupportActionBar(mToolbar);
         actionBar = getSupportActionBar();
@@ -39,6 +42,7 @@ public class SettingsActivity extends CrashReportingActivity {
         mToolbar.setNavigationOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 onBackPressed();
             }
         });

@@ -1,6 +1,7 @@
 package de.qabel.qabelbox.adapter;
 
 import android.support.annotation.Nullable;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.RecyclerView.Adapter;
 import android.support.v7.widget.RecyclerView.AdapterDataObserver;
 import android.support.v7.widget.RecyclerView.ViewHolder;
@@ -12,6 +13,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 import de.qabel.core.config.Contact;
+import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.R.id;
 import de.qabel.qabelbox.R.layout;
 import de.qabel.qabelbox.adapter.ContactsAdapter.ContactViewHolder;
@@ -26,11 +28,13 @@ import java.util.List;
  * set click actions on ViewHolders by setOnItemClickListener.
  */
 public class ContactsAdapter extends Adapter<ContactViewHolder> {
+
     private final List<ContactAdapterItem> mContacts;
     private OnItemClickListener onItemClickListener, onItemLongClickListener;
     private View emptyView;
 
     public ContactsAdapter(ArrayList<ContactAdapterItem> contacts) {
+
         mContacts = contacts;
         Collections.sort(mContacts, new Comparator<Contact>() {
             @Override
@@ -43,16 +47,19 @@ public class ContactsAdapter extends Adapter<ContactViewHolder> {
     }
 
     public Contact getContact(int position) {
+
         return mContacts.get(position);
     }
 
     class ContactViewHolder extends ViewHolder implements OnClickListener, OnLongClickListener {
+
         public final TextView mTextViewContactName;
         public final TextView mTextViewContactDetails;
         public final ImageView mImageView;
         private final View mNewMessageView;
 
         public ContactViewHolder(View v) {
+
             super(v);
             v.setOnClickListener(this);
             v.setOnLongClickListener(this);
@@ -64,6 +71,7 @@ public class ContactsAdapter extends Adapter<ContactViewHolder> {
 
         @Override
         public void onClick(View view) {
+
             if (onItemClickListener != null) {
                 onItemClickListener.onItemClick(view, getAdapterPosition());
             }
@@ -71,6 +79,7 @@ public class ContactsAdapter extends Adapter<ContactViewHolder> {
 
         @Override
         public boolean onLongClick(View view) {
+
             if (onItemLongClickListener != null) {
                 onItemLongClickListener.onItemClick(view, getAdapterPosition());
                 return true;
@@ -80,6 +89,7 @@ public class ContactsAdapter extends Adapter<ContactViewHolder> {
     }
 
     public interface OnItemClickListener {
+
         void onItemClick(View view, int position);
     }
 
@@ -87,12 +97,14 @@ public class ContactsAdapter extends Adapter<ContactViewHolder> {
      * Sets the action to perform on item clicks
      */
     public void setOnItemClickListener(OnItemClickListener onItemClickListener, OnItemClickListener onItemLongClickListener) {
+
         this.onItemClickListener = onItemClickListener;
         this.onItemLongClickListener = onItemLongClickListener;
     }
 
     @Override
     public ContactViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+
         View v = LayoutInflater.from(parent.getContext())
                 .inflate(layout.item_contacts, parent, false);
         return new ContactViewHolder(v);
@@ -100,6 +112,7 @@ public class ContactsAdapter extends Adapter<ContactViewHolder> {
 
     @Override
     public void onBindViewHolder(ContactViewHolder holder, int position) {
+
         ContactAdapterItem item = mContacts.get(position);
         holder.mTextViewContactName.setText(item.getAlias());
         holder.mTextViewContactDetails.setText(item.getEcPublicKey().getReadableKeyIdentifier());
@@ -113,11 +126,14 @@ public class ContactsAdapter extends Adapter<ContactViewHolder> {
 
     @Override
     public int getItemCount() {
+
         return mContacts.size();
     }
 
     void updateEmptyView() {
+
         if (emptyView != null) {
+
             emptyView.setVisibility(getItemCount() > 0 ? View.GONE : View.VISIBLE);
         }
     }
@@ -125,12 +141,14 @@ public class ContactsAdapter extends Adapter<ContactViewHolder> {
     final AdapterDataObserver observer = new AdapterDataObserver() {
         @Override
         public void onChanged() {
+
             super.onChanged();
             updateEmptyView();
         }
     };
 
     public void setEmptyView(@Nullable View emptyView) {
+
         this.emptyView = emptyView;
 
         updateEmptyView();

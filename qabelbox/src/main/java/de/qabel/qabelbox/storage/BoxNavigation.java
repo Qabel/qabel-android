@@ -9,6 +9,7 @@ import java.io.InputStream;
 import java.util.List;
 
 public interface BoxNavigation {
+
     /**
      * Bumps the version and uploads the metadata file
      * <p/>

@@ -12,6 +12,7 @@ import java.util.Collection;
 import static org.junit.Assert.assertEquals;
 
 public class IdentityExportImportTest {
+
     @Test
     public void testExportImportIdentity() throws Exception {
         QblECKeyPair qblECKeyPair = new QblECKeyPair();

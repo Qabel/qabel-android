@@ -10,6 +10,7 @@ import de.qabel.core.crypto.QblECKeyPair;
 import de.qabel.core.crypto.QblECPublicKey;
 import de.qabel.core.drop.DropURL;
 import de.qabel.qabelbox.QabelBoxApplication;
+import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.R.string;
 import de.qabel.qabelbox.communication.URLs;
 import de.qabel.qabelbox.config.AppPreference;
@@ -146,6 +147,7 @@ public class BoxTest extends AndroidTestCase {
     }
 
     private void checkExternalReceivedBoxFile(BoxFile boxFile, BoxNavigation navOtherUser) throws QblStorageException {
+
         List<BoxObject> boxExternalFiles = navOtherUser.listExternals();
         assertThat(boxExternalFiles.size(), is(1));
         assertTrue(boxExternalFiles.get(0) instanceof BoxExternalFile);
@@ -187,10 +189,11 @@ public class BoxTest extends AndroidTestCase {
         BoxExternalReference boxExternalReference = nav.createFileMetadata(OWNER, boxFile);
 
         // Share meta and metakey to other user
+
         BoxNavigation navOtherUser = volumeOtherUser.navigate();
         navOtherUser.attachExternal(boxExternalReference);
 
-        //checkExternalReceivedBoxFile(IOUtils.toByteArray(new FileInputStream(file)), boxFile, navOtherUser);  // FIXME assertion missing here
+        //checkExternalReceivedBoxFile(IOUtils.toByteArray(new FileInputStream(file)), boxFile, navOtherUser);
     }
 
     @Test
@@ -203,6 +206,7 @@ public class BoxTest extends AndroidTestCase {
         BoxExternalReference boxExternalReference = nav.createFileMetadata(OWNER, boxFile);
 
         // Share meta and metakey to other user
+
         BoxNavigation navOtherUser = volumeOtherUser.navigate();
         navOtherUser.attachExternal(boxExternalReference);
 
@@ -212,6 +216,7 @@ public class BoxTest extends AndroidTestCase {
         nav.commit();
 
         // Check that updated file can still be read
+
         checkExternalReceivedBoxFile(boxFile, navOtherUser);
     }
 
@@ -225,6 +230,7 @@ public class BoxTest extends AndroidTestCase {
         BoxExternalReference boxExternalReference = nav.createFileMetadata(OWNER, boxFile);
 
         // Share meta and metakey to other user
+
         BoxNavigation navOtherUser = volumeOtherUser.navigate();
         navOtherUser.attachExternal(boxExternalReference);
 
@@ -234,6 +240,7 @@ public class BoxTest extends AndroidTestCase {
         nav.commit();
 
         // Check that updated file can still be read
+
         checkExternalReceivedBoxFile(IOUtils.toByteArray(new FileInputStream(file)), boxFile, navOtherUser);
     }
 
@@ -245,6 +252,7 @@ public class BoxTest extends AndroidTestCase {
         BoxExternalReference boxExternalReference = nav.createFileMetadata(OWNER, boxFile);
 
         // Share meta and metakey to other user
+
         BoxNavigation navOtherUser = volumeOtherUser.navigate();
         navOtherUser.attachExternal(boxExternalReference);
 
@@ -253,6 +261,7 @@ public class BoxTest extends AndroidTestCase {
         boxFile = uploadFile(nav, "foobar");
 
         // Check that updated file can still be read
+
         //checkExternalReceivedBoxFile(IOUtils.toByteArray(new FileInputStream(new File(testFileName))), boxFile, navOtherUser);
 
         // Remove FileMetadata and update file
@@ -261,6 +270,7 @@ public class BoxTest extends AndroidTestCase {
         uploadFile(nav, "foobar");
 
         // Check that updated file cannot be read anymore
+
         List<BoxObject> boxExternalFiles = navOtherUser.listExternals();
         assertThat(boxExternalFiles.size(), is(1));
         assertTrue(boxExternalFiles.get(0) instanceof BoxExternalFile);
@@ -303,6 +313,7 @@ public class BoxTest extends AndroidTestCase {
         BoxExternalReference boxExternalReference = nav.createFileMetadata(OWNER, boxFile);
 
         // Share meta and metakey to other user
+
         BoxNavigation navOtherUser = volumeOtherUser.navigate();
         navOtherUser.attachExternal(boxExternalReference);
 

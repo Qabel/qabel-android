@@ -11,6 +11,7 @@ import de.qabel.qabelbox.config.AppPreference;
 import de.qabel.qabelbox.services.LocalQabelService;
 
 public class Sanity {
+
     /**
      * start wizard activities if app not ready to go. If other activity need to start, the current activity finished
      *
@@ -18,6 +19,7 @@ public class Sanity {
      * @return false if no wizard start needed
      */
     public static boolean startWizardActivities(Activity activity) {
+
         AppPreference prefs = new AppPreference(activity);
 
         if (prefs.getToken() == null) {

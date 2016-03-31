@@ -4,6 +4,7 @@ package de.qabel.qabelbox.storage;
 import android.test.AndroidTestCase;
 import android.util.Log;
 import de.qabel.qabelbox.QabelBoxApplication;
+import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.R.string;
 import de.qabel.qabelbox.config.AppPreference;
 import de.qabel.qabelbox.exceptions.QblServerException;
@@ -222,6 +223,7 @@ public class TransferManagerTest extends AndroidTestCase {
     }
 
     class VerboseTransferManagerListener implements BoxTransferListener {
+
         String fileName;
         String mode;
 

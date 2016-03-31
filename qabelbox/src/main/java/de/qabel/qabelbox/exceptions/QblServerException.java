@@ -2,7 +2,12 @@ package de.qabel.qabelbox.exceptions;
 
 import de.qabel.core.exceptions.QblException;
 
+/**
+ * This exception denotes an error status recieved from a Qbl-Server
+ * Created by r-hold on 18.02.16.
+ */
 public class QblServerException extends QblException {
+
     public int getStatusCode() {
         return statusCode;
     }

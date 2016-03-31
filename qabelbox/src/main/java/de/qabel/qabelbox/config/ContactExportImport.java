@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 public class ContactExportImport {
+
     public static final String TAG = "ContactExportImport";
 
     private static final String KEY_ALIAS = "alias";

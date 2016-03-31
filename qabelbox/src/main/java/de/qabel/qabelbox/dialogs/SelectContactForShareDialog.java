@@ -8,6 +8,7 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 import de.qabel.core.config.Contact;
+import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.R.id;
 import de.qabel.qabelbox.R.layout;
 import de.qabel.qabelbox.R.string;
@@ -17,8 +18,14 @@ import de.qabel.qabelbox.helper.UIHelper;
 import java.util.Iterator;
 import java.util.Set;
 
+/**
+ * class to show identitiy list dialog for uploading
+ * Created by danny on 09.02.2016.
+ */
 public class SelectContactForShareDialog {
+
     public SelectContactForShareDialog(final MainActivity activity, final Result result) {
+
         LayoutInflater inflater = (LayoutInflater)
                 activity.getSystemService(Activity.LAYOUT_INFLATER_SERVICE);
         View view = inflater.inflate(layout.dialog_select_contact, null);
@@ -41,6 +48,7 @@ public class SelectContactForShareDialog {
         UIHelper.showCustomDialog(activity, string.headline_share_to_qabeluser, view, string.ok, string.cancel, new OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
+
                         Contact identity = contactList[mIdentitySpinner.getSelectedItemPosition()];
                         result.onContactSelected(identity);
                     }
@@ -48,6 +56,7 @@ public class SelectContactForShareDialog {
                 , new OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
+
                         result.onCancel();
                     }
                 }
@@ -55,6 +64,7 @@ public class SelectContactForShareDialog {
     }
 
     public interface Result {
+
         void onCancel();
 
         void onContactSelected(Contact contact);

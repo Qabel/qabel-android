@@ -17,6 +17,7 @@ import static org.hamcrest.Matchers.is;
 
 @RunWith(AndroidJUnit4.class)
 public class ChatServerTest {
+
     private Identity identity;
     private Contact contact1;
     private Contact contact2;
@@ -35,8 +36,12 @@ public class ChatServerTest {
         publicKey2 = getKeyIdentitfier(contact2);
     }
 
+    /**
+     * test store and read values from sqldatabase
+     */
     @Test
     public void testStoreOneItemInDB() {
+
         ChatMessagesDataBase dataBase = new ChatMessagesDataBase(getTargetContext(), identity);
         ChatMessageItem[] messages;
 
@@ -49,11 +54,17 @@ public class ChatServerTest {
     }
 
 
+    /**
+     * test store and read values from sqldatabase
+     */
     @Test
     public void testStoreManyItemsInDB() {
+
         ChatMessagesDataBase dataBase = new ChatMessagesDataBase(getTargetContext(), identity);
         ChatMessageItem[] messages;
 
+
+        //add 30 items
         for (int i = 0; i < 30; i++) {
             ChatMessageItem item = new ChatMessageItem(identity, publicKey1, "payload" + i, "payloadtype");
             dataBase.put(item);
@@ -63,10 +74,15 @@ public class ChatServerTest {
 
     }
 
+    /**
+     * test get new message count
+     */
     @Test
     public void testGetNewMessageCountFromSenderDB() {
+
         ChatMessagesDataBase dataBase = new ChatMessagesDataBase(getTargetContext(), identity);
 
+        //add 30 items
         for (int i = 0; i < 21; i++) {
             ChatMessageItem item = new ChatMessageItem(identity, publicKey1, "payload" + i, "payloadtype");
             dataBase.put(item);
@@ -81,8 +97,12 @@ public class ChatServerTest {
         assertThat(messageCount, is(6));
     }
 
+    /**
+     * test get new message count
+     */
     @Test
     public void testSetMessagesAsRead() {
+
         ChatMessagesDataBase dataBase = new ChatMessagesDataBase(getTargetContext(), identity);
         int messageCount;
         for (int i = 0; i < 3; i++) {
@@ -116,8 +136,12 @@ public class ChatServerTest {
         return contact.getEcPublicKey().getReadableKeyIdentifier();
     }
 
+    /**
+     * test store and read values from sqldatabase
+     */
     @Test
     public void testStoreConflictItemsInDB() {
+
         ChatMessagesDataBase dataBase = new ChatMessagesDataBase(getTargetContext(), identity);
         ChatMessageItem[] messages;
         String publicKey = getKeyIdentitfier(contact1);
@@ -146,6 +170,9 @@ public class ChatServerTest {
         assertThat(messages.length, is(2));
     }
 
+    /**
+     * test store and read values from sqldatabase
+     */
     @Test
     public void testStoreInDBWithDifferentContacts() {
         ChatMessagesDataBase dataBase = new ChatMessagesDataBase(getTargetContext(), identity);
@@ -170,6 +197,9 @@ public class ChatServerTest {
 
     }
 
+    /**
+     * test store and read values via chatserver
+     */
     @Test
     public void testStoreInChatServer() {
         ChatServer chatServer = new ChatServer(identity);
@@ -191,10 +221,12 @@ public class ChatServerTest {
         assertThat(messages.length, is(2));
     }
 
+
     private void compareItems(ChatMessageItem item1, ChatMessageItem item2) {
         assertThat(item1.getData(), is(item2.getData()));
         assertThat(item1.getTime(), is(item2.getTime()));
         assertThat(item1.getSenderKey(), is(item2.getSenderKey()));
         assertThat(item1.getReceiverKey(), is(item2.getReceiverKey()));
     }
+
 }

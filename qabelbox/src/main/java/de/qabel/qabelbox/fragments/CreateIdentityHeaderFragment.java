@@ -7,10 +7,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.R.id;
 import de.qabel.qabelbox.R.layout;
 
 public class CreateIdentityHeaderFragment extends Fragment {
+
     private ViewGroup logoLayout;
     private ViewGroup initialLayout;
     private TextView tvInitial;
@@ -19,6 +21,7 @@ public class CreateIdentityHeaderFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+
         View view = inflater.inflate(layout.fragment_create_identity_header, container, false);
         logoLayout = (ViewGroup) view.findViewById(id.logo_layout);
         initialLayout = (ViewGroup) view.findViewById(id.initial_layout);
@@ -29,6 +32,7 @@ public class CreateIdentityHeaderFragment extends Fragment {
     }
 
     public void updateUI(String name) {
+
         if (name == null) {
             logoLayout.setVisibility(View.VISIBLE);
             initialLayout.setVisibility(View.INVISIBLE);
@@ -44,6 +48,7 @@ public class CreateIdentityHeaderFragment extends Fragment {
     }
 
     private String getInitials(String name) {
+
         String[] names = name.split(" ");
         String result = "";
         for (String value : names) {

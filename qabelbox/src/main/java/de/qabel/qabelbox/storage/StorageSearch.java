@@ -8,6 +8,7 @@ import java.util.*;
  * Represents a search across a BoxVolume path.
  */
 public class StorageSearch {
+
     private BoxNavigation navigation;
     private List<BoxObject> results;
     private Hashtable<String, BoxObject> pathMapping = new Hashtable<>();
@@ -101,6 +102,7 @@ public class StorageSearch {
     }
 
     public StorageSearch filterByName(String name, boolean caseSensitive) {
+
         if (!isValidSearchTerm(name)) {
             return this;
         }
@@ -133,6 +135,7 @@ public class StorageSearch {
     }
 
     public StorageSearch filterBySize(long size, boolean minSize) {
+
         List<BoxObject> filtered = new ArrayList<>();
 
         for (BoxObject o : results) {
@@ -151,6 +154,7 @@ public class StorageSearch {
     }
 
     public StorageSearch filterByExtension(String extension) {
+
         if (extension == null) {
             results.clear();
 
@@ -190,6 +194,7 @@ public class StorageSearch {
      * This method will filter by last modified and return only files.
      */
     public StorageSearch filterByDate(Date date, boolean minDate) {
+
         List<BoxObject> filtered = new ArrayList<>();
 
         for (BoxObject o : results) {
@@ -211,6 +216,7 @@ public class StorageSearch {
     }
 
     public StorageSearch filterOnlyFiles() {
+
         List<BoxObject> filtered = new ArrayList<>();
         filtered.addAll(toBoxFiles(results));
         results = filtered;
@@ -219,6 +225,7 @@ public class StorageSearch {
     }
 
     public StorageSearch filterOnlyDirectories() {
+
         List<BoxObject> filtered = new ArrayList<>();
         filtered.addAll(toBoxFolders(results));
         results = filtered;
@@ -227,6 +234,7 @@ public class StorageSearch {
     }
 
     public String findPathByBoxObject(BoxObject o) {
+
         if (o == null) {
             return null;
         }
@@ -250,6 +258,7 @@ public class StorageSearch {
     }
 
     public BoxObject findByPath(String path) {
+
         if (path == null) {
             return null;
         }
@@ -266,8 +275,10 @@ public class StorageSearch {
     }
 
     public StorageSearch sortByName(boolean caseSensitive) {
+
         if (caseSensitive) {
             Collections.sort(results, new Comparator<BoxObject>() {
+
                 @Override
                 public int compare(BoxObject o1, BoxObject o2) {
                     String s1 = o1.name;
@@ -277,6 +288,7 @@ public class StorageSearch {
             });
         } else {
             Collections.sort(results, new Comparator<BoxObject>() {
+
                 @Override
                 public int compare(BoxObject o1, BoxObject o2) {
                     String s1 = o1.name;
@@ -298,6 +310,7 @@ public class StorageSearch {
     }
 
     private void addAll(List<BoxObject> lst) throws QblStorageException {
+
         for (BoxFile file : navigation.listFiles()) {
             lst.add(file);
 

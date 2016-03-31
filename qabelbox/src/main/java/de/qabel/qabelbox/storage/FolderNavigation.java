@@ -17,6 +17,7 @@ import java.security.InvalidKeyException;
 import java.util.Stack;
 
 public class FolderNavigation extends AbstractNavigation {
+
     private static final Logger logger = LoggerFactory.getLogger(FolderNavigation.class.getName());
 
     public FolderNavigation(String prefix, DirectoryMetadata dm, QblECKeyPair keyPair, @Nullable byte[] dmKey, byte[] deviceId,

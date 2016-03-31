@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Build.VERSION;
+import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.espresso.contrib.DrawerActions;
@@ -16,6 +17,7 @@ import de.qabel.core.config.Contact;
 import de.qabel.core.config.Contacts;
 import de.qabel.core.config.Identity;
 import de.qabel.qabelbox.QabelBoxApplication;
+import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.R.id;
 import de.qabel.qabelbox.R.string;
 import de.qabel.qabelbox.TestConstants;
@@ -68,6 +70,7 @@ public class ImportExportContactsUITest {
 
     @After
     public void cleanUp() {
+
         wakeLock.release();
         mSystemAnimations.enableAll();
         mBoxHelper.unbindService(QabelBoxApplication.getInstance());
@@ -75,6 +78,7 @@ public class ImportExportContactsUITest {
 
     @Before
     public void setUp() throws IOException, QblStorageException {
+
         mActivity = mActivityTestRule.getActivity();
 
         wakeLock = UIActionHelper.wakeupDevice(mActivity);
@@ -94,6 +98,7 @@ public class ImportExportContactsUITest {
     }
 
     private void createTestContacts() {
+
         mBoxHelper.setActiveIdentity(identity);
         assertThat(mBoxHelper.getService().getContacts().getContacts().size(), is(0));
         createContact("user1");
@@ -143,6 +148,7 @@ public class ImportExportContactsUITest {
 
     @Test
     public void testExportSingleContact() {
+
         String userName = "user1";
         File file1 = new File(mActivity.getCacheDir(), "testexportcontact");
         assertNotNull(file1);
@@ -184,6 +190,7 @@ public class ImportExportContactsUITest {
 
     @Test
     public void testExportManyContact() {
+
         File file1 = new File(mActivity.getCacheDir(), "testexportallcontact");
         assertNotNull(file1);
         goToContacts();

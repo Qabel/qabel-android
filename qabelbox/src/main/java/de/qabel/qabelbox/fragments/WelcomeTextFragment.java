@@ -7,12 +7,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.R.color;
 import de.qabel.qabelbox.R.dimen;
 import de.qabel.qabelbox.R.id;
 import de.qabel.qabelbox.R.layout;
 
 public class WelcomeTextFragment extends Fragment {
+
     private static final String KEY_MESSAGE_ID = "messageid";
     private static final String KEY_TEXT_BEFORE_QABEL = "before";
     private static final String KEY_TEXT_AFTER_QABEL = "after";
@@ -30,6 +32,7 @@ public class WelcomeTextFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+
         View view = inflater.inflate(layout.fragment_welcome_text, container, false);
         TextView message = (TextView) view.findViewById(id.welcome_message);
         TextView before = (TextView) view.findViewById(id.welcome_message_headline_before);

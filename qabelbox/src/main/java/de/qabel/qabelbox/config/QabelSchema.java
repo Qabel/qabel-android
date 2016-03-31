@@ -1,6 +1,7 @@
 package de.qabel.qabelbox.config;
 
 public class QabelSchema {
+
     public static final String FILE_SUFFIX_CONTACT = "qco";
     public static final String FILE_SUFFIX_IDENTITY = "qid";
 

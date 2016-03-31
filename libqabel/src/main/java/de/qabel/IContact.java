@@ -4,6 +4,7 @@ package de.qabel;
 import java.io.Serializable;
 
 public class IContact implements Serializable {
+
     private String alias;
     private String ecPublicKey;
     private String contactOwnerId;

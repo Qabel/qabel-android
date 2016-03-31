@@ -3,6 +3,7 @@ package de.qabel.qabelbox.storage;
 import de.qabel.core.crypto.QblECPublicKey;
 
 public class BoxExternalFolder extends BoxFolder implements BoxExternal {
+
     public QblECPublicKey owner;
     private boolean isAccessible;
 

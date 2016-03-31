@@ -6,6 +6,7 @@ import org.junit.Test;
 
 
 public class BoxFileTest extends AndroidTestCase {
+
     private static final String PREFIX = "PREFIX";
     private static final String NAME = "BoxFile";
     private static final String BLOCK = "Block";

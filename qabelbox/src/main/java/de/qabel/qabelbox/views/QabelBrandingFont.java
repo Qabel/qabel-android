@@ -10,8 +10,10 @@ import de.qabel.qabelbox.helper.MixedFontHelper;
  * <p/>
  * To use the Art Post font format your text using a SpannableString and mart it as bolditalic. Caution: The font is limited, only uppercase characters will work.
  * <p/>
+ * Created by Jan D.S. Wischweh <mail@wischweh.de> on 02.03.16.
  */
 public class QabelBrandingFont extends TextView {
+
     public QabelBrandingFont(Context context) {
         super(context);
         MixedFontHelper.getInstance().setCustomeFonts(this);

@@ -1,5 +1,6 @@
 package de.qabel.qabelbox.adapter;
 
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.RecyclerView.Adapter;
 import android.support.v7.widget.RecyclerView.ViewHolder;
 import android.view.LayoutInflater;
@@ -10,6 +11,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import de.qabel.core.config.Identities;
 import de.qabel.core.config.Identity;
+import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.R.id;
 import de.qabel.qabelbox.R.layout;
 import de.qabel.qabelbox.adapter.IdentitiesAdapter.IdentityViewHolder;

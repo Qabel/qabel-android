@@ -1,6 +1,7 @@
 package de.qabel;
 
 public class IIdentity {
+
     private String alias;
     private String id;
 

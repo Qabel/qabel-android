@@ -13,6 +13,7 @@ import android.widget.Button;
 import de.qabel.core.config.Identity;
 import de.qabel.core.exceptions.QblDropInvalidURL;
 import de.qabel.qabelbox.QabelBoxApplication;
+import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.R.id;
 import de.qabel.qabelbox.R.layout;
 import de.qabel.qabelbox.R.string;
@@ -29,12 +30,14 @@ import java.io.InputStreamReader;
 import java.net.URISyntaxException;
 
 public class CreateIdentityMainFragment extends BaseIdentityFragment implements OnClickListener {
+
     private Button mCreateIdentity;
     private Button mImportIdentity;
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+
         View view = inflater.inflate(layout.fragment_create_identity_main, container, false);
         mCreateIdentity = (Button) view.findViewById(id.bt_create_identity);
         mImportIdentity = (Button) view.findViewById(id.bt_import_identity);
@@ -45,11 +48,13 @@ public class CreateIdentityMainFragment extends BaseIdentityFragment implements 
 
     @Override
     public String check() {
+
         return null;
     }
 
     @Override
     public void onClick(View v) {
+
         if (v == mCreateIdentity) {
             mActivity.handleNextClick();
         }
@@ -64,6 +69,7 @@ public class CreateIdentityMainFragment extends BaseIdentityFragment implements 
     @Override
     public void onActivityResult(int requestCode, int resultCode,
                                  Intent resultData) {
+
         if (requestCode == CreateIdentityActivity.REQUEST_CODE_IMPORT_IDENTITY && resultCode == Activity.RESULT_OK) {
             importIdentity(mActivity, resultData);
         }

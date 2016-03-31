@@ -10,6 +10,7 @@ import java.util.List;
  * public-key::::prefix::::/filepath
  */
 public class DocumentIdParser {
+
     public String getIdentity(String documentId) throws FileNotFoundException {
         String[] split = documentId.split(BoxProvider.DOCID_SEPARATOR, 2);
         if (split.length > 0 && split[0].length() > 0) {
@@ -47,6 +48,7 @@ public class DocumentIdParser {
     }
 
     public List<String> splitPath(String filePath) {
+
         return new ArrayList<>(Arrays.asList(filePath.split("/")));
     }
 

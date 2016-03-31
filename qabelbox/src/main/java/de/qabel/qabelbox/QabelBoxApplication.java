@@ -16,6 +16,7 @@ import org.spongycastle.jce.provider.BouncyCastleProvider;
 import java.security.Security;
 
 public class QabelBoxApplication extends Application {
+
     private static final String TAG = "QabelBoxApplication";
     private LocalQabelService mService;
     public static final String DEFAULT_DROP_SERVER = "https://test-drop.qabel.de";
@@ -57,6 +58,7 @@ public class QabelBoxApplication extends Application {
 
     @NonNull
     private ServiceConnection getServiceConnection() {
+
         return new ServiceConnection() {
             @Override
             public void onServiceConnected(ComponentName name, IBinder service) {

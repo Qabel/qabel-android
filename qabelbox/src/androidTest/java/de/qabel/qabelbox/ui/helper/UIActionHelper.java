@@ -7,11 +7,14 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
+import android.view.WindowManager;
 import android.view.WindowManager.LayoutParams;
 import de.qabel.qabelbox.activities.MainActivity;
 
 public class UIActionHelper {
+
     void goHome(Activity activity) {
+
         Intent intent = new Intent();
         intent.setAction(Intent.ACTION_MAIN);
         intent.addCategory(Intent.CATEGORY_HOME);
@@ -19,12 +22,14 @@ public class UIActionHelper {
     }
 
     void bringToForeground(Activity activity) {
+
         Intent intent = new Intent(activity, MainActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
         activity.startActivity(intent);
     }
 
     void startActivity(Activity context) {
+
         Intent intent = new Intent(context, MainActivity.class);
         intent.setAction("");
         intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
@@ -32,6 +37,7 @@ public class UIActionHelper {
     }
 
     public static WakeLock wakeupDevice(final Activity activity) {
+
         KeyguardManager keyguardManager = (KeyguardManager) activity.getSystemService(Context.KEYGUARD_SERVICE);
         final KeyguardLock keyguardLock = keyguardManager.newKeyguardLock("Unlock!");
         keyguardLock.disableKeyguard();
@@ -45,6 +51,7 @@ public class UIActionHelper {
         activity.runOnUiThread(new Runnable() {
             @Override
             public void run() {
+
                 activity.getWindow().addFlags(LayoutParams.FLAG_SHOW_WHEN_LOCKED | LayoutParams.FLAG_DISMISS_KEYGUARD
                         | LayoutParams.FLAG_KEEP_SCREEN_ON
                         | LayoutParams.FLAG_TURN_SCREEN_ON

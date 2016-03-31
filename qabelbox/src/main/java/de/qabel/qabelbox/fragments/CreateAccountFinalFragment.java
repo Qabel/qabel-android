@@ -9,18 +9,21 @@ import android.widget.TextView;
 import de.qabel.core.config.Identities;
 import de.qabel.core.config.Identity;
 import de.qabel.qabelbox.QabelBoxApplication;
+import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.R.id;
 import de.qabel.qabelbox.R.layout;
 import de.qabel.qabelbox.R.string;
 import de.qabel.qabelbox.services.LocalQabelService;
 
 public class CreateAccountFinalFragment extends BaseIdentityFragment {
+
     private TextView tvSuccess, tvMessage;
     boolean needCreateIdentity;
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+
         View v = inflater.inflate(layout.fragment_create_identity_final, container, false);
         tvSuccess = (TextView) v.findViewById(id.tv_success);
         tvMessage = (TextView) v.findViewById(id.tv_message);
@@ -51,6 +54,7 @@ public class CreateAccountFinalFragment extends BaseIdentityFragment {
 
     @Override
     public String check() {
+
         return null;
     }
 }

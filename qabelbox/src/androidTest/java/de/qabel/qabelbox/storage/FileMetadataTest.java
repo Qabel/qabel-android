@@ -14,6 +14,7 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
 public class FileMetadataTest {
+
     private static final QblECPublicKey OWNER = new QblECKeyPair().getPub();
 
     private BoxFile boxFile;

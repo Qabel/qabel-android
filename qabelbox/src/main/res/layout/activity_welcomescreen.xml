@@ -37,7 +37,7 @@
             android:drawableRight="@drawable/ic_icon_arrow_right"
             android:gravity="right|center_vertical"
             android:text="@string/btn_welcome_skip"
-            />
+        />
     </LinearLayout>
 
     <FrameLayout

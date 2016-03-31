@@ -8,7 +8,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.TextView;
-
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.activities.BaseWizardActivity;
 
@@ -33,7 +32,7 @@ public class CreateIdentityEditTextFragment extends BaseIdentityFragment {
         fragment.mMessageId = messageId;
         fragment.mEditTextHintId = editTextHintId;
         fragment.mChecker = checker;
-        if(textInputType != null){
+        if (textInputType != null) {
             fragment.inputType = textInputType;
         }
         return fragment;
@@ -42,7 +41,7 @@ public class CreateIdentityEditTextFragment extends BaseIdentityFragment {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle
-            savedInstanceState) {
+        savedInstanceState) {
 
         View view = inflater.inflate(R.layout.fragment_create_identity_edittext, container, false);
 
@@ -50,7 +49,7 @@ public class CreateIdentityEditTextFragment extends BaseIdentityFragment {
         editText = (EditText) view.findViewById(R.id.et_name);
         tvMessage.setText(mMessageId);
         editText.setHint(mEditTextHintId);
-        if(inputType != null){
+        if (inputType != null) {
             editText.setInputType(InputType.TYPE_CLASS_TEXT | inputType);
         }
         return view;

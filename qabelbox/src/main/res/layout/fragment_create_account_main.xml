@@ -31,7 +31,7 @@
         android:layout_height="wrap_content"
         android:drawableRight="@drawable/ic_icon_arrow_right"
         android:text="@string/login"
-        />
+    />
 
     <Space
         android:layout_width="wrap_content"

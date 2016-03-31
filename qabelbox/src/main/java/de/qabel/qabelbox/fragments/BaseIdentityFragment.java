@@ -2,7 +2,6 @@ package de.qabel.qabelbox.fragments;
 
 import android.app.Activity;
 import android.app.Fragment;
-
 import de.qabel.qabelbox.activities.BaseWizardActivity;
 
 /**

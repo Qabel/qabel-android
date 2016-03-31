@@ -27,7 +27,6 @@ import android.view.Gravity;
 import android.view.View;
 import android.widget.HorizontalScrollView;
 import android.widget.ImageView;
-
 import de.qabel.qabelbox.R;
 
 import static android.view.ViewGroup.LayoutParams.FILL_PARENT;

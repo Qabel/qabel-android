@@ -160,14 +160,14 @@ class IcsLinearLayout extends LinearLayout {
     private void drawHorizontalDivider(Canvas canvas, int top) {
 
         mDivider.setBounds(getPaddingLeft() + mDividerPadding, top,
-                getWidth() - getPaddingRight() - mDividerPadding, top + mDividerHeight);
+            getWidth() - getPaddingRight() - mDividerPadding, top + mDividerHeight);
         mDivider.draw(canvas);
     }
 
     private void drawVerticalDivider(Canvas canvas, int left) {
 
         mDivider.setBounds(left, getPaddingTop() + mDividerPadding,
-                left + mDividerWidth, getHeight() - getPaddingBottom() - mDividerPadding);
+            left + mDividerWidth, getHeight() - getPaddingBottom() - mDividerPadding);
         mDivider.draw(canvas);
     }
 

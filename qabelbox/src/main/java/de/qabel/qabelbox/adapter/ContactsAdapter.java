@@ -1,6 +1,5 @@
 package de.qabel.qabelbox.adapter;
 
-import android.opengl.Visibility;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -8,16 +7,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import de.qabel.core.config.Contact;
+import de.qabel.qabelbox.R;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Set;
-
-import de.qabel.core.config.Contact;
-import de.qabel.core.config.Contacts;
-import de.qabel.qabelbox.R;
 
 /**
  * Contacts adapter provides data for a Contacts list in a RecyclerView. Allows to externally
@@ -52,16 +48,16 @@ public class ContactsAdapter extends RecyclerView.Adapter<ContactsAdapter.Contac
         public final TextView mTextViewContactName;
         public final TextView mTextViewContactDetails;
         public final ImageView mImageView;
-		private final View mNewMessageView;
+        private final View mNewMessageView;
 
-		public ContactViewHolder(View v) {
+        public ContactViewHolder(View v) {
 
             super(v);
             v.setOnClickListener(this);
             v.setOnLongClickListener(this);
             mTextViewContactName = (TextView) v.findViewById(R.id.textViewItemName);
             mTextViewContactDetails = (TextView) v.findViewById(R.id.textViewItemDetail);
-			mNewMessageView=v.findViewById(R.id.newMessageIndicator);
+            mNewMessageView = v.findViewById(R.id.newMessageIndicator);
             mImageView = (ImageView) v.findViewById(R.id.itemIcon);
         }
 
@@ -91,8 +87,6 @@ public class ContactsAdapter extends RecyclerView.Adapter<ContactsAdapter.Contac
 
     /**
      * Sets the action to perform on item clicks
-     *
-     * @param onItemClickListener
      */
     public void setOnItemClickListener(OnItemClickListener onItemClickListener, OnItemClickListener onItemLongClickListener) {
 
@@ -104,24 +98,21 @@ public class ContactsAdapter extends RecyclerView.Adapter<ContactsAdapter.Contac
     public ContactViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
 
         View v = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.item_contacts, parent, false);
+            .inflate(R.layout.item_contacts, parent, false);
         return new ContactViewHolder(v);
     }
 
     @Override
     public void onBindViewHolder(ContactViewHolder holder, int position) {
 
-		ContactAdapterItem item = mContacts.get(position);
-		holder.mTextViewContactName.setText(item.getAlias());
+        ContactAdapterItem item = mContacts.get(position);
+        holder.mTextViewContactName.setText(item.getAlias());
         holder.mTextViewContactDetails.setText(item.getEcPublicKey().getReadableKeyIdentifier());
-		if(item.hasNewMessages)
-		{
-			holder.mNewMessageView.setVisibility(View.VISIBLE);
-		}
-		else
-		{
-			holder.mNewMessageView.setVisibility(View.INVISIBLE);
-		}
+        if (item.hasNewMessages) {
+            holder.mNewMessageView.setVisibility(View.VISIBLE);
+        } else {
+            holder.mNewMessageView.setVisibility(View.INVISIBLE);
+        }
 
     }
 

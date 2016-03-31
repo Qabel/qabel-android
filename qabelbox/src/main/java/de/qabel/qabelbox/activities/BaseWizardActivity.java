@@ -4,13 +4,10 @@ import android.app.FragmentTransaction;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-
 import de.qabel.core.accounting.AccountingHTTP;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.fragments.BaseIdentityFragment;
@@ -179,9 +176,6 @@ public abstract class BaseWizardActivity extends CrashReportingActivity {
 
     /**
      * override this if you need special handling on next click
-     *
-     * @param step
-     * @return
      */
     protected boolean canShowNext(int step) {
         return true;

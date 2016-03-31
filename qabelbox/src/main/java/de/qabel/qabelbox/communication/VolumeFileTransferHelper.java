@@ -7,7 +7,11 @@ import android.os.AsyncTask;
 import android.provider.DocumentsContract;
 import android.provider.OpenableColumns;
 import android.util.Log;
-
+import de.qabel.core.config.Identity;
+import de.qabel.qabelbox.providers.BoxProvider;
+import de.qabel.qabelbox.storage.BoxNavigation;
+import de.qabel.qabelbox.storage.BoxObject;
+import de.qabel.qabelbox.storage.BoxVolume;
 import org.apache.commons.io.IOUtils;
 
 import java.io.File;
@@ -15,12 +19,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
-
-import de.qabel.core.config.Identity;
-import de.qabel.qabelbox.providers.BoxProvider;
-import de.qabel.qabelbox.storage.BoxNavigation;
-import de.qabel.qabelbox.storage.BoxObject;
-import de.qabel.qabelbox.storage.BoxVolume;
 
 /**
  * Class to hold uploadAndDeleteLocalfile/download on separate place
@@ -31,14 +29,14 @@ public class VolumeFileTransferHelper {
     private static final String TAG = "DownloadUploadHelper";
     private static final String URI_PREFIX_FILE = "file://";
     public static final String HARDCODED_ROOT = BoxProvider.DOCID_SEPARATOR
-            + BoxProvider.PREFIX + BoxProvider.DOCID_SEPARATOR + BoxProvider.PATH_SEP;
+        + BoxProvider.PREFIX + BoxProvider.DOCID_SEPARATOR + BoxProvider.PATH_SEP;
 
     public static Uri getUri(BoxObject boxObject, BoxVolume boxVolume, BoxNavigation boxNavigation) {
 
         String path = boxNavigation.getPath(boxObject);
         String documentId = boxVolume.getDocumentId(path);
         return DocumentsContract.buildDocumentUri(
-                BoxProvider.AUTHORITY, documentId);
+            BoxProvider.AUTHORITY, documentId);
     }
 
     public static void upload(final Context self, final Uri uri, final BoxNavigation boxNavigation, final BoxVolume boxVolume) {
@@ -70,7 +68,7 @@ public class VolumeFileTransferHelper {
         String path = boxNavigation.getPath();
         String folderId = boxVolume.getDocumentId(path);
         return DocumentsContract.buildDocumentUri(
-                BoxProvider.AUTHORITY, folderId + name);
+            BoxProvider.AUTHORITY, folderId + name);
     }
 
     private static String getName(Context context, Uri uri) {
@@ -98,9 +96,9 @@ public class VolumeFileTransferHelper {
 
         if (name != null) {
             String keyIdentifier = identity.getEcPublicKey()
-                    .getReadableKeyIdentifier();
+                .getReadableKeyIdentifier();
             Uri uploadUri = DocumentsContract.buildDocumentUri(
-                    BoxProvider.AUTHORITY, keyIdentifier + HARDCODED_ROOT + targetFolder + name);
+                BoxProvider.AUTHORITY, keyIdentifier + HARDCODED_ROOT + targetFolder + name);
             try (OutputStream outputStream = context.getContentResolver().openOutputStream(uploadUri, "w");
                  InputStream inputStream = context.getContentResolver().openInputStream(uri)) {
                 if (inputStream == null || outputStream == null) {
@@ -118,9 +116,6 @@ public class VolumeFileTransferHelper {
 
     /**
      * get first prefix from identity
-     *
-     * @param identity
-     * @return
      */
     public static String getPrefixFromIdentity(Identity identity) {
 

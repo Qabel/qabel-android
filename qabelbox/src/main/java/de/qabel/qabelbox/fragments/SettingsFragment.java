@@ -1,15 +1,10 @@
 package de.qabel.qabelbox.fragments;
 
-import android.app.ActivityManager;
-import android.content.Context;
-import android.os.Build;
 import android.os.Bundle;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
-
-import net.hockeyapp.android.FeedbackManager;
-
 import de.qabel.qabelbox.R;
+import net.hockeyapp.android.FeedbackManager;
 
 /**
  * Created by danny on 25.01.2016.
@@ -28,14 +23,14 @@ public class SettingsFragment extends PreferenceFragment {
         // Load the preferences from an XML resource
         addPreferencesFromResource(R.xml.app_settings);
         findPreference(getString(R.string.settings_key_change_password)).setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-			@Override
-			public boolean onPreferenceClick(Preference preference) {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
 
-				getFragmentManager().beginTransaction().replace(R.id.fragment_container_content, new ChangeBoxAccountPasswordFragment()).addToBackStack(null).commit();
-				return true;
-			}
-		});
-		//@todo only for debug. remove in production version
+                getFragmentManager().beginTransaction().replace(R.id.fragment_container_content, new ChangeBoxAccountPasswordFragment()).addToBackStack(null).commit();
+                return true;
+            }
+        });
+        //@todo only for debug. remove in production version
         findPreference(getString(R.string.settings_key_internal_feedback)).setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {

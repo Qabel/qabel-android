@@ -8,13 +8,11 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
-
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.WriterException;
 import com.google.zxing.common.BitArray;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
-
 import de.qabel.core.config.Identity;
 
 /**
@@ -54,9 +52,9 @@ public class QRCodeHelper {
             protected Bitmap doInBackground(Identity... identities) {
 
                 String text = "QABELCONTACT\n"
-                        + identities[0].getAlias() + "\n"
-                        + identities[0].getDropUrls().toArray()[0].toString() + "\n"
-                        + identities[0].getKeyIdentifier();
+                    + identities[0].getAlias() + "\n"
+                    + identities[0].getDropUrls().toArray()[0].toString() + "\n"
+                    + identities[0].getKeyIdentifier();
 
                 QRCodeWriter writer = new QRCodeWriter();
                 try {

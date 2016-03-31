@@ -6,7 +6,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.PowerManager;
 import android.view.WindowManager;
-
 import de.qabel.qabelbox.activities.MainActivity;
 
 /**
@@ -54,9 +53,9 @@ public class UIActionHelper {
             public void run() {
 
                 activity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED | WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD
-                        | WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
-                        | WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
-                        | WindowManager.LayoutParams.FLAG_ALLOW_LOCK_WHILE_SCREEN_ON);
+                    | WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
+                    | WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
+                    | WindowManager.LayoutParams.FLAG_ALLOW_LOCK_WHILE_SCREEN_ON);
             }
         });
         UITestHelper.sleep(500);

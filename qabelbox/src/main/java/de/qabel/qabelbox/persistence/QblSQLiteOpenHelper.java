@@ -14,7 +14,7 @@ class QblSQLiteOpenHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase sqLiteDatabase) {
-       sqLiteDatabase.execSQL(CREATE_TABLE);
+        sqLiteDatabase.execSQL(CREATE_TABLE);
     }
 
     @Override

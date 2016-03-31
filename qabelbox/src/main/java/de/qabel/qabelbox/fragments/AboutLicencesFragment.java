@@ -8,15 +8,13 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-
+import de.qabel.qabelbox.R;
+import de.qabel.qabelbox.adapter.JSONLicencesAdapter;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.InputStream;
-
-import de.qabel.qabelbox.R;
-import de.qabel.qabelbox.adapter.JSONLicencesAdapter;
 
 /**
  * Created by r-hold on 29.02.16.
@@ -27,7 +25,7 @@ public class AboutLicencesFragment extends BaseFragment {
     RecyclerView licensesList;
 
     public static AboutLicencesFragment newInstance() {
-        AboutLicencesFragment fragment=new AboutLicencesFragment();
+        AboutLicencesFragment fragment = new AboutLicencesFragment();
         return fragment;
     }
 

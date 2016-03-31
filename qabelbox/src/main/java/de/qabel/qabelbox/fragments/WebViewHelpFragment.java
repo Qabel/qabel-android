@@ -1,13 +1,8 @@
 package de.qabel.qabelbox.fragments;
 
 import android.os.Bundle;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.View;
-import android.view.ViewGroup;
+import android.view.*;
 import android.webkit.WebView;
-
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.helper.FileHelper;
 
@@ -69,7 +64,7 @@ public class WebViewHelpFragment extends BaseFragment {
         String file = getResources().getStringArray(R.array.help_asset_filenames)[mode];
 
         webView.loadDataWithBaseURL("file:///android_asset/", FileHelper.loadFileFromAssets(getActivity(), "html/help/" + file),
-                "text/html", "utf-8", null);
+            "text/html", "utf-8", null);
 
         configureWebView(webView);
 

@@ -14,7 +14,7 @@
         android:layout_gravity="center_horizontal"
         android:orientation="horizontal"
         android:padding="5dp"
-        >
+    >
 
         <ImageView
             android:id="@+id/itemIcon"
@@ -29,12 +29,11 @@
             android:orientation="vertical">
 
 
-
-                <de.qabel.qabelbox.views.TextViewFont
-                    android:id="@+id/textViewItemName"
-                    style="@style/ListFirstTextLine"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"/>
+            <de.qabel.qabelbox.views.TextViewFont
+                android:id="@+id/textViewItemName"
+                style="@style/ListFirstTextLine"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
 
 
             <de.qabel.qabelbox.views.TextViewFont
@@ -44,7 +43,7 @@
                 android:layout_height="wrap_content"
                 android:ellipsize="end"
                 android:lines="1"
-                />
+            />
 
         </LinearLayout>
     </LinearLayout>

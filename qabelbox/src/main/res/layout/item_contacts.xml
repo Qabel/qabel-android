@@ -14,7 +14,7 @@
         android:layout_gravity="center_horizontal"
         android:orientation="horizontal"
         android:padding="5dp"
-        >
+    >
 
         <ImageView
             android:id="@+id/itemIcon"
@@ -54,7 +54,7 @@
                 android:layout_height="wrap_content"
                 android:ellipsize="end"
                 android:lines="1"
-                />
+            />
 
         </LinearLayout>
     </LinearLayout>

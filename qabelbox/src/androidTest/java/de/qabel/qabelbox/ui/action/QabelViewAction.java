@@ -4,7 +4,6 @@ import android.support.test.espresso.UiController;
 import android.support.test.espresso.ViewAction;
 import android.view.View;
 import android.widget.SeekBar;
-
 import org.hamcrest.Matcher;
 
 import static android.support.test.espresso.matcher.ViewMatchers.isAssignableFrom;
@@ -20,10 +19,12 @@ public class QabelViewAction {
                 SeekBar seekBar = (SeekBar) view;
                 seekBar.setProgress(progress);
             }
+
             @Override
             public String getDescription() {
                 return "Set a progress on a SeekBar";
             }
+
             @Override
             public Matcher<View> getConstraints() {
                 return isAssignableFrom(SeekBar.class);
@@ -31,5 +32,5 @@ public class QabelViewAction {
         };
     }
 
-   
+
 }

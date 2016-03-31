@@ -1,32 +1,25 @@
 package de.qabel.qabelbox.services;
 
-import android.content.ComponentName;
-import android.content.ContentProvider;
-import android.content.ContentValues;
-import android.content.Context;
-import android.content.Intent;
-import android.content.ServiceConnection;
-import android.content.UriMatcher;
+import android.content.*;
 import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.net.Uri;
 import android.os.IBinder;
 import android.util.Log;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-
 import de.qabel.QabelContentProviderConstants;
 import de.qabel.core.config.Contact;
 import de.qabel.core.config.Contacts;
 import de.qabel.core.config.Identity;
 import de.qabel.qabelbox.BuildConfig;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+
 /**
  * QabelResourceProvider provides access to Qabel resources like Contacts and Identities for
  * Qabel client applications.
- *
+ * <p/>
  * QabelResourceProvider hosts the ResourceActorThread and requires the database to be unlocked.
  * Thus before IQabelServiceInternal.RESOURCES_INITIALIZED is received, the provider will only
  * return null values.
@@ -80,11 +73,11 @@ public class QabelContentProvider extends ContentProvider {
     private Cursor queryContacts() {
         MatrixCursor cursor = new MatrixCursor(QabelContentProviderConstants.CONTACT_COLUMN_NAMES);
 
-        for (Contacts contacts: mService.getAllContacts().values()) {
+        for (Contacts contacts : mService.getAllContacts().values()) {
             for (Contact contact : contacts.getContacts()) {
                 String[] values = new String[]{contact.getAlias(),
-                        contacts.getIdentity().getKeyIdentifier(),
-                        contact.getKeyIdentifier()};
+                    contacts.getIdentity().getKeyIdentifier(),
+                    contact.getKeyIdentifier()};
                 cursor.addRow(values);
             }
         }
@@ -95,7 +88,7 @@ public class QabelContentProvider extends ContentProvider {
         MatrixCursor cursor = new MatrixCursor(QabelContentProviderConstants.IDENTITIES_COLUMN_NAMES);
 
         ArrayList<Identity> returnedIdentityList = new ArrayList<>(
-                mService.getIdentities().getIdentities());
+            mService.getIdentities().getIdentities());
         Collections.sort(returnedIdentityList, new Comparator<Identity>() {
             @Override
             public int compare(Identity lhs, Identity rhs) {

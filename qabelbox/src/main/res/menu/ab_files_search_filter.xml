@@ -1,11 +1,11 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools">
+      xmlns:app="http://schemas.android.com/apk/res-auto"
+>
 
 
     <item
         android:id="@+id/action_use_filter"
         android:orderInCategory="200"
         android:title="@string/ab_use_filter"
-        app:showAsAction="always" />
+        app:showAsAction="always"/>
 </menu>

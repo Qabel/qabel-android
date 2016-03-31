@@ -29,8 +29,8 @@ public class PicassoIdlingResource implements IdlingResource, ActivityLifecycleC
 
     public boolean isIdle() {
         return picassoWeakReference == null
-                || picassoWeakReference.get() == null
-                || picassoWeakReference.get().targetToAction.isEmpty();
+            || picassoWeakReference.get() == null
+            || picassoWeakReference.get().targetToAction.isEmpty();
     }
 
     @Override

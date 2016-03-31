@@ -47,7 +47,7 @@
                     android:indeterminate="true"
                     android:progress="0"
                     android:secondaryProgress="10"
-                    />
+                />
             </LinearLayout>
 
             <LinearLayout
@@ -60,7 +60,7 @@
                     style="@style/ListViewLoadingText"
                     android:text="@string/file_list_empty"
 
-                    />
+                />
             </LinearLayout>
         </FrameLayout>
     </FrameLayout>

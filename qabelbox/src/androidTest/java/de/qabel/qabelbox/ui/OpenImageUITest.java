@@ -14,20 +14,8 @@ import android.support.test.espresso.contrib.RecyclerViewActions;
 import android.support.test.espresso.intent.Intents;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.lifecycle.ActivityLifecycleMonitorRegistry;
-
 import com.squareup.picasso.PicassoIdlingResource;
 import com.squareup.spoon.Spoon;
-
-import org.hamcrest.Matcher;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.FixMethodOrder;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runners.MethodSorters;
-
-import java.io.IOException;
-
 import de.qabel.core.config.Identity;
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
@@ -38,6 +26,11 @@ import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.ui.helper.SystemAnimations;
 import de.qabel.qabelbox.ui.helper.UIActionHelper;
 import de.qabel.qabelbox.ui.helper.UIBoxHelper;
+import org.hamcrest.Matcher;
+import org.junit.*;
+import org.junit.runners.MethodSorters;
+
+import java.io.IOException;
 
 import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.Espresso.pressBack;
@@ -46,10 +39,7 @@ import static android.support.test.espresso.assertion.ViewAssertions.matches;
 import static android.support.test.espresso.intent.Intents.intended;
 import static android.support.test.espresso.intent.Intents.intending;
 import static android.support.test.espresso.intent.matcher.IntentMatchers.hasAction;
-import static android.support.test.espresso.matcher.ViewMatchers.hasDescendant;
-import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
-import static android.support.test.espresso.matcher.ViewMatchers.withId;
-import static android.support.test.espresso.matcher.ViewMatchers.withText;
+import static android.support.test.espresso.matcher.ViewMatchers.*;
 import static de.qabel.qabelbox.ui.matcher.QabelMatcher.withDrawable;
 import static org.hamcrest.core.AllOf.allOf;
 //import static de.qabel.qabelbox.ui.matcher.QabelMatcher.withDrawable;
@@ -84,7 +74,7 @@ public class OpenImageUITest {
         wakeLock.release();
         Espresso.unregisterIdlingResources(mPicassoIdlingResource);
         mSystemAnimations.enableAll();
-		mBoxHelper.unbindService(QabelBoxApplication.getInstance());
+        mBoxHelper.unbindService(QabelBoxApplication.getInstance());
     }
 
     @Before
@@ -94,19 +84,19 @@ public class OpenImageUITest {
         URLs.setBaseBlockURL(TestConstants.BLOCK_URL);
         Espresso.registerIdlingResources(mPicassoIdlingResource);
         ActivityLifecycleMonitorRegistry
-                .getInstance()
-                .addLifecycleCallback(mPicassoIdlingResource);
+            .getInstance()
+            .addLifecycleCallback(mPicassoIdlingResource);
         wakeLock = UIActionHelper.wakeupDevice(mActivity);
         mSystemAnimations = new SystemAnimations(mActivity);
         mSystemAnimations.disableAll();
     }
 
     private void setupData() {
-		mActivity = mActivityTestRule.getActivity();
+        mActivity = mActivityTestRule.getActivity();
         URLs.setBaseBlockURL(TestConstants.BLOCK_URL);
-		mBoxHelper = new UIBoxHelper(QabelBoxApplication.getInstance());
-		mBoxHelper.bindService(QabelBoxApplication.getInstance());
-		mBoxHelper.createTokenIfNeeded(false);
+        mBoxHelper = new UIBoxHelper(QabelBoxApplication.getInstance());
+        mBoxHelper.bindService(QabelBoxApplication.getInstance());
+        mBoxHelper.createTokenIfNeeded(false);
         try {
             Identity old = mBoxHelper.getCurrentIdentity();
             if (old != null) {
@@ -115,7 +105,7 @@ public class OpenImageUITest {
         } catch (Exception e) {
             e.printStackTrace();
         }
-		mBoxHelper.removeAllIdentities();
+        mBoxHelper.removeAllIdentities();
         mBoxHelper.addIdentity("spoon");
         uploadTestFiles();
     }
@@ -142,7 +132,7 @@ public class OpenImageUITest {
         testFile("file2.png");
         Spoon.screenshot(mActivity, "open_png");
         Instrumentation.ActivityResult activityResult = new Instrumentation.ActivityResult(
-                Activity.RESULT_OK, new Intent());
+            Activity.RESULT_OK, new Intent());
         Intents.init();
         Matcher<Intent> expectedIntent = allOf(hasAction(Intent.ACTION_CHOOSER));
         intending(expectedIntent).respondWith(activityResult);
@@ -164,8 +154,8 @@ public class OpenImageUITest {
     private void testFile(String file) {
 
         onView(withId(R.id.files_list))
-                .perform(RecyclerViewActions.actionOnItem(
-                        hasDescendant(withText(file)), click()));
+            .perform(RecyclerViewActions.actionOnItem(
+                hasDescendant(withText(file)), click()));
         onView(withId(R.id.image)).check(matches(isDisplayed()));
         onView(withId(R.id.action_imageviewer_edit)).check(matches(isDisplayed()));
         onView(withId(R.id.action_imageviewer_open)).check(matches(isDisplayed()));

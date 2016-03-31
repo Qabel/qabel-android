@@ -3,4 +3,4 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:contentAuthority="de.qabel.qabelbox.providers.BoxContentProvider"
     android:accountType="de.qabel"
-    android:userVisible="true" />
+    android:userVisible="true"/>

@@ -15,7 +15,7 @@ import java.util.Calendar;
  */
 
 public class DatePickerFragment extends DialogFragment implements
-        DatePickerDialog.OnDateSetListener {
+    DatePickerDialog.OnDateSetListener {
     private CallbackListener mCallback;
     private long mMaxDate;
     private long mMinDate;

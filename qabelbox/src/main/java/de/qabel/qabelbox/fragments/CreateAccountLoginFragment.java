@@ -5,19 +5,9 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
+import android.view.*;
 import android.widget.EditText;
 import android.widget.TextView;
-
-import org.json.JSONObject;
-
-import java.util.ArrayList;
-
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.communication.BoxAccountRegisterServer;
 import de.qabel.qabelbox.communication.callbacks.SimpleJsonCallback;
@@ -25,6 +15,9 @@ import de.qabel.qabelbox.config.AppPreference;
 import de.qabel.qabelbox.helper.UIHelper;
 import okhttp3.Call;
 import okhttp3.Response;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
 
 /**
  * Created by danny on 19.01.16.
@@ -40,7 +33,7 @@ public class CreateAccountLoginFragment extends BaseIdentityFragment {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle
-            savedInstanceState) {
+        savedInstanceState) {
 
         View view = inflater.inflate(R.layout.fragment_create_account_login, container, false);
         etUserName = ((TextView) view.findViewById(R.id.et_username));
@@ -107,19 +100,19 @@ public class CreateAccountLoginFragment extends BaseIdentityFragment {
             void showRetryDialog() {
 
                 UIHelper.showDialogMessage(getActivity(), R.string.dialog_headline_info, R.string.server_access_not_successfully_retry_question, R.string.yes, R.string.no, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
 
-                        login(username, password);
+                            login(username, password);
+                        }
                     }
-                }
-                        , new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
+                    , new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
 
-                        dialog.dismiss();
-                    }
-                });
+                            dialog.dismiss();
+                        }
+                    });
             }
 
             protected void onError(final Call call, Reasons reasons) {

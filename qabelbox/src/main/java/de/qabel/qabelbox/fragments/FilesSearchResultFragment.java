@@ -4,16 +4,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
-
-import java.util.ArrayList;
-import java.util.List;
-
+import android.view.*;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.activities.MainActivity;
 import de.qabel.qabelbox.adapter.FilesAdapter;
@@ -21,6 +12,9 @@ import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.storage.BoxFile;
 import de.qabel.qabelbox.storage.BoxObject;
 import de.qabel.qabelbox.storage.StorageSearch;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by danny on 08.01.2016.
@@ -128,8 +122,6 @@ public class FilesSearchResultFragment extends FilesFragment {
 
     /**
      * fill adapter with file list
-     *
-     * @param results
      */
     private void fillAdapter(List<BoxObject> results) {
 

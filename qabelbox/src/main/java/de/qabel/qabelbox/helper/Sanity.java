@@ -2,7 +2,6 @@ package de.qabel.qabelbox.helper;
 
 import android.app.Activity;
 import android.content.Intent;
-
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.activities.BaseWizardActivity;
 import de.qabel.qabelbox.activities.CreateAccountActivity;

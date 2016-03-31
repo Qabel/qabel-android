@@ -6,15 +6,6 @@ import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.SeekBar;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.IOException;
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.Collection;
-
 import de.qabel.core.config.DropServer;
 import de.qabel.core.config.Identities;
 import de.qabel.core.config.Identity;
@@ -25,15 +16,18 @@ import de.qabel.core.drop.DropURL;
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.communication.PrefixServer;
-import de.qabel.qabelbox.fragments.BaseIdentityFragment;
-import de.qabel.qabelbox.fragments.CreateIdentityDropBitsFragment;
-import de.qabel.qabelbox.fragments.CreateIdentityEditTextFragment;
-import de.qabel.qabelbox.fragments.CreateIdentityFinalFragment;
-import de.qabel.qabelbox.fragments.CreateIdentityMainFragment;
+import de.qabel.qabelbox.fragments.*;
 import de.qabel.qabelbox.services.LocalQabelService;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Response;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.Collection;
 
 /**
  * Created by danny on 11.01.2016.
@@ -81,7 +75,7 @@ public class CreateIdentityActivity extends BaseWizardActivity {
     public void handleNextClick() {
 
         super.handleNextClick();
-        if(step>0&&tryCount!=3&&prefix==null) {
+        if (step > 0 && tryCount != 3 && prefix == null) {
             loadPrefixInBackground();
         }
     }
@@ -142,8 +136,8 @@ public class CreateIdentityActivity extends BaseWizardActivity {
                 Collection<DropURL> dropURLs = new ArrayList<>();
                 dropURLs.add(dropURL);
                 Identity identity = new Identity(getIdentityName(),
-                        dropURLs, new QblECKeyPair());
-                Log.d(TAG,"add prefix to identity: "+prefix);
+                    dropURLs, new QblECKeyPair());
+                Log.d(TAG, "add prefix to identity: " + prefix);
                 identity.getPrefixes().add(prefix);
                 return identity;
             }
@@ -221,7 +215,9 @@ public class CreateIdentityActivity extends BaseWizardActivity {
                     Log.d(TAG, "Server response code: " + response.code());
 
                     if (code == 201) {
-                        if (parsePrefix(response)) return;
+                        if (parsePrefix(response)) {
+                            return;
+                        }
                     }
                     tryCount++;
                     loadPrefixInBackground();
@@ -230,7 +226,7 @@ public class CreateIdentityActivity extends BaseWizardActivity {
         }
     }
 
-    public  boolean parsePrefix(Response response) throws IOException {
+    public boolean parsePrefix(Response response) throws IOException {
         String text = response.body().string();
         try {
             PrefixServer.ServerResponse result = PrefixServer.parseJson(new JSONObject(text));
@@ -238,9 +234,9 @@ public class CreateIdentityActivity extends BaseWizardActivity {
             prefix = result.prefix;
             return true;
         } catch (JSONException e) {
-            if(text.startsWith("\"")&&text.charAt(text.length()-1)=='"') {
-                prefix=text.substring(1,text.length()-1);
-                Log.w(TAG, "prefix temp until server fix: "+prefix+" "+text);
+            if (text.startsWith("\"") && text.charAt(text.length() - 1) == '"') {
+                prefix = text.substring(1, text.length() - 1);
+                Log.w(TAG, "prefix temp until server fix: " + prefix + " " + text);
                 return true;
             }
             Log.w(TAG, "error on parse service response", e);

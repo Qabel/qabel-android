@@ -6,15 +6,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import de.qabel.core.config.Identities;
+import de.qabel.core.config.Identity;
+import de.qabel.qabelbox.R;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-
-import de.qabel.core.config.Identities;
-import de.qabel.core.config.Identity;
-import de.qabel.qabelbox.R;
 
 /**
  * Identities adapter provides data for a Identity list in a RecyclerView. Allows to externally
@@ -32,6 +31,7 @@ public class IdentitiesAdapter extends RecyclerView.Adapter<IdentitiesAdapter.Id
         public final TextView mTextViewIdentityName;
         public final TextView mTextViewIdentityDetails;
         public final ImageView mImageView;
+
         public IdentityViewHolder(View v) {
             super(v);
             v.setOnClickListener(this);
@@ -54,7 +54,6 @@ public class IdentitiesAdapter extends RecyclerView.Adapter<IdentitiesAdapter.Id
 
     /**
      * Sets the action to perform on item clicks
-     * @param onItemClickListener
      */
     public void setOnItemClickListener(OnItemClickListener onItemClickListener) {
         this.onItemClickListener = onItemClickListener;
@@ -63,13 +62,13 @@ public class IdentitiesAdapter extends RecyclerView.Adapter<IdentitiesAdapter.Id
     @Override
     public IdentityViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View v = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.item_identities, parent, false);
+            .inflate(R.layout.item_identities, parent, false);
         return new IdentityViewHolder(v);
     }
 
     @Override
     public void onBindViewHolder(IdentityViewHolder holder, int position) {
-		Identity item = mIdentities.get(position);
+        Identity item = mIdentities.get(position);
         holder.mTextViewIdentityName.setText(item.getAlias());
         holder.mTextViewIdentityDetails.setText(item.getEcPublicKey().getReadableKeyIdentifier());
     }

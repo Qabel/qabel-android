@@ -6,14 +6,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
-
-import java.util.Iterator;
-import java.util.Set;
-
 import de.qabel.core.config.Contact;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.activities.MainActivity;
 import de.qabel.qabelbox.helper.UIHelper;
+
+import java.util.Iterator;
+import java.util.Set;
 
 /**
  * class to show identitiy list dialog for uploading
@@ -24,7 +23,7 @@ public class SelectContactForShareDialog {
     public SelectContactForShareDialog(final MainActivity activity, final Result result) {
 
         LayoutInflater inflater = (LayoutInflater)
-                activity.getSystemService(Activity.LAYOUT_INFLATER_SERVICE);
+            activity.getSystemService(Activity.LAYOUT_INFLATER_SERVICE);
         View view = inflater.inflate(R.layout.dialog_select_contact, null);
         final Spinner mIdentitySpinner = (Spinner) view.findViewById(R.id.spinner_identities);
 
@@ -43,20 +42,20 @@ public class SelectContactForShareDialog {
         spinnerArrayAdapter.setDropDownViewResource(R.layout.view_spinner);
         mIdentitySpinner.setAdapter(spinnerArrayAdapter);
         UIHelper.showCustomDialog(activity, R.string.headline_share_to_qabeluser, view, R.string.ok, R.string.cancel, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
 
-                        Contact identity = contactList[mIdentitySpinner.getSelectedItemPosition()];
-                        result.onContactSelected(identity);
-                    }
+                    Contact identity = contactList[mIdentitySpinner.getSelectedItemPosition()];
+                    result.onContactSelected(identity);
                 }
-                , new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
+            }
+            , new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
 
-                        result.onCancel();
-                    }
+                    result.onCancel();
                 }
+            }
         );
     }
 

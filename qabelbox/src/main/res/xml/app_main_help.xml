@@ -5,7 +5,7 @@
             android:key="@string/help_key_main_app_version"
             android:selectable="false"
             android:summary="@string/debug_send_feedback_to_pm"
-            />
+        />
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/help">
         <Preference

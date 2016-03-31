@@ -3,7 +3,6 @@ package de.qabel.qabelbox.services;
 import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
-
 import de.qabel.qabelbox.adapter.BoxSyncAdapter;
 
 public class BoxSyncService extends Service {
@@ -18,7 +17,7 @@ public class BoxSyncService extends Service {
         synchronized (syncAdapterLock) {
             if (boxSyncAdapter == null) {
                 boxSyncAdapter = new
-                        BoxSyncAdapter(getApplicationContext(), true);
+                    BoxSyncAdapter(getApplicationContext(), true);
             }
         }
     }

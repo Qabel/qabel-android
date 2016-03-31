@@ -56,7 +56,7 @@
                         android:indeterminate="true"
                         android:progress="0"
                         android:secondaryProgress="10"
-                        />
+                    />
                 </LinearLayout>
 
                 <LinearLayout
@@ -78,7 +78,7 @@
                         android:layout_height="wrap_content"
                         android:gravity="center_horizontal"
                         android:text="@string/file_list_empty"
-                        />
+                    />
 
                     <ImageView
                         android:layout_width="match_parent"

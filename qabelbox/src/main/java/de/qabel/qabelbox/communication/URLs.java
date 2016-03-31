@@ -1,7 +1,6 @@
 package de.qabel.qabelbox.communication;
 
 import android.content.Context;
-
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
 
@@ -71,7 +70,6 @@ public class URLs {
 
     /**
      * get files url for block server
-     * @return
      */
     public String getFiles() {
 
@@ -80,8 +78,6 @@ public class URLs {
 
     /**
      * get files url for block server
-     *
-     * @return
      */
     public String getFilesBlock() {
 

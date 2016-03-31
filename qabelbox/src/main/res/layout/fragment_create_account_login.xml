@@ -51,7 +51,7 @@
         android:gravity="right"
         android:textColor="@color/colorPrimary"
         android:text="@string/btn_reset_password"
-     />
+    />
 
 
     <Space

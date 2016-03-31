@@ -3,7 +3,6 @@ package de.qabel.qabelbox.helper;
 import android.content.Context;
 import android.graphics.Typeface;
 import android.widget.TextView;
-
 import de.qabel.qabelbox.R;
 
 /**

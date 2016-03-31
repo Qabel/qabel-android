@@ -13,22 +13,19 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import de.qabel.qabelbox.BuildConfig;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.views.ButtonFont;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 /**
  * Created by Jan D.S. Wischweh <mail@wischweh.de> on 01.03.16.
  */
 public class JSONLicencesAdapter extends RecyclerView.Adapter<JSONLicencesAdapter.LicenceViewHolder> {
 
-    public static String TAG="JSONLicencesAdapter";
+    public static String TAG = "JSONLicencesAdapter";
 
     enum TYPE {
         Header,
@@ -135,15 +132,15 @@ public class JSONLicencesAdapter extends RecyclerView.Adapter<JSONLicencesAdapte
         @Override
         public void onClick(View v) {
             AlertDialog alertDialog = new AlertDialog.Builder(ctx).create();
-			alertDialog.setTitle(licenceText);
-			alertDialog.setMessage(licenceContentText);
-			alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
-				new DialogInterface.OnClickListener() {
-					public void onClick(DialogInterface dialog, int which) {
-						dialog.dismiss();
-					}
-				});
-			alertDialog.show();
+            alertDialog.setTitle(licenceText);
+            alertDialog.setMessage(licenceContentText);
+            alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                });
+            alertDialog.show();
         }
     }
 
@@ -171,11 +168,11 @@ public class JSONLicencesAdapter extends RecyclerView.Adapter<JSONLicencesAdapte
             alertDialog.setTitle("QAPL");
             alertDialog.setMessage(qapl);
             alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
-                    new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int which) {
-                            dialog.dismiss();
-                        }
-                    });
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                });
             alertDialog.show();
         }
     }

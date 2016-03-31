@@ -19,31 +19,32 @@ import static org.hamcrest.core.AllOf.allOf;
  */
 public class DocumentIntents {
 
-	public void handleSaveFileIntent(File file) {
+    public void handleSaveFileIntent(File file) {
 
-		Intent data = new Intent();
-		data.setData(Uri.fromFile(file));
+        Intent data = new Intent();
+        data.setData(Uri.fromFile(file));
 
-		Intents.intending(allOf(
-				hasAction(Intent.ACTION_CREATE_DOCUMENT),
-				hasCategories(hasItem(Intent.CATEGORY_OPENABLE))
-		)).respondWith(
-				new Instrumentation.ActivityResult(Activity.RESULT_OK, data)
-		);
+        Intents.intending(allOf(
+            hasAction(Intent.ACTION_CREATE_DOCUMENT),
+            hasCategories(hasItem(Intent.CATEGORY_OPENABLE))
+        )).respondWith(
+            new Instrumentation.ActivityResult(Activity.RESULT_OK, data)
+        );
 
-	}
-	public void handleLoadFileIntent(File file) {
+    }
 
-		Intent data = new Intent();
-		data.setData(Uri.fromFile(file));
+    public void handleLoadFileIntent(File file) {
 
-		Intents.intending(allOf(
-				hasAction(Intent.ACTION_OPEN_DOCUMENT),
-				hasCategories(hasItem(Intent.CATEGORY_OPENABLE))
-		)).respondWith(
-				new Instrumentation.ActivityResult(Activity.RESULT_OK, data)
-		);
+        Intent data = new Intent();
+        data.setData(Uri.fromFile(file));
 
-	}
+        Intents.intending(allOf(
+            hasAction(Intent.ACTION_OPEN_DOCUMENT),
+            hasCategories(hasItem(Intent.CATEGORY_OPENABLE))
+        )).respondWith(
+            new Instrumentation.ActivityResult(Activity.RESULT_OK, data)
+        );
+
+    }
 
 }

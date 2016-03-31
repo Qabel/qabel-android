@@ -18,7 +18,7 @@
             android:layout_height="match_parent"
             android:layout_gravity="center"
             android:adjustViewBounds="true"
-            android:scaleType="fitXY" />
+            android:scaleType="fitXY"/>
     </de.qabel.qabelbox.views.SquareFrameLayout>
 
     <ScrollView
@@ -39,7 +39,7 @@
                 android:drawableStart="@drawable/ic_perm_identity_black"
                 android:gravity="center"
                 android:paddingBottom="10dp"
-                android:paddingTop="5dp" />
+                android:paddingTop="5dp"/>
 
             <de.qabel.qabelbox.views.TextViewFont
                 android:id="@+id/editTextContactDropURL"
@@ -49,7 +49,7 @@
                 android:drawableStart="@drawable/ic_share_black"
                 android:hint="@string/contact_drop_url"
                 android:inputType="textUri"
-                android:paddingBottom="10dp" />
+                android:paddingBottom="10dp"/>
 
             <de.qabel.qabelbox.views.TextViewFont
                 android:id="@+id/editTextContactPublicKey"
@@ -58,7 +58,7 @@
                 android:layout_height="wrap_content"
 
                 android:drawableStart="@drawable/ic_settings_black"
-                android:hint="@string/contact_public_key" />
+                android:hint="@string/contact_public_key"/>
 
 
         </LinearLayout>

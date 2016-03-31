@@ -28,7 +28,7 @@ import de.qabel.qabelbox.views.ButtonFont;
  */
 public class JSONLicencesAdapter extends RecyclerView.Adapter<JSONLicencesAdapter.LicenceViewHolder> {
 
-    public static String TAG="JSONLicencesAdapter";
+    public static String TAG = "JSONLicencesAdapter";
 
     enum TYPE {
         Header,
@@ -135,15 +135,15 @@ public class JSONLicencesAdapter extends RecyclerView.Adapter<JSONLicencesAdapte
         @Override
         public void onClick(View v) {
             AlertDialog alertDialog = new AlertDialog.Builder(ctx).create();
-			alertDialog.setTitle(licenceText);
-			alertDialog.setMessage(licenceContentText);
-			alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
-				new DialogInterface.OnClickListener() {
-					public void onClick(DialogInterface dialog, int which) {
-						dialog.dismiss();
-					}
-				});
-			alertDialog.show();
+            alertDialog.setTitle(licenceText);
+            alertDialog.setMessage(licenceContentText);
+            alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
+                    new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                        }
+                    });
+            alertDialog.show();
         }
     }
 

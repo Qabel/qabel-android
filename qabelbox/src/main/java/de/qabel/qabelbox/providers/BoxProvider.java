@@ -53,8 +53,8 @@ import de.qabel.core.crypto.QblECKeyPair;
 import de.qabel.qabelbox.BuildConfig;
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
-import de.qabel.qabelbox.communication.VolumeFileTransferHelper;
 import de.qabel.qabelbox.exceptions.QblStorageException;
+import de.qabel.qabelbox.exceptions.QblStorageNameConflict;
 import de.qabel.qabelbox.exceptions.QblStorageNotFound;
 import de.qabel.qabelbox.services.LocalBroadcastConstants;
 import de.qabel.qabelbox.services.LocalQabelService;
@@ -351,7 +351,7 @@ public class BoxProvider extends DocumentsProvider {
 
     /**
      * Create and fill a new MatrixCursor
-     * <p/>
+     * <p>
      * The cursor can be modified to show a loading and/or an error message.
      *
      * @param parentDocumentId
@@ -657,7 +657,7 @@ public class BoxProvider extends DocumentsProvider {
             Log.d(TAG, "find file: " + file.name);
             if (file instanceof BoxExternalFile) {
                 if (file.name.equals(basename)) {
-                    return (BoxExternalFile)file;
+                    return (BoxExternalFile) file;
                 }
             }
         }
@@ -685,8 +685,13 @@ public class BoxProvider extends DocumentsProvider {
 
             return parentDocumentId + displayName;
         } catch (QblStorageException e) {
-            Log.e(TAG, "could not create file", e);
-            throw new FileNotFoundException();
+            String msg = "could not create file";
+            Log.e(TAG, msg, e);
+            throw new RuntimeException(msg, e);
+        } catch (QblStorageNameConflict e) {
+            String msg = "could not create file due to name conflict";
+            Log.e(TAG, msg, e);
+            throw new RuntimeException(msg, e);
         }
     }
 
@@ -758,8 +763,13 @@ public class BoxProvider extends DocumentsProvider {
             }
             throw new FileNotFoundException();
         } catch (QblStorageException e) {
-            Log.e(TAG, "could not create file", e);
-            throw new FileNotFoundException();
+            String msg = "could not create file";
+            Log.e(TAG, msg, e);
+            throw new RuntimeException(msg, e);
+        } catch (QblStorageNameConflict e) {
+            String msg = "could not create file due to a name conflict";
+            Log.e(TAG, msg, e);
+            throw new RuntimeException(msg, e);
         }
     }
 

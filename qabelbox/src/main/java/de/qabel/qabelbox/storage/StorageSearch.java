@@ -211,7 +211,7 @@ public class StorageSearch {
 
         for (BoxObject o : results) {
             if (o instanceof BoxFile) {
-                Date boxDate = new Date(((BoxFile) o).mtime*1000);
+                Date boxDate = new Date(((BoxFile) o).mtime * 1000);
                 boolean isBeforeMinimumDate = boxDate.before(date) && date.getTime() != boxDate.getTime();
                 boolean isAfterMaximumDate = boxDate.after(date);
                 boolean isInvalid = (minDate && isBeforeMinimumDate) || (!minDate && isAfterMaximumDate);
@@ -351,9 +351,9 @@ public class StorageSearch {
             }
             if (item instanceof BoxExternalFile) {
                 clone.add(((BoxExternalFile) item).clone());
-            } else if (item instanceof BoxExternalFolder){
-				clone.add(((BoxExternalFolder) item).clone());
-			} else if (item instanceof BoxFolder) {
+            } else if (item instanceof BoxExternalFolder) {
+                clone.add(((BoxExternalFolder) item).clone());
+            } else if (item instanceof BoxFolder) {
                 clone.add(((BoxFolder) item).clone());
             }
         }

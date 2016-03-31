@@ -5,6 +5,7 @@
              android:background="#cc000000"
              android:clickable="true"
              android:orientation="vertical">
+
     <ProgressBar
         android:id="@+id/pb_loading"
         style="?android:attr/progressBarStyleHorizontal"
@@ -16,6 +17,7 @@
         android:progress="0"
         android:secondaryProgress="10"
         />
+
     <ImageView
         android:id="@+id/image"
         android:layout_width="wrap_content"

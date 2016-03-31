@@ -185,8 +185,8 @@ public class ImportExportContactsUITest {
             ContactFragment contactFragment = (ContactFragment) mActivity.getFragmentManager().findFragmentById(R.id.fragment_container);
             contactFragment.enableDocumentProvider(false);
             final LocalQabelService service = QabelBoxApplication.getInstance().getService();
-            Contact contact=service.getContacts().getContacts().iterator().next();
-            userName=contact.getAlias();
+            Contact contact = service.getContacts().getContacts().iterator().next();
+            userName = contact.getAlias();
             contactFragment.exportContact(contact);
             contactFragment.onActivityResult(ContactFragment.REQUEST_EXPORT_CONTACT, Activity.RESULT_OK, data);
 

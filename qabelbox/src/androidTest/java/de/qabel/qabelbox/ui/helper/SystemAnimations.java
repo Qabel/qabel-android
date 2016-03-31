@@ -10,7 +10,7 @@ import java.lang.reflect.Method;
 
 /**
  * Disable animations so that they do not interfere with Espresso tests.
- *
+ * <p>
  * Source: https://code.google.com/p/android-test-kit/wiki/DisablingAnimations
  */
 public final class SystemAnimations extends AndroidJUnitRunner {
@@ -28,10 +28,8 @@ public final class SystemAnimations extends AndroidJUnitRunner {
         int permStatus = context.checkCallingOrSelfPermission(ANIMATION_PERMISSION);
         if (permStatus == PackageManager.PERMISSION_GRANTED) {
             setSystemAnimationsScale(DISABLED);
-        }
-        else
-        {
-            Log.e(this.getClass().getSimpleName(),"can't deactivate animations");
+        } else {
+            Log.e(this.getClass().getSimpleName(), "can't deactivate animations");
         }
     }
 

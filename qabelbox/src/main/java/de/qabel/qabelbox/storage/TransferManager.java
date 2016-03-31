@@ -59,7 +59,7 @@ public class TransferManager {
      *
      * @param prefix              prefix from identity
      * @param name                localfile name with path
-     * @param localfile                localfile to uploadAndDeleteLocalfile
+     * @param localfile           localfile to uploadAndDeleteLocalfile
      * @param boxTransferListener listener
      * @return new download id
      */

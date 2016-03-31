@@ -33,7 +33,7 @@ import de.qabel.qabelbox.R;
  * Clients can register to receive certain DropMessages by sending a
  * {@link ServiceConstants.MSG_REGISTER_ON_TYPE} Message with the replyTo field pointing to an
  * incoming Messenger of the client.
- *
+ * <p>
  * The service is started when a client binds to the service and stopped when the last client
  * unbinds.
  */
@@ -81,7 +81,7 @@ public class QabelService extends Service {
 
 
                             Identity sender = mService.getIdentities().getByKeyIdentifier(dropSenderId);
-                            Contact recipient =mService.getContacts().getByKeyIdentifier(dropRecipientId);
+                            Contact recipient = mService.getContacts().getByKeyIdentifier(dropRecipientId);
 
                             if (sender != null && recipient != null) {
                                 DropMessage dropMessage = new DropMessage(sender, dropPayload, dropPayloadType);
@@ -89,12 +89,12 @@ public class QabelService extends Service {
                                 try {
                                     mService.sendDropMessage(dropMessage, recipient, sender,
                                             new LocalQabelService.OnSendDropMessageResult() {
-                                        @Override
-                                        public void onSendDropResult(Map<DropURL, Boolean> deliveryStatus) {
-                                            //TODO: Ignored for now
+                                                @Override
+                                                public void onSendDropResult(Map<DropURL, Boolean> deliveryStatus) {
+                                                    //TODO: Ignored for now
 
-                                        }
-                                    });
+                                                }
+                                            });
                                 } catch (QblDropPayloadSizeException e) {
                                     //TODO: Ignored for now
                                     e.printStackTrace();
@@ -121,7 +121,7 @@ public class QabelService extends Service {
 
         setNotification("Qabel Service starting");
 
-		initServiceResources();
+        initServiceResources();
     }
 
     @Override

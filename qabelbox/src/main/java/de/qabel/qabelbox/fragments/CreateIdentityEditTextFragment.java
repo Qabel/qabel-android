@@ -33,7 +33,7 @@ public class CreateIdentityEditTextFragment extends BaseIdentityFragment {
         fragment.mMessageId = messageId;
         fragment.mEditTextHintId = editTextHintId;
         fragment.mChecker = checker;
-        if(textInputType != null){
+        if (textInputType != null) {
             fragment.inputType = textInputType;
         }
         return fragment;
@@ -50,7 +50,7 @@ public class CreateIdentityEditTextFragment extends BaseIdentityFragment {
         editText = (EditText) view.findViewById(R.id.et_name);
         tvMessage.setText(mMessageId);
         editText.setHint(mEditTextHintId);
-        if(inputType != null){
+        if (inputType != null) {
             editText.setInputType(InputType.TYPE_CLASS_TEXT | inputType);
         }
         return view;

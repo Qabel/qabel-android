@@ -13,7 +13,7 @@ import okhttp3.RequestBody;
 
 /**
  * Created by danny on 11.02.2016.
- * <p/>
+ * <p>
  * class to handle prefix server network action
  */
 public class BlockServer extends BaseServer {
@@ -32,7 +32,7 @@ public class BlockServer extends BaseServer {
 
     private void doServerAction(Context context, String prefix, String path, String method, RequestBody body, Callback callback) {
         String apiURL = urls.getFiles();
-	    Uri.Builder uriBuilder = Uri.parse(apiURL).buildUpon()
+        Uri.Builder uriBuilder = Uri.parse(apiURL).buildUpon()
                 .appendPath(prefix);
         if (path.startsWith(BLOCKS)) {
             uriBuilder.appendPath("blocks");

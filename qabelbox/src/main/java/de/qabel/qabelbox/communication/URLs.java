@@ -71,6 +71,7 @@ public class URLs {
 
     /**
      * get files url for block server
+     *
      * @return
      */
     public String getFiles() {

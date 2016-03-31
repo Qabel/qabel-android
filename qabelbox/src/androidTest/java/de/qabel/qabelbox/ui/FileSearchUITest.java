@@ -51,94 +51,94 @@ import static android.support.test.espresso.matcher.ViewMatchers.withId;
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class FileSearchUITest {
 
-	@Rule
-	public ActivityTestRule<MainActivity> mActivityTestRule = new ActivityTestRule<>(MainActivity.class, false, true);
+    @Rule
+    public ActivityTestRule<MainActivity> mActivityTestRule = new ActivityTestRule<>(MainActivity.class, false, true);
 
-	private MainActivity mActivity;
-	private UIBoxHelper mBoxHelper;
-	private final boolean mFillAccount = true;
-	private PowerManager.WakeLock wakeLock;
-	SystemAnimations mSystemAnimations;
+    private MainActivity mActivity;
+    private UIBoxHelper mBoxHelper;
+    private final boolean mFillAccount = true;
+    private PowerManager.WakeLock wakeLock;
+    SystemAnimations mSystemAnimations;
 
-	public FileSearchUITest() throws IOException {
-		//setup data before MainActivity launched. This avoid the call to create identity
-		if (mFillAccount) {
-			setupData();
-		}
-	}
+    public FileSearchUITest() throws IOException {
+        //setup data before MainActivity launched. This avoid the call to create identity
+        if (mFillAccount) {
+            setupData();
+        }
+    }
 
-	@After
-	public void cleanUp() {
+    @After
+    public void cleanUp() {
 
-		wakeLock.release();
-		mSystemAnimations.enableAll();
-		mBoxHelper.unbindService(QabelBoxApplication.getInstance());
-	}
+        wakeLock.release();
+        mSystemAnimations.enableAll();
+        mBoxHelper.unbindService(QabelBoxApplication.getInstance());
+    }
 
-	@Before
-	public void setUp() throws IOException, QblStorageException {
+    @Before
+    public void setUp() throws IOException, QblStorageException {
 
-		mActivity = mActivityTestRule.getActivity();
-		wakeLock = UIActionHelper.wakeupDevice(mActivity);
-		mSystemAnimations = new SystemAnimations(mActivity);
-		mSystemAnimations.disableAll();
-	}
+        mActivity = mActivityTestRule.getActivity();
+        wakeLock = UIActionHelper.wakeupDevice(mActivity);
+        mSystemAnimations = new SystemAnimations(mActivity);
+        mSystemAnimations.disableAll();
+    }
 
-	private void setupData() {
-		mActivity = mActivityTestRule.getActivity();
-		URLs.setBaseBlockURL(TestConstants.BLOCK_URL);
-		mBoxHelper = new UIBoxHelper(QabelBoxApplication.getInstance());
-		mBoxHelper.bindService(QabelBoxApplication.getInstance());
-		mBoxHelper.createTokenIfNeeded(false);
+    private void setupData() {
+        mActivity = mActivityTestRule.getActivity();
+        URLs.setBaseBlockURL(TestConstants.BLOCK_URL);
+        mBoxHelper = new UIBoxHelper(QabelBoxApplication.getInstance());
+        mBoxHelper.bindService(QabelBoxApplication.getInstance());
+        mBoxHelper.createTokenIfNeeded(false);
 
-		try {
-			Identity old = mBoxHelper.getCurrentIdentity();
-			if (old != null) {
-				mBoxHelper.deleteIdentity(old);
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		mBoxHelper.removeAllIdentities();
-		Identity identity = mBoxHelper.addIdentity("spoon");
-		uploadTestFiles();
-	}
+        try {
+            Identity old = mBoxHelper.getCurrentIdentity();
+            if (old != null) {
+                mBoxHelper.deleteIdentity(old);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        mBoxHelper.removeAllIdentities();
+        Identity identity = mBoxHelper.addIdentity("spoon");
+        uploadTestFiles();
+    }
 
-	private void uploadTestFiles() {
+    private void uploadTestFiles() {
 
-		int fileCount = 7;
-		BlockServer bs = new BlockServer();
-		mBoxHelper.uploadFile(mBoxHelper.mBoxVolume, "testfile 2", new byte[1011], "");
-		mBoxHelper.uploadFile(mBoxHelper.mBoxVolume, "red.png", new byte[1], "");
-		mBoxHelper.uploadFile(mBoxHelper.mBoxVolume, "green.png", new byte[100], "");
-		mBoxHelper.uploadFile(mBoxHelper.mBoxVolume, "blue.png", new byte[1011], "");
-		mBoxHelper.uploadFile(mBoxHelper.mBoxVolume, "black_1.png", new byte[1011], "");
-		mBoxHelper.uploadFile(mBoxHelper.mBoxVolume, "black_2.png", new byte[1024 * 10], "");
-		mBoxHelper.uploadFile(mBoxHelper.mBoxVolume, "white.png", new byte[1011], "");
+        int fileCount = 7;
+        BlockServer bs = new BlockServer();
+        mBoxHelper.uploadFile(mBoxHelper.mBoxVolume, "testfile 2", new byte[1011], "");
+        mBoxHelper.uploadFile(mBoxHelper.mBoxVolume, "red.png", new byte[1], "");
+        mBoxHelper.uploadFile(mBoxHelper.mBoxVolume, "green.png", new byte[100], "");
+        mBoxHelper.uploadFile(mBoxHelper.mBoxVolume, "blue.png", new byte[1011], "");
+        mBoxHelper.uploadFile(mBoxHelper.mBoxVolume, "black_1.png", new byte[1011], "");
+        mBoxHelper.uploadFile(mBoxHelper.mBoxVolume, "black_2.png", new byte[1024 * 10], "");
+        mBoxHelper.uploadFile(mBoxHelper.mBoxVolume, "white.png", new byte[1011], "");
 
 
-		mBoxHelper.waitUntilFileCount(fileCount);
-	}
+        mBoxHelper.waitUntilFileCount(fileCount);
+    }
 
-	@Test
-	public void search1ByNamesTest() {
+    @Test
+    public void search1ByNamesTest() {
 
-		Spoon.screenshot(mActivity, "startup");
-		testSearch("black", 2);
-		testSearch("", 7);
-		testSearch("png", 6);
-		Spoon.screenshot(mActivity, "after");
-	}
+        Spoon.screenshot(mActivity, "startup");
+        testSearch("black", 2);
+        testSearch("", 7);
+        testSearch("png", 6);
+        Spoon.screenshot(mActivity, "after");
+    }
 
-	@Test
-	public void search2FilterTest() {
+    @Test
+    public void search2FilterTest() {
 
-		testSearchWithFilter("", 0, 2048, 6, true);
-		testSearchWithFilter("", 0, 10240, 7, false);
-		testSearchWithFilter("", 9000, 10240, 1, false);
-	}
+        testSearchWithFilter("", 0, 2048, 6, true);
+        testSearchWithFilter("", 0, 10240, 7, false);
+        testSearchWithFilter("", 9000, 10240, 1, false);
+    }
 /*
-	@Test
+    @Test
     public void search3CacheTest() throws QblStorageException {
 
         String text = "";
@@ -175,60 +175,60 @@ public class FileSearchUITest {
         mBoxHelper.deleteFile(mActivity, mBoxHelper.getCurrentIdentity(), "black_3", "");
     }*/
 
-	/**
-	 * test if search result match the given. addition check if file browser displayed after back pressed
-	 *
-	 * @param text    search text
-	 * @param results excepted results
-	 */
-	private void testSearch(String text, int results) {
+    /**
+     * test if search result match the given. addition check if file browser displayed after back pressed
+     *
+     * @param text    search text
+     * @param results excepted results
+     */
+    private void testSearch(String text, int results) {
 
-		onView(withId(R.id.action_search)).perform(click());
-		onView(withHint(R.string.ab_filesearch_hint)).perform(typeText(text), pressImeActionButton());
-		closeSoftKeyboard();
+        onView(withId(R.id.action_search)).perform(click());
+        onView(withHint(R.string.ab_filesearch_hint)).perform(typeText(text), pressImeActionButton());
+        closeSoftKeyboard();
 
-		onView(withId(R.id.files_list)).check(matches(QabelMatcher.withListSize(results)));
-		Spoon.screenshot(mActivity, "results_" + text);
-		pressBack();
-		testIfFileBrowserDisplayed(7);
-	}
+        onView(withId(R.id.files_list)).check(matches(QabelMatcher.withListSize(results)));
+        Spoon.screenshot(mActivity, "results_" + text);
+        pressBack();
+        testIfFileBrowserDisplayed(7);
+    }
 
-	private void testIfFileBrowserDisplayed(int count) {
+    private void testIfFileBrowserDisplayed(int count) {
 
-		QabelMatcher.matchToolbarTitle(mActivity.getString(R.string.headline_files))
-				.check(matches(isDisplayed()));
-		onView(withId(R.id.files_list)).check(matches(QabelMatcher.withListSize(count)));
-	}
+        QabelMatcher.matchToolbarTitle(mActivity.getString(R.string.headline_files))
+                .check(matches(isDisplayed()));
+        onView(withId(R.id.files_list)).check(matches(QabelMatcher.withListSize(count)));
+    }
 
-	/**
-	 * test if search result matches the given. addition check if file browser displayed after back pressed
-	 *
-	 * @param text    search text
-	 * @param results excepted results
-	 */
-	private void testSearchWithFilter(String text, int fileSizeMin, int fileSizeMax, int results, boolean screenShot) {
+    /**
+     * test if search result matches the given. addition check if file browser displayed after back pressed
+     *
+     * @param text    search text
+     * @param results excepted results
+     */
+    private void testSearchWithFilter(String text, int fileSizeMin, int fileSizeMax, int results, boolean screenShot) {
 
-		onView(withId(R.id.action_search)).perform(click());
-		onView(withHint(R.string.ab_filesearch_hint)).perform(typeText(text), pressImeActionButton());
-		closeSoftKeyboard();
-		UITestHelper.sleep(800);
-		onView(withId(R.id.action_ok)).check(matches(isDisplayed())).perform(click());
-		((SeekBar) mActivity.findViewById(R.id.sbFileSizeMin)).setProgress(fileSizeMin);
-		((SeekBar) mActivity.findViewById(R.id.sbFileSizeMax)).setProgress(fileSizeMax);
-		if (screenShot) {
-			Spoon.screenshot(mActivity, "filter_" + fileSizeMin + "_" + fileSizeMax);
-		}
-		onView(withId(R.id.action_use_filter)).perform(click());
+        onView(withId(R.id.action_search)).perform(click());
+        onView(withHint(R.string.ab_filesearch_hint)).perform(typeText(text), pressImeActionButton());
+        closeSoftKeyboard();
+        UITestHelper.sleep(800);
+        onView(withId(R.id.action_ok)).check(matches(isDisplayed())).perform(click());
+        ((SeekBar) mActivity.findViewById(R.id.sbFileSizeMin)).setProgress(fileSizeMin);
+        ((SeekBar) mActivity.findViewById(R.id.sbFileSizeMax)).setProgress(fileSizeMax);
+        if (screenShot) {
+            Spoon.screenshot(mActivity, "filter_" + fileSizeMin + "_" + fileSizeMax);
+        }
+        onView(withId(R.id.action_use_filter)).perform(click());
 
-		onView(withId(R.id.files_list)).
-				check(matches(isDisplayed())).
-				check(matches(QabelMatcher.withListSize(results)));
-		if (screenShot) {
-			Spoon.screenshot(mActivity, "filter_result_" + fileSizeMin + "_" + fileSizeMax);
-		}
+        onView(withId(R.id.files_list)).
+                check(matches(isDisplayed())).
+                check(matches(QabelMatcher.withListSize(results)));
+        if (screenShot) {
+            Spoon.screenshot(mActivity, "filter_result_" + fileSizeMin + "_" + fileSizeMax);
+        }
 
-		pressBack();
-		testIfFileBrowserDisplayed(7);
-	}
+        pressBack();
+        testIfFileBrowserDisplayed(7);
+    }
 }
 

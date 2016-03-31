@@ -26,7 +26,7 @@ import de.qabel.qabelbox.BuildConfig;
 /**
  * QabelResourceProvider provides access to Qabel resources like Contacts and Identities for
  * Qabel client applications.
- *
+ * <p>
  * QabelResourceProvider hosts the ResourceActorThread and requires the database to be unlocked.
  * Thus before IQabelServiceInternal.RESOURCES_INITIALIZED is received, the provider will only
  * return null values.
@@ -80,7 +80,7 @@ public class QabelContentProvider extends ContentProvider {
     private Cursor queryContacts() {
         MatrixCursor cursor = new MatrixCursor(QabelContentProviderConstants.CONTACT_COLUMN_NAMES);
 
-        for (Contacts contacts: mService.getAllContacts().values()) {
+        for (Contacts contacts : mService.getAllContacts().values()) {
             for (Contact contact : contacts.getContacts()) {
                 String[] values = new String[]{contact.getAlias(),
                         contacts.getIdentity().getKeyIdentifier(),

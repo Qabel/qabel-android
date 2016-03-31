@@ -59,7 +59,7 @@ public abstract class MockedBoxProviderTest extends InstrumentationTestCase {
     }
 
     private void initMockContext() {
-        mockProvider=new MockBoxProvider();
+        mockProvider = new MockBoxProvider();
         mockProvider.mockBindToService(getContext());
         mockContentResolver = new MockContentResolver();
         mockContentResolver.addProvider(BoxProvider.AUTHORITY, mockProvider);
@@ -79,7 +79,7 @@ public abstract class MockedBoxProviderTest extends InstrumentationTestCase {
         return mockProvider;
     }
 
-    public  BoxVolume getVolume() {
+    public BoxVolume getVolume() {
         return volume;
     }
 
@@ -88,10 +88,8 @@ public abstract class MockedBoxProviderTest extends InstrumentationTestCase {
     }
 
 
-
-    private void writeFileContent(Uri uri)
-    {
-        try{
+    private void writeFileContent(Uri uri) {
+        try {
             ParcelFileDescriptor pfd =
                     activity.getContentResolver().
                             openFileDescriptor(uri, "w");

@@ -1,19 +1,11 @@
 package de.qabel.qabelbox.fragments;
 
 import android.os.Bundle;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.View;
-import android.view.ViewGroup;
+import android.view.*;
 import android.webkit.WebView;
-
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.helper.FileHelper;
 
-/**
- * Created by danny on 23.02.16.
- */
 public class WebViewHelpFragment extends BaseFragment {
 
     public static final int MODE_DATA_POLICY = 0;

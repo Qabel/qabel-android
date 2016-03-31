@@ -8,18 +8,13 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
-
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.WriterException;
 import com.google.zxing.common.BitArray;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
-
 import de.qabel.core.config.Identity;
 
-/**
- * Created by danny on 04.02.16.
- */
 public class QRCodeHelper {
 
     private static final String TAG = "QRCodeHelper";
@@ -55,7 +50,7 @@ public class QRCodeHelper {
 
                 String text = "QABELCONTACT\n"
                         + identities[0].getAlias() + "\n"
-                        + identities[0].getDropUrls().toArray()[0].toString() + "\n"
+                        + identities[0].getDropUrls().toArray()[0] + "\n"
                         + identities[0].getKeyIdentifier();
 
                 QRCodeWriter writer = new QRCodeWriter();
@@ -70,7 +65,7 @@ public class QRCodeHelper {
                         bitMatrix.getRow(y, row);
                         int[] rowArray = row.getBitArray();
                         for (int x = 0; x < width; x++) {
-                            data[x + yy] = ((rowArray[x / 32] >>> (x & 0x1f)) & 1) != 0 ? Color.BLACK : Color.WHITE;
+                            data[x + yy] = (rowArray[x / 32] >>> (x & 0x1f) & 1) != 0 ? Color.BLACK : Color.WHITE;
                         }
                     }
 

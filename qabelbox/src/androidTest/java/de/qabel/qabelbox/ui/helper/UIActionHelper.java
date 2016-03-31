@@ -6,12 +6,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.PowerManager;
 import android.view.WindowManager;
-
 import de.qabel.qabelbox.activities.MainActivity;
 
-/**
- * Created by danny on 17.01.16.
- */
 public class UIActionHelper {
 
     void goHome(Activity activity) {

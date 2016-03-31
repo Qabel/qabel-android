@@ -1,31 +1,19 @@
 package de.qabel.qabelbox.fragments;
 
 import android.os.Bundle;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.Button;
+import android.view.*;
 import android.widget.SeekBar;
 import android.widget.TextView;
-
-import org.apache.commons.lang3.time.DateUtils;
-import org.w3c.dom.Text;
-
-import java.util.Calendar;
-import java.util.Date;
-
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.helper.Formatter;
 import de.qabel.qabelbox.storage.BoxFile;
 import de.qabel.qabelbox.storage.BoxObject;
 import de.qabel.qabelbox.storage.StorageSearch;
+import org.apache.commons.lang3.time.DateUtils;
 
-/**
- * Created by danny on 14.01.2016.
- */
+import java.util.Calendar;
+import java.util.Date;
+
 public class FileSearchFilterFragment extends BaseFragment implements SeekBar.OnSeekBarChangeListener {
     private FilterData mFilterData;
     private CallbackListener mListener;
@@ -38,8 +26,8 @@ public class FileSearchFilterFragment extends BaseFragment implements SeekBar.On
     long mMaxFileSize;
     long mMinDate;
     long mMaxDate;
-    long mNewMinDate = 0;
-    long mNewMaxDate = 0;
+    long mNewMinDate;
+    long mNewMaxDate;
 
     private SeekBar mSbFileSizeMin;
     private SeekBar mSbFileSizeMax;
@@ -233,18 +221,19 @@ public class FileSearchFilterFragment extends BaseFragment implements SeekBar.On
     @Override
     public void onStopTrackingTouch(SeekBar seekBar) {
 
-        if (seekBar == mSbFileSizeMin && mSbFileSizeMin.getProgress() > mSbFileSizeMax.getProgress())
+        if (seekBar == mSbFileSizeMin && mSbFileSizeMin.getProgress() > mSbFileSizeMax.getProgress()) {
             mSbFileSizeMax.setProgress(mSbFileSizeMin.getProgress());
-        else {
-            if (seekBar == mSbFileSizeMax && mSbFileSizeMax.getProgress() < mSbFileSizeMin.getProgress())
+        } else {
+            if (seekBar == mSbFileSizeMax && mSbFileSizeMax.getProgress() < mSbFileSizeMin.getProgress()) {
                 mSbFileSizeMin.setProgress(mSbFileSizeMax.getProgress());
+            }
         }
     }
 
     public static class FilterData {
         Date mDateMin;
         Date mDateMax;
-        int mFileSizeMin = 0;
+        int mFileSizeMin;
         int mFileSizeMax = Integer.MAX_VALUE;
     }
 

@@ -2,41 +2,41 @@
 
 
 <LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:layout_alignParentBottom="true"
-    android:layout_marginTop="@dimen/activity_vertical_margin"
-    android:orientation="vertical">
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignParentBottom="true"
+        android:layout_marginTop="@dimen/activity_vertical_margin"
+        android:orientation="vertical">
 
     <Space
-        android:layout_width="wrap_content"
-        android:layout_height="20dp"
-        android:layout_weight="1"/>
+            android:layout_width="wrap_content"
+            android:layout_height="20dp"
+            android:layout_weight="1"/>
 
     <de.qabel.qabelbox.views.ButtonFont
-        android:id="@+id/bt_create_box_account"
-        style="@style/Button"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:drawableRight="@drawable/ic_icon_arrow_right"
-        android:text="@string/create_box_account"/>
+            android:id="@+id/bt_create_box_account"
+            style="@style/Button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:drawableRight="@drawable/ic_icon_arrow_right"
+            android:text="@string/create_box_account"/>
 
 
     <de.qabel.qabelbox.views.ButtonFont
-        android:id="@+id/bt_login"
-        style="@style/Button"
-        android:layout_marginTop="10dp"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:drawableRight="@drawable/ic_icon_arrow_right"
-        android:text="@string/login"
-        />
+            android:id="@+id/bt_login"
+            style="@style/Button"
+            android:layout_marginTop="10dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:drawableRight="@drawable/ic_icon_arrow_right"
+            android:text="@string/login"
+    />
 
     <Space
-        android:layout_width="wrap_content"
-        android:layout_height="20dp"
-        android:layout_weight="1"/>
+            android:layout_width="wrap_content"
+            android:layout_height="20dp"
+            android:layout_weight="1"/>
 
 </LinearLayout>
 

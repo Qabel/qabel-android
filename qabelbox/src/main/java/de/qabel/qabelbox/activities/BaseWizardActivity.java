@@ -4,25 +4,19 @@ import android.app.FragmentTransaction;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-
 import de.qabel.core.accounting.AccountingHTTP;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.fragments.BaseIdentityFragment;
 import de.qabel.qabelbox.fragments.CreateIdentityHeaderFragment;
 import de.qabel.qabelbox.helper.UIHelper;
 
-/**
- * Created by danny on 11.01.2016.
- */
 public abstract class BaseWizardActivity extends CrashReportingActivity {
 
-    private String TAG = this.getClass().getSimpleName();
+    private String TAG = getClass().getSimpleName();
 
     public static final String FIRST_RUN = "first_run";
 
@@ -33,12 +27,12 @@ public abstract class BaseWizardActivity extends CrashReportingActivity {
     private CreateIdentityHeaderFragment mIdentityHeaderFragment;
 
     protected BaseIdentityFragment[] fragments;
-    protected int step = 0;
+    protected int step;
     public int activityResult = RESULT_CANCELED;
     protected boolean mFirstRun;
     //values for create box account mode
     AccountingHTTP mAccounting;
-    protected boolean canExit = false;
+    protected boolean canExit;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -179,9 +173,6 @@ public abstract class BaseWizardActivity extends CrashReportingActivity {
 
     /**
      * override this if you need special handling on next click
-     *
-     * @param step
-     * @return
      */
     protected boolean canShowNext(int step) {
         return true;

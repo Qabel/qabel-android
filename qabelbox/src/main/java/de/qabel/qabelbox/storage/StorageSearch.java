@@ -1,13 +1,8 @@
 package de.qabel.qabelbox.storage;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.Hashtable;
-import java.util.List;
-
 import de.qabel.qabelbox.exceptions.QblStorageException;
+
+import java.util.*;
 
 /**
  * Represents a search across a BoxVolume path.
@@ -22,7 +17,6 @@ public class StorageSearch {
      * Inits the results with all available files and directories.
      *
      * @param navigation The path from which on the search should begin
-     * @throws QblStorageException
      */
     public StorageSearch(BoxNavigation navigation) throws QblStorageException {
         this.navigation = navigation;
@@ -31,8 +25,6 @@ public class StorageSearch {
 
     /**
      * Construct a search using a resultset and don't hit the storage volume.
-     *
-     * @param results
      */
     public StorageSearch(List<BoxObject> results) {
         this.results = results;
@@ -150,7 +142,7 @@ public class StorageSearch {
             if (o instanceof BoxFile) {
                 BoxFile f = (BoxFile) o;
 
-                if ((minSize && f.size >= size) || (!minSize && f.size <= size)) {
+                if (minSize && f.size >= size || !minSize && f.size <= size) {
                     filtered.add(o);
                 }
             }
@@ -200,10 +192,6 @@ public class StorageSearch {
 
     /**
      * This method will filter by last modified and return only files.
-     *
-     * @param date
-     * @param minDate
-     * @return
      */
     public StorageSearch filterByDate(Date date, boolean minDate) {
 
@@ -211,10 +199,10 @@ public class StorageSearch {
 
         for (BoxObject o : results) {
             if (o instanceof BoxFile) {
-                Date boxDate = new Date(((BoxFile) o).mtime*1000);
+                Date boxDate = new Date(((BoxFile) o).mtime * 1000);
                 boolean isBeforeMinimumDate = boxDate.before(date) && date.getTime() != boxDate.getTime();
                 boolean isAfterMaximumDate = boxDate.after(date);
-                boolean isInvalid = (minDate && isBeforeMinimumDate) || (!minDate && isAfterMaximumDate);
+                boolean isInvalid = minDate && isBeforeMinimumDate || !minDate && isAfterMaximumDate;
 
                 if (!isInvalid) {
                     filtered.add(o);
@@ -230,7 +218,7 @@ public class StorageSearch {
     public StorageSearch filterOnlyFiles() {
 
         List<BoxObject> filtered = new ArrayList<>();
-        filtered.addAll(StorageSearch.toBoxFiles(results));
+        filtered.addAll(toBoxFiles(results));
         results = filtered;
 
         return this;
@@ -239,7 +227,7 @@ public class StorageSearch {
     public StorageSearch filterOnlyDirectories() {
 
         List<BoxObject> filtered = new ArrayList<>();
-        filtered.addAll(StorageSearch.toBoxFolders(results));
+        filtered.addAll(toBoxFolders(results));
         results = filtered;
 
         return this;
@@ -256,11 +244,11 @@ public class StorageSearch {
 
             //BoxObject does not implement equals (failed as pathMapping-key), but normal equals might work here?
             if (o instanceof BoxFile && tgt instanceof BoxFile) {
-                if (((BoxFile) o).equals((BoxFile) tgt)) {
+                if (o.equals(tgt)) {
                     return path;
                 }
             } else if (o instanceof BoxFolder && tgt instanceof BoxFolder) {
-                if (((BoxFolder) o).equals((BoxFolder) tgt)) {
+                if (o.equals(tgt)) {
                     return path;
                 }
             }
@@ -291,6 +279,7 @@ public class StorageSearch {
         if (caseSensitive) {
             Collections.sort(results, new Comparator<BoxObject>() {
 
+                @Override
                 public int compare(BoxObject o1, BoxObject o2) {
                     String s1 = o1.name;
                     String s2 = o2.name;
@@ -300,6 +289,7 @@ public class StorageSearch {
         } else {
             Collections.sort(results, new Comparator<BoxObject>() {
 
+                @Override
                 public int compare(BoxObject o1, BoxObject o2) {
                     String s1 = o1.name;
                     String s2 = o2.name;
@@ -351,9 +341,9 @@ public class StorageSearch {
             }
             if (item instanceof BoxExternalFile) {
                 clone.add(((BoxExternalFile) item).clone());
-            } else if (item instanceof BoxExternalFolder){
-				clone.add(((BoxExternalFolder) item).clone());
-			} else if (item instanceof BoxFolder) {
+            } else if (item instanceof BoxExternalFolder) {
+                clone.add(((BoxExternalFolder) item).clone());
+            } else if (item instanceof BoxFolder) {
                 clone.add(((BoxFolder) item).clone());
             }
         }

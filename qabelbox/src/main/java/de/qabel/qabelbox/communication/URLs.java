@@ -1,13 +1,9 @@
 package de.qabel.qabelbox.communication;
 
 import android.content.Context;
-
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
 
-/**
- * Created by danny on 26.01.2016.
- */
 public class URLs {
 
     private static String BASE_ACCOUNTING;
@@ -71,7 +67,6 @@ public class URLs {
 
     /**
      * get files url for block server
-     * @return
      */
     public String getFiles() {
 
@@ -80,8 +75,6 @@ public class URLs {
 
     /**
      * get files url for block server
-     *
-     * @return
      */
     public String getFilesBlock() {
 

@@ -3,15 +3,15 @@
       xmlns:tools="http://schemas.android.com/tools"
       tools:context=".MainActivity">
     <item
-        android:id="@+id/action_imageviewer_edit"
-        android:icon="@drawable/ab_imageviewer_edit"
-        android:orderInCategory="200"
-        android:title="@string/edit"
-        app:showAsAction="always"/>
+            android:id="@+id/action_imageviewer_edit"
+            android:icon="@drawable/ab_imageviewer_edit"
+            android:orderInCategory="200"
+            android:title="@string/edit"
+            app:showAsAction="always"/>
     <item
-        android:id="@+id/action_imageviewer_open"
-        android:icon="@drawable/ab_imageviewer_view"
-        android:orderInCategory="201"
-        android:title="@string/Open"
-        app:showAsAction="always"/>
+            android:id="@+id/action_imageviewer_open"
+            android:icon="@drawable/ab_imageviewer_view"
+            android:orderInCategory="201"
+            android:title="@string/Open"
+            app:showAsAction="always"/>
 </menu>

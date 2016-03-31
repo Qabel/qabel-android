@@ -3,27 +3,20 @@ package de.qabel.qabelbox.storage;
 import android.content.Context;
 import android.support.annotation.Nullable;
 import android.util.Log;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CountDownLatch;
-
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.communication.BlockServer;
 import de.qabel.qabelbox.exceptions.QblServerException;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Response;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CountDownLatch;
 
 public class TransferManager {
 
@@ -59,13 +52,13 @@ public class TransferManager {
      *
      * @param prefix              prefix from identity
      * @param name                localfile name with path
-     * @param localfile                localfile to uploadAndDeleteLocalfile
+     * @param localfile           localfile to uploadAndDeleteLocalfile
      * @param boxTransferListener listener
      * @return new download id
      */
     public int uploadAndDeleteLocalfileOnSuccess(String prefix, String name, final File localfile, @Nullable final BoxTransferListener boxTransferListener) {
 
-        Log.d(TAG, "uploadAndDeleteLocalfile " + prefix + " " + name + " " + localfile.toString());
+        Log.d(TAG, "uploadAndDeleteLocalfile " + prefix + " " + name + " " + localfile);
         final int id = blockServer.getNextId();
         latches.put(id, new CountDownLatch(1));
         blockServer.uploadFile(context, prefix, name, localfile, new Callback() {
@@ -126,7 +119,7 @@ public class TransferManager {
      */
     public int download(String prefix, String name, final File file, @Nullable final BoxTransferListener boxTransferListener) {
 
-        Log.d(TAG, "download " + prefix + " " + name + " " + file.toString());
+        Log.d(TAG, "download " + prefix + " " + name + " " + file);
 
         final int id = blockServer.getNextId();
         latches.put(id, new CountDownLatch(1));
@@ -165,11 +158,6 @@ public class TransferManager {
 
     /**
      * read stream from server
-     *
-     * @param response
-     * @param file
-     * @param boxTransferListener
-     * @throws IOException
      */
     private void readStreamFromServer(Response response, File file, @Nullable BoxTransferListener boxTransferListener) throws IOException {
 

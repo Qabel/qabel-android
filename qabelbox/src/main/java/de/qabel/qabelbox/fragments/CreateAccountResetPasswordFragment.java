@@ -5,28 +5,18 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
+import android.view.*;
 import android.widget.TextView;
-
-import org.json.JSONObject;
-
-import java.util.ArrayList;
-
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.communication.BoxAccountRegisterServer;
 import de.qabel.qabelbox.communication.callbacks.SimpleJsonCallback;
 import de.qabel.qabelbox.helper.UIHelper;
 import okhttp3.Call;
 import okhttp3.Response;
+import org.json.JSONObject;
 
-/**
- * Created by danny on 19.01.16.
- */
+import java.util.ArrayList;
+
 public class CreateAccountResetPasswordFragment extends BaseIdentityFragment {
 
     private TextView etEMail;
@@ -38,7 +28,7 @@ public class CreateAccountResetPasswordFragment extends BaseIdentityFragment {
             savedInstanceState) {
 
         View view = inflater.inflate(R.layout.fragment_create_account_reset_password, container, false);
-        etEMail = ((TextView) view.findViewById(R.id.et_email));
+        etEMail = (TextView) view.findViewById(R.id.et_email);
 
         setHasOptionsMenu(true);
         return view;
@@ -93,21 +83,22 @@ public class CreateAccountResetPasswordFragment extends BaseIdentityFragment {
             void showRetryDialog() {
 
                 UIHelper.showDialogMessage(getActivity(), R.string.dialog_headline_info, R.string.server_access_not_successfully_retry_question, R.string.yes, R.string.no, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
 
-                        resetPassword(email);
-                    }
-                }
+                                resetPassword(email);
+                            }
+                        }
                         , new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
 
-                        dialog.dismiss();
-                    }
-                });
+                                dialog.dismiss();
+                            }
+                        });
             }
 
+            @Override
             protected void onError(final Call call, Reasons reasons) {
 
                 if (reasons == Reasons.IOException && retryCount++ < 3) {
@@ -118,6 +109,7 @@ public class CreateAccountResetPasswordFragment extends BaseIdentityFragment {
                 }
             }
 
+            @Override
             protected void onSuccess(Call call, Response response, JSONObject json) {
 
                 final BoxAccountRegisterServer.ServerResponse result = BoxAccountRegisterServer.parseJson(json);

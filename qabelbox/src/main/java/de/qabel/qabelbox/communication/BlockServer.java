@@ -3,13 +3,12 @@ package de.qabel.qabelbox.communication;
 import android.content.Context;
 import android.net.Uri;
 import android.util.Log;
-
-import java.io.File;
-
 import de.qabel.qabelbox.config.AppPreference;
 import okhttp3.Callback;
 import okhttp3.Request;
 import okhttp3.RequestBody;
+
+import java.io.File;
 
 /**
  * Created by danny on 11.02.2016.
@@ -18,21 +17,20 @@ import okhttp3.RequestBody;
  */
 public class BlockServer extends BaseServer {
 
-    private final static String TAG = "PrefixServer";
+    private static final String TAG = "PrefixServer";
     public static final String BLOCKS = "blocks/";
-    private int currentId = 0;
+    private int currentId;
     private final int suffixId;
 
     public BlockServer() {
 
-        super();
         //maybe it can be bether to create a unique id. but normally we have only one instance in boxvolume of blockserver so it should no collision occurs
-        suffixId = (this.getClass().hashCode() % 0xffff) * 0x10000;
+        suffixId = getClass().hashCode() % 0xffff * 0x10000;
     }
 
     private void doServerAction(Context context, String prefix, String path, String method, RequestBody body, Callback callback) {
         String apiURL = urls.getFiles();
-	    Uri.Builder uriBuilder = Uri.parse(apiURL).buildUpon()
+        Uri.Builder uriBuilder = Uri.parse(apiURL).buildUpon()
                 .appendPath(prefix);
         if (path.startsWith(BLOCKS)) {
             uriBuilder.appendPath("blocks");
@@ -48,7 +46,7 @@ public class BlockServer extends BaseServer {
 
         addHeader(new AppPreference(context).getToken(), builder);
         Request request = builder.build();
-        Log.v(TAG, "blockserver request " + request.toString());
+        Log.v(TAG, "blockserver request " + request);
 
         client.newCall(request).enqueue(callback);
     }
@@ -76,6 +74,6 @@ public class BlockServer extends BaseServer {
 
     public synchronized int getNextId() {
 
-        return (suffixId + (currentId++) + (int) (System.currentTimeMillis()) % 1000000);
+        return suffixId + currentId++ + (int) System.currentTimeMillis() % 1000000;
     }
 }

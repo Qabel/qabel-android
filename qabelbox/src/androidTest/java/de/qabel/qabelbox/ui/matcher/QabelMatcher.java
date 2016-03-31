@@ -4,13 +4,10 @@ import android.support.test.espresso.NoMatchingViewException;
 import android.support.test.espresso.ViewAssertion;
 import android.support.test.espresso.ViewInteraction;
 import android.support.test.espresso.matcher.BoundedMatcher;
-import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ListView;
 import android.widget.SeekBar;
-
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
@@ -23,7 +20,7 @@ import static org.hamcrest.Matchers.is;
 
 public class QabelMatcher {
 
-	public static Matcher<View> withListSize(final int size) {
+    public static Matcher<View> withListSize(final int size) {
 
         return new TypeSafeMatcher<View>() {
             @Override
@@ -31,77 +28,80 @@ public class QabelMatcher {
 
                 return ((ViewGroup) view).getChildCount() == size;
             }
-			@Override
-			public void describeTo(final Description description) {
 
-				description.appendText("ListView should have " + size + " items");
-			}
-		};
-	}
+            @Override
+            public void describeTo(final Description description) {
 
-	public static ViewInteraction matchToolbarTitle(
-			CharSequence title) {
+                description.appendText("ListView should have " + size + " items");
+            }
+        };
+    }
 
-		return onView(isAssignableFrom(Toolbar.class))
-				.check(matches(withToolbarTitle(is(title))));
-	}
+    public static ViewInteraction matchToolbarTitle(
+            CharSequence title) {
 
-	private static Matcher<Object> withToolbarTitle(
-			final Matcher<CharSequence> textMatcher) {
+        return onView(isAssignableFrom(Toolbar.class))
+                .check(matches(withToolbarTitle(is(title))));
+    }
 
-		return new BoundedMatcher<Object, Toolbar>(Toolbar.class) {
-			@Override
-			public boolean matchesSafely(Toolbar toolbar) {
+    private static Matcher<Object> withToolbarTitle(
+            final Matcher<CharSequence> textMatcher) {
 
-				return textMatcher.matches(toolbar.getTitle());
-			}
+        return new BoundedMatcher<Object, Toolbar>(Toolbar.class) {
+            @Override
+            public boolean matchesSafely(Toolbar toolbar) {
 
-			@Override
-			public void describeTo(Description description) {
+                return textMatcher.matches(toolbar.getTitle());
+            }
 
-				description.appendText("match with toolbar title: ");
-				textMatcher.describeTo(description);
-			}
-		};
-	}
+            @Override
+            public void describeTo(Description description) {
 
-	public static Matcher<View> withProgress(final int expectedProgress) {
-		return new BoundedMatcher<View, SeekBar>(SeekBar.class) {
-			@Override
-			public void describeTo(Description description) {
-				description.appendText("expected: ");
-				description.appendText("" + expectedProgress);
-			}
+                description.appendText("match with toolbar title: ");
+                textMatcher.describeTo(description);
+            }
+        };
+    }
 
-			@Override
-			public boolean matchesSafely(SeekBar seekBar) {
-				return seekBar.getProgress() == expectedProgress;
-			}
-		};
-	}
+    public static Matcher<View> withProgress(final int expectedProgress) {
+        return new BoundedMatcher<View, SeekBar>(SeekBar.class) {
+            @Override
+            public void describeTo(Description description) {
+                description.appendText("expected: ");
+                description.appendText("" + expectedProgress);
+            }
 
-
-	public static Matcher<View> withDrawable(final int resourceId) {
-		return new DrawableMatcher(resourceId);
-	}
+            @Override
+            public boolean matchesSafely(SeekBar seekBar) {
+                return seekBar.getProgress() == expectedProgress;
+            }
+        };
+    }
 
 
-	public static ViewAssertion isVisible() {
-		return new ViewAssertion() {
-			public void check(View view, NoMatchingViewException noView) {
-				assertThat(view, new VisibilityMatcher(View.VISIBLE));
-			}
-		};
-	}
+    public static Matcher<View> withDrawable(final int resourceId) {
+        return new DrawableMatcher(resourceId);
+    }
 
 
-	public static ViewAssertion isInvisible() {
-		return new ViewAssertion() {
-			public void check(View view, NoMatchingViewException noView) {
-				assertThat(view, new VisibilityMatcher(View.INVISIBLE));
-			}
-		};
-	}
+    public static ViewAssertion isVisible() {
+        return new ViewAssertion() {
+            @Override
+            public void check(View view, NoMatchingViewException noView) {
+                assertThat(view, new VisibilityMatcher(View.VISIBLE));
+            }
+        };
+    }
+
+
+    public static ViewAssertion isInvisible() {
+        return new ViewAssertion() {
+            @Override
+            public void check(View view, NoMatchingViewException noView) {
+                assertThat(view, new VisibilityMatcher(View.INVISIBLE));
+            }
+        };
+    }
 
 
 }

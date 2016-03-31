@@ -2,16 +2,16 @@
 <shape xmlns:android="http://schemas.android.com/apk/res/android">
 
     <!-- we define background color -->
-    <solid android:color="#4d4d4d" />
+    <solid android:color="#4d4d4d"/>
 
     <!-- add some padding for text inside -->
     <padding
-        android:bottom="5dp"
-        android:left="10dp"
-        android:right="10dp"
-        android:top="5dp" />
+            android:bottom="5dp"
+            android:left="10dp"
+            android:right="10dp"
+            android:top="5dp"/>
 
     <!-- we define corner radius, note that radius can be different for each corner -->
-    <corners android:radius="5dp" />
+    <corners android:radius="5dp"/>
 
 </shape>

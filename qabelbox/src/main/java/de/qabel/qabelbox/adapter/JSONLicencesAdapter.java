@@ -13,22 +13,16 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
-
+import de.qabel.qabelbox.BuildConfig;
+import de.qabel.qabelbox.R;
+import de.qabel.qabelbox.views.ButtonFont;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import de.qabel.qabelbox.BuildConfig;
-import de.qabel.qabelbox.R;
-import de.qabel.qabelbox.views.ButtonFont;
-
-/**
- * Created by Jan D.S. Wischweh <mail@wischweh.de> on 01.03.16.
- */
 public class JSONLicencesAdapter extends RecyclerView.Adapter<JSONLicencesAdapter.LicenceViewHolder> {
 
-    public static String TAG="JSONLicencesAdapter";
+    public static String TAG = "JSONLicencesAdapter";
 
     enum TYPE {
         Header,
@@ -36,7 +30,7 @@ public class JSONLicencesAdapter extends RecyclerView.Adapter<JSONLicencesAdapte
     }
 
     private static final String JSON_KEY_LICENCENAME = "name";
-    private static final java.lang.String JSON_KEY_COMPONENTS_INFO = "info";
+    private static final String JSON_KEY_COMPONENTS_INFO = "info";
     private static final String JSON_KEY_COMPONENTS = "components";
     private static final String JSON_KEY_LICENCESROOT = "licences";
     private static final String JSON_KEY_LICENCECONTENT = "content";
@@ -124,7 +118,7 @@ public class JSONLicencesAdapter extends RecyclerView.Adapter<JSONLicencesAdapte
                 }
                 SpannableString formattedText = new SpannableString(Html.fromHtml(content));
                 this.content.setText(formattedText, TextView.BufferType.SPANNABLE);
-                this.showLicenceBtn.setOnClickListener(this);
+                showLicenceBtn.setOnClickListener(this);
                 licenceText = licenceJSON.getString(JSON_KEY_LICENCENAME);
                 licenceContentText = licenceJSON.getString(JSON_KEY_LICENCECONTENT);
             } catch (JSONException e) {
@@ -135,15 +129,16 @@ public class JSONLicencesAdapter extends RecyclerView.Adapter<JSONLicencesAdapte
         @Override
         public void onClick(View v) {
             AlertDialog alertDialog = new AlertDialog.Builder(ctx).create();
-			alertDialog.setTitle(licenceText);
-			alertDialog.setMessage(licenceContentText);
-			alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
-				new DialogInterface.OnClickListener() {
-					public void onClick(DialogInterface dialog, int which) {
-						dialog.dismiss();
-					}
-				});
-			alertDialog.show();
+            alertDialog.setTitle(licenceText);
+            alertDialog.setMessage(licenceContentText);
+            alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
+                    new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                        }
+                    });
+            alertDialog.show();
         }
     }
 
@@ -154,15 +149,16 @@ public class JSONLicencesAdapter extends RecyclerView.Adapter<JSONLicencesAdapte
 
         public HeaderViewHolder(View itemView, String qapl) {
             super(itemView);
-            this.headline = (TextView) itemView.findViewById(R.id.licence_header_versioninfo);
-            this.content = (TextView) itemView.findViewById(R.id.licence_header_intro);
+            headline = (TextView) itemView.findViewById(R.id.licence_header_versioninfo);
+            content = (TextView) itemView.findViewById(R.id.licence_header_intro);
             showLicenceBtn = (ButtonFont) itemView.findViewById(R.id.about_header_showlicence_btn);
             this.qapl = qapl;
         }
 
+        @Override
         public void onBind(int position) {
             headline.setText(BuildConfig.VERSION_NAME);
-            this.showLicenceBtn.setOnClickListener(this);
+            showLicenceBtn.setOnClickListener(this);
         }
 
         @Override
@@ -172,6 +168,7 @@ public class JSONLicencesAdapter extends RecyclerView.Adapter<JSONLicencesAdapte
             alertDialog.setMessage(qapl);
             alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
                     new DialogInterface.OnClickListener() {
+                        @Override
                         public void onClick(DialogInterface dialog, int which) {
                             dialog.dismiss();
                         }

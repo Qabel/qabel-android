@@ -20,6 +20,7 @@ public class BoxContentObserver extends ContentObserver {
         super.onChange(selfChange);
         Log.wtf("asd", "onchange");
     }
+
     @Override
 
     public void onChange(boolean selfChange, Uri uri) {

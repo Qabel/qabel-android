@@ -6,12 +6,8 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-
 import de.qabel.qabelbox.R;
 
-/**
- * Created by danny on 23.02.16.
- */
 public class ScreenSlidePageFragment extends Fragment {
 
     @Nullable

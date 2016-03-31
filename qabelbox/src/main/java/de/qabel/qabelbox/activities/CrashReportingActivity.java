@@ -5,19 +5,14 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-
+import de.qabel.qabelbox.R;
+import de.qabel.qabelbox.fragments.SettingsFragment;
 import net.hockeyapp.android.CrashManager;
 import net.hockeyapp.android.UpdateManager;
 
-import de.qabel.qabelbox.R;
-import de.qabel.qabelbox.fragments.SettingsFragment;
-
-/**
- * Created by danny on 05.02.16.
- */
 public class CrashReportingActivity extends AppCompatActivity {
 
-    private final String TAG = this.getClass().getSimpleName();
+    private final String TAG = getClass().getSimpleName();
     private boolean handleCrashes = true;
     private final boolean checkForUpdates = false;//set to true if certain users can uploadAndDeleteLocalfile new version via hockey app
 

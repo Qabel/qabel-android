@@ -3,16 +3,11 @@ package de.qabel.qabelbox.activities;
 import android.app.FragmentTransaction;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
-
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.fragments.SettingsFragment;
 
-/**
- * Created by danny on 25.01.2016.
- */
 public class SettingsActivity extends CrashReportingActivity {
     private SettingsActivity mActivity;
     private ActionBar actionBar;

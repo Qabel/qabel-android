@@ -6,16 +6,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-
 import de.qabel.core.config.Identities;
 import de.qabel.core.config.Identity;
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.services.LocalQabelService;
 
-/**
- * Created by danny on 19.01.16.
- */
 public class CreateAccountFinalFragment extends BaseIdentityFragment {
 
     private TextView tvSuccess, tvMessage;
@@ -44,12 +40,7 @@ public class CreateAccountFinalFragment extends BaseIdentityFragment {
                 Identity identityToSet = identities.getIdentities().iterator().next();
                 service.setActiveIdentity(identityToSet);
                 Identity setted = service.getActiveIdentity();
-                if (setted != null && setted.getAlias().equals(activeIdentity.getAlias())) {
-                    //active identity set
-                    needCreateIdentity = false;
-                } else {
-                    needCreateIdentity = true;
-                }
+                needCreateIdentity = !(setted != null && setted.getAlias().equals(activeIdentity.getAlias()));
             }
             if (needCreateIdentity) {
                 tvMessage.setText(R.string.create_identity_final_create_identity);

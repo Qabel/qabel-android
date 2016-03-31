@@ -3,16 +3,12 @@ package de.qabel.qabelbox.helper;
 import android.content.Context;
 import android.graphics.Typeface;
 import android.widget.TextView;
-
 import de.qabel.qabelbox.R;
 
-/**
- * Created by danny on 12.01.2016.
- */
 public class MixedFontHelper {
 
     private Typeface[] fonts;
-    private static MixedFontHelper instance = null;
+    private static MixedFontHelper instance;
 
     private MixedFontHelper() {
         // Exists only to defeat instantiation.

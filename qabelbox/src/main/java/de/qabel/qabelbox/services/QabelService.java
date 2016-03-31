@@ -6,19 +6,9 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.os.Bundle;
-import android.os.Handler;
-import android.os.IBinder;
-import android.os.Looper;
-import android.os.Message;
-import android.os.Messenger;
-import android.os.RemoteException;
+import android.os.*;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
-
-import java.util.HashMap;
-import java.util.Map;
-
 import de.qabel.ServiceConstants;
 import de.qabel.core.config.Contact;
 import de.qabel.core.config.Identity;
@@ -27,13 +17,16 @@ import de.qabel.core.drop.DropURL;
 import de.qabel.core.exceptions.QblDropPayloadSizeException;
 import de.qabel.qabelbox.R;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * QabelService hosts the DropActor and is responsible for sending and receiving
  * DropMessages. DropMessages are send and received from other applications via a Messenger.
  * Clients can register to receive certain DropMessages by sending a
  * {@link ServiceConstants.MSG_REGISTER_ON_TYPE} Message with the replyTo field pointing to an
  * incoming Messenger of the client.
- *
+ * <p/>
  * The service is started when a client binds to the service and stopped when the last client
  * unbinds.
  */
@@ -81,7 +74,7 @@ public class QabelService extends Service {
 
 
                             Identity sender = mService.getIdentities().getByKeyIdentifier(dropSenderId);
-                            Contact recipient =mService.getContacts().getByKeyIdentifier(dropRecipientId);
+                            Contact recipient = mService.getContacts().getByKeyIdentifier(dropRecipientId);
 
                             if (sender != null && recipient != null) {
                                 DropMessage dropMessage = new DropMessage(sender, dropPayload, dropPayloadType);
@@ -89,12 +82,12 @@ public class QabelService extends Service {
                                 try {
                                     mService.sendDropMessage(dropMessage, recipient, sender,
                                             new LocalQabelService.OnSendDropMessageResult() {
-                                        @Override
-                                        public void onSendDropResult(Map<DropURL, Boolean> deliveryStatus) {
-                                            //TODO: Ignored for now
+                                                @Override
+                                                public void onSendDropResult(Map<DropURL, Boolean> deliveryStatus) {
+                                                    //TODO: Ignored for now
 
-                                        }
-                                    });
+                                                }
+                                            });
                                 } catch (QblDropPayloadSizeException e) {
                                     //TODO: Ignored for now
                                     e.printStackTrace();
@@ -121,7 +114,7 @@ public class QabelService extends Service {
 
         setNotification("Qabel Service starting");
 
-		initServiceResources();
+        initServiceResources();
     }
 
     @Override

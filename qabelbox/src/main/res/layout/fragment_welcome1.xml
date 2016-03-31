@@ -6,14 +6,14 @@
                 android:orientation="vertical">
 
     <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
 
         <de.qabel.qabelbox.views.TextViewFont
-            android:layout_width="match_parent"
-            android:textColor="@color/white"
-            android:textSize="@dimen/textsize_welcome_screen"
-            android:layout_height="match_parent"
-            android:text="welcomedummy"/>
+                android:layout_width="match_parent"
+                android:textColor="@color/white"
+                android:textSize="@dimen/textsize_welcome_screen"
+                android:layout_height="match_parent"
+                android:text="welcomedummy"/>
     </LinearLayout>
 </RelativeLayout>

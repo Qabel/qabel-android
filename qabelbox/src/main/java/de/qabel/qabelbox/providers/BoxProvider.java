@@ -8,12 +8,7 @@ import android.content.ServiceConnection;
 import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.net.Uri;
-import android.os.AsyncTask;
-import android.os.Bundle;
-import android.os.CancellationSignal;
-import android.os.Handler;
-import android.os.IBinder;
-import android.os.ParcelFileDescriptor;
+import android.os.*;
 import android.provider.DocumentsContract;
 import android.provider.DocumentsContract.Document;
 import android.provider.DocumentsContract.Root;
@@ -22,50 +17,24 @@ import android.provider.MediaStore.Video.Media;
 import android.support.annotation.NonNull;
 import android.support.v7.app.NotificationCompat;
 import android.util.Log;
-
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.StringUtils;
-
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URLConnection;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
-import java.util.concurrent.LinkedBlockingDeque;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
-
 import de.qabel.core.config.Identities;
 import de.qabel.core.config.Identity;
 import de.qabel.core.crypto.QblECKeyPair;
 import de.qabel.qabelbox.BuildConfig;
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
-import de.qabel.qabelbox.communication.VolumeFileTransferHelper;
 import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.exceptions.QblStorageNotFound;
 import de.qabel.qabelbox.services.LocalBroadcastConstants;
 import de.qabel.qabelbox.services.LocalQabelService;
-import de.qabel.qabelbox.storage.BoxExternalFile;
-import de.qabel.qabelbox.storage.BoxFile;
-import de.qabel.qabelbox.storage.BoxFolder;
-import de.qabel.qabelbox.storage.BoxNavigation;
-import de.qabel.qabelbox.storage.BoxObject;
-import de.qabel.qabelbox.storage.BoxUploadingFile;
-import de.qabel.qabelbox.storage.BoxVolume;
-import de.qabel.qabelbox.storage.TransferManager;
+import de.qabel.qabelbox.storage.*;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
+
+import java.io.*;
+import java.net.URLConnection;
+import java.util.*;
+import java.util.concurrent.*;
 
 public class BoxProvider extends DocumentsProvider {
 
@@ -154,8 +123,6 @@ public class BoxProvider extends DocumentsProvider {
 
     /**
      * Used to temporary inject the service if it is not ready yet
-     *
-     * @param service
      */
     public void setLocalService(LocalQabelService service) {
 
@@ -330,7 +297,7 @@ public class BoxProvider extends DocumentsProvider {
 
         Log.d(TAG, "Query Child Documents: " + parentDocumentId);
         BoxCursor cursor = folderContentCache.get(parentDocumentId);
-        boolean cacheHit = (cursor != null);
+        boolean cacheHit = cursor != null;
         if (parentDocumentId.equals(currentFolder) && cacheHit) {
             // best case: we are still in the same folder and we got a cache hit
             Log.d(TAG, "Up to date cached data found");
@@ -354,10 +321,7 @@ public class BoxProvider extends DocumentsProvider {
      * <p/>
      * The cursor can be modified to show a loading and/or an error message.
      *
-     * @param parentDocumentId
-     * @param projection
      * @return Fully initialized cursor with the directory listing as rows
-     * @throws FileNotFoundException
      */
     private BoxCursor createBoxCursor(String parentDocumentId, String[] projection) throws FileNotFoundException {
 
@@ -382,9 +346,7 @@ public class BoxProvider extends DocumentsProvider {
      * Query the directory listing, store the cursor in the folderContentCache and
      * notify the original cursor of the update.
      *
-     * @param parentDocumentId
-     * @param projection
-     * @param result           Original cursor
+     * @param result Original cursor
      */
     private void asyncChildDocuments(final String parentDocumentId, final String[] projection,
                                      BoxCursor result) {
@@ -460,7 +422,7 @@ public class BoxProvider extends DocumentsProvider {
 
     BoxNavigation traverseToFolder(BoxVolume volume, List<String> filePath) throws QblStorageException {
 
-        Log.d(TAG, "Traversing to " + filePath.toString());
+        Log.d(TAG, "Traversing to " + filePath);
         BoxNavigation navigation = volume.navigate();
         PARTS:
         for (String part : filePath) {
@@ -485,8 +447,8 @@ public class BoxProvider extends DocumentsProvider {
             throws FileNotFoundException {
 
         Log.d(TAG, "Open document: " + documentId);
-        final boolean isWrite = (mode.indexOf('w') != -1);
-        final boolean isRead = (mode.indexOf('r') != -1);
+        final boolean isWrite = mode.indexOf('w') != -1;
+        final boolean isRead = mode.indexOf('r') != -1;
 
         if (isWrite) {
             final BoxUploadingFile boxUploadingFile = mService.addPendingUpload(documentId, null);
@@ -657,7 +619,7 @@ public class BoxProvider extends DocumentsProvider {
             Log.d(TAG, "find file: " + file.name);
             if (file instanceof BoxExternalFile) {
                 if (file.name.equals(basename)) {
-                    return (BoxExternalFile)file;
+                    return (BoxExternalFile) file;
                 }
             }
         }
@@ -775,9 +737,10 @@ public class BoxProvider extends DocumentsProvider {
 
         public void setExtraLoading(boolean loading) {
 
-            this.extraLoading = loading;
+            extraLoading = loading;
         }
 
+        @Override
         public Bundle getExtras() {
 
             Bundle bundle = new Bundle();

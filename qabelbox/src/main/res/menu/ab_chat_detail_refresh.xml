@@ -4,11 +4,11 @@
       tools:context=".MainActivity">
 
     <item
-        android:id="@+id/action_chat_detail_refresh"
-        android:icon="@drawable/ic_action_reload"
-        android:orderInCategory="200"
-        android:title="@string/refresh"
-        app:showAsAction="always"/>
+            android:id="@+id/action_chat_detail_refresh"
+            android:icon="@drawable/ic_action_reload"
+            android:orderInCategory="200"
+            android:title="@string/refresh"
+            app:showAsAction="always"/>
 
 
 </menu>

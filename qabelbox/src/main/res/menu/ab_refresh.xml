@@ -4,10 +4,10 @@
       tools:context=".MainActivity">
 
     <item
-        android:id="@+id/action_refresh"
-        android:orderInCategory="200"
-        android:title="@string/refresh"
-        app:showAsAction="always" />
+            android:id="@+id/action_refresh"
+            android:orderInCategory="200"
+            android:title="@string/refresh"
+            app:showAsAction="always"/>
 
 
 </menu>

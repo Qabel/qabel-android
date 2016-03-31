@@ -3,12 +3,8 @@ package de.qabel.qabelbox.views;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.widget.TextView;
-
 import de.qabel.qabelbox.helper.FontHelper;
 
-/**
- * Created by danny on 12.01.2016.
- */
 public class TextViewQabelFont extends TextView {
 
     public TextViewQabelFont(Context context) {

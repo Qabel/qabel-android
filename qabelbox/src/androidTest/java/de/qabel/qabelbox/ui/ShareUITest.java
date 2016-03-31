@@ -7,15 +7,6 @@ import android.os.PowerManager;
 import android.support.design.internal.NavigationMenuItemView;
 import android.support.test.espresso.intent.Intents;
 import android.support.test.espresso.intent.rule.IntentsTestRule;
-
-import org.hamcrest.core.AllOf;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-
-import java.io.IOException;
-
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.TestConstants;
@@ -26,6 +17,13 @@ import de.qabel.qabelbox.ui.helper.SystemAnimations;
 import de.qabel.qabelbox.ui.helper.UIActionHelper;
 import de.qabel.qabelbox.ui.helper.UIBoxHelper;
 import de.qabel.qabelbox.ui.helper.UITestHelper;
+import org.hamcrest.core.AllOf;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+
+import java.io.IOException;
 
 import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.action.ViewActions.click;
@@ -38,60 +36,57 @@ import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.is;
 
-/**
- * Created by danny on 17.03.2016.
- */
 public class ShareUITest {
-	@Rule
-	public IntentsTestRule<MainActivity> mActivityTestRule = new IntentsTestRule<>(MainActivity.class, false, true);
-	private MainActivity mActivity;
-	private UIBoxHelper mBoxHelper;
-	private PowerManager.WakeLock wakeLock;
-	private SystemAnimations mSystemAnimations;
+    @Rule
+    public IntentsTestRule<MainActivity> mActivityTestRule = new IntentsTestRule<>(MainActivity.class, false, true);
+    private MainActivity mActivity;
+    private UIBoxHelper mBoxHelper;
+    private PowerManager.WakeLock wakeLock;
+    private SystemAnimations mSystemAnimations;
 
 
-	public ShareUITest() throws IOException {
-		setupData();
-	}
+    public ShareUITest() throws IOException {
+        setupData();
+    }
 
-	@After
-	public void cleanUp() {
+    @After
+    public void cleanUp() {
 
-		wakeLock.release();
-		mSystemAnimations.enableAll();
-		mBoxHelper.unbindService(QabelBoxApplication.getInstance());
-	}
+        wakeLock.release();
+        mSystemAnimations.enableAll();
+        mBoxHelper.unbindService(QabelBoxApplication.getInstance());
+    }
 
-	@Before
-	public void setUp() throws IOException, QblStorageException {
+    @Before
+    public void setUp() throws IOException, QblStorageException {
 
-		mActivity = mActivityTestRule.getActivity();
-		wakeLock = UIActionHelper.wakeupDevice(mActivity);
-		mSystemAnimations = new SystemAnimations(mActivity);
-		mSystemAnimations.disableAll();
-	}
+        mActivity = mActivityTestRule.getActivity();
+        wakeLock = UIActionHelper.wakeupDevice(mActivity);
+        mSystemAnimations = new SystemAnimations(mActivity);
+        mSystemAnimations.disableAll();
+    }
 
-	private void setupData() {
-		URLs.setBaseBlockURL(TestConstants.BLOCK_URL);
-		UITestHelper.disableBugReporting(QabelBoxApplication.getInstance().getApplicationContext());
-		mActivity = mActivityTestRule.getActivity();
-		mBoxHelper = new UIBoxHelper(QabelBoxApplication.getInstance());
-		mBoxHelper.bindService(QabelBoxApplication.getInstance());
-		mBoxHelper.createTokenIfNeeded(false);
-		mBoxHelper.addIdentity("share");
-	}
+    private void setupData() {
+        URLs.setBaseBlockURL(TestConstants.BLOCK_URL);
+        UITestHelper.disableBugReporting(QabelBoxApplication.getInstance().getApplicationContext());
+        mActivity = mActivityTestRule.getActivity();
+        mBoxHelper = new UIBoxHelper(QabelBoxApplication.getInstance());
+        mBoxHelper.bindService(QabelBoxApplication.getInstance());
+        mBoxHelper.createTokenIfNeeded(false);
+        mBoxHelper.addIdentity("share");
+    }
 
 
-	@Test
-	public void testTellAFriend() {
-		openDrawer(R.id.drawer_layout);
-		Intents.intending(AllOf.allOf(hasAction(Intent.ACTION_CHOOSER), hasExtra(Intent.EXTRA_TITLE, mActivity.getString(R.string.share_via))
-		)).respondWith(new Instrumentation.ActivityResult(Activity.RESULT_OK, null));
+    @Test
+    public void testTellAFriend() {
+        openDrawer(R.id.drawer_layout);
+        Intents.intending(AllOf.allOf(hasAction(Intent.ACTION_CHOOSER), hasExtra(Intent.EXTRA_TITLE, mActivity.getString(R.string.share_via))
+        )).respondWith(new Instrumentation.ActivityResult(Activity.RESULT_OK, null));
 
-		onView(allOf(is(instanceOf(NavigationMenuItemView.class)), withText(R.string.action_tellafriend))).perform(click());
-		intended(allOf(hasAction(Intent.ACTION_CHOOSER), hasExtra(Intent.EXTRA_TITLE, mActivity.getString(R.string.share_via))));
+        onView(allOf(is(instanceOf(NavigationMenuItemView.class)), withText(R.string.action_tellafriend))).perform(click());
+        intended(allOf(hasAction(Intent.ACTION_CHOOSER), hasExtra(Intent.EXTRA_TITLE, mActivity.getString(R.string.share_via))));
 
-	}
+    }
 
 
 }

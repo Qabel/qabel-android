@@ -2,23 +2,23 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
     <PreferenceCategory android:title="DEBUG">
         <Preference
-            android:key="@string/settings_key_internal_feedback"
-            android:summary="@string/debug_send_feedback_to_pm"
-            android:title="@string/debug_send_feedback" />
+                android:key="@string/settings_key_internal_feedback"
+                android:summary="@string/debug_send_feedback_to_pm"
+                android:title="@string/debug_send_feedback"/>
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/general_settings">
         <CheckBoxPreference
-            android:checked="true"
-            android:defaultValue="true"
-            android:key="@string/settings_key_bugreporting_enabled"
-            android:summary="@string/settings_bugreporting_enable_summary"
-            android:title="@string/settings_bugreporting" />
+                android:checked="true"
+                android:defaultValue="true"
+                android:key="@string/settings_key_bugreporting_enabled"
+                android:summary="@string/settings_bugreporting_enable_summary"
+                android:title="@string/settings_bugreporting"/>
     </PreferenceCategory>
     <PreferenceCategory
-        android:title="@string/settings_headline_boxaccount">
+            android:title="@string/settings_headline_boxaccount">
         <Preference
-            android:key="@string/settings_key_change_password"
-            android:summary="@string/settings_change_account_password_summary"
-            android:title="@string/settings_change_account_password" />
+                android:key="@string/settings_key_change_password"
+                android:summary="@string/settings_change_account_password_summary"
+                android:title="@string/settings_change_account_password"/>
     </PreferenceCategory>
 </PreferenceScreen>

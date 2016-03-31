@@ -8,53 +8,53 @@
               android:background="@color/background_white">
 
     <de.qabel.qabelbox.views.TextViewFont
-        android:id="@+id/contactCount"
-        style="@style/SmallGreyMessageText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="right"
-        android:paddingLeft="@dimen/border_middle"
-        android:paddingRight="@dimen/border_middle"
-        android:paddingTop="4dp"/>
+            android:id="@+id/contactCount"
+            style="@style/SmallGreyMessageText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="right"
+            android:paddingLeft="@dimen/border_middle"
+            android:paddingRight="@dimen/border_middle"
+            android:paddingTop="4dp"/>
 
 
     <FrameLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        >
-
-        <android.support.v7.widget.RecyclerView
-            android:id="@+id/contact_list"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_gravity="center_horizontal|top"
-            android:scrollbars="vertical"/>
+    >
+
+        <android.support.v7.widget.RecyclerView
+                android:id="@+id/contact_list"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_gravity="center_horizontal|top"
+                android:scrollbars="vertical"/>
 
         <LinearLayout
-            android:id="@+id/empty_view"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:orientation="vertical"
-            android:padding="@dimen/activity_vertical_margin"
-            android:visibility="visible">
-
-            <ImageView
+                android:id="@+id/empty_view"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:src="@drawable/contacts_empty"/>
+                android:layout_gravity="center"
+                android:orientation="vertical"
+                android:padding="@dimen/activity_vertical_margin"
+                android:visibility="visible">
+
+            <ImageView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/contacts_empty"/>
 
             <de.qabel.qabelbox.views.TextViewFont
-                style="@style/ListViewLoadingText"
-                android:layout_height="wrap_content"
-                android:gravity="center_horizontal"
-                android:text="@string/contact_list_empty"
-                />
+                    style="@style/ListViewLoadingText"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_horizontal"
+                    android:text="@string/contact_list_empty"
+            />
 
             <ImageView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:src="@drawable/empty_folder_arrow"/>
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/empty_folder_arrow"/>
         </LinearLayout>
     </FrameLayout>
 

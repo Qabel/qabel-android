@@ -1,15 +1,13 @@
 package de.qabel.qabelbox.communication.callbacks;
 
 import android.util.Log;
-
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.Response;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
-
-import okhttp3.Call;
-import okhttp3.Callback;
-import okhttp3.Response;
 
 /**
  * Created by danny on 26.01.2016.
@@ -19,7 +17,7 @@ import okhttp3.Response;
 public abstract class SimpleJsonCallback implements Callback {
 
     private final String TAG = "callback";
-    protected int retryCount = 0;
+    protected int retryCount;
 
     protected enum Reasons {
         IOException, Body, JSON, InvalidResponse
@@ -27,9 +25,6 @@ public abstract class SimpleJsonCallback implements Callback {
 
     /**
      * call when any server error occurs
-     *
-     * @param call
-     * @param IOException
      */
     protected abstract void onError(Call call, Reasons IOException);
 
@@ -62,7 +57,7 @@ public abstract class SimpleJsonCallback implements Callback {
             onError(call, Reasons.InvalidResponse);
             return;
         }
-        String text=null;
+        String text = null;
         try {
             text = response.body().string();
         } catch (IOException e) {

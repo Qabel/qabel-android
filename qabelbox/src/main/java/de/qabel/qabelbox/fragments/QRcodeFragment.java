@@ -2,21 +2,13 @@ package de.qabel.qabelbox.fragments;
 
 import android.app.Fragment;
 import android.os.Bundle;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.View;
-import android.view.ViewGroup;
+import android.view.*;
 import android.widget.ImageView;
 import android.widget.TextView;
-
 import de.qabel.core.config.Identity;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.helper.QRCodeHelper;
 
-/**
- * Created by danny on 04.02.16.
- */
 public class QRcodeFragment extends BaseFragment {
 
     private static final String ARG_IDENTITY = "Identity";

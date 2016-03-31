@@ -49,6 +49,7 @@ public class AppPreference {
 
         settings.edit().putLong(P_LAST_APP_UPDATE_QUESTION_TIME, time).commit();
     }
+
     public long getWelcomeScreenShownAt() {
 
         return settings.getLong(P_WELCOME_SCREEN_SHOWN_AT, 0);
@@ -58,6 +59,7 @@ public class AppPreference {
 
         settings.edit().putLong(P_WELCOME_SCREEN_SHOWN_AT, time).commit();
     }
+
     public boolean shouldUpdateQuestionShowed(long currentTime) {
 
         return getLastAppUpdateQuestion() + NEW_UPATE_QUESTION_TIME_INTERVAL < currentTime;

@@ -25,7 +25,7 @@ public class DocumentIdParserTest extends TestCase {
     private QblECKeyPair key;
     private String pub;
     private String prefix;
-    private String rootId ;
+    private String rootId;
     private String filePath = "foo/bar/baz/";
     private String fileName = "lorem.txt";
 
@@ -33,7 +33,7 @@ public class DocumentIdParserTest extends TestCase {
     public void setUp() {
         p = new DocumentIdParser();
         key = new QblECKeyPair(Hex.decode(
-           "77076d0a7318a57d3c16c17251b26645df4c2f87ebc0992ab177fba51db92c2a"));
+                "77076d0a7318a57d3c16c17251b26645df4c2f87ebc0992ab177fba51db92c2a"));
         pub = "8520f0098930a754748b7ddcb43ef75a0dbf3a0d26381af4eba4a98eaa9b4e6a";
         prefix = "D7A75A70-8D28-11E5-A8EB-280369A460B9";
         rootId = pub + "::::" + prefix;
@@ -84,9 +84,9 @@ public class DocumentIdParserTest extends TestCase {
         assertNull(p.buildId(null, null, null));
     }
 
-	@Test
-	public void testGetPath() throws FileNotFoundException {
-		assertThat(p.getPath(rootId + "::::" + filePath + fileName), is(filePath));
-	}
+    @Test
+    public void testGetPath() throws FileNotFoundException {
+        assertThat(p.getPath(rootId + "::::" + filePath + fileName), is(filePath));
+    }
 
 }

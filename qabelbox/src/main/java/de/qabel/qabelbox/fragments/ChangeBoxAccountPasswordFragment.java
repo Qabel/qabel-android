@@ -95,19 +95,19 @@ public class ChangeBoxAccountPasswordFragment extends Fragment {
             void showRetryDialog() {
 
                 UIHelper.showDialogMessage(getActivity(), R.string.dialog_headline_info, R.string.server_access_not_successfully_retry_question, R.string.yes, R.string.no, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
 
-                        sendChangePWRequest(oldPassword, newPassword1, newPassword2);
-                    }
-                }
+                                sendChangePWRequest(oldPassword, newPassword1, newPassword2);
+                            }
+                        }
                         , new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
 
-                        dialog.dismiss();
-                    }
-                });
+                                dialog.dismiss();
+                            }
+                        });
             }
 
             protected void onError(final Call call, Reasons reasons) {

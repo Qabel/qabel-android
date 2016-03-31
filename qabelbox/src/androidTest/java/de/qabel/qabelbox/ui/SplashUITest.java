@@ -39,42 +39,42 @@ import static android.support.test.espresso.matcher.ViewMatchers.withText;
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class SplashUITest {
 
-	@Rule
-	public ActivityTestRule<SplashActivity> mActivityTestRule = new ActivityTestRule<>(SplashActivity.class, false, true);
+    @Rule
+    public ActivityTestRule<SplashActivity> mActivityTestRule = new ActivityTestRule<>(SplashActivity.class, false, true);
 
-	private SplashActivity mActivity;
+    private SplashActivity mActivity;
 
-	private PowerManager.WakeLock wakeLock;
-	private SystemAnimations mSystemAnimations;
+    private PowerManager.WakeLock wakeLock;
+    private SystemAnimations mSystemAnimations;
 
-	public SplashUITest() throws IOException {
-		new AppPreference(QabelBoxApplication.getInstance()).setWelcomeScreenShownAt(1);
-	}
+    public SplashUITest() throws IOException {
+        new AppPreference(QabelBoxApplication.getInstance()).setWelcomeScreenShownAt(1);
+    }
 
-	@After
-	public void cleanUp() {
+    @After
+    public void cleanUp() {
 
-		wakeLock.release();
-		mSystemAnimations.enableAll();
-	}
+        wakeLock.release();
+        mSystemAnimations.enableAll();
+    }
 
-	@Before
-	public void setUp() throws IOException, QblStorageException {
+    @Before
+    public void setUp() throws IOException, QblStorageException {
 
-		mActivity = mActivityTestRule.getActivity();
+        mActivity = mActivityTestRule.getActivity();
 
-		wakeLock = UIActionHelper.wakeupDevice(mActivity);
-		mSystemAnimations = new SystemAnimations(mActivity);
-		mSystemAnimations.disableAll();
-	}
-
-
-	@Test
-	public void testShowSplashScreen() {
-		onView(withText(R.string.splash_footer_text)).check(matches(isDisplayed()));
-		Spoon.screenshot(mActivity, "splashscreen");
+        wakeLock = UIActionHelper.wakeupDevice(mActivity);
+        mSystemAnimations = new SystemAnimations(mActivity);
+        mSystemAnimations.disableAll();
+    }
 
 
-	}
+    @Test
+    public void testShowSplashScreen() {
+        onView(withText(R.string.splash_footer_text)).check(matches(isDisplayed()));
+        Spoon.screenshot(mActivity, "splashscreen");
+
+
+    }
 
 }

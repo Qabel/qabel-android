@@ -22,6 +22,7 @@ public class BaseServer {
     protected final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
     private static final String TAG = "BaseServer";
     URLs urls;
+
     /**
      * create new instance of http client and set timeouts
      */

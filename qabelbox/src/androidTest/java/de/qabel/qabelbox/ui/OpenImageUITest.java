@@ -84,7 +84,7 @@ public class OpenImageUITest {
         wakeLock.release();
         Espresso.unregisterIdlingResources(mPicassoIdlingResource);
         mSystemAnimations.enableAll();
-		mBoxHelper.unbindService(QabelBoxApplication.getInstance());
+        mBoxHelper.unbindService(QabelBoxApplication.getInstance());
     }
 
     @Before
@@ -102,11 +102,11 @@ public class OpenImageUITest {
     }
 
     private void setupData() {
-		mActivity = mActivityTestRule.getActivity();
+        mActivity = mActivityTestRule.getActivity();
         URLs.setBaseBlockURL(TestConstants.BLOCK_URL);
-		mBoxHelper = new UIBoxHelper(QabelBoxApplication.getInstance());
-		mBoxHelper.bindService(QabelBoxApplication.getInstance());
-		mBoxHelper.createTokenIfNeeded(false);
+        mBoxHelper = new UIBoxHelper(QabelBoxApplication.getInstance());
+        mBoxHelper.bindService(QabelBoxApplication.getInstance());
+        mBoxHelper.createTokenIfNeeded(false);
         try {
             Identity old = mBoxHelper.getCurrentIdentity();
             if (old != null) {
@@ -115,7 +115,7 @@ public class OpenImageUITest {
         } catch (Exception e) {
             e.printStackTrace();
         }
-		mBoxHelper.removeAllIdentities();
+        mBoxHelper.removeAllIdentities();
         mBoxHelper.addIdentity("spoon");
         uploadTestFiles();
     }

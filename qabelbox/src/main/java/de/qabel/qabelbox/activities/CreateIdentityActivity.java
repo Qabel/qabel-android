@@ -81,7 +81,7 @@ public class CreateIdentityActivity extends BaseWizardActivity {
     public void handleNextClick() {
 
         super.handleNextClick();
-        if(step>0&&tryCount!=3&&prefix==null) {
+        if (step > 0 && tryCount != 3 && prefix == null) {
             loadPrefixInBackground();
         }
     }
@@ -143,7 +143,7 @@ public class CreateIdentityActivity extends BaseWizardActivity {
                 dropURLs.add(dropURL);
                 Identity identity = new Identity(getIdentityName(),
                         dropURLs, new QblECKeyPair());
-                Log.d(TAG,"add prefix to identity: "+prefix);
+                Log.d(TAG, "add prefix to identity: " + prefix);
                 identity.getPrefixes().add(prefix);
                 return identity;
             }
@@ -230,7 +230,7 @@ public class CreateIdentityActivity extends BaseWizardActivity {
         }
     }
 
-    public  boolean parsePrefix(Response response) throws IOException {
+    public boolean parsePrefix(Response response) throws IOException {
         String text = response.body().string();
         try {
             PrefixServer.ServerResponse result = PrefixServer.parseJson(new JSONObject(text));
@@ -238,9 +238,9 @@ public class CreateIdentityActivity extends BaseWizardActivity {
             prefix = result.prefix;
             return true;
         } catch (JSONException e) {
-            if(text.startsWith("\"")&&text.charAt(text.length()-1)=='"') {
-                prefix=text.substring(1,text.length()-1);
-                Log.w(TAG, "prefix temp until server fix: "+prefix+" "+text);
+            if (text.startsWith("\"") && text.charAt(text.length() - 1) == '"') {
+                prefix = text.substring(1, text.length() - 1);
+                Log.w(TAG, "prefix temp until server fix: " + prefix + " " + text);
                 return true;
             }
             Log.w(TAG, "error on parse service response", e);

@@ -52,16 +52,16 @@ public class ContactsAdapter extends RecyclerView.Adapter<ContactsAdapter.Contac
         public final TextView mTextViewContactName;
         public final TextView mTextViewContactDetails;
         public final ImageView mImageView;
-		private final View mNewMessageView;
+        private final View mNewMessageView;
 
-		public ContactViewHolder(View v) {
+        public ContactViewHolder(View v) {
 
             super(v);
             v.setOnClickListener(this);
             v.setOnLongClickListener(this);
             mTextViewContactName = (TextView) v.findViewById(R.id.textViewItemName);
             mTextViewContactDetails = (TextView) v.findViewById(R.id.textViewItemDetail);
-			mNewMessageView=v.findViewById(R.id.newMessageIndicator);
+            mNewMessageView = v.findViewById(R.id.newMessageIndicator);
             mImageView = (ImageView) v.findViewById(R.id.itemIcon);
         }
 
@@ -111,17 +111,14 @@ public class ContactsAdapter extends RecyclerView.Adapter<ContactsAdapter.Contac
     @Override
     public void onBindViewHolder(ContactViewHolder holder, int position) {
 
-		ContactAdapterItem item = mContacts.get(position);
-		holder.mTextViewContactName.setText(item.getAlias());
+        ContactAdapterItem item = mContacts.get(position);
+        holder.mTextViewContactName.setText(item.getAlias());
         holder.mTextViewContactDetails.setText(item.getEcPublicKey().getReadableKeyIdentifier());
-		if(item.hasNewMessages)
-		{
-			holder.mNewMessageView.setVisibility(View.VISIBLE);
-		}
-		else
-		{
-			holder.mNewMessageView.setVisibility(View.INVISIBLE);
-		}
+        if (item.hasNewMessages) {
+            holder.mNewMessageView.setVisibility(View.VISIBLE);
+        } else {
+            holder.mNewMessageView.setVisibility(View.INVISIBLE);
+        }
 
     }
 

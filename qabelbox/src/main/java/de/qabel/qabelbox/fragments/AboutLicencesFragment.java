@@ -27,7 +27,7 @@ public class AboutLicencesFragment extends BaseFragment {
     RecyclerView licensesList;
 
     public static AboutLicencesFragment newInstance() {
-        AboutLicencesFragment fragment=new AboutLicencesFragment();
+        AboutLicencesFragment fragment = new AboutLicencesFragment();
         return fragment;
     }
 

@@ -20,7 +20,6 @@ public class DocumentIdParser {
     }
 
 
-
     public String getPrefix(String documentId) throws FileNotFoundException {
         String[] split = documentId.split(BoxProvider.DOCID_SEPARATOR, 4);
         if (split.length > 1 && split[1].length() > 0) {
@@ -38,15 +37,15 @@ public class DocumentIdParser {
         throw new FileNotFoundException("Could not find file path in document id");
     }
 
-	public String getPath(String documentId) throws FileNotFoundException {
-		String filepath = getFilePath(documentId);
-		filepath = filepath.substring(0 , filepath.lastIndexOf('/') + 1);
-		// TODO: Workaround for wrong formatted document IDs
-		if (filepath.startsWith("//")) {
-			return filepath.substring(1, filepath.length());
-		}
-		return filepath;
-	}
+    public String getPath(String documentId) throws FileNotFoundException {
+        String filepath = getFilePath(documentId);
+        filepath = filepath.substring(0, filepath.lastIndexOf('/') + 1);
+        // TODO: Workaround for wrong formatted document IDs
+        if (filepath.startsWith("//")) {
+            return filepath.substring(1, filepath.length());
+        }
+        return filepath;
+    }
 
     public List<String> splitPath(String filePath) {
 

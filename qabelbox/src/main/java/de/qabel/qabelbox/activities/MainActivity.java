@@ -63,7 +63,6 @@ import de.qabel.qabelbox.fragments.CreateIdentityMainFragment;
 import de.qabel.qabelbox.fragments.FilesFragment;
 import de.qabel.qabelbox.fragments.HelpMainFragment;
 import de.qabel.qabelbox.fragments.IdentitiesFragment;
-import de.qabel.qabelbox.fragments.ImageViewerFragment;
 import de.qabel.qabelbox.fragments.QRcodeFragment;
 import de.qabel.qabelbox.fragments.SelectUploadFolderFragment;
 import de.qabel.qabelbox.helper.CacheFileHelper;
@@ -577,13 +576,10 @@ public class MainActivity extends CrashReportingActivity
 
         //check if file type is image
         if (type != null && type.indexOf("image") == 0) {
-            ImageViewerFragment viewerFragment = ImageViewerFragment.newInstance(uri, type);
-            getFragmentManager().beginTransaction()
-                    .replace(R.id.fragment_container, viewerFragment).addToBackStack(null)
-                    .commit();
-            toggle.setDrawerIndicatorEnabled(false);
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
+            Intent intent=new Intent(self,ImageViewerActivity.class);
+            intent.putExtra(ImageViewerActivity.P_URI,uri);
+            intent.putExtra(ImageViewerActivity.P_TYPE,type);
+            startActivity(intent);
             return;
         }
 

@@ -127,6 +127,15 @@
 
         </activity>
 
+        <activity
+            android:name=".activities.ImageViewerActivity"
+            android:configChanges="screenLayout|orientation"
+            android:label="@string/headline_imageviewer"
+            android:launchMode="singleTask"
+            android:screenOrientation="sensor"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:windowSoftInputMode="stateHidden|adjustResize"/>
+
         <service
             android:name=".services.QabelService"
             android:enabled="true"

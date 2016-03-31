@@ -1,5 +1,6 @@
 package de.qabel.qabelbox.fragments;
 
+import android.app.Fragment;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -22,7 +23,7 @@ import de.qabel.qabelbox.helper.ExternalApps;
 /**
  * Created by danny on 02.02.16.
  */
-public class ImageViewerFragment extends BaseFragment {
+public class ImageViewerFragment extends Fragment {
 
     private Uri uri;
     private String type;
@@ -37,7 +38,6 @@ public class ImageViewerFragment extends BaseFragment {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
 
@@ -45,7 +45,6 @@ public class ImageViewerFragment extends BaseFragment {
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-
         menu.clear();
         super.onCreateOptionsMenu(menu, inflater);
         inflater.inflate(R.menu.ab_imageviewer, menu);
@@ -65,12 +64,6 @@ public class ImageViewerFragment extends BaseFragment {
             default:
                 return super.onOptionsItemSelected(item);
         }
-    }
-
-    @Override
-    public String getTitle() {
-
-        return getString(R.string.headline_imageviewer);
     }
 
     @Nullable
@@ -97,18 +90,17 @@ public class ImageViewerFragment extends BaseFragment {
                     }
                 });
         setClickListener(view);
-        setActionBarBackListener(new View.OnClickListener() {
+        /*setActionBarBackListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 getActivity().onBackPressed();
             }
-        });
+        });*/
 
         return view;
     }
 
     private void setClickListener(View view) {
-
         view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -117,11 +109,5 @@ public class ImageViewerFragment extends BaseFragment {
             }
         });
 
-    }
-
-    @Override
-    public boolean supportBackButton() {
-
-        return true;
     }
 }

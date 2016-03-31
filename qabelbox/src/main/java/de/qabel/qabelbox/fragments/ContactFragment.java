@@ -217,9 +217,18 @@ public class ContactFragment extends BaseFragment {
                             case R.id.contact_list_item_export:
                                 exportContact(contact);
                                 break;
+                            case R.id.contact_list_item_qrcode:
+                                exportContactAsQRCode(contact);
                         }
                     }
                 }).show();
+    }
+
+    private void exportContactAsQRCode(Contact contact) {
+        mActivity.getFragmentManager().beginTransaction()
+                .replace(R.id.fragment_container, QRcodeFragment.newInstance(contact), null)
+                .addToBackStack(null)
+                .commit();
     }
 
     /**

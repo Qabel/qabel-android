@@ -15,6 +15,7 @@ import com.google.zxing.common.BitArray;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
 
+import de.qabel.core.config.Contact;
 import de.qabel.core.config.Identity;
 
 /**
@@ -22,12 +23,26 @@ import de.qabel.core.config.Identity;
  */
 public class QRCodeHelper {
 
-    private static final String TAG = "QRCodeHelper";
+    private final String TAG = "QRCodeHelper";
 
-    public static void generateQRCode(final Activity activity, final Identity identity, final ImageView iv) {
+    public void generateQRCode(final Activity activity, final Identity identity, final ImageView iv) {
+        String text = "QABELCONTACT\n"
+                + identity.getAlias() + "\n"
+                + identity.getDropUrls().toArray()[0].toString() + "\n"
+                + identity.getKeyIdentifier();
+        generateQRCode(activity, text, iv);
+    }
 
-        new AsyncTask<Identity, Void, Bitmap>() {
+    public void generateQRCode(final Activity activity, final Contact contact, final ImageView iv) {
+        String text = "QABELCONTACT\n"
+                + contact.getAlias() + "\n"
+                + contact.getDropUrls().toArray()[0].toString() + "\n"
+                + contact.getKeyIdentifier();
+        generateQRCode(activity, text, iv);
+    }
 
+    private void generateQRCode(final Activity activity, final String text, final ImageView iv) {
+        new AsyncTask<String, Void, Bitmap>() {
             public int size;
 
             @Override
@@ -37,6 +52,7 @@ public class QRCodeHelper {
                     iv.setImageBitmap(bitmap);
                 }
             }
+
 
             @Override
             protected void onPreExecute() {
@@ -51,16 +67,10 @@ public class QRCodeHelper {
             }
 
             @Override
-            protected Bitmap doInBackground(Identity... identities) {
-
-                String text = "QABELCONTACT\n"
-                        + identities[0].getAlias() + "\n"
-                        + identities[0].getDropUrls().toArray()[0].toString() + "\n"
-                        + identities[0].getKeyIdentifier();
-
+            protected Bitmap doInBackground(String... text) {
                 QRCodeWriter writer = new QRCodeWriter();
                 try {
-                    BitMatrix bitMatrix = writer.encode(text, BarcodeFormat.QR_CODE, size, size);
+                    BitMatrix bitMatrix = writer.encode(text[0], BarcodeFormat.QR_CODE, size, size);
                     int width = bitMatrix.getWidth();
                     int height = bitMatrix.getHeight();
                     BitArray row = new BitArray(width);
@@ -80,6 +90,6 @@ public class QRCodeHelper {
                 }
                 return null;
             }
-        }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, identity);
+        }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, text);
     }
 }

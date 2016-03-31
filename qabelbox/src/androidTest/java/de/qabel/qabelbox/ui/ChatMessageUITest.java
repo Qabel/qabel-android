@@ -52,7 +52,7 @@ public class ChatMessageUITest {
     private UIBoxHelper mBoxHelper;
     private PowerManager.WakeLock wakeLock;
     private SystemAnimations mSystemAnimations;
-    private final String TAG = this.getClass().getSimpleName();
+    private final String TAG = getClass().getSimpleName();
     private Contact contact2, contact1;
 
     public ChatMessageUITest() throws IOException {

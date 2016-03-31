@@ -149,7 +149,7 @@ public class ContactFragment extends BaseFragment {
             intent.addCategory(Intent.CATEGORY_OPENABLE);
             intent.setType("application/json");
             intent.putExtra(Intent.EXTRA_TITLE, type + "" + filename + "." + QabelSchema.FILE_SUFFIX_CONTACT);
-            startActivityForResult(intent, ContactFragment.REQUEST_EXPORT_CONTACT);
+            startActivityForResult(intent, REQUEST_EXPORT_CONTACT);
         }
     }
 
@@ -384,7 +384,7 @@ public class ContactFragment extends BaseFragment {
 
                         QblECPublicKey publicKey = new QblECPublicKey(Hex.decode(result[3]));
                         Contact contact = new Contact(result[1], dropURLs, publicKey);
-                        ContactFragment.addContactSilent(contact);
+                        addContactSilent(contact);
                     } catch (Exception e) {
                         Log.w(TAG, "add contact failed", e);
                         UIHelper.showDialogMessage(mActivity, R.string.dialog_headline_warning, R.string.contact_import_failed, e);

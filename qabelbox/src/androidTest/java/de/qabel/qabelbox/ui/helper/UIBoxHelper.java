@@ -41,11 +41,11 @@ import java.util.Set;
 public class UIBoxHelper {
 
 
-    private final String TAG = this.getClass().getSimpleName();
+    private final String TAG = getClass().getSimpleName();
     private LocalQabelService mService;
     private BoxProvider provider;
     public BoxVolume mBoxVolume;
-    private boolean finished = false;
+    private boolean finished;
 
     public UIBoxHelper(Context activity) {
     }

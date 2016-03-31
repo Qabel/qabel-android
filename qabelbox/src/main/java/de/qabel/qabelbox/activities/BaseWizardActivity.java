@@ -16,7 +16,7 @@ import de.qabel.qabelbox.helper.UIHelper;
 
 public abstract class BaseWizardActivity extends CrashReportingActivity {
 
-    private String TAG = this.getClass().getSimpleName();
+    private String TAG = getClass().getSimpleName();
 
     public static final String FIRST_RUN = "first_run";
 
@@ -27,12 +27,12 @@ public abstract class BaseWizardActivity extends CrashReportingActivity {
     private CreateIdentityHeaderFragment mIdentityHeaderFragment;
 
     protected BaseIdentityFragment[] fragments;
-    protected int step = 0;
+    protected int step;
     public int activityResult = RESULT_CANCELED;
     protected boolean mFirstRun;
     //values for create box account mode
     AccountingHTTP mAccounting;
-    protected boolean canExit = false;
+    protected boolean canExit;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

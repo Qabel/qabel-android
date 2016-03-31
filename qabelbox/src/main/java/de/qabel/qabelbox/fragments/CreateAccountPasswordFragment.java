@@ -34,7 +34,7 @@ public class CreateAccountPasswordFragment extends BaseIdentityFragment {
 
         View view = inflater.inflate(R.layout.fragment_create_account_password, container, false);
 
-        etPassword1 = ((EditText) view.findViewById(R.id.et_password1));
+        etPassword1 = (EditText) view.findViewById(R.id.et_password1);
         etPassword2 = (EditText) view.findViewById(R.id.et_password2);
         return view;
     }
@@ -42,7 +42,7 @@ public class CreateAccountPasswordFragment extends BaseIdentityFragment {
     @Override
     public String check() {
 
-        Integer validationMessage = this.validator.validate(accountName,
+        Integer validationMessage = validator.validate(accountName,
                 etPassword1.getText().toString(), etPassword2.getText().toString());
         //check if pw1 match pw2
         if (validationMessage == null) {

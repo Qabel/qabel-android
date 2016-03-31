@@ -29,7 +29,7 @@ public class CreateAccountActivity extends BaseWizardActivity {
     private static final int FRAGMENT_ENTER_EMAIL = 2;
     private static final int FRAGMENT_ENTER_PASSWORD = 3;
 
-    private final String TAG = this.getClass().getSimpleName();
+    private final String TAG = getClass().getSimpleName();
 
     private String mBoxAccountName;
 
@@ -127,7 +127,7 @@ public class CreateAccountActivity extends BaseWizardActivity {
     }
 
     private void setEMail(String editText) {
-        this.mBoxAccountEMail = editText;
+        mBoxAccountEMail = editText;
     }
 
     private String checkBoxAccountName(String accountName) {
@@ -194,6 +194,7 @@ public class CreateAccountActivity extends BaseWizardActivity {
                         });
             }
 
+            @Override
             protected void onError(final Call call, Reasons reasons) {
 
                 if (reasons == Reasons.IOException && retryCount++ < 3) {
@@ -204,6 +205,7 @@ public class CreateAccountActivity extends BaseWizardActivity {
                 }
             }
 
+            @Override
             protected void onSuccess(Call call, Response response, JSONObject json) {
 
                 BoxAccountRegisterServer.ServerResponse result = BoxAccountRegisterServer.parseJson(json);

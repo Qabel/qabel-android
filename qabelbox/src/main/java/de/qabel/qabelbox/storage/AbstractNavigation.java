@@ -56,11 +56,11 @@ public abstract class AbstractNavigation implements BoxNavigation {
         this.deviceId = deviceId;
         this.transferManager = transferManager;
         this.boxVolume = boxVolume;
-        this.currentPath = path;
+        currentPath = path;
         this.dmKey = dmKey;
         this.context = context;
-        this.cache = new FileCache(context);
-        this.urls = new URLs();
+        cache = new FileCache(context);
+        urls = new URLs();
         cryptoUtils = new CryptoUtils();
         if (parentBoxFolders != null) {
             this.parentBoxFolders = parentBoxFolders;
@@ -69,10 +69,12 @@ public abstract class AbstractNavigation implements BoxNavigation {
         }
     }
 
+    @Override
     public String getPath() {
         return currentPath;
     }
 
+    @Override
     public String getPath(BoxObject object) {
         if (object instanceof BoxFolder) {
             return currentPath + object.name + BoxProvider.PATH_SEP;
@@ -185,7 +187,7 @@ public abstract class AbstractNavigation implements BoxNavigation {
                 if (cryptoUtils.decryptFileAuthenticatedSymmetricAndValidateTag(
                         new FileInputStream(indexDl), tmp, keyParameter)) {
                     dm = DirectoryMetadata.openDatabase(
-                            tmp, deviceId, target.ref, this.dm.getTempDir());
+                            tmp, deviceId, target.ref, dm.getTempDir());
                     dmKey = target.key;
                 }
             }
@@ -205,7 +207,7 @@ public abstract class AbstractNavigation implements BoxNavigation {
             logger.info("Could not reload metadata");
         }
         // the remote version has changed from the _old_ version
-        if ((updatedDM != null) && (!Arrays.equals(version, updatedDM.getVersion()))) {
+        if (updatedDM != null && !Arrays.equals(version, updatedDM.getVersion())) {
             logger.info("Conflicting version");
             // ignore our local directory metadata
             // all changes that are not inserted in the new dm are _lost_!
@@ -261,7 +263,7 @@ public abstract class AbstractNavigation implements BoxNavigation {
     }
 
     private String conflictName(BoxFile local) {
-        return local.name + "_conflict_" + local.mtime.toString();
+        return local.name + "_conflict_" + local.mtime;
     }
 
     protected abstract void uploadDirectoryMetadata() throws QblStorageException;

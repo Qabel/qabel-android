@@ -63,8 +63,8 @@ public class Formatter {
      * Formats a Date to a String like "Fr. 20:35" or "15.02.15 20:35" if the date is more than a week in the past.
      */
     public static String formatDateTimeString(long time) {
-        Calendar current = GregorianCalendar.getInstance();
-        Calendar date = GregorianCalendar.getInstance();
+        Calendar current = Calendar.getInstance();
+        Calendar date = Calendar.getInstance();
         date.setTimeInMillis(time);
         Date dateObj = new Date(time);
 

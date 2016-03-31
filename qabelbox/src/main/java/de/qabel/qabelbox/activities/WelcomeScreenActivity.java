@@ -38,10 +38,10 @@ public class WelcomeScreenActivity extends FragmentActivity implements ViewPager
     private final WelcomeTextFragment.TextElement[] textElements = new WelcomeTextFragment.TextElement[NUM_PAGES - 1];
     private AppPreference prefs;
     private ScreenSlidePagerAdapter mPagerAdapter;
-    private final String TAG = this.getClass().getSimpleName();
+    private final String TAG = getClass().getSimpleName();
     private TextView leftButton;
     private TextView rightButton;
-    private int mCurrentPage = 0;
+    private int mCurrentPage;
     private WelcomeScreenActivity self;
 
     @Override

@@ -158,6 +158,7 @@ public class UIHelper {
         renameDialog.setView(layout);
 
         renameDialog.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+            @Override
             public void onClick(DialogInterface dialog, int whichButton) {
 
                 if (okListener != null) {
@@ -167,6 +168,7 @@ public class UIHelper {
         });
 
         renameDialog.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+            @Override
             public void onClick(DialogInterface dialog, int whichButton) {
 
                 if (cancelListener != null) {
@@ -206,6 +208,7 @@ public class UIHelper {
         renameDialog.setView(layout);
 
         renameDialog.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+            @Override
             public void onClick(DialogInterface dialog, int whichButton) {
 
                 if (okListener != null) {
@@ -215,6 +218,7 @@ public class UIHelper {
         });
 
         renameDialog.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+            @Override
             public void onClick(DialogInterface dialog, int whichButton) {
 
                 if (cancelListener != null) {
@@ -254,6 +258,7 @@ public class UIHelper {
         renameDialog.setView(layout);
 
         renameDialog.setPositiveButton(ok, new DialogInterface.OnClickListener() {
+            @Override
             public void onClick(DialogInterface dialog, int whichButton) {
 
                 if (okListener != null) {

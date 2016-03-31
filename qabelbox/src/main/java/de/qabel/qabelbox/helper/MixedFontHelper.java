@@ -8,7 +8,7 @@ import de.qabel.qabelbox.R;
 public class MixedFontHelper {
 
     private Typeface[] fonts;
-    private static MixedFontHelper instance = null;
+    private static MixedFontHelper instance;
 
     private MixedFontHelper() {
         // Exists only to defeat instantiation.

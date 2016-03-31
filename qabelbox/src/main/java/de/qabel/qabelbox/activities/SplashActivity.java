@@ -14,7 +14,7 @@ public class SplashActivity extends CrashReportingActivity {
     private final long SPLASH_TIME = 1500;
     private SplashActivity mActivity;
     private AppPreference prefs;
-    final private String TAG = this.getClass().getSimpleName();
+    private final String TAG = getClass().getSimpleName();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

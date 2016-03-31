@@ -28,7 +28,7 @@ public class CreateAccountResetPasswordFragment extends BaseIdentityFragment {
             savedInstanceState) {
 
         View view = inflater.inflate(R.layout.fragment_create_account_reset_password, container, false);
-        etEMail = ((TextView) view.findViewById(R.id.et_email));
+        etEMail = (TextView) view.findViewById(R.id.et_email);
 
         setHasOptionsMenu(true);
         return view;
@@ -98,6 +98,7 @@ public class CreateAccountResetPasswordFragment extends BaseIdentityFragment {
                         });
             }
 
+            @Override
             protected void onError(final Call call, Reasons reasons) {
 
                 if (reasons == Reasons.IOException && retryCount++ < 3) {
@@ -108,6 +109,7 @@ public class CreateAccountResetPasswordFragment extends BaseIdentityFragment {
                 }
             }
 
+            @Override
             protected void onSuccess(Call call, Response response, JSONObject json) {
 
                 final BoxAccountRegisterServer.ServerResponse result = BoxAccountRegisterServer.parseJson(json);

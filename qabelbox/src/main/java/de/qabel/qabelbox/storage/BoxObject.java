@@ -11,6 +11,6 @@ public class BoxObject implements Comparable<BoxObject> {
 
     @Override
     public int compareTo(@NonNull BoxObject another) {
-        return this.name.compareTo(another.name);
+        return name.compareTo(another.name);
     }
 }

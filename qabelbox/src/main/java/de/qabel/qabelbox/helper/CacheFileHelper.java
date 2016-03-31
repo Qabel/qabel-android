@@ -14,7 +14,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public class CacheFileHelper {
 
-    private final String TAG = this.getClass().getSimpleName();
+    private final String TAG = getClass().getSimpleName();
     private static AtomicBoolean isRunningTest;
     private final String[] fileDeletePrefixes = new String[]{"download", "dir", "uploadAnd"};
 

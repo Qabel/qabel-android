@@ -8,7 +8,7 @@ import net.hockeyapp.android.FeedbackManager;
 
 public class SettingsFragment extends PreferenceFragment {
 
-    final public static String APP_PREF_NAME = "appsettings";
+    public static final String APP_PREF_NAME = "appsettings";
 
     @Override
     public void onCreate(Bundle savedInstanceState) {

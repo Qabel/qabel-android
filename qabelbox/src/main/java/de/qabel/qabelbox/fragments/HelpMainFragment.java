@@ -19,7 +19,7 @@ import java.util.Date;
 
 public class HelpMainFragment extends PreferenceFragment {
 
-    final public static String APP_PREF_NAME = "appsettings";
+    public static final String APP_PREF_NAME = "appsettings";
     private MainActivity mActivity;
 
     @Override

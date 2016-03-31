@@ -163,7 +163,7 @@ public class CreateIdentityUITest {
     }
 
     private void createIdentityPerformSetSecurityLevel() {
-        onView(withClassName(Matchers.equalTo(SeekBar.class.getName()))).perform(QabelViewAction.setProgress(2));
+        onView(withClassName(equalTo(SeekBar.class.getName()))).perform(QabelViewAction.setProgress(2));
         onView(allOf(withClassName(endsWith("SeekBar")))).check(matches(QabelMatcher.withProgress(2)));
         onView(withText(R.string.next)).perform(click());
         UITestHelper.sleep(500);

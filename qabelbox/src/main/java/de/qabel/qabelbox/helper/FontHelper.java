@@ -9,7 +9,7 @@ import de.qabel.qabelbox.views.TextViewQabelFont;
 public class FontHelper {
 
     private Typeface[] fonts;
-    private static FontHelper instance = null;
+    private static FontHelper instance;
     private Typeface qabelFont;
 
     private FontHelper() {

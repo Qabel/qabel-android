@@ -170,7 +170,7 @@ public class OpenQabelFilesFromExternalAppsUITest extends UIBoxHelper {
     }
 
     private void goToContacts() {
-        DrawerActions.openDrawer(R.id.drawer_layout);
+        openDrawer(R.id.drawer_layout);
         onView(allOf(withText(R.string.Contacts), withParent(withClassName(endsWith("MenuView")))))
                 .perform(click());
         Spoon.screenshot(mActivity, "contacts");

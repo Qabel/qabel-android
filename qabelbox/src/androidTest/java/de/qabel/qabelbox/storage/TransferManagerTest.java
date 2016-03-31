@@ -32,13 +32,14 @@ public class TransferManagerTest extends AndroidTestCase {
         new AppPreference(QabelBoxApplication.getInstance().getApplicationContext()).setToken(QabelBoxApplication.getInstance().getApplicationContext().getString(R.string.blockserver_magic_testtoken));
     }
 
+    @Override
     @Before
     public void setUp() throws IOException, QblStorageException {
         configureTestServer();
         tempDir = new File(System.getProperty("java.io.tmpdir"), "testtmp");
         tempDir.mkdir();
         transferManager = new TransferManager(tempDir);
-        testFileNameOnServer = "testfile_" + UUID.randomUUID().toString();
+        testFileNameOnServer = "testfile_" + UUID.randomUUID();
     }
 
 
@@ -70,6 +71,7 @@ public class TransferManagerTest extends AndroidTestCase {
     }
 
 
+    @Override
     @After
     public void tearDown() throws IOException {
         syncDelete(testFileNameOnServer);

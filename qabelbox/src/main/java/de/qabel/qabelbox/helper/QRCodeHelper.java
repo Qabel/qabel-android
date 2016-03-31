@@ -50,7 +50,7 @@ public class QRCodeHelper {
 
                 String text = "QABELCONTACT\n"
                         + identities[0].getAlias() + "\n"
-                        + identities[0].getDropUrls().toArray()[0].toString() + "\n"
+                        + identities[0].getDropUrls().toArray()[0] + "\n"
                         + identities[0].getKeyIdentifier();
 
                 QRCodeWriter writer = new QRCodeWriter();
@@ -65,7 +65,7 @@ public class QRCodeHelper {
                         bitMatrix.getRow(y, row);
                         int[] rowArray = row.getBitArray();
                         for (int x = 0; x < width; x++) {
-                            data[x + yy] = ((rowArray[x / 32] >>> (x & 0x1f)) & 1) != 0 ? Color.BLACK : Color.WHITE;
+                            data[x + yy] = (rowArray[x / 32] >>> (x & 0x1f) & 1) != 0 ? Color.BLACK : Color.WHITE;
                         }
                     }
 

@@ -26,8 +26,8 @@ public class FileSearchFilterFragment extends BaseFragment implements SeekBar.On
     long mMaxFileSize;
     long mMinDate;
     long mMaxDate;
-    long mNewMinDate = 0;
-    long mNewMaxDate = 0;
+    long mNewMinDate;
+    long mNewMaxDate;
 
     private SeekBar mSbFileSizeMin;
     private SeekBar mSbFileSizeMax;
@@ -233,7 +233,7 @@ public class FileSearchFilterFragment extends BaseFragment implements SeekBar.On
     public static class FilterData {
         Date mDateMin;
         Date mDateMax;
-        int mFileSizeMin = 0;
+        int mFileSizeMin;
         int mFileSizeMax = Integer.MAX_VALUE;
     }
 

@@ -42,7 +42,7 @@ public class CreateIdentityEditTextFragment extends BaseIdentityFragment {
 
         View view = inflater.inflate(R.layout.fragment_create_identity_edittext, container, false);
 
-        TextView tvMessage = ((TextView) view.findViewById(R.id.tv_message));
+        TextView tvMessage = (TextView) view.findViewById(R.id.tv_message);
         editText = (EditText) view.findViewById(R.id.et_name);
         tvMessage.setText(mMessageId);
         editText.setHint(mEditTextHintId);

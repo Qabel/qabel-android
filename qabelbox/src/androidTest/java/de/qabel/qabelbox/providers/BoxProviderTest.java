@@ -100,7 +100,7 @@ public class BoxProviderTest extends MockedBoxProviderTest {
         Uri documentUri = DocumentsContract.buildDocumentUri(BoxProvider.AUTHORITY, testDocId);
         assertNotNull("Could not build document URI", documentUri);
         Cursor query = mockContentResolver.query(documentUri, null, null, null, null);
-        assertNotNull("Document query failed: " + documentUri.toString(), query);
+        assertNotNull("Document query failed: " + documentUri, query);
         assertTrue(query.moveToFirst());
         InputStream inputStream = mockContentResolver.openInputStream(documentUri);
         byte[] dl = IOUtils.toByteArray(inputStream);
@@ -185,14 +185,14 @@ public class BoxProviderTest extends MockedBoxProviderTest {
         Uri documentUri = DocumentsContract.buildDocumentUri(BoxProvider.AUTHORITY, testDocId);
         assertNotNull("Could not build document URI", documentUri);
         Cursor query = mockContentResolver.query(documentUri, null, null, null, null);
-        assertNull("Document already there: " + documentUri.toString(), query);
+        assertNull("Document already there: " + documentUri, query);
         Uri document = DocumentsContract.createDocument(mockContentResolver, parentDocumentUri,
                 "image/png",
                 "testfile.png");
         assertNotNull("Create document failed, no document Uri returned", document);
         assertThat(document.toString(), is(documentUri.toString()));
         query = mockContentResolver.query(documentUri, null, null, null, null);
-        assertNotNull("Document not created:" + documentUri.toString(), query);
+        assertNotNull("Document not created:" + documentUri, query);
     }
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
@@ -202,7 +202,7 @@ public class BoxProviderTest extends MockedBoxProviderTest {
         Uri documentUri = DocumentsContract.buildDocumentUri(BoxProvider.AUTHORITY, testDocId);
         assertNotNull("Could not build document URI", documentUri);
         Cursor query = mockContentResolver.query(documentUri, null, null, null, null);
-        assertNull("Document already there: " + documentUri.toString(), query);
+        assertNull("Document already there: " + documentUri, query);
         Uri document = DocumentsContract.createDocument(mockContentResolver, parentDocumentUri,
                 "image/png",
                 "testfile.png");
@@ -210,7 +210,7 @@ public class BoxProviderTest extends MockedBoxProviderTest {
         DocumentsContract.deleteDocument(mockContentResolver, document);
         assertThat(document.toString(), is(documentUri.toString()));
         query = mockContentResolver.query(documentUri, null, null, null, null);
-        assertNull("Document not deleted:" + documentUri.toString(), query);
+        assertNull("Document not deleted:" + documentUri, query);
     }
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
@@ -220,7 +220,7 @@ public class BoxProviderTest extends MockedBoxProviderTest {
         Uri documentUri = DocumentsContract.buildDocumentUri(BoxProvider.AUTHORITY, testDocId);
         assertNotNull("Could not build document URI", documentUri);
         Cursor query = mockContentResolver.query(documentUri, null, null, null, null);
-        assertNull("Document already there: " + documentUri.toString(), query);
+        assertNull("Document already there: " + documentUri, query);
         Uri document = DocumentsContract.createDocument(
                 mockContentResolver, parentDocumentUri,
                 "image/png",
@@ -229,11 +229,11 @@ public class BoxProviderTest extends MockedBoxProviderTest {
         Uri renamed = DocumentsContract.renameDocument(mockContentResolver,
                 document, "testfile2.png");
         assertNotNull(renamed);
-        assertThat(renamed.toString(), is(parentDocumentUri.toString() + "testfile2.png"));
+        assertThat(renamed.toString(), is(parentDocumentUri + "testfile2.png"));
         query = mockContentResolver.query(documentUri, null, null, null, null);
-        assertNull("Document not renamed:" + documentUri.toString(), query);
+        assertNull("Document not renamed:" + documentUri, query);
         query = mockContentResolver.query(renamed, null, null, null, null);
-        assertNotNull("Document not renamed:" + documentUri.toString(), query);
+        assertNotNull("Document not renamed:" + documentUri, query);
     }
 
     public void testGetDocumentId() throws QblStorageException {

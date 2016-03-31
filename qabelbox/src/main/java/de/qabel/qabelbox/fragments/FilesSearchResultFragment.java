@@ -233,7 +233,7 @@ public class FilesSearchResultFragment extends FilesFragment {
 
     private void filterData(FileSearchFilterFragment.FilterData data) {
 
-        this.mFilterData = data;
+        mFilterData = data;
 
         StorageSearch result;
         try {

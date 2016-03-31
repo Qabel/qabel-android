@@ -126,7 +126,7 @@ public class MainActivity extends CrashReportingActivity
             if (data != null) {
                 if (requestCode == REQUEST_CODE_OPEN) {
                     uri = data.getData();
-                    Log.i(TAG, "Uri: " + uri.toString());
+                    Log.i(TAG, "Uri: " + uri);
                     Intent viewIntent = new Intent();
                     String type = URLConnection.guessContentTypeFromName(uri.toString());
                     Log.i(TAG, "Mime type: " + type);
@@ -150,7 +150,7 @@ public class MainActivity extends CrashReportingActivity
                 }
                 if (requestCode == REQUEST_CODE_DELETE_FILE) {
                     uri = data.getData();
-                    Log.i(TAG, "Deleting file: " + uri.toString());
+                    Log.i(TAG, "Deleting file: " + uri);
                     new AsyncTask<Uri, Void, Boolean>() {
 
                         @Override
@@ -163,7 +163,7 @@ public class MainActivity extends CrashReportingActivity
                 }
                 if (requestCode == REQUEST_CODE_CHOOSE_EXPORT) {
                     uri = data.getData();
-                    Log.i(TAG, "Export uri chosen: " + uri.toString());
+                    Log.i(TAG, "Export uri chosen: " + uri);
                     new AsyncTask<Void, Void, Void>() {
 
                         @Override
@@ -196,7 +196,7 @@ public class MainActivity extends CrashReportingActivity
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
-        Log.d(TAG, "onCreate " + this.hashCode());
+        Log.d(TAG, "onCreate " + hashCode());
         Intent serviceIntent = new Intent(this, LocalQabelService.class);
         mServiceConnection = getServiceConnection();
         if (Sanity.startWizardActivities(this)) {
@@ -221,7 +221,7 @@ public class MainActivity extends CrashReportingActivity
         Fragment activeFragment = getFragmentManager().findFragmentById(R.id.fragment_container);
 
         if (activeFragment instanceof BaseFragment) {
-            BaseFragment fragment = ((BaseFragment) activeFragment);
+            BaseFragment fragment = (BaseFragment) activeFragment;
             toolbar.setTitle(fragment.getTitle());
             if (fragment.isFabNeeded()) {
                 fab.show();
@@ -235,7 +235,7 @@ public class MainActivity extends CrashReportingActivity
             }
         }
         //check if navigation drawer need to reset
-        if (getFragmentManager().getBackStackEntryCount() == 0 || (activeFragment instanceof BaseFragment) && !((BaseFragment) activeFragment).supportBackButton()) {
+        if (getFragmentManager().getBackStackEntryCount() == 0 || activeFragment instanceof BaseFragment && !((BaseFragment) activeFragment).supportBackButton()) {
             if (activeFragment instanceof SelectUploadFolderFragment) {
             } else {
 
@@ -538,7 +538,7 @@ public class MainActivity extends CrashReportingActivity
         Uri uri = VolumeFileTransferHelper.getUri(boxObject, boxVolume, filesFragment.getBoxNavigation());
         String type = getMimeType(uri);
         Log.v(TAG, "Mime type: " + type);
-        Log.v(TAG, "Uri: " + uri.toString() + " " + uri.toString().length());
+        Log.v(TAG, "Uri: " + uri + " " + uri.toString().length());
 
         //check if file type is image
         if (type != null && type.indexOf("image") == 0) {
@@ -754,7 +754,7 @@ public class MainActivity extends CrashReportingActivity
                 final BoxObject boxObject = filesFragment.getFilesAdapter().get(position);
                 if (boxObject != null) {
                     if (boxObject instanceof BoxFolder) {
-                        filesFragment.browseTo(((BoxFolder) boxObject));
+                        filesFragment.browseTo((BoxFolder) boxObject);
                     } else if (boxObject instanceof BoxFile) {
                         // Open
                         showFile(boxObject);

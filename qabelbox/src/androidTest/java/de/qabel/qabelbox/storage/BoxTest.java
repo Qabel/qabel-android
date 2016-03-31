@@ -59,6 +59,7 @@ public class BoxTest extends AndroidTestCase {
         URLs.setBaseBlockURL(applicationContext.getString(R.string.testBlockServer));
     }
 
+    @Override
     @Before
     public void setUp() throws IOException, QblStorageException {
         configureTestServer();
@@ -127,6 +128,7 @@ public class BoxTest extends AndroidTestCase {
         return file;
     }
 
+    @Override
     public void tearDown() throws IOException {
     }
 

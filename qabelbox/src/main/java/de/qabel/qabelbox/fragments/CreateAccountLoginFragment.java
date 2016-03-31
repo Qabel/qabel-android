@@ -33,7 +33,7 @@ public class CreateAccountLoginFragment extends BaseIdentityFragment {
             savedInstanceState) {
 
         View view = inflater.inflate(R.layout.fragment_create_account_login, container, false);
-        etUserName = ((TextView) view.findViewById(R.id.et_username));
+        etUserName = (TextView) view.findViewById(R.id.et_username);
         etPassword = (EditText) view.findViewById(R.id.et_password);
         resetPassword = view.findViewById(R.id.reset_password);
 
@@ -105,6 +105,7 @@ public class CreateAccountLoginFragment extends BaseIdentityFragment {
                         });
             }
 
+            @Override
             protected void onError(final Call call, Reasons reasons) {
                 if (reasons == Reasons.IOException && retryCount++ < 3) {
                     mBoxAccountServer.login(username, password, this);
@@ -114,6 +115,7 @@ public class CreateAccountLoginFragment extends BaseIdentityFragment {
                 }
             }
 
+            @Override
             protected void onSuccess(Call call, Response response, JSONObject json) {
                 BoxAccountRegisterServer.ServerResponse result = BoxAccountRegisterServer.parseJson(json);
                 if (result.token != null && result.token.length() > 5) {

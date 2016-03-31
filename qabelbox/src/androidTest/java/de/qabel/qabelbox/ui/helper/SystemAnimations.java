@@ -29,7 +29,7 @@ public final class SystemAnimations extends AndroidJUnitRunner {
         if (permStatus == PackageManager.PERMISSION_GRANTED) {
             setSystemAnimationsScale(DISABLED);
         } else {
-            Log.e(this.getClass().getSimpleName(), "can't deactivate animations");
+            Log.e(getClass().getSimpleName(), "can't deactivate animations");
         }
     }
 

@@ -20,7 +20,7 @@ import java.util.ArrayList;
 
 public class SelectUploadFolderFragment extends FilesFragment {
 
-    private final String TAG = this.getClass().getSimpleName();
+    private final String TAG = getClass().getSimpleName();
     private ArrayList<Uri> uris;
     private RecyclerView.LayoutManager recyclerViewLayoutManager;
 
@@ -87,7 +87,7 @@ public class SelectUploadFolderFragment extends FilesFragment {
                 final BoxObject boxObject = filesAdapter.get(position);
                 if (boxObject != null) {
                     if (boxObject instanceof BoxFolder) {
-                        browseTo(((BoxFolder) boxObject));
+                        browseTo((BoxFolder) boxObject);
                     }
                 }
             }
@@ -140,6 +140,7 @@ public class SelectUploadFolderFragment extends FilesFragment {
         getFragmentManager().popBackStack();
     }
 
+    @Override
     public void setAdapter(FilesAdapter adapter) {
 
         filesAdapter = adapter;
@@ -170,6 +171,7 @@ public class SelectUploadFolderFragment extends FilesFragment {
         return false;
     }
 
+    @Override
     public boolean supportBackButton() {
 
         return true;

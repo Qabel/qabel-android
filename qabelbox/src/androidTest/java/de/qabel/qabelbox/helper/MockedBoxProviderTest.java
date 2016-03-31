@@ -30,6 +30,7 @@ public abstract class MockedBoxProviderTest extends InstrumentationTestCase {
 
     public abstract Context getContext();
 
+    @Override
     @Before
     public void setUp() throws Exception {
         configureTestServer();

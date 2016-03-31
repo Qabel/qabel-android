@@ -235,7 +235,7 @@ public class FilesAdapter extends RecyclerView.Adapter<FilesAdapter.FilesViewHol
         return false;
     }
 
-    private boolean loaded = false;
+    private boolean loaded;
 
     private void updateEmptyView() {
 

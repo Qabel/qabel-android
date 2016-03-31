@@ -17,6 +17,7 @@ public class DirectoryMetadataTest extends TestCase {
 
     private DirectoryMetadata dm;
 
+    @Override
     public void setUp() throws Exception {
         // device id
         UUID uuid = UUID.randomUUID();

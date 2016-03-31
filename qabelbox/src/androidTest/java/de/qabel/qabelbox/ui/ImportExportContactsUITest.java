@@ -3,6 +3,7 @@ package de.qabel.qabelbox.ui;
 import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Build;
 import android.os.PowerManager;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.espresso.contrib.DrawerActions;
@@ -55,7 +56,7 @@ public class ImportExportContactsUITest {
     private UIBoxHelper mBoxHelper;
     private PowerManager.WakeLock wakeLock;
     private SystemAnimations mSystemAnimations;
-    private final String TAG = this.getClass().getSimpleName();
+    private final String TAG = getClass().getSimpleName();
 
     private final DocumentIntents intending = new DocumentIntents();
     private Identity identity;
@@ -254,7 +255,7 @@ public class ImportExportContactsUITest {
      * return true if os can handle intedings
      */
     private boolean canHandleIntening() {
-        return android.os.Build.VERSION.SDK_INT < 23;
+        return Build.VERSION.SDK_INT < 23;
     }
 
     private void saveJsonIntoFile(String exportUser, File file1) {

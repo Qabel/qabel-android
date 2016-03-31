@@ -16,7 +16,7 @@ import org.json.JSONObject;
  */
 public class BoxAccountRegisterServer extends BaseServer {
 
-    private final static String TAG = "BoxAccountServer";
+    private static final String TAG = "BoxAccountServer";
 
     private static final String JSON_KEY = "key";
     private static final String JSON_USERNAME = "username";
@@ -41,7 +41,7 @@ public class BoxAccountRegisterServer extends BaseServer {
                 .post(body);
         addHeader(token, builder);
         final Request request = builder.build();
-        Log.v(TAG, "request: " + request.toString());
+        Log.v(TAG, "request: " + request);
         client.newCall(request).enqueue(callback);
     }
 
@@ -133,7 +133,7 @@ public class BoxAccountRegisterServer extends BaseServer {
     /**
      * hold all possibility server response fields
      */
-    public final static class ServerResponse {
+    public static final class ServerResponse {
 
         public String token;
         public String username;

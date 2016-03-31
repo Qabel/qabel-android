@@ -30,10 +30,10 @@ public class WelcomeTextFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
         View view = inflater.inflate(R.layout.fragment_welcome_text, container, false);
-        TextView message = ((TextView) view.findViewById(R.id.welcome_message));
-        TextView before = ((TextView) view.findViewById(R.id.welcome_message_headline_before));
-        TextView qabel = ((TextView) view.findViewById(R.id.welcome_message_headline_qabel));
-        TextView after = ((TextView) view.findViewById(R.id.welcome_message_headline_afer));
+        TextView message = (TextView) view.findViewById(R.id.welcome_message);
+        TextView before = (TextView) view.findViewById(R.id.welcome_message_headline_before);
+        TextView qabel = (TextView) view.findViewById(R.id.welcome_message_headline_qabel);
+        TextView after = (TextView) view.findViewById(R.id.welcome_message_headline_afer);
         message.setText(getArguments().getInt(KEY_MESSAGE_ID));
         before.setText(getArguments().getInt(KEY_TEXT_BEFORE_QABEL));
         after.setText(getArguments().getInt(KEY_TEXT_AFTER_QABEL));
@@ -65,9 +65,9 @@ public class WelcomeTextFragment extends Fragment {
          * @param after   text after QABEL
          */
         public TextElement(int message, int before, int after) {
-            this.messageId = message;
-            this.textBeforeQabelName = before;
-            this.textAfterQabelName = after;
+            messageId = message;
+            textBeforeQabelName = before;
+            textAfterQabelName = after;
         }
     }
 }

@@ -31,7 +31,7 @@ public class ContactBaseFragment extends BaseFragment {
     public static final int REQUEST_IMPORT_CONTACT = 1000;
     public static final int REQUEST_EXPORT_CONTACT = 1001;
 
-    private final String TAG = this.getClass().getSimpleName();
+    private final String TAG = getClass().getSimpleName();
     protected String dataToExport;
     private boolean useDocumentProvider = true;//used for tests
     protected int exportedContactCount;

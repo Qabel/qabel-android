@@ -297,7 +297,7 @@ public class BoxProvider extends DocumentsProvider {
 
         Log.d(TAG, "Query Child Documents: " + parentDocumentId);
         BoxCursor cursor = folderContentCache.get(parentDocumentId);
-        boolean cacheHit = (cursor != null);
+        boolean cacheHit = cursor != null;
         if (parentDocumentId.equals(currentFolder) && cacheHit) {
             // best case: we are still in the same folder and we got a cache hit
             Log.d(TAG, "Up to date cached data found");
@@ -422,7 +422,7 @@ public class BoxProvider extends DocumentsProvider {
 
     BoxNavigation traverseToFolder(BoxVolume volume, List<String> filePath) throws QblStorageException {
 
-        Log.d(TAG, "Traversing to " + filePath.toString());
+        Log.d(TAG, "Traversing to " + filePath);
         BoxNavigation navigation = volume.navigate();
         PARTS:
         for (String part : filePath) {
@@ -447,8 +447,8 @@ public class BoxProvider extends DocumentsProvider {
             throws FileNotFoundException {
 
         Log.d(TAG, "Open document: " + documentId);
-        final boolean isWrite = (mode.indexOf('w') != -1);
-        final boolean isRead = (mode.indexOf('r') != -1);
+        final boolean isWrite = mode.indexOf('w') != -1;
+        final boolean isRead = mode.indexOf('r') != -1;
 
         if (isWrite) {
             final BoxUploadingFile boxUploadingFile = mService.addPendingUpload(documentId, null);
@@ -737,9 +737,10 @@ public class BoxProvider extends DocumentsProvider {
 
         public void setExtraLoading(boolean loading) {
 
-            this.extraLoading = loading;
+            extraLoading = loading;
         }
 
+        @Override
         public Bundle getExtras() {
 
             Bundle bundle = new Bundle();

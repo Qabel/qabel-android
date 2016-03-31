@@ -12,7 +12,7 @@ import net.hockeyapp.android.UpdateManager;
 
 public class CrashReportingActivity extends AppCompatActivity {
 
-    private final String TAG = this.getClass().getSimpleName();
+    private final String TAG = getClass().getSimpleName();
     private boolean handleCrashes = true;
     private final boolean checkForUpdates = false;//set to true if certain users can uploadAndDeleteLocalfile new version via hockey app
 

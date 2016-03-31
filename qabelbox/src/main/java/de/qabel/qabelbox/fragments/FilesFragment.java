@@ -45,7 +45,7 @@ public class FilesFragment extends BaseFragment {
     private AsyncTask<Void, Void, Void> browseToTask;
 
     private MenuItem mSearchAction;
-    private boolean isSearchOpened = false;
+    private boolean isSearchOpened;
     private EditText edtSeach;
     protected BoxVolume mBoxVolume;
     private AsyncTask<String, Void, StorageSearch> searchTask;
@@ -280,7 +280,7 @@ public class FilesFragment extends BaseFragment {
         try {
             mListener = (FilesListListener) activity;
         } catch (ClassCastException e) {
-            throw new ClassCastException(activity.toString()
+            throw new ClassCastException(activity
                     + " must implement FilesListListener");
         }
     }
@@ -322,7 +322,7 @@ public class FilesFragment extends BaseFragment {
 
             return true;
         }
-        return searchTask != null && ((!searchTask.isCancelled() && searchTask.getStatus() != AsyncTask.Status.FINISHED));
+        return searchTask != null && !searchTask.isCancelled() && searchTask.getStatus() != AsyncTask.Status.FINISHED;
     }
 
     /**

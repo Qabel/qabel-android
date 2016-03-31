@@ -66,8 +66,8 @@ class FileCache extends SQLiteOpenHelper {
         SQLiteDatabase database = getReadableDatabase();
         Cursor cursor = database.query(FileEntry.TABLE_NAME, new String[]{FileEntry.COL_PATH},
                 FileEntry.COL_REF + "=? AND " +
-                        FileEntry.COL_MTIME + "=" + boxFile.mtime.toString() + " AND " +
-                        FileEntry.COL_SIZE + "=" + boxFile.size.toString(),
+                        FileEntry.COL_MTIME + "=" + boxFile.mtime + " AND " +
+                        FileEntry.COL_SIZE + "=" + boxFile.size,
                 new String[]{boxFile.block}, null, null, null);
         cursor.moveToFirst();
         try {

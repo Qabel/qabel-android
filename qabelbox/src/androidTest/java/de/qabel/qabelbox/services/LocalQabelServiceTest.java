@@ -36,7 +36,7 @@ public class LocalQabelServiceTest extends ServiceTestCase<LocalQabelServiceTest
         getContext().deleteDatabase(LocalQabelServiceTester.DB_NAME);
         Intent intent = new Intent(getContext(), LocalQabelServiceTester.class);
         startService(intent);
-        this.mService = getService();
+        mService = getService();
         identity = new Identity("foo", null, new QblECKeyPair());
         mService.addIdentity(identity);
         mService.setActiveIdentity(identity);

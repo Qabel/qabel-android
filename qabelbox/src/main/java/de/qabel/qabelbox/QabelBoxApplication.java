@@ -20,7 +20,7 @@ public class QabelBoxApplication extends Application {
     private LocalQabelService mService;
     public static final String DEFAULT_DROP_SERVER = "https://test-drop.qabel.de";
 
-    private static QabelBoxApplication mInstance = null;
+    private static QabelBoxApplication mInstance;
     public static BoxProvider boxProvider;
 
     static {

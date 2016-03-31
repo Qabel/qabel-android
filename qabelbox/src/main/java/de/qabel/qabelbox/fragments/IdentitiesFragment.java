@@ -121,6 +121,7 @@ public class IdentitiesFragment extends BaseFragment {
                                                         , identity.getAlias()));
 
                                         confirmDelete.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                                            @Override
                                             public void onClick(DialogInterface dialog, int whichButton) {
 
                                                 mListener.deleteIdentity(identity);
@@ -130,6 +131,7 @@ public class IdentitiesFragment extends BaseFragment {
                                         });
 
                                         confirmDelete.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                                            @Override
                                             public void onClick(DialogInterface dialog, int whichButton) {
 
                                             }
@@ -191,10 +193,10 @@ public class IdentitiesFragment extends BaseFragment {
                     try (ParcelFileDescriptor pfd = mActivity.getContentResolver().openFileDescriptor(uri, "w");
                          FileOutputStream fileOutputStream = new FileOutputStream(pfd.getFileDescriptor())) {
                         if (requestCode == MainActivity.REQUEST_EXPORT_IDENTITY_AS_CONTACT) {
-                            fileOutputStream.write((ContactExportImport.exportIdentityAsContact(identityToExport)).getBytes());
+                            fileOutputStream.write(ContactExportImport.exportIdentityAsContact(identityToExport).getBytes());
                             UIHelper.showDialogMessage(activity, R.string.dialog_headline_info, R.string.contact_export_successfully);
                         } else {
-                            fileOutputStream.write((IdentityExportImport.exportIdentity(identityToExport)).getBytes());
+                            fileOutputStream.write(IdentityExportImport.exportIdentity(identityToExport).getBytes());
                             UIHelper.showDialogMessage(activity, R.string.dialog_headline_info, R.string.identity_export_successfully);
                         }
                     } catch (IOException e) {
@@ -213,7 +215,7 @@ public class IdentitiesFragment extends BaseFragment {
         try {
             mListener = (IdentityListListener) activity;
         } catch (ClassCastException e) {
-            throw new ClassCastException(activity.toString()
+            throw new ClassCastException(activity
                     + " must implement IdentityListListener");
         }
     }
@@ -244,6 +246,7 @@ public class IdentitiesFragment extends BaseFragment {
         return true;
     }
 
+    @Override
     public boolean supportBackButton() {
 
         return false;

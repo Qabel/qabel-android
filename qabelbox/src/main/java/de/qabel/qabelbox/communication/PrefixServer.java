@@ -15,7 +15,7 @@ import org.json.JSONObject;
  */
 public class PrefixServer extends BaseServer {
 
-    private final static String TAG = "PrefixServer";
+    private static final String TAG = "PrefixServer";
 
     /**
      * main function for server action
@@ -27,7 +27,7 @@ public class PrefixServer extends BaseServer {
                 .url(url);
         addHeader(token, builder);
         Request request = builder.build();
-        Log.d(TAG, "request " + request.toString());
+        Log.d(TAG, "request " + request);
         client.newCall(request).enqueue(callback);
     }
 
@@ -48,7 +48,7 @@ public class PrefixServer extends BaseServer {
         return response;
     }
 
-    public final static class ServerResponse {
+    public static final class ServerResponse {
 
         public String prefix;
         public String detail;

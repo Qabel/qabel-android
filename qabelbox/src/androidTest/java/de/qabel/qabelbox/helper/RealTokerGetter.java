@@ -16,7 +16,7 @@ import static junit.framework.Assert.assertNotNull;
 
 public class RealTokerGetter {
     private String TAG = "RealTokenGetter";
-    String token = null;
+    String token;
 
     public String getToken(final Context context) {
         BoxAccountRegisterServer server = new BoxAccountRegisterServer();
@@ -26,15 +26,17 @@ public class RealTokerGetter {
         final CountDownLatch latch = new CountDownLatch(1);
         Log.d(TAG, "get new real token");
         server.register(un, pw1, pw1, email, new SimpleJsonCallback() {
+                    @Override
                     protected void onError(final Call call, Reasons reasons) {
 
                         Log.e(TAG, "cant create new token");
                         latch.countDown();
                     }
 
+                    @Override
                     protected void onSuccess(Call call, Response response, JSONObject json) {
                         BoxAccountRegisterServer.ServerResponse result = BoxAccountRegisterServer.parseJson(json);
-                        Log.d(TAG, "token success message " + response.code() + " " + json.toString());
+                        Log.d(TAG, "token success message " + response.code() + " " + json);
                         if (result.token != null && result.token.length() > 5) {
                             new AppPreference(context).setToken(result.token);
                             token = result.token;

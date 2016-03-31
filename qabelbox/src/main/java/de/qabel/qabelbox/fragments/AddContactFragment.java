@@ -22,7 +22,7 @@ import java.util.Collection;
 public class AddContactFragment extends ContactBaseFragment {
 
     private static final String ARG_IDENTITY = "Identity";
-    private final String TAG = this.getClass().getSimpleName();
+    private final String TAG = getClass().getSimpleName();
     private EditText editTextContactName;
     private EditText editTextDropURL;
     private EditText editTextPublicKey;

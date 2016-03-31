@@ -14,7 +14,7 @@ import java.util.concurrent.CountDownLatch;
 
 public class PrefixGetter {
 
-    private String prefix = null;
+    private String prefix;
     private final String TAG = "PrefixGetter";
 
     public String getPrefix(Context context) {

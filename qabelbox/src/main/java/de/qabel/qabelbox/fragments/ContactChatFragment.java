@@ -33,7 +33,7 @@ import java.util.*;
 public class ContactChatFragment extends ContactBaseFragment {
 
     private static final String ARG_IDENTITY = "Identity";
-    private final String TAG = this.getClass().getSimpleName();
+    private final String TAG = getClass().getSimpleName();
 
     private Contact contact;
     private final ArrayList<ChatMessageItem> messages = new ArrayList<>();
@@ -43,7 +43,7 @@ public class ContactChatFragment extends ContactBaseFragment {
     private View emptyView;
     private EditText etText;
     private ChatServer chatServer;
-    private boolean isSyncing = false;
+    private boolean isSyncing;
 
     public static ContactChatFragment newInstance(Contact contact) {
 
@@ -121,7 +121,7 @@ public class ContactChatFragment extends ContactBaseFragment {
                             if ((Boolean) pair.getValue()) {
                                 sended = true;
                             }
-                            Log.d(TAG, "message send result: " + pair.toString() + " " + pair.getValue());
+                            Log.d(TAG, "message send result: " + pair + " " + pair.getValue());
                         }
 
                         Log.d(TAG, "sended: " + sended);

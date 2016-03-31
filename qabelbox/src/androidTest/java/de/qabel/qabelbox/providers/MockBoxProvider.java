@@ -108,7 +108,7 @@ public class MockBoxProvider extends BoxProvider {
             } catch (QblInvalidEncryptionKeyException e) {
                 return;
             }
-            this.persistence = androidPersistence;
+            persistence = androidPersistence;
         }
 
         @Override

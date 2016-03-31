@@ -19,8 +19,8 @@ public class DrawableMatcher extends TypeSafeMatcher<View> {
         this.resourceId = resourceId;
     }
 
-    private String resourceName = null;
-    private Drawable expectedDrawable = null;
+    private String resourceName;
+    private Drawable expectedDrawable;
 
     @Override
     public boolean matchesSafely(View target) {

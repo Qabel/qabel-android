@@ -24,9 +24,9 @@ public class ViewPagerParallax extends ViewPager {
     private int saved_height = -1;
     private int saved_max_num_pages = -1;
     private Bitmap saved_bitmap;
-    private boolean insufficientMemory = false;
+    private boolean insufficientMemory;
 
-    private int max_num_pages = 0;
+    private int max_num_pages;
     private int imageHeight;
     private int imageWidth;
     private float zoom_level;
@@ -37,7 +37,7 @@ public class ViewPagerParallax extends ViewPager {
     private boolean parallaxEnabled = true;
 
     private boolean loggable = true;
-    private final static String TAG = "ViewPagerParallax";
+    private static final String TAG = "ViewPagerParallax";
 
     public ViewPagerParallax(Context context) {
 
@@ -73,9 +73,9 @@ public class ViewPagerParallax extends ViewPager {
             return;
         }
 
-        if ((saved_height == getHeight()) && (saved_width == getWidth()) &&
-                (background_saved_id == background_id) &&
-                (saved_max_num_pages == max_num_pages)) {
+        if (saved_height == getHeight() && saved_width == getWidth() &&
+                background_saved_id == background_id &&
+                saved_max_num_pages == max_num_pages) {
             return;
         }
 
@@ -94,7 +94,7 @@ public class ViewPagerParallax extends ViewPager {
                 Log.v(TAG, "imageHeight=" + imageHeight + ", imageWidth=" + imageWidth);
             }
 
-            zoom_level = ((float) imageHeight) / getHeight();  // we are always in 'fitY' mode
+            zoom_level = (float) imageHeight / getHeight();  // we are always in 'fitY' mode
 
             options.inJustDecodeBounds = false;
             options.inSampleSize = Math.round(zoom_level);
@@ -126,7 +126,7 @@ public class ViewPagerParallax extends ViewPager {
                 return; // we aren't going to use more than one fifth of free memory
             }
 
-            zoom_level = ((float) imageHeight) / getHeight();  // we are always in 'fitY' mode
+            zoom_level = (float) imageHeight / getHeight();  // we are always in 'fitY' mode
             overlap_level = zoom_level * Math.min(Math.max(imageWidth / zoom_level - getWidth(), 0) / (max_num_pages - 1), getWidth() / 2); // how many pixels to shift for each panel
 
             is.reset();
@@ -154,7 +154,7 @@ public class ViewPagerParallax extends ViewPager {
     }
 
     int current_position = -1;
-    float current_offset = 0.0f;
+    float current_offset;
 
     @Override
     protected void onPageScrolled(int position, float offset, int offsetPixels) {
@@ -175,10 +175,10 @@ public class ViewPagerParallax extends ViewPager {
                 }
                 // maybe we could get the current position from the getScrollX instead?
                 src.set((int) (overlap_level * (current_position + current_offset)), 0,
-                        (int) (overlap_level * (current_position + current_offset) + (getWidth() * zoom_level)), imageHeight);
+                        (int) (overlap_level * (current_position + current_offset) + getWidth() * zoom_level), imageHeight);
 
-                dst.set((int) (getScrollX()), 0,
-                        (int) (getScrollX() + canvas.getWidth()), canvas.getHeight());
+                dst.set(getScrollX(), 0,
+                        getScrollX() + canvas.getWidth(), canvas.getHeight());
 
                 canvas.drawBitmap(saved_bitmap, src, dst, null);
             }
@@ -216,7 +216,7 @@ public class ViewPagerParallax extends ViewPager {
     @Override
     public boolean onTouchEvent(MotionEvent event) {
 
-        if (this.pagingEnabled) {
+        if (pagingEnabled) {
             return super.onTouchEvent(event);
         }
 
@@ -229,7 +229,7 @@ public class ViewPagerParallax extends ViewPager {
         if (isFakeDragging()) {
             return false;
         }
-        if (this.pagingEnabled) {
+        if (pagingEnabled) {
             return super.onInterceptTouchEvent(event);
         }
         return false;
@@ -261,6 +261,7 @@ public class ViewPagerParallax extends ViewPager {
         this.parallaxEnabled = parallaxEnabled;
     }
 
+    @Override
     protected void onDetachedFromWindow() {
 
         if (saved_bitmap != null) {

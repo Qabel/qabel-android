@@ -33,13 +33,13 @@ public class CreateIdentityActivity extends BaseWizardActivity {
 
     public static final int REQUEST_CODE_IMPORT_IDENTITY = 1;
 
-    private String TAG = this.getClass().getSimpleName();
+    private String TAG = getClass().getSimpleName();
 
     private String mIdentityName;
     private int mIdentityDropProgress = Integer.MIN_VALUE;
     private Identity mNewIdentity;
-    private String prefix = null;
-    int tryCount = 0;
+    private String prefix;
+    int tryCount;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

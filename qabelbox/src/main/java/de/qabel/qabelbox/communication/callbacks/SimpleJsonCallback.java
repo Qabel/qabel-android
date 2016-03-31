@@ -17,7 +17,7 @@ import java.io.IOException;
 public abstract class SimpleJsonCallback implements Callback {
 
     private final String TAG = "callback";
-    protected int retryCount = 0;
+    protected int retryCount;
 
     protected enum Reasons {
         IOException, Body, JSON, InvalidResponse

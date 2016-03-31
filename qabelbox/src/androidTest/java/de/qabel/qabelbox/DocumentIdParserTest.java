@@ -26,6 +26,7 @@ public class DocumentIdParserTest extends TestCase {
     private String filePath = "foo/bar/baz/";
     private String fileName = "lorem.txt";
 
+    @Override
     @Before
     public void setUp() {
         p = new DocumentIdParser();

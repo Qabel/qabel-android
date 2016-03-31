@@ -100,6 +100,7 @@ public class ChangeBoxAccountPasswordFragment extends Fragment {
                         });
             }
 
+            @Override
             protected void onError(final Call call, Reasons reasons) {
 
                 if (reasons == Reasons.IOException && retryCount++ < 3) {
@@ -110,6 +111,7 @@ public class ChangeBoxAccountPasswordFragment extends Fragment {
                 }
             }
 
+            @Override
             protected void onSuccess(Call call, Response response, JSONObject json) {
 
                 final BoxAccountRegisterServer.ServerResponse result = BoxAccountRegisterServer.parseJson(json);

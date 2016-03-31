@@ -23,7 +23,7 @@ public class ChatMessageAdapter extends BaseAdapter {
 
     private final String TAG = getClass().getSimpleName();
     private final String contactPublicKey;
-    private List<ChatMessageItem> mMessages = null;
+    private List<ChatMessageItem> mMessages;
     private OnItemClickListener onItemClickListener;
     private View emptyView;
 
@@ -40,7 +40,7 @@ public class ChatMessageAdapter extends BaseAdapter {
         Collections.sort(mMessages, new Comparator<ChatMessageItem>() {
             @Override
             public int compare(ChatMessageItem o1, ChatMessageItem o2) {
-                return (o1.getTime() > o2.getTime() ? 1 : (o1.getTime() == o2.getTime() ? 0 : -1));
+                return o1.getTime() > o2.getTime() ? 1 : o1.getTime() == o2.getTime() ? 0 : -1;
             }
         });
 
@@ -97,7 +97,7 @@ public class ChatMessageAdapter extends BaseAdapter {
 
     @Override
     public int getItemViewType(int position) {
-        return this.getMessage(position).getSenderKey().equals(contactPublicKey) ? INCOMING : OUTGOING;
+        return getMessage(position).getSenderKey().equals(contactPublicKey) ? INCOMING : OUTGOING;
     }
 
     class ContactViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
@@ -131,7 +131,7 @@ public class ChatMessageAdapter extends BaseAdapter {
         }
 
         public void applyData(ChatMessageItem message) {
-            this.messageItem = message;
+            messageItem = message;
             tvDate.setText(Formatter.formatDateTimeString(message.getTime()));
             ChatMessageItem.MessagePayload messageData = message.getData();
             if (messageData != null && messageData instanceof ChatMessageItem.TextMessagePayload) {

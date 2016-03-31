@@ -32,7 +32,7 @@ public class QabelContentProvider extends ContentProvider {
     private static final String TAG = "QabelContentProvider";
     private static final String CONTENT_AUTHORITY = BuildConfig.APPLICATION_ID + ".services.QabelContentProvider";
 
-    private boolean resourcesReady = false;
+    private boolean resourcesReady;
 
     static {
         uriMatcher.addURI(CONTENT_AUTHORITY, QabelContentProviderConstants.CONTENT_CONTACTS, CONTACTS);
@@ -109,12 +109,10 @@ public class QabelContentProvider extends ContentProvider {
             return null;
         }
         switch (uriMatcher.match(uri)) {
-            case CONTACTS: {
+            case CONTACTS:
                 return queryContacts();
-            }
-            case IDENTITIES: {
+            case IDENTITIES:
                 return queryIdentities();
-            }
             default:
         }
         return null;

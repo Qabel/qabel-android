@@ -43,7 +43,7 @@ public class AboutLicencesFragment extends BaseFragment {
             is.close();
             content = new String(buffer, "UTF-8");
         } catch (IOException ex) {
-            Log.e(TAG, "Could not read licencing info " + ex.toString());
+            Log.e(TAG, "Could not read licencing info " + ex);
             return null;
         }
         return content;

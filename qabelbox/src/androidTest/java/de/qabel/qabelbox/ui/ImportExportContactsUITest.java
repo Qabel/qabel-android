@@ -168,15 +168,10 @@ public class ImportExportContactsUITest {
         String userName = "user1";
         goToContacts();
 
-        onView(withId(R.id.contact_list))
-                .perform(RecyclerViewActions.actionOnItem(
-                        hasDescendant(withText(userName)), longClick()));
+        onView(withId(R.id.contact_list)).perform(RecyclerViewActions.actionOnItem(hasDescendant(withText(userName)), longClick()));
         onView(withText(R.string.ExportAsContactWithQRcode)).check(matches(isDisplayed())).perform(click());
-
-
         onView(withText(userName)).check(matches(isDisplayed()));
-        QabelMatcher.matchToolbarTitle(mActivity.getString(R.string.headline_qrcode))
-                .check(matches(isDisplayed()));
+        QabelMatcher.matchToolbarTitle(mActivity.getString(R.string.headline_qrcode)).check(matches(isDisplayed()));
         Spoon.screenshot(mActivity, "contactQR");
 
     }

@@ -32,6 +32,7 @@ public class IdentitiesAdapter extends RecyclerView.Adapter<IdentitiesAdapter.Id
         public final TextView mTextViewIdentityName;
         public final TextView mTextViewIdentityDetails;
         public final ImageView mImageView;
+
         public IdentityViewHolder(View v) {
             super(v);
             v.setOnClickListener(this);
@@ -54,6 +55,7 @@ public class IdentitiesAdapter extends RecyclerView.Adapter<IdentitiesAdapter.Id
 
     /**
      * Sets the action to perform on item clicks
+     *
      * @param onItemClickListener
      */
     public void setOnItemClickListener(OnItemClickListener onItemClickListener) {
@@ -69,7 +71,7 @@ public class IdentitiesAdapter extends RecyclerView.Adapter<IdentitiesAdapter.Id
 
     @Override
     public void onBindViewHolder(IdentityViewHolder holder, int position) {
-		Identity item = mIdentities.get(position);
+        Identity item = mIdentities.get(position);
         holder.mTextViewIdentityName.setText(item.getAlias());
         holder.mTextViewIdentityDetails.setText(item.getEcPublicKey().getReadableKeyIdentifier());
     }

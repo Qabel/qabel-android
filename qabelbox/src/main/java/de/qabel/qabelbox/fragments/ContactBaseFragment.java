@@ -34,121 +34,121 @@ import de.qabel.qabelbox.services.LocalQabelService;
  * Created by danny on 29.03.16.
  */
 public class ContactBaseFragment extends BaseFragment {
-	public static final int REQUEST_IMPORT_CONTACT = 1000;
-	public static final int REQUEST_EXPORT_CONTACT = 1001;
+    public static final int REQUEST_IMPORT_CONTACT = 1000;
+    public static final int REQUEST_EXPORT_CONTACT = 1001;
 
-	private final String TAG = this.getClass().getSimpleName();
-	protected String dataToExport;
-	private boolean useDocumentProvider = true;//used for tests
-	protected int exportedContactCount;
+    private final String TAG = this.getClass().getSimpleName();
+    protected String dataToExport;
+    private boolean useDocumentProvider = true;//used for tests
+    protected int exportedContactCount;
 
-	public void exportContact(Contact contact) {
-		exportedContactCount = 1;
-		String contactJson = ContactExportImport.exportContact(contact);
-		startExportFileChooser(contact.getAlias(), QabelSchema.FILE_PREFIX_CONTACT, contactJson);
+    public void exportContact(Contact contact) {
+        exportedContactCount = 1;
+        String contactJson = ContactExportImport.exportContact(contact);
+        startExportFileChooser(contact.getAlias(), QabelSchema.FILE_PREFIX_CONTACT, contactJson);
 
-	}
+    }
 
-	protected void handleScanResult(IntentResult scanResult) {
-		String[] result = scanResult.getContents().split("\\r?\\n");
-		if (result.length == 4 && result[0].equals("QABELCONTACT")) {
-			try {
-				DropURL dropURL = new DropURL(result[2]);
-				Collection<DropURL> dropURLs = new ArrayList<>();
-				dropURLs.add(dropURL);
+    protected void handleScanResult(IntentResult scanResult) {
+        String[] result = scanResult.getContents().split("\\r?\\n");
+        if (result.length == 4 && result[0].equals("QABELCONTACT")) {
+            try {
+                DropURL dropURL = new DropURL(result[2]);
+                Collection<DropURL> dropURLs = new ArrayList<>();
+                dropURLs.add(dropURL);
 
-				QblECPublicKey publicKey = new QblECPublicKey(Hex.decode(result[3]));
-				Contact contact = new Contact(result[1], dropURLs, publicKey);
-				addContactSilent(contact);
-			} catch (Exception e) {
-				Log.w(TAG, "add contact failed", e);
-				UIHelper.showDialogMessage(mActivity, R.string.dialog_headline_warning, R.string.contact_import_failed, e);
-			}
-		}
-	}
+                QblECPublicKey publicKey = new QblECPublicKey(Hex.decode(result[3]));
+                Contact contact = new Contact(result[1], dropURLs, publicKey);
+                addContactSilent(contact);
+            } catch (Exception e) {
+                Log.w(TAG, "add contact failed", e);
+                UIHelper.showDialogMessage(mActivity, R.string.dialog_headline_warning, R.string.contact_import_failed, e);
+            }
+        }
+    }
 
-	public void exportAllContacts() {
-		try {
-			LocalQabelService service = QabelBoxApplication.getInstance().getService();
-			Contacts contacts = service.getContacts(service.getActiveIdentity());
-			exportedContactCount = contacts.getContacts().size();
-			if (exportedContactCount > 0) {
-				String contactJson = ContactExportImport.exportContacts(contacts);
-				startExportFileChooser("", QabelSchema.FILE_PREFIX_CONTACTS, contactJson);
-			}
+    public void exportAllContacts() {
+        try {
+            LocalQabelService service = QabelBoxApplication.getInstance().getService();
+            Contacts contacts = service.getContacts(service.getActiveIdentity());
+            exportedContactCount = contacts.getContacts().size();
+            if (exportedContactCount > 0) {
+                String contactJson = ContactExportImport.exportContacts(contacts);
+                startExportFileChooser("", QabelSchema.FILE_PREFIX_CONTACTS, contactJson);
+            }
 
-		} catch (JSONException e) {
-			Log.e(TAG, "error on export contacts", e);
-			UIHelper.showDialogMessage(getActivity(), R.string.dialog_headline_warning, R.string.cant_export_contacts);
-		}
-	}
+        } catch (JSONException e) {
+            Log.e(TAG, "error on export contacts", e);
+            UIHelper.showDialogMessage(getActivity(), R.string.dialog_headline_warning, R.string.cant_export_contacts);
+        }
+    }
 
-	public void enableDocumentProvider(boolean value) {
-		useDocumentProvider = value;
-	}
+    public void enableDocumentProvider(boolean value) {
+        useDocumentProvider = value;
+    }
 
-	/**
-	 * add contact and show messages
-	 *
-	 * @param contact
-	 */
-	protected void addContactSilent(Contact contact) throws QblStorageEntityExistsException {
-		LocalQabelService service = QabelBoxApplication.getInstance().getService();
-		service.addContact(contact);
-		sendRefreshContactList();
-	}
+    /**
+     * add contact and show messages
+     *
+     * @param contact
+     */
+    protected void addContactSilent(Contact contact) throws QblStorageEntityExistsException {
+        LocalQabelService service = QabelBoxApplication.getInstance().getService();
+        service.addContact(contact);
+        sendRefreshContactList();
+    }
 
-	protected void sendRefreshContactList() {
-		Log.d(TAG, "send refresh intent");
-		Intent intent = new Intent(Helper.INTENT_REFRESH_CONTACTLIST);
-		QabelBoxApplication.getInstance().getApplicationContext().sendBroadcast(intent);
-	}
-
-
-	public void importContactFromUri(MainActivity mActivity, Uri uri) {
+    protected void sendRefreshContactList() {
+        Log.d(TAG, "send refresh intent");
+        Intent intent = new Intent(Helper.INTENT_REFRESH_CONTACTLIST);
+        QabelBoxApplication.getInstance().getApplicationContext().sendBroadcast(intent);
+    }
 
 
-		Log.d(TAG, "import contact from uri " + uri);
-		try {
-			int added = 0;
-			ParcelFileDescriptor pfd = mActivity.getContentResolver().openFileDescriptor(uri, "r");
-			FileInputStream fis = new FileInputStream(pfd.getFileDescriptor());
-			String json = FileHelper.readFileAsText(fis);
-			fis.close();
-			Contacts contacts = ContactExportImport.parse(QabelBoxApplication.getInstance().getService().getActiveIdentity(), json);
-			for (Contact contact : contacts.getContacts()) {
-				try {
-					addContactSilent(contact);
-					added++;
-				} catch (QblStorageEntityExistsException existsException) {
-					Log.w(TAG, "found doublet's. Will ignore it", existsException);
-				}
-			}
-			if (added > 0) {
-				UIHelper.showDialogMessage(
-					mActivity,
-					mActivity.getString(R.string.dialog_headline_info),
-					mActivity.getResources().getQuantityString(R.plurals.contact_import_successfull, added, added));
-			} else {
-				UIHelper.showDialogMessage(
-					mActivity,
-					mActivity.getString(R.string.dialog_headline_info),
-					mActivity.getString(R.string.contact_import_zero_additions)
-				);
-			}
-		} catch (IOException | JSONException ioException) {
-			UIHelper.showDialogMessage(mActivity, R.string.dialog_headline_warning, R.string.contact_import_failed, ioException);
-		}
-	}
+    public void importContactFromUri(MainActivity mActivity, Uri uri) {
 
-	private void startExportFileChooser(String filename, String type, String data) {
-		dataToExport = data;
-		if (useDocumentProvider) {
-			Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
-			intent.addCategory(Intent.CATEGORY_OPENABLE);
-			intent.setType("application/json");
-			intent.putExtra(Intent.EXTRA_TITLE, type + "" + filename + "." + QabelSchema.FILE_SUFFIX_CONTACT);
-			startActivityForResult(intent, REQUEST_EXPORT_CONTACT);
-		}
-	}
+
+        Log.d(TAG, "import contact from uri " + uri);
+        try {
+            int added = 0;
+            ParcelFileDescriptor pfd = mActivity.getContentResolver().openFileDescriptor(uri, "r");
+            FileInputStream fis = new FileInputStream(pfd.getFileDescriptor());
+            String json = FileHelper.readFileAsText(fis);
+            fis.close();
+            Contacts contacts = ContactExportImport.parse(QabelBoxApplication.getInstance().getService().getActiveIdentity(), json);
+            for (Contact contact : contacts.getContacts()) {
+                try {
+                    addContactSilent(contact);
+                    added++;
+                } catch (QblStorageEntityExistsException existsException) {
+                    Log.w(TAG, "found doublet's. Will ignore it", existsException);
+                }
+            }
+            if (added > 0) {
+                UIHelper.showDialogMessage(
+                        mActivity,
+                        mActivity.getString(R.string.dialog_headline_info),
+                        mActivity.getResources().getQuantityString(R.plurals.contact_import_successfull, added, added));
+            } else {
+                UIHelper.showDialogMessage(
+                        mActivity,
+                        mActivity.getString(R.string.dialog_headline_info),
+                        mActivity.getString(R.string.contact_import_zero_additions)
+                );
+            }
+        } catch (IOException | JSONException ioException) {
+            UIHelper.showDialogMessage(mActivity, R.string.dialog_headline_warning, R.string.contact_import_failed, ioException);
+        }
+    }
+
+    private void startExportFileChooser(String filename, String type, String data) {
+        dataToExport = data;
+        if (useDocumentProvider) {
+            Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
+            intent.addCategory(Intent.CATEGORY_OPENABLE);
+            intent.setType("application/json");
+            intent.putExtra(Intent.EXTRA_TITLE, type + "" + filename + "." + QabelSchema.FILE_SUFFIX_CONTACT);
+            startActivityForResult(intent, REQUEST_EXPORT_CONTACT);
+        }
+    }
 }

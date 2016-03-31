@@ -23,48 +23,48 @@ import static org.hamcrest.Matchers.not;
  */
 public class UITestHelper {
 
-	public void deleteAppData() {
+    public void deleteAppData() {
 
-		((ActivityManager) QabelBoxApplication.getInstance().getSystemService(Activity.ACTIVITY_SERVICE))
-				.clearApplicationUserData();
-	}
+        ((ActivityManager) QabelBoxApplication.getInstance().getSystemService(Activity.ACTIVITY_SERVICE))
+                .clearApplicationUserData();
+    }
 
-	public void isToastMessageDisplayed(Activity activity, int textId) {
+    public void isToastMessageDisplayed(Activity activity, int textId) {
 
-		onView(withText(textId)).inRoot(withDecorView(not(activity.getWindow().getDecorView()))).check(matches(isDisplayed()));
-	}
+        onView(withText(textId)).inRoot(withDecorView(not(activity.getWindow().getDecorView()))).check(matches(isDisplayed()));
+    }
 
-	public static void sleep(int ms) {
+    public static void sleep(int ms) {
 
-		try {
-			Thread.sleep(ms);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-	}
+        try {
+            Thread.sleep(ms);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
 
-	public static Activity getCurrentActivity(Activity mActivity) throws Throwable {
+    public static Activity getCurrentActivity(Activity mActivity) throws Throwable {
 
-		final Activity[] activity = new Activity[1];
-		mActivity.runOnUiThread(new Runnable() {
-			@Override
-			public void run() {
+        final Activity[] activity = new Activity[1];
+        mActivity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
 
-				activity[0] = ActivityLifecycleMonitorRegistry.getInstance()
-						.getActivitiesInStage(Stage.RESUMED).iterator().next();
-			}
-		});
-		while (activity[0] == null) {
-			Thread.sleep(200);
-		}
-		return activity[0];
-	}
+                activity[0] = ActivityLifecycleMonitorRegistry.getInstance()
+                        .getActivitiesInStage(Stage.RESUMED).iterator().next();
+            }
+        });
+        while (activity[0] == null) {
+            Thread.sleep(200);
+        }
+        return activity[0];
+    }
 
-	public static void disableBugReporting(Context context) {
+    public static void disableBugReporting(Context context) {
 
-		SharedPreferences preferences = context.getSharedPreferences(
-				SettingsFragment.APP_PREF_NAME,
-				Context.MODE_PRIVATE);
-		preferences.edit().putBoolean(context.getString(R.string.settings_key_bugreporting_enabled), false).commit();
-	}
+        SharedPreferences preferences = context.getSharedPreferences(
+                SettingsFragment.APP_PREF_NAME,
+                Context.MODE_PRIVATE);
+        preferences.edit().putBoolean(context.getString(R.string.settings_key_bugreporting_enabled), false).commit();
+    }
 }

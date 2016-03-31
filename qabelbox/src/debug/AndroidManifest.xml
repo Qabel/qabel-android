@@ -1,17 +1,17 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="de.qabel.qabelbox">
+          package="de.qabel.qabelbox">
     <!--
         Permissions required to automatically wake and unlock the phone/emulator if we're in
         development mode.  Add this as a debug manifest so the permissions won't be required by
         your production app.
 	-->
-	
-    <uses-permission android:name="android.permission.WAKE_LOCK" />
-    <uses-permission android:name="android.permission.DISABLE_KEYGUARD" />
-    <uses-permission android:name="android.permission.SET_ANIMATION_SCALE" />
-    <uses-permission android:name="android.permission.MANAGE_DOCUMENTS" />
-    <uses-permission android:name=".providers.documents.READ_DATABASE" />
-    <uses-permission android:name=".providers.documents.WRITE_DATABASE" />
+
+    <uses-permission android:name="android.permission.WAKE_LOCK"/>
+    <uses-permission android:name="android.permission.DISABLE_KEYGUARD"/>
+    <uses-permission android:name="android.permission.SET_ANIMATION_SCALE"/>
+    <uses-permission android:name="android.permission.MANAGE_DOCUMENTS"/>
+    <uses-permission android:name=".providers.documents.READ_DATABASE"/>
+    <uses-permission android:name=".providers.documents.WRITE_DATABASE"/>
     <!-- Avoid AOT compilation if we're in development mode to speed up launches -->
-     />
+    />
 </manifest>

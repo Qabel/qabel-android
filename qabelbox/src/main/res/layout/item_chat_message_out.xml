@@ -75,6 +75,7 @@
             android:textColor="@color/white"
             android:textSize="12sp"/>
     </RelativeLayout>
+
     <ImageView
         android:layout_width="30sp"
         android:layout_height="25sp"

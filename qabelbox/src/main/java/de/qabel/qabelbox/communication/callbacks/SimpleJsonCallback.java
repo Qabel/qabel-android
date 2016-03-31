@@ -13,7 +13,7 @@ import okhttp3.Response;
 
 /**
  * Created by danny on 26.01.2016.
- * <p/>
+ * <p>
  * Class to simple handle a server response.
  */
 public abstract class SimpleJsonCallback implements Callback {
@@ -62,7 +62,7 @@ public abstract class SimpleJsonCallback implements Callback {
             onError(call, Reasons.InvalidResponse);
             return;
         }
-        String text=null;
+        String text = null;
         try {
             text = response.body().string();
         } catch (IOException e) {

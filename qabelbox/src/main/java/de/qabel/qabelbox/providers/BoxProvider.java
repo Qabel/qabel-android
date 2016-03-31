@@ -351,7 +351,7 @@ public class BoxProvider extends DocumentsProvider {
 
     /**
      * Create and fill a new MatrixCursor
-     * <p/>
+     * <p>
      * The cursor can be modified to show a loading and/or an error message.
      *
      * @param parentDocumentId
@@ -657,7 +657,7 @@ public class BoxProvider extends DocumentsProvider {
             Log.d(TAG, "find file: " + file.name);
             if (file instanceof BoxExternalFile) {
                 if (file.name.equals(basename)) {
-                    return (BoxExternalFile)file;
+                    return (BoxExternalFile) file;
                 }
             }
         }

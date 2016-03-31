@@ -371,7 +371,6 @@ public class FilesFragment extends BaseFragment {
         edtSeach.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-
                 if (actionId == EditorInfo.IME_ACTION_SEARCH) {
                     String text = edtSeach.getText().toString();
                     removeSearchInActionbar(action);
@@ -745,6 +744,62 @@ public class FilesFragment extends BaseFragment {
                 Toast.LENGTH_SHORT).show();
     }
 
+    public void rename(final BoxObject boxObject) {
+        new AlertDialog.Builder(mActivity)
+                .setTitle(R.string.files_dialog_rename_folder_header)
+                .setMessage(String.format(
+                        getResources().getString(R.string.confirm_delete_message), boxObject.name))
+                .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                        new AsyncTask<Void, Void, Void>() {
+                            @Override
+                            protected void onCancelled() {
+
+                                setIsLoading(false);
+                            }
+
+                            @Override
+                            protected void onPreExecute() {
+
+                                setIsLoading(true);
+                            }
+
+                            @Override
+                            protected Void doInBackground(Void... params) {
+
+                                try {
+                                    if (boxObject instanceof BoxExternalFile) {
+                                        getBoxNavigation().detachExternal(boxObject.name);
+                                    } else {
+                                        getBoxNavigation().delete(boxObject);
+                                    }
+                                    getBoxNavigation().commit();
+                                } catch (QblStorageException e) {
+                                    Log.e(TAG, "Cannot delete " + boxObject.name);
+                                }
+                                return null;
+                            }
+
+                            @Override
+                            protected void onPostExecute(Void aVoid) {
+
+                                refresh();
+                            }
+                        }.execute();
+                    }
+                })
+                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                        showAbortMessage();
+                    }
+                }).create().show();
+
+    }
+
     public interface FilesListListener {
 
         void onScrolledToBottom(boolean scrolledToBottom);
@@ -960,5 +1015,53 @@ public class FilesFragment extends BaseFragment {
             browseToTask = null;
             Log.d(TAG, "Canceled browserToTask");
         }
+    }
+
+    public void renameFolderDialog(final BoxFolder folderToRename) {
+        UIHelper.showEditTextDialog(mActivity, R.string.files_dialog_rename_folder_header, R.string.rename_folder, R.string.ok, R.string.cancel, new UIHelper.EditTextDialogClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which, EditText editText) {
+                UIHelper.hideKeyboard(mActivity, editText);
+                String newFolderName = editText.getText().toString();
+                if (!newFolderName.equals("")) {
+                    performRenameFolder(newFolderName, getBoxNavigation(), folderToRename);
+
+                }
+            }
+        }, null);
+    }
+
+    private void performRenameFolder(final String name, final BoxNavigation boxNavigation, final BoxFolder folder) {
+
+        new AsyncTask<Void, Void, Void>() {
+            @Override
+            protected Void doInBackground(Void... params) {
+                try {
+                    boxNavigation.rename(folder, name);
+                    boxNavigation.commit();
+                } catch (QblStorageException e) {
+                    Log.e(TAG, "Failed creating folder " + name, e);
+
+                }
+                return null;
+            }
+
+            @Override
+            protected void onCancelled() {
+                setIsLoading(false);
+                showAbortMessage();
+            }
+
+            @Override
+            protected void onPreExecute() {
+                setIsLoading(true);
+            }
+
+            @Override
+            protected void onPostExecute(Void aVoid) {
+                super.onPostExecute(aVoid);
+                refresh();
+            }
+        }.execute();
     }
 }

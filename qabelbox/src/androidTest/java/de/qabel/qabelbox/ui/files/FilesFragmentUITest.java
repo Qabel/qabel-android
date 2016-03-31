@@ -3,13 +3,16 @@ package de.qabel.qabelbox.ui.files;
 import android.content.Intent;
 import android.os.PowerManager;
 import android.support.test.espresso.intent.rule.IntentsTestRule;
+import android.test.suitebuilder.annotation.MediumTest;
 
 import com.squareup.spoon.Spoon;
 
+import org.apache.commons.lang3.StringUtils;
 import org.json.JSONObject;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
@@ -33,21 +36,29 @@ import de.qabel.qabelbox.ui.helper.SystemAnimations;
 import de.qabel.qabelbox.ui.helper.UIActionHelper;
 import de.qabel.qabelbox.ui.helper.UIBoxHelper;
 import de.qabel.qabelbox.ui.helper.UITestHelper;
+import de.qabel.qabelbox.views.EditTextFont;
 
 import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.action.ViewActions.click;
 import static android.support.test.espresso.action.ViewActions.longClick;
+import static android.support.test.espresso.action.ViewActions.replaceText;
+import static android.support.test.espresso.assertion.ViewAssertions.doesNotExist;
 import static android.support.test.espresso.assertion.ViewAssertions.matches;
 import static android.support.test.espresso.intent.Intents.intended;
 import static android.support.test.espresso.intent.matcher.IntentMatchers.hasAction;
 import static android.support.test.espresso.intent.matcher.IntentMatchers.hasExtra;
+import static android.support.test.espresso.matcher.RootMatchers.isDialog;
 import static android.support.test.espresso.matcher.RootMatchers.withDecorView;
+import static android.support.test.espresso.matcher.ViewMatchers.isDescendantOfA;
 import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
+import static android.support.test.espresso.matcher.ViewMatchers.withClassName;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
 import static org.hamcrest.Matchers.allOf;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
+import static org.junit.Assert.fail;
 
 /**
  * UI Tests for FilesFragment
@@ -105,36 +116,38 @@ public class FilesFragmentUITest {
         }
     }
 
-    @After
-    public void cleanUp() {
 
-        for (ExampleFile exampleFile : exampleFiles) {
-            mBoxHelper.deleteFile(mActivity, testIdentity, exampleFile.getName(), "");
-        }
-        mBoxHelper.getService().deleteContact(testContact);
-        mBoxHelper.deleteIdentity(testIdentity);
-        mBoxHelper.deleteIdentity(testIdentity2);
+
+	@Before
+	public void setUp() throws IOException, QblStorageException {
+
+		URLs.setBaseBlockURL(TestConstants.BLOCK_URL);
+		mActivity = mActivityTestRule.getActivity();
+		wakeLock = UIActionHelper.wakeupDevice(mActivity);
+		mSystemAnimations = new SystemAnimations(mActivity);
+		mSystemAnimations.disableAll();
+	}
+
+	@After
+	public void cleanUp() {
+
+		for (ExampleFile exampleFile : exampleFiles) {
+			mBoxHelper.deleteFile(mActivity, testIdentity, exampleFile.getName(), "");
+		}
+		mBoxHelper.getService().deleteContact(testContact);
+		mBoxHelper.deleteIdentity(testIdentity);
+		mBoxHelper.deleteIdentity(testIdentity2);
 
         wakeLock.release();
         mSystemAnimations.enableAll();
         mBoxHelper.unbindService(QabelBoxApplication.getInstance());
     }
 
-    @Before
-    public void setUp() throws IOException, QblStorageException {
-
-        URLs.setBaseBlockURL(TestConstants.BLOCK_URL);
-        mActivity = mActivityTestRule.getActivity();
-        wakeLock = UIActionHelper.wakeupDevice(mActivity);
-        mSystemAnimations = new SystemAnimations(mActivity);
-        mSystemAnimations.disableAll();
-    }
-
-    private void setupData() throws Exception {
-        mActivity = mActivityTestRule.getActivity();
-        mBoxHelper = new UIBoxHelper(QabelBoxApplication.getInstance());
-        mBoxHelper.bindService(QabelBoxApplication.getInstance());
-        mBoxHelper.createTokenIfNeeded(false);
+	private void setupData() throws Exception {
+		mActivity = mActivityTestRule.getActivity();
+		mBoxHelper = new UIBoxHelper(QabelBoxApplication.getInstance());
+		mBoxHelper.bindService(QabelBoxApplication.getInstance());
+		mBoxHelper.createTokenIfNeeded(false);
 
         testIdentity = mBoxHelper.addIdentity("spoon");
         testIdentity2 = mBoxHelper.addIdentity("spoon2");
@@ -203,6 +216,116 @@ public class FilesFragmentUITest {
         //Check Chooser
         intended(allOf(hasAction(Intent.ACTION_CHOOSER), hasExtra(Intent.EXTRA_TITLE, mActivity.getString(R.string.share_via))));
     }
+
+	@Test
+	@MediumTest
+	public void testCreateFolder() {
+		String testFolderName = "A new folder is born";
+		performCreateFolder(testFolderName);
+		onView(withText(testFolderName))
+			.check(matches(isDisplayed()))
+			.check(matches(isDescendantOfA(withId(R.id.files_list))));
+
+	}
+
+
+	@Ignore
+	@Test
+	public void testCreateFolderNameConflict() {
+		fail("Expected behavior not specified yet");
+	}
+
+    @Ignore
+    @Test
+    public void testCreateFolderEmptyName() {
+        fail("Expected behavior not specified yet");
+    }
+
+
+	@Test
+	public void testRenameFolder() {
+		String nameBefore = "A new folder is born";
+		String nameAfter = StringUtils.reverse(nameBefore);
+		performCreateFolder(nameBefore);
+		performRenameFolder(nameBefore, nameAfter);
+		onView(withText(nameAfter))
+			.check(matches(isDisplayed()))
+			.check(matches(isDescendantOfA(withId(R.id.files_list))));
+		onView(withText(nameBefore))
+			.check(doesNotExist());
+	}
+
+
+    @Test
+	public void testRenameFolderNameConflict() {
+		String nameBefore = "A new folder is born";
+		String nameAfter = StringUtils.reverse(nameBefore);
+		performCreateFolder(nameBefore);
+		performCreateFolder(nameAfter);
+		performRenameFolder(nameBefore, nameAfter);
+		onView(withText(R.string.error_folder_already_exists))
+			.inRoot(isDialog())
+			.check(matches(isDisplayed()));
+		onView(withText(R.string.ok))
+			.check(matches(isDisplayed()))
+			.perform(click());
+		onView(withText(nameBefore))
+			.check(matches(isDisplayed()))
+			.check(matches(isDescendantOfA(withId(R.id.files_list))));
+		onView(withText(nameAfter))
+			.check(matches(isDisplayed()))
+			.check(matches(isDescendantOfA(withId(R.id.files_list))));
+	}
+
+	private void performCreateFolder(String name) {
+		onView(withId(R.id.fab)).check(matches(isDisplayed())).perform(click());
+		onView(withText(R.string.create_folder)).check(matches(isDisplayed())).perform(click());
+		onView(withClassName(containsString(EditTextFont.class.getSimpleName())))
+			.check(matches(isDisplayed()))
+			.perform(replaceText(name));
+		onView(withText(R.string.ok))
+			.check(matches(isDisplayed()))
+			.perform(click());
+
+	}
+
+	private void performRenameFolder(String orig, String result) {
+		onView(withText(orig))
+			.check(matches(isDisplayed()))
+			.perform(longClick());
+		onView(withText(R.string.rename_folder))
+			.check(matches(isDisplayed()))
+			.perform(click());
+		onView(withClassName(containsString(EditTextFont.class.getSimpleName())))
+			.check(matches(isDisplayed()))
+			.perform(replaceText(result));
+		onView(withText(R.string.ok))
+			.check(matches(isDisplayed()))
+			.perform(click());
+
+	}
+
+	@Test
+	public void testCreateFolder() {
+		fail("Nor implementent, yet");
+	}
+
+
+	@Test
+	public void testCreateFolderNameConflict() {
+		fail("Nor implementent, yet");
+	}
+
+
+	@Test
+	public void testRenameFolder() {
+		fail("Nor implementent, yet");
+	}
+
+	@Test
+	public void testRenameFolderNameConflict() {
+		fail("Nor implementent, yet");
+	}
 
 }
 

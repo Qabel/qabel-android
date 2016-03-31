@@ -21,6 +21,9 @@
         android:title="@string/Send"
         android:icon="@drawable/ic_share_black"/>
     <item
+        android:id="@+id/rename_folder"
+        android:title="@string/rename_folder" />
+    <item
         android:id="@+id/delete"
         android:title="@string/Delete"
         android:icon="@drawable/ic_delete_black"/>

@@ -90,7 +90,7 @@ public class FilesAdapter extends RecyclerView.Adapter<FilesAdapter.FilesViewHol
         public boolean onLongClick(View view) {
 
             if (onItemClickListener != null) {
-                onItemClickListener.onItemLockClick(view, getAdapterPosition());
+                onItemClickListener.onItemLongClick(view, getAdapterPosition());
                 return true;
             }
             return false;
@@ -101,7 +101,7 @@ public class FilesAdapter extends RecyclerView.Adapter<FilesAdapter.FilesViewHol
 
         void onItemClick(View view, int position);
 
-        void onItemLockClick(View view, int position);
+        void onItemLongClick(View view, int position);
     }
 
     public void setOnItemClickListener(OnItemClickListener onItemClickListener) {

@@ -2,9 +2,6 @@ package de.qabel.qabelbox.storage;
 
 import junit.framework.TestCase;
 
-import de.qabel.core.crypto.QblECKeyPair;
-import de.qabel.qabelbox.exceptions.QblStorageException;
-
 import org.junit.Test;
 
 import java.io.File;
@@ -12,7 +9,14 @@ import java.nio.ByteBuffer;
 import java.sql.SQLException;
 import java.util.UUID;
 
-import static org.hamcrest.CoreMatchers.*;
+import de.qabel.core.crypto.QblECKeyPair;
+import de.qabel.qabelbox.exceptions.QblStorageException;
+import de.qabel.qabelbox.exceptions.QblStorageNameConflict;
+
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.CoreMatchers.startsWith;
 import static org.junit.Assert.assertThat;
 
 public class DirectoryMetadataTest extends TestCase {
@@ -63,8 +67,8 @@ public class DirectoryMetadataTest extends TestCase {
     }
 
     @Test
-    public void testExternalOperations() throws QblStorageException {
-        BoxExternalReference external = new BoxExternalReference(false, "https://foobar", "name",
+	public void testExternalOperations() throws QblStorageException, QblStorageNameConflict {
+		BoxExternalReference external = new BoxExternalReference(false, "https://foobar", "name",
                 new QblECKeyPair().getPub(), new byte[]{1, 2,});
         dm.insertExternalReference(external);
         assertThat(dm.listExternalReferences().size(), is(1));

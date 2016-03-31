@@ -514,9 +514,13 @@ public class BoxProvider extends DocumentsProvider {
                             @Override
                             protected String doInBackground(Void... params) {
 
-                                uploadFile(documentId, tmp, mService.getUploadTransferListener(boxUploadingFile));
-                                return documentId;
-                            }
+								try {
+									uploadFile(documentId, tmp, mService.getUploadTransferListener(boxUploadingFile));
+								} catch (QblStorageNameConflict qblStorageNameConflict) {
+									throw new RuntimeException(qblStorageNameConflict);
+								}
+								return documentId;
+							}
                         }.execute();
                     }
                 };
@@ -532,7 +536,7 @@ public class BoxProvider extends DocumentsProvider {
         }
     }
 
-    private void uploadFile(String documentId, File tmp, TransferManager.BoxTransferListener boxTransferListener) {
+	private void uploadFile(String documentId, File tmp, TransferManager.BoxTransferListener boxTransferListener) throws QblStorageNameConflict {
 
         try {
             BoxVolume volume = getVolumeForId(documentId);

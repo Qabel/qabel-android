@@ -26,6 +26,7 @@ import java.util.List;
 
 import de.qabel.qabelbox.communication.VolumeFileTransferHelper;
 import de.qabel.qabelbox.exceptions.QblStorageException;
+import de.qabel.qabelbox.exceptions.QblStorageNameConflict;
 import de.qabel.qabelbox.helper.MockedBoxProviderTest;
 import de.qabel.qabelbox.storage.BoxFolder;
 import de.qabel.qabelbox.storage.BoxNavigation;
@@ -70,8 +71,8 @@ public class BoxProviderTest extends MockedBoxProviderTest {
         Log.d(TAG, "tearDown");
     }
 
-    public void testTraverseToFolder() throws QblStorageException {
-        BoxProvider provider = getProvider();
+	public void testTraverseToFolder() throws QblStorageException, QblStorageNameConflict {
+		BoxProvider provider = getProvider();
         BoxNavigation rootNav = getVolume().navigate();
         BoxFolder folder = rootNav.createFolder("foobar");
         rootNav.commit();
@@ -101,8 +102,8 @@ public class BoxProviderTest extends MockedBoxProviderTest {
 
     }
 
-    public void testOpenDocument() throws IOException, QblStorageException {
-        BoxNavigation rootNav = getVolume().navigate();
+	public void testOpenDocument() throws IOException, QblStorageException, QblStorageNameConflict {
+		BoxNavigation rootNav = getVolume().navigate();
         rootNav.upload("testfile", new FileInputStream(new File(testFileName)), null);
         rootNav.commit();
         assertThat(rootNav.listFiles().size(), is(1));
@@ -147,8 +148,8 @@ public class BoxProviderTest extends MockedBoxProviderTest {
     }
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-    public void testOpenDocumentForRW() throws IOException, QblStorageException, InterruptedException {
-        // Upload a test payload
+	public void testOpenDocumentForRW() throws IOException, QblStorageException, InterruptedException, QblStorageNameConflict {
+		// Upload a test payload
         BoxNavigation rootNav = getVolume().navigate();
         byte[] testContent = new byte[]{0, 1, 2, 3, 4, 5};
         byte[] updatedContent = new byte[]{0, 1, 2, 3, 4, 5, 6};
@@ -246,8 +247,8 @@ public class BoxProviderTest extends MockedBoxProviderTest {
         assertNotNull("Document not renamed:" + documentUri.toString(), query);
     }
 
-    public void testGetDocumentId() throws QblStorageException {
-        assertThat(getVolume().getDocumentId("/"), is(ROOT_DOC_ID));
+	public void testGetDocumentId() throws QblStorageException, QblStorageNameConflict {
+		assertThat(getVolume().getDocumentId("/"), is(ROOT_DOC_ID));
         BoxNavigation navigate = getVolume().navigate();
         assertThat(getVolume().getDocumentId(navigate.getPath()), is(ROOT_DOC_ID));
         BoxFolder folder = navigate.createFolder("testfolder");

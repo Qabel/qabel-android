@@ -2,6 +2,7 @@ package de.qabel.qabelbox.fragments;
 
 import android.app.Fragment;
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -27,9 +28,9 @@ public class ImageViewerFragment extends Fragment {
 
     private Uri uri;
     private String type;
+    private Drawable image;
 
     public static ImageViewerFragment newInstance(final Uri uri, String type) {
-
         ImageViewerFragment fragment = new ImageViewerFragment();
         fragment.uri = uri;
         fragment.type = type;
@@ -40,6 +41,8 @@ public class ImageViewerFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
+        // Retain this fragment across configuration changes.
+        setRetainInstance(true);
 
     }
 
@@ -69,34 +72,33 @@ public class ImageViewerFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-
         View view = inflater.inflate(R.layout.fragment_imageviewer, container, false);
 
         final ImageView iv = (ImageView) view.findViewById(R.id.image);
         final View progressView = view.findViewById(R.id.pb_loading);
-        Picasso.with(getActivity())
-                .load(uri)
-                .error(R.drawable.image_loading_error)
-                .into(iv, new Callback() {
-                    @Override
-                    public void onSuccess() {
-                        iv.setLayoutParams(new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT));
-                        progressView.setVisibility(View.GONE);
-                    }
+        if (image != null) {
+            iv.setLayoutParams(new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT));
+            progressView.setVisibility(View.GONE);
+            iv.setImageDrawable(image);
+        } else {
+            Picasso.with(getActivity())
+                    .load(uri)
+                    .error(R.drawable.image_loading_error)
+                    .into(iv, new Callback() {
+                        @Override
+                        public void onSuccess() {
+                            iv.setLayoutParams(new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT));
+                            progressView.setVisibility(View.GONE);
+                            image = iv.getDrawable();
+                        }
 
-                    @Override
-                    public void onError() {
-                        progressView.setVisibility(View.GONE);
-                    }
-                });
+                        @Override
+                        public void onError() {
+                            progressView.setVisibility(View.GONE);
+                        }
+                    });
+        }
         setClickListener(view);
-        /*setActionBarBackListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                getActivity().onBackPressed();
-            }
-        });*/
-
         return view;
     }
 
@@ -104,10 +106,8 @@ public class ImageViewerFragment extends Fragment {
         view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
                 getActivity().onBackPressed();
             }
         });
-
     }
 }

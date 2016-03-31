@@ -305,5 +305,27 @@ public class FilesFragmentUITest {
 
 	}
 
+	@Test
+	public void testCreateFolder() {
+		fail("Nor implementent, yet");
+	}
+
+
+	@Test
+	public void testCreateFolderNameConflict() {
+		fail("Nor implementent, yet");
+	}
+
+
+	@Test
+	public void testRenameFolder() {
+		fail("Nor implementent, yet");
+	}
+
+	@Test
+	public void testRenameFolderNameConflict() {
+		fail("Nor implementent, yet");
+	}
+
 }
 

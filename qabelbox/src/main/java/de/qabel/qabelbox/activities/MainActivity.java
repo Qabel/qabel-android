@@ -796,7 +796,7 @@ public class MainActivity extends CrashReportingActivity
             }
 
             @Override
-            public void onItemLockClick(View view, final int position) {
+            public void onItemLongClick(View view, final int position) {
 
                 final BoxObject boxObject = filesFragment.getFilesAdapter().get(position);
                 BottomSheet.Builder sheet = new BottomSheet.Builder(self).title(boxObject.name).sheet(R.menu.bottom_sheet_files)

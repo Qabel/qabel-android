@@ -120,7 +120,7 @@ public class FilesSearchResultFragment extends FilesFragment {
             }
 
             @Override
-            public void onItemLockClick(View view, int position) {
+            public void onItemLongClick(View view, int position) {
 
             }
         });

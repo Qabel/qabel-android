@@ -371,7 +371,6 @@ public class FilesFragment extends BaseFragment {
         edtSeach.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-
                 if (actionId == EditorInfo.IME_ACTION_SEARCH) {
                     String text = edtSeach.getText().toString();
                     removeSearchInActionbar(action);

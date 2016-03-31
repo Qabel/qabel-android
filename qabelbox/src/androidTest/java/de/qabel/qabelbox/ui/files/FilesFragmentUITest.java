@@ -47,7 +47,6 @@ import static android.support.test.espresso.intent.Intents.intended;
 import static android.support.test.espresso.intent.matcher.IntentMatchers.hasAction;
 import static android.support.test.espresso.intent.matcher.IntentMatchers.hasExtra;
 import static android.support.test.espresso.matcher.RootMatchers.isDialog;
-import static android.support.test.espresso.matcher.RootMatchers.withDecorView;
 import static android.support.test.espresso.matcher.ViewMatchers.isDescendantOfA;
 import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static android.support.test.espresso.matcher.ViewMatchers.withClassName;
@@ -55,8 +54,6 @@ import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.fail;
 
 /**
@@ -87,6 +84,9 @@ public class FilesFragmentUITest {
             new ExampleFile("black_2.png", new byte[1024 * 10]),
             new ExampleFile("white.png", new byte[1011]),
             new ExampleFile("blue.png", new byte[1011]));
+
+	private String exampleFolder = "A new folder is born";
+	private String exampleRenamedFolder = StringUtils.reverse(exampleFolder);
 
     private class ExampleFile {
 
@@ -136,6 +136,8 @@ public class FilesFragmentUITest {
 		mBoxHelper.getService().deleteContact(testContact);
 		mBoxHelper.deleteIdentity(testIdentity);
 		mBoxHelper.deleteIdentity(testIdentity2);
+		mBoxHelper.deleteFile(mActivity, testIdentity, exampleFolder, "");
+		mBoxHelper.deleteFile(mActivity, testIdentity, exampleRenamedFolder, "");
 
         wakeLock.release();
         mSystemAnimations.enableAll();
@@ -175,7 +177,7 @@ public class FilesFragmentUITest {
     @Test
     public void shareFileTest() {
         Spoon.screenshot(mActivity, "startup");
-        onView(withText(exampleFiles.get(0).getName())).perform(longClick());
+		onView(withText(exampleFiles.get(0).getName())).check(matches(isDisplayed())).perform(longClick());
 
         onView(withText(R.string.ShareToQabelUser)).perform(click());
 
@@ -198,7 +200,7 @@ public class FilesFragmentUITest {
         UITestHelper.sleep(TestConstraints.SIMPLE_SERVER_ACTION_TIMEOUT);
 
         //Check success message
-        onView(withText(R.string.messsage_file_shared)).inRoot(withDecorView(not(is(mActivity.getWindow().getDecorView())))).check(matches(isDisplayed()));
+		onView(withText(R.string.messsage_file_shared)).inRoot(isDialog());
 
         Spoon.screenshot(mActivity, "after");
     }
@@ -230,34 +232,37 @@ public class FilesFragmentUITest {
 		String nameBefore = "A new folder is born";
 		String nameAfter = StringUtils.reverse(nameBefore);
 		performCreateFolder(nameBefore);
+		Spoon.screenshot(mActivity, "rename: before");
 		performRenameFolder(nameBefore, nameAfter);
 		onView(withText(nameAfter))
 			.check(matches(isDisplayed()))
 			.check(matches(isDescendantOfA(withId(R.id.files_list))));
 		onView(withText(nameBefore))
 			.check(doesNotExist());
+		Spoon.screenshot(mActivity, "rename: after");
 	}
 
 
     @Test
 	public void testRenameFolderNameConflict() {
-		String nameBefore = "A new folder is born";
-		String nameAfter = StringUtils.reverse(nameBefore);
-		performCreateFolder(nameBefore);
-		performCreateFolder(nameAfter);
-		performRenameFolder(nameBefore, nameAfter);
-        onView(withText(mActivity.getResources().getString(R.string.error_folder_already_exists, nameAfter)))
-                .inRoot(isDialog())
+		performCreateFolder(exampleFolder);
+		performCreateFolder(exampleRenamedFolder);
+		Spoon.screenshot(mActivity, "rename conflict: before");
+		performRenameFolder(exampleFolder, exampleRenamedFolder);
+		onView(withText(mActivity.getResources().getString(R.string.error_folder_already_exists, exampleRenamedFolder)))
+			.inRoot(isDialog())
                 .check(matches(isDisplayed()));
-        onView(withText(R.string.ok))
+		Spoon.screenshot(mActivity, "rename conflict: dialog");
+		onView(withText(R.string.ok))
                 .check(matches(isDisplayed()))
                 .perform(click());
-		onView(withText(nameBefore))
+		onView(withText(exampleFolder))
 			.check(matches(isDisplayed()))
 			.check(matches(isDescendantOfA(withId(R.id.files_list))));
-		onView(withText(nameAfter))
+		onView(withText(exampleFolder))
 			.check(matches(isDisplayed()))
 			.check(matches(isDescendantOfA(withId(R.id.files_list))));
+		Spoon.screenshot(mActivity, "rename conflict: after");
 	}
 
 	private void performCreateFolder(String name) {

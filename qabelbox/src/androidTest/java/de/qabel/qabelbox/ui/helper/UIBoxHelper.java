@@ -72,25 +72,25 @@ public class UIBoxHelper {
         //app.stopService(serviceIntent);
         app.bindService(serviceIntent, new ServiceConnection() {
 
-            @Override
-            public void onServiceConnected(ComponentName name, IBinder service) {
+			@Override
+			public void onServiceConnected(ComponentName name, IBinder service) {
 
-                Log.d(TAG, "LocalQabelService connected");
-                provider = app.getProvider();
-                Log.i(TAG, "Provider: " + provider);
-                LocalQabelService.LocalBinder binder = (LocalQabelService.LocalBinder) service;
-                mService = binder.getService();
+				Log.d(TAG, "LocalQabelService connected");
+				provider = app.getProvider();
+				Log.i(TAG, "Provider: " + provider);
+				LocalQabelService.LocalBinder binder = (LocalQabelService.LocalBinder) service;
+				mService = binder.getService();
 
-                finished = true;
-            }
+				finished = true;
+			}
 
-            @Override
-            public void onServiceDisconnected(ComponentName name) {
+			@Override
+			public void onServiceDisconnected(ComponentName name) {
 
-                mService = null;
-            }
-        }, Context.BIND_AUTO_CREATE);
-        while (!finished) {
+				mService = null;
+			}
+		}, Context.BIND_AUTO_CREATE);
+		while (!finished) {
             try {
                 Thread.sleep(100);
             } catch (InterruptedException e) {
@@ -108,7 +108,8 @@ public class UIBoxHelper {
         return DocumentsContract.deleteDocument(activity.getContentResolver(), uploadUri);
     }
 
-    public boolean uploadFile(BoxVolume boxVolume, String name, byte[] data, String path) {
+
+	public boolean uploadFile(BoxVolume boxVolume, String name, byte[] data, String path) {
         try {
 
             String folderId = boxVolume.getDocumentId(path);
@@ -293,4 +294,6 @@ public class UIBoxHelper {
         }
         removeAllIdentities();
     }
+
+
 }

@@ -328,7 +328,9 @@ To all people who have supported our Indigogo Campaign
     <string name="action_tellafriend">Invitation</string>
 
 
-    <string name="cant_import_file_type_is_unknown">Can\'t import file. The file type is unknown</string>
-    <string name="idenity_imported">Identity successfully imported</string>
+	<string name="cant_import_file_type_is_unknown">Can\'t import file. The file type is unknown</string>
+	<string name="idenity_imported">Identity successfully imported</string>
+	<string name="rename_folder">rename folder</string>
+	<string name="error_folder_already_exists">folder already exists</string>
 
 </resources>

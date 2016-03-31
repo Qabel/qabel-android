@@ -524,20 +524,18 @@ public class MainActivity extends CrashReportingActivity
                 }).show();
     }
 
-    private void newFolderDialog() {
-
-        UIHelper.showEditTextDialog(this, R.string.add_folder_header, R.string.add_folder_name, R.string.ok, R.string.cancel, new UIHelper.EditTextDialogClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which, EditText editText) {
-
-                UIHelper.hideKeyboard(self, editText);
-                String newFolderName = editText.getText().toString();
-                if (!newFolderName.equals("")) {
-                    createFolder(newFolderName, filesFragment.getBoxNavigation());
-                }
-            }
-        }, null);
-    }
+	private void newFolderDialog() {
+		UIHelper.showEditTextDialog(this, R.string.add_folder_header, R.string.add_folder_name, R.string.ok, R.string.cancel, new UIHelper.EditTextDialogClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int which, EditText editText) {
+				UIHelper.hideKeyboard(self, editText);
+				String newFolderName = editText.getText().toString();
+				if (!newFolderName.equals("")) {
+					createFolder(newFolderName, filesFragment.getBoxNavigation());
+				}
+			}
+		}, null);
+	}
 
 
     protected void filterSheet(BoxObject boxObject, BottomSheet.Builder sheet) {

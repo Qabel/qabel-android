@@ -229,6 +229,7 @@ public class CreateAccountActivity extends BaseWizardActivity {
                     AppPreference appPrefs = new AppPreference(mActivity);
                     appPrefs.setToken(result.token);
                     appPrefs.setAccountName(mBoxAccountName);
+                    appPrefs.setAccountEMail(mBoxAccountEMail);
                     showNextUIThread(dialog);
                 } else {
                     String errorText = generateErrorMessage(result);

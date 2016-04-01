@@ -24,9 +24,9 @@ import java.io.IOException;
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.TestConstants;
-import de.qabel.qabelbox.TestConstraints;
 import de.qabel.qabelbox.activities.CreateIdentityActivity;
 import de.qabel.qabelbox.communication.URLs;
+import de.qabel.qabelbox.config.AppPreference;
 import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.ui.action.QabelViewAction;
 import de.qabel.qabelbox.ui.helper.SystemAnimations;
@@ -84,8 +84,10 @@ public class CreateIdentityUITest extends UIBoxHelper {
 
         URLs.setBaseBlockURL(TestConstants.BLOCK_URL);
         URLs.setBaseAccountingURL(TestConstants.ACCOUNTING_URL);
+
+        new AppPreference(mActivity).setToken(mActivity.getString(R.string.blockserver_magic_testtoken));
         bindService(QabelBoxApplication.getInstance());
-        createTokenIfNeeded(true);
+
         removeAllIdentities();
         wakeLock = UIActionHelper.wakeupDevice(mActivity);
         mSystemAnimations = new SystemAnimations(mActivity);
@@ -162,9 +164,8 @@ public class CreateIdentityUITest extends UIBoxHelper {
     }
 
     private void createIdentityPerformConfirm() {
-        UITestHelper.waitForView(mActivity.getString(R.string.create_identity_final), 25000L).check(matches(isDisplayed()));
+        onView(withText(R.string.create_identity_final)).check(matches(isDisplayed()));
         onView(withText(R.string.finish)).perform(click());
-        UITestHelper.waitForView(R.string.headline_files, TestConstraints.SIMPLE_SERVER_ACTION_TIMEOUT);
         onView(withText(R.string.headline_files)).check(matches(isDisplayed()));
         UITestHelper.sleep(500);
     }

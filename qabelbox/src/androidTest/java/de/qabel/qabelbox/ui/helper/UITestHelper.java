@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.support.test.espresso.Espresso;
 import android.support.test.espresso.IdlingPolicies;
+import android.support.test.espresso.IdlingPolicy;
 import android.support.test.espresso.IdlingResource;
 import android.support.test.espresso.ViewInteraction;
 import android.support.test.runner.lifecycle.ActivityLifecycleMonitorRegistry;
@@ -92,6 +93,9 @@ public class UITestHelper {
 
     public static ViewInteraction waitForView(int id, long waitingTimeMS) {
         // Make sure Espresso does not time out
+        IdlingPolicy master = IdlingPolicies.getMasterIdlingPolicy();
+        IdlingPolicy error = IdlingPolicies.getDynamicIdlingResourceErrorPolicy();
+
         IdlingPolicies.setMasterPolicyTimeout(waitingTimeMS, TimeUnit.MILLISECONDS);
         IdlingPolicies.setIdlingResourceTimeout(waitingTimeMS, TimeUnit.MILLISECONDS);
 
@@ -99,6 +103,9 @@ public class UITestHelper {
         Espresso.registerIdlingResources(idlingResource);
         ViewInteraction element = onView(withId(id));
         Espresso.unregisterIdlingResources(idlingResource);
+        
+        IdlingPolicies.setMasterPolicyTimeout(master.getIdleTimeout(), TimeUnit.MILLISECONDS);
+        IdlingPolicies.setIdlingResourceTimeout(error.getIdleTimeout(), TimeUnit.MILLISECONDS);
         return element;
     }
 }

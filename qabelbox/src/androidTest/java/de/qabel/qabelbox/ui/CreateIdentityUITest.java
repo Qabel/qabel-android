@@ -160,7 +160,7 @@ public class CreateIdentityUITest extends UIBoxHelper {
     }
 
     private void createIdentityPerformConfirm() {
-        onView(withText(R.string.create_identity_final)).check(matches(isDisplayed()));
+        UITestHelper.waitForView(mActivity.getString(R.string.create_identity_final), 10000L).check(matches(isDisplayed()));
         onView(withText(R.string.finish)).perform(click());
         UITestHelper.waitForView(R.string.headline_files, TestConstraints.SIMPLE_SERVER_ACTION_TIMEOUT);
         onView(withText(R.string.headline_files)).check(matches(isDisplayed()));

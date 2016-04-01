@@ -49,7 +49,6 @@ public class BaseServer {
         builder.addHeader("Accept", "application/json");
         if (token != null) {
             builder.addHeader("Authorization", "Token " + token);
-            Log.d(TAG, "token " + token);
         }
     }
 

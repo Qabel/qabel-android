@@ -147,8 +147,8 @@ public class CreateIdentityUITest extends UIBoxHelper {
         closeSoftKeyboard();
 
         Spoon.screenshot(UITestHelper.getCurrentActivity(mActivity), "input");
-        UITestHelper.sleep(500);
         onView(withText(R.string.next)).perform(click());
+        UITestHelper.sleep(500);
     }
 
     private void createIdentityPerformSetSecurityLevel() {
@@ -162,6 +162,7 @@ public class CreateIdentityUITest extends UIBoxHelper {
         onView(withText(R.string.finish)).perform(click());
         UITestHelper.waitForView(R.string.headline_files, TestConstraints.SIMPLE_SERVER_ACTION_TIMEOUT);
         onView(withText(R.string.headline_files)).check(matches(isDisplayed()));
+        UITestHelper.sleep(500);
     }
 }
 

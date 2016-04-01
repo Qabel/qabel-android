@@ -42,6 +42,7 @@ import de.qabel.qabelbox.ui.helper.DocumentIntents;
 import de.qabel.qabelbox.ui.helper.SystemAnimations;
 import de.qabel.qabelbox.ui.helper.UIActionHelper;
 import de.qabel.qabelbox.ui.helper.UIBoxHelper;
+import de.qabel.qabelbox.ui.matcher.QabelMatcher;
 
 import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.Espresso.openActionBarOverflowOrOptionsMenu;
@@ -159,6 +160,20 @@ public class ImportExportContactsUITest {
             assertNull(e);
             return null;
         }
+    }
+
+    @Test
+    public void testExportContactAsQRCode() {
+
+        String userName = "user1";
+        goToContacts();
+
+        onView(withId(R.id.contact_list)).perform(RecyclerViewActions.actionOnItem(hasDescendant(withText(userName)), longClick()));
+        onView(withText(R.string.ExportAsContactWithQRcode)).check(matches(isDisplayed())).perform(click());
+        onView(withText(userName)).check(matches(isDisplayed()));
+        QabelMatcher.matchToolbarTitle(mActivity.getString(R.string.headline_qrcode)).check(matches(isDisplayed()));
+        Spoon.screenshot(mActivity, "contactQR");
+
     }
 
     @Test

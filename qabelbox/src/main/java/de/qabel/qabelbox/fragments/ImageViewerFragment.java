@@ -76,6 +76,12 @@ public class ImageViewerFragment extends Fragment {
 
         final ImageView iv = (ImageView) view.findViewById(R.id.image);
         final View progressView = view.findViewById(R.id.pb_loading);
+        loadImage(iv, progressView);
+        setClickListener(view);
+        return view;
+    }
+
+    private void loadImage(final ImageView iv, final View progressView) {
         if (image != null) {
             iv.setLayoutParams(new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT));
             progressView.setVisibility(View.GONE);
@@ -98,8 +104,6 @@ public class ImageViewerFragment extends Fragment {
                         }
                     });
         }
-        setClickListener(view);
-        return view;
     }
 
     private void setClickListener(View view) {

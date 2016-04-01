@@ -576,9 +576,9 @@ public class MainActivity extends CrashReportingActivity
 
         //check if file type is image
         if (type != null && type.indexOf("image") == 0) {
-            Intent intent=new Intent(self,ImageViewerActivity.class);
-            intent.putExtra(ImageViewerActivity.P_URI,uri);
-            intent.putExtra(ImageViewerActivity.P_TYPE,type);
+            Intent intent = new Intent(self, ImageViewerActivity.class);
+            intent.putExtra(ImageViewerActivity.P_URI, uri);
+            intent.putExtra(ImageViewerActivity.P_TYPE, type);
             startActivity(intent);
             return;
         }

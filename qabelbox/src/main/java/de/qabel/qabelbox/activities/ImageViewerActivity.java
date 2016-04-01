@@ -11,9 +11,6 @@ import android.view.WindowManager;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.fragments.ImageViewerFragment;
 
-/**
- * Created by danny on 31.03.16.
- */
 public class ImageViewerActivity extends CrashReportingActivity {
     public static final String P_URI = "uri";
     public static final String P_TYPE = "type";
@@ -25,9 +22,16 @@ public class ImageViewerActivity extends CrashReportingActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_imageviewer);
         setRotationAnimation();
-        Uri uri = getIntent().getParcelableExtra(P_URI);
-        String type = getIntent().getStringExtra(P_TYPE);
+        initView();
+    }
 
+    private void initView() {
+
+        initActionBar();
+        initViewerFragment();
+    }
+
+    private void initActionBar() {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         ActionBar ab = getSupportActionBar();
@@ -35,12 +39,17 @@ public class ImageViewerActivity extends CrashReportingActivity {
             ab.setDisplayShowHomeEnabled(true);
             ab.setDisplayHomeAsUpEnabled(true);
         }
+    }
+
+    private void initViewerFragment() {
         FragmentManager fm = getFragmentManager();
         viewerFragment = (ImageViewerFragment) fm.findFragmentByTag(TAG_IMAGEVIEWER);
 
         // If Fragment is not null, then it is currently being retained
         // across a configuration change.
         if (viewerFragment == null) {
+            Uri uri = getIntent().getParcelableExtra(P_URI);
+            String type = getIntent().getStringExtra(P_TYPE);
             viewerFragment = ImageViewerFragment.newInstance(uri, type);
             getFragmentManager().beginTransaction()
                     .replace(R.id.fragment_container, viewerFragment, TAG_IMAGEVIEWER).addToBackStack(null)
@@ -55,6 +64,7 @@ public class ImageViewerActivity extends CrashReportingActivity {
         winParams.rotationAnimation = rotationAnimation;
         win.setAttributes(winParams);
     }
+
     public boolean onSupportNavigateUp() {
         onBackPressed();
         return true;

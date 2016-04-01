@@ -1,4 +1,5 @@
 package de.qabel.qabelbox.ui.idling;
+
 import android.support.test.espresso.IdlingResource;
 
 public class ElapsedTimeIdlingResource implements IdlingResource {

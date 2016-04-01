@@ -87,6 +87,7 @@ public class UITestHelper {
         Espresso.unregisterIdlingResources(idlingResource);
         return element;
     }
+
     public static ViewInteraction waitForView(int id, long waitingTimeMS) {
         // Make sure Espresso does not time out
         IdlingPolicies.setMasterPolicyTimeout(waitingTimeMS, TimeUnit.MILLISECONDS);

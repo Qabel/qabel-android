@@ -188,19 +188,19 @@ public class CreateAccountActivity extends BaseWizardActivity {
             void showRetryDialog() {
 
                 UIHelper.showDialogMessage(mActivity, R.string.dialog_headline_info, R.string.server_access_not_successfully_retry_question, R.string.yes, R.string.no, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
 
-                                register(username, password1, password2, email);
-                            }
-                        }
+                        register(username, password1, password2, email);
+                    }
+                }
                         , new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
 
-                                dialog.dismiss();
-                            }
-                        });
+                        dialog.dismiss();
+                    }
+                });
             }
 
             protected void onError(final Call call, Reasons reasons) {
@@ -226,7 +226,9 @@ public class CreateAccountActivity extends BaseWizardActivity {
 
                 if (result.token != null && result.token.length() > 5) {
                     Log.d(TAG, "store token");
-                    new AppPreference(mActivity).setToken(result.token);
+                    AppPreference appPrefs = new AppPreference(mActivity);
+                    appPrefs.setToken(result.token);
+                    appPrefs.setAccountName(mBoxAccountName);
                     showNextUIThread(dialog);
                 } else {
                     String errorText = generateErrorMessage(result);

@@ -238,6 +238,7 @@ public class UIBoxHelper {
             prefs.setToken(new RealTokerGetter().getToken(applicationContext));
         } else {
             prefs.setToken(TestConstants.TOKEN);
+            prefs.setAccountName("testUser");
         }
     }
 

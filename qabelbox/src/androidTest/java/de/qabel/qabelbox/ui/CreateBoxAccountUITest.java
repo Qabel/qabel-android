@@ -53,8 +53,10 @@ import static android.support.test.espresso.matcher.ViewMatchers.withInputType;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
 import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertNull;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.endsWith;
+import static org.hamcrest.Matchers.is;
 
 /**
  * Tests for MainActivity.
@@ -90,7 +92,6 @@ public class CreateBoxAccountUITest extends UIBoxHelper {
         bindService(QabelBoxApplication.getInstance());
         createTokenIfNeeded(false);
 
-
         wakeLock = UIActionHelper.wakeupDevice(mActivity);
         mSystemAnimations = new SystemAnimations(mActivity);
         mSystemAnimations.disableAll();
@@ -112,6 +113,7 @@ public class CreateBoxAccountUITest extends UIBoxHelper {
 
         onView(withText(R.string.create_box_account)).perform(click());
         String accountName = UUID.randomUUID().toString().substring(0, 15).replace("-", "x");
+        String accountEMail=accountName + "@example.com";
         String duplicateName = "example";//example exists on server
         String failEMail = "example@example.";//incorrect email
         String duplicateEMail = "example@example.com";//email exists on server
@@ -126,14 +128,14 @@ public class CreateBoxAccountUITest extends UIBoxHelper {
         //enter email
         testEMailExists(duplicateEMail);
         testFailEmail(failEMail);
-        enterSingleLine(accountName + "@example.com", "email", true);
+        enterSingleLine(accountEMail, "email", true);
 
         //check password
         checkNumericPassword(failPassword);
         checkBadPassword(accountName, failPassword);
         checkPassword(password);
 
-        checkSuccess();
+        checkSuccess(accountName,accountEMail);
     }
 
     private void createExistingUser(String duplicateName, String duplicateEMail, String password) {
@@ -157,13 +159,16 @@ public class CreateBoxAccountUITest extends UIBoxHelper {
         }
     }
 
-    private void checkSuccess() throws Throwable {
+    private void checkSuccess(String accountName,String accountEmail) throws Throwable {
         onView(withText(R.string.create_account_final_headline)).check(matches(isDisplayed()));
         Spoon.screenshot(UITestHelper.getCurrentActivity(mActivity), "result");
         onView(withText(R.string.btn_create_identity)).check(matches(isDisplayed())).perform(click());
 
         onView(withText(R.string.headline_add_identity)).check(matches(isDisplayed()));
-        assertNotNull(new AppPreference(QabelBoxApplication.getInstance()).getToken());
+        AppPreference appPrefs = new AppPreference(QabelBoxApplication.getInstance());
+        assertNotNull(appPrefs.getToken());
+        assertThat(appPrefs.getAccountName(), is(accountName));
+        assertThat(appPrefs.getAccountEMail(),is(accountEmail));
     }
 
     private void checkPassword(String password) throws Throwable {

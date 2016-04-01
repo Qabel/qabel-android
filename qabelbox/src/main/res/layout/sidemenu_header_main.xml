@@ -1,65 +1,80 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:layout_width="match_parent"
-              android:layout_height="wrap_content"
-              android:background="@drawable/side_nav_bar"
-              android:minHeight="@dimen/nav_header_height"
-              android:orientation="vertical"
-              android:paddingBottom="@dimen/activity_vertical_margin"
-              android:paddingLeft="@dimen/activity_horizontal_margin"
-              android:paddingRight="@dimen/activity_horizontal_margin"
-              android:paddingTop="@dimen/activity_vertical_margin"
-              android:theme="@style/ThemeOverlay.AppCompat.Dark">
 
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:gravity="start"
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/bg_sidemenu_header"
+    android:gravity="start"
+    android:minHeight="@dimen/nav_header_height"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    android:theme="@style/ThemeOverlay.AppCompat.Dark"
+    >
+
+    <ImageView
+        android:id="@+id/qabelLogo"
+        android:layout_width="96dp"
+        android:layout_height="96dp"
+        android:layout_marginTop="19dp"
+        android:src="@drawable/ic_qrcode_scan"/>
+
+
+    <LinearLayout
+        android:id="@+id/select_identity_layout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_gravity="right"
+        android:layout_toRightOf="@id/qabelLogo"
+        android:clickable="true"
         android:orientation="horizontal">
 
-        <ImageView
-            android:id="@+id/qabelLogo"
-            android:layout_width="96dp"
-            android:layout_height="96dp"
-            android:layout_marginTop="19dp"
-            android:src="@drawable/ic_qrcode_scan"/>
+        <RelativeLayout
 
-        <LinearLayout
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="wrap_content">
 
-            android:layout_alignParentRight="true"
-            android:layout_below="@+id/qabelLogo"
-            android:orientation="vertical">
-
-            <LinearLayout
-                android:id="@+id/select_identity_layout"
+            <ImageView
+                android:id="@+id/imageViewExpandIdentity"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="right"
-                android:clickable="true"
-                android:orientation="horizontal">
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:layout_gravity="center_vertical"
+                android:src="@drawable/ic_arrow_drop_down_black"/>
 
-                <de.qabel.qabelbox.views.TextViewFont
-                    android:id="@+id/textViewSelectedIdentity"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:clickable="false"
-                    android:gravity="right"
-                    android:minWidth="100dp"
-                    android:textSize="20dp"
-                    />
+            <de.qabel.qabelbox.views.TextViewFont
+                android:id="@+id/accountName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:layout_toLeftOf="@id/imageViewExpandIdentity"
+                android:gravity="right"
+                android:minWidth="100dp"
+                android:text="name"
+                android:textSize="16dp"
+                android:textStyle="bold"
+                />
 
-                <ImageView
-                    android:id="@+id/imageViewExpandIdentity"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:clickable="false"
-                    android:src="@drawable/ic_arrow_drop_down_black"/>
-            </LinearLayout>
+            <de.qabel.qabelbox.views.TextViewFont
+                android:id="@+id/textViewSelectedIdentity"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/accountName"
+                android:layout_toLeftOf="@id/imageViewExpandIdentity"
+                android:clickable="false"
+                android:gravity="right"
+                android:minWidth="100dp"
+                android:text="test"
+                android:textSize="16dp"
+                />
 
 
-        </LinearLayout>
-    </RelativeLayout>
+        </RelativeLayout>
 
-</LinearLayout>
+    </LinearLayout>
+</RelativeLayout>
+

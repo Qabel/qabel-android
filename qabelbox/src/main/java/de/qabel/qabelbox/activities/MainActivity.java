@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.graphics.LightingColorFilter;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -976,17 +977,21 @@ public class MainActivity extends CrashReportingActivity
         });
 
         imageViewExpandIdentity = (ImageView) navigationView.findViewById(R.id.imageViewExpandIdentity);
+        tintToTextColor(imageViewExpandIdentity);
+
         findViewById(R.id.select_identity_layout).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
                 if (identityMenuExpanded) {
                     imageViewExpandIdentity.setImageResource(R.drawable.ic_arrow_drop_down_black);
+                    tintToTextColor(imageViewExpandIdentity);
                     navigationView.getMenu().clear();
                     navigationView.inflateMenu(R.menu.activity_main_drawer);
                     identityMenuExpanded = false;
                 } else {
                     imageViewExpandIdentity.setImageResource(R.drawable.ic_arrow_drop_up_black);
+                    tintToTextColor(imageViewExpandIdentity);
                     navigationView.getMenu().clear();
                     List<Identity> identityList = new ArrayList<>(
                             mService.getIdentities().getIdentities());
@@ -1065,6 +1070,10 @@ public class MainActivity extends CrashReportingActivity
 
             }
         });
+    }
+
+    private void tintToTextColor(ImageView iv) {
+        iv.setColorFilter(new LightingColorFilter(0, getResources().getColor(R.color.tintDrawerIndicator)));
     }
 
     public static void showQRCode(MainActivity activity, Identity identity) {

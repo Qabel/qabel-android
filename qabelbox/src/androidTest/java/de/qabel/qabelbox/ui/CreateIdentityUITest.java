@@ -85,7 +85,7 @@ public class CreateIdentityUITest extends UIBoxHelper {
         URLs.setBaseBlockURL(TestConstants.BLOCK_URL);
         URLs.setBaseAccountingURL(TestConstants.ACCOUNTING_URL);
 
-        new AppPreference(mActivity).setToken(mActivity.getString(R.string.blockserver_magic_testtoken));
+        new AppPreference(mActivity).setToken(TestConstants.TOKEN);
         bindService(QabelBoxApplication.getInstance());
 
         removeAllIdentities();

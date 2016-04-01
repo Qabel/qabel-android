@@ -1,7 +1,6 @@
 package de.qabel.qabelbox.storage;
 
 
-import android.content.Context;
 import android.test.AndroidTestCase;
 
 import org.apache.commons.io.IOUtils;
@@ -30,7 +29,7 @@ import de.qabel.core.crypto.QblECKeyPair;
 import de.qabel.core.crypto.QblECPublicKey;
 import de.qabel.core.drop.DropURL;
 import de.qabel.qabelbox.QabelBoxApplication;
-import de.qabel.qabelbox.R;
+import de.qabel.qabelbox.TestConstants;
 import de.qabel.qabelbox.communication.URLs;
 import de.qabel.qabelbox.config.AppPreference;
 import de.qabel.qabelbox.exceptions.QblStorageException;
@@ -42,7 +41,6 @@ import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.startsWith;
-import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertThat;
 
@@ -65,10 +63,8 @@ public class BoxTest extends AndroidTestCase {
     private String testFileName;
 
     public void configureTestServer() {
-        Context applicationContext = QabelBoxApplication.getInstance().getApplicationContext();
-        new AppPreference(applicationContext)
-                .setToken(applicationContext.getString(R.string.blockserver_magic_testtoken));
-        URLs.setBaseBlockURL(applicationContext.getString(R.string.testBlockServer));
+        new AppPreference(QabelBoxApplication.getInstance()).setToken(TestConstants.TOKEN);
+        URLs.setBaseBlockURL(TestConstants.BLOCK_URL);
     }
 
     @Before

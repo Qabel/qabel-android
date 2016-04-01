@@ -82,6 +82,7 @@ public class CreateIdentityUITest extends UIBoxHelper {
 
         mActivity = mActivityTestRule.getActivity();
         URLs.setBaseBlockURL(TestConstants.BLOCK_URL);
+        URLs.setBaseAccountingURL(TestConstants.ACCOUNTING_URL);
         bindService(QabelBoxApplication.getInstance());
         createTokenIfNeeded(false);
         wakeLock = UIActionHelper.wakeupDevice(mActivity);

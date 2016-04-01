@@ -92,9 +92,11 @@ public class UITestHelper {
     }
 
     public static ViewInteraction waitForView(int id, long waitingTimeMS) {
-        // Make sure Espresso does not time out
+
         IdlingPolicy master = IdlingPolicies.getMasterIdlingPolicy();
         IdlingPolicy error = IdlingPolicies.getDynamicIdlingResourceErrorPolicy();
+
+        // Make sure Espresso does not time out
 
         IdlingPolicies.setMasterPolicyTimeout(waitingTimeMS, TimeUnit.MILLISECONDS);
         IdlingPolicies.setIdlingResourceTimeout(waitingTimeMS, TimeUnit.MILLISECONDS);
@@ -103,9 +105,9 @@ public class UITestHelper {
         Espresso.registerIdlingResources(idlingResource);
         ViewInteraction element = onView(withId(id));
         Espresso.unregisterIdlingResources(idlingResource);
-        
-        IdlingPolicies.setMasterPolicyTimeout(master.getIdleTimeout(), TimeUnit.MILLISECONDS);
-        IdlingPolicies.setIdlingResourceTimeout(error.getIdleTimeout(), TimeUnit.MILLISECONDS);
+
+        IdlingPolicies.setMasterPolicyTimeout(master.getIdleTimeout(), TimeUnit.SECONDS);
+        IdlingPolicies.setIdlingResourceTimeout(error.getIdleTimeout(), TimeUnit.SECONDS);
         return element;
     }
 }

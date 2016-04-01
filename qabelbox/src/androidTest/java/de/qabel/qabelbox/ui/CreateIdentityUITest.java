@@ -81,10 +81,12 @@ public class CreateIdentityUITest extends UIBoxHelper {
     public void setUp() throws IOException, QblStorageException {
 
         mActivity = mActivityTestRule.getActivity();
+
         URLs.setBaseBlockURL(TestConstants.BLOCK_URL);
         URLs.setBaseAccountingURL(TestConstants.ACCOUNTING_URL);
         bindService(QabelBoxApplication.getInstance());
-        createTokenIfNeeded(false);
+        createTokenIfNeeded(true);
+        removeAllIdentities();
         wakeLock = UIActionHelper.wakeupDevice(mActivity);
         mSystemAnimations = new SystemAnimations(mActivity);
         mSystemAnimations.disableAll();
@@ -160,7 +162,7 @@ public class CreateIdentityUITest extends UIBoxHelper {
     }
 
     private void createIdentityPerformConfirm() {
-        UITestHelper.waitForView(mActivity.getString(R.string.create_identity_final), 10000L).check(matches(isDisplayed()));
+        UITestHelper.waitForView(mActivity.getString(R.string.create_identity_final), 25000L).check(matches(isDisplayed()));
         onView(withText(R.string.finish)).perform(click());
         UITestHelper.waitForView(R.string.headline_files, TestConstraints.SIMPLE_SERVER_ACTION_TIMEOUT);
         onView(withText(R.string.headline_files)).check(matches(isDisplayed()));

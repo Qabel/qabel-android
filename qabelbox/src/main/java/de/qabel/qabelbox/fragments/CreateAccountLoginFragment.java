@@ -107,19 +107,19 @@ public class CreateAccountLoginFragment extends BaseIdentityFragment {
             void showRetryDialog() {
 
                 UIHelper.showDialogMessage(getActivity(), R.string.dialog_headline_info, R.string.server_access_not_successfully_retry_question, R.string.yes, R.string.no, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
 
-                                login(username, password);
-                            }
-                        }
+                        login(username, password);
+                    }
+                }
                         , new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
 
-                                dialog.dismiss();
-                            }
-                        });
+                        dialog.dismiss();
+                    }
+                });
             }
 
             protected void onError(final Call call, Reasons reasons) {
@@ -136,7 +136,9 @@ public class CreateAccountLoginFragment extends BaseIdentityFragment {
 
                 BoxAccountRegisterServer.ServerResponse result = BoxAccountRegisterServer.parseJson(json);
                 if (result.token != null && result.token.length() > 5) {
-                    new AppPreference(getActivity()).setToken(result.token);
+                    AppPreference appPrefs = new AppPreference(getActivity());
+                    appPrefs.setToken(result.token);
+                    appPrefs.setAccountName(username);
                     getActivity().runOnUiThread(new Runnable() {
                         @Override
                         public void run() {

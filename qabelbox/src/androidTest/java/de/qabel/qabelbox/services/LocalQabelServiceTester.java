@@ -15,6 +15,12 @@ import de.qabel.core.http.HTTPResult;
 public class LocalQabelServiceTester extends LocalQabelService {
 
     ArrayList<byte[]> dropMessages = new ArrayList<>();
+    public static String MOCK_DB_NAME;
+
+    @Override
+    protected void initAndroidPersistence() {
+        super.initAndroidPersistence(MOCK_DB_NAME);
+    }
 
     @Override
     HTTPResult<?> dropHTTPsend(DropURL dropURL, byte[] message) {

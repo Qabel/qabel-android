@@ -518,10 +518,12 @@ public class LocalQabelService extends Service {
         uploadingQueue = new LinkedBlockingDeque<>();
         self = this;
     }
-
     protected void initAndroidPersistence() {
+       initAndroidPersistence(DB_NAME);
+    }
+    protected void initAndroidPersistence(String dbName) {
         AndroidPersistence androidPersistence;
-        QblSQLiteParams params = new QblSQLiteParams(this, DB_NAME, null, DB_VERSION);
+        QblSQLiteParams params = new QblSQLiteParams(this, dbName, null, DB_VERSION);
         try {
             androidPersistence = new AndroidPersistence(params);
         } catch (QblInvalidEncryptionKeyException e) {

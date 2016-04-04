@@ -513,7 +513,6 @@ public class BoxProvider extends DocumentsProvider {
                         new AsyncTask<Void, Void, String>() {
                             @Override
                             protected String doInBackground(Void... params) {
-
                                 uploadFile(documentId, tmp, mService.getUploadTransferListener(boxUploadingFile));
                                 return documentId;
                             }

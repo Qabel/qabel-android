@@ -15,7 +15,7 @@ import de.qabel.core.http.HTTPResult;
 public class LocalQabelServiceTester extends LocalQabelService {
 
     ArrayList<byte[]> dropMessages = new ArrayList<>();
-    public static String MOCK_DB_NAME;
+    public static String MOCK_DB_NAME="mock-db";
 
     @Override
     protected void initAndroidPersistence() {

@@ -53,8 +53,11 @@ import static android.support.test.espresso.matcher.ViewMatchers.withInputType;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
 import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertNull;
+import static junit.framework.Assert.fail;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.endsWith;
+import static org.hamcrest.Matchers.is;
 
 /**
  * Tests for MainActivity.
@@ -88,8 +91,7 @@ public class CreateBoxAccountUITest extends UIBoxHelper {
         URLs.setBaseAccountingURL(TestConstants.ACCOUNTING_URL);
 
         bindService(QabelBoxApplication.getInstance());
-        createTokenIfNeeded(false);
-
+        new AppPreference(mActivity).setToken(null);
 
         wakeLock = UIActionHelper.wakeupDevice(mActivity);
         mSystemAnimations = new SystemAnimations(mActivity);
@@ -102,21 +104,60 @@ public class CreateBoxAccountUITest extends UIBoxHelper {
         new AppPreference(QabelBoxApplication.getInstance()).setToken(null);
     }
 
+    @Test
+    public void testLoginToBoxAccount() throws Throwable {
+        clearIdentities();
+        String accountName = generateUsername();
+        String accountEMail = accountName + "@example.com";
+        String password = "passwort12$";
+        String incorrectPassword = "incorrectPassword";
+        createBoxAccountWithoutUI(accountName, accountEMail, password);
+        onView(withText(R.string.login)).perform(click());
+
+        //enter incorrect credentials
+        onView(withId(R.id.et_username)).perform(typeText(accountName), pressImeActionButton());
+        onView(withId(R.id.et_password)).perform(typeText(incorrectPassword), pressImeActionButton());
+        closeKeyboard();
+
+        onView(withText(R.string.next)).perform(click());
+        UITestHelper.waitForView(R.string.ok, TestConstraints.SIMPLE_SERVER_ACTION_TIMEOUT);
+        Spoon.screenshot(UITestHelper.getCurrentActivity(mActivity), "incorrectCredentials");
+        onView(withText(R.string.ok)).perform(click());
+
+        createBoxAccountWithoutUI(accountName, accountEMail, password);
+
+        //enter correct credentials
+        onView(withId(R.id.et_password)).perform(clearText());
+        onView(withId(R.id.et_password)).perform(typeText(password), pressImeActionButton());
+        closeKeyboard();
+        Spoon.screenshot(UITestHelper.getCurrentActivity(mActivity), "credentials");
+        AppPreference appPrefs = new AppPreference(QabelBoxApplication.getInstance());
+        assertNull(appPrefs.getToken());
+
+        //check result
+        onView(withText(R.string.next)).perform(click());
+        UITestHelper.sleep(TestConstraints.SIMPLE_SERVER_ACTION_TIMEOUT);
+        assertNotNull(appPrefs.getToken());
+        assertThat(appPrefs.getAccountName(), is(accountName));
+    }
 
     @Test
-    public void createBoxAccountTest() throws Throwable {
+    public void testCreateBoxAccountTest() throws Throwable {
         clearIdentities();
         pressBack();
         onView(withText(String.format(mActivity.getString(R.string.message_step_is_needed_or_close_app), R.string.boxaccount)));
         onView(withText(R.string.no)).perform(click());
 
         onView(withText(R.string.create_box_account)).perform(click());
-        String accountName = UUID.randomUUID().toString().substring(0, 15).replace("-", "x");
+        String accountName = generateUsername();
+        String accountEMail = accountName + "@example.com";
+
         String duplicateName = "example";//example exists on server
         String failEMail = "example@example.";//incorrect email
         String duplicateEMail = "example@example.com";//email exists on server
         String failPassword = "12345678";
         String password = "passwort12$";
+
 
         createExistingUser(duplicateName, duplicateEMail, password);
         //enter name
@@ -126,15 +167,42 @@ public class CreateBoxAccountUITest extends UIBoxHelper {
         //enter email
         testEMailExists(duplicateEMail);
         testFailEmail(failEMail);
-        enterSingleLine(accountName + "@example.com", "email", true);
+        enterSingleLine(accountEMail, "email", true);
 
         //check password
         checkNumericPassword(failPassword);
         checkBadPassword(accountName, failPassword);
         checkPassword(password);
-
-        checkSuccess();
+        UITestHelper.waitForView(R.string.create_account_final_headline, TestConstraints.SIMPLE_SERVER_ACTION_TIMEOUT);
+        onView(withText(R.string.create_account_final_headline)).check(matches(isDisplayed()));
+        checkSuccess(accountName, accountEMail);
     }
+
+    private String generateUsername() {
+        return UUID.randomUUID().toString().substring(0, 15).replace("-", "x");
+    }
+
+    private void createBoxAccountWithoutUI(String accountName, String accountEMail, String password) {
+        final CountDownLatch cl = new CountDownLatch(1);
+        new BoxAccountRegisterServer().register(accountName, password, password, accountEMail, new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                fail("can't create user for login");
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                cl.countDown();
+            }
+        });
+        try {
+            cl.await();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+            assertNull(e);
+        }
+    }
+
 
     private void createExistingUser(String duplicateName, String duplicateEMail, String password) {
         final CountDownLatch cl = new CountDownLatch(1);
@@ -157,13 +225,16 @@ public class CreateBoxAccountUITest extends UIBoxHelper {
         }
     }
 
-    private void checkSuccess() throws Throwable {
+    private void checkSuccess(String accountName, String accountEmail) throws Throwable {
         onView(withText(R.string.create_account_final_headline)).check(matches(isDisplayed()));
         Spoon.screenshot(UITestHelper.getCurrentActivity(mActivity), "result");
         onView(withText(R.string.btn_create_identity)).check(matches(isDisplayed())).perform(click());
 
         onView(withText(R.string.headline_add_identity)).check(matches(isDisplayed()));
-        assertNotNull(new AppPreference(QabelBoxApplication.getInstance()).getToken());
+        AppPreference appPrefs = new AppPreference(QabelBoxApplication.getInstance());
+        assertNotNull(appPrefs.getToken());
+        assertThat(appPrefs.getAccountName(), is(accountName));
+        assertThat(appPrefs.getAccountEMail(), is(accountEmail));
     }
 
     private void checkPassword(String password) throws Throwable {
@@ -183,12 +254,9 @@ public class CreateBoxAccountUITest extends UIBoxHelper {
         onView(withText(R.string.next)).perform(click());
         Spoon.screenshot(UITestHelper.getCurrentActivity(mActivity), "password2");
 
-        waitForServer();
+
     }
 
-    private void waitForServer() {
-        UITestHelper.sleep(TestConstraints.SIMPLE_SERVER_ACTION_TIMEOUT);
-    }
 
     private void checkBadPassword(String accountName, String failPassword) throws Throwable {
         //Check accountname in password validation
@@ -227,7 +295,7 @@ public class CreateBoxAccountUITest extends UIBoxHelper {
 
     private void testFailEmail(String failEMail) throws Throwable {
         enterSingleLine(failEMail, "failEmail", true);
-        waitForServer();
+        UITestHelper.waitForView(R.string.ok, TestConstraints.SIMPLE_SERVER_ACTION_TIMEOUT);
         onView(withText(R.string.dialog_headline_info)).check(matches(isDisplayed()));
         onView(withText(R.string.ok)).check(matches(isDisplayed())).perform(click());
         onView(withId(R.id.et_name)).perform(clearText());
@@ -235,7 +303,7 @@ public class CreateBoxAccountUITest extends UIBoxHelper {
 
     private void testEMailExists(String failEMail) throws Throwable {
         enterSingleLine(failEMail, "emailExists", true);
-        waitForServer();
+        UITestHelper.waitForView(R.string.ok, TestConstraints.SIMPLE_SERVER_ACTION_TIMEOUT);
         onView(withText(R.string.dialog_headline_info)).check(matches(isDisplayed()));
         onView(withText(R.string.ok)).check(matches(isDisplayed())).perform(click());
         onView(withId(R.id.et_name)).perform(clearText());
@@ -243,7 +311,7 @@ public class CreateBoxAccountUITest extends UIBoxHelper {
 
     private void testNameExists(String failName) throws Throwable {
         enterSingleLine(failName, "nameExists", false);
-        waitForServer();
+        UITestHelper.waitForView(R.string.ok, TestConstraints.SIMPLE_SERVER_ACTION_TIMEOUT);
         onView(withText(R.string.dialog_headline_info)).check(matches(isDisplayed()));
         onView(withText(R.string.ok)).check(matches(isDisplayed())).perform(click());
         onView(withId(R.id.et_name)).perform(clearText());
@@ -264,7 +332,5 @@ public class CreateBoxAccountUITest extends UIBoxHelper {
         onView(withText(R.string.next)).perform(click());
         UITestHelper.sleep(500);
     }
-
-
 }
 

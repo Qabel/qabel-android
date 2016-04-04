@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.graphics.LightingColorFilter;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -52,6 +53,7 @@ import de.qabel.qabelbox.adapter.FilesAdapter;
 import de.qabel.qabelbox.chat.ChatServer;
 import de.qabel.qabelbox.chat.ShareHelper;
 import de.qabel.qabelbox.communication.VolumeFileTransferHelper;
+import de.qabel.qabelbox.config.AppPreference;
 import de.qabel.qabelbox.config.QabelSchema;
 import de.qabel.qabelbox.dialogs.SelectIdentityForUploadDialog;
 import de.qabel.qabelbox.exceptions.QblStorageException;
@@ -132,6 +134,8 @@ public class MainActivity extends CrashReportingActivity
     private SelectUploadFolderFragment shareFragment;
     public ChatServer chatServer;
     private ContactFragment contactFragment;
+    private LightingColorFilter mDrawerIndicatorTintFilter;
+    private TextView textViewBoxAccountName;
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -226,6 +230,7 @@ public class MainActivity extends CrashReportingActivity
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
+        self = this;
         Log.d(TAG, "onCreate " + this.hashCode());
         Intent serviceIntent = new Intent(this, LocalQabelService.class);
         mServiceConnection = getServiceConnection();
@@ -238,7 +243,8 @@ public class MainActivity extends CrashReportingActivity
         setSupportActionBar(toolbar);
         appBarMain = findViewById(R.id.app_bap_main);
         fab = (FloatingActionButton) findViewById(R.id.fab);
-        self = this;
+        mDrawerIndicatorTintFilter = new LightingColorFilter(0, getResources().getColor(R.color.tintDrawerIndicator));
+
         initFloatingActionButton();
 
         bindService(serviceIntent, mServiceConnection, Context.BIND_AUTO_CREATE);
@@ -962,6 +968,10 @@ public class MainActivity extends CrashReportingActivity
 
         // Map QR-Code indent to alias textview in nav_header_main
         textViewSelectedIdentity = (TextView) navigationView.findViewById(R.id.textViewSelectedIdentity);
+        textViewBoxAccountName = (TextView) navigationView.findViewById(R.id.accountName);
+        String boxName = new AppPreference(self).getAccountName();
+        textViewBoxAccountName.setText(boxName != null ? boxName : getString(R.string.app_name));
+
         findViewById(R.id.qabelLogo).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -972,17 +982,21 @@ public class MainActivity extends CrashReportingActivity
         });
 
         imageViewExpandIdentity = (ImageView) navigationView.findViewById(R.id.imageViewExpandIdentity);
+        imageViewExpandIdentity.setColorFilter(mDrawerIndicatorTintFilter);
+
         findViewById(R.id.select_identity_layout).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
                 if (identityMenuExpanded) {
                     imageViewExpandIdentity.setImageResource(R.drawable.ic_arrow_drop_down_black);
+                    imageViewExpandIdentity.setColorFilter(mDrawerIndicatorTintFilter);
                     navigationView.getMenu().clear();
                     navigationView.inflateMenu(R.menu.activity_main_drawer);
                     identityMenuExpanded = false;
                 } else {
                     imageViewExpandIdentity.setImageResource(R.drawable.ic_arrow_drop_up_black);
+                    imageViewExpandIdentity.setColorFilter(mDrawerIndicatorTintFilter);
                     navigationView.getMenu().clear();
                     List<Identity> identityList = new ArrayList<>(
                             mService.getIdentities().getIdentities());

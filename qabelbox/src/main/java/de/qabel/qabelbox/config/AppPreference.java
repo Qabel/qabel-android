@@ -10,6 +10,8 @@ public class AppPreference {
 
     private final SharedPreferences settings;
     private final String P_TOKEN = "token";
+    private final String P_ACCOUNT_NAME = "boxaccount";
+    private final String P_ACCOUNT_EMAIL = "boxemail";
     private final String P_LAST_APP_START_VERSION = "lastappstartversion";
     private final String P_LAST_APP_UPDATE_QUESTION_TIME = "lastupdatequestiontime";
     private final String P_WELCOME_SCREEN_SHOWN_AT = "welcomescreenshownat";
@@ -28,6 +30,26 @@ public class AppPreference {
     public String getToken() {
 
         return settings.getString(P_TOKEN, null);
+    }
+
+    public void setAccountName(String name) {
+
+        settings.edit().putString(P_ACCOUNT_NAME, name).commit();
+    }
+
+    public String getAccountName() {
+
+        return settings.getString(P_ACCOUNT_NAME, null);
+    }
+
+    public void setAccountEMail(String email) {
+
+        settings.edit().putString(P_ACCOUNT_EMAIL, email).commit();
+    }
+
+    public String getAccountEMail() {
+
+        return settings.getString(P_ACCOUNT_EMAIL, null);
     }
 
     public int getLastAppStartVersion() {

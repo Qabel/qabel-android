@@ -112,7 +112,7 @@ public class WelcomeScreenUITest {
         onView(withId(pagerId)).perform(swipeLeft());
         onView(withId(pagerId)).perform(swipeLeft());
         onView(withId(pagerId)).perform(swipeLeft());
-
+        UITestHelper.sleep(2000);
         Spoon.screenshot(mActivity, "disclaimer_main");
 
         //click privacy

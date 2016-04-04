@@ -31,7 +31,7 @@ android {
         versionCode System.getenv("BUILD_NUMBER") as Integer ?: 5
         versionName "0.5." + (System.getenv("BUILD_NUMBER") as Integer ?: 0)
         //junit test
-        testInstrumentationRunner "de.qabel.qabelbox.QblJUnitRunner"
+        //testInstrumentationRunner "de.qabel.qabelbox.QblJUnitRunner"
         //ui tests
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 

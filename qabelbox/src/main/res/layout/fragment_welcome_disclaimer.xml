@@ -4,14 +4,11 @@
               android:layout_height="match_parent"
               android:layout_marginTop="@dimen/padding_welcome_text_top"
               android:background="@color/bg_welcome_semitransparent"
-              android:orientation="vertical"
-    >
+              android:orientation="vertical">
 
     <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-
-        >
+        android:layout_height="match_parent">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -19,9 +16,7 @@
             android:layout_gravity="center_vertical"
             android:gravity="center_horizontal"
             android:orientation="vertical"
-            android:paddingTop="@dimen/padding_welcome_text_top"
-            android:layout_marginTop="25dp"
-            >
+            android:paddingTop="@dimen/padding_welcome_text_top">
 
             <LinearLayout
                 android:layout_width="wrap_content"
@@ -35,6 +30,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_horizontal|bottom"
                     android:gravity="left"
+                    android:paddingRight="10dp"
                     android:paddingBottom="20dp"
                     android:text="@string/message_welcome_qabel_big"
                     android:textColor="@color/white"
@@ -133,6 +129,7 @@
                     android:gravity="left"
                     android:text="@string/message_welcome_qabel_big"
                     android:textColor="@color/white"
+                    android:padding="5dp"
                     android:textSize="@dimen/textsize_qabel_logo"
                     android:textStyle="normal"/>
 

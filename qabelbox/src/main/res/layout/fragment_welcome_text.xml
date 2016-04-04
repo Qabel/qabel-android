@@ -44,6 +44,7 @@
                     android:textColor="@color/white"
                     android:textSize="@dimen/textsize_qabel_logo"
                     android:textStyle="normal"
+                    android:paddingRight="10dp"
                     android:paddingBottom="20dp"/>
 
                 <de.qabel.qabelbox.views.TextViewFont

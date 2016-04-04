@@ -3,6 +3,7 @@ package de.qabel.qabelbox.storage;
 
 import android.content.Context;
 import android.test.AndroidTestCase;
+import android.util.Log;
 
 import org.apache.commons.io.IOUtils;
 import org.junit.Assert;
@@ -448,12 +449,15 @@ public class BoxTest extends AndroidTestCase {
     @Test
 	public void testFileNameConflict() throws QblStorageException, FileNotFoundException, QblStorageNameConflict {
 		BoxNavigation nav = volume.navigate();
-        nav.createFolder("foobar");
-        try {
+		nav.createFolder("foobar");
+		try {
             nav.upload("foobar", new FileInputStream(new File(testFileName)), null);
         } catch (QblStorageNameConflict e) {
-            return;
-        }
+			return; // This is expected
+		} catch (Exception e) {
+			Log.e("testFileNameConflict", "Cought exception", e);
+			fail("Unexpected exception " + e);
+		}
 		fail("QblStorageNameConflict");
 	}
 

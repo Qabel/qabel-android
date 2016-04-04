@@ -20,6 +20,7 @@ import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.activities.MainActivity;
 import de.qabel.qabelbox.dialogs.SelectContactForShareDialog;
 import de.qabel.qabelbox.exceptions.QblStorageException;
+import de.qabel.qabelbox.exceptions.QblStorageNameConflict;
 import de.qabel.qabelbox.helper.UIHelper;
 import de.qabel.qabelbox.services.LocalQabelService;
 import de.qabel.qabelbox.storage.BoxExternalReference;
@@ -118,8 +119,10 @@ public class ShareHelper {
                     return cs.getShareDropMessage(boxExternalReference.name, boxExternalReference.url, Hex.toHexString(boxExternalReference.key));
                 } catch (QblStorageException e) {
                     e.printStackTrace();
-                }
-                return null;
+				} catch (QblStorageNameConflict e) {
+					Log.e(TAG, "Could not share", e);
+				}
+				return null;
             }
 
             @Override

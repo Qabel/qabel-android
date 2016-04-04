@@ -46,11 +46,11 @@ public class DirectoryMetadataTest extends TestCase {
     }
 
     @Test
-    public void testFileOperations() throws QblStorageException {
-        BoxFile file = new BoxFile("prefix", "block", "name", 0L, 0L, new byte[]{1, 2,}, "metablock", new byte[]{0x03, 0x04});
-        dm.insertFile(file);
-        assertThat(dm.listFiles().size(), is(1));
-        assertThat(file, equalTo(dm.listFiles().get(0)));
+	public void testFileOperations() throws QblStorageException, QblStorageNameConflict {
+		BoxFile file = new BoxFile("prefix", "block", "name", 0L, 0L, new byte[]{1, 2,}, "metablock", new byte[]{0x03, 0x04});
+		dm.insertFile(file);
+		assertThat(dm.listFiles().size(), is(1));
+		assertThat(file, equalTo(dm.listFiles().get(0)));
         assertThat(file, is(dm.getFile("name")));
         dm.deleteFile(file);
         assertThat(dm.listFiles().size(), is(0));

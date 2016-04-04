@@ -45,7 +45,7 @@ public interface BoxNavigation {
 
     InputStream download(BoxFile file, @Nullable TransferManager.BoxTransferListener boxTransferListener) throws QblStorageException;
 
-    BoxExternalReference createFileMetadata(QblECPublicKey owner, BoxFile boxFile) throws QblStorageException;
+	BoxExternalReference createFileMetadata(QblECPublicKey owner, BoxFile boxFile) throws QblStorageException, QblStorageNameConflict;
 
     boolean updateFileMetadata(BoxFile boxFile);
 

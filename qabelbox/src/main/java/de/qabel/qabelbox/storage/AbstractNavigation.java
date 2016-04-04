@@ -260,8 +260,13 @@ public abstract class AbstractNavigation implements BoxNavigation {
                 local.name = conflictName(local);
                 // try again until we get no name clash
                 handleConflict(update);
-            }
-        } else if (newFile.equals(update.old)) {
+			} catch (QblStorageNameConflict e) {
+				// name clash with a folder or external
+				local.name = conflictName(local);
+				// try again until we get no name clash
+				handleConflict(update);
+			}
+		} else if (newFile.equals(update.old)) {
             logger.info("No conflict for the file " + local.name);
         } else {
             logger.info("Inserting conflict marked file");
@@ -270,9 +275,14 @@ public abstract class AbstractNavigation implements BoxNavigation {
                 dm.deleteFile(update.old);
             }
             if (dm.getFile(local.name) == null) {
-                dm.insertFile(local);
-            }
-        }
+				try {
+					dm.insertFile(local);
+				} catch (QblStorageNameConflict qblStorageNameConflict) {
+					// Should be unreachable
+					throw new QblStorageException("Could not insert due to a name conflict", qblStorageNameConflict);
+				}
+			}
+		}
     }
 
     private String conflictName(BoxFile local) {
@@ -362,8 +372,8 @@ public abstract class AbstractNavigation implements BoxNavigation {
 
     @Override
     public BoxFile upload(String name, InputStream content,
-                          @Nullable TransferManager.BoxTransferListener boxTransferListener) throws QblStorageException {
-        KeyParameter key = cryptoUtils.generateSymmetricKey();
+						  @Nullable TransferManager.BoxTransferListener boxTransferListener) throws QblStorageException, QblStorageNameConflict {
+		KeyParameter key = cryptoUtils.generateSymmetricKey();
         String block = UUID.randomUUID().toString();
         BoxFile boxFile = new BoxFile(prefix, block, name, null, 0L, key.getKey());
         SimpleEntry<Long, Long> mtimeAndSize = uploadEncrypted(content, key, prefix, BLOCKS_PREFIX + block, boxTransferListener);
@@ -427,7 +437,7 @@ public abstract class AbstractNavigation implements BoxNavigation {
      * @return True if FileMetadata has successfully created and uploaded.
      */
     @Override
-    public BoxExternalReference createFileMetadata(QblECPublicKey owner, BoxFile boxFile) throws QblStorageException {
+	public BoxExternalReference createFileMetadata(QblECPublicKey owner, BoxFile boxFile) throws QblStorageException, QblStorageNameConflict {
 
         if (boxFile.meta != null || boxFile.metakey != null) {
             return new BoxExternalReference(false,
@@ -505,9 +515,14 @@ public abstract class AbstractNavigation implements BoxNavigation {
             if (oldFile != null) {
                 dm.deleteFile(oldFile);
             }
-            dm.insertFile(boxFile);
-            reloadMetadata();
-        } catch (QblStorageException e) {
+			try {
+				dm.insertFile(boxFile);
+			} catch (QblStorageNameConflict qblStorageNameConflict) {
+				// Should be unreachable
+				Log.w(TAG, "Could not overwrite " + oldFile + " with " + boxFile + ". Just deleted " + oldFile);
+			}
+			reloadMetadata();
+		} catch (QblStorageException e) {
             Log.e(TAG, "error until reload metadata", e);
         }
         return true;
@@ -623,8 +638,8 @@ public abstract class AbstractNavigation implements BoxNavigation {
     }
 
     @Override
-    public BoxFile rename(BoxFile file, String name) throws QblStorageException {
-        dm.deleteFile(file);
+	public BoxFile rename(BoxFile file, String name) throws QblStorageException, QblStorageNameConflict {
+		dm.deleteFile(file);
         file.name = name;
         dm.insertFile(file);
         updateFileMetadata(file);

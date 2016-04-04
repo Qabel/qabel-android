@@ -369,11 +369,11 @@ class DirectoryMetadata {
     }
 
 
-    void insertFile(BoxFile file) throws QblStorageException {
-        int type = isA(file.name);
+	void insertFile(BoxFile file) throws QblStorageException, QblStorageNameConflict {
+		int type = isA(file.name);
         if ((type != TYPE_NONE) && (type != TYPE_FILE)) {
-            throw new QblStorageException(file.name);
-        }
+			throw new QblStorageNameConflict("Expected " + file.name + " to be a file, but existing type is different");
+		}
         PreparedStatement st = null;
         try {
             st = connection.prepareStatement(

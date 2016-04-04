@@ -3,7 +3,7 @@
     <item
         android:id="@+id/open"
         android:title="@string/Open"
-        android:icon="@drawable/ic_attach_file_black"/>
+        android:icon="@drawable/ic_open_in_new_24dp"/>
     <item
         android:id="@+id/edit"
         android:title="@string/edit"
@@ -27,5 +27,5 @@
     <item
         android:id="@+id/export"
         android:title="@string/Export"
-        android:icon="@drawable/ic_attach_file_black"/>
+        android:icon="@drawable/ic_export"/>
 </menu>

@@ -177,7 +177,7 @@
 
         <provider
             android:name=".services.QabelContentProvider"
-            android:authorities=".services.QabelContentProvider"
+            android:authorities="${applicationId}.services.QabelContentProvider"
             android:exported="true"
             android:readPermission=".QABEL_READ_RESOURCES"
             android:writePermission=".QABEL_WRITE_RESOURCES">

@@ -803,7 +803,10 @@ public class MainActivity extends CrashReportingActivity
             public void onItemLockClick(View view, final int position) {
 
                 final BoxObject boxObject = filesFragment.getFilesAdapter().get(position);
-                BottomSheet.Builder sheet = new BottomSheet.Builder(self).title(boxObject.name).sheet(R.menu.bottom_sheet_files)
+                BottomSheet.Builder sheet = new BottomSheet.Builder(self)
+                        .title(boxObject.name)
+                        .icon((boxObject instanceof BoxFolder ? R.drawable.ic_folder_black : R.drawable.ic_insert_drive_file_black))
+                        .sheet(R.menu.bottom_sheet_files)
                         .listener(new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {

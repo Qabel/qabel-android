@@ -23,7 +23,6 @@ import java.io.IOException;
 
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
-import de.qabel.qabelbox.TestConstants;
 import de.qabel.qabelbox.activities.CreateIdentityActivity;
 import de.qabel.qabelbox.communication.URLs;
 import de.qabel.qabelbox.config.AppPreference;
@@ -60,6 +59,7 @@ import static org.hamcrest.Matchers.is;
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class CreateIdentityUITest extends UIBoxHelper {
 
+    private static final String TOKEN = "IAMAFAKETOKEN";
     @Rule
     public ActivityTestRule<CreateIdentityActivity> mActivityTestRule = new ActivityTestRule<>(CreateIdentityActivity.class, false, true);
 
@@ -80,12 +80,15 @@ public class CreateIdentityUITest extends UIBoxHelper {
     @Before
     public void setUp() throws IOException, QblStorageException {
 
-        mActivity = mActivityTestRule.getActivity();
+		mActivity = mActivityTestRule.getActivity();
+		URLs.setBaseBlockURL(mActivity.getString(R.string.testBlockServer));
 
-        URLs.setBaseBlockURL(TestConstants.BLOCK_URL);
-        URLs.setBaseAccountingURL(TestConstants.ACCOUNTING_URL);
+        createTokenIfNeeded(false);
 
-        new AppPreference(mActivity).setToken(TestConstants.TOKEN);
+        URLs.setBaseBlockURL(mActivity.getResources().getString(R.string.testBlockServer));
+        URLs.setBaseAccountingURL(mActivity.getResources().getString(R.string.testAccountingServer));
+
+        new AppPreference(mActivity).setToken(TOKEN);
         bindService(QabelBoxApplication.getInstance());
 
         removeAllIdentities();

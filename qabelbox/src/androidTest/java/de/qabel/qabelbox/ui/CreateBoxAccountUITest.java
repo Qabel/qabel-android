@@ -23,7 +23,6 @@ import java.util.concurrent.CountDownLatch;
 
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
-import de.qabel.qabelbox.TestConstants;
 import de.qabel.qabelbox.TestConstraints;
 import de.qabel.qabelbox.activities.CreateAccountActivity;
 import de.qabel.qabelbox.communication.BoxAccountRegisterServer;
@@ -75,27 +74,26 @@ public class CreateBoxAccountUITest extends UIBoxHelper {
     private SystemAnimations mSystemAnimations;
 
 
-    @After
-    public void cleanUp() {
 
-        wakeLock.release();
-        mSystemAnimations.enableAll();
-        unbindService(QabelBoxApplication.getInstance());
-    }
 
 
     @Before
     public void setUp() throws IOException, QblStorageException {
 
         mActivity = mActivityTestRule.getActivity();
-        URLs.setBaseAccountingURL(TestConstants.ACCOUNTING_URL);
-
-        bindService(QabelBoxApplication.getInstance());
-        new AppPreference(mActivity).setToken(null);
+        URLs.setBaseBlockURL(mActivity.getString(R.string.testBlockServer));
+        createTokenIfNeeded(false);
 
         wakeLock = UIActionHelper.wakeupDevice(mActivity);
         mSystemAnimations = new SystemAnimations(mActivity);
         mSystemAnimations.disableAll();
+    }
+
+    @After
+    public void cleanUp() {
+
+        wakeLock.release();
+        mSystemAnimations.enableAll();
     }
 
 

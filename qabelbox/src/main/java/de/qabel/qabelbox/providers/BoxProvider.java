@@ -116,10 +116,14 @@ public class BoxProvider extends DocumentsProvider {
                 KEEP_ALIVE_TIME_UNIT,
                 new LinkedBlockingDeque<Runnable>());
 
-        QabelBoxApplication.boxProvider = this;
+        staticBindToApplication();
 
         folderContentCache = new HashMap<>();
         return true;
+    }
+
+    void staticBindToApplication() {
+        QabelBoxApplication.boxProvider = this;
     }
 
     void bindToService(Context context) {

@@ -1,4 +1,3 @@
-/*
 package de.qabel.qabelbox.providers;
 
 import android.annotation.TargetApi;
@@ -259,4 +258,3 @@ public class BoxProviderTest extends MockedBoxProviderTest {
     }
 
 }
-*/

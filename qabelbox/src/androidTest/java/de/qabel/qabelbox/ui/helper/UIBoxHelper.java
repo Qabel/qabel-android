@@ -170,6 +170,7 @@ public class UIBoxHelper {
 
     private void initBoxVolume(Identity activeIdentity) throws QblStorageException {
 
+        provider.setLocalService(mService);
         mBoxVolume = provider.getVolumeForRoot(
                 activeIdentity.getEcPublicKey().getReadableKeyIdentifier(),
                 VolumeFileTransferHelper.getPrefixFromIdentity(activeIdentity));

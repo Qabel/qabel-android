@@ -54,7 +54,7 @@ public abstract class MockedBoxProviderTest extends InstrumentationTestCase {
 
     private void initMockContext() {
         mockProvider = new MockBoxProvider();
-        mockProvider.mockBindToService(getContext());
+        mockProvider.mockBindToService(getInstrumentation().getTargetContext());
         mockContentResolver = new MockContentResolver();
         mockContentResolver.addProvider(BoxProvider.AUTHORITY, mockProvider);
 

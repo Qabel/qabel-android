@@ -37,7 +37,6 @@ public class MockBoxProvider extends BoxProvider {
     @Override
     void bindToService(final Context context) {
         setParametersForTests();
-        initServiceForTests(context);
         attachInfoForTests(context);
     }
 
@@ -58,11 +57,6 @@ public class MockBoxProvider extends BoxProvider {
         identity.setPrefixes(prefixes);
     }
 
-    private void initServiceForTests(Context context) {
-        mService = new MockedLocalQabelService(context);
-        mService.onCreate();
-    }
-
     private void attachInfoForTests(Context context) {
         ProviderInfo info = new ProviderInfo();
         info.authority = AUTHORITY;
@@ -77,6 +71,8 @@ public class MockBoxProvider extends BoxProvider {
     private class MockedLocalQabelService extends LocalQabelService {
 
         private final Context context;
+
+        protected static final String TEST_DB_NAME = "qabel-service-test";
 
         public MockedLocalQabelService(Context context) {
             this.context = context;
@@ -104,7 +100,7 @@ public class MockBoxProvider extends BoxProvider {
         @Override
         protected void initAndroidPersistence() {
             AndroidPersistence androidPersistence;
-            QblSQLiteParams params = new QblSQLiteParams(context, DB_NAME, null, DB_VERSION);
+            QblSQLiteParams params = new QblSQLiteParams(context, TEST_DB_NAME, null, DB_VERSION);
             try {
                 androidPersistence = new AndroidPersistence(params);
             } catch (QblInvalidEncryptionKeyException e) {

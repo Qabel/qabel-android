@@ -1047,7 +1047,7 @@ public class MainActivity extends CrashReportingActivity
                             });
                     navigationView.getMenu()
                             .add(NAV_GROUP_IDENTITY_ACTIONS, Menu.NONE, Menu.NONE, R.string.logout)
-                            .setIcon(R.drawable.ic_settings_black)
+                            .setIcon(R.drawable.account_off)
                             .setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
                                 @Override
                                 public boolean onMenuItemClick(MenuItem item) {

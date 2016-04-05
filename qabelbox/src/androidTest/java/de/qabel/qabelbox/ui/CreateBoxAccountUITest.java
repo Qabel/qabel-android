@@ -23,7 +23,6 @@ import de.qabel.core.config.Identities;
 import de.qabel.core.config.Identity;
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
-import de.qabel.qabelbox.TestConstants;
 import de.qabel.qabelbox.TestConstraints;
 import de.qabel.qabelbox.activities.CreateAccountActivity;
 import de.qabel.qabelbox.communication.URLs;
@@ -80,7 +79,7 @@ public class CreateBoxAccountUITest {
 	public void setUp() throws IOException, QblStorageException {
 
 		mActivity = mActivityTestRule.getActivity();
-		URLs.setBaseBlockURL(TestConstants.BLOCK_URL);
+		URLs.setBaseBlockURL(mActivity.getString(R.string.testBlockServer));
 		mBoxHelper = new UIBoxHelper(QabelBoxApplication.getInstance());
 		mBoxHelper.bindService(QabelBoxApplication.getInstance());
 		mBoxHelper.createTokenIfNeeded(false);

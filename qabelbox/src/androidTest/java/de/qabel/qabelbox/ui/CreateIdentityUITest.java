@@ -7,7 +7,6 @@ package de.qabel.qabelbox.ui;
 import android.os.PowerManager;
 import android.support.design.internal.NavigationMenuItemView;
 import android.support.test.rule.ActivityTestRule;
-import android.test.FlakyTest;
 import android.widget.SeekBar;
 
 import com.squareup.spoon.Spoon;
@@ -26,7 +25,6 @@ import de.qabel.core.config.Identities;
 import de.qabel.core.config.Identity;
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
-import de.qabel.qabelbox.TestConstants;
 import de.qabel.qabelbox.activities.CreateIdentityActivity;
 import de.qabel.qabelbox.communication.URLs;
 import de.qabel.qabelbox.exceptions.QblStorageException;
@@ -86,7 +84,7 @@ public class CreateIdentityUITest {
 	public void setUp() throws IOException, QblStorageException {
 
 		mActivity = mActivityTestRule.getActivity();
-		URLs.setBaseBlockURL(TestConstants.BLOCK_URL);
+		URLs.setBaseBlockURL(mActivity.getString(R.string.testBlockServer));
 		mBoxHelper = new UIBoxHelper(QabelBoxApplication.getInstance());
 		mBoxHelper.bindService(QabelBoxApplication.getInstance());
 		mBoxHelper.createTokenIfNeeded(false);

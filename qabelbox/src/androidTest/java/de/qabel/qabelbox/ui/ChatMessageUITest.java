@@ -29,7 +29,6 @@ import java.io.IOException;
 import de.qabel.core.config.Identity;
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
-import de.qabel.qabelbox.TestConstants;
 import de.qabel.qabelbox.activities.MainActivity;
 import de.qabel.qabelbox.communication.URLs;
 import de.qabel.qabelbox.config.ContactExportImport;
@@ -110,8 +109,8 @@ public class ChatMessageUITest {
 	}
 
 	private void setupData() {
-		URLs.setBaseBlockURL(TestConstants.BLOCK_URL);
 		mActivity = mActivityTestRule.getActivity();
+		URLs.setBaseBlockURL(mActivity.getString(R.string.testBlockServer));
 		mBoxHelper = new UIBoxHelper(QabelBoxApplication.getInstance());
 		mBoxHelper.bindService(QabelBoxApplication.getInstance());
 		mBoxHelper.createTokenIfNeeded(false);
@@ -166,7 +165,7 @@ public class ChatMessageUITest {
 		onView(allOf(withText(R.string.Contacts), withParent(withClassName(endsWith("MenuView")))))
 				.perform(click());
 		Spoon.screenshot(mActivity, "contacts");
-		
+
 		onView(withId(R.id.contact_list))
 				.perform(RecyclerViewActions.actionOnItem(
 						hasDescendant(withText("user1")), click()));

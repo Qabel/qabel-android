@@ -26,6 +26,7 @@ public class LocalQabelServiceTest extends ServiceTestCase<LocalQabelServiceTest
     private LocalQabelServiceTester mService;
     private Identity identity;
     private Contact contact;
+    protected static final String DB_NAME = "qabel-service-test";
 
     public LocalQabelServiceTest() {
         super(LocalQabelServiceTester.class);
@@ -34,7 +35,7 @@ public class LocalQabelServiceTest extends ServiceTestCase<LocalQabelServiceTest
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        getContext().deleteDatabase(LocalQabelServiceTester.DB_NAME);
+        getContext().deleteDatabase(LocalQabelServiceTester.MOCK_DB_NAME);
         Intent intent = new Intent(getContext(), LocalQabelServiceTester.class);
         startService(intent);
         this.mService = getService();

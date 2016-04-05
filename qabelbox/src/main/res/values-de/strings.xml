@@ -292,5 +292,5 @@ Den Unterstützern der Indigogo Kampagne
 
     <string name="cant_import_file_type_is_unknown">Datei konnte nicht importiert werden, da der Typ unbekannt ist.</string>
     <string name="idenity_imported">Identität erfolgreich importiert</string>
-    <string name="logout">logout</string>
+    <string name="logout">Abmelden von Konto</string>
 </resources>

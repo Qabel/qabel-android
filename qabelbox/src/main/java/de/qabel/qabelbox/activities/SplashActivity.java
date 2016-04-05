@@ -73,24 +73,24 @@ public class SplashActivity extends CrashReportingActivity {
     private void startDelayedHandler() {
 
         new Handler().postDelayed(new Runnable() {
-                                      @Override
-                                      public void run() {
+            @Override
+            public void run() {
 
-                                          if (prefs.getWelcomeScreenShownAt() == 0) {
-                                              Intent intent = new Intent(mActivity, WelcomeScreenActivity.class);
-                                              startActivity(intent);
-                                              overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
-                                              finish();
-                                          } else if (!Sanity.startWizardActivities(mActivity)) {
+                if (prefs.getWelcomeScreenShownAt() == 0) {
+                    Intent intent = new Intent(mActivity, WelcomeScreenActivity.class);
+                    startActivity(intent);
+                    overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+                    finish();
+                } else if (!Sanity.startWizardActivities(mActivity)) {
 
-                                              Intent intent = new Intent(mActivity, MainActivity.class);
-                                              intent.setAction("");
-                                              startActivity(intent);
-                                              overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
-                                              finish();
-                                          }
-                                      }
-                                  }
+                    Intent intent = new Intent(mActivity, MainActivity.class);
+                    intent.setAction("");
+                    startActivity(intent);
+                    overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+                    finish();
+                }
+            }
+        }
                 , SPLASH_TIME);
     }
 }

@@ -211,7 +211,7 @@ public class FileSearchUITest {
         onView(withId(R.id.action_search)).perform(click());
         onView(withHint(R.string.ab_filesearch_hint)).perform(typeText(text), pressImeActionButton());
         closeSoftKeyboard();
-        UITestHelper.sleep(800);
+        UITestHelper.sleep(500);
         onView(withId(R.id.action_ok)).check(matches(isDisplayed())).perform(click());
         ((SeekBar) mActivity.findViewById(R.id.sbFileSizeMin)).setProgress(fileSizeMin);
         ((SeekBar) mActivity.findViewById(R.id.sbFileSizeMax)).setProgress(fileSizeMax);

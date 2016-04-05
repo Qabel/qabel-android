@@ -25,6 +25,7 @@ import de.qabel.qabelbox.config.AppPreference;
 import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.ui.helper.SystemAnimations;
 import de.qabel.qabelbox.ui.helper.UIActionHelper;
+import de.qabel.qabelbox.ui.helper.UITestHelper;
 import de.qabel.qabelbox.ui.matcher.QabelMatcher;
 
 import static android.support.test.espresso.Espresso.onView;
@@ -113,8 +114,9 @@ public class WelcomeScreenUITest {
         onView(withId(pagerId)).perform(swipeLeft());
 
         Spoon.screenshot(mActivity, "disclaimer_main");
+
         //click privacy
-        onView(withId(R.id.btn_show_privacy)).check(matches(isDisplayed())).perform(click());
+        UITestHelper.waitForView(R.id.btn_show_privacy,1500).check(matches(isDisplayed())).perform(click());
         Spoon.screenshot(mActivity, "privacy");
         pressBack();
         onView(withText(R.string.message_welcome_disclaimer_headline)).check(matches(isDisplayed()));

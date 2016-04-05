@@ -1,25 +1,20 @@
 package de.qabel.qabelbox.helper;
 
 import android.app.Activity;
-import android.content.ContentResolver;
 import android.content.Context;
 import android.net.Uri;
 import android.os.ParcelFileDescriptor;
-import android.provider.DocumentsProvider;
-import android.support.test.rule.ActivityTestRule;
 import android.test.InstrumentationTestCase;
 import android.test.mock.MockContentResolver;
 
 import org.junit.Before;
-import org.junit.Rule;
 
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
 import de.qabel.qabelbox.QabelBoxApplication;
-import de.qabel.qabelbox.R;
-import de.qabel.qabelbox.activities.CreateIdentityActivity;
+import de.qabel.qabelbox.TestConstants;
 import de.qabel.qabelbox.communication.URLs;
 import de.qabel.qabelbox.config.AppPreference;
 import de.qabel.qabelbox.exceptions.QblStorageException;
@@ -51,9 +46,8 @@ public abstract class MockedBoxProviderTest extends InstrumentationTestCase {
 
     protected void configureTestServer() {
 
-        new AppPreference(getContext())
-                .setToken(getContext().getString(R.string.blockserver_magic_testtoken));
-        URLs.setBaseBlockURL(getContext().getString(R.string.testBlockServer));
+        new AppPreference(QabelBoxApplication.getInstance()).setToken(TestConstants.TOKEN);
+        URLs.setBaseBlockURL(TestConstants.BLOCK_URL);
 
 
     }

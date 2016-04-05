@@ -25,7 +25,7 @@ public class Sanity {
 
         AppPreference prefs = new AppPreference(activity);
 
-        if (prefs.getToken() == null) {
+        if (prefs.getToken() == null || prefs.getAccountName() == null) {
             Intent intent = new Intent(activity, CreateAccountActivity.class);
             intent.putExtra(BaseWizardActivity.FIRST_RUN, true);
             activity.startActivity(intent);

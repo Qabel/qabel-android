@@ -14,6 +14,7 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 
+import de.qabel.core.config.Identities;
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.communication.BoxAccountRegisterServer;
@@ -26,6 +27,7 @@ import de.qabel.qabelbox.fragments.CreateAccountPasswordFragment;
 import de.qabel.qabelbox.fragments.CreateIdentityEditTextFragment;
 import de.qabel.qabelbox.helper.Formatter;
 import de.qabel.qabelbox.helper.UIHelper;
+import de.qabel.qabelbox.services.LocalQabelService;
 import okhttp3.Call;
 import okhttp3.Response;
 
@@ -188,19 +190,19 @@ public class CreateAccountActivity extends BaseWizardActivity {
             void showRetryDialog() {
 
                 UIHelper.showDialogMessage(mActivity, R.string.dialog_headline_info, R.string.server_access_not_successfully_retry_question, R.string.yes, R.string.no, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
 
-                                register(username, password1, password2, email);
-                            }
-                        }
+                        register(username, password1, password2, email);
+                    }
+                }
                         , new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
 
-                                dialog.dismiss();
-                            }
-                        });
+                        dialog.dismiss();
+                    }
+                });
             }
 
             protected void onError(final Call call, Reasons reasons) {
@@ -226,7 +228,10 @@ public class CreateAccountActivity extends BaseWizardActivity {
 
                 if (result.token != null && result.token.length() > 5) {
                     Log.d(TAG, "store token");
-                    new AppPreference(mActivity).setToken(result.token);
+                    AppPreference appPrefs = new AppPreference(mActivity);
+                    appPrefs.setToken(result.token);
+                    appPrefs.setAccountName(mBoxAccountName);
+                    appPrefs.setAccountEMail(mBoxAccountEMail);
                     showNextUIThread(dialog);
                 } else {
                     String errorText = generateErrorMessage(result);
@@ -294,7 +299,13 @@ public class CreateAccountActivity extends BaseWizardActivity {
         super.updateActionBar(step);
         //override next button text with create identity
         if (step == fragments.length - 1) {
-            mActionNext.setTitle(R.string.btn_create_identity);
+            LocalQabelService service = QabelBoxApplication.getInstance().getService();
+            Identities identities = service.getIdentities();
+            if (identities == null || identities.getIdentities().size() == 0) {
+                mActionNext.setTitle(R.string.btn_create_identity);
+            } else {
+                mActionNext.setTitle(R.string.finish);
+            }
         }
     }
 

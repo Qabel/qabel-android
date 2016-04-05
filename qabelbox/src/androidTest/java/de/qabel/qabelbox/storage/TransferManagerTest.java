@@ -15,7 +15,7 @@ import java.io.IOException;
 import java.util.UUID;
 
 import de.qabel.qabelbox.QabelBoxApplication;
-import de.qabel.qabelbox.R;
+import de.qabel.qabelbox.TestConstants;
 import de.qabel.qabelbox.config.AppPreference;
 import de.qabel.qabelbox.exceptions.QblServerException;
 import de.qabel.qabelbox.exceptions.QblStorageException;
@@ -31,7 +31,7 @@ public class TransferManagerTest extends AndroidTestCase {
     TransferManager transferManager;
 
     public void configureTestServer() {
-        new AppPreference(QabelBoxApplication.getInstance().getApplicationContext()).setToken(QabelBoxApplication.getInstance().getApplicationContext().getString(R.string.blockserver_magic_testtoken));
+        new AppPreference(QabelBoxApplication.getInstance()).setToken(TestConstants.TOKEN);
     }
 
     @Before

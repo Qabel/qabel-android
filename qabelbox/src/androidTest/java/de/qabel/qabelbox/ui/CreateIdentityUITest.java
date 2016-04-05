@@ -48,6 +48,7 @@ import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static android.support.test.espresso.matcher.ViewMatchers.withClassName;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
+import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNull;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.Matchers.allOf;
@@ -153,6 +154,12 @@ public class CreateIdentityUITest extends UIBoxHelper {
                 .perform(click());
         onView(withId(R.id.bt_login)).check(matches(isDisplayed()));
         assertHasNoCredentials();
+        assertHasNoIdentities();
+    }
+
+    private void assertHasNoIdentities() {
+        removeAllIdentities();
+        assertEquals(0, queryIdentities().size());
     }
 
     private void assertHasNoCredentials() {

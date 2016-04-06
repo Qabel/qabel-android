@@ -1045,6 +1045,18 @@ public class MainActivity extends CrashReportingActivity
                                     return true;
                                 }
                             });
+                    navigationView.getMenu()
+                            .add(NAV_GROUP_IDENTITY_ACTIONS, Menu.NONE, Menu.NONE, R.string.logout)
+                            .setIcon(R.drawable.account_off)
+                            .setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+                                @Override
+                                public boolean onMenuItemClick(MenuItem item) {
+
+                                    drawer.closeDrawer(GravityCompat.START);
+                                    performLogout();
+                                    return true;
+                                }
+                            });
                     identityMenuExpanded = true;
                 }
             }
@@ -1075,6 +1087,18 @@ public class MainActivity extends CrashReportingActivity
 
             }
         });
+    }
+
+    private void performLogout() {
+        mService.logout();
+        swapWithCreateAccountActivity();
+    }
+
+    private void swapWithCreateAccountActivity() {
+        Intent intent = new Intent(self, CreateAccountActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_TASK_ON_HOME);
+        startActivity(intent);
+        finish();
     }
 
     public static void showQRCode(MainActivity activity, Identity identity) {

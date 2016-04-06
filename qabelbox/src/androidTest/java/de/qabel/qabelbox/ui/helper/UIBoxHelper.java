@@ -248,16 +248,18 @@ public class UIBoxHelper {
     public static void clearToken() {
         Context applicationContext = QabelBoxApplication.getInstance().getApplicationContext();
         AppPreference prefs = new AppPreference(applicationContext);
-
         prefs.setToken(null);
-
     }
 
     public void removeAllIdentities() {
-        Set<Identity> identities = mService.getIdentities().getIdentities();
+        Set<Identity> identities = queryIdentities();
         for (Identity i : identities) {
             mService.deleteIdentity(i);
         }
+    }
+
+    public Set<Identity> queryIdentities() {
+        return mService.getIdentities().getIdentities();
     }
 
     public void deleteCurrentIdentity() {

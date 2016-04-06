@@ -49,6 +49,7 @@ import de.qabel.core.http.DropHTTP;
 import de.qabel.core.http.HTTPResult;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.activities.MainActivity;
+import de.qabel.qabelbox.config.AppPreference;
 import de.qabel.qabelbox.exceptions.QblStorageEntityExistsException;
 import de.qabel.qabelbox.persistence.AndroidPersistence;
 import de.qabel.qabelbox.persistence.QblSQLiteParams;
@@ -113,7 +114,11 @@ public class LocalQabelService extends Service {
     }
 
     public void setActiveIdentity(Identity identity) {
-        setLastActiveIdentityID(identity.getKeyIdentifier());
+        if (identity == null) {
+            setLastActiveIdentityID(null);
+        } else {
+            setLastActiveIdentityID(identity.getKeyIdentifier());
+        }
     }
 
     public void deleteIdentity(Identity identity) {
@@ -208,6 +213,18 @@ public class LocalQabelService extends Service {
             contactMap.put(contacts.getIdentity(), contacts);
         }
         return contactMap;
+    }
+
+    public void logout() {
+        Identities knownIdentities = getIdentities();
+        for (Identity linkedIsentity : knownIdentities.getIdentities()) {
+            persistence.removeEntity(linkedIsentity.getPersistenceID(), Identity.class);
+        }
+        AppPreference appPrefs = new AppPreference(this);
+        appPrefs.setAccountName(null);
+        appPrefs.setToken(null);
+        setActiveIdentity(null);
+
     }
 
     public interface OnSendDropMessageResult {
@@ -511,7 +528,7 @@ public class LocalQabelService extends Service {
         Log.i(TAG, "LocalQabelService created");
         dropHTTP = new DropHTTP();
         initSharedPreferences();
-        initAndroidPersistence();
+        persistence = initAndroidPersistence();
         pendingUploads = new HashMap<>();
         documentIdParser = new DocumentIdParser();
         cachedFinishedUploads = Collections.synchronizedMap(new HashMap<String, Map<String, BoxFile>>());
@@ -519,16 +536,16 @@ public class LocalQabelService extends Service {
         self = this;
     }
 
-    protected void initAndroidPersistence() {
+    protected AndroidPersistence initAndroidPersistence() {
         AndroidPersistence androidPersistence;
         QblSQLiteParams params = new QblSQLiteParams(this, DB_NAME, null, DB_VERSION);
         try {
             androidPersistence = new AndroidPersistence(params);
         } catch (QblInvalidEncryptionKeyException e) {
             Log.e(TAG, "Invalid database password!");
-            return;
+            return null;
         }
-        this.persistence = androidPersistence;
+        return androidPersistence;
     }
 
     protected void initSharedPreferences() {

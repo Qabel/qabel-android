@@ -48,6 +48,8 @@ import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static android.support.test.espresso.matcher.ViewMatchers.withClassName;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertNull;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.endsWith;
@@ -67,6 +69,9 @@ public class CreateIdentityUITest extends UIBoxHelper {
 
     private PowerManager.WakeLock wakeLock;
     private SystemAnimations mSystemAnimations;
+
+    String identity = "spoon1";
+    String identity2 = "spoon2";
 
     @After
     public void cleanUp() {
@@ -103,8 +108,7 @@ public class CreateIdentityUITest extends UIBoxHelper {
     @Test
     public void addIdentity1Test() throws Throwable {
         removeAllIdentities();
-        String identity = "spoon1";
-        String identity2 = "spoon2";
+
         Spoon.screenshot(UITestHelper.getCurrentActivity(mActivity), "start");
 
         pressBack();
@@ -137,6 +141,31 @@ public class CreateIdentityUITest extends UIBoxHelper {
 
         Spoon.screenshot(UITestHelper.getCurrentActivity(mActivity), "spoon1_2");
         closeDrawer(R.id.drawer_layout);
+    }
+
+    @Test
+    public void logoutTest() {
+        openDrawer(R.id.drawer_layout);
+        onView(withId(R.id.accountName))
+                .check(matches(isDisplayed()))
+                .perform(click());
+        onView(withText("logout"))
+                .check(matches(isDisplayed()))
+                .perform(click());
+        onView(withId(R.id.bt_login)).check(matches(isDisplayed()));
+        assertHasNoCredentials();
+        assertHasNoIdentities();
+    }
+
+    private void assertHasNoIdentities() {
+        removeAllIdentities();
+        assertEquals(0, queryIdentities().size());
+    }
+
+    private void assertHasNoCredentials() {
+        AppPreference appPrefs = new AppPreference(mActivity);
+        assertNull(appPrefs.getToken());
+        assertNull(appPrefs.getAccountName());
     }
 
     private void testCreateIdentity(String identity) throws Throwable {

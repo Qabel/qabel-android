@@ -102,15 +102,15 @@ public class MockBoxProvider extends BoxProvider {
         }
 
         @Override
-        protected void initAndroidPersistence() {
-            AndroidPersistence androidPersistence;
+        protected AndroidPersistence initAndroidPersistence() {
+            AndroidPersistence androidPersistence = null;
             QblSQLiteParams params = new QblSQLiteParams(context, DB_NAME, null, DB_VERSION);
             try {
                 androidPersistence = new AndroidPersistence(params);
             } catch (QblInvalidEncryptionKeyException e) {
-                return;
+                return androidPersistence;
             }
-            this.persistence = androidPersistence;
+            return androidPersistence;
         }
 
         @Override

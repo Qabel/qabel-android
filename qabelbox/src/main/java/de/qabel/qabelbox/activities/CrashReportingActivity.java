@@ -41,16 +41,6 @@ public class CrashReportingActivity extends AppCompatActivity {
         }
     }
 
-    /**
-     * enable or disable the bug tracking for the current activity
-     *
-     * @param handleCrashes set to true if crash tracking should be on
-     */
-    public void enableCrashHandling(boolean handleCrashes) {
-
-        this.handleCrashes = handleCrashes;
-    }
-
     @Override
     public void onResume() {
 

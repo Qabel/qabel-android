@@ -8,7 +8,6 @@ spoon {
     // for debug output
     debug = true
     noAnimations = true
-    //instrumentationArgs = ["package=de.qabel.qabelbox.ui"]
     adbTimeout = 180
 }
 

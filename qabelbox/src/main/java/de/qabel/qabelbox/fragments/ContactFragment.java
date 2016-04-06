@@ -114,23 +114,19 @@ public class ContactFragment extends BaseFragment {
         int id = item.getItemId();
         if (id == R.id.action_contact_refresh) {
 
-            pullDropMessagesAsync();
+            new AsyncTask<Void, Void, Collection<DropMessage>>() {
+                @Override
+                protected Collection<DropMessage> doInBackground(Void... params) {
+
+                    return chatServer.refreshList();
+                }
+            }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
         }
         if (id == R.id.action_contact_export_all) {
             exportAllContacts();
 
         }
         return super.onOptionsItemSelected(item);
-    }
-
-    private void pullDropMessagesAsync() {
-        new AsyncTask<Void, Void, Collection<DropMessage>>() {
-            @Override
-            protected Collection<DropMessage> doInBackground(Void... params) {
-
-                return chatServer.refreshList();
-            }
-        }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
     }
 
     public void enableDocumentProvider(boolean value) {
@@ -217,18 +213,9 @@ public class ContactFragment extends BaseFragment {
                             case R.id.contact_list_item_export:
                                 exportContact(contact);
                                 break;
-                            case R.id.contact_list_item_qrcode:
-                                exportContactAsQRCode(contact);
                         }
                     }
                 }).show();
-    }
-
-    private void exportContactAsQRCode(Contact contact) {
-        mActivity.getFragmentManager().beginTransaction()
-                .replace(R.id.fragment_container, QRcodeFragment.newInstance(contact), null)
-                .addToBackStack(null)
-                .commit();
     }
 
     /**
@@ -243,11 +230,6 @@ public class ContactFragment extends BaseFragment {
         sendRefreshContactList();
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-        pullDropMessagesAsync();
-    }
 
     private static void sendRefreshContactList() {
         Log.d(TAG, "send refresh intent");
@@ -364,25 +346,37 @@ public class ContactFragment extends BaseFragment {
                     Uri uri = resultData.getData();
 
                     try {
-                        int added = 0;
                         ParcelFileDescriptor pfd = mActivity.getContentResolver().openFileDescriptor(uri, "r");
                         FileInputStream fis = new FileInputStream(pfd.getFileDescriptor());
                         String json = FileHelper.readFileAsText(fis);
                         fis.close();
-                        Contacts contacts = ContactExportImport.parse(QabelBoxApplication.getInstance().getService().getActiveIdentity(), json);
-                        for (Contact contact : contacts.getContacts()) {
+                        ContactExportImport.ContactsParseResult contactsParseResult = ContactExportImport.parse(QabelBoxApplication.getInstance().getService().getActiveIdentity(), json);
+                        int added = 0;
+                        int failed = contactsParseResult.getSkippedContacts();
+                        for (Contact contact : contactsParseResult.getContacts().getContacts()) {
                             try {
                                 addContactSilent(contact);
                                 added++;
                             } catch (QblStorageEntityExistsException existsException) {
-                                Log.w(TAG, "found doublet's. Will ignore it", existsException);
+                                failed++;
+                                Log.w(TAG, "found doublette. Will ignore it", existsException);
                             }
                         }
                         if (added > 0) {
-                            UIHelper.showDialogMessage(
-                                    mActivity,
-                                    mActivity.getString(R.string.dialog_headline_info),
-                                    mActivity.getResources().getQuantityString(R.plurals.contact_import_successfull, added, added));
+                            if (added == 1 && failed == 0) {
+                                UIHelper.showDialogMessage(
+                                        mActivity,
+                                        mActivity.getString(R.string.dialog_headline_info),
+                                        mActivity.getResources().getString(R.string.contact_import_successfull, added, (added + failed))
+                                );
+                            } else {
+                                UIHelper.showDialogMessage(
+                                        mActivity,
+                                        mActivity.getString(R.string.dialog_headline_info),
+                                        mActivity.getResources().getString(R.string.contact_import_successfull_many, added, (added + failed))
+                                );
+                            }
+
                         } else {
                             UIHelper.showDialogMessage(
                                     mActivity,

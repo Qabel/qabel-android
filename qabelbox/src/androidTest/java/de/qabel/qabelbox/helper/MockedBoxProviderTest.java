@@ -14,6 +14,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 
 import de.qabel.qabelbox.QabelBoxApplication;
+import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.TestConstants;
 import de.qabel.qabelbox.communication.URLs;
 import de.qabel.qabelbox.config.AppPreference;
@@ -47,7 +48,7 @@ public abstract class MockedBoxProviderTest extends InstrumentationTestCase {
     protected void configureTestServer() {
 
         new AppPreference(QabelBoxApplication.getInstance()).setToken(TestConstants.TOKEN);
-        URLs.setBaseBlockURL(TestConstants.BLOCK_URL);
+        URLs.setBaseBlockURL(getContext().getString(R.string.testBlockServer));
 
 
     }

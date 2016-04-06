@@ -177,7 +177,7 @@ public class FilesFragmentUITest {
 
         onView(withText(R.string.ok)).perform(click());
 
-        UITestHelper.sleep(50);
+        UITestHelper.sleep(1000);
 
         //Check progress message
         //XXX Message not belongs to the view

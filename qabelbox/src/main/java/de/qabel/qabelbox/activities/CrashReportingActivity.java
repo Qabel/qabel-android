@@ -66,6 +66,6 @@ public class CrashReportingActivity extends AppCompatActivity {
         return name != null && name.endsWith(".debug");
     }
     private boolean shouldHandleCrashes() {
-        return handleCrashes || isDebugBuild(getApplicationContext());
+        return handleCrashes || !isDebugBuild(getApplicationContext());
     }
 }

@@ -9,6 +9,7 @@ import android.util.Log;
 import net.hockeyapp.android.CrashManager;
 import net.hockeyapp.android.UpdateManager;
 
+import de.qabel.qabelbox.BuildConfig;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.fragments.SettingsFragment;
 
@@ -18,7 +19,7 @@ import de.qabel.qabelbox.fragments.SettingsFragment;
 public class CrashReportingActivity extends AppCompatActivity {
 
     private final String TAG = this.getClass().getSimpleName();
-    private boolean handleCrashes = true;
+    private boolean handleCrashes = false;
     private final boolean checkForUpdates = false;//set to true if certain users can uploadAndDeleteLocalfile new version via hockey app
 
     @Override
@@ -55,7 +56,7 @@ public class CrashReportingActivity extends AppCompatActivity {
 
         super.onResume();
 
-        if (handleCrashes) {
+        if (shouldHandleCrashes()) {
             SharedPreferences preferences = getSharedPreferences(
                     SettingsFragment.APP_PREF_NAME,
                     Context.MODE_PRIVATE);
@@ -68,5 +69,13 @@ public class CrashReportingActivity extends AppCompatActivity {
         } else {
             Log.v(TAG, "crash reporting handler deactivated");
         }
+    }
+
+    public static boolean isDebugBuild(Context context) {
+        String name = context.getPackageName();
+        return name != null && name.endsWith(".debug");
+    }
+    private boolean shouldHandleCrashes() {
+        return handleCrashes || isDebugBuild(getApplicationContext());
     }
 }

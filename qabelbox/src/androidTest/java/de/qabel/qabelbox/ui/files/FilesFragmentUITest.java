@@ -22,7 +22,6 @@ import de.qabel.core.config.Contact;
 import de.qabel.core.config.Identity;
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
-import de.qabel.qabelbox.TestConstants;
 import de.qabel.qabelbox.TestConstraints;
 import de.qabel.qabelbox.activities.MainActivity;
 import de.qabel.qabelbox.communication.BlockServer;
@@ -123,8 +122,8 @@ public class FilesFragmentUITest {
     @Before
     public void setUp() throws IOException, QblStorageException {
 
-        URLs.setBaseBlockURL(TestConstants.BLOCK_URL);
         mActivity = mActivityTestRule.getActivity();
+        URLs.setBaseBlockURL(mActivity.getString(R.string.testBlockServer));
         wakeLock = UIActionHelper.wakeupDevice(mActivity);
         mSystemAnimations = new SystemAnimations(mActivity);
         mSystemAnimations.disableAll();

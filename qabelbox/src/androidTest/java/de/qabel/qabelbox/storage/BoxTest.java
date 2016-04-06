@@ -29,6 +29,7 @@ import de.qabel.core.crypto.QblECKeyPair;
 import de.qabel.core.crypto.QblECPublicKey;
 import de.qabel.core.drop.DropURL;
 import de.qabel.qabelbox.QabelBoxApplication;
+import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.TestConstants;
 import de.qabel.qabelbox.communication.URLs;
 import de.qabel.qabelbox.config.AppPreference;
@@ -64,7 +65,7 @@ public class BoxTest extends AndroidTestCase {
 
     public void configureTestServer() {
         new AppPreference(QabelBoxApplication.getInstance()).setToken(TestConstants.TOKEN);
-        URLs.setBaseBlockURL(TestConstants.BLOCK_URL);
+        URLs.setBaseBlockURL(getContext().getString(R.string.testBlockServer));
     }
 
     @Before

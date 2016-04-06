@@ -26,11 +26,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 
 import de.qabel.core.config.Contact;
-import de.qabel.core.config.Contacts;
 import de.qabel.core.config.Identity;
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
-import de.qabel.qabelbox.TestConstants;
 import de.qabel.qabelbox.activities.MainActivity;
 import de.qabel.qabelbox.communication.URLs;
 import de.qabel.qabelbox.config.ContactExportImport;
@@ -103,8 +101,8 @@ public class ImportExportContactsUITest {
     }
 
     private void setupData() {
-        URLs.setBaseBlockURL(TestConstants.BLOCK_URL);
         mActivity = mActivityTestRule.getActivity();
+        URLs.setBaseBlockURL(mActivity.getString(R.string.testBlockServer));
         mBoxHelper = new UIBoxHelper(QabelBoxApplication.getInstance());
         mBoxHelper.bindService(QabelBoxApplication.getInstance());
         mBoxHelper.createTokenIfNeeded(false);
@@ -243,8 +241,8 @@ public class ImportExportContactsUITest {
             contactFragment.onActivityResult(ContactFragment.REQUEST_EXPORT_CONTACT, Activity.RESULT_OK, data);
         }
         try {
-            Contacts contact = ContactExportImport.parseContactsForIdentity(identity, checkFile(file1));
-            assertEquals(contact.getContacts().size(), 3);
+            ContactExportImport.ContactsParseResult contact = ContactExportImport.parseContactsForIdentity(identity, checkFile(file1));
+            assertEquals(contact.getContacts().getContacts().size(), 3);
         } catch (JSONException e) {
             e.printStackTrace();
             assertNull(e);

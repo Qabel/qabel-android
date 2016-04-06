@@ -31,7 +31,6 @@ import java.io.IOException;
 import de.qabel.core.config.Identity;
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
-import de.qabel.qabelbox.TestConstants;
 import de.qabel.qabelbox.activities.MainActivity;
 import de.qabel.qabelbox.communication.URLs;
 import de.qabel.qabelbox.exceptions.QblStorageException;
@@ -91,7 +90,7 @@ public class OpenImageUITest {
     public void setUp() throws IOException, QblStorageException {
 
         mActivity = mActivityTestRule.getActivity();
-        URLs.setBaseBlockURL(TestConstants.BLOCK_URL);
+        URLs.setBaseBlockURL(mActivity.getString(R.string.testBlockServer));
         Espresso.registerIdlingResources(mPicassoIdlingResource);
         ActivityLifecycleMonitorRegistry
                 .getInstance()
@@ -102,11 +101,11 @@ public class OpenImageUITest {
     }
 
     private void setupData() {
-        mActivity = mActivityTestRule.getActivity();
-        URLs.setBaseBlockURL(TestConstants.BLOCK_URL);
-        mBoxHelper = new UIBoxHelper(QabelBoxApplication.getInstance());
-        mBoxHelper.bindService(QabelBoxApplication.getInstance());
-        mBoxHelper.createTokenIfNeeded(false);
+		mActivity = mActivityTestRule.getActivity();
+		URLs.setBaseBlockURL(mActivity.getString(R.string.testBlockServer));
+		mBoxHelper = new UIBoxHelper(QabelBoxApplication.getInstance());
+		mBoxHelper.bindService(QabelBoxApplication.getInstance());
+		mBoxHelper.createTokenIfNeeded(false);
         try {
             Identity old = mBoxHelper.getCurrentIdentity();
             if (old != null) {

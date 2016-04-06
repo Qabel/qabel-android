@@ -18,7 +18,6 @@ import java.io.IOException;
 
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
-import de.qabel.qabelbox.TestConstants;
 import de.qabel.qabelbox.activities.MainActivity;
 import de.qabel.qabelbox.communication.URLs;
 import de.qabel.qabelbox.exceptions.QblStorageException;
@@ -72,9 +71,9 @@ public class ShareUITest {
     }
 
     private void setupData() {
-        URLs.setBaseBlockURL(TestConstants.BLOCK_URL);
         UITestHelper.disableBugReporting(QabelBoxApplication.getInstance().getApplicationContext());
         mActivity = mActivityTestRule.getActivity();
+        URLs.setBaseBlockURL(mActivity.getString(R.string.testBlockServer));
         mBoxHelper = new UIBoxHelper(QabelBoxApplication.getInstance());
         mBoxHelper.bindService(QabelBoxApplication.getInstance());
         mBoxHelper.createTokenIfNeeded(false);

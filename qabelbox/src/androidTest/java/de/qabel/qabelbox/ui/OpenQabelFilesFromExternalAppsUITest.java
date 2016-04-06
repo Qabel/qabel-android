@@ -22,7 +22,6 @@ import java.io.IOException;
 import de.qabel.core.config.Identity;
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
-import de.qabel.qabelbox.TestConstants;
 import de.qabel.qabelbox.activities.MainActivity;
 import de.qabel.qabelbox.communication.URLs;
 import de.qabel.qabelbox.config.ContactExportImport;
@@ -160,8 +159,8 @@ public class OpenQabelFilesFromExternalAppsUITest extends UIBoxHelper {
     }
 
     private void setupData() {
-        URLs.setBaseBlockURL(TestConstants.BLOCK_URL);
         mActivity = mActivityTestRule.getActivity();
+        URLs.setBaseBlockURL(mActivity.getString(R.string.testBlockServer));
 
         bindService(QabelBoxApplication.getInstance());
         createTokenIfNeeded(false);

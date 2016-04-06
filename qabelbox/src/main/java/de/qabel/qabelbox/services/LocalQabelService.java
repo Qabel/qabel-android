@@ -138,6 +138,16 @@ public class LocalQabelService extends Service {
         return getContacts(getActiveIdentity());
     }
 
+	/**
+     * Reset the persistence
+     *
+     * This should only be used in testing.
+     */
+    public void deleteContactsAndIdentities() {
+        persistence.dropTable(Contacts.class);
+        persistence.dropTable(Identity.class);
+    }
+
     /**
      * Create a list of contacts for the given Identity
      *
@@ -147,7 +157,8 @@ public class LocalQabelService extends Service {
     public Contacts getContacts(Identity identity) {
         List<Contacts> entities = persistence.getEntities(Contacts.class);
         for (Contacts contacts : entities) {
-            if (contacts.getIdentity().equals(identity)) {
+            Identity owner = contacts.getIdentity();
+            if (owner.equals(identity)) {
                 return contacts;
             }
         }

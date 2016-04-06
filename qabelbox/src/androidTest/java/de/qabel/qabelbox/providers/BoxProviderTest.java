@@ -166,10 +166,10 @@ public class BoxProviderTest extends MockedBoxProviderTest {
 
         InputStream inputStream = new FileInputStream(fileDescriptor);
         byte[] dl = IOUtils.toByteArray(inputStream);
-        assertThat("Downloaded file not correct", dl, is(testContent));
+		assertThat("Downloaded files not correct", dl, is(testContent));
 
-        // Use the same file descriptor to uploadAndDeleteLocalfile new content
-        OutputStream outputStream = new FileOutputStream(fileDescriptor);
+		// Use the same files descriptor to uploadAndDeleteLocalfile new content
+		OutputStream outputStream = new FileOutputStream(fileDescriptor);
         assertNotNull(outputStream);
         outputStream.write(6);
         outputStream.close();
@@ -183,8 +183,8 @@ public class BoxProviderTest extends MockedBoxProviderTest {
         InputStream dlInputStream = mockContentResolver.openInputStream(documentUri);
         assertNotNull(inputStream);
         byte[] downloaded = IOUtils.toByteArray(dlInputStream);
-        assertThat("Changes to the uploaded file not found", downloaded, is(updatedContent));
-        assertTrue(getProvider().isBroadcastNotificationCalled);
+		assertThat("Changes to the uploaded files not found", downloaded, is(updatedContent));
+		assertTrue(getProvider().isBroadcastNotificationCalled);
         assertTrue(getProvider().isShowNotificationCalled);
         assertTrue(getProvider().isUpdateNotificationCalled);
     }

@@ -57,8 +57,8 @@ public class DirectoryMetadataTest extends TestCase {
     }
 
     @Test
-    public void testFolderOperations() throws QblStorageException {
-        BoxFolder folder = new BoxFolder("block", "name", new byte[]{1, 2,});
+	public void testFolderOperations() throws QblStorageException, QblStorageNameConflict {
+		BoxFolder folder = new BoxFolder("block", "name", new byte[]{1, 2,});
         dm.insertFolder(folder);
         assertThat(dm.listFolders().size(), is(1));
         assertThat(folder, equalTo(dm.listFolders().get(0)));

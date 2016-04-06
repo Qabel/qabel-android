@@ -202,8 +202,8 @@ public class BoxTest extends AndroidTestCase {
         BoxNavigation navOtherUser = volumeOtherUser.navigate();
         navOtherUser.attachExternal(boxExternalReference);
 
-        //checkExternalReceivedBoxFile(IOUtils.toByteArray(new FileInputStream(file)), boxFile, navOtherUser);
-    }
+		//checkExternalReceivedBoxFile(IOUtils.toByteArray(new FileInputStream(files)), boxFile, navOtherUser);
+	}
 
     @Test
 	public void testShareAndUpdateFile() throws QblStorageException, IOException, QblStorageNameConflict {
@@ -224,7 +224,7 @@ public class BoxTest extends AndroidTestCase {
         boxFile = nav.upload("foobar", new FileInputStream(file), null);
         nav.commit();
 
-        // Check that updated file can still be read
+		// Check that updated files can still be read
 
         checkExternalReceivedBoxFile(boxFile, navOtherUser);
     }
@@ -243,12 +243,12 @@ public class BoxTest extends AndroidTestCase {
         BoxNavigation navOtherUser = volumeOtherUser.navigate();
         navOtherUser.attachExternal(boxExternalReference);
 
-        checkExternalReceivedBoxFile(/*IOUtils.toByteArray(new FileInputStream(file)),*/ boxFile, navOtherUser);
+		checkExternalReceivedBoxFile(/*IOUtils.toByteArray(new FileInputStream(files)),*/ boxFile, navOtherUser);
 
         nav.rename(boxFile, "barfoo");
         nav.commit();
 
-        // Check that updated file can still be read
+		// Check that updated files can still be read
 
         checkExternalReceivedBoxFile(IOUtils.toByteArray(new FileInputStream(file)), boxFile, navOtherUser);
     }
@@ -269,16 +269,16 @@ public class BoxTest extends AndroidTestCase {
 
         boxFile = uploadFile(nav, "foobar");
 
-        // Check that updated file can still be read
+		// Check that updated files can still be read
 
         //checkExternalReceivedBoxFile(IOUtils.toByteArray(new FileInputStream(new File(testFileName))), boxFile, navOtherUser);
 
-        // Remove FileMetadata and update file
-        nav.removeFileMetadata(boxFile);
+		// Remove FileMetadata and update files
+		nav.removeFileMetadata(boxFile);
 
         uploadFile(nav, "foobar");
 
-        // Check that updated file cannot be read anymore
+		// Check that updated files cannot be read anymore
 
         List<BoxObject> boxExternalFiles = navOtherUser.listExternals();
         assertThat(boxExternalFiles.size(), is(1));
@@ -411,13 +411,13 @@ public class BoxTest extends AndroidTestCase {
     private void checkDeleted(BoxFolder boxFolder, BoxFolder subfolder, BoxFile boxFile, BoxNavigation nav) throws QblStorageException {
         try {
             nav.download(boxFile, null);
-            fail("Could download file in deleted folder");
-        } catch (QblStorageNotFound e) {
+			fail("Could download files in deleted folders");
+		} catch (QblStorageNotFound e) {
         }
         try {
             nav.navigate(boxFolder);
-            fail("Could navigate to deleted folder");
-        } catch (QblStorageNotFound e) {
+			fail("Could navigate to deleted folders");
+		} catch (QblStorageNotFound e) {
         }
         try {
             nav.navigate(subfolder);
@@ -547,16 +547,16 @@ public class BoxTest extends AndroidTestCase {
     }
 
     ///**
-    // * Currently a folder with a name conflict just disappears and all is lost.
-    // */
+	// * Currently a folders with a name conflict just disappears and all is lost.
+	// */
     //@Test
     //public void testFolderNameConflictOnDifferentClients() throws QblStorageException, IOException {
     //	BoxNavigation nav = volume.navigate();
     //	BoxNavigation nav2 = volumeFromAnotherDevice.navigate();
-    //	File file = new File(testFileName);
-    //	nav.createFolder("foobar");
-    //	nav2.uploadAndDeleteLocalfile("foobar", new FileInputStream(file));
-    //	nav2.commit();
+	//	File files = new File(testFileName);
+	//	nav.createFolder("foobar");
+	//	nav2.uploadAndDeleteLocalfile("foobar", new FileInputStream(files));
+	//	nav2.commit();
     //	nav.commit();
     //	assertThat(nav.listFiles().size(), is(1));
     //	assertThat(nav.listFolders().size(), is(1));
@@ -574,8 +574,8 @@ public class BoxTest extends AndroidTestCase {
             outputStream.write(testData);
         }
         outputStream.close();
-        nav.upload("large file", new FileInputStream(file), null);
-    }
+		nav.upload("large files", new FileInputStream(file), null);
+	}
 
     @Test
 	public void testCacheFailure() throws QblStorageException, IOException, QblStorageNameConflict {
@@ -592,12 +592,12 @@ public class BoxTest extends AndroidTestCase {
         assertNotNull("Download stream is null", dlStream);
         byte[] dl = IOUtils.toByteArray(dlStream);
         byte[] content = IOUtils.toByteArray(new FileInputStream(file));
-        assertThat("Downloaded file is not correct", dl, is(content));
-    }
+		assertThat("Downloaded files is not correct", dl, is(content));
+	}
 
     private void corruptCachedFile(BoxFile boxFile) throws IOException {
-        // corrupt the file
-        FileOutputStream outputStream = new FileOutputStream(new FileCache(getContext()).get(boxFile));
+		// corrupt the files
+		FileOutputStream outputStream = new FileOutputStream(new FileCache(getContext()).get(boxFile));
         outputStream.write(1);
         outputStream.close();
     }

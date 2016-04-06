@@ -65,8 +65,8 @@ public class HelpMainFragment extends PreferenceFragment {
 
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
-        // Define the settings file to use by this settings fragment
-        getPreferenceManager().setSharedPreferencesName(APP_PREF_NAME);
+		// Define the settings files to use by this settings fragment
+		getPreferenceManager().setSharedPreferencesName(APP_PREF_NAME);
 
         // Load the preferences from an XML resource
         addPreferencesFromResource(R.xml.app_main_help);

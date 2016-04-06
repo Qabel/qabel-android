@@ -26,8 +26,8 @@ class FileMetadata {
     private final String[] initSql = {
             "CREATE TABLE spec_version (" +
                     " version INTEGER PRIMARY KEY )",
-            "CREATE TABLE file (" +
-                    " owner BLOB NOT NULL," +
+		"CREATE TABLE files (" +
+			" owner BLOB NOT NULL," +
                     " prefix VARCHAR(255) NOT NULL," +
                     " block VARCHAR(255) NOT NULL," +
                     " name VARCHAR(255) NULL PRIMARY KEY," +
@@ -75,8 +75,8 @@ class FileMetadata {
 
     private void insertFile(QblECPublicKey owner, BoxFile boxFile) throws QblStorageException {
         try (PreparedStatement statement = connection.prepareStatement(
-                "INSERT INTO file (owner, prefix, block, name, size, mtime, key) VALUES(?, ?, ?, ?, ?, ?, ?)")) {
-            statement.setBytes(1, owner.getKey());
+			"INSERT INTO files (owner, prefix, block, name, size, mtime, key) VALUES(?, ?, ?, ?, ?, ?, ?)")) {
+			statement.setBytes(1, owner.getKey());
             statement.setString(2, boxFile.prefix);
             statement.setString(3, boxFile.block);
             statement.setString(4, boxFile.name);
@@ -84,12 +84,12 @@ class FileMetadata {
             statement.setLong(6, boxFile.mtime);
             statement.setBytes(7, boxFile.key);
             if (statement.executeUpdate() != 1) {
-                throw new QblStorageException("Failed to insert file");
-            }
+				throw new QblStorageException("Failed to insert files");
+			}
 
         } catch (SQLException e) {
-            logger.error("Could not insert file " + boxFile.name);
-            throw new QblStorageException(e);
+			logger.error("Could not insert files " + boxFile.name);
+			throw new QblStorageException(e);
         }
     }
 
@@ -121,8 +121,8 @@ class FileMetadata {
 
     BoxExternalFile getFile() throws QblStorageException {
         try (Statement statement = connection.createStatement()) {
-            ResultSet rs = statement.executeQuery("SELECT owner, prefix, block, name, size, mtime, key FROM file LIMIT 1");
-            if (rs.next()) {
+			ResultSet rs = statement.executeQuery("SELECT owner, prefix, block, name, size, mtime, key FROM files LIMIT 1");
+			if (rs.next()) {
                 return new BoxExternalFile(new QblECPublicKey(rs.getBytes(1)), rs.getString(2), rs.getString(3),
                         rs.getString(4), rs.getLong(5), rs.getLong(6), rs.getBytes(7));
             }

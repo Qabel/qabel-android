@@ -182,7 +182,7 @@ public class MainActivity extends CrashReportingActivity
                 }
                 if (requestCode == REQUEST_CODE_DELETE_FILE) {
                     uri = data.getData();
-                    Log.i(TAG, "Deleting file: " + uri.toString());
+                    Log.i(TAG, "Deleting files: " + uri.toString());
                     new AsyncTask<Uri, Void, Boolean>() {
 
                         @Override
@@ -212,7 +212,7 @@ public class MainActivity extends CrashReportingActivity
                                 inputStream.close();
                                 outputStream.close();
                             } catch (IOException e) {
-                                Log.e(TAG, "Failed to export file", e);
+                                Log.e(TAG, "Failed to export files", e);
                             }
                             return null;
                         }
@@ -390,7 +390,7 @@ public class MainActivity extends CrashReportingActivity
                 Log.d(TAG, "can't get real path. try to use uri " + realPath);
             }
         } else {
-            //schema is file
+            //schema is files
             realPath = intent.getDataString();
         }
         String extension = FilenameUtils.getExtension(realPath);
@@ -564,7 +564,7 @@ public class MainActivity extends CrashReportingActivity
     }
 
     /**
-     * open system show file dialog
+     * open system show files dialog
      *
      * @param boxObject
      */
@@ -576,7 +576,7 @@ public class MainActivity extends CrashReportingActivity
         Log.v(TAG, "Mime type: " + type);
         Log.v(TAG, "Uri: " + uri.toString() + " " + uri.toString().length());
 
-        //check if file type is image
+        //check if files type is image
         if (type != null && type.indexOf("image") == 0) {
             ImageViewerFragment viewerFragment = ImageViewerFragment.newInstance(uri, type);
             getFragmentManager().beginTransaction()
@@ -590,7 +590,7 @@ public class MainActivity extends CrashReportingActivity
 
         Intent viewIntent = new Intent();
         viewIntent.setDataAndType(uri, type);
-        //check if file type is video
+        //check if files type is video
         if (type != null && type.indexOf("video") == 0) {
             viewIntent.setAction(Intent.ACTION_VIEW);
         }
@@ -717,9 +717,9 @@ public class MainActivity extends CrashReportingActivity
                     boxNavigation.createFolder(name);
                     boxNavigation.commit();
                 } catch (QblStorageException e) {
-                    Log.e(TAG, "Failed creating folder " + name, e);
+                    Log.e(TAG, "Failed creating folders " + name, e);
                 } catch (QblStorageNameConflict e) {
-                    Log.e(TAG, "Failed creating folder " + name, e);
+                    Log.e(TAG, "Failed creating folders " + name, e);
                 }
                 return null;
             }
@@ -911,7 +911,7 @@ public class MainActivity extends CrashReportingActivity
                 BoxProvider.AUTHORITY, documentId);
         exportUri = uri;
 
-        // Chose a suitable place for this file, determined by the mime type
+        // Chose a suitable place for this files, determined by the mime type
         String type = getMimeType(uri);
         if (type == null) {
             type = FALLBACK_MIMETYPE;
@@ -922,7 +922,7 @@ public class MainActivity extends CrashReportingActivity
                 .putExtra(Intent.EXTRA_TITLE, boxObject.name);
         intent.setDataAndType(uri, type);
         intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-        // the activity result will handle the actual file copy
+        // the activity result will handle the actual files copy
         startActivityForResult(intent, REQUEST_CODE_CHOOSE_EXPORT);
     }
 

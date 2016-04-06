@@ -83,8 +83,8 @@ public class OpenQabelFilesFromExternalAppsUITest extends UIBoxHelper {
 
 
     /**
-     * open app with file extension but with ne ready app
-     */
+	 * open app with files extension but with ne ready app
+	 */
     @Test
     public void testOpenQcoSanityFromExternal() {
         String userToImport = "contact1";
@@ -103,8 +103,8 @@ public class OpenQabelFilesFromExternalAppsUITest extends UIBoxHelper {
     }
 
     /**
-     * open a file with unknown extension
-     */
+	 * open a files with unknown extension
+	 */
     @Test
     public void testOpenUnknownFileTypeFromExternal() {
         String userToImport = "contact1";
@@ -118,8 +118,8 @@ public class OpenQabelFilesFromExternalAppsUITest extends UIBoxHelper {
     }
 
     /**
-     * open a corrupt contact file
-     */
+	 * open a corrupt contact files
+	 */
     @Test
     public void testOpenCorruptContactFromExternal() {
         String userToImport = "defectcontaact";
@@ -141,8 +141,8 @@ public class OpenQabelFilesFromExternalAppsUITest extends UIBoxHelper {
     }
 
     /**
-     * open a valid identity file
-     */
+	 * open a valid identity files
+	 */
     @Test
     public void testOpenQidFileFromExternal() {
         String userToImport = "identity1.qid";

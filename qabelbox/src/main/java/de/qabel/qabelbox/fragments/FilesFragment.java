@@ -219,21 +219,21 @@ public class FilesFragment extends BaseFragment {
         filesListRecyclerView.setAdapter(filesAdapter);
 
         filesListRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
-            @Override
-            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+			@Override
+			public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
 
-                super.onScrolled(recyclerView, dx, dy);
-                int lastCompletelyVisibleItem = ((LinearLayoutManager) recyclerViewLayoutManager).findLastCompletelyVisibleItemPosition();
-                int firstCompletelyVisibleItem = ((LinearLayoutManager) recyclerViewLayoutManager).findFirstCompletelyVisibleItemPosition();
-                if (lastCompletelyVisibleItem == filesAdapter.getItemCount() - 1
-                        && firstCompletelyVisibleItem > 0) {
-                    mListener.onScrolledToBottom(true);
-                } else {
-                    mListener.onScrolledToBottom(false);
-                }
-            }
-        });
-        return view;
+				super.onScrolled(recyclerView, dx, dy);
+				int lastCompletelyVisibleItem = ((LinearLayoutManager) recyclerViewLayoutManager).findLastCompletelyVisibleItemPosition();
+				int firstCompletelyVisibleItem = ((LinearLayoutManager) recyclerViewLayoutManager).findFirstCompletelyVisibleItemPosition();
+				if (lastCompletelyVisibleItem == filesAdapter.getItemCount() - 1
+					&& firstCompletelyVisibleItem > 0) {
+					mListener.onScrolledToBottom(true);
+				} else {
+					mListener.onScrolledToBottom(false);
+				}
+			}
+		});
+		return view;
     }
 
     public void navigateBackToRoot() {
@@ -521,13 +521,13 @@ public class FilesFragment extends BaseFragment {
             mLoadingView.setVisibility(View.GONE);
         }
         swipeRefreshLayout.post(new Runnable() {
-            @Override
-            public void run() {
+			@Override
+			public void run() {
 
-                swipeRefreshLayout.setRefreshing(isLoading);
-            }
-        });
-    }
+				swipeRefreshLayout.setRefreshing(isLoading);
+			}
+		});
+	}
 
     public void setAdapter(FilesAdapter adapter) {
 
@@ -870,16 +870,16 @@ public class FilesFragment extends BaseFragment {
 
         filesAdapter.clear();
         for (BoxFolder boxFolder : boxNavigation.listFolders()) {
-            Log.d(TAG, "Adding folder: " + boxFolder.name);
-            filesAdapter.add(boxFolder);
+			Log.d(TAG, "Adding folders: " + boxFolder.name);
+			filesAdapter.add(boxFolder);
         }
         for (BoxObject boxExternal : boxNavigation.listExternals()) {
-            Log.d(TAG, "Adding external: " + boxExternal.name);
-            filesAdapter.add(boxExternal);
+			Log.d(TAG, "Adding externals: " + boxExternal.name);
+			filesAdapter.add(boxExternal);
         }
         for (BoxFile boxFile : boxNavigation.listFiles()) {
-            Log.d(TAG, "Adding file: " + boxFile.name);
-            filesAdapter.add(boxFile);
+			Log.d(TAG, "Adding files: " + boxFile.name);
+			filesAdapter.add(boxFile);
         }
     }
 
@@ -968,17 +968,17 @@ public class FilesFragment extends BaseFragment {
 
     public void renameFolderDialog(final BoxFolder folderToRename) {
         UIHelper.showEditTextDialog(mActivity, getResources().getString(R.string.files_dialog_rename_folder_header), getResources().getString(R.string.files_rename_folder_msg, folderToRename.name), R.string.ok, R.string.cancel, new UIHelper.EditTextDialogClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which, EditText editText) {
-                UIHelper.hideKeyboard(mActivity, editText);
-                String newFolderName = editText.getText().toString();
-                if (!newFolderName.equals("")) {
-                    performRenameFolder(newFolderName, getBoxNavigation(), folderToRename);
+			@Override
+			public void onClick(DialogInterface dialog, int which, EditText editText) {
+				UIHelper.hideKeyboard(mActivity, editText);
+				String newFolderName = editText.getText().toString();
+				if (!newFolderName.equals("")) {
+					performRenameFolder(newFolderName, getBoxNavigation(), folderToRename);
 
-                }
-            }
-        }, null);
-    }
+				}
+			}
+		}, null);
+	}
 
     private void performRenameFolder(final String name, final BoxNavigation boxNavigation, final BoxFolder folder) {
 
@@ -989,11 +989,11 @@ public class FilesFragment extends BaseFragment {
                     boxNavigation.rename(folder, name);
                     boxNavigation.commit();
                 } catch (QblStorageNameConflict e) {
-                    Log.e(TAG, "Failed creating folder " + name, e);
-                    UIHelper.showDialogMessage(mActivity, R.string.generic_header_rename_error, getResources().getString(R.string.error_folder_already_exists, name));
+					Log.e(TAG, "Failed creating folders " + name, e);
+					UIHelper.showDialogMessage(mActivity, R.string.generic_header_rename_error, getResources().getString(R.string.error_folder_already_exists, name));
                 } catch (QblStorageException e) {
-                    Log.e(TAG, "Failed creating folder " + name, e);
-                    UIHelper.showDialogMessage(mActivity, R.string.generic_header_rename_error, getResources().getString(R.string.error_create_folder_generic, name));
+					Log.e(TAG, "Failed creating folders " + name, e);
+					UIHelper.showDialogMessage(mActivity, R.string.generic_header_rename_error, getResources().getString(R.string.error_create_folder_generic, name));
                 }
                 return null;
             }

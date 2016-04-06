@@ -12,8 +12,8 @@ import de.qabel.qabelbox.exceptions.QblStorageNameConflict;
 public interface BoxNavigation {
 
     /**
-     * Bumps the version and uploads the metadata file
-     * <p>
+	 * Bumps the version and uploads the metadata files
+	 * <p>
      * All actions are not guaranteed to be finished before the commit
      * method returned.
      *

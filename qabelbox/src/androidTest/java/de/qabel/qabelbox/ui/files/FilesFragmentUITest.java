@@ -85,7 +85,7 @@ public class FilesFragmentUITest {
             new ExampleFile("white.png", new byte[1011]),
             new ExampleFile("blue.png", new byte[1011]));
 
-	private String exampleFolder = "A new folder is born";
+	private String exampleFolder = "A new folders is born";
 	private String exampleRenamedFolder = StringUtils.reverse(exampleFolder);
 
     private class ExampleFile {
@@ -229,7 +229,7 @@ public class FilesFragmentUITest {
 
 	@Test
 	public void testRenameFolder() {
-		String nameBefore = "A new folder is born";
+		String nameBefore = "A new folders is born";
 		String nameAfter = StringUtils.reverse(nameBefore);
 		performCreateFolder(nameBefore);
 		Spoon.screenshot(mActivity, "rename: before");

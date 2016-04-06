@@ -116,12 +116,12 @@ public class TransferManager {
     }
 
     /**
-     * download file from server
-     *
+	 * download files from server
+	 *
      * @param prefix              prefix from identity
-     * @param name                file name with directory
-     * @param file                destination file
-     * @param boxTransferListener listener
+	 * @param name                files name with directory
+	 * @param file                destination files
+	 * @param boxTransferListener listener
      * @return new download id
      */
     public int download(String prefix, String name, final File file, @Nullable final BoxTransferListener boxTransferListener) {

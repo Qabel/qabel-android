@@ -68,8 +68,8 @@ public class WebViewHelpFragment extends BaseFragment {
         WebView webView = (WebView) view.findViewById(R.id.webview);
         String file = getResources().getStringArray(R.array.help_asset_filenames)[mode];
 
-        webView.loadDataWithBaseURL("file:///android_asset/", FileHelper.loadFileFromAssets(getActivity(), "html/help/" + file),
-                "text/html", "utf-8", null);
+		webView.loadDataWithBaseURL("files:///android_asset/", FileHelper.loadFileFromAssets(getActivity(), "html/help/" + file),
+			"text/html", "utf-8", null);
 
         configureWebView(webView);
 

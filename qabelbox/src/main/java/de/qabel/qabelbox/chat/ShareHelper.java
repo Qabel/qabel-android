@@ -85,8 +85,8 @@ public class ShareHelper {
     }
 
     /**
-     * share file to contact.
-     * <p>
+	 * share files to contact.
+	 * <p>
      * 1. Download boxoject
      * 2. Upload with new key
      * 3. BoxExternalReference

@@ -34,8 +34,8 @@ public class DocumentIdParser {
         if (split.length > 2 && split[2].length() > 0) {
             return split[2];
         }
-        throw new FileNotFoundException("Could not find file path in document id");
-    }
+		throw new FileNotFoundException("Could not find files path in document id");
+	}
 
     public String getPath(String documentId) throws FileNotFoundException {
         String filepath = getFilePath(documentId);

@@ -19,7 +19,7 @@ import java.io.InputStream;
 import java.nio.charset.Charset;
 
 /**
- * Simple class to access file actions
+ * Simple class to access files actions
  * Created by danny on 04.02.16.
  */
 public class FileHelper {
@@ -46,8 +46,8 @@ public class FileHelper {
             input.close();
             return new String(buffer);
         } catch (IOException e) {
-            Log.e(TAG, "can't load file from assets", e);
-            return null;
+			Log.e(TAG, "can't load files from assets", e);
+			return null;
         }
     }
 

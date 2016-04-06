@@ -140,8 +140,8 @@ public abstract class AbstractNavigation implements BoxNavigation {
             BoxFolder parentBoxFolder = parentBoxFolders.pop();
             doNavigate(parentBoxFolder, false);
         } else {
-            throw new QblStorageException("No parent folder");
-        }
+			throw new QblStorageException("No parent folders");
+		}
     }
 
     @Override
@@ -256,21 +256,21 @@ public abstract class AbstractNavigation implements BoxNavigation {
             try {
                 dm.insertFile(local);
             } catch (QblStorageException e) {
-                // name clash with a folder or external
-                local.name = conflictName(local);
+				// name clash with a folders or externals
+				local.name = conflictName(local);
                 // try again until we get no name clash
                 handleConflict(update);
 			} catch (QblStorageNameConflict e) {
-				// name clash with a folder or external
+				// name clash with a folders or externals
 				local.name = conflictName(local);
 				// try again until we get no name clash
 				handleConflict(update);
 			}
 		} else if (newFile.equals(update.old)) {
-            logger.info("No conflict for the file " + local.name);
-        } else {
-            logger.info("Inserting conflict marked file");
-            local.name = conflictName(local);
+			logger.info("No conflict for the files " + local.name);
+		} else {
+			logger.info("Inserting conflict marked files");
+			local.name = conflictName(local);
             if (update.old != null) {
                 dm.deleteFile(update.old);
             }
@@ -342,8 +342,8 @@ public abstract class AbstractNavigation implements BoxNavigation {
                     boxExternals.add(fileMetadata.getFile());
                 }
             } catch (QblStorageException e) {
-                Log.e(TAG, "Cannot load metadata file: " + boxExternalRefs.getPrefix() + '/' + boxExternalRefs.getBlock());
-                if (boxExternalRefs.isFolder) {
+				Log.e(TAG, "Cannot load metadata files: " + boxExternalRefs.getPrefix() + '/' + boxExternalRefs.getBlock());
+				if (boxExternalRefs.isFolder) {
                     boxExternals.add(new BoxExternalFolder(boxExternalRefs.url, boxExternalRefs.name,
                             boxExternalRefs.key, false));
                 } else {
@@ -379,8 +379,8 @@ public abstract class AbstractNavigation implements BoxNavigation {
         SimpleEntry<Long, Long> mtimeAndSize = uploadEncrypted(content, key, prefix, BLOCKS_PREFIX + block, boxTransferListener);
         boxFile.mtime = mtimeAndSize.getKey();
         boxFile.size = mtimeAndSize.getValue();
-        // Overwrite = delete old file, uploadAndDeleteLocalfile new file
-        BoxFile oldFile = dm.getFile(name);
+		// Overwrite = delete old files, uploadAndDeleteLocalfile new files
+		BoxFile oldFile = dm.getFile(name);
         if (oldFile != null) {
             if (oldFile.meta != null && oldFile.metakey != null) {
                 boxFile.meta = oldFile.meta;
@@ -453,8 +453,8 @@ public abstract class AbstractNavigation implements BoxNavigation {
             FileInputStream fileInputStream = new FileInputStream(fileMetadata.getPath());
             uploadEncrypted(fileInputStream, key, prefix, metaBlock, null);
 
-            // Overwrite = delete old file, uploadAndDeleteLocalfile new file
-            BoxFile oldFile = dm.getFile(boxFile.name);
+			// Overwrite = delete old files, uploadAndDeleteLocalfile new files
+			BoxFile oldFile = dm.getFile(boxFile.name);
             if (oldFile != null) {
                 dm.deleteFile(oldFile);
             }
@@ -510,8 +510,8 @@ public abstract class AbstractNavigation implements BoxNavigation {
         boxFile.metakey = null;
 
         try {
-            // Overwrite = delete old file, upload new file
-            BoxFile oldFile = dm.getFile(boxFile.name);
+			// Overwrite = delete old files, upload new files
+			BoxFile oldFile = dm.getFile(boxFile.name);
             if (oldFile != null) {
                 dm.deleteFile(oldFile);
             }
@@ -531,8 +531,8 @@ public abstract class AbstractNavigation implements BoxNavigation {
     /**
      * Attaches a received BoxExternal to the DirectoryMetadata
      *
-     * @param boxExternalReference Reference to meta file
-     * @throws QblStorageException If metadata cannot be accesses or decrypted.
+	 * @param boxExternalReference Reference to meta files
+	 * @throws QblStorageException If metadata cannot be accesses or decrypted.
      */
     @Override
     public void attachExternal(BoxExternalReference boxExternalReference) throws QblStorageNameConflict, QblStorageException {
@@ -585,8 +585,8 @@ public abstract class AbstractNavigation implements BoxNavigation {
     }
 
     @Override
-    public BoxFolder createFolder(String name) throws QblStorageException {
-        DirectoryMetadata dm = DirectoryMetadata.newDatabase(null, deviceId, this.dm.getTempDir());
+	public BoxFolder createFolder(String name) throws QblStorageException, QblStorageNameConflict {
+		DirectoryMetadata dm = DirectoryMetadata.newDatabase(null, deviceId, this.dm.getTempDir());
         KeyParameter secretKey = cryptoUtils.generateSymmetricKey();
         BoxFolder folder = new BoxFolder(dm.getFileName(), name, secretKey.getKey());
         this.dm.insertFolder(folder);
@@ -619,12 +619,12 @@ public abstract class AbstractNavigation implements BoxNavigation {
     public void delete(BoxFolder folder) throws QblStorageException {
         navigate(folder);
         for (BoxFile file : listFiles()) {
-            logger.info("Deleting file " + file.name);
-            delete(file);
+			logger.info("Deleting files " + file.name);
+			delete(file);
         }
         for (BoxFolder subFolder : listFolders()) {
-            logger.info("Deleting folder " + folder.name);
-            delete(subFolder);
+			logger.info("Deleting folders " + folder.name);
+			delete(subFolder);
         }
         navigateToParent();
         commit();

@@ -127,8 +127,8 @@ public class FilesSearchResultFragment extends FilesFragment {
     }
 
     /**
-     * fill adapter with file list
-     *
+	 * fill adapter with files list
+	 *
      * @param results
      */
     private void fillAdapter(List<BoxObject> results) {

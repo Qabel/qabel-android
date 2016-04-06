@@ -171,8 +171,8 @@ public class FilesAdapter extends RecyclerView.Adapter<FilesAdapter.FilesViewHol
     }
 
     /**
-     * return file owner name or key if not in contact list
-     *
+	 * return files owner name or key if not in contact list
+	 *
      * @param boxExternal
      * @return
      */

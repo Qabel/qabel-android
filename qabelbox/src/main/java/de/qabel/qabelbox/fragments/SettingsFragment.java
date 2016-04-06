@@ -1,8 +1,5 @@
 package de.qabel.qabelbox.fragments;
 
-import android.app.ActivityManager;
-import android.content.Context;
-import android.os.Build;
 import android.os.Bundle;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
@@ -22,8 +19,8 @@ public class SettingsFragment extends PreferenceFragment {
     public void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
-        // Define the settings file to use by this settings fragment
-        getPreferenceManager().setSharedPreferencesName(APP_PREF_NAME);
+		// Define the settings files to use by this settings fragment
+		getPreferenceManager().setSharedPreferencesName(APP_PREF_NAME);
 
         // Load the preferences from an XML resource
         addPreferencesFromResource(R.xml.app_settings);

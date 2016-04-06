@@ -54,8 +54,8 @@ public class TransferManagerTest extends AndroidTestCase {
             outputStream.close();
             return file;
         } catch (IOException e) {
-            Log.e(TAG, "Could not create small test file", e);
-            fail();
+			Log.e(TAG, "Could not create small test files", e);
+			fail();
             return null;
         }
     }
@@ -185,8 +185,8 @@ public class TransferManagerTest extends AndroidTestCase {
         syncUpload(fileNameOnServer, sourceFile);
         int transferId = syncDelete(fileNameOnServer);
         assertTransferManagerWasSuccesful(transferId);
-        assertFalse("Delete touched local file, which should not be created", targetFile.exists());
-    }
+		assertFalse("Delete touched local files, which should not be created", targetFile.exists());
+	}
 
     @Test
     public void testDelete() {
@@ -216,8 +216,8 @@ public class TransferManagerTest extends AndroidTestCase {
             String rhsContent = FileUtils.readFileToString(rhs);
             assertTrue("File content not equal " + lhs.getName() + ": " + lhsContent + " vs " + rhs + ": " + rhsContent, FileUtils.contentEquals(lhs, rhs));
         } catch (IOException e) {
-            fail("Exception during file comparison " + e);
-        }
+			fail("Exception during files comparison " + e);
+		}
     }
 
     class VerboseTransferManagerListener implements TransferManager.BoxTransferListener {

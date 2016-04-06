@@ -32,8 +32,14 @@ public class BlockServer extends BaseServer {
 
     private void doServerAction(Context context, String prefix, String path, String method, RequestBody body, Callback callback) {
         String apiURL = urls.getFiles();
-        Uri.Builder uriBuilder = Uri.parse(apiURL).buildUpon()
-                .appendPath(prefix);
+		Uri apiUri = Uri.parse(apiURL);
+		Uri apiWithPrefix = Uri.withAppendedPath(apiUri, prefix);
+		Uri apiWithPrefixAndPath = Uri.withAppendedPath(apiWithPrefix, path);
+		String fullUrl = apiWithPrefixAndPath.toString();
+
+
+		Uri.Builder uriBuilder = Uri.parse(apiURL).buildUpon()
+			.appendPath(prefix);
         if (path.startsWith(BLOCKS)) {
             uriBuilder.appendPath("blocks");
             path = path.substring(BLOCKS.length());

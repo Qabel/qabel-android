@@ -26,7 +26,6 @@ class DirectoryMetadata {
     private static final Logger logger = LoggerFactory.getLogger(DirectoryMetadata.class.getName());
     private static final String JDBC_PREFIX = "jdbc:sqlite:";
     private static final String JDBC_CLASS = "org.sqldroid.SQLDroidDriver";
-    public static final int TYPE_NONE = -1;
     private final Connection connection;
 
     private final String fileName;
@@ -34,9 +33,15 @@ class DirectoryMetadata {
     String root;
     File path;
 
-    private static final int TYPE_FILE = 0;
-    private static final int TYPE_FOLDER = 1;
-    private static final int TYPE_EXTERNAL = 2;
+	// Warning: TYPE names are used in persistence. Changing names may break downwards compability
+	enum TYPE {
+		files,
+		folders,
+		externals,
+		none
+	}
+
+
 
     private final String[] initSql = {
             "CREATE TABLE meta (" +
@@ -370,9 +375,9 @@ class DirectoryMetadata {
 
 
 	void insertFile(BoxFile file) throws QblStorageException, QblStorageNameConflict {
-		int type = isA(file.name);
-        if ((type != TYPE_NONE) && (type != TYPE_FILE)) {
-			throw new QblStorageNameConflict("Expected " + file.name + " to be a file, but existing type is different");
+		TYPE type = isA(file.name);
+		if ((type != TYPE.none) && (type != TYPE.files)) {
+			throw new QblStorageNameConflict("Expected " + file.name + " to be a files, but existing type is " + type);
 		}
         PreparedStatement st = null;
         try {
@@ -387,12 +392,12 @@ class DirectoryMetadata {
             st.setString(7, file.meta);
             st.setBytes(8, file.metakey);
             if (st.executeUpdate() != 1) {
-                throw new QblStorageException("Failed to insert file");
-            }
+				throw new QblStorageException("Failed to insert files");
+			}
 
         } catch (SQLException e) {
-            logger.error("Could not insert file " + file.name);
-            throw new QblStorageException(e);
+			logger.error("Could not insert files " + file.name);
+			throw new QblStorageException(e);
         } finally {
             try {
                 if (st != null) {
@@ -409,8 +414,8 @@ class DirectoryMetadata {
                     "DELETE FROM files WHERE name=?");
             st.setString(1, file.name);
             if (st.executeUpdate() != 1) {
-                throw new QblStorageException("Failed to delete file: Not found");
-            }
+				throw new QblStorageException("Failed to delete files: Not found");
+			}
 
         } catch (SQLException e) {
             throw new QblStorageException(e);
@@ -434,10 +439,10 @@ class DirectoryMetadata {
     }
 
     void insertExternalReference(BoxExternalReference file) throws QblStorageException, QblStorageNameConflict {
-        int type = isA(file.name);
-        if ((type != TYPE_NONE) && (type != TYPE_FILE)) {
-            throw new QblStorageNameConflict(file.name);
-        }
+		TYPE type = isA(file.name);
+		if ((type != TYPE.none) && (type != TYPE.externals)) {
+			throw new QblStorageNameConflict("There is already an object of type " + type + " for " + file.name);
+		}
         try (PreparedStatement st = connection.prepareStatement(
                 "INSERT INTO externals (is_folder, url, name, owner, key) VALUES(?, ?, ?, ?, ?)")) {
             st.setBoolean(1, file.isFolder);
@@ -446,12 +451,12 @@ class DirectoryMetadata {
             st.setBytes(4, file.owner.getKey());
             st.setBytes(5, file.key);
             if (st.executeUpdate() != 1) {
-                throw new QblStorageException("Failed to insert file");
-            }
+				throw new QblStorageException("Failed to insert files");
+			}
 
         } catch (SQLException e) {
-            logger.error("Could not insert file " + file.name);
-            throw new QblStorageException(e);
+			logger.error("Could not insert files " + file.name);
+			throw new QblStorageException(e);
         }
     }
 
@@ -460,19 +465,19 @@ class DirectoryMetadata {
                 "DELETE FROM externals WHERE name=?")) {
             st.setString(1, name);
             if (st.executeUpdate() != 1) {
-                throw new QblStorageException("Failed to delete file: Not found");
-            }
+				throw new QblStorageException("Failed to delete files: Not found");
+			}
 
         } catch (SQLException e) {
             throw new QblStorageException(e);
         }
     }
 
-    void insertFolder(BoxFolder folder) throws QblStorageException {
-        int type = isA(folder.name);
-        if ((type != TYPE_NONE) && (type != TYPE_FOLDER)) {
-            throw new QblStorageException(folder.name);
-        }
+	void insertFolder(BoxFolder folder) throws QblStorageException, QblStorageNameConflict {
+		TYPE type = isA(folder.name);
+		if ((type != TYPE.none) && (type != TYPE.folders)) {
+			throw new QblStorageNameConflict(folder.name + " is of type: " + type);
+		}
         try {
             PreparedStatement st = connection.prepareStatement(
                     "INSERT INTO folders (ref, name, key) VALUES(?, ?, ?)");
@@ -480,8 +485,8 @@ class DirectoryMetadata {
             st.setString(2, folder.name);
             st.setBytes(3, folder.key);
             if (st.executeUpdate() != 1) {
-                throw new QblStorageException("Failed to insert folder");
-            }
+				throw new QblStorageException("Failed to insert folders");
+			}
 
         } catch (SQLException e) {
             throw new QblStorageException(e);
@@ -495,8 +500,8 @@ class DirectoryMetadata {
                     "DELETE FROM folders WHERE name=?");
             st.setString(1, folder.name);
             if (st.executeUpdate() != 1) {
-                throw new QblStorageException("Failed to insert folder");
-            }
+				throw new QblStorageException("Failed to insert folders");
+			}
 
         } catch (SQLException e) {
             throw new QblStorageException(e);
@@ -557,31 +562,32 @@ class DirectoryMetadata {
         }
     }
 
-    int isA(String name) throws QblStorageException {
-        String[] types = {"files", "folders", "externals"};
-        for (int type = 0; type < 3; type++) {
-            PreparedStatement statement = null;
-            try {
-                statement = connection.prepareStatement(
-                        "SELECT name FROM " + types[type] + " WHERE name=?");
-                statement.setString(1, name);
-                ResultSet rs = statement.executeQuery();
-                if (rs.next()) {
-                    return type;
-                }
-            } catch (SQLException e) {
-                throw new QblStorageException(e);
-            } finally {
-                try {
-                    if (statement != null) {
-                        statement.close();
-                    }
-                } catch (SQLException e) {
-                }
-            }
-        }
-        return TYPE_NONE;
-    }
+	TYPE isA(String name) throws QblStorageException {
+		for (TYPE type : TYPE.values()) {
+			if (type != TYPE.none) {
+				PreparedStatement statement = null;
+				try {
+					statement = connection.prepareStatement(
+						"SELECT name FROM " + type + " WHERE name=?");
+					statement.setString(1, name);
+					ResultSet rs = statement.executeQuery();
+					if (rs.next()) {
+						return type;
+					}
+				} catch (SQLException e) {
+					throw new QblStorageException(e);
+				} finally {
+					try {
+						if (statement != null) {
+							statement.close();
+						}
+					} catch (SQLException e) {
+					}
+				}
+			}
+		}
+		return TYPE.none;
+	}
 
     public File getTempDir() {
         return tempDir;

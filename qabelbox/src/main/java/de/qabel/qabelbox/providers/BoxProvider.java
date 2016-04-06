@@ -293,15 +293,15 @@ public class BoxProvider extends DocumentsProvider {
                           String documentId, String basename) throws QblStorageException {
 
         for (BoxFolder folder : navigation.listFolders()) {
-            Log.d(TAG, "Checking folder:" + folder.name);
-            if (basename.equals(folder.name)) {
+			Log.d(TAG, "Checking folders:" + folder.name);
+			if (basename.equals(folder.name)) {
                 insertFolder(cursor, documentId, folder);
                 return;
             }
         }
         for (BoxFile file : navigation.listFiles()) {
-            Log.d(TAG, "Checking file:" + file.name);
-            if (basename.equals(file.name)) {
+			Log.d(TAG, "Checking files:" + file.name);
+			if (basename.equals(file.name)) {
                 insertFile(cursor, documentId, file);
                 return;
             }
@@ -332,14 +332,14 @@ public class BoxProvider extends DocumentsProvider {
         BoxCursor cursor = folderContentCache.get(parentDocumentId);
         boolean cacheHit = (cursor != null);
         if (parentDocumentId.equals(currentFolder) && cacheHit) {
-            // best case: we are still in the same folder and we got a cache hit
-            Log.d(TAG, "Up to date cached data found");
+			// best case: we are still in the same folders and we got a cache hit
+			Log.d(TAG, "Up to date cached data found");
             cursor.setExtraLoading(false);
             return cursor;
         }
         if (cacheHit) {
-            // we found it in the cache, but since we changed the folder, we refresh anyway
-            cursor.setExtraLoading(true);
+			// we found it in the cache, but since we changed the folders, we refresh anyway
+			cursor.setExtraLoading(true);
         } else {
             Log.d(TAG, "Serving empty listing and refreshing");
             cursor = createCursor(projection, true);
@@ -502,9 +502,9 @@ public class BoxProvider extends DocumentsProvider {
                 ParcelFileDescriptor.OnCloseListener onCloseListener = new ParcelFileDescriptor.OnCloseListener() {
                     @Override
                     public void onClose(IOException e) {
-                        // Update the file with the cloud server.  The client is done writing.
-                        Log.i(TAG, "A file with id " + documentId + " has been closed!  Time to " +
-                                "update the server.");
+						// Update the files with the cloud server.  The client is done writing.
+						Log.i(TAG, "A files with id " + documentId + " has been closed!  Time to " +
+							"update the server.");
                         if (e != null) {
                             Log.e(TAG, "IOException in onClose", e);
                             return;
@@ -543,8 +543,8 @@ public class BoxProvider extends DocumentsProvider {
             List<String> splitPath = mDocumentIdParser.splitPath(
                     mDocumentIdParser.getFilePath(documentId));
             String basename = splitPath.remove(splitPath.size() - 1);
-            Log.i(TAG, "Navigating to folder");
-            BoxNavigation navigation = traverseToFolder(volume, splitPath);
+			Log.i(TAG, "Navigating to folders");
+			BoxNavigation navigation = traverseToFolder(volume, splitPath);
             Log.i(TAG, "Starting uploadAndDeleteLocalfile");
             BoxFile boxFile = navigation.upload(basename, new FileInputStream(tmp), boxTransferListener);
             navigation.commit();
@@ -652,21 +652,21 @@ public class BoxProvider extends DocumentsProvider {
             throws QblStorageException, FileNotFoundException {
 
         for (BoxFile file : navigation.listFiles()) {
-            Log.d(TAG, "find file: " + file.name);
-            if (file.name.equals(basename)) {
+			Log.d(TAG, "find files: " + file.name);
+			if (file.name.equals(basename)) {
                 return file;
             }
         }
         for (BoxObject file : navigation.listExternals()) {
-            Log.d(TAG, "find file: " + file.name);
-            if (file instanceof BoxExternalFile) {
+			Log.d(TAG, "find files: " + file.name);
+			if (file instanceof BoxExternalFile) {
                 if (file.name.equals(basename)) {
                     return (BoxExternalFile) file;
                 }
             }
         }
-        throw new FileNotFoundException("can't find file in BoxNavigation: " + basename);
-    }
+		throw new FileNotFoundException("can't find files in BoxNavigation: " + basename);
+	}
 
     @Override
     public String createDocument(String parentDocumentId, String mimeType, String displayName) throws FileNotFoundException {
@@ -689,12 +689,12 @@ public class BoxProvider extends DocumentsProvider {
 
             return parentDocumentId + displayName;
         } catch (QblStorageException e) {
-            String msg = "could not create file";
-            Log.e(TAG, msg, e);
+			String msg = "could not create files";
+			Log.e(TAG, msg, e);
             throw new RuntimeException(msg, e);
         } catch (QblStorageNameConflict e) {
-            String msg = "could not create file due to name conflict";
-            Log.e(TAG, msg, e);
+			String msg = "could not create files due to name conflict";
+			Log.e(TAG, msg, e);
             throw new RuntimeException(msg, e);
         }
     }
@@ -727,8 +727,8 @@ public class BoxProvider extends DocumentsProvider {
                 }
             }
         } catch (QblStorageException e) {
-            Log.e(TAG, "could not create file", e);
-            throw new FileNotFoundException();
+			Log.e(TAG, "could not create files", e);
+			throw new FileNotFoundException();
         }
     }
 
@@ -767,12 +767,12 @@ public class BoxProvider extends DocumentsProvider {
             }
             throw new FileNotFoundException();
         } catch (QblStorageException e) {
-            String msg = "could not create file";
-            Log.e(TAG, msg, e);
+			String msg = "could not create files";
+			Log.e(TAG, msg, e);
             throw new RuntimeException(msg, e);
         } catch (QblStorageNameConflict e) {
-            String msg = "could not create file due to a name conflict";
-            Log.e(TAG, msg, e);
+			String msg = "could not create files due to a name conflict";
+			Log.e(TAG, msg, e);
             throw new RuntimeException(msg, e);
         }
     }

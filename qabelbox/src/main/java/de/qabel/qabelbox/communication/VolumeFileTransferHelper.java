@@ -29,8 +29,8 @@ import de.qabel.qabelbox.storage.BoxVolume;
 public class VolumeFileTransferHelper {
 
     private static final String TAG = "DownloadUploadHelper";
-    private static final String URI_PREFIX_FILE = "file://";
-    public static final String HARDCODED_ROOT = BoxProvider.DOCID_SEPARATOR
+	private static final String URI_PREFIX_FILE = "files://";
+	public static final String HARDCODED_ROOT = BoxProvider.DOCID_SEPARATOR
             + BoxProvider.PREFIX + BoxProvider.DOCID_SEPARATOR + BoxProvider.PATH_SEP;
 
     public static Uri getUri(BoxObject boxObject, BoxVolume boxVolume, BoxNavigation boxNavigation) {

@@ -252,14 +252,14 @@ public class ContactChatFragment extends ContactBaseFragment {
                             @Override
                             protected BoxNavigation doInBackground(Void... params) {
 
-                                //navigate to share folder or create this if not exists
-                                BoxNavigation nav = navigateToShareFolder(filesFragment.getBoxVolume());
+								//navigate to share folders or create this if not exists
+								BoxNavigation nav = navigateToShareFolder(filesFragment.getBoxVolume());
                                 if (nav == null) {
                                     errorId = R.string.message_cant_navigate_to_share_folder;
                                     return null;
                                 }
-                                //check if shared file already exists or attached
-                                if (isAttached(nav, item)) {
+								//check if shared files already exists or attached
+								if (isAttached(nav, item)) {
                                     errorId = R.string.message_cant_attach_external_file_exists;
                                     return null;
                                 }
@@ -285,8 +285,8 @@ public class ContactChatFragment extends ContactBaseFragment {
     }
 
     /**
-     * attach a file to boxvolume. Call this after all checks done
-     *
+	 * attach a files to boxvolume. Call this after all checks done
+	 *
      * @param filesFragment
      * @param nav
      * @param boxExternalReference
@@ -319,10 +319,10 @@ public class ContactChatFragment extends ContactBaseFragment {
                     boxExternalFiles = nav.listExternals();
                     return boxExternalFiles;
                 } catch (QblStorageException e) {
-                    Log.e(TAG, "can't attach shared file", e);
-                } catch (QblStorageNameConflict e) {
-                    Log.e(TAG, "can't attach shared file", e);
-                }
+					Log.e(TAG, "can't attach shared files", e);
+				} catch (QblStorageNameConflict e) {
+					Log.e(TAG, "can't attach shared files", e);
+				}
                 return null;
             }
 
@@ -335,8 +335,8 @@ public class ContactChatFragment extends ContactBaseFragment {
     }
 
     /**
-     * navigate to share folder. if folder don't exists, create it.
-     *
+	 * navigate to share folders. if folders don't exists, create it.
+	 *
      * @param boxVolume
      * @return
      */
@@ -363,16 +363,16 @@ public class ContactChatFragment extends ContactBaseFragment {
                 return null;
             }
         } catch (QblStorageException e) {
-            Log.e(TAG, "error on navigate to share folder", e);
-        } catch (QblStorageNameConflict e) {
-            Log.e(TAG, "error on navigate to share folder", e);
-        }
+			Log.e(TAG, "error on navigate to share folders", e);
+		} catch (QblStorageNameConflict e) {
+			Log.e(TAG, "error on navigate to share folders", e);
+		}
         return null;
     }
 
     /**
-     * check if given item already attached or exists in the share folder
-     *
+	 * check if given item already attached or exists in the share folders
+	 *
      * @param nav
      * @param item
      * @return
@@ -382,8 +382,8 @@ public class ContactChatFragment extends ContactBaseFragment {
         ChatMessageItem.ShareMessagePayload payLoad = (ChatMessageItem.ShareMessagePayload) item.getData();
         String fileNameToAdd = payLoad.getMessage();
         try {
-            //go through external files
-            List<BoxObject> external = nav.listExternals();
+			//go through externals files
+			List<BoxObject> external = nav.listExternals();
             for (BoxObject externalBoxObject : external) {
                 if (externalBoxObject.name.equals(fileNameToAdd)) {
                     return true;
@@ -397,8 +397,8 @@ public class ContactChatFragment extends ContactBaseFragment {
                 }
             }
         } catch (Exception e) {
-            Log.e(TAG, "Error on parse share folder", e);
-            return false;
+			Log.e(TAG, "Error on parse share folders", e);
+			return false;
         }
         return false;
     }

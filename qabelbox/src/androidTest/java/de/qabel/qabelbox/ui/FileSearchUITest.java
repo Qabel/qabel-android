@@ -138,7 +138,7 @@ public class FileSearchUITest {
         testSearchWithFilter("", 9000, 10240, 1, false);
     }
 /*
-    @Test
+	@Test
     public void search3CacheTest() throws QblStorageException {
 
         String text = "";
@@ -153,7 +153,7 @@ public class FileSearchUITest {
         int fileCount = new StorageSearch(mBoxHelper.mBoxVolume.navigate()).getResults().size();
         Spoon.screenshot(mActivity, "before_upload");
 
-        //uploadAndDeleteLocalfile file
+        //uploadAndDeleteLocalfile files
         mBoxHelper.uploadFile(mBoxHelper.mBoxVolume, "black_3", new byte[1024], "");
         mBoxHelper.waitUntilFileCount(fileCount + 1);
 
@@ -176,8 +176,8 @@ public class FileSearchUITest {
     }*/
 
     /**
-     * test if search result match the given. addition check if file browser displayed after back pressed
-     *
+	 * test if search result match the given. addition check if files browser displayed after back pressed
+	 *
      * @param text    search text
      * @param results excepted results
      */
@@ -201,8 +201,8 @@ public class FileSearchUITest {
     }
 
     /**
-     * test if search result matches the given. addition check if file browser displayed after back pressed
-     *
+	 * test if search result matches the given. addition check if files browser displayed after back pressed
+	 *
      * @param text    search text
      * @param results excepted results
      */

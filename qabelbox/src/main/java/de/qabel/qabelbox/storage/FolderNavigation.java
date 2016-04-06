@@ -3,10 +3,6 @@ package de.qabel.qabelbox.storage;
 import android.content.Context;
 import android.support.annotation.Nullable;
 
-
-import de.qabel.core.crypto.DecryptedPlaintext;
-import de.qabel.core.crypto.QblECKeyPair;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spongycastle.crypto.InvalidCipherTextException;
@@ -21,6 +17,8 @@ import java.io.OutputStream;
 import java.security.InvalidKeyException;
 import java.util.Stack;
 
+import de.qabel.core.crypto.DecryptedPlaintext;
+import de.qabel.core.crypto.QblECKeyPair;
 import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.exceptions.QblStorageNotFound;
 import de.qabel.qabelbox.helper.FileHelper;
@@ -102,8 +100,8 @@ public class FolderNavigation extends AbstractNavigation {
             byte[] encrypted = FileHelper.toByteArray(new FileInputStream(indexDl));
             DecryptedPlaintext plaintext = cryptoUtils.readBox(keyPair, encrypted);
             tmp = File.createTempFile("dir", "db", dm.getTempDir());
-            logger.info("Using " + tmp.toString() + " for the metadata file");
-            OutputStream out = new FileOutputStream(tmp);
+			logger.info("Using " + tmp.toString() + " for the metadata files");
+			OutputStream out = new FileOutputStream(tmp);
             out.write(plaintext.getPlaintext());
             out.close();
         } catch (IOException | InvalidCipherTextException | InvalidKeyException e) {

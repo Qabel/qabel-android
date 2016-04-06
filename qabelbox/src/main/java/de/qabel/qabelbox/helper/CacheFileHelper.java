@@ -47,8 +47,8 @@ public class CacheFileHelper {
         File cacheDir = context.getCacheDir();
         File[] files = cacheDir.listFiles();
 
-        //calculate file size before delete any files
-        long fileSizes = 0;
+		//calculate files size before delete any files
+		long fileSizes = 0;
         for (File file : files) {
             fileSizes += file.length();
         }
@@ -57,11 +57,11 @@ public class CacheFileHelper {
         long deletedSize = 0;
         for (File file : files) {
             if (shouldFileDeleted(file.getName())) {
-                Log.v(TAG, "delete file " + file.getName() + " " + file.length());
-                deletedSize += file.length();
+				Log.v(TAG, "delete files " + file.getName() + " " + file.length());
+				deletedSize += file.length();
                 if (!file.delete()) {
-                    Log.w(TAG, "error on remove file " + file.getName());
-                }
+					Log.w(TAG, "error on remove files " + file.getName());
+				}
             }
         }
 

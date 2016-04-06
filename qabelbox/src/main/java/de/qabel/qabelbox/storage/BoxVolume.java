@@ -110,8 +110,8 @@ public class BoxVolume {
         try {
             byte[] encrypted = IOUtils.toByteArray(indexDl);
             if (encrypted.length == 0) {
-                throw new QblStorageException("Empty file");
-            }
+				throw new QblStorageException("Empty files");
+			}
             DecryptedPlaintext plaintext = cryptoUtils.readBox(keyPair, encrypted);
             // Should work fine for the small metafiles
             tmp = File.createTempFile("dir", "db", tempDir);

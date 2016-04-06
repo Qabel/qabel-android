@@ -211,7 +211,7 @@ public class UIBoxHelper {
     }
 
     /**
-     * update drawable file
+     * update drawable files
      *
      * @param filename filename to store in box
      * @param format   format type

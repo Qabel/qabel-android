@@ -19,6 +19,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 @Config(application = RoboApplication.class, constants = BuildConfig.class)
 public class CrashReportingTest {
 
+    @Config(packageName = "de.qabel.qabel.debug")
     @Test
     public void testReportingDisabled() {
         Context context = RuntimeEnvironment.application;

@@ -76,6 +76,9 @@ repositories {
     maven { url "https://oss.sonatype.org/content/repositories/snapshots" }
 }
 
+tasks.withType(Test) {
+    systemProperty 'java.library.path', 'libs/'
+}
 
 dependencies {
     sourceCompatibility = JavaVersion.VERSION_1_7

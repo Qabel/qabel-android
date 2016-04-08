@@ -92,7 +92,7 @@ public class ChatMessageUITest {
         mSystemAnimations = new SystemAnimations(mActivity);
         mSystemAnimations.disableAll();
     }
-
+    @Ignore
     @Test
     public void testSendMessage() {
         Spoon.screenshot(mActivity, "empty");

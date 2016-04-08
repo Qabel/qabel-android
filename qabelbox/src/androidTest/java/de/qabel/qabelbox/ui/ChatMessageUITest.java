@@ -104,6 +104,7 @@ public class ChatMessageUITest {
     /**
      * test visualization of chatmessage. messages direct injected with ui
      */
+    @Ignore
     @Test
     public void testNewMessageVisualization() {
 

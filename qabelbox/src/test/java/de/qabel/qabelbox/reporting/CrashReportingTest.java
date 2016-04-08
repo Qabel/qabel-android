@@ -16,11 +16,10 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 @RunWith(RobolectricGradleTestRunner.class)
-@Config(constants = BuildConfig.class)
+@Config(application = RoboApplication.class, constants = BuildConfig.class)
 public class CrashReportingTest {
 
     @Test
-    @Config(application = RoboApplication.class)
     public void testReportingDisabled() {
         Context context = RuntimeEnvironment.application;
         String name = context.getPackageName();

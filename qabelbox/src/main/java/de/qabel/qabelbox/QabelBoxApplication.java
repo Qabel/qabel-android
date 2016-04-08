@@ -19,10 +19,10 @@ import de.qabel.qabelbox.services.LocalQabelService;
 public class QabelBoxApplication extends Application {
 
     private static final String TAG = "QabelBoxApplication";
-    private LocalQabelService mService;
+    LocalQabelService mService;
     public static final String DEFAULT_DROP_SERVER = "https://test-drop.qabel.de";
 
-    private static QabelBoxApplication mInstance = null;
+    static QabelBoxApplication mInstance = null;
     public static BoxProvider boxProvider;
 
     static {
@@ -46,6 +46,10 @@ public class QabelBoxApplication extends Application {
         super.onCreate();
         Log.d(TAG, "onCreate");
         mInstance = this;
+        initService();
+    }
+
+    void initService() {
         Intent intent = new Intent(this, LocalQabelService.class);
         mServiceConnection = getServiceConnection();
         bindService(intent, mServiceConnection, Context.BIND_AUTO_CREATE);
@@ -64,8 +68,8 @@ public class QabelBoxApplication extends Application {
             @Override
             public void onServiceConnected(ComponentName name, IBinder service) {
                 LocalQabelService.LocalBinder binder = (LocalQabelService.LocalBinder) service;
-                mService = binder.getService();
-                Log.d(TAG, "Service binded");
+				mService = binder.getService();
+				Log.d(TAG, "Service binded");
             }
 
             @Override

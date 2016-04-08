@@ -534,7 +534,7 @@ public class LocalQabelService extends Service {
     }
     protected void initAndroidPersistence(String dbName) {
         AndroidPersistence androidPersistence;
-        QblSQLiteParams params = new QblSQLiteParams(this, dbName, null, DB_VERSION);
+        QblSQLiteParams params = new QblSQLiteParams(getApplicationContext(), dbName, null, DB_VERSION);
         try {
             androidPersistence = new AndroidPersistence(params);
         } catch (QblInvalidEncryptionKeyException e) {

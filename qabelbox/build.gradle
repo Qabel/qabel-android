@@ -14,7 +14,7 @@ spoon {
 
 android {
     compileSdkVersion 22
-    buildToolsVersion '23.0.2'
+    buildToolsVersion '23.0.3'
     dexOptions {
         jumboMode true
     }

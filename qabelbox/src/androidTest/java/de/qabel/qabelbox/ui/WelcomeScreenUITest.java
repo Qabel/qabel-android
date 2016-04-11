@@ -15,6 +15,7 @@ import com.squareup.spoon.Spoon;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
@@ -89,7 +90,7 @@ public class WelcomeScreenUITest {
 
 
     @Test
-    @FlakyTest
+    @Ignore
     public void testWelcomeScreenSlide() {
         int pagerId = R.id.pager;
         onView(withId(R.id.btn_show_sources)).check(matches(isDisplayed()));

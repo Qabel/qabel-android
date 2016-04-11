@@ -1,16 +1,23 @@
 package de.qabel.qabelbox.persistence;
 
 import de.qabel.core.config.Persistable;
+import de.qabel.qabelbox.BuildConfig;
+import de.qabel.qabelbox.RoboApplication;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.robolectric.RobolectricGradleTestRunner;
+import org.robolectric.annotation.Config;
 
 import java.io.Serializable;
 import java.util.List;
 
 import static org.junit.Assert.*;
 
+@RunWith(RobolectricGradleTestRunner.class)
+@Config(application = RoboApplication.class, constants = BuildConfig.class)
 public class PersistenceTest {
     private final static String DB_NAME = "qabel-android-test";
     private final static int DB_VERSION = 1;

@@ -20,11 +20,9 @@ import de.qabel.qabelbox.config.AppPreference;
 import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.providers.BoxProvider;
 import de.qabel.qabelbox.providers.MockBoxProvider;
+import de.qabel.qabelbox.services.LocalQabelService;
 import de.qabel.qabelbox.storage.BoxVolume;
 
-/**
- * Created by Jan D.S. Wischweh <mail@wischweh.de> on 07.03.16.
- */
 public abstract class MockedBoxProviderTest extends InstrumentationTestCase {
 
     MockBoxProvider mockProvider;
@@ -54,7 +52,7 @@ public abstract class MockedBoxProviderTest extends InstrumentationTestCase {
 
     private void initMockContext() {
         mockProvider = new MockBoxProvider();
-        mockProvider.mockBindToService(getContext());
+        mockProvider.mockBindToService(getInstrumentation().getTargetContext());
         mockContentResolver = new MockContentResolver();
         mockContentResolver.addProvider(BoxProvider.AUTHORITY, mockProvider);
 

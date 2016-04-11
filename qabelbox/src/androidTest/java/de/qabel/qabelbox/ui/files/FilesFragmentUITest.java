@@ -177,13 +177,13 @@ public class FilesFragmentUITest {
 
         onView(withText(R.string.ok)).perform(click());
 
-        UITestHelper.sleep(50);
+        UITestHelper.sleep(1000);
 
         //Check progress message
         //XXX Message not belongs to the view
         //onView(withText(R.string.dialog_share_sending_in_progress)).inRoot(withDecorView(not(is(mActivity.getWindow().getDecorView())))).check(matches(isDisplayed()));
 
-        UITestHelper.sleep(TestConstraints.SIMPLE_SERVER_ACTION_TIMEOUT);
+        //UITestHelper.sleep(TestConstraints.SIMPLE_SERVER_ACTION_TIMEOUT);
 
         //Check success message
         onView(withText(R.string.messsage_file_shared)).inRoot(withDecorView(not(is(mActivity.getWindow().getDecorView())))).check(matches(isDisplayed()));

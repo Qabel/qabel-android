@@ -101,18 +101,12 @@ public class WelcomeScreenUITest {
 
         onView(withId(pagerId)).perform(swipeLeft());
 
+        checkDisclaimer();
+
 
     }
 
-    @Test
-    public void testWelcomeScreenDisclaimer() {
-        prefs.setWelcomeScreenShownAt(0);
-        int pagerId = R.id.pager;
-        onView(withId(pagerId)).perform(swipeLeft());
-        onView(withId(pagerId)).perform(swipeLeft());
-        onView(withId(pagerId)).perform(swipeLeft());
-        onView(withId(pagerId)).perform(swipeLeft());
-        UITestHelper.sleep(2000);
+    private void checkDisclaimer() {
         Spoon.screenshot(mActivity, "disclaimer_main");
 
         //click privacy

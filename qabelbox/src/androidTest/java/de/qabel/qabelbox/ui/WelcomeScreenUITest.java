@@ -7,6 +7,8 @@ package de.qabel.qabelbox.ui;
 import android.os.PowerManager;
 import android.support.test.espresso.action.ViewActions;
 import android.support.test.rule.ActivityTestRule;
+import android.test.FlakyTest;
+import android.test.suitebuilder.annotation.LargeTest;
 
 import com.squareup.spoon.Spoon;
 
@@ -19,6 +21,7 @@ import org.junit.runners.MethodSorters;
 
 import java.io.IOException;
 
+import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.activities.WelcomeScreenActivity;
 import de.qabel.qabelbox.config.AppPreference;
@@ -47,7 +50,15 @@ import static junit.framework.Assert.assertTrue;
 public class WelcomeScreenUITest {
 
     @Rule
-    public ActivityTestRule<WelcomeScreenActivity> mActivityTestRule = new ActivityTestRule<>(WelcomeScreenActivity.class, false, true);
+    public ActivityTestRule<WelcomeScreenActivity> mActivityTestRule =
+            new ActivityTestRule<WelcomeScreenActivity>(WelcomeScreenActivity.class, false, true) {
+        @Override
+        protected void beforeActivityLaunched() {
+            super.beforeActivityLaunched();
+            prefs = new AppPreference(QabelBoxApplication.getInstance());
+            prefs.setWelcomeScreenShownAt(0);
+        }
+    };
 
     private WelcomeScreenActivity mActivity;
 
@@ -74,14 +85,12 @@ public class WelcomeScreenUITest {
         wakeLock = UIActionHelper.wakeupDevice(mActivity);
         mSystemAnimations = new SystemAnimations(mActivity);
         mSystemAnimations.disableAll();
-        prefs = new AppPreference(mActivity);
-
     }
 
 
     @Test
+    @FlakyTest
     public void testWelcomeScreenSlide() {
-        prefs.setWelcomeScreenShownAt(0);
         int pagerId = R.id.pager;
         onView(withId(R.id.btn_show_sources)).check(matches(isDisplayed()));
         onView(withText(R.string.headline_welcome_screen1)).check(matches(isDisplayed()));

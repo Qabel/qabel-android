@@ -138,7 +138,7 @@ public class LocalQabelService extends Service {
         return getContacts(getActiveIdentity());
     }
 
-	/**
+    /**
      * Reset the persistence
      *
      * This should only be used in testing.

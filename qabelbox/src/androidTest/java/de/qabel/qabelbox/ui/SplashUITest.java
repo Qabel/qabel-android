@@ -40,27 +40,26 @@ import static android.support.test.espresso.matcher.ViewMatchers.withText;
 public class SplashUITest {
 
     @Rule
-    public ActivityTestRule<SplashActivity> mActivityTestRule = new ActivityTestRule<>(SplashActivity.class, false, true);
+    public ActivityTestRule<SplashActivity> mActivityTestRule = new ActivityTestRule<SplashActivity>(SplashActivity.class, false, true) {
+        @Override
+        protected void beforeActivityLaunched() {
+            new AppPreference(QabelBoxApplication.getInstance()).setWelcomeScreenShownAt(1);
+        }
+    };
 
     private SplashActivity mActivity;
 
     private PowerManager.WakeLock wakeLock;
     private SystemAnimations mSystemAnimations;
 
-    public SplashUITest() throws IOException {
-        new AppPreference(QabelBoxApplication.getInstance()).setWelcomeScreenShownAt(1);
-    }
-
     @After
     public void cleanUp() {
-
         wakeLock.release();
         mSystemAnimations.enableAll();
     }
 
     @Before
     public void setUp() throws IOException, QblStorageException {
-
         mActivity = mActivityTestRule.getActivity();
 
         wakeLock = UIActionHelper.wakeupDevice(mActivity);

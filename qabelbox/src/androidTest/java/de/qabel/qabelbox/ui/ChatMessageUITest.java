@@ -14,7 +14,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.Ignore;
 
 import java.io.IOException;
 
@@ -93,7 +92,6 @@ public class ChatMessageUITest {
         mSystemAnimations = new SystemAnimations(mActivity);
         mSystemAnimations.disableAll();
     }
-    @Ignore
     @Test
     public void testSendMessage() {
         Spoon.screenshot(mActivity, "empty");
@@ -104,7 +102,6 @@ public class ChatMessageUITest {
     /**
      * test visualization of chatmessage. messages direct injected with ui
      */
-    @Ignore
     @Test
     public void testNewMessageVisualization() {
 

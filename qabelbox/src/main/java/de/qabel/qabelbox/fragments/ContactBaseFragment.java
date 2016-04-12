@@ -115,27 +115,32 @@ public class ContactBaseFragment extends BaseFragment {
             FileInputStream fis = new FileInputStream(pfd.getFileDescriptor());
             String json = FileHelper.readFileAsText(fis);
             fis.close();
-            Contacts contacts = ContactExportImport.parse(QabelBoxApplication.getInstance().getService().getActiveIdentity(), json);
+            ContactExportImport.ContactsParseResult result = ContactExportImport.parse(QabelBoxApplication.getInstance().getService().getActiveIdentity(), json);
+            int failed = result.getSkippedContacts();
+            Contacts contacts = result.getContacts();
             for (Contact contact : contacts.getContacts()) {
                 try {
                     addContactSilent(contact);
                     added++;
                 } catch (QblStorageEntityExistsException existsException) {
                     Log.w(TAG, "found doublet's. Will ignore it", existsException);
+                    failed++;
                 }
             }
-            if (added > 0) {
+            if (added == 1 && failed == 0) {
                 UIHelper.showDialogMessage(
                         mActivity,
                         mActivity.getString(R.string.dialog_headline_info),
-                        mActivity.getResources().getQuantityString(R.plurals.contact_import_successfull, added, added));
+                        mActivity.getResources().getString(R.string.contact_import_successfull, added, (added + failed))
+                );
             } else {
                 UIHelper.showDialogMessage(
                         mActivity,
                         mActivity.getString(R.string.dialog_headline_info),
-                        mActivity.getString(R.string.contact_import_zero_additions)
+                        mActivity.getResources().getString(R.string.contact_import_successfull_many, added, (added + failed))
                 );
             }
+
         } catch (IOException | JSONException ioException) {
             UIHelper.showDialogMessage(mActivity, R.string.dialog_headline_warning, R.string.contact_import_failed, ioException);
         }

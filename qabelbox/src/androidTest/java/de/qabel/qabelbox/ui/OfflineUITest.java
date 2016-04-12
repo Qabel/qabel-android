@@ -52,16 +52,16 @@ public class OfflineUITest {
     public void setUp() {
         URLs.setBaseBlockURL(TestConstants.BLOCK_URL);
         mActivity = mActivityTestRule.getActivity();
-        wakeLock = UIActionHelper.wakeupDevice(mActivity);
-        mSystemAnimations = new SystemAnimations(mActivity);
-        mSystemAnimations.disableAll();
-
         mBoxHelper = new UIBoxHelper(QabelBoxApplication.getInstance());
         mBoxHelper.bindService(QabelBoxApplication.getInstance());
         mBoxHelper.createTokenIfNeeded(false);
 
+        mBoxHelper.removeAllIdentities();
         testIdentity = mBoxHelper.addIdentity("spoon");
-        System.out.println(testIdentity.getKeyIdentifier());
+
+        wakeLock = UIActionHelper.wakeupDevice(mActivity);
+        mSystemAnimations = new SystemAnimations(mActivity);
+        mSystemAnimations.disableAll();
     }
 
     @After
@@ -98,6 +98,7 @@ public class OfflineUITest {
     public void testOfflineIndicator() {
         Spoon.screenshot(mActivity, "startup");
 
+        //Test the offline functionslity in the filebrowser
         QabelMatcher.matchToolbarTitle(mActivity.getString(R.string.headline_files))
                 .check(matches(isDisplayed()));
         onView(withId(R.id.files_list)).check(matches(isDisplayed()));
@@ -108,8 +109,6 @@ public class OfflineUITest {
             e.printStackTrace();
         }
         UITestHelper.sleep(10000);
-        ConnectivityManager con = (android.net.ConnectivityManager) mActivity.getSystemService(Context.CONNECTIVITY_SERVICE);
-        System.out.println("CONNECTED: " + con.getActiveNetworkInfo() != null && con.getActiveNetworkInfo().isConnectedOrConnecting());
 
         onView(withText(R.string.server_access_failed_or_invalid_check_internet_connection)).check(matches(isDisplayed()));
         UITestHelper.sleep(2000);
@@ -118,8 +117,6 @@ public class OfflineUITest {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
-        System.out.println("CONNECTED: " + con.getActiveNetworkInfo() != null && con.getActiveNetworkInfo().isConnectedOrConnecting());
 
         onView(withText(R.string.server_access_failed_or_invalid_check_internet_connection)).check(doesNotExist());
     }

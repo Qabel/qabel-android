@@ -28,7 +28,6 @@ public class RequestAction {
     }
 
     public void setCall(Call call) {
-        System.out.println("CALL EXECUTED: " + call.request().toString());
         this.call = call;
     }
 

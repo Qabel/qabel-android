@@ -72,7 +72,6 @@ public class TransferManager {
 
             @Override
             protected void onSuccess(int statusCode, Response response) {
-                System.out.println("UPLOAD COMPLETE");
                 Log.d(TAG, "uploadAndDeleteLocalfile response " + response.code());
                 if (boxTransferListener != null) {
                     boxTransferListener.onFinished();
@@ -84,7 +83,6 @@ public class TransferManager {
 
             @Override
             protected void onError(Exception e, @Nullable Response response) {
-                System.out.println("UPLOAD FAILURED");
                 errors.put(id, e);
                 Log.e(TAG, "error uploading file " + name, e);
                 if (boxTransferListener != null) {

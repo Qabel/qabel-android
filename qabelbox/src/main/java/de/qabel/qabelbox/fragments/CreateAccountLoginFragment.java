@@ -114,7 +114,6 @@ public class CreateAccountLoginFragment extends BaseIdentityFragment {
             protected void onJSONSuccess(Response response, JSONObject json) {
                 BoxAccountRegisterServer.ServerResponse result = BoxAccountRegisterServer.parseJson(json);
                 if (result.token != null && result.token.length() > 5) {
-                    System.out.println(json.toString());
                     AppPreference appPrefs = new AppPreference(getActivity());
                     appPrefs.setToken(result.token);
                     appPrefs.setAccountName(username);

@@ -52,7 +52,6 @@ public abstract class RequestCallback implements Callback {
             }
             onSuccess(statusCode, response);
         } else {
-            System.out.println("RECEIVED UNEXPECTED STATUS CODE: " + statusCode);
             onError(new QblServerException(statusCode, call.request().toString()), response);
         }
     }

@@ -6,16 +6,19 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
+import de.qabel.qabelbox.QabelBoxApplication;
+import de.qabel.qabelbox.communication.callbacks.RequestCallback;
+import de.qabel.qabelbox.communication.connection.ConnectivityManager;
+import okhttp3.Call;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 
-/**
- * Created by danny on 11.02.16.
- */
 public class BaseServer {
 
     protected final OkHttpClient client;
@@ -23,10 +26,40 @@ public class BaseServer {
     private static final String TAG = "BaseServer";
     URLs urls;
 
+    private ConnectivityManager connectivityManager;
+    private List<RequestAction> requestActionQueue = new LinkedList<>();
+
     /**
      * create new instance of http client and set timeouts
      */
     public BaseServer() {
+
+        connectivityManager = new ConnectivityManager(QabelBoxApplication.getInstance().getApplicationContext());
+        connectivityManager.setListener(new ConnectivityManager.ConnectivityListener() {
+            @Override
+            public void handleConnectionLost() {
+                if (!requestActionQueue.isEmpty()) {
+                    for (RequestAction action : requestActionQueue) {
+                        if (action.isExecuted() && !action.isCanceled()) {
+                            action.getCall().cancel();
+                        }
+                    }
+                }
+            }
+
+            @Override
+            public void handleConnectionEtablished() {
+                if (!requestActionQueue.isEmpty()) {
+                    for (RequestAction action : requestActionQueue) {
+                        if (!action.isExecuted() || action.isCanceled()) {
+                            Call call = client.newCall(action.getRequest());
+                            call.enqueue(action.getCallback());
+                            action.setCall(call);
+                        }
+                    }
+                }
+            }
+        });
 
         urls = new URLs();
         OkHttpClient.Builder builder = new OkHttpClient.Builder();
@@ -34,6 +67,31 @@ public class BaseServer {
         builder.readTimeout(15, TimeUnit.SECONDS);    // socket timeout
         builder.writeTimeout(10, TimeUnit.SECONDS);
         client = builder.build();
+    }
+
+    protected void doRequest(final Request request, RequestCallback callback) {
+        final RequestAction requestAction = new RequestAction(request, callback);
+        callback.setSystemHandler(new RequestCallback.SystemHandler() {
+            @Override
+            public void onRequestError() {
+                if (requestAction.isExecuted() && !requestAction.isCanceled()) {
+                    requestAction.getCall().cancel();
+                }
+            }
+
+            @Override
+            public void onRequestSuccess() {
+                requestActionQueue.remove(requestAction);
+            }
+        });
+        if (connectivityManager.isConnected()) {
+            Call call = client.newCall(request);
+            call.enqueue(callback);
+            requestAction.setCall(call);
+        }else {
+            requestAction.getCallback().onFailure(null, null);
+        }
+        requestActionQueue.add(requestAction);
     }
 
     /**

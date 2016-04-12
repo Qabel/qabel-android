@@ -20,7 +20,7 @@
     <string name="action_settings">Einstellungen</string>
     <string name="add">Hinzufügen</string>
     <string name="add_folder_header">Ordner erstellen</string>
-    <string name="add_folder_name">Bitte geben Sie einen Ordnername ein</string>
+    <string name="add_folder_name">Ordnernamen eingeben</string>
     <string name="add_identity">Identität hinzufügen</string>
     <string name="add_new_contact">Kontakt hinzufügen</string>
     <string name="alias_cannot_be_empty">Alias darf nicht leer sein</string>
@@ -45,12 +45,10 @@
     <string name="contact_export_successfully">Kontakt exportiert. Sie können diesen Kontakt nun weitergeben.</string>
     <string name="contact_import_failed">Importieren des Kontaktes fehlgeschlagen</string>
     <string name="contact_import_manual_failed">Importieren des Kontaktes fehlgeschlagen. Bitte überprüfen Sie die eingegebenen Daten</string>
-    <plurals name="contact_import_successfull">
-        <item quantity="one">Kontakt importiert</item>
-        <item quantity="other">%d Kontakte importiert</item>
-    </plurals>
+    <string name="contact_import_successfull_many">%1$d / %2$d Kontakte importiert</string>
+    <string name="contact_import_successfull">Kontakt importiert</string>
     <string name="contact_import_zero_additions">Keine neuen Kontakte gefunden</string>
-    <string name="contact_list_empty">Sie haben noch keine Kontakte.\nBenutzen Sie den Knopf in der Ecke unten rechts, um Kontakte zu importieren</string>
+   <string name="contact_list_empty">Sie haben noch keine Kontakte.\nBenutzen Sie den Knopf in der Ecke unten rechts, um Kontakte zu importieren</string>
     <string name="contact_name">Name des Kontakts</string>
     <string name="contact_public_key">Öffentlicher Schlüssel</string>
     <string name="create_account_email">Bitte geben Sie Ihre E-Mail an. Mit dieser Adresse können Sie Ihren Account zurücksetzen</string>
@@ -89,7 +87,7 @@
     <string name="dialog_message_delete_contact_question">Möchten Sie wirklich den Kontakt %1 löschen?</string>
     <string name="dialog_message_server_communication_is_running">Kommunikation mit dem Server läuft</string>
     <string name="direct_input">Manuelle Eingabe</string>
-    <string name="dummy_infos_text">Dies ist die Betaversion von Qabel</string>
+    <string name="dummy_infos_text">Dies ist die Alphaversion von Qabel</string>
     <string name="edit">Bearbeiten</string>
     <string name="email_adress_invalid">Ihre E-Mail-Adresse ist ungültig. Bitte prüfen Sie die E-Mail-Adresse und versuchen Sie es erneut.</string>
     <string name="error_reason_io">Problem beim Lesen oder Schreiben</string>
@@ -141,7 +139,7 @@
     <string name="qrecode_scanner">QR Code Scanner</string>
     <string name="reason_for_error">Ursache: %1</string>
     <string name="rename_identity">Umbenennen von %s</string>
-    <string name="server_access_failed_or_invalid_check_internet_connection">Die Kommunikation mit dem Server ist fehlgeschlagen. Bitte prüfen Sie, ob Sie alle Daten eingegeben haben und über eine Verbindung zum Internet verfügen</string>
+    <string name="server_access_failed_or_invalid_check_internet_connection">Kommunikation mit dem Server ist fehlgeschlagen. Bitte prüfen Sie, ob Sie alle Daten eingegeben haben und über eine Verbindung zum Internet verfügen</string>
     <string name="server_access_not_successfully_retry_question">Zugriff auf den Server ist fehlgeschlagen. Erneut versuchen?</string>
     <string name="settings_bugreporting">Fehlerberichte</string>
     <string name="settings_bugreporting_enable_summary">Sie werden vor dem Senden von Berichten erneut um Erlaubnis gefragt</string>
@@ -173,11 +171,10 @@
     <string name="cant_send_message">Nachricht konnte nicht gesendet werden</string>
     <string name="cant_import_shared_file">Konnte die geteilte Datei nicht importieren</string>
     <string name="cant_share_contactlist_is_empty">Datei kann nicht geteilt werden. Sie haben keine Kontakte in der Kontaktliste</string>
-    <string name="create_idenity_cant_get_prefix">Fehler beim Abrufen des Prefixes</string>
+    <string name="create_idenity_cant_get_prefix">Keinen Prefix vom Server erhalten</string>
     <string name="dialog_share_sending_in_progress">Datei wird hochgeladen, um geteilt zu werden</string>
     <string name="message_please_wait">Warten Sie bitte einen Moment</string>
     <string name="message_revoke_share">Freigabe wird entzogen</string>
-    <string name="accept_share">Freigabe annehmen</string>
     <string name="ShareToQabelUser">Teilen</string>
     <string name="message_unshare_not_successfull">Freigabe konnte nicht entzogen werden</string>
     <string name="message_unshare_successfull">Freigabe wurde erfolgreich entzogen</string>
@@ -286,10 +283,6 @@ Den Unterstützern der Indigogo Kampagne
     </plurals>
 
     <string name="contact_export_failed">Kontakt konnte nicht exportiert werden</string>
-    <string name="tellAFriendSubject">Sie wurden zu Qabel eingeladen </string>
-    <string name="tellAFriendMessage">Damit haben Sie zunächst die Möglichkeit, Qabel Box zu nutzen. Qabel Box ist ein Ende-zu-Ende verschlüsselter Onlinespeicher, der Ihnen nicht nur die Möglichkeit bietet, Daten verschlüsselt online zu speichern, sondern diese auch nach Belieben mit anderen zu teilen  und das ebenfalls Ende-zu-Ende verschlüsselt. Darüber hinaus verschleiert Qabel auch einen großen Teil der anfallenden Metadaten. Qabel wird ständig erweitert. So wird es Ihnen künftig möglich sein, Ihre gesamte digitale Kommunikation über die Qabel-Plattform anwendungsübergreifend und vor allem einfach und immer Ende-zu-Ende zu verschlüsseln. Werden Sie Teil des Qabel-Ökosystems und legen Sie gleich los:\r\n\r\n<a href="https://qabel.de/de/qabelnow">https://qabel.de/de/qabelnow</a>\r\n\r\nMehr Infos finden Sie unter\r\n\r\n<a href="https://qabel.de">https://qabel.de</a></string>
-    <string name="action_tellafriend">Einladung</string>
-
     <string name="cant_import_file_type_is_unknown">Datei konnte nicht importiert werden, da der Typ unbekannt ist.</string>
     <string name="idenity_imported">Identität erfolgreich importiert</string>
 </resources>

@@ -1,7 +1,6 @@
 package de.qabel.qabelbox.fragments;
 
 import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -12,6 +11,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.json.JSONObject;
 
@@ -19,14 +19,10 @@ import java.util.ArrayList;
 
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.communication.BoxAccountRegisterServer;
-import de.qabel.qabelbox.communication.callbacks.SimpleJsonCallback;
+import de.qabel.qabelbox.communication.callbacks.JsonRequestCallback;
 import de.qabel.qabelbox.helper.UIHelper;
-import okhttp3.Call;
 import okhttp3.Response;
 
-/**
- * Created by danny on 19.01.16.
- */
 public class CreateAccountResetPasswordFragment extends BaseIdentityFragment {
 
     private TextView etEMail;
@@ -80,55 +76,30 @@ public class CreateAccountResetPasswordFragment extends BaseIdentityFragment {
 
         final AlertDialog dialog = UIHelper.showWaitMessage(mActivity, R.string.dialog_headline_please_wait, R.string.dialog_message_server_communication_is_running, false);
 
-        final SimpleJsonCallback callback = createCallback(email, dialog);
+        final JsonRequestCallback callback = createCallback(dialog);
 
         mBoxAccountServer.resetPassword(email, callback);
     }
 
     @NonNull
-    private SimpleJsonCallback createCallback(final String email, final AlertDialog dialog) {
+    private JsonRequestCallback createCallback(final AlertDialog dialog) {
 
-        return new SimpleJsonCallback() {
+        return new JsonRequestCallback() {
 
-            void showRetryDialog() {
-
-                UIHelper.showDialogMessage(getActivity(), R.string.dialog_headline_info, R.string.server_access_not_successfully_retry_question, R.string.yes, R.string.no, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-
-                                resetPassword(email);
-                            }
-                        }
-                        , new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-
-                                dialog.dismiss();
-                            }
-                        });
+            @Override
+            protected void onError(Exception e, @Nullable Response response) {
+                dialog.dismiss();
+                Toast.makeText(getActivity(), R.string.server_access_failed_or_invalid_check_internet_connection, Toast.LENGTH_LONG).show();
             }
 
-            protected void onError(final Call call, Reasons reasons) {
-
-                if (reasons == Reasons.IOException && retryCount++ < 3) {
-                    mBoxAccountServer.resetPassword(email, this);
-                } else {
-                    dialog.dismiss();
-                    showRetryDialog();
-                }
-            }
-
-            protected void onSuccess(Call call, Response response, JSONObject json) {
-
+            @Override
+            protected void onJSONSuccess(Response response, JSONObject json) {
                 final BoxAccountRegisterServer.ServerResponse result = BoxAccountRegisterServer.parseJson(json);
                 if (result.success != null) {
-
                     getActivity().runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-
                             dialog.dismiss();
-
                             getActivity().onBackPressed();
                             UIHelper.showDialogMessage(getActivity(), R.string.dialog_headline_info, result.success);
                         }

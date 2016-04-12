@@ -5,12 +5,14 @@ package de.qabel.qabelbox.ui;
  */
 
 import android.os.PowerManager;
+import android.support.annotation.Nullable;
 import android.support.test.rule.ActivityTestRule;
 import android.test.FlakyTest;
 import android.text.InputType;
 
 import com.squareup.spoon.Spoon;
 
+import org.json.JSONObject;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
@@ -30,6 +32,7 @@ import de.qabel.qabelbox.TestConstraints;
 import de.qabel.qabelbox.activities.CreateAccountActivity;
 import de.qabel.qabelbox.communication.BoxAccountRegisterServer;
 import de.qabel.qabelbox.communication.URLs;
+import de.qabel.qabelbox.communication.callbacks.JsonRequestCallback;
 import de.qabel.qabelbox.config.AppPreference;
 import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.ui.helper.SystemAnimations;
@@ -55,6 +58,7 @@ import static android.support.test.espresso.matcher.ViewMatchers.withInputType;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
 import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertNull;
+import static junit.framework.Assert.assertTrue;
 import static junit.framework.Assert.fail;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.allOf;
@@ -187,16 +191,18 @@ public class CreateBoxAccountUITest extends UIBoxHelper {
 
     private void createBoxAccountWithoutUI(String accountName, String accountEMail, String password) {
         final CountDownLatch cl = new CountDownLatch(1);
-        new BoxAccountRegisterServer().register(accountName, password, password, accountEMail, new Callback() {
+        new BoxAccountRegisterServer().register(accountName, password, password, accountEMail, new JsonRequestCallback(new int[]{200, 201, 400}) {
+
             @Override
-            public void onFailure(Call call, IOException e) {
+            protected void onError(Exception e, @Nullable Response response) {
                 fail("can't create user for login");
             }
 
             @Override
-            public void onResponse(Call call, Response response) throws IOException {
+            protected void onJSONSuccess(Response response, JSONObject result) {
                 cl.countDown();
             }
+
         });
         try {
             cl.await();
@@ -209,15 +215,17 @@ public class CreateBoxAccountUITest extends UIBoxHelper {
 
     private void createExistingUser(String duplicateName, String duplicateEMail, String password) {
         final CountDownLatch cl = new CountDownLatch(1);
-        new BoxAccountRegisterServer().register(duplicateName, password, password, duplicateEMail, new Callback() {
+        new BoxAccountRegisterServer().register(duplicateName, password, password, duplicateEMail, new JsonRequestCallback(new int[]{200, 400}) {
             @Override
-            public void onFailure(Call call, IOException e) {
+            protected void onError(Exception e, @Nullable Response response) {
                 cl.countDown();
+                fail("Could not check create existing user");
             }
 
             @Override
-            public void onResponse(Call call, Response response) throws IOException {
+            protected void onJSONSuccess(Response response, JSONObject result) {
                 cl.countDown();
+                assertNotNull(BoxAccountRegisterServer.parseJson(result).username);
             }
         });
         try {

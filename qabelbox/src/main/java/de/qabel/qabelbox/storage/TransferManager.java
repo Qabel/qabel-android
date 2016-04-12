@@ -20,6 +20,7 @@ import java.util.concurrent.CountDownLatch;
 
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.communication.BlockServer;
+import de.qabel.qabelbox.communication.callbacks.RequestCallback;
 import de.qabel.qabelbox.exceptions.QblServerException;
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -36,7 +37,6 @@ public class TransferManager {
     private final Context context;
 
     public TransferManager(File tempDir) {
-
         this.tempDir = tempDir;
         latches = new ConcurrentHashMap<>();
         errors = new HashMap<>();
@@ -63,48 +63,34 @@ public class TransferManager {
      * @param boxTransferListener listener
      * @return new download id
      */
-    public int uploadAndDeleteLocalfileOnSuccess(String prefix, String name, final File localfile, @Nullable final BoxTransferListener boxTransferListener) {
+    public int uploadAndDeleteLocalfileOnSuccess(String prefix, final String name, final File localfile, @Nullable final BoxTransferListener boxTransferListener) {
 
         Log.d(TAG, "uploadAndDeleteLocalfile " + prefix + " " + name + " " + localfile.toString());
         final int id = blockServer.getNextId();
         latches.put(id, new CountDownLatch(1));
-        blockServer.uploadFile(context, prefix, name, localfile, new Callback() {
-            @Override
-            public void onFailure(Call call, IOException e) {
+        blockServer.uploadFile(context, prefix, name, localfile, new RequestCallback(new int[]{201, 204}) {
 
-                errors.put(id, e);
-                Log.e(TAG, "error uploading to " + call.request(), e);
+            @Override
+            protected void onSuccess(int statusCode, Response response) {
+                System.out.println("UPLOAD COMPLETE");
+                Log.d(TAG, "uploadAndDeleteLocalfile response " + response.code());
                 if (boxTransferListener != null) {
                     boxTransferListener.onFinished();
                 }
+                Log.d(TAG, "delete localfile " + localfile.getName());
+                localfile.delete();
                 latches.get(id).countDown();
             }
 
             @Override
-            public void onResponse(Call call, Response response) throws IOException {
-
-
-                int status = response.code();
-                switch (status) {
-                    case 201:
-                    case 204:
-                        Log.d(TAG, "uploadAndDeleteLocalfile response " + response.code() + "(" + call.request() + ")");
-                        if (boxTransferListener != null) {
-                            boxTransferListener.onFinished();
-                        }
-                        Log.d(TAG, "delete localfile " + localfile.getName());
-                        localfile.delete();
-                        latches.get(id).countDown();
-                        break;
-                    default:
-                        String msg = "Unexpected status code (" + response.code() + " for " + call.request();
-                        errors.put(id, new QblServerException(response.code(), call.request().toString()));
-                        Log.e(TAG, msg);
-                        Log.e(TAG, response.message());
-                        latches.get(id).countDown();
+            protected void onError(Exception e, @Nullable Response response) {
+                System.out.println("UPLOAD FAILURED");
+                errors.put(id, e);
+                Log.e(TAG, "error uploading file " + name, e);
+                if (boxTransferListener != null) {
+                    boxTransferListener.onFinished();
                 }
-
-
+                latches.get(id).countDown();
             }
         });
 
@@ -130,9 +116,9 @@ public class TransferManager {
 
         final int id = blockServer.getNextId();
         latches.put(id, new CountDownLatch(1));
-        blockServer.downloadFile(context, prefix, name, new Callback() {
+        blockServer.downloadFile(context, prefix, name, new RequestCallback() {
             @Override
-            public void onFailure(Call call, IOException e) {
+            public void onError(Exception e, @Nullable Response response) {
                 if (boxTransferListener != null) {
                     boxTransferListener.onFinished();
                 }
@@ -141,17 +127,11 @@ public class TransferManager {
             }
 
             @Override
-            public void onResponse(Call call, Response response) throws IOException {
-                Log.d(TAG, "download response " + response.code() + " on " + call.request());
-                switch (response.code()) {
-                    case 200:
-                        readStreamFromServer(response, file, boxTransferListener);
-                        break;
-                    default:
-                        QblServerException genericError = new QblServerException(response.code(), call.request().toString());
-                        errors.put(id, genericError);
-                        Log.w(TAG, "download failure", genericError);
-                        break;
+            public void onSuccess(int statusCode, Response response) {
+                try {
+                    readStreamFromServer(response, file, boxTransferListener);
+                } catch (IOException e) {
+                    Log.e(TAG, "Error reading stream from Server", e);
                 }
                 if (boxTransferListener != null) {
                     boxTransferListener.onFinished();
@@ -222,28 +202,17 @@ public class TransferManager {
         Log.d(TAG, "delete " + prefix + " " + name);
         final int id = blockServer.getNextId();
         latches.put(id, new CountDownLatch(1));
-        blockServer.deleteFile(context, prefix, name, new Callback() {
+        blockServer.deleteFile(context, prefix, name, new RequestCallback(new int[]{200, 204, 404}) {
             @Override
-            public void onFailure(Call call, IOException e) {
+            public void onError(Exception e, @Nullable Response response) {
                 latches.get(id).countDown();
                 errors.put(id, e);
             }
 
             @Override
-            public void onResponse(Call call, Response response) throws IOException {
+            protected void onSuccess(int statusCode, Response response) {
                 Log.d(TAG, "delete response " + response.code());
                 latches.get(id).countDown();
-                switch (response.code()) {
-                    case 200:
-                    case 204:
-                    case 404: // 404 can be safely ignored
-                        break;
-                    default:
-                        QblServerException genericError = new QblServerException(response.code(), call.request().toString());
-                        Log.w(TAG, genericError.getMessage());
-                        errors.put(id, genericError);
-                        break;
-                }
             }
         });
         return id;

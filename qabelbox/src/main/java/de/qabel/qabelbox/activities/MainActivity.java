@@ -1,5 +1,6 @@
 package de.qabel.qabelbox.activities;
 
+import android.app.AlertDialog;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.content.ComponentName;
@@ -55,6 +56,7 @@ import de.qabel.qabelbox.chat.ShareHelper;
 import de.qabel.qabelbox.communication.VolumeFileTransferHelper;
 import de.qabel.qabelbox.config.AppPreference;
 import de.qabel.qabelbox.config.QabelSchema;
+import de.qabel.qabelbox.communication.connection.ConnectivityManager;
 import de.qabel.qabelbox.dialogs.SelectIdentityForUploadDialog;
 import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.fragments.AboutLicencesFragment;
@@ -136,6 +138,8 @@ public class MainActivity extends CrashReportingActivity
     private ContactFragment contactFragment;
     private LightingColorFilter mDrawerIndicatorTintFilter;
     private TextView textViewBoxAccountName;
+
+    private ConnectivityManager connectivityManager;
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -248,6 +252,47 @@ public class MainActivity extends CrashReportingActivity
         initFloatingActionButton();
 
         bindService(serviceIntent, mServiceConnection, Context.BIND_AUTO_CREATE);
+
+        connectivityManager = new ConnectivityManager(this);
+        connectivityManager.setListener(new ConnectivityManager.ConnectivityListener() {
+
+            private AlertDialog offlineIndicator;
+
+            @Override
+            public void handleConnectionLost() {
+                if (offlineIndicator == null) {
+                    AlertDialog.Builder builder = new AlertDialog.Builder(self);
+                    builder.setMessage("Keine Internetverbindung")
+                            .setIcon(R.drawable.ic_information_black_18dp)
+                            .setNegativeButton("App schließen", new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int id) {
+                                    self.finishAffinity();
+                                }
+                            })
+                            .setPositiveButton("Erneut versuchen", null);
+                    offlineIndicator = builder.create();
+                    offlineIndicator.show();
+                    offlineIndicator.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            if (connectivityManager.isConnected()) {
+                                offlineIndicator.dismiss();
+                            } else {
+                                offlineIndicator.show();
+                            }
+                        }
+                    });
+                }
+                offlineIndicator.show();
+            }
+
+            @Override
+            public void handleConnectionEtablished() {
+                if (offlineIndicator != null && offlineIndicator.isShowing()) {
+                    offlineIndicator.dismiss();
+                }
+            }
+        });
 
         addBackStackListener();
     }
@@ -932,6 +977,11 @@ public class MainActivity extends CrashReportingActivity
         if (isTaskRoot()) {
             new CacheFileHelper().freeCacheAsynchron(QabelBoxApplication.getInstance().getApplicationContext());
         }
+
+        if(connectivityManager != null){
+            connectivityManager.onDestroy();
+        }
+
         super.onDestroy();
     }
 

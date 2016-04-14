@@ -16,51 +16,51 @@ import static org.junit.Assert.*;
 
 @RunWith(RobolectricGradleTestRunner.class)
 @Config(application = SimpleApplication.class, constants = BuildConfig.class)
-public class BoxAuthenticatorTest {
+public class QabelAuthenticatorTest {
 
     private Context context;
-    private BoxAuthenticator boxAuthenticator;
+    private QabelAuthenticator qabelAuthenticator;
 
     @Before
     public void setUp() {
         context = RuntimeEnvironment.application;
-        boxAuthenticator = new BoxAuthenticator(context);
+        qabelAuthenticator = new QabelAuthenticator(context);
     }
 
     @Test(expected = UnsupportedOperationException.class)
     public void testEditProperties() throws Exception {
-        boxAuthenticator.editProperties(null, null);
+        qabelAuthenticator.editProperties(null, null);
     }
 
     @Test(expected = UnsupportedOperationException.class)
     public void testAddAccount() throws Exception {
-        boxAuthenticator.addAccount(null, null, null, null, null);
+        qabelAuthenticator.addAccount(null, null, null, null, null);
     }
 
     @Test
     public void testConfirmCredentials() throws Exception {
-        assertNull(boxAuthenticator.confirmCredentials(null, null, null));
+        assertNull(qabelAuthenticator.confirmCredentials(null, null, null));
     }
 
     @Test(expected = UnsupportedOperationException.class)
     public void testGetAuthToken() throws Exception {
-        boxAuthenticator.getAuthToken(null, null, null, null);
+        qabelAuthenticator.getAuthToken(null, null, null, null);
 
     }
 
     @Test(expected = UnsupportedOperationException.class)
     public void testGetAuthTokenLabel() throws Exception {
-        boxAuthenticator.getAuthTokenLabel(null);
+        qabelAuthenticator.getAuthTokenLabel(null);
     }
 
     @Test(expected = UnsupportedOperationException.class)
     public void testUpdateCredentials() throws Exception {
-        boxAuthenticator.updateCredentials(null, null, null, null);
+        qabelAuthenticator.updateCredentials(null, null, null, null);
     }
 
     @Test(expected = UnsupportedOperationException.class)
     public void testHasFeatures() throws Exception {
-        boxAuthenticator.hasFeatures(null, null, null);
+        qabelAuthenticator.hasFeatures(null, null, null);
 
     }
 }

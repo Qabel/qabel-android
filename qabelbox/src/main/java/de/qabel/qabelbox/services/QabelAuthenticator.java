@@ -7,8 +7,8 @@ import android.accounts.NetworkErrorException;
 import android.content.Context;
 import android.os.Bundle;
 
-public class BoxAuthenticator extends AbstractAccountAuthenticator {
-    public BoxAuthenticator(Context context) {
+public class QabelAuthenticator extends AbstractAccountAuthenticator {
+    public QabelAuthenticator(Context context) {
         super(context);
     }
 

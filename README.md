@@ -57,6 +57,10 @@ For detailed instructions, please read the [INSTALL.md](https://raw.githubuserco
 
 // TODO
 
+# Development
+
+To run the unit test in Android Studio, you need to change the default options for the JUnit task. Change the vm-options to `-ea -Djava.library.path=libs/` so that the android studio testrunner finds the crypto library we use.
+
 # Contribution
 
 For issues using the Qabel Android Client, use the feedback feature inside the app (Settings -> Feedback).

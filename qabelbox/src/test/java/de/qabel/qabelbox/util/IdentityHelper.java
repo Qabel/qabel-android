@@ -1,4 +1,4 @@
-package de.qabel.qabelbox.config;
+package de.qabel.qabelbox.util;
 
 import android.content.Context;
 
@@ -13,7 +13,6 @@ import de.qabel.core.drop.AdjustableDropIdGenerator;
 import de.qabel.core.drop.DropIdGenerator;
 import de.qabel.core.drop.DropURL;
 import de.qabel.qabelbox.QabelBoxApplication;
-import de.qabel.qabelbox.helper.PrefixGetter;
 
 /**
  * Created by danny on 02.03.16.
@@ -24,7 +23,7 @@ public class IdentityHelper {
      *
      * @param context
      * @param identName
-     * @param prefix    if prefix null, get a real prefix
+     * @param prefix
      * @return
      */
     public static Identity createIdentity(Context context, String identName, String prefix) {
@@ -34,9 +33,6 @@ public class IdentityHelper {
         DropURL dropURL = new DropURL(dropServer, adjustableDropIdGenerator);
         Collection<DropURL> dropURLs = new ArrayList<>();
         dropURLs.add(dropURL);
-        if (prefix == null) {
-            prefix = new PrefixGetter().getPrefix(context);
-        }
         Identity identity = new Identity(identName,
                 dropURLs, new QblECKeyPair());
         identity.getPrefixes().add(prefix);

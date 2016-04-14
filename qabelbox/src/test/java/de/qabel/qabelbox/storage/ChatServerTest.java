@@ -1,23 +1,29 @@
 package de.qabel.qabelbox.storage;
 
-import android.support.test.runner.AndroidJUnit4;
+
+import android.content.Context;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.robolectric.RobolectricGradleTestRunner;
+import org.robolectric.RuntimeEnvironment;
+import org.robolectric.annotation.Config;
 
 import de.qabel.core.config.Contact;
 import de.qabel.core.config.Identity;
+import de.qabel.qabelbox.BuildConfig;
+import de.qabel.qabelbox.RoboApplication;
 import de.qabel.qabelbox.chat.ChatMessageItem;
 import de.qabel.qabelbox.chat.ChatMessagesDataBase;
 import de.qabel.qabelbox.chat.ChatServer;
-import de.qabel.qabelbox.config.IdentityHelper;
+import de.qabel.qabelbox.util.IdentityHelper;
 
-import static android.support.test.InstrumentationRegistry.getTargetContext;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
-@RunWith(AndroidJUnit4.class)
+@RunWith(RobolectricGradleTestRunner.class)
+@Config(application = RoboApplication.class, constants = BuildConfig.class)
 public class ChatServerTest {
 
     private Identity identity;
@@ -25,13 +31,15 @@ public class ChatServerTest {
     private Contact contact2;
     private String publicKey1;
     private String publicKey2;
+    private Context context;
 
     @Before
     public void setUp() throws Exception {
-        identity = IdentityHelper.createIdentity(getTargetContext(), "user1", "pre1");
+        context = RuntimeEnvironment.application;
+        identity = IdentityHelper.createIdentity(context, "user1", "pre1");
 
-        Identity contactIdentity1 = IdentityHelper.createIdentity(getTargetContext(), "contact1", "per3");
-        Identity contactIdentity2 = IdentityHelper.createIdentity(getTargetContext(), "contact1", "pre4");
+        Identity contactIdentity1 = IdentityHelper.createIdentity(context, "contact1", "per3");
+        Identity contactIdentity2 = IdentityHelper.createIdentity(context, "contact1", "pre4");
         contact1 = new Contact("contact1", contactIdentity1.getDropUrls(), contactIdentity1.getEcPublicKey());
         contact2 = new Contact("contact2", contactIdentity2.getDropUrls(), contactIdentity2.getEcPublicKey());
         publicKey1 = getKeyIdentitfier(contact1);
@@ -44,7 +52,7 @@ public class ChatServerTest {
     @Test
     public void testStoreOneItemInDB() {
 
-        ChatMessagesDataBase dataBase = new ChatMessagesDataBase(getTargetContext(), identity);
+        ChatMessagesDataBase dataBase = new ChatMessagesDataBase(context, identity);
         ChatMessageItem[] messages;
 
         ChatMessageItem item = new ChatMessageItem(identity, getKeyIdentitfier(contact1), "payload", "payloadtype");
@@ -62,7 +70,7 @@ public class ChatServerTest {
     @Test
     public void testStoreManyItemsInDB() {
 
-        ChatMessagesDataBase dataBase = new ChatMessagesDataBase(getTargetContext(), identity);
+        ChatMessagesDataBase dataBase = new ChatMessagesDataBase(context, identity);
         ChatMessageItem[] messages;
 
 
@@ -82,7 +90,7 @@ public class ChatServerTest {
     @Test
     public void testGetNewMessageCountFromSenderDB() {
 
-        ChatMessagesDataBase dataBase = new ChatMessagesDataBase(getTargetContext(), identity);
+        ChatMessagesDataBase dataBase = new ChatMessagesDataBase(context, identity);
 
         //add 30 items
         for (int i = 0; i < 21; i++) {
@@ -105,7 +113,7 @@ public class ChatServerTest {
     @Test
     public void testSetMessagesAsRead() {
 
-        ChatMessagesDataBase dataBase = new ChatMessagesDataBase(getTargetContext(), identity);
+        ChatMessagesDataBase dataBase = new ChatMessagesDataBase(context, identity);
         int messageCount;
         for (int i = 0; i < 3; i++) {
             ChatMessageItem item = new ChatMessageItem(identity, publicKey1, "payload" + i, "payloadtype");
@@ -144,7 +152,7 @@ public class ChatServerTest {
     @Test
     public void testStoreConflictItemsInDB() {
 
-        ChatMessagesDataBase dataBase = new ChatMessagesDataBase(getTargetContext(), identity);
+        ChatMessagesDataBase dataBase = new ChatMessagesDataBase(context, identity);
         ChatMessageItem[] messages;
         String publicKey = getKeyIdentitfier(contact1);
         //create own item1
@@ -177,7 +185,7 @@ public class ChatServerTest {
      */
     @Test
     public void testStoreInDBWithDifferentContacts() {
-        ChatMessagesDataBase dataBase = new ChatMessagesDataBase(getTargetContext(), identity);
+        ChatMessagesDataBase dataBase = new ChatMessagesDataBase(context, identity);
         ChatMessageItem[] messages;
 
         ChatMessageItem item1 = new ChatMessageItem(identity, publicKey1, "payload", "payloadtype");

@@ -113,14 +113,7 @@ public class ContactFragment extends BaseFragment {
 
         int id = item.getItemId();
         if (id == R.id.action_contact_refresh) {
-
-            new AsyncTask<Void, Void, Collection<DropMessage>>() {
-                @Override
-                protected Collection<DropMessage> doInBackground(Void... params) {
-
-                    return chatServer.refreshList();
-                }
-            }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+            pullDropMessagesAsync();
         }
         if (id == R.id.action_contact_export_all) {
             exportAllContacts();
@@ -213,9 +206,35 @@ public class ContactFragment extends BaseFragment {
                             case R.id.contact_list_item_export:
                                 exportContact(contact);
                                 break;
+							case R.id.contact_list_item_qrcode:
+								exportContactAsQRCode(contact);
+                                break;
                         }
                     }
                 }).show();
+    }
+
+    @Override
+    public void onResume() {
+	        super.onResume();
+	        pullDropMessagesAsync();
+	}
+
+    private void pullDropMessagesAsync() {
+        new AsyncTask<Void, Void, Collection<DropMessage>>() {
+            @Override
+            protected Collection<DropMessage> doInBackground(Void... params) {
+
+                return chatServer.refreshList();
+            }
+        }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+    }
+
+	private void exportContactAsQRCode(Contact contact) {
+        mActivity.getFragmentManager().beginTransaction()
+		                .replace(R.id.fragment_container, QRcodeFragment.newInstance(contact), null)
+		                .addToBackStack(null)
+		                .commit();
     }
 
     /**
@@ -367,7 +386,7 @@ public class ContactFragment extends BaseFragment {
                                 UIHelper.showDialogMessage(
                                         mActivity,
                                         mActivity.getString(R.string.dialog_headline_info),
-                                        mActivity.getResources().getString(R.string.contact_import_successfull, added, (added + failed))
+                                        mActivity.getResources().getString(R.string.contact_import_successfull)
                                 );
                             } else {
                                 UIHelper.showDialogMessage(

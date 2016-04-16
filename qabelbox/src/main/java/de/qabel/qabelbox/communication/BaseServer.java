@@ -50,13 +50,19 @@ public class BaseServer {
             @Override
             public void handleConnectionEtablished() {
                 if (!requestActionQueue.isEmpty()) {
+                    List<RequestAction> failedAction = new LinkedList<RequestAction>();
                     for (RequestAction action : requestActionQueue) {
+                        if (action.getExecuted() == action.getAutoRetry()) {
+                            failedAction.add(action);
+                            continue;
+                        }
                         if (!action.isExecuted() || action.isCanceled()) {
                             Call call = client.newCall(action.getRequest());
                             call.enqueue(action.getCallback());
                             action.setCall(call);
                         }
                     }
+                    requestActionQueue.removeAll(failedAction);
                 }
             }
         });
@@ -88,8 +94,6 @@ public class BaseServer {
             Call call = client.newCall(request);
             call.enqueue(callback);
             requestAction.setCall(call);
-        }else {
-            requestAction.getCallback().onFailure(null, null);
         }
         requestActionQueue.add(requestAction);
     }
@@ -120,16 +124,6 @@ public class BaseServer {
     protected static String getJsonString(String key, JSONObject json) {
 
         if (json.has(key)) {
-            try {
-                JSONArray array = json.getJSONArray(key);
-                String ret = "";
-                for (int i = 0; i < array.length(); i++) {
-                    ret += array.getString(i);
-                }
-                return ret;
-            } catch (JSONException e) {
-                Log.d(TAG, "can't convert " + key + " to array. try string");
-            }
             try {
                 return json.getString(key);
             } catch (JSONException e) {

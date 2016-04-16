@@ -29,7 +29,7 @@ public abstract class RequestCallback implements Callback {
         this(new int[]{DEFAULT_SUCCESS_STATUS_CODE});
     }
 
-    public RequestCallback(int[] acceptedStatusCodes) {
+    public RequestCallback(int... acceptedStatusCodes) {
         for (int code : acceptedStatusCodes) {
             this.acceptedStatusCodes.add(code);
         }

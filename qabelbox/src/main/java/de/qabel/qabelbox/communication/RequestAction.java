@@ -6,8 +6,12 @@ import okhttp3.Request;
 
 public class RequestAction {
 
+    private int autoRetry = 5;
+    private int executed = 0;
     private Request request;
     private Callback callback;
+
+
     private Call call;
 
     public RequestAction(Request request, Callback callback) {
@@ -29,6 +33,7 @@ public class RequestAction {
 
     public void setCall(Call call) {
         this.call = call;
+        this.executed++;
     }
 
     public boolean isExecuted() {
@@ -37,5 +42,13 @@ public class RequestAction {
 
     public boolean isCanceled() {
         return this.call != null && this.call.isCanceled();
+    }
+
+    public int getAutoRetry() {
+        return autoRetry;
+    }
+
+    public int getExecuted(){
+        return executed;
     }
 }

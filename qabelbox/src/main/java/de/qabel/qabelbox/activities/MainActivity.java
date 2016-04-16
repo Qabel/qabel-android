@@ -262,15 +262,16 @@ public class MainActivity extends CrashReportingActivity
             public void handleConnectionLost() {
                 if (offlineIndicator == null) {
                     AlertDialog.Builder builder = new AlertDialog.Builder(self);
-                    builder.setMessage("Keine Internetverbindung")
+                    builder.setMessage(R.string.no_connection)
                             .setIcon(R.drawable.ic_information_black_18dp)
-                            .setNegativeButton("App schließen", new DialogInterface.OnClickListener() {
+                            .setNegativeButton(R.string.close_app, new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int id) {
                                     self.finishAffinity();
                                 }
                             })
-                            .setPositiveButton("Erneut versuchen", null);
+                            .setPositiveButton(R.string.retry_action, null);
                     offlineIndicator = builder.create();
+                    offlineIndicator.setCancelable(false);
                     offlineIndicator.show();
                     offlineIndicator.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
                         @Override

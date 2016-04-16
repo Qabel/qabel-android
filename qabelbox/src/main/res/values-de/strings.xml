@@ -285,4 +285,7 @@ Den Unterstützern der Indigogo Kampagne
     <string name="contact_export_failed">Kontakt konnte nicht exportiert werden</string>
     <string name="cant_import_file_type_is_unknown">Datei konnte nicht importiert werden, da der Typ unbekannt ist.</string>
     <string name="idenity_imported">Identität erfolgreich importiert</string>
+    <string name="no_connection">Keine Internetverbindung</string>
+    <string name="close_app">App schließen</string>
+    <string name="retry_action">Erneut versuchen</string>
 </resources>

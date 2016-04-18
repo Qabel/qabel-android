@@ -7,7 +7,7 @@
         android:id="@+id/action_contact_refresh"
         android:orderInCategory="200"
         android:title="@string/refresh"
-        android:icon="@drawable/ic_action_reload"
+        android:icon="@drawable/sync_white"
         app:showAsAction="always"/>
 
     <item

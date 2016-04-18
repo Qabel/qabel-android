@@ -24,7 +24,7 @@
             style="@style/EditText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:drawableStart="@drawable/ic_perm_identity_black"
+            android:drawableStart="@drawable/account"
             android:hint="@string/contact_name"
             />
 
@@ -33,7 +33,7 @@
             style="@style/EditText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:drawableStart="@drawable/ic_share_black"
+            android:drawableStart="@drawable/earth"
             android:hint="@string/contact_drop_url"
             android:inputType="textUri"
             />
@@ -43,7 +43,7 @@
             style="@style/EditText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:drawableStart="@drawable/ic_settings_black"
+            android:drawableStart="@drawable/key_variant"
             android:hint="@string/contact_public_key"
             />
 

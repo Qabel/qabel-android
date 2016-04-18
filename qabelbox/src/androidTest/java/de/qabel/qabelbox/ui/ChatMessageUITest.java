@@ -293,7 +293,7 @@ public class ChatMessageUITest {
     }
 
     private void addOwnMessage(ChatServer chatServer, String contact1Alias, String contact2Alias, String contact1Key) {
-        ChatMessageItem item = new ChatMessageItem(chatServer.getTextDropMessage("ownmessage"));
+        ChatMessageItem item = new ChatMessageItem(chatServer.createTextDropMessage("ownmessage"));
         item.receiver = contact1Key;
         item.sender = QabelBoxApplication.getInstance().getService().getActiveIdentity().getEcPublicKey().getReadableKeyIdentifier();
         item.isNew = 0;
@@ -323,7 +323,7 @@ public class ChatMessageUITest {
     }
 
     private ChatMessageItem createNewChatMessageItem(String sender, String receiver, String message) {
-        return new ChatMessageItem(-1, (short) 1, System.currentTimeMillis() + System.nanoTime() % 1000, sender, receiver, message, ChatMessageItem.BOX_MESSAGE, mActivity.chatServer.getTextDropMessagePayload(message));
+        return new ChatMessageItem(-1, (short) 1, System.currentTimeMillis() + System.nanoTime() % 1000, sender, receiver, message, ChatMessageItem.BOX_MESSAGE, mActivity.chatServer.createTextDropMessagePayload(message));
     }
 
 }

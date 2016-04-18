@@ -126,7 +126,7 @@ public class ContactChatFragment extends ContactBaseFragment {
 
     private void sendMessage(String text) {
         try {
-            final DropMessage dropMessage = chatServer.getTextDropMessage(text);
+            final DropMessage dropMessage = chatServer.createTextDropMessage(text);
             final Identity identity = QabelBoxApplication.getInstance().getService().getActiveIdentity();
             QabelBoxApplication.getInstance().getService().sendDropMessage(dropMessage, contact, identity, new LocalQabelService.OnSendDropMessageResult() {
                 @Override
@@ -207,7 +207,7 @@ public class ContactChatFragment extends ContactBaseFragment {
             Log.v(TAG, "add message " + item.drop_payload);
             messages.add(item);
         }
-        chatServer.setAllMessagesReaded(contact);
+        chatServer.setAllMessagesRead(contact);
         fillAdapter(messages);
     }
 

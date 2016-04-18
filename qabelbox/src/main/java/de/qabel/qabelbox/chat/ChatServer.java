@@ -13,7 +13,6 @@ import java.util.List;
 import de.qabel.core.config.Contact;
 import de.qabel.core.config.Identity;
 import de.qabel.core.drop.DropMessage;
-import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.services.LocalQabelService;
 
 /**
@@ -28,9 +27,11 @@ public class ChatServer {
 
     private final ChatMessagesDataBase dataBase;
     private final List<ChatServerCallback> callbacks = new ArrayList<>();
+    private LocalQabelService mService;
     private final Identity currentIdentity;
 
     public ChatServer(LocalQabelService mService, Context context, Identity currentIdentity) {
+        this.mService = mService;
         this.currentIdentity = currentIdentity;
 
         dataBase = new ChatMessagesDataBase(context, currentIdentity);
@@ -55,7 +56,7 @@ public class ChatServer {
         long lastRetrieved = dataBase.getLastRetrievedDropMessageTime();
         Log.d(TAG, "last retrieved dropmessage time " + lastRetrieved + " / " + System.currentTimeMillis());
         String identityKey = getCurrentIdentityIdentifier();
-        Collection<DropMessage> result = getDropMessages(lastRetrieved);
+        Collection<DropMessage> result = downloadDropMessages(lastRetrieved);
 
         if (result != null) {
             Log.d(TAG, "new message count: " + result.size());
@@ -81,8 +82,8 @@ public class ChatServer {
         return result;
     }
 
-    private Collection<DropMessage> getDropMessages(long lastRetrieved) {
-        return QabelBoxApplication.getInstance().getService().retrieveDropMessages(getActiveIdentity(), lastRetrieved);
+    private Collection<DropMessage> downloadDropMessages(long lastRetrieved) {
+        return mService.retrieveDropMessages(getActiveIdentity(), lastRetrieved);
     }
 
     private Identity getActiveIdentity() {
@@ -95,7 +96,6 @@ public class ChatServer {
 
 
     public void storeIntoDB(ChatMessageItem item) {
-
         if (item != null) {
             dataBase.put(item);
         }
@@ -111,14 +111,14 @@ public class ChatServer {
         }
     }
 
-    public DropMessage getTextDropMessage(String message) {
+    public DropMessage createTextDropMessage(String message) {
 
         String payload_type = ChatMessageItem.BOX_MESSAGE;
-        String payload = getTextDropMessagePayload(message);
+        String payload = createTextDropMessagePayload(message);
         return new DropMessage(getActiveIdentity(), payload, payload_type);
     }
 
-    public String getTextDropMessagePayload(String message) {
+    public String createTextDropMessagePayload(String message) {
         JSONObject payloadJson = new JSONObject();
         try {
             payloadJson.put(TAG_MESSAGE, message);
@@ -128,7 +128,7 @@ public class ChatServer {
         return payloadJson.toString();
     }
 
-    public DropMessage getShareDropMessage(String message, String url, String key) {
+    public DropMessage createShareDropMessage(String message, String url, String key) {
 
         String payload_type = ChatMessageItem.SHARE_NOTIFICATION;
         JSONObject payloadJson = new JSONObject();
@@ -148,7 +148,7 @@ public class ChatServer {
         return dataBase.getNewMessageCount(c) > 0;
     }
 
-    public int setAllMessagesReaded(Contact c) {
+    public int setAllMessagesRead(Contact c) {
         return dataBase.setAllMessagesRead(c);
     }
 
@@ -161,7 +161,6 @@ public class ChatServer {
     }
 
     public interface ChatServerCallback {
-
         //droplist refreshed
         void onRefreshed();
     }

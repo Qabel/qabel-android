@@ -45,14 +45,16 @@ Everything below this line describes the usage of the Qabel Android Client for d
 
 # <a name="getting_started"></a>Getting started
 
-* Get a recent version of AndroidStudio
-* Check out the repository
+* Install Android Studio.
+* Open the SDK Manager from Tools/Android/SDK Manager
+* Install the SDK version 23. Make sure you install the "Android Support Repository" and the latest "Android SDK build-tools"
+* Import the project from git (File/New/Project from version control)
 * Create the file /qabelbox/src/main/res/values/params.xml with the following contents:
 
     `<resources> <string name="hockeykey">dummykey</string> </resources>`
-* Import the repository as a project in AndroidStudio
 * Select the qabelbox module
 * Click "Run" and you're done.
+
 
 # Usage
 

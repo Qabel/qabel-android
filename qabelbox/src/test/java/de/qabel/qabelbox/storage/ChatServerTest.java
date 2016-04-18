@@ -36,10 +36,10 @@ public class ChatServerTest {
     @Before
     public void setUp() throws Exception {
         context = RuntimeEnvironment.application;
-        identity = IdentityHelper.createIdentity(context, "user1", "pre1");
+        identity = IdentityHelper.createIdentity("user1", "pre1");
 
-        Identity contactIdentity1 = IdentityHelper.createIdentity(context, "contact1", "per3");
-        Identity contactIdentity2 = IdentityHelper.createIdentity(context, "contact1", "pre4");
+        Identity contactIdentity1 = IdentityHelper.createIdentity("contact1", "per3");
+        Identity contactIdentity2 = IdentityHelper.createIdentity("contact1", "pre4");
         contact1 = new Contact("contact1", contactIdentity1.getDropUrls(), contactIdentity1.getEcPublicKey());
         contact2 = new Contact("contact2", contactIdentity2.getDropUrls(), contactIdentity2.getEcPublicKey());
         publicKey1 = getKeyIdentitfier(contact1);
@@ -212,7 +212,7 @@ public class ChatServerTest {
      */
     @Test
     public void testStoreInChatServer() {
-        ChatServer chatServer = new ChatServer(identity);
+        ChatServer chatServer = new ChatServer(context, identity);
         ChatMessageItem[] messages;
         ChatMessageItem item = new ChatMessageItem(identity, publicKey1, "payload", "payloadtype");
         chatServer.storeIntoDB(item);

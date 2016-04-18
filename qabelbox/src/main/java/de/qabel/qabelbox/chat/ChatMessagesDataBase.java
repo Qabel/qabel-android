@@ -230,7 +230,7 @@ public class ChatMessagesDataBase extends SQLiteOpenHelper {
 
     }
 
-    public void setLastRetrivedDropMessagesTime(long time) {
+    public void setLastRetrievedDropMessagesTime(long time) {
         SQLiteDatabase database = getReadableDatabase();
         ContentValues values = new ContentValues();
         values.put(COL_LOAD_TIMESTAMP, time);

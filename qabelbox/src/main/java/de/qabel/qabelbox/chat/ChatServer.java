@@ -1,5 +1,6 @@
 package de.qabel.qabelbox.chat;
 
+import android.content.Context;
 import android.util.Log;
 
 import org.json.JSONException;
@@ -27,9 +28,9 @@ public class ChatServer {
     private final ChatMessagesDataBase dataBase;
     private final List<ChatServerCallback> callbacks = new ArrayList<>();
 
-    public ChatServer(Identity currentIdentity) {
+    public ChatServer(Context context, Identity currentIdentity) {
 
-        dataBase = new ChatMessagesDataBase(QabelBoxApplication.getInstance(), currentIdentity);
+        dataBase = new ChatMessagesDataBase(context, currentIdentity);
     }
 
 
@@ -70,7 +71,7 @@ public class ChatServer {
             }
         }
         lastRetrieved = 0;
-        dataBase.setLastRetrivedDropMessagesTime(lastRetrieved);
+        dataBase.setLastRetrievedDropMessagesTime(lastRetrieved);
         Log.d(TAG, "new retrieved dropmessage time " + lastRetrieved);
 
         sendCallbacksRefreshed();

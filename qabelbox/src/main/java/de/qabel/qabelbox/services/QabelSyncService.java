@@ -4,11 +4,11 @@ import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
 
-import de.qabel.qabelbox.adapter.BoxSyncAdapter;
+import de.qabel.qabelbox.adapter.QabelSyncAdapter;
 
-public class BoxSyncService extends Service {
+public class QabelSyncService extends Service {
 
-    private static BoxSyncAdapter boxSyncAdapter = null;
+    private static QabelSyncAdapter qabelSyncAdapter = null;
     // Object to use as a thread-safe lock (from official Android documentation!!)
     private static final Object syncAdapterLock = new Object();
 
@@ -16,15 +16,15 @@ public class BoxSyncService extends Service {
     @Override
     public void onCreate() {
         synchronized (syncAdapterLock) {
-            if (boxSyncAdapter == null) {
-                boxSyncAdapter = new
-                        BoxSyncAdapter(getApplicationContext(), true);
+            if (qabelSyncAdapter == null) {
+                qabelSyncAdapter = new
+                        QabelSyncAdapter(getApplicationContext(), true);
             }
         }
     }
 
     @Override
     public IBinder onBind(Intent intent) {
-        return boxSyncAdapter.getSyncAdapterBinder();
+        return qabelSyncAdapter.getSyncAdapterBinder();
     }
 }

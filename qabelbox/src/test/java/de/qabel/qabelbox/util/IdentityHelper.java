@@ -21,12 +21,11 @@ public class IdentityHelper {
     /**
      * create identity onthefile
      *
-     * @param context
      * @param identName
      * @param prefix
      * @return
      */
-    public static Identity createIdentity(Context context, String identName, String prefix) {
+    public static Identity createIdentity(String identName, String prefix) {
         URI uri = URI.create(QabelBoxApplication.DEFAULT_DROP_SERVER);
         DropServer dropServer = new DropServer(uri, "", true);
         DropIdGenerator adjustableDropIdGenerator = new AdjustableDropIdGenerator(2 * 8);

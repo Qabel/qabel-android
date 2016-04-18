@@ -5,7 +5,7 @@ import android.content.Intent;
 import android.os.IBinder;
 
 
-public class BoxAuthenticatorService extends Service {
+public class QabelAuthenticatorService extends Service {
     private QabelAuthenticator mAuthenticator;
 
     @Override

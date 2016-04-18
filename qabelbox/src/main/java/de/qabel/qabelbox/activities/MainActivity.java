@@ -318,7 +318,7 @@ public class MainActivity extends CrashReportingActivity
         Log.d(TAG, "LocalQabelService connected");
         if (mService.getActiveIdentity() == null) {
             mService.setActiveIdentity(mService.getIdentities().getIdentities().iterator().next());
-            chatServer = new ChatServer(mService.getActiveIdentity());
+            chatServer = new ChatServer(getApplicationContext(), mService.getActiveIdentity());
         }
         provider = ((QabelBoxApplication) getApplication()).getProvider();
         Log.i(TAG, "Provider: " + provider);
@@ -426,7 +426,7 @@ public class MainActivity extends CrashReportingActivity
         textViewSelectedIdentity.setText(activeIdentity.getAlias());
 
         initBoxVolume(activeIdentity);
-        chatServer = new ChatServer(mService.getActiveIdentity());
+        chatServer = new ChatServer(getApplicationContext(), mService.getActiveIdentity());
         initFilesFragment();
     }
 
@@ -770,7 +770,7 @@ public class MainActivity extends CrashReportingActivity
             getFragmentManager().beginTransaction().remove(filesFragment).commit();
             filesFragment = null;
         }
-        chatServer = new ChatServer(mService.getActiveIdentity());
+        chatServer = new ChatServer(getApplicationContext(), mService.getActiveIdentity());
         initBoxVolume(identity);
 
         initFilesFragment();

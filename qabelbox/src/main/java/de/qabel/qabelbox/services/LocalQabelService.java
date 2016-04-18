@@ -274,21 +274,6 @@ public class LocalQabelService extends Service {
         return dropHTTP.send(dropURL.getUri(), message);
     }
 
-    /**
-     * Retrieves all DropMessages all Identities
-     *
-     * @return Retrieved, decrypted DropMessages.
-     */
-    public Collection<DropMessage> retrieveDropMessages(long sinceDate) {
-        Collection<DropMessage> allMessages = new ArrayList<>();
-        for (Identity identity : getIdentities().getIdentities()) {
-            for (DropURL dropUrl : identity.getDropUrls()) {
-                Collection<DropMessage> results = this.retrieveDropMessages(dropUrl.getUri(), sinceDate);
-                allMessages.addAll(results);
-            }
-        }
-        return allMessages;
-    }
 
     /**
      * Retrieves all DropMessages for given Identities

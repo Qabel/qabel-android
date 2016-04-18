@@ -14,6 +14,7 @@ import de.qabel.core.config.Contact;
 import de.qabel.core.config.Identity;
 import de.qabel.core.drop.DropMessage;
 import de.qabel.qabelbox.QabelBoxApplication;
+import de.qabel.qabelbox.services.LocalQabelService;
 
 /**
  * Created by danny on 17.02.16.
@@ -27,8 +28,10 @@ public class ChatServer {
 
     private final ChatMessagesDataBase dataBase;
     private final List<ChatServerCallback> callbacks = new ArrayList<>();
+    private final Identity currentIdentity;
 
-    public ChatServer(Context context, Identity currentIdentity) {
+    public ChatServer(LocalQabelService mService, Context context, Identity currentIdentity) {
+        this.currentIdentity = currentIdentity;
 
         dataBase = new ChatMessagesDataBase(context, currentIdentity);
     }
@@ -51,8 +54,8 @@ public class ChatServer {
     public Collection<DropMessage> refreshList() {
         long lastRetrieved = dataBase.getLastRetrievedDropMessageTime();
         Log.d(TAG, "last retrieved dropmessage time " + lastRetrieved + " / " + System.currentTimeMillis());
-        String identityKey = QabelBoxApplication.getInstance().getService().getActiveIdentity().getEcPublicKey().getReadableKeyIdentifier();
-        Collection<DropMessage> result = QabelBoxApplication.getInstance().getService().retrieveDropMessages(QabelBoxApplication.getInstance().getService().getActiveIdentity(), lastRetrieved);
+        String identityKey = getCurrentIdentityIdentifier();
+        Collection<DropMessage> result = getDropMessages(lastRetrieved);
 
         if (result != null) {
             Log.d(TAG, "new message count: " + result.size());
@@ -78,6 +81,18 @@ public class ChatServer {
         return result;
     }
 
+    private Collection<DropMessage> getDropMessages(long lastRetrieved) {
+        return QabelBoxApplication.getInstance().getService().retrieveDropMessages(getActiveIdentity(), lastRetrieved);
+    }
+
+    private Identity getActiveIdentity() {
+        return currentIdentity;
+    }
+
+    private String getCurrentIdentityIdentifier() {
+        return getActiveIdentity().getEcPublicKey().getReadableKeyIdentifier();
+    }
+
 
     public void storeIntoDB(ChatMessageItem item) {
 
@@ -100,7 +115,7 @@ public class ChatServer {
 
         String payload_type = ChatMessageItem.BOX_MESSAGE;
         String payload = getTextDropMessagePayload(message);
-        return new DropMessage(QabelBoxApplication.getInstance().getService().getActiveIdentity(), payload, payload_type);
+        return new DropMessage(getActiveIdentity(), payload, payload_type);
     }
 
     public String getTextDropMessagePayload(String message) {
@@ -125,7 +140,7 @@ public class ChatServer {
             Log.e(TAG, "error on create json", e);
         }
         String payload = payloadJson.toString();
-        return new DropMessage(QabelBoxApplication.getInstance().getService().getActiveIdentity(), payload, payload_type);
+        return new DropMessage(getActiveIdentity(), payload, payload_type);
     }
 
 

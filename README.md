@@ -45,17 +45,26 @@ Everything below this line describes the usage of the Qabel Android Client for d
 
 # <a name="getting_started"></a>Getting started
 
-// TODO (write quick start guide)
+* Get a recent version of AndroidStudio
+* Check out the repository
+* Create the file /qabelbox/src/main/res/values/params.xml with the following contents:
 
-For detailed instructions, please read the [INSTALL.md](https://raw.githubusercontent.com/Qabel/qabel-desktop/master/INSTALL.md)
+    `<resources> <string name="hockeykey">dummykey</string> </resources>`
+* Import the repository as a project in AndroidStudio
+* Select the qabelbox module
+* Click "Run" and you're done.
 
 # Usage
 
-// TODO explain gradle tasks etc.
+You can run the tests either dirctly from AndroidStudio with the following gradle tasks:
+
+* `./gradlew test` runs the local unit tests
+* `./gradlew spoon` runs all instrumentation tests on all connected devices and emulators
+
 
 # Structure
 
-// TODO
+The test server addresses are hard coded in TestConstants.java and the live servers are configured in a string ressource `servers.xml`
 
 # Contribution
 

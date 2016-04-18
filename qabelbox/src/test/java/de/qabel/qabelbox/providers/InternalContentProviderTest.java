@@ -33,6 +33,8 @@ public class InternalContentProviderTest {
     private ContentResolver contentResolver;
     private ShadowContentResolver shadowContentResolver;
     private RoboLocalQabelService service;
+    private Identity identity;
+    private Identity identity2;
 
     @Before
     public void setUp() {
@@ -45,6 +47,10 @@ public class InternalContentProviderTest {
         contentResolver = context.getContentResolver();
         shadowContentResolver = Shadows.shadowOf(contentResolver);
         ShadowContentResolver.registerProvider(AUTHORITY, contentProvider);
+        identity = IdentityHelper.createIdentity("foo", null);
+        identity2 = IdentityHelper.createIdentity("bar", null);
+        service.addIdentity(identity);
+        service.addIdentity(identity2);
     }
 
     @Test
@@ -55,10 +61,6 @@ public class InternalContentProviderTest {
 
     @Test
     public void testIdentitiesFound() throws Exception {
-        Identity identity = IdentityHelper.createIdentity("foo", null);
-        Identity identity2 = IdentityHelper.createIdentity("bar", null);
-        service.addIdentity(identity);
-        service.addIdentity(identity2);
         Set<Identity> identitySet = contentProvider.getIdentities();
         assertTrue(identitySet.contains(identity));
         assertTrue(identitySet.contains(identity2));

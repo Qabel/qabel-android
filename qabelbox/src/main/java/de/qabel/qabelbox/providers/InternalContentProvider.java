@@ -6,6 +6,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.UriMatcher;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.IBinder;
@@ -17,15 +18,31 @@ import java.util.Set;
 
 import de.qabel.core.config.Identities;
 import de.qabel.core.config.Identity;
+import de.qabel.qabelbox.BuildConfig;
 import de.qabel.qabelbox.chat.ChatMessagesDataBase;
 import de.qabel.qabelbox.services.LocalQabelService;
 
 public class InternalContentProvider extends ContentProvider {
+    public static final String CONTENT_IDENTITIES = "identites";
+    public static final String CONTENT_MESSAGES = "messages";
+    static final int IDENTITIES = 1;
+    static final int MESSAGES = 1;
+
     Context context;
     LocalQabelService mService;
+
     Map<Identity, ChatMessagesDataBase> dataBases;
     private Set<Identity> knownIdentities;
+    boolean resourcesReady = false;
 
+    private static final UriMatcher uriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
+    private static final String CONTENT_AUTHORITY =
+            BuildConfig.APPLICATION_ID + ".provider.internal";
+
+    static {
+        uriMatcher.addURI(CONTENT_AUTHORITY, CONTENT_IDENTITIES, IDENTITIES);
+        uriMatcher.addURI(CONTENT_AUTHORITY, CONTENT_MESSAGES, MESSAGES);
+    }
     public InternalContentProvider() {
 
     }
@@ -44,12 +61,14 @@ public class InternalContentProvider extends ContentProvider {
                 LocalQabelService.LocalBinder binder = (LocalQabelService.LocalBinder) service;
                 if (binder != null) {
                     mService = binder.getService();
+                    resourcesReady = true;
                     initDatabases();
                 }
             }
 
             @Override
             public void onServiceDisconnected(ComponentName name) {
+                resourcesReady = false;
                 mService = null;
             }
         }, Context.BIND_AUTO_CREATE);

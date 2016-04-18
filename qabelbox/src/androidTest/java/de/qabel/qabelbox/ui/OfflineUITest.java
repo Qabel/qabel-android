@@ -12,6 +12,7 @@ import com.squareup.spoon.Spoon;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -81,6 +82,12 @@ public class OfflineUITest {
         enableInternet(context, !enabled);
     }
 
+    /**
+     * XXX NOT WORKING
+     *
+     * @param context
+     * @param yes
+     */
     void enableInternet(Context context, boolean yes) {
         ConnectivityManager iMgr = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         Method iMthd = null;
@@ -114,29 +121,12 @@ public class OfflineUITest {
                 Toast.makeText(context, "Error Disabling Data connection", Toast.LENGTH_SHORT).show();
             }
         }
-    }
 
-    /*@SuppressWarnings({"unchecked", "rawtypes"})
-    private void setMobileDataEnabled(Context context, boolean state) {
-        final ConnectivityManager conman = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-        try {
-            System.out.println("SET FLIGHT: " + state);
-            final Class conmanClass = Class.forName(conman.getClass().getName());
-            final Field iConnectivityManagerField = conmanClass.getDeclaredField("mService");
-            iConnectivityManagerField.setAccessible(true);
-            final Object iConnectivityManager = iConnectivityManagerField.get(conman);
-            final Class iConnectivityManagerClass = Class.forName(iConnectivityManager.getClass().getName());
-            final Method setMobileDataEnabledMethod = conmanClass.getDeclaredMethod("setMobileDataEnabled", Boolean.TYPE);
-            setMobileDataEnabledMethod.setAccessible(true);
-            setMobileDataEnabledMethod.invoke(iConnectivityManager, state);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        System.out.println("CONNECTED: " + conman.getActiveNetworkInfo() != null && conman.getActiveNetworkInfo().isConnectedOrConnecting());
-    }*/
+    }
 
 
     @Test
+    @Ignore
     public void testOfflineIndicator() {
         Spoon.screenshot(mActivity, "startup");
 

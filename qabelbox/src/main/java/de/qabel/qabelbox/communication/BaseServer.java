@@ -50,10 +50,10 @@ public class BaseServer {
             @Override
             public void handleConnectionEtablished() {
                 if (!requestActionQueue.isEmpty()) {
-                    List<RequestAction> failedAction = new LinkedList<RequestAction>();
+                    List<RequestAction> failedActions = new LinkedList<RequestAction>();
                     for (RequestAction action : requestActionQueue) {
                         if (action.getExecuted() == action.getAutoRetry()) {
-                            failedAction.add(action);
+                            failedActions.add(action);
                             continue;
                         }
                         if (!action.isExecuted() || action.isCanceled()) {
@@ -62,7 +62,7 @@ public class BaseServer {
                             action.setCall(call);
                         }
                     }
-                    requestActionQueue.removeAll(failedAction);
+                    requestActionQueue.removeAll(failedActions);
                 }
             }
         });

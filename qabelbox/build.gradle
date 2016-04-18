@@ -29,10 +29,7 @@ android {
 
         versionCode System.getenv("BUILD_NUMBER") as Integer ?: 6
         versionName "0.6." + (System.getenv("BUILD_NUMBER") as Integer ?: 0)
-        //junit test
         testInstrumentationRunner "de.qabel.qabelbox.QblJUnitRunner"
-        //ui tests
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
         testApplicationId "de.qabel.test"
 
@@ -130,6 +127,7 @@ dependencies {
 
     //for more used sources, see license.txt
 }
+
 
 // for integration test of this plugin
 check << {

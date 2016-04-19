@@ -82,15 +82,6 @@ public class ContactChatFragment extends ContactBaseFragment {
         chatServer = mActivity.chatServer;
 
         setHasOptionsMenu(true);
-        //@todo reactivate this later. serialize contact ignore dropurls
-        /*Bundle arguments = getArguments();
-		if (arguments != null) {
-			contact = (Contact) arguments.getSerializable(ARG_IDENTITY);
-		}
-		else
-		{
-			new Throwable("No contact given");
-		}*/
         ((MainActivity) getActivity()).toggle.setDrawerIndicatorEnabled(false);
         actionBar.setDisplayHomeAsUpEnabled(true);
         setActionBarBackListener();

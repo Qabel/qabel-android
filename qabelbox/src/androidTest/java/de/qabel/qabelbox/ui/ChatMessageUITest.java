@@ -75,6 +75,7 @@ public class ChatMessageUITest {
     private SystemAnimations mSystemAnimations;
     private final String TAG = this.getClass().getSimpleName();
     private Contact contact2, contact1;
+    private Identity identity;
 
     @After
     public void cleanUp() {
@@ -91,6 +92,8 @@ public class ChatMessageUITest {
         wakeLock = UIActionHelper.wakeupDevice(mActivity);
         mSystemAnimations = new SystemAnimations(mActivity);
         mSystemAnimations.disableAll();
+        LocalQabelService service = QabelBoxApplication.getInstance().getService();
+        identity = service.getActiveIdentity();
     }
     @Test
     public void testSendMessage() {
@@ -106,9 +109,8 @@ public class ChatMessageUITest {
     public void testNewMessageVisualization() {
 
         //prepaire data
-        LocalQabelService service = QabelBoxApplication.getInstance().getService();
 
-        String identityKey = service.getActiveIdentity().getEcPublicKey().getReadableKeyIdentifier();
+        String identityKey = identity.getEcPublicKey().getReadableKeyIdentifier();
         contact1 = createContact("contact1");
         contact2 = createContact("contact2");
         ChatServer chatServer = mActivity.chatServer;
@@ -123,7 +125,7 @@ public class ChatMessageUITest {
         onView(allOf(withText(R.string.Contacts), withParent(withClassName(endsWith("MenuView")))))
                 .perform(click());
         Spoon.screenshot(mActivity, "contacts");
-        int messageCount = chatServer.getAllMessages(contact1).length;
+        int messageCount = chatServer.getAllMessages(identity, contact1).length;
         Log.d(TAG, "count: " + messageCount);
 
         addMessageFromOneContact(identityKey, chatServer, contact1Alias, contact1Key);
@@ -233,9 +235,9 @@ public class ChatMessageUITest {
 
         //send message to 2 users
         dbItem = createNewChatMessageItem(contact1Key, identityKey, "from: " + contact1Alias + "message2");
-        chatServer.storeIntoDB(dbItem);
+        chatServer.storeIntoDB(identity, dbItem);
         dbItem = createNewChatMessageItem(contact2Key, identityKey, "from: " + contact2Alias + "message1");
-        chatServer.storeIntoDB(dbItem);
+        chatServer.storeIntoDB(identity, dbItem);
 
 
         //check if 2 contacts have indicator abd click on contact1
@@ -243,14 +245,15 @@ public class ChatMessageUITest {
         Spoon.screenshot(mActivity, "contactsTwoNewMessage");
 
         //check if complete db match correct entry size
-        assertThat(chatServer.getAllMessages().length, is(3));
+        assertThat(chatServer.getAllMessages(identity).length, is(3));
 
         //check states
-        assertTrue(chatServer.hasNewMessages(contact1));
-        assertTrue(chatServer.hasNewMessages(contact2));
+        assertTrue(chatServer.hasNewMessages(identity, contact1));
+        assertTrue(chatServer.hasNewMessages(identity, contact2));
 
         //check single entry count
-        newMessageCount = chatServer.getAllMessages(contact1).length + chatServer.getAllMessages(contact2).length;
+        newMessageCount = chatServer.getAllMessages(identity, contact1).length
+                + chatServer.getAllMessages(identity, contact2).length;
         assertThat(newMessageCount, is(3));
 
         //check indicator visibility
@@ -273,13 +276,13 @@ public class ChatMessageUITest {
 
     private void addMessageFromOneContact(String identityKey, ChatServer chatServer, String contact1Alias, String contact1Key) {
         ChatMessageItem dbItem = createNewChatMessageItem(contact1Key, identityKey, "from: " + contact1Alias + "message1");
-        chatServer.storeIntoDB(dbItem);
-        int newMessageCount = chatServer.getAllMessages(contact1).length;
+        chatServer.storeIntoDB(identity, dbItem);
+        int newMessageCount = chatServer.getAllMessages(identity, contact1).length;
 
         Spoon.screenshot(mActivity, "contactsOneNewMessage");
         assertThat(1, is(newMessageCount));
-        assertTrue(chatServer.hasNewMessages(contact1));
-        assertFalse(chatServer.hasNewMessages(contact2));
+        assertTrue(chatServer.hasNewMessages(identity, contact1));
+        assertFalse(chatServer.hasNewMessages(identity, contact2));
 
         //check if new view indicator displayed on correct user and click on this item
         refreshContactView(chatServer);
@@ -293,12 +296,12 @@ public class ChatMessageUITest {
     }
 
     private void addOwnMessage(ChatServer chatServer, String contact1Alias, String contact2Alias, String contact1Key) {
-        ChatMessageItem item = new ChatMessageItem(chatServer.createTextDropMessage("ownmessage"));
+        ChatMessageItem item = new ChatMessageItem(chatServer.createTextDropMessage(identity, "ownmessage"));
         item.receiver = contact1Key;
         item.sender = QabelBoxApplication.getInstance().getService().getActiveIdentity().getEcPublicKey().getReadableKeyIdentifier();
         item.isNew = 0;
 
-        chatServer.storeIntoDB(item);
+        chatServer.storeIntoDB(identity, item);
         refreshContactView(chatServer);
         checkVisibilityState(contact2Alias, QabelMatcher.isInvisible());
         onView(withText(contact1Alias)).perform(click());

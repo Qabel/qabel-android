@@ -126,8 +126,8 @@ public class ContactChatFragment extends ContactBaseFragment {
 
     private void sendMessage(String text) {
         try {
-            final DropMessage dropMessage = chatServer.createTextDropMessage(text);
-            final Identity identity = QabelBoxApplication.getInstance().getService().getActiveIdentity();
+            final DropMessage dropMessage = chatServer.createTextDropMessage(getIdentity(), text);
+            final Identity identity = getIdentity();
             QabelBoxApplication.getInstance().getService().sendDropMessage(dropMessage, contact, identity, new LocalQabelService.OnSendDropMessageResult() {
                 @Override
                 public void onSendDropResult(Map<DropURL, Boolean> deliveryStatus) {
@@ -147,7 +147,7 @@ public class ContactChatFragment extends ContactBaseFragment {
                         if (sended) {
                             ChatMessageItem newMessage = new ChatMessageItem(identity, contact.getEcPublicKey().getReadableKeyIdentifier(), dropMessage.getDropPayload(), dropMessage.getDropPayloadType());
 
-                            chatServer.storeIntoDB(newMessage);
+                            chatServer.storeIntoDB(getIdentity(), newMessage);
                             messages.add(newMessage);
 
                             getActivity().runOnUiThread(new Runnable() {
@@ -177,6 +177,10 @@ public class ContactChatFragment extends ContactBaseFragment {
         }
     }
 
+    private Identity getIdentity() {
+        return QabelBoxApplication.getInstance().getService().getActiveIdentity();
+    }
+
 
     private void refreshMessagesAsync() {
         if (!isSyncing) {
@@ -191,7 +195,7 @@ public class ContactChatFragment extends ContactBaseFragment {
                 @Override
                 protected Collection<DropMessage> doInBackground(Void... params) {
                     isSyncing = true;
-                    return chatServer.refreshList();
+                    return chatServer.refreshList(getIdentity());
                 }
             }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
         }
@@ -201,13 +205,13 @@ public class ContactChatFragment extends ContactBaseFragment {
      * Get the messages from the ChatServer and refreshes the local list and view.
      */
     private void refreshMessages() {
-        ChatMessageItem[] items = chatServer.getAllMessages(contact);
+        ChatMessageItem[] items = chatServer.getAllMessages(getIdentity(), contact);
         messages.clear();
         for (ChatMessageItem item : items) {
             Log.v(TAG, "add message " + item.drop_payload);
             messages.add(item);
         }
-        chatServer.setAllMessagesRead(contact);
+        chatServer.setAllMessagesRead(getIdentity(), contact);
         fillAdapter(messages);
     }
 

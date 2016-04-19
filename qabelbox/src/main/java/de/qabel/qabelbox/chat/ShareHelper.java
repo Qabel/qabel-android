@@ -13,6 +13,7 @@ import org.spongycastle.util.encoders.Hex;
 import java.util.Map;
 
 import de.qabel.core.config.Contact;
+import de.qabel.core.config.Identity;
 import de.qabel.core.drop.DropMessage;
 import de.qabel.core.drop.DropURL;
 import de.qabel.core.exceptions.QblDropPayloadSizeException;
@@ -100,6 +101,7 @@ public class ShareHelper {
         final BoxNavigation nav = mainActivity.filesFragment.getBoxNavigation();
         final LocalQabelService mService = mainActivity.mService;
         final ChatServer cs = mainActivity.chatServer;
+        final Identity currentIdentity = mService.getActiveIdentity();
 
         new AsyncTask<Void, Integer, DropMessage>() {
             public AlertDialog waitMessage;
@@ -115,7 +117,8 @@ public class ShareHelper {
                 try {
                     BoxExternalReference boxExternalReference = nav.createFileMetadata(mService.getActiveIdentity().getEcPublicKey(), boxObject);
                     nav.commit();
-                    return cs.createShareDropMessage(boxExternalReference.name, boxExternalReference.url, Hex.toHexString(boxExternalReference.key));
+                    return cs.createShareDropMessage(currentIdentity,
+                            boxExternalReference.name, boxExternalReference.url, Hex.toHexString(boxExternalReference.key));
                 } catch (QblStorageException e) {
                     e.printStackTrace();
                 }
@@ -131,7 +134,7 @@ public class ShareHelper {
                             @Override
                             public void onSendDropResult(Map<DropURL, Boolean> deliveryStatus) {
                                 ChatMessageItem message = new ChatMessageItem(mainActivity.mService.getActiveIdentity(), contact.getEcPublicKey().getReadableKeyIdentifier(), dm.getDropPayload(), dm.getDropPayloadType());
-                                cs.storeIntoDB(message);
+                                cs.storeIntoDB(currentIdentity, message);
                                 mainActivity.filesFragment.refresh();
                                 mainActivity.runOnUiThread(new Runnable() {
                                     @Override

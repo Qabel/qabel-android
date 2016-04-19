@@ -213,22 +213,22 @@ public class ChatServerTest {
      */
     @Test
     public void testStoreInChatServer() {
-        ChatServer chatServer = new ChatServer(null, context, identity);
+        ChatServer chatServer = new ChatServer(null, context);
         ChatMessageItem[] messages;
         ChatMessageItem item = new ChatMessageItem(identity, publicKey1, "payload", "payloadtype");
-        chatServer.storeIntoDB(item);
-        messages = chatServer.getAllMessages(contact1);
+        chatServer.storeIntoDB(identity, item);
+        messages = chatServer.getAllMessages(identity, contact1);
         assertThat(messages.length, is(1));
 
         //store again same value
-        chatServer.storeIntoDB(item);
-        messages = chatServer.getAllMessages(contact1);
+        chatServer.storeIntoDB(identity, item);
+        messages = chatServer.getAllMessages(identity, contact1);
         assertThat(messages.length, is(1));
 
         //store new item
         ChatMessageItem item2 = new ChatMessageItem(identity, publicKey1, "payload", "payloadtype");
-        chatServer.storeIntoDB(item2);
-        messages = chatServer.getAllMessages(contact1);
+        chatServer.storeIntoDB(identity, item2);
+        messages = chatServer.getAllMessages(identity, contact1);
         assertThat(messages.length, is(2));
     }
 

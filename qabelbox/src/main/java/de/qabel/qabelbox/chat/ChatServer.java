@@ -25,16 +25,18 @@ public class ChatServer {
     public static final String TAG_URL = "url";
     public static final String TAG_KEY = "key";
 
-    private final ChatMessagesDataBase dataBase;
     private final List<ChatServerCallback> callbacks = new ArrayList<>();
     private LocalQabelService mService;
-    private final Identity currentIdentity;
+    private Context context;
 
-    public ChatServer(LocalQabelService mService, Context context, Identity currentIdentity) {
+    public ChatServer(LocalQabelService mService, Context context) {
         this.mService = mService;
-        this.currentIdentity = currentIdentity;
+        this.context = context;
 
-        dataBase = new ChatMessagesDataBase(context, currentIdentity);
+    }
+
+    private ChatMessagesDataBase getDataBaseForIdentity(Identity identity) {
+        return new ChatMessagesDataBase(context, identity);
     }
 
 
@@ -52,11 +54,12 @@ public class ChatServer {
      * click on refresh button
      */
 
-    public Collection<DropMessage> refreshList() {
+    public Collection<DropMessage> refreshList(Identity identity) {
+        ChatMessagesDataBase dataBase = getDataBaseForIdentity(identity);
         long lastRetrieved = dataBase.getLastRetrievedDropMessageTime();
         Log.d(TAG, "last retrieved dropmessage time " + lastRetrieved + " / " + System.currentTimeMillis());
-        String identityKey = getCurrentIdentityIdentifier();
-        Collection<DropMessage> result = downloadDropMessages(lastRetrieved);
+        String identityKey = getIdentityIdentifier(identity);
+        Collection<DropMessage> result = downloadDropMessages(identity, lastRetrieved);
 
         if (result != null) {
             Log.d(TAG, "new message count: " + result.size());
@@ -65,7 +68,7 @@ public class ChatServer {
                 ChatMessageItem cms = new ChatMessageItem(item);
                 cms.receiver = identityKey;
                 cms.isNew = 1;
-                storeIntoDB(cms);
+                storeIntoDB(dataBase, cms);
             }
 
             //@todo replace this with header from server response.
@@ -82,22 +85,24 @@ public class ChatServer {
         return result;
     }
 
-    private Collection<DropMessage> downloadDropMessages(long lastRetrieved) {
-        return mService.retrieveDropMessages(getActiveIdentity(), lastRetrieved);
+    private Collection<DropMessage> downloadDropMessages(Identity identity, long lastRetrieved) {
+        return mService.retrieveDropMessages(identity, lastRetrieved);
     }
 
-    private Identity getActiveIdentity() {
-        return currentIdentity;
-    }
-
-    private String getCurrentIdentityIdentifier() {
-        return getActiveIdentity().getEcPublicKey().getReadableKeyIdentifier();
+    private String getIdentityIdentifier(Identity identity) {
+        return identity.getEcPublicKey().getReadableKeyIdentifier();
     }
 
 
-    public void storeIntoDB(ChatMessageItem item) {
+    public void storeIntoDB(ChatMessagesDataBase dataBase, ChatMessageItem item) {
         if (item != null) {
             dataBase.put(item);
+        }
+    }
+
+    public void storeIntoDB(Identity identity, ChatMessageItem item) {
+        if (item != null) {
+            getDataBaseForIdentity(identity).put(item);
         }
     }
 
@@ -111,11 +116,11 @@ public class ChatServer {
         }
     }
 
-    public DropMessage createTextDropMessage(String message) {
+    public DropMessage createTextDropMessage(Identity identity, String message) {
 
         String payload_type = ChatMessageItem.BOX_MESSAGE;
         String payload = createTextDropMessagePayload(message);
-        return new DropMessage(getActiveIdentity(), payload, payload_type);
+        return new DropMessage(identity, payload, payload_type);
     }
 
     public String createTextDropMessagePayload(String message) {
@@ -128,7 +133,8 @@ public class ChatServer {
         return payloadJson.toString();
     }
 
-    public DropMessage createShareDropMessage(String message, String url, String key) {
+    public DropMessage createShareDropMessage(Identity identity,
+                                              String message, String url, String key) {
 
         String payload_type = ChatMessageItem.SHARE_NOTIFICATION;
         JSONObject payloadJson = new JSONObject();
@@ -140,24 +146,24 @@ public class ChatServer {
             Log.e(TAG, "error on create json", e);
         }
         String payload = payloadJson.toString();
-        return new DropMessage(getActiveIdentity(), payload, payload_type);
+        return new DropMessage(identity, payload, payload_type);
     }
 
 
-    public boolean hasNewMessages(Contact c) {
-        return dataBase.getNewMessageCount(c) > 0;
+    public boolean hasNewMessages(Identity identity, Contact c) {
+        return getDataBaseForIdentity(identity).getNewMessageCount(c) > 0;
     }
 
-    public int setAllMessagesRead(Contact c) {
-        return dataBase.setAllMessagesRead(c);
+    public int setAllMessagesRead(Identity identity, Contact c) {
+        return getDataBaseForIdentity(identity).setAllMessagesRead(c);
     }
 
-    public ChatMessageItem[] getAllMessages(Contact c) {
-        return dataBase.get(c.getEcPublicKey().getReadableKeyIdentifier());
+    public ChatMessageItem[] getAllMessages(Identity identity, Contact c) {
+        return getDataBaseForIdentity(identity).get(c.getEcPublicKey().getReadableKeyIdentifier());
     }
 
-    public ChatMessageItem[] getAllMessages() {
-        return dataBase.getAll();
+    public ChatMessageItem[] getAllMessages(Identity identity) {
+        return getDataBaseForIdentity(identity).getAll();
     }
 
     public interface ChatServerCallback {

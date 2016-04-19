@@ -85,6 +85,10 @@ public class ContactFragment extends BaseFragment {
 
     }
 
+    private Identity getActiveIdentity() {
+       return QabelBoxApplication.getInstance().getService().getActiveIdentity();
+    }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -225,7 +229,7 @@ public class ContactFragment extends BaseFragment {
             @Override
             protected Collection<DropMessage> doInBackground(Void... params) {
 
-                return chatServer.refreshList();
+                return chatServer.refreshList(getActiveIdentity());
             }
         }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
     }
@@ -269,7 +273,7 @@ public class ContactFragment extends BaseFragment {
             final int count = contacts.getContacts().size();
             ArrayList<ContactAdapterItem> items = new ArrayList<>();
             for (Contact c : contacts.getContacts()) {
-                items.add(new ContactAdapterItem(c, chatServer.hasNewMessages(c)));
+                items.add(new ContactAdapterItem(c, chatServer.hasNewMessages(getActiveIdentity(), c)));
             }
             contactListAdapter = new ContactsAdapter(items);
             setClickListener();

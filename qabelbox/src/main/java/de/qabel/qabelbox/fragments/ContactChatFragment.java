@@ -124,23 +124,23 @@ public class ContactChatFragment extends ContactBaseFragment {
         try {
             final DropMessage dropMessage = chatServer.createTextDropMessage(getIdentity(), text);
             final Identity identity = getIdentity();
-            QabelBoxApplication.getInstance().getService().sendDropMessage(dropMessage, contact, identity, new LocalQabelService.OnSendDropMessageResult() {
+            getDropConnector().sendDropMessage(dropMessage, contact, identity, new LocalQabelService.OnSendDropMessageResult() {
                 @Override
                 public void onSendDropResult(Map<DropURL, Boolean> deliveryStatus) {
-                    boolean sended = false;
+                    boolean sent = false;
                     Log.v(TAG, "delivery status: " + deliveryStatus);
                     if (deliveryStatus != null) {
                         Iterator it = deliveryStatus.entrySet().iterator();
                         while (it.hasNext()) {
                             Map.Entry pair = (Map.Entry) it.next();
                             if ((Boolean) pair.getValue()) {
-                                sended = true;
+                                sent = true;
                             }
                             Log.d(TAG, "message send result: " + pair.toString() + " " + pair.getValue());
                         }
 
-                        Log.d(TAG, "sended: " + sended);
-                        if (sended) {
+                        Log.d(TAG, "sent: " + sent);
+                        if (sent) {
                             ChatMessageItem newMessage = new ChatMessageItem(identity, contact.getEcPublicKey().getReadableKeyIdentifier(), dropMessage.getDropPayload(), dropMessage.getDropPayloadType());
 
                             chatServer.storeIntoDB(getIdentity(), newMessage);
@@ -155,7 +155,7 @@ public class ContactChatFragment extends ContactBaseFragment {
                             });
                         }
                     }
-                    if (!sended) {
+                    if (!sent) {
                         getActivity().runOnUiThread(new Runnable() {
                             @Override
                             public void run() {

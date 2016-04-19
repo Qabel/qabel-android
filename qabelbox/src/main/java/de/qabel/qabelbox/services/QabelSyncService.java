@@ -9,7 +9,7 @@ import de.qabel.qabelbox.adapter.QabelSyncAdapter;
 public class QabelSyncService extends Service {
 
     private static QabelSyncAdapter qabelSyncAdapter = null;
-    // Object to use as a thread-safe lock (from official Android documentation!!)
+    // Object to use as a thread-safe lock
     private static final Object syncAdapterLock = new Object();
 
 

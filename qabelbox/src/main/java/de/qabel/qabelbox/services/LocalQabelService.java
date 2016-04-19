@@ -302,7 +302,10 @@ public class LocalQabelService extends Service implements DropConnector {
         HTTPResult<Collection<byte[]>> cipherMessages = getDropMessages(uri, sinceDate);
         Collection<DropMessage> plainMessages = new ArrayList<>();
 
-        List<Contact> ccc = new ArrayList<>(getContacts().getContacts());
+        List<Contact> ccc = new ArrayList<>();
+        for (Contacts contacts: getAllContacts().values()) {
+            ccc.addAll(contacts.getContacts());
+        }
         Collections.shuffle(ccc, new SecureRandom());
 
         for (byte[] cipherMessage : cipherMessages.getData()) {

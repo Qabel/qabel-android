@@ -79,6 +79,11 @@ public class ContactChatFragment extends ContactBaseFragment {
         return QabelBoxApplication.getInstance().getService();
     }
 
+    private Identity getIdentity() {
+        return QabelBoxApplication.getInstance().getService().getActiveIdentity();
+    }
+
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
 
@@ -172,11 +177,6 @@ public class ContactChatFragment extends ContactBaseFragment {
             Log.e(TAG, "cant send message", e);
         }
     }
-
-    private Identity getIdentity() {
-        return QabelBoxApplication.getInstance().getService().getActiveIdentity();
-    }
-
 
     private void refreshMessagesAsync() {
         if (!isSyncing) {

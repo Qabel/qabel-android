@@ -213,7 +213,7 @@ public class ChatServerTest {
      */
     @Test
     public void testStoreInChatServer() {
-        ChatServer chatServer = new ChatServer(null, context);
+        ChatServer chatServer = new ChatServer(context);
         ChatMessageItem[] messages;
         ChatMessageItem item = new ChatMessageItem(identity, publicKey1, "payload", "payloadtype");
         chatServer.storeIntoDB(identity, item);

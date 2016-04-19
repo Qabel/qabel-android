@@ -57,7 +57,7 @@ import de.qabel.qabelbox.storage.BoxFile;
 import de.qabel.qabelbox.storage.BoxUploadingFile;
 import de.qabel.qabelbox.storage.TransferManager;
 
-public class LocalQabelService extends Service {
+public class LocalQabelService extends Service implements DropConnector {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(LocalQabelService.class.getName());
 
@@ -80,7 +80,6 @@ public class LocalQabelService extends Service {
     private Queue<BoxUploadingFile> uploadingQueue;
     private Map<String, Map<String, BoxFile>> cachedFinishedUploads;
     private DocumentIdParser documentIdParser;
-    private Context self;
 
     SharedPreferences sharedPreferences;
 
@@ -234,6 +233,7 @@ public class LocalQabelService extends Service {
      *                           sending status to DropURLs of the recipient. Can be null if status is irrelevant.
      * @throws QblDropPayloadSizeException
      */
+    @Override
     public void sendDropMessage(final DropMessage dropMessage, final Contact recipient,
                                 final Identity identity,
                                 @Nullable final OnSendDropMessageResult dropResultCallback)
@@ -280,6 +280,7 @@ public class LocalQabelService extends Service {
      *
      * @return Retrieved, decrypted DropMessages.
      */
+    @Override
     public Collection<DropMessage> retrieveDropMessages(Identity identity, long sinceDate) {
         Collection<DropMessage> allMessages = new ArrayList<>();
 
@@ -512,7 +513,6 @@ public class LocalQabelService extends Service {
         documentIdParser = new DocumentIdParser();
         cachedFinishedUploads = Collections.synchronizedMap(new HashMap<String, Map<String, BoxFile>>());
         uploadingQueue = new LinkedBlockingDeque<>();
-        self = this;
     }
     protected void initAndroidPersistence() {
        initAndroidPersistence(DB_NAME);

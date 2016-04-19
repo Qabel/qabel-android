@@ -13,6 +13,7 @@ import de.qabel.core.config.Identity;
 import de.qabel.qabelbox.BuildConfig;
 import de.qabel.qabelbox.SimpleApplication;
 import de.qabel.qabelbox.chat.ChatMessagesDataBase;
+import de.qabel.qabelbox.chat.ChatServer;
 import de.qabel.qabelbox.services.RoboLocalQabelService;
 import de.qabel.qabelbox.util.IdentityHelper;
 
@@ -30,6 +31,7 @@ public class QabelSyncAdapterTest {
     private QabelSyncAdapter syncAdapter;
     private ChatMessagesDataBase db1;
     private ChatMessagesDataBase db2;
+    private ChatServer chatServer;
 
     @Before
     public void setUp() {
@@ -43,6 +45,7 @@ public class QabelSyncAdapterTest {
         syncAdapter = new QabelSyncAdapter(context, true);
         db1 = new ChatMessagesDataBase(context, identity);
         db2 = new ChatMessagesDataBase(context, identity2);
+        chatServer = new ChatServer(context);
     }
 
     @Test

@@ -13,11 +13,10 @@ import java.util.List;
 import de.qabel.core.config.Contact;
 import de.qabel.core.config.Identity;
 import de.qabel.core.drop.DropMessage;
+import de.qabel.core.drop.DropURL;
+import de.qabel.qabelbox.services.DropConnector;
 import de.qabel.qabelbox.services.LocalQabelService;
 
-/**
- * Created by danny on 17.02.16.
- */
 public class ChatServer {
 
     private static final String TAG = "ChatServer";
@@ -26,11 +25,9 @@ public class ChatServer {
     public static final String TAG_KEY = "key";
 
     private final List<ChatServerCallback> callbacks = new ArrayList<>();
-    private LocalQabelService mService;
     private Context context;
 
-    public ChatServer(LocalQabelService mService, Context context) {
-        this.mService = mService;
+    public ChatServer(Context context) {
         this.context = context;
 
     }
@@ -54,12 +51,12 @@ public class ChatServer {
      * click on refresh button
      */
 
-    public Collection<DropMessage> refreshList(Identity identity) {
+    public Collection<DropMessage> refreshList(DropConnector connector, Identity identity) {
         ChatMessagesDataBase dataBase = getDataBaseForIdentity(identity);
         long lastRetrieved = dataBase.getLastRetrievedDropMessageTime();
         Log.d(TAG, "last retrieved dropmessage time " + lastRetrieved + " / " + System.currentTimeMillis());
         String identityKey = getIdentityIdentifier(identity);
-        Collection<DropMessage> result = downloadDropMessages(identity, lastRetrieved);
+        Collection<DropMessage> result = connector.retrieveDropMessages(identity, lastRetrieved);
 
         if (result != null) {
             Log.d(TAG, "new message count: " + result.size());
@@ -83,10 +80,6 @@ public class ChatServer {
 
         sendCallbacksRefreshed();
         return result;
-    }
-
-    private Collection<DropMessage> downloadDropMessages(Identity identity, long lastRetrieved) {
-        return mService.retrieveDropMessages(identity, lastRetrieved);
     }
 
     private String getIdentityIdentifier(Identity identity) {

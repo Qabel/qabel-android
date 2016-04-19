@@ -37,6 +37,7 @@ import de.qabel.qabelbox.chat.ChatServer;
 import de.qabel.qabelbox.chat.ShareHelper;
 import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.helper.UIHelper;
+import de.qabel.qabelbox.services.DropConnector;
 import de.qabel.qabelbox.services.LocalQabelService;
 import de.qabel.qabelbox.storage.BoxExternalReference;
 import de.qabel.qabelbox.storage.BoxFile;
@@ -72,6 +73,10 @@ public class ContactChatFragment extends ContactBaseFragment {
         fragment.setArguments(args);
         fragment.contact = contact;
         return fragment;
+    }
+
+    private DropConnector getDropConnector() {
+        return QabelBoxApplication.getInstance().getService();
     }
 
     @Override
@@ -186,7 +191,7 @@ public class ContactChatFragment extends ContactBaseFragment {
                 @Override
                 protected Collection<DropMessage> doInBackground(Void... params) {
                     isSyncing = true;
-                    return chatServer.refreshList(getIdentity());
+                    return chatServer.refreshList(getDropConnector(), getIdentity());
                 }
             }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
         }

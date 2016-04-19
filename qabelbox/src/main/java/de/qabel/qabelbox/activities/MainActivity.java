@@ -431,7 +431,7 @@ public class MainActivity extends CrashReportingActivity
     }
 
     private void initChatServer() {
-        chatServer = new ChatServer(mService, getApplicationContext());
+        chatServer = new ChatServer(getApplicationContext());
     }
 
     private void shareIntoApp(final ArrayList<Uri> data) {

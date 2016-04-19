@@ -52,6 +52,7 @@ import de.qabel.qabelbox.exceptions.QblStorageEntityExistsException;
 import de.qabel.qabelbox.helper.FileHelper;
 import de.qabel.qabelbox.helper.Helper;
 import de.qabel.qabelbox.helper.UIHelper;
+import de.qabel.qabelbox.services.DropConnector;
 import de.qabel.qabelbox.services.LocalQabelService;
 
 /**
@@ -87,6 +88,10 @@ public class ContactFragment extends BaseFragment {
 
     private Identity getActiveIdentity() {
        return QabelBoxApplication.getInstance().getService().getActiveIdentity();
+    }
+
+    private DropConnector getDropConnector() {
+        return QabelBoxApplication.getInstance().getService();
     }
 
     @Override
@@ -229,7 +234,7 @@ public class ContactFragment extends BaseFragment {
             @Override
             protected Collection<DropMessage> doInBackground(Void... params) {
 
-                return chatServer.refreshList(getActiveIdentity());
+                return chatServer.refreshList(getDropConnector(), getActiveIdentity());
             }
         }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
     }

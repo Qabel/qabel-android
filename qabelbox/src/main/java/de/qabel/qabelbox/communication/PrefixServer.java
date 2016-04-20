@@ -5,8 +5,8 @@ import android.util.Log;
 
 import org.json.JSONObject;
 
+import de.qabel.qabelbox.communication.callbacks.JsonRequestCallback;
 import de.qabel.qabelbox.config.AppPreference;
-import okhttp3.Callback;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 
@@ -26,7 +26,7 @@ public class PrefixServer extends BaseServer {
      * @param callback
      * @param token
      */
-    private void doServerAction(String url, Callback callback, String token) {
+    private void doServerAction(String url, JsonRequestCallback callback, String token) {
 
         Request.Builder builder = new Request.Builder()
                 .post(RequestBody.create(JSON, "{}"))
@@ -34,11 +34,10 @@ public class PrefixServer extends BaseServer {
         addHeader(token, builder);
         Request request = builder.build();
         Log.d(TAG, "request " + request.toString());
-        client.newCall(request).enqueue(callback);
+        doRequest(request, callback);
     }
 
-    public void getPrefix(Context context, Callback callback) {
-
+    public void getPrefix(Context context, JsonRequestCallback callback) {
         doServerAction(urls.getPrefix(), callback, new AppPreference(context).getToken());
     }
 

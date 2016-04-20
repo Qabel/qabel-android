@@ -17,7 +17,8 @@ public abstract class RequestCallback implements Callback {
 
     public interface SystemHandler {
 
-        void onRequestError();
+        boolean onRequestError();
+
         void onRequestSuccess();
 
     }
@@ -37,10 +38,9 @@ public abstract class RequestCallback implements Callback {
 
     @Override
     public void onFailure(Call call, IOException e) {
-        if (this.systemHandler != null) {
-            systemHandler.onRequestError();
+        if (this.systemHandler == null || systemHandler.onRequestError()) {
+            onError(e, null);
         }
-        onError(e, null);
     }
 
     @Override

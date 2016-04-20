@@ -2,7 +2,6 @@ package de.qabel.qabelbox.communication;
 
 import android.util.Log;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -65,6 +64,11 @@ public class BaseServer {
                     requestActionQueue.removeAll(failedActions);
                 }
             }
+
+            @Override
+            public void onDestroy() {
+                //Nothing to do
+            }
         });
 
         urls = new URLs();
@@ -79,10 +83,11 @@ public class BaseServer {
         final RequestAction requestAction = new RequestAction(request, callback);
         callback.setSystemHandler(new RequestCallback.SystemHandler() {
             @Override
-            public void onRequestError() {
-                if (requestAction.isExecuted() && !requestAction.isCanceled()) {
-                    requestAction.getCall().cancel();
+            public boolean onRequestError() {
+                if (requestAction.getExecuted() == requestAction.getAutoRetry()) {
+                    return true;
                 }
+                return false;
             }
 
             @Override
@@ -90,6 +95,7 @@ public class BaseServer {
                 requestActionQueue.remove(requestAction);
             }
         });
+
         if (connectivityManager.isConnected()) {
             Call call = client.newCall(request);
             call.enqueue(callback);

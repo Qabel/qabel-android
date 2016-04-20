@@ -2,6 +2,7 @@ package de.qabel.qabelbox.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
@@ -10,7 +11,6 @@ import android.widget.SeekBar;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -25,14 +25,13 @@ import de.qabel.core.drop.DropURL;
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.communication.PrefixServer;
+import de.qabel.qabelbox.communication.callbacks.JsonRequestCallback;
 import de.qabel.qabelbox.fragments.BaseIdentityFragment;
 import de.qabel.qabelbox.fragments.CreateIdentityDropBitsFragment;
 import de.qabel.qabelbox.fragments.CreateIdentityEditTextFragment;
 import de.qabel.qabelbox.fragments.CreateIdentityFinalFragment;
 import de.qabel.qabelbox.fragments.CreateIdentityMainFragment;
 import de.qabel.qabelbox.services.LocalQabelService;
-import okhttp3.Call;
-import okhttp3.Callback;
 import okhttp3.Response;
 
 /**
@@ -204,47 +203,28 @@ public class CreateIdentityActivity extends BaseWizardActivity {
     private void loadPrefixInBackground() {
 
         if (tryCount < 3) {
-            new PrefixServer().getPrefix(this, new Callback() {
-                @Override
-                public void onFailure(Call call, IOException e) {
+            PrefixServer prefixServer = new PrefixServer();
+            prefixServer.getPrefix(this, new JsonRequestCallback(new int[]{201}) {
 
+                @Override
+                protected void onError(Exception e, @Nullable Response response) {
                     Log.d(TAG, "Server communication failed: ", e);
                     tryCount++;
                     loadPrefixInBackground();
                 }
 
                 @Override
-                public void onResponse(Call call, Response response) throws IOException {
-
-                    int code = response.code();
-
-                    Log.d(TAG, "Server response code: " + response.code());
-
-                    if (code == 201) {
-                        if (parsePrefix(response)) return;
+                protected void onJSONSuccess(Response response, JSONObject result) {
+                    try {
+                        Log.d(TAG, "Server response code: " + response.code());
+                        prefix = result.getString("prefix");
+                    } catch (JSONException e) {
+                        Log.e(TAG, "Cannot parse prefix from server", e);
+                        tryCount++;
+                        loadPrefixInBackground();
                     }
-                    tryCount++;
-                    loadPrefixInBackground();
                 }
             });
         }
-    }
-
-    public boolean parsePrefix(Response response) throws IOException {
-        String text = response.body().string();
-        try {
-            PrefixServer.ServerResponse result = PrefixServer.parseJson(new JSONObject(text));
-            Log.d(TAG, "prefix: " + result.prefix);
-            prefix = result.prefix;
-            return true;
-        } catch (JSONException e) {
-            if (text.startsWith("\"") && text.charAt(text.length() - 1) == '"') {
-                prefix = text.substring(1, text.length() - 1);
-                Log.w(TAG, "prefix temp until server fix: " + prefix + " " + text);
-                return true;
-            }
-            Log.w(TAG, "error on parse service response", e);
-        }
-        return false;
     }
 }

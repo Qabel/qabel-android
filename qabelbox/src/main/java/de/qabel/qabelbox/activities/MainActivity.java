@@ -253,7 +253,15 @@ public class MainActivity extends CrashReportingActivity
 
         bindService(serviceIntent, mServiceConnection, Context.BIND_AUTO_CREATE);
 
-        connectivityManager = new ConnectivityManager(this);
+        setConnectivityManager(new ConnectivityManager(this));
+        addBackStackListener();
+    }
+
+    public void setConnectivityManager(ConnectivityManager manager) {
+        if (this.connectivityManager != null) {
+            connectivityManager.onDestroy();
+        }
+        this.connectivityManager = manager;
         connectivityManager.setListener(new ConnectivityManager.ConnectivityListener() {
 
             private AlertDialog offlineIndicator;
@@ -278,6 +286,7 @@ public class MainActivity extends CrashReportingActivity
                         public void onClick(View v) {
                             if (connectivityManager.isConnected()) {
                                 offlineIndicator.dismiss();
+                                offlineIndicator = null;
                             } else {
                                 offlineIndicator.show();
                             }
@@ -291,11 +300,17 @@ public class MainActivity extends CrashReportingActivity
             public void handleConnectionEtablished() {
                 if (offlineIndicator != null && offlineIndicator.isShowing()) {
                     offlineIndicator.dismiss();
+                    offlineIndicator = null;
+                }
+            }
+
+            @Override
+            public void onDestroy() {
+                if (this.offlineIndicator != null) {
+                    this.offlineIndicator.dismiss();
                 }
             }
         });
-
-        addBackStackListener();
     }
 
     private void handleMainFragmentChange() {
@@ -979,7 +994,7 @@ public class MainActivity extends CrashReportingActivity
             new CacheFileHelper().freeCacheAsynchron(QabelBoxApplication.getInstance().getApplicationContext());
         }
 
-        if(connectivityManager != null){
+        if (connectivityManager != null) {
             connectivityManager.onDestroy();
         }
 

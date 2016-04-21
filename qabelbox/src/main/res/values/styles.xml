@@ -94,7 +94,7 @@
     </style>
 
     <style name="ListFirstTextLine">
-        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/black</item>
         <item name="android:textSize">@dimen/textsize_list_first_line</item>
     </style>
 

@@ -146,6 +146,7 @@ public class FilesAdapter extends RecyclerView.Adapter<FilesAdapter.FilesViewHol
         StringBuilder left = new StringBuilder();
         if (boxObject instanceof BoxFolder) {
             if (boxObject.name.equals(BoxFolder.RECEIVED_SHARE_NAME)) {
+                holder.mTextViewFolderName.setText(R.string.shared_with_you);
                 holder.mSeparator.setVisibility(View.VISIBLE);
             }
             // Always set all ViewHolder fields, otherwise recycled views contain wrong data

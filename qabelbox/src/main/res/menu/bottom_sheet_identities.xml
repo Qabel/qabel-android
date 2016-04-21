@@ -11,7 +11,7 @@
     <item
         android:id="@+id/identities_export"
         android:icon="@drawable/key_variant"
-        android:title="@string/Export"/>
+        android:title="@string/ExportPrivateKey"/>
     <item
         android:id="@+id/identities_export_as_contact"
         android:icon="@drawable/export"

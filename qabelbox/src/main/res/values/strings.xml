@@ -20,7 +20,8 @@
     <string name="Delete">Delete</string>
     <string name="Send">Send</string>
     <string name="folderListingUpdateError">Could not update the folder listing</string>
-    <string name="Export">Export private key</string>
+    <string name="Export">Export</string>
+    <string name="ExportPrivateKey">Export private key</string>
     <string name="folder_export_not_implemented">Exporting folders is not implemented</string>
     <string name="confirm_delete_title">Delete?</string>
     <string name="confirm_delete_message">Do you want to delete %s?</string>

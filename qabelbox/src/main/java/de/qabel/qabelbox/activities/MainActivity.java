@@ -510,6 +510,7 @@ public class MainActivity extends CrashReportingActivity
     private void filesFragmentBottomSheet() {
 
         new BottomSheet.Builder(self).sheet(R.menu.bottom_sheet_files_add)
+                .grid()
                 .listener(new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -805,7 +806,7 @@ public class MainActivity extends CrashReportingActivity
                 final BoxObject boxObject = filesFragment.getFilesAdapter().get(position);
                 BottomSheet.Builder sheet = new BottomSheet.Builder(self)
                         .title(boxObject.name)
-                        .icon((boxObject instanceof BoxFolder ? R.drawable.ic_folder_black : R.drawable.ic_insert_drive_file_black))
+                        .icon((boxObject instanceof BoxFolder ? R.drawable.folder : R.drawable.file))
                         .sheet(R.menu.bottom_sheet_files)
                         .listener(new DialogInterface.OnClickListener() {
                             @Override

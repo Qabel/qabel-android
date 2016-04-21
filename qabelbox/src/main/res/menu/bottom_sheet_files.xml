@@ -15,7 +15,7 @@
     <item
         android:id="@+id/unshare"
         android:title="@string/Unshare"
-        android:icon="@drawable/folder_account"/>
+        android:icon="@drawable/account_multiple_minus"/>
     <item
         android:id="@+id/share"
         android:title="@string/Send"

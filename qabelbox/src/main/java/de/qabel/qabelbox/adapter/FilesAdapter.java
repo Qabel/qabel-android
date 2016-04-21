@@ -12,9 +12,7 @@ import android.widget.TextView;
 
 import org.apache.commons.io.FileUtils;
 
-import java.text.DateFormat;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -24,6 +22,7 @@ import de.qabel.core.config.Identity;
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.helper.BoxObjectComparators;
+import de.qabel.qabelbox.helper.Formatter;
 import de.qabel.qabelbox.services.LocalQabelService;
 import de.qabel.qabelbox.storage.BoxExternalFile;
 import de.qabel.qabelbox.storage.BoxFile;
@@ -39,7 +38,6 @@ public class FilesAdapter extends RecyclerView.Adapter<FilesAdapter.FilesViewHol
     private final Context context;
     private final LocalQabelService mService;
     private OnItemClickListener onItemClickListener;
-    private final DateFormat dateFormat = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT);
     private View emptyView;
     private View loadingView;
 
@@ -60,10 +58,12 @@ public class FilesAdapter extends RecyclerView.Adapter<FilesAdapter.FilesViewHol
 
         public final TextView mTextViewFolderName;
         public final TextView mTextViewFolderDetailsLeft;
-        public final TextView mTextViewFolderDetailsMiddle;
         public final TextView mTextViewFolderDetailsRight;
         public final ImageView mImageView;
         public final ProgressBar mProgressBar;
+        public final View mSeparator;
+
+        public final View detailsRow;
 
         public FilesViewHolder(View v) {
 
@@ -72,10 +72,11 @@ public class FilesAdapter extends RecyclerView.Adapter<FilesAdapter.FilesViewHol
             v.setOnLongClickListener(this);
             mTextViewFolderName = (TextView) v.findViewById(R.id.textViewFolderName);
             mTextViewFolderDetailsLeft = (TextView) v.findViewById(R.id.textViewFolderDetailLeft);
-            mTextViewFolderDetailsMiddle = (TextView) v.findViewById(R.id.textViewFolderDetailMiddle);
             mTextViewFolderDetailsRight = (TextView) v.findViewById(R.id.textViewFolderDetailRight);
             mImageView = (ImageView) v.findViewById(R.id.fileFolderIcon);
             mProgressBar = (ProgressBar) v.findViewById(R.id.fileFolderProgress);
+            mSeparator = v.findViewById(R.id.separator);
+            detailsRow = v.findViewById(R.id.second_row);
         }
 
         @Override
@@ -117,57 +118,61 @@ public class FilesAdapter extends RecyclerView.Adapter<FilesAdapter.FilesViewHol
         return new FilesViewHolder(v);
     }
 
+    public int getBoxObjectIcon(BoxObject object) {
+        if (object instanceof BoxUploadingFile) {
+            return R.drawable.cloud_upload;
+        } else if (object instanceof BoxFile) {
+            return R.drawable.file;
+        }
+        if (object.name.equals(BoxFolder.RECEIVED_SHARE_NAME)) {
+            return R.drawable.folder_account;
+        }
+        return R.drawable.folder;
+    }
+
     @Override
     public void onBindViewHolder(FilesViewHolder holder, int position) {
 
         BoxObject boxObject = boxObjects.get(position);
         holder.mTextViewFolderName.setText(boxObject.name);
-        holder.mTextViewFolderDetailsRight.setVisibility(View.VISIBLE);
+        holder.mTextViewFolderDetailsRight.setVisibility(View.INVISIBLE);
+        holder.mImageView.setImageResource(getBoxObjectIcon(boxObject));
+        holder.mSeparator.setVisibility(View.GONE);
+        holder.detailsRow.setVisibility(View.VISIBLE);
 //        if (boxObject.getShareCount() > 0) {
 //            holder.mTextViewFolderDetailsLeft.setText(context.getResources().getQuantityString(
 //                    R.plurals.sharedWith, boxObject.getShareCount(), boxObject.getShareCount()));
 //        }
+        StringBuilder left = new StringBuilder();
         if (boxObject instanceof BoxFolder) {
-            holder.mImageView.setImageResource(R.drawable.folder);
-            // Always set all ViewHolder fields, otherwise recycled views contain wrong data
-            holder.mTextViewFolderDetailsLeft.setText("");
-            holder.mTextViewFolderDetailsRight.setText("");
-            holder.mTextViewFolderDetailsMiddle.setVisibility(View.GONE);
-
-            holder.mProgressBar.setVisibility(View.INVISIBLE);
-        } else if (boxObject instanceof BoxExternalFile) {
-            BoxExternalFile boxExternal = (BoxExternalFile) boxObject;
-            holder.mImageView.setImageResource(R.drawable.file);
-            if (boxExternal.getOwner().equals(currentIdentity.getEcPublicKey())) {
-                holder.mTextViewFolderDetailsLeft.setText(R.string.filebrowser_file_is_shared_to_other);
-            } else {
-                String owner = getOwner(boxExternal);
-                holder.mTextViewFolderDetailsLeft.setText(context.getString(R.string.filebrowser_file_is_shared_from).replace("%1", owner));
+            if (boxObject.name.equals(BoxFolder.RECEIVED_SHARE_NAME)) {
+                holder.mSeparator.setVisibility(View.VISIBLE);
             }
-            holder.mTextViewFolderDetailsRight.setVisibility(View.GONE);
-            holder.mTextViewFolderDetailsMiddle.setVisibility(View.VISIBLE);
+            // Always set all ViewHolder fields, otherwise recycled views contain wrong data
             holder.mProgressBar.setVisibility(View.INVISIBLE);
+            holder.detailsRow.setVisibility(View.GONE);
         } else if (boxObject instanceof BoxFile) {
             BoxFile boxFile = (BoxFile) boxObject;
-            holder.mTextViewFolderDetailsLeft.setText(formatModificationTime(boxFile));
-            holder.mTextViewFolderDetailsRight.setText(FileUtils.byteCountToDisplaySize(boxFile.size));
-            if (boxFile.isShared()) {
-                holder.mTextViewFolderDetailsMiddle.setText(R.string.filebrowser_file_is_shared_to_other);
-                holder.mTextViewFolderDetailsMiddle.setVisibility(View.VISIBLE);
-            } else {
-                holder.mTextViewFolderDetailsMiddle.setVisibility(View.GONE);
+
+            holder.mTextViewFolderDetailsRight.setText(formatModificationTime(boxFile));
+            holder.mTextViewFolderDetailsRight.setVisibility(View.VISIBLE);
+
+            if (boxObject instanceof BoxExternalFile) {
+                BoxExternalFile boxExternal = (BoxExternalFile) boxObject;
+                String owner = getOwner(boxExternal);
+                left.append(context.getString(R.string.filebrowser_file_is_shared_from).replace("%1", owner));
+                left.append(" - ");
+            } else if (boxFile.isShared()) {
+                left.append(context.getString(R.string.filebrowser_file_is_shared_to_other));
+                left.append(" - ");
             }
-            holder.mImageView.setImageResource(R.drawable.file);
+            left.append(FileUtils.byteCountToDisplaySize(boxFile.size));
             holder.mProgressBar.setVisibility(View.INVISIBLE);
         } else if (boxObject instanceof BoxUploadingFile) {
-            holder.mTextViewFolderDetailsLeft.setText(R.string.uploading);
-            holder.mTextViewFolderDetailsRight.setText("");
-            holder.mTextViewFolderDetailsMiddle.setText("");
-            holder.mImageView.setImageResource(R.drawable.cloud_upload);
-
+            left.append(context.getString(R.string.uploading));
             holder.mProgressBar.setVisibility(View.VISIBLE);
         }
-        holder.mImageView.setAlpha(0.8f);
+        holder.mTextViewFolderDetailsLeft.setText(left.toString());
     }
 
     /**
@@ -185,8 +190,7 @@ public class FilesAdapter extends RecyclerView.Adapter<FilesAdapter.FilesViewHol
     }
 
     private String formatModificationTime(BoxFile boxFile) {
-
-        return dateFormat.format(new Date(boxFile.mtime * 1000));
+        return Formatter.formatDateTimeString(boxFile.mtime * 1000);
     }
 
     @Override

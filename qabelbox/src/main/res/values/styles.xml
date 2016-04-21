@@ -104,6 +104,7 @@
 
     <style name="ListSecondTextLine">
         <item name="android:textSize">@dimen/textsize_list_second_line</item>
+        <item name="android:textColor">@color/grey_text_color</item>
     </style>
 
     <style name="LicenceListSecondTextLine" parent="ListSecondTextLine">

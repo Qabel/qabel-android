@@ -157,7 +157,7 @@ public class OpenImageUITest {
     public void testDefectFiles() {
         mPicassoIdlingResource.init(mActivity);
         testFile("defect.png");
-        onView(withDrawable(R.drawable.image_loading_error)).check(matches(isDisplayed()));
+        onView(withDrawable(R.drawable.settings)).check(matches(isDisplayed()));
         Spoon.screenshot(mActivity, "open_defect_file");
     }
 

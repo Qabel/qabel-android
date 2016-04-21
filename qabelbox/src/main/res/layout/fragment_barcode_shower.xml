@@ -36,7 +36,7 @@
                 style="@style/MessageText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:drawableStart="@drawable/ic_perm_identity_black"
+                android:drawableStart="@drawable/account"
                 android:gravity="center"
                 android:paddingBottom="10dp"
                 android:paddingTop="5dp"/>
@@ -46,7 +46,7 @@
                 style="@style/MessageText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:drawableStart="@drawable/ic_share_black"
+                android:drawableStart="@drawable/earth"
                 android:hint="@string/contact_drop_url"
                 android:inputType="textUri"
                 android:paddingBottom="10dp"/>
@@ -57,7 +57,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
 
-                android:drawableStart="@drawable/ic_settings_black"
+                android:drawableStart="@drawable/key_variant"
                 android:hint="@string/contact_public_key"/>
 
 

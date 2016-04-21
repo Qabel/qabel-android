@@ -19,7 +19,7 @@ class VisibilityMatcher extends BaseMatcher<View> {
         if (visibility == View.GONE) visibilityName = "GONE";
         else if (visibility == View.VISIBLE) visibilityName = "VISIBLE";
         else visibilityName = "INVISIBLE";
-        description.appendText("View visibility must has equals " + visibilityName);
+        description.appendText("View visibility must be " + visibilityName);
     }
 
     @Override

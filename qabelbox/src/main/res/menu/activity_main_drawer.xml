@@ -8,16 +8,16 @@
             android:title="@string/Contacts"/>
         <item
             android:id="@+id/nav_browse"
-            android:icon="@drawable/ic_folder_black"
+            android:icon="@drawable/folder"
             android:title="@string/filebrowser"/>
 
         <item
             android:id="@+id/nav_settings"
-            android:icon="@drawable/ic_settings_black"
+            android:icon="@drawable/settings"
             android:title="@string/action_settings"/>
         <item
             android:id="@+id/nav_tellafriend"
-            android:icon="@drawable/ic_heart"
+            android:icon="@drawable/heart"
             android:title="@string/action_tellafriend"/>
         <item
             android:id="@+id/nav_about"
@@ -25,7 +25,7 @@
             android:title="@string/action_about"/>
         <item
             android:id="@+id/nav_help"
-            android:icon="@android:drawable/ic_menu_help"
+            android:icon="@drawable/help_circle"
             android:title="@string/help"/>
     </group>
 </menu>

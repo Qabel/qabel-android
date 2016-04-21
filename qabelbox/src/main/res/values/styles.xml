@@ -114,7 +114,7 @@
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:gravity">left|center_vertical</item>
-        <item name="android:drawableRight">@drawable/ic_icon_arrow_right</item>
+        <item name="android:drawableRight">@drawable/chevron_right_white</item>
     </style>
 
     <style name="ListItemContactBackground">

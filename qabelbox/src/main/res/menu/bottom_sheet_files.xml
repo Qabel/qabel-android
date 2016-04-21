@@ -3,29 +3,29 @@
     <item
         android:id="@+id/open"
         android:title="@string/Open"
-        android:icon="@drawable/ic_attach_file_black"/>
+        android:icon="@drawable/open_in_new"/>
     <item
         android:id="@+id/edit"
         android:title="@string/edit"
-        android:icon="@drawable/ic_action_edit"/>
+        android:icon="@drawable/pencil"/>
     <item
         android:id="@+id/fordward"
         android:title="@string/ShareToQabelUser"
-        android:icon="@drawable/ic_contacts_black"/>
+        android:icon="@drawable/account_multiple"/>
     <item
         android:id="@+id/unshare"
         android:title="@string/Unshare"
-        android:icon="@drawable/ic_folder_shared_black"/>
+        android:icon="@drawable/folder_account"/>
     <item
         android:id="@+id/share"
         android:title="@string/Send"
-        android:icon="@drawable/ic_share_black"/>
+        android:icon="@drawable/share_variant"/>
     <item
         android:id="@+id/delete"
         android:title="@string/Delete"
-        android:icon="@drawable/ic_delete_black"/>
+        android:icon="@drawable/delete"/>
     <item
         android:id="@+id/export"
         android:title="@string/Export"
-        android:icon="@drawable/ic_attach_file_black"/>
+        android:icon="@drawable/export"/>
 </menu>

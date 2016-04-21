@@ -11,11 +11,11 @@
     <item
         android:id="@+id/identities_export"
         android:icon="@drawable/key_variant"
-        android:title="Export Private Key"/>
+        android:title="@string/Export"/>
     <item
         android:id="@+id/identities_export_as_contact"
         android:icon="@drawable/export"
-        android:title="Export Public Contact"/>
+        android:title="@string/ExportAsContact"/>
     <item
         android:id="@+id/identities_export_as_contact_qrcode"
         android:icon="@drawable/qrcode"

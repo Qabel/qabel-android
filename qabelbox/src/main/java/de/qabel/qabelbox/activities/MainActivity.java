@@ -804,6 +804,9 @@ public class MainActivity extends CrashReportingActivity
             public void onItemLockClick(View view, final int position) {
 
                 final BoxObject boxObject = filesFragment.getFilesAdapter().get(position);
+                if(boxObject.name.equals(BoxFolder.RECEIVED_SHARE_NAME)){
+                    return;
+                }
                 BottomSheet.Builder sheet = new BottomSheet.Builder(self)
                         .title(boxObject.name)
                         .icon((boxObject instanceof BoxFolder ? R.drawable.folder : R.drawable.file))

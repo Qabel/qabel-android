@@ -314,7 +314,8 @@ public class ChatMessageUITest {
      * @return ViewInteraction
      */
     private ViewInteraction checkVisibilityState(String alias, ViewAssertion visibility) {
-        return onView(allOf(QabelMatcher.withDrawable(R.drawable.ic_visibility), hasSibling(withText(alias)))).check(visibility);
+        UITestHelper.sleep(2000);
+        return onView(allOf(QabelMatcher.withDrawable(R.drawable.eye), hasSibling(withText(alias)))).check(visibility);
     }
 
     private void refreshContactView(ChatServer chatServer) {

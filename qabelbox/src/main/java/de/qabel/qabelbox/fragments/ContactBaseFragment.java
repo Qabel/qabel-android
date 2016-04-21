@@ -131,7 +131,7 @@ public class ContactBaseFragment extends BaseFragment {
                 UIHelper.showDialogMessage(
                         mActivity,
                         mActivity.getString(R.string.dialog_headline_info),
-                        mActivity.getResources().getString(R.string.contact_import_successfull, added, (added + failed))
+                        mActivity.getResources().getString(R.string.contact_import_successfull)
                 );
             } else {
                 UIHelper.showDialogMessage(

@@ -128,7 +128,7 @@ public class FilesAdapter extends RecyclerView.Adapter<FilesAdapter.FilesViewHol
 //                    R.plurals.sharedWith, boxObject.getShareCount(), boxObject.getShareCount()));
 //        }
         if (boxObject instanceof BoxFolder) {
-            holder.mImageView.setImageResource(R.drawable.ic_folder_black);
+            holder.mImageView.setImageResource(R.drawable.folder);
             // Always set all ViewHolder fields, otherwise recycled views contain wrong data
             holder.mTextViewFolderDetailsLeft.setText("");
             holder.mTextViewFolderDetailsRight.setText("");
@@ -137,7 +137,7 @@ public class FilesAdapter extends RecyclerView.Adapter<FilesAdapter.FilesViewHol
             holder.mProgressBar.setVisibility(View.INVISIBLE);
         } else if (boxObject instanceof BoxExternalFile) {
             BoxExternalFile boxExternal = (BoxExternalFile) boxObject;
-            holder.mImageView.setImageResource(R.drawable.ic_insert_drive_file_black);
+            holder.mImageView.setImageResource(R.drawable.file);
             if (boxExternal.getOwner().equals(currentIdentity.getEcPublicKey())) {
                 holder.mTextViewFolderDetailsLeft.setText(R.string.filebrowser_file_is_shared_to_other);
             } else {
@@ -157,13 +157,13 @@ public class FilesAdapter extends RecyclerView.Adapter<FilesAdapter.FilesViewHol
             } else {
                 holder.mTextViewFolderDetailsMiddle.setVisibility(View.GONE);
             }
-            holder.mImageView.setImageResource(R.drawable.ic_insert_drive_file_black);
+            holder.mImageView.setImageResource(R.drawable.file);
             holder.mProgressBar.setVisibility(View.INVISIBLE);
         } else if (boxObject instanceof BoxUploadingFile) {
             holder.mTextViewFolderDetailsLeft.setText(R.string.uploading);
             holder.mTextViewFolderDetailsRight.setText("");
             holder.mTextViewFolderDetailsMiddle.setText("");
-            holder.mImageView.setImageResource(R.drawable.ic_cloud_upload_black_24dp);
+            holder.mImageView.setImageResource(R.drawable.cloud_upload);
 
             holder.mProgressBar.setVisibility(View.VISIBLE);
         }

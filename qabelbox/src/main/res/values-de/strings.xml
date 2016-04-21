@@ -8,8 +8,9 @@
     <string name="Contacts">Kontakte</string>
     <string name="Delete">Löschen</string>
     <string name="Export">Exportieren</string>
-    <string name="ExportAsContact">Exportiere deine Kontaktdaten</string>
-    <string name="ExportAsContactWithQRcode">Teilen</string>
+    <string name="ExportPrivateKey">Exportiere privaten Schlüssel</string>
+    <string name="ExportAsContact">Exportiere öffentlichen Kontakt</string>
+    <string name="ExportAsContactWithQRcode">Zeige QR</string>
     <string name="Open">Öffnen</string>
     <string name="Rename">Umbenennen</string>
     <string name="Select">Auswählen</string>

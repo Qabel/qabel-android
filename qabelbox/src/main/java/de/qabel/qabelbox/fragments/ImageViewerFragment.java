@@ -89,7 +89,7 @@ public class ImageViewerFragment extends Fragment {
         } else {
             Picasso.with(getActivity())
                     .load(uri)
-                    .error(R.drawable.message_alert)
+                    .error(R.drawable.message_alert_white)
                     .into(iv, new Callback() {
                         @Override
                         public void onSuccess() {

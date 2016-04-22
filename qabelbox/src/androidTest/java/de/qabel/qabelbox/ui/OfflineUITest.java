@@ -2,9 +2,7 @@ package de.qabel.qabelbox.ui;
 
 import android.app.Activity;
 import android.os.PowerManager;
-import android.support.test.InstrumentationRegistry;
 import android.support.test.rule.ActivityTestRule;
-import android.support.test.uiautomator.UiDevice;
 import android.support.test.uiautomator.UiObjectNotFoundException;
 
 import com.squareup.spoon.Spoon;
@@ -25,13 +23,12 @@ import de.qabel.qabelbox.ui.helper.UIActionHelper;
 import de.qabel.qabelbox.ui.helper.UIBoxHelper;
 
 import static android.support.test.espresso.Espresso.onView;
+import static android.support.test.espresso.assertion.ViewAssertions.doesNotExist;
 import static android.support.test.espresso.assertion.ViewAssertions.matches;
 import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
 
 public class OfflineUITest {
-
-    private static final String ALERT_DIALOG_WATCHER_NAME = "WATCH_CONNECTION_LOST";
 
     @Rule
     public ActivityTestRule<MainActivity> rule = new ActivityTestRule<MainActivity>(MainActivity.class);
@@ -108,38 +105,14 @@ public class OfflineUITest {
 
     @Test
     public void testOfflineIndicator() throws UiObjectNotFoundException {
-        final UiDevice uiDevice = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation());
+        onView(withText(R.string.no_connection)).check(doesNotExist());
 
-        Spoon.screenshot(mActivity, "startup");
-
-   /*     UiWatcher watcher = new UiWatcher() {
-            @Override
-            public boolean checkForCondition() {
-                System.out.println("WATCHER CHECKED");
-                UiObject dialog = uiDevice.findObject(new UiSelector().className(AlertDialog.class.getName()));//.text(mActivity.getText(R.string.server_access_failed_or_invalid_check_internet_connection).toString()));
-                if (dialog.exists()) {
-                    System.out.println("WATCHER TRIGGERED");
-                    connectivityManager.setConnected(true);
-                    return dialog.waitUntilGone(2000);
-                }
-                return false;
-            }
-        };
-
-        uiDevice.registerWatcher(ALERT_DIALOG_WATCHER_NAME, watcher);
-*/
         connectivityManager.setConnected(false);
-
         onView(withText(R.string.no_connection)).check(matches(isDisplayed()));
-        /*
-        uiDevice.runWatchers();
+        Spoon.screenshot(mActivity, "offlineIndicator");
 
-        //Wait for Dialog
-        assertTrue(uiDevice.waitForWindowUpdate(null, 5000));
-        //Wait for dismiss dialog
-        assertTrue(uiDevice.waitForWindowUpdate(null, 5000));
-        assertTrue(uiDevice.hasWatcherTriggered(ALERT_DIALOG_WATCHER_NAME));
-        */
+        connectivityManager.setConnected(true);
+        onView(withText(R.string.no_connection)).check(doesNotExist());
     }
 
 }

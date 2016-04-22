@@ -139,6 +139,8 @@ public class FilesFragmentUITest {
         mBoxHelper.bindService(QabelBoxApplication.getInstance());
         mBoxHelper.createTokenIfNeeded(false);
 
+        mBoxHelper.removeAllIdentities();
+
         testIdentity = mBoxHelper.addIdentity("spoon");
         testIdentity2 = mBoxHelper.addIdentity("spoon2");
 

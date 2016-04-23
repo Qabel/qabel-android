@@ -2,22 +2,22 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id="@+id/identities_rename"
-        android:icon="@drawable/ic_action_edit"
+        android:icon="@drawable/pencil"
         android:title="@string/Rename"/>
     <item
         android:id="@+id/identities_delete"
-        android:icon="@drawable/ic_delete_black"
+        android:icon="@drawable/delete"
         android:title="@string/Delete"/>
     <item
         android:id="@+id/identities_export"
-        android:icon="@drawable/ic_export"
-        android:title="@string/Export"/>
+        android:icon="@drawable/key_variant"
+        android:title="@string/ExportPrivateKey"/>
     <item
         android:id="@+id/identities_export_as_contact"
-        android:icon="@drawable/ic_export"
+        android:icon="@drawable/export"
         android:title="@string/ExportAsContact"/>
     <item
         android:id="@+id/identities_export_as_contact_qrcode"
-        android:icon="@drawable/ic_share_black"
+        android:icon="@drawable/qrcode"
         android:title="@string/ExportAsContactWithQRcode"/>
 </menu>

@@ -21,6 +21,7 @@
     <string name="Send">Send</string>
     <string name="folderListingUpdateError">Could not update the folder listing</string>
     <string name="Export">Export</string>
+    <string name="ExportPrivateKey">Export private key</string>
     <string name="folder_export_not_implemented">Exporting folders is not implemented</string>
     <string name="confirm_delete_title">Delete?</string>
     <string name="confirm_delete_message">Do you want to delete %s?</string>
@@ -125,14 +126,14 @@
     <string name="cant_read_identity">Could not read identity from file</string>
     <string name="identity_export_failed">Could not export the identity</string>
     <string name="identity_export_successfully">Identity exported. This file contains your key, keep it safe!</string>
-    <string name="ExportAsContact">Save your contact details</string>
+    <string name="ExportAsContact">Export Public Contact</string>
     <string name="error_reason_io">Error when reading or writing</string>
     <string name="reason_for_error">Reason: %1</string>
     <plurals name="contact_export_successfully">
         <item quantity="one">Contact exported. You can share this contact to your friends.</item>
         <item quantity="other">%d Contacts exported. You can share this contact to your friends.</item>
     </plurals>
-    <string name="ExportAsContactWithQRcode">Share</string>
+    <string name="ExportAsContactWithQRcode">Show QR</string>
     <string name="headline_qrcode">QRCode</string>
     <string name="Open">Open</string>
     <string name="edit">Edit</string>

@@ -3,15 +3,15 @@
     <item
         android:id="@+id/add_contact_via_qr"
         android:title="@string/qrecode_scanner"
-        android:icon="@drawable/ic_qrcode_scan"/>
+        android:icon="@drawable/qrcode"/>
     <item
         android:id="@+id/add_contact_from_file"
         android:title="@string/from_file"
-        android:icon="@drawable/ic_action_folder_open"/>
+        android:icon="@drawable/import_black"/>
     <item
         android:id="@+id/add_contact_direct_input"
         android:title="@string/direct_input"
-        android:icon="@drawable/ic_action_edit"/>
+        android:icon="@drawable/pencil"/>
 
 
 </menu>

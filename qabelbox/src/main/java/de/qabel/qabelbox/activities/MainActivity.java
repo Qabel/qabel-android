@@ -989,13 +989,13 @@ public class MainActivity extends CrashReportingActivity
             public void onClick(View v) {
 
                 if (identityMenuExpanded) {
-                    imageViewExpandIdentity.setImageResource(R.drawable.ic_arrow_drop_down_black);
+                    imageViewExpandIdentity.setImageResource(R.drawable.menu_down);
                     imageViewExpandIdentity.setColorFilter(mDrawerIndicatorTintFilter);
                     navigationView.getMenu().clear();
                     navigationView.inflateMenu(R.menu.activity_main_drawer);
                     identityMenuExpanded = false;
                 } else {
-                    imageViewExpandIdentity.setImageResource(R.drawable.ic_arrow_drop_up_black);
+                    imageViewExpandIdentity.setImageResource(R.drawable.menu_up);
                     imageViewExpandIdentity.setColorFilter(mDrawerIndicatorTintFilter);
                     navigationView.getMenu().clear();
                     List<Identity> identityList = new ArrayList<>(
@@ -1010,7 +1010,7 @@ public class MainActivity extends CrashReportingActivity
                     for (final Identity identity : identityList) {
                         navigationView.getMenu()
                                 .add(NAV_GROUP_IDENTITIES, Menu.NONE, Menu.NONE, identity.getAlias())
-                                .setIcon(R.drawable.ic_perm_identity_black)
+                                .setIcon(R.drawable.account)
                                 .setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
                                     @Override
                                     public boolean onMenuItemClick(MenuItem item) {
@@ -1023,7 +1023,7 @@ public class MainActivity extends CrashReportingActivity
                     }
                     navigationView.getMenu()
                             .add(NAV_GROUP_IDENTITY_ACTIONS, Menu.NONE, Menu.NONE, R.string.add_identity)
-                            .setIcon(R.drawable.ic_add_circle_black)
+                            .setIcon(R.drawable.plus_circle)
                             .setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
                                 @Override
                                 public boolean onMenuItemClick(MenuItem item) {
@@ -1035,7 +1035,7 @@ public class MainActivity extends CrashReportingActivity
                             });
                     navigationView.getMenu()
                             .add(NAV_GROUP_IDENTITY_ACTIONS, Menu.NONE, Menu.NONE, R.string.manage_identities)
-                            .setIcon(R.drawable.ic_settings_black)
+                            .setIcon(R.drawable.settings)
                             .setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
                                 @Override
                                 public boolean onMenuItemClick(MenuItem item) {
@@ -1066,7 +1066,7 @@ public class MainActivity extends CrashReportingActivity
 
                 navigationView.getMenu().clear();
                 navigationView.inflateMenu(R.menu.activity_main_drawer);
-                imageViewExpandIdentity.setImageResource(R.drawable.ic_arrow_drop_down_black);
+                imageViewExpandIdentity.setImageResource(R.drawable.menu_down);
                 identityMenuExpanded = false;
             }
 

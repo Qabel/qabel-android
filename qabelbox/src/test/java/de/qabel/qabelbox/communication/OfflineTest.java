@@ -84,6 +84,26 @@ public class OfflineTest {
         URLs.setBaseBlockURL("http://testing.qabel.de:8888");
     }
 
+    private static final int waitInterval = 100;
+
+    private interface WaitChecker {
+        boolean isReady();
+    }
+
+    private void waitUntil(long max, WaitChecker checker) {
+        try {
+            long current = 0;
+            while (current < max && !checker.isReady()) {
+                Thread.sleep(waitInterval);
+                current += waitInterval;
+            }
+            assertTrue("Wait for Operation failured!", checker.isReady());
+        } catch (InterruptedException ex) {
+            Thread.currentThread().interrupt();
+            fail("Test interrupted");
+        }
+    }
+
     private boolean successIsOffline;
 
     @Test
@@ -93,12 +113,13 @@ public class OfflineTest {
 
         successIsOffline = false;
 
+        //Disable connectivity
         setConnectivity(context, false);
 
+        //Do Request
         testServer.getPrefix(context, new JsonRequestCallback(new int[]{201}) {
             @Override
             protected void onError(Exception e, @Nullable Response response) {
-                e.printStackTrace();
                 fail("Request ended with error");
             }
 
@@ -113,27 +134,22 @@ public class OfflineTest {
             }
         });
 
-
+        //Wait a moment
         try {
-            Thread.sleep(2000);
+            Thread.sleep(200);
         } catch (InterruptedException ex) {
             Thread.currentThread().interrupt();
         }
 
+        //Reenable connectivity and wait for Request to success
         setConnectivity(context, true);
 
-        try {
-            int i = 0;
-            while (i < 10 && !successIsOffline) {
-                Thread.sleep(1000);
-                i++;
+        waitUntil(2000, new WaitChecker() {
+            @Override
+            public boolean isReady() {
+                return successIsOffline == true;
             }
-            assertTrue("No Response received", successIsOffline);
-        } catch (InterruptedException ex) {
-            ex.printStackTrace();
-            Thread.currentThread().interrupt();
-            fail("Test interrupted");
-        }
+        });
     }
 
     private boolean successGoOffline;
@@ -148,7 +164,6 @@ public class OfflineTest {
         testServer.getPrefix(context, new JsonRequestCallback(new int[]{201}) {
             @Override
             protected void onError(Exception e, @Nullable Response response) {
-                e.printStackTrace();
                 fail("Request ended with error");
             }
 
@@ -162,28 +177,24 @@ public class OfflineTest {
                 successGoOffline = true;
             }
         });
-
+        //Disable connectivity to interrupt request
         setConnectivity(context, false);
 
+        //Wait a moment
         try {
-            Thread.sleep(2000);
+            Thread.sleep(200);
         } catch (InterruptedException ex) {
             Thread.currentThread().interrupt();
         }
 
+        //Reenable connectivity
         setConnectivity(context, true);
 
-        try {
-            int i = 0;
-            while (i < 10 && !successGoOffline) {
-                Thread.sleep(1000);
-                i++;
+        waitUntil(2000, new WaitChecker() {
+            @Override
+            public boolean isReady() {
+                return successGoOffline == true;
             }
-            assertTrue("No Response received", successGoOffline);
-        } catch (InterruptedException ex) {
-            ex.printStackTrace();
-            Thread.currentThread().interrupt();
-            fail("Test interrupted");
-        }
+        });
     }
 }

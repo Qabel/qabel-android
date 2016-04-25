@@ -21,9 +21,6 @@ import java.util.concurrent.CountDownLatch;
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.communication.BlockServer;
 import de.qabel.qabelbox.communication.callbacks.RequestCallback;
-import de.qabel.qabelbox.exceptions.QblServerException;
-import okhttp3.Call;
-import okhttp3.Callback;
 import okhttp3.Response;
 
 public class TransferManager {
@@ -33,7 +30,7 @@ public class TransferManager {
     private final File tempDir;
     private final Map<Integer, CountDownLatch> latches;
     private final Map<Integer, Exception> errors;
-    private final BlockServer blockServer = new BlockServer();
+    private final BlockServer blockServer;
     private final Context context;
 
     public TransferManager(File tempDir) {
@@ -42,6 +39,7 @@ public class TransferManager {
         errors = new HashMap<>();
 
         context = QabelBoxApplication.getInstance().getApplicationContext();
+        blockServer = new BlockServer(context);
     }
 
     public File createTempFile() {

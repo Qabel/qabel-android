@@ -2,6 +2,7 @@ package de.qabel.qabelbox.activities;
 
 import android.app.AlertDialog;
 import android.content.Intent;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.text.InputType;
@@ -44,17 +45,21 @@ public class CreateAccountActivity extends BaseWizardActivity {
     private String mBoxAccountPassword2;
     private String mBoxAccountEMail;
 
-    private final BoxAccountRegisterServer mBoxAccountServer = new BoxAccountRegisterServer();
+    private BoxAccountRegisterServer mBoxAccountServer;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        mBoxAccountServer = new BoxAccountRegisterServer(getApplicationContext());
+    }
 
     @Override
     protected String getHeaderFragmentText() {
-
         return mBoxAccountName;
     }
 
     @Override
     protected int getActionBarTitle() {
-
         return R.string.headline_create_box_account;
     }
 

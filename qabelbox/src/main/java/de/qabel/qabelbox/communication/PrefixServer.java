@@ -12,12 +12,16 @@ import okhttp3.RequestBody;
 
 /**
  * Created by danny on 11.02.2016.
- * <p>
+ * <p/>
  * class to handle prefix server network action
  */
 public class PrefixServer extends BaseServer {
 
     private final static String TAG = "PrefixServer";
+
+    public PrefixServer(Context context) {
+        super(context);
+    }
 
     /**
      * main function for server action

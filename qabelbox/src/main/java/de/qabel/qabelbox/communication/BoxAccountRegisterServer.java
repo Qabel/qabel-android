@@ -8,7 +8,6 @@ import org.json.JSONObject;
 
 import de.qabel.qabelbox.communication.callbacks.JsonRequestCallback;
 import de.qabel.qabelbox.config.AppPreference;
-import okhttp3.Callback;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 
@@ -32,6 +31,10 @@ public class BoxAccountRegisterServer extends BaseServer {
     private static final String JSON_SUCCESS = "success";
     private static final String JSON_PASSWORD_NEW_1 = "new_password1";
     private static final String JSON_PASSWORD_NEW_2 = "new_password2";
+
+    public BoxAccountRegisterServer(Context context){
+        super(context);
+    }
 
     /**
      * main function for server action

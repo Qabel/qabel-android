@@ -203,7 +203,7 @@ public class CreateIdentityActivity extends BaseWizardActivity {
     private void loadPrefixInBackground() {
 
         if (tryCount < 3) {
-            PrefixServer prefixServer = new PrefixServer();
+            PrefixServer prefixServer = new PrefixServer(getApplicationContext());
             prefixServer.getPrefix(this, new JsonRequestCallback(new int[]{201}) {
 
                 @Override

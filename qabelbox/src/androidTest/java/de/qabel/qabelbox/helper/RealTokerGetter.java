@@ -15,7 +15,6 @@ import de.qabel.qabelbox.config.AppPreference;
 import okhttp3.Response;
 
 import static junit.framework.Assert.assertNotNull;
-import static junit.framework.Assert.assertNull;
 
 public class RealTokerGetter {
 
@@ -23,7 +22,7 @@ public class RealTokerGetter {
     String token = null;
 
     public String getToken(final Context context) {
-        BoxAccountRegisterServer server = new BoxAccountRegisterServer();
+        BoxAccountRegisterServer server = new BoxAccountRegisterServer(context);
         String un = UUID.randomUUID().toString().substring(0, 23).replace("-", "a");
         String pw1 = "Password12";
         final String email = un + "@qabel.de";

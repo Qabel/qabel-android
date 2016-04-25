@@ -109,7 +109,7 @@ public class OfflineTest {
     @Test
     public void testDeviceIsOffline() {
         Context context = RuntimeEnvironment.application;
-        PrefixServer testServer = new PrefixServer();
+        PrefixServer testServer = new PrefixServer(context);
 
         successIsOffline = false;
 
@@ -157,7 +157,7 @@ public class OfflineTest {
     @Test
     public void testDeviceGoOffline() {
         Context context = RuntimeEnvironment.application;
-        PrefixServer testServer = new PrefixServer();
+        PrefixServer testServer = new PrefixServer(context);
 
         successGoOffline = false;
 

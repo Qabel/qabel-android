@@ -1,5 +1,6 @@
 package de.qabel.qabelbox.communication;
 
+import android.content.Context;
 import android.util.Log;
 
 import org.json.JSONException;
@@ -10,7 +11,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
-import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.communication.callbacks.RequestCallback;
 import de.qabel.qabelbox.communication.connection.ConnectivityManager;
 import okhttp3.Call;
@@ -31,9 +31,9 @@ public class BaseServer {
     /**
      * create new instance of http client and set timeouts
      */
-    public BaseServer() {
+    public BaseServer(Context context) {
 
-        connectivityManager = new ConnectivityManager(QabelBoxApplication.getInstance().getApplicationContext());
+        connectivityManager = new ConnectivityManager(context);
         connectivityManager.setListener(new ConnectivityManager.ConnectivityListener() {
             @Override
             public void handleConnectionLost() {

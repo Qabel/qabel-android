@@ -8,7 +8,6 @@ import java.io.File;
 
 import de.qabel.qabelbox.communication.callbacks.RequestCallback;
 import de.qabel.qabelbox.config.AppPreference;
-import okhttp3.Callback;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 
@@ -24,9 +23,8 @@ public class BlockServer extends BaseServer {
     private int currentId = 0;
     private final int suffixId;
 
-    public BlockServer() {
-
-        super();
+    public BlockServer(Context context) {
+        super(context);
         //maybe it can be bether to create a unique id. but normally we have only one instance in boxvolume of blockserver so it should no collision occurs
         suffixId = (this.getClass().hashCode() % 0xffff) * 0x10000;
     }

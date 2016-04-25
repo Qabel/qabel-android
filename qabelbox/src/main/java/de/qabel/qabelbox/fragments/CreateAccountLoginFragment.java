@@ -1,5 +1,6 @@
 package de.qabel.qabelbox.fragments;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -30,7 +31,7 @@ public class CreateAccountLoginFragment extends BaseIdentityFragment {
     private EditText etPassword;
     private TextView etUserName;
 
-    private final BoxAccountRegisterServer mBoxAccountServer = new BoxAccountRegisterServer();
+    private BoxAccountRegisterServer mBoxAccountServer;
     private View resetPassword;
 
     @Nullable
@@ -54,6 +55,12 @@ public class CreateAccountLoginFragment extends BaseIdentityFragment {
         });
         setHasOptionsMenu(true);
         return view;
+    }
+
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        mBoxAccountServer = new BoxAccountRegisterServer(activity.getApplicationContext());
     }
 
     @Override

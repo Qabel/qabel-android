@@ -1,5 +1,6 @@
 package de.qabel.qabelbox.fragments;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -26,7 +27,7 @@ import okhttp3.Response;
 public class CreateAccountResetPasswordFragment extends BaseIdentityFragment {
 
     private TextView etEMail;
-    private final BoxAccountRegisterServer mBoxAccountServer = new BoxAccountRegisterServer();
+    private BoxAccountRegisterServer mBoxAccountServer;
 
     @Nullable
     @Override
@@ -38,6 +39,12 @@ public class CreateAccountResetPasswordFragment extends BaseIdentityFragment {
 
         setHasOptionsMenu(true);
         return view;
+    }
+
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        mBoxAccountServer = new BoxAccountRegisterServer(activity.getApplicationContext());
     }
 
     @Override

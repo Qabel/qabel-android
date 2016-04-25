@@ -191,7 +191,7 @@ public class CreateBoxAccountUITest extends UIBoxHelper {
 
     private void createBoxAccountWithoutUI(String accountName, String accountEMail, String password) {
         final CountDownLatch cl = new CountDownLatch(1);
-        new BoxAccountRegisterServer().register(accountName, password, password, accountEMail, new JsonRequestCallback(new int[]{200, 201, 400}) {
+        new BoxAccountRegisterServer(mActivity.getApplicationContext()).register(accountName, password, password, accountEMail, new JsonRequestCallback(new int[]{200, 201, 400}) {
 
             @Override
             protected void onError(Exception e, @Nullable Response response) {
@@ -215,7 +215,7 @@ public class CreateBoxAccountUITest extends UIBoxHelper {
 
     private void createExistingUser(String duplicateName, String duplicateEMail, String password) {
         final CountDownLatch cl = new CountDownLatch(1);
-        new BoxAccountRegisterServer().register(duplicateName, password, password, duplicateEMail, new JsonRequestCallback(new int[]{200, 400}) {
+        new BoxAccountRegisterServer(mActivity.getApplicationContext()).register(duplicateName, password, password, duplicateEMail, new JsonRequestCallback(new int[]{200, 400}) {
             @Override
             protected void onError(Exception e, @Nullable Response response) {
                 cl.countDown();

@@ -20,7 +20,7 @@ public class PrefixGetter {
     public String getPrefix(Context context) {
         final CountDownLatch latch = new CountDownLatch(1);
 
-        new PrefixServer().getPrefix(context, new JsonRequestCallback() {
+        new PrefixServer(context).getPrefix(context, new JsonRequestCallback() {
 
             @Override
             protected void onError(Exception e, @Nullable Response response) {

@@ -1,5 +1,6 @@
 package de.qabel.qabelbox.fragments;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Fragment;
 import android.os.Bundle;
@@ -28,7 +29,7 @@ import okhttp3.Response;
 public class ChangeBoxAccountPasswordFragment extends Fragment {
 
     private EditText etOldPassword, etPassword1, etPassword2;
-    private final BoxAccountRegisterServer mBoxAccountServer = new BoxAccountRegisterServer();
+    private BoxAccountRegisterServer mBoxAccountServer;
     private PasswordValidator validator = new PasswordValidator();
 
     @Nullable
@@ -44,6 +45,12 @@ public class ChangeBoxAccountPasswordFragment extends Fragment {
         //tvMessage.setText(mMessageId);
 
         return view;
+    }
+
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        mBoxAccountServer = new BoxAccountRegisterServer(getActivity().getApplicationContext());
     }
 
     @Override

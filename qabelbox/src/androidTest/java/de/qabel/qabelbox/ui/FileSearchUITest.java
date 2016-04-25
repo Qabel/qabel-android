@@ -107,7 +107,7 @@ public class FileSearchUITest {
     private void uploadTestFiles() {
 
         int fileCount = 7;
-        BlockServer bs = new BlockServer();
+        BlockServer bs = new BlockServer(mActivity.getApplicationContext());
         mBoxHelper.uploadFile(mBoxHelper.mBoxVolume, "testfile 2", new byte[1011], "");
         mBoxHelper.uploadFile(mBoxHelper.mBoxVolume, "red.png", new byte[1], "");
         mBoxHelper.uploadFile(mBoxHelper.mBoxVolume, "green.png", new byte[100], "");

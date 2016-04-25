@@ -2,13 +2,11 @@ package de.qabel.qabelbox.helper;
 
 import android.content.Context;
 import android.content.res.Resources;
+import android.text.format.DateUtils;
 
 import java.text.DateFormat;
 import java.text.DecimalFormat;
-import java.util.Calendar;
 import java.util.Date;
-import java.util.GregorianCalendar;
-import java.util.Locale;
 import java.util.regex.Pattern;
 
 import de.qabel.qabelbox.R;
@@ -21,6 +19,10 @@ public class Formatter {
     private static final long KB = 1024;
     private static final long MB = 1024 * 1024;
     private static final long GB = 1024 * 1024 * 1024;
+
+    private static final long DAY_IN_MILLIS = 86400000;
+    private static final long HOUR_IN_MILLIS = 3600000;
+    private static final long MINUTE_IN_MILLIS = 60000;
 
     private static final DateFormat dateTimeFormat = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT);
     private static final DateFormat dateFormat = DateFormat.getDateInstance(DateFormat.MEDIUM);
@@ -70,21 +72,7 @@ public class Formatter {
      * @return
      */
     public static String formatDateTimeString(long time) {
-        Calendar current = GregorianCalendar.getInstance();
-        Calendar date = GregorianCalendar.getInstance();
-        date.setTimeInMillis(time);
-        Date dateObj = new Date(time);
-
-        StringBuilder dateString = new StringBuilder();
-        if (current.get(GregorianCalendar.DAY_OF_YEAR) - date.get(GregorianCalendar.DAY_OF_YEAR) < 7) {
-            dateString.append(date.getDisplayName(GregorianCalendar.DAY_OF_WEEK, GregorianCalendar.SHORT, Locale.getDefault()));
-        } else {
-            dateString.append(dateFormat.format(dateObj));
-        }
-        dateString.append(" ");
-        dateString.append(timeFormat.format(dateObj));
-
-        return dateString.toString();
+        return DateUtils.getRelativeTimeSpanString(time, System.currentTimeMillis(), DateUtils.SECOND_IN_MILLIS).toString();
     }
 
     public static boolean isEMailValid(String email) {

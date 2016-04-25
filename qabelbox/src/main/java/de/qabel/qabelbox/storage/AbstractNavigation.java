@@ -331,6 +331,9 @@ public abstract class AbstractNavigation implements BoxNavigation {
                     FileMetadata fileMetadata = new FileMetadata(out);
                     boxExternals.add(fileMetadata.getFile());
                 }
+            } catch (QblStorageNotFound e) {
+                Log.d(TAG, "External reference not found: " + boxExternalRefs.name);
+                dm.deleteExternalReference(boxExternalRefs.name);
             } catch (QblStorageException e) {
                 Log.e(TAG, "Cannot load metadata file: " + boxExternalRefs.getPrefix() + '/' + boxExternalRefs.getBlock());
                 if (boxExternalRefs.isFolder) {

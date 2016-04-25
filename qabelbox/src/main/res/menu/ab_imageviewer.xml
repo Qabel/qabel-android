@@ -4,13 +4,13 @@
       tools:context=".MainActivity">
     <item
         android:id="@+id/action_imageviewer_edit"
-        android:icon="@drawable/ab_imageviewer_edit"
+        android:icon="@drawable/pencil_white"
         android:orderInCategory="200"
         android:title="@string/edit"
         app:showAsAction="always"/>
     <item
         android:id="@+id/action_imageviewer_open"
-        android:icon="@drawable/ab_imageviewer_view"
+        android:icon="@drawable/image_white"
         android:orderInCategory="201"
         android:title="@string/Open"
         app:showAsAction="always"/>

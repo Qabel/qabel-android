@@ -6,6 +6,7 @@ package de.qabel.qabelbox.ui;
 
 import android.os.PowerManager;
 import android.support.test.rule.ActivityTestRule;
+import android.test.FlakyTest;
 import android.text.InputType;
 
 import com.squareup.spoon.Spoon;
@@ -13,6 +14,7 @@ import com.squareup.spoon.Spoon;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
@@ -141,6 +143,7 @@ public class CreateBoxAccountUITest extends UIBoxHelper {
         assertThat(appPrefs.getAccountName(), is(accountName));
     }
 
+    @Ignore
     @Test
     public void testCreateBoxAccountTest() throws Throwable {
         clearIdentities();

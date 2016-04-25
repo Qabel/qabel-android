@@ -6,7 +6,7 @@
 > The Qabel Android Client
 
 [![Build Status](https://jenkins.prae.me/buildStatus/icon?job=qabel-android-nightly)](https://jenkins.prae.me/job/qabel-android-nightly/)
-[![version](https://img.shields.io/badge/beta-0.5.0--beta.1-ff690f.svg)](https://qabel.de)
+[![version](https://img.shields.io/badge/beta-0.6.0--beta.1-ff690f.svg)](https://qabel.de)
 
 This project provides a Client for <a href="https://qabel.de"><img alt="Qabel" src="https://files.qabel.de/img/qabel-kl.png" height="18px"/></a> targeting Android. It is a small part of the qabel platform.
 
@@ -45,17 +45,28 @@ Everything below this line describes the usage of the Qabel Android Client for d
 
 # <a name="getting_started"></a>Getting started
 
-// TODO (write quick start guide)
+* Install Android Studio.
+* Open the SDK Manager from Tools/Android/SDK Manager
+* Install the SDK version 23. Make sure you install the "Android Support Repository" and the latest "Android SDK build-tools"
+* Import the project from git (File/New/Project from version control)
+* Create the file /qabelbox/src/main/res/values/params.xml with the following contents:
 
-For detailed instructions, please read the [INSTALL.md](https://raw.githubusercontent.com/Qabel/qabel-desktop/master/INSTALL.md)
+    `<resources> <string name="hockeykey">dummykey</string> </resources>`
+* Select the qabelbox module
+* Click "Run" and you're done.
+
 
 # Usage
 
-// TODO explain gradle tasks etc.
+You can run the tests either dirctly from AndroidStudio with the following gradle tasks:
+
+* `./gradlew test` runs the local unit tests
+* `./gradlew spoon` runs all instrumentation tests on all connected devices and emulators
+
 
 # Structure
 
-// TODO
+The test server addresses are hard coded in TestConstants.java and the live servers are configured in a string ressource `servers.xml`
 
 # Contribution
 

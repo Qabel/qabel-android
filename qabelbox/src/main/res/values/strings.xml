@@ -21,6 +21,7 @@
     <string name="Send">Send</string>
     <string name="folderListingUpdateError">Could not update the folder listing</string>
     <string name="Export">Export</string>
+    <string name="ExportPrivateKey">Export private key</string>
     <string name="folder_export_not_implemented">Exporting folders is not implemented</string>
     <string name="confirm_delete_title">Delete?</string>
     <string name="confirm_delete_message">Do you want to delete %s?</string>
@@ -125,14 +126,14 @@
     <string name="cant_read_identity">Could not read identity from file</string>
     <string name="identity_export_failed">Could not export the identity</string>
     <string name="identity_export_successfully">Identity exported. This file contains your key, keep it safe!</string>
-    <string name="ExportAsContact">Save your contact details</string>
+    <string name="ExportAsContact">Export Public Contact</string>
     <string name="error_reason_io">Error when reading or writing</string>
     <string name="reason_for_error">Reason: %1</string>
     <plurals name="contact_export_successfully">
         <item quantity="one">Contact exported. You can share this contact to your friends.</item>
         <item quantity="other">%d Contacts exported. You can share this contact to your friends.</item>
     </plurals>
-    <string name="ExportAsContactWithQRcode">Share</string>
+    <string name="ExportAsContactWithQRcode">Show QR</string>
     <string name="headline_qrcode">QRCode</string>
     <string name="Open">Open</string>
     <string name="edit">Edit</string>
@@ -149,10 +150,9 @@
 
     <string name="contact_import_failed">Contact import failed</string>
     <string name="contact_import_manual_failed">Contact import failed. Please check if you entered the correct data</string>
-    <plurals name="contact_import_successfull">
-        <item quantity="one">Contact imported</item>
-        <item quantity="other">%d contacts imported</item>
-    </plurals>
+
+    <string name="contact_import_successfull">Contact imported</string>
+    <string name="contact_import_successfull_many">%1$d / %2$d Contacts imported</string>
     <string name="contact_import_zero_additions">No new Contacts found</string>
     <string name="cant_import_contact_already_exisits">Can\'t import contact. Contact already in contact list</string>
     <string name="messsage_enter_contact_manual">Please enter the details of the contact. You can also abort this and import the contact from a file or QR code</string>
@@ -174,7 +174,7 @@
     <string name="dialog_message_delete_contact_question">Do you really delete the contact %1?</string>
     <string name="contact_deleted">Contact with name %1 deleted</string>
     <string name="infos">Infos</string>
-    <string name="dummy_infos_text">This is the beta version of Qabel</string>
+    <string name="dummy_infos_text">This is the alpha version of Qabel</string>
     <string name="contact_count">Contact count: %1</string>
     <string name="message_step_is_needed_or_close_app">%s is required to use Qabel. Are you sure you want close Qabel?</string>
     <string name="chat_message_hint">Enter text</string>
@@ -276,6 +276,7 @@ To all people who have supported our Indigogo Campaign
     <string name="about.licences.item.show.btn">Show Licence</string>
 
 
+
     <string name="help_main_headline_tou">Terms of use</string>
     <string name="help_main_headline_data_policy">Data policy</string>
     <string name="help_main_headline_about_us">Imprint</string>
@@ -323,12 +324,14 @@ To all people who have supported our Indigogo Campaign
     <string name="contact_export_all">Export all contacts</string>
     <string name="cant_export_contacts">Can\'t export contacts</string>
     <string name="contact_export_failed">Could not export the identity</string>
+
     <string name="tellAFriendSubject">You’ve been invited to join Qabel</string>
     <string name="tellAFriendMessage">For the moment this gives you the opportunity to use Qabel Box. Qabel Box is an end-to-end encrypted online data storage. It does not only enable you to store data end-to-end encrypted online, but also to share this data freely and end-to-end encrypted with others. Moreover Qabel obfuscates most of the accumulated metadata. Qabel is constantly expanding. So it will be possible for you in the future to end-to-end encrypt all your digital communication with the easy to use platform Qabel across applications. Become a part of the Qabel ecosystem and start now:\r\n\r\n<a href="https://qabel.de/en/qabelnow">https://qabel.de/en/qabelnow</a>\r\n\r\nFor more information visit at\r\n\r\n<a href="https://qabel.de/en">https://qabel.de/en</a></string>
     <string name="action_tellafriend">Invitation</string>
 
-
     <string name="cant_import_file_type_is_unknown">Can\'t import file. The file type is unknown</string>
     <string name="idenity_imported">Identity successfully imported</string>
+    <string name="shared_with_you">shared with you</string>
+
 
 </resources>

@@ -62,18 +62,19 @@ import static org.hamcrest.Matchers.is;
 public class ChatMessageUITest {
 
     @Rule
-    public ActivityTestRule<MainActivity> mActivityTestRule = new ActivityTestRule<>(MainActivity.class, false, true);
+    public ActivityTestRule<MainActivity> mActivityTestRule = new ActivityTestRule<MainActivity>(MainActivity.class, false, true) {
+        @Override
+        public void beforeActivityLaunched() {
+            setupData();
+        }
+
+    };
     private MainActivity mActivity;
     private UIBoxHelper mBoxHelper;
     private PowerManager.WakeLock wakeLock;
     private SystemAnimations mSystemAnimations;
     private final String TAG = this.getClass().getSimpleName();
     private Contact contact2, contact1;
-
-    public ChatMessageUITest() throws IOException {
-        //setup data before MainActivity launched. This avoid the call to create identity
-        setupData();
-    }
 
     @After
     public void cleanUp() {
@@ -91,7 +92,6 @@ public class ChatMessageUITest {
         mSystemAnimations = new SystemAnimations(mActivity);
         mSystemAnimations.disableAll();
     }
-
     @Test
     public void testSendMessage() {
         Spoon.screenshot(mActivity, "empty");
@@ -138,35 +138,22 @@ public class ChatMessageUITest {
         mBoxHelper = new UIBoxHelper(QabelBoxApplication.getInstance());
         mBoxHelper.bindService(QabelBoxApplication.getInstance());
         mBoxHelper.createTokenIfNeeded(false);
-        try {
-            Identity old = mBoxHelper.getCurrentIdentity();
-            if (old != null) {
-                mBoxHelper.deleteIdentity(old);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
         mBoxHelper.removeAllIdentities();
-        Identity user1 = mBoxHelper.addIdentity("user1");
-        Identity user2 = mBoxHelper.addIdentity("user2");
-        String contact1Json = ContactExportImport.exportIdentityAsContact(user1);
-        String contact2Json = ContactExportImport.exportIdentityAsContact(user2);
-        mBoxHelper.setActiveIdentity(user1);
-        addContact(user1, contact2Json);
-        assertNotEmpty(mBoxHelper.getService().getContacts().getContacts());
+        Identity user1 = mBoxHelper.addIdentityWithoutVolume("user1");
+        Identity user2 = mBoxHelper.addIdentityWithoutVolume("user2");
+
+        addContact(user1, user2);
+        addContact(user2, user1);
         mBoxHelper.setActiveIdentity(user2);
-        addContact(user2, contact1Json);
 
 
         assertNotEmpty(mBoxHelper.getService().getContacts().getContacts());
     }
 
-    private void addContact(Identity identity, String contact) {
-        try {
-            mBoxHelper.getService().addContact(ContactExportImport.parseContactForIdentity(identity, new JSONObject(contact)));
-        } catch (Exception e) {
-            Log.e(TAG, "error on add contact", e);
-        }
+    private void addContact(Identity identity, Identity contact) {
+        Contact asContact = new Contact(contact.getAlias(),
+                contact.getDropUrls(),contact.getEcPublicKey());
+		mBoxHelper.getService().addContact(asContact, identity);
     }
 
     private void sendOneAndCheck(int messages) {
@@ -327,7 +314,7 @@ public class ChatMessageUITest {
      * @return ViewInteraction
      */
     private ViewInteraction checkVisibilityState(String alias, ViewAssertion visibility) {
-        return onView(allOf(QabelMatcher.withDrawable(R.drawable.ic_visibility), hasSibling(withText(alias)))).check(visibility);
+        return onView(allOf(QabelMatcher.withDrawable(R.drawable.eye), hasSibling(withText(alias)))).check(visibility);
     }
 
     private void refreshContactView(ChatServer chatServer) {

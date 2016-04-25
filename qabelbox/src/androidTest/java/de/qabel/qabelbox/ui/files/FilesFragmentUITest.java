@@ -2,11 +2,11 @@ package de.qabel.qabelbox.ui.files;
 
 import android.content.Intent;
 import android.os.PowerManager;
+import android.support.design.internal.NavigationMenuItemView;
 import android.support.test.espresso.intent.rule.IntentsTestRule;
 
 import com.squareup.spoon.Spoon;
 
-import org.json.JSONObject;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
@@ -23,11 +23,9 @@ import de.qabel.core.config.Identity;
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.TestConstants;
-import de.qabel.qabelbox.TestConstraints;
 import de.qabel.qabelbox.activities.MainActivity;
 import de.qabel.qabelbox.communication.BlockServer;
 import de.qabel.qabelbox.communication.URLs;
-import de.qabel.qabelbox.config.ContactExportImport;
 import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.ui.helper.SystemAnimations;
 import de.qabel.qabelbox.ui.helper.UIActionHelper;
@@ -37,7 +35,9 @@ import de.qabel.qabelbox.ui.helper.UITestHelper;
 import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.action.ViewActions.click;
 import static android.support.test.espresso.action.ViewActions.longClick;
+import static android.support.test.espresso.assertion.ViewAssertions.doesNotExist;
 import static android.support.test.espresso.assertion.ViewAssertions.matches;
+import static android.support.test.espresso.contrib.DrawerActions.openDrawer;
 import static android.support.test.espresso.intent.Intents.intended;
 import static android.support.test.espresso.intent.matcher.IntentMatchers.hasAction;
 import static android.support.test.espresso.intent.matcher.IntentMatchers.hasExtra;
@@ -45,7 +45,9 @@ import static android.support.test.espresso.matcher.RootMatchers.withDecorView;
 import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
+import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.Matchers.allOf;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 
@@ -68,6 +70,7 @@ public class FilesFragmentUITest {
     private Identity testIdentity2;
 
     private Contact testContact;
+    private Contact testContact2;
 
     private List<ExampleFile> exampleFiles = Arrays.asList(
             new ExampleFile("testfile 2", new byte[1011]),
@@ -123,7 +126,6 @@ public class FilesFragmentUITest {
     @Before
     public void setUp() throws IOException, QblStorageException {
 
-        URLs.setBaseBlockURL(TestConstants.BLOCK_URL);
         mActivity = mActivityTestRule.getActivity();
         wakeLock = UIActionHelper.wakeupDevice(mActivity);
         mSystemAnimations = new SystemAnimations(mActivity);
@@ -131,21 +133,25 @@ public class FilesFragmentUITest {
     }
 
     private void setupData() throws Exception {
+        URLs.setBaseBlockURL(TestConstants.BLOCK_URL);
         mActivity = mActivityTestRule.getActivity();
         mBoxHelper = new UIBoxHelper(QabelBoxApplication.getInstance());
         mBoxHelper.bindService(QabelBoxApplication.getInstance());
         mBoxHelper.createTokenIfNeeded(false);
 
+        mBoxHelper.removeAllIdentities();
+
         testIdentity = mBoxHelper.addIdentity("spoon");
         testIdentity2 = mBoxHelper.addIdentity("spoon2");
-        String contactJSON = ContactExportImport.exportIdentityAsContact(testIdentity2);
-        try {
-            testContact = ContactExportImport.parseContactForIdentity(testIdentity, new JSONObject(contactJSON));
-            mBoxHelper.getService().addContact(testContact);
-        } catch (Exception e) {
-            //TODO Log Cant create testContact!
-            throw e;
-        }
+
+        testContact = new Contact(testIdentity.getAlias(), testIdentity.getDropUrls(), testIdentity.getEcPublicKey());
+        testContact2 = new Contact(testIdentity2.getAlias(), testIdentity2.getDropUrls(), testIdentity2.getEcPublicKey());
+
+        mBoxHelper.getService().addContact(testContact);
+        mBoxHelper.setActiveIdentity(testIdentity);
+        mBoxHelper.getService().addContact(testContact2);
+
+        mBoxHelper.setActiveIdentity(testIdentity2);
 
         uploadTestFiles();
     }
@@ -177,16 +183,35 @@ public class FilesFragmentUITest {
 
         onView(withText(R.string.ok)).perform(click());
 
-        UITestHelper.sleep(50);
-
-        //Check progress message
-        //XXX Message not belongs to the view
-        //onView(withText(R.string.dialog_share_sending_in_progress)).inRoot(withDecorView(not(is(mActivity.getWindow().getDecorView())))).check(matches(isDisplayed()));
-
-        UITestHelper.sleep(TestConstraints.SIMPLE_SERVER_ACTION_TIMEOUT);
+        UITestHelper.sleep(1000);
 
         //Check success message
         onView(withText(R.string.messsage_file_shared)).inRoot(withDecorView(not(is(mActivity.getWindow().getDecorView())))).check(matches(isDisplayed()));
+
+        //Change to other identity
+        openDrawer(R.id.drawer_layout);
+        onView(withId(R.id.imageViewExpandIdentity)).check(matches(isDisplayed())).perform(click());
+        onView(allOf(is(instanceOf(NavigationMenuItemView.class)), withText(testIdentity.getAlias()))).perform(click());
+
+        //Accept share
+        openDrawer(R.id.drawer_layout);
+        onView(withText(R.string.Contacts)).check(matches(isDisplayed())).perform(click());
+        onView(withText(testContact2.getAlias())).check(matches(isDisplayed())).perform(click());
+        onView(withText(R.string.accept_share)).check(matches(isDisplayed())).perform(click());
+
+        //Go to files
+        openDrawer(R.id.drawer_layout);
+        onView(withText(R.string.filebrowser)).check(matches(isDisplayed())).perform(click());
+
+        //Check Menu disabled for shared folder
+        onView(withText(R.string.shared_with_you)).perform(longClick());
+
+        onView(withId(R.id.bs_main)).check(doesNotExist());
+
+        onView(withText(R.string.shared_with_you)).check(matches(isDisplayed())).perform(click());
+
+        //Check shared file is visible in shared files folder
+        containsString(mActivity.getString(R.string.filebrowser_file_is_shared_from).replace("%1", testContact2.getAlias())).matches(isDisplayed());
 
         Spoon.screenshot(mActivity, "after");
     }

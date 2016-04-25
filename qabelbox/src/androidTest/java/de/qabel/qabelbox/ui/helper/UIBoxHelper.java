@@ -130,6 +130,14 @@ public class UIBoxHelper {
 
     }
 
+    public Identity addIdentityWithoutVolume(final String identityName) {
+
+        Identity identity = createIdentity(identityName);
+        mService.addIdentity(identity);
+        Log.d(TAG, "identity added " + identity.getAlias() + " " + identity.getEcPublicKey().getReadableKeyIdentifier());
+        mService.setActiveIdentity(identity);
+        return identity;
+    }
 
     public Identity addIdentity(final String identityName) {
 
@@ -170,6 +178,7 @@ public class UIBoxHelper {
 
     private void initBoxVolume(Identity activeIdentity) throws QblStorageException {
 
+        provider.setLocalService(mService);
         mBoxVolume = provider.getVolumeForRoot(
                 activeIdentity.getEcPublicKey().getReadableKeyIdentifier(),
                 VolumeFileTransferHelper.getPrefixFromIdentity(activeIdentity));
@@ -254,10 +263,7 @@ public class UIBoxHelper {
     }
 
     public void removeAllIdentities() {
-        Set<Identity> identities = mService.getIdentities().getIdentities();
-        for (Identity i : identities) {
-            mService.deleteIdentity(i);
-        }
+        mService.deleteContactsAndIdentities();
     }
 
     public void deleteCurrentIdentity() {

@@ -1,82 +1,88 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_gravity="center_horizontal">
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:layout_gravity="center_horizontal"
+              android:orientation="vertical">
 
-    <RelativeLayout
-        android:id="@+id/fileFolderContainer"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
-
-        <ImageView
-            android:id="@+id/fileFolderIcon"
-            style="@style/ListIcon"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true"
-            android:layout_alignParentTop="true"/>
-
-        <ProgressBar
-            android:id="@+id/fileFolderProgress"
-            style="?android:attr/progressBarStyle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
-            android:visibility="invisible"/>
-
-    </RelativeLayout>
-
-
-    <de.qabel.qabelbox.views.TextViewFont
-        android:id="@+id/textViewFolderName"
-        style="@style/ListFirstTextLine"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_marginLeft="5dp"
-        android:layout_toRightOf="@+id/fileFolderContainer"/>
-
-    <RelativeLayout
-        style="@style/ListSecondTextLine"
-        xmlns:android="http://schemas.android.com/apk/res/android"
+    <LinearLayout
         android:layout_width="match_parent"
-
         android:layout_height="wrap_content"
-        android:layout_below="@+id/textViewFolderName"
-        android:layout_toEndOf="@+id/fileFolderContainer"
-        android:orientation="horizontal"
-        android:paddingLeft="5dp"
-        android:paddingRight="16dp">
+        android:orientation="horizontal">
 
-        <de.qabel.qabelbox.views.TextViewFont
-            android:id="@+id/textViewFolderDetailLeft"
-            android:layout_width="wrap_content"
-            style="@style/ListSecondTextLine"
-            android:layout_alignParentLeft="true"
-            android:layout_height="wrap_content"
-
-            />
-
-
-        <de.qabel.qabelbox.views.TextViewFont
-            android:id="@+id/textViewFolderDetailRight"
+        <RelativeLayout
+            android:id="@+id/fileFolderContainer"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:gravity="left">
 
-            android:gravity="right"
-            android:layout_alignParentRight="true"
-            android:textAlignment="gravity"
-            style="@style/ListSecondTextLine"/>
+            <ImageView
+                android:id="@+id/fileFolderIcon"
+                style="@style/ListIcon"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentTop="true"/>
 
-        <de.qabel.qabelbox.views.TextViewFont
-            android:id="@+id/textViewFolderDetailMiddle"
+            <ProgressBar
+                android:id="@+id/fileFolderProgress"
+                style="?android:attr/progressBarStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:visibility="invisible"/>
+
+        </RelativeLayout>
+
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_below="@id/textViewFolderDetailLeft"
-            android:layout_alignParentLeft="true"
-            style="@style/ListSecondTextLine"
             android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:orientation="vertical">
 
-            />
+            <de.qabel.qabelbox.views.TextViewFont
+                android:id="@+id/textViewFolderName"
+                style="@style/ListFirstTextLine"
+                android:gravity="center_vertical"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
+            <RelativeLayout
+                android:id="@+id/second_row"
+                style="@style/ListSecondTextLine"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/textViewFolderName"
+                android:paddingRight="16dp"
+                android:visibility="invisible">
+
+                <de.qabel.qabelbox.views.TextViewFont
+                    android:id="@+id/textViewFolderDetailLeft"
+                    style="@style/ListSecondTextLine"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentLeft="true"/>
+
+
+                <de.qabel.qabelbox.views.TextViewFont
+                    android:id="@+id/textViewFolderDetailRight"
+                    style="@style/ListSecondTextLine"
+                    android:layout_width="wrap_content"
+
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:gravity="right"
+                    android:textAlignment="gravity"/>
+
+            </RelativeLayout>
+        </LinearLayout>
+    </LinearLayout>
+
+    <RelativeLayout
+        android:id="@+id/separator"
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:layout_alignParentBottom="true"
+        android:background="@color/light_gray">
     </RelativeLayout>
-</RelativeLayout>
+</LinearLayout>

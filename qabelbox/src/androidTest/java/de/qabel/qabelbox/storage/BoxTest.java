@@ -4,7 +4,6 @@ package de.qabel.qabelbox.storage;
 import android.test.AndroidTestCase;
 
 import org.apache.commons.io.IOUtils;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -21,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.Callable;
 
 import de.qabel.core.config.DropServer;
 import de.qabel.core.config.Identity;
@@ -35,6 +35,7 @@ import de.qabel.qabelbox.config.AppPreference;
 import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.exceptions.QblStorageNameConflict;
 import de.qabel.qabelbox.exceptions.QblStorageNotFound;
+import de.qabel.qabelbox.util.TestHelper;
 
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
@@ -275,12 +276,8 @@ public class BoxTest extends AndroidTestCase {
         uploadFile(nav, "foobar");
 
         // Check that updated file cannot be read anymore
-
         List<BoxObject> boxExternalFiles = navOtherUser.listExternals();
-        assertThat(boxExternalFiles.size(), is(1));
-        assertTrue(boxExternalFiles.get(0) instanceof BoxExternalFile);
-        BoxExternalFile boxFileReceived = (BoxExternalFile) boxExternalFiles.get(0);
-        assertThat(boxFileReceived.isAccessible(), is(false));
+        assertThat(boxExternalFiles.size(), is(0));
     }
 
     @Test
@@ -333,17 +330,23 @@ public class BoxTest extends AndroidTestCase {
     }
 
     @Test
-    public void testDeleteFile() throws QblStorageException, IOException {
-        BoxNavigation nav = volume.navigate();
-        BoxFile boxFile = uploadFile(nav);
+    public void testDeleteFile() throws Exception {
+        final BoxNavigation nav = volume.navigate();
+        final BoxFile boxFile = uploadFile(nav);
         nav.delete(boxFile);
         nav.commit();
-        try {
-            nav.download(boxFile, null);
-        } catch (QblStorageNotFound e) {
-            return;
-        }
-        Assert.fail("Expected QblStorageNotFound");
+        TestHelper.waitUntil(new Callable<Boolean>() {
+                                 @Override
+                                 public Boolean call() throws Exception {
+                                     try {
+                                         nav.download(boxFile, null);
+                                         return false;
+                                     } catch (QblStorageNotFound e) {
+                                         return true;
+                                     }
+                                 }
+                             },
+                "Expected QblStorageNotFound");
     }
 
     private BoxFile uploadFile(BoxNavigation nav) throws QblStorageException, IOException {

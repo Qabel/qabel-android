@@ -37,14 +37,17 @@
                 <de.qabel.qabelbox.views.TextViewFont
                     android:id="@+id/textViewItemName"
                     style="@style/ListFirstTextLine"
+                    android:layout_gravity="left|center_vertical"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"/>
 
                 <ImageView
-                    android:layout_width="wrap_content"
-                    android:src="@drawable/ic_visibility"
-                    android:id="@+id/newMessageIndicator"
-                    android:layout_height="wrap_content"/>
+                    android:layout_width="15dp"
+                    android:layout_height="15dp"
+                    android:layout_gravity="left|center_vertical"
+                    android:layout_marginLeft="3dp"
+                    android:src="@drawable/eye"
+                    android:id="@+id/newMessageIndicator"/>
             </LinearLayout>
 
 

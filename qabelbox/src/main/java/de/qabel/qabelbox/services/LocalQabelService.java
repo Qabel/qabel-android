@@ -139,6 +139,16 @@ public class LocalQabelService extends Service {
     }
 
     /**
+     * Reset the persistence
+     *
+     * This should only be used in testing.
+     */
+    public void deleteContactsAndIdentities() {
+        persistence.dropTable(Contacts.class);
+        persistence.dropTable(Identity.class);
+    }
+
+    /**
      * Create a list of contacts for the given Identity
      *
      * @param identity selected identity
@@ -147,7 +157,8 @@ public class LocalQabelService extends Service {
     public Contacts getContacts(Identity identity) {
         List<Contacts> entities = persistence.getEntities(Contacts.class);
         for (Contacts contacts : entities) {
-            if (contacts.getIdentity().equals(identity)) {
+            Identity owner = contacts.getIdentity();
+            if (owner.equals(identity)) {
                 return contacts;
             }
         }
@@ -518,10 +529,12 @@ public class LocalQabelService extends Service {
         uploadingQueue = new LinkedBlockingDeque<>();
         self = this;
     }
-
     protected void initAndroidPersistence() {
+       initAndroidPersistence(DB_NAME);
+    }
+    protected void initAndroidPersistence(String dbName) {
         AndroidPersistence androidPersistence;
-        QblSQLiteParams params = new QblSQLiteParams(this, DB_NAME, null, DB_VERSION);
+        QblSQLiteParams params = new QblSQLiteParams(getApplicationContext(), dbName, null, DB_VERSION);
         try {
             androidPersistence = new AndroidPersistence(params);
         } catch (QblInvalidEncryptionKeyException e) {

@@ -1,5 +1,6 @@
 apply plugin: 'com.android.application'
-
+apply plugin: 'org.sonarqube'
+apply plugin: 'findbugs'
 
 apply plugin: 'spoon'
 
@@ -66,6 +67,27 @@ android {
         exclude 'META-INF/NOTICE.txt'
         exclude 'META-INF/DEPENDENCIES'
         exclude 'LICENSE.txt'
+    }
+
+    // findbugs
+    task findbugs(type: FindBugs) {
+        ignoreFailures = false
+        effort = "default"
+        reportLevel = "medium"
+        excludeFilter = new File("${project.rootDir}/findbugs/findbugs-filter.xml")
+        classes = files("${project.rootDir}/qabelbox/build/intermediates/classes")
+        source = fileTree('src/main/java/')
+        classpath = files()
+        reports {
+            xml.enabled = false
+            html.enabled = true
+            xml {
+                destination "$project.buildDir/findbugs/findbugs-output.xml"
+            }
+            html {
+                destination "$project.buildDir/findbugs/findbugs-output.html"
+            }
+        }
     }
 }
 
@@ -142,3 +164,20 @@ check << {
 
     println "SUCCESS"
 }
+
+
+sourceSets {
+    main {
+        java.srcDirs = ['src/main/java']
+    }
+}
+
+
+sonarqube {
+    //sources = ['srcFromGradle2/main/java']
+    properties {
+        property "sonar.sources", "srcFromGradle"
+    }
+}
+
+

@@ -253,11 +253,11 @@ public class MainActivity extends CrashReportingActivity
 
         bindService(serviceIntent, mServiceConnection, Context.BIND_AUTO_CREATE);
 
-        setConnectivityManager(new ConnectivityManager(this));
+        installConnectivityManager(new ConnectivityManager(this));
         addBackStackListener();
     }
 
-    public void setConnectivityManager(ConnectivityManager manager) {
+    public void installConnectivityManager(ConnectivityManager manager) {
         if (this.connectivityManager != null) {
             connectivityManager.onDestroy();
         }

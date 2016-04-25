@@ -78,17 +78,30 @@ public class ContactFragment extends BaseFragment {
     private boolean useDocumentProvider = true;//used for tests
     private LocalQabelService mService;
     private boolean resourcesReady;
+    private Context context;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
         self = this;
-        chatServer = new ChatServer(getActivity().getApplicationContext());
         setHasOptionsMenu(true);
         mActivity.registerReceiver(refreshContactListReceiver, new IntentFilter(Helper.INTENT_REFRESH_CONTACTLIST));
-        bindToService(getActivity().getApplicationContext());
 
+    }
+
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        bindToService(activity);
+        chatServer = new ChatServer(activity.getApplicationContext());
+        context = activity;
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        context = null;
     }
 
     void bindToService(final Context context) {
@@ -259,7 +272,7 @@ public class ContactFragment extends BaseFragment {
     @Override
     public void onResume() {
 	        super.onResume();
-            bindToService(getActivity().getApplicationContext());
+            bindToService(context);
 	}
 
     private void pullDropMessagesAsync() {
@@ -302,7 +315,7 @@ public class ContactFragment extends BaseFragment {
     private void sendRefreshContactList() {
         Log.d(TAG, "send refresh intent");
         Intent intent = new Intent(Helper.INTENT_REFRESH_CONTACTLIST);
-        getActivity().getApplicationContext().sendBroadcast(intent);
+        context.sendBroadcast(intent);
     }
 
     @Override

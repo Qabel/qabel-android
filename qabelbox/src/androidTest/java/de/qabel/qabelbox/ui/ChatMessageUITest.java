@@ -98,10 +98,56 @@ public class ChatMessageUITest {
         identity = service.getActiveIdentity();
     }
     @Test
-    public void testSendMessage() {
+    public void testSendOneMessage() {
         Spoon.screenshot(mActivity, "empty");
-        sendOneAndCheck(1);
-        sendOneAndCheck(2);
+        openDrawer(R.id.drawer_layout);
+
+        onView(allOf(withText(R.string.Contacts), withParent(withClassName(endsWith("MenuView")))))
+                .perform(click());
+        Spoon.screenshot(mActivity, "contacts");
+
+        //ContactList and click on user
+        onView(withId(R.id.contact_list)).check(matches(isDisplayed()));
+        onView(withText("user1")).perform(click());
+
+        //ChatView is displayed
+        onView(withId(R.id.contact_chat_list)).check(matches(isDisplayed()));
+
+        //Check Username is displayed in chatview
+        QabelMatcher.matchToolbarTitle("user1").check(matches(isDisplayed()));
+
+        onView(withId(R.id.etText)).check(matches(isDisplayed())).perform(click());
+        onView(withId(R.id.etText)).perform(typeText("text" + 1), pressImeActionButton());
+        closeSoftKeyboard();
+        onView(withText(R.string.btn_chat_send)).check(matches(isDisplayed())).perform(click());
+
+        onView(withId(R.id.contact_chat_list)).
+                check(matches(isDisplayed())).
+                check(matches(QabelMatcher.withListSize(1)));
+        pressBack();
+        refreshContactView();
+
+        //go to identity user 1
+        openDrawer(R.id.drawer_layout);
+        onView(withId(R.id.imageViewExpandIdentity)).check(matches(isDisplayed())).perform(click());
+        onView(allOf(is(instanceOf(NavigationMenuItemView.class)), withText("user1"))).perform(click());
+
+        openDrawer(R.id.drawer_layout);
+        onView(withText(R.string.Contacts)).check(matches(isDisplayed())).perform(click());
+        Spoon.screenshot(mActivity, "message" + 1);
+        checkVisibilityState("user2", QabelMatcher.isVisible());
+        onView(withText("user2")).check(matches(isDisplayed())).perform(click());
+
+        onView(withId(R.id.contact_chat_list)).
+                check(matches(isDisplayed())).
+                check(matches(QabelMatcher.withListSize(1)));
+        pressBack();
+
+        //go to user 2
+        openDrawer(R.id.drawer_layout);
+        onView(withId(R.id.imageViewExpandIdentity)).check(matches(isDisplayed())).perform(click());
+        onView(allOf(is(instanceOf(NavigationMenuItemView.class)), withText("user2"))).perform(click());
+        openDrawer(R.id.drawer_layout);
     }
 
     /**
@@ -109,14 +155,44 @@ public class ChatMessageUITest {
      */
     @Test
     public void testNewMessageVisualization() {
-        MessageTestObjects messageTestObjects = new MessageTestObjects().invoke();
-        String identityKey = messageTestObjects.getIdentityKey();
-        ChatServer chatServer = messageTestObjects.getChatServer();
-        String contact1Alias = messageTestObjects.getContact1Alias();
-        String contact1Key = messageTestObjects.getContact1Key();
+
+        String identityKey = identity.getEcPublicKey().getReadableKeyIdentifier();
+        contact1 = createContact("contact1");
+        contact2 = createContact("contact2");
+        ChatServer chatServer = mActivity.chatServer;
+        String contact1Alias = contact1.getAlias();
+
+        String contact1Key = contact1.getEcPublicKey().getReadableKeyIdentifier();
+
+        //start test... go to contact fragment
+        openDrawer(R.id.drawer_layout);
+        onView(allOf(withText(R.string.Contacts), withParent(withClassName(endsWith("MenuView")))))
+                .perform(click());
+        Spoon.screenshot(mActivity, "contacts");
+        int messageCount = chatServer.getAllMessages(identity, contact1).length;
+        Log.d(TAG, "count: " + messageCount);
 
 
-        addMessageFromOneContact(identityKey, chatServer, contact1Alias, contact1Key);
+        ChatMessageItem dbItem = createNewChatMessageItem(contact1Key, identityKey, "from: " + contact1Alias + "message1");
+        chatServer.storeIntoDB(identity, dbItem);
+        int newMessageCount = chatServer.getAllMessages(identity, contact1).length;
+
+        Spoon.screenshot(mActivity, "contactsOneNewMessage");
+        assertThat(1, is(newMessageCount));
+        assertTrue(chatServer.hasNewMessages(identity, contact1));
+        assertFalse(chatServer.hasNewMessages(identity, contact2));
+
+        //check if new view indicator displayed on correct user and click on this item
+        refreshContactView();
+        checkVisibilityState(contact1Alias, QabelMatcher.isVisible()).perform(click());
+
+        //check if RecyclerView contain correct count of data
+        onView(withId(R.id.contact_chat_list)).check(matches(QabelMatcher.withListSize(1)));
+        pressBack();
+        refreshContactView();
+        UITestHelper.sleep(500);
+        //check if indicator not displayed (we have viewed the item)
+        checkVisibilityState(contact1Alias, QabelMatcher.isInvisible());
 
     }
 
@@ -144,58 +220,6 @@ public class ChatMessageUITest {
 		mBoxHelper.getService().addContact(asContact, identity);
     }
 
-    private void sendOneAndCheck(int messages) {
-        openDrawer(R.id.drawer_layout);
-
-        onView(allOf(withText(R.string.Contacts), withParent(withClassName(endsWith("MenuView")))))
-                .perform(click());
-        Spoon.screenshot(mActivity, "contacts");
-
-        //ContactList and click on user
-        onView(withId(R.id.contact_list)).check(matches(isDisplayed()));
-        onView(withText("user1")).perform(click());
-
-        //ChatView is displayed
-        onView(withId(R.id.contact_chat_list)).check(matches(isDisplayed()));
-
-        //Check Username is displayed in chatview
-        QabelMatcher.matchToolbarTitle("user1").check(matches(isDisplayed()));
-
-        onView(withId(R.id.etText)).check(matches(isDisplayed())).perform(click());
-        onView(withId(R.id.etText)).perform(typeText("text" + messages), pressImeActionButton());
-        closeSoftKeyboard();
-        onView(withText(R.string.btn_chat_send)).check(matches(isDisplayed())).perform(click());
-
-        UITestHelper.sleep(200);
-
-        onView(withId(R.id.contact_chat_list)).
-                check(matches(isDisplayed())).
-                check(matches(QabelMatcher.withListSize(messages)));
-        pressBack();
-
-        //go to identity user 1
-        openDrawer(R.id.drawer_layout);
-        onView(withId(R.id.imageViewExpandIdentity)).check(matches(isDisplayed())).perform(click());
-        onView(allOf(is(instanceOf(NavigationMenuItemView.class)), withText("user1"))).perform(click());
-
-        openDrawer(R.id.drawer_layout);
-        onView(withText(R.string.Contacts)).check(matches(isDisplayed())).perform(click());
-        Spoon.screenshot(mActivity, "message" + messages);
-        checkVisibilityState("user2", QabelMatcher.isVisible());
-        onView(withText("user2")).check(matches(isDisplayed())).perform(click());
-
-        onView(withId(R.id.contact_chat_list)).
-                check(matches(isDisplayed())).
-                check(matches(QabelMatcher.withListSize(messages)));
-        pressBack();
-
-        //go to user 2
-        openDrawer(R.id.drawer_layout);
-        onView(withId(R.id.imageViewExpandIdentity)).check(matches(isDisplayed())).perform(click());
-        onView(allOf(is(instanceOf(NavigationMenuItemView.class)), withText("user2"))).perform(click());
-        openDrawer(R.id.drawer_layout);
-    }
-
     private Contact createContact(String name) {
         Identity identity = mBoxHelper.createIdentity(name);
         String json = ContactExportImport.exportIdentityAsContact(identity);
@@ -214,29 +238,6 @@ public class ChatMessageUITest {
         return null;
     }
 
-
-    private void addMessageFromOneContact(String identityKey, ChatServer chatServer, String contact1Alias, String contact1Key) {
-        ChatMessageItem dbItem = createNewChatMessageItem(contact1Key, identityKey, "from: " + contact1Alias + "message1");
-        chatServer.storeIntoDB(identity, dbItem);
-        int newMessageCount = chatServer.getAllMessages(identity, contact1).length;
-
-        Spoon.screenshot(mActivity, "contactsOneNewMessage");
-        assertThat(1, is(newMessageCount));
-        assertTrue(chatServer.hasNewMessages(identity, contact1));
-        assertFalse(chatServer.hasNewMessages(identity, contact2));
-
-        //check if new view indicator displayed on correct user and click on this item
-        refreshContactView();
-        checkVisibilityState(contact1Alias, QabelMatcher.isVisible()).perform(click());
-
-        //check if RecyclerView contain correct count of data
-        onView(withId(R.id.contact_chat_list)).check(matches(QabelMatcher.withListSize(1)));
-        pressBack();
-        refreshContactView();
-        UITestHelper.sleep(500);
-        //check if indicator not displayed (we have viewed the item)
-        checkVisibilityState(contact1Alias, QabelMatcher.isInvisible());
-    }
 
     /**
      * check if new message indicator displayed
@@ -258,58 +259,5 @@ public class ChatMessageUITest {
         return new ChatMessageItem(-1, (short) 1, System.currentTimeMillis() + System.nanoTime() % 1000, sender, receiver, message, ChatMessageItem.BOX_MESSAGE, mActivity.chatServer.createTextDropMessagePayload(message));
     }
 
-    private class MessageTestObjects {
-        private String identityKey;
-        private ChatServer chatServer;
-        private String contact1Alias;
-        private String contact2Alias;
-        private String contact1Key;
-        private String contact2Key;
-
-        public String getIdentityKey() {
-            return identityKey;
-        }
-
-        public ChatServer getChatServer() {
-            return chatServer;
-        }
-
-        public String getContact1Alias() {
-            return contact1Alias;
-        }
-
-        public String getContact2Alias() {
-            return contact2Alias;
-        }
-
-        public String getContact1Key() {
-            return contact1Key;
-        }
-
-        public String getContact2Key() {
-            return contact2Key;
-        }
-
-        public MessageTestObjects invoke() {
-            identityKey = identity.getEcPublicKey().getReadableKeyIdentifier();
-            contact1 = createContact("contact1");
-            contact2 = createContact("contact2");
-            chatServer = mActivity.chatServer;
-            contact1Alias = contact1.getAlias();
-            contact2Alias = contact2.getAlias();
-
-            contact1Key = contact1.getEcPublicKey().getReadableKeyIdentifier();
-            contact2Key = contact2.getEcPublicKey().getReadableKeyIdentifier();
-
-            //start test... go to contact fragment
-            openDrawer(R.id.drawer_layout);
-            onView(allOf(withText(R.string.Contacts), withParent(withClassName(endsWith("MenuView")))))
-                    .perform(click());
-            Spoon.screenshot(mActivity, "contacts");
-            int messageCount = chatServer.getAllMessages(identity, contact1).length;
-            Log.d(TAG, "count: " + messageCount);
-            return this;
-        }
-    }
 }
 

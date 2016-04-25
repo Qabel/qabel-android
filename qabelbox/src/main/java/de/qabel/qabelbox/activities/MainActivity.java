@@ -67,6 +67,7 @@ import de.qabel.qabelbox.fragments.HelpMainFragment;
 import de.qabel.qabelbox.fragments.IdentitiesFragment;
 import de.qabel.qabelbox.fragments.QRcodeFragment;
 import de.qabel.qabelbox.fragments.SelectUploadFolderFragment;
+import de.qabel.qabelbox.helper.AccountHelper;
 import de.qabel.qabelbox.helper.CacheFileHelper;
 import de.qabel.qabelbox.helper.ExternalApps;
 import de.qabel.qabelbox.helper.FileHelper;
@@ -250,6 +251,8 @@ public class MainActivity extends CrashReportingActivity
         bindService(serviceIntent, mServiceConnection, Context.BIND_AUTO_CREATE);
 
         addBackStackListener();
+
+        AccountHelper.createSyncAccount(getApplicationContext());
     }
 
     private void handleMainFragmentChange() {

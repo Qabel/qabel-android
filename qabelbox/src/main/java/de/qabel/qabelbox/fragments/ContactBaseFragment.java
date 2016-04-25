@@ -101,7 +101,7 @@ public class ContactBaseFragment extends BaseFragment {
     protected void sendRefreshContactList() {
         Log.d(TAG, "send refresh intent");
         Intent intent = new Intent(Helper.INTENT_REFRESH_CONTACTLIST);
-        QabelBoxApplication.getInstance().getApplicationContext().sendBroadcast(intent);
+        getActivity().getApplicationContext().sendBroadcast(intent);
     }
 
 

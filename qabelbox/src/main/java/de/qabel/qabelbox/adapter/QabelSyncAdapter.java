@@ -11,7 +11,6 @@ import android.content.ServiceConnection;
 import android.content.SyncResult;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.util.Log;
 
 import de.qabel.core.config.Identity;
 import de.qabel.qabelbox.chat.ChatServer;
@@ -74,6 +73,7 @@ public class QabelSyncAdapter extends AbstractThreadedSyncAdapter {
 		    ContentProviderClient provider,
 		    SyncResult syncResult) {
         if (!resourcesReady) {
+            syncResult.delayUntil = 60;
             return;
         }
         ChatServer chatServer = new ChatServer(context);

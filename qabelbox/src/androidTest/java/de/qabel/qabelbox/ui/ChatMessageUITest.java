@@ -1,5 +1,6 @@
 package de.qabel.qabelbox.ui;
 
+import android.content.Intent;
 import android.os.PowerManager;
 import android.support.design.internal.NavigationMenuItemView;
 import android.support.test.espresso.ViewAssertion;
@@ -28,6 +29,7 @@ import de.qabel.qabelbox.chat.ChatServer;
 import de.qabel.qabelbox.communication.URLs;
 import de.qabel.qabelbox.config.ContactExportImport;
 import de.qabel.qabelbox.exceptions.QblStorageException;
+import de.qabel.qabelbox.helper.Helper;
 import de.qabel.qabelbox.services.LocalQabelService;
 import de.qabel.qabelbox.ui.helper.SystemAnimations;
 import de.qabel.qabelbox.ui.helper.UIActionHelper;
@@ -107,30 +109,14 @@ public class ChatMessageUITest {
      */
     @Test
     public void testNewMessageVisualization() {
+        MessageTestObjects messageTestObjects = new MessageTestObjects().invoke();
+        String identityKey = messageTestObjects.getIdentityKey();
+        ChatServer chatServer = messageTestObjects.getChatServer();
+        String contact1Alias = messageTestObjects.getContact1Alias();
+        String contact1Key = messageTestObjects.getContact1Key();
 
-        //prepaire data
-
-        String identityKey = identity.getEcPublicKey().getReadableKeyIdentifier();
-        contact1 = createContact("contact1");
-        contact2 = createContact("contact2");
-        ChatServer chatServer = mActivity.chatServer;
-        String contact1Alias = contact1.getAlias();
-        String contact2Alias = contact2.getAlias();
-
-        String contact1Key = contact1.getEcPublicKey().getReadableKeyIdentifier();
-        String contact2Key = contact2.getEcPublicKey().getReadableKeyIdentifier();
-
-        //start test... go to contact fragment
-        openDrawer(R.id.drawer_layout);
-        onView(allOf(withText(R.string.Contacts), withParent(withClassName(endsWith("MenuView")))))
-                .perform(click());
-        Spoon.screenshot(mActivity, "contacts");
-        int messageCount = chatServer.getAllMessages(identity, contact1).length;
-        Log.d(TAG, "count: " + messageCount);
 
         addMessageFromOneContact(identityKey, chatServer, contact1Alias, contact1Key);
-        addMessageFromTwoContacts(identityKey, chatServer, contact1Alias, contact2Alias, contact1Key, contact2Key);
-        addOwnMessage(chatServer, contact1Alias, contact2Alias, contact1Key);
 
     }
 
@@ -229,51 +215,6 @@ public class ChatMessageUITest {
     }
 
 
-    private void addMessageFromTwoContacts(String identityKey, ChatServer chatServer, String contact1Alias, String contact2Alias, String contact1Key, String contact2Key) {
-        ChatMessageItem dbItem;
-        int newMessageCount;
-
-        //send message to 2 users
-        dbItem = createNewChatMessageItem(contact1Key, identityKey, "from: " + contact1Alias + "message2");
-        chatServer.storeIntoDB(identity, dbItem);
-        dbItem = createNewChatMessageItem(contact2Key, identityKey, "from: " + contact2Alias + "message1");
-        chatServer.storeIntoDB(identity, dbItem);
-
-
-        //check if 2 contacts have indicator abd click on contact1
-        refreshContactView(chatServer);
-        Spoon.screenshot(mActivity, "contactsTwoNewMessage");
-
-        //check if complete db match correct entry size
-        assertThat(chatServer.getAllMessages(identity).length, is(3));
-
-        //check states
-        assertTrue(chatServer.hasNewMessages(identity, contact1));
-        assertTrue(chatServer.hasNewMessages(identity, contact2));
-
-        //check single entry count
-        newMessageCount = chatServer.getAllMessages(identity, contact1).length
-                + chatServer.getAllMessages(identity, contact2).length;
-        assertThat(newMessageCount, is(3));
-
-        //check indicator visibility
-        checkVisibilityState(contact2Alias, QabelMatcher.isVisible());
-        checkVisibilityState(contact1Alias, QabelMatcher.isVisible()).perform(click());
-
-        //check RecyclerView size
-        onView(withId(R.id.contact_chat_list)).check(matches(QabelMatcher.withListSize(2)));
-        pressBack();
-
-        //check if indicator on contact 1 not displayer
-        checkVisibilityState(contact1Alias, QabelMatcher.isInvisible());
-
-        //same with contact2
-        checkVisibilityState(contact2Alias, QabelMatcher.isVisible()).perform(click());
-        onView(withId(R.id.contact_chat_list)).check(matches(QabelMatcher.withListSize(1)));
-        pressBack();
-        checkVisibilityState(contact2Alias, QabelMatcher.isInvisible());
-    }
-
     private void addMessageFromOneContact(String identityKey, ChatServer chatServer, String contact1Alias, String contact1Key) {
         ChatMessageItem dbItem = createNewChatMessageItem(contact1Key, identityKey, "from: " + contact1Alias + "message1");
         chatServer.storeIntoDB(identity, dbItem);
@@ -285,28 +226,16 @@ public class ChatMessageUITest {
         assertFalse(chatServer.hasNewMessages(identity, contact2));
 
         //check if new view indicator displayed on correct user and click on this item
-        refreshContactView(chatServer);
+        refreshContactView();
         checkVisibilityState(contact1Alias, QabelMatcher.isVisible()).perform(click());
 
         //check if RecyclerView contain correct count of data
         onView(withId(R.id.contact_chat_list)).check(matches(QabelMatcher.withListSize(1)));
         pressBack();
-        //check if indicator not displayer (we have viewed the item)
+        refreshContactView();
+        UITestHelper.sleep(500);
+        //check if indicator not displayed (we have viewed the item)
         checkVisibilityState(contact1Alias, QabelMatcher.isInvisible());
-    }
-
-    private void addOwnMessage(ChatServer chatServer, String contact1Alias, String contact2Alias, String contact1Key) {
-        ChatMessageItem item = new ChatMessageItem(chatServer.createTextDropMessage(identity, "ownmessage"));
-        item.receiver = contact1Key;
-        item.sender = QabelBoxApplication.getInstance().getService().getActiveIdentity().getEcPublicKey().getReadableKeyIdentifier();
-        item.isNew = 0;
-
-        chatServer.storeIntoDB(identity, item);
-        refreshContactView(chatServer);
-        checkVisibilityState(contact2Alias, QabelMatcher.isInvisible());
-        onView(withText(contact1Alias)).perform(click());
-        onView(withId(R.id.contact_chat_list)).check(matches(QabelMatcher.withListSize(3)));
-        pressBack();
     }
 
     /**
@@ -320,14 +249,67 @@ public class ChatMessageUITest {
         return onView(allOf(QabelMatcher.withDrawable(R.drawable.ic_visibility), hasSibling(withText(alias)))).check(visibility);
     }
 
-    private void refreshContactView(ChatServer chatServer) {
-        chatServer.sendCallbacksRefreshed();
-        UITestHelper.sleep(500);
+    private void refreshContactView() {
+        Intent intent = new Intent(Helper.INTENT_REFRESH_CONTACTLIST);
+        mActivity.getApplicationContext().sendBroadcast(intent);
     }
 
     private ChatMessageItem createNewChatMessageItem(String sender, String receiver, String message) {
         return new ChatMessageItem(-1, (short) 1, System.currentTimeMillis() + System.nanoTime() % 1000, sender, receiver, message, ChatMessageItem.BOX_MESSAGE, mActivity.chatServer.createTextDropMessagePayload(message));
     }
 
+    private class MessageTestObjects {
+        private String identityKey;
+        private ChatServer chatServer;
+        private String contact1Alias;
+        private String contact2Alias;
+        private String contact1Key;
+        private String contact2Key;
+
+        public String getIdentityKey() {
+            return identityKey;
+        }
+
+        public ChatServer getChatServer() {
+            return chatServer;
+        }
+
+        public String getContact1Alias() {
+            return contact1Alias;
+        }
+
+        public String getContact2Alias() {
+            return contact2Alias;
+        }
+
+        public String getContact1Key() {
+            return contact1Key;
+        }
+
+        public String getContact2Key() {
+            return contact2Key;
+        }
+
+        public MessageTestObjects invoke() {
+            identityKey = identity.getEcPublicKey().getReadableKeyIdentifier();
+            contact1 = createContact("contact1");
+            contact2 = createContact("contact2");
+            chatServer = mActivity.chatServer;
+            contact1Alias = contact1.getAlias();
+            contact2Alias = contact2.getAlias();
+
+            contact1Key = contact1.getEcPublicKey().getReadableKeyIdentifier();
+            contact2Key = contact2.getEcPublicKey().getReadableKeyIdentifier();
+
+            //start test... go to contact fragment
+            openDrawer(R.id.drawer_layout);
+            onView(allOf(withText(R.string.Contacts), withParent(withClassName(endsWith("MenuView")))))
+                    .perform(click());
+            Spoon.screenshot(mActivity, "contacts");
+            int messageCount = chatServer.getAllMessages(identity, contact1).length;
+            Log.d(TAG, "count: " + messageCount);
+            return this;
+        }
+    }
 }
 

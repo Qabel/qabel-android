@@ -6,9 +6,11 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.ServiceConnection;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.os.ParcelFileDescriptor;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -20,6 +22,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.content.ComponentName;
 
 import com.cocosw.bottomsheet.BottomSheet;
 import com.google.zxing.integration.android.IntentIntegrator;
@@ -40,7 +43,6 @@ import de.qabel.core.config.Identity;
 import de.qabel.core.crypto.QblECPublicKey;
 import de.qabel.core.drop.DropMessage;
 import de.qabel.core.drop.DropURL;
-import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.activities.MainActivity;
 import de.qabel.qabelbox.adapter.ContactAdapterItem;
@@ -74,24 +76,55 @@ public class ContactFragment extends BaseFragment {
     private String dataToExport;
     private int exportedContactCount;
     private boolean useDocumentProvider = true;//used for tests
+    private LocalQabelService mService;
+    private boolean resourcesReady;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
         self = this;
-        chatServer = mActivity.chatServer;
+        chatServer = new ChatServer(getActivity().getApplicationContext());
         setHasOptionsMenu(true);
         mActivity.registerReceiver(refreshContactListReceiver, new IntentFilter(Helper.INTENT_REFRESH_CONTACTLIST));
+        bindToService(getActivity().getApplicationContext());
 
+    }
+
+    void bindToService(final Context context) {
+
+        Intent intent = new Intent(context, LocalQabelService.class);
+        context.bindService(intent, new ServiceConnection() {
+            @Override
+            public void onServiceConnected(ComponentName name, IBinder service) {
+
+                LocalQabelService.LocalBinder binder = (LocalQabelService.LocalBinder) service;
+                if (binder != null) {
+                    mService = binder.getService();
+                    resourcesReady = true;
+                    refreshContactList();
+                    pullDropMessagesAsync();
+                }
+            }
+
+            @Override
+            public void onServiceDisconnected(ComponentName name) {
+                resourcesReady = false;
+                mService = null;
+            }
+        }, Context.BIND_AUTO_CREATE);
     }
 
     private Identity getActiveIdentity() {
-       return QabelBoxApplication.getInstance().getService().getActiveIdentity();
+       return getService().getActiveIdentity();
+    }
+
+    private LocalQabelService getService() {
+        return mService;
     }
 
     private DropConnector getDropConnector() {
-        return QabelBoxApplication.getInstance().getService();
+        return mService;
     }
 
     @Override
@@ -137,7 +170,7 @@ public class ContactFragment extends BaseFragment {
 
     public void exportAllContacts() {
         try {
-            LocalQabelService service = QabelBoxApplication.getInstance().getService();
+            LocalQabelService service = getService();
             Contacts contacts = service.getContacts(service.getActiveIdentity());
             exportedContactCount = contacts.getContacts().size();
             if (exportedContactCount > 0) {
@@ -192,7 +225,7 @@ public class ContactFragment extends BaseFragment {
 
     private void longContactClickAction(final int position) {
         final Contact contact = contactListAdapter.getContact(position);
-        final LocalQabelService service = QabelBoxApplication.getInstance().getService();
+        final LocalQabelService service = getService();
         new BottomSheet.Builder(mActivity).title(contact.getAlias()).sheet(R.menu.bottom_sheet_contactlist)
                 .listener(new DialogInterface.OnClickListener() {
                     @Override
@@ -226,15 +259,23 @@ public class ContactFragment extends BaseFragment {
     @Override
     public void onResume() {
 	        super.onResume();
-	        pullDropMessagesAsync();
+            bindToService(getActivity().getApplicationContext());
 	}
 
     private void pullDropMessagesAsync() {
+        if (!resourcesReady) {
+            return;
+        }
         new AsyncTask<Void, Void, Collection<DropMessage>>() {
             @Override
             protected Collection<DropMessage> doInBackground(Void... params) {
 
                 return chatServer.refreshList(getDropConnector(), getActiveIdentity());
+            }
+
+            @Override
+            protected void onPostExecute(Collection<DropMessage> dropMessages) {
+                refreshContactList();
             }
         }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
     }
@@ -251,18 +292,17 @@ public class ContactFragment extends BaseFragment {
      *
      * @param contact
      */
-    //TODO: Remove static
-    public static void addContactSilent(Contact contact) throws QblStorageEntityExistsException {
-        LocalQabelService service = QabelBoxApplication.getInstance().getService();
+    public void addContactSilent(Contact contact) throws QblStorageEntityExistsException {
+        LocalQabelService service = getService();
         service.addContact(contact);
         sendRefreshContactList();
     }
 
 
-    private static void sendRefreshContactList() {
+    private void sendRefreshContactList() {
         Log.d(TAG, "send refresh intent");
         Intent intent = new Intent(Helper.INTENT_REFRESH_CONTACTLIST);
-        QabelBoxApplication.getInstance().getApplicationContext().sendBroadcast(intent);
+        getActivity().getApplicationContext().sendBroadcast(intent);
     }
 
     @Override
@@ -273,8 +313,8 @@ public class ContactFragment extends BaseFragment {
     }
 
     private void refreshContactList() {
-        if (contactListRecyclerView != null) {
-            Contacts contacts = QabelBoxApplication.getInstance().getService().getContacts();
+        if (contactListRecyclerView != null && resourcesReady) {
+            Contacts contacts = getService().getContacts();
             final int count = contacts.getContacts().size();
             ArrayList<ContactAdapterItem> items = new ArrayList<>();
             for (Contact c : contacts.getContacts()) {
@@ -330,7 +370,7 @@ public class ContactFragment extends BaseFragment {
                                 integrator.initiateScan();
                                 break;
                             case R.id.add_contact_direct_input:
-                                selectAddContactFragment(QabelBoxApplication.getInstance().getService().getActiveIdentity());
+                                selectAddContactFragment(getService().getActiveIdentity());
                                 break;
                         }
                     }
@@ -378,7 +418,7 @@ public class ContactFragment extends BaseFragment {
                         FileInputStream fis = new FileInputStream(pfd.getFileDescriptor());
                         String json = FileHelper.readFileAsText(fis);
                         fis.close();
-                        ContactExportImport.ContactsParseResult contactsParseResult = ContactExportImport.parse(QabelBoxApplication.getInstance().getService().getActiveIdentity(), json);
+                        ContactExportImport.ContactsParseResult contactsParseResult = ContactExportImport.parse(getService().getActiveIdentity(), json);
                         int added = 0;
                         int failed = contactsParseResult.getSkippedContacts();
                         for (Contact contact : contactsParseResult.getContacts().getContacts()) {
@@ -429,7 +469,7 @@ public class ContactFragment extends BaseFragment {
 
                         QblECPublicKey publicKey = new QblECPublicKey(Hex.decode(result[3]));
                         Contact contact = new Contact(result[1], dropURLs, publicKey);
-                        ContactFragment.addContactSilent(contact);
+                        addContactSilent(contact);
                     } catch (Exception e) {
                         Log.w(TAG, "add contact failed", e);
                         UIHelper.showDialogMessage(mActivity, R.string.dialog_headline_warning, R.string.contact_import_failed, e);

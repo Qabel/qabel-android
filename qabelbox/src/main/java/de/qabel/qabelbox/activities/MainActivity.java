@@ -789,7 +789,8 @@ public class MainActivity extends CrashReportingActivity
     private void initFilesFragment() {
 
         if (filesFragment != null) {
-            getFragmentManager().beginTransaction().remove(filesFragment).commit();
+            getFragmentManager().beginTransaction().remove(filesFragment)
+                    .commitAllowingStateLoss();
         }
         filesFragment = FilesFragment.newInstance(boxVolume);
         filesFragment.setOnItemClickListener(new FilesAdapter.OnItemClickListener() {

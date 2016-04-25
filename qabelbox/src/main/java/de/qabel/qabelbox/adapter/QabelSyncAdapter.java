@@ -11,13 +11,16 @@ import android.content.ServiceConnection;
 import android.content.SyncResult;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.util.Log;
 
 import de.qabel.core.config.Identity;
 import de.qabel.qabelbox.chat.ChatServer;
+import de.qabel.qabelbox.helper.Helper;
 import de.qabel.qabelbox.services.LocalQabelService;
 
 public class QabelSyncAdapter extends AbstractThreadedSyncAdapter {
 
+    private static final String TAG = "QabelSyncAdapter";
     ContentResolver mContentResolver;
     Context context;
     LocalQabelService mService;
@@ -72,14 +75,20 @@ public class QabelSyncAdapter extends AbstractThreadedSyncAdapter {
 		    String authority,
 		    ContentProviderClient provider,
 		    SyncResult syncResult) {
+        Log.i(TAG, "Starting drop message sync");
         if (!resourcesReady) {
             syncResult.delayUntil = 60;
+            Log.i(TAG, "Delaying drop message sync because ressources are not ready");
             return;
         }
         ChatServer chatServer = new ChatServer(context);
         for (Identity identity: mService.getIdentities().getIdentities()) {
+            Log.i(TAG, "Loading messages for identity "+ identity.getAlias());
             chatServer.refreshList(mService, identity);
         }
-
+        Intent intent = new Intent(Helper.INTENT_REFRESH_CONTACTLIST);
+        context.sendBroadcast(intent);
+        Intent chatIntent = new Intent(Helper.INTENT_REFRESH_CHAT);
+        context.sendBroadcast(chatIntent);
     }
 }

@@ -6,11 +6,8 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.ServiceConnection;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.IBinder;
 import android.os.ParcelFileDescriptor;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -22,7 +19,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import android.content.ComponentName;
 
 import com.cocosw.bottomsheet.BottomSheet;
 import com.google.zxing.integration.android.IntentIntegrator;
@@ -34,7 +30,6 @@ import org.spongycastle.util.encoders.Hex;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -42,7 +37,6 @@ import de.qabel.core.config.Contact;
 import de.qabel.core.config.Contacts;
 import de.qabel.core.config.Identity;
 import de.qabel.core.crypto.QblECPublicKey;
-import de.qabel.core.drop.DropMessage;
 import de.qabel.core.drop.DropURL;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.activities.MainActivity;
@@ -52,10 +46,10 @@ import de.qabel.qabelbox.chat.ChatServer;
 import de.qabel.qabelbox.config.ContactExportImport;
 import de.qabel.qabelbox.config.QabelSchema;
 import de.qabel.qabelbox.exceptions.QblStorageEntityExistsException;
+import de.qabel.qabelbox.helper.AccountHelper;
 import de.qabel.qabelbox.helper.FileHelper;
 import de.qabel.qabelbox.helper.Helper;
 import de.qabel.qabelbox.helper.UIHelper;
-import de.qabel.qabelbox.services.DropConnector;
 import de.qabel.qabelbox.services.LocalQabelService;
 
 /**
@@ -78,7 +72,6 @@ public class ContactFragment extends BaseFragment {
     private int exportedContactCount;
     private boolean useDocumentProvider = true;//used for tests
     private LocalQabelService mService;
-    private boolean resourcesReady;
     private Context context;
 
     @Override
@@ -94,8 +87,9 @@ public class ContactFragment extends BaseFragment {
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
-        bindToService(activity);
+        mService = ((MainActivity) activity).getService();
         context = activity.getApplicationContext();
+        AccountHelper.startOnDemandSyncAdapter(context);
         chatServer = new ChatServer(context);
     }
 
@@ -105,39 +99,11 @@ public class ContactFragment extends BaseFragment {
         context = null;
     }
 
-    void bindToService(final Context context) {
-
-        Intent intent = new Intent(context, LocalQabelService.class);
-        context.bindService(intent, new ServiceConnection() {
-            @Override
-            public void onServiceConnected(ComponentName name, IBinder service) {
-
-                LocalQabelService.LocalBinder binder = (LocalQabelService.LocalBinder) service;
-                if (binder != null) {
-                    mService = binder.getService();
-                    resourcesReady = true;
-                    refreshContactList();
-                    pullDropMessagesAsync();
-                }
-            }
-
-            @Override
-            public void onServiceDisconnected(ComponentName name) {
-                resourcesReady = false;
-                mService = null;
-            }
-        }, Context.BIND_AUTO_CREATE);
-    }
-
     private Identity getActiveIdentity() {
        return getService().getActiveIdentity();
     }
 
     private LocalQabelService getService() {
-        return mService;
-    }
-
-    private DropConnector getDropConnector() {
         return mService;
     }
 
@@ -158,6 +124,12 @@ public class ContactFragment extends BaseFragment {
     }
 
     @Override
+    public void onViewCreated(View view, Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        refreshContactList();
+    }
+
+    @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
 
         menu.clear();
@@ -169,7 +141,7 @@ public class ContactFragment extends BaseFragment {
 
         int id = item.getItemId();
         if (id == R.id.action_contact_refresh) {
-            pullDropMessagesAsync();
+            AccountHelper.startOnDemandSyncAdapter(context);
         }
         if (id == R.id.action_contact_export_all) {
             exportAllContacts();
@@ -272,27 +244,9 @@ public class ContactFragment extends BaseFragment {
 
     @Override
     public void onResume() {
-	        super.onResume();
-            bindToService(context);
+		super.onResume();
+        AccountHelper.startOnDemandSyncAdapter(context);
 	}
-
-    private void pullDropMessagesAsync() {
-        if (!resourcesReady) {
-            return;
-        }
-        new AsyncTask<Void, Void, Collection<DropMessage>>() {
-            @Override
-            protected Collection<DropMessage> doInBackground(Void... params) {
-
-                return chatServer.refreshList(getDropConnector(), getActiveIdentity());
-            }
-
-            @Override
-            protected void onPostExecute(Collection<DropMessage> dropMessages) {
-                refreshContactList();
-            }
-        }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-    }
 
 	private void exportContactAsQRCode(Contact contact) {
         mActivity.getFragmentManager().beginTransaction()
@@ -327,7 +281,7 @@ public class ContactFragment extends BaseFragment {
     }
 
     private void refreshContactList() {
-        if (contactListRecyclerView != null && resourcesReady) {
+        if (contactListRecyclerView != null && getService() != null) {
             Contacts contacts = getService().getContacts();
             final int count = contacts.getContacts().size();
             ArrayList<ContactAdapterItem> items = new ArrayList<>();

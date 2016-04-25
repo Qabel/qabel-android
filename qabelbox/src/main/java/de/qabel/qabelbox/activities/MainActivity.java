@@ -253,6 +253,7 @@ public class MainActivity extends CrashReportingActivity
         addBackStackListener();
 
         AccountHelper.createSyncAccount(getApplicationContext());
+        AccountHelper.configurePeriodicPolling();
     }
 
     private void handleMainFragmentChange() {
@@ -379,6 +380,10 @@ public class MainActivity extends CrashReportingActivity
         } else {
             initAndSelectFilesFragment();
         }
+    }
+
+    public LocalQabelService getService() {
+        return mService;
     }
 
     /**

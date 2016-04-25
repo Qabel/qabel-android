@@ -1,6 +1,10 @@
 package de.qabel.qabelbox.fragments;
 
 import android.app.AlertDialog;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -36,6 +40,8 @@ import de.qabel.qabelbox.chat.ChatMessageItem;
 import de.qabel.qabelbox.chat.ChatServer;
 import de.qabel.qabelbox.chat.ShareHelper;
 import de.qabel.qabelbox.exceptions.QblStorageException;
+import de.qabel.qabelbox.helper.AccountHelper;
+import de.qabel.qabelbox.helper.Helper;
 import de.qabel.qabelbox.helper.UIHelper;
 import de.qabel.qabelbox.services.DropConnector;
 import de.qabel.qabelbox.services.LocalQabelService;
@@ -64,6 +70,7 @@ public class ContactChatFragment extends ContactBaseFragment {
     private EditText etText;
     private ChatServer chatServer;
     private boolean isSyncing = false;
+    private DropConnector dropConnector;
 
     public static ContactChatFragment newInstance(Contact contact) {
 
@@ -76,11 +83,11 @@ public class ContactChatFragment extends ContactBaseFragment {
     }
 
     private DropConnector getDropConnector() {
-        return QabelBoxApplication.getInstance().getService();
+        return dropConnector;
     }
 
     private Identity getIdentity() {
-        return QabelBoxApplication.getInstance().getService().getActiveIdentity();
+        return mActivity.getService().getActiveIdentity();
     }
 
 
@@ -90,12 +97,29 @@ public class ContactChatFragment extends ContactBaseFragment {
         super.onCreate(savedInstanceState);
 
         chatServer = mActivity.chatServer;
+        dropConnector = mActivity.getService();
 
         setHasOptionsMenu(true);
         ((MainActivity) getActivity()).toggle.setDrawerIndicatorEnabled(false);
         actionBar.setDisplayHomeAsUpEnabled(true);
         setActionBarBackListener();
+        mActivity.registerReceiver(refreshChatIntentReceiver, new IntentFilter(Helper.INTENT_REFRESH_CHAT));
     }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        mActivity.unregisterReceiver(refreshChatIntentReceiver);
+    }
+
+    private final BroadcastReceiver refreshChatIntentReceiver = new BroadcastReceiver() {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Log.v(TAG, "receive refresh chat event");
+            refreshMessages();
+        }
+    };
 
     @Override
     public View onCreateView(final LayoutInflater inflater, final ViewGroup container,
@@ -179,22 +203,7 @@ public class ContactChatFragment extends ContactBaseFragment {
     }
 
     private void refreshMessagesAsync() {
-        if (!isSyncing) {
-            isSyncing = true;
-            new AsyncTask<Void, Void, Collection<DropMessage>>() {
-                @Override
-                protected void onPostExecute(Collection<DropMessage> dropMessages) {
-                    refreshMessages();
-                    isSyncing = false;
-                }
-
-                @Override
-                protected Collection<DropMessage> doInBackground(Void... params) {
-                    isSyncing = true;
-                    return chatServer.refreshList(getDropConnector(), getIdentity());
-                }
-            }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-        }
+        AccountHelper.startOnDemandSyncAdapter(mActivity.getApplicationContext());
     }
 
     /**
@@ -229,15 +238,13 @@ public class ContactChatFragment extends ContactBaseFragment {
             @Override
             public void onItemClick(final ChatMessageItem item) {
 
-                LocalQabelService service = QabelBoxApplication.getInstance().getService();
-
                 //check if message is instance of sharemessage
                 if (item.getData() instanceof ChatMessageItem.ShareMessagePayload) {
 
                     final FilesFragment filesFragment = mActivity.filesFragment;
 
                     //check if share from other (not my sended share)
-                    if (!item.getSenderKey().equals(service.getActiveIdentity().getEcPublicKey().getReadableKeyIdentifier())) {
+                    if (!item.getSenderKey().equals(getService().getActiveIdentity().getEcPublicKey().getReadableKeyIdentifier())) {
 
                         new AsyncTask<Void, Void, BoxNavigation>() {
                             int errorId;
@@ -281,6 +288,10 @@ public class ContactChatFragment extends ContactBaseFragment {
                 }
             }
         };
+    }
+
+    private LocalQabelService getService() {
+        return ((MainActivity) getActivity()).getService();
     }
 
     /**

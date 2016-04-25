@@ -29,6 +29,7 @@ import de.qabel.qabelbox.chat.ChatServer;
 import de.qabel.qabelbox.communication.URLs;
 import de.qabel.qabelbox.config.ContactExportImport;
 import de.qabel.qabelbox.exceptions.QblStorageException;
+import de.qabel.qabelbox.helper.AccountHelper;
 import de.qabel.qabelbox.helper.Helper;
 import de.qabel.qabelbox.services.LocalQabelService;
 import de.qabel.qabelbox.ui.helper.SystemAnimations;
@@ -96,6 +97,7 @@ public class ChatMessageUITest {
         mSystemAnimations.disableAll();
         LocalQabelService service = QabelBoxApplication.getInstance().getService();
         identity = service.getActiveIdentity();
+        AccountHelper.createSyncAccount(mActivity);
     }
     @Test
     public void testSendOneMessage() {
@@ -125,7 +127,6 @@ public class ChatMessageUITest {
                 check(matches(isDisplayed())).
                 check(matches(QabelMatcher.withListSize(1)));
         pressBack();
-        refreshContactView();
 
         //go to identity user 1
         openDrawer(R.id.drawer_layout);
@@ -252,7 +253,10 @@ public class ChatMessageUITest {
     }
 
     private void refreshContactView() {
+        AccountHelper.startOnDemandSyncAdapter(mActivity);
         Intent intent = new Intent(Helper.INTENT_REFRESH_CONTACTLIST);
+        mActivity.getApplicationContext().sendBroadcast(intent);
+        intent = new Intent(Helper.INTENT_REFRESH_CHAT);
         mActivity.getApplicationContext().sendBroadcast(intent);
     }
 

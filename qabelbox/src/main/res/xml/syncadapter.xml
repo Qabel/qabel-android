@@ -4,4 +4,4 @@
     android:contentAuthority="de.qabel.qabelbox.providers.internal"
     android:accountType="de.qabel"
     android:isAlwaysSyncable="false"
-    android:userVisible="true"/>
+    android:userVisible="false"/>

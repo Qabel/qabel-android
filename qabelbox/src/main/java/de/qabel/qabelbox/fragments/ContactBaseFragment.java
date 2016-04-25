@@ -1,5 +1,6 @@
 package de.qabel.qabelbox.fragments;
 
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.ParcelFileDescriptor;
@@ -42,66 +43,20 @@ public class ContactBaseFragment extends BaseFragment {
     private boolean useDocumentProvider = true;//used for tests
     protected int exportedContactCount;
 
-    public void exportContact(Contact contact) {
-        exportedContactCount = 1;
-        String contactJson = ContactExportImport.exportContact(contact);
-        startExportFileChooser(contact.getAlias(), QabelSchema.FILE_PREFIX_CONTACT, contactJson);
-
-    }
-
-    protected void handleScanResult(IntentResult scanResult) {
-        String[] result = scanResult.getContents().split("\\r?\\n");
-        if (result.length == 4 && result[0].equals("QABELCONTACT")) {
-            try {
-                DropURL dropURL = new DropURL(result[2]);
-                Collection<DropURL> dropURLs = new ArrayList<>();
-                dropURLs.add(dropURL);
-
-                QblECPublicKey publicKey = new QblECPublicKey(Hex.decode(result[3]));
-                Contact contact = new Contact(result[1], dropURLs, publicKey);
-                addContactSilent(contact);
-            } catch (Exception e) {
-                Log.w(TAG, "add contact failed", e);
-                UIHelper.showDialogMessage(mActivity, R.string.dialog_headline_warning, R.string.contact_import_failed, e);
-            }
-        }
-    }
-
-    public void exportAllContacts() {
-        try {
-            LocalQabelService service = QabelBoxApplication.getInstance().getService();
-            Contacts contacts = service.getContacts(service.getActiveIdentity());
-            exportedContactCount = contacts.getContacts().size();
-            if (exportedContactCount > 0) {
-                String contactJson = ContactExportImport.exportContacts(contacts);
-                startExportFileChooser("", QabelSchema.FILE_PREFIX_CONTACTS, contactJson);
-            }
-
-        } catch (JSONException e) {
-            Log.e(TAG, "error on export contacts", e);
-            UIHelper.showDialogMessage(getActivity(), R.string.dialog_headline_warning, R.string.cant_export_contacts);
-        }
-    }
-
-    public void enableDocumentProvider(boolean value) {
-        useDocumentProvider = value;
-    }
-
     /**
      * add contact and show messages
      *
      * @param contact
      */
-    protected void addContactSilent(Contact contact) throws QblStorageEntityExistsException {
+    protected void addContactSilent(Context context, Contact contact) throws QblStorageEntityExistsException {
         LocalQabelService service = QabelBoxApplication.getInstance().getService();
         service.addContact(contact);
-        sendRefreshContactList();
+        sendRefreshContactList(context);
     }
 
-    protected void sendRefreshContactList() {
-        Log.d(TAG, "send refresh intent");
+    protected void sendRefreshContactList(Context context) {
         Intent intent = new Intent(Helper.INTENT_REFRESH_CONTACTLIST);
-        getActivity().getApplicationContext().sendBroadcast(intent);
+        context.sendBroadcast(intent);
     }
 
 
@@ -120,7 +75,7 @@ public class ContactBaseFragment extends BaseFragment {
             Contacts contacts = result.getContacts();
             for (Contact contact : contacts.getContacts()) {
                 try {
-                    addContactSilent(contact);
+                    addContactSilent(mActivity.getApplicationContext(), contact);
                     added++;
                 } catch (QblStorageEntityExistsException existsException) {
                     Log.w(TAG, "found doublet's. Will ignore it", existsException);

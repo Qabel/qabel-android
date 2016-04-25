@@ -34,6 +34,7 @@ import org.spongycastle.util.encoders.Hex;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -94,8 +95,8 @@ public class ContactFragment extends BaseFragment {
     public void onAttach(Activity activity) {
         super.onAttach(activity);
         bindToService(activity);
-        chatServer = new ChatServer(activity.getApplicationContext());
-        context = activity;
+        context = activity.getApplicationContext();
+        chatServer = new ChatServer(context);
     }
 
     @Override

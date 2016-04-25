@@ -86,7 +86,7 @@ public class OfflineUITest {
         URLs.setBaseBlockURL(TestConstants.BLOCK_URL);
         mActivity = rule.getActivity();
         connectivityManager = new MockConnectivityManager(mActivity);
-        mActivity.setConnectivityManager(connectivityManager);
+        mActivity.installConnectivityManager(connectivityManager);
 
         wakeLock = UIActionHelper.wakeupDevice(mActivity);
         mSystemAnimations = new SystemAnimations(mActivity);
@@ -115,21 +115,6 @@ public class OfflineUITest {
 
     @Test
     public void testOnline() {
-        onView(withText(R.string.no_connection)).check(doesNotExist());
-    }
-
-    @Test
-    public void testGoOffAndOnline() {
-        //Online
-        onView(withText(R.string.no_connection)).check(doesNotExist());
-
-        //Offline
-        connectivityManager.setConnected(false);
-        onView(withText(R.string.no_connection)).check(matches(isDisplayed()));
-        Spoon.screenshot(mActivity, "offlineIndicator");
-
-        //Online
-        connectivityManager.setConnected(true);
         onView(withText(R.string.no_connection)).check(doesNotExist());
     }
 

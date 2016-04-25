@@ -19,7 +19,7 @@
         style="@style/Button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:drawableRight="@drawable/ic_icon_arrow_right"
+        android:drawableRight="@drawable/chevron_right_white"
         android:text="@string/create_box_account"/>
 
 
@@ -29,7 +29,7 @@
         android:layout_marginTop="10dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:drawableRight="@drawable/ic_icon_arrow_right"
+        android:drawableRight="@drawable/chevron_right_white"
         android:text="@string/login"
         />
 

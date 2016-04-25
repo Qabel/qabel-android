@@ -8,8 +8,9 @@
     <string name="Contacts">Kontakte</string>
     <string name="Delete">Löschen</string>
     <string name="Export">Exportieren</string>
-    <string name="ExportAsContact">Exportiere deine Kontaktdaten</string>
-    <string name="ExportAsContactWithQRcode">Teilen</string>
+    <string name="ExportPrivateKey">Exportiere privaten Schlüssel</string>
+    <string name="ExportAsContact">Exportiere öffentlichen Kontakt</string>
+    <string name="ExportAsContactWithQRcode">Zeige QR</string>
     <string name="Open">Öffnen</string>
     <string name="Rename">Umbenennen</string>
     <string name="Select">Auswählen</string>
@@ -285,4 +286,5 @@ Den Unterstützern der Indigogo Kampagne
     <string name="contact_export_failed">Kontakt konnte nicht exportiert werden</string>
     <string name="cant_import_file_type_is_unknown">Datei konnte nicht importiert werden, da der Typ unbekannt ist.</string>
     <string name="idenity_imported">Identität erfolgreich importiert</string>
+    <string name="shared_with_you">mit Dir geteilt</string>
 </resources>

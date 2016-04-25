@@ -276,12 +276,8 @@ public class BoxTest extends AndroidTestCase {
         uploadFile(nav, "foobar");
 
         // Check that updated file cannot be read anymore
-
         List<BoxObject> boxExternalFiles = navOtherUser.listExternals();
-        assertThat(boxExternalFiles.size(), is(1));
-        assertTrue(boxExternalFiles.get(0) instanceof BoxExternalFile);
-        BoxExternalFile boxFileReceived = (BoxExternalFile) boxExternalFiles.get(0);
-        assertThat(boxFileReceived.isAccessible(), is(false));
+        assertThat(boxExternalFiles.size(), is(0));
     }
 
     @Test

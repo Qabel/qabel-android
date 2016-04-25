@@ -37,6 +37,10 @@ public class QabelBoxApplication extends Application {
         return boxProvider;
     }
 
+	/**
+     * @deprecated This is not guaranteed to be initialised
+     */
+    @Deprecated
     public static QabelBoxApplication getInstance() {
         return mInstance;
     }
@@ -79,6 +83,10 @@ public class QabelBoxApplication extends Application {
         };
     }
 
+    /**
+     * @deprecated Activities should get their own service
+     */
+    @Deprecated
     public LocalQabelService getService() {
         return mService;
     }

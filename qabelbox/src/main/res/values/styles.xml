@@ -94,7 +94,7 @@
     </style>
 
     <style name="ListFirstTextLine">
-        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/black</item>
         <item name="android:textSize">@dimen/textsize_list_first_line</item>
     </style>
 
@@ -104,6 +104,7 @@
 
     <style name="ListSecondTextLine">
         <item name="android:textSize">@dimen/textsize_list_second_line</item>
+        <item name="android:textColor">@color/grey_text_color</item>
     </style>
 
     <style name="LicenceListSecondTextLine" parent="ListSecondTextLine">

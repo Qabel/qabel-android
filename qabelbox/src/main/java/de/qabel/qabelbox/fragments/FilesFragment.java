@@ -808,6 +808,9 @@ public class FilesFragment extends BaseFragment {
         if (path.equals("/")) {
             path = null;
         }
+        if(path != null && path.contains(BoxFolder.RECEIVED_SHARE_NAME)){
+            path = path.replace(BoxFolder.RECEIVED_SHARE_NAME, getString(R.string.shared_with_you));
+        }
         if (actionBar != null)
             actionBar.setSubtitle(path);
     }

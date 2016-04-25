@@ -331,6 +331,7 @@ To all people who have supported our Indigogo Campaign
 
     <string name="cant_import_file_type_is_unknown">Can\'t import file. The file type is unknown</string>
     <string name="idenity_imported">Identity successfully imported</string>
+    <string name="shared_with_you">shared with you</string>
 
 
 </resources>

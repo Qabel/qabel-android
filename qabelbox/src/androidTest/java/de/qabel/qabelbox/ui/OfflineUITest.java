@@ -3,7 +3,6 @@ package de.qabel.qabelbox.ui;
 import android.app.Activity;
 import android.os.PowerManager;
 import android.support.test.rule.ActivityTestRule;
-import android.support.test.uiautomator.UiObjectNotFoundException;
 
 import com.squareup.spoon.Spoon;
 
@@ -92,6 +91,8 @@ public class OfflineUITest {
         wakeLock = UIActionHelper.wakeupDevice(mActivity);
         mSystemAnimations = new SystemAnimations(mActivity);
         mSystemAnimations.disableAll();
+
+        connectivityManager.setConnected(true);
     }
 
     @After
@@ -104,13 +105,30 @@ public class OfflineUITest {
 
 
     @Test
-    public void testOfflineIndicator() throws UiObjectNotFoundException {
+    public void testOfflineIndicator() {
         onView(withText(R.string.no_connection)).check(doesNotExist());
 
         connectivityManager.setConnected(false);
         onView(withText(R.string.no_connection)).check(matches(isDisplayed()));
         Spoon.screenshot(mActivity, "offlineIndicator");
+    }
 
+    @Test
+    public void testOnline() {
+        onView(withText(R.string.no_connection)).check(doesNotExist());
+    }
+
+    @Test
+    public void testGoOffAndOnline() {
+        //Online
+        onView(withText(R.string.no_connection)).check(doesNotExist());
+
+        //Offline
+        connectivityManager.setConnected(false);
+        onView(withText(R.string.no_connection)).check(matches(isDisplayed()));
+        Spoon.screenshot(mActivity, "offlineIndicator");
+
+        //Online
         connectivityManager.setConnected(true);
         onView(withText(R.string.no_connection)).check(doesNotExist());
     }

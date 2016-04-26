@@ -1,4 +1,4 @@
-package de.qabel.qabelbox.ui;
+package de.qabel.qabelbox.ui.files;
 
 /**
  * Created by danny on 05.01.2016.

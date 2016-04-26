@@ -1,21 +1,23 @@
 package de.qabel.qabelbox.communication;
 
+import android.content.Context;
 import android.util.Log;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
+import de.qabel.qabelbox.communication.callbacks.RequestCallback;
+import de.qabel.qabelbox.communication.connection.ConnectivityManager;
+import okhttp3.Call;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 
-/**
- * Created by danny on 11.02.16.
- */
 public class BaseServer {
 
     protected final OkHttpClient client;
@@ -23,10 +25,51 @@ public class BaseServer {
     private static final String TAG = "BaseServer";
     URLs urls;
 
+    private ConnectivityManager connectivityManager;
+    private List<RequestAction> requestActionQueue = new LinkedList<>();
+
     /**
      * create new instance of http client and set timeouts
      */
-    public BaseServer() {
+    public BaseServer(Context context) {
+
+        connectivityManager = new ConnectivityManager(context);
+        connectivityManager.setListener(new ConnectivityManager.ConnectivityListener() {
+            @Override
+            public void handleConnectionLost() {
+                if (!requestActionQueue.isEmpty()) {
+                    for (RequestAction action : requestActionQueue) {
+                        if (action.isExecuted() && !action.isCanceled()) {
+                            action.getCall().cancel();
+                        }
+                    }
+                }
+            }
+
+            @Override
+            public void handleConnectionEtablished() {
+                if (!requestActionQueue.isEmpty()) {
+                    List<RequestAction> failedActions = new LinkedList<RequestAction>();
+                    for (RequestAction action : requestActionQueue) {
+                        if (action.getExecuted() == action.getAutoRetry()) {
+                            failedActions.add(action);
+                            continue;
+                        }
+                        if (!action.isExecuted() || action.isCanceled()) {
+                            Call call = client.newCall(action.getRequest());
+                            call.enqueue(action.getCallback());
+                            action.setCall(call);
+                        }
+                    }
+                    requestActionQueue.removeAll(failedActions);
+                }
+            }
+
+            @Override
+            public void onDestroy() {
+                //Nothing to do
+            }
+        });
 
         urls = new URLs();
         OkHttpClient.Builder builder = new OkHttpClient.Builder();
@@ -34,6 +77,31 @@ public class BaseServer {
         builder.readTimeout(15, TimeUnit.SECONDS);    // socket timeout
         builder.writeTimeout(10, TimeUnit.SECONDS);
         client = builder.build();
+    }
+
+    protected void doRequest(final Request request, RequestCallback callback) {
+        final RequestAction requestAction = new RequestAction(request, callback);
+        callback.setSystemHandler(new RequestCallback.SystemHandler() {
+            @Override
+            public boolean onRequestError() {
+                if (requestAction.getExecuted() == requestAction.getAutoRetry()) {
+                    return true;
+                }
+                return false;
+            }
+
+            @Override
+            public void onRequestSuccess() {
+                requestActionQueue.remove(requestAction);
+            }
+        });
+
+        if (connectivityManager.isConnected()) {
+            Call call = client.newCall(request);
+            call.enqueue(callback);
+            requestAction.setCall(call);
+        }
+        requestActionQueue.add(requestAction);
     }
 
     /**
@@ -62,16 +130,6 @@ public class BaseServer {
     protected static String getJsonString(String key, JSONObject json) {
 
         if (json.has(key)) {
-            try {
-                JSONArray array = json.getJSONArray(key);
-                String ret = "";
-                for (int i = 0; i < array.length(); i++) {
-                    ret += array.getString(i);
-                }
-                return ret;
-            } catch (JSONException e) {
-                Log.d(TAG, "can't convert " + key + " to array. try string");
-            }
             try {
                 return json.getString(key);
             } catch (JSONException e) {

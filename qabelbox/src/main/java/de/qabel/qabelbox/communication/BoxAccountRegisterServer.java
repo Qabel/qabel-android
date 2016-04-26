@@ -6,8 +6,8 @@ import android.util.Log;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import de.qabel.qabelbox.communication.callbacks.JsonRequestCallback;
 import de.qabel.qabelbox.config.AppPreference;
-import okhttp3.Callback;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 
@@ -32,6 +32,10 @@ public class BoxAccountRegisterServer extends BaseServer {
     private static final String JSON_PASSWORD_NEW_1 = "new_password1";
     private static final String JSON_PASSWORD_NEW_2 = "new_password2";
 
+    public BoxAccountRegisterServer(Context context){
+        super(context);
+    }
+
     /**
      * main function for server action
      *
@@ -40,7 +44,7 @@ public class BoxAccountRegisterServer extends BaseServer {
      * @param callback
      * @param token
      */
-    private void doServerAction(String url, JSONObject json, Callback callback, String token) {
+    private void doServerAction(String url, JSONObject json, JsonRequestCallback callback, String token) {
 
         RequestBody body = RequestBody.create(JSON, json.toString());
         Request.Builder builder = new Request.Builder()
@@ -48,15 +52,15 @@ public class BoxAccountRegisterServer extends BaseServer {
                 .post(body);
         addHeader(token, builder);
         final Request request = builder.build();
-        Log.v(TAG, "request: " + request.toString());
-        client.newCall(request).enqueue(callback);
+        Log.v(TAG, "request: " + request.toString() + " JSON: " + json.toString());
+        doRequest(request, callback);
     }
 
-    private void doServerAction(String url, JSONObject json, Callback callback) {
+    private void doServerAction(String url, JSONObject json, JsonRequestCallback callback) {
         doServerAction(url, json, callback, null);
     }
 
-    public void register(String username, String password1, String password2, String email, Callback callback) {
+    public void register(String username, String password1, String password2, String email, JsonRequestCallback callback) {
 
         JSONObject json = new JSONObject();
         try {
@@ -71,7 +75,7 @@ public class BoxAccountRegisterServer extends BaseServer {
         doServerAction(urls.getRegister(), json, callback);
     }
 
-    public void login(String username, String password, Callback callback) {
+    public void login(String username, String password, JsonRequestCallback callback) {
 
         JSONObject json = new JSONObject();
         try {
@@ -84,13 +88,13 @@ public class BoxAccountRegisterServer extends BaseServer {
         doServerAction(urls.getLogin(), json, callback);
     }
 
-    public void logout(Context context, Callback callback) {
+    public void logout(Context context, JsonRequestCallback callback) {
 
         JSONObject json = new JSONObject();
         doServerAction(urls.getLogout(), json, callback, new AppPreference(context).getToken());
     }
 
-    public void changePassword(Context context, String old_password, String new_password1, String new_password2, Callback callback) {
+    public void changePassword(Context context, String old_password, String new_password1, String new_password2, JsonRequestCallback callback) {
 
         JSONObject json = new JSONObject();
         try {
@@ -104,7 +108,7 @@ public class BoxAccountRegisterServer extends BaseServer {
         doServerAction(urls.getPasswordChange(), json, callback, new AppPreference(context).getToken());
     }
 
-    public void resetPassword(String email, Callback callback) {
+    public void resetPassword(String email, JsonRequestCallback callback) {
 
         JSONObject json = new JSONObject();
         try {

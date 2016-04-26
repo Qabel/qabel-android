@@ -270,8 +270,8 @@ public class MainActivity extends CrashReportingActivity
             public void handleConnectionLost() {
                 if (offlineIndicator == null) {
                     AlertDialog.Builder builder = new AlertDialog.Builder(self);
-                    builder.setMessage(R.string.no_connection)
-                            .setIcon(R.drawable.ic_information_black_18dp)
+                    builder.setTitle(R.string.no_connection)
+                            .setIcon(R.drawable.information)
                             .setNegativeButton(R.string.close_app, new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int id) {
                                     self.finishAffinity();
@@ -287,13 +287,12 @@ public class MainActivity extends CrashReportingActivity
                             if (connectivityManager.isConnected()) {
                                 offlineIndicator.dismiss();
                                 offlineIndicator = null;
-                            } else {
-                                offlineIndicator.show();
                             }
                         }
                     });
+                } else {
+                    offlineIndicator.show();
                 }
-                offlineIndicator.show();
             }
 
             @Override
@@ -865,7 +864,7 @@ public class MainActivity extends CrashReportingActivity
             public void onItemLockClick(View view, final int position) {
 
                 final BoxObject boxObject = filesFragment.getFilesAdapter().get(position);
-                if(boxObject.name.equals(BoxFolder.RECEIVED_SHARE_NAME)){
+                if (boxObject.name.equals(BoxFolder.RECEIVED_SHARE_NAME)) {
                     return;
                 }
                 BottomSheet.Builder sheet = new BottomSheet.Builder(self)

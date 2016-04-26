@@ -287,7 +287,7 @@ Den Unterstützern der Indigogo Kampagne
     <string name="cant_import_file_type_is_unknown">Datei konnte nicht importiert werden, da der Typ unbekannt ist.</string>
     <string name="idenity_imported">Identität erfolgreich importiert</string>
     <string name="shared_with_you">mit Dir geteilt</string>
-    <string name="no_connection">Keine Internetverbindung</string>
+    <string name="no_connection">Keine Verbindung</string>
     <string name="close_app">App schließen</string>
-    <string name="retry_action">Erneut versuchen</string>
+    <string name="retry_action">Wiederholen</string>
 </resources>

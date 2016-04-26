@@ -1,8 +1,5 @@
-package de.qabel.qabelbox.ui;
+package de.qabel.qabelbox.ui.files;
 
-/**
- * Created by danny on 05.01.2016.
- */
 
 import android.os.PowerManager;
 import android.support.test.rule.ActivityTestRule;
@@ -24,9 +21,9 @@ import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.TestConstants;
 import de.qabel.qabelbox.activities.MainActivity;
-import de.qabel.qabelbox.communication.BlockServer;
 import de.qabel.qabelbox.communication.URLs;
 import de.qabel.qabelbox.exceptions.QblStorageException;
+import de.qabel.qabelbox.storage.StorageSearch;
 import de.qabel.qabelbox.ui.helper.SystemAnimations;
 import de.qabel.qabelbox.ui.helper.UIActionHelper;
 import de.qabel.qabelbox.ui.helper.UIBoxHelper;
@@ -38,15 +35,12 @@ import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.Espresso.pressBack;
 import static android.support.test.espresso.action.ViewActions.click;
 import static android.support.test.espresso.action.ViewActions.pressImeActionButton;
+import static android.support.test.espresso.action.ViewActions.swipeDown;
 import static android.support.test.espresso.action.ViewActions.typeText;
 import static android.support.test.espresso.assertion.ViewAssertions.matches;
 import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static android.support.test.espresso.matcher.ViewMatchers.withHint;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
-
-/**
- * Tests for MainActivity.
- */
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class FileSearchUITest {
@@ -69,7 +63,6 @@ public class FileSearchUITest {
 
     @After
     public void cleanUp() {
-
         wakeLock.release();
         mSystemAnimations.enableAll();
         mBoxHelper.unbindService(QabelBoxApplication.getInstance());
@@ -77,7 +70,6 @@ public class FileSearchUITest {
 
     @Before
     public void setUp() throws IOException, QblStorageException {
-
         mActivity = mActivityTestRule.getActivity();
         wakeLock = UIActionHelper.wakeupDevice(mActivity);
         mSystemAnimations = new SystemAnimations(mActivity);
@@ -91,23 +83,19 @@ public class FileSearchUITest {
         mBoxHelper.bindService(QabelBoxApplication.getInstance());
         mBoxHelper.createTokenIfNeeded(false);
 
-        try {
-            Identity old = mBoxHelper.getCurrentIdentity();
-            if (old != null) {
-                mBoxHelper.deleteIdentity(old);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
+        Identity old = mBoxHelper.getCurrentIdentity();
+        if (old != null) {
+            mBoxHelper.deleteIdentity(old);
         }
+
         mBoxHelper.removeAllIdentities();
-        Identity identity = mBoxHelper.addIdentity("spoon");
+        mBoxHelper.addIdentity("spoon");
         uploadTestFiles();
     }
 
     private void uploadTestFiles() {
 
         int fileCount = 7;
-        BlockServer bs = new BlockServer(mActivity.getApplicationContext());
         mBoxHelper.uploadFile(mBoxHelper.mBoxVolume, "testfile 2", new byte[1011], "");
         mBoxHelper.uploadFile(mBoxHelper.mBoxVolume, "red.png", new byte[1], "");
         mBoxHelper.uploadFile(mBoxHelper.mBoxVolume, "green.png", new byte[100], "");
@@ -122,7 +110,6 @@ public class FileSearchUITest {
 
     @Test
     public void search1ByNamesTest() {
-
         Spoon.screenshot(mActivity, "startup");
         testSearch("black", 2);
         testSearch("", 7);
@@ -132,12 +119,11 @@ public class FileSearchUITest {
 
     @Test
     public void search2FilterTest() {
-
         testSearchWithFilter("", 0, 2048, 6, true);
         testSearchWithFilter("", 0, 10240, 7, false);
         testSearchWithFilter("", 9000, 10240, 1, false);
     }
-/*
+
     @Test
     public void search3CacheTest() throws QblStorageException {
 
@@ -157,11 +143,15 @@ public class FileSearchUITest {
         mBoxHelper.uploadFile(mBoxHelper.mBoxVolume, "black_3", new byte[1024], "");
         mBoxHelper.waitUntilFileCount(fileCount + 1);
 
+        //Refresh and check new item is visible
         onView(withId(R.id.files_list)).perform(swipeDown());
         onView(withId(R.id.files_list)).check(matches(QabelMatcher.withListSize(fileCount + 1)));
         Spoon.screenshot(mActivity, "after_refresh");
+
+        //Back to files
         pressBack();
         Spoon.screenshot(mActivity, "after_press_back");
+
         testIfFileBrowserDisplayed(fileCount + 1);
 
         //start new search
@@ -173,7 +163,7 @@ public class FileSearchUITest {
         onView(withId(R.id.files_list)).check(matches(QabelMatcher.withListSize(3)));
         Spoon.screenshot(mActivity, "after_research");
         mBoxHelper.deleteFile(mActivity, mBoxHelper.getCurrentIdentity(), "black_3", "");
-    }*/
+    }
 
     /**
      * test if search result match the given. addition check if file browser displayed after back pressed

@@ -19,7 +19,7 @@
         android:layout_width="96dp"
         android:layout_height="96dp"
         android:layout_marginTop="19dp"
-        android:src="@drawable/ic_qrcode_scan"/>
+        android:src="@drawable/qrcode"/>
 
 
     <LinearLayout
@@ -44,7 +44,7 @@
                 android:layout_alignParentRight="true"
                 android:layout_centerVertical="true"
                 android:layout_gravity="center_vertical"
-                android:src="@drawable/ic_arrow_drop_down_black"/>
+                android:src="@drawable/menu_down"/>
 
             <de.qabel.qabelbox.views.TextViewFont
                 android:id="@+id/accountName"

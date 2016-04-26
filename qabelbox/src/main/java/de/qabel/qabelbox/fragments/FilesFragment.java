@@ -394,7 +394,7 @@ public class FilesFragment extends BaseFragment {
         InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.showSoftInput(edtSeach, InputMethodManager.SHOW_IMPLICIT);
         mActivity.fab.hide();
-        mSearchAction.setIcon(R.drawable.ic_ab_close);
+        mSearchAction.setIcon(R.drawable.close_white);
         isSearchOpened = true;
     }
 
@@ -413,7 +413,7 @@ public class FilesFragment extends BaseFragment {
         imm.hideSoftInputFromWindow(edtSeach.getWindowToken(), 0);
 
         imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.RESULT_HIDDEN);
-        mSearchAction.setIcon(R.drawable.ic_ab_search);
+        mSearchAction.setIcon(R.drawable.magnify_white);
         action.setTitle(getTitle());
         isSearchOpened = false;
         mActivity.fab.show();
@@ -813,6 +813,9 @@ public class FilesFragment extends BaseFragment {
         String path = boxNavigation != null ? boxNavigation.getPath() : "";
         if (path.equals("/")) {
             path = null;
+        }
+        if(path != null && path.contains(BoxFolder.RECEIVED_SHARE_NAME)){
+            path = path.replace(BoxFolder.RECEIVED_SHARE_NAME, getString(R.string.shared_with_you));
         }
         if (actionBar != null)
             actionBar.setSubtitle(path);

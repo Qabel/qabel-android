@@ -2,15 +2,12 @@ package de.qabel.qabelbox.adapter;
 
 import android.accounts.Account;
 import android.content.AbstractThreadedSyncAdapter;
-import android.content.ComponentName;
 import android.content.ContentProviderClient;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.ServiceConnection;
 import android.content.SyncResult;
 import android.os.Bundle;
-import android.os.IBinder;
 import android.util.Log;
 
 import java.util.ArrayList;
@@ -20,7 +17,6 @@ import de.qabel.core.config.Identity;
 import de.qabel.qabelbox.chat.ChatServer;
 import de.qabel.qabelbox.helper.Helper;
 import de.qabel.qabelbox.services.DropConnector;
-import de.qabel.qabelbox.services.LocalQabelService;
 
 public class QabelSyncAdapter extends AbstractThreadedSyncAdapter {
 

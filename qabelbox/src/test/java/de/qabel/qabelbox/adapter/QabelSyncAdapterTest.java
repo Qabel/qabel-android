@@ -60,13 +60,7 @@ public class QabelSyncAdapterTest {
         db1 = new ChatMessagesDataBase(context, identity);
         db2 = new ChatMessagesDataBase(context, identity2);
         chatServer = new ChatServer(context);
-        syncAdapter = new QabelSyncAdapter(context, true) {
-            @Override
-            void bindToService(Context context) {
-                mService = service;
-                resourcesReady = true;
-            }
-        };
+        syncAdapter = new QabelSyncAdapter(context, true);
     }
 
     @Test

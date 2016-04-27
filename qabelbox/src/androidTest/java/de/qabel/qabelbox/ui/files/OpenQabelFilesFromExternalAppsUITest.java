@@ -1,4 +1,4 @@
-package de.qabel.qabelbox.ui;
+package de.qabel.qabelbox.ui.files;
 
 import android.content.Intent;
 import android.net.Uri;

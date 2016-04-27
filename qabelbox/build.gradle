@@ -36,6 +36,12 @@ android {
         ndk {
             moduleName "curve25519"
         }
+        buildConfigField "String", "ACCOUNT_TYPE", "\"${applicationId}.account\""
+        buildConfigField "String", "AUTHORITY", "\"${applicationId}.providers.internal\""
+
+        //Reference them in .xml files.
+        resValue "string", "account_type", "${applicationId}.account"
+        resValue "string", "authority", "${applicationId}.provider"
     }
 
     lintOptions {
@@ -49,10 +55,22 @@ android {
         release {
             minifyEnabled false
             resValue 'string', 'app_name', '"Qabel"'
+            buildConfigField "String", "ACCOUNT_TYPE", "\"de.qabel.qabel.account\""
+            buildConfigField "String", "AUTHORITY", "\"de.qabel.qabel.providers.internal\""
+
+            //Reference them in .xml files.
+            resValue "string", "account_type", "de.qabel.qabel.account"
+            resValue "string", "authority", "de.qabel.qabel.providers.internal"
         }
         debug {
             applicationIdSuffix ".debug"
             resValue 'string', 'app_name', '"Qabel (Debug)"'
+            buildConfigField "String", "ACCOUNT_TYPE", "\"de.qabel.qabel.debug.account\""
+            buildConfigField "String", "AUTHORITY", "\"de.qabel.qabel.debug.providers.internal\""
+
+            //Reference them in .xml files.
+            resValue "string", "account_type", "de.qabel.qabel.debug.account"
+            resValue "string", "authority", "de.qabel.qabel.debug.providers.internal"
         }
     }
 

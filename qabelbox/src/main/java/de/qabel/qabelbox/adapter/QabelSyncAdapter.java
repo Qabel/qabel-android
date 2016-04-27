@@ -13,9 +13,13 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import de.qabel.core.config.Identity;
 import de.qabel.qabelbox.chat.ChatServer;
 import de.qabel.qabelbox.helper.Helper;
+import de.qabel.qabelbox.services.DropConnector;
 import de.qabel.qabelbox.services.LocalQabelService;
 
 public class QabelSyncAdapter extends AbstractThreadedSyncAdapter {
@@ -23,8 +27,6 @@ public class QabelSyncAdapter extends AbstractThreadedSyncAdapter {
     private static final String TAG = "QabelSyncAdapter";
     ContentResolver mContentResolver;
     Context context;
-    LocalQabelService mService;
-    boolean resourcesReady = false;
 
     public QabelSyncAdapter(Context context, boolean autoInitialize) {
         super(context, autoInitialize);
@@ -43,29 +45,6 @@ public class QabelSyncAdapter extends AbstractThreadedSyncAdapter {
     private void init(Context context) {
         this.context = context;
         mContentResolver = context.getContentResolver();
-        bindToService(context);
-    }
-
-    void bindToService(final Context context) {
-
-        Intent intent = new Intent(context, LocalQabelService.class);
-        context.bindService(intent, new ServiceConnection() {
-            @Override
-            public void onServiceConnected(ComponentName name, IBinder service) {
-
-                LocalQabelService.LocalBinder binder = (LocalQabelService.LocalBinder) service;
-                if (binder != null) {
-                    mService = binder.getService();
-                    resourcesReady = true;
-                }
-            }
-
-            @Override
-            public void onServiceDisconnected(ComponentName name) {
-                resourcesReady = false;
-                mService = null;
-            }
-        }, Context.BIND_AUTO_CREATE);
     }
 
     @Override
@@ -75,20 +54,23 @@ public class QabelSyncAdapter extends AbstractThreadedSyncAdapter {
 		    String authority,
 		    ContentProviderClient provider,
 		    SyncResult syncResult) {
-        Log.i(TAG, "Starting drop message sync");
-        if (!resourcesReady) {
-            syncResult.delayUntil = 60;
-            Log.i(TAG, "Delaying drop message sync because ressources are not ready");
-            return;
-        }
+        Log.w(TAG, "Starting drop message sync");
         ChatServer chatServer = new ChatServer(context);
-        for (Identity identity: mService.getIdentities().getIdentities()) {
+        for (Identity identity: getIdentities()) {
             Log.i(TAG, "Loading messages for identity "+ identity.getAlias());
-            chatServer.refreshList(mService, identity);
+            chatServer.refreshList(getDropConnector(), identity);
         }
         Intent intent = new Intent(Helper.INTENT_REFRESH_CONTACTLIST);
         context.sendBroadcast(intent);
         Intent chatIntent = new Intent(Helper.INTENT_REFRESH_CHAT);
         context.sendBroadcast(chatIntent);
+    }
+
+    private List<Identity> getIdentities() {
+        return new ArrayList<>();
+    }
+
+    public DropConnector getDropConnector() {
+        return null;
     }
 }

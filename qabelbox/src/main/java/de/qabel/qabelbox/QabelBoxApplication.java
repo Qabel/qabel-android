@@ -71,9 +71,13 @@ public class QabelBoxApplication extends Application {
         return new ServiceConnection() {
             @Override
             public void onServiceConnected(ComponentName name, IBinder service) {
-                LocalQabelService.LocalBinder binder = (LocalQabelService.LocalBinder) service;
-				mService = binder.getService();
-				Log.d(TAG, "Service bound");
+                if (service instanceof LocalQabelService.LocalBinder) {
+                    LocalQabelService.LocalBinder binder = (LocalQabelService.LocalBinder) service;
+                    mService = binder.getService();
+                    Log.d(TAG, "Service bound");
+                } else {
+                    Log.w(TAG, "Could not bind service");
+                }
             }
 
             @Override

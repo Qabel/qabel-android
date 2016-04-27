@@ -81,7 +81,7 @@ public class ContactFragment extends BaseFragment {
         self = this;
         setHasOptionsMenu(true);
         mActivity.registerReceiver(refreshContactListReceiver, new IntentFilter(Helper.INTENT_REFRESH_CONTACTLIST));
-
+        AccountHelper.startOnDemandSyncAdapter();
     }
 
     @Override
@@ -89,7 +89,6 @@ public class ContactFragment extends BaseFragment {
         super.onAttach(activity);
         mService = ((MainActivity) activity).getService();
         context = activity.getApplicationContext();
-        AccountHelper.startOnDemandSyncAdapter(context);
         chatServer = new ChatServer(context);
     }
 
@@ -141,7 +140,7 @@ public class ContactFragment extends BaseFragment {
 
         int id = item.getItemId();
         if (id == R.id.action_contact_refresh) {
-            AccountHelper.startOnDemandSyncAdapter(context);
+            AccountHelper.startOnDemandSyncAdapter();
         }
         if (id == R.id.action_contact_export_all) {
             exportAllContacts();
@@ -245,7 +244,7 @@ public class ContactFragment extends BaseFragment {
     @Override
     public void onResume() {
 		super.onResume();
-        AccountHelper.startOnDemandSyncAdapter(context);
+        AccountHelper.startOnDemandSyncAdapter();
 	}
 
 	private void exportContactAsQRCode(Contact contact) {

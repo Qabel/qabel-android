@@ -203,7 +203,7 @@ public class ContactChatFragment extends ContactBaseFragment {
     }
 
     private void refreshMessagesAsync() {
-        AccountHelper.startOnDemandSyncAdapter(mActivity.getApplicationContext());
+        AccountHelper.startOnDemandSyncAdapter();
     }
 
     /**

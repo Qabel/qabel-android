@@ -33,11 +33,10 @@ public class InternalContentProvider extends ContentProvider {
 
     Map<Identity, ChatMessagesDataBase> dataBases;
     private Set<Identity> knownIdentities;
-    boolean resourcesReady = false;
 
     private static final UriMatcher uriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
     private static final String CONTENT_AUTHORITY =
-            BuildConfig.APPLICATION_ID + ".provider.internal";
+            BuildConfig.APPLICATION_ID + ".providers.internal";
 
     static {
         uriMatcher.addURI(CONTENT_AUTHORITY, CONTENT_IDENTITIES, IDENTITIES);
@@ -49,29 +48,6 @@ public class InternalContentProvider extends ContentProvider {
 
     public InternalContentProvider(Context context) {
         this.context = context;
-    }
-
-    void bindToService(final Context context) {
-
-        Intent intent = new Intent(context, LocalQabelService.class);
-        context.bindService(intent, new ServiceConnection() {
-            @Override
-            public void onServiceConnected(ComponentName name, IBinder service) {
-
-                LocalQabelService.LocalBinder binder = (LocalQabelService.LocalBinder) service;
-                if (binder != null) {
-                    mService = binder.getService();
-                    resourcesReady = true;
-                    initDatabases();
-                }
-            }
-
-            @Override
-            public void onServiceDisconnected(ComponentName name) {
-                resourcesReady = false;
-                mService = null;
-            }
-        }, Context.BIND_AUTO_CREATE);
     }
 
     void initDatabases() {
@@ -87,7 +63,6 @@ public class InternalContentProvider extends ContentProvider {
         if (context == null) {
             context = getContext();
         }
-        bindToService(context);
         return true;
     }
 

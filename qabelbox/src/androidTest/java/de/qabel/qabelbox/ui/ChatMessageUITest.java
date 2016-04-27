@@ -184,14 +184,11 @@ public class ChatMessageUITest {
         assertFalse(chatServer.hasNewMessages(identity, contact2));
 
         //check if new view indicator displayed on correct user and click on this item
-        refreshContactView();
         checkVisibilityState(contact1Alias, QabelMatcher.isVisible()).perform(click());
 
         //check if RecyclerView contain correct count of data
         onView(withId(R.id.contact_chat_list)).check(matches(QabelMatcher.withListSize(1)));
         pressBack();
-        refreshContactView();
-        UITestHelper.sleep(500);
         //check if indicator not displayed (we have viewed the item)
         checkVisibilityState(contact1Alias, QabelMatcher.isInvisible());
 
@@ -250,14 +247,6 @@ public class ChatMessageUITest {
     private ViewInteraction checkVisibilityState(String alias, ViewAssertion visibility) {
         UITestHelper.sleep(500);
         return onView(allOf(QabelMatcher.withDrawable(R.drawable.eye), hasSibling(withText(alias)))).check(visibility);
-    }
-
-    private void refreshContactView() {
-        AccountHelper.startOnDemandSyncAdapter(mActivity);
-        Intent intent = new Intent(Helper.INTENT_REFRESH_CONTACTLIST);
-        mActivity.getApplicationContext().sendBroadcast(intent);
-        intent = new Intent(Helper.INTENT_REFRESH_CHAT);
-        mActivity.getApplicationContext().sendBroadcast(intent);
     }
 
     private ChatMessageItem createNewChatMessageItem(String sender, String receiver, String message) {

@@ -13,9 +13,7 @@ import java.util.List;
 import de.qabel.core.config.Contact;
 import de.qabel.core.config.Identity;
 import de.qabel.core.drop.DropMessage;
-import de.qabel.core.drop.DropURL;
 import de.qabel.qabelbox.services.DropConnector;
-import de.qabel.qabelbox.services.LocalQabelService;
 
 public class ChatServer {
 

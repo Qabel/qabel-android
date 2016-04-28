@@ -146,4 +146,13 @@ public class SqliteIdentityRepositoryTest extends AbstractSqliteRepositoryTest<S
         assertEquals(identity.getPhone(), loadedIdentity.getPhone());
         assertTrue(Arrays.equals(identity.getDropUrls().toArray(), loadedIdentity.getDropUrls().toArray()));
     }
+
+    @Test(expected = EntityNotFoundExcepion.class)
+    public void deleteIdentity() throws Exception {
+        Identity identity = identityBuilder.build();
+        repo.save(identity);
+        em.clear();
+        repo.delete(identity);
+        repo.find(identity.getId());
+    }
 }

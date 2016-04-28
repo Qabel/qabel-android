@@ -20,7 +20,6 @@ import java.util.Collection;
 
 public class SqliteIdentityRepository extends AbstractSqliteRepository<Identity> implements IdentityRepository {
     private static final String TABLE_NAME = "identity";
-    private static final String CONTACT_TABLE_NAME = "contact";
     private final SqliteDropUrlRepository dropUrlRepository;
     private final SqlitePrefixRepository prefixRepository;
 
@@ -87,6 +86,20 @@ public class SqliteIdentityRepository extends AbstractSqliteRepository<Identity>
         } catch (SQLException e) {
             throw new PersistenceException("failed to save identity: " + e.getMessage(), e);
         }
+    }
+
+    @Override
+    public void delete(Identity identity) throws PersistenceException {
+		try {
+			try (PreparedStatement statement = database.prepare(
+					"DELETE FROM identity WHERE id = ?"
+			)) {
+				statement.setInt(1, identity.getId());
+				statement.execute();
+			}
+		} catch (SQLException e) {
+			throw new PersistenceException("failed to delete identity", e);
+		}
     }
 
     private synchronized void update(Identity identity) throws SQLException, PersistenceException {

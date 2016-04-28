@@ -19,7 +19,7 @@ public class AbstractSqliteTest {
 
     public void connect() throws SQLException {
         // I don't have any idea why that is necessary
-        int tries = 10;
+        int tries = 1;
         while (connection == null) {
             try {
                 connection = DriverManager.getConnection("jdbc:sqlite::memory:");

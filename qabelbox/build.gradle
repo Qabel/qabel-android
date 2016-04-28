@@ -1,7 +1,9 @@
+plugins {
+    id "me.tatarka.retrolambda" version "3.2.5"
+}
 apply plugin: 'com.android.application'
-
-
 apply plugin: 'spoon'
+apply plugin: 'me.tatarka.retrolambda'
 
 // This section is optional
 spoon {
@@ -15,6 +17,10 @@ spoon {
 android {
     compileSdkVersion 22
     buildToolsVersion '23.0.3'
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
     dexOptions {
         jumboMode true
     }

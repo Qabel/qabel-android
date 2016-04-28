@@ -1,7 +1,7 @@
 package de.qabel.qabelbox.fragments;
 
+import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -13,6 +13,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.json.JSONObject;
 
@@ -20,21 +21,17 @@ import java.util.ArrayList;
 
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.communication.BoxAccountRegisterServer;
-import de.qabel.qabelbox.communication.callbacks.SimpleJsonCallback;
+import de.qabel.qabelbox.communication.callbacks.JsonRequestCallback;
 import de.qabel.qabelbox.config.AppPreference;
 import de.qabel.qabelbox.helper.UIHelper;
-import okhttp3.Call;
 import okhttp3.Response;
 
-/**
- * Created by danny on 19.01.16.
- */
 public class CreateAccountLoginFragment extends BaseIdentityFragment {
 
     private EditText etPassword;
     private TextView etUserName;
 
-    private final BoxAccountRegisterServer mBoxAccountServer = new BoxAccountRegisterServer();
+    private BoxAccountRegisterServer mBoxAccountServer;
     private View resetPassword;
 
     @Nullable
@@ -58,6 +55,12 @@ public class CreateAccountLoginFragment extends BaseIdentityFragment {
         });
         setHasOptionsMenu(true);
         return view;
+    }
+
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        mBoxAccountServer = new BoxAccountRegisterServer(activity.getApplicationContext());
     }
 
     @Override
@@ -93,47 +96,29 @@ public class CreateAccountLoginFragment extends BaseIdentityFragment {
     }
 
     private void login(final String username, final String password) {
-
         final AlertDialog dialog = UIHelper.showWaitMessage(mActivity, R.string.dialog_headline_please_wait, R.string.dialog_message_server_communication_is_running, false);
-        final SimpleJsonCallback callback = createCallback(username, password, dialog);
+        final JsonRequestCallback callback = createCallback(username, dialog);
         mBoxAccountServer.login(username, password, callback);
     }
 
     @NonNull
-    private SimpleJsonCallback createCallback(final String username, final String password, final AlertDialog dialog) {
+    private JsonRequestCallback createCallback(final String username, final AlertDialog dialog) {
 
-        return new SimpleJsonCallback() {
+        return new JsonRequestCallback(new int[]{200, 400, 429}) {
 
-            void showRetryDialog() {
-
-                UIHelper.showDialogMessage(getActivity(), R.string.dialog_headline_info, R.string.server_access_not_successfully_retry_question, R.string.yes, R.string.no, new DialogInterface.OnClickListener() {
+            @Override
+            protected void onError(Exception e, @Nullable Response response) {
+                dialog.dismiss();
+                getActivity().runOnUiThread(new Runnable() {
                     @Override
-                    public void onClick(DialogInterface dialog, int which) {
-
-                        login(username, password);
-                    }
-                }
-                        , new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-
-                        dialog.dismiss();
+                    public void run() {
+                        Toast.makeText(getActivity(), R.string.server_access_failed_or_invalid_check_internet_connection, Toast.LENGTH_LONG).show();
                     }
                 });
             }
 
-            protected void onError(final Call call, Reasons reasons) {
-
-                if (reasons == Reasons.IOException && retryCount++ < 3) {
-                    mBoxAccountServer.login(username, password, this);
-                } else {
-                    dialog.dismiss();
-                    showRetryDialog();
-                }
-            }
-
-            protected void onSuccess(Call call, Response response, JSONObject json) {
-
+            @Override
+            protected void onJSONSuccess(Response response, JSONObject json) {
                 BoxAccountRegisterServer.ServerResponse result = BoxAccountRegisterServer.parseJson(json);
                 if (result.token != null && result.token.length() > 5) {
                     AppPreference appPrefs = new AppPreference(getActivity());
@@ -142,7 +127,6 @@ public class CreateAccountLoginFragment extends BaseIdentityFragment {
                     getActivity().runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-
                             dialog.dismiss();
                             mActivity.completeWizard();
                         }

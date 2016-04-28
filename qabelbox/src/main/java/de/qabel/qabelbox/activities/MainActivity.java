@@ -1,5 +1,6 @@
 package de.qabel.qabelbox.activities;
 
+import android.app.AlertDialog;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.content.ComponentName;
@@ -55,6 +56,7 @@ import de.qabel.qabelbox.chat.ShareHelper;
 import de.qabel.qabelbox.communication.VolumeFileTransferHelper;
 import de.qabel.qabelbox.config.AppPreference;
 import de.qabel.qabelbox.config.QabelSchema;
+import de.qabel.qabelbox.communication.connection.ConnectivityManager;
 import de.qabel.qabelbox.dialogs.SelectIdentityForUploadDialog;
 import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.fragments.AboutLicencesFragment;
@@ -136,6 +138,8 @@ public class MainActivity extends CrashReportingActivity
     private ContactFragment contactFragment;
     private LightingColorFilter mDrawerIndicatorTintFilter;
     private TextView textViewBoxAccountName;
+
+    private ConnectivityManager connectivityManager;
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -249,7 +253,63 @@ public class MainActivity extends CrashReportingActivity
 
         bindService(serviceIntent, mServiceConnection, Context.BIND_AUTO_CREATE);
 
+        installConnectivityManager(new ConnectivityManager(this));
         addBackStackListener();
+    }
+
+    public void installConnectivityManager(ConnectivityManager manager) {
+        if (this.connectivityManager != null) {
+            connectivityManager.onDestroy();
+        }
+        this.connectivityManager = manager;
+        connectivityManager.setListener(new ConnectivityManager.ConnectivityListener() {
+
+            private AlertDialog offlineIndicator;
+
+            @Override
+            public void handleConnectionLost() {
+                if (offlineIndicator == null) {
+                    AlertDialog.Builder builder = new AlertDialog.Builder(self);
+                    builder.setTitle(R.string.no_connection)
+                            .setIcon(R.drawable.information)
+                            .setNegativeButton(R.string.close_app, new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int id) {
+                                    self.finishAffinity();
+                                }
+                            })
+                            .setPositiveButton(R.string.retry_action, null);
+                    offlineIndicator = builder.create();
+                    offlineIndicator.setCancelable(false);
+                    offlineIndicator.show();
+                    offlineIndicator.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            if (connectivityManager.isConnected()) {
+                                offlineIndicator.dismiss();
+                                offlineIndicator = null;
+                            }
+                        }
+                    });
+                } else {
+                    offlineIndicator.show();
+                }
+            }
+
+            @Override
+            public void handleConnectionEtablished() {
+                if (offlineIndicator != null && offlineIndicator.isShowing()) {
+                    offlineIndicator.dismiss();
+                    offlineIndicator = null;
+                }
+            }
+
+            @Override
+            public void onDestroy() {
+                if (this.offlineIndicator != null) {
+                    this.offlineIndicator.dismiss();
+                }
+            }
+        });
     }
 
     private void handleMainFragmentChange() {
@@ -804,7 +864,7 @@ public class MainActivity extends CrashReportingActivity
             public void onItemLockClick(View view, final int position) {
 
                 final BoxObject boxObject = filesFragment.getFilesAdapter().get(position);
-                if(boxObject.name.equals(BoxFolder.RECEIVED_SHARE_NAME)){
+                if (boxObject.name.equals(BoxFolder.RECEIVED_SHARE_NAME)) {
                     return;
                 }
                 BottomSheet.Builder sheet = new BottomSheet.Builder(self)
@@ -939,6 +999,11 @@ public class MainActivity extends CrashReportingActivity
         if (isTaskRoot()) {
             new CacheFileHelper().freeCacheAsynchron(QabelBoxApplication.getInstance().getApplicationContext());
         }
+
+        if (connectivityManager != null) {
+            connectivityManager.onDestroy();
+        }
+
         super.onDestroy();
     }
 

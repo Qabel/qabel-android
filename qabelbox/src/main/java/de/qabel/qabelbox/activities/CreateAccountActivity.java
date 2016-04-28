@@ -1,9 +1,10 @@
 package de.qabel.qabelbox.activities;
 
 import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.text.InputType;
 import android.util.Log;
 import android.view.View;
@@ -18,7 +19,7 @@ import de.qabel.core.config.Identities;
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.communication.BoxAccountRegisterServer;
-import de.qabel.qabelbox.communication.callbacks.SimpleJsonCallback;
+import de.qabel.qabelbox.communication.callbacks.JsonRequestCallback;
 import de.qabel.qabelbox.config.AppPreference;
 import de.qabel.qabelbox.fragments.BaseIdentityFragment;
 import de.qabel.qabelbox.fragments.CreateAccountFinalFragment;
@@ -28,12 +29,8 @@ import de.qabel.qabelbox.fragments.CreateIdentityEditTextFragment;
 import de.qabel.qabelbox.helper.Formatter;
 import de.qabel.qabelbox.helper.UIHelper;
 import de.qabel.qabelbox.services.LocalQabelService;
-import okhttp3.Call;
 import okhttp3.Response;
 
-/**
- * Created by danny on 11.01.2016.
- */
 public class CreateAccountActivity extends BaseWizardActivity {
 
     private static final int FRAGMENT_ENTER_NAME = 1;
@@ -48,17 +45,21 @@ public class CreateAccountActivity extends BaseWizardActivity {
     private String mBoxAccountPassword2;
     private String mBoxAccountEMail;
 
-    private final BoxAccountRegisterServer mBoxAccountServer = new BoxAccountRegisterServer();
+    private BoxAccountRegisterServer mBoxAccountServer;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        mBoxAccountServer = new BoxAccountRegisterServer(getApplicationContext());
+    }
 
     @Override
     protected String getHeaderFragmentText() {
-
         return mBoxAccountName;
     }
 
     @Override
     protected int getActionBarTitle() {
-
         return R.string.headline_create_box_account;
     }
 
@@ -178,45 +179,28 @@ public class CreateAccountActivity extends BaseWizardActivity {
 
     private void register(final String username, final String password1, final String password2, final String email) {
         final AlertDialog dialog = UIHelper.showWaitMessage(this, R.string.dialog_headline_please_wait, R.string.dialog_message_server_communication_is_running, false);
-        final SimpleJsonCallback callback = createCallback(username, password1, password2, email, dialog);
+        final JsonRequestCallback callback = createCallback(dialog);
         mBoxAccountServer.register(username, password1, password2, email, callback);
     }
 
     @NonNull
-    private SimpleJsonCallback createCallback(final String username, final String password1, final String password2, final String email, final AlertDialog dialog) {
+    private JsonRequestCallback createCallback(final AlertDialog dialog) {
 
-        return new SimpleJsonCallback() {
+        return new JsonRequestCallback(new int[]{200, 201, 400}) {
 
-            void showRetryDialog() {
-
-                UIHelper.showDialogMessage(mActivity, R.string.dialog_headline_info, R.string.server_access_not_successfully_retry_question, R.string.yes, R.string.no, new DialogInterface.OnClickListener() {
+            @Override
+            protected void onError(Exception e, @Nullable Response response) {
+                dialog.dismiss();
+                runOnUiThread(new Runnable() {
                     @Override
-                    public void onClick(DialogInterface dialog, int which) {
-
-                        register(username, password1, password2, email);
-                    }
-                }
-                        , new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-
-                        dialog.dismiss();
+                    public void run() {
+                        Toast.makeText(getApplicationContext(), R.string.server_access_failed_or_invalid_check_internet_connection, Toast.LENGTH_LONG).show();
                     }
                 });
             }
 
-            protected void onError(final Call call, Reasons reasons) {
-
-                if (reasons == Reasons.IOException && retryCount++ < 3) {
-                    mBoxAccountServer.register(username, password1, password2, email, this);
-                } else {
-                    dialog.dismiss();
-                    showRetryDialog();
-                }
-            }
-
-            protected void onSuccess(Call call, Response response, JSONObject json) {
-
+            @Override
+            protected void onJSONSuccess(Response response, JSONObject json) {
                 BoxAccountRegisterServer.ServerResponse result = BoxAccountRegisterServer.parseJson(json);
 
                 //user entered only the username and server send ok

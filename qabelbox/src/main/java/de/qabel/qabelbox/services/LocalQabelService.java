@@ -549,12 +549,11 @@ public class LocalQabelService extends Service implements DropConnector {
         initAndroidPersistence();
         pendingUploads = new HashMap<>();
         documentIdParser = new DocumentIdParser();
-        cachedFinishedUploads = Collections.synchronizedMap(new HashMap<String, Map<String, BoxFile>>());
+        cachedFinishedUploads = Collections.synchronizedMap(new HashMap<>());
         uploadingQueue = new LinkedBlockingDeque<>();
         try {
-            File path = File.createTempFile("bar", "db", getExternalCacheDir());
             Class.forName("org.sqldroid.SQLDroidDriver");
-            Connection connection = DriverManager.getConnection("jdbc:sqlite:" + path.getAbsolutePath());
+            Connection connection = DriverManager.getConnection("jdbc:sqlite:" + DB_REPOSITORIES);
             AndroidClientDatabase clientDatabase = new AndroidClientDatabase(connection);
             clientDatabase.migrate();
             EntityManager em = new EntityManager();
@@ -576,8 +575,6 @@ public class LocalQabelService extends Service implements DropConnector {
             throw new RuntimeException(e);
         } catch (ClassNotFoundException e) {
             Log.e(TAG, "Could not load database class", e);
-            throw new RuntimeException(e);
-        } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }

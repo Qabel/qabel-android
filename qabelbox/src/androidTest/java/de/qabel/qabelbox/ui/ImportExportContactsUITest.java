@@ -122,9 +122,9 @@ public class ImportExportContactsUITest {
 
         mBoxHelper.setActiveIdentity(identity);
         assertThat(mBoxHelper.getService().getContacts().getContacts().size(), is(0));
-        createContact("contact1");
-        createContact("contact2");
-        createContact("contact3");
+        createContact(CONTACT_1);
+        createContact(CONTACT_2);
+        createContact(CONTACT_3);
         assertThat(mBoxHelper.getService().getContacts().getContacts().size(), is(3));
     }
 
@@ -169,13 +169,11 @@ public class ImportExportContactsUITest {
 
     @Test
     public void testExportContactAsQRCode() {
-
-        String userName = "contact1";
         goToContacts();
 
-        onView(withId(R.id.contact_list)).perform(RecyclerViewActions.actionOnItem(hasDescendant(withText(userName)), longClick()));
+        onView(withId(R.id.contact_list)).perform(RecyclerViewActions.actionOnItem(hasDescendant(withText(CONTACT_1)), longClick()));
         onView(withText(R.string.ExportAsContactWithQRcode)).check(matches(isDisplayed())).perform(click());
-        onView(withText(userName)).check(matches(isDisplayed()));
+        onView(withText(CONTACT_1)).check(matches(isDisplayed()));
         QabelMatcher.matchToolbarTitle(mActivity.getString(R.string.headline_qrcode)).check(matches(isDisplayed()));
         Spoon.screenshot(mActivity, "contactQR");
 

@@ -2,29 +2,29 @@ package de.qabel.qabelbox.storage;
 
 
 import android.content.Context;
-import android.test.suitebuilder.annotation.LargeTest;
+import android.support.test.InstrumentationRegistry;
+import android.support.test.runner.AndroidJUnit4;
+import android.test.RenamingDelegatingContext;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.RobolectricGradleTestRunner;
-import org.robolectric.RuntimeEnvironment;
-import org.robolectric.annotation.Config;
+
+import java.net.URISyntaxException;
 
 import de.qabel.core.config.Contact;
 import de.qabel.core.config.Identity;
-import de.qabel.qabelbox.BuildConfig;
-import de.qabel.qabelbox.RoboApplication;
+import de.qabel.desktop.config.factory.DropUrlGenerator;
+import de.qabel.desktop.config.factory.IdentityBuilder;
+import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.chat.ChatMessageItem;
 import de.qabel.qabelbox.chat.ChatMessagesDataBase;
 import de.qabel.qabelbox.chat.ChatServer;
-import de.qabel.qabelbox.util.IdentityHelper;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
-@RunWith(RobolectricGradleTestRunner.class)
-@Config(application = RoboApplication.class, constants = BuildConfig.class)
+@RunWith(AndroidJUnit4.class)
 public class ChatServerTest {
 
     private Identity identity;
@@ -34,17 +34,28 @@ public class ChatServerTest {
     private String publicKey2;
     private Context context;
 
+    public static Identity createIdentity(String identName, String prefix) {
+        try {
+            Identity identity = new IdentityBuilder(new DropUrlGenerator(QabelBoxApplication.DEFAULT_DROP_SERVER))
+                    .withAlias(identName).build();
+            identity.getPrefixes().add(prefix);
+            return identity;
+        } catch (URISyntaxException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     @Before
     public void setUp() throws Exception {
-        context = RuntimeEnvironment.application;
-        identity = IdentityHelper.createIdentity("user1", "pre1");
+        identity = createIdentity("user1", "pre1");
 
-        Identity contactIdentity1 = IdentityHelper.createIdentity("contact1", "per3");
-        Identity contactIdentity2 = IdentityHelper.createIdentity("contact1", "pre4");
+        Identity contactIdentity1 = createIdentity("contact1", "per3");
+        Identity contactIdentity2 = createIdentity("contact1", "pre4");
         contact1 = new Contact("contact1", contactIdentity1.getDropUrls(), contactIdentity1.getEcPublicKey());
         contact2 = new Contact("contact2", contactIdentity2.getDropUrls(), contactIdentity2.getEcPublicKey());
         publicKey1 = getKeyIdentitfier(contact1);
         publicKey2 = getKeyIdentitfier(contact2);
+        context = new RenamingDelegatingContext(InstrumentationRegistry.getInstrumentation().getTargetContext(), "test_");
     }
 
     /**

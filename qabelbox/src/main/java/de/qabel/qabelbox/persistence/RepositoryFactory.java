@@ -14,6 +14,7 @@ import de.qabel.desktop.config.factory.DefaultIdentityFactory;
 import de.qabel.desktop.repository.EntityManager;
 import de.qabel.desktop.repository.IdentityRepository;
 import de.qabel.desktop.repository.sqlite.AndroidClientDatabase;
+import de.qabel.desktop.repository.sqlite.SqliteContactRepository;
 import de.qabel.desktop.repository.sqlite.SqliteDropUrlRepository;
 import de.qabel.desktop.repository.sqlite.SqliteIdentityRepository;
 import de.qabel.desktop.repository.sqlite.SqlitePrefixRepository;
@@ -27,6 +28,7 @@ public class RepositoryFactory {
     private Context context;
     private Connection connection;
     private AndroidClientDatabase androidClientDatabase;
+    private EntityManager entityManager;
 
     public RepositoryFactory(Context context) {
         this.context = context;
@@ -35,7 +37,7 @@ public class RepositoryFactory {
 
     private void loadDriver() {
         try {
-            Class.forName("org.sqldroid.SQLDroidDriver", false, ClassLoader.getSystemClassLoader());
+            Class.forName("org.sqldroid.SQLDroidDriver");
         } catch (ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
@@ -57,12 +59,19 @@ public class RepositoryFactory {
 
 
     public IdentityRepository getIdentityRepository(AndroidClientDatabase clientDatabase) {
-		EntityManager em = new EntityManager();
 		SqliteDropUrlRepository dropUrlRepository = getSqliteDropUrlRepository(clientDatabase);
 		SqlitePrefixRepository prefixRepository = getSqlitePrefixRepository(clientDatabase);
-		IdentityHydrator hydrator = getIdentityHydrator(em, dropUrlRepository, prefixRepository);
+		IdentityHydrator hydrator = getIdentityHydrator(getEntityManager(), dropUrlRepository, prefixRepository);
 		return new SqliteIdentityRepository(
 				clientDatabase, hydrator, dropUrlRepository, prefixRepository);
+    }
+
+    @NonNull
+    public EntityManager getEntityManager() {
+        if (entityManager == null) {
+            entityManager = new EntityManager();
+        }
+        return entityManager;
     }
 
     @NonNull
@@ -75,6 +84,11 @@ public class RepositoryFactory {
                 dropUrlRepository,
                 prefixRepository
         );
+    }
+
+    @NonNull
+    public SqliteContactRepository getContactRepository(AndroidClientDatabase clientDatabase) {
+        return new SqliteContactRepository(clientDatabase, getEntityManager());
     }
 
     @NonNull

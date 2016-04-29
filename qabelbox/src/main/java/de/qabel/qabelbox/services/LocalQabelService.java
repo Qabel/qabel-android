@@ -7,7 +7,6 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Path;
 import android.os.Binder;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -20,13 +19,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spongycastle.util.encoders.Hex;
 
-import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.net.URI;
 import java.security.SecureRandom;
-import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -35,6 +30,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
+import java.util.Set;
 import java.util.concurrent.LinkedBlockingDeque;
 
 import de.qabel.core.config.Contact;
@@ -53,19 +49,12 @@ import de.qabel.core.exceptions.QblSpoofedSenderException;
 import de.qabel.core.exceptions.QblVersionMismatchException;
 import de.qabel.core.http.DropHTTP;
 import de.qabel.core.http.HTTPResult;
-import de.qabel.desktop.config.factory.DefaultIdentityFactory;
-import de.qabel.desktop.repository.EntityManager;
+import de.qabel.desktop.repository.ContactRepository;
 import de.qabel.desktop.repository.IdentityRepository;
 import de.qabel.desktop.repository.exception.EntityNotFoundExcepion;
 import de.qabel.desktop.repository.exception.PersistenceException;
 import de.qabel.desktop.repository.sqlite.AndroidClientDatabase;
-import de.qabel.desktop.repository.sqlite.DesktopClientDatabase;
 import de.qabel.desktop.repository.sqlite.MigrationException;
-import de.qabel.desktop.repository.sqlite.SqliteDropUrlRepository;
-import de.qabel.desktop.repository.sqlite.SqliteIdentityRepository;
-import de.qabel.desktop.repository.sqlite.SqlitePrefixRepository;
-import de.qabel.desktop.repository.sqlite.hydrator.DropURLHydrator;
-import de.qabel.desktop.repository.sqlite.hydrator.IdentityHydrator;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.activities.MainActivity;
 import de.qabel.qabelbox.exceptions.QblStorageEntityExistsException;
@@ -103,6 +92,7 @@ public class LocalQabelService extends Service implements DropConnector {
 
     SharedPreferences sharedPreferences;
     private IdentityRepository identityRepository;
+    private ContactRepository contactRepository;
 
     protected void setLastActiveIdentityID(String identityID) {
         sharedPreferences.edit()
@@ -115,11 +105,11 @@ public class LocalQabelService extends Service implements DropConnector {
     }
 
     public void addIdentity(Identity identity) {
-        persistence.updateOrPersistEntity(identity);
         try {
             identityRepository.save(identity);
         } catch (PersistenceException e) {
             Log.e(TAG, "Could not save identity", e);
+            throw new RuntimeException(e);
         }
     }
 
@@ -142,7 +132,6 @@ public class LocalQabelService extends Service implements DropConnector {
     }
 
     public void deleteIdentity(Identity identity) {
-        persistence.removeEntity(identity.getPersistenceID(), Identity.class);
         try {
             identityRepository.delete(identity);
         } catch (PersistenceException e) {
@@ -156,7 +145,6 @@ public class LocalQabelService extends Service implements DropConnector {
      * @param identity known identity with modifid data
      */
     public void modifyIdentity(Identity identity) {
-        persistence.updateEntity(identity);
         try {
             identityRepository.save(identity);
         } catch (PersistenceException e) {
@@ -179,8 +167,16 @@ public class LocalQabelService extends Service implements DropConnector {
      * This should only be used in testing.
      */
     public void deleteContactsAndIdentities() {
-        persistence.dropTable(Contacts.class);
-        persistence.dropTable(Identity.class);
+        try {
+            for (Identity identity: identityRepository.findAll().getIdentities()) {
+                Set<Contact> contacts = contactRepository.find(identity).getContacts();
+                for (Contact contact: contacts) {
+                    contactRepository.delete(contact, identity);
+                }
+                identityRepository.delete(identity);
+            }
+        } catch (EntityNotFoundExcepion | PersistenceException ignored) {
+        }
     }
 
     /**
@@ -190,57 +186,44 @@ public class LocalQabelService extends Service implements DropConnector {
      * @return List of contacts owned by the identity
      */
     public Contacts getContacts(Identity identity) {
-        List<Contacts> entities = persistence.getEntities(Contacts.class);
-        for (Contacts contacts : entities) {
-            Identity owner = contacts.getIdentity();
-            if (owner.equals(identity)) {
-                return contacts;
-            }
+        try {
+            return contactRepository.find(identity);
+        } catch (PersistenceException e) {
+            throw new RuntimeException(e);
         }
-        Contacts contacts = new Contacts(identity);
-        persistence.updateOrPersistEntity(contacts);
-        return contacts;
     }
 
     public void addContact(Contact contact) throws QblStorageEntityExistsException {
-        Contacts contacts = getContacts();
-        if (contacts.contains(contact)) {
-            throw new QblStorageEntityExistsException(contact.getAlias());
-        }
-        contacts.put(contact);
-        persistence.updateEntity(contacts);
+        addContact(contact, getActiveIdentity());
     }
 
-    public void addContact(Contact contact, Identity identity) {
-        Contacts contacts = getContacts(identity);
-        contacts.put(contact);
-        persistence.updateEntity(contacts);
+    public void addContact(Contact contact, Identity identity) throws QblStorageEntityExistsException {
+        try {
+            contactRepository.findByKeyId(identity, contact.getKeyIdentifier());
+            throw new QblStorageEntityExistsException("Contact exists");
+        } catch (EntityNotFoundExcepion ignored) {
+            try {
+                contactRepository.save(contact, identity);
+            } catch (PersistenceException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 
     public void deleteContact(Contact contact) {
-        Contacts contacts = getContacts();
-        contacts.remove(contact);
-        persistence.updateEntity(contacts);
-    }
-
-    public void deleteContact(Contact contact, Identity identity) {
-        Contacts contacts = getContacts(identity);
-        contacts.remove(contact);
-        persistence.updateEntity(contacts);
+        try {
+            contactRepository.delete(contact, getActiveIdentity());
+        } catch (PersistenceException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public void modifyContact(Contact contact) {
-        Contacts contacts = getContacts();
-        contacts.remove(contact);
-        contacts.put(contact);
-        persistence.updateEntity(contacts);
-    }
-
-    public void modifyContact(Contact contact, Identity identity) {
-        Contacts contacts = getContacts(identity);
-        contacts.remove(contact);
-        contacts.put(contact);
-        persistence.updateEntity(contacts);
+        try {
+            contactRepository.save(contact, getActiveIdentity());
+        } catch (PersistenceException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /**
@@ -250,8 +233,12 @@ public class LocalQabelService extends Service implements DropConnector {
      */
     public Map<Identity, Contacts> getAllContacts() {
         Map<Identity, Contacts> contactMap = new HashMap<>();
-        for (Contacts contacts : persistence.getEntities(Contacts.class)) {
-            contactMap.put(contacts.getIdentity(), contacts);
+        try {
+            for (Identity identity : identityRepository.findAll().getIdentities()) {
+                contactMap.put(identity, contactRepository.find(identity));
+            }
+        } catch (PersistenceException | EntityNotFoundExcepion e) {
+            throw new RuntimeException(e);
         }
         return contactMap;
     }
@@ -562,6 +549,7 @@ public class LocalQabelService extends Service implements DropConnector {
             AndroidClientDatabase androidClientDatabase = repositoryFactory.getAndroidClientDatabase();
             androidClientDatabase.migrate();
             identityRepository = repositoryFactory.getIdentityRepository(androidClientDatabase);
+            contactRepository = repositoryFactory.getContactRepository(androidClientDatabase);
         } catch (SQLException | MigrationException e) {
             throw new RuntimeException(e);
         }

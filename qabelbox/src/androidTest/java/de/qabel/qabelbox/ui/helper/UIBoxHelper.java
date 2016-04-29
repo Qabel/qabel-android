@@ -251,43 +251,14 @@ public class UIBoxHelper {
         }
     }
 
-    /**
-     * remove the token from prefs
-     */
-    public static void clearToken() {
-        Context applicationContext = QabelBoxApplication.getInstance().getApplicationContext();
-        AppPreference prefs = new AppPreference(applicationContext);
-
-        prefs.setToken(null);
-
-    }
-
     public void removeAllIdentities() {
         mService.deleteContactsAndIdentities();
-    }
-
-    public void deleteCurrentIdentity() {
-        try {
-            Identity old = getCurrentIdentity();
-            if (old != null) {
-                deleteIdentity(old);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 
     public LocalQabelService getService() {
         return mService;
     }
 
-    public void deleteAllContacts(Identity identity) {
-        Set<Contact> contacts = mService.getContacts(identity).getContacts();
-        for (Contact c : contacts) {
-            Log.d(TAG, "delete contact: " + c.getAlias());
-            mService.deleteContact(c);
-        }
-    }
 
     public void deleteAllIdentities() {
         try {

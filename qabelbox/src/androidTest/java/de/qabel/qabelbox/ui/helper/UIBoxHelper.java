@@ -259,16 +259,4 @@ public class UIBoxHelper {
         return mService;
     }
 
-
-    public void deleteAllIdentities() {
-        try {
-            Identity old = getCurrentIdentity();
-            if (old != null) {
-                deleteIdentity(old);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        removeAllIdentities();
-    }
 }

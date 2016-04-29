@@ -107,7 +107,7 @@ public class ImportExportContactsUITest {
         mBoxHelper = new UIBoxHelper(QabelBoxApplication.getInstance());
         mBoxHelper.bindService(QabelBoxApplication.getInstance());
         mBoxHelper.createTokenIfNeeded(false);
-        mBoxHelper.deleteAllIdentities();
+        mBoxHelper.removeAllIdentities();
         identity = mBoxHelper.addIdentity("spoon123");
         createTestContacts();
     }

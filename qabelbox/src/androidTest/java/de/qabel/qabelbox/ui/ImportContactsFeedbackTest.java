@@ -15,6 +15,7 @@ import android.test.suitebuilder.annotation.MediumTest;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.File;
@@ -24,7 +25,10 @@ import java.util.LinkedList;
 import java.util.List;
 
 import de.qabel.core.config.Contact;
+import de.qabel.core.config.Identity;
 import de.qabel.core.exceptions.QblDropInvalidURL;
+import de.qabel.desktop.config.factory.DropUrlGenerator;
+import de.qabel.desktop.config.factory.IdentityBuilder;
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.activities.MainActivity;
@@ -32,6 +36,7 @@ import de.qabel.qabelbox.config.ContactExportImportTest;
 import de.qabel.qabelbox.services.LocalQabelService;
 import de.qabel.qabelbox.ui.helper.SystemAnimations;
 import de.qabel.qabelbox.ui.helper.UIActionHelper;
+import de.qabel.qabelbox.ui.helper.UIBoxHelper;
 import de.qabel.qabelbox.ui.helper.UITestHelper;
 
 import static android.support.test.espresso.Espresso.onView;
@@ -50,6 +55,7 @@ import static org.hamcrest.Matchers.endsWith;
  * Created by Jan D.S. Wischweh <mail@wischweh.de> on 07.03.16.
  */
 
+@Ignore("Can't run in isolation, needs an identity")
 public class ImportContactsFeedbackTest extends ActivityInstrumentationTestCase2<MainActivity> {
 
     public static final String COOKIEMONSTER_ALIAS = "Cookie Monster";
@@ -85,6 +91,7 @@ public class ImportContactsFeedbackTest extends ActivityInstrumentationTestCase2
         super(MainActivity.class);
     }
 
+
     @Before
     public void setUp() throws URISyntaxException, QblDropInvalidURL {
         wakeLock = UIActionHelper.wakeupDevice(getActivity());
@@ -105,7 +112,6 @@ public class ImportContactsFeedbackTest extends ActivityInstrumentationTestCase2
     public void tearDown() {
         wakeLock.release();
         mSystemAnimations.enableAll();
-        removeTestContacts();
     }
 
     @Test
@@ -167,14 +173,6 @@ public class ImportContactsFeedbackTest extends ActivityInstrumentationTestCase2
         UITestHelper.sleep(1000);
         onView(withText(R.string.from_file)).inRoot(isDialog()).perform(ViewActions.click());
         return (MainActivity) getInstrumentation().waitForMonitorWithTimeout(returnTheTmpFileMonitor, 5);
-    }
-
-    private void removeTestContacts() {
-        LocalQabelService service = QabelBoxApplication.getInstance().getService();
-        for (Contact contact : testContacts) {
-            service.deleteContact(contact);
-        }
-        service.deleteContact(cookieMonster);
     }
 
 

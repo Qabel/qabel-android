@@ -6,6 +6,7 @@ import org.junit.Before;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.SQLException;
 import java.sql.Statement;
 
 public abstract class AbstractSqliteRepositoryTest<T> {
@@ -16,7 +17,12 @@ public abstract class AbstractSqliteRepositoryTest<T> {
 
     @Before
     public void setUp() throws Exception {
-        connection = DriverManager.getConnection("jdbc:sqlite::memory:");
+        try {
+            connection = DriverManager.getConnection("jdbc:sqlite::memory:");
+        } catch (SQLException e) {
+            // try again because the world is bad.
+            connection = DriverManager.getConnection("jdbc:sqlite::memory:");
+        }
         try (Statement statement = connection.createStatement()) {
             statement.execute("PRAGMA FOREIGN_KEYS = ON");
         }

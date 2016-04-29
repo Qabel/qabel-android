@@ -70,12 +70,7 @@ public class QabelSyncAdapterTest {
         DropMessage message = chatServer.createTextDropMessage(identity, "foobar");
         final CountDownLatch lock = new CountDownLatch(1);
         service.sendDropMessage(message, contact2, identity,
-			new LocalQabelService.OnSendDropMessageResult() {
-                @Override
-                public void onSendDropResult(Map<DropURL, Boolean> deliveryStatus) {
-                    lock.countDown();
-                }
-            });
+                deliveryStatus -> lock.countDown());
         lock.await();
         SyncResult syncResult = new SyncResult();
         syncAdapter.onPerformSync(null, null, null, null, syncResult);

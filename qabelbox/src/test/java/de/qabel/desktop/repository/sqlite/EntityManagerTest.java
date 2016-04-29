@@ -7,12 +7,16 @@ import de.qabel.desktop.repository.EntityManager;
 
 import org.junit.Ignore;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
 
 import java.net.URISyntaxException;
 
 import static org.junit.Assert.*;
 
-@Ignore(value = "Problems with the native library")
+@RunWith(RobolectricTestRunner.class)
+@Config(manifest = Config.NONE)
 public class EntityManagerTest {
     private EntityManager em = new EntityManager();
 

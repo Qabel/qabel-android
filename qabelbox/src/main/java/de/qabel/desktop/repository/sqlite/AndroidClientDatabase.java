@@ -24,6 +24,28 @@ public class AndroidClientDatabase extends AbstractClientDatabase implements Cli
         super(connection);
     }
 
+    @Override
+    public long getVersion() throws SQLException {
+        if (connection instanceof SQLDroidConnection) {
+            android.database.sqlite.SQLiteDatabase db = ((SQLDroidConnection) connection).getDb()
+                    .getSqliteDatabase();
+            return db.getVersion();
+        } else {
+            return super.getVersion();
+        }
+    }
+
+    @Override
+    public synchronized void setVersion(long version) throws SQLException {
+        if (connection instanceof SQLDroidConnection) {
+            android.database.sqlite.SQLiteDatabase db = ((SQLDroidConnection) connection).getDb()
+                    .getSqliteDatabase();
+            db.setVersion((int) version);
+        } else {
+            super.setVersion(version);
+        }
+    }
+
     public AbstractMigration[] getMigrations(Connection connection) {
         return new AbstractMigration[]{
                 new Migration1460367000CreateIdentitiy(connection),
@@ -44,4 +66,5 @@ public class AndroidClientDatabase extends AbstractClientDatabase implements Cli
             return super.prepare(sql);
         }
     }
+
 }

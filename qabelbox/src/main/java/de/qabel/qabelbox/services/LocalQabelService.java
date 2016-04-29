@@ -55,6 +55,7 @@ import de.qabel.core.http.DropHTTP;
 import de.qabel.core.http.HTTPResult;
 import de.qabel.desktop.config.factory.DefaultIdentityFactory;
 import de.qabel.desktop.repository.EntityManager;
+import de.qabel.desktop.repository.IdentityRepository;
 import de.qabel.desktop.repository.exception.EntityNotFoundExcepion;
 import de.qabel.desktop.repository.exception.PersistenceException;
 import de.qabel.desktop.repository.sqlite.AndroidClientDatabase;
@@ -70,6 +71,7 @@ import de.qabel.qabelbox.activities.MainActivity;
 import de.qabel.qabelbox.exceptions.QblStorageEntityExistsException;
 import de.qabel.qabelbox.persistence.AndroidPersistence;
 import de.qabel.qabelbox.persistence.QblSQLiteParams;
+import de.qabel.qabelbox.persistence.RepositoryFactory;
 import de.qabel.qabelbox.providers.DocumentIdParser;
 import de.qabel.qabelbox.storage.BoxFile;
 import de.qabel.qabelbox.storage.BoxUploadingFile;
@@ -91,7 +93,6 @@ public class LocalQabelService extends Service implements DropConnector {
     private final IBinder mBinder = new LocalBinder();
 
     protected static final String DB_NAME = "qabel-service";
-    protected static final String DB_REPOSITORIES = "qabel-repos";
     protected static final int DB_VERSION = 1;
     protected AndroidPersistence persistence;
     private DropHTTP dropHTTP;
@@ -101,7 +102,7 @@ public class LocalQabelService extends Service implements DropConnector {
     private DocumentIdParser documentIdParser;
 
     SharedPreferences sharedPreferences;
-    private SqliteIdentityRepository identityRepository;
+    private IdentityRepository identityRepository;
 
     protected void setLastActiveIdentityID(String identityID) {
         sharedPreferences.edit()
@@ -127,7 +128,7 @@ public class LocalQabelService extends Service implements DropConnector {
             return identityRepository.findAll();
         } catch (EntityNotFoundExcepion | PersistenceException e) {
             Log.e(TAG, "Could not get identities", e);
-            return null;
+            throw new RuntimeException(e);
         }
     }
 
@@ -551,32 +552,15 @@ public class LocalQabelService extends Service implements DropConnector {
         documentIdParser = new DocumentIdParser();
         cachedFinishedUploads = Collections.synchronizedMap(new HashMap<>());
         uploadingQueue = new LinkedBlockingDeque<>();
+        RepositoryFactory repositoryFactory = new RepositoryFactory(getApplicationContext());
         try {
-            Class.forName("org.sqldroid.SQLDroidDriver");
-            Connection connection = DriverManager.getConnection("jdbc:sqlite:" + DB_REPOSITORIES);
-            AndroidClientDatabase clientDatabase = new AndroidClientDatabase(connection);
-            clientDatabase.migrate();
-            EntityManager em = new EntityManager();
-            SqliteDropUrlRepository dropUrlRepository = new SqliteDropUrlRepository(clientDatabase, new DropURLHydrator());
-            SqlitePrefixRepository prefixRepository = new SqlitePrefixRepository(clientDatabase);
-            IdentityHydrator hydrator = new IdentityHydrator(
-                    new DefaultIdentityFactory(),
-                    em,
-                    dropUrlRepository,
-                    prefixRepository
-            );
-            identityRepository = new SqliteIdentityRepository(
-                    clientDatabase, hydrator, dropUrlRepository, prefixRepository);
-        } catch (SQLException e) {
-            Log.e(TAG, "Could not connect to repository database", e);
-            throw new RuntimeException(e);
-        } catch (MigrationException e) {
-            Log.e(TAG, "Could not migrate client database", e);
-            throw new RuntimeException(e);
-        } catch (ClassNotFoundException e) {
-            Log.e(TAG, "Could not load database class", e);
+            AndroidClientDatabase androidClientDatabase = repositoryFactory.getAndroidClientDatabase();
+            androidClientDatabase.migrate();
+            identityRepository = repositoryFactory.getIdentityRepository(androidClientDatabase);
+        } catch (SQLException | MigrationException e) {
             throw new RuntimeException(e);
         }
+
     }
     protected void initAndroidPersistence() {
        initAndroidPersistence(DB_NAME);

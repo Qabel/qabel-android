@@ -548,10 +548,15 @@ public class LocalQabelService extends Service implements DropConnector {
         dropHTTP = new DropHTTP();
         initSharedPreferences();
         initAndroidPersistence();
+        initRepositories();
         pendingUploads = new HashMap<>();
         documentIdParser = new DocumentIdParser();
         cachedFinishedUploads = Collections.synchronizedMap(new HashMap<>());
         uploadingQueue = new LinkedBlockingDeque<>();
+
+    }
+
+    public void initRepositories() {
         RepositoryFactory repositoryFactory = new RepositoryFactory(getApplicationContext());
         try {
             AndroidClientDatabase androidClientDatabase = repositoryFactory.getAndroidClientDatabase();
@@ -560,8 +565,8 @@ public class LocalQabelService extends Service implements DropConnector {
         } catch (SQLException | MigrationException e) {
             throw new RuntimeException(e);
         }
-
     }
+
     protected void initAndroidPersistence() {
        initAndroidPersistence(DB_NAME);
     }

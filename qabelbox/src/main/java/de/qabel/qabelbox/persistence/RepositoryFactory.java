@@ -2,11 +2,9 @@ package de.qabel.qabelbox.persistence;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
-import android.test.RenamingDelegatingContext;
 import android.util.Log;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -37,7 +35,7 @@ public class RepositoryFactory {
 
     private void loadDriver() {
         try {
-            Class.forName("org.sqldroid.SQLDroidDriver");
+            Class.forName("org.sqldroid.SQLDroidDriver", false, ClassLoader.getSystemClassLoader());
         } catch (ClassNotFoundException e) {
             throw new RuntimeException(e);
         }

@@ -165,19 +165,14 @@ public class ContactFragment extends BaseFragment {
     }
 
     private String createContactFilename(String contactAlias) {
-        StringBuilder filenameBuilder = new StringBuilder();
-        filenameBuilder.append(QabelSchema.FILE_PREFIX_CONTACT);
-        filenameBuilder.append(contactAlias);
-        filenameBuilder.append(".");
-        filenameBuilder.append(QabelSchema.FILE_SUFFIX_CONTACT);
-        return filenameBuilder.toString();
+        return QabelSchema.FILE_PREFIX_CONTACT + FileHelper.processFilename(contactAlias) +
+                "." + QabelSchema.FILE_SUFFIX_CONTACT;
     }
 
     public void exportContactToExternal(Contact contact) {
         try {
             String contactJson = ContactExportImport.exportContact(contact);
             File tmpFile = new File(mActivity.getExternalCacheDir(), createContactFilename(contact.getAlias()));
-            tmpFile.createNewFile();
             FileUtils.writeStringToFile(tmpFile, contactJson);
 
             ExternalApps.share(mActivity, Uri.fromFile(tmpFile), "application/json");

@@ -64,12 +64,16 @@ import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.endsWith;
 import static org.hamcrest.Matchers.is;
 
-/**
- * Created by danny on 17.003.2016.
- */
 public class ImportExportContactsUITest {
     @Rule
-    public ActivityTestRule<MainActivity> mActivityTestRule = new ActivityTestRule<>(MainActivity.class, false, true);
+    public ActivityTestRule<MainActivity> mActivityTestRule = new ActivityTestRule<MainActivity>(
+            MainActivity.class, false, true) {
+        @Override
+        protected void beforeActivityLaunched() {
+            super.beforeActivityLaunched();
+            setupData();
+        }
+    };
     private MainActivity mActivity;
     private UIBoxHelper mBoxHelper;
     private PowerManager.WakeLock wakeLock;
@@ -79,13 +83,8 @@ public class ImportExportContactsUITest {
     private final DocumentIntents intending = new DocumentIntents();
     private Identity identity;
 
-    public ImportExportContactsUITest() throws IOException {
-        setupData();
-    }
-
     @After
     public void cleanUp() {
-
         wakeLock.release();
         mSystemAnimations.enableAll();
         mBoxHelper.unbindService(QabelBoxApplication.getInstance());

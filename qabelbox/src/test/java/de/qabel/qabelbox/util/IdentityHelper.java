@@ -35,6 +35,9 @@ public class IdentityHelper {
         try {
             identity = new IdentityBuilder(new DropUrlGenerator(QabelBoxApplication.DEFAULT_DROP_SERVER))
                     .withAlias(identName).build();
+            if (prefix == null) {
+                prefix = "test";
+            }
             identity.getPrefixes().add(prefix);
             return identity;
         } catch (URISyntaxException e) {

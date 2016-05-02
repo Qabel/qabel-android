@@ -14,6 +14,7 @@ import de.qabel.desktop.config.factory.DefaultIdentityFactory;
 import de.qabel.desktop.repository.EntityManager;
 import de.qabel.desktop.repository.IdentityRepository;
 import de.qabel.desktop.repository.sqlite.AndroidClientDatabase;
+import de.qabel.desktop.repository.sqlite.MigrationException;
 import de.qabel.desktop.repository.sqlite.SqliteContactRepository;
 import de.qabel.desktop.repository.sqlite.SqliteDropUrlRepository;
 import de.qabel.desktop.repository.sqlite.SqliteIdentityRepository;
@@ -108,6 +109,11 @@ public class RepositoryFactory {
         if (connection == null) {
             connection = DriverManager.getConnection("jdbc:sqlite:" + getDatabasePath());
             androidClientDatabase = new AndroidClientDatabase(connection);
+            try {
+                androidClientDatabase.migrate();
+            } catch (MigrationException e) {
+                throw new RuntimeException(e);
+            }
         }
         return androidClientDatabase;
     }

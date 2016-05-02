@@ -175,7 +175,8 @@ public class LocalQabelService extends Service implements DropConnector {
                 }
                 identityRepository.delete(identity);
             }
-        } catch (EntityNotFoundExcepion | PersistenceException ignored) {
+        } catch (EntityNotFoundExcepion | PersistenceException e) {
+            Log.e(TAG, "Error deleting contacts and identities");
         }
     }
 
@@ -241,10 +242,6 @@ public class LocalQabelService extends Service implements DropConnector {
             throw new RuntimeException(e);
         }
         return contactMap;
-    }
-
-    public interface OnSendDropMessageResult {
-        void onSendDropResult(Map<DropURL, Boolean> deliveryStatus);
     }
 
     /**
@@ -547,10 +544,9 @@ public class LocalQabelService extends Service implements DropConnector {
         RepositoryFactory repositoryFactory = new RepositoryFactory(getApplicationContext());
         try {
             AndroidClientDatabase androidClientDatabase = repositoryFactory.getAndroidClientDatabase();
-            androidClientDatabase.migrate();
             identityRepository = repositoryFactory.getIdentityRepository(androidClientDatabase);
             contactRepository = repositoryFactory.getContactRepository(androidClientDatabase);
-        } catch (SQLException | MigrationException e) {
+        } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }

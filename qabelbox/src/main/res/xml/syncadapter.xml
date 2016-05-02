@@ -3,5 +3,5 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:contentAuthority="@string/authority"
     android:accountType="@string/account_type"
-    android:isAlwaysSyncable="false"
-    android:userVisible="false"/>
+    android:isAlwaysSyncable="true"
+    android:userVisible="true"/>

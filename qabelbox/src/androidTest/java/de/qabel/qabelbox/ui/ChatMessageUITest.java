@@ -1,5 +1,6 @@
 package de.qabel.qabelbox.ui;
 
+import android.content.Context;
 import android.os.PowerManager;
 import android.support.design.internal.NavigationMenuItemView;
 import android.support.test.espresso.ViewAssertion;
@@ -9,7 +10,6 @@ import android.util.Log;
 
 import com.squareup.spoon.Spoon;
 
-import org.json.JSONObject;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -19,6 +19,7 @@ import org.junit.Test;
 import java.io.IOException;
 
 import de.qabel.core.config.Contact;
+import de.qabel.core.config.Contacts;
 import de.qabel.core.config.Identity;
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
@@ -27,7 +28,6 @@ import de.qabel.qabelbox.activities.MainActivity;
 import de.qabel.qabelbox.chat.ChatMessageItem;
 import de.qabel.qabelbox.chat.ChatServer;
 import de.qabel.qabelbox.communication.URLs;
-import de.qabel.qabelbox.config.ContactExportImport;
 import de.qabel.qabelbox.exceptions.QblStorageEntityExistsException;
 import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.helper.AccountHelper;
@@ -62,7 +62,6 @@ import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.endsWith;
 import static org.hamcrest.Matchers.is;
 
-@Ignore("Drop messages not working")
 public class ChatMessageUITest {
 
     @Rule
@@ -85,11 +84,34 @@ public class ChatMessageUITest {
     private Contact contact2, contact1;
     private Identity identity;
 
+    private void setupData() throws QblStorageEntityExistsException {
+        mActivity = mActivityTestRule.getActivity();
+        mBoxHelper = new UIBoxHelper(QabelBoxApplication.getInstance());
+        mBoxHelper.bindService(QabelBoxApplication.getInstance());
+        mBoxHelper.createTokenIfNeeded(false);
+        mBoxHelper.removeAllIdentities();
+        Identity user1 = mBoxHelper.addIdentityWithoutVolume("user1");
+        Identity user2 = mBoxHelper.addIdentityWithoutVolume("user2");
+        Contacts contacts = mBoxHelper.getService().getContacts(user1);
+        for (Contact contact: contacts.getContacts()) {
+            mBoxHelper.getService().deleteContact(contact);
+        }
+        contacts = mBoxHelper.getService().getContacts(user2);
+        for (Contact contact: contacts.getContacts()) {
+            mBoxHelper.getService().deleteContact(contact);
+        }
+
+        contact2 = addContact(user1, user2);
+        contact1 = addContact(user2, user1);
+        mBoxHelper.setActiveIdentity(user2);
+    }
+
     @After
     public void cleanUp() {
         wakeLock.release();
         mSystemAnimations.enableAll();
         mBoxHelper.unbindService(QabelBoxApplication.getInstance());
+        mBoxHelper.removeAllIdentities();
     }
 
     @Before
@@ -100,10 +122,13 @@ public class ChatMessageUITest {
         wakeLock = UIActionHelper.wakeupDevice(mActivity);
         mSystemAnimations = new SystemAnimations(mActivity);
         mSystemAnimations.disableAll();
-        LocalQabelService service = QabelBoxApplication.getInstance().getService();
+        LocalQabelService service = mActivity.getService();
         identity = service.getActiveIdentity();
-        AccountHelper.createSyncAccount(mActivity);
+        assertNotNull(identity);
     }
+
+
+    @Ignore
     @Test
     public void testSendOneMessage() {
         Spoon.screenshot(mActivity, "empty");
@@ -161,10 +186,8 @@ public class ChatMessageUITest {
      */
     @Test
     public void testNewMessageVisualization() {
-
+        Context context = mActivity.getApplicationContext();
         String identityKey = identity.getEcPublicKey().getReadableKeyIdentifier();
-        contact1 = createContact("contact1");
-        contact2 = createContact("contact2");
         ChatServer chatServer = mActivity.chatServer;
         String contact1Alias = contact1.getAlias();
 
@@ -187,6 +210,8 @@ public class ChatMessageUITest {
         assertThat(1, is(newMessageCount));
         assertTrue(chatServer.hasNewMessages(identity, contact1));
         assertFalse(chatServer.hasNewMessages(identity, contact2));
+        onDemandSync();
+
 
         //check if new view indicator displayed on correct user and click on this item
         checkVisibilityState(contact1Alias, QabelMatcher.isVisible()).perform(click());
@@ -194,53 +219,22 @@ public class ChatMessageUITest {
         //check if RecyclerView contain correct count of data
         onView(withId(R.id.contact_chat_list)).check(matches(QabelMatcher.withListSize(1)));
         pressBack();
+        onDemandSync();
         //check if indicator not displayed (we have viewed the item)
         checkVisibilityState(contact1Alias, QabelMatcher.isInvisible());
 
     }
 
-    private void setupData() throws QblStorageEntityExistsException {
-        URLs.setBaseBlockURL(TestConstants.BLOCK_URL);
-        mActivity = mActivityTestRule.getActivity();
-        mBoxHelper = new UIBoxHelper(QabelBoxApplication.getInstance());
-        mBoxHelper.bindService(QabelBoxApplication.getInstance());
-        mBoxHelper.createTokenIfNeeded(false);
-        mBoxHelper.removeAllIdentities();
-        Identity user1 = mBoxHelper.addIdentityWithoutVolume("user1");
-        Identity user2 = mBoxHelper.addIdentityWithoutVolume("user2");
-
-        addContact(user1, user2);
-        addContact(user2, user1);
-        mBoxHelper.setActiveIdentity(user2);
-
-
-        assertNotEmpty(mBoxHelper.getService().getContacts().getContacts());
-    }
-
-    private void addContact(Identity identity, Identity contact) throws QblStorageEntityExistsException {
+    private Contact addContact(Identity identity, Identity contact) throws QblStorageEntityExistsException {
         Contact asContact = new Contact(contact.getAlias(),
                 contact.getDropUrls(),contact.getEcPublicKey());
 		mBoxHelper.getService().addContact(asContact, identity);
+        return asContact;
     }
 
-    private Contact createContact(String name) {
-        Identity identity = mBoxHelper.createIdentity(name);
-        String json = ContactExportImport.exportIdentityAsContact(identity);
-        return addContact(json);
+    private void onDemandSync() {
+        AccountHelper.startOnDemandSyncAdapter();
     }
-
-    private Contact addContact(String contactJSON) {
-        try {
-            Contact contact = ContactExportImport.parseContactForIdentity(null, new JSONObject(contactJSON));
-            mBoxHelper.getService().addContact(contact);
-            return contact;
-        } catch (Exception e) {
-            assertNotNull(e);
-            Log.e(TAG, "error on add contact", e);
-        }
-        return null;
-    }
-
 
     /**
      * check if new message indicator displayed

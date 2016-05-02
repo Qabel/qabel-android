@@ -1,38 +1,32 @@
 package de.qabel.qabelbox.adapter;
 
 import android.app.Application;
-import android.content.Context;
 import android.content.SyncResult;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricGradleTestRunner;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
 
-import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 
 import de.qabel.core.config.Contact;
 import de.qabel.core.config.Identity;
 import de.qabel.core.drop.DropMessage;
-import de.qabel.core.drop.DropURL;
 import de.qabel.qabelbox.BuildConfig;
 import de.qabel.qabelbox.SimpleApplication;
 import de.qabel.qabelbox.chat.ChatMessagesDataBase;
 import de.qabel.qabelbox.chat.ChatServer;
 import de.qabel.qabelbox.exceptions.QblStorageEntityExistsException;
-import de.qabel.qabelbox.services.LocalQabelService;
 import de.qabel.qabelbox.services.RoboLocalQabelService;
 import de.qabel.qabelbox.util.IdentityHelper;
 
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
 
 
-@Ignore
 @RunWith(RobolectricGradleTestRunner.class)
 @Config(application = SimpleApplication.class, constants = BuildConfig.class)
 public class QabelSyncAdapterTest {

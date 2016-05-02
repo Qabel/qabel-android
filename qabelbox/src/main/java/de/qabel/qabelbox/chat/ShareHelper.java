@@ -130,20 +130,17 @@ public class ShareHelper {
 
                 if (dm != null) {
                     try {
-                        mService.sendDropMessage(dm, contact, mService.getActiveIdentity(), new LocalQabelService.OnSendDropMessageResult() {
-                            @Override
-                            public void onSendDropResult(Map<DropURL, Boolean> deliveryStatus) {
-                                ChatMessageItem message = new ChatMessageItem(mainActivity.mService.getActiveIdentity(), contact.getEcPublicKey().getReadableKeyIdentifier(), dm.getDropPayload(), dm.getDropPayloadType());
-                                cs.storeIntoDB(currentIdentity, message);
-                                mainActivity.filesFragment.refresh();
-                                mainActivity.runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        Toast.makeText(mainActivity, R.string.messsage_file_shared, Toast.LENGTH_SHORT).show();
-                                    }
-                                });
+                        mService.sendDropMessage(dm, contact, mService.getActiveIdentity(), deliveryStatus -> {
+                            ChatMessageItem message = new ChatMessageItem(mainActivity.mService.getActiveIdentity(), contact.getEcPublicKey().getReadableKeyIdentifier(), dm.getDropPayload(), dm.getDropPayloadType());
+                            cs.storeIntoDB(currentIdentity, message);
+                            mainActivity.filesFragment.refresh();
+                            mainActivity.runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    Toast.makeText(mainActivity, R.string.messsage_file_shared, Toast.LENGTH_SHORT).show();
+                                }
+                            });
 
-                            }
                         });
                     } catch (QblDropPayloadSizeException e) {
                         Log.e(TAG, "cant send share", e);

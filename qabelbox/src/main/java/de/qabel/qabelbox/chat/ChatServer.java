@@ -77,6 +77,7 @@ public class ChatServer {
         Log.d(TAG, "new retrieved dropmessage time " + lastRetrieved);
 
         sendCallbacksRefreshed();
+        dataBase.close();
         return result;
     }
 

@@ -136,12 +136,7 @@ public class LocalQabelServiceTest extends ServiceTestCase<LocalQabelServiceTest
         final CountDownLatch lock = new CountDownLatch(1);
 
         mService.sendDropMessage(dropMessage, recipientContact, senderIdentity,
-                new LocalQabelService.OnSendDropMessageResult() {
-                    @Override
-                    public void onSendDropResult(Map<DropURL, Boolean> deliveryStatus) {
-                        lock.countDown();
-                    }
-                });
+                deliveryStatus -> lock.countDown());
 
         lock.await();
 

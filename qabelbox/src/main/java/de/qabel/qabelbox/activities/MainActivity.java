@@ -257,6 +257,10 @@ public class MainActivity extends CrashReportingActivity
         installConnectivityManager(new ConnectivityManager(this));
         addBackStackListener();
 
+        setupAccount();
+    }
+
+    private void setupAccount() {
         AccountHelper.createSyncAccount(getApplicationContext());
         AccountHelper.configurePeriodicPolling();
     }

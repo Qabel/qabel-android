@@ -37,7 +37,7 @@ public class QabelBoxApplication extends Application {
         return boxProvider;
     }
 
-	/**
+    /**
      * @deprecated This is not guaranteed to be initialised
      */
     @Deprecated

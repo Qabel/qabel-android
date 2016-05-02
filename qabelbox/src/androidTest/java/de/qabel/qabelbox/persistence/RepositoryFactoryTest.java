@@ -66,8 +66,4 @@ public class RepositoryFactoryTest{
                 database.getVersion(), is(1460987825L));
     }
 
-    @Test
-    public void testGetIdentityRepository() throws Exception {
-
-    }
 }

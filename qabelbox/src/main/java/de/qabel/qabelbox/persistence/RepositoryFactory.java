@@ -54,7 +54,9 @@ public class RepositoryFactory {
             outputStream.close();
         } catch (java.io.IOException ignored) {
         }
-        context.deleteFile(DB_REPOSITORIES);
+        if (!context.deleteFile(DB_REPOSITORIES)) {
+            throw new IllegalStateException("Could not delete client database");
+        }
     }
 
 

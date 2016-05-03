@@ -22,6 +22,7 @@ import org.junit.runners.MethodSorters;
 
 import java.io.IOException;
 
+import de.qabel.core.config.Identity;
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.activities.WelcomeScreenActivity;
@@ -29,6 +30,7 @@ import de.qabel.qabelbox.config.AppPreference;
 import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.ui.helper.SystemAnimations;
 import de.qabel.qabelbox.ui.helper.UIActionHelper;
+import de.qabel.qabelbox.ui.helper.UIBoxHelper;
 import de.qabel.qabelbox.ui.helper.UITestHelper;
 import de.qabel.qabelbox.ui.matcher.QabelMatcher;
 
@@ -56,6 +58,13 @@ public class WelcomeScreenUITest {
         @Override
         protected void beforeActivityLaunched() {
             super.beforeActivityLaunched();
+            mActivity = mActivityTestRule.getActivity();
+            UIBoxHelper mBoxHelper = new UIBoxHelper(QabelBoxApplication.getInstance());
+            mBoxHelper.bindService(QabelBoxApplication.getInstance());
+            mBoxHelper.createTokenIfNeeded(false);
+            mBoxHelper.removeAllIdentities();
+            Identity user1 = mBoxHelper.addIdentityWithoutVolume("user1");
+            mBoxHelper.setActiveIdentity(user1);
             prefs = new AppPreference(QabelBoxApplication.getInstance());
             prefs.setWelcomeScreenShownAt(0);
         }

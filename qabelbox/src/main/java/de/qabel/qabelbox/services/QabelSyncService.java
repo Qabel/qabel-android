@@ -17,8 +17,7 @@ public class QabelSyncService extends Service {
     public void onCreate() {
         synchronized (syncAdapterLock) {
             if (qabelSyncAdapter == null) {
-                qabelSyncAdapter = new
-                        QabelSyncAdapter(getApplicationContext(), true);
+                qabelSyncAdapter = new QabelSyncAdapter(getApplicationContext(), true);
             }
         }
     }

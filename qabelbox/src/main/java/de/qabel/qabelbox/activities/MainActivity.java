@@ -385,8 +385,13 @@ public class MainActivity extends CrashReportingActivity
 
         Log.d(TAG, "LocalQabelService connected");
         if (mService.getActiveIdentity() == null) {
-            mService.setActiveIdentity(mService.getIdentities().getIdentities().iterator().next());
-            initChatServer();
+            if (Sanity.startWizardActivities(this)) {
+                Log.d(TAG, "started wizard dialog");
+                return;
+            } else {
+                Set<Identity> identities = mService.getIdentities().getIdentities();
+                mService.setActiveIdentity(identities.iterator().next());
+            }
         }
         provider = ((QabelBoxApplication) getApplication()).getProvider();
         Log.i(TAG, "Provider: " + provider);
@@ -488,7 +493,6 @@ public class MainActivity extends CrashReportingActivity
     }
 
     private void initAndSelectFilesFragment() {
-
         initFilesFragment();
         selectFilesFragment();
     }

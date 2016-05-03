@@ -56,10 +56,8 @@ public class WelcomeScreenUITest {
             super.beforeActivityLaunched();
             UIBoxHelper mBoxHelper = new UIBoxHelper(QabelBoxApplication.getInstance());
             mBoxHelper.bindService(QabelBoxApplication.getInstance());
-            mBoxHelper.createTokenIfNeeded(false);
             mBoxHelper.removeAllIdentities();
-            Identity user1 = mBoxHelper.addIdentityWithoutVolume("user1");
-            mBoxHelper.setActiveIdentity(user1);
+            mBoxHelper.addIdentityWithoutVolume("user1");
             prefs = new AppPreference(QabelBoxApplication.getInstance());
             prefs.setWelcomeScreenShownAt(0);
         }
@@ -73,16 +71,13 @@ public class WelcomeScreenUITest {
 
     @After
     public void cleanUp() {
-
         wakeLock.release();
         mSystemAnimations.enableAll();
     }
 
     @Before
     public void setUp() throws IOException, QblStorageException {
-
         mActivity = mActivityTestRule.getActivity();
-
         wakeLock = UIActionHelper.wakeupDevice(mActivity);
         mSystemAnimations = new SystemAnimations(mActivity);
         mSystemAnimations.disableAll();
@@ -112,8 +107,6 @@ public class WelcomeScreenUITest {
         onView(withId(pagerId)).perform(swipeLeft());
 
         checkDisclaimer();
-
-
     }
 
     private void checkDisclaimer() {

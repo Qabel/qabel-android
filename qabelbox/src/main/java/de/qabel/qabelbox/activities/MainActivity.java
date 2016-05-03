@@ -141,7 +141,6 @@ public class MainActivity extends CrashReportingActivity
 
     private ConnectivityManager connectivityManager;
 
-
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 

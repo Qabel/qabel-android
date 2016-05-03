@@ -39,8 +39,8 @@ public class RepositoryFactoryTest{
     @Test
     public void testCanDeleteDatabase() throws Exception {
         repositoryFactory.getAndroidClientDatabase().setVersion(1);
+        // raises an exception on error.
         repositoryFactory.deleteDatabase();
-        assertEquals(repositoryFactory.getAndroidClientDatabase().getVersion(), 0L);
     }
 
     @Test

@@ -793,14 +793,11 @@ public class MainActivity extends CrashReportingActivity
 
             @Override
             protected void onPreExecute() {
-
-                selectFilesFragment();
                 filesFragment.setIsLoading(true);
             }
 
             @Override
             protected void onPostExecute(Void aVoid) {
-
                 super.onPostExecute(aVoid);
                 refresh();
             }

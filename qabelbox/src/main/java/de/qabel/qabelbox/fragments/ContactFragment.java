@@ -348,10 +348,12 @@ public class ContactFragment extends BaseFragment {
 
     private void addContactByFile() {
 
-        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
-        intent.addCategory(Intent.CATEGORY_OPENABLE);
-        intent.setType("*/*");
-        startActivityForResult(intent, REQUEST_IMPORT_CONTACT);
+        if (useDocumentProvider) {
+            Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+            intent.addCategory(Intent.CATEGORY_OPENABLE);
+            intent.setType("*/*");
+            startActivityForResult(intent, REQUEST_IMPORT_CONTACT);
+        }
     }
 
     @Override

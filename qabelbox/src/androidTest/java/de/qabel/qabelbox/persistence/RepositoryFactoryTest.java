@@ -26,6 +26,8 @@ public class RepositoryFactoryTest{
         mMockContext = new RenamingDelegatingContext(
                 InstrumentationRegistry.getInstrumentation().getTargetContext(), "test_");
         repositoryFactory = new RepositoryFactory(mMockContext);
+        repositoryFactory.close();
+        repositoryFactory.deleteDatabase();
     }
 
     @After
@@ -54,16 +56,6 @@ public class RepositoryFactoryTest{
         database.setVersion(version);
         assertThat("Could not set database version",
                 database.getVersion(), is(version));
-    }
-
-    @Test
-    public void testMigrate() throws Exception {
-        AndroidClientDatabase database = repositoryFactory.getAndroidClientDatabase();
-        assertThat("Database version doesn't start at 0",
-                database.getVersion(), is(0L));
-        database.migrate();
-        assertThat("Database version not changed after migrate()",
-                database.getVersion(), is(1460987825L));
     }
 
 }

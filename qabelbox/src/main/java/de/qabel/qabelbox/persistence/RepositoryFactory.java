@@ -49,6 +49,7 @@ public class RepositoryFactory {
     }
 
     public void deleteDatabase() {
+        close();
         try {
             FileOutputStream outputStream = context.openFileOutput(DB_REPOSITORIES, Context.MODE_PRIVATE);
             outputStream.write(1);

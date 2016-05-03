@@ -134,6 +134,7 @@ public class SqliteIdentityRepository extends AbstractSqliteRepository<Identity>
             statement.setString(i++, identity.getEmail());
             statement.setString(i++, identity.getPhone());
             statement.setInt(i++, contactId);
+            statement.execute();
         }
     }
 

@@ -1,6 +1,7 @@
 package de.qabel.qabelbox.ui;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.PowerManager;
 import android.support.design.internal.NavigationMenuItemView;
 import android.support.test.espresso.ViewAssertion;
@@ -31,6 +32,7 @@ import de.qabel.qabelbox.communication.URLs;
 import de.qabel.qabelbox.exceptions.QblStorageEntityExistsException;
 import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.helper.AccountHelper;
+import de.qabel.qabelbox.helper.Helper;
 import de.qabel.qabelbox.services.LocalQabelService;
 import de.qabel.qabelbox.ui.helper.SystemAnimations;
 import de.qabel.qabelbox.ui.helper.UIActionHelper;
@@ -53,7 +55,6 @@ import static android.support.test.espresso.matcher.ViewMatchers.withClassName;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static android.support.test.espresso.matcher.ViewMatchers.withParent;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
-import static android.test.MoreAsserts.assertNotEmpty;
 import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertTrue;
@@ -210,7 +211,7 @@ public class ChatMessageUITest {
         assertThat(1, is(newMessageCount));
         assertTrue(chatServer.hasNewMessages(identity, contact1));
         assertFalse(chatServer.hasNewMessages(identity, contact2));
-        onDemandSync();
+        refreshViewIntent(context);
 
 
         //check if new view indicator displayed on correct user and click on this item
@@ -219,7 +220,7 @@ public class ChatMessageUITest {
         //check if RecyclerView contain correct count of data
         onView(withId(R.id.contact_chat_list)).check(matches(QabelMatcher.withListSize(1)));
         pressBack();
-        onDemandSync();
+        refreshViewIntent(context);
         //check if indicator not displayed (we have viewed the item)
         checkVisibilityState(contact1Alias, QabelMatcher.isInvisible());
 
@@ -230,6 +231,13 @@ public class ChatMessageUITest {
                 contact.getDropUrls(),contact.getEcPublicKey());
 		mBoxHelper.getService().addContact(asContact, identity);
         return asContact;
+    }
+
+    private void refreshViewIntent(Context context) {
+        Intent intent = new Intent(Helper.INTENT_REFRESH_CONTACTLIST);
+        context.sendBroadcast(intent);
+        Intent chatIntent = new Intent(Helper.INTENT_REFRESH_CHAT);
+        context.sendBroadcast(chatIntent);
     }
 
     private void onDemandSync() {

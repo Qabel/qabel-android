@@ -1,9 +1,5 @@
 package de.qabel.qabelbox.ui;
 
-/**
- * Created by danny on 05.01.2016.
- */
-
 import android.os.PowerManager;
 import android.support.test.espresso.action.ViewActions;
 import android.support.test.rule.ActivityTestRule;
@@ -58,7 +54,6 @@ public class WelcomeScreenUITest {
         @Override
         protected void beforeActivityLaunched() {
             super.beforeActivityLaunched();
-            mActivity = mActivityTestRule.getActivity();
             UIBoxHelper mBoxHelper = new UIBoxHelper(QabelBoxApplication.getInstance());
             mBoxHelper.bindService(QabelBoxApplication.getInstance());
             mBoxHelper.createTokenIfNeeded(false);
@@ -75,10 +70,6 @@ public class WelcomeScreenUITest {
     private PowerManager.WakeLock wakeLock;
     private SystemAnimations mSystemAnimations;
     private AppPreference prefs;
-
-    public WelcomeScreenUITest() throws IOException {
-
-    }
 
     @After
     public void cleanUp() {

@@ -3,8 +3,6 @@ package de.qabel.qabelbox.ui;
 import android.os.PowerManager;
 import android.support.test.espresso.action.ViewActions;
 import android.support.test.rule.ActivityTestRule;
-import android.test.FlakyTest;
-import android.test.suitebuilder.annotation.LargeTest;
 
 import com.squareup.spoon.Spoon;
 
@@ -18,7 +16,6 @@ import org.junit.runners.MethodSorters;
 
 import java.io.IOException;
 
-import de.qabel.core.config.Identity;
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.activities.WelcomeScreenActivity;
@@ -41,11 +38,6 @@ import static android.support.test.espresso.matcher.ViewMatchers.withText;
 import static junit.framework.Assert.assertTrue;
 
 
-/**
- * Tests for MainActivity.
- */
-
-@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class WelcomeScreenUITest {
 
     @Rule
@@ -85,7 +77,6 @@ public class WelcomeScreenUITest {
 
 
     @Test
-    @Ignore
     public void testWelcomeScreenSlide() {
         int pagerId = R.id.pager;
         onView(withId(R.id.btn_show_sources)).check(matches(isDisplayed()));

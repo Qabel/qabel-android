@@ -10,7 +10,7 @@ import de.qabel.desktop.repository.IdentityRepository;
 import de.qabel.desktop.repository.exception.EntityNotFoundExcepion;
 import de.qabel.desktop.repository.exception.PersistenceException;
 
-public class PersistenceMigrator {
+public class PersistenceMigration {
 
     public static void migrate(AndroidPersistence persistence,
                                IdentityRepository identityRepository,
@@ -28,6 +28,7 @@ public class PersistenceMigrator {
                 contactRepository.save(contact, identity);
             }
         }
-
+        persistence.dropTable(Identity.class);
+        persistence.dropTable(Contacts.class);
     }
 }

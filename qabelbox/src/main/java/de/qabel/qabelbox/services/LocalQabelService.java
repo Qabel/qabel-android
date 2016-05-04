@@ -54,11 +54,11 @@ import de.qabel.desktop.repository.IdentityRepository;
 import de.qabel.desktop.repository.exception.EntityNotFoundExcepion;
 import de.qabel.desktop.repository.exception.PersistenceException;
 import de.qabel.desktop.repository.sqlite.AndroidClientDatabase;
-import de.qabel.desktop.repository.sqlite.MigrationException;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.activities.MainActivity;
 import de.qabel.qabelbox.exceptions.QblStorageEntityExistsException;
 import de.qabel.qabelbox.persistence.AndroidPersistence;
+import de.qabel.qabelbox.persistence.PersistenceMigration;
 import de.qabel.qabelbox.persistence.QblSQLiteParams;
 import de.qabel.qabelbox.persistence.RepositoryFactory;
 import de.qabel.qabelbox.providers.DocumentIdParser;
@@ -531,13 +531,22 @@ public class LocalQabelService extends Service implements DropConnector {
         Log.i(TAG, "LocalQabelService created");
         dropHTTP = new DropHTTP();
         initSharedPreferences();
-        initAndroidPersistence();
         initRepositories();
+        try {
+            migratePersistence();
+        } catch (EntityNotFoundExcepion | PersistenceException e) {
+            Log.e(TAG, "Migration of identities and contatcs failed", e);
+        }
         pendingUploads = new HashMap<>();
         documentIdParser = new DocumentIdParser();
         cachedFinishedUploads = Collections.synchronizedMap(new HashMap<>());
         uploadingQueue = new LinkedBlockingDeque<>();
 
+    }
+
+    private void migratePersistence() throws EntityNotFoundExcepion, PersistenceException {
+        initAndroidPersistence();
+        PersistenceMigration.migrate(persistence, identityRepository, contactRepository);
     }
 
     public AndroidPersistence getPersistence() {

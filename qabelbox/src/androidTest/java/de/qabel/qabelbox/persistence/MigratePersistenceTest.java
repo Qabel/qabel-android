@@ -14,7 +14,6 @@ import de.qabel.core.config.Contact;
 import de.qabel.core.config.Contacts;
 import de.qabel.core.config.Identity;
 import de.qabel.core.crypto.QblECKeyPair;
-import de.qabel.core.crypto.QblECPublicKey;
 import de.qabel.desktop.config.factory.DropUrlGenerator;
 import de.qabel.desktop.config.factory.IdentityBuilderFactory;
 import de.qabel.desktop.repository.IdentityRepository;
@@ -74,7 +73,7 @@ public class MigratePersistenceTest {
 
     @Test
     public void testIdentitiesMigrated() throws Exception {
-        PersistenceMigrator.migrate(androidPersistence, identityRepository, contactRepository);
+        PersistenceMigration.migrate(androidPersistence, identityRepository, contactRepository);
         assertThat(identityRepository.findAll().getIdentities().size(), is(2));
         assertThat("Identity 'first' not found", identityRepository.find(first.getKeyIdentifier()),
                 notNullValue());
@@ -97,7 +96,7 @@ public class MigratePersistenceTest {
         secondContacts.put(contact1);
         androidPersistence.persistEntity(secondContacts);
 
-        PersistenceMigrator.migrate(androidPersistence, identityRepository, contactRepository);
+        PersistenceMigration.migrate(androidPersistence, identityRepository, contactRepository);
         Contacts firstMigrated = contactRepository.find(first);
         assertThat("Not all contacts found for 'first' identity",
                 firstMigrated.getContacts().size(), equalTo(3));
@@ -111,4 +110,12 @@ public class MigratePersistenceTest {
         assertThat("contact1 not found in 'second'", secondMigrated.contains(contact1));
         assertThat("contact2 not found in 'second'", secondMigrated.contains(contact2));
     }
+
+    @Test
+    public void testPersistenceEmptyAfterMigration() throws Exception {
+        PersistenceMigration.migrate(androidPersistence, identityRepository, contactRepository);
+        assertThat(androidPersistence.getEntities(Identity.class), empty());
+        assertThat(androidPersistence.getEntities(Contacts.class), empty());
+    }
+
 }

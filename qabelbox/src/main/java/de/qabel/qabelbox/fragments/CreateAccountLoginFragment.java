@@ -33,6 +33,14 @@ public class CreateAccountLoginFragment extends BaseIdentityFragment {
 
     private BoxAccountRegisterServer mBoxAccountServer;
     private View resetPassword;
+    private String account_email;
+    private String account_name;
+
+    @Override
+    public void setArguments(Bundle args) {
+        account_name = args.getString(ACCOUNT_NAME);
+        account_email = args.getString(ACCOUNT_EMAIL);
+    }
 
     @Nullable
     @Override
@@ -41,6 +49,10 @@ public class CreateAccountLoginFragment extends BaseIdentityFragment {
 
         View view = inflater.inflate(R.layout.fragment_create_account_login, container, false);
         etUserName = ((TextView) view.findViewById(R.id.et_username));
+        if (account_name != null) {
+            etUserName.setText(account_name);
+            etUserName.setEnabled(false);
+        }
         etPassword = (EditText) view.findViewById(R.id.et_password);
         resetPassword = view.findViewById(R.id.reset_password);
 
@@ -50,7 +62,11 @@ public class CreateAccountLoginFragment extends BaseIdentityFragment {
 
                 getFragmentManager().popBackStack();
                 CreateAccountResetPasswordFragment fragment = new CreateAccountResetPasswordFragment();
-                getActivity().getFragmentManager().beginTransaction().replace(R.id.fragment_container_content, fragment).addToBackStack(null).commit();
+                Bundle bundle = new Bundle();
+                bundle.putString(ACCOUNT_EMAIL, account_email);
+                fragment.setArguments(bundle);
+                getActivity().getFragmentManager().beginTransaction().replace(
+                        R.id.fragment_container_content, fragment).addToBackStack(null).commit();
             }
         });
         setHasOptionsMenu(true);

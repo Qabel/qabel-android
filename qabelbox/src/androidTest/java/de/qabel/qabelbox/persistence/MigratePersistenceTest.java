@@ -12,14 +12,17 @@ import org.junit.runner.RunWith;
 import de.qabel.core.config.Contacts;
 import de.qabel.core.config.Identity;
 import de.qabel.desktop.config.factory.DropUrlGenerator;
-import de.qabel.desktop.config.factory.IdentityBuilder;
+import de.qabel.desktop.config.factory.IdentityBuilderFactory;
 import de.qabel.desktop.repository.IdentityRepository;
 import de.qabel.desktop.repository.sqlite.AndroidClientDatabase;
 import de.qabel.desktop.repository.sqlite.SqliteContactRepository;
 import de.qabel.qabelbox.QabelBoxApplication;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.empty;
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.notNullValue;
 
 @RunWith(AndroidJUnit4.class)
@@ -40,6 +43,7 @@ public class MigratePersistenceTest {
         factory.deleteDatabase();
         AndroidClientDatabase androidClientDatabase = factory.getAndroidClientDatabase();
         identityRepository = factory.getIdentityRepository(androidClientDatabase);
+        assertThat(identityRepository.findAll().getIdentities(), empty());
         contactRepository = factory.getContactRepository(androidClientDatabase);
 
         QblSQLiteParams params = new QblSQLiteParams(context, "migrate-test", null, 1);
@@ -47,12 +51,14 @@ public class MigratePersistenceTest {
         androidPersistence.dropTable(Identity.class);
         androidPersistence.dropTable(Contacts.class);
 
-        IdentityBuilder identityBuilder = new IdentityBuilder(
+
+        IdentityBuilderFactory builderFactory = new IdentityBuilderFactory(
                 new DropUrlGenerator(QabelBoxApplication.DEFAULT_DROP_SERVER));
-        first = identityBuilder.withAlias("first").build();
-        second = identityBuilder.withAlias("second").build();
+        first = builderFactory.factory().withAlias("first").build();
+        second = builderFactory.factory().withAlias("second").build();
         androidPersistence.persistEntity(first);
         androidPersistence.persistEntity(second);
+        assertThat(first.getEcPublicKey(), not(equalTo(second.getEcPublicKey())));
     }
 
     @Test

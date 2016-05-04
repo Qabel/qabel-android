@@ -51,6 +51,7 @@ import static android.support.test.espresso.Espresso.pressBack;
 import static android.support.test.espresso.action.ViewActions.click;
 import static android.support.test.espresso.action.ViewActions.longClick;
 import static android.support.test.espresso.assertion.ViewAssertions.matches;
+import static android.support.test.espresso.intent.Intents.intended;
 import static android.support.test.espresso.matcher.RootMatchers.isDialog;
 import static android.support.test.espresso.matcher.ViewMatchers.assertThat;
 import static android.support.test.espresso.matcher.ViewMatchers.hasDescendant;
@@ -79,7 +80,7 @@ public class ImportExportContactsUITest {
     private static final String CONTACT_3 = "contact3";
 
     @Rule
-    public ActivityTestRule<MainActivity> mActivityTestRule = new ActivityTestRule<MainActivity>(
+    public IntentsTestRule<MainActivity> mActivityTestRule = new IntentsTestRule<MainActivity>(
             MainActivity.class, false, true) {
         @Override
         protected void beforeActivityLaunched() {
@@ -92,7 +93,6 @@ public class ImportExportContactsUITest {
     private PowerManager.WakeLock wakeLock;
     private SystemAnimations mSystemAnimations;
 
-    private final DocumentIntents intending = new DocumentIntents();
     private Identity identity;
 
     @After
@@ -227,11 +227,10 @@ public class ImportExportContactsUITest {
 
         //Click Send
         onView(withText(R.string.Send)).inRoot(isDialog()).perform(click());
-
         //Check Chooser for SendIntent is visible
-        Intents.intended(allOf(IntentMatchers.hasAction(Intent.ACTION_CHOOSER),
-                IntentMatchers.hasExtra(equalTo(Intent.EXTRA_INTENT),
-                        IntentMatchers.hasAction(Intent.ACTION_SEND))));
+        intended(IntentMatchers.hasExtra(equalTo(Intent.EXTRA_INTENT),
+                        IntentMatchers.hasAction(Intent.ACTION_SEND)));
+
 
         Spoon.screenshot(mActivity, "sendContact");
     }

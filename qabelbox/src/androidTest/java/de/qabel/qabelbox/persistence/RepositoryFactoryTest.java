@@ -24,7 +24,7 @@ public class RepositoryFactoryTest{
     @Before
     public void setUp() {
         mMockContext = new RenamingDelegatingContext(
-                InstrumentationRegistry.getInstrumentation().getTargetContext(), "test_");
+                InstrumentationRegistry.getInstrumentation().getTargetContext(), "factorytest_");
         repositoryFactory = new RepositoryFactory(mMockContext);
         repositoryFactory.close();
         repositoryFactory.deleteDatabase();
@@ -46,7 +46,7 @@ public class RepositoryFactoryTest{
     @Test
     public void testGetDatabasePath() throws Exception {
         assertThat(repositoryFactory.getDatabasePath().getAbsolutePath(),
-                allOf(endsWith("files/test_client-database"), startsWith("/data/")));
+                allOf(endsWith("files/factorytest_client-database"), startsWith("/data/")));
     }
 
     @Test

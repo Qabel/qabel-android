@@ -30,7 +30,7 @@ android {
         minSdkVersion 19
         targetSdkVersion 22
         /*
-        add code to automaticly generate version name and code,
+        add code to automatically generate version name and code,
         on base of timestamp or change it manual*/
 
         versionCode System.getenv("BUILD_NUMBER") as Integer ?: 6

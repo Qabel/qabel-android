@@ -24,9 +24,11 @@ import com.cocosw.bottomsheet.BottomSheet;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 
+import org.apache.commons.io.FileUtils;
 import org.json.JSONException;
 import org.spongycastle.util.encoders.Hex;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -47,6 +49,7 @@ import de.qabel.qabelbox.config.ContactExportImport;
 import de.qabel.qabelbox.config.QabelSchema;
 import de.qabel.qabelbox.exceptions.QblStorageEntityExistsException;
 import de.qabel.qabelbox.helper.AccountHelper;
+import de.qabel.qabelbox.helper.ExternalApps;
 import de.qabel.qabelbox.helper.FileHelper;
 import de.qabel.qabelbox.helper.Helper;
 import de.qabel.qabelbox.helper.UIHelper;
@@ -188,6 +191,23 @@ public class ContactFragment extends BaseFragment {
 
     }
 
+    private String createContactFilename(String contactAlias) {
+        return QabelSchema.FILE_PREFIX_CONTACT + FileHelper.processFilename(contactAlias) +
+                "." + QabelSchema.FILE_SUFFIX_CONTACT;
+    }
+
+    public void exportContactToExternal(Contact contact) {
+        try {
+            String contactJson = ContactExportImport.exportContact(contact);
+            File tmpFile = new File(mActivity.getExternalCacheDir(), createContactFilename(contact.getAlias()));
+            FileUtils.writeStringToFile(tmpFile, contactJson);
+
+            ExternalApps.share(mActivity, Uri.fromFile(tmpFile), "application/json");
+        } catch (IOException | RuntimeException e) {
+            UIHelper.showDialogMessage(mActivity, R.string.dialog_headline_warning, R.string.contact_export_failed, e);
+        }
+    }
+
     private void setClickListener() {
 
         contactListAdapter.setOnItemClickListener(new ContactsAdapter.OnItemClickListener() {
@@ -233,8 +253,11 @@ public class ContactFragment extends BaseFragment {
                             case R.id.contact_list_item_export:
                                 exportContact(contact);
                                 break;
-							case R.id.contact_list_item_qrcode:
-								exportContactAsQRCode(contact);
+                            case R.id.contact_list_item_qrcode:
+                                exportContactAsQRCode(contact);
+                                break;
+                            case R.id.contact_list_item_send:
+                                exportContactToExternal(contact);
                                 break;
                         }
                     }
@@ -247,11 +270,11 @@ public class ContactFragment extends BaseFragment {
         AccountHelper.startOnDemandSyncAdapter();
 	}
 
-	private void exportContactAsQRCode(Contact contact) {
+    private void exportContactAsQRCode(Contact contact) {
         mActivity.getFragmentManager().beginTransaction()
-		                .replace(R.id.fragment_container, QRcodeFragment.newInstance(contact), null)
-		                .addToBackStack(null)
-		                .commit();
+                .replace(R.id.fragment_container, QRcodeFragment.newInstance(contact), null)
+                .addToBackStack(null)
+                .commit();
     }
 
     /**

@@ -117,4 +117,8 @@ public class FileHelper {
         cursor.close();
         return result;
     }
+
+    public static String processFilename(String filename){
+        return filename.replaceAll("[^a-zA-Z0-9.-]", "_");
+    }
 }

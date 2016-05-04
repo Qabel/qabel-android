@@ -8,6 +8,8 @@ import android.support.test.InstrumentationRegistry;
 import android.support.test.espresso.contrib.DrawerActions;
 import android.support.test.espresso.contrib.RecyclerViewActions;
 import android.support.test.espresso.intent.Intents;
+import android.support.test.espresso.intent.matcher.IntentMatchers;
+import android.support.test.espresso.intent.rule.IntentsTestRule;
 import android.support.test.rule.ActivityTestRule;
 import android.util.Log;
 
@@ -49,6 +51,7 @@ import static android.support.test.espresso.Espresso.pressBack;
 import static android.support.test.espresso.action.ViewActions.click;
 import static android.support.test.espresso.action.ViewActions.longClick;
 import static android.support.test.espresso.assertion.ViewAssertions.matches;
+import static android.support.test.espresso.matcher.RootMatchers.isDialog;
 import static android.support.test.espresso.matcher.ViewMatchers.assertThat;
 import static android.support.test.espresso.matcher.ViewMatchers.hasDescendant;
 import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
@@ -64,9 +67,17 @@ import static junit.framework.Assert.assertNull;
 import static junit.framework.Assert.assertTrue;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.endsWith;
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 
 public class ImportExportContactsUITest {
+
+    private final String TAG = this.getClass().getSimpleName();
+
+    private static final String CONTACT_1 = "contact1";
+    private static final String CONTACT_2 = "contact2";
+    private static final String CONTACT_3 = "contact3";
+
     @Rule
     public ActivityTestRule<MainActivity> mActivityTestRule = new ActivityTestRule<MainActivity>(
             MainActivity.class, false, true) {
@@ -80,7 +91,6 @@ public class ImportExportContactsUITest {
     private UIBoxHelper mBoxHelper;
     private PowerManager.WakeLock wakeLock;
     private SystemAnimations mSystemAnimations;
-    private final String TAG = this.getClass().getSimpleName();
 
     private final DocumentIntents intending = new DocumentIntents();
     private Identity identity;
@@ -117,9 +127,9 @@ public class ImportExportContactsUITest {
 
         mBoxHelper.setActiveIdentity(identity);
         assertThat(mBoxHelper.getService().getContacts().getContacts().size(), is(0));
-        createContact("user1");
-        createContact("user2");
-        createContact("user3");
+        createContact(CONTACT_1);
+        createContact(CONTACT_2);
+        createContact(CONTACT_3);
         assertThat(mBoxHelper.getService().getContacts().getContacts().size(), is(3));
     }
 
@@ -164,13 +174,11 @@ public class ImportExportContactsUITest {
 
     @Test
     public void testExportContactAsQRCode() {
-
-        String userName = "user1";
         goToContacts();
 
-        onView(withId(R.id.contact_list)).perform(RecyclerViewActions.actionOnItem(hasDescendant(withText(userName)), longClick()));
+        onView(withId(R.id.contact_list)).perform(RecyclerViewActions.actionOnItem(hasDescendant(withText(CONTACT_1)), longClick()));
         onView(withText(R.string.ExportAsContactWithQRcode)).check(matches(isDisplayed())).perform(click());
-        onView(withText(userName)).check(matches(isDisplayed()));
+        onView(withText(CONTACT_1)).check(matches(isDisplayed()));
         QabelMatcher.matchToolbarTitle(mActivity.getString(R.string.headline_qrcode)).check(matches(isDisplayed()));
         Spoon.screenshot(mActivity, "contactQR");
 
@@ -179,7 +187,7 @@ public class ImportExportContactsUITest {
     @Test
     public void testExportSingleContact() throws Exception {
 
-        String userName = "user1";
+        String userName = "contact1";
         File file1 = new File(mActivity.getCacheDir(), "testexportcontact");
         goToContacts();
 
@@ -203,6 +211,29 @@ public class ImportExportContactsUITest {
 		Contact importedContact = ContactExportImport.parseContactForIdentity(identity, checkFile(file1));
 		assertEquals(importedContact.getAlias(), userName);
 
+    }
+
+    @Test
+    public void testExportContactToExternal(){
+        goToContacts();
+
+        //Open dialog for Contact 1
+        onView(withId(R.id.contact_list))
+                .perform(RecyclerViewActions.actionOnItem(
+                        hasDescendant(withText(CONTACT_1)), longClick()));
+
+        //Check contact dialog
+        onView(withText(CONTACT_1)).inRoot(isDialog()).check(matches(isDisplayed()));
+
+        //Click Send
+        onView(withText(R.string.Send)).inRoot(isDialog()).perform(click());
+
+        //Check Chooser for SendIntent is visible
+        Intents.intended(allOf(IntentMatchers.hasAction(Intent.ACTION_CHOOSER),
+                IntentMatchers.hasExtra(equalTo(Intent.EXTRA_INTENT),
+                        IntentMatchers.hasAction(Intent.ACTION_SEND))));
+
+        Spoon.screenshot(mActivity, "sendContact");
     }
 
     @Test

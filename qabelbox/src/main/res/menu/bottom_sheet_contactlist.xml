@@ -9,6 +9,10 @@
         android:title="@string/ExportAsContactWithQRcode"
         android:icon="@drawable/qrcode"/>
     <item
+        android:id="@+id/contact_list_item_send"
+        android:title="@string/Send"
+        android:icon="@drawable/share_variant"/>
+    <item
         android:id="@+id/contact_list_item_delete"
         android:title="@string/Delete"
         android:icon="@drawable/delete"/>

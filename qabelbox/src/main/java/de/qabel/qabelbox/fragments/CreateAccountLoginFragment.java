@@ -169,7 +169,6 @@ public class CreateAccountLoginFragment extends BaseIdentityFragment {
     public String check() {
 
         UIHelper.showDialogMessage(getActivity(), R.string.dialog_headline_info, R.string.function_not_yet_implenented);
-        //return mChecker.check(editText);
         return null;
     }
 }

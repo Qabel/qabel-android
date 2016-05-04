@@ -762,6 +762,8 @@ public class MainActivity extends CrashReportingActivity
             selectAboutFragment();
         } else if (id == R.id.nav_help) {
             selectHelpFragment();
+        } else if (id == R.id.nav_logout) {
+			performLogout();
         }
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
@@ -1147,6 +1149,18 @@ public class MainActivity extends CrashReportingActivity
 
             }
         });
+    }
+
+    private void performLogout() {
+        new AppPreference(this).logout();
+        swapWithCreateAccountActivity();
+    }
+
+    private void swapWithCreateAccountActivity() {
+        Intent intent = new Intent(self, CreateAccountActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_TASK_ON_HOME);
+        startActivity(intent);
+        finish();
     }
 
     public static void showQRCode(MainActivity activity, Identity identity) {

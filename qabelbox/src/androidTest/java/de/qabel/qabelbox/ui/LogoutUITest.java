@@ -30,7 +30,7 @@ import static android.support.test.espresso.matcher.ViewMatchers.withText;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
 
-public class LogoutLoginUITest {
+public class LogoutUITest {
     public static final String ACCOUNT_NAME = "account_name";
     public static final String ACCOUNT_E_MAIL = "accountmail@example.com";
     IntentsTestRule<MainActivity> mainActivityActivityTestRule =

@@ -17,6 +17,7 @@ import de.qabel.core.crypto.QblECKeyPair;
 import de.qabel.desktop.config.factory.DropUrlGenerator;
 import de.qabel.desktop.config.factory.IdentityBuilderFactory;
 import de.qabel.desktop.repository.IdentityRepository;
+import de.qabel.desktop.repository.exception.PersistenceException;
 import de.qabel.desktop.repository.sqlite.AndroidClientDatabase;
 import de.qabel.desktop.repository.sqlite.SqliteContactRepository;
 import de.qabel.qabelbox.QabelBoxApplication;
@@ -38,6 +39,9 @@ public class MigratePersistenceTest {
     private Identity second;
     private IdentityRepository identityRepository;
     private SqliteContactRepository contactRepository;
+    private Contact contact1;
+    private Contact contact2;
+    private Contact contact3;
 
     @Before
     public void setUp() throws Exception {
@@ -83,20 +87,12 @@ public class MigratePersistenceTest {
 
     @Test
     public void testContactsMigrated() throws Exception {
-        Contact contact1 = new Contact("contact1", first.getDropUrls(), first.getEcPublicKey());
-        Contact contact2 = new Contact("contact2", second.getDropUrls(), second.getEcPublicKey());
-        Contact contact3 = new Contact("contact3", first.getDropUrls(), new QblECKeyPair().getPub());
-        Contacts firstContacts = new Contacts(first);
-        firstContacts.put(contact2);
-        firstContacts.put(contact1);
-        firstContacts.put(contact3);
-        androidPersistence.persistEntity(firstContacts);
-        Contacts secondContacts = new Contacts(second);
-        secondContacts.put(contact2);
-        secondContacts.put(contact1);
-        androidPersistence.persistEntity(secondContacts);
-
+        insertContacts();
         PersistenceMigration.migrate(androidPersistence, identityRepository, contactRepository);
+        assertContactsMigrated();
+    }
+
+    public void assertContactsMigrated() throws PersistenceException {
         Contacts firstMigrated = contactRepository.find(first);
         assertThat("Not all contacts found for 'first' identity",
                 firstMigrated.getContacts().size(), equalTo(3));
@@ -111,11 +107,34 @@ public class MigratePersistenceTest {
         assertThat("contact2 not found in 'second'", secondMigrated.contains(contact2));
     }
 
+    public void insertContacts() {
+        contact1 = new Contact("contact1", first.getDropUrls(), first.getEcPublicKey());
+        contact2 = new Contact("contact2", second.getDropUrls(), second.getEcPublicKey());
+        contact3 = new Contact("contact3", first.getDropUrls(), new QblECKeyPair().getPub());
+        Contacts firstContacts = new Contacts(first);
+        firstContacts.put(contact2);
+        firstContacts.put(contact1);
+        firstContacts.put(contact3);
+        androidPersistence.persistEntity(firstContacts);
+        Contacts secondContacts = new Contacts(second);
+        secondContacts.put(contact2);
+        secondContacts.put(contact1);
+        androidPersistence.persistEntity(secondContacts);
+    }
+
     @Test
     public void testPersistenceEmptyAfterMigration() throws Exception {
         PersistenceMigration.migrate(androidPersistence, identityRepository, contactRepository);
         assertThat(androidPersistence.getEntities(Identity.class), empty());
         assertThat(androidPersistence.getEntities(Contacts.class), empty());
+    }
+
+    @Test
+    public void testIdempotent() throws Exception {
+        insertContacts();
+        PersistenceMigration.migrate(androidPersistence, identityRepository, contactRepository);
+        PersistenceMigration.migrate(androidPersistence, identityRepository, contactRepository);
+        assertContactsMigrated();
     }
 
 }

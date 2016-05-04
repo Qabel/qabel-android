@@ -76,7 +76,8 @@ public class ImportExportContactsUITest {
     private static final String CONTACT_3 = "contact3";
 
     @Rule
-    public IntentsTestRule<MainActivity> mActivityTestRule = new IntentsTestRule<>(MainActivity.class, false, true);
+    public IntentsTestRule<MainActivity> mActivityTestRule =
+            new MainActivityWithoutFilesFragmentTestRule(true);
     private MainActivity mActivity;
     private UIBoxHelper mBoxHelper;
     private PowerManager.WakeLock wakeLock;

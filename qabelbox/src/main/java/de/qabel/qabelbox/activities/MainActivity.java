@@ -115,6 +115,10 @@ public class MainActivity extends CrashReportingActivity
     private static final int REQUEST_CODE_OPEN = 21;
     private static final int REQUEST_CODE_DELETE_FILE = 22;
 
+    // Intent extra to specifiy if the files fragment should be started
+    // Defaults to true and is used in tests to shortcut the activity creation
+    public static final String START_FILES_FRAGMENT = "START_FILES_FRAGMENT";
+
     private DrawerLayout drawer;
     public BoxVolume boxVolume;
     public ActionBarDrawerToggle toggle;
@@ -400,6 +404,7 @@ public class MainActivity extends CrashReportingActivity
 
         // Checks if a fragment should be launched
 
+        boolean start_files_fragment = intent.getBooleanExtra(START_FILES_FRAGMENT, true);
         if (type != null && intent != null && intent.getAction() != null) {
             String scheme = intent.getScheme();
 
@@ -430,11 +435,15 @@ public class MainActivity extends CrashReportingActivity
                     }
                     break;
                 default:
-                    initAndSelectFilesFragment();
+                    if (start_files_fragment) {
+                        initAndSelectFilesFragment();
+                    }
                     break;
             }
         } else {
-            initAndSelectFilesFragment();
+            if (start_files_fragment) {
+                initAndSelectFilesFragment();
+            }
         }
     }
 

@@ -1,15 +1,15 @@
 package de.qabel.qabelbox.ui;
 
 import android.content.Context;
+import android.content.Intent;
 import android.support.test.InstrumentationRegistry;
-import android.support.test.rule.ActivityTestRule;
+import android.support.test.espresso.intent.Intents;
+import android.support.test.espresso.intent.rule.IntentsTestRule;
 
-import org.hamcrest.Matchers;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import de.qabel.core.config.Identity;
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.TestConstants;
@@ -23,6 +23,7 @@ import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.action.ViewActions.click;
 import static android.support.test.espresso.assertion.ViewAssertions.matches;
 import static android.support.test.espresso.contrib.DrawerActions.openDrawer;
+import static android.support.test.espresso.intent.matcher.IntentMatchers.*;
 import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
@@ -32,8 +33,8 @@ import static org.junit.Assert.*;
 public class LogoutLoginUITest {
     public static final String ACCOUNT_NAME = "account_name";
     public static final String ACCOUNT_E_MAIL = "accountmail@example.com";
-    ActivityTestRule<MainActivity> mainActivityActivityTestRule =
-            new ActivityTestRule<>(MainActivity.class, true, false);
+    IntentsTestRule<MainActivity> mainActivityActivityTestRule =
+            new MainActivityWithoutFilesFragmentTestRule();
     private AppPreference appPreference;
     private LocalQabelService service;
 
@@ -75,7 +76,12 @@ public class LogoutLoginUITest {
 		onView(withText(R.string.logout))
 				.check(matches(isDisplayed()))
 				.perform(click());
-		onView(withId(R.id.bt_login)).check(matches(isDisplayed()));
+        Intents.intended(allOf(
+                hasFlag(Intent.FLAG_ACTIVITY_CLEAR_TASK),
+                hasFlag(Intent.FLAG_ACTIVITY_TASK_ON_HOME),
+                hasComponent("de.qabel.qabelbox.activities.CreateAccountActivity")));
+        onView(withId(R.id.bt_login)).check(matches(isDisplayed()));
+
         assertIdentitiesNotDeleted();
         assertThat("Login token not deleted", appPreference.getToken(), nullValue());
         assertThat("Login name deleted", appPreference.getAccountName(), notNullValue());
@@ -85,4 +91,5 @@ public class LogoutLoginUITest {
     public void assertIdentitiesNotDeleted() {
         assertThat(service.getIdentities().getIdentities(), not(empty()));
     }
+
 }

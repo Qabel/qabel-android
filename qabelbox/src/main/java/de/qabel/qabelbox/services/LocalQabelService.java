@@ -540,6 +540,10 @@ public class LocalQabelService extends Service implements DropConnector {
 
     }
 
+    public AndroidPersistence getPersistence() {
+        return persistence;
+    }
+
     public void initRepositories() {
         RepositoryFactory repositoryFactory = new RepositoryFactory(getApplicationContext());
         try {

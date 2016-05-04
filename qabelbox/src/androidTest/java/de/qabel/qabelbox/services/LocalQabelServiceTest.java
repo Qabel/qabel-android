@@ -26,7 +26,6 @@ public class LocalQabelServiceTest extends ServiceTestCase<LocalQabelServiceTest
     private LocalQabelServiceTester mService;
     private Identity identity;
     private Contact contact;
-    protected static final String DB_NAME = "qabel-service-test";
 
     public LocalQabelServiceTest() {
         super(LocalQabelServiceTester.class);

@@ -65,10 +65,6 @@ import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.endsWith;
 import static org.hamcrest.Matchers.is;
 
-/**
- * Tests for MainActivity.
- */
-
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class CreateBoxAccountUITest extends UIBoxHelper {
 

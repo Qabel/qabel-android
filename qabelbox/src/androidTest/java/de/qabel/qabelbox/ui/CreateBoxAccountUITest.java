@@ -6,6 +6,7 @@ package de.qabel.qabelbox.ui;
 
 import android.os.PowerManager;
 import android.support.annotation.Nullable;
+import android.support.test.InstrumentationRegistry;
 import android.support.test.rule.ActivityTestRule;
 import android.test.FlakyTest;
 import android.text.InputType;
@@ -69,7 +70,7 @@ import static org.hamcrest.Matchers.is;
 public class CreateBoxAccountUITest extends UIBoxHelper {
 
     @Rule
-    public ActivityTestRule<CreateAccountActivity> mActivityTestRule = new ActivityTestRule<>(CreateAccountActivity.class, false, true);
+    public ActivityTestRule<CreateAccountActivity> mActivityTestRule = new ActivityTestRule<>(CreateAccountActivity.class, false, false);
 
     private CreateAccountActivity mActivity;
 
@@ -89,12 +90,12 @@ public class CreateBoxAccountUITest extends UIBoxHelper {
     @Before
     public void setUp() throws IOException, QblStorageException {
 
-        mActivity = mActivityTestRule.getActivity();
         URLs.setBaseAccountingURL(TestConstants.ACCOUNTING_URL);
 
         bindService(QabelBoxApplication.getInstance());
-        new AppPreference(mActivity).setToken(null);
+        new AppPreference(InstrumentationRegistry.getTargetContext()).clear();
 
+        mActivity = mActivityTestRule.launchActivity(null);
         wakeLock = UIActionHelper.wakeupDevice(mActivity);
         mSystemAnimations = new SystemAnimations(mActivity);
         mSystemAnimations.disableAll();

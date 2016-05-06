@@ -18,6 +18,7 @@ import de.qabel.qabelbox.communication.URLs;
 import de.qabel.qabelbox.config.AppPreference;
 import de.qabel.qabelbox.services.LocalQabelService;
 import de.qabel.qabelbox.ui.helper.UIBoxHelper;
+import de.qabel.qabelbox.ui.helper.UITestHelper;
 
 import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.action.ViewActions.click;
@@ -80,7 +81,7 @@ public class LogoutUITest {
                 hasFlag(Intent.FLAG_ACTIVITY_CLEAR_TASK),
                 hasFlag(Intent.FLAG_ACTIVITY_TASK_ON_HOME),
                 hasComponent("de.qabel.qabelbox.activities.CreateAccountActivity")));
-        onView(withId(R.id.bt_login)).check(matches(isDisplayed()));
+        onView(withText(R.string.create_account_login_infos)).check(matches(isDisplayed()));
 
         assertIdentitiesNotDeleted();
         assertThat("Login token not deleted", appPreference.getToken(), nullValue());

@@ -58,10 +58,10 @@ public class SplashUITest {
     @Before
     public void setUp() throws IOException, QblStorageException {
         new AppPreference(InstrumentationRegistry.getTargetContext()).setWelcomeScreenShownAt(1);
+        mActivity = mActivityTestRule.launchActivity(null);
         wakeLock = UIActionHelper.wakeupDevice(mActivity);
         mSystemAnimations = new SystemAnimations(mActivity);
         mSystemAnimations.disableAll();
-        mActivity = mActivityTestRule.launchActivity(null);
     }
 
 

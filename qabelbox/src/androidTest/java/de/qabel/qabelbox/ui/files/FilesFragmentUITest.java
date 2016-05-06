@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.PowerManager;
 import android.support.design.internal.NavigationMenuItemView;
 import android.support.test.espresso.intent.rule.IntentsTestRule;
+import android.util.Log;
 
 import com.squareup.spoon.Spoon;
 
@@ -32,6 +33,7 @@ import de.qabel.qabelbox.ui.helper.UIActionHelper;
 import de.qabel.qabelbox.ui.helper.UIBoxHelper;
 import de.qabel.qabelbox.ui.helper.UITestHelper;
 import de.qabel.qabelbox.ui.matcher.QabelMatcher;
+import de.qabel.qabelbox.ui.matcher.ToastMatcher;
 import de.qabel.qabelbox.ui.matcher.ToolbarMatcher;
 
 import static android.support.test.espresso.Espresso.onView;
@@ -44,7 +46,6 @@ import static android.support.test.espresso.contrib.DrawerActions.openDrawer;
 import static android.support.test.espresso.intent.Intents.intended;
 import static android.support.test.espresso.intent.matcher.IntentMatchers.hasAction;
 import static android.support.test.espresso.intent.matcher.IntentMatchers.hasExtra;
-import static android.support.test.espresso.matcher.RootMatchers.withDecorView;
 import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static android.support.test.espresso.matcher.ViewMatchers.withClassName;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
@@ -54,13 +55,14 @@ import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.endsWith;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
 
 /**
  * UI Tests for FilesFragment
  */
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class FilesFragmentUITest {
+
+    private final String TAG = this.getClass().getSimpleName();
 
     private static final String CREATE_FOLDER_TEST_NAME = "TestDirectory";
 
@@ -69,7 +71,6 @@ public class FilesFragmentUITest {
 
     private MainActivity mActivity;
     private UIBoxHelper mBoxHelper;
-    private final boolean mFillAccount = true;
     private PowerManager.WakeLock wakeLock;
     private SystemAnimations mSystemAnimations;
 
@@ -82,11 +83,8 @@ public class FilesFragmentUITest {
     private List<ExampleFile> exampleFiles = Arrays.asList(
             new ExampleFile("testfile 2", new byte[1011]),
             new ExampleFile("red.png", new byte[1]),
-            new ExampleFile("green.png", new byte[100]),
             new ExampleFile("black_1.png", new byte[1011]),
-            new ExampleFile("black_2.png", new byte[1024 * 10]),
-            new ExampleFile("white.png", new byte[1011]),
-            new ExampleFile("blue.png", new byte[1011]));
+            new ExampleFile("black_2.png", new byte[1024 * 2]));
 
     private class ExampleFile {
 
@@ -108,38 +106,15 @@ public class FilesFragmentUITest {
 
     }
 
-    public FilesFragmentUITest() throws Exception {
-        //setup data before MainActivity launched. This avoid the call to create identity
-        if (mFillAccount) {
+    public FilesFragmentUITest(){
+        try {
             setupData();
+        } catch (Exception e) {
+            Log.e(TAG, "Cannot setupData", e);
         }
     }
 
-    @After
-    public void cleanUp() {
-
-        for (ExampleFile exampleFile : exampleFiles) {
-            mBoxHelper.deleteFile(mActivity, testIdentity, exampleFile.getName(), "");
-        }
-        mBoxHelper.getService().deleteContact(testContact);
-        mBoxHelper.deleteIdentity(testIdentity);
-        mBoxHelper.deleteIdentity(testIdentity2);
-
-        wakeLock.release();
-        mSystemAnimations.enableAll();
-        mBoxHelper.unbindService(QabelBoxApplication.getInstance());
-    }
-
-    @Before
-    public void setUp() throws IOException, QblStorageException {
-
-        mActivity = mActivityTestRule.getActivity();
-        wakeLock = UIActionHelper.wakeupDevice(mActivity);
-        mSystemAnimations = new SystemAnimations(mActivity);
-        mSystemAnimations.disableAll();
-    }
-
-    private void setupData() throws Exception {
+    private void setupData() throws IOException, QblStorageException {
         URLs.setBaseBlockURL(TestConstants.BLOCK_URL);
         mActivity = mActivityTestRule.getActivity();
         mBoxHelper = new UIBoxHelper(QabelBoxApplication.getInstance());
@@ -160,15 +135,26 @@ public class FilesFragmentUITest {
 
         mBoxHelper.setActiveIdentity(testIdentity2);
 
-        uploadTestFiles();
-    }
-
-    //Upload the example files
-    private void uploadTestFiles() {
         for (ExampleFile exampleFile : exampleFiles) {
             mBoxHelper.uploadFile(mBoxHelper.mBoxVolume, exampleFile.getName(), exampleFile.getData(), "");
         }
         mBoxHelper.waitUntilFileCount(exampleFiles.size());
+    }
+
+    @After
+    public void cleanUp() throws QblStorageException {
+        wakeLock.release();
+        mSystemAnimations.enableAll();
+        mBoxHelper.unbindService(QabelBoxApplication.getInstance());
+    }
+
+    @Before
+    public void setUp() throws IOException, QblStorageException {
+        URLs.setBaseBlockURL(TestConstants.BLOCK_URL);
+        mActivity = mActivityTestRule.getActivity();
+        wakeLock = UIActionHelper.wakeupDevice(mActivity);
+        mSystemAnimations = new SystemAnimations(mActivity);
+        mSystemAnimations.disableAll();
     }
 
     @Test
@@ -186,12 +172,13 @@ public class FilesFragmentUITest {
         //Check Contact is Visible
         onView(withText(testContact.getAlias())).check(matches(isDisplayed()));
 
+        //Perform share
         onView(withText(R.string.ok)).perform(click());
 
-        UITestHelper.sleep(1000);
+        UITestHelper.sleep(200);
 
         //Check success message
-        onView(withText(R.string.messsage_file_shared)).inRoot(withDecorView(not(is(mActivity.getWindow().getDecorView())))).check(matches(isDisplayed()));
+        onView(withText(R.string.messsage_file_shared)).inRoot(ToastMatcher.isToast()).check(matches(isDisplayed()));
 
         //Change to other identity
         openDrawer(R.id.drawer_layout);
@@ -231,8 +218,6 @@ public class FilesFragmentUITest {
         onView(withText(exampleFiles.get(0).getName())).perform(longClick());
 
         onView(withText(R.string.Send)).perform(click());
-
-        UITestHelper.sleep(1000);
 
         //Check Chooser
         intended(allOf(hasAction(Intent.ACTION_CHOOSER), hasExtra(Intent.EXTRA_TITLE, mActivity.getString(R.string.share_via))));

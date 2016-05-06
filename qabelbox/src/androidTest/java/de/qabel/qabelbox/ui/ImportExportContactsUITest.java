@@ -193,7 +193,6 @@ public class ImportExportContactsUITest {
                         hasDescendant(withText(userName)), longClick()));
         Spoon.screenshot(mActivity, "exportOne");
         if (canHandleIntening()) {
-            Intents.init();
             intending.handleSaveFileIntent(file1);
             onView(withText(R.string.Export)).check(matches(isDisplayed())).perform(click());
             Intents.release();
@@ -255,7 +254,6 @@ public class ImportExportContactsUITest {
 
         Spoon.screenshot(mActivity, "exportAll");
         if (canHandleIntening()) {
-            Intents.init();
             intending.handleSaveFileIntent(file1);
             onView(withText(R.string.contact_export_all)).perform(click());
             Intents.release();
@@ -293,7 +291,6 @@ public class ImportExportContactsUITest {
 
         if (canHandleIntening()) {
             Spoon.screenshot(mActivity, "importSingle");
-            Intents.init();
             intending.handleLoadFileIntent(file1);
             onView(withText(R.string.from_file)).perform(click());
             Intents.release();

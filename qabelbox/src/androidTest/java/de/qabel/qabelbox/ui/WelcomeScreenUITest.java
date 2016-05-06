@@ -69,7 +69,7 @@ public class WelcomeScreenUITest {
 
     @Before
     public void setUp() throws IOException, QblStorageException {
-        new AppPreference(InstrumentationRegistry.getTargetContext()).getWelcomeScreenShownAt(0);
+        new AppPreference(InstrumentationRegistry.getTargetContext()).setWelcomeScreenShownAt(0);
         wakeLock = UIActionHelper.wakeupDevice(mActivity);
         mSystemAnimations = new SystemAnimations(mActivity);
         mSystemAnimations.disableAll();
@@ -148,7 +148,8 @@ public class WelcomeScreenUITest {
 
         //click accept
         onView(withText(R.string.btn_welcome_accept)).perform(click());
-        assertTrue(prefs.getWelcomeScreenShownAt() > 0);
+        assertTrue(new AppPreference(InstrumentationRegistry.getTargetContext())
+                .getWelcomeScreenShownAt() > 0);
 
         //check if create box account in foreground
         QabelMatcher.matchToolbarTitle(mActivity.getString(R.string.headline_create_box_account))

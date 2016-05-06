@@ -5,6 +5,7 @@ package de.qabel.qabelbox.ui;
  */
 
 import android.os.PowerManager;
+import android.support.test.InstrumentationRegistry;
 import android.support.test.espresso.action.ViewActions;
 import android.support.test.rule.ActivityTestRule;
 import android.test.FlakyTest;
@@ -52,24 +53,12 @@ public class WelcomeScreenUITest {
 
     @Rule
     public ActivityTestRule<WelcomeScreenActivity> mActivityTestRule =
-            new ActivityTestRule<WelcomeScreenActivity>(WelcomeScreenActivity.class, false, true) {
-        @Override
-        protected void beforeActivityLaunched() {
-            super.beforeActivityLaunched();
-            prefs = new AppPreference(QabelBoxApplication.getInstance());
-            prefs.setWelcomeScreenShownAt(0);
-        }
-    };
+            new ActivityTestRule<>(WelcomeScreenActivity.class, false, false);
 
     private WelcomeScreenActivity mActivity;
 
     private PowerManager.WakeLock wakeLock;
     private SystemAnimations mSystemAnimations;
-    private AppPreference prefs;
-
-    public WelcomeScreenUITest() throws IOException {
-
-    }
 
     @After
     public void cleanUp() {
@@ -80,12 +69,11 @@ public class WelcomeScreenUITest {
 
     @Before
     public void setUp() throws IOException, QblStorageException {
-
-        mActivity = mActivityTestRule.getActivity();
-
+        new AppPreference(InstrumentationRegistry.getTargetContext()).getWelcomeScreenShownAt(0);
         wakeLock = UIActionHelper.wakeupDevice(mActivity);
         mSystemAnimations = new SystemAnimations(mActivity);
         mSystemAnimations.disableAll();
+        mActivity = mActivityTestRule.launchActivity(null);
     }
 
 

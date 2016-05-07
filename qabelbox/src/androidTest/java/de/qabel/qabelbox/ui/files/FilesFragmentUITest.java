@@ -3,13 +3,14 @@ package de.qabel.qabelbox.ui.files;
 import android.content.Intent;
 import android.os.PowerManager;
 import android.support.design.internal.NavigationMenuItemView;
+import android.support.test.InstrumentationRegistry;
 import android.support.test.espresso.intent.rule.IntentsTestRule;
-import android.util.Log;
 
 import com.squareup.spoon.Spoon;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
 import org.junit.Rule;
 import org.junit.Test;
@@ -69,24 +70,21 @@ public class FilesFragmentUITest {
     @Rule
     public IntentsTestRule<MainActivity> mActivityTestRule = new IntentsTestRule<>(MainActivity.class, false, true);
 
-    private MainActivity mActivity;
-    private UIBoxHelper mBoxHelper;
-    private PowerManager.WakeLock wakeLock;
-    private SystemAnimations mSystemAnimations;
+    private static UIBoxHelper mBoxHelper;
 
-    private Identity testIdentity;
-    private Identity testIdentity2;
+    private static Identity testIdentity;
+    private static Identity testIdentity2;
 
-    private Contact testContact;
-    private Contact testContact2;
+    private static Contact testContact;
+    private static Contact testContact2;
 
-    private List<ExampleFile> exampleFiles = Arrays.asList(
+    private static final List<ExampleFile> exampleFiles = Arrays.asList(
             new ExampleFile("testfile 2", new byte[1011]),
             new ExampleFile("red.png", new byte[1]),
             new ExampleFile("black_1.png", new byte[1011]),
             new ExampleFile("black_2.png", new byte[1024 * 2]));
 
-    private class ExampleFile {
+    private static class ExampleFile {
 
         private String name;
         private byte[] data;
@@ -106,18 +104,14 @@ public class FilesFragmentUITest {
 
     }
 
-    public FilesFragmentUITest(){
-        try {
-            setupData();
-        } catch (Exception e) {
-            Log.e(TAG, "Cannot setupData", e);
-        }
-    }
+    private MainActivity mActivity;
+    private PowerManager.WakeLock wakeLock;
+    private SystemAnimations mSystemAnimations;
 
-    private void setupData() throws IOException, QblStorageException {
+    @BeforeClass
+    public static void setupData() throws IOException, QblStorageException {
         URLs.setBaseBlockURL(TestConstants.BLOCK_URL);
-        mActivity = mActivityTestRule.getActivity();
-        mBoxHelper = new UIBoxHelper(QabelBoxApplication.getInstance());
+        mBoxHelper = new UIBoxHelper(InstrumentationRegistry.getTargetContext());
         mBoxHelper.bindService(QabelBoxApplication.getInstance());
         mBoxHelper.createTokenIfNeeded(false);
 
@@ -233,8 +227,6 @@ public class FilesFragmentUITest {
 
     @Test
     public void testCreateFolder() {
-        goToFiles();
-
         //Create testfolder in root
         createFolder();
 

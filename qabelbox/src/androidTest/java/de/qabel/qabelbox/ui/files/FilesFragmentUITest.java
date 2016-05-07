@@ -32,7 +32,6 @@ import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.ui.helper.SystemAnimations;
 import de.qabel.qabelbox.ui.helper.UIActionHelper;
 import de.qabel.qabelbox.ui.helper.UIBoxHelper;
-import de.qabel.qabelbox.ui.helper.UITestHelper;
 import de.qabel.qabelbox.ui.matcher.QabelMatcher;
 import de.qabel.qabelbox.ui.matcher.ToastMatcher;
 import de.qabel.qabelbox.ui.matcher.ToolbarMatcher;
@@ -47,6 +46,7 @@ import static android.support.test.espresso.contrib.DrawerActions.openDrawer;
 import static android.support.test.espresso.intent.Intents.intended;
 import static android.support.test.espresso.intent.matcher.IntentMatchers.hasAction;
 import static android.support.test.espresso.intent.matcher.IntentMatchers.hasExtra;
+import static android.support.test.espresso.matcher.RootMatchers.isDialog;
 import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static android.support.test.espresso.matcher.ViewMatchers.withClassName;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
@@ -170,8 +170,7 @@ public class FilesFragmentUITest {
         //Perform share
         onView(withText(R.string.ok)).perform(click());
 
-        //TODO Remove sleep, test not stable!
-        UITestHelper.sleep(200);
+        onView(withText(R.string.dialog_share_sending_in_progress)).inRoot(isDialog()).check(matches(isDisplayed()));
 
         //Check success message
         onView(withText(R.string.messsage_file_shared)).inRoot(ToastMatcher.isToast()).check(matches(isDisplayed()));

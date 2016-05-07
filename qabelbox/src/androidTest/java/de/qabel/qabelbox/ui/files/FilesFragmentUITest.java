@@ -149,6 +149,7 @@ public class FilesFragmentUITest {
         wakeLock = UIActionHelper.wakeupDevice(mActivity);
         mSystemAnimations = new SystemAnimations(mActivity);
         mSystemAnimations.disableAll();
+        mBoxHelper.setActiveIdentity(testIdentity2);
     }
 
     @Test
@@ -169,6 +170,7 @@ public class FilesFragmentUITest {
         //Perform share
         onView(withText(R.string.ok)).perform(click());
 
+        //TODO Remove sleep, test not stable!
         UITestHelper.sleep(200);
 
         //Check success message

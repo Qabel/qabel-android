@@ -89,7 +89,7 @@ public class OpenQabelFilesFromExternalAppsUITest extends UIBoxHelper {
     public void testOpenQcoSanityFromExternal() {
         String userToImport = "contact1";
         File tempQcoFile = createQcoFile(userToImport, QabelSchema.FILE_SUFFIX_CONTACT);
-        deleteAllIdentities();
+        removeAllIdentities();
         launchExternalIntent(Uri.fromFile(tempQcoFile));
         mActivity = mActivityTestRule.getActivity();
         try {
@@ -165,7 +165,7 @@ public class OpenQabelFilesFromExternalAppsUITest extends UIBoxHelper {
 
         bindService(QabelBoxApplication.getInstance());
         createTokenIfNeeded(false);
-        deleteAllIdentities();
+        removeAllIdentities();
         addIdentity("spoon");
 
     }

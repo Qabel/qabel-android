@@ -89,6 +89,7 @@ public class ChatMessagesDataBase extends SQLiteOpenHelper {
         values.put(COL_MESSAGE_ISNEW, item.isNew);
         if (getID(item.getSenderKey(), item.getReceiverKey(), item.getTime() + "", item.drop_payload) <= -1) {
             long id = getWritableDatabase().insert(TABLE_MESSAGE_NAME, null, values);
+            close();
             if (id == -1) {
                 Log.e(TAG, "Failed put into db: " + item.toString());
             } else {
@@ -213,13 +214,17 @@ public class ChatMessagesDataBase extends SQLiteOpenHelper {
 
         ContentValues cv = new ContentValues();
         cv.put(COL_MESSAGE_ISNEW, 0);
-        return database.update(TABLE_MESSAGE_NAME, cv, COL_MESSAGE_SENDER + "='" + c.getEcPublicKey().getReadableKeyIdentifier() + "'", null);
+        int res = database.update(TABLE_MESSAGE_NAME, cv,
+                COL_MESSAGE_SENDER + "='" + c.getEcPublicKey().getReadableKeyIdentifier() + "'", null);
+        close();
+        return res;
     }
 
     public long getLastRetrievedDropMessageTime() {
         SQLiteDatabase database = getReadableDatabase();
         Cursor cursor = database.query(TABLE_NAME_LOAD, new String[]{COL_LOAD_TIMESTAMP}, null, null, null, null, null);
         if (cursor.getCount() == 0) {
+            cursor.close();
             return 0;
         } else {
             cursor.moveToFirst();
@@ -230,11 +235,12 @@ public class ChatMessagesDataBase extends SQLiteOpenHelper {
 
     }
 
-    public void setLastRetrivedDropMessagesTime(long time) {
+    public void setLastRetrievedDropMessagesTime(long time) {
         SQLiteDatabase database = getReadableDatabase();
         ContentValues values = new ContentValues();
         values.put(COL_LOAD_TIMESTAMP, time);
 
         database.replace(TABLE_NAME_LOAD, null, values);
+        close();
     }
 }

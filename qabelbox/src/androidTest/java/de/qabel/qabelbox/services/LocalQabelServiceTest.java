@@ -26,7 +26,6 @@ public class LocalQabelServiceTest extends ServiceTestCase<LocalQabelServiceTest
     private LocalQabelServiceTester mService;
     private Identity identity;
     private Contact contact;
-    protected static final String DB_NAME = "qabel-service-test";
 
     public LocalQabelServiceTest() {
         super(LocalQabelServiceTester.class);
@@ -35,10 +34,10 @@ public class LocalQabelServiceTest extends ServiceTestCase<LocalQabelServiceTest
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        getContext().deleteDatabase(LocalQabelServiceTester.MOCK_DB_NAME);
         Intent intent = new Intent(getContext(), LocalQabelServiceTester.class);
         startService(intent);
         this.mService = getService();
+        mService.deleteContactsAndIdentities();
         identity = new Identity("foo", null, new QblECKeyPair());
         mService.addIdentity(identity);
         mService.setActiveIdentity(identity);
@@ -92,25 +91,26 @@ public class LocalQabelServiceTest extends ServiceTestCase<LocalQabelServiceTest
 
     public void testModifyContact() throws QblStorageEntityExistsException {
         mService.addContact(contact);
+        assertTrue("Contact not found after adding",
+                mService.getContacts(identity).getContacts().contains(contact));
         contact.setAlias("bar");
         mService.modifyContact(contact);
-        assertTrue(mService.getContacts(identity).getContacts().contains(contact));
-        contact.setAlias("foo");
-        assertFalse(mService.getContacts(identity).getContacts().contains(contact));
+        assertTrue("Contact not found after changing alias",
+                mService.getContacts(identity).getContacts().contains(contact));
     }
 
     public void testGetAllContacts() throws QblStorageEntityExistsException {
         mService.addContact(contact);
         Identity secondIdentity = new Identity("bar", null, new QblECKeyPair());
-        mService.addIdentity(identity);
+        mService.addIdentity(secondIdentity);
         Contact secondContact = new Contact("blub", null, new QblECKeyPair().getPub());
         mService.addContact(secondContact, secondIdentity);
         Map<Identity, Contacts> contacts = mService.getAllContacts();
-        assertEquals(2, contacts.size());
         assertTrue(contacts.containsKey(identity));
-        assertTrue(contacts.containsKey(secondIdentity));
+        assertTrue("Second identity not found", contacts.containsKey(secondIdentity));
         assertTrue(contacts.get(identity).getContacts().contains(contact));
         assertTrue(contacts.get(secondIdentity).getContacts().contains(secondContact));
+        assertEquals(2, contacts.size());
     }
 
     public void testSendAndReceiveDropMessage() throws QblDropPayloadSizeException, URISyntaxException, QblDropInvalidURL, InterruptedException, QblStorageEntityExistsException {
@@ -135,12 +135,7 @@ public class LocalQabelServiceTest extends ServiceTestCase<LocalQabelServiceTest
         final CountDownLatch lock = new CountDownLatch(1);
 
         mService.sendDropMessage(dropMessage, recipientContact, senderIdentity,
-                new LocalQabelService.OnSendDropMessageResult() {
-                    @Override
-                    public void onSendDropResult(Map<DropURL, Boolean> deliveryStatus) {
-                        lock.countDown();
-                    }
-                });
+                deliveryStatus -> lock.countDown());
 
         lock.await();
 

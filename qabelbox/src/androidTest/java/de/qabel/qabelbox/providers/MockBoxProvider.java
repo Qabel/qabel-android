@@ -104,6 +104,11 @@ public class MockBoxProvider extends BoxProvider {
         }
 
         @Override
+        public Context getApplicationContext() {
+            return context;
+        }
+
+        @Override
         protected void initAndroidPersistence() {
             AndroidPersistence androidPersistence;
             QblSQLiteParams params = new QblSQLiteParams(context, TEST_DB_NAME, null, DB_VERSION);

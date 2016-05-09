@@ -22,9 +22,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
-import de.qabel.core.config.Contact;
 import de.qabel.core.config.DropServer;
 import de.qabel.core.config.Identity;
 import de.qabel.core.crypto.QblECKeyPair;
@@ -320,53 +318,12 @@ public class UIBoxHelper {
         }
     }
 
-    /**
-     * remove the token from prefs
-     */
-    public static void clearToken() {
-        Context applicationContext = QabelBoxApplication.getInstance().getApplicationContext();
-        AppPreference prefs = new AppPreference(applicationContext);
-
-        prefs.setToken(null);
-
-    }
-
     public void removeAllIdentities() {
         mService.deleteContactsAndIdentities();
-    }
-
-    public void deleteCurrentIdentity() {
-        try {
-            Identity old = getCurrentIdentity();
-            if (old != null) {
-                deleteIdentity(old);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 
     public LocalQabelService getService() {
         return mService;
     }
 
-    public void deleteAllContacts(Identity identity) {
-        Set<Contact> contacts = mService.getContacts(identity).getContacts();
-        for (Contact c : contacts) {
-            Log.d(TAG, "delete contact: " + c.getAlias());
-            mService.deleteContact(c);
-        }
-    }
-
-    public void deleteAllIdentities() {
-        try {
-            Identity old = getCurrentIdentity();
-            if (old != null) {
-                deleteIdentity(old);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        removeAllIdentities();
-    }
 }

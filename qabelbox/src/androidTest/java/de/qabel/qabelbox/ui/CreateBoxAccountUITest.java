@@ -105,14 +105,8 @@ public class CreateBoxAccountUITest extends UIBoxHelper {
     }
 
 
-    private void clearIdentities() {
-        removeAllIdentities();
-        new AppPreference(QabelBoxApplication.getInstance()).setToken(null);
-    }
-
     @Test
     public void testLoginToBoxAccount() throws Throwable {
-        clearIdentities();
         String accountName = generateUsername();
         String accountEMail = accountName + "@example.com";
         String password = "passwort12$";
@@ -147,10 +141,8 @@ public class CreateBoxAccountUITest extends UIBoxHelper {
         assertThat(appPrefs.getAccountName(), is(accountName));
     }
 
-    @Ignore
     @Test
     public void testCreateBoxAccountTest() throws Throwable {
-        clearIdentities();
         pressBack();
         onView(withText(String.format(mActivity.getString(R.string.message_step_is_needed_or_close_app), R.string.boxaccount)));
         onView(withText(R.string.no)).perform(click());

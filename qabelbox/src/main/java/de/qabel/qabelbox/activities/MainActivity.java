@@ -69,6 +69,7 @@ import de.qabel.qabelbox.fragments.HelpMainFragment;
 import de.qabel.qabelbox.fragments.IdentitiesFragment;
 import de.qabel.qabelbox.fragments.QRcodeFragment;
 import de.qabel.qabelbox.fragments.SelectUploadFolderFragment;
+import de.qabel.qabelbox.helper.AccountHelper;
 import de.qabel.qabelbox.helper.CacheFileHelper;
 import de.qabel.qabelbox.helper.ExternalApps;
 import de.qabel.qabelbox.helper.FileHelper;
@@ -255,6 +256,13 @@ public class MainActivity extends CrashReportingActivity
 
         installConnectivityManager(new ConnectivityManager(this));
         addBackStackListener();
+
+        setupAccount();
+    }
+
+    private void setupAccount() {
+        AccountHelper.createSyncAccount(getApplicationContext());
+        AccountHelper.configurePeriodicPolling();
     }
 
     public void installConnectivityManager(ConnectivityManager manager) {
@@ -377,8 +385,13 @@ public class MainActivity extends CrashReportingActivity
 
         Log.d(TAG, "LocalQabelService connected");
         if (mService.getActiveIdentity() == null) {
-            mService.setActiveIdentity(mService.getIdentities().getIdentities().iterator().next());
-            chatServer = new ChatServer(mService.getActiveIdentity());
+            if (Sanity.startWizardActivities(this)) {
+                Log.d(TAG, "started wizard dialog");
+                return;
+            } else {
+                Set<Identity> identities = mService.getIdentities().getIdentities();
+                mService.setActiveIdentity(identities.iterator().next());
+            }
         }
         provider = ((QabelBoxApplication) getApplication()).getProvider();
         Log.i(TAG, "Provider: " + provider);
@@ -438,6 +451,10 @@ public class MainActivity extends CrashReportingActivity
         }
     }
 
+    public LocalQabelService getService() {
+        return mService;
+    }
+
     /**
      * handle open view resolver to open the correct import tool
      *
@@ -476,7 +493,6 @@ public class MainActivity extends CrashReportingActivity
     }
 
     private void initAndSelectFilesFragment() {
-
         initFilesFragment();
         selectFilesFragment();
     }
@@ -486,8 +502,12 @@ public class MainActivity extends CrashReportingActivity
         textViewSelectedIdentity.setText(activeIdentity.getAlias());
 
         initBoxVolume(activeIdentity);
-        chatServer = new ChatServer(mService.getActiveIdentity());
+        initChatServer();
         initFilesFragment();
+    }
+
+    private void initChatServer() {
+        chatServer = new ChatServer(getApplicationContext());
     }
 
     private void shareIntoApp(final ArrayList<Uri> data) {
@@ -828,7 +848,7 @@ public class MainActivity extends CrashReportingActivity
             getFragmentManager().beginTransaction().remove(filesFragment).commit();
             filesFragment = null;
         }
-        chatServer = new ChatServer(mService.getActiveIdentity());
+        initChatServer();
         initBoxVolume(identity);
 
         initFilesFragment();
@@ -839,7 +859,8 @@ public class MainActivity extends CrashReportingActivity
     private void initFilesFragment() {
 
         if (filesFragment != null) {
-            getFragmentManager().beginTransaction().remove(filesFragment).commit();
+            getFragmentManager().beginTransaction().remove(filesFragment)
+                    .commitAllowingStateLoss();
         }
         filesFragment = FilesFragment.newInstance(boxVolume);
         filesFragment.setOnItemClickListener(new FilesAdapter.OnItemClickListener() {

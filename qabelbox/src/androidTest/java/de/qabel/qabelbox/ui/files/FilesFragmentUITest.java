@@ -140,8 +140,6 @@ public class FilesFragmentUITest {
         for (ExampleFile exampleFile : exampleFiles) {
             mBoxHelper.deleteFile(InstrumentationRegistry.getContext(), testIdentity, exampleFile.getName(), "");
         }
-        mBoxHelper.deleteAllContacts(testIdentity);
-        mBoxHelper.deleteAllContacts(testIdentity2);
         mBoxHelper.deleteIdentity(testIdentity);
         mBoxHelper.deleteIdentity(testIdentity2);
     }

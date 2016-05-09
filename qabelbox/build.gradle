@@ -1,7 +1,9 @@
+plugins {
+    id "me.tatarka.retrolambda" version "3.2.5"
+}
 apply plugin: 'com.android.application'
-
-
 apply plugin: 'spoon'
+apply plugin: 'me.tatarka.retrolambda'
 
 // This section is optional
 spoon {
@@ -15,6 +17,10 @@ spoon {
 android {
     compileSdkVersion 22
     buildToolsVersion '23.0.3'
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
     dexOptions {
         jumboMode true
     }
@@ -24,21 +30,24 @@ android {
         minSdkVersion 19
         targetSdkVersion 22
         /*
-        add code to automaticly generate version name and code,
+        add code to automatically generate version name and code,
         on base of timestamp or change it manual*/
 
         versionCode System.getenv("BUILD_NUMBER") as Integer ?: 6
         versionName "0.6." + (System.getenv("BUILD_NUMBER") as Integer ?: 0)
-        //junit test
         testInstrumentationRunner "de.qabel.qabelbox.QblJUnitRunner"
-        //ui tests
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
         testApplicationId "de.qabel.test"
 
         ndk {
             moduleName "curve25519"
         }
+        buildConfigField "String", "ACCOUNT_TYPE", "\"${applicationId}.account\""
+        buildConfigField "String", "AUTHORITY", "\"${applicationId}.providers.internal\""
+
+        //Reference them in .xml files.
+        resValue "string", "account_type", "${applicationId}.account"
+        resValue "string", "authority", "${applicationId}.provider"
     }
 
     lintOptions {
@@ -52,10 +61,22 @@ android {
         release {
             minifyEnabled false
             resValue 'string', 'app_name', '"Qabel"'
+            buildConfigField "String", "ACCOUNT_TYPE", "\"de.qabel.qabel.account\""
+            buildConfigField "String", "AUTHORITY", "\"de.qabel.qabel.providers.internal\""
+
+            //Reference them in .xml files.
+            resValue "string", "account_type", "de.qabel.qabel.account"
+            resValue "string", "authority", "de.qabel.qabel.providers.internal"
         }
         debug {
             applicationIdSuffix ".debug"
             resValue 'string', 'app_name', '"Qabel (Debug)"'
+            buildConfigField "String", "ACCOUNT_TYPE", "\"de.qabel.qabel.debug.account\""
+            buildConfigField "String", "AUTHORITY", "\"de.qabel.qabel.debug.providers.internal\""
+
+            //Reference them in .xml files.
+            resValue "string", "account_type", "de.qabel.qabel.debug.account"
+            resValue "string", "authority", "de.qabel.qabel.debug.providers.internal"
         }
     }
 
@@ -107,11 +128,11 @@ dependencies {
     compile 'net.hockeyapp.android:HockeySDK:3.7.0'
     compile 'com.google.zxing:android-integration:3.2.1'
     compile 'com.cocosw:bottomsheet:1.+@aar'
-    androidTestCompile 'com.android.support.test:runner:0.4'
+    androidTestCompile 'com.android.support.test:runner:0.5'
     // Set this dependency to use JUnit 4 rules
-    androidTestCompile 'com.android.support.test:rules:0.4'
+    androidTestCompile 'com.android.support.test:rules:0.5'
     // Set this dependency to build and run Espresso tests
-    androidTestCompile 'com.android.support.test.espresso:espresso-core:2.2.1'
+    androidTestCompile 'com.android.support.test.espresso:espresso-core:2.2.2'
 
     androidTestCompile('com.android.support.test.espresso:espresso-contrib:2.0') {
         exclude group: 'com.android.support', module: 'appcompat'
@@ -119,7 +140,7 @@ dependencies {
         exclude module: 'recyclerview-v7'
     }
     // set this to test extends apps
-    androidTestCompile 'com.android.support.test.espresso:espresso-intents:2.2.1'
+    androidTestCompile 'com.android.support.test.espresso:espresso-intents:2.2.2'
     // Set this dependency to build and run UI Automator tests
     androidTestCompile 'com.android.support.test.uiautomator:uiautomator-v18:2.1.2'
     //set dep to get screenshot functons
@@ -130,6 +151,7 @@ dependencies {
 
     //for more used sources, see license.txt
 }
+
 
 // for integration test of this plugin
 check << {

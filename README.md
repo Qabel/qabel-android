@@ -68,6 +68,10 @@ You can run the tests either dirctly from AndroidStudio with the following gradl
 
 The test server addresses are hard coded in TestConstants.java and the live servers are configured in a string ressource `servers.xml`
 
+# Development
+
+To run the unit test in Android Studio, you need to change the default options for the JUnit task. Change the vm-options to `-ea -Djava.library.path=libs/` so that the android studio testrunner finds the crypto library we use.
+
 # Contribution
 
 For issues using the Qabel Android Client, use the feedback feature inside the app (Settings -> Feedback).

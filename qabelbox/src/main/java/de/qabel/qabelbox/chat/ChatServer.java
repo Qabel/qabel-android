@@ -1,5 +1,6 @@
 package de.qabel.qabelbox.chat;
 
+import android.content.Context;
 import android.util.Log;
 
 import org.json.JSONException;
@@ -12,11 +13,8 @@ import java.util.List;
 import de.qabel.core.config.Contact;
 import de.qabel.core.config.Identity;
 import de.qabel.core.drop.DropMessage;
-import de.qabel.qabelbox.QabelBoxApplication;
+import de.qabel.qabelbox.services.DropConnector;
 
-/**
- * Created by danny on 17.02.16.
- */
 public class ChatServer {
 
     private static final String TAG = "ChatServer";
@@ -24,12 +22,16 @@ public class ChatServer {
     public static final String TAG_URL = "url";
     public static final String TAG_KEY = "key";
 
-    private final ChatMessagesDataBase dataBase;
     private final List<ChatServerCallback> callbacks = new ArrayList<>();
+    private Context context;
 
-    public ChatServer(Identity currentIdentity) {
+    public ChatServer(Context context) {
+        this.context = context;
 
-        dataBase = new ChatMessagesDataBase(QabelBoxApplication.getInstance(), currentIdentity);
+    }
+
+    private ChatMessagesDataBase getDataBaseForIdentity(Identity identity) {
+        return new ChatMessagesDataBase(context, identity);
     }
 
 
@@ -47,11 +49,12 @@ public class ChatServer {
      * click on refresh button
      */
 
-    public Collection<DropMessage> refreshList() {
+    public Collection<DropMessage> refreshList(DropConnector connector, Identity identity) {
+        ChatMessagesDataBase dataBase = getDataBaseForIdentity(identity);
         long lastRetrieved = dataBase.getLastRetrievedDropMessageTime();
         Log.d(TAG, "last retrieved dropmessage time " + lastRetrieved + " / " + System.currentTimeMillis());
-        String identityKey = QabelBoxApplication.getInstance().getService().getActiveIdentity().getEcPublicKey().getReadableKeyIdentifier();
-        Collection<DropMessage> result = QabelBoxApplication.getInstance().getService().retrieveDropMessages(QabelBoxApplication.getInstance().getService().getActiveIdentity(), lastRetrieved);
+        String identityKey = getIdentityIdentifier(identity);
+        Collection<DropMessage> result = connector.retrieveDropMessages(identity, lastRetrieved);
 
         if (result != null) {
             Log.d(TAG, "new message count: " + result.size());
@@ -60,7 +63,7 @@ public class ChatServer {
                 ChatMessageItem cms = new ChatMessageItem(item);
                 cms.receiver = identityKey;
                 cms.isNew = 1;
-                storeIntoDB(cms);
+                storeIntoDB(dataBase, cms);
             }
 
             //@todo replace this with header from server response.
@@ -70,18 +73,28 @@ public class ChatServer {
             }
         }
         lastRetrieved = 0;
-        dataBase.setLastRetrivedDropMessagesTime(lastRetrieved);
+        dataBase.setLastRetrievedDropMessagesTime(lastRetrieved);
         Log.d(TAG, "new retrieved dropmessage time " + lastRetrieved);
 
         sendCallbacksRefreshed();
+        dataBase.close();
         return result;
     }
 
+    private String getIdentityIdentifier(Identity identity) {
+        return identity.getEcPublicKey().getReadableKeyIdentifier();
+    }
 
-    public void storeIntoDB(ChatMessageItem item) {
 
+    public void storeIntoDB(ChatMessagesDataBase dataBase, ChatMessageItem item) {
         if (item != null) {
             dataBase.put(item);
+        }
+    }
+
+    public void storeIntoDB(Identity identity, ChatMessageItem item) {
+        if (item != null) {
+            getDataBaseForIdentity(identity).put(item);
         }
     }
 
@@ -95,14 +108,14 @@ public class ChatServer {
         }
     }
 
-    public DropMessage getTextDropMessage(String message) {
+    public DropMessage createTextDropMessage(Identity identity, String message) {
 
         String payload_type = ChatMessageItem.BOX_MESSAGE;
-        String payload = getTextDropMessagePayload(message);
-        return new DropMessage(QabelBoxApplication.getInstance().getService().getActiveIdentity(), payload, payload_type);
+        String payload = createTextDropMessagePayload(message);
+        return new DropMessage(identity, payload, payload_type);
     }
 
-    public String getTextDropMessagePayload(String message) {
+    public String createTextDropMessagePayload(String message) {
         JSONObject payloadJson = new JSONObject();
         try {
             payloadJson.put(TAG_MESSAGE, message);
@@ -112,7 +125,8 @@ public class ChatServer {
         return payloadJson.toString();
     }
 
-    public DropMessage getShareDropMessage(String message, String url, String key) {
+    public DropMessage createShareDropMessage(Identity identity,
+                                              String message, String url, String key) {
 
         String payload_type = ChatMessageItem.SHARE_NOTIFICATION;
         JSONObject payloadJson = new JSONObject();
@@ -124,28 +138,27 @@ public class ChatServer {
             Log.e(TAG, "error on create json", e);
         }
         String payload = payloadJson.toString();
-        return new DropMessage(QabelBoxApplication.getInstance().getService().getActiveIdentity(), payload, payload_type);
+        return new DropMessage(identity, payload, payload_type);
     }
 
 
-    public boolean hasNewMessages(Contact c) {
-        return dataBase.getNewMessageCount(c) > 0;
+    public boolean hasNewMessages(Identity identity, Contact c) {
+        return getDataBaseForIdentity(identity).getNewMessageCount(c) > 0;
     }
 
-    public int setAllMessagesReaded(Contact c) {
-        return dataBase.setAllMessagesRead(c);
+    public int setAllMessagesRead(Identity identity, Contact c) {
+        return getDataBaseForIdentity(identity).setAllMessagesRead(c);
     }
 
-    public ChatMessageItem[] getAllMessages(Contact c) {
-        return dataBase.get(c.getEcPublicKey().getReadableKeyIdentifier());
+    public ChatMessageItem[] getAllMessages(Identity identity, Contact c) {
+        return getDataBaseForIdentity(identity).get(c.getEcPublicKey().getReadableKeyIdentifier());
     }
 
-    public ChatMessageItem[] getAllMessages() {
-        return dataBase.getAll();
+    public ChatMessageItem[] getAllMessages(Identity identity) {
+        return getDataBaseForIdentity(identity).getAll();
     }
 
     public interface ChatServerCallback {
-
         //droplist refreshed
         void onRefreshed();
     }

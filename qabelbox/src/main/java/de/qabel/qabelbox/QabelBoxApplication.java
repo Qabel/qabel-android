@@ -37,6 +37,10 @@ public class QabelBoxApplication extends Application {
         return boxProvider;
     }
 
+    /**
+     * @deprecated This is not guaranteed to be initialised
+     */
+    @Deprecated
     public static QabelBoxApplication getInstance() {
         return mInstance;
     }
@@ -67,9 +71,13 @@ public class QabelBoxApplication extends Application {
         return new ServiceConnection() {
             @Override
             public void onServiceConnected(ComponentName name, IBinder service) {
-                LocalQabelService.LocalBinder binder = (LocalQabelService.LocalBinder) service;
-				mService = binder.getService();
-				Log.d(TAG, "Service binded");
+                if (service instanceof LocalQabelService.LocalBinder) {
+                    LocalQabelService.LocalBinder binder = (LocalQabelService.LocalBinder) service;
+                    mService = binder.getService();
+                    Log.d(TAG, "Service bound");
+                } else {
+                    Log.w(TAG, "Could not bind service");
+                }
             }
 
             @Override
@@ -79,6 +87,10 @@ public class QabelBoxApplication extends Application {
         };
     }
 
+    /**
+     * @deprecated Activities should get their own service
+     */
+    @Deprecated
     public LocalQabelService getService() {
         return mService;
     }

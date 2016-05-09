@@ -158,12 +158,7 @@ public class FilesFragmentUITest {
         wakeLock = UIActionHelper.wakeupDevice(mActivity);
         mSystemAnimations = new SystemAnimations(mActivity);
         mSystemAnimations.disableAll();
-        mActivity.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                mActivity.selectIdentity(testIdentity);
-            }
-        });
+        mActivity.runOnUiThread(() -> mActivity.selectIdentity(testIdentity));
     }
 
     @Test

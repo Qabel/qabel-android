@@ -3,6 +3,7 @@ package de.qabel.qabelbox.communication;
 import android.content.Context;
 import android.util.Log;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -131,7 +132,13 @@ public class BaseServer {
 
         if (json.has(key)) {
             try {
-                return json.getString(key);
+                Object result = json.get(key);
+                if (result instanceof JSONArray) {
+                    JSONArray resultArray = (JSONArray) result;
+                    return resultArray.join("\n");
+                } else {
+                    return result.toString();
+                }
             } catch (JSONException e) {
                 Log.w(TAG, "can't convert \"+key+\" to string.", e);
             }

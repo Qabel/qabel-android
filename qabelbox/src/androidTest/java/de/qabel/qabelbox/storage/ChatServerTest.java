@@ -1,19 +1,26 @@
 package de.qabel.qabelbox.storage;
 
+
+import android.content.Context;
+import android.support.test.InstrumentationRegistry;
 import android.support.test.runner.AndroidJUnit4;
+import android.test.RenamingDelegatingContext;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.net.URISyntaxException;
+
 import de.qabel.core.config.Contact;
 import de.qabel.core.config.Identity;
+import de.qabel.desktop.config.factory.DropUrlGenerator;
+import de.qabel.desktop.config.factory.IdentityBuilder;
+import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.chat.ChatMessageItem;
 import de.qabel.qabelbox.chat.ChatMessagesDataBase;
 import de.qabel.qabelbox.chat.ChatServer;
-import de.qabel.qabelbox.config.IdentityHelper;
 
-import static android.support.test.InstrumentationRegistry.getTargetContext;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
@@ -25,17 +32,30 @@ public class ChatServerTest {
     private Contact contact2;
     private String publicKey1;
     private String publicKey2;
+    private Context context;
+
+    public static Identity createIdentity(String identName, String prefix) {
+        try {
+            Identity identity = new IdentityBuilder(new DropUrlGenerator(QabelBoxApplication.DEFAULT_DROP_SERVER))
+                    .withAlias(identName).build();
+            identity.getPrefixes().add(prefix);
+            return identity;
+        } catch (URISyntaxException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     @Before
     public void setUp() throws Exception {
-        identity = IdentityHelper.createIdentity(getTargetContext(), "user1", "pre1");
+        identity = createIdentity("user1", "pre1");
 
-        Identity contactIdentity1 = IdentityHelper.createIdentity(getTargetContext(), "contact1", "per3");
-        Identity contactIdentity2 = IdentityHelper.createIdentity(getTargetContext(), "contact1", "pre4");
+        Identity contactIdentity1 = createIdentity("contact1", "per3");
+        Identity contactIdentity2 = createIdentity("contact1", "pre4");
         contact1 = new Contact("contact1", contactIdentity1.getDropUrls(), contactIdentity1.getEcPublicKey());
         contact2 = new Contact("contact2", contactIdentity2.getDropUrls(), contactIdentity2.getEcPublicKey());
         publicKey1 = getKeyIdentitfier(contact1);
         publicKey2 = getKeyIdentitfier(contact2);
+        context = new RenamingDelegatingContext(InstrumentationRegistry.getInstrumentation().getTargetContext(), "test_");
     }
 
     /**
@@ -44,7 +64,7 @@ public class ChatServerTest {
     @Test
     public void testStoreOneItemInDB() {
 
-        ChatMessagesDataBase dataBase = new ChatMessagesDataBase(getTargetContext(), identity);
+        ChatMessagesDataBase dataBase = new ChatMessagesDataBase(context, identity);
         ChatMessageItem[] messages;
 
         ChatMessageItem item = new ChatMessageItem(identity, getKeyIdentitfier(contact1), "payload", "payloadtype");
@@ -62,7 +82,7 @@ public class ChatServerTest {
     @Test
     public void testStoreManyItemsInDB() {
 
-        ChatMessagesDataBase dataBase = new ChatMessagesDataBase(getTargetContext(), identity);
+        ChatMessagesDataBase dataBase = new ChatMessagesDataBase(context, identity);
         ChatMessageItem[] messages;
 
 
@@ -82,7 +102,7 @@ public class ChatServerTest {
     @Test
     public void testGetNewMessageCountFromSenderDB() {
 
-        ChatMessagesDataBase dataBase = new ChatMessagesDataBase(getTargetContext(), identity);
+        ChatMessagesDataBase dataBase = new ChatMessagesDataBase(context, identity);
 
         //add 30 items
         for (int i = 0; i < 21; i++) {
@@ -105,7 +125,7 @@ public class ChatServerTest {
     @Test
     public void testSetMessagesAsRead() {
 
-        ChatMessagesDataBase dataBase = new ChatMessagesDataBase(getTargetContext(), identity);
+        ChatMessagesDataBase dataBase = new ChatMessagesDataBase(context, identity);
         int messageCount;
         for (int i = 0; i < 3; i++) {
             ChatMessageItem item = new ChatMessageItem(identity, publicKey1, "payload" + i, "payloadtype");
@@ -144,7 +164,7 @@ public class ChatServerTest {
     @Test
     public void testStoreConflictItemsInDB() {
 
-        ChatMessagesDataBase dataBase = new ChatMessagesDataBase(getTargetContext(), identity);
+        ChatMessagesDataBase dataBase = new ChatMessagesDataBase(context, identity);
         ChatMessageItem[] messages;
         String publicKey = getKeyIdentitfier(contact1);
         //create own item1
@@ -177,7 +197,7 @@ public class ChatServerTest {
      */
     @Test
     public void testStoreInDBWithDifferentContacts() {
-        ChatMessagesDataBase dataBase = new ChatMessagesDataBase(getTargetContext(), identity);
+        ChatMessagesDataBase dataBase = new ChatMessagesDataBase(context, identity);
         ChatMessageItem[] messages;
 
         ChatMessageItem item1 = new ChatMessageItem(identity, publicKey1, "payload", "payloadtype");
@@ -204,22 +224,22 @@ public class ChatServerTest {
      */
     @Test
     public void testStoreInChatServer() {
-        ChatServer chatServer = new ChatServer(identity);
+        ChatServer chatServer = new ChatServer(context);
         ChatMessageItem[] messages;
         ChatMessageItem item = new ChatMessageItem(identity, publicKey1, "payload", "payloadtype");
-        chatServer.storeIntoDB(item);
-        messages = chatServer.getAllMessages(contact1);
+        chatServer.storeIntoDB(identity, item);
+        messages = chatServer.getAllMessages(identity, contact1);
         assertThat(messages.length, is(1));
 
         //store again same value
-        chatServer.storeIntoDB(item);
-        messages = chatServer.getAllMessages(contact1);
+        chatServer.storeIntoDB(identity, item);
+        messages = chatServer.getAllMessages(identity, contact1);
         assertThat(messages.length, is(1));
 
         //store new item
         ChatMessageItem item2 = new ChatMessageItem(identity, publicKey1, "payload", "payloadtype");
-        chatServer.storeIntoDB(item2);
-        messages = chatServer.getAllMessages(contact1);
+        chatServer.storeIntoDB(identity, item2);
+        messages = chatServer.getAllMessages(identity, contact1);
         assertThat(messages.length, is(2));
     }
 

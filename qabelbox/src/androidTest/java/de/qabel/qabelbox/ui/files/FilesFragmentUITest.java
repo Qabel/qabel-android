@@ -9,12 +9,11 @@ import android.support.test.espresso.intent.rule.IntentsTestRule;
 import com.squareup.spoon.Spoon;
 
 import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.FixMethodOrder;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.runners.MethodSorters;
 
 import java.io.File;
 import java.io.IOException;
@@ -36,6 +35,7 @@ import de.qabel.qabelbox.ui.matcher.QabelMatcher;
 import de.qabel.qabelbox.ui.matcher.ToastMatcher;
 import de.qabel.qabelbox.ui.matcher.ToolbarMatcher;
 
+import static android.support.test.espresso.Espresso.onData;
 import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.action.ViewActions.click;
 import static android.support.test.espresso.action.ViewActions.longClick;
@@ -60,26 +60,20 @@ import static org.hamcrest.Matchers.is;
 /**
  * UI Tests for FilesFragment
  */
-@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class FilesFragmentUITest {
 
-    private final String TAG = this.getClass().getSimpleName();
-
+    private static final String TAG = FilesFragmentUITest.class.getSimpleName();
+    private static final String TEST_FOLDER = "Bilder";
     private static final String CREATE_FOLDER_TEST_NAME = "TestDirectory";
-
-    @Rule
-    public IntentsTestRule<MainActivity> mActivityTestRule = new IntentsTestRule<>(MainActivity.class, false, true);
 
     private static UIBoxHelper mBoxHelper;
 
     private static Identity testIdentity;
     private static Identity testIdentity2;
-
     private static Contact testContact;
     private static Contact testContact2;
-
     private static final List<ExampleFile> exampleFiles = Arrays.asList(
-            new ExampleFile("testfile 2", new byte[1011]),
+            new ExampleFile("test_file 2", new byte[1011]),
             new ExampleFile("red.png", new byte[1]),
             new ExampleFile("black_1.png", new byte[1011]),
             new ExampleFile("black_2.png", new byte[1024 * 2]));
@@ -104,6 +98,8 @@ public class FilesFragmentUITest {
 
     }
 
+    @Rule
+    public IntentsTestRule<MainActivity> mActivityTestRule = new IntentsTestRule<>(MainActivity.class, false, true);
     private MainActivity mActivity;
     private PowerManager.WakeLock wakeLock;
     private SystemAnimations mSystemAnimations;
@@ -118,7 +114,7 @@ public class FilesFragmentUITest {
         mBoxHelper.removeAllIdentities();
 
         testIdentity = mBoxHelper.addIdentity("spoon");
-        testIdentity2 = mBoxHelper.addIdentity("spoon2");
+        testIdentity2 = mBoxHelper.addIdentityWithoutVolume("spoon2");
 
         testContact = new Contact(testIdentity.getAlias(), testIdentity.getDropUrls(), testIdentity.getEcPublicKey());
         testContact2 = new Contact(testIdentity2.getAlias(), testIdentity2.getDropUrls(), testIdentity2.getEcPublicKey());
@@ -127,12 +123,27 @@ public class FilesFragmentUITest {
         mBoxHelper.setActiveIdentity(testIdentity);
         mBoxHelper.getService().addContact(testContact2);
 
-        mBoxHelper.setActiveIdentity(testIdentity2);
+        mBoxHelper.setActiveIdentity(testIdentity);
+
+        mBoxHelper.createFolder(TEST_FOLDER, testIdentity, "");
 
         for (ExampleFile exampleFile : exampleFiles) {
             mBoxHelper.uploadFile(mBoxHelper.mBoxVolume, exampleFile.getName(), exampleFile.getData(), "");
         }
         mBoxHelper.waitUntilFileCount(exampleFiles.size());
+    }
+
+    @AfterClass
+    public static void cleanUpData() throws QblStorageException {
+        mBoxHelper.deleteFolder(CREATE_FOLDER_TEST_NAME, testIdentity, "");
+        mBoxHelper.deleteFolder(TEST_FOLDER, testIdentity, "");
+        for (ExampleFile exampleFile : exampleFiles) {
+            mBoxHelper.deleteFile(InstrumentationRegistry.getContext(), testIdentity, exampleFile.getName(), "");
+        }
+        mBoxHelper.deleteAllContacts(testIdentity);
+        mBoxHelper.deleteAllContacts(testIdentity2);
+        mBoxHelper.deleteIdentity(testIdentity);
+        mBoxHelper.deleteIdentity(testIdentity2);
     }
 
     @After
@@ -149,7 +160,12 @@ public class FilesFragmentUITest {
         wakeLock = UIActionHelper.wakeupDevice(mActivity);
         mSystemAnimations = new SystemAnimations(mActivity);
         mSystemAnimations.disableAll();
-        mBoxHelper.setActiveIdentity(testIdentity2);
+        mActivity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mActivity.selectIdentity(testIdentity);
+            }
+        });
     }
 
     @Test
@@ -165,25 +181,24 @@ public class FilesFragmentUITest {
         onView(withId(R.id.spinner_identities)).check(matches(isDisplayed()));
 
         //Check Contact is Visible
-        onView(withText(testContact.getAlias())).check(matches(isDisplayed()));
+        onView(withText(testContact2.getAlias())).check(matches(isDisplayed()));
 
         //Perform share
         onView(withText(R.string.ok)).perform(click());
-
         onView(withText(R.string.dialog_share_sending_in_progress)).inRoot(isDialog()).check(matches(isDisplayed()));
 
         //Check success message
         onView(withText(R.string.messsage_file_shared)).inRoot(ToastMatcher.isToast()).check(matches(isDisplayed()));
 
-        //Change to other identity
+        //Change to testIdentity2
         openDrawer(R.id.drawer_layout);
         onView(withId(R.id.imageViewExpandIdentity)).check(matches(isDisplayed())).perform(click());
-        onView(allOf(is(instanceOf(NavigationMenuItemView.class)), withText(testIdentity.getAlias()))).perform(click());
+        onView(allOf(is(instanceOf(NavigationMenuItemView.class)), withText(testIdentity2.getAlias()))).perform(click());
 
-        //Accept share
+        //Accept share from testIdentity
         openDrawer(R.id.drawer_layout);
         onView(withText(R.string.Contacts)).check(matches(isDisplayed())).perform(click());
-        onView(withText(testContact2.getAlias())).check(matches(isDisplayed())).perform(click());
+        onView(withText(testContact.getAlias())).check(matches(isDisplayed())).perform(click());
         onView(withText(R.string.accept_share)).check(matches(isDisplayed())).perform(click());
 
         //Go to files
@@ -197,6 +212,7 @@ public class FilesFragmentUITest {
         onView(withText(R.string.shared_with_you)).check(matches(isDisplayed())).perform(click());
 
         //Check shared file is visible in shared files folder
+        onData(withText(exampleFiles.get(0).getName())).inAdapterView(withId(R.id.files_list)).check(matches(isDisplayed()));
         containsString(mActivity.getString(R.string.filebrowser_file_is_shared_from).replace("%1", testContact2.getAlias())).matches(isDisplayed());
 
         Spoon.screenshot(mActivity, "after");
@@ -228,7 +244,7 @@ public class FilesFragmentUITest {
 
     @Test
     public void testCreateFolder() {
-        //Create testfolder in root
+        //Create testFolder in root
         createFolder();
 
         //Check list size

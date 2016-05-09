@@ -6,8 +6,8 @@ package de.qabel.qabelbox.ui;
 
 import android.os.PowerManager;
 import android.support.annotation.Nullable;
+import android.support.test.InstrumentationRegistry;
 import android.support.test.rule.ActivityTestRule;
-import android.test.FlakyTest;
 import android.text.InputType;
 
 import com.squareup.spoon.Spoon;
@@ -16,7 +16,6 @@ import org.json.JSONObject;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
@@ -39,8 +38,6 @@ import de.qabel.qabelbox.ui.helper.SystemAnimations;
 import de.qabel.qabelbox.ui.helper.UIActionHelper;
 import de.qabel.qabelbox.ui.helper.UIBoxHelper;
 import de.qabel.qabelbox.ui.helper.UITestHelper;
-import okhttp3.Call;
-import okhttp3.Callback;
 import okhttp3.Response;
 
 import static android.support.test.espresso.Espresso.closeSoftKeyboard;
@@ -58,7 +55,6 @@ import static android.support.test.espresso.matcher.ViewMatchers.withInputType;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
 import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertNull;
-import static junit.framework.Assert.assertTrue;
 import static junit.framework.Assert.fail;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.allOf;
@@ -73,13 +69,24 @@ import static org.hamcrest.Matchers.is;
 public class CreateBoxAccountUITest extends UIBoxHelper {
 
     @Rule
-    public ActivityTestRule<CreateAccountActivity> mActivityTestRule = new ActivityTestRule<>(CreateAccountActivity.class, false, true);
+    public ActivityTestRule<CreateAccountActivity> mActivityTestRule = new ActivityTestRule<CreateAccountActivity>(CreateAccountActivity.class, false, true){
+        @Override
+        protected void beforeActivityLaunched() {
+            super.beforeActivityLaunched();
+            setupEnvironment();
+        }
+    };
 
     private CreateAccountActivity mActivity;
 
     private PowerManager.WakeLock wakeLock;
     private SystemAnimations mSystemAnimations;
 
+    protected void setupEnvironment(){
+        UIBoxHelper helper = new UIBoxHelper(InstrumentationRegistry.getTargetContext());
+        helper.bindService(QabelBoxApplication.getInstance());
+        helper.removeAllIdentities();
+    }
 
     @After
     public void cleanUp() {
@@ -172,7 +179,7 @@ public class CreateBoxAccountUITest extends UIBoxHelper {
         checkNumericPassword(failPassword);
         checkBadPassword(accountName, failPassword);
         checkPassword(password);
-        UITestHelper.waitForView(R.string.create_account_final_headline, TestConstraints.SIMPLE_SERVER_ACTION_TIMEOUT);
+
         onView(withText(R.string.create_account_final_headline)).check(matches(isDisplayed()));
         checkSuccess(accountName, accountEMail);
     }

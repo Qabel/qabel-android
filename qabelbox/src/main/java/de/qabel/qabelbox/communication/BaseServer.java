@@ -129,20 +129,24 @@ public class BaseServer {
      * @return
      */
     protected static String getJsonString(String key, JSONObject json) {
-
+        String resultString = null;
         if (json.has(key)) {
             try {
                 Object result = json.get(key);
                 if (result instanceof JSONArray) {
                     JSONArray resultArray = (JSONArray) result;
-                    return resultArray.join("\n");
+                    StringBuilder resultBuilder = new StringBuilder();
+                    for (int i = 0; i < resultArray.length(); i++) {
+                        resultBuilder.append(resultArray.getString(i));
+                    }
+                    resultString = resultBuilder.toString();
                 } else {
-                    return result.toString();
+                    resultString = result.toString();
                 }
             } catch (JSONException e) {
                 Log.w(TAG, "can't convert \"+key+\" to string.", e);
             }
         }
-        return null;
+        return resultString;
     }
 }

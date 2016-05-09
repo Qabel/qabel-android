@@ -9,6 +9,7 @@ import android.support.annotation.Nullable;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricGradleTestRunner;
@@ -39,6 +40,7 @@ import static junit.framework.Assert.assertTrue;
 import static junit.framework.Assert.fail;
 import static org.robolectric.Shadows.shadowOf;
 
+@Ignore
 @RunWith(RobolectricGradleTestRunner.class)
 @Config(application = RoboApplication.class, constants = BuildConfig.class, shadows = {ShadowConnectivityManager.class})
 public class OfflineTest {

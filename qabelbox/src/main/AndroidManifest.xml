@@ -155,7 +155,7 @@
             </intent-filter>
         </service>
         <service
-            android:name=".services.BoxSyncService"
+            android:name=".services.QabelSyncService"
             android:exported="true"
             android:process=":sync">
             <intent-filter>
@@ -166,7 +166,7 @@
                 android:resource="@xml/syncadapter"/>
         </service>
 
-        <service android:name=".services.BoxAuthenticatorService">
+        <service android:name=".services.QabelAuthenticatorService">
             <intent-filter>
                 <action android:name="android.accounts.AccountAuthenticator"/>
             </intent-filter>
@@ -201,6 +201,12 @@
             </intent-filter>
 
         </provider>
+        <provider
+            android:name=".providers.InternalContentProvider"
+            android:authorities="${applicationId}.providers.internal"
+            android:enabled="true"
+            android:syncable="true"
+            android:exported="false"/>
     </application>
 
 

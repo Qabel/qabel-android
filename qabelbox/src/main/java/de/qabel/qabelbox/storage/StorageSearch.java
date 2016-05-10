@@ -2,7 +2,6 @@ package de.qabel.qabelbox.storage;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.Hashtable;
 import java.util.List;
@@ -15,6 +14,7 @@ import de.qabel.qabelbox.exceptions.QblStorageException;
 public class StorageSearch {
 
     private BoxNavigation navigation;
+    private List<BoxObject> nodeList;
     private List<BoxObject> results;
     private Hashtable<String, BoxObject> pathMapping = new Hashtable<>();
 
@@ -26,36 +26,32 @@ public class StorageSearch {
      */
     public StorageSearch(BoxNavigation navigation) throws QblStorageException {
         this.navigation = navigation;
-        results = collectAll();
+        init();
     }
 
-    /**
-     * Construct a search using a resultset and don't hit the storage volume.
-     *
-     * @param results
-     */
-    public StorageSearch(List<BoxObject> results) {
-        this.results = results;
-    }
-
-    public StorageSearch(List<BoxObject> results, Hashtable<String, BoxObject> pathMapping) {
+    protected StorageSearch(BoxNavigation navigation, List<BoxObject> results, Hashtable<String, BoxObject> pathMapping) throws QblStorageException {
+        this.navigation = navigation;
+        init();
         this.results = results;
         this.pathMapping = pathMapping;
     }
 
-    public static StorageSearch createStorageSearchFromList(List<? extends BoxObject> other) {
-        List<BoxObject> lst = new ArrayList<>();
-
-        lst.addAll(other);
-
-        return new StorageSearch(lst);
+    private void init() throws QblStorageException {
+        this.results = collectAll();
+        this.nodeList = new ArrayList<>(results.size());
+        Collections.copy(this.nodeList, this.results);
     }
 
-    public static boolean isValidSearchTerm(String name) {
+    public void reset() throws QblStorageException {
+        this.results.clear();
+        Collections.copy(this.results, this.nodeList);
+    }
+
+    public boolean isValidSearchTerm(String name) {
         return name != null && !"".equals(name.trim());
     }
 
-    public static List<BoxFile> toBoxFiles(List<BoxObject> lst) {
+    public List<BoxFile> toBoxFiles(List<BoxObject> lst) {
         List<BoxFile> ret = new ArrayList<>();
 
         for (BoxObject o : lst) {
@@ -67,7 +63,7 @@ public class StorageSearch {
         return ret;
     }
 
-    public static List<BoxFolder> toBoxFolders(List<BoxObject> lst) {
+    public List<BoxFolder> toBoxFolders(List<BoxObject> lst) {
         List<BoxFolder> ret = new ArrayList<>();
 
         for (BoxObject o : lst) {
@@ -230,7 +226,7 @@ public class StorageSearch {
     public StorageSearch filterOnlyFiles() {
 
         List<BoxObject> filtered = new ArrayList<>();
-        filtered.addAll(StorageSearch.toBoxFiles(results));
+        filtered.addAll(toBoxFiles(results));
         results = filtered;
 
         return this;
@@ -239,7 +235,7 @@ public class StorageSearch {
     public StorageSearch filterOnlyDirectories() {
 
         List<BoxObject> filtered = new ArrayList<>();
-        filtered.addAll(StorageSearch.toBoxFolders(results));
+        filtered.addAll(toBoxFolders(results));
         results = filtered;
 
         return this;
@@ -286,36 +282,21 @@ public class StorageSearch {
         return sortByName(false);
     }
 
-    public StorageSearch sortByName(boolean caseSensitive) {
+    public StorageSearch sortByName(final boolean caseSensitive) {
 
-        if (caseSensitive) {
-            Collections.sort(results, new Comparator<BoxObject>() {
-
-                public int compare(BoxObject o1, BoxObject o2) {
-                    String s1 = o1.name;
-                    String s2 = o2.name;
-                    return s1.compareTo(s2);
-                }
-            });
-        } else {
-            Collections.sort(results, new Comparator<BoxObject>() {
-
-                public int compare(BoxObject o1, BoxObject o2) {
-                    String s1 = o1.name;
-                    String s2 = o2.name;
-                    return s1.toLowerCase().compareTo(s2.toLowerCase());
-                }
-            });
-        }
+        Collections.sort(results, (o1, o2) -> {
+            String s1 = o1.name;
+            String s2 = o2.name;
+            return (caseSensitive ? s1.compareTo(s2) : s1.compareToIgnoreCase(s2));
+        });
 
         return this;
     }
 
     private List<BoxObject> collectAll() throws QblStorageException {
+        navigation.navigateToRoot();
         List<BoxObject> lst = new ArrayList<>();
-
         addAll(lst);
-
         return lst;
     }
 
@@ -323,10 +304,13 @@ public class StorageSearch {
 
         for (BoxFile file : navigation.listFiles()) {
             lst.add(file);
-
             pathMapping.put(navigation.getPath(file), file);
         }
 
+        for (BoxObject file : navigation.listExternals()) {
+            lst.add(file);
+            pathMapping.put(navigation.getPath(file), file);
+        }
         for (BoxFolder folder : navigation.listFolders()) {
             lst.add(folder);
 
@@ -340,23 +324,13 @@ public class StorageSearch {
 
     @Override
     public StorageSearch clone() throws CloneNotSupportedException {
-        return new StorageSearch(cloneResultList(getResults()), (Hashtable<String, BoxObject>) getPathMapping().clone());
+        List<BoxObject> resultCopy = new ArrayList<>(results.size());
+        Collections.copy(resultCopy, getResults());
+        try {
+            return new StorageSearch(navigation, resultCopy, (Hashtable<String, BoxObject>) getPathMapping().clone());
+        } catch (QblStorageException e) {
+            throw new CloneNotSupportedException();
+        }
     }
 
-    private List<BoxObject> cloneResultList(List<BoxObject> list) throws CloneNotSupportedException {
-        List<BoxObject> clone = new ArrayList<>(list.size());
-        for (BoxObject item : list) {
-            if (item instanceof BoxFile) {
-                clone.add(((BoxFile) item).clone());
-            }
-            if (item instanceof BoxExternalFile) {
-                clone.add(((BoxExternalFile) item).clone());
-            } else if (item instanceof BoxExternalFolder) {
-                clone.add(((BoxExternalFolder) item).clone());
-            } else if (item instanceof BoxFolder) {
-                clone.add(((BoxFolder) item).clone());
-            }
-        }
-        return clone;
-    }
 }

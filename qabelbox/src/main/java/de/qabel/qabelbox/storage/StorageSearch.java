@@ -29,11 +29,10 @@ public class StorageSearch {
         init();
     }
 
-    protected StorageSearch(BoxNavigation navigation, List<BoxObject> results, Hashtable<String, BoxObject> pathMapping) throws QblStorageException {
+    private StorageSearch(BoxNavigation navigation, List<BoxObject> results) throws QblStorageException {
         this.navigation = navigation;
         init();
         this.results = results;
-        this.pathMapping = pathMapping;
     }
 
     private void init() throws QblStorageException {
@@ -117,8 +116,7 @@ public class StorageSearch {
 
         for (BoxObject o : results) {
             String objKey = caseSensitive ? o.name : o.name.toLowerCase();
-
-            if (objKey.indexOf(name) >= 0) {
+            if (objKey.contains(name)) {
                 filtered.add(o);
             }
         }
@@ -250,11 +248,11 @@ public class StorageSearch {
 
             //BoxObject does not implement equals (failed as pathMapping-key), but normal equals might work here?
             if (o instanceof BoxFile && tgt instanceof BoxFile) {
-                if (((BoxFile) o).equals((BoxFile) tgt)) {
+                if (o.equals(tgt)) {
                     return path;
                 }
             } else if (o instanceof BoxFolder && tgt instanceof BoxFolder) {
-                if (((BoxFolder) o).equals((BoxFolder) tgt)) {
+                if (o.equals(tgt)) {
                     return path;
                 }
             }
@@ -322,10 +320,8 @@ public class StorageSearch {
 
     @Override
     public StorageSearch clone() throws CloneNotSupportedException {
-        List<BoxObject> resultCopy = new ArrayList<>(results.size());
-        Collections.copy(resultCopy, getResults());
         try {
-            return new StorageSearch(navigation, resultCopy, (Hashtable<String, BoxObject>) getPathMapping().clone());
+            return new StorageSearch(navigation, new ArrayList<>(results));
         } catch (QblStorageException e) {
             throw new CloneNotSupportedException();
         }

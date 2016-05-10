@@ -1,9 +1,5 @@
 package de.qabel.qabelbox.ui;
 
-/**
- * Created by danny on 05.01.2016.
- */
-
 import android.os.PowerManager;
 import android.support.test.espresso.action.ViewActions;
 import android.support.test.rule.ActivityTestRule;
@@ -27,6 +23,7 @@ import de.qabel.qabelbox.config.AppPreference;
 import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.ui.helper.SystemAnimations;
 import de.qabel.qabelbox.ui.helper.UIActionHelper;
+import de.qabel.qabelbox.ui.helper.UIBoxHelper;
 import de.qabel.qabelbox.ui.helper.UITestHelper;
 import de.qabel.qabelbox.ui.matcher.ToolbarMatcher;
 
@@ -41,11 +38,6 @@ import static android.support.test.espresso.matcher.ViewMatchers.withText;
 import static junit.framework.Assert.assertTrue;
 
 
-/**
- * Tests for MainActivity.
- */
-
-@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class WelcomeScreenUITest {
 
     @Rule
@@ -54,6 +46,10 @@ public class WelcomeScreenUITest {
         @Override
         protected void beforeActivityLaunched() {
             super.beforeActivityLaunched();
+            UIBoxHelper mBoxHelper = new UIBoxHelper(QabelBoxApplication.getInstance());
+            mBoxHelper.bindService(QabelBoxApplication.getInstance());
+            mBoxHelper.removeAllIdentities();
+            mBoxHelper.addIdentityWithoutVolume("user1");
             prefs = new AppPreference(QabelBoxApplication.getInstance());
             prefs.setWelcomeScreenShownAt(0);
         }
@@ -65,22 +61,15 @@ public class WelcomeScreenUITest {
     private SystemAnimations mSystemAnimations;
     private AppPreference prefs;
 
-    public WelcomeScreenUITest() throws IOException {
-
-    }
-
     @After
     public void cleanUp() {
-
         wakeLock.release();
         mSystemAnimations.enableAll();
     }
 
     @Before
     public void setUp() throws IOException, QblStorageException {
-
         mActivity = mActivityTestRule.getActivity();
-
         wakeLock = UIActionHelper.wakeupDevice(mActivity);
         mSystemAnimations = new SystemAnimations(mActivity);
         mSystemAnimations.disableAll();
@@ -88,7 +77,6 @@ public class WelcomeScreenUITest {
 
 
     @Test
-    @Ignore
     public void testWelcomeScreenSlide() {
         int pagerId = R.id.pager;
         onView(withId(R.id.btn_show_sources)).check(matches(isDisplayed()));
@@ -110,8 +98,6 @@ public class WelcomeScreenUITest {
         onView(withId(pagerId)).perform(swipeLeft());
 
         checkDisclaimer();
-
-
     }
 
     private void checkDisclaimer() {

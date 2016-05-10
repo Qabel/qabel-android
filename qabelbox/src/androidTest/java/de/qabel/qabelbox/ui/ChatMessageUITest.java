@@ -1,5 +1,7 @@
 package de.qabel.qabelbox.ui;
 
+import android.content.Context;
+import android.content.Intent;
 import android.os.PowerManager;
 import android.support.design.internal.NavigationMenuItemView;
 import android.support.test.espresso.ViewAssertion;
@@ -9,15 +11,16 @@ import android.util.Log;
 
 import com.squareup.spoon.Spoon;
 
-import org.json.JSONObject;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 
 import java.io.IOException;
 
 import de.qabel.core.config.Contact;
+import de.qabel.core.config.Contacts;
 import de.qabel.core.config.Identity;
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
@@ -26,8 +29,10 @@ import de.qabel.qabelbox.activities.MainActivity;
 import de.qabel.qabelbox.chat.ChatMessageItem;
 import de.qabel.qabelbox.chat.ChatServer;
 import de.qabel.qabelbox.communication.URLs;
-import de.qabel.qabelbox.config.ContactExportImport;
+import de.qabel.qabelbox.exceptions.QblStorageEntityExistsException;
 import de.qabel.qabelbox.exceptions.QblStorageException;
+import de.qabel.qabelbox.helper.AccountHelper;
+import de.qabel.qabelbox.helper.Helper;
 import de.qabel.qabelbox.services.LocalQabelService;
 import de.qabel.qabelbox.ui.helper.SystemAnimations;
 import de.qabel.qabelbox.ui.helper.UIActionHelper;
@@ -51,7 +56,6 @@ import static android.support.test.espresso.matcher.ViewMatchers.withClassName;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static android.support.test.espresso.matcher.ViewMatchers.withParent;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
-import static android.test.MoreAsserts.assertNotEmpty;
 import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertTrue;
@@ -66,7 +70,11 @@ public class ChatMessageUITest {
     public ActivityTestRule<MainActivity> mActivityTestRule = new ActivityTestRule<MainActivity>(MainActivity.class, false, true) {
         @Override
         public void beforeActivityLaunched() {
-            setupData();
+            try {
+                setupData();
+            } catch (QblStorageEntityExistsException e) {
+                throw new RuntimeException(e);
+            }
         }
 
     };
@@ -76,12 +84,36 @@ public class ChatMessageUITest {
     private SystemAnimations mSystemAnimations;
     private final String TAG = this.getClass().getSimpleName();
     private Contact contact2, contact1;
+    private Identity identity;
+
+    private void setupData() throws QblStorageEntityExistsException {
+        mActivity = mActivityTestRule.getActivity();
+        mBoxHelper = new UIBoxHelper(QabelBoxApplication.getInstance());
+        mBoxHelper.bindService(QabelBoxApplication.getInstance());
+        mBoxHelper.createTokenIfNeeded(false);
+        mBoxHelper.removeAllIdentities();
+        Identity user1 = mBoxHelper.addIdentityWithoutVolume("user1");
+        Identity user2 = mBoxHelper.addIdentityWithoutVolume("user2");
+        Contacts contacts = mBoxHelper.getService().getContacts(user1);
+        for (Contact contact: contacts.getContacts()) {
+            mBoxHelper.getService().deleteContact(contact);
+        }
+        contacts = mBoxHelper.getService().getContacts(user2);
+        for (Contact contact: contacts.getContacts()) {
+            mBoxHelper.getService().deleteContact(contact);
+        }
+
+        contact2 = addContact(user1, user2);
+        contact1 = addContact(user2, user1);
+        mBoxHelper.setActiveIdentity(user2);
+    }
 
     @After
     public void cleanUp() {
         wakeLock.release();
         mSystemAnimations.enableAll();
         mBoxHelper.unbindService(QabelBoxApplication.getInstance());
+        mBoxHelper.removeAllIdentities();
     }
 
     @Before
@@ -92,72 +124,16 @@ public class ChatMessageUITest {
         wakeLock = UIActionHelper.wakeupDevice(mActivity);
         mSystemAnimations = new SystemAnimations(mActivity);
         mSystemAnimations.disableAll();
+        LocalQabelService service = mActivity.getService();
+        identity = service.getActiveIdentity();
+        assertNotNull(identity);
     }
+
+
+    @Ignore
     @Test
-    public void testSendMessage() {
+    public void testSendOneMessage() {
         Spoon.screenshot(mActivity, "empty");
-        sendOneAndCheck(1);
-        sendOneAndCheck(2);
-    }
-
-    /**
-     * test visualization of chatmessage. messages direct injected with ui
-     */
-    @Test
-    public void testNewMessageVisualization() {
-
-        //prepaire data
-        LocalQabelService service = QabelBoxApplication.getInstance().getService();
-
-        String identityKey = service.getActiveIdentity().getEcPublicKey().getReadableKeyIdentifier();
-        contact1 = createContact("contact1");
-        contact2 = createContact("contact2");
-        ChatServer chatServer = mActivity.chatServer;
-        String contact1Alias = contact1.getAlias();
-        String contact2Alias = contact2.getAlias();
-
-        String contact1Key = contact1.getEcPublicKey().getReadableKeyIdentifier();
-        String contact2Key = contact2.getEcPublicKey().getReadableKeyIdentifier();
-
-        //start test... go to contact fragment
-        openDrawer(R.id.drawer_layout);
-        onView(allOf(withText(R.string.Contacts), withParent(withClassName(endsWith("MenuView")))))
-                .perform(click());
-        Spoon.screenshot(mActivity, "contacts");
-        int messageCount = chatServer.getAllMessages(contact1).length;
-        Log.d(TAG, "count: " + messageCount);
-
-        addMessageFromOneContact(identityKey, chatServer, contact1Alias, contact1Key);
-        addMessageFromTwoContacts(identityKey, chatServer, contact1Alias, contact2Alias, contact1Key, contact2Key);
-        addOwnMessage(chatServer, contact1Alias, contact2Alias, contact1Key);
-
-    }
-
-    private void setupData() {
-        URLs.setBaseBlockURL(TestConstants.BLOCK_URL);
-        mActivity = mActivityTestRule.getActivity();
-        mBoxHelper = new UIBoxHelper(QabelBoxApplication.getInstance());
-        mBoxHelper.bindService(QabelBoxApplication.getInstance());
-        mBoxHelper.createTokenIfNeeded(false);
-        mBoxHelper.removeAllIdentities();
-        Identity user1 = mBoxHelper.addIdentityWithoutVolume("user1");
-        Identity user2 = mBoxHelper.addIdentityWithoutVolume("user2");
-
-        addContact(user1, user2);
-        addContact(user2, user1);
-        mBoxHelper.setActiveIdentity(user2);
-
-
-        assertNotEmpty(mBoxHelper.getService().getContacts().getContacts());
-    }
-
-    private void addContact(Identity identity, Identity contact) {
-        Contact asContact = new Contact(contact.getAlias(),
-                contact.getDropUrls(),contact.getEcPublicKey());
-		mBoxHelper.getService().addContact(asContact, identity);
-    }
-
-    private void sendOneAndCheck(int messages) {
         openDrawer(R.id.drawer_layout);
 
         onView(allOf(withText(R.string.Contacts), withParent(withClassName(endsWith("MenuView")))))
@@ -175,15 +151,13 @@ public class ChatMessageUITest {
         ToolbarMatcher.matchToolbarTitle("user1").check(matches(isDisplayed()));
 
         onView(withId(R.id.etText)).check(matches(isDisplayed())).perform(click());
-        onView(withId(R.id.etText)).perform(typeText("text" + messages), pressImeActionButton());
+        onView(withId(R.id.etText)).perform(typeText("text" + 1), pressImeActionButton());
         closeSoftKeyboard();
         onView(withText(R.string.btn_chat_send)).check(matches(isDisplayed())).perform(click());
 
-        UITestHelper.sleep(200);
-
         onView(withId(R.id.contact_chat_list)).
                 check(matches(isDisplayed())).
-                check(matches(QabelMatcher.withListSize(messages)));
+                check(matches(QabelMatcher.withListSize(1)));
         pressBack();
 
         //go to identity user 1
@@ -193,13 +167,13 @@ public class ChatMessageUITest {
 
         openDrawer(R.id.drawer_layout);
         onView(withText(R.string.Contacts)).check(matches(isDisplayed())).perform(click());
-        Spoon.screenshot(mActivity, "message" + messages);
+        Spoon.screenshot(mActivity, "message" + 1);
         checkVisibilityState("user2", QabelMatcher.isVisible());
         onView(withText("user2")).check(matches(isDisplayed())).perform(click());
 
         onView(withId(R.id.contact_chat_list)).
                 check(matches(isDisplayed())).
-                check(matches(QabelMatcher.withListSize(messages)));
+                check(matches(QabelMatcher.withListSize(1)));
         pressBack();
 
         //go to user 2
@@ -209,102 +183,66 @@ public class ChatMessageUITest {
         openDrawer(R.id.drawer_layout);
     }
 
-    private Contact createContact(String name) {
-        Identity identity = mBoxHelper.createIdentity(name);
-        String json = ContactExportImport.exportIdentityAsContact(identity);
-        return addContact(json);
-    }
+    /**
+     * test visualization of chatmessage. messages direct injected with ui
+     */
+    @Test
+    public void testNewMessageVisualization() {
+        Context context = mActivity.getApplicationContext();
+        String identityKey = identity.getEcPublicKey().getReadableKeyIdentifier();
+        ChatServer chatServer = mActivity.chatServer;
+        String contact1Alias = contact1.getAlias();
 
-    private Contact addContact(String contactJSON) {
-        try {
-            Contact contact = ContactExportImport.parseContactForIdentity(null, new JSONObject(contactJSON));
-            mBoxHelper.getService().addContact(contact);
-            return contact;
-        } catch (Exception e) {
-            assertNotNull(e);
-            Log.e(TAG, "error on add contact", e);
-        }
-        return null;
-    }
+        String contact1Key = contact1.getEcPublicKey().getReadableKeyIdentifier();
 
-
-    private void addMessageFromTwoContacts(String identityKey, ChatServer chatServer, String contact1Alias, String contact2Alias, String contact1Key, String contact2Key) {
-        ChatMessageItem dbItem;
-        int newMessageCount;
-
-        //send message to 2 users
-        dbItem = createNewChatMessageItem(contact1Key, identityKey, "from: " + contact1Alias + "message2");
-        chatServer.storeIntoDB(dbItem);
-        dbItem = createNewChatMessageItem(contact2Key, identityKey, "from: " + contact2Alias + "message1");
-        chatServer.storeIntoDB(dbItem);
+        //start test... go to contact fragment
+        openDrawer(R.id.drawer_layout);
+        onView(allOf(withText(R.string.Contacts), withParent(withClassName(endsWith("MenuView")))))
+                .perform(click());
+        Spoon.screenshot(mActivity, "contacts");
+        int messageCount = chatServer.getAllMessages(identity, contact1).length;
+        Log.d(TAG, "count: " + messageCount);
 
 
-        //check if 2 contacts have indicator abd click on contact1
-        refreshContactView(chatServer);
-        Spoon.screenshot(mActivity, "contactsTwoNewMessage");
-
-        //check if complete db match correct entry size
-        assertThat(chatServer.getAllMessages().length, is(3));
-
-        //check states
-        assertTrue(chatServer.hasNewMessages(contact1));
-        assertTrue(chatServer.hasNewMessages(contact2));
-
-        //check single entry count
-        newMessageCount = chatServer.getAllMessages(contact1).length + chatServer.getAllMessages(contact2).length;
-        assertThat(newMessageCount, is(3));
-
-        //check indicator visibility
-        checkVisibilityState(contact2Alias, QabelMatcher.isVisible());
-        checkVisibilityState(contact1Alias, QabelMatcher.isVisible()).perform(click());
-
-        //check RecyclerView size
-        onView(withId(R.id.contact_chat_list)).check(matches(QabelMatcher.withListSize(2)));
-        pressBack();
-
-        //check if indicator on contact 1 not displayer
-        checkVisibilityState(contact1Alias, QabelMatcher.isInvisible());
-
-        //same with contact2
-        checkVisibilityState(contact2Alias, QabelMatcher.isVisible()).perform(click());
-        onView(withId(R.id.contact_chat_list)).check(matches(QabelMatcher.withListSize(1)));
-        pressBack();
-        checkVisibilityState(contact2Alias, QabelMatcher.isInvisible());
-    }
-
-    private void addMessageFromOneContact(String identityKey, ChatServer chatServer, String contact1Alias, String contact1Key) {
         ChatMessageItem dbItem = createNewChatMessageItem(contact1Key, identityKey, "from: " + contact1Alias + "message1");
-        chatServer.storeIntoDB(dbItem);
-        int newMessageCount = chatServer.getAllMessages(contact1).length;
+        chatServer.storeIntoDB(identity, dbItem);
+        int newMessageCount = chatServer.getAllMessages(identity, contact1).length;
 
         Spoon.screenshot(mActivity, "contactsOneNewMessage");
         assertThat(1, is(newMessageCount));
-        assertTrue(chatServer.hasNewMessages(contact1));
-        assertFalse(chatServer.hasNewMessages(contact2));
+        assertTrue(chatServer.hasNewMessages(identity, contact1));
+        assertFalse(chatServer.hasNewMessages(identity, contact2));
+        refreshViewIntent(context);
+
 
         //check if new view indicator displayed on correct user and click on this item
-        refreshContactView(chatServer);
         checkVisibilityState(contact1Alias, QabelMatcher.isVisible()).perform(click());
 
         //check if RecyclerView contain correct count of data
         onView(withId(R.id.contact_chat_list)).check(matches(QabelMatcher.withListSize(1)));
         pressBack();
-        //check if indicator not displayer (we have viewed the item)
+        refreshViewIntent(context);
+        //check if indicator not displayed (we have viewed the item)
         checkVisibilityState(contact1Alias, QabelMatcher.isInvisible());
+
     }
 
-    private void addOwnMessage(ChatServer chatServer, String contact1Alias, String contact2Alias, String contact1Key) {
-        ChatMessageItem item = new ChatMessageItem(chatServer.getTextDropMessage("ownmessage"));
-        item.receiver = contact1Key;
-        item.sender = QabelBoxApplication.getInstance().getService().getActiveIdentity().getEcPublicKey().getReadableKeyIdentifier();
-        item.isNew = 0;
+    private Contact addContact(Identity identity, Identity contact) throws QblStorageEntityExistsException {
+        Contact asContact = new Contact(contact.getAlias(),
+                contact.getDropUrls(),contact.getEcPublicKey());
+		mBoxHelper.getService().addContact(asContact, identity);
+        return asContact;
+    }
 
-        chatServer.storeIntoDB(item);
-        refreshContactView(chatServer);
-        checkVisibilityState(contact2Alias, QabelMatcher.isInvisible());
-        onView(withText(contact1Alias)).perform(click());
-        onView(withId(R.id.contact_chat_list)).check(matches(QabelMatcher.withListSize(3)));
-        pressBack();
+    private void refreshViewIntent(Context context) {
+        Intent intent = new Intent(Helper.INTENT_REFRESH_CONTACTLIST);
+        context.sendBroadcast(intent);
+        Intent chatIntent = new Intent(Helper.INTENT_REFRESH_CHAT);
+        context.sendBroadcast(chatIntent);
+    }
+
+    private void onDemandSync() {
+        AccountHelper.startOnDemandSyncAdapter();
     }
 
     /**
@@ -315,16 +253,12 @@ public class ChatMessageUITest {
      * @return ViewInteraction
      */
     private ViewInteraction checkVisibilityState(String alias, ViewAssertion visibility) {
+        UITestHelper.sleep(500);
         return onView(allOf(QabelMatcher.withDrawable(R.drawable.eye), hasSibling(withText(alias)))).check(visibility);
     }
 
-    private void refreshContactView(ChatServer chatServer) {
-        chatServer.sendCallbacksRefreshed();
-        UITestHelper.sleep(500);
-    }
-
     private ChatMessageItem createNewChatMessageItem(String sender, String receiver, String message) {
-        return new ChatMessageItem(-1, (short) 1, System.currentTimeMillis() + System.nanoTime() % 1000, sender, receiver, message, ChatMessageItem.BOX_MESSAGE, mActivity.chatServer.getTextDropMessagePayload(message));
+        return new ChatMessageItem(-1, (short) 1, System.currentTimeMillis() + System.nanoTime() % 1000, sender, receiver, message, ChatMessageItem.BOX_MESSAGE, mActivity.chatServer.createTextDropMessagePayload(message));
     }
 
 }

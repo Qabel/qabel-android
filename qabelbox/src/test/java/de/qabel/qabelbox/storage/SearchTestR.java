@@ -154,14 +154,8 @@ public class SearchTestR {
 
     @Test
     public void testCollectAll() throws Exception {
-
         StorageSearch search = new StorageSearch(navigation);
         List<BoxObject> searchResults = search.getResults();
-
-        for (BoxObject o : searchResults) {
-            debug(o);
-        }
-
         assertEquals(OBJECT_COUNT, searchResults.size());
     }
 
@@ -242,7 +236,6 @@ public class SearchTestR {
         assertEquals(L1_DIR_1, dirs.get(0).name);
         search.reset();
 
-        search.reset();
         search.filterByNameCaseInsensitive("level1").filterOnlyFiles();
         assertEquals(2, search.getResults().size());
         assertEquals(L1_FILE_1, search.getResults().get(0).name);

@@ -38,13 +38,11 @@ public class StorageSearch {
 
     private void init() throws QblStorageException {
         this.results = collectAll();
-        this.nodeList = new ArrayList<>(results.size());
-        Collections.copy(this.nodeList, this.results);
+        this.nodeList = new ArrayList<>(this.results);
     }
 
     public void reset() throws QblStorageException {
-        this.results.clear();
-        Collections.copy(this.results, this.nodeList);
+        this.results = new ArrayList<>(this.nodeList);
     }
 
     public boolean isValidSearchTerm(String name) {

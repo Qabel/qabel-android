@@ -16,15 +16,15 @@ public class CreateAccountMainFragment extends BaseIdentityFragment implements V
     private boolean skipToLogin = false;
 
     public static String SKIP_TO_LOGIN = "SKIP_TO_LOGIN";
-    private String account_name;
-    private String account_email;
+    private String accountName;
+    private String accountEmail;
 
 
     @Override
     public void setArguments(Bundle args) {
         skipToLogin = args.getBoolean(SKIP_TO_LOGIN, false);
-        account_name = args.getString(ACCOUNT_NAME);
-        account_email = args.getString(ACCOUNT_EMAIL);
+        accountName = args.getString(ACCOUNT_NAME);
+        accountEmail = args.getString(ACCOUNT_EMAIL);
     }
 
     @Nullable
@@ -66,8 +66,8 @@ public class CreateAccountMainFragment extends BaseIdentityFragment implements V
 
         CreateAccountLoginFragment fragment = new CreateAccountLoginFragment();
         Bundle bundle = new Bundle();
-        bundle.putString(ACCOUNT_NAME, account_name);
-        bundle.putString(ACCOUNT_EMAIL, account_email);
+        bundle.putString(ACCOUNT_NAME, accountName);
+        bundle.putString(ACCOUNT_EMAIL, accountEmail);
         fragment.setArguments(bundle);
         getFragmentManager().beginTransaction().replace(R.id.fragment_container_content, fragment).addToBackStack(null).commit();
     }

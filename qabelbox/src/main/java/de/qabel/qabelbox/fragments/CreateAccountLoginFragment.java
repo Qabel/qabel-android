@@ -33,13 +33,13 @@ public class CreateAccountLoginFragment extends BaseIdentityFragment {
 
     private BoxAccountRegisterServer mBoxAccountServer;
     private View resetPassword;
-    private String account_email;
-    private String account_name;
+    private String accountEmail;
+    private String accountName;
 
     @Override
     public void setArguments(Bundle args) {
-        account_name = args.getString(ACCOUNT_NAME);
-        account_email = args.getString(ACCOUNT_EMAIL);
+        accountName = args.getString(ACCOUNT_NAME);
+        accountEmail = args.getString(ACCOUNT_EMAIL);
     }
 
     @Nullable
@@ -49,25 +49,22 @@ public class CreateAccountLoginFragment extends BaseIdentityFragment {
 
         View view = inflater.inflate(R.layout.fragment_create_account_login, container, false);
         etUserName = ((TextView) view.findViewById(R.id.et_username));
-        if (account_name != null) {
-            etUserName.setText(account_name);
+        if (accountName != null) {
+            etUserName.setText(accountName);
             etUserName.setEnabled(false);
         }
         etPassword = (EditText) view.findViewById(R.id.et_password);
         resetPassword = view.findViewById(R.id.reset_password);
 
-        resetPassword.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+        resetPassword.setOnClickListener(v -> {
 
-                getFragmentManager().popBackStack();
-                CreateAccountResetPasswordFragment fragment = new CreateAccountResetPasswordFragment();
-                Bundle bundle = new Bundle();
-                bundle.putString(ACCOUNT_EMAIL, account_email);
-                fragment.setArguments(bundle);
-                getActivity().getFragmentManager().beginTransaction().replace(
-                        R.id.fragment_container_content, fragment).addToBackStack(null).commit();
-            }
+            getFragmentManager().popBackStack();
+            CreateAccountResetPasswordFragment fragment = new CreateAccountResetPasswordFragment();
+            Bundle bundle = new Bundle();
+            bundle.putString(ACCOUNT_EMAIL, accountEmail);
+            fragment.setArguments(bundle);
+            getActivity().getFragmentManager().beginTransaction().replace(
+                    R.id.fragment_container_content, fragment).addToBackStack(null).commit();
         });
         setHasOptionsMenu(true);
         return view;

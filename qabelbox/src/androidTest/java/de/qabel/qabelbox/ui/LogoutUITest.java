@@ -72,15 +72,15 @@ public class LogoutUITest {
     }
 
     @Test
-	public void testLogout() {
+    public void testLogout() {
         setAccountPreferences();
         appPreference.setToken(TestConstants.TOKEN);
         Intents.release();
         mainActivityActivityTestRule.launchActivity(null);
-		openDrawer(R.id.drawer_layout);
-		onView(withText(R.string.logout))
-				.check(matches(isDisplayed()))
-				.perform(click());
+        openDrawer(R.id.drawer_layout);
+        onView(withText(R.string.logout))
+                .check(matches(isDisplayed()))
+                .perform(click());
         Intents.intended(allOf(
                 hasFlag(Intent.FLAG_ACTIVITY_CLEAR_TASK),
                 hasFlag(Intent.FLAG_ACTIVITY_TASK_ON_HOME),

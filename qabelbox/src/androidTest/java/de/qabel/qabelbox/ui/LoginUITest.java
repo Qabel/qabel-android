@@ -73,6 +73,6 @@ public class LoginUITest {
         onView(withId(R.id.reset_password)).perform(click());
 
         onView(withId(R.id.et_email)).check(matches(allOf(
-			withText(LogoutUITest.ACCOUNT_E_MAIL), not(isEnabled()))));
+                withText(LogoutUITest.ACCOUNT_E_MAIL), not(isEnabled()))));
     }
 }

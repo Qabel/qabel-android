@@ -792,7 +792,7 @@ public class MainActivity extends CrashReportingActivity
         } else if (id == R.id.nav_help) {
             selectHelpFragment();
         } else if (id == R.id.nav_logout) {
-			performLogout();
+            performLogout();
         }
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
@@ -1222,7 +1222,7 @@ public class MainActivity extends CrashReportingActivity
 
     /*
         FRAGMENT SELECTION METHODS
-	*/
+    */
     private void selectManageIdentitiesFragment() {
         showMainFragment(IdentitiesFragment.newInstance(mService.getIdentities()),
                 TAG_MANAGE_IDENTITIES_FRAGMENT);

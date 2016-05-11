@@ -28,11 +28,11 @@ public class CreateAccountResetPasswordFragment extends BaseIdentityFragment {
 
     private TextView etEMail;
     private BoxAccountRegisterServer mBoxAccountServer;
-    private String account_email;
+    private String accountEmail;
 
     @Override
     public void setArguments(Bundle args) {
-        account_email = args.getString(ACCOUNT_EMAIL);
+        accountEmail = args.getString(ACCOUNT_EMAIL);
     }
 
     @Nullable
@@ -42,8 +42,8 @@ public class CreateAccountResetPasswordFragment extends BaseIdentityFragment {
 
         View view = inflater.inflate(R.layout.fragment_create_account_reset_password, container, false);
         etEMail = ((TextView) view.findViewById(R.id.et_email));
-        if (account_email != null) {
-            etEMail.setText(account_email);
+        if (accountEmail != null) {
+            etEMail.setText(accountEmail);
             etEMail.setEnabled(false);
         }
 

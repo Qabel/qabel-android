@@ -22,6 +22,10 @@ public class AppPreference {
         settings = context.getSharedPreferences("settings", Context.MODE_PRIVATE);
     }
 
+    public void clear() {
+        settings.edit().clear().commit();
+    }
+
     public void setToken(String token) {
 
         settings.edit().putString(P_TOKEN, token).commit();
@@ -85,5 +89,9 @@ public class AppPreference {
     public boolean shouldUpdateQuestionShowed(long currentTime) {
 
         return getLastAppUpdateQuestion() + NEW_UPATE_QUESTION_TIME_INTERVAL < currentTime;
+    }
+
+    public void logout() {
+        setToken(null);
     }
 }

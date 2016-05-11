@@ -33,6 +33,14 @@ public class CreateAccountLoginFragment extends BaseIdentityFragment {
 
     private BoxAccountRegisterServer mBoxAccountServer;
     private View resetPassword;
+    private String accountEmail;
+    private String accountName;
+
+    @Override
+    public void setArguments(Bundle args) {
+        accountName = args.getString(ACCOUNT_NAME);
+        accountEmail = args.getString(ACCOUNT_EMAIL);
+    }
 
     @Nullable
     @Override
@@ -41,17 +49,22 @@ public class CreateAccountLoginFragment extends BaseIdentityFragment {
 
         View view = inflater.inflate(R.layout.fragment_create_account_login, container, false);
         etUserName = ((TextView) view.findViewById(R.id.et_username));
+        if (accountName != null) {
+            etUserName.setText(accountName);
+            etUserName.setEnabled(false);
+        }
         etPassword = (EditText) view.findViewById(R.id.et_password);
         resetPassword = view.findViewById(R.id.reset_password);
 
-        resetPassword.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+        resetPassword.setOnClickListener(v -> {
 
-                getFragmentManager().popBackStack();
-                CreateAccountResetPasswordFragment fragment = new CreateAccountResetPasswordFragment();
-                getActivity().getFragmentManager().beginTransaction().replace(R.id.fragment_container_content, fragment).addToBackStack(null).commit();
-            }
+            getFragmentManager().popBackStack();
+            CreateAccountResetPasswordFragment fragment = new CreateAccountResetPasswordFragment();
+            Bundle bundle = new Bundle();
+            bundle.putString(ACCOUNT_EMAIL, accountEmail);
+            fragment.setArguments(bundle);
+            getActivity().getFragmentManager().beginTransaction().replace(
+                    R.id.fragment_container_content, fragment).addToBackStack(null).commit();
         });
         setHasOptionsMenu(true);
         return view;
@@ -169,7 +182,6 @@ public class CreateAccountLoginFragment extends BaseIdentityFragment {
     public String check() {
 
         UIHelper.showDialogMessage(getActivity(), R.string.dialog_headline_info, R.string.function_not_yet_implenented);
-        //return mChecker.check(editText);
         return null;
     }
 }

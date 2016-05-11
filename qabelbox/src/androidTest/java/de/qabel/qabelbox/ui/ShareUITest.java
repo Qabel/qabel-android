@@ -43,20 +43,16 @@ import static org.hamcrest.Matchers.is;
  */
 public class ShareUITest {
     @Rule
-    public IntentsTestRule<MainActivity> mActivityTestRule = new IntentsTestRule<>(MainActivity.class, false, true);
+    public IntentsTestRule<MainActivity> mActivityTestRule =
+            new MainActivityWithoutFilesFragmentTestRule();
     private MainActivity mActivity;
     private UIBoxHelper mBoxHelper;
     private PowerManager.WakeLock wakeLock;
     private SystemAnimations mSystemAnimations;
 
 
-    public ShareUITest() throws IOException {
-        setupData();
-    }
-
     @After
     public void cleanUp() {
-
         wakeLock.release();
         mSystemAnimations.enableAll();
         mBoxHelper.unbindService(QabelBoxApplication.getInstance());
@@ -64,8 +60,8 @@ public class ShareUITest {
 
     @Before
     public void setUp() throws IOException, QblStorageException {
-
-        mActivity = mActivityTestRule.getActivity();
+        setupData();
+        mActivity = mActivityTestRule.launchActivity(null);
         wakeLock = UIActionHelper.wakeupDevice(mActivity);
         mSystemAnimations = new SystemAnimations(mActivity);
         mSystemAnimations.disableAll();

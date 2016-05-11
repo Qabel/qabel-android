@@ -9,22 +9,17 @@ import com.squareup.spoon.Spoon;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.FixMethodOrder;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.runners.MethodSorters;
 
 import java.io.IOException;
 
-import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.activities.WelcomeScreenActivity;
 import de.qabel.qabelbox.config.AppPreference;
 import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.ui.helper.SystemAnimations;
 import de.qabel.qabelbox.ui.helper.UIActionHelper;
-import de.qabel.qabelbox.ui.helper.UIBoxHelper;
 import de.qabel.qabelbox.ui.helper.UITestHelper;
 import de.qabel.qabelbox.ui.matcher.ToolbarMatcher;
 
@@ -52,17 +47,19 @@ public class WelcomeScreenUITest {
 
     @After
     public void cleanUp() {
-        wakeLock.release();
+        if (wakeLock != null) {
+            wakeLock.release();
+        }
         mSystemAnimations.enableAll();
     }
 
     @Before
     public void setUp() throws IOException, QblStorageException {
         new AppPreference(InstrumentationRegistry.getTargetContext()).setWelcomeScreenShownAt(0);
-        wakeLock = UIActionHelper.wakeupDevice(mActivity);
         mSystemAnimations = new SystemAnimations(mActivity);
         mSystemAnimations.disableAll();
         mActivity = mActivityTestRule.launchActivity(null);
+        wakeLock = UIActionHelper.wakeupDevice(mActivity);
     }
 
 

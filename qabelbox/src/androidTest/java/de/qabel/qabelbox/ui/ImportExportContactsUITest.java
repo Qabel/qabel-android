@@ -7,11 +7,8 @@ import android.os.PowerManager;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.espresso.contrib.DrawerActions;
 import android.support.test.espresso.contrib.RecyclerViewActions;
-import android.support.test.espresso.intent.Intents;
 import android.support.test.espresso.intent.matcher.IntentMatchers;
 import android.support.test.espresso.intent.rule.IntentsTestRule;
-import android.support.test.rule.ActivityTestRule;
-import android.util.Log;
 
 import com.squareup.spoon.Spoon;
 
@@ -36,11 +33,9 @@ import de.qabel.qabelbox.activities.MainActivity;
 import de.qabel.qabelbox.communication.URLs;
 import de.qabel.qabelbox.config.ContactExportImport;
 import de.qabel.qabelbox.exceptions.QblStorageEntityExistsException;
-import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.fragments.ContactFragment;
 import de.qabel.qabelbox.helper.FileHelper;
 import de.qabel.qabelbox.services.LocalQabelService;
-import de.qabel.qabelbox.ui.helper.DocumentIntents;
 import de.qabel.qabelbox.ui.helper.SystemAnimations;
 import de.qabel.qabelbox.ui.helper.UIActionHelper;
 import de.qabel.qabelbox.ui.helper.UIBoxHelper;
@@ -69,6 +64,8 @@ import static org.hamcrest.Matchers.endsWith;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 
+box.exceptions.QblStorageException;
+
 public class ImportExportContactsUITest {
 
     private final String TAG = this.getClass().getSimpleName();
@@ -79,7 +76,7 @@ public class ImportExportContactsUITest {
 
     @Rule
     public IntentsTestRule<MainActivity> mActivityTestRule =
-            new IntentsTestRule<>(MainActivity.class, false, false);
+            new MainActivityWithoutFilesFragmentTestRule(false);
     private MainActivity mActivity;
     private UIBoxHelper mBoxHelper;
     private PowerManager.WakeLock wakeLock;
@@ -100,23 +97,18 @@ public class ImportExportContactsUITest {
 
     @Before
     public void setUp() throws Exception {
-        setupData();
-
-        mActivity = mActivityTestRule.launchActivity(null);
-        wakeLock = UIActionHelper.wakeupDevice(mActivity);
-        mSystemAnimations = new SystemAnimations(mActivity);
-        mSystemAnimations.disableAll();
-    }
-
-    private void setupData() throws Exception {
         URLs.setBaseBlockURL(TestConstants.BLOCK_URL);
-        mActivity = mActivityTestRule.getActivity();
         mBoxHelper = new UIBoxHelper(QabelBoxApplication.getInstance());
         mBoxHelper.bindService(QabelBoxApplication.getInstance());
         mBoxHelper.createTokenIfNeeded(false);
         mBoxHelper.removeAllIdentities();
         identity = mBoxHelper.addIdentity("spoon123");
         createTestContacts();
+
+        mActivity = mActivityTestRule.launchActivity(null);
+        wakeLock = UIActionHelper.wakeupDevice(mActivity);
+        mSystemAnimations = new SystemAnimations(mActivity);
+        mSystemAnimations.disableAll();
     }
 
     private void createTestContacts() throws JSONException, QblStorageEntityExistsException {

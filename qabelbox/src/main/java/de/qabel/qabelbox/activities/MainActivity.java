@@ -116,6 +116,10 @@ public class MainActivity extends CrashReportingActivity
     private static final int REQUEST_CODE_OPEN = 21;
     private static final int REQUEST_CODE_DELETE_FILE = 22;
 
+    // Intent extra to specifiy if the files fragment should be started
+    // Defaults to true and is used in tests to shortcut the activity creation
+    public static final String START_FILES_FRAGMENT = "START_FILES_FRAGMENT";
+
     private DrawerLayout drawer;
     public BoxVolume boxVolume;
     public ActionBarDrawerToggle toggle;
@@ -413,6 +417,7 @@ public class MainActivity extends CrashReportingActivity
 
         // Checks if a fragment should be launched
 
+        boolean start_files_fragment = intent.getBooleanExtra(START_FILES_FRAGMENT, true);
         if (type != null && intent != null && intent.getAction() != null) {
             String scheme = intent.getScheme();
 
@@ -443,11 +448,15 @@ public class MainActivity extends CrashReportingActivity
                     }
                     break;
                 default:
-                    initAndSelectFilesFragment();
+                    if (start_files_fragment) {
+                        initAndSelectFilesFragment();
+                    }
                     break;
             }
         } else {
-            initAndSelectFilesFragment();
+            if (start_files_fragment) {
+                initAndSelectFilesFragment();
+            }
         }
     }
 
@@ -782,6 +791,8 @@ public class MainActivity extends CrashReportingActivity
             selectAboutFragment();
         } else if (id == R.id.nav_help) {
             selectHelpFragment();
+        } else if (id == R.id.nav_logout) {
+            performLogout();
         }
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
@@ -1167,6 +1178,18 @@ public class MainActivity extends CrashReportingActivity
         });
     }
 
+    private void performLogout() {
+        new AppPreference(this).logout();
+        swapWithCreateAccountActivity();
+    }
+
+    private void swapWithCreateAccountActivity() {
+        Intent intent = new Intent(self, CreateAccountActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_TASK_ON_HOME);
+        startActivity(intent);
+        finish();
+    }
+
     public static void showQRCode(MainActivity activity, Identity identity) {
         activity.getFragmentManager().beginTransaction()
                 .replace(R.id.fragment_container, QRcodeFragment.newInstance(identity), null)
@@ -1199,7 +1222,7 @@ public class MainActivity extends CrashReportingActivity
 
     /*
         FRAGMENT SELECTION METHODS
-	*/
+    */
     private void selectManageIdentitiesFragment() {
         showMainFragment(IdentitiesFragment.newInstance(mService.getIdentities()),
                 TAG_MANAGE_IDENTITIES_FRAGMENT);

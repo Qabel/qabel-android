@@ -335,6 +335,7 @@ To all people who have supported our Indigogo Campaign
     <string name="no_connection">No Connection</string>
     <string name="close_app">Close App</string>
     <string name="retry_action">Retry</string>
+    <string name="logout">Logout</string>
 
 
 </resources>

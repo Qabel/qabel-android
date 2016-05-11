@@ -16,6 +16,15 @@ class MainActivityWithoutFilesFragmentTestRule extends IntentsTestRule<MainActiv
     }
 
     @Override
+    protected void afterActivityLaunched() {
+        try {
+            super.afterActivityLaunched();
+        } catch (IllegalStateException ignored) {
+            // Sometimes Intents.init was called twice because of an error in the previous test.
+        }
+    }
+
+    @Override
     protected Intent getActivityIntent() {
         Intent intent = super.getActivityIntent();
         intent.putExtra(MainActivity.START_FILES_FRAGMENT, false);

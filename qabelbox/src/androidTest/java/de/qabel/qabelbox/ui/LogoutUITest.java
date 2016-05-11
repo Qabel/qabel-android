@@ -1,23 +1,18 @@
 package de.qabel.qabelbox.ui;
 
-import android.content.Context;
 import android.content.Intent;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.espresso.intent.Intents;
 import android.support.test.espresso.intent.rule.IntentsTestRule;
 
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 
-import de.qabel.qabelbox.QabelBoxApplication;
+import de.qabel.desktop.repository.IdentityRepository;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.TestConstants;
 import de.qabel.qabelbox.activities.MainActivity;
-import de.qabel.qabelbox.communication.URLs;
 import de.qabel.qabelbox.config.AppPreference;
-import de.qabel.qabelbox.services.LocalQabelService;
-import de.qabel.qabelbox.ui.helper.UIBoxHelper;
+import de.qabel.qabelbox.persistence.RepositoryFactory;
 
 import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.action.ViewActions.click;
@@ -34,48 +29,16 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 
-public class LogoutUITest {
+public class LogoutUITest extends AccountUITest {
     public static final String ACCOUNT_NAME = "account_name";
     public static final String ACCOUNT_E_MAIL = "accountmail@example.com";
     IntentsTestRule<MainActivity> mainActivityActivityTestRule =
             new MainActivityWithoutFilesFragmentTestRule();
-    private AppPreference appPreference;
-    private LocalQabelService service;
-
-
-    @Before
-    public void setUp() {
-        Context context = InstrumentationRegistry.getTargetContext();
-        appPreference = new AppPreference(context);
-        appPreference.clear();
-        appPreference.setWelcomeScreenShownAt(1);
-        URLs.setBaseBlockURL(TestConstants.BLOCK_URL);
-        UIBoxHelper uiBoxHelper = new UIBoxHelper(InstrumentationRegistry.getTargetContext());
-        uiBoxHelper.bindService(QabelBoxApplication.getInstance());
-        service = uiBoxHelper.getService();
-        uiBoxHelper.createTokenIfNeeded(false);
-        uiBoxHelper.removeAllIdentities();
-        uiBoxHelper.addIdentity("identity");
-    }
-
-    @After
-    public void tearDown() {
-        if (appPreference != null) {
-            // Because other tests are probably not correctly isolated
-            setAccountPreferences();
-        }
-    }
-
-    public void setAccountPreferences() {
-        appPreference.setAccountName(ACCOUNT_NAME);
-        appPreference.setAccountEMail(ACCOUNT_E_MAIL);
-    }
 
     @Test
-    public void testLogout() {
+    public void testLogout() throws Exception {
         setAccountPreferences();
         appPreference.setToken(TestConstants.TOKEN);
-        Intents.release();
         mainActivityActivityTestRule.launchActivity(null);
         openDrawer(R.id.drawer_layout);
         onView(withText(R.string.logout))
@@ -93,8 +56,12 @@ public class LogoutUITest {
         assertThat("Login email deleted", appPreference.getAccountEMail(), notNullValue());
     }
 
-    public void assertIdentitiesNotDeleted() {
-        assertThat(service.getIdentities().getIdentities(), not(empty()));
+    public void assertIdentitiesNotDeleted() throws Exception {
+        RepositoryFactory factory = new RepositoryFactory(
+                InstrumentationRegistry.getTargetContext());
+        IdentityRepository identityRepository = factory.getIdentityRepository(
+                factory.getAndroidClientDatabase());
+        assertThat(identityRepository.findAll().getIdentities(), not(empty()));
     }
 
 }

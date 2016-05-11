@@ -39,6 +39,7 @@ import de.qabel.qabelbox.ui.helper.UIActionHelper;
 import de.qabel.qabelbox.ui.helper.UIBoxHelper;
 import de.qabel.qabelbox.ui.helper.UITestHelper;
 import de.qabel.qabelbox.ui.matcher.QabelMatcher;
+import de.qabel.qabelbox.ui.matcher.ToolbarMatcher;
 
 import static android.support.test.espresso.Espresso.closeSoftKeyboard;
 import static android.support.test.espresso.Espresso.onView;
@@ -147,7 +148,7 @@ public class ChatMessageUITest {
         onView(withId(R.id.contact_chat_list)).check(matches(isDisplayed()));
 
         //Check Username is displayed in chatview
-        QabelMatcher.matchToolbarTitle("user1").check(matches(isDisplayed()));
+        ToolbarMatcher.matchToolbarTitle("user1").check(matches(isDisplayed()));
 
         onView(withId(R.id.etText)).check(matches(isDisplayed())).perform(click());
         onView(withId(R.id.etText)).perform(typeText("text" + 1), pressImeActionButton());

@@ -31,7 +31,7 @@ import de.qabel.qabelbox.config.QabelSchema;
 import de.qabel.qabelbox.helper.FileHelper;
 import de.qabel.qabelbox.ui.helper.UIBoxHelper;
 import de.qabel.qabelbox.ui.helper.UITestHelper;
-import de.qabel.qabelbox.ui.matcher.QabelMatcher;
+import de.qabel.qabelbox.ui.matcher.ToolbarMatcher;
 
 import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.action.ViewActions.click;
@@ -98,7 +98,7 @@ public class OpenQabelFilesFromExternalAppsUITest extends UIBoxHelper {
             //indicate no error on tested code
         }
 
-        QabelMatcher.matchToolbarTitle(mActivity.getString(R.string.headline_add_identity))
+        ToolbarMatcher.matchToolbarTitle(mActivity.getString(R.string.headline_add_identity))
                 .check(matches(isDisplayed()));
     }
 

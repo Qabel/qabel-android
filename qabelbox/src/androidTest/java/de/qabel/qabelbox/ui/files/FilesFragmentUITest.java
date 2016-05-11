@@ -15,6 +15,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
@@ -31,10 +32,13 @@ import de.qabel.qabelbox.ui.helper.SystemAnimations;
 import de.qabel.qabelbox.ui.helper.UIActionHelper;
 import de.qabel.qabelbox.ui.helper.UIBoxHelper;
 import de.qabel.qabelbox.ui.helper.UITestHelper;
+import de.qabel.qabelbox.ui.matcher.QabelMatcher;
+import de.qabel.qabelbox.ui.matcher.ToolbarMatcher;
 
 import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.action.ViewActions.click;
 import static android.support.test.espresso.action.ViewActions.longClick;
+import static android.support.test.espresso.action.ViewActions.typeText;
 import static android.support.test.espresso.assertion.ViewAssertions.doesNotExist;
 import static android.support.test.espresso.assertion.ViewAssertions.matches;
 import static android.support.test.espresso.contrib.DrawerActions.openDrawer;
@@ -43,11 +47,13 @@ import static android.support.test.espresso.intent.matcher.IntentMatchers.hasAct
 import static android.support.test.espresso.intent.matcher.IntentMatchers.hasExtra;
 import static android.support.test.espresso.matcher.RootMatchers.withDecorView;
 import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
+import static android.support.test.espresso.matcher.ViewMatchers.withClassName;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.endsWith;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 
@@ -56,6 +62,8 @@ import static org.hamcrest.Matchers.not;
  */
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class FilesFragmentUITest {
+
+    private static final String CREATE_FOLDER_TEST_NAME = "TestDirectory";
 
     @Rule
     public IntentsTestRule<MainActivity> mActivityTestRule = new IntentsTestRule<>(MainActivity.class, false, true);
@@ -163,7 +171,6 @@ public class FilesFragmentUITest {
         }
         mBoxHelper.waitUntilFileCount(exampleFiles.size());
     }
-    //TODO may check that correct menu items visible
 
     @Test
     @Ignore("Drop messages broken")
@@ -200,8 +207,7 @@ public class FilesFragmentUITest {
         onView(withText(R.string.accept_share)).check(matches(isDisplayed())).perform(click());
 
         //Go to files
-        openDrawer(R.id.drawer_layout);
-        onView(withText(R.string.filebrowser)).check(matches(isDisplayed())).perform(click());
+        goToFiles();
 
         //Check Menu disabled for shared folder
         onView(withText(R.string.shared_with_you)).perform(longClick());
@@ -216,6 +222,11 @@ public class FilesFragmentUITest {
         Spoon.screenshot(mActivity, "after");
     }
 
+    private void goToFiles() {
+        openDrawer(R.id.drawer_layout);
+        onView(withText(R.string.filebrowser)).check(matches(isDisplayed())).perform(click());
+    }
+
     @Test
     public void sendFileTest() {
         Spoon.screenshot(mActivity, "startup");
@@ -227,6 +238,43 @@ public class FilesFragmentUITest {
 
         //Check Chooser
         intended(allOf(hasAction(Intent.ACTION_CHOOSER), hasExtra(Intent.EXTRA_TITLE, mActivity.getString(R.string.share_via))));
+    }
+
+    private void createFolder() {
+        onView(withId(R.id.fab)).check(matches(isDisplayed())).perform(click());
+        onView(withText(R.string.create_folder)).check(matches(isDisplayed())).perform(click());
+
+        onView(allOf(withClassName(endsWith("EditTextFont")))).perform(typeText(CREATE_FOLDER_TEST_NAME));
+        onView(withText(R.string.ok)).perform(click());
+    }
+
+    @Test
+    public void testCreateFolder() {
+        goToFiles();
+
+        //Create testfolder in root
+        createFolder();
+
+        //Check list size
+        onView(withId(R.id.files_list)).check(matches(QabelMatcher.withListSize(exampleFiles.size() + 1)));
+        //Check new item exists and click
+        onView(withText(CREATE_FOLDER_TEST_NAME)).check(matches(isDisplayed())).perform(click());
+
+        //Empty folder
+        onView(withId(R.id.files_list)).check(matches(QabelMatcher.withListSize(0)));
+
+        //Create subfolder
+        createFolder();
+
+        //Check list size
+        onView(withId(R.id.files_list)).check(matches(QabelMatcher.withListSize(1)));
+
+        //Check new item exists and click
+        onView(withText(CREATE_FOLDER_TEST_NAME)).check(matches(isDisplayed())).perform(click());
+
+        //Check toolbar title and path
+        ToolbarMatcher.matchToolbarTitle(mActivity.getString(R.string.headline_files));
+        ToolbarMatcher.matchToolbarSubTitle(File.separator + CREATE_FOLDER_TEST_NAME + File.separator + CREATE_FOLDER_TEST_NAME + File.separator);
     }
 
 }

@@ -25,7 +25,7 @@ import de.qabel.qabelbox.ui.helper.SystemAnimations;
 import de.qabel.qabelbox.ui.helper.UIActionHelper;
 import de.qabel.qabelbox.ui.helper.UIBoxHelper;
 import de.qabel.qabelbox.ui.helper.UITestHelper;
-import de.qabel.qabelbox.ui.matcher.QabelMatcher;
+import de.qabel.qabelbox.ui.matcher.ToolbarMatcher;
 
 import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.Espresso.pressBack;
@@ -147,7 +147,7 @@ public class WelcomeScreenUITest {
         assertTrue(prefs.getWelcomeScreenShownAt() > 0);
 
         //check if create box account in foreground
-        QabelMatcher.matchToolbarTitle(mActivity.getString(R.string.headline_create_box_account))
+        ToolbarMatcher.matchToolbarTitle(mActivity.getString(R.string.headline_create_box_account))
                 .check(matches(isDisplayed()));
 
     }

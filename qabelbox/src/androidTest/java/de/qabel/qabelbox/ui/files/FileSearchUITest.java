@@ -29,6 +29,7 @@ import de.qabel.qabelbox.ui.helper.UIActionHelper;
 import de.qabel.qabelbox.ui.helper.UIBoxHelper;
 import de.qabel.qabelbox.ui.helper.UITestHelper;
 import de.qabel.qabelbox.ui.matcher.QabelMatcher;
+import de.qabel.qabelbox.ui.matcher.ToolbarMatcher;
 
 import static android.support.test.espresso.Espresso.closeSoftKeyboard;
 import static android.support.test.espresso.Espresso.onView;
@@ -185,7 +186,7 @@ public class FileSearchUITest {
 
     private void testIfFileBrowserDisplayed(int count) {
 
-        QabelMatcher.matchToolbarTitle(mActivity.getString(R.string.headline_files))
+        ToolbarMatcher.matchToolbarTitle(mActivity.getString(R.string.headline_files))
                 .check(matches(isDisplayed()));
         onView(withId(R.id.files_list)).check(matches(QabelMatcher.withListSize(count)));
     }

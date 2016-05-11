@@ -10,6 +10,7 @@ import android.support.test.espresso.contrib.RecyclerViewActions;
 import android.support.test.espresso.intent.Intents;
 import android.support.test.espresso.intent.matcher.IntentMatchers;
 import android.support.test.espresso.intent.rule.IntentsTestRule;
+import android.support.test.rule.ActivityTestRule;
 import android.util.Log;
 
 import com.squareup.spoon.Spoon;
@@ -42,7 +43,7 @@ import de.qabel.qabelbox.ui.helper.DocumentIntents;
 import de.qabel.qabelbox.ui.helper.SystemAnimations;
 import de.qabel.qabelbox.ui.helper.UIActionHelper;
 import de.qabel.qabelbox.ui.helper.UIBoxHelper;
-import de.qabel.qabelbox.ui.matcher.QabelMatcher;
+import de.qabel.qabelbox.ui.matcher.ToolbarMatcher;
 
 import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.Espresso.openActionBarOverflowOrOptionsMenu;
@@ -50,6 +51,7 @@ import static android.support.test.espresso.Espresso.pressBack;
 import static android.support.test.espresso.action.ViewActions.click;
 import static android.support.test.espresso.action.ViewActions.longClick;
 import static android.support.test.espresso.assertion.ViewAssertions.matches;
+import static android.support.test.espresso.intent.Intents.intended;
 import static android.support.test.espresso.matcher.RootMatchers.isDialog;
 import static android.support.test.espresso.matcher.ViewMatchers.assertThat;
 import static android.support.test.espresso.matcher.ViewMatchers.hasDescendant;
@@ -58,6 +60,8 @@ import static android.support.test.espresso.matcher.ViewMatchers.withClassName;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static android.support.test.espresso.matcher.ViewMatchers.withParent;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
+import static de.qabel.qabelbox.ui.helper.DocumentIntents.handleLoadFileIntent;
+import static de.qabel.qabelbox.ui.helper.DocumentIntents.registerFileSaveIntent;
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertNull;
@@ -77,46 +81,37 @@ public class ImportExportContactsUITest {
 
     @Rule
     public IntentsTestRule<MainActivity> mActivityTestRule =
-            new MainActivityWithoutFilesFragmentTestRule(true);
+            new MainActivityWithoutFilesFragmentTestRule(false);
     private MainActivity mActivity;
     private UIBoxHelper mBoxHelper;
     private PowerManager.WakeLock wakeLock;
     private SystemAnimations mSystemAnimations;
 
-    private final DocumentIntents intending = new DocumentIntents();
     private Identity identity;
-
-    public ImportExportContactsUITest() throws IOException {
-        setupData();
-    }
 
     @After
     public void cleanUp() {
-
-        wakeLock.release();
+        if (wakeLock != null) {
+            wakeLock.release();
+        }
         mSystemAnimations.enableAll();
         mBoxHelper.unbindService(QabelBoxApplication.getInstance());
     }
 
     @Before
     public void setUp() throws IOException, QblStorageException {
-
-        mActivity = mActivityTestRule.getActivity();
-
-        wakeLock = UIActionHelper.wakeupDevice(mActivity);
-        mSystemAnimations = new SystemAnimations(mActivity);
-        mSystemAnimations.disableAll();
-    }
-
-    private void setupData() {
         URLs.setBaseBlockURL(TestConstants.BLOCK_URL);
-        mActivity = mActivityTestRule.getActivity();
         mBoxHelper = new UIBoxHelper(QabelBoxApplication.getInstance());
         mBoxHelper.bindService(QabelBoxApplication.getInstance());
         mBoxHelper.createTokenIfNeeded(false);
-        mBoxHelper.deleteAllIdentities();
+        mBoxHelper.removeAllIdentities();
         identity = mBoxHelper.addIdentity("spoon123");
         createTestContacts();
+
+        mActivity = mActivityTestRule.launchActivity(null);
+        wakeLock = UIActionHelper.wakeupDevice(mActivity);
+        mSystemAnimations = new SystemAnimations(mActivity);
+        mSystemAnimations.disableAll();
     }
 
     private void createTestContacts() {
@@ -175,49 +170,37 @@ public class ImportExportContactsUITest {
         onView(withId(R.id.contact_list)).perform(RecyclerViewActions.actionOnItem(hasDescendant(withText(CONTACT_1)), longClick()));
         onView(withText(R.string.ExportAsContactWithQRcode)).check(matches(isDisplayed())).perform(click());
         onView(withText(CONTACT_1)).check(matches(isDisplayed()));
-        QabelMatcher.matchToolbarTitle(mActivity.getString(R.string.headline_qrcode)).check(matches(isDisplayed()));
+        ToolbarMatcher.matchToolbarTitle(mActivity.getString(R.string.headline_qrcode)).check(matches(isDisplayed()));
         Spoon.screenshot(mActivity, "contactQR");
 
     }
 
     @Test
-    public void testExportSingleContact() {
+    public void testExportSingleContact() throws Exception {
 
         String userName = "contact1";
         File file1 = new File(mActivity.getCacheDir(), "testexportcontact");
-        assertNotNull(file1);
         goToContacts();
 
         onView(withId(R.id.contact_list))
                 .perform(RecyclerViewActions.actionOnItem(
                         hasDescendant(withText(userName)), longClick()));
         Spoon.screenshot(mActivity, "exportOne");
-        if (canHandleIntening()) {
-            intending.handleSaveFileIntent(file1);
-            onView(withText(R.string.Export)).check(matches(isDisplayed())).perform(click());
-            Intents.release();
-        } else {
-            pressBack();
-            Intent data = new Intent();
-            data.setData(Uri.fromFile(file1));
-            ContactFragment contactFragment = (ContactFragment) mActivity.getFragmentManager().findFragmentById(R.id.fragment_container);
-            contactFragment.enableDocumentProvider(false);
-            final LocalQabelService service = QabelBoxApplication.getInstance().getService();
-            Contact contact = service.getContacts().getContacts().iterator().next();
-            userName = contact.getAlias();
-            contactFragment.exportContact(contact);
-            contactFragment.onActivityResult(ContactFragment.REQUEST_EXPORT_CONTACT, Activity.RESULT_OK, data);
+		pressBack();
+		Intent data = new Intent();
+		data.setData(Uri.fromFile(file1));
+		ContactFragment contactFragment = (ContactFragment) mActivity.getFragmentManager().findFragmentById(R.id.fragment_container);
+		contactFragment.enableDocumentProvider(false);
+		final LocalQabelService service = QabelBoxApplication.getInstance().getService();
+		Contact contact = service.getContacts().getContacts().iterator().next();
+		userName = contact.getAlias();
+		contactFragment.exportContact(contact);
+		contactFragment.onActivityResult(ContactFragment.REQUEST_EXPORT_CONTACT, Activity.RESULT_OK, data);
 
-        }
         checkMessageBox();
 
-        try {
-            Contact contact = ContactExportImport.parseContactForIdentity(identity, checkFile(file1));
-            assertEquals(contact.getAlias(), userName);
-        } catch (JSONException e) {
-            e.printStackTrace();
-            assertNull(e);
-        }
+		Contact importedContact = ContactExportImport.parseContactForIdentity(identity, checkFile(file1));
+		assertEquals(importedContact.getAlias(), userName);
 
     }
 
@@ -235,17 +218,16 @@ public class ImportExportContactsUITest {
 
         //Click Send
         onView(withText(R.string.Send)).inRoot(isDialog()).perform(click());
-
         //Check Chooser for SendIntent is visible
-        Intents.intended(allOf(IntentMatchers.hasAction(Intent.ACTION_CHOOSER),
-                IntentMatchers.hasExtra(equalTo(Intent.EXTRA_INTENT),
-                        IntentMatchers.hasAction(Intent.ACTION_SEND))));
+        intended(IntentMatchers.hasExtra(equalTo(Intent.EXTRA_INTENT),
+                        IntentMatchers.hasAction(Intent.ACTION_SEND)));
+
 
         Spoon.screenshot(mActivity, "sendContact");
     }
 
     @Test
-    public void testExportManyContact() {
+    public void testExportManyContact() throws JSONException {
 
         File file1 = new File(mActivity.getCacheDir(), "testexportallcontact");
         assertNotNull(file1);
@@ -253,28 +235,15 @@ public class ImportExportContactsUITest {
         openActionBarOverflowOrOptionsMenu(InstrumentationRegistry.getTargetContext());
 
         Spoon.screenshot(mActivity, "exportAll");
-        if (canHandleIntening()) {
-            intending.handleSaveFileIntent(file1);
-            onView(withText(R.string.contact_export_all)).perform(click());
-            Intents.release();
-            checkMessageBox();
-        } else {
-            pressBack();
-            Intent data = new Intent();
-            data.setData(Uri.fromFile(file1));
-            ContactFragment contactFragment = (ContactFragment) mActivity.getFragmentManager().findFragmentById(R.id.fragment_container);
-            contactFragment.enableDocumentProvider(false);
-            contactFragment.exportAllContacts();
-            contactFragment.onActivityResult(ContactFragment.REQUEST_EXPORT_CONTACT, Activity.RESULT_OK, data);
-        }
-        try {
-            ContactExportImport.ContactsParseResult contact = ContactExportImport.parseContactsForIdentity(identity, checkFile(file1));
-            assertEquals(contact.getContacts().getContacts().size(), 3);
-        } catch (JSONException e) {
-            e.printStackTrace();
-            assertNull(e);
-        }
-
+		pressBack();
+		Intent data = new Intent();
+		data.setData(Uri.fromFile(file1));
+		ContactFragment contactFragment = (ContactFragment) mActivity.getFragmentManager().findFragmentById(R.id.fragment_container);
+		contactFragment.enableDocumentProvider(false);
+		contactFragment.exportAllContacts();
+		contactFragment.onActivityResult(ContactFragment.REQUEST_EXPORT_CONTACT, Activity.RESULT_OK, data);
+		ContactExportImport.ContactsParseResult contact = ContactExportImport.parseContactsForIdentity(identity, checkFile(file1));
+		assertEquals(contact.getContacts().getContacts().size(), 3);
     }
 
     @Test
@@ -289,32 +258,14 @@ public class ImportExportContactsUITest {
         goToContacts();
         onView(withId(R.id.fab)).perform(click());
 
-        if (canHandleIntening()) {
-            Spoon.screenshot(mActivity, "importSingle");
-            intending.handleLoadFileIntent(file1);
-            onView(withText(R.string.from_file)).perform(click());
-            Intents.release();
-        } else {
-            pressBack();
-            Intent data = new Intent();
-            data.setData(Uri.fromFile(file1));
-            ContactFragment contactFragment = (ContactFragment) mActivity.getFragmentManager().findFragmentById(R.id.fragment_container);
-            contactFragment.enableDocumentProvider(false);
-            contactFragment.onActivityResult(ContactFragment.REQUEST_IMPORT_CONTACT, Activity.RESULT_OK, data);
-
-        }
+		pressBack();
+		Intent data = new Intent();
+		data.setData(Uri.fromFile(file1));
+		ContactFragment contactFragment = (ContactFragment) mActivity.getFragmentManager().findFragmentById(R.id.fragment_container);
+		contactFragment.enableDocumentProvider(false);
+		contactFragment.onActivityResult(ContactFragment.REQUEST_IMPORT_CONTACT, Activity.RESULT_OK, data);
         checkMessageBox();
         onView(withText(userToImport)).check(matches(isDisplayed()));
-
-    }
-
-    /**
-     * return true if os can handle intedings
-     *
-     * @return
-     */
-    private boolean canHandleIntening() {
-        return android.os.Build.VERSION.SDK_INT < 23;
     }
 
     private void saveJsonIntoFile(String exportUser, File file1) {

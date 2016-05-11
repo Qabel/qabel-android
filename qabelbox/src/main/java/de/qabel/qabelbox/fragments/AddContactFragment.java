@@ -81,7 +81,7 @@ public class AddContactFragment extends ContactBaseFragment {
             QblECPublicKey publicKey = new QblECPublicKey(
                     Hex.decode(editTextPublicKey.getText().toString()));
             Contact contact = new Contact(editTextContactName.getText().toString(), dropURLs, publicKey);
-            addContactSilent(contact);
+            addContactSilent(getActivity().getApplicationContext(), contact);
         } catch (Exception e) {
             Log.w(TAG, "add contact failed", e);
             UIHelper.showDialogMessage(mActivity, R.string.dialog_headline_warning, R.string.contact_import_manual_failed, e);

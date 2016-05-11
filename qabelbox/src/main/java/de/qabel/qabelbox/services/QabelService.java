@@ -26,6 +26,7 @@ import de.qabel.core.drop.DropMessage;
 import de.qabel.core.drop.DropURL;
 import de.qabel.core.exceptions.QblDropPayloadSizeException;
 import de.qabel.qabelbox.R;
+import de.qabel.qabelbox.services.DropConnector.OnSendDropMessageResult;
 
 /**
  * QabelService hosts the DropActor and is responsible for sending and receiving
@@ -88,7 +89,7 @@ public class QabelService extends Service {
                                 Log.i(LOG_TAG_QABEL_SERVICE, "Sending received DropMessage");
                                 try {
                                     mService.sendDropMessage(dropMessage, recipient, sender,
-                                            new LocalQabelService.OnSendDropMessageResult() {
+                                            new OnSendDropMessageResult() {
                                                 @Override
                                                 public void onSendDropResult(Map<DropURL, Boolean> deliveryStatus) {
                                                     //TODO: Ignored for now

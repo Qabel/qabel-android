@@ -31,7 +31,7 @@ import de.qabel.qabelbox.config.QabelSchema;
 import de.qabel.qabelbox.helper.FileHelper;
 import de.qabel.qabelbox.ui.helper.UIBoxHelper;
 import de.qabel.qabelbox.ui.helper.UITestHelper;
-import de.qabel.qabelbox.ui.matcher.QabelMatcher;
+import de.qabel.qabelbox.ui.matcher.ToolbarMatcher;
 
 import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.action.ViewActions.click;
@@ -89,7 +89,7 @@ public class OpenQabelFilesFromExternalAppsUITest extends UIBoxHelper {
     public void testOpenQcoSanityFromExternal() {
         String userToImport = "contact1";
         File tempQcoFile = createQcoFile(userToImport, QabelSchema.FILE_SUFFIX_CONTACT);
-        deleteAllIdentities();
+        removeAllIdentities();
         launchExternalIntent(Uri.fromFile(tempQcoFile));
         mActivity = mActivityTestRule.getActivity();
         try {
@@ -98,7 +98,7 @@ public class OpenQabelFilesFromExternalAppsUITest extends UIBoxHelper {
             //indicate no error on tested code
         }
 
-        QabelMatcher.matchToolbarTitle(mActivity.getString(R.string.headline_add_identity))
+        ToolbarMatcher.matchToolbarTitle(mActivity.getString(R.string.headline_add_identity))
                 .check(matches(isDisplayed()));
     }
 
@@ -165,7 +165,7 @@ public class OpenQabelFilesFromExternalAppsUITest extends UIBoxHelper {
 
         bindService(QabelBoxApplication.getInstance());
         createTokenIfNeeded(false);
-        deleteAllIdentities();
+        removeAllIdentities();
         addIdentity("spoon");
 
     }

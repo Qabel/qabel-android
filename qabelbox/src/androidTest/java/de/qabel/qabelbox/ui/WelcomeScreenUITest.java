@@ -1,15 +1,9 @@
 package de.qabel.qabelbox.ui;
 
-/**
- * Created by danny on 05.01.2016.
- */
-
 import android.os.PowerManager;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.espresso.action.ViewActions;
 import android.support.test.rule.ActivityTestRule;
-import android.test.FlakyTest;
-import android.test.suitebuilder.annotation.LargeTest;
 
 import com.squareup.spoon.Spoon;
 
@@ -30,8 +24,9 @@ import de.qabel.qabelbox.config.AppPreference;
 import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.ui.helper.SystemAnimations;
 import de.qabel.qabelbox.ui.helper.UIActionHelper;
+import de.qabel.qabelbox.ui.helper.UIBoxHelper;
 import de.qabel.qabelbox.ui.helper.UITestHelper;
-import de.qabel.qabelbox.ui.matcher.QabelMatcher;
+import de.qabel.qabelbox.ui.matcher.ToolbarMatcher;
 
 import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.Espresso.pressBack;
@@ -44,11 +39,6 @@ import static android.support.test.espresso.matcher.ViewMatchers.withText;
 import static junit.framework.Assert.assertTrue;
 
 
-/**
- * Tests for MainActivity.
- */
-
-@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class WelcomeScreenUITest {
 
     @Rule
@@ -62,7 +52,6 @@ public class WelcomeScreenUITest {
 
     @After
     public void cleanUp() {
-
         wakeLock.release();
         mSystemAnimations.enableAll();
     }
@@ -78,7 +67,6 @@ public class WelcomeScreenUITest {
 
 
     @Test
-    @Ignore
     public void testWelcomeScreenSlide() {
         int pagerId = R.id.pager;
         onView(withId(R.id.btn_show_sources)).check(matches(isDisplayed()));
@@ -100,8 +88,6 @@ public class WelcomeScreenUITest {
         onView(withId(pagerId)).perform(swipeLeft());
 
         checkDisclaimer();
-
-
     }
 
     private void checkDisclaimer() {
@@ -152,7 +138,7 @@ public class WelcomeScreenUITest {
                 .getWelcomeScreenShownAt() > 0);
 
         //check if create box account in foreground
-        QabelMatcher.matchToolbarTitle(mActivity.getString(R.string.headline_create_box_account))
+        ToolbarMatcher.matchToolbarTitle(mActivity.getString(R.string.headline_create_box_account))
                 .check(matches(isDisplayed()));
 
     }

@@ -7,19 +7,19 @@ import android.accounts.NetworkErrorException;
 import android.content.Context;
 import android.os.Bundle;
 
-public class BoxAuthenticator extends AbstractAccountAuthenticator {
-    public BoxAuthenticator(Context context) {
+public class QabelAuthenticator extends AbstractAccountAuthenticator {
+    public QabelAuthenticator(Context context) {
         super(context);
     }
 
     @Override
     public Bundle editProperties(AccountAuthenticatorResponse response, String accountType) {
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public Bundle addAccount(AccountAuthenticatorResponse response, String accountType, String authTokenType, String[] requiredFeatures, Bundle options) throws NetworkErrorException {
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     @Override
@@ -29,21 +29,21 @@ public class BoxAuthenticator extends AbstractAccountAuthenticator {
 
     @Override
     public Bundle getAuthToken(AccountAuthenticatorResponse response, Account account, String authTokenType, Bundle options) throws NetworkErrorException {
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public String getAuthTokenLabel(String authTokenType) {
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public Bundle updateCredentials(AccountAuthenticatorResponse response, Account account, String authTokenType, Bundle options) throws NetworkErrorException {
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public Bundle hasFeatures(AccountAuthenticatorResponse response, Account account, String[] features) throws NetworkErrorException {
-        return null;
+        throw new UnsupportedOperationException();
     }
 }

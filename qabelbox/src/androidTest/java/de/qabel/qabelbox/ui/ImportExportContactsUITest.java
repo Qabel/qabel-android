@@ -64,8 +64,6 @@ import static org.hamcrest.Matchers.endsWith;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 
-box.exceptions.QblStorageException;
-
 public class ImportExportContactsUITest {
 
     private final String TAG = this.getClass().getSimpleName();

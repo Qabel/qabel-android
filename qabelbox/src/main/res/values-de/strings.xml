@@ -290,4 +290,5 @@ Den Unterstützern der Indigogo Kampagne
     <string name="no_connection">Keine Verbindung</string>
     <string name="close_app">App schließen</string>
     <string name="retry_action">Wiederholen</string>
+    <string name="logout">Abmelden</string>
 </resources>

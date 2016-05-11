@@ -80,14 +80,8 @@ public class ImportExportContactsUITest {
     private static final String CONTACT_3 = "contact3";
 
     @Rule
-    public IntentsTestRule<MainActivity> mActivityTestRule = new IntentsTestRule<MainActivity>(
-            MainActivity.class, false, true) {
-        @Override
-        protected void beforeActivityLaunched() {
-            super.beforeActivityLaunched();
-            setupData();
-        }
-    };
+    public IntentsTestRule<MainActivity> mActivityTestRule =
+            new MainActivityWithoutFilesFragmentTestRule(false);
     private MainActivity mActivity;
     private UIBoxHelper mBoxHelper;
     private PowerManager.WakeLock wakeLock;
@@ -97,30 +91,27 @@ public class ImportExportContactsUITest {
 
     @After
     public void cleanUp() {
-        wakeLock.release();
+        if (wakeLock != null) {
+            wakeLock.release();
+        }
         mSystemAnimations.enableAll();
         mBoxHelper.unbindService(QabelBoxApplication.getInstance());
     }
 
     @Before
     public void setUp() throws IOException, QblStorageException {
-
-        mActivity = mActivityTestRule.getActivity();
-
-        wakeLock = UIActionHelper.wakeupDevice(mActivity);
-        mSystemAnimations = new SystemAnimations(mActivity);
-        mSystemAnimations.disableAll();
-    }
-
-    private void setupData() {
         URLs.setBaseBlockURL(TestConstants.BLOCK_URL);
-        mActivity = mActivityTestRule.getActivity();
         mBoxHelper = new UIBoxHelper(QabelBoxApplication.getInstance());
         mBoxHelper.bindService(QabelBoxApplication.getInstance());
         mBoxHelper.createTokenIfNeeded(false);
         mBoxHelper.removeAllIdentities();
         identity = mBoxHelper.addIdentity("spoon123");
         createTestContacts();
+
+        mActivity = mActivityTestRule.launchActivity(null);
+        wakeLock = UIActionHelper.wakeupDevice(mActivity);
+        mSystemAnimations = new SystemAnimations(mActivity);
+        mSystemAnimations.disableAll();
     }
 
     private void createTestContacts() {

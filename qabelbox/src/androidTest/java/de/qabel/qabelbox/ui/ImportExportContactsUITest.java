@@ -35,6 +35,7 @@ import de.qabel.qabelbox.TestConstants;
 import de.qabel.qabelbox.activities.MainActivity;
 import de.qabel.qabelbox.communication.URLs;
 import de.qabel.qabelbox.config.ContactExportImport;
+import de.qabel.qabelbox.exceptions.QblStorageEntityExistsException;
 import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.fragments.ContactFragment;
 import de.qabel.qabelbox.helper.FileHelper;
@@ -47,7 +48,6 @@ import de.qabel.qabelbox.ui.matcher.ToolbarMatcher;
 
 import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.Espresso.openActionBarOverflowOrOptionsMenu;
-import static android.support.test.espresso.Espresso.pressBack;
 import static android.support.test.espresso.action.ViewActions.click;
 import static android.support.test.espresso.action.ViewActions.longClick;
 import static android.support.test.espresso.assertion.ViewAssertions.matches;
@@ -60,8 +60,6 @@ import static android.support.test.espresso.matcher.ViewMatchers.withClassName;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static android.support.test.espresso.matcher.ViewMatchers.withParent;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
-import static de.qabel.qabelbox.ui.helper.DocumentIntents.handleLoadFileIntent;
-import static de.qabel.qabelbox.ui.helper.DocumentIntents.registerFileSaveIntent;
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertNull;
@@ -80,14 +78,8 @@ public class ImportExportContactsUITest {
     private static final String CONTACT_3 = "contact3";
 
     @Rule
-    public IntentsTestRule<MainActivity> mActivityTestRule = new IntentsTestRule<MainActivity>(
-            MainActivity.class, false, true) {
-        @Override
-        protected void beforeActivityLaunched() {
-            super.beforeActivityLaunched();
-            setupData();
-        }
-    };
+    public IntentsTestRule<MainActivity> mActivityTestRule =
+            new IntentsTestRule<>(MainActivity.class, false, false);
     private MainActivity mActivity;
     private UIBoxHelper mBoxHelper;
     private PowerManager.WakeLock wakeLock;
@@ -97,22 +89,26 @@ public class ImportExportContactsUITest {
 
     @After
     public void cleanUp() {
-        wakeLock.release();
-        mSystemAnimations.enableAll();
+        if (wakeLock != null) {
+            wakeLock.release();
+        }
+        if (mSystemAnimations != null) {
+            mSystemAnimations.enableAll();
+        }
         mBoxHelper.unbindService(QabelBoxApplication.getInstance());
     }
 
     @Before
-    public void setUp() throws IOException, QblStorageException {
+    public void setUp() throws Exception {
+        setupData();
 
-        mActivity = mActivityTestRule.getActivity();
-
+        mActivity = mActivityTestRule.launchActivity(null);
         wakeLock = UIActionHelper.wakeupDevice(mActivity);
         mSystemAnimations = new SystemAnimations(mActivity);
         mSystemAnimations.disableAll();
     }
 
-    private void setupData() {
+    private void setupData() throws Exception {
         URLs.setBaseBlockURL(TestConstants.BLOCK_URL);
         mActivity = mActivityTestRule.getActivity();
         mBoxHelper = new UIBoxHelper(QabelBoxApplication.getInstance());
@@ -123,7 +119,7 @@ public class ImportExportContactsUITest {
         createTestContacts();
     }
 
-    private void createTestContacts() {
+    private void createTestContacts() throws JSONException, QblStorageEntityExistsException {
 
         mBoxHelper.setActiveIdentity(identity);
         assertThat(mBoxHelper.getService().getContacts().getContacts().size(), is(0));
@@ -133,19 +129,14 @@ public class ImportExportContactsUITest {
         assertThat(mBoxHelper.getService().getContacts().getContacts().size(), is(3));
     }
 
-    private void createContact(String name) {
+    private void createContact(String name) throws JSONException, QblStorageEntityExistsException {
         Identity identity = mBoxHelper.createIdentity(name);
         String json = ContactExportImport.exportIdentityAsContact(identity);
         addContact(json);
     }
 
-    private void addContact(String contactJSON) {
-        try {
-            mBoxHelper.getService().addContact(ContactExportImport.parseContactForIdentity(null, new JSONObject(contactJSON)));
-        } catch (Exception e) {
-            assertNotNull(e);
-            Log.e(TAG, "error on add contact", e);
-        }
+    private void addContact(String contactJSON) throws JSONException, QblStorageEntityExistsException {
+		mBoxHelper.getService().addContact(ContactExportImport.parseContactForIdentity(null, new JSONObject(contactJSON)));
     }
 
     private void checkMessageBox() {
@@ -195,7 +186,6 @@ public class ImportExportContactsUITest {
                 .perform(RecyclerViewActions.actionOnItem(
                         hasDescendant(withText(userName)), longClick()));
         Spoon.screenshot(mActivity, "exportOne");
-		pressBack();
 		Intent data = new Intent();
 		data.setData(Uri.fromFile(file1));
 		ContactFragment contactFragment = (ContactFragment) mActivity.getFragmentManager().findFragmentById(R.id.fragment_container);
@@ -242,16 +232,16 @@ public class ImportExportContactsUITest {
         assertNotNull(file1);
         goToContacts();
         openActionBarOverflowOrOptionsMenu(InstrumentationRegistry.getTargetContext());
-
         Spoon.screenshot(mActivity, "exportAll");
-		pressBack();
 		Intent data = new Intent();
 		data.setData(Uri.fromFile(file1));
-		ContactFragment contactFragment = (ContactFragment) mActivity.getFragmentManager().findFragmentById(R.id.fragment_container);
+		ContactFragment contactFragment =
+                (ContactFragment) mActivity.getFragmentManager().findFragmentById(R.id.fragment_container);
 		contactFragment.enableDocumentProvider(false);
 		contactFragment.exportAllContacts();
 		contactFragment.onActivityResult(ContactFragment.REQUEST_EXPORT_CONTACT, Activity.RESULT_OK, data);
-		ContactExportImport.ContactsParseResult contact = ContactExportImport.parseContactsForIdentity(identity, checkFile(file1));
+		ContactExportImport.ContactsParseResult contact =
+                ContactExportImport.parseContactsForIdentity(identity, checkFile(file1));
 		assertEquals(contact.getContacts().getContacts().size(), 3);
     }
 
@@ -265,9 +255,7 @@ public class ImportExportContactsUITest {
 
         assertNotNull(file1);
         goToContacts();
-        onView(withId(R.id.fab)).perform(click());
 
-		pressBack();
 		Intent data = new Intent();
 		data.setData(Uri.fromFile(file1));
 		ContactFragment contactFragment = (ContactFragment) mActivity.getFragmentManager().findFragmentById(R.id.fragment_container);

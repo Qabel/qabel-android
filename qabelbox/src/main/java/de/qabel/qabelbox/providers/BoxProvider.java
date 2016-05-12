@@ -273,7 +273,7 @@ public class BoxProvider extends DocumentsProvider {
             throw new FileNotFoundException("Failed navigating the volume");
         }
 
-        Log.v(TAG, "quere roots result, cursorCount=" + cursor.getCount() + " cursorColumn=" + cursor.getColumnCount());
+        Log.v(TAG, "query roots result, cursorCount=" + cursor.getCount() + " cursorColumn=" + cursor.getColumnCount());
         return cursor;
     }
 

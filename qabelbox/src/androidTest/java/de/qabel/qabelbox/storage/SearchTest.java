@@ -6,8 +6,12 @@ import android.util.Log;
 
 import org.junit.Test;
 
+import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -17,6 +21,8 @@ import java.util.UUID;
 
 import de.qabel.core.crypto.CryptoUtils;
 import de.qabel.core.crypto.QblECKeyPair;
+import de.qabel.qabelbox.TestConstants;
+import de.qabel.qabelbox.communication.URLs;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
@@ -51,6 +57,7 @@ public class SearchTest extends AndroidTestCase {
             //setting up the directory structure takes time and so it is only made once - @AfterClass is not available here, so the cleanup is done, too
             return;
         }
+        URLs.setBaseBlockURL(TestConstants.BLOCK_URL);
 
         setup = false;
 
@@ -77,10 +84,33 @@ public class SearchTest extends AndroidTestCase {
         Log.d(TAG, "SETUP DONE");
     }
 
+    public static String createTestFile() throws IOException {
+        File tmpDir = new File(System.getProperty("java.io.tmpdir"));
+        File file = File.createTempFile("testfile", "test", tmpDir);
+        FileOutputStream outputStream = new FileOutputStream(file);
+        byte[] testData = new byte[1024];
+        Arrays.fill(testData, (byte) 'f');
+        for (int i = 0; i < 100; i++) {
+            outputStream.write(testData);
+        }
+        outputStream.close();
+        return file.getAbsolutePath();
+    }
+
+    public static File smallTestFile() throws IOException {
+        File tmpDir = new File(System.getProperty("java.io.tmpdir"));
+        File file = File.createTempFile("testfile", "test", tmpDir);
+        FileOutputStream outputStream = new FileOutputStream(file);
+        byte[] testData = new byte[]{1, 2, 3, 4, 5};
+        outputStream.write(testData);
+        outputStream.close();
+        return file;
+    }
+
     private void setupFakeDirectoryStructure(BoxNavigation nav) throws Exception {
 
-        String testFile = BoxTest.createTestFile();
-        String smallFile = BoxTest.smallTestFile().getAbsolutePath();
+        String testFile = createTestFile();
+        String smallFile = smallTestFile().getAbsolutePath();
 
         assertThat(nav.listFiles().size(), is(0));
 

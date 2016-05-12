@@ -1,7 +1,9 @@
 package de.qabel.qabelbox.ui;
 
 import android.app.Activity;
+import android.content.Context;
 import android.os.PowerManager;
+import android.support.test.InstrumentationRegistry;
 import android.support.test.rule.ActivityTestRule;
 
 import com.squareup.spoon.Spoon;
@@ -30,7 +32,7 @@ import static android.support.test.espresso.matcher.ViewMatchers.withText;
 public class OfflineUITest {
 
     @Rule
-    public ActivityTestRule<MainActivity> rule = new ActivityTestRule<MainActivity>(MainActivity.class);
+    public ActivityTestRule<MainActivity> rule = new ActivityTestRule<MainActivity>(MainActivity.class, true, false);
 
     private MainActivity mActivity;
     private UIBoxHelper mBoxHelper;
@@ -72,26 +74,28 @@ public class OfflineUITest {
         }
     }
 
-    public OfflineUITest() {
+
+    public void setupBeforeLaunch() {
         mBoxHelper = new UIBoxHelper(QabelBoxApplication.getInstance());
         mBoxHelper.bindService(QabelBoxApplication.getInstance());
         mBoxHelper.createTokenIfNeeded(false);
 
         mBoxHelper.removeAllIdentities();
         testIdentity = mBoxHelper.addIdentity("spoon");
+        mSystemAnimations = new SystemAnimations(InstrumentationRegistry.getTargetContext());
+        mSystemAnimations.disableAll();
     }
 
     @Before
     public void setUp() {
+        setupBeforeLaunch();
+
         URLs.setBaseBlockURL(TestConstants.BLOCK_URL);
-        mActivity = rule.getActivity();
+
+        mActivity = rule.launchActivity(null);
+        wakeLock = UIActionHelper.wakeupDevice(mActivity);
         connectivityManager = new MockConnectivityManager(mActivity);
         mActivity.installConnectivityManager(connectivityManager);
-
-        wakeLock = UIActionHelper.wakeupDevice(mActivity);
-        mSystemAnimations = new SystemAnimations(mActivity);
-        mSystemAnimations.disableAll();
-
         connectivityManager.setConnected(true);
     }
 
@@ -107,7 +111,6 @@ public class OfflineUITest {
     @Test
     public void testOfflineIndicator() {
         onView(withText(R.string.no_connection)).check(doesNotExist());
-
         connectivityManager.setConnected(false);
         onView(withText(R.string.no_connection)).check(matches(isDisplayed()));
         Spoon.screenshot(mActivity, "offlineIndicator");

@@ -7,11 +7,8 @@ import android.os.PowerManager;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.espresso.contrib.DrawerActions;
 import android.support.test.espresso.contrib.RecyclerViewActions;
-import android.support.test.espresso.intent.Intents;
 import android.support.test.espresso.intent.matcher.IntentMatchers;
 import android.support.test.espresso.intent.rule.IntentsTestRule;
-import android.support.test.rule.ActivityTestRule;
-import android.util.Log;
 
 import com.squareup.spoon.Spoon;
 
@@ -35,11 +32,10 @@ import de.qabel.qabelbox.TestConstants;
 import de.qabel.qabelbox.activities.MainActivity;
 import de.qabel.qabelbox.communication.URLs;
 import de.qabel.qabelbox.config.ContactExportImport;
-import de.qabel.qabelbox.exceptions.QblStorageException;
+import de.qabel.qabelbox.exceptions.QblStorageEntityExistsException;
 import de.qabel.qabelbox.fragments.ContactFragment;
 import de.qabel.qabelbox.helper.FileHelper;
 import de.qabel.qabelbox.services.LocalQabelService;
-import de.qabel.qabelbox.ui.helper.DocumentIntents;
 import de.qabel.qabelbox.ui.helper.SystemAnimations;
 import de.qabel.qabelbox.ui.helper.UIActionHelper;
 import de.qabel.qabelbox.ui.helper.UIBoxHelper;
@@ -47,7 +43,6 @@ import de.qabel.qabelbox.ui.matcher.ToolbarMatcher;
 
 import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.Espresso.openActionBarOverflowOrOptionsMenu;
-import static android.support.test.espresso.Espresso.pressBack;
 import static android.support.test.espresso.action.ViewActions.click;
 import static android.support.test.espresso.action.ViewActions.longClick;
 import static android.support.test.espresso.assertion.ViewAssertions.matches;
@@ -60,8 +55,6 @@ import static android.support.test.espresso.matcher.ViewMatchers.withClassName;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static android.support.test.espresso.matcher.ViewMatchers.withParent;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
-import static de.qabel.qabelbox.ui.helper.DocumentIntents.handleLoadFileIntent;
-import static de.qabel.qabelbox.ui.helper.DocumentIntents.registerFileSaveIntent;
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertNull;
@@ -94,12 +87,14 @@ public class ImportExportContactsUITest {
         if (wakeLock != null) {
             wakeLock.release();
         }
-        mSystemAnimations.enableAll();
+        if (mSystemAnimations != null) {
+            mSystemAnimations.enableAll();
+        }
         mBoxHelper.unbindService(QabelBoxApplication.getInstance());
     }
 
     @Before
-    public void setUp() throws IOException, QblStorageException {
+    public void setUp() throws Exception {
         URLs.setBaseBlockURL(TestConstants.BLOCK_URL);
         mBoxHelper = new UIBoxHelper(QabelBoxApplication.getInstance());
         mBoxHelper.bindService(QabelBoxApplication.getInstance());
@@ -114,7 +109,7 @@ public class ImportExportContactsUITest {
         mSystemAnimations.disableAll();
     }
 
-    private void createTestContacts() {
+    private void createTestContacts() throws JSONException, QblStorageEntityExistsException {
 
         mBoxHelper.setActiveIdentity(identity);
         assertThat(mBoxHelper.getService().getContacts().getContacts().size(), is(0));
@@ -124,19 +119,14 @@ public class ImportExportContactsUITest {
         assertThat(mBoxHelper.getService().getContacts().getContacts().size(), is(3));
     }
 
-    private void createContact(String name) {
+    private void createContact(String name) throws JSONException, QblStorageEntityExistsException {
         Identity identity = mBoxHelper.createIdentity(name);
         String json = ContactExportImport.exportIdentityAsContact(identity);
         addContact(json);
     }
 
-    private void addContact(String contactJSON) {
-        try {
-            mBoxHelper.getService().addContact(ContactExportImport.parseContactForIdentity(null, new JSONObject(contactJSON)));
-        } catch (Exception e) {
-            assertNotNull(e);
-            Log.e(TAG, "error on add contact", e);
-        }
+    private void addContact(String contactJSON) throws JSONException, QblStorageEntityExistsException {
+        mBoxHelper.getService().addContact(ContactExportImport.parseContactForIdentity(null, new JSONObject(contactJSON)));
     }
 
     private void checkMessageBox() {
@@ -186,21 +176,20 @@ public class ImportExportContactsUITest {
                 .perform(RecyclerViewActions.actionOnItem(
                         hasDescendant(withText(userName)), longClick()));
         Spoon.screenshot(mActivity, "exportOne");
-		pressBack();
-		Intent data = new Intent();
-		data.setData(Uri.fromFile(file1));
-		ContactFragment contactFragment = (ContactFragment) mActivity.getFragmentManager().findFragmentById(R.id.fragment_container);
-		contactFragment.enableDocumentProvider(false);
-		final LocalQabelService service = QabelBoxApplication.getInstance().getService();
-		Contact contact = service.getContacts().getContacts().iterator().next();
-		userName = contact.getAlias();
-		contactFragment.exportContact(contact);
-		contactFragment.onActivityResult(ContactFragment.REQUEST_EXPORT_CONTACT, Activity.RESULT_OK, data);
+        Intent data = new Intent();
+        data.setData(Uri.fromFile(file1));
+        ContactFragment contactFragment = (ContactFragment) mActivity.getFragmentManager().findFragmentById(R.id.fragment_container);
+        contactFragment.enableDocumentProvider(false);
+        final LocalQabelService service = QabelBoxApplication.getInstance().getService();
+        Contact contact = service.getContacts().getContacts().iterator().next();
+        userName = contact.getAlias();
+        contactFragment.exportContact(contact);
+        contactFragment.onActivityResult(ContactFragment.REQUEST_EXPORT_CONTACT, Activity.RESULT_OK, data);
 
         checkMessageBox();
 
-		Contact importedContact = ContactExportImport.parseContactForIdentity(identity, checkFile(file1));
-		assertEquals(importedContact.getAlias(), userName);
+        Contact importedContact = ContactExportImport.parseContactForIdentity(identity, checkFile(file1));
+        assertEquals(importedContact.getAlias(), userName);
 
     }
 
@@ -233,17 +222,17 @@ public class ImportExportContactsUITest {
         assertNotNull(file1);
         goToContacts();
         openActionBarOverflowOrOptionsMenu(InstrumentationRegistry.getTargetContext());
-
         Spoon.screenshot(mActivity, "exportAll");
-		pressBack();
-		Intent data = new Intent();
-		data.setData(Uri.fromFile(file1));
-		ContactFragment contactFragment = (ContactFragment) mActivity.getFragmentManager().findFragmentById(R.id.fragment_container);
-		contactFragment.enableDocumentProvider(false);
-		contactFragment.exportAllContacts();
-		contactFragment.onActivityResult(ContactFragment.REQUEST_EXPORT_CONTACT, Activity.RESULT_OK, data);
-		ContactExportImport.ContactsParseResult contact = ContactExportImport.parseContactsForIdentity(identity, checkFile(file1));
-		assertEquals(contact.getContacts().getContacts().size(), 3);
+        Intent data = new Intent();
+        data.setData(Uri.fromFile(file1));
+        ContactFragment contactFragment = (ContactFragment) mActivity.
+                getFragmentManager().findFragmentById(R.id.fragment_container);
+        contactFragment.enableDocumentProvider(false);
+        contactFragment.exportAllContacts();
+        contactFragment.onActivityResult(ContactFragment.REQUEST_EXPORT_CONTACT, Activity.RESULT_OK, data);
+        ContactExportImport.ContactsParseResult contact =
+                ContactExportImport.parseContactsForIdentity(identity, checkFile(file1));
+        assertEquals(contact.getContacts().getContacts().size(), 3);
     }
 
     @Test
@@ -256,14 +245,13 @@ public class ImportExportContactsUITest {
 
         assertNotNull(file1);
         goToContacts();
-        onView(withId(R.id.fab)).perform(click());
 
-		pressBack();
-		Intent data = new Intent();
-		data.setData(Uri.fromFile(file1));
-		ContactFragment contactFragment = (ContactFragment) mActivity.getFragmentManager().findFragmentById(R.id.fragment_container);
-		contactFragment.enableDocumentProvider(false);
-		contactFragment.onActivityResult(ContactFragment.REQUEST_IMPORT_CONTACT, Activity.RESULT_OK, data);
+        Intent data = new Intent();
+        data.setData(Uri.fromFile(file1));
+        ContactFragment contactFragment = (ContactFragment) mActivity.
+                getFragmentManager().findFragmentById(R.id.fragment_container);
+        contactFragment.enableDocumentProvider(false);
+        contactFragment.onActivityResult(ContactFragment.REQUEST_IMPORT_CONTACT, Activity.RESULT_OK, data);
         checkMessageBox();
         onView(withText(userToImport)).check(matches(isDisplayed()));
     }

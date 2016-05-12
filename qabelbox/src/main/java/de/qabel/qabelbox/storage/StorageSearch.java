@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.Map;
 
 import de.qabel.qabelbox.exceptions.QblStorageException;
 
@@ -13,10 +14,9 @@ import de.qabel.qabelbox.exceptions.QblStorageException;
  */
 public class StorageSearch {
 
-    private BoxNavigation navigation;
     private List<BoxObject> nodeList;
     private List<BoxObject> results;
-    private Hashtable<String, BoxObject> pathMapping = new Hashtable<>();
+    private Map<String, BoxObject> pathMapping = new Hashtable<>();
 
     /**
      * Inits the results with all available files and directories.
@@ -25,19 +25,15 @@ public class StorageSearch {
      * @throws QblStorageException
      */
     public StorageSearch(BoxNavigation navigation) throws QblStorageException {
-        this.navigation = navigation;
-        init();
+        List<BoxObject> subNodes = collectAll(navigation);
+        this.nodeList = subNodes;
+        this.results = new ArrayList<>(subNodes);
     }
 
-    private StorageSearch(BoxNavigation navigation, List<BoxObject> results) throws QblStorageException {
-        this.navigation = navigation;
-        init();
+    private StorageSearch(List<BoxObject> nodes, List<BoxObject> results, Map<String, BoxObject> pathMapping) {
+        this.nodeList = nodes;
         this.results = results;
-    }
-
-    private void init() throws QblStorageException {
-        this.results = collectAll();
-        this.nodeList = new ArrayList<>(this.results);
+        this.pathMapping = pathMapping;
     }
 
     public void reset() throws QblStorageException {
@@ -81,12 +77,16 @@ public class StorageSearch {
         return results;
     }
 
+    public int getResultSize() {
+        return this.results.size();
+    }
+
     /**
      * Table to provide lookup for paths possible.
      *
      * @return A Hashtable which provides the absolute path for a given BoxObject.
      */
-    public Hashtable<String, BoxObject> getPathMapping() {
+    public Map<String, BoxObject> getPathMapping() {
         return pathMapping;
     }
 
@@ -289,14 +289,13 @@ public class StorageSearch {
         return this;
     }
 
-    private List<BoxObject> collectAll() throws QblStorageException {
-        navigation.navigateToRoot();
+    private List<BoxObject> collectAll(BoxNavigation navigation) throws QblStorageException {
         List<BoxObject> lst = new ArrayList<>();
-        addAll(lst);
+        addAll(navigation, lst);
         return lst;
     }
 
-    private void addAll(List<BoxObject> lst) throws QblStorageException {
+    private void addAll(BoxNavigation navigation, List<BoxObject> lst) throws QblStorageException {
 
         for (BoxFile file : navigation.listFiles()) {
             lst.add(file);
@@ -313,18 +312,15 @@ public class StorageSearch {
             pathMapping.put(navigation.getPath(folder), folder);
 
             navigation.navigate(folder);
-            addAll(lst);
+            addAll(navigation, lst);
             navigation.navigateToParent();
         }
     }
 
     @Override
     public StorageSearch clone() throws CloneNotSupportedException {
-        try {
-            return new StorageSearch(navigation, new ArrayList<>(results));
-        } catch (QblStorageException e) {
-            throw new CloneNotSupportedException();
-        }
+        return new StorageSearch(new ArrayList<>(nodeList),
+                new ArrayList<>(results), new Hashtable<>(pathMapping));
     }
 
 }

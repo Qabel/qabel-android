@@ -10,6 +10,7 @@ import org.robolectric.RobolectricGradleTestRunner;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.util.Calendar;
 import java.util.Date;
@@ -20,6 +21,9 @@ import de.qabel.core.crypto.CryptoUtils;
 import de.qabel.core.crypto.QblECKeyPair;
 import de.qabel.qabelbox.BuildConfig;
 import de.qabel.qabelbox.SimpleApplication;
+import de.qabel.qabelbox.exceptions.QblServerException;
+import de.qabel.qabelbox.exceptions.QblStorageEntityExistsException;
+import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.test.TestConstants;
 import de.qabel.qabelbox.test.files.FileHelper;
 
@@ -65,18 +69,19 @@ public class SearchTestR {
     private static final String L2_FILE_1 = "One-level2-one.bin";
     private static final String L1_DIR_2 = "dir1-level2-two";
     private static final String L2_FILE_2 = "Two-level2-one.bin";
+    private static final String SHARED_FILE_NAME = "sharedFile";
 
-    private static final String[] fileNames = new String[]{L0_FILE_1, L1_FILE_1, L1_FILE_2_SMALL, L2_FILE_1, L2_FILE_2};
-    private static final String[] folderNames = new String[]{L0_DIR_1, L1_DIR_1, L1_DIR_2};
+    private static final String[] fileNames = new String[]{L0_FILE_1, L1_FILE_1, L1_FILE_2_SMALL, L2_FILE_1, L2_FILE_2, SHARED_FILE_NAME};
+    private static final String[] folderNames = new String[]{L0_DIR_1, L1_DIR_1, L1_DIR_2, BoxFolder.RECEIVED_SHARE_NAME};
 
     private static final int OBJECT_COUNT = fileNames.length + folderNames.length;
 
     private BoxNavigation navigation;
+    private StorageSearch rootStorageSearch;
 
     @Before
     public void setUp() throws Exception {
         if (navigation == null) {
-            Log.d(TAG, "Initialize");
             CryptoUtils utils = new CryptoUtils();
             byte[] deviceID = utils.getRandomBytes(16);
             QblECKeyPair keyPair = new QblECKeyPair();
@@ -90,16 +95,17 @@ public class SearchTestR {
 
             navigation = volume.navigate();
 
-            setupFakeDirectoryStructure();
+            setupFakeDirectoryStructure(keyPair);
 
-            Log.d(TAG, "Initialized!");
+            navigation.navigateToRoot();
+            rootStorageSearch = new StorageSearch(navigation);
         } else {
-            Log.d(TAG, "Already initialized");
+            rootStorageSearch.reset();
+            navigation.navigateToRoot();
         }
-        navigation.navigateToRoot();
     }
 
-    private void setupFakeDirectoryStructure() throws Exception {
+    private void setupFakeDirectoryStructure(QblECKeyPair keyPair) throws Exception {
 
         String testFile = FileHelper.createTestFile();
         String smallFile = FileHelper.smallTestFile().getAbsolutePath();
@@ -133,122 +139,119 @@ public class SearchTestR {
 
         navigation.upload(L2_FILE_2, new FileInputStream(testFile), null);
         navigation.commit();
-    }
 
-    private static void debug(StorageSearch search) throws Exception {
-        for (BoxObject o : search.getResults()) {
-            debug(o);
-        }
-    }
-
-    private static void debug(BoxObject o) {
-        if (o instanceof BoxFile) {
-            BoxFile f = ((BoxFile) o);
-            System.out.println("FILE: " + o.name + " @" + f.size + " D: " + f.mtime);
-            // Log.d(TAG, "FILE: " + o.name + " @" + f.size + " D: " + f.mtime);
-        } else {
-            System.out.println("DIR : " + o.name);
-            // Log.d(TAG, "DIR : " + o.name);
-        }
+        //Add shares folder and shared file
+        navigation.navigateToRoot();
+        navigation.createFolder(BoxFolder.RECEIVED_SHARE_NAME);
+        navigation.commit();
+        BoxExternalReference sharedFile = new BoxExternalReference(false, TestConstants.BLOCK_URL, SHARED_FILE_NAME, keyPair.getPub(), testFile.getBytes());
+        navigation.attachExternal(sharedFile);
     }
 
     @Test
     public void testCollectAll() throws Exception {
-        StorageSearch search = new StorageSearch(navigation);
-        List<BoxObject> searchResults = search.getResults();
+        List<BoxObject> searchResults = rootStorageSearch.getResults();
         assertEquals(OBJECT_COUNT, searchResults.size());
     }
 
     @Test
     public void testForValidName() throws Exception {
-        StorageSearch search = new StorageSearch(navigation);
-        assertFalse(search.isValidSearchTerm(null));
-        assertFalse(search.isValidSearchTerm(""));
-        assertFalse(search.isValidSearchTerm(" "));
+        assertFalse(rootStorageSearch.isValidSearchTerm(null));
+        assertFalse(rootStorageSearch.isValidSearchTerm(""));
+        assertFalse(rootStorageSearch.isValidSearchTerm(" "));
 
-        assertTrue(search.isValidSearchTerm("1"));
+        assertTrue(rootStorageSearch.isValidSearchTerm("1"));
     }
 
     @Test
     public void testNameSearch() throws Exception {
-        List<BoxObject> lst = new StorageSearch(navigation).filterByName("small").getResults();
+        List<BoxObject> lst = rootStorageSearch.filterByName("small").getResults();
 
         assertEquals(1, lst.size());
         assertEquals(L1_FILE_2_SMALL, lst.get(0).name);
+        rootStorageSearch.reset();
 
-        StorageSearch search = new StorageSearch(navigation).filterByNameCaseSensitive("small");
-        assertEquals(0, search.getResults().size());
+        StorageSearch search = rootStorageSearch.filterByNameCaseSensitive("small");
+        assertEquals(0, search.getResultSize());
+        rootStorageSearch.reset();
 
-        search = new StorageSearch(navigation).filterByNameCaseSensitive("Small");
-        assertEquals(1, search.getResults().size());
+        search = rootStorageSearch.filterByNameCaseSensitive("Small");
+        assertEquals(1, search.getResultSize());
+        rootStorageSearch.reset();
 
         //if not valid don't apply the filter
-        search = new StorageSearch(navigation).filterByName(null);
-        assertEquals(8, search.getResults().size());
+        search = rootStorageSearch.filterByName(null);
+        assertEquals(8, search.getResultSize());
+        rootStorageSearch.reset();
 
-        search = new StorageSearch(navigation).filterByName("");
-        assertEquals(8, search.getResults().size());
+        search = rootStorageSearch.filterByName("");
+        assertEquals(8, search.getResultSize());
+        rootStorageSearch.reset();
 
-        search = new StorageSearch(navigation).filterByName(" ");
-        assertEquals(8, search.getResults().size());
+        search = rootStorageSearch.filterByName(" ");
+        assertEquals(8, search.getResultSize());
     }
 
     @Test
     public void testFilterBySize() throws Exception {
 
-        StorageSearch search = new StorageSearch(navigation).filterByNameCaseInsensitive("level1");
-        assertEquals(3, search.getResults().size());
+        StorageSearch search = rootStorageSearch.filterByNameCaseInsensitive("level1");
+        assertEquals(3, search.getResultSize());
+        rootStorageSearch.reset();
 
-        search = new StorageSearch(navigation).filterByNameCaseInsensitive("level1")
+        search = rootStorageSearch.filterByNameCaseInsensitive("level1")
                 .filterByMaximumSize(100);
-        assertEquals(1, search.getResults().size());
+        assertEquals(1, search.getResultSize());
+        rootStorageSearch.reset();
 
-        search = new StorageSearch(navigation).filterByNameCaseInsensitive("level1")
+        search = rootStorageSearch.filterByNameCaseInsensitive("level1")
                 .filterByMaximumSize(110000);
-        assertEquals(2, search.getResults().size());
+        assertEquals(2, search.getResultSize());
+        rootStorageSearch.reset();
 
-        search = new StorageSearch(navigation).filterByNameCaseInsensitive("level1")
+        search = rootStorageSearch.filterByNameCaseInsensitive("level1")
                 .filterByMaximumSize(100000);
-        assertEquals(1, search.getResults().size());
+        assertEquals(1, search.getResultSize());
+        rootStorageSearch.reset();
 
-        search = new StorageSearch(navigation).filterByNameCaseInsensitive("level1")
+        search = rootStorageSearch.filterByNameCaseInsensitive("level1")
                 .filterByMinimumSize(1);
-        assertEquals(2, search.getResults().size());
+        assertEquals(2, search.getResultSize());
+        rootStorageSearch.reset();
 
-        search = new StorageSearch(navigation).filterByNameCaseInsensitive("level1")
+        search = rootStorageSearch.filterByNameCaseInsensitive("level1")
                 .filterByMinimumSize(100);
-        assertEquals(1, search.getResults().size());
+        assertEquals(1, search.getResultSize());
+        rootStorageSearch.reset();
 
-        search = new StorageSearch(navigation).filterByNameCaseInsensitive("level1")
+        search = rootStorageSearch.filterByNameCaseInsensitive("level1")
                 .filterByMinimumSize(10000000);
-        assertEquals(0, search.getResults().size());
+        assertEquals(0, search.getResultSize());
     }
 
     @Test
     public void testFilterByFileOrDir() throws Exception {
 
-        StorageSearch search = new StorageSearch(navigation);
-        search.filterByNameCaseSensitive("level1").filterOnlyDirectories();
-        assertEquals(1, search.getResults().size());
+        rootStorageSearch.filterByNameCaseSensitive("level1").filterOnlyDirectories();
+        assertEquals(1, rootStorageSearch.getResultSize());
 
-        List<BoxFolder> dirs = search.toBoxFolders(search.getResults());
+        List<BoxFolder> dirs = rootStorageSearch.toBoxFolders(rootStorageSearch.getResults());
         assertEquals(1, dirs.size());
         assertEquals(L1_DIR_1, dirs.get(0).name);
-        search.reset();
+        rootStorageSearch.reset();
 
-        search.filterByNameCaseInsensitive("level1").filterOnlyFiles();
-        assertEquals(2, search.getResults().size());
-        assertEquals(L1_FILE_1, search.getResults().get(0).name);
-        assertEquals(L1_FILE_2_SMALL, search.getResults().get(1).name);
+        rootStorageSearch.filterByNameCaseInsensitive("level1").filterOnlyFiles();
+        assertEquals(2, rootStorageSearch.getResultSize());
+        assertEquals(L1_FILE_1, rootStorageSearch.getResults().get(0).name);
+        assertEquals(L1_FILE_2_SMALL, rootStorageSearch.getResults().get(1).name);
     }
 
     @Test
     public void testFilterByDate() throws Exception {
 
-        StorageSearch search = new StorageSearch(navigation);
-        List<BoxFile> files = search.toBoxFiles(search.getResults());
+        List<BoxFile> files = rootStorageSearch.toBoxFiles(rootStorageSearch.getResults());
         assertEquals(fileNames.length, files.size());
-        search.reset();
+        rootStorageSearch.reset();
 
         Calendar calendar = new GregorianCalendar();
         calendar.set(Calendar.YEAR, 2010);
@@ -262,84 +265,130 @@ public class SearchTestR {
         calendar.set(Calendar.YEAR, 2009);
         Date beforeTarget = calendar.getTime();
 
-        search.filterByMinimumDate(afterTarget);
-        assertEquals(5, search.getResults().size());
-        search.reset();
+        rootStorageSearch.filterByMinimumDate(afterTarget);
+        assertEquals(5, rootStorageSearch.getResults().size());
+        rootStorageSearch.reset();
 
-        search.filterByMinimumDate(beforeTarget);
-        assertEquals(5, search.getResults().size());
-        search.reset();
+        rootStorageSearch.filterByMinimumDate(beforeTarget);
+        assertEquals(5, rootStorageSearch.getResults().size());
+        rootStorageSearch.reset();
 
-        search = search.filterByMinimumDate(target);
-        assertEquals(5, search.getResults().size());
-        search.reset();
+        rootStorageSearch = rootStorageSearch.filterByMinimumDate(target);
+        assertEquals(5, rootStorageSearch.getResults().size());
+        rootStorageSearch.reset();
 
-        search.filterByMaximumDate(target);
-        assertEquals(0, search.getResults().size());
-        search.reset();
+        rootStorageSearch.filterByMaximumDate(target);
+        assertEquals(0, rootStorageSearch.getResults().size());
+        rootStorageSearch.reset();
 
-        search.filterByMaximumDate(beforeTarget);
-        assertEquals(0, search.getResults().size());
+        rootStorageSearch.filterByMaximumDate(beforeTarget);
+        assertEquals(0, rootStorageSearch.getResults().size());
+        rootStorageSearch.reset();
 
-        search.filterByMaximumDate(afterTarget);
-        assertEquals(0, search.getResults().size());
+        rootStorageSearch.filterByMaximumDate(afterTarget);
+        assertEquals(0, rootStorageSearch.getResults().size());
     }
 
     @Test
     public void testSortByName() throws Exception {
-        StorageSearch search = new StorageSearch(navigation).sortCaseInsensitiveByName();
-        assertEquals(L0_DIR_1, search.getResults().get(0).name);
-        assertEquals(L2_FILE_2, search.getResults().get(search.getResults().size() - 1).name);
+        rootStorageSearch.sortCaseInsensitiveByName();
+        assertEquals(L0_DIR_1, rootStorageSearch.getResults().get(0).name);
+        assertEquals(L2_FILE_2, rootStorageSearch.getResults().get(rootStorageSearch.getResults().size() - 1).name);
 
-        search.reset();
-        search.sortCaseSensitiveByName();
-        assertEquals(L1_FILE_2_SMALL, search.getResults().get(0).name);
-        assertEquals(L1_FILE_1, search.getResults().get(search.getResults().size() - 1).name);
+        rootStorageSearch.reset();
+        rootStorageSearch.sortCaseSensitiveByName();
+        assertEquals(L1_FILE_2_SMALL, rootStorageSearch.getResults().get(0).name);
+        assertEquals(L1_FILE_1, rootStorageSearch.getResults().get(rootStorageSearch.getResults().size() - 1).name);
     }
 
     @Test
     public void testFilterByExtension() throws Exception {
-        StorageSearch search = new StorageSearch(navigation);
-
-        List<BoxObject> lst = search.filterByExtension("bin").getResults();
+        List<BoxObject> lst = rootStorageSearch.filterByExtension("bin").getResults();
         assertEquals(5, lst.size());
-        search.reset();
+        rootStorageSearch.reset();
 
-        lst = search.filterByExtension(".bin").getResults();
+        lst = rootStorageSearch.filterByExtension(".bin").getResults();
         assertEquals(5, lst.size());
-        search.reset();
+        rootStorageSearch.reset();
 
-        lst = search.filterByExtension("BIN").getResults();
+        lst = rootStorageSearch.filterByExtension("BIN").getResults();
         assertEquals(5, lst.size());
-        search.reset();
+        rootStorageSearch.reset();
 
-        lst = search.filterByExtension(".jpg").getResults();
+        lst = rootStorageSearch.filterByExtension(".jpg").getResults();
         assertEquals(0, lst.size());
     }
 
     @Test
     public void testFindByPath() throws Exception {
-
-        StorageSearch search = new StorageSearch(navigation);
-        List<BoxObject> lst = search.filterByName("small").getResults();
+        List<BoxObject> lst = rootStorageSearch.filterByName("small").getResults();
 
         assertEquals(L1_FILE_2_SMALL, lst.get(0).name);
-        assertEquals(lst.get(0).name, search.findByPath("/" + L0_DIR_1 + "/" + L1_FILE_2_SMALL).name);
+        assertEquals(lst.get(0).name, rootStorageSearch.findByPath("/" + L0_DIR_1 + "/" + L1_FILE_2_SMALL).name);
     }
 
     @Test
     public void testFindPathByBoxObject() throws Exception {
-        StorageSearch search = new StorageSearch(navigation);
-
-        List<BoxObject> results = search.getResults();
-
-        Log.d(TAG, "MAPS: " + search.getPathMapping().size());
+        List<BoxObject> results = rootStorageSearch.getResults();
 
         assertEquals(L0_FILE_1, results.get(0).name);
-        assertEquals("/" + L0_FILE_1, search.findPathByBoxObject(results.get(0)));
+        assertEquals("/" + L0_FILE_1, rootStorageSearch.findPathByBoxObject(results.get(0)));
 
         assertEquals(L0_DIR_1, results.get(1).name);
-        assertEquals("/" + L0_DIR_1 + "/", search.findPathByBoxObject(results.get(1)));
+        assertEquals("/" + L0_DIR_1 + "/", rootStorageSearch.findPathByBoxObject(results.get(1)));
+    }
+
+    private BoxFolder navigateToFolder(String name) throws QblStorageException {
+        List<BoxFolder> folders = navigation.listFolders();
+        BoxFolder targetSubfolder = null;
+        for (BoxFolder folder : folders) {
+            if (folder.name.equals(name)) {
+                targetSubfolder = folder;
+                break;
+            }
+        }
+        return targetSubfolder;
+    }
+
+    @Test
+    public void testSubFolderSearch() throws Exception {
+        navigateToFolder(L0_DIR_1);
+        navigateToFolder(L1_DIR_1);
+        assertTrue(navigation.hasParent());
+        StorageSearch subfolderSearch = new StorageSearch(navigation);
+        assertEquals(1, subfolderSearch.getResultSize());
+
+        subfolderSearch.filterOnlyFiles();
+        assertEquals(1, subfolderSearch.getResultSize());
+        subfolderSearch.reset();
+
+        subfolderSearch.filterOnlyDirectories();
+        assertEquals(0, subfolderSearch.getResultSize());
+
+        navigation.navigateToParent();
+        subfolderSearch = new StorageSearch(navigation);
+        assertEquals(2, subfolderSearch.getResultSize());
+        subfolderSearch.filterOnlyDirectories();
+        assertEquals(1, subfolderSearch.getResultSize());
+    }
+
+    @Test
+    public void testShareFolder() throws Exception {
+        rootStorageSearch.filterByName(BoxFolder.RECEIVED_SHARE_NAME).filterOnlyDirectories();
+        assertEquals(1, rootStorageSearch.getResultSize());
+        rootStorageSearch.reset();
+
+        rootStorageSearch.filterByName(SHARED_FILE_NAME).filterOnlyFiles();
+        assertEquals(1, rootStorageSearch.getResultSize());
+
+        navigateToFolder(BoxFolder.RECEIVED_SHARE_NAME);
+        StorageSearch sharedSearch = new StorageSearch(navigation);
+        assertEquals(1, sharedSearch.getResultSize());
+        sharedSearch.filterByName(L0_FILE_1);
+        assertEquals(0, sharedSearch.getResultSize());
+        sharedSearch.reset();
+
+        assertEquals(SHARED_FILE_NAME, sharedSearch.getResults().get(0).name);
     }
 }
 

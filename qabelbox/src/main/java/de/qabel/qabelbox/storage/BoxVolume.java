@@ -46,7 +46,7 @@ public class BoxVolume {
 
     public BoxVolume(
             QblECKeyPair keyPair, String prefix,
-            byte[] deviceId, Context context) {
+            byte[] deviceId, Context context, BlockServerTransferManager transferManager) {
 
         this.keyPair = keyPair;
         this.deviceId = deviceId;
@@ -56,11 +56,10 @@ public class BoxVolume {
 
         this.rootId = new DocumentIdParser().buildId(
                 keyPair.getPub().getReadableKeyIdentifier(), prefix, null);
-        transferManager = new BlockServerTransferManager(tempDir);
+        this.transferManager = transferManager;
         this.prefix = prefix;
 
     }
-
 
     public String getDocumentId(String path) {
         return rootId + BoxProvider.DOCID_SEPARATOR + path;

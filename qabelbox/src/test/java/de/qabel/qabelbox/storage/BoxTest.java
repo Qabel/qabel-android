@@ -121,8 +121,9 @@ public class BoxTest {
             throw new NullPointerException("Identity is null");
         }
         QblECKeyPair key = identity.getPrimaryKeyPair();
+        File tmpDir = new File(System.getProperty("java.io.tmpdir"));
         return new BoxVolume(key, prefix,
-                deviceID, getContext());
+                deviceID, getContext(), new BlockServerTransferManager(tmpDir));
     }
 
     public static String createTestFile() throws IOException {

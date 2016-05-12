@@ -9,6 +9,7 @@ import android.test.mock.MockContentResolver;
 
 import org.junit.Before;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -20,7 +21,7 @@ import de.qabel.qabelbox.config.AppPreference;
 import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.providers.BoxProvider;
 import de.qabel.qabelbox.providers.MockBoxProvider;
-import de.qabel.qabelbox.services.LocalQabelService;
+import de.qabel.qabelbox.storage.BlockServerTransferManager;
 import de.qabel.qabelbox.storage.BoxVolume;
 
 public abstract class MockedBoxProviderTest extends InstrumentationTestCase {
@@ -62,7 +63,9 @@ public abstract class MockedBoxProviderTest extends InstrumentationTestCase {
         byte[] deviceID = getProvider().deviceID;
         MockBoxProvider provider = getProvider();
         ROOT_DOC_ID = provider.rootDocId;
-        volume = new BoxVolume(provider.keyPair, provider.prefix, deviceID, getContext());
+        File tempDir = getInstrumentation().getTargetContext().getCacheDir();
+        volume = new BoxVolume(provider.keyPair, MockBoxProvider.prefix,
+                deviceID, getContext(), new BlockServerTransferManager(tempDir));
         volume.createIndex();
 
     }

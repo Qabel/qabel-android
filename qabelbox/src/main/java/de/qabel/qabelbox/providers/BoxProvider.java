@@ -57,6 +57,7 @@ import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.exceptions.QblStorageNotFound;
 import de.qabel.qabelbox.services.LocalBroadcastConstants;
 import de.qabel.qabelbox.services.LocalQabelService;
+import de.qabel.qabelbox.storage.BlockServerTransferManager;
 import de.qabel.qabelbox.storage.BoxExternalFile;
 import de.qabel.qabelbox.storage.BoxFile;
 import de.qabel.qabelbox.storage.BoxFolder;
@@ -233,8 +234,13 @@ public class BoxProvider extends DocumentsProvider {
         }
         QblECKeyPair key = retrievedIdentity.getPrimaryKeyPair();
 
+        Context context = getContext();
+        if (context == null) {
+            throw new IllegalStateException("Trying to create a volume object without context");
+        }
+        File tempDir = context.getCacheDir();
         return new BoxVolume(key, prefix,
-                mService.getDeviceID(), getContext());
+                mService.getDeviceID(), context, new BlockServerTransferManager(tempDir));
     }
 
     @Override

@@ -46,7 +46,7 @@ public class BoxVolume {
 
     public BoxVolume(
             QblECKeyPair keyPair, String prefix,
-            byte[] deviceId, Context context, BlockServerTransferManager transferManager) {
+            byte[] deviceId, Context context, TransferManager transferManager) {
 
         this.keyPair = keyPair;
         this.deviceId = deviceId;

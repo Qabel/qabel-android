@@ -126,7 +126,7 @@ public class ImportExportContactsUITest {
     }
 
     private void addContact(String contactJSON) throws JSONException, QblStorageEntityExistsException {
-		mBoxHelper.getService().addContact(ContactExportImport.parseContactForIdentity(null, new JSONObject(contactJSON)));
+        mBoxHelper.getService().addContact(ContactExportImport.parseContactForIdentity(null, new JSONObject(contactJSON)));
     }
 
     private void checkMessageBox() {
@@ -176,20 +176,20 @@ public class ImportExportContactsUITest {
                 .perform(RecyclerViewActions.actionOnItem(
                         hasDescendant(withText(userName)), longClick()));
         Spoon.screenshot(mActivity, "exportOne");
-		Intent data = new Intent();
-		data.setData(Uri.fromFile(file1));
-		ContactFragment contactFragment = (ContactFragment) mActivity.getFragmentManager().findFragmentById(R.id.fragment_container);
-		contactFragment.enableDocumentProvider(false);
-		final LocalQabelService service = QabelBoxApplication.getInstance().getService();
-		Contact contact = service.getContacts().getContacts().iterator().next();
-		userName = contact.getAlias();
-		contactFragment.exportContact(contact);
-		contactFragment.onActivityResult(ContactFragment.REQUEST_EXPORT_CONTACT, Activity.RESULT_OK, data);
+        Intent data = new Intent();
+        data.setData(Uri.fromFile(file1));
+        ContactFragment contactFragment = (ContactFragment) mActivity.getFragmentManager().findFragmentById(R.id.fragment_container);
+        contactFragment.enableDocumentProvider(false);
+        final LocalQabelService service = QabelBoxApplication.getInstance().getService();
+        Contact contact = service.getContacts().getContacts().iterator().next();
+        userName = contact.getAlias();
+        contactFragment.exportContact(contact);
+        contactFragment.onActivityResult(ContactFragment.REQUEST_EXPORT_CONTACT, Activity.RESULT_OK, data);
 
         checkMessageBox();
 
-		Contact importedContact = ContactExportImport.parseContactForIdentity(identity, checkFile(file1));
-		assertEquals(importedContact.getAlias(), userName);
+        Contact importedContact = ContactExportImport.parseContactForIdentity(identity, checkFile(file1));
+        assertEquals(importedContact.getAlias(), userName);
 
     }
 
@@ -223,16 +223,16 @@ public class ImportExportContactsUITest {
         goToContacts();
         openActionBarOverflowOrOptionsMenu(InstrumentationRegistry.getTargetContext());
         Spoon.screenshot(mActivity, "exportAll");
-		Intent data = new Intent();
-		data.setData(Uri.fromFile(file1));
-		ContactFragment contactFragment =
-                (ContactFragment) mActivity.getFragmentManager().findFragmentById(R.id.fragment_container);
-		contactFragment.enableDocumentProvider(false);
-		contactFragment.exportAllContacts();
-		contactFragment.onActivityResult(ContactFragment.REQUEST_EXPORT_CONTACT, Activity.RESULT_OK, data);
-		ContactExportImport.ContactsParseResult contact =
+        Intent data = new Intent();
+        data.setData(Uri.fromFile(file1));
+        ContactFragment contactFragment = (ContactFragment) mActivity.
+                getFragmentManager().findFragmentById(R.id.fragment_container);
+        contactFragment.enableDocumentProvider(false);
+        contactFragment.exportAllContacts();
+        contactFragment.onActivityResult(ContactFragment.REQUEST_EXPORT_CONTACT, Activity.RESULT_OK, data);
+        ContactExportImport.ContactsParseResult contact =
                 ContactExportImport.parseContactsForIdentity(identity, checkFile(file1));
-		assertEquals(contact.getContacts().getContacts().size(), 3);
+        assertEquals(contact.getContacts().getContacts().size(), 3);
     }
 
     @Test
@@ -246,11 +246,12 @@ public class ImportExportContactsUITest {
         assertNotNull(file1);
         goToContacts();
 
-		Intent data = new Intent();
-		data.setData(Uri.fromFile(file1));
-		ContactFragment contactFragment = (ContactFragment) mActivity.getFragmentManager().findFragmentById(R.id.fragment_container);
-		contactFragment.enableDocumentProvider(false);
-		contactFragment.onActivityResult(ContactFragment.REQUEST_IMPORT_CONTACT, Activity.RESULT_OK, data);
+        Intent data = new Intent();
+        data.setData(Uri.fromFile(file1));
+        ContactFragment contactFragment = (ContactFragment) mActivity.
+                getFragmentManager().findFragmentById(R.id.fragment_container);
+        contactFragment.enableDocumentProvider(false);
+        contactFragment.onActivityResult(ContactFragment.REQUEST_IMPORT_CONTACT, Activity.RESULT_OK, data);
         checkMessageBox();
         onView(withText(userToImport)).check(matches(isDisplayed()));
     }

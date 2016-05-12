@@ -11,6 +11,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
@@ -110,6 +111,7 @@ public class FileSearchUITest {
         Spoon.screenshot(mActivity, "after");
     }
 
+    @Ignore
     @Test
     public void search2FilterTest() {
         testSearchWithFilter("", 0, 2048, 6, true);

@@ -30,7 +30,7 @@ public class DocumentIdParser {
 
 
     public String getFilePath(String documentId) throws FileNotFoundException {
-        String[] split = documentId.split(BoxProvider.DOCID_SEPARATOR, 4);
+        String[] split = documentId.split(BoxProvider.DOCID_SEPARATOR, 3);
         if (split.length > 2 && split[2].length() > 0) {
             return split[2];
         }

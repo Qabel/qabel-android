@@ -29,6 +29,7 @@ public class DocumentIdParserTest extends TestCase {
     private String filePath = "foo/bar/baz/";
     private String fileName = "lorem.txt";
 
+
     @Before
     public void setUp() {
         p = new DocumentIdParser();
@@ -68,7 +69,7 @@ public class DocumentIdParserTest extends TestCase {
 
     @Test
     public void testExtractBaseName() throws FileNotFoundException {
-        assertThat(p.getBaseName(rootId + "::::" + filePath + fileName), is(fileName));
+        assertThat(p.getBaseName(rootId + "::::" +  fileName), is(fileName));
     }
 
     @Test(expected = FileNotFoundException.class)
@@ -87,6 +88,13 @@ public class DocumentIdParserTest extends TestCase {
     @Test
     public void testGetPath() throws FileNotFoundException {
         assertThat(p.getPath(rootId + "::::" + filePath + fileName), is(filePath));
+
+    }
+
+    @Test
+    public void testGetPathWithToken() throws FileNotFoundException {
+        String filePathWithToken = "::::/";
+        assertThat(p.getPath(rootId + "::::" + filePathWithToken + fileName), is(filePathWithToken));
     }
 
 }

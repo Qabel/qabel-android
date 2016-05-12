@@ -67,17 +67,8 @@ import static org.hamcrest.Matchers.is;
 public class ChatMessageUITest {
 
     @Rule
-    public ActivityTestRule<MainActivity> mActivityTestRule = new ActivityTestRule<MainActivity>(MainActivity.class, false, true) {
-        @Override
-        public void beforeActivityLaunched() {
-            try {
-                setupData();
-            } catch (QblStorageEntityExistsException e) {
-                throw new RuntimeException(e);
-            }
-        }
-
-    };
+    public ActivityTestRule<MainActivity> mActivityTestRule =
+            new MainActivityWithoutFilesFragmentTestRule(false);
     private MainActivity mActivity;
     private UIBoxHelper mBoxHelper;
     private PowerManager.WakeLock wakeLock;
@@ -86,8 +77,30 @@ public class ChatMessageUITest {
     private Contact contact2, contact1;
     private Identity identity;
 
-    private void setupData() throws QblStorageEntityExistsException {
+    @After
+    public void cleanUp() {
+        wakeLock.release();
+        mSystemAnimations.enableAll();
+        mBoxHelper.unbindService(QabelBoxApplication.getInstance());
+        mBoxHelper.removeAllIdentities();
+    }
+
+    @Before
+    public void setUp() throws IOException, QblStorageException {
+        setupData();
+
         mActivity = mActivityTestRule.getActivity();
+        URLs.setBaseBlockURL(TestConstants.BLOCK_URL);
+        wakeLock = UIActionHelper.wakeupDevice(mActivity);
+        mSystemAnimations = new SystemAnimations(mActivity);
+        mSystemAnimations.disableAll();
+        LocalQabelService service = mActivity.getService();
+        identity = service.getActiveIdentity();
+        assertNotNull(identity);
+    }
+
+    private void setupData() throws QblStorageEntityExistsException {
+        mActivity = mActivityTestRule.launchActivity(null);
         mBoxHelper = new UIBoxHelper(QabelBoxApplication.getInstance());
         mBoxHelper.bindService(QabelBoxApplication.getInstance());
         mBoxHelper.createTokenIfNeeded(false);
@@ -108,26 +121,6 @@ public class ChatMessageUITest {
         mBoxHelper.setActiveIdentity(user2);
     }
 
-    @After
-    public void cleanUp() {
-        wakeLock.release();
-        mSystemAnimations.enableAll();
-        mBoxHelper.unbindService(QabelBoxApplication.getInstance());
-        mBoxHelper.removeAllIdentities();
-    }
-
-    @Before
-    public void setUp() throws IOException, QblStorageException {
-
-        mActivity = mActivityTestRule.getActivity();
-        URLs.setBaseBlockURL(TestConstants.BLOCK_URL);
-        wakeLock = UIActionHelper.wakeupDevice(mActivity);
-        mSystemAnimations = new SystemAnimations(mActivity);
-        mSystemAnimations.disableAll();
-        LocalQabelService service = mActivity.getService();
-        identity = service.getActiveIdentity();
-        assertNotNull(identity);
-    }
 
 
     @Ignore

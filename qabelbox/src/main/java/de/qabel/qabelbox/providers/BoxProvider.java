@@ -66,6 +66,7 @@ import de.qabel.qabelbox.storage.BoxObject;
 import de.qabel.qabelbox.storage.BoxTransferListener;
 import de.qabel.qabelbox.storage.BoxUploadingFile;
 import de.qabel.qabelbox.storage.BoxVolume;
+import de.qabel.qabelbox.storage.TransferManager;
 
 public class BoxProvider extends DocumentsProvider {
 
@@ -81,7 +82,7 @@ public class BoxProvider extends DocumentsProvider {
             Document.COLUMN_DISPLAY_NAME, Document.COLUMN_LAST_MODIFIED,
             Document.COLUMN_FLAGS, Document.COLUMN_SIZE, Media.DATA};
 
-    public static final String AUTHORITY = BuildConfig.APPLICATION_ID + ".providers.documents";
+    public static final String AUTHORITY = ".providers.documents";
     public static final String PATH_SEP = "/";
     public static final String DOCID_SEPARATOR = "::::";
 
@@ -152,7 +153,8 @@ public class BoxProvider extends DocumentsProvider {
     public void notifyRootsUpdated() {
 
         getContext().getContentResolver()
-                .notifyChange(DocumentsContract.buildRootsUri(AUTHORITY), null);
+                .notifyChange(DocumentsContract.buildRootsUri(
+                        BuildConfig.APPLICATION_ID + AUTHORITY), null);
     }
 
     /**
@@ -240,7 +242,12 @@ public class BoxProvider extends DocumentsProvider {
         }
         File tempDir = context.getCacheDir();
         return new BoxVolume(key, prefix,
-                mService.getDeviceID(), context, new BlockServerTransferManager(tempDir));
+                mService.getDeviceID(), context, createTransferManager(tempDir));
+    }
+
+    @NonNull
+    protected TransferManager createTransferManager(File tempDir) {
+        return new BlockServerTransferManager(tempDir);
     }
 
     @Override
@@ -398,7 +405,8 @@ public class BoxProvider extends DocumentsProvider {
                                      BoxCursor result) {
 
         Log.v(TAG, "asyncChildDocuments");
-        final Uri uri = DocumentsContract.buildChildDocumentsUri(AUTHORITY, parentDocumentId);
+        final Uri uri = DocumentsContract.buildChildDocumentsUri(
+                BuildConfig.APPLICATION_ID + AUTHORITY, parentDocumentId);
         // tell the original cursor how he gets notified
         result.setNotificationUri(getContext().getContentResolver(), uri);
 

@@ -29,6 +29,7 @@ import de.qabel.core.crypto.QblECKeyPair;
 import de.qabel.core.drop.AdjustableDropIdGenerator;
 import de.qabel.core.drop.DropIdGenerator;
 import de.qabel.core.drop.DropURL;
+import de.qabel.qabelbox.BuildConfig;
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.TestConstants;
 import de.qabel.qabelbox.communication.VolumeFileTransferHelper;
@@ -104,7 +105,7 @@ public class UIBoxHelper {
 
             String folderId = boxVolume.getDocumentId(path);
             Uri uploadUri = DocumentsContract.buildDocumentUri(
-                    BoxProvider.AUTHORITY, folderId + name);
+                    BuildConfig.APPLICATION_ID + BoxProvider.AUTHORITY, folderId + name);
             Context self = QabelBoxApplication.getInstance().getApplicationContext();
 
             OutputStream upload = self.getContentResolver().openOutputStream(uploadUri, "w");

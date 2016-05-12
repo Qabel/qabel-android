@@ -64,7 +64,7 @@ public class SearchTest extends AndroidTestCase {
 
         File tmpDir = new File(System.getProperty("java.io.tmpdir"));
         BoxVolume volume = new BoxVolume(keyPair, prefix,
-                deviceID, getContext(), new BlockServerTransferManager(tmpDir));
+                deviceID, getContext(), new FakeTransferManager(tmpDir));
 
         volume.createIndex();
 

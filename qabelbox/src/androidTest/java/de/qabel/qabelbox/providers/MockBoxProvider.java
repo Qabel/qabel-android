@@ -16,11 +16,12 @@ import de.qabel.core.config.Identity;
 import de.qabel.core.crypto.CryptoUtils;
 import de.qabel.core.crypto.QblECKeyPair;
 import de.qabel.core.exceptions.QblInvalidEncryptionKeyException;
+import de.qabel.qabelbox.BuildConfig;
 import de.qabel.qabelbox.persistence.AndroidPersistence;
 import de.qabel.qabelbox.persistence.QblSQLiteParams;
 import de.qabel.qabelbox.services.LocalQabelService;
 
-public class MockBoxProvider extends BoxProvider {
+public class MockBoxProvider extends FakeBoxProvider {
 
     public byte[] deviceID;
     public String lastID;
@@ -67,7 +68,7 @@ public class MockBoxProvider extends BoxProvider {
 
     private void attachInfoForTests(Context context) {
         ProviderInfo info = new ProviderInfo();
-        info.authority = AUTHORITY;
+        info.authority = BuildConfig.APPLICATION_ID + AUTHORITY;
         info.exported = true;
         info.grantUriPermissions = true;
         info.readPermission = Manifest.permission.MANAGE_DOCUMENTS;

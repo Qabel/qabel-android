@@ -48,6 +48,7 @@ import java.util.List;
 import java.util.Set;
 
 import de.qabel.core.config.Identity;
+import de.qabel.qabelbox.BuildConfig;
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.adapter.FilesAdapter;
@@ -1000,7 +1001,7 @@ public class MainActivity extends CrashReportingActivity
         String path = boxNavigation.getPath(boxObject);
         String documentId = boxVolume.getDocumentId(path);
         Uri uri = DocumentsContract.buildDocumentUri(
-                BoxProvider.AUTHORITY, documentId);
+                BuildConfig.APPLICATION_ID + BoxProvider.AUTHORITY, documentId);
         exportUri = uri;
 
         // Chose a suitable place for this file, determined by the mime type

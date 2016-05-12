@@ -1,42 +1,32 @@
 package de.qabel.qabelbox;
 
-import android.support.test.runner.AndroidJUnit4;
-
-import junit.framework.TestCase;
-
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.spongycastle.util.encoders.Hex;
 
 import java.io.FileNotFoundException;
 
-import de.qabel.core.crypto.QblECKeyPair;
 import de.qabel.qabelbox.providers.DocumentIdParser;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.core.Is.is;
 
 
-@RunWith(AndroidJUnit4.class)
-public class DocumentIdParserTest extends TestCase {
+public class DocumentIdParserTest {
 
+    public static final String SEP = "::::";
     private DocumentIdParser p;
-    private QblECKeyPair key;
-    private String pub;
-    private String prefix;
-    private String rootId;
+    private String pub = "8520f0098930a754748b7ddcb43ef75a0dbf3a0d26381af4eba4a98eaa9b4e6a";
+    private String prefix = "D7A75A70-8D28-11E5-A8EB-280369A460B9";
+    private String rootId = pub + SEP + prefix;
     private String filePath = "foo/bar/baz/";
     private String fileName = "lorem.txt";
+    private String dottedPath = "::::/foo/bar/baz/";
+    private String dottedId = rootId + SEP + "::::/foo/bar/baz/";
 
     @Before
     public void setUp() {
         p = new DocumentIdParser();
-        key = new QblECKeyPair(Hex.decode(
-                "77076d0a7318a57d3c16c17251b26645df4c2f87ebc0992ab177fba51db92c2a"));
-        pub = "8520f0098930a754748b7ddcb43ef75a0dbf3a0d26381af4eba4a98eaa9b4e6a";
-        prefix = "D7A75A70-8D28-11E5-A8EB-280369A460B9";
-        rootId = pub + "::::" + prefix;
     }
 
     @Test
@@ -78,15 +68,38 @@ public class DocumentIdParserTest extends TestCase {
 
     @Test
     public void testBuildId() {
-        assertThat(p.buildId(pub, prefix, filePath), is(rootId + "::::" + filePath));
+        assertThat(p.buildId(pub, prefix, filePath), is(rootId + SEP + filePath));
         assertThat(p.buildId(pub, prefix, null), is(rootId));
         assertThat(p.buildId(pub, null, null), is(pub));
-        assertNull(p.buildId(null, null, null));
+        assertThat(p.buildId(null, null, null), nullValue());
     }
 
     @Test
     public void testGetPath() throws FileNotFoundException {
-        assertThat(p.getPath(rootId + "::::" + filePath + fileName), is(filePath));
+        assertThat(p.getPath(rootId + SEP + filePath + fileName), is(filePath));
     }
 
+    @Test
+    public void testPathWithToken() throws Exception {
+        assertThat(p.getPath(dottedId), is(dottedPath));
+    }
+
+    @Test
+    public void testBasenameWithToken() throws Exception {
+        assertThat(p.getBaseName(dottedId), is("baz"));
+        assertThat(p.getBaseName(dottedId + fileName), is(fileName));
+    }
+
+
+    @Test
+    public void testFilePathWithToken() throws Exception {
+        assertThat(p.getFilePath(dottedId + fileName), is(dottedPath + fileName));
+        assertThat(p.getFilePath(dottedId + SEP), is(dottedPath + SEP));
+    }
+
+    @Test
+    public void testPrefixWithToken() throws Exception {
+        assertThat(p.getPrefix(dottedId), is(prefix));
+    }
 }
+

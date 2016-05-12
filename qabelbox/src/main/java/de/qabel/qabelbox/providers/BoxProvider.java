@@ -84,7 +84,6 @@ public class BoxProvider extends DocumentsProvider {
     public static final String AUTHORITY = BuildConfig.APPLICATION_ID + ".providers.documents";
     public static final String PATH_SEP = "/";
     public static final String DOCID_SEPARATOR = "::::";
-    public static final String PREFIX = "test";
 
     DocumentIdParser mDocumentIdParser;
     private ThreadPoolExecutor mThreadPoolExecutor;

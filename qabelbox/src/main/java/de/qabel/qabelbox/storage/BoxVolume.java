@@ -56,7 +56,7 @@ public class BoxVolume {
 
         this.rootId = new DocumentIdParser().buildId(
                 keyPair.getPub().getReadableKeyIdentifier(), prefix, null);
-        transferManager = new TransferManager(tempDir);
+        transferManager = new BlockServerTransferManager(tempDir);
         this.prefix = prefix;
 
     }

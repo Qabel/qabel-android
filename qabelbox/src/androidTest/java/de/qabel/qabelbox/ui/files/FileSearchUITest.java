@@ -9,6 +9,7 @@ import com.squareup.spoon.Spoon;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
 import org.junit.Rule;
 import org.junit.Test;
@@ -43,24 +44,15 @@ import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static android.support.test.espresso.matcher.ViewMatchers.withHint;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 
-@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class FileSearchUITest {
 
     @Rule
-    public ActivityTestRule<MainActivity> mActivityTestRule = new ActivityTestRule<>(MainActivity.class, false, true);
+    public ActivityTestRule<MainActivity> mActivityTestRule = new ActivityTestRule<>(MainActivity.class, false, false);
 
     private MainActivity mActivity;
-    private UIBoxHelper mBoxHelper;
-    private final boolean mFillAccount = true;
+    private static UIBoxHelper mBoxHelper;
     private PowerManager.WakeLock wakeLock;
     SystemAnimations mSystemAnimations;
-
-    public FileSearchUITest() throws IOException {
-        //setup data before MainActivity launched. This avoid the call to create identity
-        if (mFillAccount) {
-            setupData();
-        }
-    }
 
     @After
     public void cleanUp() {
@@ -71,14 +63,14 @@ public class FileSearchUITest {
 
     @Before
     public void setUp() throws IOException, QblStorageException {
-        mActivity = mActivityTestRule.getActivity();
+        mActivity = mActivityTestRule.launchActivity(null);
         wakeLock = UIActionHelper.wakeupDevice(mActivity);
         mSystemAnimations = new SystemAnimations(mActivity);
         mSystemAnimations.disableAll();
     }
 
-    private void setupData() {
-        mActivity = mActivityTestRule.getActivity();
+    @BeforeClass
+    public static void setupBeforeClass() {
         URLs.setBaseBlockURL(TestConstants.BLOCK_URL);
         mBoxHelper = new UIBoxHelper(QabelBoxApplication.getInstance());
         mBoxHelper.bindService(QabelBoxApplication.getInstance());
@@ -94,7 +86,7 @@ public class FileSearchUITest {
         uploadTestFiles();
     }
 
-    private void uploadTestFiles() {
+    private static void uploadTestFiles() {
 
         int fileCount = 7;
         mBoxHelper.uploadFile(mBoxHelper.mBoxVolume, "testfile 2", new byte[1011], "");

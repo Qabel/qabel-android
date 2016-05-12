@@ -53,7 +53,6 @@ import de.qabel.core.crypto.QblECKeyPair;
 import de.qabel.qabelbox.BuildConfig;
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
-import de.qabel.qabelbox.communication.VolumeFileTransferHelper;
 import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.exceptions.QblStorageNotFound;
 import de.qabel.qabelbox.services.LocalBroadcastConstants;
@@ -63,9 +62,9 @@ import de.qabel.qabelbox.storage.BoxFile;
 import de.qabel.qabelbox.storage.BoxFolder;
 import de.qabel.qabelbox.storage.BoxNavigation;
 import de.qabel.qabelbox.storage.BoxObject;
+import de.qabel.qabelbox.storage.BoxTransferListener;
 import de.qabel.qabelbox.storage.BoxUploadingFile;
 import de.qabel.qabelbox.storage.BoxVolume;
-import de.qabel.qabelbox.storage.TransferManager;
 
 public class BoxProvider extends DocumentsProvider {
 
@@ -535,7 +534,7 @@ public class BoxProvider extends DocumentsProvider {
         }
     }
 
-    private void uploadFile(String documentId, File tmp, TransferManager.BoxTransferListener boxTransferListener) {
+    private void uploadFile(String documentId, File tmp, BoxTransferListener boxTransferListener) {
 
         try {
             BoxVolume volume = getVolumeForId(documentId);
@@ -614,7 +613,7 @@ public class BoxProvider extends DocumentsProvider {
 
         BoxNavigation navigation = traverseToFolder(volume, strings);
         BoxFile file = findFileinList(basename, navigation);
-        InputStream inputStream = navigation.download(file, new TransferManager.BoxTransferListener() {
+        InputStream inputStream = navigation.download(file, new BoxTransferListener() {
 
             @Override
             public void onProgressChanged(long bytesCurrent, long bytesTotal) {

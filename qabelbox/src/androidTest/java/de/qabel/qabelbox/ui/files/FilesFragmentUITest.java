@@ -118,10 +118,6 @@ public class FilesFragmentUITest {
 
     @After
     public void cleanUp() {
-
-        for (ExampleFile exampleFile : exampleFiles) {
-            mBoxHelper.deleteFile(mActivity, testIdentity, exampleFile.getName(), "");
-        }
         mBoxHelper.getService().deleteContact(testContact);
         mBoxHelper.deleteIdentity(testIdentity);
         mBoxHelper.deleteIdentity(testIdentity2);

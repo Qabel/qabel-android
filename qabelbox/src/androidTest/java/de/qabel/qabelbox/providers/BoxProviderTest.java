@@ -32,6 +32,7 @@ import de.qabel.qabelbox.storage.BoxFolder;
 import de.qabel.qabelbox.storage.BoxNavigation;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.startsWith;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 public class BoxProviderTest extends MockedBoxProviderTest {
@@ -98,7 +99,7 @@ public class BoxProviderTest extends MockedBoxProviderTest {
         assertThat(cursor.getCount(), is(1));
         cursor.moveToFirst();
         String documentId = cursor.getString(6);
-        assertThat(documentId, is(MockBoxProvider.PUB_KEY + VolumeFileTransferHelper.HARDCODED_ROOT));
+        assertThat(documentId, startsWith(MockBoxProvider.PUB_KEY));
 
     }
 

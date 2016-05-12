@@ -26,7 +26,7 @@ public class MockBoxProvider extends BoxProvider {
     public String lastID;
     public QblECKeyPair keyPair;
     public String rootDocId;
-    public String prefix;
+    public static String prefix;
     public static final String PUB_KEY = "8520f0098930a754748b7ddcb43ef75a0dbf3a0d26381af4eba4a98eaa9b4e6a";
     public static final String PRIVATE_KEY = "77076d0a7318a57d3c16c17251b26645df4c2f87ebc0992ab177fba51db92c2a";
     public Identity identity;

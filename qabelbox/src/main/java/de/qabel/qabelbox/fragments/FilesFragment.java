@@ -705,10 +705,13 @@ public class FilesFragment extends BaseFragment {
             return;
         }
         AsyncTask<Void, Void, Void> asyncTask = new AsyncTask<Void, Void, Void>() {
+            int first = 0;
+            int last;
             @Override
             protected Void doInBackground(Void... params) {
 
                 try {
+                    last = filesAdapter.getItemCount() - 1;
                     boxNavigation.reload();
                     mService.getCachedFinishedUploads().clear();
                     loadBoxObjectsToAdapter(boxNavigation, filesAdapter);
@@ -738,7 +741,14 @@ public class FilesFragment extends BaseFragment {
 
                 filesAdapter.sort();
                 filesListRecyclerView.getHandler().
-                        post(() -> filesAdapter.notifyDataSetChanged());
+                        post(() -> {
+                            filesAdapter.notifyItemRangeChanged(first, last);
+                            if (filesAdapter.getItemCount() >= last) {
+                                filesAdapter.notifyItemRangeInserted(
+                                        last +1,
+                                        filesAdapter.getItemCount() - 1);
+                            }
+                        });
                 setIsLoading(false);
             }
         };

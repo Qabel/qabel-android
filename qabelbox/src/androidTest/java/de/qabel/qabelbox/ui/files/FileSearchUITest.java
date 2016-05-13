@@ -54,8 +54,12 @@ public class FileSearchUITest {
 
     @After
     public void cleanUp() {
-        wakeLock.release();
-        mSystemAnimations.enableAll();
+        if (wakeLock != null) {
+            wakeLock.release();
+        }
+        if (mSystemAnimations != null) {
+            mSystemAnimations.enableAll();
+        }
         mBoxHelper.unbindService(QabelBoxApplication.getInstance());
     }
 

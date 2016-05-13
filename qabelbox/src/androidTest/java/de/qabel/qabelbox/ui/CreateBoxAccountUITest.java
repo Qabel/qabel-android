@@ -81,8 +81,12 @@ public class CreateBoxAccountUITest extends UIBoxHelper {
     @After
     public void cleanUp() {
 
-        wakeLock.release();
-        mSystemAnimations.enableAll();
+        if (wakeLock != null) {
+            wakeLock.release();
+        }
+        if (mSystemAnimations != null) {
+            mSystemAnimations.enableAll();
+        }
         unbindService(QabelBoxApplication.getInstance());
     }
 
@@ -94,6 +98,7 @@ public class CreateBoxAccountUITest extends UIBoxHelper {
 
         bindService(QabelBoxApplication.getInstance());
         new AppPreference(InstrumentationRegistry.getTargetContext()).clear();
+        removeAllIdentities();
 
         mActivity = mActivityTestRule.launchActivity(null);
         wakeLock = UIActionHelper.wakeupDevice(mActivity);
@@ -140,6 +145,23 @@ public class CreateBoxAccountUITest extends UIBoxHelper {
 
     @Test
     public void testCreateBoxAccountTest() throws Throwable {
+        onView(withText(R.string.create_box_account)).perform(click());
+        String accountName = generateUsername();
+        String accountEMail = accountName + "@example.com";
+        String password = "passwort12$";
+        enterSingleLine(accountName, "name", false);
+        enterSingleLine(accountEMail, "email", true);
+        onView(withId(R.id.et_password1)).perform(typeText(password), pressImeActionButton());
+        onView(withId(R.id.et_password2)).perform(typeText(password), pressImeActionButton());
+        closeKeyboard();
+        onView(withText(R.string.next)).perform(click());
+        UITestHelper.waitForView(R.string.create_account_final_headline, TestConstraints.SIMPLE_SERVER_ACTION_TIMEOUT);
+        onView(withText(R.string.create_account_final_headline)).check(matches(isDisplayed()));
+        checkSuccess(accountName, accountEMail);
+    }
+
+    @Test
+    public void testCreateBoxAccountErrorsTest() throws Throwable {
         pressBack();
         onView(withText(String.format(mActivity.getString(R.string.message_step_is_needed_or_close_app), R.string.boxaccount)));
         onView(withText(R.string.no)).perform(click());
@@ -169,9 +191,6 @@ public class CreateBoxAccountUITest extends UIBoxHelper {
         checkNumericPassword(failPassword);
         checkBadPassword(accountName, failPassword);
         checkPassword(password);
-        UITestHelper.waitForView(R.string.create_account_final_headline, TestConstraints.SIMPLE_SERVER_ACTION_TIMEOUT);
-        onView(withText(R.string.create_account_final_headline)).check(matches(isDisplayed()));
-        checkSuccess(accountName, accountEMail);
     }
 
     private String generateUsername() {

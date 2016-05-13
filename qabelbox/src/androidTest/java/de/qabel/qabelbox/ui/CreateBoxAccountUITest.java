@@ -117,17 +117,13 @@ public class CreateBoxAccountUITest extends UIBoxHelper {
         closeKeyboard();
 
         onView(withText(R.string.next)).perform(click());
-        UITestHelper.waitForView(R.string.ok, TestConstraints.SIMPLE_SERVER_ACTION_TIMEOUT);
-        Spoon.screenshot(UITestHelper.getCurrentActivity(mActivity), "incorrectCredentials");
         onView(withText(R.string.ok)).perform(click());
 
         createBoxAccountWithoutUI(accountName, accountEMail, password);
 
         //enter correct credentials
-        onView(withId(R.id.et_password)).perform(clearText());
         onView(withId(R.id.et_password)).perform(setText(password), pressImeActionButton());
         closeKeyboard();
-        Spoon.screenshot(UITestHelper.getCurrentActivity(mActivity), "credentials");
         AppPreference appPrefs = new AppPreference(QabelBoxApplication.getInstance());
         assertNull(appPrefs.getToken());
 
@@ -256,13 +252,10 @@ public class CreateBoxAccountUITest extends UIBoxHelper {
         onView(withId(R.id.et_password1)).perform(setText(password), pressImeActionButton());
         closeKeyboard();
         onView(withText(R.string.next)).perform(click());
-
-        Spoon.screenshot(UITestHelper.getCurrentActivity(mActivity), "passwordNotMatch");
         onView(withText(R.string.create_account_passwords_dont_match)).check(matches(isDisplayed()));
         onView(withText(R.string.ok)).perform(click());
 
         //enter password 2 and press next
-        onView(withId(R.id.et_password2)).check(matches(isDisplayed())).perform(click());
         onView(withId(R.id.et_password2)).perform(setText(password), pressImeActionButton());
         closeKeyboard();
         onView(withText(R.string.next)).perform(click());
@@ -337,14 +330,13 @@ public class CreateBoxAccountUITest extends UIBoxHelper {
         if (checkFieldsIsEmail) {
             onView(withId(R.id.et_name)).check(matches(withInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS)));
         } else {
-            onView(withId(R.id.et_name)).check(matches(withInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_NORMAL)));
+            onView(withId(R.id.et_name)).check(matches(withInputType(InputType.TYPE_CLASS_TEXT)));
         }
         onView(allOf(withClassName(endsWith("EditTextFont")))).perform(setText(accountName), pressImeActionButton());
         closeSoftKeyboard();
         Spoon.screenshot(UITestHelper.getCurrentActivity(mActivity), screenName);
 
         onView(withText(R.string.next)).perform(click());
-        UITestHelper.sleep(500);
     }
 }
 

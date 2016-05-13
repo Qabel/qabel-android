@@ -187,6 +187,9 @@ public class LocalQabelService extends Service implements DropConnector {
      * @return List of contacts owned by the identity
      */
     public Contacts getContacts(Identity identity) {
+        if (identity == null) {
+            return new Contacts(null);
+        }
         try {
             return contactRepository.find(identity);
         } catch (PersistenceException e) {

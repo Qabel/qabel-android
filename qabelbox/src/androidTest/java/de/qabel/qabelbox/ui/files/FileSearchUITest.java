@@ -120,7 +120,7 @@ public class FileSearchUITest extends AbstractUITest {
         onView(withId(R.id.action_search)).perform(click());
         onView(withHint(R.string.ab_filesearch_hint)).perform(setText(text), pressImeActionButton());
         closeSoftKeyboard();
-
+        UITestHelper.sleep(200);
         onView(withId(R.id.files_list)).check(matches(QabelMatcher.withListSize(results)));
         Spoon.screenshot(mActivity, "results_" + text);
         pressBack();

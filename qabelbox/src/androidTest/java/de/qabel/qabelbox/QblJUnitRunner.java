@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.support.test.runner.AndroidJUnitRunner;
 
 import de.qabel.qabelbox.activities.CreateIdentityActivity;
+import de.qabel.qabelbox.helper.AccountHelper;
 import de.qabel.qabelbox.providers.BoxProvider;
 
 public class QblJUnitRunner extends AndroidJUnitRunner {
@@ -13,6 +14,7 @@ public class QblJUnitRunner extends AndroidJUnitRunner {
         BoxProvider.defaultTransferManager = "fake";
         CreateIdentityActivity.FAKE_COMMUNICATION = true;
         arguments.putString("disableAnalytics", "true");
+        AccountHelper.SYNC_INTERVAL = 0;
         super.onCreate(arguments);
     }
 

@@ -111,7 +111,7 @@
     <string name="headline_identities">Identitäten</string>
     <string name="headline_imageviewer">Bildbetrachter</string>
     <string name="headline_qrcode">QRCode</string>
-    <string name="headline_searchresult">Ergebnisse der Suche</string>
+    <string name="headline_searchresult">Suchergebnisse:</string>
     <string name="headline_select_upload_folder">Auswahl des Ordners zum Hochladen</string>
     <string name="headline_settings">Einstellungen</string>
     <string name="headline_share_into_app">Hochladen</string>

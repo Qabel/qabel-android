@@ -14,6 +14,10 @@ import de.qabel.qabelbox.exceptions.QblStorageException;
  */
 public class StorageSearch {
 
+    private static final String CONTAINS_REGEX = ".*%s.*";
+    private static final String CONTAINS_IGNORE_CASE_REGEX = "(?i:.*%s.*)";
+
+    private String path;
     private List<BoxObject> nodeList;
     private List<BoxObject> results;
     private Map<String, BoxObject> pathMapping = new Hashtable<>();
@@ -25,15 +29,28 @@ public class StorageSearch {
      * @throws QblStorageException
      */
     public StorageSearch(BoxNavigation navigation) throws QblStorageException {
+        this.path = navigation.getPath();
+        setupData(navigation);
+    }
+
+    private StorageSearch(String path, List<BoxObject> nodes, List<BoxObject> results, Map<String, BoxObject> pathMapping) {
+        this.path = path;
+        this.nodeList = nodes;
+        this.results = results;
+        this.pathMapping = pathMapping;
+    }
+
+    private void setupData(BoxNavigation navigation) throws QblStorageException {
         List<BoxObject> subNodes = collectAll(navigation);
         this.nodeList = subNodes;
         this.results = new ArrayList<>(subNodes);
     }
 
-    private StorageSearch(List<BoxObject> nodes, List<BoxObject> results, Map<String, BoxObject> pathMapping) {
-        this.nodeList = nodes;
-        this.results = results;
-        this.pathMapping = pathMapping;
+    public void refreshRange(BoxNavigation navigation) throws QblStorageException {
+        if (!this.path.equals(navigation.getPath())) {
+            setupData(navigation);
+            this.path = navigation.getPath();
+        }
     }
 
     public void reset() throws QblStorageException {
@@ -81,6 +98,10 @@ public class StorageSearch {
         return this.results.size();
     }
 
+    public String getPath() {
+        return this.path;
+    }
+
     /**
      * Table to provide lookup for paths possible.
      *
@@ -114,13 +135,13 @@ public class StorageSearch {
 
         List<BoxObject> filtered = new ArrayList<>();
 
+        String expression = String.format(caseSensitive ? CONTAINS_REGEX : CONTAINS_IGNORE_CASE_REGEX, name);
+
         for (BoxObject o : results) {
-            String objKey = caseSensitive ? o.name : o.name.toLowerCase();
-            if (objKey.contains(name)) {
+            if (o.name.matches(expression)) {
                 filtered.add(o);
             }
         }
-
         results = filtered;
 
         return this;
@@ -319,7 +340,7 @@ public class StorageSearch {
 
     @Override
     public StorageSearch clone() throws CloneNotSupportedException {
-        return new StorageSearch(new ArrayList<>(nodeList),
+        return new StorageSearch(new String(this.path), new ArrayList<>(nodeList),
                 new ArrayList<>(results), new Hashtable<>(pathMapping));
     }
 

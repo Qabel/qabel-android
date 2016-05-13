@@ -305,6 +305,7 @@ public class FilesFragment extends BaseFragment {
     @Override
     public void onResume() {
         super.onResume();
+        System.out.println("RESUME FILES FRAGMENT");
         refresh();
     }
 
@@ -444,14 +445,12 @@ public class FilesFragment extends BaseFragment {
 
                 @Override
                 protected void onPreExecute() {
-
                     super.onPreExecute();
                     setIsLoading(true);
                 }
 
                 @Override
                 protected void onCancelled(StorageSearch storageSearch) {
-
                     setIsLoading(false);
                     super.onCancelled(storageSearch);
                     searchTask = null;
@@ -475,7 +474,8 @@ public class FilesFragment extends BaseFragment {
                         } catch (CloneNotSupportedException e) {
                             e.printStackTrace();
                         }
-
+                        System.out.println("SHOW SEARCH: " + needRefresh);
+                        System.out.println("------------------------------------");
                         FilesSearchResultFragment fragment = FilesSearchResultFragment.newInstance(mCachedStorageSearch, searchText, needRefresh);
                         mActivity.toggle.setDrawerIndicatorEnabled(false);
                         getFragmentManager().beginTransaction().replace(R.id.fragment_container, fragment, FilesSearchResultFragment.TAG).addToBackStack(null).commit();
@@ -485,17 +485,17 @@ public class FilesFragment extends BaseFragment {
 
                 @Override
                 protected StorageSearch doInBackground(String... params) {
-
+                    System.out.println("DO: " + boxNavigation.getPath());
                     try {
-                        if (mCachedStorageSearch != null && mCachedStorageSearch.getResults().size() > 0) {
+                        if (mCachedStorageSearch != null) {
+                            mCachedStorageSearch.refreshRange(boxNavigation);
                             return mCachedStorageSearch;
                         }
 
-                        return new StorageSearch(mBoxVolume.navigate());
+                        return new StorageSearch(boxNavigation);
                     } catch (QblStorageException e) {
                         e.printStackTrace();
                     }
-
                     return null;
                 }
             };
@@ -518,7 +518,7 @@ public class FilesFragment extends BaseFragment {
      * @param isLoading
      */
     public void setIsLoading(final boolean isLoading) {
-
+        System.out.println("SET IS LOADING: " + isLoading);
         this.isLoading = isLoading;
         if (swipeRefreshLayout == null) {
             return;
@@ -529,7 +529,6 @@ public class FilesFragment extends BaseFragment {
         swipeRefreshLayout.post(new Runnable() {
             @Override
             public void run() {
-
                 swipeRefreshLayout.setRefreshing(isLoading);
             }
         });
@@ -814,7 +813,7 @@ public class FilesFragment extends BaseFragment {
         if (path.equals("/")) {
             path = null;
         }
-        if(path != null && path.contains(BoxFolder.RECEIVED_SHARE_NAME)){
+        if (path != null && path.contains(BoxFolder.RECEIVED_SHARE_NAME)) {
             path = path.replace(BoxFolder.RECEIVED_SHARE_NAME, getString(R.string.shared_with_you));
         }
         if (actionBar != null)

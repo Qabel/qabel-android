@@ -19,12 +19,10 @@ import de.qabel.qabelbox.activities.MainActivity;
 import de.qabel.qabelbox.adapter.FilesAdapter;
 import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.storage.BoxFile;
+import de.qabel.qabelbox.storage.BoxFolder;
 import de.qabel.qabelbox.storage.BoxObject;
 import de.qabel.qabelbox.storage.StorageSearch;
 
-/**
- * Created by danny on 08.01.2016.
- */
 public class FilesSearchResultFragment extends FilesFragment {
 
     protected static final String TAG = FilesFragment.class.getSimpleName();
@@ -51,14 +49,12 @@ public class FilesSearchResultFragment extends FilesFragment {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
         actionBar.setDisplayHomeAsUpEnabled(true);
         setActionBarBackListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
                 updateSearchCache();
             }
         });
@@ -66,11 +62,21 @@ public class FilesSearchResultFragment extends FilesFragment {
         mActivity.fab.hide();
     }
 
+    @Override
+    public void updateSubtitle() {
+        if (actionBar != null) {
+            String path = mSearchResult.getPath();
+            if (path != null && path.contains(BoxFolder.RECEIVED_SHARE_NAME)) {
+                path = path.replace(BoxFolder.RECEIVED_SHARE_NAME, getString(R.string.shared_with_you));
+            }
+            actionBar.setSubtitle(path);
+        }
+    }
+
     /**
      * update search cache in files fragment
      */
     private void updateSearchCache() {
-
         FilesFragment fragment = (FilesFragment) mActivity.getFragmentManager().findFragmentByTag(MainActivity.TAG_FILES_FRAGMENT);
         if (fragment != null) {
             fragment.setCachedSearchResult(mSearchResult);
@@ -79,13 +85,11 @@ public class FilesSearchResultFragment extends FilesFragment {
 
     @Override
     public void onBackPressed() {
-
         updateSearchCache();
     }
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-
         menu.clear();
         inflater.inflate(R.menu.ab_files_search_result, menu);
         mFilterItem = menu.findItem(R.id.action_ok);
@@ -132,7 +136,6 @@ public class FilesSearchResultFragment extends FilesFragment {
      * @param results
      */
     private void fillAdapter(List<BoxObject> results) {
-
         filesAdapter.clear();
         for (BoxObject boxObject : results) {
             filesAdapter.add(boxObject);
@@ -147,7 +150,6 @@ public class FilesSearchResultFragment extends FilesFragment {
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-
                 restartSearch();
             }
         });
@@ -161,24 +163,13 @@ public class FilesSearchResultFragment extends FilesFragment {
     }
 
     private void showSearchSpinner(boolean visibility) {
-
         setIsLoading(visibility);
-    }
-
-    @Override
-    public void onResume() {
-
-        super.onResume();
-        if (mNeedRefresh) {
-            restartSearch();
-        }
     }
 
     /**
      * start search
      */
     private void restartSearch() {
-        //
         showSearchSpinner(true);
 
         searchTask = new AsyncTask<String, Void, StorageSearch>() {
@@ -191,7 +182,6 @@ public class FilesSearchResultFragment extends FilesFragment {
 
             @Override
             protected void onCancelled(StorageSearch storageSearch) {
-
                 super.onCancelled(storageSearch);
                 showSearchSpinner(false);
             }
@@ -200,7 +190,6 @@ public class FilesSearchResultFragment extends FilesFragment {
             protected void onPostExecute(StorageSearch storageSearch) {
 
                 if (!mActivity.isFinishing() && !searchTask.isCancelled()) {
-
                     showSearchSpinner(false);
                     mSearchResult = storageSearch;
                     mNeedRefresh = false;
@@ -212,7 +201,7 @@ public class FilesSearchResultFragment extends FilesFragment {
             protected StorageSearch doInBackground(String... params) {
 
                 try {
-                    return new StorageSearch(((FilesFragment) getFragmentManager().findFragmentByTag(MainActivity.TAG_FILES_FRAGMENT)).getBoxVolume().navigate());
+                    return new StorageSearch(((FilesFragment) getFragmentManager().findFragmentByTag(MainActivity.TAG_FILES_FRAGMENT)).getBoxNavigation());
                 } catch (QblStorageException e) {
                     e.printStackTrace();
                 }
@@ -225,16 +214,14 @@ public class FilesSearchResultFragment extends FilesFragment {
 
     @Override
     public String getTitle() {
-
-        return getString(R.string.headline_searchresult);
+        return getString(R.string.headline_searchresult) + " \"" + mSearchText + "\"";
     }
 
-    private void handleFilterAction() {
 
+    private void handleFilterAction() {
         FileSearchFilterFragment fragment = FileSearchFilterFragment.newInstance(mFilterData, mSearchResult, new FileSearchFilterFragment.CallbackListener() {
             @Override
             public void onSuccess(FileSearchFilterFragment.FilterData data) {
-
                 filterData(data);
             }
         });
@@ -267,13 +254,11 @@ public class FilesSearchResultFragment extends FilesFragment {
 
     @Override
     public boolean isFabNeeded() {
-
         return false;
     }
 
     @Override
     public boolean supportBackButton() {
-
         return true;
     }
 }

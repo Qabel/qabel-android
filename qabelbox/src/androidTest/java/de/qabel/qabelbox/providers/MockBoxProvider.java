@@ -21,7 +21,7 @@ import de.qabel.qabelbox.persistence.AndroidPersistence;
 import de.qabel.qabelbox.persistence.QblSQLiteParams;
 import de.qabel.qabelbox.services.LocalQabelService;
 
-public class MockBoxProvider extends FakeBoxProvider {
+public class MockBoxProvider extends BoxProvider {
 
     public byte[] deviceID;
     public String lastID;

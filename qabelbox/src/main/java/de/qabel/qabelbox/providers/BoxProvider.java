@@ -66,6 +66,7 @@ import de.qabel.qabelbox.storage.BoxObject;
 import de.qabel.qabelbox.storage.BoxTransferListener;
 import de.qabel.qabelbox.storage.BoxUploadingFile;
 import de.qabel.qabelbox.storage.BoxVolume;
+import de.qabel.qabelbox.storage.FakeTransferManager;
 import de.qabel.qabelbox.storage.TransferManager;
 
 public class BoxProvider extends DocumentsProvider {
@@ -85,6 +86,18 @@ public class BoxProvider extends DocumentsProvider {
     public static final String AUTHORITY = ".providers.documents";
     public static final String PATH_SEP = "/";
     public static final String DOCID_SEPARATOR = "::::";
+    
+    /**
+     * Configure the TransferManager used in the BoxProvider
+     *
+     * block references the @see BlockServerTransferManager
+     * fake references the @see FakeTransferManager
+     *
+     * This is a hack to change the behavior of the BoxProvider
+     * when running with QblJunitTestRunner. Changing the
+     * DocumentProvider class is not easily possible
+     */
+    public static String defaultTransferManager = "block";
 
     DocumentIdParser mDocumentIdParser;
     private ThreadPoolExecutor mThreadPoolExecutor;
@@ -247,7 +260,11 @@ public class BoxProvider extends DocumentsProvider {
 
     @NonNull
     protected TransferManager createTransferManager(File tempDir) {
-        return new BlockServerTransferManager(tempDir);
+        if (defaultTransferManager.equals("block")) {
+            return new BlockServerTransferManager(tempDir);
+        } else {
+            return new FakeTransferManager(tempDir);
+        }
     }
 
     @Override

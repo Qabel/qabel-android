@@ -33,11 +33,11 @@ import static android.support.test.espresso.Espresso.pressBack;
 import static android.support.test.espresso.action.ViewActions.click;
 import static android.support.test.espresso.action.ViewActions.pressImeActionButton;
 import static android.support.test.espresso.action.ViewActions.swipeDown;
-import static android.support.test.espresso.action.ViewActions.typeText;
 import static android.support.test.espresso.assertion.ViewAssertions.matches;
 import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static android.support.test.espresso.matcher.ViewMatchers.withHint;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
+import static de.qabel.qabelbox.ui.action.QabelViewAction.setText;
 
 public class FileSearchUITest {
 
@@ -113,7 +113,7 @@ public class FileSearchUITest {
 
         //start search
         onView(withId(R.id.action_search)).perform(click());
-        onView(withHint(R.string.ab_filesearch_hint)).perform(typeText(text), pressImeActionButton());
+        onView(withHint(R.string.ab_filesearch_hint)).perform(setText(text), pressImeActionButton());
         closeSoftKeyboard();
 
         onView(withId(R.id.files_list)).check(matches(QabelMatcher.withListSize(results)));
@@ -138,7 +138,7 @@ public class FileSearchUITest {
         //start new search
         text = "black";
         onView(withId(R.id.action_search)).perform(click());
-        onView(withHint(R.string.ab_filesearch_hint)).perform(typeText(text), pressImeActionButton());
+        onView(withHint(R.string.ab_filesearch_hint)).perform(setText(text), pressImeActionButton());
         closeSoftKeyboard();
 
         onView(withId(R.id.files_list)).check(matches(QabelMatcher.withListSize(3)));
@@ -154,7 +154,7 @@ public class FileSearchUITest {
     private void testSearch(String text, int results) {
 
         onView(withId(R.id.action_search)).perform(click());
-        onView(withHint(R.string.ab_filesearch_hint)).perform(typeText(text), pressImeActionButton());
+        onView(withHint(R.string.ab_filesearch_hint)).perform(setText(text), pressImeActionButton());
         closeSoftKeyboard();
 
         onView(withId(R.id.files_list)).check(matches(QabelMatcher.withListSize(results)));
@@ -179,7 +179,7 @@ public class FileSearchUITest {
     private void testSearchWithFilter(String text, int fileSizeMin, int fileSizeMax, int results, boolean screenShot) {
 
         onView(withId(R.id.action_search)).perform(click());
-        onView(withHint(R.string.ab_filesearch_hint)).perform(typeText(text), pressImeActionButton());
+        onView(withHint(R.string.ab_filesearch_hint)).perform(setText(text), pressImeActionButton());
         closeSoftKeyboard();
         UITestHelper.sleep(500);
         onView(withId(R.id.action_ok)).check(matches(isDisplayed())).perform(click());

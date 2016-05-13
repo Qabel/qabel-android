@@ -36,7 +36,6 @@ import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.Espresso.pressBack;
 import static android.support.test.espresso.action.ViewActions.click;
 import static android.support.test.espresso.action.ViewActions.pressImeActionButton;
-import static android.support.test.espresso.action.ViewActions.typeText;
 import static android.support.test.espresso.assertion.ViewAssertions.matches;
 import static android.support.test.espresso.contrib.DrawerActions.closeDrawer;
 import static android.support.test.espresso.contrib.DrawerActions.openDrawer;
@@ -44,6 +43,7 @@ import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static android.support.test.espresso.matcher.ViewMatchers.withClassName;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
+import static de.qabel.qabelbox.ui.action.QabelViewAction.setText;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.endsWith;
@@ -138,7 +138,7 @@ public class CreateIdentityUITest extends UIBoxHelper {
 
     private void createIdentityPerformEnterName(String identity) throws Throwable {
         onView(withText(R.string.create_identity_create)).check(matches(isDisplayed())).perform(click());
-        onView(allOf(withClassName(endsWith("EditTextFont")))).perform(typeText(identity), pressImeActionButton());
+        onView(allOf(withClassName(endsWith("EditTextFont")))).perform(setText(identity), pressImeActionButton());
         onView(withText(R.string.create_identity_enter_name)).check(matches(isDisplayed()));
         closeSoftKeyboard();
 

@@ -38,7 +38,6 @@ import de.qabel.qabelbox.ui.matcher.ToolbarMatcher;
 import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.action.ViewActions.click;
 import static android.support.test.espresso.action.ViewActions.longClick;
-import static android.support.test.espresso.action.ViewActions.typeText;
 import static android.support.test.espresso.assertion.ViewAssertions.doesNotExist;
 import static android.support.test.espresso.assertion.ViewAssertions.matches;
 import static android.support.test.espresso.contrib.DrawerActions.openDrawer;
@@ -50,6 +49,7 @@ import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static android.support.test.espresso.matcher.ViewMatchers.withClassName;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
+import static de.qabel.qabelbox.ui.action.QabelViewAction.setText;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.containsString;
@@ -240,7 +240,7 @@ public class FilesFragmentUITest {
         onView(withId(R.id.fab)).check(matches(isDisplayed())).perform(click());
         onView(withText(R.string.create_folder)).check(matches(isDisplayed())).perform(click());
 
-        onView(allOf(withClassName(endsWith("EditTextFont")))).perform(typeText(CREATE_FOLDER_TEST_NAME));
+        onView(allOf(withClassName(endsWith("EditTextFont")))).perform(setText(CREATE_FOLDER_TEST_NAME));
         onView(withText(R.string.ok)).perform(click());
     }
 

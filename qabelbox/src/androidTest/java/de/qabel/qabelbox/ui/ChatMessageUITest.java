@@ -46,7 +46,6 @@ import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.Espresso.pressBack;
 import static android.support.test.espresso.action.ViewActions.click;
 import static android.support.test.espresso.action.ViewActions.pressImeActionButton;
-import static android.support.test.espresso.action.ViewActions.typeText;
 import static android.support.test.espresso.assertion.ViewAssertions.matches;
 import static android.support.test.espresso.contrib.DrawerActions.openDrawer;
 import static android.support.test.espresso.matcher.ViewMatchers.assertThat;
@@ -56,8 +55,8 @@ import static android.support.test.espresso.matcher.ViewMatchers.withClassName;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static android.support.test.espresso.matcher.ViewMatchers.withParent;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
+import static de.qabel.qabelbox.ui.action.QabelViewAction.setText;
 import static junit.framework.Assert.assertFalse;
-import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertTrue;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.Matchers.allOf;
@@ -138,7 +137,7 @@ public class ChatMessageUITest {
         ToolbarMatcher.matchToolbarTitle("user1").check(matches(isDisplayed()));
 
         onView(withId(R.id.etText)).check(matches(isDisplayed())).perform(click());
-        onView(withId(R.id.etText)).perform(typeText("text" + 1), pressImeActionButton());
+        onView(withId(R.id.etText)).perform(setText("text" + 1), pressImeActionButton());
         closeSoftKeyboard();
         onView(withText(R.string.btn_chat_send)).check(matches(isDisplayed())).perform(click());
 

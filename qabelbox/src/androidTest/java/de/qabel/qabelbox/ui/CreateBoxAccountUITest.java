@@ -8,7 +8,6 @@ import android.os.PowerManager;
 import android.support.annotation.Nullable;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.rule.ActivityTestRule;
-import android.test.FlakyTest;
 import android.text.InputType;
 
 import com.squareup.spoon.Spoon;
@@ -17,7 +16,6 @@ import org.json.JSONObject;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
@@ -40,8 +38,6 @@ import de.qabel.qabelbox.ui.helper.SystemAnimations;
 import de.qabel.qabelbox.ui.helper.UIActionHelper;
 import de.qabel.qabelbox.ui.helper.UIBoxHelper;
 import de.qabel.qabelbox.ui.helper.UITestHelper;
-import okhttp3.Call;
-import okhttp3.Callback;
 import okhttp3.Response;
 
 import static android.support.test.espresso.Espresso.closeSoftKeyboard;
@@ -50,16 +46,15 @@ import static android.support.test.espresso.Espresso.pressBack;
 import static android.support.test.espresso.action.ViewActions.clearText;
 import static android.support.test.espresso.action.ViewActions.click;
 import static android.support.test.espresso.action.ViewActions.pressImeActionButton;
-import static android.support.test.espresso.action.ViewActions.typeText;
 import static android.support.test.espresso.assertion.ViewAssertions.matches;
 import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static android.support.test.espresso.matcher.ViewMatchers.withClassName;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static android.support.test.espresso.matcher.ViewMatchers.withInputType;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
+import static de.qabel.qabelbox.ui.action.QabelViewAction.setText;
 import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertNull;
-import static junit.framework.Assert.assertTrue;
 import static junit.framework.Assert.fail;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.allOf;
@@ -117,8 +112,8 @@ public class CreateBoxAccountUITest extends UIBoxHelper {
         onView(withText(R.string.login)).perform(click());
 
         //enter incorrect credentials
-        onView(withId(R.id.et_username)).perform(typeText(accountName), pressImeActionButton());
-        onView(withId(R.id.et_password)).perform(typeText(incorrectPassword), pressImeActionButton());
+        onView(withId(R.id.et_username)).perform(setText(accountName), pressImeActionButton());
+        onView(withId(R.id.et_password)).perform(setText(incorrectPassword), pressImeActionButton());
         closeKeyboard();
 
         onView(withText(R.string.next)).perform(click());
@@ -130,7 +125,7 @@ public class CreateBoxAccountUITest extends UIBoxHelper {
 
         //enter correct credentials
         onView(withId(R.id.et_password)).perform(clearText());
-        onView(withId(R.id.et_password)).perform(typeText(password), pressImeActionButton());
+        onView(withId(R.id.et_password)).perform(setText(password), pressImeActionButton());
         closeKeyboard();
         Spoon.screenshot(UITestHelper.getCurrentActivity(mActivity), "credentials");
         AppPreference appPrefs = new AppPreference(QabelBoxApplication.getInstance());
@@ -151,8 +146,8 @@ public class CreateBoxAccountUITest extends UIBoxHelper {
         String password = "passwort12$";
         enterSingleLine(accountName, "name", false);
         enterSingleLine(accountEMail, "email", true);
-        onView(withId(R.id.et_password1)).perform(typeText(password), pressImeActionButton());
-        onView(withId(R.id.et_password2)).perform(typeText(password), pressImeActionButton());
+        onView(withId(R.id.et_password1)).perform(setText(password), pressImeActionButton());
+        onView(withId(R.id.et_password2)).perform(setText(password), pressImeActionButton());
         closeKeyboard();
         onView(withText(R.string.next)).perform(click());
         UITestHelper.waitForView(R.string.create_account_final_headline, TestConstraints.SIMPLE_SERVER_ACTION_TIMEOUT);
@@ -258,7 +253,7 @@ public class CreateBoxAccountUITest extends UIBoxHelper {
 
     private void checkPassword(String password) throws Throwable {
         //Check Passwords dont match
-        onView(withId(R.id.et_password1)).perform(typeText(password), pressImeActionButton());
+        onView(withId(R.id.et_password1)).perform(setText(password), pressImeActionButton());
         closeKeyboard();
         onView(withText(R.string.next)).perform(click());
 
@@ -268,7 +263,7 @@ public class CreateBoxAccountUITest extends UIBoxHelper {
 
         //enter password 2 and press next
         onView(withId(R.id.et_password2)).check(matches(isDisplayed())).perform(click());
-        onView(withId(R.id.et_password2)).perform(typeText(password), pressImeActionButton());
+        onView(withId(R.id.et_password2)).perform(setText(password), pressImeActionButton());
         closeKeyboard();
         onView(withText(R.string.next)).perform(click());
         Spoon.screenshot(UITestHelper.getCurrentActivity(mActivity), "password2");
@@ -279,8 +274,8 @@ public class CreateBoxAccountUITest extends UIBoxHelper {
 
     private void checkBadPassword(String accountName, String failPassword) throws Throwable {
         //Check accountname in password validation
-        onView(withId(R.id.et_password1)).perform(typeText(failPassword + accountName), pressImeActionButton());
-        onView(withId(R.id.et_password2)).perform(typeText(failPassword + accountName), pressImeActionButton());
+        onView(withId(R.id.et_password1)).perform(setText(failPassword + accountName), pressImeActionButton());
+        onView(withId(R.id.et_password2)).perform(setText(failPassword + accountName), pressImeActionButton());
         closeKeyboard();
         onView(withText(R.string.next)).perform(click());
 
@@ -299,8 +294,8 @@ public class CreateBoxAccountUITest extends UIBoxHelper {
 
     private void checkNumericPassword(String failPassword) throws Throwable {
         //Check numeric validation
-        onView(withId(R.id.et_password1)).perform(typeText(failPassword), pressImeActionButton());
-        onView(withId(R.id.et_password2)).perform(typeText(failPassword), pressImeActionButton());
+        onView(withId(R.id.et_password1)).perform(setText(failPassword), pressImeActionButton());
+        onView(withId(R.id.et_password2)).perform(setText(failPassword), pressImeActionButton());
         closeKeyboard();
         onView(withText(R.string.next)).perform(click());
 
@@ -344,7 +339,7 @@ public class CreateBoxAccountUITest extends UIBoxHelper {
         } else {
             onView(withId(R.id.et_name)).check(matches(withInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_NORMAL)));
         }
-        onView(allOf(withClassName(endsWith("EditTextFont")))).perform(typeText(accountName), pressImeActionButton());
+        onView(allOf(withClassName(endsWith("EditTextFont")))).perform(setText(accountName), pressImeActionButton());
         closeSoftKeyboard();
         Spoon.screenshot(UITestHelper.getCurrentActivity(mActivity), screenName);
 

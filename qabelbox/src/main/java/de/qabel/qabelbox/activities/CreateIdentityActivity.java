@@ -24,6 +24,7 @@ import de.qabel.core.drop.DropIdGenerator;
 import de.qabel.core.drop.DropURL;
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
+import de.qabel.qabelbox.TestConstants;
 import de.qabel.qabelbox.communication.PrefixServer;
 import de.qabel.qabelbox.communication.callbacks.JsonRequestCallback;
 import de.qabel.qabelbox.fragments.BaseIdentityFragment;
@@ -40,6 +41,13 @@ import okhttp3.Response;
 public class CreateIdentityActivity extends BaseWizardActivity {
 
     public static final int REQUEST_CODE_IMPORT_IDENTITY = 1;
+    /**
+     * Fake the prefix request
+     *
+     * This is set by the QblJUnitTestRunner to prevent network requests to the block server
+     * in test runs.
+     */
+    public static boolean FAKE_COMMUNICATION = false;
 
     private String TAG = this.getClass().getSimpleName();
 
@@ -201,6 +209,10 @@ public class CreateIdentityActivity extends BaseWizardActivity {
     }
 
     private void loadPrefixInBackground() {
+        if (FAKE_COMMUNICATION) {
+            prefix = TestConstants.PREFIX;
+            return;
+        }
 
         if (tryCount < 3) {
             PrefixServer prefixServer = new PrefixServer(getApplicationContext());

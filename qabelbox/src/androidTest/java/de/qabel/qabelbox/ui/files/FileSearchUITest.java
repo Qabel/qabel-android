@@ -10,11 +10,8 @@ import com.squareup.spoon.Spoon;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.FixMethodOrder;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.runners.MethodSorters;
 
 import java.io.IOException;
 
@@ -64,27 +61,16 @@ public class FileSearchUITest {
 
     @Before
     public void setUp() throws IOException, QblStorageException {
+        mBoxHelper = new UIBoxHelper(QabelBoxApplication.getInstance());
+        mBoxHelper.bindService(QabelBoxApplication.getInstance());
+        mBoxHelper.createTokenIfNeeded(false);
+        mBoxHelper.removeAllIdentities();
+        mBoxHelper.addIdentity("spoon");
+        uploadTestFiles();
         mActivity = mActivityTestRule.launchActivity(null);
         wakeLock = UIActionHelper.wakeupDevice(mActivity);
         mSystemAnimations = new SystemAnimations(mActivity);
         mSystemAnimations.disableAll();
-    }
-
-    @BeforeClass
-    public static void setupBeforeClass() {
-        URLs.setBaseBlockURL(TestConstants.BLOCK_URL);
-        mBoxHelper = new UIBoxHelper(QabelBoxApplication.getInstance());
-        mBoxHelper.bindService(QabelBoxApplication.getInstance());
-        mBoxHelper.createTokenIfNeeded(false);
-
-        Identity old = mBoxHelper.getCurrentIdentity();
-        if (old != null) {
-            mBoxHelper.deleteIdentity(old);
-        }
-
-        mBoxHelper.removeAllIdentities();
-        mBoxHelper.addIdentity("spoon");
-        uploadTestFiles();
     }
 
     private static void uploadTestFiles() {
@@ -111,7 +97,6 @@ public class FileSearchUITest {
         Spoon.screenshot(mActivity, "after");
     }
 
-    @Ignore
     @Test
     public void search2FilterTest() {
         testSearchWithFilter("", 0, 2048, 6, true);

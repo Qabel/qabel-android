@@ -11,8 +11,7 @@ import android.graphics.Bitmap;
 import android.os.PowerManager;
 import android.support.test.espresso.Espresso;
 import android.support.test.espresso.contrib.RecyclerViewActions;
-import android.support.test.espresso.intent.Intents;
-import android.support.test.rule.ActivityTestRule;
+import android.support.test.espresso.intent.rule.IntentsTestRule;
 import android.support.test.runner.lifecycle.ActivityLifecycleMonitorRegistry;
 
 import com.squareup.picasso.PicassoIdlingResource;
@@ -52,7 +51,6 @@ import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
 import static de.qabel.qabelbox.ui.matcher.QabelMatcher.withDrawable;
 import static org.hamcrest.core.AllOf.allOf;
-//import static de.qabel.qabelbox.ui.matcher.QabelMatcher.withDrawable;
 
 /**
  * Tests for MainActivity.
@@ -62,7 +60,8 @@ import static org.hamcrest.core.AllOf.allOf;
 public class OpenImageUITest {
 
     @Rule
-    public ActivityTestRule<MainActivity> mActivityTestRule = new ActivityTestRule<>(MainActivity.class, false, true);
+    public IntentsTestRule<MainActivity> mActivityTestRule = new IntentsTestRule<MainActivity>(
+            MainActivity.class, false, true);
 
     private MainActivity mActivity;
     private UIBoxHelper mBoxHelper;
@@ -143,12 +142,10 @@ public class OpenImageUITest {
         Spoon.screenshot(mActivity, "open_png");
         Instrumentation.ActivityResult activityResult = new Instrumentation.ActivityResult(
                 Activity.RESULT_OK, new Intent());
-        Intents.init();
         Matcher<Intent> expectedIntent = allOf(hasAction(Intent.ACTION_CHOOSER));
         intending(expectedIntent).respondWith(activityResult);
         onView(withId(R.id.action_imageviewer_open)).perform(click());
         intended(expectedIntent);
-        Intents.release();
 
         onView(withId(R.id.image)).perform(click());
     }

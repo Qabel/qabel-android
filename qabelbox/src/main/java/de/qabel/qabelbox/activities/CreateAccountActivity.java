@@ -49,8 +49,15 @@ public class CreateAccountActivity extends BaseWizardActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        AppPreference appPreference = new AppPreference(getApplicationContext());
+        mBoxAccountName = appPreference.getAccountName();
+        mBoxAccountEMail = appPreference.getAccountEMail();
         super.onCreate(savedInstanceState);
         mBoxAccountServer = new BoxAccountRegisterServer(getApplicationContext());
+    }
+
+    private boolean skipRegister() {
+        return (mBoxAccountName != null && mBoxAccountEMail != null);
     }
 
     @Override
@@ -77,6 +84,11 @@ public class CreateAccountActivity extends BaseWizardActivity {
         BaseIdentityFragment fragments[] = new BaseIdentityFragment[5];
         //main fragment with login and registrate new account button
         fragments[0] = new CreateAccountMainFragment();
+        Bundle bundle = new Bundle();
+        bundle.putBoolean(CreateAccountMainFragment.SKIP_TO_LOGIN, skipRegister());
+        bundle.putString(BaseIdentityFragment.ACCOUNT_NAME, mBoxAccountName);
+        bundle.putString(BaseIdentityFragment.ACCOUNT_EMAIL, mBoxAccountEMail);
+        fragments[0].setArguments(bundle);
 
         //enter box name fragment
         fragments[1] = CreateIdentityEditTextFragment.newInstance(R.string.create_account_enter_name_infos, R.string.create_account_name_hint, new NextChecker() {

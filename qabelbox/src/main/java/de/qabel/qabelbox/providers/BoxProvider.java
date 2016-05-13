@@ -84,7 +84,6 @@ public class BoxProvider extends DocumentsProvider {
     public static final String AUTHORITY = BuildConfig.APPLICATION_ID + ".providers.documents";
     public static final String PATH_SEP = "/";
     public static final String DOCID_SEPARATOR = "::::";
-    public static final String PREFIX = "test";
 
     DocumentIdParser mDocumentIdParser;
     private ThreadPoolExecutor mThreadPoolExecutor;
@@ -273,7 +272,7 @@ public class BoxProvider extends DocumentsProvider {
             throw new FileNotFoundException("Failed navigating the volume");
         }
 
-        Log.v(TAG, "quere roots result, cursorCount=" + cursor.getCount() + " cursorColumn=" + cursor.getColumnCount());
+        Log.v(TAG, "query roots result, cursorCount=" + cursor.getCount() + " cursorColumn=" + cursor.getColumnCount());
         return cursor;
     }
 

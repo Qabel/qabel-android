@@ -12,6 +12,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   end
 
   config.vm.network "forwarded_port", guest: 8000, host: 8000
+  config.vm.network "forwarded_port", guest: 8000, host: 8888
 
   config.vm.provider "virtualbox" do |vb|
     vb.memory = 1024
@@ -46,6 +47,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     easy_install pip
 
     echo "CREATE DATABASE qabel_drop; CREATE USER qabel WITH PASSWORD 'qabel_test'; GRANT ALL PRIVILEGES ON DATABASE qabel_drop TO qabel;" | sudo -u postgres psql postgres
+    echo "CREATE DATABASE block_dummy; CREATE USER block_dummy WITH PASSWORD 'qabel_test_dummy'; GRANT ALL PRIVILEGES ON DATABASE block_dummy TO block_dummy;" | sudo -u postgres psql postgres
+
 
     if [ ! -d /home/vagrant/.virtualenv ]; then
         mkdir /home/vagrant/.virtualenv
@@ -67,8 +70,36 @@ SCRIPT
     if [ ! -d ../venv ]; then
         virtualenv ../venv --no-site-packages --always-copy --python=python3.5
     fi
+    cd ..
+    cp config.ini.example config.ini
+    sed --in-place 's/api_secret=".*"/api_secret="Changeme"/g' config.ini
+    echo -e "\npsql_dsn='postgres://block_dummy:qabel_test_dummy@localhost/block_dummy'" >> config.ini
+    cd src
     source ../venv/bin/activate
     pip install -r ../requirements.txt
-    nohup python run.py --port=8000 --address=0.0.0.0 --dummy --dummy-auth=MAGICFAIRY --dummy-log --debug > block.log 2>&1 &
+    alembic -x 'url=postgres://block_dummy:qabel_test_dummy@localhost/block_dummy' upgrade head
+    nohup python run.py --port=8000 --address=0.0.0.0 --dummy --dummy-auth=MAGICFAIRY --dummy-log --debug  --psql-dsn='postgres://block_dummy:qabel_test_dummy@localhost/block_dummy' > block.log 2>&1 &
+    deactivate
+
+    cat block.log
+    function waitForPort {
+        set +e
+        started=false
+        echo -n "waiting for port "$1" "
+        for i in `seq 0 29`; do
+            echo -n "."
+            if [ $(curl -I "http://localhost:"$1 2>/dev/null | grep "HTTP/1" | cut -d' ' -f2)"" == "404" ]; then
+                started=true
+                break
+            fi
+            sleep 1
+        done
+        echo ""
+        if [ ${started} != true ]; then
+            echo "server on port "$1" did not start"
+            exit -1
+        fi
+    }
+    waitForPort 8000
 SCRIPT
 end

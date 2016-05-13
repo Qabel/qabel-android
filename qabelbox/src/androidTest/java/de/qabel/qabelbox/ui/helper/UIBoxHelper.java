@@ -99,15 +99,6 @@ public class UIBoxHelper {
         }
     }
 
-    public boolean deleteFile(Activity activity, Identity identity, String name, String targetFolder) {
-
-        String keyIdentifier = identity.getEcPublicKey()
-                .getReadableKeyIdentifier();
-        Uri uploadUri = DocumentsContract.buildDocumentUri(
-                BoxProvider.AUTHORITY, keyIdentifier + VolumeFileTransferHelper.HARDCODED_ROOT + targetFolder + name);
-        return DocumentsContract.deleteDocument(activity.getContentResolver(), uploadUri);
-    }
-
     public boolean uploadFile(BoxVolume boxVolume, String name, byte[] data, String path) {
         try {
 

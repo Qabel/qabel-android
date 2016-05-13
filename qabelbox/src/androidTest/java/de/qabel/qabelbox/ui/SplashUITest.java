@@ -4,8 +4,10 @@ package de.qabel.qabelbox.ui;
  * Created by danny on 05.01.2016.
  */
 
+import android.content.Intent;
 import android.os.PowerManager;
 import android.support.test.InstrumentationRegistry;
+import android.support.test.filters.LargeTest;
 import android.support.test.rule.ActivityTestRule;
 
 import com.squareup.spoon.Spoon;
@@ -33,16 +35,19 @@ import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
 
 
-/**
- * Tests for MainActivity.
- */
-
-@FixMethodOrder(MethodSorters.NAME_ASCENDING)
+@LargeTest
 public class SplashUITest {
 
     @Rule
-    public ActivityTestRule<SplashActivity> mActivityTestRule = new ActivityTestRule<>(
-            SplashActivity.class, false, false);
+    public ActivityTestRule<SplashActivity> mActivityTestRule = new ActivityTestRule<SplashActivity>(
+            SplashActivity.class, false, false) {
+        @Override
+        protected Intent getActivityIntent() {
+            Intent intent = super.getActivityIntent();
+            intent.putExtra(SplashActivity.START_MAIN, false);
+            return intent;
+        }
+    };
 
     private SplashActivity mActivity;
 

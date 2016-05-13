@@ -737,8 +737,8 @@ public class FilesFragment extends BaseFragment {
                 super.onPostExecute(aVoid);
 
                 filesAdapter.sort();
-                filesAdapter.notifyDataSetChanged();
-
+                filesListRecyclerView.getHandler().
+                        post(() -> filesAdapter.notifyDataSetChanged());
                 setIsLoading(false);
             }
         };

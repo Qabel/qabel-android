@@ -66,7 +66,7 @@ public class SearchTestR {
     private static final String L2_FILE_1 = "One-level2-one.bin";
     private static final String L1_DIR_2 = "dir1-level2-two";
     private static final String L2_FILE_2 = "Two-level2-one.bin";
-    private static final String SHARED_FILE_NAME = "sharedFile";
+    private static final String SHARED_FILE_NAME = L0_FILE_1;
 
     private static final String[] fileNames = new String[]{L0_FILE_1, L1_FILE_1, L1_FILE_2_SMALL, L2_FILE_1, L2_FILE_2, SHARED_FILE_NAME};
     private static final String[] folderNames = new String[]{L0_DIR_1, L1_DIR_1, L1_DIR_2, BoxFolder.RECEIVED_SHARE_NAME};
@@ -110,6 +110,7 @@ public class SearchTestR {
         assertThat(navigation.listFiles().size(), is(0));
 
         BoxFile sharedFile = navigation.upload(L0_FILE_1, new FileInputStream(testFile), null);
+        BoxExternalReference externalReference = navigation.createFileMetadata(keyPair.getPub(), sharedFile);
         navigation.commit();
 
         BoxFolder folder = navigation.createFolder(L0_DIR_1);
@@ -139,10 +140,12 @@ public class SearchTestR {
 
         //Add shares folder and shared file
         navigation.navigateToRoot();
-        navigation.createFolder(BoxFolder.RECEIVED_SHARE_NAME);
-        navigation.commit();
 
-        BoxExternalReference externalReference = navigation.createFileMetadata(keyPair.getPub(), sharedFile);
+        BoxFolder shares = navigation.createFolder(BoxFolder.RECEIVED_SHARE_NAME);
+        navigation.commit();
+        navigation.navigate(shares);
+
+        //Attach file in shared folder
         navigation.attachExternal(externalReference);
         navigation.commit();
     }
@@ -178,17 +181,16 @@ public class SearchTestR {
         assertEquals(1, search.getResultSize());
         rootStorageSearch.reset();
 
-        //if not valid don't apply the filter
         search = rootStorageSearch.filterByName(null);
-        assertEquals(8, search.getResultSize());
+        assertEquals(OBJECT_COUNT, search.getResultSize());
         rootStorageSearch.reset();
 
         search = rootStorageSearch.filterByName("");
-        assertEquals(8, search.getResultSize());
+        assertEquals(OBJECT_COUNT, search.getResultSize());
         rootStorageSearch.reset();
 
         search = rootStorageSearch.filterByName(" ");
-        assertEquals(8, search.getResultSize());
+        assertEquals(OBJECT_COUNT, search.getResultSize());
     }
 
     @Test
@@ -265,15 +267,15 @@ public class SearchTestR {
         Date beforeTarget = calendar.getTime();
 
         rootStorageSearch.filterByMinimumDate(afterTarget);
-        assertEquals(5, rootStorageSearch.getResults().size());
+        assertEquals(6, rootStorageSearch.getResults().size());
         rootStorageSearch.reset();
 
         rootStorageSearch.filterByMinimumDate(beforeTarget);
-        assertEquals(5, rootStorageSearch.getResults().size());
+        assertEquals(6, rootStorageSearch.getResults().size());
         rootStorageSearch.reset();
 
         rootStorageSearch = rootStorageSearch.filterByMinimumDate(target);
-        assertEquals(5, rootStorageSearch.getResults().size());
+        assertEquals(6, rootStorageSearch.getResults().size());
         rootStorageSearch.reset();
 
         rootStorageSearch.filterByMaximumDate(target);
@@ -304,15 +306,16 @@ public class SearchTestR {
     @Test
     public void testFilterByExtension() throws Exception {
         List<BoxObject> lst = rootStorageSearch.filterByExtension("bin").getResults();
-        assertEquals(5, lst.size());
+
+        assertEquals(6, lst.size());
         rootStorageSearch.reset();
 
         lst = rootStorageSearch.filterByExtension(".bin").getResults();
-        assertEquals(5, lst.size());
+        assertEquals(6, lst.size());
         rootStorageSearch.reset();
 
         lst = rootStorageSearch.filterByExtension("BIN").getResults();
-        assertEquals(5, lst.size());
+        assertEquals(6, lst.size());
         rootStorageSearch.reset();
 
         lst = rootStorageSearch.filterByExtension(".jpg").getResults();
@@ -347,6 +350,10 @@ public class SearchTestR {
                 break;
             }
         }
+        if(targetSubfolder == null){
+            throw new QblStorageException(String.format("Folder %s not found!", name));
+        }
+        navigation.navigate(targetSubfolder);
         return targetSubfolder;
     }
 
@@ -366,25 +373,32 @@ public class SearchTestR {
         assertEquals(0, subfolderSearch.getResultSize());
 
         navigation.navigateToParent();
-        subfolderSearch = new StorageSearch(navigation);
-        assertEquals(2, subfolderSearch.getResultSize());
+        subfolderSearch.refreshRange(navigation);
+
+        assertEquals(6, subfolderSearch.getResultSize());
         subfolderSearch.filterOnlyDirectories();
-        assertEquals(1, subfolderSearch.getResultSize());
+        assertEquals(2, subfolderSearch.getResultSize());
+    }
+
+    private void debug(List<BoxObject> boxObjects){
+        for(BoxObject o : boxObjects){
+            System.out.println(o.name + ": " + rootStorageSearch.findPathByBoxObject(o));
+        }
     }
 
     @Test
     public void testShareFolder() throws Exception {
-        rootStorageSearch.filterByName(BoxFolder.RECEIVED_SHARE_NAME).filterOnlyDirectories();
+        rootStorageSearch.filterByName(BoxFolder.RECEIVED_SHARE_NAME.replace("[","").replace("]","")).filterOnlyDirectories();
         assertEquals(1, rootStorageSearch.getResultSize());
         rootStorageSearch.reset();
 
         rootStorageSearch.filterByName(SHARED_FILE_NAME).filterOnlyFiles();
-        assertEquals(1, rootStorageSearch.getResultSize());
+        assertEquals(2, rootStorageSearch.getResultSize());
 
         navigateToFolder(BoxFolder.RECEIVED_SHARE_NAME);
         StorageSearch sharedSearch = new StorageSearch(navigation);
         assertEquals(1, sharedSearch.getResultSize());
-        sharedSearch.filterByName(L0_FILE_1);
+        sharedSearch.filterByName(L1_FILE_1);
         assertEquals(0, sharedSearch.getResultSize());
         sharedSearch.reset();
 

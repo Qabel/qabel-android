@@ -41,6 +41,9 @@ public class StorageSearch {
     }
 
     private void setupData(BoxNavigation navigation) throws QblStorageException {
+        if(!pathMapping.isEmpty()){
+            pathMapping.clear();
+        }
         List<BoxObject> subNodes = collectAll(navigation);
         this.nodeList = subNodes;
         this.results = new ArrayList<>(subNodes);
@@ -129,14 +132,9 @@ public class StorageSearch {
             return this;
         }
 
-        if (!caseSensitive) {
-            name = name.toLowerCase();
-        }
-
         List<BoxObject> filtered = new ArrayList<>();
 
         String expression = String.format(caseSensitive ? CONTAINS_REGEX : CONTAINS_IGNORE_CASE_REGEX, name);
-
         for (BoxObject o : results) {
             if (o.name.matches(expression)) {
                 filtered.add(o);
@@ -267,15 +265,8 @@ public class StorageSearch {
         for (String path : pathMapping.keySet()) {
             BoxObject tgt = pathMapping.get(path);
 
-            //BoxObject does not implement equals (failed as pathMapping-key), but normal equals might work here?
-            if (o instanceof BoxFile && tgt instanceof BoxFile) {
-                if (o.equals(tgt)) {
-                    return path;
-                }
-            } else if (o instanceof BoxFolder && tgt instanceof BoxFolder) {
-                if (o.equals(tgt)) {
-                    return path;
-                }
+            if (tgt.equals(o)) {
+                return path;
             }
         }
 
@@ -316,21 +307,20 @@ public class StorageSearch {
         return lst;
     }
 
+    private void addObject(List<BoxObject> list, BoxNavigation navigation, BoxObject boxObject) {
+        list.add(boxObject);
+        pathMapping.put(navigation.getPath(boxObject), boxObject);
+    }
+
     private void addAll(BoxNavigation navigation, List<BoxObject> lst) throws QblStorageException {
-
         for (BoxFile file : navigation.listFiles()) {
-            lst.add(file);
-            pathMapping.put(navigation.getPath(file), file);
+            addObject(lst, navigation, file);
         }
-
         for (BoxObject file : navigation.listExternals()) {
-            lst.add(file);
-            pathMapping.put(navigation.getPath(file), file);
+            addObject(lst, navigation, file);
         }
         for (BoxFolder folder : navigation.listFolders()) {
-            lst.add(folder);
-
-            pathMapping.put(navigation.getPath(folder), folder);
+            addObject(lst, navigation, folder);
 
             navigation.navigate(folder);
             addAll(navigation, lst);

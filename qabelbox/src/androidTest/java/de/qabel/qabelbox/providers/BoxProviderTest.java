@@ -135,7 +135,7 @@ public class BoxProviderTest extends MockedBoxProviderTest {
         IOUtils.copy(new FileInputStream(file), outputStream);
         outputStream.close();
 
-        Thread.sleep(500l);
+        Thread.sleep(1000L);
 
         InputStream inputStream = mockContentResolver.openInputStream(document);
         assertNotNull(inputStream);
@@ -175,7 +175,7 @@ public class BoxProviderTest extends MockedBoxProviderTest {
         outputStream.close();
         parcelFileDescriptor.close();
 
-        Thread.sleep(1000l);
+        Thread.sleep(1000L);
 
         // check the uploaded new content
         InputStream dlInputStream = mockContentResolver.openInputStream(documentUri);

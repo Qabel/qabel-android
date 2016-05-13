@@ -163,7 +163,6 @@ public class FileSearchUITest {
 
         onView(withId(R.id.files_list)).check(matches(QabelMatcher.withListSize(3)));
         Spoon.screenshot(mActivity, "after_research");
-        mBoxHelper.deleteFile(mActivity, mBoxHelper.getCurrentIdentity(), "black_3", "");
     }
 
     /**

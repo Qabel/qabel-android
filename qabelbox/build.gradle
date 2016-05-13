@@ -11,6 +11,7 @@ spoon {
     debug = true
     noAnimations = true
     adbTimeout = 180
+    failIfNoDeviceConnected = true
 }
 
 

@@ -135,11 +135,6 @@ public class FilesFragmentUITest {
 
     @AfterClass
     public static void cleanUpData() throws QblStorageException {
-        mBoxHelper.deleteFolder(CREATE_FOLDER_TEST_NAME, testIdentity, "");
-        mBoxHelper.deleteFolder(TEST_FOLDER, testIdentity, "");
-        for (ExampleFile exampleFile : exampleFiles) {
-            mBoxHelper.deleteFile(InstrumentationRegistry.getContext(), testIdentity, exampleFile.getName(), "");
-        }
         mBoxHelper.deleteIdentity(testIdentity);
         mBoxHelper.deleteIdentity(testIdentity2);
     }

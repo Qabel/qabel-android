@@ -44,10 +44,6 @@ import de.qabel.qabelbox.storage.BoxObject;
 import de.qabel.qabelbox.storage.BoxVolume;
 import de.qabel.qabelbox.storage.StorageSearch;
 
-/**
- * //TODO Refactor Volume handling after merge
- * //Split up to Core- and BoxHelper
- */
 public class UIBoxHelper {
 
     private final String TAG = this.getClass().getSimpleName();
@@ -107,15 +103,6 @@ public class UIBoxHelper {
                 e.printStackTrace();
             }
         }
-    }
-
-    public boolean deleteFile(Context activity, Identity identity, String name, String targetFolder) {
-        String keyIdentifier = identity.getEcPublicKey().getReadableKeyIdentifier();
-
-        Uri uploadUri = DocumentsContract.buildDocumentUri(BoxProvider.AUTHORITY,
-                keyIdentifier + VolumeFileTransferHelper.HARDCODED_ROOT + targetFolder + name);
-
-        return DocumentsContract.deleteDocument(activity.getContentResolver(), uploadUri);
     }
 
     public boolean uploadFile(BoxVolume boxVolume, String name, byte[] data, String path) {
@@ -190,14 +177,6 @@ public class UIBoxHelper {
     public BoxFolder createFolder(String name, Identity identity, String path) throws QblStorageException {
         BoxNavigation navigation = createNavigation(identity, path);
         return navigation.createFolder(name);
-    }
-
-    public void deleteFolder(String name, Identity identity, String path) throws QblStorageException {
-        BoxNavigation navigation = createNavigation(identity, path);
-        BoxFolder target = getBoxObject(BoxFolder.class, navigation, path);
-        if (target != null) {
-            navigation.delete(target);
-        }
     }
 
     public Identity addIdentityWithoutVolume(final String identityName) {

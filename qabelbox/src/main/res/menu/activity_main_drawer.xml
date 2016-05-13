@@ -27,5 +27,9 @@
             android:id="@+id/nav_help"
             android:icon="@drawable/help_circle"
             android:title="@string/help"/>
+        <item
+            android:id="@+id/nav_logout"
+            android:icon="@drawable/account_off"
+            android:title="@string/logout"/>
     </group>
 </menu>

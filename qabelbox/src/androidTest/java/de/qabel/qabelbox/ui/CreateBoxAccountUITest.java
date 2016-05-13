@@ -61,36 +61,20 @@ import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.endsWith;
 import static org.hamcrest.Matchers.is;
 
-/**
- * Tests for MainActivity.
- */
-
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class CreateBoxAccountUITest extends UIBoxHelper {
 
     @Rule
-    public ActivityTestRule<CreateAccountActivity> mActivityTestRule = new ActivityTestRule<CreateAccountActivity>(CreateAccountActivity.class, false, true){
-        @Override
-        protected void beforeActivityLaunched() {
-            super.beforeActivityLaunched();
-            setupEnvironment();
-        }
-    };
+    public ActivityTestRule<CreateAccountActivity> mActivityTestRule = new ActivityTestRule<>(CreateAccountActivity.class, false, false);
 
     private CreateAccountActivity mActivity;
 
     private PowerManager.WakeLock wakeLock;
     private SystemAnimations mSystemAnimations;
 
-    protected void setupEnvironment(){
-        UIBoxHelper helper = new UIBoxHelper(InstrumentationRegistry.getTargetContext());
-        helper.bindService(QabelBoxApplication.getInstance());
-        helper.removeAllIdentities();
-    }
 
     @After
     public void cleanUp() {
-
         wakeLock.release();
         mSystemAnimations.enableAll();
         unbindService(QabelBoxApplication.getInstance());
@@ -99,13 +83,12 @@ public class CreateBoxAccountUITest extends UIBoxHelper {
 
     @Before
     public void setUp() throws IOException, QblStorageException {
-
-        mActivity = mActivityTestRule.getActivity();
         URLs.setBaseAccountingURL(TestConstants.ACCOUNTING_URL);
 
         bindService(QabelBoxApplication.getInstance());
-        new AppPreference(mActivity).setToken(null);
+        new AppPreference(InstrumentationRegistry.getTargetContext()).clear();
 
+        mActivity = mActivityTestRule.launchActivity(null);
         wakeLock = UIActionHelper.wakeupDevice(mActivity);
         mSystemAnimations = new SystemAnimations(mActivity);
         mSystemAnimations.disableAll();
@@ -179,7 +162,7 @@ public class CreateBoxAccountUITest extends UIBoxHelper {
         checkNumericPassword(failPassword);
         checkBadPassword(accountName, failPassword);
         checkPassword(password);
-
+        UITestHelper.waitForView(R.string.create_account_final_headline, TestConstraints.SIMPLE_SERVER_ACTION_TIMEOUT);
         onView(withText(R.string.create_account_final_headline)).check(matches(isDisplayed()));
         checkSuccess(accountName, accountEMail);
     }

@@ -7,6 +7,7 @@ package de.qabel.qabelbox.ui;
 import android.os.PowerManager;
 import android.support.annotation.Nullable;
 import android.support.test.InstrumentationRegistry;
+import android.support.test.espresso.Espresso;
 import android.support.test.rule.ActivityTestRule;
 import android.text.InputType;
 
@@ -15,10 +16,8 @@ import com.squareup.spoon.Spoon;
 import org.json.JSONObject;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.FixMethodOrder;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.runners.MethodSorters;
 
 import java.io.IOException;
 import java.util.UUID;
@@ -38,6 +37,7 @@ import de.qabel.qabelbox.ui.helper.SystemAnimations;
 import de.qabel.qabelbox.ui.helper.UIActionHelper;
 import de.qabel.qabelbox.ui.helper.UIBoxHelper;
 import de.qabel.qabelbox.ui.helper.UITestHelper;
+import de.qabel.qabelbox.ui.idling.CreateAccountIdlingResource;
 import okhttp3.Response;
 
 import static android.support.test.espresso.Espresso.closeSoftKeyboard;
@@ -61,7 +61,6 @@ import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.endsWith;
 import static org.hamcrest.Matchers.is;
 
-@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class CreateBoxAccountUITest extends UIBoxHelper {
 
     @Rule
@@ -71,6 +70,7 @@ public class CreateBoxAccountUITest extends UIBoxHelper {
 
     private PowerManager.WakeLock wakeLock;
     private SystemAnimations mSystemAnimations;
+    private CreateAccountIdlingResource idlingResource;
 
 
     @After
@@ -83,12 +83,14 @@ public class CreateBoxAccountUITest extends UIBoxHelper {
             mSystemAnimations.enableAll();
         }
         unbindService(QabelBoxApplication.getInstance());
+        if (idlingResource !=null) {
+            Espresso.unregisterIdlingResources(idlingResource);
+        }
     }
 
 
     @Before
     public void setUp() throws IOException, QblStorageException {
-
         URLs.setBaseAccountingURL(TestConstants.ACCOUNTING_URL);
 
         bindService(QabelBoxApplication.getInstance());
@@ -99,6 +101,9 @@ public class CreateBoxAccountUITest extends UIBoxHelper {
         wakeLock = UIActionHelper.wakeupDevice(mActivity);
         mSystemAnimations = new SystemAnimations(mActivity);
         mSystemAnimations.disableAll();
+        idlingResource = new CreateAccountIdlingResource();
+        mActivity.injectIdleCallback(idlingResource);
+        Espresso.registerIdlingResources(idlingResource);
     }
 
 

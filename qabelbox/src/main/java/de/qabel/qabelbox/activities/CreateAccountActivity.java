@@ -46,6 +46,7 @@ public class CreateAccountActivity extends BaseWizardActivity {
     private String mBoxAccountEMail;
 
     private BoxAccountRegisterServer mBoxAccountServer;
+    private IdleCallback afterRequest;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -195,9 +196,24 @@ public class CreateAccountActivity extends BaseWizardActivity {
         mBoxAccountServer.register(username, password1, password2, email, callback);
     }
 
+    public void injectIdleCallback(IdleCallback callback) {
+        afterRequest = callback;
+    }
+
+    public void runIdleCallback(boolean isIdle) {
+        if (afterRequest == null) {
+            return;
+        }
+        if (isIdle) {
+             afterRequest.idle();
+        } else{
+            afterRequest.busy();
+        }
+    }
+
     @NonNull
     private JsonRequestCallback createCallback(final AlertDialog dialog) {
-
+        runIdleCallback(false);
         return new JsonRequestCallback(new int[]{200, 201, 400}) {
 
             @Override
@@ -209,6 +225,7 @@ public class CreateAccountActivity extends BaseWizardActivity {
                         Toast.makeText(getApplicationContext(), R.string.server_access_failed_or_invalid_check_internet_connection, Toast.LENGTH_LONG).show();
                     }
                 });
+                runIdleCallback(true);
             }
 
             @Override
@@ -219,6 +236,7 @@ public class CreateAccountActivity extends BaseWizardActivity {
                 Log.d(TAG, "step: " + step);
                 if (step < FRAGMENT_ENTER_PASSWORD && generateErrorMessage(result).isEmpty()) {
                     showNextUIThread(dialog);
+                    runIdleCallback(true);
                     return;
                 }
 
@@ -234,6 +252,7 @@ public class CreateAccountActivity extends BaseWizardActivity {
                     dialog.dismiss();
                     UIHelper.showDialogMessage(mActivity, R.string.dialog_headline_info, errorText);
                 }
+                runIdleCallback(true);
             }
 
             private String generateErrorMessage(BoxAccountRegisterServer.ServerResponse result) {
@@ -327,5 +346,10 @@ public class CreateAccountActivity extends BaseWizardActivity {
 
         mBoxAccountPassword1 = password1;
         mBoxAccountPassword2 = password2;
+    }
+
+    public interface IdleCallback {
+        void busy();
+        void idle();
     }
 }

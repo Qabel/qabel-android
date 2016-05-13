@@ -65,6 +65,7 @@ import de.qabel.qabelbox.fragments.ContactBaseFragment;
 import de.qabel.qabelbox.fragments.ContactFragment;
 import de.qabel.qabelbox.fragments.CreateIdentityMainFragment;
 import de.qabel.qabelbox.fragments.FilesFragment;
+import de.qabel.qabelbox.fragments.FilesFragmentBase;
 import de.qabel.qabelbox.fragments.HelpMainFragment;
 import de.qabel.qabelbox.fragments.IdentitiesFragment;
 import de.qabel.qabelbox.fragments.QRcodeFragment;
@@ -805,7 +806,6 @@ public class MainActivity extends CrashReportingActivity
         new AsyncTask<Void, Void, Void>() {
             @Override
             protected Void doInBackground(Void... params) {
-
                 try {
                     boxNavigation.createFolder(name);
                     boxNavigation.commit();
@@ -817,7 +817,6 @@ public class MainActivity extends CrashReportingActivity
 
             @Override
             protected void onCancelled() {
-
                 filesFragment.setIsLoading(false);
                 showAbortMessage();
             }
@@ -830,7 +829,7 @@ public class MainActivity extends CrashReportingActivity
             @Override
             protected void onPostExecute(Void aVoid) {
                 super.onPostExecute(aVoid);
-                refresh();
+                onDoRefresh(filesFragment);
             }
         }.execute();
     }
@@ -990,7 +989,6 @@ public class MainActivity extends CrashReportingActivity
         textViewSelectedIdentity.setText(mService.getActiveIdentity().getAlias());
     }
 
-    @Override
     /**
      * Handle an export request sent from the FilesFragment
      */
@@ -1037,8 +1035,7 @@ public class MainActivity extends CrashReportingActivity
     }
 
     @Override
-    public void onDoRefresh(final FilesFragment filesFragment, final BoxNavigation boxNavigation, final FilesAdapter filesAdapter) {
-
+    public void onDoRefresh(final FilesFragmentBase filesFragment) {
         filesFragment.refresh();
     }
 
@@ -1214,10 +1211,6 @@ public class MainActivity extends CrashReportingActivity
     private void showAbortMessage() {
         Toast.makeText(self, R.string.aborted,
                 Toast.LENGTH_SHORT).show();
-    }
-
-    private void refresh() {
-        onDoRefresh(filesFragment, filesFragment.getBoxNavigation(), filesFragment.getFilesAdapter());
     }
 
     /*

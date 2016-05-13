@@ -1,8 +1,8 @@
 package de.qabel.qabelbox.fragments;
 
+import android.app.Activity;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -23,24 +23,20 @@ import de.qabel.qabelbox.storage.BoxFolder;
 import de.qabel.qabelbox.storage.BoxObject;
 import de.qabel.qabelbox.storage.StorageSearch;
 
-public class FilesSearchResultFragment extends FilesFragment {
+public class FilesSearchResultFragment extends FilesFragmentBase {
 
-    protected static final String TAG = FilesFragment.class.getSimpleName();
+    protected static final String TAG = FilesSearchResultFragment.class.getSimpleName();
     private StorageSearch mSearchResult;
     private String mSearchText;
     private FileSearchFilterFragment.FilterData mFilterData = new FileSearchFilterFragment.FilterData();
     private AsyncTask<String, Void, StorageSearch> searchTask;
-    private boolean mNeedRefresh;
-    private MenuItem mFilterItem;
 
-    public static FilesSearchResultFragment newInstance(StorageSearch storageSearch, String searchText, boolean needRefresh) {
-
+    public static FilesSearchResultFragment newInstance(StorageSearch storageSearch, String searchText) {
         FilesSearchResultFragment fragment = new FilesSearchResultFragment();
         FilesAdapter filesAdapter = new FilesAdapter(new ArrayList<BoxObject>());
         fragment.setAdapter(filesAdapter);
         fragment.mSearchResult = storageSearch.filterOnlyFiles();
         fragment.mSearchText = searchText;
-        fragment.mNeedRefresh = needRefresh;
         fragment.fillAdapter(fragment.mSearchResult.filterByName(searchText).getResults());
 
         filesAdapter.notifyDataSetChanged();
@@ -48,29 +44,45 @@ public class FilesSearchResultFragment extends FilesFragment {
     }
 
     @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        actionBar.setDisplayHomeAsUpEnabled(true);
+        actionBar.setHomeButtonEnabled(true);
+    }
+
+    @Override
+    public void refresh() {
+        restartSearch();
+    }
+
+    @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setHasOptionsMenu(true);
-        actionBar.setDisplayHomeAsUpEnabled(true);
-        setActionBarBackListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                updateSearchCache();
-            }
-        });
-
-        mActivity.fab.hide();
+        setActionBarBackListener(v -> updateSearchCache());
+        if(actionBar != null){
+            actionBar.setDisplayHomeAsUpEnabled(true);
+            actionBar.setHomeButtonEnabled(true);
+        }
     }
+
 
     @Override
     public void updateSubtitle() {
         if (actionBar != null) {
             String path = mSearchResult.getPath();
-            if (path != null && path.contains(BoxFolder.RECEIVED_SHARE_NAME)) {
-                path = path.replace(BoxFolder.RECEIVED_SHARE_NAME, getString(R.string.shared_with_you));
+            if(path != null){
+                if(path.length() == 1){
+                    path = null;
+                }else if(path.contains(BoxFolder.RECEIVED_SHARE_NAME)) {
+                    path = path.replace(BoxFolder.RECEIVED_SHARE_NAME, getString(R.string.shared_with_you));
+                }
             }
             actionBar.setSubtitle(path);
         }
+    }
+
+    public FilesAdapter getFilesAdapter() {
+        return filesAdapter;
     }
 
     /**
@@ -92,7 +104,6 @@ public class FilesSearchResultFragment extends FilesFragment {
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         menu.clear();
         inflater.inflate(R.menu.ab_files_search_result, menu);
-        mFilterItem = menu.findItem(R.id.action_ok);
     }
 
     @Override
@@ -147,18 +158,8 @@ public class FilesSearchResultFragment extends FilesFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
         View v = super.onCreateView(inflater, container, savedInstanceState);
-        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                restartSearch();
-            }
-        });
+        swipeRefreshLayout.setOnRefreshListener(() -> restartSearch());
         setClickListener();
-        if (!mNeedRefresh) {
-            showSearchSpinner(false);
-        } else {
-            showSearchSpinner(true);
-        }
         return v;
     }
 
@@ -192,7 +193,6 @@ public class FilesSearchResultFragment extends FilesFragment {
                 if (!mActivity.isFinishing() && !searchTask.isCancelled()) {
                     showSearchSpinner(false);
                     mSearchResult = storageSearch;
-                    mNeedRefresh = false;
                     filterData(mFilterData);
                 }
             }

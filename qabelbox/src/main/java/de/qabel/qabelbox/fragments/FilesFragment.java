@@ -346,13 +346,12 @@ public class FilesFragment extends FilesFragmentBase {
                         return;
                     }
                     if (!mActivity.isFinishing() && !searchTask.isCancelled()) {
-                        boolean needRefresh = mCachedStorageSearch != null;
                         try {
                             mCachedStorageSearch = storageSearch.clone();
                         } catch (CloneNotSupportedException e) {
                             e.printStackTrace();
                         }
-                        FilesSearchResultFragment fragment = FilesSearchResultFragment.newInstance(mCachedStorageSearch, searchText, needRefresh);
+                        FilesSearchResultFragment fragment = FilesSearchResultFragment.newInstance(mCachedStorageSearch, searchText);
                         mActivity.toggle.setDrawerIndicatorEnabled(false);
                         getFragmentManager().beginTransaction().replace(R.id.fragment_container, fragment, FilesSearchResultFragment.TAG).addToBackStack(null).commit();
                     }
@@ -388,14 +387,6 @@ public class FilesFragment extends FilesFragmentBase {
     public void setAdapter(FilesAdapter adapter) {
         filesAdapter = adapter;
         filesAdapter.setEmptyView(mEmptyView, mLoadingView);
-    }
-
-    public FilesAdapter getFilesAdapter() {
-        return filesAdapter;
-    }
-
-    public void setOnItemClickListener(FilesAdapter.OnItemClickListener onItemClickListener) {
-        filesAdapter.setOnItemClickListener(onItemClickListener);
     }
 
     @Override

@@ -13,7 +13,7 @@ import android.widget.ProgressBar;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.adapter.FilesAdapter;
 
-public class FilesFragmentBase extends BaseFragment {
+public abstract class FilesFragmentBase extends BaseFragment {
 
     private RecyclerView filesListRecyclerView;
     private RecyclerView.LayoutManager recyclerViewLayoutManager;
@@ -26,13 +26,22 @@ public class FilesFragmentBase extends BaseFragment {
     protected View mEmptyView;
     protected View mLoadingView;
 
+    public interface FilesListListener {
+
+        void onScrolledToBottom(boolean scrolledToBottom);
+
+        void onDoRefresh(FilesFragmentBase filesFragment);
+
+    }
+
+    public abstract void refresh();
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
         if (actionBar != null) {
             actionBar.setDisplayHomeAsUpEnabled(false);
-
             actionBar.setTitle(getTitle());
         }
     }
@@ -44,7 +53,7 @@ public class FilesFragmentBase extends BaseFragment {
         View view = inflater.inflate(R.layout.fragment_files, container, false);
         setupLoadingViews(view);
         swipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.swipeRefresh);
-        swipeRefreshLayout.setOnRefreshListener(() -> mListener.onDoRefresh(this, filesAdapter));
+        swipeRefreshLayout.setOnRefreshListener(() -> mListener.onDoRefresh(this));
 
         swipeRefreshLayout.post(() -> swipeRefreshLayout.setRefreshing(isLoading));
         filesListRecyclerView = (RecyclerView) view.findViewById(R.id.files_list);
@@ -114,6 +123,10 @@ public class FilesFragmentBase extends BaseFragment {
     public void setAdapter(FilesAdapter adapter) {
         filesAdapter = adapter;
         filesAdapter.setEmptyView(mEmptyView, mLoadingView);
+        if(filesListRecyclerView != null){
+            filesListRecyclerView.setAdapter(filesAdapter);
+        }
+        filesAdapter.notifyDataSetChanged();
     }
 
     public FilesAdapter getFilesAdapter() {
@@ -122,13 +135,6 @@ public class FilesFragmentBase extends BaseFragment {
 
     public void setOnItemClickListener(FilesAdapter.OnItemClickListener onItemClickListener) {
         filesAdapter.setOnItemClickListener(onItemClickListener);
-    }
-
-    public interface FilesListListener {
-
-        void onScrolledToBottom(boolean scrolledToBottom);
-
-        void onDoRefresh(FilesFragmentBase filesFragment, FilesAdapter filesAdapter);
     }
 
     @Override

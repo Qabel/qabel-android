@@ -64,7 +64,7 @@ import static org.hamcrest.Matchers.endsWith;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 
-public class ImportExportContactsUITest {
+public class ImportExportContactsUITest extends AbstractUITest {
 
     private final String TAG = this.getClass().getSimpleName();
 
@@ -72,41 +72,10 @@ public class ImportExportContactsUITest {
     private static final String CONTACT_2 = "contact2";
     private static final String CONTACT_3 = "contact3";
 
-    @Rule
-    public IntentsTestRule<MainActivity> mActivityTestRule =
-            new MainActivityWithoutFilesFragmentTestRule(false);
-    private MainActivity mActivity;
-    private UIBoxHelper mBoxHelper;
-    private PowerManager.WakeLock wakeLock;
-    private SystemAnimations mSystemAnimations;
-
-    private Identity identity;
-
-    @After
-    public void cleanUp() {
-        if (wakeLock != null) {
-            wakeLock.release();
-        }
-        if (mSystemAnimations != null) {
-            mSystemAnimations.enableAll();
-        }
-        mBoxHelper.unbindService(QabelBoxApplication.getInstance());
-    }
-
-    @Before
+    @Override
     public void setUp() throws Exception {
-        URLs.setBaseBlockURL(TestConstants.BLOCK_URL);
-        mBoxHelper = new UIBoxHelper(QabelBoxApplication.getInstance());
-        mBoxHelper.bindService(QabelBoxApplication.getInstance());
-        mBoxHelper.createTokenIfNeeded(false);
-        mBoxHelper.removeAllIdentities();
-        identity = mBoxHelper.addIdentity("spoon123");
+        super.setUp();
         createTestContacts();
-
-        mActivity = mActivityTestRule.launchActivity(null);
-        wakeLock = UIActionHelper.wakeupDevice(mActivity);
-        mSystemAnimations = new SystemAnimations(mActivity);
-        mSystemAnimations.disableAll();
     }
 
     private void createTestContacts() throws JSONException, QblStorageEntityExistsException {

@@ -5,6 +5,7 @@ package de.qabel.qabelbox.ui;
  */
 
 import android.os.PowerManager;
+import android.support.test.InstrumentationRegistry;
 import android.support.test.rule.ActivityTestRule;
 
 import com.squareup.spoon.Spoon;
@@ -40,12 +41,8 @@ import static android.support.test.espresso.matcher.ViewMatchers.withText;
 public class SplashUITest {
 
     @Rule
-    public ActivityTestRule<SplashActivity> mActivityTestRule = new ActivityTestRule<SplashActivity>(SplashActivity.class, false, true) {
-        @Override
-        protected void beforeActivityLaunched() {
-            new AppPreference(QabelBoxApplication.getInstance()).setWelcomeScreenShownAt(1);
-        }
-    };
+    public ActivityTestRule<SplashActivity> mActivityTestRule = new ActivityTestRule<>(
+            SplashActivity.class, false, false);
 
     private SplashActivity mActivity;
 
@@ -60,8 +57,8 @@ public class SplashUITest {
 
     @Before
     public void setUp() throws IOException, QblStorageException {
-        mActivity = mActivityTestRule.getActivity();
-
+        new AppPreference(InstrumentationRegistry.getTargetContext()).setWelcomeScreenShownAt(1);
+        mActivity = mActivityTestRule.launchActivity(null);
         wakeLock = UIActionHelper.wakeupDevice(mActivity);
         mSystemAnimations = new SystemAnimations(mActivity);
         mSystemAnimations.disableAll();

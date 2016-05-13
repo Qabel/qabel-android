@@ -63,6 +63,14 @@ You can run the tests either dirctly from AndroidStudio with the following gradl
 * `./gradlew test` runs the local unit tests
 * `./gradlew spoon` runs all instrumentation tests on all connected devices and emulators
 
+## Common errors
+
+### Cannot run program "".../aapt": error=2, No such file or directory
+
+You are missing some libs for the 32bit aapt. For ubuntu try
+```bash
+sudo apt-get install lib32stdc++6 lib32z1
+```
 
 # Structure
 

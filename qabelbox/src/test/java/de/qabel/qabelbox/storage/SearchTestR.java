@@ -10,7 +10,6 @@ import org.robolectric.RobolectricGradleTestRunner;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
 
-import java.io.File;
 import java.io.FileInputStream;
 import java.util.Calendar;
 import java.util.Date;
@@ -21,8 +20,6 @@ import de.qabel.core.crypto.CryptoUtils;
 import de.qabel.core.crypto.QblECKeyPair;
 import de.qabel.qabelbox.BuildConfig;
 import de.qabel.qabelbox.SimpleApplication;
-import de.qabel.qabelbox.exceptions.QblServerException;
-import de.qabel.qabelbox.exceptions.QblStorageEntityExistsException;
 import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.test.TestConstants;
 import de.qabel.qabelbox.test.files.FileHelper;
@@ -112,7 +109,7 @@ public class SearchTestR {
 
         assertThat(navigation.listFiles().size(), is(0));
 
-        navigation.upload(L0_FILE_1, new FileInputStream(testFile), null);
+        BoxFile sharedFile = navigation.upload(L0_FILE_1, new FileInputStream(testFile), null);
         navigation.commit();
 
         BoxFolder folder = navigation.createFolder(L0_DIR_1);
@@ -144,8 +141,10 @@ public class SearchTestR {
         navigation.navigateToRoot();
         navigation.createFolder(BoxFolder.RECEIVED_SHARE_NAME);
         navigation.commit();
-        BoxExternalReference sharedFile = new BoxExternalReference(false, TestConstants.BLOCK_URL, SHARED_FILE_NAME, keyPair.getPub(), testFile.getBytes());
-        navigation.attachExternal(sharedFile);
+
+        BoxExternalReference externalReference = navigation.createFileMetadata(keyPair.getPub(), sharedFile);
+        navigation.attachExternal(externalReference);
+        navigation.commit();
     }
 
     @Test
@@ -292,7 +291,8 @@ public class SearchTestR {
     @Test
     public void testSortByName() throws Exception {
         rootStorageSearch.sortCaseInsensitiveByName();
-        assertEquals(L0_DIR_1, rootStorageSearch.getResults().get(0).name);
+        assertEquals(BoxFolder.RECEIVED_SHARE_NAME, rootStorageSearch.getResults().get(0).name);
+        assertEquals(L0_DIR_1, rootStorageSearch.getResults().get(1).name);
         assertEquals(L2_FILE_2, rootStorageSearch.getResults().get(rootStorageSearch.getResults().size() - 1).name);
 
         rootStorageSearch.reset();

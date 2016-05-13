@@ -79,28 +79,18 @@ public class ChatMessageUITest {
 
     @After
     public void cleanUp() {
-        wakeLock.release();
-        mSystemAnimations.enableAll();
+        if (wakeLock != null) {
+            wakeLock.release();
+        }
+        if (mSystemAnimations != null) {
+            mSystemAnimations.enableAll();
+        }
         mBoxHelper.unbindService(QabelBoxApplication.getInstance());
         mBoxHelper.removeAllIdentities();
     }
 
     @Before
     public void setUp() throws IOException, QblStorageException {
-        setupData();
-
-        mActivity = mActivityTestRule.getActivity();
-        URLs.setBaseBlockURL(TestConstants.BLOCK_URL);
-        wakeLock = UIActionHelper.wakeupDevice(mActivity);
-        mSystemAnimations = new SystemAnimations(mActivity);
-        mSystemAnimations.disableAll();
-        LocalQabelService service = mActivity.getService();
-        identity = service.getActiveIdentity();
-        assertNotNull(identity);
-    }
-
-    private void setupData() throws QblStorageEntityExistsException {
-        mActivity = mActivityTestRule.launchActivity(null);
         mBoxHelper = new UIBoxHelper(QabelBoxApplication.getInstance());
         mBoxHelper.bindService(QabelBoxApplication.getInstance());
         mBoxHelper.createTokenIfNeeded(false);
@@ -119,9 +109,13 @@ public class ChatMessageUITest {
         contact2 = addContact(user1, user2);
         contact1 = addContact(user2, user1);
         mBoxHelper.setActiveIdentity(user2);
+
+        mActivity = mActivityTestRule.launchActivity(null);
+        wakeLock = UIActionHelper.wakeupDevice(mActivity);
+        mSystemAnimations = new SystemAnimations(mActivity);
+        mSystemAnimations.disableAll();
+        identity = user2;
     }
-
-
 
     @Ignore
     @Test

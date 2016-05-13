@@ -1,9 +1,5 @@
 package de.qabel.qabelbox.ui;
 
-/**
- * Created by danny on 05.01.2016.
- */
-
 import android.content.Intent;
 import android.os.PowerManager;
 import android.support.test.InstrumentationRegistry;
@@ -35,7 +31,6 @@ import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
 
 
-@LargeTest
 public class SplashUITest {
 
     @Rule

@@ -1,36 +1,22 @@
 package de.qabel.qabelbox.ui.files;
 
 import android.content.Intent;
-import android.os.PowerManager;
 import android.support.design.internal.NavigationMenuItemView;
-import android.support.test.espresso.intent.rule.IntentsTestRule;
 
 import com.squareup.spoon.Spoon;
 
-import org.junit.After;
 import org.junit.Before;
-import org.junit.FixMethodOrder;
 import org.junit.Ignore;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.runners.MethodSorters;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
 import de.qabel.core.config.Contact;
 import de.qabel.core.config.Identity;
-import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
-import de.qabel.qabelbox.TestConstants;
-import de.qabel.qabelbox.activities.MainActivity;
-import de.qabel.qabelbox.communication.URLs;
-import de.qabel.qabelbox.exceptions.QblStorageException;
-import de.qabel.qabelbox.ui.helper.SystemAnimations;
-import de.qabel.qabelbox.ui.helper.UIActionHelper;
-import de.qabel.qabelbox.ui.helper.UIBoxHelper;
+import de.qabel.qabelbox.ui.AbstractUITest;
 import de.qabel.qabelbox.ui.helper.UITestHelper;
 import de.qabel.qabelbox.ui.matcher.QabelMatcher;
 import de.qabel.qabelbox.ui.matcher.ToolbarMatcher;
@@ -57,22 +43,9 @@ import static org.hamcrest.Matchers.endsWith;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 
-/**
- * UI Tests for FilesFragment
- */
-@FixMethodOrder(MethodSorters.NAME_ASCENDING)
-public class FilesFragmentUITest {
+public class FilesFragmentUITest extends AbstractUITest {
 
     private static final String CREATE_FOLDER_TEST_NAME = "TestDirectory";
-
-    @Rule
-    public IntentsTestRule<MainActivity> mActivityTestRule = new IntentsTestRule<>(MainActivity.class, false, true);
-
-    private MainActivity mActivity;
-    private UIBoxHelper mBoxHelper;
-    private final boolean mFillAccount = true;
-    private PowerManager.WakeLock wakeLock;
-    private SystemAnimations mSystemAnimations;
 
     private Identity testIdentity;
     private Identity testIdentity2;
@@ -109,42 +82,14 @@ public class FilesFragmentUITest {
 
     }
 
-    public FilesFragmentUITest() throws Exception {
-        //setup data before MainActivity launched. This avoid the call to create identity
-        if (mFillAccount) {
-            setupData();
-        }
-    }
-
-    @After
-    public void cleanUp() {
-        mBoxHelper.getService().deleteContact(testContact);
-        mBoxHelper.deleteIdentity(testIdentity);
-        mBoxHelper.deleteIdentity(testIdentity2);
-
-        wakeLock.release();
-        mSystemAnimations.enableAll();
-        mBoxHelper.unbindService(QabelBoxApplication.getInstance());
-    }
-
     @Before
-    public void setUp() throws IOException, QblStorageException {
-
-        mActivity = mActivityTestRule.getActivity();
-        wakeLock = UIActionHelper.wakeupDevice(mActivity);
-        mSystemAnimations = new SystemAnimations(mActivity);
-        mSystemAnimations.disableAll();
+    public void setUp() throws Exception {
+        super.setUp();
+        setupData();
+        launchActivity(new Intent(Intent.ACTION_MAIN));
     }
 
     private void setupData() throws Exception {
-        URLs.setBaseBlockURL(TestConstants.BLOCK_URL);
-        mActivity = mActivityTestRule.getActivity();
-        mBoxHelper = new UIBoxHelper(QabelBoxApplication.getInstance());
-        mBoxHelper.bindService(QabelBoxApplication.getInstance());
-        mBoxHelper.createTokenIfNeeded(false);
-
-        mBoxHelper.removeAllIdentities();
-
         testIdentity = mBoxHelper.addIdentity("spoon");
         testIdentity2 = mBoxHelper.addIdentity("spoon2");
 
@@ -169,6 +114,7 @@ public class FilesFragmentUITest {
     }
 
     @Test
+    @Ignore("Refactoring needed")
     public void shareFileTest() {
         Spoon.screenshot(mActivity, "startup");
         onView(withText(exampleFiles.get(0).getName())).perform(longClick());

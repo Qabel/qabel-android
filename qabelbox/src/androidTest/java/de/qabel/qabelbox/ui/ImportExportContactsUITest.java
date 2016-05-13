@@ -3,20 +3,15 @@ package de.qabel.qabelbox.ui;
 import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
-import android.os.PowerManager;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.espresso.contrib.DrawerActions;
 import android.support.test.espresso.contrib.RecyclerViewActions;
 import android.support.test.espresso.intent.matcher.IntentMatchers;
-import android.support.test.espresso.intent.rule.IntentsTestRule;
 
 import com.squareup.spoon.Spoon;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
 
 import java.io.File;
@@ -28,17 +23,11 @@ import de.qabel.core.config.Contact;
 import de.qabel.core.config.Identity;
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
-import de.qabel.qabelbox.TestConstants;
-import de.qabel.qabelbox.activities.MainActivity;
-import de.qabel.qabelbox.communication.URLs;
 import de.qabel.qabelbox.config.ContactExportImport;
 import de.qabel.qabelbox.exceptions.QblStorageEntityExistsException;
 import de.qabel.qabelbox.fragments.ContactFragment;
 import de.qabel.qabelbox.helper.FileHelper;
 import de.qabel.qabelbox.services.LocalQabelService;
-import de.qabel.qabelbox.ui.helper.SystemAnimations;
-import de.qabel.qabelbox.ui.helper.UIActionHelper;
-import de.qabel.qabelbox.ui.helper.UIBoxHelper;
 import de.qabel.qabelbox.ui.matcher.ToolbarMatcher;
 
 import static android.support.test.espresso.Espresso.onView;
@@ -76,6 +65,7 @@ public class ImportExportContactsUITest extends AbstractUITest {
     public void setUp() throws Exception {
         super.setUp();
         createTestContacts();
+        launchActivity(null);
     }
 
     private void createTestContacts() throws JSONException, QblStorageEntityExistsException {

@@ -1,28 +1,18 @@
 package de.qabel.qabelbox.ui.files;
 
 
-import android.os.PowerManager;
-import android.support.test.filters.LargeTest;
-import android.support.test.rule.ActivityTestRule;
+import android.content.Intent;
 import android.widget.SeekBar;
 
 import com.squareup.spoon.Spoon;
 
-import org.junit.After;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
 
-import java.io.IOException;
-
-import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
-import de.qabel.qabelbox.activities.MainActivity;
 import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.storage.StorageSearch;
-import de.qabel.qabelbox.ui.helper.SystemAnimations;
-import de.qabel.qabelbox.ui.helper.UIActionHelper;
-import de.qabel.qabelbox.ui.helper.UIBoxHelper;
+import de.qabel.qabelbox.ui.AbstractUITest;
 import de.qabel.qabelbox.ui.helper.UITestHelper;
 import de.qabel.qabelbox.ui.matcher.QabelMatcher;
 import de.qabel.qabelbox.ui.matcher.ToolbarMatcher;
@@ -39,42 +29,16 @@ import static android.support.test.espresso.matcher.ViewMatchers.withHint;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static de.qabel.qabelbox.ui.action.QabelViewAction.setText;
 
-public class FileSearchUITest {
-
-    @Rule
-    public ActivityTestRule<MainActivity> mActivityTestRule = new ActivityTestRule<>(MainActivity.class, true, false);
-
-    private MainActivity mActivity;
-    private static UIBoxHelper mBoxHelper;
-    private PowerManager.WakeLock wakeLock;
-    SystemAnimations mSystemAnimations;
-
-    @After
-    public void cleanUp() {
-        if (wakeLock != null) {
-            wakeLock.release();
-        }
-        if (mSystemAnimations != null) {
-            mSystemAnimations.enableAll();
-        }
-        mBoxHelper.unbindService(QabelBoxApplication.getInstance());
-    }
+public class FileSearchUITest extends AbstractUITest {
 
     @Before
-    public void setUp() throws IOException, QblStorageException {
-        mBoxHelper = new UIBoxHelper(QabelBoxApplication.getInstance());
-        mBoxHelper.bindService(QabelBoxApplication.getInstance());
-        mBoxHelper.createTokenIfNeeded(false);
-        mBoxHelper.removeAllIdentities();
-        mBoxHelper.addIdentity("spoon");
+    public void setUp() throws Exception {
+        super.setUp();
         uploadTestFiles();
-        mActivity = mActivityTestRule.launchActivity(null);
-        wakeLock = UIActionHelper.wakeupDevice(mActivity);
-        mSystemAnimations = new SystemAnimations(mActivity);
-        mSystemAnimations.disableAll();
+        launchActivity(new Intent(Intent.ACTION_MAIN));
     }
 
-    private static void uploadTestFiles() {
+    private void uploadTestFiles() {
 
         int fileCount = 7;
         mBoxHelper.uploadFile(mBoxHelper.mBoxVolume, "testfile 2", new byte[1011], "");

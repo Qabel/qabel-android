@@ -117,6 +117,8 @@ public class CreateBoxAccountUITest extends UIBoxHelper {
         closeKeyboard();
 
         onView(withText(R.string.next)).perform(click());
+        UITestHelper.waitForView(R.string.ok, TestConstraints.SIMPLE_SERVER_ACTION_TIMEOUT);
+        Spoon.screenshot(UITestHelper.getCurrentActivity(mActivity), "incorrectCredentials");
         onView(withText(R.string.ok)).perform(click());
 
         createBoxAccountWithoutUI(accountName, accountEMail, password);

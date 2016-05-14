@@ -2,10 +2,12 @@ package de.qabel.qabelbox.ui.files;
 
 
 import android.content.Intent;
+import android.support.test.espresso.Espresso;
 import android.widget.SeekBar;
 
 import com.squareup.spoon.Spoon;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -14,6 +16,7 @@ import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.storage.StorageSearch;
 import de.qabel.qabelbox.ui.AbstractUITest;
 import de.qabel.qabelbox.ui.helper.UITestHelper;
+import de.qabel.qabelbox.ui.idling.InjectedIdlingResource;
 import de.qabel.qabelbox.ui.matcher.QabelMatcher;
 import de.qabel.qabelbox.ui.matcher.ToolbarMatcher;
 
@@ -31,11 +34,22 @@ import static de.qabel.qabelbox.ui.action.QabelViewAction.setText;
 
 public class FileSearchUITest extends AbstractUITest {
 
+    private InjectedIdlingResource idlingResource;
+
     @Before
     public void setUp() throws Exception {
         super.setUp();
         uploadTestFiles();
         launchActivity(new Intent(Intent.ACTION_MAIN));
+        idlingResource = new InjectedIdlingResource();
+        mActivity.filesFragment.injectIdleCallback(idlingResource);
+        Espresso.registerIdlingResources(idlingResource);
+    }
+
+
+    @After
+    public void unRegisterIdlingResource() {
+        Espresso.unregisterIdlingResources(idlingResource);
     }
 
     private void uploadTestFiles() {

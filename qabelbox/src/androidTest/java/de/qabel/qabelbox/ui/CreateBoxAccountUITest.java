@@ -37,7 +37,7 @@ import de.qabel.qabelbox.ui.helper.SystemAnimations;
 import de.qabel.qabelbox.ui.helper.UIActionHelper;
 import de.qabel.qabelbox.ui.helper.UIBoxHelper;
 import de.qabel.qabelbox.ui.helper.UITestHelper;
-import de.qabel.qabelbox.ui.idling.CreateAccountIdlingResource;
+import de.qabel.qabelbox.ui.idling.InjectedIdlingResource;
 import okhttp3.Response;
 
 import static android.support.test.espresso.Espresso.closeSoftKeyboard;
@@ -70,7 +70,7 @@ public class CreateBoxAccountUITest extends UIBoxHelper {
 
     private PowerManager.WakeLock wakeLock;
     private SystemAnimations mSystemAnimations;
-    private CreateAccountIdlingResource idlingResource;
+    private InjectedIdlingResource idlingResource;
 
 
     @After
@@ -101,7 +101,7 @@ public class CreateBoxAccountUITest extends UIBoxHelper {
         wakeLock = UIActionHelper.wakeupDevice(mActivity);
         mSystemAnimations = new SystemAnimations(mActivity);
         mSystemAnimations.disableAll();
-        idlingResource = new CreateAccountIdlingResource();
+        idlingResource = new InjectedIdlingResource();
         mActivity.injectIdleCallback(idlingResource);
         Espresso.registerIdlingResources(idlingResource);
     }

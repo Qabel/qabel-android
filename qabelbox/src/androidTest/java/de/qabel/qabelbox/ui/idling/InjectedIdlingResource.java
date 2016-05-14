@@ -3,11 +3,11 @@ package de.qabel.qabelbox.ui.idling;
 import android.support.test.espresso.IdlingResource;
 import android.util.Log;
 
-import de.qabel.qabelbox.activities.CreateAccountActivity;
+import de.qabel.qabelbox.listeners.IdleCallback;
 
-public class CreateAccountIdlingResource implements CreateAccountActivity.IdleCallback, IdlingResource
+public class InjectedIdlingResource implements IdleCallback, IdlingResource
 {
-    private static final String TAG = CreateAccountIdlingResource.class.getName();
+    private static final String TAG = InjectedIdlingResource.class.getName();
     private boolean isIdle = true;
     private ResourceCallback callback;
 
@@ -30,7 +30,7 @@ public class CreateAccountIdlingResource implements CreateAccountActivity.IdleCa
 
     @Override
     public String getName() {
-        return CreateAccountIdlingResource.class.getName();
+        return InjectedIdlingResource.class.getName();
     }
 
     @Override

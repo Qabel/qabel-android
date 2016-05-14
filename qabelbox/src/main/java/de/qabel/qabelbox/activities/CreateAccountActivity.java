@@ -28,6 +28,7 @@ import de.qabel.qabelbox.fragments.CreateAccountPasswordFragment;
 import de.qabel.qabelbox.fragments.CreateIdentityEditTextFragment;
 import de.qabel.qabelbox.helper.Formatter;
 import de.qabel.qabelbox.helper.UIHelper;
+import de.qabel.qabelbox.listeners.IdleCallback;
 import de.qabel.qabelbox.services.LocalQabelService;
 import okhttp3.Response;
 
@@ -348,8 +349,4 @@ public class CreateAccountActivity extends BaseWizardActivity {
         mBoxAccountPassword2 = password2;
     }
 
-    public interface IdleCallback {
-        void busy();
-        void idle();
-    }
 }

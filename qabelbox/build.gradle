@@ -23,6 +23,8 @@ android {
     }
     dexOptions {
         jumboMode true
+        maxProcessCount 4
+        javaMaxHeapSize "4g"
     }
     defaultConfig {
         buildConfigField "long", "TIMESTAMP", System.currentTimeMillis() + "L"

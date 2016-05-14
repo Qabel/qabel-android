@@ -12,6 +12,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import de.qabel.qabelbox.R;
+import de.qabel.qabelbox.fragments.FilesSearchResultFragment;
 import de.qabel.qabelbox.storage.StorageSearch;
 import de.qabel.qabelbox.ui.AbstractUITest;
 import de.qabel.qabelbox.ui.helper.UITestHelper;
@@ -42,7 +43,6 @@ public class FileSearchUITest extends AbstractUITest {
         uploadTestFiles();
         launchActivity(new Intent(Intent.ACTION_MAIN));
         idlingResource = new InjectedIdlingResource();
-        mActivity.filesFragment.injectIdleCallback(idlingResource);
         Espresso.registerIdlingResources(idlingResource);
     }
 
@@ -100,6 +100,9 @@ public class FileSearchUITest extends AbstractUITest {
         //uploadAndDeleteLocalfile file
         mBoxHelper.uploadFile(mBoxHelper.mBoxVolume, "black_3", new byte[1024], "");
         mBoxHelper.waitUntilFileCount(fileCount + 1);
+
+        FilesSearchResultFragment searchResultFragment = (FilesSearchResultFragment)mActivity.getFragmentManager().findFragmentByTag(FilesSearchResultFragment.TAG);
+        searchResultFragment.injectIdleCallback(idlingResource);
 
         WaitResourceCallback waitResourceCallback = new WaitResourceCallback();
         idlingResource.registerIdleTransitionCallback(waitResourceCallback);

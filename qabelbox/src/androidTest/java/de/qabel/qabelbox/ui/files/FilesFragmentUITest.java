@@ -7,6 +7,7 @@ import android.support.test.espresso.Espresso;
 import com.squareup.spoon.Spoon;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.File;
@@ -120,6 +121,7 @@ public class FilesFragmentUITest extends AbstractUITest {
     }
 
     @Test
+    @Ignore("instable. to big, split up")
     public void shareFileTest() throws Exception {
         onView(withText(exampleFiles.get(0).getName())).perform(longClick());
 

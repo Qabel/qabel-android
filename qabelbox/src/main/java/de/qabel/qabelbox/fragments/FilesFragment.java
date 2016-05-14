@@ -97,7 +97,7 @@ public class FilesFragment extends FilesFragmentBase {
             protected void onPostExecute(Void aVoid) {
                 super.onPostExecute(aVoid);
                 filesFragment.setIsLoading(false);
-                filesAdapter.notifyDataSetChanged();
+                filesFragment.notifyFilesAdapterChanged();
             }
         }.executeOnExecutor(serialExecutor);
     }
@@ -127,12 +127,12 @@ public class FilesFragment extends FilesFragmentBase {
                 case LocalBroadcastConstants.UPLOAD_STATUS_NEW:
                     Log.d(TAG, "Received new uploadAndDeleteLocalfile: " + documentId);
                     fillAdapter(filesAdapter);
-                    filesAdapter.notifyDataSetChanged();
+                    notifyFilesAdapterChanged();
                     break;
                 case LocalBroadcastConstants.UPLOAD_STATUS_FINISHED:
                     Log.d(TAG, "Received upload finished: " + documentId);
                     fillAdapter(filesAdapter);
-                    filesAdapter.notifyDataSetChanged();
+                    notifyFilesAdapterChanged();
                     break;
                 case LocalBroadcastConstants.UPLOAD_STATUS_FAILED:
                     Log.d(TAG, "Received uploadAndDeleteLocalfile failed: " + documentId);
@@ -176,11 +176,10 @@ public class FilesFragment extends FilesFragmentBase {
 
                 @Override
                 protected void onPostExecute(Void aVoid) {
-
                     super.onPostExecute(aVoid);
                     setIsLoading(false);
                     updateSubtitle();
-                    filesAdapter.notifyDataSetChanged();
+                    notifyFilesAdapterChanged();
                     browseToTask = null;
                 }
             };
@@ -353,7 +352,6 @@ public class FilesFragment extends FilesFragmentBase {
                         }
                         FilesSearchResultFragment fragment = FilesSearchResultFragment.newInstance(mCachedStorageSearch, searchText);
                         mActivity.toggle.setDrawerIndicatorEnabled(false);
-
                         getFragmentManager().beginTransaction().replace(R.id.fragment_container, fragment, FilesSearchResultFragment.TAG).addToBackStack(null).commit();
                     }
                     searchTask = null;
@@ -599,7 +597,7 @@ public class FilesFragment extends FilesFragmentBase {
                     super.onPostExecute(aVoid);
                     setIsLoading(false);
                     updateSubtitle();
-                    filesAdapter.notifyDataSetChanged();
+                    notifyFilesAdapterChanged();
                     browseToTask = null;
                 }
             };
@@ -738,7 +736,7 @@ public class FilesFragment extends FilesFragmentBase {
                     super.onPostExecute(aVoid);
                     setIsLoading(false);
                     updateSubtitle();
-                    filesAdapter.notifyDataSetChanged();
+                    notifyFilesAdapterChanged();
                     browseToTask = null;
                 }
 

@@ -39,7 +39,7 @@ public class FilesSearchResultFragment extends FilesFragmentBase {
         fragment.mSearchText = searchText;
         fragment.fillAdapter(fragment.mSearchResult.filterByName(searchText).getResults());
 
-        filesAdapter.notifyDataSetChanged();
+        fragment.notifyFilesAdapterChanged();
         return fragment;
     }
 
@@ -171,14 +171,12 @@ public class FilesSearchResultFragment extends FilesFragmentBase {
      * start search
      */
     private void restartSearch() {
-        showSearchSpinner(true);
-
         searchTask = new AsyncTask<String, Void, StorageSearch>() {
 
             @Override
             protected void onPreExecute() {
-
                 super.onPreExecute();
+                showSearchSpinner(true);
             }
 
             @Override
@@ -189,7 +187,6 @@ public class FilesSearchResultFragment extends FilesFragmentBase {
 
             @Override
             protected void onPostExecute(StorageSearch storageSearch) {
-
                 if (!mActivity.isFinishing() && !searchTask.isCancelled()) {
                     showSearchSpinner(false);
                     mSearchResult = storageSearch;
@@ -246,7 +243,7 @@ public class FilesSearchResultFragment extends FilesFragmentBase {
             result.filterByMinimumSize(data.mFileSizeMin);
             result.filterByMaximumSize(data.mFileSizeMax);
             fillAdapter(result.getResults());
-            filesAdapter.notifyDataSetChanged();
+            notifyFilesAdapterChanged();
         } catch (CloneNotSupportedException e) {
             Log.e(TAG, "error on clone SearchResult ", e);
         }

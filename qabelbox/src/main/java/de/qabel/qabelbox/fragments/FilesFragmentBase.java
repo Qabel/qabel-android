@@ -62,9 +62,10 @@ public abstract class FilesFragmentBase extends BaseFragment {
 
         swipeRefreshLayout.post(() -> swipeRefreshLayout.setRefreshing(isLoading));
         filesListRecyclerView = (RecyclerView) view.findViewById(R.id.files_list);
-        filesListRecyclerView.setHasFixedSize(true);
+        filesListRecyclerView.setHasFixedSize(false);
 
         recyclerViewLayoutManager = new LinearLayoutManager(view.getContext());
+
         filesListRecyclerView.setLayoutManager(recyclerViewLayoutManager);
 
         filesListRecyclerView.setAdapter(filesAdapter);
@@ -142,7 +143,7 @@ public abstract class FilesFragmentBase extends BaseFragment {
         if (filesListRecyclerView != null) {
             filesListRecyclerView.setAdapter(filesAdapter);
         }
-        filesAdapter.notifyDataSetChanged();
+        notifyFilesAdapterChanged();
     }
 
 

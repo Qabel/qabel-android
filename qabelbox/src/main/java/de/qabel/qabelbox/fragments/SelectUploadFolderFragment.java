@@ -3,7 +3,6 @@ package de.qabel.qabelbox.fragments;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -28,7 +27,6 @@ public class SelectUploadFolderFragment extends FilesFragment {
 
     private final String TAG = this.getClass().getSimpleName();
     private ArrayList<Uri> uris;
-    private RecyclerView.LayoutManager recyclerViewLayoutManager;
 
     private void loadIdentityFiles(final BoxVolume boxVolume) {
 
@@ -40,7 +38,6 @@ public class SelectUploadFolderFragment extends FilesFragment {
         new AsyncTask<Void, Void, Void>() {
             @Override
             protected void onPreExecute() {
-
                 super.onPreExecute();
                 setIsLoading(true);
             }
@@ -68,11 +65,9 @@ public class SelectUploadFolderFragment extends FilesFragment {
 
             @Override
             protected void onPostExecute(Void aVoid) {
-
                 super.onPostExecute(aVoid);
                 setIsLoading(false);
-
-                filesAdapter.notifyDataSetChanged();
+                notifyFilesAdapterChanged();
             }
         }.executeOnExecutor(serialExecutor);
     }
@@ -149,16 +144,5 @@ public class SelectUploadFolderFragment extends FilesFragment {
     public String getTitle() {
 
         return getString(R.string.headline_select_upload_folder);
-    }
-
-    @Override
-    public boolean isFabNeeded() {
-
-        return false;
-    }
-
-    public boolean supportBackButton() {
-
-        return true;
     }
 }

@@ -32,9 +32,9 @@ import static org.junit.Assert.assertTrue;
 
 @RunWith(RobolectricGradleTestRunner.class)
 @Config(application = SimpleApplication.class, constants = BuildConfig.class)
-public class SearchTestR {
+public class SearchTest {
 
-    private static final String TAG = SearchTestR.class.getName();
+    private static final String TAG = SearchTest.class.getName();
 
     /**
      * Structure after setup()
@@ -378,12 +378,6 @@ public class SearchTestR {
         assertEquals(6, subfolderSearch.getResultSize());
         subfolderSearch.filterOnlyDirectories();
         assertEquals(2, subfolderSearch.getResultSize());
-    }
-
-    private void debug(List<BoxObject> boxObjects){
-        for(BoxObject o : boxObjects){
-            System.out.println(o.name + ": " + rootStorageSearch.findPathByBoxObject(o));
-        }
     }
 
     @Test

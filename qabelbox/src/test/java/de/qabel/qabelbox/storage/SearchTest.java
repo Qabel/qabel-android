@@ -84,7 +84,8 @@ public class SearchTest {
             QblECKeyPair keyPair = new QblECKeyPair();
 
             BoxVolume volume = new BoxVolume(keyPair, TestConstants.PREFIX,
-                    deviceID, RuntimeEnvironment.application);
+                    deviceID, RuntimeEnvironment.application,
+                    new FakeTransferManager(FileHelper.getSystemTmp()));
 
             volume.createIndex();
 
@@ -350,7 +351,7 @@ public class SearchTest {
                 break;
             }
         }
-        if(targetSubfolder == null){
+        if (targetSubfolder == null) {
             throw new QblStorageException(String.format("Folder %s not found!", name));
         }
         navigation.navigate(targetSubfolder);
@@ -382,7 +383,7 @@ public class SearchTest {
 
     @Test
     public void testShareFolder() throws Exception {
-        rootStorageSearch.filterByName(BoxFolder.RECEIVED_SHARE_NAME.replace("[","").replace("]","")).filterOnlyDirectories();
+        rootStorageSearch.filterByName(BoxFolder.RECEIVED_SHARE_NAME.replace("[", "").replace("]", "")).filterOnlyDirectories();
         assertEquals(1, rootStorageSearch.getResultSize());
         rootStorageSearch.reset();
 

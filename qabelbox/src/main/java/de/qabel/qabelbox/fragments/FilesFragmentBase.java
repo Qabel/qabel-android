@@ -130,7 +130,7 @@ public abstract class FilesFragmentBase extends BaseFragment {
     protected void notifyFilesAdapterChanged() {
         new Handler(Looper.getMainLooper()).
                 post(() -> {
-                    if (!filesListRecyclerView.isComputingLayout()) {
+                    if (filesListRecyclerView != null && !filesListRecyclerView.isComputingLayout()) {
                         filesAdapter.notifyDataSetChanged();
                     }
                 });

@@ -121,8 +121,9 @@ public class BoxTest {
             throw new NullPointerException("Identity is null");
         }
         QblECKeyPair key = identity.getPrimaryKeyPair();
+        File tmpDir = new File(System.getProperty("java.io.tmpdir"));
         return new BoxVolume(key, prefix,
-                deviceID, getContext());
+                deviceID, getContext(), new FakeTransferManager(tmpDir));
     }
 
     public static String createTestFile() throws IOException {
@@ -347,17 +348,14 @@ public class BoxTest {
         final BoxFile boxFile = uploadFile(nav);
         nav.delete(boxFile);
         nav.commit();
-        TestHelper.waitUntil(new Callable<Boolean>() {
-                                 @Override
-                                 public Boolean call() throws Exception {
-                                     try {
-                                         nav.download(boxFile, null);
-                                         return false;
-                                     } catch (QblStorageNotFound e) {
-                                         return true;
-                                     }
-                                 }
-                             },
+        TestHelper.waitUntil(() -> {
+            try {
+                nav.download(boxFile, null);
+                return false;
+            } catch (QblStorageNotFound e) {
+                return true;
+            }
+        },
                 "Expected QblStorageNotFound");
     }
 

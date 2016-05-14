@@ -18,13 +18,6 @@ import de.qabel.qabelbox.views.EditTextFont;
 
 import java.io.IOException;
 
-/**
- * Class to support app wide helper function
- * Created by danny on 10.01.2016.
- *
- * @deprecated: This should be moved to an upper BaseFragment or BaseActivity class
- */
-@Deprecated
 public class UIHelper {
 
     /**

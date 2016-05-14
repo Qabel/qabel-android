@@ -40,9 +40,9 @@ public interface BoxNavigation {
 
     List<BoxObject> listExternals() throws QblStorageException;
 
-    BoxFile upload(String name, InputStream content, @Nullable TransferManager.BoxTransferListener boxTransferListener) throws QblStorageException;
+    BoxFile upload(String name, InputStream content, @Nullable BoxTransferListener boxTransferListener) throws QblStorageException;
 
-    InputStream download(BoxFile file, @Nullable TransferManager.BoxTransferListener boxTransferListener) throws QblStorageException;
+    InputStream download(BoxFile file, @Nullable BoxTransferListener boxTransferListener) throws QblStorageException;
 
     BoxExternalReference createFileMetadata(QblECPublicKey owner, BoxFile boxFile) throws QblStorageException;
 

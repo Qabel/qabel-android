@@ -43,7 +43,7 @@
     <string name="message_step_is_needed_or_close_app">%s wird benötigt um Qabel zu benutzen. Möchten Sie Qabel jetzt schließen?</string>
     <string name="contact_count">Kontakte: %1</string>
     <string name="contact_deleted">Kontakt mit dem Namen %1 gelöscht</string>
-    <string name="contact_export_successfully">Kontakt exportiert. Sie können diesen Kontakt nun weitergeben.</string>
+    <string name="identity_as_contact_export_successfully">Kontakt exportiert. Sie können diesen Kontakt nun weitergeben.</string>
     <string name="contact_import_failed">Importieren des Kontaktes fehlgeschlagen</string>
     <string name="contact_import_manual_failed">Importieren des Kontaktes fehlgeschlagen. Bitte überprüfen Sie die eingegebenen Daten</string>
     <string name="contact_import_successfull_many">%1$d / %2$d Kontakte importiert</string>
@@ -180,7 +180,7 @@
     <string name="message_unshare_not_successfull">Freigabe konnte nicht entzogen werden</string>
     <string name="message_unshare_successfull">Freigabe wurde erfolgreich entzogen</string>
     <string name="please_wait_attach_external_file">Bitte warten. Externe Datei wird zum Account hinzugefügt</string>
-    <string name="message_chat_message_not_sended">Nachricht wurde nicht gesendet</string>
+    <string name="message_chat_message_not_sent">Nachricht wurde nicht gesendet</string>
     <string name="upload_complete_notification_title">Hochladen abgeschlossen</string>
     <string name="messsage_file_shared">Datei erfolgreich geteilt</string>
     <string name="message_file_cant_upload">Datei konnte nicht hochgeladen werden</string>

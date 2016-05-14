@@ -9,6 +9,8 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBar;
@@ -37,6 +39,7 @@ import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.adapter.FilesAdapter;
 import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.helper.UIHelper;
+import de.qabel.qabelbox.listeners.IdleCallback;
 import de.qabel.qabelbox.providers.DocumentIdParser;
 import de.qabel.qabelbox.services.LocalBroadcastConstants;
 import de.qabel.qabelbox.services.LocalQabelService;
@@ -72,6 +75,7 @@ public class FilesFragment extends BaseFragment {
     View mEmptyView;
     View mLoadingView;
     private LocalQabelService mService;
+    private IdleCallback idleCallback;
 
     public static FilesFragment newInstance(final BoxVolume boxVolume) {
 
@@ -519,6 +523,7 @@ public class FilesFragment extends BaseFragment {
      */
     public void setIsLoading(final boolean isLoading) {
 
+        runIdleCallback(!isLoading);
         this.isLoading = isLoading;
         if (swipeRefreshLayout == null) {
             return;
@@ -526,13 +531,7 @@ public class FilesFragment extends BaseFragment {
         if (!isLoading) {
             mLoadingView.setVisibility(View.GONE);
         }
-        swipeRefreshLayout.post(new Runnable() {
-            @Override
-            public void run() {
-
-                swipeRefreshLayout.setRefreshing(isLoading);
-            }
-        });
+        swipeRefreshLayout.post(() -> swipeRefreshLayout.setRefreshing(isLoading));
     }
 
     public void setAdapter(FilesAdapter adapter) {
@@ -698,6 +697,21 @@ public class FilesFragment extends BaseFragment {
                 }).create().show();
     }
 
+
+    public void injectIdleCallback(IdleCallback callback) {
+        idleCallback = callback;
+    }
+
+    public void runIdleCallback(boolean isIdle) {
+        if (idleCallback == null) {
+            return;
+        }
+        if (isIdle) {
+            idleCallback.idle();
+        } else{
+            idleCallback.busy();
+        }
+    }
     public void refresh() {
 
         if (boxNavigation == null) {
@@ -737,16 +751,23 @@ public class FilesFragment extends BaseFragment {
                 super.onPostExecute(aVoid);
 
                 filesAdapter.sort();
-                filesAdapter.notifyDataSetChanged();
-
+                notifyFilesAdapterChanged();
                 setIsLoading(false);
             }
         };
         asyncTask.execute();
     }
 
-    private void showAbortMessage() {
+    private void notifyFilesAdapterChanged() {
+        new Handler(Looper.getMainLooper()).
+                post(() -> {
+                    if (!filesListRecyclerView.isComputingLayout()) {
+                        filesAdapter.notifyDataSetChanged();
+                    }
+                });
+    }
 
+    private void showAbortMessage() {
         Toast.makeText(mActivity, R.string.aborted,
                 Toast.LENGTH_SHORT).show();
     }

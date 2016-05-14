@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.Uri;
 import android.os.PowerManager;
+import android.support.test.InstrumentationRegistry;
 import android.support.test.espresso.ViewInteraction;
 import android.support.test.espresso.action.ViewActions;
 import android.support.test.espresso.contrib.DrawerActions;
@@ -39,6 +40,7 @@ import de.qabel.qabelbox.ui.helper.UIActionHelper;
 import de.qabel.qabelbox.ui.helper.UIBoxHelper;
 import de.qabel.qabelbox.ui.helper.UITestHelper;
 
+import static android.support.test.InstrumentationRegistry.getInstrumentation;
 import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.action.ViewActions.click;
 import static android.support.test.espresso.assertion.ViewAssertions.matches;
@@ -51,12 +53,8 @@ import static android.support.test.espresso.matcher.ViewMatchers.withText;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.endsWith;
 
-/**
- * Created by Jan D.S. Wischweh <mail@wischweh.de> on 07.03.16.
- */
 
-@Ignore("Can't run in isolation, needs an identity")
-public class ImportContactsFeedbackTest extends ActivityInstrumentationTestCase2<MainActivity> {
+public class ImportContactsFeedbackTest extends AbstractUITest{
 
     public static final String COOKIEMONSTER_ALIAS = "Cookie Monster";
     public static final String COOKIEMONSTER_PUBLICKEYID = "be14d35443af65a750c941fbd20ea16d678a03ac0f3c3bf42448776252a81234";
@@ -82,24 +80,16 @@ public class ImportContactsFeedbackTest extends ActivityInstrumentationTestCase2
 
     public static String DEBUG_TAG = "ImportContactsFeedbackTest";
 
-    private PowerManager.WakeLock wakeLock;
-    SystemAnimations mSystemAnimations;
     List<Contact> testContacts = new LinkedList<>();
     Contact cookieMonster;
 
-    public ImportContactsFeedbackTest() {
-        super(MainActivity.class);
-    }
-
-
     @Before
-    public void setUp() throws URISyntaxException, QblDropInvalidURL {
-        wakeLock = UIActionHelper.wakeupDevice(getActivity());
-        mSystemAnimations = new SystemAnimations(getActivity());
-        mSystemAnimations.disableAll();
-        navigateToContacts();
+    public void setUp() throws Exception {
+        super.setUp();
         initTestContacts();
-
+        Intent intent = new Intent(Intent.ACTION_MAIN);
+        intent.putExtra(MainActivity.START_CONTACTS_FRAGMENT , true);
+        launchActivity(intent);
     }
 
     private void initTestContacts() throws URISyntaxException, QblDropInvalidURL {
@@ -108,11 +98,6 @@ public class ImportContactsFeedbackTest extends ActivityInstrumentationTestCase2
 
     }
 
-    @After
-    public void tearDown() {
-        wakeLock.release();
-        mSystemAnimations.enableAll();
-    }
 
     @Test
     @MediumTest
@@ -170,7 +155,6 @@ public class ImportContactsFeedbackTest extends ActivityInstrumentationTestCase2
         Instrumentation.ActivityMonitor returnTheTmpFileMonitor = new Instrumentation.ActivityMonitor(pickFilter, activityResult, true);
         getInstrumentation().addMonitor(returnTheTmpFileMonitor);
         onView(withId(R.id.fab)).perform(ViewActions.click());
-        UITestHelper.sleep(1000);
         onView(withText(R.string.from_file)).inRoot(isDialog()).perform(ViewActions.click());
         return (MainActivity) getInstrumentation().waitForMonitorWithTimeout(returnTheTmpFileMonitor, 5);
     }

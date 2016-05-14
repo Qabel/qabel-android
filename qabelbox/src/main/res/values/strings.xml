@@ -126,6 +126,7 @@
     <string name="cant_read_identity">Could not read identity from file</string>
     <string name="identity_export_failed">Could not export the identity</string>
     <string name="identity_export_successfully">Identity exported. This file contains your key, keep it safe!</string>
+    <string name="identity_as_contact_export_successfully">Contact exported. You can now share your contact file.</string>
     <string name="ExportAsContact">Export Public Contact</string>
     <string name="error_reason_io">Error when reading or writing</string>
     <string name="reason_for_error">Reason: %1</string>
@@ -206,7 +207,7 @@
     <string name="message_unshare_not_successfull">Can\'t revoke share</string>
     <string name="message_unshare_successfull">Share successfully revoked</string>
     <string name="message_revoke_share">Revoking share</string>
-    <string name="message_chat_message_not_sended">Message NOT sended</string>
+    <string name="message_chat_message_not_sent">Message not sent</string>
     <string name="create_idenity_cant_get_prefix">Could not retrieve a prefix from the server</string>
     <plurals name="uploadsNotificationTitle">
         <item quantity="one">Uploading</item>

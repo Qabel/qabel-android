@@ -1,6 +1,5 @@
 package de.qabel.qabelbox.ui.helper;
 
-import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -20,15 +19,14 @@ import java.io.OutputStream;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Set;
 
-import de.qabel.core.config.Contact;
 import de.qabel.core.config.DropServer;
 import de.qabel.core.config.Identity;
 import de.qabel.core.crypto.QblECKeyPair;
 import de.qabel.core.drop.AdjustableDropIdGenerator;
 import de.qabel.core.drop.DropIdGenerator;
 import de.qabel.core.drop.DropURL;
+import de.qabel.qabelbox.BuildConfig;
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.TestConstants;
 import de.qabel.qabelbox.communication.VolumeFileTransferHelper;
@@ -104,7 +102,7 @@ public class UIBoxHelper {
 
             String folderId = boxVolume.getDocumentId(path);
             Uri uploadUri = DocumentsContract.buildDocumentUri(
-                    BoxProvider.AUTHORITY, folderId + name);
+                    BuildConfig.APPLICATION_ID + BoxProvider.AUTHORITY, folderId + name);
             Context self = QabelBoxApplication.getInstance().getApplicationContext();
 
             OutputStream upload = self.getContentResolver().openOutputStream(uploadUri, "w");

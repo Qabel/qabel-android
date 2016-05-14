@@ -18,7 +18,6 @@ import java.util.List;
 import java.util.Map;
 
 import de.qabel.core.config.Contact;
-import de.qabel.core.config.Identity;
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.helper.BoxObjectComparators;
@@ -34,7 +33,6 @@ public class FilesAdapter extends RecyclerView.Adapter<FilesAdapter.FilesViewHol
 
     private final List<BoxObject> boxObjects;
     private final Map<String, BoxObject> boxObjectsByName;
-    private final Identity currentIdentity;
     private final Context context;
     private final LocalQabelService mService;
     private OnItemClickListener onItemClickListener;
@@ -42,14 +40,12 @@ public class FilesAdapter extends RecyclerView.Adapter<FilesAdapter.FilesViewHol
     private View loadingView;
 
     public FilesAdapter(List<BoxObject> BoxObject) {
-
         boxObjects = BoxObject;
         boxObjectsByName = new HashMap<>();
         for (BoxObject boxObject : boxObjects) {
             boxObjectsByName.put(boxObject.name, boxObject);
         }
         registerAdapterDataObserver(observer);
-        currentIdentity = QabelBoxApplication.getInstance().getService().getActiveIdentity();
         context = QabelBoxApplication.getInstance().getApplicationContext();
         mService = QabelBoxApplication.getInstance().getService();
     }

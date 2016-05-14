@@ -108,7 +108,7 @@ public abstract class AbstractNavigation implements BoxNavigation {
         return filepath.substring(filepath.lastIndexOf('/') + 1, filepath.length());
     }
 
-    protected File blockingDownload(String prefix, String name, TransferManager.BoxTransferListener boxTransferListener) throws QblStorageNotFound {
+    protected File blockingDownload(String prefix, String name, BoxTransferListener boxTransferListener) throws QblStorageNotFound {
         File file = transferManager.createTempFile();
         int id = transferManager.download(prefix, name, file, boxTransferListener);
         if (transferManager.waitFor(id)) {
@@ -119,7 +119,7 @@ public abstract class AbstractNavigation implements BoxNavigation {
     }
 
     protected Long blockingUpload(String prefix, String name,
-                                  File file, @Nullable TransferManager.BoxTransferListener boxTransferListener) {
+                                  File file, @Nullable BoxTransferListener boxTransferListener) {
         int id = transferManager.uploadAndDeleteLocalfileOnSuccess(prefix, name, file, boxTransferListener);
         transferManager.waitFor(id);
         return currentSecondsFromEpoch();
@@ -363,7 +363,7 @@ public abstract class AbstractNavigation implements BoxNavigation {
 
     @Override
     public BoxFile upload(String name, InputStream content,
-                          @Nullable TransferManager.BoxTransferListener boxTransferListener) throws QblStorageException {
+                          @Nullable BoxTransferListener boxTransferListener) throws QblStorageException {
         KeyParameter key = cryptoUtils.generateSymmetricKey();
         String block = UUID.randomUUID().toString();
         BoxFile boxFile = new BoxFile(prefix, block, name, null, 0L, key.getKey());
@@ -387,7 +387,7 @@ public abstract class AbstractNavigation implements BoxNavigation {
 
     protected SimpleEntry<Long, Long> uploadEncrypted(
             InputStream content, KeyParameter key, String prefix, String block,
-            @Nullable TransferManager.BoxTransferListener boxTransferListener) throws QblStorageException {
+            @Nullable BoxTransferListener boxTransferListener) throws QblStorageException {
         try {
             File tempFile = File.createTempFile("uploadAndDeleteLocalfile", "up", dm.getTempDir());
             OutputStream outputStream = new FileOutputStream(tempFile);
@@ -404,7 +404,7 @@ public abstract class AbstractNavigation implements BoxNavigation {
     }
 
     @Override
-    public InputStream download(BoxFile boxFile, @Nullable TransferManager.BoxTransferListener boxTransferListener) throws QblStorageException {
+    public InputStream download(BoxFile boxFile, @Nullable BoxTransferListener boxTransferListener) throws QblStorageException {
         File download = cache.get(boxFile);
         cache.close();
         if (download == null) {
@@ -541,7 +541,7 @@ public abstract class AbstractNavigation implements BoxNavigation {
         dm.deleteExternalReference(name);
     }
 
-    private File refreshCache(BoxFile boxFile, @Nullable TransferManager.BoxTransferListener boxTransferListener) throws QblStorageNotFound {
+    private File refreshCache(BoxFile boxFile, @Nullable BoxTransferListener boxTransferListener) throws QblStorageNotFound {
         logger.info("Refreshing cache: " + boxFile.block);
         File download = blockingDownload(boxFile.prefix, BLOCKS_PREFIX + boxFile.block, boxTransferListener);
         cache.put(boxFile, download);

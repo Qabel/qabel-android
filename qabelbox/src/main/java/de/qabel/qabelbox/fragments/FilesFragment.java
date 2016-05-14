@@ -47,7 +47,7 @@ public class FilesFragment extends FilesFragmentBase {
 
     private MenuItem mSearchAction;
     private boolean isSearchOpened = false;
-    private EditText edtSeach;
+    private EditText searchText;
     protected BoxVolume mBoxVolume;
     private AsyncTask<String, Void, StorageSearch> searchTask;
     private StorageSearch mCachedStorageSearch;
@@ -254,13 +254,13 @@ public class FilesFragment extends FilesFragmentBase {
         action.setCustomView(R.layout.ab_search_field);
         action.setDisplayShowTitleEnabled(false);
 
-        edtSeach = (EditText) action.getCustomView().findViewById(R.id.edtSearch);
+        searchText = (EditText) action.getCustomView().findViewById(R.id.edtSearch);
 
         //add editor action listener
-        edtSeach.setOnEditorActionListener((v, actionId, event) -> {
+        searchText.setOnEditorActionListener((v, actionId, event) -> {
 
             if (actionId == EditorInfo.IME_ACTION_SEARCH) {
-                String text = edtSeach.getText().toString();
+                String text = searchText.getText().toString();
                 removeSearchInActionbar(action);
                 startSearch(text);
                 return true;
@@ -268,11 +268,11 @@ public class FilesFragment extends FilesFragmentBase {
             return false;
         });
 
-        edtSeach.requestFocus();
+        searchText.requestFocus();
 
         //open keyboard
         InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
-        imm.showSoftInput(edtSeach, InputMethodManager.SHOW_IMPLICIT);
+        imm.showSoftInput(searchText, InputMethodManager.SHOW_IMPLICIT);
         mActivity.fab.hide();
         mSearchAction.setIcon(R.drawable.close_white);
         isSearchOpened = true;
@@ -290,7 +290,7 @@ public class FilesFragment extends FilesFragmentBase {
 
         //hides the keyboard
         InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
-        imm.hideSoftInputFromWindow(edtSeach.getWindowToken(), 0);
+        imm.hideSoftInputFromWindow(searchText.getWindowToken(), 0);
 
         imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.RESULT_HIDDEN);
         mSearchAction.setIcon(R.drawable.magnify_white);
@@ -353,6 +353,7 @@ public class FilesFragment extends FilesFragmentBase {
                         }
                         FilesSearchResultFragment fragment = FilesSearchResultFragment.newInstance(mCachedStorageSearch, searchText);
                         mActivity.toggle.setDrawerIndicatorEnabled(false);
+
                         getFragmentManager().beginTransaction().replace(R.id.fragment_container, fragment, FilesSearchResultFragment.TAG).addToBackStack(null).commit();
                     }
                     searchTask = null;
@@ -517,6 +518,7 @@ public class FilesFragment extends FilesFragmentBase {
                 }).create().show();
     }
 
+    @Override
     public void refresh() {
         if (boxNavigation == null) {
             Log.e(TAG, "Refresh failed because the boxNavigation object is null");
@@ -551,8 +553,7 @@ public class FilesFragment extends FilesFragmentBase {
                 super.onPostExecute(aVoid);
 
                 filesAdapter.sort();
-                filesAdapter.notifyDataSetChanged();
-
+                notifyFilesAdapterChanged();
                 setIsLoading(false);
             }
         };

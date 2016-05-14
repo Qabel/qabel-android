@@ -17,6 +17,7 @@ import java.io.OutputStream;
 import java.util.List;
 
 import de.qabel.core.config.Identity;
+import de.qabel.qabelbox.BuildConfig;
 import de.qabel.qabelbox.providers.BoxProvider;
 import de.qabel.qabelbox.storage.BoxNavigation;
 import de.qabel.qabelbox.storage.BoxObject;
@@ -36,7 +37,7 @@ public class VolumeFileTransferHelper {
         String path = boxNavigation.getPath(boxObject);
         String documentId = boxVolume.getDocumentId(path);
         return DocumentsContract.buildDocumentUri(
-                BoxProvider.AUTHORITY, documentId);
+                BuildConfig.APPLICATION_ID + BoxProvider.AUTHORITY, documentId);
     }
 
     public static void upload(final Context self, final Uri uri, final BoxNavigation boxNavigation, final BoxVolume boxVolume) {
@@ -68,7 +69,7 @@ public class VolumeFileTransferHelper {
         String path = boxNavigation.getPath();
         String folderId = boxVolume.getDocumentId(path);
         return DocumentsContract.buildDocumentUri(
-                BoxProvider.AUTHORITY, folderId + name);
+                BuildConfig.APPLICATION_ID + BoxProvider.AUTHORITY, folderId + name);
     }
 
     private static String getName(Context context, Uri uri) {
@@ -102,7 +103,8 @@ public class VolumeFileTransferHelper {
         if (prefixes.size() > 0) {
             return prefixes.get(0);
         } else {
-            throw new IllegalStateException("No prefix in identity");
+            Log.e(TAG, "No prefix in identity with alias " + identity.getAlias());
+            return "NULL-PREFIX";
         }
     }
 }

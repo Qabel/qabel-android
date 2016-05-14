@@ -24,16 +24,13 @@ import de.qabel.core.config.Contacts;
 import de.qabel.core.config.Identity;
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
-import de.qabel.qabelbox.TestConstants;
 import de.qabel.qabelbox.activities.MainActivity;
 import de.qabel.qabelbox.chat.ChatMessageItem;
 import de.qabel.qabelbox.chat.ChatServer;
-import de.qabel.qabelbox.communication.URLs;
 import de.qabel.qabelbox.exceptions.QblStorageEntityExistsException;
 import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.helper.AccountHelper;
 import de.qabel.qabelbox.helper.Helper;
-import de.qabel.qabelbox.services.LocalQabelService;
 import de.qabel.qabelbox.ui.helper.SystemAnimations;
 import de.qabel.qabelbox.ui.helper.UIActionHelper;
 import de.qabel.qabelbox.ui.helper.UIBoxHelper;
@@ -46,7 +43,6 @@ import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.Espresso.pressBack;
 import static android.support.test.espresso.action.ViewActions.click;
 import static android.support.test.espresso.action.ViewActions.pressImeActionButton;
-import static android.support.test.espresso.action.ViewActions.typeText;
 import static android.support.test.espresso.assertion.ViewAssertions.matches;
 import static android.support.test.espresso.contrib.DrawerActions.openDrawer;
 import static android.support.test.espresso.matcher.ViewMatchers.assertThat;
@@ -56,8 +52,8 @@ import static android.support.test.espresso.matcher.ViewMatchers.withClassName;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static android.support.test.espresso.matcher.ViewMatchers.withParent;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
+import static de.qabel.qabelbox.ui.action.QabelViewAction.setText;
 import static junit.framework.Assert.assertFalse;
-import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertTrue;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.Matchers.allOf;
@@ -67,17 +63,8 @@ import static org.hamcrest.Matchers.is;
 public class ChatMessageUITest {
 
     @Rule
-    public ActivityTestRule<MainActivity> mActivityTestRule = new ActivityTestRule<MainActivity>(MainActivity.class, false, true) {
-        @Override
-        public void beforeActivityLaunched() {
-            try {
-                setupData();
-            } catch (QblStorageEntityExistsException e) {
-                throw new RuntimeException(e);
-            }
-        }
-
-    };
+    public ActivityTestRule<MainActivity> mActivityTestRule =
+            new MainActivityWithoutFilesFragmentTestRule(false);
     private MainActivity mActivity;
     private UIBoxHelper mBoxHelper;
     private PowerManager.WakeLock wakeLock;
@@ -86,8 +73,20 @@ public class ChatMessageUITest {
     private Contact contact2, contact1;
     private Identity identity;
 
-    private void setupData() throws QblStorageEntityExistsException {
-        mActivity = mActivityTestRule.getActivity();
+    @After
+    public void cleanUp() {
+        if (wakeLock != null) {
+            wakeLock.release();
+        }
+        if (mSystemAnimations != null) {
+            mSystemAnimations.enableAll();
+        }
+        mBoxHelper.unbindService(QabelBoxApplication.getInstance());
+        mBoxHelper.removeAllIdentities();
+    }
+
+    @Before
+    public void setUp() throws IOException, QblStorageException {
         mBoxHelper = new UIBoxHelper(QabelBoxApplication.getInstance());
         mBoxHelper.bindService(QabelBoxApplication.getInstance());
         mBoxHelper.createTokenIfNeeded(false);
@@ -106,29 +105,13 @@ public class ChatMessageUITest {
         contact2 = addContact(user1, user2);
         contact1 = addContact(user2, user1);
         mBoxHelper.setActiveIdentity(user2);
-    }
 
-    @After
-    public void cleanUp() {
-        wakeLock.release();
-        mSystemAnimations.enableAll();
-        mBoxHelper.unbindService(QabelBoxApplication.getInstance());
-        mBoxHelper.removeAllIdentities();
-    }
-
-    @Before
-    public void setUp() throws IOException, QblStorageException {
-
-        mActivity = mActivityTestRule.getActivity();
-        URLs.setBaseBlockURL(TestConstants.BLOCK_URL);
+        mActivity = mActivityTestRule.launchActivity(null);
         wakeLock = UIActionHelper.wakeupDevice(mActivity);
         mSystemAnimations = new SystemAnimations(mActivity);
         mSystemAnimations.disableAll();
-        LocalQabelService service = mActivity.getService();
-        identity = service.getActiveIdentity();
-        assertNotNull(identity);
+        identity = user2;
     }
-
 
     @Ignore
     @Test
@@ -151,7 +134,7 @@ public class ChatMessageUITest {
         ToolbarMatcher.matchToolbarTitle("user1").check(matches(isDisplayed()));
 
         onView(withId(R.id.etText)).check(matches(isDisplayed())).perform(click());
-        onView(withId(R.id.etText)).perform(typeText("text" + 1), pressImeActionButton());
+        onView(withId(R.id.etText)).perform(setText("text" + 1), pressImeActionButton());
         closeSoftKeyboard();
         onView(withText(R.string.btn_chat_send)).check(matches(isDisplayed())).perform(click());
 

@@ -1,9 +1,5 @@
 package de.qabel.qabelbox.ui;
 
-/**
- * Created by danny on 05.01.2016.
- */
-
 import android.os.PowerManager;
 import android.support.design.internal.NavigationMenuItemView;
 import android.support.test.rule.ActivityTestRule;
@@ -40,7 +36,6 @@ import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.Espresso.pressBack;
 import static android.support.test.espresso.action.ViewActions.click;
 import static android.support.test.espresso.action.ViewActions.pressImeActionButton;
-import static android.support.test.espresso.action.ViewActions.typeText;
 import static android.support.test.espresso.assertion.ViewAssertions.matches;
 import static android.support.test.espresso.contrib.DrawerActions.closeDrawer;
 import static android.support.test.espresso.contrib.DrawerActions.openDrawer;
@@ -48,20 +43,17 @@ import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static android.support.test.espresso.matcher.ViewMatchers.withClassName;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
+import static de.qabel.qabelbox.ui.action.QabelViewAction.setText;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.endsWith;
 import static org.hamcrest.Matchers.is;
 
-/**
- * Tests for MainActivity.
- */
-
-@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class CreateIdentityUITest extends UIBoxHelper {
 
     @Rule
-    public ActivityTestRule<CreateIdentityActivity> mActivityTestRule = new ActivityTestRule<>(CreateIdentityActivity.class, false, true);
+    public ActivityTestRule<CreateIdentityActivity> mActivityTestRule =
+            new ActivityTestRule<>(CreateIdentityActivity.class, false, false);
 
     private CreateIdentityActivity mActivity;
 
@@ -71,38 +63,37 @@ public class CreateIdentityUITest extends UIBoxHelper {
     @After
     public void cleanUp() {
 
-        wakeLock.release();
-        mSystemAnimations.enableAll();
+        if (wakeLock != null) {
+            wakeLock.release();
+        }
+        if (mSystemAnimations != null) {
+            mSystemAnimations.enableAll();
+        }
         unbindService(QabelBoxApplication.getInstance());
     }
 
 
     @Before
     public void setUp() throws IOException, QblStorageException {
+        bindService(QabelBoxApplication.getInstance());
+        removeAllIdentities();
 
-        mActivity = mActivityTestRule.getActivity();
+        mActivity = mActivityTestRule.launchActivity(null);
 
         URLs.setBaseBlockURL(TestConstants.BLOCK_URL);
         URLs.setBaseAccountingURL(TestConstants.ACCOUNTING_URL);
 
         new AppPreference(mActivity).setToken(TestConstants.TOKEN);
-        bindService(QabelBoxApplication.getInstance());
 
-        removeAllIdentities();
         wakeLock = UIActionHelper.wakeupDevice(mActivity);
         mSystemAnimations = new SystemAnimations(mActivity);
         mSystemAnimations.disableAll();
     }
 
 
-    @Test
-    public void addIdentity0Test() throws Throwable {
-        removeAllIdentities();
-    }
 
     @Test
-    public void addIdentity1Test() throws Throwable {
-        removeAllIdentities();
+    public void addIdentityTest() throws Throwable {
         String identity = "spoon1";
         String identity2 = "spoon2";
         Spoon.screenshot(UITestHelper.getCurrentActivity(mActivity), "start");
@@ -147,7 +138,7 @@ public class CreateIdentityUITest extends UIBoxHelper {
 
     private void createIdentityPerformEnterName(String identity) throws Throwable {
         onView(withText(R.string.create_identity_create)).check(matches(isDisplayed())).perform(click());
-        onView(allOf(withClassName(endsWith("EditTextFont")))).perform(typeText(identity), pressImeActionButton());
+        onView(allOf(withClassName(endsWith("EditTextFont")))).perform(setText(identity), pressImeActionButton());
         onView(withText(R.string.create_identity_enter_name)).check(matches(isDisplayed()));
         closeSoftKeyboard();
 

@@ -2,6 +2,8 @@ package de.qabel.qabelbox.fragments;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -12,6 +14,7 @@ import android.widget.ProgressBar;
 
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.adapter.FilesAdapter;
+import de.qabel.qabelbox.listeners.IdleCallback;
 
 public abstract class FilesFragmentBase extends BaseFragment {
 
@@ -25,6 +28,8 @@ public abstract class FilesFragmentBase extends BaseFragment {
 
     protected View mEmptyView;
     protected View mLoadingView;
+
+    private IdleCallback idleCallback;
 
     public interface FilesListListener {
 
@@ -111,6 +116,7 @@ public abstract class FilesFragmentBase extends BaseFragment {
      */
     public void setIsLoading(final boolean isLoading) {
         this.isLoading = isLoading;
+        runIdleCallback(!isLoading);
         if (swipeRefreshLayout == null) {
             return;
         }
@@ -120,13 +126,39 @@ public abstract class FilesFragmentBase extends BaseFragment {
         swipeRefreshLayout.post(() -> swipeRefreshLayout.setRefreshing(isLoading));
     }
 
+    protected void notifyFilesAdapterChanged() {
+        new Handler(Looper.getMainLooper()).
+                post(() -> {
+                    if (!filesListRecyclerView.isComputingLayout()) {
+                        filesAdapter.notifyDataSetChanged();
+                    }
+                });
+    }
+
+
     public void setAdapter(FilesAdapter adapter) {
         filesAdapter = adapter;
         filesAdapter.setEmptyView(mEmptyView, mLoadingView);
-        if(filesListRecyclerView != null){
+        if (filesListRecyclerView != null) {
             filesListRecyclerView.setAdapter(filesAdapter);
         }
         filesAdapter.notifyDataSetChanged();
+    }
+
+
+    public void injectIdleCallback(IdleCallback callback) {
+        idleCallback = callback;
+    }
+
+    public void runIdleCallback(boolean isIdle) {
+        if (idleCallback == null) {
+            return;
+        }
+        if (isIdle) {
+            idleCallback.idle();
+        } else {
+            idleCallback.busy();
+        }
     }
 
     public FilesAdapter getFilesAdapter() {

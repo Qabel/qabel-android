@@ -5,11 +5,8 @@ import android.accounts.AccountManager;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.PeriodicSync;
-import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
-
-import org.apache.http.auth.AUTH;
 
 import java.util.List;
 
@@ -22,7 +19,7 @@ public class AccountHelper {
     public static final Account DEFAULT_ACCOUNT = new Account(ACCOUNT, ACCOUNT_TYPE);
     public static final String AUTHORITY = BuildConfig.AUTHORITY;
     // every 30 minutes
-    private static final long SYNC_INTERVAL = 60*30;
+    public static long SYNC_INTERVAL = 60*30;
     private static final String TAG = "AccountHelper";
 
     public static void createSyncAccount(Context context) {
@@ -48,11 +45,13 @@ public class AccountHelper {
             Log.i(TAG, "Removing sync");
             ContentResolver.removePeriodicSync(sync.account, sync.authority, sync.extras);
         }
-        ContentResolver.addPeriodicSync(
-                DEFAULT_ACCOUNT,
-                AUTHORITY,
-                Bundle.EMPTY,
-                SYNC_INTERVAL);
+        if (SYNC_INTERVAL > 0) {
+            ContentResolver.addPeriodicSync(
+                    DEFAULT_ACCOUNT,
+                    AUTHORITY,
+                    Bundle.EMPTY,
+                    SYNC_INTERVAL);
+        }
 
     }
 

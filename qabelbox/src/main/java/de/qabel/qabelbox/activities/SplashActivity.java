@@ -15,15 +15,20 @@ import de.qabel.qabelbox.helper.Sanity;
  */
 public class SplashActivity extends CrashReportingActivity {
 
+    public static final String START_MAIN = "START_MAIN";
     private final long SPLASH_TIME = 1500;
     private SplashActivity mActivity;
     private AppPreference prefs;
     final private String TAG = this.getClass().getSimpleName();
 
+    private boolean start_main;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
+        Intent splashIntent = getIntent();
+        start_main = splashIntent.getBooleanExtra(START_MAIN, true);
         mActivity = this;
         setupAppPreferences();
         if (prefs.getWelcomeScreenShownAt() == 0) {
@@ -75,6 +80,9 @@ public class SplashActivity extends CrashReportingActivity {
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
+                if (!start_main) {
+                    return;
+                }
 
                 if (prefs.getWelcomeScreenShownAt() == 0) {
                     Intent intent = new Intent(mActivity, WelcomeScreenActivity.class);

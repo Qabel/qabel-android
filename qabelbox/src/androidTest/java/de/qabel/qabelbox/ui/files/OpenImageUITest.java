@@ -27,7 +27,6 @@ import org.junit.runners.MethodSorters;
 
 import java.io.IOException;
 
-import de.qabel.core.config.Identity;
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.TestConstants;
@@ -61,35 +60,37 @@ public class OpenImageUITest {
 
     @Rule
     public IntentsTestRule<MainActivity> mActivityTestRule = new IntentsTestRule<MainActivity>(
-            MainActivity.class, false, true);
+            MainActivity.class, false, false);
 
     private MainActivity mActivity;
     private UIBoxHelper mBoxHelper;
-    private final boolean mFillAccount = true;
     private PowerManager.WakeLock wakeLock;
     private final PicassoIdlingResource mPicassoIdlingResource = new PicassoIdlingResource();
     private SystemAnimations mSystemAnimations;
 
-    public OpenImageUITest() throws IOException {
-        //setup data before MainActivity launched. This avoid the call to create identity
-        if (mFillAccount) {
-            setupData();
-        }
-    }
 
     @After
     public void cleanUp() {
 
-        wakeLock.release();
+        if (wakeLock != null) {
+            wakeLock.release();
+        }
+        if (mSystemAnimations != null) {
+            mSystemAnimations.enableAll();
+        }
         Espresso.unregisterIdlingResources(mPicassoIdlingResource);
-        mSystemAnimations.enableAll();
         mBoxHelper.unbindService(QabelBoxApplication.getInstance());
     }
 
     @Before
     public void setUp() throws IOException, QblStorageException {
 
-        mActivity = mActivityTestRule.getActivity();
+        mBoxHelper = new UIBoxHelper(QabelBoxApplication.getInstance());
+        mBoxHelper.bindService(QabelBoxApplication.getInstance());
+        mBoxHelper.removeAllIdentities();
+        mBoxHelper.addIdentity("spoon");
+        uploadTestFiles();
+        mActivity = mActivityTestRule.launchActivity(null);
         URLs.setBaseBlockURL(TestConstants.BLOCK_URL);
         Espresso.registerIdlingResources(mPicassoIdlingResource);
         ActivityLifecycleMonitorRegistry
@@ -98,25 +99,6 @@ public class OpenImageUITest {
         wakeLock = UIActionHelper.wakeupDevice(mActivity);
         mSystemAnimations = new SystemAnimations(mActivity);
         mSystemAnimations.disableAll();
-    }
-
-    private void setupData() {
-        mActivity = mActivityTestRule.getActivity();
-        URLs.setBaseBlockURL(TestConstants.BLOCK_URL);
-        mBoxHelper = new UIBoxHelper(QabelBoxApplication.getInstance());
-        mBoxHelper.bindService(QabelBoxApplication.getInstance());
-        mBoxHelper.createTokenIfNeeded(false);
-        try {
-            Identity old = mBoxHelper.getCurrentIdentity();
-            if (old != null) {
-                mBoxHelper.deleteIdentity(old);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        mBoxHelper.removeAllIdentities();
-        mBoxHelper.addIdentity("spoon");
-        uploadTestFiles();
     }
 
     private void uploadTestFiles() {

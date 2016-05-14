@@ -1,49 +1,35 @@
 package de.qabel.qabelbox.storage;
 
-
-import android.test.AndroidTestCase;
+import android.support.annotation.NonNull;
 import android.util.Log;
 
 import org.apache.commons.io.FileUtils;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.UUID;
 
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.TestConstants;
 import de.qabel.qabelbox.config.AppPreference;
 import de.qabel.qabelbox.exceptions.QblServerException;
-import de.qabel.qabelbox.exceptions.QblStorageException;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.instanceOf;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.nullValue;
 
-public class TransferManagerTest extends AndroidTestCase {
-    private static final String TAG = "TransferManagerTest";
-
+public abstract class AbstractTransferManagerTest {
+    static final String TAG = "TransferManagerTest";
+    protected String testFileNameOnServer;
+    protected File tempDir;
     String prefix = "test"; // Don't touch at the moment the test-server only accepts this prefix in debug moder (using the magictoken)
-    private String testFileNameOnServer;
-
-    private File tempDir;
     TransferManager transferManager;
 
-    public void configureTestServer() {
-        new AppPreference(QabelBoxApplication.getInstance()).setToken(TestConstants.TOKEN);
-    }
-
-    @Before
-    public void setUp() throws IOException, QblStorageException {
-        configureTestServer();
-        tempDir = new File(System.getProperty("java.io.tmpdir"), "testtmp");
-        tempDir.mkdir();
-        transferManager = new TransferManager(tempDir);
-        testFileNameOnServer = "testfile_" + UUID.randomUUID().toString();
-    }
-
-
+    @NonNull
     public static File smallTestFile() {
         try {
             File tmpDir = new File(System.getProperty("java.io.tmpdir"));
@@ -55,49 +41,57 @@ public class TransferManagerTest extends AndroidTestCase {
             return file;
         } catch (IOException e) {
             Log.e(TAG, "Could not create small test file", e);
-            fail();
-            return null;
+            throw new AssertionError("Could not create small test file");
         }
     }
 
+    private static void fail(String message) {
+        throw new AssertionError(message);
+    }
+
+    private static void fail() {
+        throw new AssertionError();
+    }
+
+    public void configureTestServer() {
+        new AppPreference(QabelBoxApplication.getInstance()).setToken(TestConstants.TOKEN);
+    }
+
+    @NonNull
     public File createEmptyTargetfile() {
         File file = null;
         try {
             file = File.createTempFile("targetfile", "test", tempDir);
         } catch (IOException e) {
             Log.e(TAG, "Could not create empty targetfile in " + tempDir);
-            fail();
+            throw new AssertionError("Could not create empty test file");
         }
         return file;
     }
 
-
-    @After
-    public void tearDown() throws IOException {
-        syncDelete(testFileNameOnServer);
-        FileUtils.deleteDirectory(tempDir);
-    }
-
     private int syncUpload(final String nameOnServer, final File sourceFile) {
-        TransferManager.BoxTransferListener listner = new VerboseTransferManagerListener(sourceFile + " -> " + nameOnServer, "uploading");
+        BoxTransferListener listner = new VerboseTransferManagerListener(sourceFile + " -> " + nameOnServer, "uploading");
         int transferId = transferManager.uploadAndDeleteLocalfileOnSuccess(prefix, nameOnServer, sourceFile, listner);
         transferManager.waitFor(transferId);
         return transferId;
     }
 
     private int syncDownload(final String nameOnServer, final File targetFile) {
-        TransferManager.BoxTransferListener listner = new VerboseTransferManagerListener(nameOnServer + " -> " + targetFile, "uploading");
+        BoxTransferListener listner = new VerboseTransferManagerListener(nameOnServer + " -> " + targetFile, "uploading");
         int transferId = transferManager.download(prefix, nameOnServer, targetFile, listner);
         transferManager.waitFor(transferId);
         return transferId;
     }
 
-    private int syncDelete(final String nameOnServer) {
+    protected int syncDelete(final String nameOnServer) {
         int transferId = transferManager.delete(prefix, nameOnServer);
         transferManager.waitFor(transferId);
         return transferId;
     }
 
+    private void assertFalse(boolean assertion) {
+        assertThat(assertion, is(false));
+    }
 
     @Test
     public void testUpload() {
@@ -127,16 +121,15 @@ public class TransferManagerTest extends AndroidTestCase {
             fail();
         }
         String sourceFileOrig = sourceFile.getAbsolutePath();
-        String sourceFileContent = null;
         try {
-            sourceFileContent = FileUtils.readFileToString(sourceFile);
+            FileUtils.readFileToString(sourceFile);
         } catch (IOException e) {
             fail("Could not find sourcefile: " + sourceFile.getAbsolutePath() + " " + e);
         }
 
         File targetFile = createEmptyTargetfile();
         syncUpload(testFileNameOnServer, sourceFile);
-        assertEquals(sourceFileOrig, sourceFile.getAbsolutePath());
+        assertThat(sourceFileOrig, equalTo(sourceFile.getAbsolutePath()));
         assertFalse(sourceFile.exists());
         int transferId = syncDownload(testFileNameOnServer, targetFile);
 
@@ -149,11 +142,13 @@ public class TransferManagerTest extends AndroidTestCase {
         File targetFile = createEmptyTargetfile();
         int transferID = syncDownload(testFileNameOnServer + "_missing", targetFile);
         assertTransferHasServerError(transferID, 404);
-        assertEquals(0, targetFile.length());
+        assertThat(transferManager.waitFor(transferID), is(false));
+        assertThat(targetFile.length(), equalTo(0L));
 
         targetFile.delete();
         transferID = syncDownload(testFileNameOnServer + "_missing", targetFile);
         assertTransferHasServerError(transferID, 404);
+        assertThat(transferManager.waitFor(transferID), is(false));
         assertFalse(targetFile.exists());
     }
 
@@ -164,16 +159,16 @@ public class TransferManagerTest extends AndroidTestCase {
         File targetFile = createEmptyTargetfile();
         syncUpload(fileNameOnServer, sourceFile);
         int deleteId0 = syncDelete(fileNameOnServer);
-        assertEquals(0, targetFile.length());
+        assertThat(targetFile.length(), equalTo(0L));
 
         int deleteId1 = syncDelete(fileNameOnServer);
         assertTransferManagerWasSuccesful(deleteId0);
         assertTransferManagerWasSuccesful(deleteId1);
-        assertEquals(0, targetFile.length());
+        assertThat(targetFile.length(), equalTo(0L));
 
         int downloadId = syncDownload(fileNameOnServer, targetFile);
         assertTransferHasServerError(downloadId, 404);
-        assertEquals(0, targetFile.length());
+        assertThat(targetFile.length(), equalTo(0L));
     }
 
     @Test
@@ -185,7 +180,8 @@ public class TransferManagerTest extends AndroidTestCase {
         syncUpload(fileNameOnServer, sourceFile);
         int transferId = syncDelete(fileNameOnServer);
         assertTransferManagerWasSuccesful(transferId);
-        assertFalse("Delete touched local file, which should not be created", targetFile.exists());
+        assertThat("Delete touched local file, which should not be created",
+                targetFile.exists(), is(false));
     }
 
     @Test
@@ -196,31 +192,31 @@ public class TransferManagerTest extends AndroidTestCase {
         syncUpload(fileNameOnServer, sourceFile);
         int deleteId = syncDelete(fileNameOnServer);
         assertTransferManagerWasSuccesful(deleteId);
-        assertEquals(0, targetFile.length());
+        assertThat(targetFile.length(), equalTo(0L));
     }
 
     public void assertTransferManagerWasSuccesful(int transferId) {
-        assertNull(transferManager.lookupError(transferId));
+        assertThat(transferManager.lookupError(transferId), nullValue());
     }
 
     public void assertTransferHasServerError(int transferId, int statusCode) {
         Exception error = transferManager.lookupError(transferId);
-        assertNotNull(error);
-        assertTrue(error instanceof QblServerException);
-        assertEquals(statusCode, ((QblServerException) error).getStatusCode());
+        assertThat(error, notNullValue());
+        assertThat(error, instanceOf(QblServerException.class));
+        assertThat(statusCode, equalTo(((QblServerException) error).getStatusCode()));
     }
 
     public void assertFileContentIsEqual(File lhs, File rhs) {
         try {
             String lhsContent = FileUtils.readFileToString(lhs);
             String rhsContent = FileUtils.readFileToString(rhs);
-            assertTrue("File content not equal " + lhs.getName() + ": " + lhsContent + " vs " + rhs + ": " + rhsContent, FileUtils.contentEquals(lhs, rhs));
+            assertThat("File content not equal " + lhs.getName() + ": " + lhsContent + " vs " + rhs + ": " + rhsContent, FileUtils.contentEquals(lhs, rhs));
         } catch (IOException e) {
             fail("Exception during file comparison " + e);
         }
     }
 
-    class VerboseTransferManagerListener implements TransferManager.BoxTransferListener {
+    class VerboseTransferManagerListener implements BoxTransferListener {
 
         String fileName;
         String mode;
@@ -240,6 +236,4 @@ public class TransferManagerTest extends AndroidTestCase {
             Log.d(TAG, "done " + mode + " " + fileName);
         }
     }
-
-
 }

@@ -3,6 +3,7 @@ package de.qabel.qabelbox.adapter;
 import android.content.Context;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -31,6 +32,7 @@ import de.qabel.qabelbox.storage.BoxUploadingFile;
 
 public class FilesAdapter extends RecyclerView.Adapter<FilesAdapter.FilesViewHolder> {
 
+    private static final String TAG = "FilesAdapter";
     private final List<BoxObject> boxObjects;
     private final Map<String, BoxObject> boxObjectsByName;
     private final Context context;
@@ -129,16 +131,18 @@ public class FilesAdapter extends RecyclerView.Adapter<FilesAdapter.FilesViewHol
     @Override
     public void onBindViewHolder(FilesViewHolder holder, int position) {
 
-        BoxObject boxObject = boxObjects.get(position);
+        BoxObject boxObject;
+        try {
+            boxObject = boxObjects.get(position);
+        } catch (IndexOutOfBoundsException e) {
+            Log.e(TAG, "onBindViewHolder called but boxObjects are not yet ready", e);
+            return;
+        }
         holder.mTextViewFolderName.setText(boxObject.name);
         holder.mTextViewFolderDetailsRight.setVisibility(View.INVISIBLE);
         holder.mImageView.setImageResource(getBoxObjectIcon(boxObject));
         holder.mSeparator.setVisibility(View.GONE);
         holder.detailsRow.setVisibility(View.VISIBLE);
-//        if (boxObject.getShareCount() > 0) {
-//            holder.mTextViewFolderDetailsLeft.setText(context.getResources().getQuantityString(
-//                    R.plurals.sharedWith, boxObject.getShareCount(), boxObject.getShareCount()));
-//        }
         StringBuilder left = new StringBuilder();
         if (boxObject instanceof BoxFolder) {
             if (boxObject.name.equals(BoxFolder.RECEIVED_SHARE_NAME)) {

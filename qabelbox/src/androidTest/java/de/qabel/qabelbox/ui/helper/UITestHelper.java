@@ -12,6 +12,7 @@ import android.support.test.espresso.ViewInteraction;
 import android.support.test.runner.lifecycle.ActivityLifecycleMonitorRegistry;
 import android.support.test.runner.lifecycle.Stage;
 
+import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
 import de.qabel.qabelbox.QabelBoxApplication;
@@ -26,6 +27,7 @@ import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
 import static junit.framework.Assert.assertNull;
+import static junit.framework.Assert.fail;
 import static org.hamcrest.Matchers.not;
 
 /**
@@ -109,5 +111,17 @@ public class UITestHelper {
         IdlingPolicies.setMasterPolicyTimeout(master.getIdleTimeout(), TimeUnit.SECONDS);
         IdlingPolicies.setIdlingResourceTimeout(error.getIdleTimeout(), TimeUnit.SECONDS);
         return element;
+    }
+
+    public static void waitUntil(Callable<Boolean> requirement, String message) throws Exception {
+        long maximumTime = System.currentTimeMillis() + 10000L;
+        long pollInterval = 100L;
+        while (System.currentTimeMillis() < maximumTime) {
+            if (requirement.call()) {
+                return;
+            }
+            Thread.sleep(pollInterval);
+        }
+        fail(message);
     }
 }

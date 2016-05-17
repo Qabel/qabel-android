@@ -13,7 +13,6 @@ import java.util.UUID;
 
 import de.qabel.qabelbox.BuildConfig;
 import de.qabel.qabelbox.SimpleApplication;
-import de.qabel.qabelbox.communication.URLs;
 import de.qabel.qabelbox.exceptions.QblStorageException;
 
 @RunWith(RobolectricGradleTestRunner.class)

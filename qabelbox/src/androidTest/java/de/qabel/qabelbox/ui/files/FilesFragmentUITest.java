@@ -2,6 +2,7 @@ package de.qabel.qabelbox.ui.files;
 
 import android.content.Intent;
 import android.support.design.internal.NavigationMenuItemView;
+import android.support.test.espresso.Espresso;
 
 import com.squareup.spoon.Spoon;
 
@@ -18,9 +19,13 @@ import de.qabel.core.config.Identity;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.ui.AbstractUITest;
 import de.qabel.qabelbox.ui.helper.UITestHelper;
+import de.qabel.qabelbox.ui.idling.InjectedIdlingResource;
+import de.qabel.qabelbox.ui.idling.WaitResourceCallback;
 import de.qabel.qabelbox.ui.matcher.QabelMatcher;
+import de.qabel.qabelbox.ui.matcher.ToastMatcher;
 import de.qabel.qabelbox.ui.matcher.ToolbarMatcher;
 
+import static android.support.test.espresso.Espresso.onData;
 import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.action.ViewActions.click;
 import static android.support.test.espresso.action.ViewActions.longClick;
@@ -30,7 +35,6 @@ import static android.support.test.espresso.contrib.DrawerActions.openDrawer;
 import static android.support.test.espresso.intent.Intents.intended;
 import static android.support.test.espresso.intent.matcher.IntentMatchers.hasAction;
 import static android.support.test.espresso.intent.matcher.IntentMatchers.hasExtra;
-import static android.support.test.espresso.matcher.RootMatchers.withDecorView;
 import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static android.support.test.espresso.matcher.ViewMatchers.withClassName;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
@@ -41,11 +45,13 @@ import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.endsWith;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
 
 public class FilesFragmentUITest extends AbstractUITest {
 
+    private static final String TEST_FOLDER = "Bilder";
     private static final String CREATE_FOLDER_TEST_NAME = "TestDirectory";
+
+    private InjectedIdlingResource idlingResource;
 
     private Identity testIdentity;
     private Identity testIdentity2;
@@ -56,11 +62,8 @@ public class FilesFragmentUITest extends AbstractUITest {
     private List<ExampleFile> exampleFiles = Arrays.asList(
             new ExampleFile("testfile 2", new byte[1011]),
             new ExampleFile("red.png", new byte[1]),
-            new ExampleFile("green.png", new byte[100]),
             new ExampleFile("black_1.png", new byte[1011]),
-            new ExampleFile("black_2.png", new byte[1024 * 10]),
-            new ExampleFile("white.png", new byte[1011]),
-            new ExampleFile("blue.png", new byte[1011]));
+            new ExampleFile("black_2.png", new byte[1024 * 2]));
 
     private class ExampleFile {
 
@@ -87,35 +90,41 @@ public class FilesFragmentUITest extends AbstractUITest {
         super.setUp();
         setupData();
         launchActivity(new Intent(Intent.ACTION_MAIN));
+        idlingResource = new InjectedIdlingResource();
+        mActivity.filesFragment.injectIdleCallback(idlingResource);
+        Espresso.registerIdlingResources(idlingResource);
     }
 
     private void setupData() throws Exception {
         testIdentity = mBoxHelper.addIdentity("spoon");
-        testIdentity2 = mBoxHelper.addIdentity("spoon2");
+        testIdentity2 = mBoxHelper.addIdentityWithoutVolume("spoon2");
 
-        testContact = new Contact(testIdentity.getAlias(), testIdentity.getDropUrls(), testIdentity.getEcPublicKey());
+        testContact = new Contact(identity.getAlias(), identity.getDropUrls(), identity.getEcPublicKey());
         testContact2 = new Contact(testIdentity2.getAlias(), testIdentity2.getDropUrls(), testIdentity2.getEcPublicKey());
 
         mBoxHelper.getService().addContact(testContact);
-        mBoxHelper.setActiveIdentity(testIdentity);
+        mBoxHelper.setActiveIdentity(identity);
         mBoxHelper.getService().addContact(testContact2);
 
-        mBoxHelper.setActiveIdentity(testIdentity2);
+        mBoxHelper.setActiveIdentity(identity);
 
-        uploadTestFiles();
-    }
+        mBoxHelper.createFolder(TEST_FOLDER, testIdentity, null);
 
-    //Upload the example files
-    private void uploadTestFiles() {
         for (ExampleFile exampleFile : exampleFiles) {
             mBoxHelper.uploadFile(mBoxHelper.mBoxVolume, exampleFile.getName(), exampleFile.getData(), "");
         }
         mBoxHelper.waitUntilFileCount(exampleFiles.size());
     }
 
+    @Override
+    public void cleanUp() {
+        Espresso.unregisterIdlingResources(idlingResource);
+        super.cleanUp();
+    }
+
     @Test
     @Ignore("Refactoring needed")
-    public void shareFileTest() {
+    public void shareFileTest() throws Exception {
         Spoon.screenshot(mActivity, "startup");
         onView(withText(exampleFiles.get(0).getName())).perform(longClick());
 
@@ -127,24 +136,30 @@ public class FilesFragmentUITest extends AbstractUITest {
         onView(withId(R.id.spinner_identities)).check(matches(isDisplayed()));
 
         //Check Contact is Visible
-        onView(withText(testContact.getAlias())).check(matches(isDisplayed()));
+        onView(withText(testContact2.getAlias())).check(matches(isDisplayed()));
 
+        WaitResourceCallback waitCallback = new WaitResourceCallback();
+        idlingResource.registerIdleTransitionCallback(waitCallback);
+
+        //Perform share
         onView(withText(R.string.ok)).perform(click());
 
-        UITestHelper.sleep(1000);
+        UITestHelper.waitUntil(() -> waitCallback.isDone(), "Perform share failed!");
+
+       // onView(withText(R.string.dialog_share_sending_in_progress)).inRoot(isDialog()).check(matches(isDisplayed()));
 
         //Check success message
-        onView(withText(R.string.messsage_file_shared)).inRoot(withDecorView(not(is(mActivity.getWindow().getDecorView())))).check(matches(isDisplayed()));
+        onView(withText(R.string.messsage_file_shared)).inRoot(ToastMatcher.isToast()).check(matches(isDisplayed()));
 
-        //Change to other identity
+        //Change to testIdentity2
         openDrawer(R.id.drawer_layout);
         onView(withId(R.id.imageViewExpandIdentity)).check(matches(isDisplayed())).perform(click());
-        onView(allOf(is(instanceOf(NavigationMenuItemView.class)), withText(testIdentity.getAlias()))).perform(click());
+        onView(allOf(is(instanceOf(NavigationMenuItemView.class)), withText(testIdentity2.getAlias()))).perform(click());
 
-        //Accept share
+        //Accept share from identity
         openDrawer(R.id.drawer_layout);
         onView(withText(R.string.Contacts)).check(matches(isDisplayed())).perform(click());
-        onView(withText(testContact2.getAlias())).check(matches(isDisplayed())).perform(click());
+        onView(withText(testContact.getAlias())).check(matches(isDisplayed())).perform(click());
         onView(withText(R.string.accept_share)).check(matches(isDisplayed())).perform(click());
 
         //Go to files
@@ -158,9 +173,8 @@ public class FilesFragmentUITest extends AbstractUITest {
         onView(withText(R.string.shared_with_you)).check(matches(isDisplayed())).perform(click());
 
         //Check shared file is visible in shared files folder
+        onData(withText(exampleFiles.get(0).getName())).inAdapterView(withId(R.id.files_list)).check(matches(isDisplayed()));
         containsString(mActivity.getString(R.string.filebrowser_file_is_shared_from).replace("%1", testContact2.getAlias())).matches(isDisplayed());
-
-        Spoon.screenshot(mActivity, "after");
     }
 
     private void goToFiles() {
@@ -191,9 +205,7 @@ public class FilesFragmentUITest extends AbstractUITest {
 
     @Test
     public void testCreateFolder() {
-        goToFiles();
-
-        //Create testfolder in root
+        //Create testFolder in root
         createFolder();
 
         //Check list size

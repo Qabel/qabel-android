@@ -20,6 +20,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 
 import de.qabel.qabelbox.R;
+import de.qabel.qabelbox.activities.CreateAccountActivity;
 import de.qabel.qabelbox.communication.BoxAccountRegisterServer;
 import de.qabel.qabelbox.communication.callbacks.JsonRequestCallback;
 import de.qabel.qabelbox.config.AppPreference;
@@ -117,6 +118,8 @@ public class CreateAccountLoginFragment extends BaseIdentityFragment {
     @NonNull
     private JsonRequestCallback createCallback(final String username, final AlertDialog dialog) {
 
+        CreateAccountActivity accountActivity = (CreateAccountActivity) getActivity();
+        accountActivity.runIdleCallback(false);
         return new JsonRequestCallback(new int[]{200, 400, 429}) {
 
             @Override
@@ -128,6 +131,7 @@ public class CreateAccountLoginFragment extends BaseIdentityFragment {
                         Toast.makeText(getActivity(), R.string.server_access_failed_or_invalid_check_internet_connection, Toast.LENGTH_LONG).show();
                     }
                 });
+                accountActivity.runIdleCallback(true);
             }
 
             @Override
@@ -149,6 +153,7 @@ public class CreateAccountLoginFragment extends BaseIdentityFragment {
                     dialog.dismiss();
                     UIHelper.showDialogMessage(getActivity(), R.string.dialog_headline_info, text);
                 }
+                accountActivity.runIdleCallback(true);
             }
 
             private String generateErrorMessage(BoxAccountRegisterServer.ServerResponse result) {

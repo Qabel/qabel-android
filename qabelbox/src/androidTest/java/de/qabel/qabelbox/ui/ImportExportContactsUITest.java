@@ -3,20 +3,17 @@ package de.qabel.qabelbox.ui;
 import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
-import android.os.PowerManager;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.espresso.contrib.DrawerActions;
 import android.support.test.espresso.contrib.RecyclerViewActions;
 import android.support.test.espresso.intent.matcher.IntentMatchers;
 import android.support.test.espresso.intent.rule.IntentsTestRule;
+import android.util.Log;
 
 import com.squareup.spoon.Spoon;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
 
 import java.io.File;
@@ -28,17 +25,11 @@ import de.qabel.core.config.Contact;
 import de.qabel.core.config.Identity;
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
-import de.qabel.qabelbox.TestConstants;
-import de.qabel.qabelbox.activities.MainActivity;
-import de.qabel.qabelbox.communication.URLs;
 import de.qabel.qabelbox.config.ContactExportImport;
 import de.qabel.qabelbox.exceptions.QblStorageEntityExistsException;
 import de.qabel.qabelbox.fragments.ContactFragment;
 import de.qabel.qabelbox.helper.FileHelper;
 import de.qabel.qabelbox.services.LocalQabelService;
-import de.qabel.qabelbox.ui.helper.SystemAnimations;
-import de.qabel.qabelbox.ui.helper.UIActionHelper;
-import de.qabel.qabelbox.ui.helper.UIBoxHelper;
 import de.qabel.qabelbox.ui.matcher.ToolbarMatcher;
 
 import static android.support.test.espresso.Espresso.onView;
@@ -64,7 +55,7 @@ import static org.hamcrest.Matchers.endsWith;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 
-public class ImportExportContactsUITest {
+public class ImportExportContactsUITest extends AbstractUITest {
 
     private final String TAG = this.getClass().getSimpleName();
 
@@ -72,41 +63,11 @@ public class ImportExportContactsUITest {
     private static final String CONTACT_2 = "contact2";
     private static final String CONTACT_3 = "contact3";
 
-    @Rule
-    public IntentsTestRule<MainActivity> mActivityTestRule =
-            new MainActivityWithoutFilesFragmentTestRule(false);
-    private MainActivity mActivity;
-    private UIBoxHelper mBoxHelper;
-    private PowerManager.WakeLock wakeLock;
-    private SystemAnimations mSystemAnimations;
-
-    private Identity identity;
-
-    @After
-    public void cleanUp() {
-        if (wakeLock != null) {
-            wakeLock.release();
-        }
-        if (mSystemAnimations != null) {
-            mSystemAnimations.enableAll();
-        }
-        mBoxHelper.unbindService(QabelBoxApplication.getInstance());
-    }
-
-    @Before
+    @Override
     public void setUp() throws Exception {
-        URLs.setBaseBlockURL(TestConstants.BLOCK_URL);
-        mBoxHelper = new UIBoxHelper(QabelBoxApplication.getInstance());
-        mBoxHelper.bindService(QabelBoxApplication.getInstance());
-        mBoxHelper.createTokenIfNeeded(false);
-        mBoxHelper.removeAllIdentities();
-        identity = mBoxHelper.addIdentity("spoon123");
+        super.setUp();
         createTestContacts();
-
-        mActivity = mActivityTestRule.launchActivity(null);
-        wakeLock = UIActionHelper.wakeupDevice(mActivity);
-        mSystemAnimations = new SystemAnimations(mActivity);
-        mSystemAnimations.disableAll();
+        launchActivity(null);
     }
 
     private void createTestContacts() throws JSONException, QblStorageEntityExistsException {

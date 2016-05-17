@@ -15,6 +15,8 @@ import java.security.Security;
 
 import de.qabel.qabelbox.providers.BoxProvider;
 import de.qabel.qabelbox.services.LocalQabelService;
+import de.qabel.qabelbox.storage.BlockServerTransferManager;
+import de.qabel.qabelbox.storage.TransferManager;
 
 public class QabelBoxApplication extends Application {
 

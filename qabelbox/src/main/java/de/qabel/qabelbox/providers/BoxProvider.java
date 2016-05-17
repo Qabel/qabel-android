@@ -53,18 +53,20 @@ import de.qabel.core.crypto.QblECKeyPair;
 import de.qabel.qabelbox.BuildConfig;
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
-import de.qabel.qabelbox.communication.VolumeFileTransferHelper;
 import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.exceptions.QblStorageNotFound;
 import de.qabel.qabelbox.services.LocalBroadcastConstants;
 import de.qabel.qabelbox.services.LocalQabelService;
+import de.qabel.qabelbox.storage.BlockServerTransferManager;
 import de.qabel.qabelbox.storage.BoxExternalFile;
 import de.qabel.qabelbox.storage.BoxFile;
 import de.qabel.qabelbox.storage.BoxFolder;
 import de.qabel.qabelbox.storage.BoxNavigation;
 import de.qabel.qabelbox.storage.BoxObject;
+import de.qabel.qabelbox.storage.BoxTransferListener;
 import de.qabel.qabelbox.storage.BoxUploadingFile;
 import de.qabel.qabelbox.storage.BoxVolume;
+import de.qabel.qabelbox.storage.FakeTransferManager;
 import de.qabel.qabelbox.storage.TransferManager;
 
 public class BoxProvider extends DocumentsProvider {
@@ -81,9 +83,21 @@ public class BoxProvider extends DocumentsProvider {
             Document.COLUMN_DISPLAY_NAME, Document.COLUMN_LAST_MODIFIED,
             Document.COLUMN_FLAGS, Document.COLUMN_SIZE, Media.DATA};
 
-    public static final String AUTHORITY = BuildConfig.APPLICATION_ID + ".providers.documents";
+    public static final String AUTHORITY = ".providers.documents";
     public static final String PATH_SEP = "/";
     public static final String DOCID_SEPARATOR = "::::";
+    
+    /**
+     * Configure the TransferManager used in the BoxProvider
+     *
+     * block references the @see BlockServerTransferManager
+     * fake references the @see FakeTransferManager
+     *
+     * This is a hack to change the behavior of the BoxProvider
+     * when running with QblJunitTestRunner. Changing the
+     * DocumentProvider class is not easily possible
+     */
+    public static String defaultTransferManager = "block";
 
     DocumentIdParser mDocumentIdParser;
     private ThreadPoolExecutor mThreadPoolExecutor;
@@ -152,7 +166,8 @@ public class BoxProvider extends DocumentsProvider {
     public void notifyRootsUpdated() {
 
         getContext().getContentResolver()
-                .notifyChange(DocumentsContract.buildRootsUri(AUTHORITY), null);
+                .notifyChange(DocumentsContract.buildRootsUri(
+                        BuildConfig.APPLICATION_ID + AUTHORITY), null);
     }
 
     /**
@@ -234,8 +249,22 @@ public class BoxProvider extends DocumentsProvider {
         }
         QblECKeyPair key = retrievedIdentity.getPrimaryKeyPair();
 
+        Context context = getContext();
+        if (context == null) {
+            throw new IllegalStateException("Trying to create a volume object without context");
+        }
+        File tempDir = context.getCacheDir();
         return new BoxVolume(key, prefix,
-                mService.getDeviceID(), getContext());
+                mService.getDeviceID(), context, createTransferManager(tempDir));
+    }
+
+    @NonNull
+    protected TransferManager createTransferManager(File tempDir) {
+        if (defaultTransferManager.equals("block")) {
+            return new BlockServerTransferManager(tempDir);
+        } else {
+            return new FakeTransferManager(tempDir);
+        }
     }
 
     @Override
@@ -393,7 +422,8 @@ public class BoxProvider extends DocumentsProvider {
                                      BoxCursor result) {
 
         Log.v(TAG, "asyncChildDocuments");
-        final Uri uri = DocumentsContract.buildChildDocumentsUri(AUTHORITY, parentDocumentId);
+        final Uri uri = DocumentsContract.buildChildDocumentsUri(
+                BuildConfig.APPLICATION_ID + AUTHORITY, parentDocumentId);
         // tell the original cursor how he gets notified
         result.setNotificationUri(getContext().getContentResolver(), uri);
 
@@ -535,7 +565,7 @@ public class BoxProvider extends DocumentsProvider {
         }
     }
 
-    private void uploadFile(String documentId, File tmp, TransferManager.BoxTransferListener boxTransferListener) {
+    private void uploadFile(String documentId, File tmp, BoxTransferListener boxTransferListener) {
 
         try {
             BoxVolume volume = getVolumeForId(documentId);
@@ -614,7 +644,7 @@ public class BoxProvider extends DocumentsProvider {
 
         BoxNavigation navigation = traverseToFolder(volume, strings);
         BoxFile file = findFileinList(basename, navigation);
-        InputStream inputStream = navigation.download(file, new TransferManager.BoxTransferListener() {
+        InputStream inputStream = navigation.download(file, new BoxTransferListener() {
 
             @Override
             public void onProgressChanged(long bytesCurrent, long bytesTotal) {

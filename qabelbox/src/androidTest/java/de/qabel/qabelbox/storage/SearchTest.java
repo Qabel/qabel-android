@@ -17,7 +17,6 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.Hashtable;
 import java.util.List;
-import java.util.UUID;
 
 import de.qabel.core.crypto.CryptoUtils;
 import de.qabel.core.crypto.QblECKeyPair;
@@ -27,10 +26,6 @@ import de.qabel.qabelbox.communication.URLs;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
-
-/**
- * Created by cdemon on 15.12.2015.
- */
 
 public class SearchTest extends AndroidTestCase {
 
@@ -67,8 +62,9 @@ public class SearchTest extends AndroidTestCase {
         byte[] deviceID = utils.getRandomBytes(16);
         QblECKeyPair keyPair = new QblECKeyPair();
 
+        File tmpDir = new File(System.getProperty("java.io.tmpdir"));
         BoxVolume volume = new BoxVolume(keyPair, prefix,
-                deviceID, getContext());
+                deviceID, getContext(), new FakeTransferManager(tmpDir));
 
         volume.createIndex();
 

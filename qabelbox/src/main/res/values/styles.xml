@@ -155,4 +155,8 @@
         <item name="android:textSize">@dimen/textsize_bottom_ab</item>
     </style>
 
+    <style name="BottomSheet.GridItemTitle">
+        <item name="android:textColor">@color/black</item>
+    </style>
+
 </resources>

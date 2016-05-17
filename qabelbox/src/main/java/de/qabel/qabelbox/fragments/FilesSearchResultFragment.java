@@ -27,7 +27,7 @@ import de.qabel.qabelbox.storage.StorageSearch;
  */
 public class FilesSearchResultFragment extends FilesFragment {
 
-    protected static final String TAG = FilesFragment.class.getSimpleName();
+    public static final String TAG = FilesFragment.class.getSimpleName();
     private StorageSearch mSearchResult;
     private String mSearchText;
     private FileSearchFilterFragment.FilterData mFilterData = new FileSearchFilterFragment.FilterData();

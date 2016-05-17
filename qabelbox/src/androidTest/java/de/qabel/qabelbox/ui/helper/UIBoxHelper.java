@@ -1,6 +1,5 @@
 package de.qabel.qabelbox.ui.helper;
 
-import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -20,15 +19,17 @@ import java.io.OutputStream;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Set;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-import de.qabel.core.config.Contact;
 import de.qabel.core.config.DropServer;
 import de.qabel.core.config.Identity;
 import de.qabel.core.crypto.QblECKeyPair;
 import de.qabel.core.drop.AdjustableDropIdGenerator;
 import de.qabel.core.drop.DropIdGenerator;
 import de.qabel.core.drop.DropURL;
+import de.qabel.qabelbox.BuildConfig;
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.TestConstants;
 import de.qabel.qabelbox.communication.VolumeFileTransferHelper;
@@ -37,20 +38,26 @@ import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.helper.RealTokerGetter;
 import de.qabel.qabelbox.providers.BoxProvider;
 import de.qabel.qabelbox.services.LocalQabelService;
+import de.qabel.qabelbox.storage.BoxFile;
+import de.qabel.qabelbox.storage.BoxFolder;
+import de.qabel.qabelbox.storage.BoxNavigation;
+import de.qabel.qabelbox.storage.BoxObject;
 import de.qabel.qabelbox.storage.BoxVolume;
 import de.qabel.qabelbox.storage.StorageSearch;
 
-/**
- * Created by danny on 18.01.16.
- */
 public class UIBoxHelper {
 
-
     private final String TAG = this.getClass().getSimpleName();
+
     private LocalQabelService mService;
     private BoxProvider provider;
-    public BoxVolume mBoxVolume;
+    private Map<String, BoxVolume> identityVolumes = new HashMap<>();
+
     private boolean finished = false;
+
+    @Deprecated
+    public BoxVolume mBoxVolume;
+
 
     public UIBoxHelper(Context activity) {
     }
@@ -104,7 +111,7 @@ public class UIBoxHelper {
 
             String folderId = boxVolume.getDocumentId(path);
             Uri uploadUri = DocumentsContract.buildDocumentUri(
-                    BoxProvider.AUTHORITY, folderId + name);
+                    BuildConfig.APPLICATION_ID + BoxProvider.AUTHORITY, folderId + name);
             Context self = QabelBoxApplication.getInstance().getApplicationContext();
 
             OutputStream upload = self.getContentResolver().openOutputStream(uploadUri, "w");
@@ -119,6 +126,58 @@ public class UIBoxHelper {
         }
         return false;
 
+    }
+
+    private <S extends BoxObject> S getBoxObject(Class<S> boxClazz, BoxNavigation boxNavigation, String name) throws QblStorageException {
+
+        List<S> objects = null;
+        if (boxClazz == BoxFile.class) {
+            objects = (List<S>) boxNavigation.listFiles();
+        } else if (boxClazz == BoxFolder.class) {
+            objects = (List<S>) boxNavigation.listFolders();
+        }
+
+        for (S boxObject : objects) {
+            if (boxObject.name.equals(name)) {
+                return boxObject;
+            }
+        }
+        return null;
+    }
+
+    private void navigateToPath(BoxNavigation boxNavigation, String path) throws QblStorageException {
+        if (boxNavigation.hasParent()) {
+            boxNavigation.navigateToRoot();
+        }
+        if (path != null) {
+            String[] parts = path.split(BoxProvider.PATH_SEP);
+            if (parts.length > 0) {
+                for (String part : parts) {
+                    BoxFolder current = getBoxObject(BoxFolder.class, boxNavigation, part);
+                    if (current != null) {
+                        boxNavigation.navigate(current);
+                    }
+                }
+                if (!boxNavigation.getPath().equals(path)) {
+                    throw new QblStorageException("Cannot navigate to path: " + path);
+                }
+            }
+        }
+    }
+
+    private BoxNavigation createNavigation(Identity identity, String path) throws QblStorageException {
+        BoxVolume boxVolume = identityVolumes.get(identity.getKeyIdentifier());
+        if (boxVolume == null) {
+            throw new QblStorageException("Volume for identity not initialized!");
+        }
+        BoxNavigation navigation = boxVolume.navigate();
+        navigateToPath(navigation, path);
+        return navigation;
+    }
+
+    public BoxFolder createFolder(String name, Identity identity, String path) throws QblStorageException {
+        BoxNavigation navigation = createNavigation(identity, path);
+        return navigation.createFolder(name);
     }
 
     public Identity addIdentityWithoutVolume(final String identityName) {
@@ -139,15 +198,8 @@ public class UIBoxHelper {
 
         try {
             initBoxVolume(identity);
-
         } catch (QblStorageException e) {
-            Log.e(TAG, "Cannot navigate to root", e);
-            try {
-                mBoxVolume.createIndex();
-                mBoxVolume.navigate();
-            } catch (QblStorageException e1) {
-                Log.e(TAG, "Creating a volume failed", e1);
-            }
+            Log.e(TAG, "Cannot initialize BoxVolume for Identity " + identity.getAlias(), e);
         }
 
         return identity;
@@ -170,15 +222,19 @@ public class UIBoxHelper {
     private void initBoxVolume(Identity activeIdentity) throws QblStorageException {
 
         provider.setLocalService(mService);
-        mBoxVolume = provider.getVolumeForRoot(
+        BoxVolume boxVolume = provider.getVolumeForRoot(
                 activeIdentity.getEcPublicKey().getReadableKeyIdentifier(),
                 VolumeFileTransferHelper.getPrefixFromIdentity(activeIdentity));
-        mBoxVolume.createIndex();
+        boxVolume.createIndex();
+        identityVolumes.put(activeIdentity.getKeyIdentifier(), boxVolume);
+
+        //TODO Legacy
+        mBoxVolume = boxVolume;
     }
 
     public void setActiveIdentity(Identity identity) {
-
         mService.setActiveIdentity(identity);
+        mBoxVolume = identityVolumes.get(identity.getKeyIdentifier());
     }
 
     public void deleteIdentity(Identity identity) {

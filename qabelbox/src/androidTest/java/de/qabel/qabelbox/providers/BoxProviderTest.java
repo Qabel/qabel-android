@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import de.qabel.qabelbox.BuildConfig;
 import de.qabel.qabelbox.communication.VolumeFileTransferHelper;
 import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.helper.MockedBoxProviderTest;
@@ -109,7 +110,7 @@ public class BoxProviderTest extends MockedBoxProviderTest {
         rootNav.commit();
         assertThat(rootNav.listFiles().size(), is(1));
         String testDocId = ROOT_DOC_ID + "testfile";
-        Uri documentUri = DocumentsContract.buildDocumentUri(BoxProvider.AUTHORITY, testDocId);
+        Uri documentUri = DocumentsContract.buildDocumentUri(BuildConfig.APPLICATION_ID + BoxProvider.AUTHORITY, testDocId);
         assertNotNull("Could not build document URI", documentUri);
         Cursor query = mockContentResolver.query(documentUri, null, null, null, null);
         assertNotNull("Document query failed: " + documentUri.toString(), query);
@@ -121,10 +122,9 @@ public class BoxProviderTest extends MockedBoxProviderTest {
         assertThat(dl, is(content));
     }
 
-    @Ignore("Unstable and should be mocked")
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     public void testOpenDocumentForWrite() throws IOException, QblStorageException, InterruptedException {
-        Uri parentUri = DocumentsContract.buildDocumentUri(BoxProvider.AUTHORITY, ROOT_DOC_ID);
+        Uri parentUri = DocumentsContract.buildDocumentUri(BuildConfig.APPLICATION_ID + BoxProvider.AUTHORITY, ROOT_DOC_ID);
         Uri document = DocumentsContract.createDocument(mockContentResolver, parentUri,
                 "image/png",
                 "testfile");
@@ -135,9 +135,7 @@ public class BoxProviderTest extends MockedBoxProviderTest {
         IOUtils.copy(new FileInputStream(file), outputStream);
         outputStream.close();
 
-        // wait for the uploadAndDeleteLocalfile in the background
-        // TODO: actually wait for it.
-        Thread.sleep(10000l);
+        Thread.sleep(1000L);
 
         InputStream inputStream = mockContentResolver.openInputStream(document);
         assertNotNull(inputStream);
@@ -149,7 +147,6 @@ public class BoxProviderTest extends MockedBoxProviderTest {
         assertTrue(getProvider().isUpdateNotificationCalled);
     }
 
-    @Ignore("Unstable and should be mocked")
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     public void testOpenDocumentForRW() throws IOException, QblStorageException, InterruptedException {
         // Upload a test payload
@@ -161,7 +158,7 @@ public class BoxProviderTest extends MockedBoxProviderTest {
 
         // Check if the test playload can be read
         String testDocId = ROOT_DOC_ID + "testfile";
-        Uri documentUri = DocumentsContract.buildDocumentUri(BoxProvider.AUTHORITY, testDocId);
+        Uri documentUri = DocumentsContract.buildDocumentUri(BuildConfig.APPLICATION_ID + BoxProvider.AUTHORITY, testDocId);
         assertNotNull("Could not build document URI", documentUri);
         ParcelFileDescriptor parcelFileDescriptor =
                 mockContentResolver.openFileDescriptor(documentUri, "rw");
@@ -178,9 +175,7 @@ public class BoxProviderTest extends MockedBoxProviderTest {
         outputStream.close();
         parcelFileDescriptor.close();
 
-        // wait for the uploadAndDeleteLocalfile in the background
-        // TODO: actually wait for it.
-        Thread.sleep(10000L);
+        Thread.sleep(1000L);
 
         // check the uploaded new content
         InputStream dlInputStream = mockContentResolver.openInputStream(documentUri);
@@ -195,8 +190,8 @@ public class BoxProviderTest extends MockedBoxProviderTest {
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     public void testCreateFile() {
         String testDocId = ROOT_DOC_ID + "testfile.png";
-        Uri parentDocumentUri = DocumentsContract.buildDocumentUri(BoxProvider.AUTHORITY, ROOT_DOC_ID);
-        Uri documentUri = DocumentsContract.buildDocumentUri(BoxProvider.AUTHORITY, testDocId);
+        Uri parentDocumentUri = DocumentsContract.buildDocumentUri(BuildConfig.APPLICATION_ID + BoxProvider.AUTHORITY, ROOT_DOC_ID);
+        Uri documentUri = DocumentsContract.buildDocumentUri(BuildConfig.APPLICATION_ID + BoxProvider.AUTHORITY, testDocId);
         assertNotNull("Could not build document URI", documentUri);
         Cursor query = mockContentResolver.query(documentUri, null, null, null, null);
         assertNull("Document already there: " + documentUri.toString(), query);
@@ -212,8 +207,8 @@ public class BoxProviderTest extends MockedBoxProviderTest {
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     public void testDeleteFile() {
         String testDocId = ROOT_DOC_ID + "testfile.png";
-        Uri parentDocumentUri = DocumentsContract.buildDocumentUri(BoxProvider.AUTHORITY, ROOT_DOC_ID);
-        Uri documentUri = DocumentsContract.buildDocumentUri(BoxProvider.AUTHORITY, testDocId);
+        Uri parentDocumentUri = DocumentsContract.buildDocumentUri(BuildConfig.APPLICATION_ID + BoxProvider.AUTHORITY, ROOT_DOC_ID);
+        Uri documentUri = DocumentsContract.buildDocumentUri(BuildConfig.APPLICATION_ID + BoxProvider.AUTHORITY, testDocId);
         assertNotNull("Could not build document URI", documentUri);
         Cursor query = mockContentResolver.query(documentUri, null, null, null, null);
         assertNull("Document already there: " + documentUri.toString(), query);
@@ -230,8 +225,8 @@ public class BoxProviderTest extends MockedBoxProviderTest {
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     public void testRenameFile() {
         String testDocId = ROOT_DOC_ID + "testfile.png";
-        Uri parentDocumentUri = DocumentsContract.buildDocumentUri(BoxProvider.AUTHORITY, ROOT_DOC_ID);
-        Uri documentUri = DocumentsContract.buildDocumentUri(BoxProvider.AUTHORITY, testDocId);
+        Uri parentDocumentUri = DocumentsContract.buildDocumentUri(BuildConfig.APPLICATION_ID + BoxProvider.AUTHORITY, ROOT_DOC_ID);
+        Uri documentUri = DocumentsContract.buildDocumentUri(BuildConfig.APPLICATION_ID + BoxProvider.AUTHORITY, testDocId);
         assertNotNull("Could not build document URI", documentUri);
         Cursor query = mockContentResolver.query(documentUri, null, null, null, null);
         assertNull("Document already there: " + documentUri.toString(), query);

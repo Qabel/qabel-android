@@ -651,13 +651,11 @@ public class MainActivity extends CrashReportingActivity
             sheet.remove(R.id.unshare);
         }
         if (boxObject instanceof BoxExternalFile) {
-            sheet.remove(R.id.edit);
             sheet.remove(R.id.fordward);
         }
         if (!(boxObject instanceof BoxFile)) {
             sheet.remove(R.id.open);
             sheet.remove(R.id.export);
-            sheet.remove(R.id.edit);
             sheet.remove(R.id.share);
             sheet.remove(R.id.fordward);
         }
@@ -913,9 +911,6 @@ public class MainActivity extends CrashReportingActivity
                                 switch (which) {
                                     case R.id.open:
                                         ExternalApps.openExternApp(self, VolumeFileTransferHelper.getUri(boxObject, boxVolume, filesFragment.getBoxNavigation()), getMimeType(boxObject), Intent.ACTION_VIEW);
-                                        break;
-                                    case R.id.edit:
-                                        ExternalApps.openExternApp(self, VolumeFileTransferHelper.getUri(boxObject, boxVolume, filesFragment.getBoxNavigation()), getMimeType(boxObject), Intent.ACTION_EDIT);
                                         break;
                                     case R.id.share:
                                         ExternalApps.share(self, VolumeFileTransferHelper.getUri(boxObject, boxVolume, filesFragment.getBoxNavigation()), getMimeType(boxObject));

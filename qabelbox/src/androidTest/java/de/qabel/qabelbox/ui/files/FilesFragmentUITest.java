@@ -102,7 +102,7 @@ public class FilesFragmentUITest extends AbstractUITest {
 
         mBoxHelper.setActiveIdentity(testIdentity);
 
-        mBoxHelper.createFolder(TEST_FOLDER, testIdentity, "");
+        mBoxHelper.createFolder(TEST_FOLDER, testIdentity, null);
 
         for (ExampleFile exampleFile : exampleFiles) {
             mBoxHelper.uploadFile(mBoxHelper.mBoxVolume, exampleFile.getName(), exampleFile.getData(), "");

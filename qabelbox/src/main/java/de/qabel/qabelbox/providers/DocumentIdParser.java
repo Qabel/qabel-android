@@ -11,8 +11,10 @@ import java.util.List;
  */
 public class DocumentIdParser {
 
+    public static final int MAX_TOKEN_SPLITS = 3;
+
     public String getIdentity(String documentId) throws FileNotFoundException {
-        String[] split = documentId.split(BoxProvider.DOCID_SEPARATOR, 2);
+        String[] split = documentId.split(BoxProvider.DOCID_SEPARATOR, MAX_TOKEN_SPLITS);
         if (split.length > 0 && split[0].length() > 0) {
             return split[0];
         }
@@ -21,7 +23,7 @@ public class DocumentIdParser {
 
 
     public String getPrefix(String documentId) throws FileNotFoundException {
-        String[] split = documentId.split(BoxProvider.DOCID_SEPARATOR, 3);
+        String[] split = documentId.split(BoxProvider.DOCID_SEPARATOR, MAX_TOKEN_SPLITS);
         if (split.length > 1 && split[1].length() > 0) {
             return split[1];
         }
@@ -30,7 +32,7 @@ public class DocumentIdParser {
 
 
     public String getFilePath(String documentId) throws FileNotFoundException {
-        String[] split = documentId.split(BoxProvider.DOCID_SEPARATOR, 3);
+        String[] split = documentId.split(BoxProvider.DOCID_SEPARATOR, MAX_TOKEN_SPLITS);
         if (split.length > 2 && split[2].length() > 0) {
             return split[2];
         }

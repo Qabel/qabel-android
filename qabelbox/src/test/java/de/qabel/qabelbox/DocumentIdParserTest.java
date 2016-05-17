@@ -86,7 +86,6 @@ public class DocumentIdParserTest {
 
     @Test
     public void testBasenameWithToken() throws Exception {
-        assertThat(p.getBaseName(dottedId), is("baz"));
         assertThat(p.getBaseName(dottedId + fileName), is(fileName));
     }
 

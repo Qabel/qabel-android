@@ -15,5 +15,9 @@ public class WaitResourceCallback implements IdlingResource.ResourceCallback {
         return done;
     }
 
+    public void reset(){
+        this.done = false;
+    }
+
 
 }

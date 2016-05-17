@@ -1,22 +1,15 @@
 package de.qabel.qabelbox.ui.files;
 
 
-import android.content.Intent;
-import android.support.test.espresso.Espresso;
 import android.widget.SeekBar;
 
-import com.squareup.spoon.Spoon;
-
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
+
+import java.util.Arrays;
+import java.util.List;
 
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.fragments.FilesSearchResultFragment;
-import de.qabel.qabelbox.storage.StorageSearch;
-import de.qabel.qabelbox.ui.AbstractUITest;
-import de.qabel.qabelbox.ui.helper.UITestHelper;
-import de.qabel.qabelbox.ui.idling.InjectedIdlingResource;
 import de.qabel.qabelbox.ui.idling.WaitResourceCallback;
 import de.qabel.qabelbox.ui.matcher.QabelMatcher;
 import de.qabel.qabelbox.ui.matcher.ToolbarMatcher;
@@ -33,83 +26,63 @@ import static android.support.test.espresso.matcher.ViewMatchers.withHint;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static de.qabel.qabelbox.ui.action.QabelViewAction.setText;
 
-public class FileSearchUITest extends AbstractUITest {
+public class FileSearchUITest extends FilesFragmentUITestBase {
 
-    private InjectedIdlingResource idlingResource;
+    private List<ExampleFile> exampleFiles = Arrays.asList(
+            new ExampleFile("testfile 2", new byte[1011]),
+            new ExampleFile("red.png", new byte[1]),
+            new ExampleFile("green.png", new byte[100]),
+            new ExampleFile("blue.png", new byte[1011]),
+            new ExampleFile("black_1.png", new byte[1011]),
+            new ExampleFile("black_2.png", new byte[1024 * 3]),
+            new ExampleFile("white.png", new byte[1011]));
 
-    @Before
-    public void setUp() throws Exception {
-        super.setUp();
-        uploadTestFiles();
-        launchActivity(new Intent(Intent.ACTION_MAIN));
-        idlingResource = new InjectedIdlingResource();
-        Espresso.registerIdlingResources(idlingResource);
-    }
-
-
-    @After
-    public void unRegisterIdlingResource() {
-        Espresso.unregisterIdlingResources(idlingResource);
-    }
-
-    private void uploadTestFiles() {
-
-        int fileCount = 7;
-        mBoxHelper.uploadFile(mBoxHelper.mBoxVolume, "testfile 2", new byte[1011], "");
-        mBoxHelper.uploadFile(mBoxHelper.mBoxVolume, "red.png", new byte[1], "");
-        mBoxHelper.uploadFile(mBoxHelper.mBoxVolume, "green.png", new byte[100], "");
-        mBoxHelper.uploadFile(mBoxHelper.mBoxVolume, "blue.png", new byte[1011], "");
-        mBoxHelper.uploadFile(mBoxHelper.mBoxVolume, "black_1.png", new byte[1011], "");
-        mBoxHelper.uploadFile(mBoxHelper.mBoxVolume, "black_2.png", new byte[1024 * 10], "");
-        mBoxHelper.uploadFile(mBoxHelper.mBoxVolume, "white.png", new byte[1011], "");
-
-
-        mBoxHelper.waitUntilFileCount(fileCount);
+    @Override
+    protected void setupData() throws Exception {
+        addExampleFiles(identity, exampleFiles);
     }
 
     @Test
-    public void search1ByNamesTest() {
-        Spoon.screenshot(mActivity, "startup");
+    public void searchNamesTest() {
         testSearch("black", 2);
         testSearch("", 7);
         testSearch("png", 6);
-        Spoon.screenshot(mActivity, "after");
     }
 
     @Test
-    public void search2FilterTest() {
-        testSearchWithFilter("", 0, 2048, 6, true);
-        testSearchWithFilter("", 0, 10240, 7, false);
-        testSearchWithFilter("", 9000, 10240, 1, false);
+    public void searchFilterTest() throws Exception {
+        testSearchWithFilter("", 0, 2048, 6);
+        testSearchWithFilter("", 0, 10240, 7);
+        testSearchWithFilter("", 9000, 10240, 1);
     }
 
     @Test
-    public void search3CacheTest() throws Exception {
+    public void filesChangeSearchTest() throws Exception {
 
         String text = "";
-        int results = 7;
 
         //start search
         onView(withId(R.id.action_search)).perform(click());
         onView(withHint(R.string.ab_filesearch_hint)).perform(setText(text), pressImeActionButton());
         closeSoftKeyboard();
 
-        onView(withId(R.id.files_list)).check(matches(QabelMatcher.withListSize(results)));
-        int fileCount = new StorageSearch(mBoxHelper.mBoxVolume.navigate()).getResults().size();
+        int fileCount = exampleFiles.size();
+        onView(withId(R.id.files_list)).check(matches(QabelMatcher.withListSize(fileCount)));
 
         //uploadAndDeleteLocalfile file
-        mBoxHelper.uploadFile(mBoxHelper.mBoxVolume, "black_3", new byte[1024], "");
-        mBoxHelper.waitUntilFileCount(fileCount + 1);
+        mBoxHelper.uploadFile(identity, "black_3", new byte[1024], "");
+        mBoxHelper.waitUntilFileCount(identity, fileCount + 1);
 
-        FilesSearchResultFragment searchResultFragment = (FilesSearchResultFragment)mActivity.getFragmentManager().findFragmentByTag(FilesSearchResultFragment.TAG);
-        searchResultFragment.injectIdleCallback(idlingResource);
+        FilesSearchResultFragment searchResultFragment = (FilesSearchResultFragment) mActivity.getFragmentManager().findFragmentByTag(FilesSearchResultFragment.TAG);
+        searchResultFragment.injectIdleCallback(getIdlingResource());
 
         WaitResourceCallback waitResourceCallback = new WaitResourceCallback();
-        idlingResource.registerIdleTransitionCallback(waitResourceCallback);
+        getIdlingResource().registerIdleTransitionCallback(waitResourceCallback);
+
         //Refresh and check new item is visible
         onView(withId(R.id.files_list)).perform(swipeDown());
 
-        UITestHelper.waitUntil(() -> waitResourceCallback.isDone(), "refresh files failed");
+        //UITestHelper.waitUntil(() -> waitResourceCallback.isDone(), "refresh search files failed");
 
         onView(withId(R.id.files_list)).check(matches(QabelMatcher.withListSize(fileCount + 1)));
 
@@ -117,6 +90,9 @@ public class FileSearchUITest extends AbstractUITest {
         pressBack();
 
         testIfFileBrowserDisplayed(fileCount + 1);
+
+        //Reuse callback
+        waitResourceCallback.reset();
 
         //start new search
         text = "black";
@@ -133,16 +109,19 @@ public class FileSearchUITest extends AbstractUITest {
      * @param text    search text
      * @param results excepted results
      */
-    private void testSearch(String text, int results) {
+    private void testSearch(String text, int results){
+        testSearch(text, results, exampleFiles.size());
+    }
+    private void testSearch(String text, int results, int rangeCount) {
 
         onView(withId(R.id.action_search)).perform(click());
         onView(withHint(R.string.ab_filesearch_hint)).perform(setText(text), pressImeActionButton());
         closeSoftKeyboard();
-        UITestHelper.sleep(200);
+
         onView(withId(R.id.files_list)).check(matches(QabelMatcher.withListSize(results)));
 
         pressBack();
-        testIfFileBrowserDisplayed(7);
+        testIfFileBrowserDisplayed(rangeCount);
     }
 
     private void testIfFileBrowserDisplayed(int count) {
@@ -157,17 +136,21 @@ public class FileSearchUITest extends AbstractUITest {
      * @param text    search text
      * @param results excepted results
      */
-    private void testSearchWithFilter(String text, int fileSizeMin, int fileSizeMax, int results, boolean screenShot) {
+    private void testSearchWithFilter(String text, int fileSizeMin, int fileSizeMax, int results) throws Exception {
 
         onView(withId(R.id.action_search)).perform(click());
         onView(withHint(R.string.ab_filesearch_hint)).perform(setText(text), pressImeActionButton());
         closeSoftKeyboard();
-        UITestHelper.sleep(500);
+
         onView(withId(R.id.action_ok)).check(matches(isDisplayed())).perform(click());
         ((SeekBar) mActivity.findViewById(R.id.sbFileSizeMin)).setProgress(fileSizeMin);
         ((SeekBar) mActivity.findViewById(R.id.sbFileSizeMax)).setProgress(fileSizeMax);
 
+        WaitResourceCallback waitResourceCallback = new WaitResourceCallback();
+        getIdlingResource().registerIdleTransitionCallback(waitResourceCallback);
         onView(withId(R.id.action_use_filter)).perform(click());
+
+        //UITestHelper.waitUntil(() -> waitResourceCallback.isDone(), "refresh search failured");
 
         onView(withId(R.id.files_list)).
                 check(matches(isDisplayed())).

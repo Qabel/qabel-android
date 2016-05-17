@@ -2,7 +2,6 @@ package de.qabel.qabelbox.ui.files;
 
 import android.content.Intent;
 import android.support.design.internal.NavigationMenuItemView;
-import android.support.test.espresso.Espresso;
 
 import com.squareup.spoon.Spoon;
 
@@ -17,9 +16,7 @@ import java.util.List;
 import de.qabel.core.config.Contact;
 import de.qabel.core.config.Identity;
 import de.qabel.qabelbox.R;
-import de.qabel.qabelbox.ui.AbstractUITest;
 import de.qabel.qabelbox.ui.helper.UITestHelper;
-import de.qabel.qabelbox.ui.idling.InjectedIdlingResource;
 import de.qabel.qabelbox.ui.idling.WaitResourceCallback;
 import de.qabel.qabelbox.ui.matcher.QabelMatcher;
 import de.qabel.qabelbox.ui.matcher.ToastMatcher;
@@ -46,12 +43,10 @@ import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.endsWith;
 import static org.hamcrest.Matchers.is;
 
-public class FilesFragmentUITest extends AbstractUITest {
+public class FilesFragmentUITest extends FilesFragmentUITestBase {
 
     private static final String TEST_FOLDER = "Bilder";
     private static final String CREATE_FOLDER_TEST_NAME = "TestDirectory";
-
-    private InjectedIdlingResource idlingResource;
 
     private Identity testIdentity;
     private Identity testIdentity2;
@@ -65,37 +60,14 @@ public class FilesFragmentUITest extends AbstractUITest {
             new ExampleFile("black_1.png", new byte[1011]),
             new ExampleFile("black_2.png", new byte[1024 * 2]));
 
-    private class ExampleFile {
-
-        private String name;
-        private byte[] data;
-
-        public ExampleFile(String name, byte[] data) {
-            this.name = name;
-            this.data = data;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public byte[] getData() {
-            return data;
-        }
-
-    }
-
     @Before
     public void setUp() throws Exception {
         super.setUp();
-        setupData();
-        launchActivity(new Intent(Intent.ACTION_MAIN));
-        idlingResource = new InjectedIdlingResource();
-        mActivity.filesFragment.injectIdleCallback(idlingResource);
-        Espresso.registerIdlingResources(idlingResource);
+        mActivity.filesFragment.injectIdleCallback(getIdlingResource());
     }
 
-    private void setupData() throws Exception {
+    @Override
+    protected void setupData() throws Exception {
         testIdentity = mBoxHelper.addIdentity("spoon");
         testIdentity2 = mBoxHelper.addIdentityWithoutVolume("spoon2");
 
@@ -110,15 +82,13 @@ public class FilesFragmentUITest extends AbstractUITest {
 
         mBoxHelper.createFolder(TEST_FOLDER, testIdentity, null);
 
-        for (ExampleFile exampleFile : exampleFiles) {
-            mBoxHelper.uploadFile(mBoxHelper.mBoxVolume, exampleFile.getName(), exampleFile.getData(), "");
-        }
-        mBoxHelper.waitUntilFileCount(exampleFiles.size());
+        addExampleFiles(identity, exampleFiles);
     }
 
     @Override
-    public void cleanUp() {
-        Espresso.unregisterIdlingResources(idlingResource);
+    public void cleanUp(){
+        mBoxHelper.deleteIdentity(testIdentity);
+        mBoxHelper.deleteIdentity(testIdentity2);
         super.cleanUp();
     }
 
@@ -139,7 +109,7 @@ public class FilesFragmentUITest extends AbstractUITest {
         onView(withText(testContact2.getAlias())).check(matches(isDisplayed()));
 
         WaitResourceCallback waitCallback = new WaitResourceCallback();
-        idlingResource.registerIdleTransitionCallback(waitCallback);
+        getIdlingResource().registerIdleTransitionCallback(waitCallback);
 
         //Perform share
         onView(withText(R.string.ok)).perform(click());

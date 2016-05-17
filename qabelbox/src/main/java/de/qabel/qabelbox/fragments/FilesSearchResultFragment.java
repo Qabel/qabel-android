@@ -20,6 +20,7 @@ import de.qabel.qabelbox.adapter.FilesAdapter;
 import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.storage.BoxFile;
 import de.qabel.qabelbox.storage.BoxFolder;
+import de.qabel.qabelbox.storage.BoxNavigation;
 import de.qabel.qabelbox.storage.BoxObject;
 import de.qabel.qabelbox.storage.StorageSearch;
 
@@ -171,6 +172,8 @@ public class FilesSearchResultFragment extends FilesFragmentBase {
      * start search
      */
     private void restartSearch() {
+        System.out.println("RESTART SEARCH");
+
         searchTask = new AsyncTask<String, Void, StorageSearch>() {
 
             @Override
@@ -198,7 +201,14 @@ public class FilesSearchResultFragment extends FilesFragmentBase {
             protected StorageSearch doInBackground(String... params) {
 
                 try {
-                    return new StorageSearch(((FilesFragment) getFragmentManager().findFragmentByTag(MainActivity.TAG_FILES_FRAGMENT)).getBoxNavigation());
+                    BoxNavigation nav = mActivity.filesFragment.getBoxNavigation();
+                    nav.reload();
+                    System.out.println("BEGIN NAV");
+                    for(BoxObject o : nav.listFiles()){
+                        System.out.println(o.name);
+                    }
+                    System.out.println("-----------------------------");
+                    return new StorageSearch(nav);//((FilesFragment) getFragmentManager().findFragmentByTag(MainActivity.TAG_FILES_FRAGMENT)).getBoxNavigation());
                 } catch (QblStorageException e) {
                     e.printStackTrace();
                 }

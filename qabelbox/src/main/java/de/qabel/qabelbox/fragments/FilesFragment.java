@@ -361,7 +361,7 @@ public class FilesFragment extends FilesFragmentBase {
                 protected StorageSearch doInBackground(String... params) {
                     try {
                         if (mCachedStorageSearch != null) {
-                            mCachedStorageSearch.refreshRange(boxNavigation);
+                            mCachedStorageSearch.refreshRange(boxNavigation, true);
                             return mCachedStorageSearch;
                         }
 

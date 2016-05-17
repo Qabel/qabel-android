@@ -47,6 +47,9 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
 import de.qabel.core.config.Identity;
 import de.qabel.qabelbox.BuildConfig;
 import de.qabel.qabelbox.QabelBoxApplication;
@@ -122,17 +125,19 @@ public class MainActivity extends CrashReportingActivity
     public static final String START_FILES_FRAGMENT = "START_FILES_FRAGMENT";
     public static final String START_CONTACTS_FRAGMENT = "START_CONTACTS_FRAGMENT";
 
-    private DrawerLayout drawer;
     public BoxVolume boxVolume;
     public ActionBarDrawerToggle toggle;
     private BoxProvider provider;
-    public FloatingActionButton fab;
-    private TextView textViewSelectedIdentity;
-    private MainActivity self;
-    private View appBarMain;
+    @BindView(R.id.drawer_layout) DrawerLayout drawer;
+    @BindView(R.id.nav_view) NavigationView navigationView;
+    @BindView(R.id.fab) public FloatingActionButton fab;
+    @BindView(R.id.textViewSelectedIdentity) TextView textViewSelectedIdentity;
+    @BindView(R.id.accountName) TextView textViewBoxAccountName;
+    @BindView(R.id.app_bap_main) View appBarMain;
+    @BindView(R.id.toolbar) Toolbar toolbar;
+    @BindView(R.id.imageViewExpandIdentity) ImageView imageViewExpandIdentity;
     public FilesFragment filesFragment;
-    private Toolbar toolbar;
-    private ImageView imageViewExpandIdentity;
+    private MainActivity self;
     private boolean identityMenuExpanded;
 
     // Used to save the document uri that should exported while waiting for the result
@@ -144,7 +149,6 @@ public class MainActivity extends CrashReportingActivity
     public ChatServer chatServer;
     private ContactFragment contactFragment;
     private LightingColorFilter mDrawerIndicatorTintFilter;
-    private TextView textViewBoxAccountName;
 
     private ConnectivityManager connectivityManager;
 
@@ -250,13 +254,8 @@ public class MainActivity extends CrashReportingActivity
             return;
         }
         setContentView(R.layout.activity_main);
-        toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        appBarMain = findViewById(R.id.app_bap_main);
-        fab = (FloatingActionButton) findViewById(R.id.fab);
         mDrawerIndicatorTintFilter = new LightingColorFilter(0, getResources().getColor(R.color.tintDrawerIndicator));
 
-        initFloatingActionButton();
 
         bindService(serviceIntent, mServiceConnection, Context.BIND_AUTO_CREATE);
 
@@ -403,6 +402,10 @@ public class MainActivity extends CrashReportingActivity
         Log.i(TAG, "Provider: " + provider);
 
         provider.setLocalService(mService);
+
+        ButterKnife.bind(this);
+        setSupportActionBar(toolbar);
+
         initDrawer();
 
         Identity activeIdentity = mService.getActiveIdentity();
@@ -571,35 +574,29 @@ public class MainActivity extends CrashReportingActivity
                 VolumeFileTransferHelper.getPrefixFromIdentity(activeIdentity));
     }
 
-    private void initFloatingActionButton() {
-
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                Fragment activeFragment = getFragmentManager().findFragmentById(R.id.fragment_container);
-                String activeFragmentTag = activeFragment.getTag();
-                if (activeFragment instanceof BaseFragment) {
-                    BaseFragment bf = (BaseFragment) activeFragment;
-                    //call fab action in basefragment. if fragment handled this, we are done
-                    if (bf.handleFABAction()) {
-                        return;
-                    }
-                }
-                switch (activeFragmentTag) {
-                    case TAG_FILES_FRAGMENT:
-                        filesFragmentBottomSheet();
-                        break;
-
-                    case TAG_MANAGE_IDENTITIES_FRAGMENT:
-                        selectAddIdentityFragment();
-                        break;
-
-                    default:
-                        Log.e(TAG, "Unknown FAB action for fragment tag: " + activeFragmentTag);
-                }
+    @OnClick(R.id.fab)
+    public void floatingActionButtonClick() {
+        Fragment activeFragment = getFragmentManager().findFragmentById(R.id.fragment_container);
+        String activeFragmentTag = activeFragment.getTag();
+        if (activeFragment instanceof BaseFragment) {
+            BaseFragment bf = (BaseFragment) activeFragment;
+            //call fab action in basefragment. if fragment handled this, we are done
+            if (bf.handleFABAction()) {
+                return;
             }
-        });
+        }
+        switch (activeFragmentTag) {
+            case TAG_FILES_FRAGMENT:
+                filesFragmentBottomSheet();
+                break;
+
+            case TAG_MANAGE_IDENTITIES_FRAGMENT:
+                selectAddIdentityFragment();
+                break;
+
+            default:
+                Log.e(TAG, "Unknown FAB action for fragment tag: " + activeFragmentTag);
+        }
     }
 
     private void filesFragmentBottomSheet() {
@@ -711,7 +708,6 @@ public class MainActivity extends CrashReportingActivity
     @Override
     public void onBackPressed() {
 
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else {
@@ -800,7 +796,6 @@ public class MainActivity extends CrashReportingActivity
         } else if (id == R.id.nav_logout) {
             performLogout();
         }
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
@@ -1060,102 +1055,72 @@ public class MainActivity extends CrashReportingActivity
         }
     }
 
-    private void initDrawer() {
+    @OnClick(R.id.qabelLogo)
+    public void showQRCodeFromLogoClick() {
+        drawer.closeDrawer(GravityCompat.START);
+        showQRCode(self, mService.getActiveIdentity());
+    }
 
-        drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+    @OnClick(R.id.select_identity_layout)
+    public void selectIdentityLayoutClick() {
+
+        if (identityMenuExpanded) {
+            imageViewExpandIdentity.setImageResource(R.drawable.menu_down);
+            imageViewExpandIdentity.setColorFilter(mDrawerIndicatorTintFilter);
+            navigationView.getMenu().clear();
+            navigationView.inflateMenu(R.menu.activity_main_drawer);
+            identityMenuExpanded = false;
+        } else {
+            imageViewExpandIdentity.setImageResource(R.drawable.menu_up);
+            imageViewExpandIdentity.setColorFilter(mDrawerIndicatorTintFilter);
+            navigationView.getMenu().clear();
+            List<Identity> identityList = new ArrayList<>(
+                    mService.getIdentities().getIdentities());
+            Collections.sort(identityList, (lhs, rhs) -> lhs.getAlias().compareTo(rhs.getAlias()));
+            for (final Identity identity : identityList) {
+                navigationView.getMenu()
+                        .add(NAV_GROUP_IDENTITIES, Menu.NONE, Menu.NONE, identity.getAlias())
+                        .setIcon(R.drawable.account)
+                        .setOnMenuItemClickListener(item -> {
+                            drawer.closeDrawer(GravityCompat.START);
+                            selectIdentity(identity);
+                            return true;
+                        });
+            }
+            navigationView.getMenu()
+                    .add(NAV_GROUP_IDENTITY_ACTIONS, Menu.NONE, Menu.NONE, R.string.add_identity)
+                    .setIcon(R.drawable.plus_circle)
+                    .setOnMenuItemClickListener(item -> {
+                        drawer.closeDrawer(GravityCompat.START);
+                        selectAddIdentityFragment();
+                        return true;
+                    });
+            navigationView.getMenu()
+                    .add(NAV_GROUP_IDENTITY_ACTIONS, Menu.NONE, Menu.NONE, R.string.manage_identities)
+                    .setIcon(R.drawable.settings)
+                    .setOnMenuItemClickListener(item -> {
+                        drawer.closeDrawer(GravityCompat.START);
+                        selectManageIdentitiesFragment();
+                        return true;
+                    });
+            identityMenuExpanded = true;
+        }
+    }
+
+    private void initDrawer() {
         toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.setDrawerListener(toggle);
         toggle.syncState();
 
         setDrawerLocked(false);
-
-        final NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
         // Map QR-Code indent to alias textview in nav_header_main
-        textViewSelectedIdentity = (TextView) navigationView.findViewById(R.id.textViewSelectedIdentity);
-        textViewBoxAccountName = (TextView) navigationView.findViewById(R.id.accountName);
         String boxName = new AppPreference(self).getAccountName();
         textViewBoxAccountName.setText(boxName != null ? boxName : getString(R.string.app_name));
 
-        findViewById(R.id.qabelLogo).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                drawer.closeDrawer(GravityCompat.START);
-                showQRCode(self, mService.getActiveIdentity());
-            }
-        });
-
-        imageViewExpandIdentity = (ImageView) navigationView.findViewById(R.id.imageViewExpandIdentity);
         imageViewExpandIdentity.setColorFilter(mDrawerIndicatorTintFilter);
-
-        findViewById(R.id.select_identity_layout).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                if (identityMenuExpanded) {
-                    imageViewExpandIdentity.setImageResource(R.drawable.menu_down);
-                    imageViewExpandIdentity.setColorFilter(mDrawerIndicatorTintFilter);
-                    navigationView.getMenu().clear();
-                    navigationView.inflateMenu(R.menu.activity_main_drawer);
-                    identityMenuExpanded = false;
-                } else {
-                    imageViewExpandIdentity.setImageResource(R.drawable.menu_up);
-                    imageViewExpandIdentity.setColorFilter(mDrawerIndicatorTintFilter);
-                    navigationView.getMenu().clear();
-                    List<Identity> identityList = new ArrayList<>(
-                            mService.getIdentities().getIdentities());
-                    Collections.sort(identityList, new Comparator<Identity>() {
-                        @Override
-                        public int compare(Identity lhs, Identity rhs) {
-
-                            return lhs.getAlias().compareTo(rhs.getAlias());
-                        }
-                    });
-                    for (final Identity identity : identityList) {
-                        navigationView.getMenu()
-                                .add(NAV_GROUP_IDENTITIES, Menu.NONE, Menu.NONE, identity.getAlias())
-                                .setIcon(R.drawable.account)
-                                .setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
-                                    @Override
-                                    public boolean onMenuItemClick(MenuItem item) {
-
-                                        drawer.closeDrawer(GravityCompat.START);
-                                        selectIdentity(identity);
-                                        return true;
-                                    }
-                                });
-                    }
-                    navigationView.getMenu()
-                            .add(NAV_GROUP_IDENTITY_ACTIONS, Menu.NONE, Menu.NONE, R.string.add_identity)
-                            .setIcon(R.drawable.plus_circle)
-                            .setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
-                                @Override
-                                public boolean onMenuItemClick(MenuItem item) {
-
-                                    drawer.closeDrawer(GravityCompat.START);
-                                    selectAddIdentityFragment();
-                                    return true;
-                                }
-                            });
-                    navigationView.getMenu()
-                            .add(NAV_GROUP_IDENTITY_ACTIONS, Menu.NONE, Menu.NONE, R.string.manage_identities)
-                            .setIcon(R.drawable.settings)
-                            .setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
-                                @Override
-                                public boolean onMenuItemClick(MenuItem item) {
-
-                                    drawer.closeDrawer(GravityCompat.START);
-                                    selectManageIdentitiesFragment();
-                                    return true;
-                                }
-                            });
-                    identityMenuExpanded = true;
-                }
-            }
-        });
 
         drawer.setDrawerListener(new DrawerLayout.DrawerListener() {
             @Override

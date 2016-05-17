@@ -53,6 +53,8 @@ public class StorageSearch {
         if (!this.path.equals(navigation.getPath())) {
             setupData(navigation);
             this.path = navigation.getPath();
+        }else {
+            reset();
         }
     }
 
@@ -61,7 +63,7 @@ public class StorageSearch {
     }
 
     public boolean isValidSearchTerm(String name) {
-        return name != null && !"".equals(name.trim());
+        return name != null && !name.trim().isEmpty();
     }
 
     public List<BoxFile> toBoxFiles(List<BoxObject> lst) {

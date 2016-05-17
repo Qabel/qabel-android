@@ -47,11 +47,6 @@ public class StorageSearch {
         List<BoxObject> subNodes = collectAll(navigation);
         this.nodeList = subNodes;
         this.results = new ArrayList<>(subNodes);
-        System.out.println("INDEXED");
-        for(BoxObject o : results){
-            System.out.println(o.name);
-        }
-        System.out.println("------------------------");
     }
 
     public void refreshRange(BoxNavigation navigation, boolean force) throws QblStorageException {

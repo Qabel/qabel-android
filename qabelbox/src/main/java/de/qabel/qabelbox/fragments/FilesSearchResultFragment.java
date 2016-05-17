@@ -172,8 +172,6 @@ public class FilesSearchResultFragment extends FilesFragmentBase {
      * start search
      */
     private void restartSearch() {
-        System.out.println("RESTART SEARCH");
-
         searchTask = new AsyncTask<String, Void, StorageSearch>() {
 
             @Override
@@ -199,16 +197,11 @@ public class FilesSearchResultFragment extends FilesFragmentBase {
 
             @Override
             protected StorageSearch doInBackground(String... params) {
-
                 try {
-                    BoxNavigation nav = mActivity.filesFragment.getBoxNavigation();
+                    BoxNavigation nav = ((FilesFragment) getFragmentManager().
+                            findFragmentByTag(MainActivity.TAG_FILES_FRAGMENT)).getBoxNavigation();
                     nav.reload();
-                    System.out.println("BEGIN NAV");
-                    for(BoxObject o : nav.listFiles()){
-                        System.out.println(o.name);
-                    }
-                    System.out.println("-----------------------------");
-                    return new StorageSearch(nav);//((FilesFragment) getFragmentManager().findFragmentByTag(MainActivity.TAG_FILES_FRAGMENT)).getBoxNavigation());
+                    return new StorageSearch(nav);
                 } catch (QblStorageException e) {
                     e.printStackTrace();
                 }

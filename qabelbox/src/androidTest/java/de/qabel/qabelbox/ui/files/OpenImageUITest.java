@@ -8,6 +8,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.support.test.espresso.Espresso;
 import android.support.test.espresso.contrib.RecyclerViewActions;
+import android.support.test.runner.lifecycle.ActivityLifecycleMonitorRegistry;
 
 import com.squareup.picasso.PicassoIdlingResource;
 
@@ -51,12 +52,6 @@ public class OpenImageUITest extends FilesFragmentUITestBase {
     }
 
     @Override
-    public void cleanUp() {
-        Espresso.unregisterIdlingResources(mPicassoIdlingResource);
-        super.cleanUp();
-    }
-
-    @Override
     protected void setupData() throws Exception {
         if (exampleFiles == null) {
             exampleFiles = Arrays.asList(new ExampleFile("defect.png", new byte[100]),
@@ -73,6 +68,18 @@ public class OpenImageUITest extends FilesFragmentUITestBase {
         mPicassoIdlingResource = new PicassoIdlingResource();
         Espresso.registerIdlingResources(mPicassoIdlingResource);
         mPicassoIdlingResource.init(mActivity);
+        ActivityLifecycleMonitorRegistry
+                .getInstance()
+                .addLifecycleCallback(mPicassoIdlingResource);
+    }
+
+    @Override
+    public void cleanUp() {
+        Espresso.unregisterIdlingResources(mPicassoIdlingResource);
+        ActivityLifecycleMonitorRegistry
+                .getInstance()
+                .removeLifecycleCallback(mPicassoIdlingResource);
+        super.cleanUp();
     }
 
     @Test

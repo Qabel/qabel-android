@@ -1,21 +1,27 @@
 package de.qabel.qabelbox.storage;
 
+import android.app.Application;
 import android.support.annotation.NonNull;
-import android.support.test.runner.AndroidJUnit4;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.robolectric.RobolectricGradleTestRunner;
+import org.robolectric.RuntimeEnvironment;
+import org.robolectric.annotation.Config;
 
 import java.io.File;
 import java.io.IOException;
 
-import static android.support.test.InstrumentationRegistry.getTargetContext;
+import de.qabel.qabelbox.BuildConfig;
+import de.qabel.qabelbox.SimpleApplication;
+
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
 
-@RunWith(AndroidJUnit4.class)
+@RunWith(RobolectricGradleTestRunner.class)
+@Config(application = SimpleApplication.class, constants = BuildConfig.class)
 public class FileCacheTest {
 
     private FileCache mHelper;
@@ -24,9 +30,10 @@ public class FileCacheTest {
 
     @Before
     public void setUp() throws Exception {
-        getTargetContext().deleteDatabase(FileCache.DATABASE_NAME);
-        mHelper = new FileCache(getTargetContext());
-        mCache = new FileCache(getTargetContext());
+        Application application = RuntimeEnvironment.application;
+        application.deleteDatabase(FileCache.DATABASE_NAME);
+        mHelper = new FileCache(application);
+        mCache = new FileCache(application);
         testFile = new File(BoxTest.createTestFile());
     }
 

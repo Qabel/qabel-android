@@ -23,7 +23,7 @@ import de.qabel.qabelbox.helper.Formatter;
 public class ChatMessageAdapter extends BaseAdapter {
 
     private final String TAG = getClass().getSimpleName();
-    private final String contactPublicKey;
+    private String contactPublicKey;
     private List<ChatMessageItem> mMessages = null;
     private OnItemClickListener onItemClickListener;
     private View emptyView;
@@ -31,22 +31,24 @@ public class ChatMessageAdapter extends BaseAdapter {
     public ChatMessageAdapter(ArrayList<ChatMessageItem> allMessages, Contact contact) {
 
         mMessages = new ArrayList<>();
+        registerDataSetObserver(observer);
+        setMessages(allMessages, contact);
+    }
 
-        contactPublicKey = contact.getEcPublicKey().getReadableKeyIdentifier().toString();
-        for (ChatMessageItem message : allMessages) {
+    public void setMessages(ArrayList<ChatMessageItem> messages, Contact contact) {
+        contactPublicKey = contact.getEcPublicKey().getReadableKeyIdentifier();
+        mMessages.clear();
+
+        for (ChatMessageItem message : messages) {
             if (contactPublicKey.equals(message.getSenderKey()) || contactPublicKey.equals(message.getReceiverKey())) {
                 mMessages.add(message);
             }
         }
-        Collections.sort(mMessages, new Comparator<ChatMessageItem>() {
-            @Override
-            public int compare(ChatMessageItem o1, ChatMessageItem o2) {
-                return (o1.getTime() > o2.getTime() ? 1 : (o1.getTime() == o2.getTime() ? 0 : -1));
-            }
-        });
+        Collections.sort(mMessages, (o1, o2) ->
+                (o1.getTime() > o2.getTime() ? 1 : (o1.getTime() == o2.getTime() ? 0 : -1)));
 
-        registerDataSetObserver(observer);
     }
+
 
     public ChatMessageItem getMessage(int position) {
 

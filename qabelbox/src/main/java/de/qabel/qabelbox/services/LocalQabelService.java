@@ -63,8 +63,8 @@ import de.qabel.qabelbox.persistence.QblSQLiteParams;
 import de.qabel.qabelbox.persistence.RepositoryFactory;
 import de.qabel.qabelbox.providers.DocumentIdParser;
 import de.qabel.qabelbox.storage.BoxFile;
+import de.qabel.qabelbox.storage.BoxTransferListener;
 import de.qabel.qabelbox.storage.BoxUploadingFile;
-import de.qabel.qabelbox.storage.TransferManager;
 
 public class LocalQabelService extends Service implements DropConnector {
 
@@ -187,6 +187,9 @@ public class LocalQabelService extends Service implements DropConnector {
      * @return List of contacts owned by the identity
      */
     public Contacts getContacts(Identity identity) {
+        if (identity == null) {
+            return new Contacts(null);
+        }
         try {
             return contactRepository.find(identity);
         } catch (PersistenceException e) {
@@ -489,8 +492,8 @@ public class LocalQabelService extends Service implements DropConnector {
         notifyManager.notify(UPLOAD_NOTIFICATION_ID, builder.build());
     }
 
-    public TransferManager.BoxTransferListener getUploadTransferListener(final BoxUploadingFile boxUploadingFile) {
-        return new TransferManager.BoxTransferListener() {
+    public BoxTransferListener getUploadTransferListener(final BoxUploadingFile boxUploadingFile) {
+        return new BoxTransferListener() {
             @Override
             public void onProgressChanged(long bytesCurrent, long bytesTotal) {
                 boxUploadingFile.totalSize = bytesTotal;

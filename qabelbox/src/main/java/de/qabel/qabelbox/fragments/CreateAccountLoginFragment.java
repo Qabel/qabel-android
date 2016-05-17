@@ -20,6 +20,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 
 import de.qabel.qabelbox.R;
+import de.qabel.qabelbox.activities.CreateAccountActivity;
 import de.qabel.qabelbox.communication.BoxAccountRegisterServer;
 import de.qabel.qabelbox.communication.callbacks.JsonRequestCallback;
 import de.qabel.qabelbox.config.AppPreference;
@@ -33,6 +34,14 @@ public class CreateAccountLoginFragment extends BaseIdentityFragment {
 
     private BoxAccountRegisterServer mBoxAccountServer;
     private View resetPassword;
+    private String accountEmail;
+    private String accountName;
+
+    @Override
+    public void setArguments(Bundle args) {
+        accountName = args.getString(ACCOUNT_NAME);
+        accountEmail = args.getString(ACCOUNT_EMAIL);
+    }
 
     @Nullable
     @Override
@@ -41,17 +50,22 @@ public class CreateAccountLoginFragment extends BaseIdentityFragment {
 
         View view = inflater.inflate(R.layout.fragment_create_account_login, container, false);
         etUserName = ((TextView) view.findViewById(R.id.et_username));
+        if (accountName != null) {
+            etUserName.setText(accountName);
+            etUserName.setEnabled(false);
+        }
         etPassword = (EditText) view.findViewById(R.id.et_password);
         resetPassword = view.findViewById(R.id.reset_password);
 
-        resetPassword.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+        resetPassword.setOnClickListener(v -> {
 
-                getFragmentManager().popBackStack();
-                CreateAccountResetPasswordFragment fragment = new CreateAccountResetPasswordFragment();
-                getActivity().getFragmentManager().beginTransaction().replace(R.id.fragment_container_content, fragment).addToBackStack(null).commit();
-            }
+            getFragmentManager().popBackStack();
+            CreateAccountResetPasswordFragment fragment = new CreateAccountResetPasswordFragment();
+            Bundle bundle = new Bundle();
+            bundle.putString(ACCOUNT_EMAIL, accountEmail);
+            fragment.setArguments(bundle);
+            getActivity().getFragmentManager().beginTransaction().replace(
+                    R.id.fragment_container_content, fragment).addToBackStack(null).commit();
         });
         setHasOptionsMenu(true);
         return view;
@@ -104,6 +118,8 @@ public class CreateAccountLoginFragment extends BaseIdentityFragment {
     @NonNull
     private JsonRequestCallback createCallback(final String username, final AlertDialog dialog) {
 
+        CreateAccountActivity accountActivity = (CreateAccountActivity) getActivity();
+        accountActivity.runIdleCallback(false);
         return new JsonRequestCallback(new int[]{200, 400, 429}) {
 
             @Override
@@ -115,6 +131,7 @@ public class CreateAccountLoginFragment extends BaseIdentityFragment {
                         Toast.makeText(getActivity(), R.string.server_access_failed_or_invalid_check_internet_connection, Toast.LENGTH_LONG).show();
                     }
                 });
+                accountActivity.runIdleCallback(true);
             }
 
             @Override
@@ -136,6 +153,7 @@ public class CreateAccountLoginFragment extends BaseIdentityFragment {
                     dialog.dismiss();
                     UIHelper.showDialogMessage(getActivity(), R.string.dialog_headline_info, text);
                 }
+                accountActivity.runIdleCallback(true);
             }
 
             private String generateErrorMessage(BoxAccountRegisterServer.ServerResponse result) {
@@ -169,7 +187,6 @@ public class CreateAccountLoginFragment extends BaseIdentityFragment {
     public String check() {
 
         UIHelper.showDialogMessage(getActivity(), R.string.dialog_headline_info, R.string.function_not_yet_implenented);
-        //return mChecker.check(editText);
         return null;
     }
 }

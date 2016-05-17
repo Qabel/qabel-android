@@ -11,8 +11,7 @@ import android.graphics.Bitmap;
 import android.os.PowerManager;
 import android.support.test.espresso.Espresso;
 import android.support.test.espresso.contrib.RecyclerViewActions;
-import android.support.test.espresso.intent.Intents;
-import android.support.test.rule.ActivityTestRule;
+import android.support.test.espresso.intent.rule.IntentsTestRule;
 import android.support.test.runner.lifecycle.ActivityLifecycleMonitorRegistry;
 
 import com.squareup.picasso.PicassoIdlingResource;
@@ -28,7 +27,6 @@ import org.junit.runners.MethodSorters;
 
 import java.io.IOException;
 
-import de.qabel.core.config.Identity;
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.TestConstants;
@@ -52,7 +50,6 @@ import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
 import static de.qabel.qabelbox.ui.matcher.QabelMatcher.withDrawable;
 import static org.hamcrest.core.AllOf.allOf;
-//import static de.qabel.qabelbox.ui.matcher.QabelMatcher.withDrawable;
 
 /**
  * Tests for MainActivity.
@@ -62,35 +59,38 @@ import static org.hamcrest.core.AllOf.allOf;
 public class OpenImageUITest {
 
     @Rule
-    public ActivityTestRule<MainActivity> mActivityTestRule = new ActivityTestRule<>(MainActivity.class, false, true);
+    public IntentsTestRule<MainActivity> mActivityTestRule = new IntentsTestRule<MainActivity>(
+            MainActivity.class, false, false);
 
     private MainActivity mActivity;
     private UIBoxHelper mBoxHelper;
-    private final boolean mFillAccount = true;
     private PowerManager.WakeLock wakeLock;
     private final PicassoIdlingResource mPicassoIdlingResource = new PicassoIdlingResource();
     private SystemAnimations mSystemAnimations;
 
-    public OpenImageUITest() throws IOException {
-        //setup data before MainActivity launched. This avoid the call to create identity
-        if (mFillAccount) {
-            setupData();
-        }
-    }
 
     @After
     public void cleanUp() {
 
-        wakeLock.release();
+        if (wakeLock != null) {
+            wakeLock.release();
+        }
+        if (mSystemAnimations != null) {
+            mSystemAnimations.enableAll();
+        }
         Espresso.unregisterIdlingResources(mPicassoIdlingResource);
-        mSystemAnimations.enableAll();
         mBoxHelper.unbindService(QabelBoxApplication.getInstance());
     }
 
     @Before
     public void setUp() throws IOException, QblStorageException {
 
-        mActivity = mActivityTestRule.getActivity();
+        mBoxHelper = new UIBoxHelper(QabelBoxApplication.getInstance());
+        mBoxHelper.bindService(QabelBoxApplication.getInstance());
+        mBoxHelper.removeAllIdentities();
+        mBoxHelper.addIdentity("spoon");
+        uploadTestFiles();
+        mActivity = mActivityTestRule.launchActivity(null);
         URLs.setBaseBlockURL(TestConstants.BLOCK_URL);
         Espresso.registerIdlingResources(mPicassoIdlingResource);
         ActivityLifecycleMonitorRegistry
@@ -99,25 +99,6 @@ public class OpenImageUITest {
         wakeLock = UIActionHelper.wakeupDevice(mActivity);
         mSystemAnimations = new SystemAnimations(mActivity);
         mSystemAnimations.disableAll();
-    }
-
-    private void setupData() {
-        mActivity = mActivityTestRule.getActivity();
-        URLs.setBaseBlockURL(TestConstants.BLOCK_URL);
-        mBoxHelper = new UIBoxHelper(QabelBoxApplication.getInstance());
-        mBoxHelper.bindService(QabelBoxApplication.getInstance());
-        mBoxHelper.createTokenIfNeeded(false);
-        try {
-            Identity old = mBoxHelper.getCurrentIdentity();
-            if (old != null) {
-                mBoxHelper.deleteIdentity(old);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        mBoxHelper.removeAllIdentities();
-        mBoxHelper.addIdentity("spoon");
-        uploadTestFiles();
     }
 
     private void uploadTestFiles() {
@@ -143,12 +124,10 @@ public class OpenImageUITest {
         Spoon.screenshot(mActivity, "open_png");
         Instrumentation.ActivityResult activityResult = new Instrumentation.ActivityResult(
                 Activity.RESULT_OK, new Intent());
-        Intents.init();
         Matcher<Intent> expectedIntent = allOf(hasAction(Intent.ACTION_CHOOSER));
         intending(expectedIntent).respondWith(activityResult);
         onView(withId(R.id.action_imageviewer_open)).perform(click());
         intended(expectedIntent);
-        Intents.release();
 
         onView(withId(R.id.image)).perform(click());
     }

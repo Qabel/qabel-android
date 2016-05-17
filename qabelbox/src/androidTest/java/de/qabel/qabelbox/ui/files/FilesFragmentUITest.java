@@ -1,36 +1,23 @@
 package de.qabel.qabelbox.ui.files;
 
 import android.content.Intent;
-import android.os.PowerManager;
 import android.support.design.internal.NavigationMenuItemView;
-import android.support.test.InstrumentationRegistry;
-import android.support.test.espresso.intent.rule.IntentsTestRule;
 
 import com.squareup.spoon.Spoon;
 
-import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Rule;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
 import de.qabel.core.config.Contact;
 import de.qabel.core.config.Identity;
-import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
-import de.qabel.qabelbox.TestConstants;
-import de.qabel.qabelbox.activities.MainActivity;
-import de.qabel.qabelbox.communication.URLs;
-import de.qabel.qabelbox.exceptions.QblStorageException;
-import de.qabel.qabelbox.ui.helper.SystemAnimations;
-import de.qabel.qabelbox.ui.helper.UIActionHelper;
-import de.qabel.qabelbox.ui.helper.UIBoxHelper;
+import de.qabel.qabelbox.ui.AbstractUITest;
+import de.qabel.qabelbox.ui.helper.UITestHelper;
 import de.qabel.qabelbox.ui.matcher.QabelMatcher;
 import de.qabel.qabelbox.ui.matcher.ToastMatcher;
 import de.qabel.qabelbox.ui.matcher.ToolbarMatcher;
@@ -39,7 +26,6 @@ import static android.support.test.espresso.Espresso.onData;
 import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.action.ViewActions.click;
 import static android.support.test.espresso.action.ViewActions.longClick;
-import static android.support.test.espresso.action.ViewActions.typeText;
 import static android.support.test.espresso.assertion.ViewAssertions.doesNotExist;
 import static android.support.test.espresso.assertion.ViewAssertions.matches;
 import static android.support.test.espresso.contrib.DrawerActions.openDrawer;
@@ -51,29 +37,27 @@ import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static android.support.test.espresso.matcher.ViewMatchers.withClassName;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
+import static de.qabel.qabelbox.ui.action.QabelViewAction.setText;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.endsWith;
 import static org.hamcrest.Matchers.is;
 
-/**
- * UI Tests for FilesFragment
- */
-public class FilesFragmentUITest {
+public class FilesFragmentUITest extends AbstractUITest {
 
     private static final String TAG = FilesFragmentUITest.class.getSimpleName();
     private static final String TEST_FOLDER = "Bilder";
     private static final String CREATE_FOLDER_TEST_NAME = "TestDirectory";
 
-    private static UIBoxHelper mBoxHelper;
+    private Identity testIdentity;
+    private Identity testIdentity2;
 
-    private static Identity testIdentity;
-    private static Identity testIdentity2;
-    private static Contact testContact;
-    private static Contact testContact2;
-    private static final List<ExampleFile> exampleFiles = Arrays.asList(
-            new ExampleFile("test_file 2", new byte[1011]),
+    private Contact testContact;
+    private Contact testContact2;
+
+    private List<ExampleFile> exampleFiles = Arrays.asList(
+            new ExampleFile("testfile 2", new byte[1011]),
             new ExampleFile("red.png", new byte[1]),
             new ExampleFile("black_1.png", new byte[1011]),
             new ExampleFile("black_2.png", new byte[1024 * 2]));
@@ -98,21 +82,14 @@ public class FilesFragmentUITest {
 
     }
 
-    @Rule
-    public IntentsTestRule<MainActivity> mActivityTestRule = new IntentsTestRule<>(MainActivity.class, false, true);
-    private MainActivity mActivity;
-    private PowerManager.WakeLock wakeLock;
-    private SystemAnimations mSystemAnimations;
+    @Before
+    public void setUp() throws Exception {
+        super.setUp();
+        setupData();
+        launchActivity(new Intent(Intent.ACTION_MAIN));
+    }
 
-    @BeforeClass
-    public static void setupData() throws IOException, QblStorageException {
-        URLs.setBaseBlockURL(TestConstants.BLOCK_URL);
-        mBoxHelper = new UIBoxHelper(InstrumentationRegistry.getTargetContext());
-        mBoxHelper.bindService(QabelBoxApplication.getInstance());
-        mBoxHelper.createTokenIfNeeded(false);
-
-        mBoxHelper.removeAllIdentities();
-
+    private void setupData() throws Exception {
         testIdentity = mBoxHelper.addIdentity("spoon");
         testIdentity2 = mBoxHelper.addIdentityWithoutVolume("spoon2");
 
@@ -133,35 +110,8 @@ public class FilesFragmentUITest {
         mBoxHelper.waitUntilFileCount(exampleFiles.size());
     }
 
-    @AfterClass
-    public static void cleanUpData() throws QblStorageException {
-        mBoxHelper.deleteFolder(CREATE_FOLDER_TEST_NAME, testIdentity, "");
-        mBoxHelper.deleteFolder(TEST_FOLDER, testIdentity, "");
-        for (ExampleFile exampleFile : exampleFiles) {
-            mBoxHelper.deleteFile(InstrumentationRegistry.getContext(), testIdentity, exampleFile.getName(), "");
-        }
-        mBoxHelper.deleteIdentity(testIdentity);
-        mBoxHelper.deleteIdentity(testIdentity2);
-    }
-
-    @After
-    public void cleanUp() throws QblStorageException {
-        wakeLock.release();
-        mSystemAnimations.enableAll();
-        mBoxHelper.unbindService(QabelBoxApplication.getInstance());
-    }
-
-    @Before
-    public void setUp() throws IOException, QblStorageException {
-        URLs.setBaseBlockURL(TestConstants.BLOCK_URL);
-        mActivity = mActivityTestRule.getActivity();
-        wakeLock = UIActionHelper.wakeupDevice(mActivity);
-        mSystemAnimations = new SystemAnimations(mActivity);
-        mSystemAnimations.disableAll();
-        mActivity.runOnUiThread(() -> mActivity.selectIdentity(testIdentity));
-    }
-
     @Test
+    @Ignore("Refactoring needed")
     public void shareFileTest() {
         Spoon.screenshot(mActivity, "startup");
         onView(withText(exampleFiles.get(0).getName())).perform(longClick());
@@ -223,6 +173,8 @@ public class FilesFragmentUITest {
 
         onView(withText(R.string.Send)).perform(click());
 
+        UITestHelper.sleep(1000);
+
         //Check Chooser
         intended(allOf(hasAction(Intent.ACTION_CHOOSER), hasExtra(Intent.EXTRA_TITLE, mActivity.getString(R.string.share_via))));
     }
@@ -231,7 +183,7 @@ public class FilesFragmentUITest {
         onView(withId(R.id.fab)).check(matches(isDisplayed())).perform(click());
         onView(withText(R.string.create_folder)).check(matches(isDisplayed())).perform(click());
 
-        onView(allOf(withClassName(endsWith("EditTextFont")))).perform(typeText(CREATE_FOLDER_TEST_NAME));
+        onView(allOf(withClassName(endsWith("EditTextFont")))).perform(setText(CREATE_FOLDER_TEST_NAME));
         onView(withText(R.string.ok)).perform(click());
     }
 

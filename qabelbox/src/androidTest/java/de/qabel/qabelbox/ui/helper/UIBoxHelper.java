@@ -29,6 +29,7 @@ import de.qabel.core.crypto.QblECKeyPair;
 import de.qabel.core.drop.AdjustableDropIdGenerator;
 import de.qabel.core.drop.DropIdGenerator;
 import de.qabel.core.drop.DropURL;
+import de.qabel.qabelbox.BuildConfig;
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.TestConstants;
 import de.qabel.qabelbox.communication.VolumeFileTransferHelper;
@@ -109,21 +110,12 @@ public class UIBoxHelper {
         }
     }
 
-    public boolean deleteFile(Context activity, Identity identity, String name, String targetFolder) {
-        String keyIdentifier = identity.getEcPublicKey().getReadableKeyIdentifier();
-
-        Uri uploadUri = DocumentsContract.buildDocumentUri(BoxProvider.AUTHORITY,
-                keyIdentifier + VolumeFileTransferHelper.HARDCODED_ROOT + targetFolder + name);
-
-        return DocumentsContract.deleteDocument(activity.getContentResolver(), uploadUri);
-    }
-
     public boolean uploadFile(BoxVolume boxVolume, String name, byte[] data, String path) {
         try {
 
             String folderId = boxVolume.getDocumentId(path);
             Uri uploadUri = DocumentsContract.buildDocumentUri(
-                    BoxProvider.AUTHORITY, folderId + name);
+                    BuildConfig.APPLICATION_ID + BoxProvider.AUTHORITY, folderId + name);
             Context self = QabelBoxApplication.getInstance().getApplicationContext();
 
             OutputStream upload = self.getContentResolver().openOutputStream(uploadUri, "w");

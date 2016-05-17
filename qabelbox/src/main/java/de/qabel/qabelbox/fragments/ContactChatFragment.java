@@ -17,12 +17,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -30,9 +30,7 @@ import java.util.Map;
 import de.qabel.core.config.Contact;
 import de.qabel.core.config.Identity;
 import de.qabel.core.drop.DropMessage;
-import de.qabel.core.drop.DropURL;
 import de.qabel.core.exceptions.QblDropPayloadSizeException;
-import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.activities.MainActivity;
 import de.qabel.qabelbox.adapter.ChatMessageAdapter;
@@ -184,7 +182,7 @@ public class ContactChatFragment extends ContactBaseFragment {
                     }
                 }
                 if (!sent) {
-                    getActivity().runOnUiThread(() -> Toast.makeText(getActivity(), R.string.message_chat_message_not_sended, Toast.LENGTH_SHORT).show());
+                    getActivity().runOnUiThread(() -> Toast.makeText(getActivity(), R.string.message_chat_message_not_sent, Toast.LENGTH_SHORT).show());
 
                 }
 
@@ -216,11 +214,14 @@ public class ContactChatFragment extends ContactBaseFragment {
 
     private void fillAdapter(final ArrayList<ChatMessageItem> data) {
 
-        ChatMessageAdapter contactListAdapter = new ChatMessageAdapter(data, contact);
-        contactListAdapter.setEmptyView(emptyView);
-        contactListRecyclerView.setAdapter(contactListAdapter);
-        contactListAdapter.setOnItemClickListener(getOnItemClickListener());
-        contactListAdapter.notifyDataSetChanged();
+        if (contactListRecyclerView.getAdapter() == null) {
+            ChatMessageAdapter contactListAdapter = new ChatMessageAdapter(data, contact);
+            contactListRecyclerView.setAdapter(contactListAdapter);
+            contactListAdapter.setOnItemClickListener(getOnItemClickListener());
+        }
+        ChatMessageAdapter adapter = (ChatMessageAdapter) contactListRecyclerView.getAdapter();
+        adapter.setMessages(data, contact);
+        adapter.notifyDataSetChanged();
     }
 
     @NonNull

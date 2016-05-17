@@ -5,11 +5,10 @@ import android.app.Fragment;
 
 import de.qabel.qabelbox.activities.BaseWizardActivity;
 
-/**
- * Created by danny on 19.01.16.
- */
 public class BaseIdentityFragment extends Fragment {
 
+    public static final String ACCOUNT_NAME = "ACCOUNT_NAME";
+    public static final String ACCOUNT_EMAIL = "ACCOUNT_EMAIL";
     protected BaseWizardActivity mActivity;
 
     @Override

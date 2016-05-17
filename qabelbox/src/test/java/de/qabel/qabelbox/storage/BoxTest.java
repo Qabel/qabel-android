@@ -1,11 +1,15 @@
 package de.qabel.qabelbox.storage;
 
 
-import android.test.AndroidTestCase;
+import android.content.Context;
 
 import org.apache.commons.io.IOUtils;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.robolectric.RobolectricGradleTestRunner;
+import org.robolectric.RuntimeEnvironment;
+import org.robolectric.annotation.Config;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,7 +32,9 @@ import de.qabel.core.crypto.CryptoUtils;
 import de.qabel.core.crypto.QblECKeyPair;
 import de.qabel.core.crypto.QblECPublicKey;
 import de.qabel.core.drop.DropURL;
+import de.qabel.qabelbox.BuildConfig;
 import de.qabel.qabelbox.QabelBoxApplication;
+import de.qabel.qabelbox.SimpleApplication;
 import de.qabel.qabelbox.TestConstants;
 import de.qabel.qabelbox.communication.URLs;
 import de.qabel.qabelbox.config.AppPreference;
@@ -37,15 +43,13 @@ import de.qabel.qabelbox.exceptions.QblStorageNameConflict;
 import de.qabel.qabelbox.exceptions.QblStorageNotFound;
 import de.qabel.qabelbox.util.TestHelper;
 
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.greaterThanOrEqualTo;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.startsWith;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertThat;
 
-public class BoxTest extends AndroidTestCase {
+@RunWith(RobolectricGradleTestRunner.class)
+@Config(application = SimpleApplication.class, constants = BuildConfig.class)
+public class BoxTest {
     private static final Logger logger = LoggerFactory.getLogger(BoxTest.class.getName());
     private static final QblECPublicKey OWNER = new QblECKeyPair().getPub();
 
@@ -66,6 +70,14 @@ public class BoxTest extends AndroidTestCase {
     public void configureTestServer() {
         new AppPreference(QabelBoxApplication.getInstance()).setToken(TestConstants.TOKEN);
         URLs.setBaseBlockURL(TestConstants.BLOCK_URL);
+    }
+
+    private Context getContext() {
+        return RuntimeEnvironment.application;
+    }
+
+    public static void fail(String message) {
+        throw new AssertionError(message);
     }
 
     @Before
@@ -109,8 +121,9 @@ public class BoxTest extends AndroidTestCase {
             throw new NullPointerException("Identity is null");
         }
         QblECKeyPair key = identity.getPrimaryKeyPair();
+        File tmpDir = new File(System.getProperty("java.io.tmpdir"));
         return new BoxVolume(key, prefix,
-                deviceID, getContext());
+                deviceID, getContext(), new FakeTransferManager(tmpDir));
     }
 
     public static String createTestFile() throws IOException {
@@ -142,7 +155,7 @@ public class BoxTest extends AndroidTestCase {
     private void checkExternalReceivedBoxFile(byte[] originalFile, BoxFile boxFile, BoxNavigation navOtherUser) throws QblStorageException, IOException {
         List<BoxObject> boxExternalFiles = navOtherUser.listExternals();
         assertThat(boxExternalFiles.size(), is(1));
-        assertTrue(boxExternalFiles.get(0) instanceof BoxExternalFile);
+        assertThat(boxExternalFiles.get(0), instanceOf(BoxExternalFile.class));
         BoxExternalFile boxFileReceived = (BoxExternalFile) boxExternalFiles.get(0);
         assertThat(boxFile.name, is(equalTo(boxFileReceived.name)));
         assertThat(boxFile.key, is(equalTo(boxFileReceived.key)));
@@ -156,7 +169,7 @@ public class BoxTest extends AndroidTestCase {
 
         List<BoxObject> boxExternalFiles = navOtherUser.listExternals();
         assertThat(boxExternalFiles.size(), is(1));
-        assertTrue(boxExternalFiles.get(0) instanceof BoxExternalFile);
+        assertThat(boxExternalFiles.get(0), instanceOf(BoxExternalFile.class));
         BoxExternalFile boxFileReceived = (BoxExternalFile) boxExternalFiles.get(0);
         assertThat(boxFile.name, is(equalTo(boxFileReceived.name)));
         assertThat(boxFile.key, is(equalTo(boxFileReceived.key)));
@@ -335,17 +348,14 @@ public class BoxTest extends AndroidTestCase {
         final BoxFile boxFile = uploadFile(nav);
         nav.delete(boxFile);
         nav.commit();
-        TestHelper.waitUntil(new Callable<Boolean>() {
-                                 @Override
-                                 public Boolean call() throws Exception {
-                                     try {
-                                         nav.download(boxFile, null);
-                                         return false;
-                                     } catch (QblStorageNotFound e) {
-                                         return true;
-                                     }
-                                 }
-                             },
+        TestHelper.waitUntil(() -> {
+            try {
+                nav.download(boxFile, null);
+                return false;
+            } catch (QblStorageNotFound e) {
+                return true;
+            }
+        },
                 "Expected QblStorageNotFound");
     }
 
@@ -362,7 +372,7 @@ public class BoxTest extends AndroidTestCase {
 
     private void checkFile(BoxFile boxFile, BoxNavigation nav) throws QblStorageException, IOException {
         InputStream dlStream = nav.download(boxFile, null);
-        assertNotNull("Download stream is null", dlStream);
+        assertThat("Download stream is null", dlStream, notNullValue());
         byte[] dl = IOUtils.toByteArray(dlStream);
         File file = new File(testFileName);
         byte[] content = IOUtils.toByteArray(new FileInputStream(file));
@@ -585,7 +595,7 @@ public class BoxTest extends AndroidTestCase {
         corruptCachedFile(boxFile);
 
         InputStream dlStream = nav.download(boxFile, null);
-        assertNotNull("Download stream is null", dlStream);
+        assertThat("Download stream is null", dlStream, notNullValue());
         byte[] dl = IOUtils.toByteArray(dlStream);
         byte[] content = IOUtils.toByteArray(new FileInputStream(file));
         assertThat("Downloaded file is not correct", dl, is(content));

@@ -1,33 +1,22 @@
 package de.qabel.qabelbox.ui.files;
 
 
-import android.os.PowerManager;
-import android.support.test.rule.ActivityTestRule;
+import android.content.Intent;
+import android.support.test.espresso.Espresso;
 import android.widget.SeekBar;
 
 import com.squareup.spoon.Spoon;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.FixMethodOrder;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.runners.MethodSorters;
 
-import java.io.IOException;
-
-import de.qabel.core.config.Identity;
-import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
-import de.qabel.qabelbox.TestConstants;
-import de.qabel.qabelbox.activities.MainActivity;
-import de.qabel.qabelbox.communication.URLs;
 import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.storage.StorageSearch;
-import de.qabel.qabelbox.ui.helper.SystemAnimations;
-import de.qabel.qabelbox.ui.helper.UIActionHelper;
-import de.qabel.qabelbox.ui.helper.UIBoxHelper;
+import de.qabel.qabelbox.ui.AbstractUITest;
 import de.qabel.qabelbox.ui.helper.UITestHelper;
+import de.qabel.qabelbox.ui.idling.InjectedIdlingResource;
 import de.qabel.qabelbox.ui.matcher.QabelMatcher;
 import de.qabel.qabelbox.ui.matcher.ToolbarMatcher;
 
@@ -37,61 +26,30 @@ import static android.support.test.espresso.Espresso.pressBack;
 import static android.support.test.espresso.action.ViewActions.click;
 import static android.support.test.espresso.action.ViewActions.pressImeActionButton;
 import static android.support.test.espresso.action.ViewActions.swipeDown;
-import static android.support.test.espresso.action.ViewActions.typeText;
 import static android.support.test.espresso.assertion.ViewAssertions.matches;
 import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static android.support.test.espresso.matcher.ViewMatchers.withHint;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
+import static de.qabel.qabelbox.ui.action.QabelViewAction.setText;
 
-@FixMethodOrder(MethodSorters.NAME_ASCENDING)
-public class FileSearchUITest {
+public class FileSearchUITest extends AbstractUITest {
 
-    @Rule
-    public ActivityTestRule<MainActivity> mActivityTestRule = new ActivityTestRule<>(MainActivity.class, false, true);
-
-    private MainActivity mActivity;
-    private UIBoxHelper mBoxHelper;
-    private final boolean mFillAccount = true;
-    private PowerManager.WakeLock wakeLock;
-    SystemAnimations mSystemAnimations;
-
-    public FileSearchUITest() throws IOException {
-        //setup data before MainActivity launched. This avoid the call to create identity
-        if (mFillAccount) {
-            setupData();
-        }
-    }
-
-    @After
-    public void cleanUp() {
-        wakeLock.release();
-        mSystemAnimations.enableAll();
-        mBoxHelper.unbindService(QabelBoxApplication.getInstance());
-    }
+    private InjectedIdlingResource idlingResource;
 
     @Before
-    public void setUp() throws IOException, QblStorageException {
-        mActivity = mActivityTestRule.getActivity();
-        wakeLock = UIActionHelper.wakeupDevice(mActivity);
-        mSystemAnimations = new SystemAnimations(mActivity);
-        mSystemAnimations.disableAll();
+    public void setUp() throws Exception {
+        super.setUp();
+        uploadTestFiles();
+        launchActivity(new Intent(Intent.ACTION_MAIN));
+        idlingResource = new InjectedIdlingResource();
+        mActivity.filesFragment.injectIdleCallback(idlingResource);
+        Espresso.registerIdlingResources(idlingResource);
     }
 
-    private void setupData() {
-        mActivity = mActivityTestRule.getActivity();
-        URLs.setBaseBlockURL(TestConstants.BLOCK_URL);
-        mBoxHelper = new UIBoxHelper(QabelBoxApplication.getInstance());
-        mBoxHelper.bindService(QabelBoxApplication.getInstance());
-        mBoxHelper.createTokenIfNeeded(false);
 
-        Identity old = mBoxHelper.getCurrentIdentity();
-        if (old != null) {
-            mBoxHelper.deleteIdentity(old);
-        }
-
-        mBoxHelper.removeAllIdentities();
-        mBoxHelper.addIdentity("spoon");
-        uploadTestFiles();
+    @After
+    public void unRegisterIdlingResource() {
+        Espresso.unregisterIdlingResources(idlingResource);
     }
 
     private void uploadTestFiles() {
@@ -133,7 +91,7 @@ public class FileSearchUITest {
 
         //start search
         onView(withId(R.id.action_search)).perform(click());
-        onView(withHint(R.string.ab_filesearch_hint)).perform(typeText(text), pressImeActionButton());
+        onView(withHint(R.string.ab_filesearch_hint)).perform(setText(text), pressImeActionButton());
         closeSoftKeyboard();
 
         onView(withId(R.id.files_list)).check(matches(QabelMatcher.withListSize(results)));
@@ -158,12 +116,11 @@ public class FileSearchUITest {
         //start new search
         text = "black";
         onView(withId(R.id.action_search)).perform(click());
-        onView(withHint(R.string.ab_filesearch_hint)).perform(typeText(text), pressImeActionButton());
+        onView(withHint(R.string.ab_filesearch_hint)).perform(setText(text), pressImeActionButton());
         closeSoftKeyboard();
 
         onView(withId(R.id.files_list)).check(matches(QabelMatcher.withListSize(3)));
         Spoon.screenshot(mActivity, "after_research");
-        mBoxHelper.deleteFile(mActivity, mBoxHelper.getCurrentIdentity(), "black_3", "");
     }
 
     /**
@@ -175,9 +132,9 @@ public class FileSearchUITest {
     private void testSearch(String text, int results) {
 
         onView(withId(R.id.action_search)).perform(click());
-        onView(withHint(R.string.ab_filesearch_hint)).perform(typeText(text), pressImeActionButton());
+        onView(withHint(R.string.ab_filesearch_hint)).perform(setText(text), pressImeActionButton());
         closeSoftKeyboard();
-
+        UITestHelper.sleep(200);
         onView(withId(R.id.files_list)).check(matches(QabelMatcher.withListSize(results)));
         Spoon.screenshot(mActivity, "results_" + text);
         pressBack();
@@ -200,7 +157,7 @@ public class FileSearchUITest {
     private void testSearchWithFilter(String text, int fileSizeMin, int fileSizeMax, int results, boolean screenShot) {
 
         onView(withId(R.id.action_search)).perform(click());
-        onView(withHint(R.string.ab_filesearch_hint)).perform(typeText(text), pressImeActionButton());
+        onView(withHint(R.string.ab_filesearch_hint)).perform(setText(text), pressImeActionButton());
         closeSoftKeyboard();
         UITestHelper.sleep(500);
         onView(withId(R.id.action_ok)).check(matches(isDisplayed())).perform(click());

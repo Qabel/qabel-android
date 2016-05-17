@@ -838,8 +838,12 @@ public class FilesFragment extends BaseFragment {
         if(path != null && path.contains(BoxFolder.RECEIVED_SHARE_NAME)){
             path = path.replace(BoxFolder.RECEIVED_SHARE_NAME, getString(R.string.shared_with_you));
         }
-        if (actionBar != null)
+        if (actionBar != null) {
             actionBar.setSubtitle(path);
+            if (isSearchOpened) {
+                removeSearchInActionbar(actionBar);
+            }
+        }
     }
 
     private void preBrowseTo() {

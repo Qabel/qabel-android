@@ -23,6 +23,7 @@ import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.Stack;
@@ -32,6 +33,7 @@ import de.qabel.core.crypto.CryptoUtils;
 import de.qabel.core.crypto.QblECKeyPair;
 import de.qabel.core.crypto.QblECPublicKey;
 import de.qabel.qabelbox.communication.URLs;
+import de.qabel.qabelbox.exceptions.QblServerException;
 import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.exceptions.QblStorageNameConflict;
 import de.qabel.qabelbox.exceptions.QblStorageNotFound;
@@ -108,13 +110,23 @@ public abstract class AbstractNavigation implements BoxNavigation {
         return filepath.substring(filepath.lastIndexOf('/') + 1, filepath.length());
     }
 
-    protected File blockingDownload(String prefix, String name, BoxTransferListener boxTransferListener) throws QblStorageNotFound {
+    protected File blockingDownload(String prefix, String name, BoxTransferListener boxTransferListener) throws QblStorageException {
         File file = transferManager.createTempFile();
         int id = transferManager.download(prefix, name, file, boxTransferListener);
         if (transferManager.waitFor(id)) {
             return file;
         } else {
-            throw new QblStorageNotFound("File not found. Prefix: " + prefix + " Name: " + name);
+            try {
+                Exception ex = transferManager.lookupError(id);
+                throw ex;
+            }catch (QblServerException e){
+                if(e.getStatusCode() == 404){
+                    throw new QblStorageNotFound("File not found. Prefix: " + prefix + " Name: " + name);
+                }
+                throw new QblStorageException(e);
+            }catch (Exception e){
+                throw new QblStorageException(e);
+            }
         }
     }
 
@@ -317,8 +329,10 @@ public abstract class AbstractNavigation implements BoxNavigation {
 
     @Override
     public List<BoxObject> listExternals() throws QblStorageException {
-        List<BoxObject> boxExternals = new ArrayList<>();
-        for (BoxExternalReference boxExternalRefs : dm.listExternalReferences()) {
+        List<BoxExternalReference> references = dm.listExternalReferences();
+        List<BoxObject> boxExternals = new ArrayList<>(references.size());
+        List<BoxExternalReference> referencesNotFound = new LinkedList<>();
+        for (BoxExternalReference boxExternalRefs : references) {
             try {
                 File out = getMetadataFile(boxExternalRefs.getPrefix(), boxExternalRefs.getBlock(), boxExternalRefs.key);
                 if (boxExternalRefs.isFolder) {
@@ -333,7 +347,7 @@ public abstract class AbstractNavigation implements BoxNavigation {
                 }
             } catch (QblStorageNotFound e) {
                 Log.d(TAG, "External reference not found: " + boxExternalRefs.name);
-                dm.deleteExternalReference(boxExternalRefs.name);
+                referencesNotFound.add(boxExternalRefs);
             } catch (QblStorageException e) {
                 Log.e(TAG, "Cannot load metadata file: " + boxExternalRefs.getPrefix() + '/' + boxExternalRefs.getBlock());
                 if (boxExternalRefs.isFolder) {
@@ -344,6 +358,12 @@ public abstract class AbstractNavigation implements BoxNavigation {
                             boxExternalRefs.name, boxExternalRefs.key, false));
                 }
             }
+        }
+        if (referencesNotFound.size() > 0) {
+            for (BoxExternalReference reference : referencesNotFound) {
+                detachExternal(reference.name);
+            }
+            commit();
         }
         return boxExternals;
     }
@@ -543,7 +563,7 @@ public abstract class AbstractNavigation implements BoxNavigation {
         dm.deleteExternalReference(name);
     }
 
-    private File refreshCache(BoxFile boxFile, @Nullable BoxTransferListener boxTransferListener) throws QblStorageNotFound {
+    private File refreshCache(BoxFile boxFile, @Nullable BoxTransferListener boxTransferListener) throws QblStorageException {
         logger.info("Refreshing cache: " + boxFile.block);
         File download = blockingDownload(boxFile.prefix, BLOCKS_PREFIX + boxFile.block, boxTransferListener);
         cache.put(boxFile, download);

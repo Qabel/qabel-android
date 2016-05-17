@@ -50,6 +50,7 @@ import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.startsWith;
 import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
 @RunWith(RobolectricGradleTestRunner.class)
@@ -276,22 +277,17 @@ public class BoxTest {
         BoxExternalReference boxExternalReference = nav.createFileMetadata(OWNER, boxFile);
 
         // Share meta and metakey to other user
-
         BoxNavigation navOtherUser = volumeOtherUser.navigate();
         navOtherUser.attachExternal(boxExternalReference);
+
+        assertEquals(1, navOtherUser.listExternals().size());
 
         checkExternalReceivedBoxFile(boxFile, navOtherUser);
 
         boxFile = uploadFile(nav, "foobar");
 
-        // Check that updated file can still be read
-
-        //checkExternalReceivedBoxFile(IOUtils.toByteArray(new FileInputStream(new File(testFileName))), boxFile, navOtherUser);
-
         // Remove FileMetadata and update file
         nav.removeFileMetadata(boxFile);
-
-        uploadFile(nav, "foobar");
 
         // Check that updated file cannot be read anymore
         List<BoxObject> boxExternalFiles = navOtherUser.listExternals();

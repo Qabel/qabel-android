@@ -285,22 +285,17 @@ public class MainActivity extends CrashReportingActivity
                     AlertDialog.Builder builder = new AlertDialog.Builder(self);
                     builder.setTitle(R.string.no_connection)
                             .setIcon(R.drawable.information)
-                            .setNegativeButton(R.string.close_app, new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int id) {
-                                    self.finishAffinity();
-                                }
+                            .setNegativeButton(R.string.close_app, (dialog, id) -> {
+                                self.finishAffinity();
                             })
                             .setPositiveButton(R.string.retry_action, null);
                     offlineIndicator = builder.create();
                     offlineIndicator.setCancelable(false);
                     offlineIndicator.show();
-                    offlineIndicator.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            if (connectivityManager.isConnected()) {
-                                offlineIndicator.dismiss();
-                                offlineIndicator = null;
-                            }
+                    offlineIndicator.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(v -> {
+                        if (connectivityManager.isConnected()) {
+                            offlineIndicator.dismiss();
+                            offlineIndicator = null;
                         }
                     });
                 } else {
@@ -421,7 +416,6 @@ public class MainActivity extends CrashReportingActivity
         Log.i(TAG, "Intent action: " + action);
 
         // Checks if a fragment should be launched
-
         boolean start_files_fragment = intent.getBooleanExtra(START_FILES_FRAGMENT, true);
         boolean start_contacts_fragment = intent.getBooleanExtra(START_CONTACTS_FRAGMENT, false);
         if (type != null && intent.getAction() != null) {
@@ -603,36 +597,30 @@ public class MainActivity extends CrashReportingActivity
 
         new BottomSheet.Builder(self).sheet(R.menu.bottom_sheet_files_add)
                 .grid()
-                .listener(new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-
-                        switch (which) {
-                            case R.id.create_folder:
-                                newFolderDialog();
-                                break;
-                            case R.id.upload_file:
-                                Intent intentOpen = new Intent(Intent.ACTION_OPEN_DOCUMENT);
-                                intentOpen.addCategory(Intent.CATEGORY_OPENABLE);
-                                intentOpen.setType("*/*");
-                                startActivityForResult(intentOpen, REQUEST_CODE_UPLOAD_FILE);
-                                break;
-                        }
+                .listener((dialog, which) -> {
+                    switch (which) {
+                        case R.id.create_folder:
+                            newFolderDialog();
+                            break;
+                        case R.id.upload_file:
+                            Intent intentOpen = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+                            intentOpen.addCategory(Intent.CATEGORY_OPENABLE);
+                            intentOpen.setType("*/*");
+                            startActivityForResult(intentOpen, REQUEST_CODE_UPLOAD_FILE);
+                            break;
                     }
                 }).show();
     }
 
     private void newFolderDialog() {
 
-        UIHelper.showEditTextDialog(this, R.string.add_folder_header, R.string.add_folder_name, R.string.ok, R.string.cancel, new UIHelper.EditTextDialogClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which, EditText editText) {
+        UIHelper.showEditTextDialog(this, R.string.add_folder_header, R.string.add_folder_name,
+                R.string.ok, R.string.cancel, (dialog, which, editText) -> {
 
-                UIHelper.hideKeyboard(self, editText);
-                String newFolderName = editText.getText().toString();
-                if (!newFolderName.equals("")) {
-                    createFolder(newFolderName, filesFragment.getBoxNavigation());
-                }
+            UIHelper.hideKeyboard(self, editText);
+            String newFolderName = editText.getText().toString();
+            if (!newFolderName.equals("")) {
+                createFolder(newFolderName, filesFragment.getBoxNavigation());
             }
         }, null);
     }
@@ -723,12 +711,9 @@ public class MainActivity extends CrashReportingActivity
                 switch (activeFragment.getTag()) {
                     case TAG_FILES_SHARE_INTO_APP_FRAGMENT:
                         if (!shareFragment.handleBackPressed() && !shareFragment.browseToParent()) {
-                            UIHelper.showDialogMessage(self, R.string.dialog_headline_warning, R.string.share_in_app_go_back_without_upload, R.string.yes, R.string.no, new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    getFragmentManager().popBackStack();
-                                    //finish();
-                                }
+                            UIHelper.showDialogMessage(self, R.string.dialog_headline_warning,
+                                    R.string.share_in_app_go_back_without_upload, R.string.yes, R.string.no, (dialog, which) -> {
+                                getFragmentManager().popBackStack();
                             }, null);
                         }
                         break;
@@ -901,39 +886,36 @@ public class MainActivity extends CrashReportingActivity
                         .title(boxObject.name)
                         .icon((boxObject instanceof BoxFolder ? R.drawable.folder : R.drawable.file))
                         .sheet(R.menu.bottom_sheet_files)
-                        .listener(new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
+                        .listener((dialog, which) -> {
 
-                                switch (which) {
-                                    case R.id.open:
-                                        ExternalApps.openExternApp(self, VolumeFileTransferHelper.getUri(boxObject, boxVolume, filesFragment.getBoxNavigation()), getMimeType(boxObject), Intent.ACTION_VIEW);
-                                        break;
-                                    case R.id.edit:
-                                        ExternalApps.openExternApp(self, VolumeFileTransferHelper.getUri(boxObject, boxVolume, filesFragment.getBoxNavigation()), getMimeType(boxObject), Intent.ACTION_EDIT);
-                                        break;
-                                    case R.id.share:
-                                        ExternalApps.share(self, VolumeFileTransferHelper.getUri(boxObject, boxVolume, filesFragment.getBoxNavigation()), getMimeType(boxObject));
-                                        break;
-                                    case R.id.fordward:
-                                        ShareHelper.shareToQabelUser(self, mService, boxObject);
-                                        break;
-                                    case R.id.delete:
-                                        filesFragment.delete(boxObject);
-                                        break;
-                                    case R.id.unshare:
-                                        filesFragment.unshare((BoxFile) boxObject);
-                                        break;
-                                    case R.id.export:
-                                        // Export handled in the MainActivity
-                                        if (boxObject instanceof BoxFolder) {
-                                            Toast.makeText(self, R.string.folder_export_not_implemented,
-                                                    Toast.LENGTH_SHORT).show();
-                                        } else {
-                                            onExport(filesFragment.getBoxNavigation(), boxObject);
-                                        }
-                                        break;
-                                }
+                            switch (which) {
+                                case R.id.open:
+                                    ExternalApps.openExternApp(self, VolumeFileTransferHelper.getUri(boxObject, boxVolume, filesFragment.getBoxNavigation()), getMimeType(boxObject), Intent.ACTION_VIEW);
+                                    break;
+                                case R.id.edit:
+                                    ExternalApps.openExternApp(self, VolumeFileTransferHelper.getUri(boxObject, boxVolume, filesFragment.getBoxNavigation()), getMimeType(boxObject), Intent.ACTION_EDIT);
+                                    break;
+                                case R.id.share:
+                                    ExternalApps.share(self, VolumeFileTransferHelper.getUri(boxObject, boxVolume, filesFragment.getBoxNavigation()), getMimeType(boxObject));
+                                    break;
+                                case R.id.fordward:
+                                    ShareHelper.shareToQabelUser(self, mService, boxObject);
+                                    break;
+                                case R.id.delete:
+                                    filesFragment.delete(boxObject);
+                                    break;
+                                case R.id.unshare:
+                                    filesFragment.unshare((BoxFile) boxObject);
+                                    break;
+                                case R.id.export:
+                                    // Export handled in the MainActivity
+                                    if (boxObject instanceof BoxFolder) {
+                                        Toast.makeText(self, R.string.folder_export_not_implemented,
+                                                Toast.LENGTH_SHORT).show();
+                                    } else {
+                                        onExport(filesFragment.getBoxNavigation(), boxObject);
+                                    }
+                                    break;
                             }
                         });
                 filterSheet(boxObject, sheet);
@@ -971,12 +953,10 @@ public class MainActivity extends CrashReportingActivity
         provider.notifyRootsUpdated();
         mService.deleteIdentity(identity);
         if (mService.getIdentities().getIdentities().size() == 0) {
-            UIHelper.showDialogMessage(this, R.string.dialog_headline_info, R.string.last_identity_delete_create_new, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
+            UIHelper.showDialogMessage(this, R.string.dialog_headline_info,
+                    R.string.last_identity_delete_create_new, (dialog, which) -> {
 
-                    selectAddIdentityFragment();
-                }
+                selectAddIdentityFragment();
             });
         } else {
             changeActiveIdentity(mService.getIdentities().getIdentities().iterator().next());

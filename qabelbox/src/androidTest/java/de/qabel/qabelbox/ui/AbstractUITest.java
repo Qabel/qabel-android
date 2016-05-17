@@ -18,9 +18,6 @@ import de.qabel.qabelbox.ui.helper.SystemAnimations;
 import de.qabel.qabelbox.ui.helper.UIActionHelper;
 import de.qabel.qabelbox.ui.helper.UIBoxHelper;
 
-/**
- * Created by dax_2 on 13.05.2016.
- */
 public class AbstractUITest {
     @Rule
     public IntentsTestRule<MainActivity> mActivityTestRule =

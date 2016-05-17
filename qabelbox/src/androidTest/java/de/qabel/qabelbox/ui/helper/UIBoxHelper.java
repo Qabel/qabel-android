@@ -45,10 +45,6 @@ import de.qabel.qabelbox.storage.BoxObject;
 import de.qabel.qabelbox.storage.BoxVolume;
 import de.qabel.qabelbox.storage.StorageSearch;
 
-/**
- * //TODO Refactor Volume handling after merge
- * //Split up to Core- and BoxHelper
- */
 public class UIBoxHelper {
 
     private final String TAG = this.getClass().getSimpleName();
@@ -184,14 +180,6 @@ public class UIBoxHelper {
         return navigation.createFolder(name);
     }
 
-    public void deleteFolder(String name, Identity identity, String path) throws QblStorageException {
-        BoxNavigation navigation = createNavigation(identity, path);
-        BoxFolder target = getBoxObject(BoxFolder.class, navigation, path);
-        if (target != null) {
-            navigation.delete(target);
-        }
-    }
-
     public Identity addIdentityWithoutVolume(final String identityName) {
 
         Identity identity = createIdentity(identityName);
@@ -245,8 +233,8 @@ public class UIBoxHelper {
     }
 
     public void setActiveIdentity(Identity identity) {
-
         mService.setActiveIdentity(identity);
+        mBoxVolume = identityVolumes.get(identity.getKeyIdentifier());
     }
 
     public void deleteIdentity(Identity identity) {

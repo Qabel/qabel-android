@@ -2,6 +2,7 @@ package de.qabel.qabelbox.ui.files;
 
 import android.content.Intent;
 import android.support.design.internal.NavigationMenuItemView;
+import android.support.test.espresso.Espresso;
 
 import com.squareup.spoon.Spoon;
 
@@ -18,6 +19,8 @@ import de.qabel.core.config.Identity;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.ui.AbstractUITest;
 import de.qabel.qabelbox.ui.helper.UITestHelper;
+import de.qabel.qabelbox.ui.idling.InjectedIdlingResource;
+import de.qabel.qabelbox.ui.idling.WaitResourceCallback;
 import de.qabel.qabelbox.ui.matcher.QabelMatcher;
 import de.qabel.qabelbox.ui.matcher.ToastMatcher;
 import de.qabel.qabelbox.ui.matcher.ToolbarMatcher;
@@ -32,7 +35,6 @@ import static android.support.test.espresso.contrib.DrawerActions.openDrawer;
 import static android.support.test.espresso.intent.Intents.intended;
 import static android.support.test.espresso.intent.matcher.IntentMatchers.hasAction;
 import static android.support.test.espresso.intent.matcher.IntentMatchers.hasExtra;
-import static android.support.test.espresso.matcher.RootMatchers.isDialog;
 import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static android.support.test.espresso.matcher.ViewMatchers.withClassName;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
@@ -46,9 +48,10 @@ import static org.hamcrest.Matchers.is;
 
 public class FilesFragmentUITest extends AbstractUITest {
 
-    private static final String TAG = FilesFragmentUITest.class.getSimpleName();
     private static final String TEST_FOLDER = "Bilder";
     private static final String CREATE_FOLDER_TEST_NAME = "TestDirectory";
+
+    private InjectedIdlingResource idlingResource;
 
     private Identity testIdentity;
     private Identity testIdentity2;
@@ -62,7 +65,7 @@ public class FilesFragmentUITest extends AbstractUITest {
             new ExampleFile("black_1.png", new byte[1011]),
             new ExampleFile("black_2.png", new byte[1024 * 2]));
 
-    private static class ExampleFile {
+    private class ExampleFile {
 
         private String name;
         private byte[] data;
@@ -87,20 +90,23 @@ public class FilesFragmentUITest extends AbstractUITest {
         super.setUp();
         setupData();
         launchActivity(new Intent(Intent.ACTION_MAIN));
+        idlingResource = new InjectedIdlingResource();
+        mActivity.filesFragment.injectIdleCallback(idlingResource);
+        Espresso.registerIdlingResources(idlingResource);
     }
 
     private void setupData() throws Exception {
         testIdentity = mBoxHelper.addIdentity("spoon");
         testIdentity2 = mBoxHelper.addIdentityWithoutVolume("spoon2");
 
-        testContact = new Contact(testIdentity.getAlias(), testIdentity.getDropUrls(), testIdentity.getEcPublicKey());
+        testContact = new Contact(identity.getAlias(), identity.getDropUrls(), identity.getEcPublicKey());
         testContact2 = new Contact(testIdentity2.getAlias(), testIdentity2.getDropUrls(), testIdentity2.getEcPublicKey());
 
         mBoxHelper.getService().addContact(testContact);
-        mBoxHelper.setActiveIdentity(testIdentity);
+        mBoxHelper.setActiveIdentity(identity);
         mBoxHelper.getService().addContact(testContact2);
 
-        mBoxHelper.setActiveIdentity(testIdentity);
+        mBoxHelper.setActiveIdentity(identity);
 
         mBoxHelper.createFolder(TEST_FOLDER, testIdentity, null);
 
@@ -110,9 +116,15 @@ public class FilesFragmentUITest extends AbstractUITest {
         mBoxHelper.waitUntilFileCount(exampleFiles.size());
     }
 
+    @Override
+    public void cleanUp() {
+        Espresso.unregisterIdlingResources(idlingResource);
+        super.cleanUp();
+    }
+
     @Test
     @Ignore("Refactoring needed")
-    public void shareFileTest() {
+    public void shareFileTest() throws Exception {
         Spoon.screenshot(mActivity, "startup");
         onView(withText(exampleFiles.get(0).getName())).perform(longClick());
 
@@ -126,9 +138,15 @@ public class FilesFragmentUITest extends AbstractUITest {
         //Check Contact is Visible
         onView(withText(testContact2.getAlias())).check(matches(isDisplayed()));
 
+        WaitResourceCallback waitCallback = new WaitResourceCallback();
+        idlingResource.registerIdleTransitionCallback(waitCallback);
+
         //Perform share
         onView(withText(R.string.ok)).perform(click());
-        onView(withText(R.string.dialog_share_sending_in_progress)).inRoot(isDialog()).check(matches(isDisplayed()));
+
+        UITestHelper.waitUntil(() -> waitCallback.isDone(), "Perform share failed!");
+
+       // onView(withText(R.string.dialog_share_sending_in_progress)).inRoot(isDialog()).check(matches(isDisplayed()));
 
         //Check success message
         onView(withText(R.string.messsage_file_shared)).inRoot(ToastMatcher.isToast()).check(matches(isDisplayed()));
@@ -138,7 +156,7 @@ public class FilesFragmentUITest extends AbstractUITest {
         onView(withId(R.id.imageViewExpandIdentity)).check(matches(isDisplayed())).perform(click());
         onView(allOf(is(instanceOf(NavigationMenuItemView.class)), withText(testIdentity2.getAlias()))).perform(click());
 
-        //Accept share from testIdentity
+        //Accept share from identity
         openDrawer(R.id.drawer_layout);
         onView(withText(R.string.Contacts)).check(matches(isDisplayed())).perform(click());
         onView(withText(testContact.getAlias())).check(matches(isDisplayed())).perform(click());
@@ -157,8 +175,6 @@ public class FilesFragmentUITest extends AbstractUITest {
         //Check shared file is visible in shared files folder
         onData(withText(exampleFiles.get(0).getName())).inAdapterView(withId(R.id.files_list)).check(matches(isDisplayed()));
         containsString(mActivity.getString(R.string.filebrowser_file_is_shared_from).replace("%1", testContact2.getAlias())).matches(isDisplayed());
-
-        Spoon.screenshot(mActivity, "after");
     }
 
     private void goToFiles() {

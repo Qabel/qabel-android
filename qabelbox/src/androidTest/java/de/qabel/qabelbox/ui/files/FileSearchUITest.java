@@ -12,11 +12,12 @@ import org.junit.Before;
 import org.junit.Test;
 
 import de.qabel.qabelbox.R;
-import de.qabel.qabelbox.exceptions.QblStorageException;
+import de.qabel.qabelbox.fragments.FilesSearchResultFragment;
 import de.qabel.qabelbox.storage.StorageSearch;
 import de.qabel.qabelbox.ui.AbstractUITest;
 import de.qabel.qabelbox.ui.helper.UITestHelper;
 import de.qabel.qabelbox.ui.idling.InjectedIdlingResource;
+import de.qabel.qabelbox.ui.idling.WaitResourceCallback;
 import de.qabel.qabelbox.ui.matcher.QabelMatcher;
 import de.qabel.qabelbox.ui.matcher.ToolbarMatcher;
 
@@ -42,7 +43,6 @@ public class FileSearchUITest extends AbstractUITest {
         uploadTestFiles();
         launchActivity(new Intent(Intent.ACTION_MAIN));
         idlingResource = new InjectedIdlingResource();
-        mActivity.filesFragment.injectIdleCallback(idlingResource);
         Espresso.registerIdlingResources(idlingResource);
     }
 
@@ -84,7 +84,7 @@ public class FileSearchUITest extends AbstractUITest {
     }
 
     @Test
-    public void search3CacheTest() throws QblStorageException {
+    public void search3CacheTest() throws Exception {
 
         String text = "";
         int results = 7;
@@ -96,20 +96,25 @@ public class FileSearchUITest extends AbstractUITest {
 
         onView(withId(R.id.files_list)).check(matches(QabelMatcher.withListSize(results)));
         int fileCount = new StorageSearch(mBoxHelper.mBoxVolume.navigate()).getResults().size();
-        Spoon.screenshot(mActivity, "before_upload");
 
         //uploadAndDeleteLocalfile file
         mBoxHelper.uploadFile(mBoxHelper.mBoxVolume, "black_3", new byte[1024], "");
         mBoxHelper.waitUntilFileCount(fileCount + 1);
 
+        FilesSearchResultFragment searchResultFragment = (FilesSearchResultFragment)mActivity.getFragmentManager().findFragmentByTag(FilesSearchResultFragment.TAG);
+        searchResultFragment.injectIdleCallback(idlingResource);
+
+        WaitResourceCallback waitResourceCallback = new WaitResourceCallback();
+        idlingResource.registerIdleTransitionCallback(waitResourceCallback);
         //Refresh and check new item is visible
         onView(withId(R.id.files_list)).perform(swipeDown());
+
+        UITestHelper.waitUntil(() -> waitResourceCallback.isDone(), "refresh files failed");
+
         onView(withId(R.id.files_list)).check(matches(QabelMatcher.withListSize(fileCount + 1)));
-        Spoon.screenshot(mActivity, "after_refresh");
 
         //Back to files
         pressBack();
-        Spoon.screenshot(mActivity, "after_press_back");
 
         testIfFileBrowserDisplayed(fileCount + 1);
 
@@ -120,7 +125,6 @@ public class FileSearchUITest extends AbstractUITest {
         closeSoftKeyboard();
 
         onView(withId(R.id.files_list)).check(matches(QabelMatcher.withListSize(3)));
-        Spoon.screenshot(mActivity, "after_research");
     }
 
     /**
@@ -136,13 +140,12 @@ public class FileSearchUITest extends AbstractUITest {
         closeSoftKeyboard();
         UITestHelper.sleep(200);
         onView(withId(R.id.files_list)).check(matches(QabelMatcher.withListSize(results)));
-        Spoon.screenshot(mActivity, "results_" + text);
+
         pressBack();
         testIfFileBrowserDisplayed(7);
     }
 
     private void testIfFileBrowserDisplayed(int count) {
-
         ToolbarMatcher.matchToolbarTitle(mActivity.getString(R.string.headline_files))
                 .check(matches(isDisplayed()));
         onView(withId(R.id.files_list)).check(matches(QabelMatcher.withListSize(count)));
@@ -163,17 +166,12 @@ public class FileSearchUITest extends AbstractUITest {
         onView(withId(R.id.action_ok)).check(matches(isDisplayed())).perform(click());
         ((SeekBar) mActivity.findViewById(R.id.sbFileSizeMin)).setProgress(fileSizeMin);
         ((SeekBar) mActivity.findViewById(R.id.sbFileSizeMax)).setProgress(fileSizeMax);
-        if (screenShot) {
-            Spoon.screenshot(mActivity, "filter_" + fileSizeMin + "_" + fileSizeMax);
-        }
+
         onView(withId(R.id.action_use_filter)).perform(click());
 
         onView(withId(R.id.files_list)).
                 check(matches(isDisplayed())).
                 check(matches(QabelMatcher.withListSize(results)));
-        if (screenShot) {
-            Spoon.screenshot(mActivity, "filter_result_" + fileSizeMin + "_" + fileSizeMax);
-        }
 
         pressBack();
         testIfFileBrowserDisplayed(7);

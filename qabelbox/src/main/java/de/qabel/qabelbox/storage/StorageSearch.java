@@ -61,7 +61,7 @@ public class StorageSearch {
     }
 
     public boolean isValidSearchTerm(String name) {
-        return name != null && !"".equals(name.trim());
+        return name != null && !name.trim().isEmpty();
     }
 
     public List<BoxFile> toBoxFiles(List<BoxObject> lst) {

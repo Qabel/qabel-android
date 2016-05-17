@@ -53,6 +53,8 @@ public class StorageSearch {
         if (!this.path.equals(navigation.getPath())) {
             setupData(navigation);
             this.path = navigation.getPath();
+        }else {
+            reset();
         }
     }
 

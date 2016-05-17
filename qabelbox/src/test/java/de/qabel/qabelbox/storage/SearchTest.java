@@ -78,29 +78,24 @@ public class SearchTest {
 
     @Before
     public void setUp() throws Exception {
-        if (navigation == null) {
-            CryptoUtils utils = new CryptoUtils();
-            byte[] deviceID = utils.getRandomBytes(16);
-            QblECKeyPair keyPair = new QblECKeyPair();
+        CryptoUtils utils = new CryptoUtils();
+        byte[] deviceID = utils.getRandomBytes(16);
+        QblECKeyPair keyPair = new QblECKeyPair();
 
-            BoxVolume volume = new BoxVolume(keyPair, TestConstants.PREFIX,
-                    deviceID, RuntimeEnvironment.application,
-                    new FakeTransferManager(FileHelper.getSystemTmp()));
+        BoxVolume volume = new BoxVolume(keyPair, TestConstants.PREFIX,
+                deviceID, RuntimeEnvironment.application,
+                new FakeTransferManager(FileHelper.getSystemTmp()));
 
-            volume.createIndex();
+        volume.createIndex();
 
-            Log.d(TAG, "VOL :" + volume.toString());
+        Log.d(TAG, "VOL :" + volume.toString());
 
-            navigation = volume.navigate();
+        navigation = volume.navigate();
 
-            setupFakeDirectoryStructure(keyPair);
+        setupFakeDirectoryStructure(keyPair);
 
-            navigation.navigateToRoot();
-            rootStorageSearch = new StorageSearch(navigation);
-        } else {
-            rootStorageSearch.reset();
-            navigation.navigateToRoot();
-        }
+        navigation.navigateToRoot();
+        rootStorageSearch = new StorageSearch(navigation);
     }
 
     private void setupFakeDirectoryStructure(QblECKeyPair keyPair) throws Exception {

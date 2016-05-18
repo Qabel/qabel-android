@@ -31,6 +31,7 @@ import de.qabel.qabelbox.exceptions.QblStorageEntityExistsException;
 import de.qabel.qabelbox.fragments.ContactFragment;
 import de.qabel.qabelbox.helper.FileHelper;
 import de.qabel.qabelbox.services.LocalQabelService;
+import de.qabel.qabelbox.ui.helper.UITestHelper;
 import de.qabel.qabelbox.ui.matcher.ToolbarMatcher;
 
 import static android.support.test.espresso.Espresso.onView;
@@ -111,24 +112,24 @@ public class ImportExportContactsUITest extends AbstractUITest {
     }
 
     @Test
-    public void testExportContactAsQRCode() {
+    public void testExportContactAsQRCode() throws Throwable {
         onView(withId(R.id.contact_list)).perform(RecyclerViewActions.actionOnItem(hasDescendant(withText(CONTACT_1)), longClick()));
         onView(withText(R.string.ExportAsContactWithQRcode)).check(matches(isDisplayed())).perform(click());
         onView(withText(CONTACT_1)).check(matches(isDisplayed()));
         ToolbarMatcher.matchToolbarTitle(mActivity.getString(R.string.headline_qrcode)).check(matches(isDisplayed()));
-        Spoon.screenshot(mActivity, "contactQR");
+        UITestHelper.screenShot(mActivity, "contactQR");
 
     }
 
     @Test
-    public void testExportSingleContact() throws Exception {
+    public void testExportSingleContact() throws Throwable {
 
         String userName = "contact1";
         File file1 = new File(mActivity.getCacheDir(), "testexportcontact");
         onView(withId(R.id.contact_list))
                 .perform(RecyclerViewActions.actionOnItem(
                         hasDescendant(withText(userName)), longClick()));
-        Spoon.screenshot(mActivity, "exportOne");
+        UITestHelper.screenShot(mActivity, "exportOne");
         Intent data = new Intent();
         data.setData(Uri.fromFile(file1));
         ContactFragment contactFragment = (ContactFragment) mActivity.getFragmentManager().findFragmentById(R.id.fragment_container);
@@ -147,7 +148,7 @@ public class ImportExportContactsUITest extends AbstractUITest {
     }
 
     @Test
-    public void testExportContactToExternal(){
+    public void testExportContactToExternal() throws Throwable {
         //Open dialog for Contact 1
         onView(withId(R.id.contact_list))
                 .perform(RecyclerViewActions.actionOnItem(
@@ -160,19 +161,19 @@ public class ImportExportContactsUITest extends AbstractUITest {
         onView(withText(R.string.Send)).inRoot(isDialog()).perform(click());
         //Check Chooser for SendIntent is visible
         intended(IntentMatchers.hasExtra(equalTo(Intent.EXTRA_INTENT),
-                        IntentMatchers.hasAction(Intent.ACTION_SEND)));
+                IntentMatchers.hasAction(Intent.ACTION_SEND)));
 
 
-        Spoon.screenshot(mActivity, "sendContact");
+        UITestHelper.screenShot(mActivity, "sendContact");
     }
 
     @Test
-    public void testExportManyContact() throws JSONException {
+    public void testExportManyContact() throws Throwable {
 
         File file1 = new File(mActivity.getCacheDir(), "testexportallcontact");
         assertNotNull(file1);
         openActionBarOverflowOrOptionsMenu(InstrumentationRegistry.getTargetContext());
-        Spoon.screenshot(mActivity, "exportAll");
+        UITestHelper.screenShot(mActivity, "exportAll");
         Intent data = new Intent();
         data.setData(Uri.fromFile(file1));
         ContactFragment contactFragment = (ContactFragment) mActivity.

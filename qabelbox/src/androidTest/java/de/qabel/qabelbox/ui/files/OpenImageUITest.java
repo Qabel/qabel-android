@@ -36,6 +36,7 @@ import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.ui.helper.SystemAnimations;
 import de.qabel.qabelbox.ui.helper.UIActionHelper;
 import de.qabel.qabelbox.ui.helper.UIBoxHelper;
+import de.qabel.qabelbox.ui.helper.UITestHelper;
 
 import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.Espresso.pressBack;
@@ -113,15 +114,15 @@ public class OpenImageUITest {
     }
 
     @Test
-    public void testOpenFiles() {
+    public void testOpenFiles() throws Throwable {
 
-        Spoon.screenshot(mActivity, "startup");
+        UITestHelper.screenShot(mActivity, "startup");
         mPicassoIdlingResource.init(mActivity);
         testFile("file1.jpg");
-        Spoon.screenshot(mActivity, "open_jpg");
+        UITestHelper.screenShot(mActivity, "open_jpg");
         pressBack();
         testFile("file2.png");
-        Spoon.screenshot(mActivity, "open_png");
+        UITestHelper.screenShot(mActivity, "open_png");
         Instrumentation.ActivityResult activityResult = new Instrumentation.ActivityResult(
                 Activity.RESULT_OK, new Intent());
         Matcher<Intent> expectedIntent = allOf(hasAction(Intent.ACTION_CHOOSER));
@@ -133,11 +134,11 @@ public class OpenImageUITest {
     }
 
     @Test
-    public void testDefectFiles() {
+    public void testDefectFiles() throws Throwable {
         mPicassoIdlingResource.init(mActivity);
         testFile("defect.png");
         onView(withDrawable(R.drawable.message_alert_white)).check(matches(isDisplayed()));
-        Spoon.screenshot(mActivity, "open_defect_file");
+        UITestHelper.screenShot(mActivity, "open_defect_file");
     }
 
     private void testFile(String file) {

@@ -24,6 +24,7 @@ import de.qabel.qabelbox.config.AppPreference;
 import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.ui.helper.SystemAnimations;
 import de.qabel.qabelbox.ui.helper.UIActionHelper;
+import de.qabel.qabelbox.ui.helper.UITestHelper;
 
 import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.assertion.ViewAssertions.matches;
@@ -66,9 +67,9 @@ public class SplashUITest {
 
 
     @Test
-    public void testShowSplashScreen() {
+    public void testShowSplashScreen() throws Throwable {
         onView(withText(R.string.splash_footer_text)).check(matches(isDisplayed()));
-        Spoon.screenshot(mActivity, "splashscreen");
+        UITestHelper.screenShot(mActivity, "splashscreen");
 
 
     }

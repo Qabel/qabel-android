@@ -68,7 +68,7 @@ public class OpenQabelFilesFromExternalAppsUITest extends UIBoxHelper {
 
 
     @Test
-    public void testOpenQcoFileFromExternal() {
+    public void testOpenQcoFileFromExternal() throws Throwable {
         String userToImport = "contact1";
         File tempQcoFile = createQcoFile(userToImport, QabelSchema.FILE_SUFFIX_CONTACT);
         createIdentityIfNeeded();
@@ -76,7 +76,7 @@ public class OpenQabelFilesFromExternalAppsUITest extends UIBoxHelper {
         checkMessageBox();
         tempQcoFile.delete();
         goToContacts();
-        Spoon.screenshot(mActivity, "openQCO");
+        UITestHelper.screenShot(mActivity, "openQCO");
         onView(withText(userToImport)).check(matches(isDisplayed()));
 
     }
@@ -86,14 +86,14 @@ public class OpenQabelFilesFromExternalAppsUITest extends UIBoxHelper {
      * open app with file extension but with ne ready app
      */
     @Test
-    public void testOpenQcoSanityFromExternal() {
+    public void testOpenQcoSanityFromExternal() throws Throwable{
         String userToImport = "contact1";
         File tempQcoFile = createQcoFile(userToImport, QabelSchema.FILE_SUFFIX_CONTACT);
         removeAllIdentities();
         launchExternalIntent(Uri.fromFile(tempQcoFile));
         mActivity = mActivityTestRule.getActivity();
         try {
-            Spoon.screenshot(UITestHelper.getCurrentActivity(mActivity), "openQCOWithNoIdentity");
+            UITestHelper.screenShot(UITestHelper.getCurrentActivity(mActivity), "openQCOWithNoIdentity");
         } catch (Throwable throwable) {
             //indicate no error on tested code
         }
@@ -106,13 +106,13 @@ public class OpenQabelFilesFromExternalAppsUITest extends UIBoxHelper {
      * open a file with unknown extension
      */
     @Test
-    public void testOpenUnknownFileTypeFromExternal() {
+    public void testOpenUnknownFileTypeFromExternal() throws Throwable{
         String userToImport = "contact1";
         File tempQcoFile = createQcoFile(userToImport, ".unknown");
         createIdentityIfNeeded();
         launchExternalIntent(Uri.fromFile(tempQcoFile));
         onView(withText(R.string.cant_import_file_type_is_unknown)).check(matches(isDisplayed()));
-        Spoon.screenshot(mActivity, "openQCO");
+        UITestHelper.screenShot(mActivity, "openQCO");
         onView(withText(R.string.ok)).check(matches(isDisplayed())).perform(click());
         tempQcoFile.delete();
     }
@@ -121,7 +121,7 @@ public class OpenQabelFilesFromExternalAppsUITest extends UIBoxHelper {
      * open a corrupt contact file
      */
     @Test
-    public void testOpenCorruptContactFromExternal() {
+    public void testOpenCorruptContactFromExternal() throws Throwable{
         String userToImport = "defectcontaact";
         File tempQcoFile = createQcoFile(userToImport, QabelSchema.FILE_SUFFIX_CONTACT);
         try {
@@ -134,7 +134,7 @@ public class OpenQabelFilesFromExternalAppsUITest extends UIBoxHelper {
         }
         createIdentityIfNeeded();
         launchExternalIntent(Uri.fromFile(tempQcoFile));
-        Spoon.screenshot(mActivity, "corruptContact");
+        UITestHelper.screenShot(mActivity, "corruptContact");
         onView(withText(R.string.contact_import_failed)).check(matches(isDisplayed()));
         onView(withText(R.string.ok)).check(matches(isDisplayed())).perform(click());
         tempQcoFile.delete();
@@ -144,7 +144,7 @@ public class OpenQabelFilesFromExternalAppsUITest extends UIBoxHelper {
      * open a valid identity file
      */
     @Test
-    public void testOpenQidFileFromExternal() {
+    public void testOpenQidFileFromExternal() throws Throwable{
         String userToImport = "identity1.qid";
         File tempQidFile = createQIDFile(userToImport);
         createIdentityIfNeeded();
@@ -181,11 +181,11 @@ public class OpenQabelFilesFromExternalAppsUITest extends UIBoxHelper {
         onView(withText(R.string.ok)).check(matches(isDisplayed())).perform(click());
     }
 
-    private void goToContacts() {
+    private void goToContacts() throws Throwable{
         DrawerActions.openDrawer(R.id.drawer_layout);
         onView(allOf(withText(R.string.Contacts), withParent(withClassName(endsWith("MenuView")))))
                 .perform(click());
-        Spoon.screenshot(mActivity, "contacts");
+        UITestHelper.screenShot(mActivity, "contacts");
     }
 
     private void checkFile(File file1) {

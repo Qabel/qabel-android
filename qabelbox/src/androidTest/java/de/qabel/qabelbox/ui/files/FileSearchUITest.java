@@ -68,12 +68,12 @@ public class FileSearchUITest extends AbstractUITest {
     }
 
     @Test
-    public void search1ByNamesTest() {
-        Spoon.screenshot(mActivity, "startup");
+    public void search1ByNamesTest() throws Throwable  {
+        UITestHelper.screenShot(mActivity, "startup");
         testSearch("black", 2);
         testSearch("", 7);
         testSearch("png", 6);
-        Spoon.screenshot(mActivity, "after");
+        UITestHelper.screenShot(mActivity, "after");
     }
 
     @Test

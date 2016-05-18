@@ -117,7 +117,7 @@ public class CreateBoxAccountUITest extends UIBoxHelper {
 
         onView(withText(R.string.next)).perform(click());
         UITestHelper.waitForView(R.string.ok, TestConstraints.SIMPLE_SERVER_ACTION_TIMEOUT);
-        UITestHelper.screenShot("incorrectCredentials", mActivity);
+        UITestHelper.screenShot(mActivity, "incorrectCredentials");
         onView(withText(R.string.ok)).perform(click());
 
         createBoxAccountWithoutUI(accountName, accountEMail, password);
@@ -241,7 +241,7 @@ public class CreateBoxAccountUITest extends UIBoxHelper {
 
     private void checkSuccess(String accountName, String accountEmail) throws Throwable {
         onView(withText(R.string.create_account_final_headline)).check(matches(isDisplayed()));
-        UITestHelper.screenShot("result", mActivity);
+        UITestHelper.screenShot(mActivity, "result");
         onView(withText(R.string.btn_create_identity)).check(matches(isDisplayed())).perform(click());
 
         onView(withText(R.string.headline_add_identity)).check(matches(isDisplayed()));
@@ -263,7 +263,7 @@ public class CreateBoxAccountUITest extends UIBoxHelper {
         onView(withId(R.id.et_password2)).perform(setText(password), pressImeActionButton());
         closeKeyboard();
         onView(withText(R.string.next)).perform(click());
-        UITestHelper.screenShot("password2", mActivity);
+        UITestHelper.screenShot(mActivity, "password2");
 
 
     }
@@ -277,7 +277,7 @@ public class CreateBoxAccountUITest extends UIBoxHelper {
         onView(withText(R.string.next)).perform(click());
 
         onView(withText(R.string.password_contains_user)).check(matches(isDisplayed()));
-        UITestHelper.screenShot("accountNamePasswords", mActivity);
+        UITestHelper.screenShot(mActivity, "accountNamePasswords");
         onView(withText(R.string.ok)).perform(click());
 
         onView(withId(R.id.et_password1)).perform(clearText());
@@ -296,7 +296,7 @@ public class CreateBoxAccountUITest extends UIBoxHelper {
         onView(withText(R.string.next)).perform(click());
 
         onView(withText(R.string.password_digits_only)).check(matches(isDisplayed()));
-        UITestHelper.screenShot("numericPasswords", mActivity);
+        UITestHelper.screenShot(mActivity, "numericPasswords");
         onView(withText(R.string.ok)).perform(click());
 
         onView(withId(R.id.et_password1)).perform(clearText());

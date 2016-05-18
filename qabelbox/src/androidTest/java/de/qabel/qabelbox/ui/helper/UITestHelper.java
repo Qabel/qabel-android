@@ -1,9 +1,11 @@
 package de.qabel.qabelbox.ui.helper;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.support.test.espresso.Espresso;
 import android.support.test.espresso.IdlingPolicies;
 import android.support.test.espresso.IdlingPolicy;
@@ -11,6 +13,10 @@ import android.support.test.espresso.IdlingResource;
 import android.support.test.espresso.ViewInteraction;
 import android.support.test.runner.lifecycle.ActivityLifecycleMonitorRegistry;
 import android.support.test.runner.lifecycle.Stage;
+import android.support.v4.content.ContextCompat;
+import android.util.Log;
+
+import com.squareup.spoon.Spoon;
 
 import java.io.File;
 import java.util.concurrent.Callable;
@@ -34,9 +40,15 @@ import static org.hamcrest.Matchers.not;
 
 public class UITestHelper {
 
-    public static File screenShot(String screenName, Activity mActivity) throws Throwable {
-        //return Spoon.screenshot(getCurrentActivity(mActivity), screenName);
-        return null;
+    public static File screenShot(Activity activity, String screenName) throws Throwable {
+        int permissionCheck = ContextCompat.checkSelfPermission(activity,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        if (permissionCheck == PackageManager.PERMISSION_GRANTED) {
+            return Spoon.screenshot(getCurrentActivity(activity), screenName);
+        } else {
+            Log.w("UTTestHelper", "Skipping screenshot because the permission is not granted");
+            return null;
+        }
     }
 
     public static void closeKeyboard() {

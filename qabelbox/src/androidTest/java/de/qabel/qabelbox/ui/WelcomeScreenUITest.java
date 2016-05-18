@@ -66,41 +66,41 @@ public class WelcomeScreenUITest {
 
 
     @Test
-    public void testWelcomeScreenSlide() {
+    public void testWelcomeScreenSlide() throws Throwable {
         int pagerId = R.id.pager;
         onView(withId(R.id.btn_show_sources)).check(matches(isDisplayed()));
         onView(withText(R.string.headline_welcome_screen1)).check(matches(isDisplayed()));
 
-        Spoon.screenshot(mActivity, "welcome1");
+        UITestHelper.screenShot(mActivity, "welcome1");
         onView(withId(pagerId)).perform(swipeLeft());
         onView(withText(R.string.headline_welcome_screen2)).check(matches(isDisplayed()));
-        Spoon.screenshot(mActivity, "welcome2");
+        UITestHelper.screenShot(mActivity, "welcome2");
 
         onView(withId(pagerId)).perform(swipeLeft());
         onView(withText(R.string.headline_welcome_screen3)).check(matches(isDisplayed()));
-        Spoon.screenshot(mActivity, "welcome3");
+        UITestHelper.screenShot(mActivity, "welcome3");
 
         onView(withId(pagerId)).perform(swipeLeft());
         onView(withText(R.string.headline_welcome_screen4)).check(matches(isDisplayed()));
-        Spoon.screenshot(mActivity, "welcome4");
+        UITestHelper.screenShot(mActivity, "welcome4");
 
         onView(withId(pagerId)).perform(swipeLeft());
 
         checkDisclaimer();
     }
 
-    private void checkDisclaimer() {
-        Spoon.screenshot(mActivity, "disclaimer_main");
+    private void checkDisclaimer() throws Throwable {
+        UITestHelper.screenShot(mActivity, "disclaimer_main");
 
         //click privacy
-        UITestHelper.waitForView(R.id.btn_show_privacy,1500).check(matches(isDisplayed())).perform(click());
-        Spoon.screenshot(mActivity, "privacy");
+        UITestHelper.waitForView(R.id.btn_show_privacy, 1500).check(matches(isDisplayed())).perform(click());
+        UITestHelper.screenShot(mActivity, "privacy");
         pressBack();
         onView(withText(R.string.message_welcome_disclaimer_headline)).check(matches(isDisplayed()));
 
         //click qabel
         onView(withId(R.id.layout_show_qabel)).perform(ViewActions.scrollTo()).check(matches(isDisplayed())).perform(click());
-        Spoon.screenshot(mActivity, "qabl");
+        UITestHelper.screenShot(mActivity, "qabl");
         pressBack();
         onView(withText(R.string.message_welcome_disclaimer_headline)).check(matches(isDisplayed()));
 
@@ -112,7 +112,7 @@ public class WelcomeScreenUITest {
 
         //click legal
         onView(withId(R.id.btn_show_legal)).check(matches(isDisplayed())).perform(click());
-        Spoon.screenshot(mActivity, "legal");
+        UITestHelper.screenShot(mActivity, "legal");
         pressBack();
         onView(withText(R.string.message_welcome_disclaimer_headline)).check(matches(isDisplayed()));
 

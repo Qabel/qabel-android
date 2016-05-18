@@ -9,8 +9,6 @@ import android.support.test.espresso.ViewInteraction;
 import android.support.test.rule.ActivityTestRule;
 import android.util.Log;
 
-import com.squareup.spoon.Spoon;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -113,7 +111,7 @@ public class ChatMessageUITest {
 
     @Ignore
     @Test
-    public void testSendOneMessage() {
+    public void testSendOneMessage() throws Throwable{
         //ContactList and click on user
         onView(withId(R.id.contact_list)).check(matches(isDisplayed()));
         onView(withText("user1")).perform(click());
@@ -141,7 +139,7 @@ public class ChatMessageUITest {
 
         openDrawer(R.id.drawer_layout);
         onView(withText(R.string.Contacts)).check(matches(isDisplayed())).perform(click());
-        Spoon.screenshot(mActivity, "message" + 1);
+        UITestHelper.screenShot(mActivity, "message" + 1);
         checkVisibilityState("user2", QabelMatcher.isVisible());
         onView(withText("user2")).check(matches(isDisplayed())).perform(click());
 
@@ -161,7 +159,7 @@ public class ChatMessageUITest {
      * test visualization of chatmessage. messages direct injected with ui
      */
     @Test
-    public void testNewMessageVisualization() {
+    public void testNewMessageVisualization() throws Throwable {
         Context context = mActivity.getApplicationContext();
         String identityKey = identity.getEcPublicKey().getReadableKeyIdentifier();
         ChatServer chatServer = mActivity.chatServer;
@@ -177,7 +175,7 @@ public class ChatMessageUITest {
         chatServer.storeIntoDB(identity, dbItem);
         int newMessageCount = chatServer.getAllMessages(identity, contact1).length;
 
-        Spoon.screenshot(mActivity, "contactsOneNewMessage");
+        UITestHelper.screenShot(mActivity, "contactsOneNewMessage");
         assertThat(1, is(newMessageCount));
         assertTrue(chatServer.hasNewMessages(identity, contact1));
         assertFalse(chatServer.hasNewMessages(identity, contact2));

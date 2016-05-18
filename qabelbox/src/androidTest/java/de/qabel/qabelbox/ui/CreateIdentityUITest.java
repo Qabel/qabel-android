@@ -97,7 +97,7 @@ public class CreateIdentityUITest extends UIBoxHelper {
         onView(withText(R.string.create_identity_enter_name)).check(matches(isDisplayed()));
         closeSoftKeyboard();
 
-        Spoon.screenshot(UITestHelper.getCurrentActivity(mActivity), "input");
+        UITestHelper.screenShot(UITestHelper.getCurrentActivity(mActivity), "input");
         onView(withText(R.string.next)).perform(click());
     }
 

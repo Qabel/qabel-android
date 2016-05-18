@@ -81,7 +81,7 @@ public class ShareUITest {
         Intents.intending(AllOf.allOf(hasAction(Intent.ACTION_CHOOSER), hasExtra(Intent.EXTRA_TITLE, mActivity.getString(R.string.share_via))
         )).respondWith(new Instrumentation.ActivityResult(Activity.RESULT_OK, null));
 
-        onView(allOf(is(instanceOf(NavigationMenuItemView.class)), withText(R.string.action_tellafriend))).perform(click());
+        onView(withText(R.string.action_tellafriend)).perform(click());
         intended(allOf(hasAction(Intent.ACTION_CHOOSER), hasExtra(Intent.EXTRA_TITLE, mActivity.getString(R.string.share_via))));
 
     }

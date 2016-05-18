@@ -26,14 +26,12 @@ public class FileCacheTest {
 
     private FileCache mHelper;
     private File testFile;
-    private FileCache mCache;
 
     @Before
     public void setUp() throws Exception {
         Application application = RuntimeEnvironment.application;
         application.deleteDatabase(FileCache.DATABASE_NAME);
         mHelper = new FileCache(application);
-        mCache = new FileCache(application);
         testFile = new File(BoxTest.createTestFile());
     }
 

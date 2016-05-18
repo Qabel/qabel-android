@@ -5,10 +5,6 @@
         android:title="@string/Open"
         android:icon="@drawable/open_in_new"/>
     <item
-        android:id="@+id/edit"
-        android:title="@string/edit"
-        android:icon="@drawable/pencil"/>
-    <item
         android:id="@+id/fordward"
         android:title="@string/ShareToQabelUser"
         android:icon="@drawable/account_multiple"/>

@@ -183,8 +183,7 @@ public class OpenQabelFilesFromExternalAppsUITest extends UIBoxHelper {
 
     private void goToContacts() throws Throwable{
         DrawerActions.openDrawer(R.id.drawer_layout);
-        onView(allOf(withText(R.string.Contacts), withParent(withClassName(endsWith("MenuView")))))
-                .perform(click());
+        onView(withText(R.string.Contacts)).perform(click());
         UITestHelper.screenShot(mActivity, "contacts");
     }
 

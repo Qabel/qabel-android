@@ -25,6 +25,7 @@ import de.qabel.core.config.Contact;
 import de.qabel.core.config.Identity;
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
+import de.qabel.qabelbox.activities.MainActivity;
 import de.qabel.qabelbox.config.ContactExportImport;
 import de.qabel.qabelbox.exceptions.QblStorageEntityExistsException;
 import de.qabel.qabelbox.fragments.ContactFragment;
@@ -67,7 +68,9 @@ public class ImportExportContactsUITest extends AbstractUITest {
     public void setUp() throws Exception {
         super.setUp();
         createTestContacts();
-        launchActivity(null);
+        Intent intent = new Intent(Intent.ACTION_MAIN);
+        intent.putExtra(MainActivity.START_CONTACTS_FRAGMENT, true);
+        mActivity = mActivityTestRule.launchActivity(intent);
     }
 
     private void createTestContacts() throws JSONException, QblStorageEntityExistsException {
@@ -95,13 +98,6 @@ public class ImportExportContactsUITest extends AbstractUITest {
         onView(withText(R.string.ok)).check(matches(isDisplayed())).perform(click());
     }
 
-    private void goToContacts() {
-        DrawerActions.openDrawer(R.id.drawer_layout);
-        onView(allOf(withText(R.string.Contacts), withParent(withClassName(endsWith("MenuView")))))
-                .perform(click());
-        Spoon.screenshot(mActivity, "contacts");
-    }
-
     private JSONObject checkFile(File file1) {
         try {
             FileInputStream fis = new FileInputStream(file1);
@@ -116,8 +112,6 @@ public class ImportExportContactsUITest extends AbstractUITest {
 
     @Test
     public void testExportContactAsQRCode() {
-        goToContacts();
-
         onView(withId(R.id.contact_list)).perform(RecyclerViewActions.actionOnItem(hasDescendant(withText(CONTACT_1)), longClick()));
         onView(withText(R.string.ExportAsContactWithQRcode)).check(matches(isDisplayed())).perform(click());
         onView(withText(CONTACT_1)).check(matches(isDisplayed()));
@@ -131,8 +125,6 @@ public class ImportExportContactsUITest extends AbstractUITest {
 
         String userName = "contact1";
         File file1 = new File(mActivity.getCacheDir(), "testexportcontact");
-        goToContacts();
-
         onView(withId(R.id.contact_list))
                 .perform(RecyclerViewActions.actionOnItem(
                         hasDescendant(withText(userName)), longClick()));
@@ -156,8 +148,6 @@ public class ImportExportContactsUITest extends AbstractUITest {
 
     @Test
     public void testExportContactToExternal(){
-        goToContacts();
-
         //Open dialog for Contact 1
         onView(withId(R.id.contact_list))
                 .perform(RecyclerViewActions.actionOnItem(
@@ -181,7 +171,6 @@ public class ImportExportContactsUITest extends AbstractUITest {
 
         File file1 = new File(mActivity.getCacheDir(), "testexportallcontact");
         assertNotNull(file1);
-        goToContacts();
         openActionBarOverflowOrOptionsMenu(InstrumentationRegistry.getTargetContext());
         Spoon.screenshot(mActivity, "exportAll");
         Intent data = new Intent();
@@ -205,7 +194,6 @@ public class ImportExportContactsUITest extends AbstractUITest {
         saveJsonIntoFile(exportUser, file1);
 
         assertNotNull(file1);
-        goToContacts();
 
         Intent data = new Intent();
         data.setData(Uri.fromFile(file1));

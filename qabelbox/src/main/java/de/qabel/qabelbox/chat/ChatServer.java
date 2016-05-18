@@ -50,35 +50,36 @@ public class ChatServer {
      */
 
     public Collection<DropMessage> refreshList(DropConnector connector, Identity identity) {
-        ChatMessagesDataBase dataBase = getDataBaseForIdentity(identity);
-        long lastRetrieved = dataBase.getLastRetrievedDropMessageTime();
-        Log.d(TAG, "last retrieved dropmessage time " + lastRetrieved + " / " + System.currentTimeMillis());
-        String identityKey = getIdentityIdentifier(identity);
-        Collection<DropMessage> result = connector.retrieveDropMessages(identity, lastRetrieved);
+        try (ChatMessagesDataBase dataBase = getDataBaseForIdentity(identity)) {
+            long lastRetrieved = dataBase.getLastRetrievedDropMessageTime();
+            Log.d(TAG, "last retrieved dropmessage time " + lastRetrieved + " / " + System.currentTimeMillis());
+            String identityKey = getIdentityIdentifier(identity);
+            Collection<DropMessage> result = connector.retrieveDropMessages(identity, lastRetrieved);
 
-        if (result != null) {
-            Log.d(TAG, "new message count: " + result.size());
-            //store into db
-            for (DropMessage item : result) {
-                ChatMessageItem cms = new ChatMessageItem(item);
-                cms.receiver = identityKey;
-                cms.isNew = 1;
-                storeIntoDB(dataBase, cms);
-            }
+            if (result != null) {
+                Log.d(TAG, "new message count: " + result.size());
+                //store into db
+                for (DropMessage item : result) {
+                    ChatMessageItem cms = new ChatMessageItem(item);
+                    cms.receiver = identityKey;
+                    cms.isNew = 1;
+                    storeIntoDB(dataBase, cms);
+                }
 
-            //@todo replace this with header from server response.
-            //@see https://github.com/Qabel/qabel-android/issues/272
-            for (DropMessage item : result) {
-                lastRetrieved = Math.max(item.getCreationDate().getTime(), lastRetrieved);
+                //@todo replace this with header from server response.
+                //@see https://github.com/Qabel/qabel-android/issues/272
+                for (DropMessage item : result) {
+                    lastRetrieved = Math.max(item.getCreationDate().getTime(), lastRetrieved);
+                }
             }
+            lastRetrieved = 0;
+            dataBase.setLastRetrievedDropMessagesTime(lastRetrieved);
+            Log.d(TAG, "new retrieved dropmessage time " + lastRetrieved);
+
+            sendCallbacksRefreshed();
+            dataBase.close();
+            return result;
         }
-        lastRetrieved = 0;
-        dataBase.setLastRetrievedDropMessagesTime(lastRetrieved);
-        Log.d(TAG, "new retrieved dropmessage time " + lastRetrieved);
-
-        sendCallbacksRefreshed();
-        dataBase.close();
-        return result;
     }
 
     private String getIdentityIdentifier(Identity identity) {
@@ -94,7 +95,9 @@ public class ChatServer {
 
     public void storeIntoDB(Identity identity, ChatMessageItem item) {
         if (item != null) {
-            getDataBaseForIdentity(identity).put(item);
+            try (ChatMessagesDataBase db = getDataBaseForIdentity(identity)) {
+                db.put(item);
+            }
         }
     }
 
@@ -143,23 +146,33 @@ public class ChatServer {
 
 
     public boolean hasNewMessages(Identity identity, Contact c) {
-        return getDataBaseForIdentity(identity).getNewMessageCount(c) > 0;
+        try (ChatMessagesDataBase db = getDataBaseForIdentity(identity)) {
+            return db.getNewMessageCount(c) > 0;
+        }
     }
 
     public int setAllMessagesRead(Identity identity, Contact c) {
-        return getDataBaseForIdentity(identity).setAllMessagesRead(c);
+        try (ChatMessagesDataBase db = getDataBaseForIdentity(identity)) {
+            return db.setAllMessagesRead(c);
+        }
     }
 
     public ChatMessageItem[] getAllMessages(Identity identity, Contact c) {
-        return getDataBaseForIdentity(identity).get(c.getEcPublicKey().getReadableKeyIdentifier());
+        try (ChatMessagesDataBase db = getDataBaseForIdentity(identity)) {
+            return db.get(c.getEcPublicKey().getReadableKeyIdentifier());
+        }
+
     }
 
     public ChatMessageItem[] getAllMessages(Identity identity) {
-        return getDataBaseForIdentity(identity).getAll();
+        try (ChatMessagesDataBase db = getDataBaseForIdentity(identity)) {
+            return db.getAll();
+        }
     }
 
     public interface ChatServerCallback {
         //droplist refreshed
         void onRefreshed();
+
     }
 }

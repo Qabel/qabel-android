@@ -116,16 +116,12 @@ public class OpenImageUITest {
     @Test
     public void testOpenFiles() throws Throwable {
 
-        UITestHelper.screenShot(mActivity, "startup");
         mPicassoIdlingResource.init(mActivity);
-        testFile("file1.jpg");
-        UITestHelper.screenShot(mActivity, "open_jpg");
-        pressBack();
         testFile("file2.png");
         UITestHelper.screenShot(mActivity, "open_png");
         Instrumentation.ActivityResult activityResult = new Instrumentation.ActivityResult(
                 Activity.RESULT_OK, new Intent());
-        Matcher<Intent> expectedIntent = allOf(hasAction(Intent.ACTION_CHOOSER));
+        Matcher<Intent> expectedIntent = hasAction(Intent.ACTION_CHOOSER);
         intending(expectedIntent).respondWith(activityResult);
         onView(withId(R.id.action_imageviewer_open)).perform(click());
         intended(expectedIntent);

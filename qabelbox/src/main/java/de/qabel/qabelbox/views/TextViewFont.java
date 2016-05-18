@@ -6,9 +6,6 @@ import android.widget.TextView;
 
 import de.qabel.qabelbox.helper.FontHelper;
 
-/**
- * Created by danny on 12.01.2016.
- */
 public class TextViewFont extends TextView {
 
     public TextViewFont(Context context) {

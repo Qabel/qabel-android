@@ -38,9 +38,6 @@ import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.is;
 
-/**
- * Created by danny on 17.03.2016.
- */
 public class ShareUITest {
     @Rule
     public IntentsTestRule<MainActivity> mActivityTestRule =

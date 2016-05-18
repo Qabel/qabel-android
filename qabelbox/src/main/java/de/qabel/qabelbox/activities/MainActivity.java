@@ -16,6 +16,7 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.provider.DocumentsContract;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
@@ -50,6 +51,7 @@ import java.util.Set;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import butterknife.Optional;
 import de.qabel.core.config.Identity;
 import de.qabel.qabelbox.BuildConfig;
 import de.qabel.qabelbox.QabelBoxApplication;
@@ -87,6 +89,8 @@ import de.qabel.qabelbox.storage.BoxFolder;
 import de.qabel.qabelbox.storage.BoxNavigation;
 import de.qabel.qabelbox.storage.BoxObject;
 import de.qabel.qabelbox.storage.BoxVolume;
+import de.qabel.qabelbox.views.DrawerNavigationView;
+import de.qabel.qabelbox.views.DrawerNavigationViewHolder;
 
 public class MainActivity extends CrashReportingActivity
         implements NavigationView.OnNavigationItemSelectedListener,
@@ -129,13 +133,10 @@ public class MainActivity extends CrashReportingActivity
     public ActionBarDrawerToggle toggle;
     private BoxProvider provider;
     @BindView(R.id.drawer_layout) DrawerLayout drawer;
-    @BindView(R.id.nav_view) NavigationView navigationView;
+    @BindView(R.id.nav_view) DrawerNavigationView navigationView;
     @BindView(R.id.fab) public FloatingActionButton fab;
-    @BindView(R.id.textViewSelectedIdentity) TextView textViewSelectedIdentity;
-    @BindView(R.id.accountName) TextView textViewBoxAccountName;
-    @BindView(R.id.app_bap_main) View appBarMain;
     @BindView(R.id.toolbar) Toolbar toolbar;
-    @BindView(R.id.imageViewExpandIdentity) ImageView imageViewExpandIdentity;
+    @BindView(R.id.app_bap_main) public View appBarMain;
     public FilesFragment filesFragment;
     private MainActivity self;
     private boolean identityMenuExpanded;
@@ -151,6 +152,7 @@ public class MainActivity extends CrashReportingActivity
     private LightingColorFilter mDrawerIndicatorTintFilter;
 
     private ConnectivityManager connectivityManager;
+    private DrawerNavigationViewHolder drawerHolder;
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -234,7 +236,6 @@ public class MainActivity extends CrashReportingActivity
                             return null;
                         }
                     }.execute();
-                    return;
                 }
             }
         }
@@ -243,7 +244,6 @@ public class MainActivity extends CrashReportingActivity
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
         super.onCreate(savedInstanceState);
         self = this;
         Log.d(TAG, "onCreate " + this.hashCode());
@@ -254,6 +254,11 @@ public class MainActivity extends CrashReportingActivity
             return;
         }
         setContentView(R.layout.activity_main);
+        ButterKnife.bind(this);
+        View header = navigationView.getHeaderView(0);
+        drawerHolder = new DrawerNavigationViewHolder(header);
+        
+        setSupportActionBar(toolbar);
         mDrawerIndicatorTintFilter = new LightingColorFilter(0, getResources().getColor(R.color.tintDrawerIndicator));
 
 
@@ -398,9 +403,6 @@ public class MainActivity extends CrashReportingActivity
 
         provider.setLocalService(mService);
 
-        ButterKnife.bind(this);
-        setSupportActionBar(toolbar);
-
         initDrawer();
 
         Identity activeIdentity = mService.getActiveIdentity();
@@ -511,7 +513,7 @@ public class MainActivity extends CrashReportingActivity
 
     public void refreshFilesBrowser(Identity activeIdentity) {
 
-        textViewSelectedIdentity.setText(activeIdentity.getAlias());
+        drawerHolder.textViewSelectedIdentity.setText(activeIdentity.getAlias());
 
         initBoxVolume(activeIdentity);
         initChatServer();
@@ -840,7 +842,7 @@ public class MainActivity extends CrashReportingActivity
     public void changeActiveIdentity(Identity identity) {
 
         mService.setActiveIdentity(identity);
-        textViewSelectedIdentity.setText(identity.getAlias());
+        drawerHolder.textViewSelectedIdentity.setText(identity.getAlias());
         if (filesFragment != null) {
             getFragmentManager().beginTransaction().remove(filesFragment).commit();
             filesFragment = null;
@@ -968,7 +970,7 @@ public class MainActivity extends CrashReportingActivity
 
         provider.notifyRootsUpdated();
         mService.modifyIdentity(identity);
-        textViewSelectedIdentity.setText(mService.getActiveIdentity().getAlias());
+        drawerHolder.textViewSelectedIdentity.setText(mService.getActiveIdentity().getAlias());
     }
 
     @Override
@@ -1035,24 +1037,18 @@ public class MainActivity extends CrashReportingActivity
         }
     }
 
-    @OnClick(R.id.qabelLogo)
-    public void showQRCodeFromLogoClick() {
-        drawer.closeDrawer(GravityCompat.START);
-        showQRCode(self, mService.getActiveIdentity());
-    }
 
-    @OnClick(R.id.select_identity_layout)
     public void selectIdentityLayoutClick() {
 
         if (identityMenuExpanded) {
-            imageViewExpandIdentity.setImageResource(R.drawable.menu_down);
-            imageViewExpandIdentity.setColorFilter(mDrawerIndicatorTintFilter);
+            drawerHolder.imageViewExpandIdentity.setImageResource(R.drawable.menu_down);
+            drawerHolder.imageViewExpandIdentity.setColorFilter(mDrawerIndicatorTintFilter);
             navigationView.getMenu().clear();
             navigationView.inflateMenu(R.menu.activity_main_drawer);
             identityMenuExpanded = false;
         } else {
-            imageViewExpandIdentity.setImageResource(R.drawable.menu_up);
-            imageViewExpandIdentity.setColorFilter(mDrawerIndicatorTintFilter);
+            drawerHolder.imageViewExpandIdentity.setImageResource(R.drawable.menu_up);
+            drawerHolder.imageViewExpandIdentity.setColorFilter(mDrawerIndicatorTintFilter);
             navigationView.getMenu().clear();
             List<Identity> identityList = new ArrayList<>(
                     mService.getIdentities().getIdentities());
@@ -1090,19 +1086,27 @@ public class MainActivity extends CrashReportingActivity
     private void initDrawer() {
         toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        drawer.setDrawerListener(toggle);
+        drawer.addDrawerListener(toggle);
         toggle.syncState();
+
+        drawerHolder.qabelLogo.setOnClickListener(v -> {
+            drawer.closeDrawer(GravityCompat.START);
+            showQRCode(self, mService.getActiveIdentity());
+        });
+
+        drawerHolder.selectIdentityLayout.setOnClickListener(
+                (View v) -> selectIdentityLayoutClick());
 
         setDrawerLocked(false);
         navigationView.setNavigationItemSelectedListener(this);
 
         // Map QR-Code indent to alias textview in nav_header_main
         String boxName = new AppPreference(self).getAccountName();
-        textViewBoxAccountName.setText(boxName != null ? boxName : getString(R.string.app_name));
+        drawerHolder.textViewBoxAccountName.setText(boxName != null ? boxName : getString(R.string.app_name));
 
-        imageViewExpandIdentity.setColorFilter(mDrawerIndicatorTintFilter);
+        drawerHolder.imageViewExpandIdentity.setColorFilter(mDrawerIndicatorTintFilter);
 
-        drawer.setDrawerListener(new DrawerLayout.DrawerListener() {
+        drawer.addDrawerListener(new DrawerLayout.DrawerListener() {
             @Override
             public void onDrawerSlide(View drawerView, float slideOffset) {
 
@@ -1115,10 +1119,9 @@ public class MainActivity extends CrashReportingActivity
 
             @Override
             public void onDrawerClosed(View drawerView) {
-
                 navigationView.getMenu().clear();
                 navigationView.inflateMenu(R.menu.activity_main_drawer);
-                imageViewExpandIdentity.setImageResource(R.drawable.menu_down);
+                drawerHolder.imageViewExpandIdentity.setImageResource(R.drawable.menu_down);
                 identityMenuExpanded = false;
             }
 

@@ -1,17 +1,11 @@
 package de.qabel.qabelbox.ui;
 
-/**
- * Created by danny on 05.01.2016.
- */
-
 import android.os.PowerManager;
 import android.support.annotation.Nullable;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.espresso.Espresso;
 import android.support.test.rule.ActivityTestRule;
 import android.text.InputType;
-
-import com.squareup.spoon.Spoon;
 
 import org.json.JSONObject;
 import org.junit.After;
@@ -40,7 +34,6 @@ import de.qabel.qabelbox.ui.helper.UITestHelper;
 import de.qabel.qabelbox.ui.idling.InjectedIdlingResource;
 import okhttp3.Response;
 
-import static android.support.test.espresso.Espresso.closeSoftKeyboard;
 import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.Espresso.pressBack;
 import static android.support.test.espresso.action.ViewActions.clearText;
@@ -124,7 +117,7 @@ public class CreateBoxAccountUITest extends UIBoxHelper {
 
         onView(withText(R.string.next)).perform(click());
         UITestHelper.waitForView(R.string.ok, TestConstraints.SIMPLE_SERVER_ACTION_TIMEOUT);
-        Spoon.screenshot(UITestHelper.getCurrentActivity(mActivity), "incorrectCredentials");
+        UITestHelper.screenShot("incorrectCredentials", mActivity);
         onView(withText(R.string.ok)).perform(click());
 
         createBoxAccountWithoutUI(accountName, accountEMail, password);
@@ -160,11 +153,14 @@ public class CreateBoxAccountUITest extends UIBoxHelper {
     }
 
     @Test
-    public void testCreateBoxAccountErrorsTest() throws Throwable {
+    public void testPressBackPopUp() {
         pressBack();
         onView(withText(String.format(mActivity.getString(R.string.message_step_is_needed_or_close_app), R.string.boxaccount)));
         onView(withText(R.string.no)).perform(click());
+    }
 
+    @Test
+    public void testCreateBoxAccountErrorsTest() throws Throwable {
         onView(withText(R.string.create_box_account)).perform(click());
         String accountName = generateUsername();
         String accountEMail = accountName + "@example.com";
@@ -245,7 +241,7 @@ public class CreateBoxAccountUITest extends UIBoxHelper {
 
     private void checkSuccess(String accountName, String accountEmail) throws Throwable {
         onView(withText(R.string.create_account_final_headline)).check(matches(isDisplayed()));
-        Spoon.screenshot(UITestHelper.getCurrentActivity(mActivity), "result");
+        UITestHelper.screenShot("result", mActivity);
         onView(withText(R.string.btn_create_identity)).check(matches(isDisplayed())).perform(click());
 
         onView(withText(R.string.headline_add_identity)).check(matches(isDisplayed()));
@@ -267,7 +263,7 @@ public class CreateBoxAccountUITest extends UIBoxHelper {
         onView(withId(R.id.et_password2)).perform(setText(password), pressImeActionButton());
         closeKeyboard();
         onView(withText(R.string.next)).perform(click());
-        Spoon.screenshot(UITestHelper.getCurrentActivity(mActivity), "password2");
+        UITestHelper.screenShot("password2", mActivity);
 
 
     }
@@ -281,7 +277,7 @@ public class CreateBoxAccountUITest extends UIBoxHelper {
         onView(withText(R.string.next)).perform(click());
 
         onView(withText(R.string.password_contains_user)).check(matches(isDisplayed()));
-        Spoon.screenshot(UITestHelper.getCurrentActivity(mActivity), "accountNamePasswords");
+        UITestHelper.screenShot("accountNamePasswords", mActivity);
         onView(withText(R.string.ok)).perform(click());
 
         onView(withId(R.id.et_password1)).perform(clearText());
@@ -289,8 +285,7 @@ public class CreateBoxAccountUITest extends UIBoxHelper {
     }
 
     private void closeKeyboard() {
-        closeSoftKeyboard();
-        UITestHelper.sleep(500);
+        UITestHelper.closeKeyboard();
     }
 
     private void checkNumericPassword(String failPassword) throws Throwable {
@@ -301,7 +296,7 @@ public class CreateBoxAccountUITest extends UIBoxHelper {
         onView(withText(R.string.next)).perform(click());
 
         onView(withText(R.string.password_digits_only)).check(matches(isDisplayed()));
-        Spoon.screenshot(UITestHelper.getCurrentActivity(mActivity), "numericPasswords");
+        UITestHelper.screenShot("numericPasswords", mActivity);
         onView(withText(R.string.ok)).perform(click());
 
         onView(withId(R.id.et_password1)).perform(clearText());
@@ -340,11 +335,10 @@ public class CreateBoxAccountUITest extends UIBoxHelper {
         } else {
             onView(withId(R.id.et_name)).check(matches(withInputType(InputType.TYPE_CLASS_TEXT)));
         }
-        onView(allOf(withClassName(endsWith("EditTextFont")))).perform(setText(accountName), pressImeActionButton());
-        closeSoftKeyboard();
-        Spoon.screenshot(UITestHelper.getCurrentActivity(mActivity), screenName);
-
+        onView(allOf(withClassName(endsWith("EditTextFont")))).perform(setText(accountName));
+        closeKeyboard();
         onView(withText(R.string.next)).perform(click());
     }
+
 }
 

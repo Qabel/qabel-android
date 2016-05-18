@@ -12,6 +12,7 @@ import android.support.test.espresso.ViewInteraction;
 import android.support.test.runner.lifecycle.ActivityLifecycleMonitorRegistry;
 import android.support.test.runner.lifecycle.Stage;
 
+import java.io.File;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
@@ -20,6 +21,7 @@ import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.fragments.SettingsFragment;
 import de.qabel.qabelbox.ui.idling.ElapsedTimeIdlingResource;
 
+import static android.support.test.espresso.Espresso.closeSoftKeyboard;
 import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.assertion.ViewAssertions.matches;
 import static android.support.test.espresso.matcher.RootMatchers.withDecorView;
@@ -30,10 +32,17 @@ import static junit.framework.Assert.assertNull;
 import static junit.framework.Assert.fail;
 import static org.hamcrest.Matchers.not;
 
-/**
- * Created by danny on 18.01.16.
- */
 public class UITestHelper {
+
+    public static File screenShot(String screenName, Activity mActivity) throws Throwable {
+        //return Spoon.screenshot(getCurrentActivity(mActivity), screenName);
+        return null;
+    }
+
+    public static void closeKeyboard() {
+        closeSoftKeyboard();
+        sleep(500);
+    }
 
     public void deleteAppData() {
 

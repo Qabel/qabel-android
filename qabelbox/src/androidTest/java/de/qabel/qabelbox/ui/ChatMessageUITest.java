@@ -38,7 +38,6 @@ import de.qabel.qabelbox.ui.helper.UITestHelper;
 import de.qabel.qabelbox.ui.matcher.QabelMatcher;
 import de.qabel.qabelbox.ui.matcher.ToolbarMatcher;
 
-import static android.support.test.espresso.Espresso.closeSoftKeyboard;
 import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.Espresso.pressBack;
 import static android.support.test.espresso.action.ViewActions.click;
@@ -48,16 +47,13 @@ import static android.support.test.espresso.contrib.DrawerActions.openDrawer;
 import static android.support.test.espresso.matcher.ViewMatchers.assertThat;
 import static android.support.test.espresso.matcher.ViewMatchers.hasSibling;
 import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
-import static android.support.test.espresso.matcher.ViewMatchers.withClassName;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
-import static android.support.test.espresso.matcher.ViewMatchers.withParent;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
 import static de.qabel.qabelbox.ui.action.QabelViewAction.setText;
 import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertTrue;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.Matchers.allOf;
-import static org.hamcrest.Matchers.endsWith;
 import static org.hamcrest.Matchers.is;
 
 public class ChatMessageUITest {
@@ -106,7 +102,9 @@ public class ChatMessageUITest {
         contact1 = addContact(user2, user1);
         mBoxHelper.setActiveIdentity(user2);
 
-        mActivity = mActivityTestRule.launchActivity(null);
+        Intent intent = new Intent(Intent.ACTION_MAIN);
+        intent.putExtra(MainActivity.START_CONTACTS_FRAGMENT, true);
+        mActivity = mActivityTestRule.launchActivity(intent);
         wakeLock = UIActionHelper.wakeupDevice(mActivity);
         mSystemAnimations = new SystemAnimations(mActivity);
         mSystemAnimations.disableAll();
@@ -116,13 +114,6 @@ public class ChatMessageUITest {
     @Ignore
     @Test
     public void testSendOneMessage() {
-        Spoon.screenshot(mActivity, "empty");
-        openDrawer(R.id.drawer_layout);
-
-        onView(allOf(withText(R.string.Contacts), withParent(withClassName(endsWith("MenuView")))))
-                .perform(click());
-        Spoon.screenshot(mActivity, "contacts");
-
         //ContactList and click on user
         onView(withId(R.id.contact_list)).check(matches(isDisplayed()));
         onView(withText("user1")).perform(click());
@@ -135,7 +126,7 @@ public class ChatMessageUITest {
 
         onView(withId(R.id.etText)).check(matches(isDisplayed())).perform(click());
         onView(withId(R.id.etText)).perform(setText("text" + 1), pressImeActionButton());
-        closeSoftKeyboard();
+        UITestHelper.closeKeyboard();
         onView(withText(R.string.btn_chat_send)).check(matches(isDisplayed())).perform(click());
 
         onView(withId(R.id.contact_chat_list)).
@@ -178,11 +169,6 @@ public class ChatMessageUITest {
 
         String contact1Key = contact1.getEcPublicKey().getReadableKeyIdentifier();
 
-        //start test... go to contact fragment
-        openDrawer(R.id.drawer_layout);
-        onView(allOf(withText(R.string.Contacts), withParent(withClassName(endsWith("MenuView")))))
-                .perform(click());
-        Spoon.screenshot(mActivity, "contacts");
         int messageCount = chatServer.getAllMessages(identity, contact1).length;
         Log.d(TAG, "count: " + messageCount);
 

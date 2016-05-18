@@ -7,8 +7,8 @@ import de.qabel.qabelbox.activities.MainActivity;
 
 class MainActivityWithoutFilesFragmentTestRule extends IntentsTestRule<MainActivity> {
 
-    public MainActivityWithoutFilesFragmentTestRule(boolean launchActivtiy) {
-        super(MainActivity.class, true, launchActivtiy);
+    public MainActivityWithoutFilesFragmentTestRule(boolean launchActivity) {
+        super(MainActivity.class, true, launchActivity);
     }
 
     public MainActivityWithoutFilesFragmentTestRule() {

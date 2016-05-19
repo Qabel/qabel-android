@@ -57,6 +57,7 @@ import de.qabel.desktop.repository.IdentityRepository;
 import de.qabel.desktop.repository.exception.EntityNotFoundExcepion;
 import de.qabel.desktop.repository.exception.PersistenceException;
 import de.qabel.desktop.repository.sqlite.AndroidClientDatabase;
+import de.qabel.desktop.repository.sqlite.SqliteContactRepository;
 import de.qabel.qabelbox.BuildConfig;
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
@@ -161,7 +162,8 @@ public class MainActivity extends CrashReportingActivity
     private ConnectivityManager connectivityManager;
     private DrawerNavigationViewHolder drawerHolder;
     private Identity activeIdentity;
-    private IdentityRepository identityRepository;
+    public IdentityRepository identityRepository;
+    public SqliteContactRepository contactRepository;
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -425,6 +427,7 @@ public class MainActivity extends CrashReportingActivity
         RepositoryFactory factory = new RepositoryFactory(getApplicationContext());
         AndroidClientDatabase db = factory.getAndroidClientDatabase();
         identityRepository = factory.getIdentityRepository(db);
+        contactRepository = factory.getContactRepository(db);
 
         // Checks if a fragment should be launched
         boolean start_files_fragment = intent.getBooleanExtra(START_FILES_FRAGMENT, true);
@@ -863,7 +866,7 @@ public class MainActivity extends CrashReportingActivity
     }
 
     public void changeActiveIdentity(Identity identity) {
-
+        mService.setActiveIdentity(identity);
         Intent intent = new Intent(this, MainActivity.class);
         intent.putExtra(ACTIVE_IDENTITY, identity.getKeyIdentifier());
         finish();

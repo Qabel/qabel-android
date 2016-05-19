@@ -171,7 +171,8 @@ public class ChatMessageUITest {
         Log.d(TAG, "count: " + messageCount);
 
 
-        ChatMessageItem dbItem = createNewChatMessageItem(contact1Key, identityKey, "from: " + contact1Alias + "message1");
+        ChatMessageItem dbItem = createNewChatMessageItem(contact1Key, identityKey,
+                "from: " + contact1Alias + "message1");
         chatServer.storeIntoDB(identity, dbItem);
         int newMessageCount = chatServer.getAllMessages(identity, contact1).length;
 

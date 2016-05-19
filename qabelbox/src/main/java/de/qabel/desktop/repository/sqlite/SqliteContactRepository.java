@@ -141,7 +141,7 @@ public class SqliteContactRepository extends AbstractSqliteRepository<Contact> i
     }
 
     @Override
-    public synchronized void delete(Contact contact, Identity identity) throws PersistenceException {
+    public synchronized void delete(Contact contact, Identity identity) throws PersistenceException, EntityNotFoundExcepion {
         try {
             try (PreparedStatement statement = database.prepare(
                 "DELETE FROM identity_contacts WHERE contact_id = ? AND identity_id = ?"
@@ -150,6 +150,11 @@ public class SqliteContactRepository extends AbstractSqliteRepository<Contact> i
                 statement.setInt(i++, contact.getId());
                 statement.setInt(i++, identity.getId());
                 statement.execute();
+                if (statement.getUpdateCount() != 1) {
+                    throw new EntityNotFoundExcepion(
+                            "Contact "+contact.getAlias() +" for identity "
+                                    + identity.getAlias() +" not found");
+                }
             }
             try (PreparedStatement statement = database.prepare(
                 "DELETE FROM contact WHERE id = ? AND NOT EXISTS (" +

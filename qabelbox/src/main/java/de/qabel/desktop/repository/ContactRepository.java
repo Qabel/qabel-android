@@ -12,7 +12,7 @@ public interface ContactRepository {
 
     void save(Contact contact, Identity identity) throws PersistenceException;
 
-    void delete(Contact contact, Identity identity) throws PersistenceException;
+    void delete(Contact contact, Identity identity) throws PersistenceException, EntityNotFoundExcepion;
 
     Contact findByKeyId(Identity identity, String keyId) throws EntityNotFoundExcepion;
 }

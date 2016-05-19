@@ -49,7 +49,7 @@ public class AbstractUITest {
     }
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() throws Throwable {
         URLs.setBaseBlockURL(TestConstants.BLOCK_URL);
         mContext = InstrumentationRegistry.getTargetContext();
         RepositoryFactory factory = new RepositoryFactory(mContext);
@@ -66,6 +66,11 @@ public class AbstractUITest {
     }
 
     protected void launchActivity(@Nullable Intent intent) {
+        if (intent == null) {
+            intent = new Intent(mContext, MainActivity.class);
+            intent.putExtra(MainActivity.ACTIVE_IDENTITY, identity.getKeyIdentifier());
+            intent.putExtra(MainActivity.START_FILES_FRAGMENT, false);
+        }
         mActivity = mActivityTestRule.launchActivity(intent);
         wakeLock = UIActionHelper.wakeupDevice(mActivity);
         mSystemAnimations = new SystemAnimations(mActivity);

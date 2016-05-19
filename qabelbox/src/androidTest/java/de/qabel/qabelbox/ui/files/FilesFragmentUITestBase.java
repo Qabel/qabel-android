@@ -38,7 +38,7 @@ public abstract class FilesFragmentUITestBase extends AbstractUITest {
     }
 
     @Override
-    public void setUp() throws Exception {
+    public void setUp() throws Throwable {
         super.setUp();
         setupData();
         launchActivity(new Intent(Intent.ACTION_MAIN));

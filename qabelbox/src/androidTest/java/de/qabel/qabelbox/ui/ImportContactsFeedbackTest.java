@@ -84,7 +84,7 @@ public class ImportContactsFeedbackTest extends AbstractUITest{
     Contact cookieMonster;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() throws Throwable {
         super.setUp();
         initTestContacts();
         Intent intent = new Intent(Intent.ACTION_MAIN);

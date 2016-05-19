@@ -6,6 +6,7 @@ import android.support.test.espresso.Espresso;
 import java.util.List;
 
 import de.qabel.core.config.Identity;
+import de.qabel.qabelbox.activities.MainActivity;
 import de.qabel.qabelbox.ui.AbstractUITest;
 import de.qabel.qabelbox.ui.idling.InjectedIdlingResource;
 
@@ -41,7 +42,9 @@ public abstract class FilesFragmentUITestBase extends AbstractUITest {
     public void setUp() throws Throwable {
         super.setUp();
         setupData();
-        launchActivity(new Intent(Intent.ACTION_MAIN));
+        Intent intent = new Intent(mContext, MainActivity.class);
+        intent.putExtra(MainActivity.ACTIVE_IDENTITY, identity.getKeyIdentifier());
+        launchActivity(intent);
         idlingResource = new InjectedIdlingResource();
         Espresso.registerIdlingResources(idlingResource);
     }

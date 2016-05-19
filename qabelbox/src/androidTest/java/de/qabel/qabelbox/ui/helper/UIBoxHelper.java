@@ -4,15 +4,11 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.IBinder;
 import android.provider.DocumentsContract;
 import android.support.annotation.NonNull;
 import android.util.Log;
-
-import org.apache.commons.io.output.ByteArrayOutputStream;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -106,26 +102,20 @@ public class UIBoxHelper {
         }
     }
 
-    public boolean uploadFile(BoxVolume boxVolume, String name, byte[] data, String path) {
-        try {
+    public void uploadFile(Identity identity, String name, byte[] data, String path) throws QblStorageException, IOException {
+        BoxVolume boxVolume = getIdentityVolume(identity);
+        uploadFile(boxVolume, name, data, path);
+    }
 
-            String folderId = boxVolume.getDocumentId(path);
-            Uri uploadUri = DocumentsContract.buildDocumentUri(
-                    BuildConfig.APPLICATION_ID + BoxProvider.AUTHORITY, folderId + name);
-            Context self = QabelBoxApplication.getInstance().getApplicationContext();
+    public void uploadFile(BoxVolume boxVolume, String name, byte[] data, String path) throws IOException {
+        String folderId = boxVolume.getDocumentId(path);
+        Uri uploadUri = DocumentsContract.buildDocumentUri(
+                BuildConfig.APPLICATION_ID + BoxProvider.AUTHORITY, folderId + name);
+        Context self = QabelBoxApplication.getInstance().getApplicationContext();
 
-            OutputStream upload = self.getContentResolver().openOutputStream(uploadUri, "w");
-            if (upload == null) {
-                return false;
-            }
-            upload.write(data);
-            upload.close();
-            return true;
-        } catch (IOException e) {
-            Log.e(TAG, "Upload failed", e);
-        }
-        return false;
-
+        OutputStream upload = self.getContentResolver().openOutputStream(uploadUri, "w");
+        upload.write(data);
+        upload.close();
     }
 
     private <S extends BoxObject> S getBoxObject(Class<S> boxClazz, BoxNavigation boxNavigation, String name) throws QblStorageException {
@@ -165,11 +155,16 @@ public class UIBoxHelper {
         }
     }
 
-    private BoxNavigation createNavigation(Identity identity, String path) throws QblStorageException {
+    public BoxVolume getIdentityVolume(Identity identity) throws QblStorageException {
         BoxVolume boxVolume = identityVolumes.get(identity.getKeyIdentifier());
         if (boxVolume == null) {
             throw new QblStorageException("Volume for identity not initialized!");
         }
+        return boxVolume;
+    }
+
+    private BoxNavigation createNavigation(Identity identity, String path) throws QblStorageException {
+        BoxVolume boxVolume = getIdentityVolume(identity);
         BoxNavigation navigation = boxVolume.navigate();
         navigateToPath(navigation, path);
         return navigation;
@@ -238,12 +233,11 @@ public class UIBoxHelper {
     }
 
     public void deleteIdentity(Identity identity) {
-
+        identityVolumes.remove(identity.getKeyIdentifier());
         mService.deleteIdentity(identity);
     }
 
     public Identity getCurrentIdentity() {
-
         return mService.getActiveIdentity();
     }
 
@@ -252,34 +246,24 @@ public class UIBoxHelper {
      *
      * @param fileCount
      */
-    public void waitUntilFileCount(int fileCount) {
+    public void waitUntilFileCount(Identity identity, int fileCount) throws QblStorageException {
+        waitUntilFileCount(getIdentityVolume(identity), fileCount);
+    }
+
+    public void waitUntilFileCount(BoxVolume volume, int fileCount) {
 
         try {
-            while (
-                    new StorageSearch(mBoxVolume.navigate()).getResults().size() < fileCount) {
-                Log.d(TAG, "wait until all files uploaded");
-                Thread.sleep(500);
+            BoxNavigation boxNavigation = volume.navigate();
+            StorageSearch storageSearch = new StorageSearch(boxNavigation);
+            while (storageSearch.getResultSize() < fileCount) {
+                Log.d(TAG, "wait until all files uploaded " + storageSearch.getResultSize() + "/" + fileCount);
+                Thread.sleep(200);
+                boxNavigation.reload();
+                storageSearch.refreshRange(boxNavigation, true);
             }
         } catch (QblStorageException | InterruptedException e) {
             e.printStackTrace();
         }
-    }
-
-    /**
-     * update drawable file
-     *
-     * @param filename filename to store in box
-     * @param format   format type
-     * @param id       resource id
-     */
-    public void uploadDrawableFile(BoxVolume boxVolume, String filename, Bitmap.CompressFormat format, int id) {
-
-        Bitmap bitmap = BitmapFactory.decodeResource(QabelBoxApplication.getInstance().getResources(), id);
-        ByteArrayOutputStream baos = new ByteArrayOutputStream(100 * 1024);
-        bitmap.compress(format, 100, baos);
-        byte[] data = new byte[baos.size()];
-        System.arraycopy(baos.toByteArray(), 0, data, 0, baos.size());
-        uploadFile(boxVolume, filename, data, "");
     }
 
     /**

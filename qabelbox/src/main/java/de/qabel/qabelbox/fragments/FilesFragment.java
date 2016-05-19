@@ -1,6 +1,5 @@
 package de.qabel.qabelbox.fragments;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -9,26 +8,15 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.support.v4.content.LocalBroadcastManager;
-import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBar;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.util.Log;
-import android.view.KeyEvent;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
-import android.widget.ProgressBar;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -39,7 +27,6 @@ import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.adapter.FilesAdapter;
 import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.helper.UIHelper;
-import de.qabel.qabelbox.listeners.IdleCallback;
 import de.qabel.qabelbox.providers.DocumentIdParser;
 import de.qabel.qabelbox.services.LocalBroadcastConstants;
 import de.qabel.qabelbox.services.LocalQabelService;
@@ -52,33 +39,22 @@ import de.qabel.qabelbox.storage.BoxUploadingFile;
 import de.qabel.qabelbox.storage.BoxVolume;
 import de.qabel.qabelbox.storage.StorageSearch;
 
-public class FilesFragment extends BaseFragment {
+public class FilesFragment extends FilesFragmentBase {
 
     private static final String TAG = "FilesFragment";
     protected BoxNavigation boxNavigation;
-    public RecyclerView filesListRecyclerView;
-    protected FilesAdapter filesAdapter;
-    private RecyclerView.LayoutManager recyclerViewLayoutManager;
-    private boolean isLoading;
-    private FilesListListener mListener;
-    protected SwipeRefreshLayout swipeRefreshLayout;
-    private FilesFragment self;
     private AsyncTask<Void, Void, Void> browseToTask;
 
     private MenuItem mSearchAction;
     private boolean isSearchOpened = false;
-    private EditText edtSeach;
+    private EditText searchText;
     protected BoxVolume mBoxVolume;
     private AsyncTask<String, Void, StorageSearch> searchTask;
     private StorageSearch mCachedStorageSearch;
     private DocumentIdParser documentIdParser;
-    View mEmptyView;
-    View mLoadingView;
     private LocalQabelService mService;
-    private IdleCallback idleCallback;
 
     public static FilesFragment newInstance(final BoxVolume boxVolume) {
-
         final FilesFragment filesFragment = new FilesFragment();
         fillFragmentData(boxVolume, filesFragment);
         return filesFragment;
@@ -94,14 +70,12 @@ public class FilesFragment extends BaseFragment {
         new AsyncTask<Void, Void, Void>() {
             @Override
             protected void onPreExecute() {
-
                 super.onPreExecute();
                 filesFragment.setIsLoading(true);
             }
 
             @Override
             protected Void doInBackground(Void... params) {
-
                 try {
                     filesFragment.setBoxNavigation(boxVolume.navigate());
                 } catch (QblStorageException e) {
@@ -121,29 +95,20 @@ public class FilesFragment extends BaseFragment {
 
             @Override
             protected void onPostExecute(Void aVoid) {
-
                 super.onPostExecute(aVoid);
                 filesFragment.setIsLoading(false);
-                filesAdapter.notifyDataSetChanged();
+                filesFragment.notifyFilesAdapterChanged();
             }
         }.executeOnExecutor(serialExecutor);
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-
         super.onCreate(savedInstanceState);
-        setHasOptionsMenu(true);
-        if (actionBar != null) {
-            actionBar.setDisplayHomeAsUpEnabled(false);
-
-            actionBar.setTitle(getTitle());
-        }
 
         documentIdParser = new DocumentIdParser();
 
         mService = QabelBoxApplication.getInstance().getService();
-        self = this;
         LocalBroadcastManager.getInstance(getActivity()).registerReceiver(mMessageReceiver,
                 new IntentFilter(LocalBroadcastConstants.INTENT_UPLOAD_BROADCAST));
     }
@@ -162,12 +127,12 @@ public class FilesFragment extends BaseFragment {
                 case LocalBroadcastConstants.UPLOAD_STATUS_NEW:
                     Log.d(TAG, "Received new uploadAndDeleteLocalfile: " + documentId);
                     fillAdapter(filesAdapter);
-                    filesAdapter.notifyDataSetChanged();
+                    notifyFilesAdapterChanged();
                     break;
                 case LocalBroadcastConstants.UPLOAD_STATUS_FINISHED:
                     Log.d(TAG, "Received upload finished: " + documentId);
                     fillAdapter(filesAdapter);
-                    filesAdapter.notifyDataSetChanged();
+                    notifyFilesAdapterChanged();
                     break;
                 case LocalBroadcastConstants.UPLOAD_STATUS_FAILED:
                     Log.d(TAG, "Received uploadAndDeleteLocalfile failed: " + documentId);
@@ -179,69 +144,12 @@ public class FilesFragment extends BaseFragment {
 
     @Override
     public void onDestroy() {
-
         super.onDestroy();
         LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(mMessageReceiver);
     }
 
-    @Override
-    public void onStart() {
-
-        super.onStart();
-        updateSubtitle();
-    }
-
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-
-        View view = inflater.inflate(R.layout.fragment_files, container, false);
-        setupLoadingViews(view);
-        swipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.swipeRefresh);
-        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-
-                mListener.onDoRefresh(self, boxNavigation, filesAdapter);
-            }
-        });
-
-        swipeRefreshLayout.post(new Runnable() {
-            @Override
-            public void run() {
-
-                swipeRefreshLayout.setRefreshing(isLoading);
-            }
-        });
-        filesListRecyclerView = (RecyclerView) view.findViewById(R.id.files_list);
-        filesListRecyclerView.setHasFixedSize(true);
-
-        recyclerViewLayoutManager = new LinearLayoutManager(view.getContext());
-        filesListRecyclerView.setLayoutManager(recyclerViewLayoutManager);
-
-        filesListRecyclerView.setAdapter(filesAdapter);
-
-        filesListRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
-            @Override
-            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-
-                super.onScrolled(recyclerView, dx, dy);
-                int lastCompletelyVisibleItem = ((LinearLayoutManager) recyclerViewLayoutManager).findLastCompletelyVisibleItemPosition();
-                int firstCompletelyVisibleItem = ((LinearLayoutManager) recyclerViewLayoutManager).findFirstCompletelyVisibleItemPosition();
-                if (lastCompletelyVisibleItem == filesAdapter.getItemCount() - 1
-                        && firstCompletelyVisibleItem > 0) {
-                    mListener.onScrolledToBottom(true);
-                } else {
-                    mListener.onScrolledToBottom(false);
-                }
-            }
-        });
-        return view;
-    }
-
     public void navigateBackToRoot() {
         if (!areTasksPending()) {
-
             if (boxNavigation == null || !boxNavigation.hasParent()) {
                 return;
             }
@@ -249,7 +157,6 @@ public class FilesFragment extends BaseFragment {
             browseToTask = new AsyncTask<Void, Void, Void>() {
                 @Override
                 protected void onPreExecute() {
-
                     super.onPreExecute();
                     preBrowseTo();
                 }
@@ -269,40 +176,16 @@ public class FilesFragment extends BaseFragment {
 
                 @Override
                 protected void onPostExecute(Void aVoid) {
-
                     super.onPostExecute(aVoid);
                     setIsLoading(false);
                     updateSubtitle();
-                    filesAdapter.notifyDataSetChanged();
+                    notifyFilesAdapterChanged();
                     browseToTask = null;
                 }
             };
             browseToTask.executeOnExecutor(serialExecutor);
         } else {
             Log.w(TAG, "Other tasks are still pending. Will ignore this one");
-        }
-    }
-
-    protected void setupLoadingViews(View view) {
-
-        mEmptyView = view.findViewById(R.id.empty_view);
-        mLoadingView = view.findViewById(R.id.loading_view);
-        final ProgressBar pg = (ProgressBar) view.findViewById(R.id.pb_firstloading);
-        pg.setIndeterminate(true);
-        pg.setEnabled(true);
-        if (filesAdapter != null)
-            filesAdapter.setEmptyView(mEmptyView, mLoadingView);
-    }
-
-    @Override
-    public void onAttach(Activity activity) {
-
-        super.onAttach(activity);
-        try {
-            mListener = (FilesListListener) activity;
-        } catch (ClassCastException e) {
-            throw new ClassCastException(activity.toString()
-                    + " must implement FilesListListener");
         }
     }
 
@@ -314,7 +197,6 @@ public class FilesFragment extends BaseFragment {
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-
         menu.clear();
         super.onCreateOptionsMenu(menu, inflater);
         inflater.inflate(R.menu.ab_files, menu);
@@ -322,7 +204,6 @@ public class FilesFragment extends BaseFragment {
 
     @Override
     public void onPrepareOptionsMenu(Menu menu) {
-
         mSearchAction = menu.findItem(R.id.action_search);
     }
 
@@ -344,9 +225,7 @@ public class FilesFragment extends BaseFragment {
     }
 
     private boolean isSearchRunning() {
-
         if (isSearchOpened) {
-
             return true;
         }
         return searchTask != null && ((!searchTask.isCancelled() && searchTask.getStatus() != AsyncTask.Status.FINISHED));
@@ -356,7 +235,6 @@ public class FilesFragment extends BaseFragment {
      * handle click on search icon
      */
     private void handleMenuSearch() {
-
         if (isSearchOpened) {
             removeSearchInActionbar(actionBar);
         } else {
@@ -375,28 +253,25 @@ public class FilesFragment extends BaseFragment {
         action.setCustomView(R.layout.ab_search_field);
         action.setDisplayShowTitleEnabled(false);
 
-        edtSeach = (EditText) action.getCustomView().findViewById(R.id.edtSearch);
+        searchText = (EditText) action.getCustomView().findViewById(R.id.edtSearch);
 
         //add editor action listener
-        edtSeach.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+        searchText.setOnEditorActionListener((v, actionId, event) -> {
 
-                if (actionId == EditorInfo.IME_ACTION_SEARCH) {
-                    String text = edtSeach.getText().toString();
-                    removeSearchInActionbar(action);
-                    startSearch(text);
-                    return true;
-                }
-                return false;
+            if (actionId == EditorInfo.IME_ACTION_SEARCH) {
+                String text = searchText.getText().toString();
+                removeSearchInActionbar(action);
+                startSearch(text);
+                return true;
             }
+            return false;
         });
 
-        edtSeach.requestFocus();
+        searchText.requestFocus();
 
         //open keyboard
         InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
-        imm.showSoftInput(edtSeach, InputMethodManager.SHOW_IMPLICIT);
+        imm.showSoftInput(searchText, InputMethodManager.SHOW_IMPLICIT);
         mActivity.fab.hide();
         mSearchAction.setIcon(R.drawable.close_white);
         isSearchOpened = true;
@@ -414,7 +289,7 @@ public class FilesFragment extends BaseFragment {
 
         //hides the keyboard
         InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
-        imm.hideSoftInputFromWindow(edtSeach.getWindowToken(), 0);
+        imm.hideSoftInputFromWindow(searchText.getWindowToken(), 0);
 
         imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.RESULT_HIDDEN);
         mSearchAction.setIcon(R.drawable.magnify_white);
@@ -425,7 +300,6 @@ public class FilesFragment extends BaseFragment {
 
     @Override
     public void onPause() {
-
         if (isSearchOpened) {
             removeSearchInActionbar(actionBar);
         }
@@ -448,14 +322,12 @@ public class FilesFragment extends BaseFragment {
 
                 @Override
                 protected void onPreExecute() {
-
                     super.onPreExecute();
                     setIsLoading(true);
                 }
 
                 @Override
                 protected void onCancelled(StorageSearch storageSearch) {
-
                     setIsLoading(false);
                     super.onCancelled(storageSearch);
                     searchTask = null;
@@ -473,14 +345,12 @@ public class FilesFragment extends BaseFragment {
                         return;
                     }
                     if (!mActivity.isFinishing() && !searchTask.isCancelled()) {
-                        boolean needRefresh = mCachedStorageSearch != null;
                         try {
                             mCachedStorageSearch = storageSearch.clone();
                         } catch (CloneNotSupportedException e) {
                             e.printStackTrace();
                         }
-
-                        FilesSearchResultFragment fragment = FilesSearchResultFragment.newInstance(mCachedStorageSearch, searchText, needRefresh);
+                        FilesSearchResultFragment fragment = FilesSearchResultFragment.newInstance(mCachedStorageSearch, searchText);
                         mActivity.toggle.setDrawerIndicatorEnabled(false);
                         getFragmentManager().beginTransaction().replace(R.id.fragment_container, fragment, FilesSearchResultFragment.TAG).addToBackStack(null).commit();
                     }
@@ -489,17 +359,16 @@ public class FilesFragment extends BaseFragment {
 
                 @Override
                 protected StorageSearch doInBackground(String... params) {
-
                     try {
-                        if (mCachedStorageSearch != null && mCachedStorageSearch.getResults().size() > 0) {
+                        if (mCachedStorageSearch != null) {
+                            mCachedStorageSearch.refreshRange(boxNavigation, true);
                             return mCachedStorageSearch;
                         }
 
-                        return new StorageSearch(mBoxVolume.navigate());
+                        return new StorageSearch(boxNavigation);
                     } catch (QblStorageException e) {
                         e.printStackTrace();
                     }
-
                     return null;
                 }
             };
@@ -508,67 +377,32 @@ public class FilesFragment extends BaseFragment {
     }
 
     private void cancelSearchTask() {
-
         if (searchTask != null) {
             searchTask.cancel(true);
             searchTask = null;
         }
     }
 
-    /**
-     * Sets visibility of loading spinner. Visibility is stored if method is invoked
-     * before onCreateView() has completed.
-     *
-     * @param isLoading
-     */
-    public void setIsLoading(final boolean isLoading) {
-
-        runIdleCallback(!isLoading);
-        this.isLoading = isLoading;
-        if (swipeRefreshLayout == null) {
-            return;
-        }
-        if (!isLoading) {
-            mLoadingView.setVisibility(View.GONE);
-        }
-        swipeRefreshLayout.post(() -> swipeRefreshLayout.setRefreshing(isLoading));
-    }
-
     public void setAdapter(FilesAdapter adapter) {
-
         filesAdapter = adapter;
         filesAdapter.setEmptyView(mEmptyView, mLoadingView);
     }
 
-    public FilesAdapter getFilesAdapter() {
-
-        return filesAdapter;
-    }
-
-    public void setOnItemClickListener(FilesAdapter.OnItemClickListener onItemClickListener) {
-
-        filesAdapter.setOnItemClickListener(onItemClickListener);
-    }
-
     @Override
     public boolean isFabNeeded() {
-
         return true;
     }
 
     protected void setBoxNavigation(BoxNavigation boxNavigation) {
-
         this.boxNavigation = boxNavigation;
     }
 
     public BoxNavigation getBoxNavigation() {
-
         return boxNavigation;
     }
 
     @Override
     public String getTitle() {
-
         return getString(R.string.headline_files);
     }
 
@@ -578,7 +412,6 @@ public class FilesFragment extends BaseFragment {
      * @return true if back handled
      */
     public boolean handleBackPressed() {
-
         if (isSearchOpened) {
             removeSearchInActionbar(actionBar);
             return true;
@@ -592,24 +425,22 @@ public class FilesFragment extends BaseFragment {
     }
 
     public BoxVolume getBoxVolume() {
-
         return mBoxVolume;
     }
 
     public void setCachedSearchResult(StorageSearch searchResult) {
-
         mCachedStorageSearch = searchResult;
     }
 
     public void unshare(final BoxFile boxObject) {
         new AsyncTask<Void, Void, Boolean>() {
+
             public AlertDialog wait;
 
             @Override
             protected void onPreExecute() {
                 wait = UIHelper.showWaitMessage(mActivity, R.string.dialog_headline_info, R.string.message_revoke_share, false);
             }
-
 
             @Override
             protected Boolean doInBackground(Void... params) {
@@ -621,8 +452,6 @@ public class FilesFragment extends BaseFragment {
                     return false;
                 }
                 return ret;
-
-
             }
 
             @Override
@@ -632,7 +461,6 @@ public class FilesFragment extends BaseFragment {
                     Toast.makeText(mActivity, R.string.message_unshare_successfull, Toast.LENGTH_SHORT).show();
                 } else {
                     UIHelper.showDialogMessage(mActivity, R.string.dialog_headline_warning, R.string.message_unshare_not_successfull, Toast.LENGTH_SHORT);
-
                 }
                 wait.dismiss();
 
@@ -642,7 +470,6 @@ public class FilesFragment extends BaseFragment {
     }
 
     public void delete(final BoxObject boxObject) {
-
         new AlertDialog.Builder(mActivity)
                 .setTitle(R.string.confirm_delete_title)
                 .setMessage(String.format(
@@ -654,19 +481,16 @@ public class FilesFragment extends BaseFragment {
                         new AsyncTask<Void, Void, Void>() {
                             @Override
                             protected void onCancelled() {
-
                                 setIsLoading(false);
                             }
 
                             @Override
                             protected void onPreExecute() {
-
                                 setIsLoading(true);
                             }
 
                             @Override
                             protected Void doInBackground(Void... params) {
-
                                 try {
                                     if (boxObject instanceof BoxExternalFile) {
                                         getBoxNavigation().detachExternal(boxObject.name);
@@ -682,38 +506,18 @@ public class FilesFragment extends BaseFragment {
 
                             @Override
                             protected void onPostExecute(Void aVoid) {
-
                                 refresh();
                             }
                         }.execute();
                     }
                 })
-                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-
-                        showAbortMessage();
-                    }
+                .setNegativeButton(R.string.cancel, (dialog, which) -> {
+                    showAbortMessage();
                 }).create().show();
     }
 
-
-    public void injectIdleCallback(IdleCallback callback) {
-        idleCallback = callback;
-    }
-
-    public void runIdleCallback(boolean isIdle) {
-        if (idleCallback == null) {
-            return;
-        }
-        if (isIdle) {
-            idleCallback.idle();
-        } else{
-            idleCallback.busy();
-        }
-    }
+    @Override
     public void refresh() {
-
         if (boxNavigation == null) {
             Log.e(TAG, "Refresh failed because the boxNavigation object is null");
             return;
@@ -721,7 +525,6 @@ public class FilesFragment extends BaseFragment {
         AsyncTask<Void, Void, Void> asyncTask = new AsyncTask<Void, Void, Void>() {
             @Override
             protected Void doInBackground(Void... params) {
-
                 try {
                     boxNavigation.reload();
                     mService.getCachedFinishedUploads().clear();
@@ -734,20 +537,17 @@ public class FilesFragment extends BaseFragment {
 
             @Override
             protected void onCancelled() {
-
                 setIsLoading(true);
                 showAbortMessage();
             }
 
             @Override
             protected void onPreExecute() {
-
                 setIsLoading(true);
             }
 
             @Override
             protected void onPostExecute(Void aVoid) {
-
                 super.onPostExecute(aVoid);
 
                 filesAdapter.sort();
@@ -758,27 +558,8 @@ public class FilesFragment extends BaseFragment {
         asyncTask.execute();
     }
 
-    private void notifyFilesAdapterChanged() {
-        new Handler(Looper.getMainLooper()).
-                post(() -> {
-                    if (!filesListRecyclerView.isComputingLayout()) {
-                        filesAdapter.notifyDataSetChanged();
-                    }
-                });
-    }
-
     private void showAbortMessage() {
-        Toast.makeText(mActivity, R.string.aborted,
-                Toast.LENGTH_SHORT).show();
-    }
-
-    public interface FilesListListener {
-
-        void onScrolledToBottom(boolean scrolledToBottom);
-
-        void onExport(BoxNavigation boxNavigation, BoxObject object);
-
-        void onDoRefresh(FilesFragment filesFragment, BoxNavigation boxNavigation, FilesAdapter filesAdapter);
+        Toast.makeText(mActivity, R.string.aborted, Toast.LENGTH_SHORT).show();
     }
 
     public boolean browseToParent() {
@@ -816,7 +597,7 @@ public class FilesFragment extends BaseFragment {
                     super.onPostExecute(aVoid);
                     setIsLoading(false);
                     updateSubtitle();
-                    filesAdapter.notifyDataSetChanged();
+                    notifyFilesAdapterChanged();
                     browseToTask = null;
                 }
             };
@@ -835,15 +616,18 @@ public class FilesFragment extends BaseFragment {
         if (path.equals("/")) {
             path = null;
         }
-        if(path != null && path.contains(BoxFolder.RECEIVED_SHARE_NAME)){
+        if (path != null && path.contains(BoxFolder.RECEIVED_SHARE_NAME)) {
             path = path.replace(BoxFolder.RECEIVED_SHARE_NAME, getString(R.string.shared_with_you));
         }
-        if (actionBar != null)
+        if (actionBar != null) {
             actionBar.setSubtitle(path);
+            if (isSearchOpened) {
+                removeSearchInActionbar(actionBar);
+            }
+        }
     }
 
     private void preBrowseTo() {
-
         setIsLoading(true);
     }
 
@@ -921,12 +705,6 @@ public class FilesFragment extends BaseFragment {
         }
     }
 
-    @Override
-    public boolean supportSubtitle() {
-
-        return true;
-    }
-
     public boolean areTasksPending() {
         return browseToTask != null || searchTask != null;
     }
@@ -962,7 +740,7 @@ public class FilesFragment extends BaseFragment {
                     super.onPostExecute(aVoid);
                     setIsLoading(false);
                     updateSubtitle();
-                    filesAdapter.notifyDataSetChanged();
+                    notifyFilesAdapterChanged();
                     browseToTask = null;
                 }
 

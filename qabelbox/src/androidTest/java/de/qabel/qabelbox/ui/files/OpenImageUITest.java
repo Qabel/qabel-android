@@ -1,41 +1,26 @@
 package de.qabel.qabelbox.ui.files;
 
-/**
- * Created by danny on 05.01.2016.
- */
-
 import android.app.Activity;
 import android.app.Instrumentation;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.os.PowerManager;
+import android.graphics.BitmapFactory;
 import android.support.test.espresso.Espresso;
 import android.support.test.espresso.contrib.RecyclerViewActions;
-import android.support.test.espresso.intent.rule.IntentsTestRule;
 import android.support.test.runner.lifecycle.ActivityLifecycleMonitorRegistry;
 
 import com.squareup.picasso.PicassoIdlingResource;
-import com.squareup.spoon.Spoon;
 
+import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.hamcrest.Matcher;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.FixMethodOrder;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.runners.MethodSorters;
 
-import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
-import de.qabel.qabelbox.TestConstants;
-import de.qabel.qabelbox.activities.MainActivity;
-import de.qabel.qabelbox.communication.URLs;
-import de.qabel.qabelbox.exceptions.QblStorageException;
-import de.qabel.qabelbox.ui.helper.SystemAnimations;
-import de.qabel.qabelbox.ui.helper.UIActionHelper;
-import de.qabel.qabelbox.ui.helper.UIBoxHelper;
 import de.qabel.qabelbox.ui.helper.UITestHelper;
 
 import static android.support.test.espresso.Espresso.onView;
@@ -52,65 +37,50 @@ import static android.support.test.espresso.matcher.ViewMatchers.withText;
 import static de.qabel.qabelbox.ui.matcher.QabelMatcher.withDrawable;
 import static org.hamcrest.core.AllOf.allOf;
 
-/**
- * Tests for MainActivity.
- */
+public class OpenImageUITest extends FilesFragmentUITestBase {
 
-@FixMethodOrder(MethodSorters.NAME_ASCENDING)
-public class OpenImageUITest {
+    private PicassoIdlingResource mPicassoIdlingResource;
 
-    @Rule
-    public IntentsTestRule<MainActivity> mActivityTestRule = new IntentsTestRule<MainActivity>(
-            MainActivity.class, false, false);
+    private List<ExampleFile> exampleFiles = null;
 
-    private MainActivity mActivity;
-    private UIBoxHelper mBoxHelper;
-    private PowerManager.WakeLock wakeLock;
-    private final PicassoIdlingResource mPicassoIdlingResource = new PicassoIdlingResource();
-    private SystemAnimations mSystemAnimations;
-
-
-    @After
-    public void cleanUp() {
-
-        if (wakeLock != null) {
-            wakeLock.release();
-        }
-        if (mSystemAnimations != null) {
-            mSystemAnimations.enableAll();
-        }
-        Espresso.unregisterIdlingResources(mPicassoIdlingResource);
-        mBoxHelper.unbindService(QabelBoxApplication.getInstance());
+    private ExampleFile createImageExampleFile(Context context, String filename, Bitmap.CompressFormat format, int id) {
+        Bitmap bitmap = BitmapFactory.decodeResource(context.getResources(), id);
+        ByteArrayOutputStream byteStream = new ByteArrayOutputStream(100 * 1024);
+        bitmap.compress(format, 100, byteStream);
+        byte[] data = new byte[byteStream.size()];
+        System.arraycopy(byteStream.toByteArray(), 0, data, 0, byteStream.size());
+        return new ExampleFile(filename, data);
     }
 
-    @Before
-    public void setUp() throws IOException, QblStorageException {
+    @Override
+    protected void setupData() throws Exception {
+        if (exampleFiles == null) {
+            exampleFiles = Arrays.asList(new ExampleFile("defect.png", new byte[100]),
+                    createImageExampleFile(QabelBoxApplication.getInstance(), "file1.jpg", Bitmap.CompressFormat.JPEG, R.drawable.splash_logo),
+                    createImageExampleFile(QabelBoxApplication.getInstance(), "file2.png", Bitmap.CompressFormat.PNG, R.drawable.splash_logo),
+                    createImageExampleFile(QabelBoxApplication.getInstance(), "file3.png", Bitmap.CompressFormat.PNG, R.drawable.qabel_logo));
+        }
+        addExampleFiles(identity, exampleFiles);
+    }
 
-        mBoxHelper = new UIBoxHelper(QabelBoxApplication.getInstance());
-        mBoxHelper.bindService(QabelBoxApplication.getInstance());
-        mBoxHelper.removeAllIdentities();
-        mBoxHelper.addIdentity("spoon");
-        uploadTestFiles();
-        mActivity = mActivityTestRule.launchActivity(null);
-        URLs.setBaseBlockURL(TestConstants.BLOCK_URL);
+    @Override
+    public void setUp() throws Exception {
+        super.setUp();
+        mPicassoIdlingResource = new PicassoIdlingResource();
         Espresso.registerIdlingResources(mPicassoIdlingResource);
+        mPicassoIdlingResource.init(mActivity);
         ActivityLifecycleMonitorRegistry
                 .getInstance()
                 .addLifecycleCallback(mPicassoIdlingResource);
-        wakeLock = UIActionHelper.wakeupDevice(mActivity);
-        mSystemAnimations = new SystemAnimations(mActivity);
-        mSystemAnimations.disableAll();
     }
 
-    private void uploadTestFiles() {
-
-        int fileCount = 4;
-        mBoxHelper.uploadFile(mBoxHelper.mBoxVolume, "defect.png", new byte[100], "");
-        mBoxHelper.uploadDrawableFile(mBoxHelper.mBoxVolume, "file1.jpg", Bitmap.CompressFormat.JPEG, R.drawable.splash_logo);
-        mBoxHelper.uploadDrawableFile(mBoxHelper.mBoxVolume, "file2.png", Bitmap.CompressFormat.PNG, R.drawable.splash_logo);
-        mBoxHelper.uploadDrawableFile(mBoxHelper.mBoxVolume, "file3.png", Bitmap.CompressFormat.PNG, R.drawable.qabel_logo);
-
-        mBoxHelper.waitUntilFileCount(fileCount);
+    @Override
+    public void cleanUp() {
+        Espresso.unregisterIdlingResources(mPicassoIdlingResource);
+        ActivityLifecycleMonitorRegistry
+                .getInstance()
+                .removeLifecycleCallback(mPicassoIdlingResource);
+        super.cleanUp();
     }
 
     @Test
@@ -118,7 +88,6 @@ public class OpenImageUITest {
 
         mPicassoIdlingResource.init(mActivity);
         testFile("file2.png");
-        UITestHelper.screenShot(mActivity, "open_png");
         Instrumentation.ActivityResult activityResult = new Instrumentation.ActivityResult(
                 Activity.RESULT_OK, new Intent());
         Matcher<Intent> expectedIntent = hasAction(Intent.ACTION_CHOOSER);
@@ -138,7 +107,6 @@ public class OpenImageUITest {
     }
 
     private void testFile(String file) {
-
         onView(withId(R.id.files_list))
                 .perform(RecyclerViewActions.actionOnItem(
                         hasDescendant(withText(file)), click()));

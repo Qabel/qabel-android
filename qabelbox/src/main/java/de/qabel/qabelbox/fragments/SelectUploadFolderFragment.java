@@ -3,7 +3,6 @@ package de.qabel.qabelbox.fragments;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -28,7 +27,6 @@ public class SelectUploadFolderFragment extends FilesFragment {
 
     private final String TAG = this.getClass().getSimpleName();
     private ArrayList<Uri> uris;
-    private RecyclerView.LayoutManager recyclerViewLayoutManager;
 
     private void loadIdentityFiles(final BoxVolume boxVolume) {
 
@@ -40,7 +38,6 @@ public class SelectUploadFolderFragment extends FilesFragment {
         new AsyncTask<Void, Void, Void>() {
             @Override
             protected void onPreExecute() {
-
                 super.onPreExecute();
                 setIsLoading(true);
             }
@@ -68,11 +65,9 @@ public class SelectUploadFolderFragment extends FilesFragment {
 
             @Override
             protected void onPostExecute(Void aVoid) {
-
                 super.onPostExecute(aVoid);
                 setIsLoading(false);
-
-                filesAdapter.notifyDataSetChanged();
+                notifyFilesAdapterChanged();
             }
         }.executeOnExecutor(serialExecutor);
     }
@@ -107,28 +102,19 @@ public class SelectUploadFolderFragment extends FilesFragment {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-
         super.onCreate(savedInstanceState);
         actionBar.setDisplayHomeAsUpEnabled(true);
         mActivity.toggle.setDrawerIndicatorEnabled(false);
-        setActionBarBackListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-            }
-        });
     }
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-
         menu.clear();
         inflater.inflate(R.menu.ab_upload, menu);
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-
         int id = item.getItemId();
         if (id == R.id.action_upload) {
             uploadFiles();
@@ -138,21 +124,11 @@ public class SelectUploadFolderFragment extends FilesFragment {
     }
 
     private void uploadFiles() {
-
         for (int i = 0; i < uris.size(); i++) {
             VolumeFileTransferHelper.upload(getActivity(), uris.get(i), boxNavigation, mActivity.boxVolume);
         }
         Toast.makeText(getActivity(), getString(R.string.x_files_uploading).replace("%1", "" + uris.size()), Toast.LENGTH_SHORT).show();
         getFragmentManager().popBackStack();
-    }
-
-    public void setAdapter(FilesAdapter adapter) {
-
-        filesAdapter = adapter;
-        if (filesListRecyclerView != null) {
-            filesListRecyclerView.setAdapter(filesAdapter);
-            filesAdapter.notifyDataSetChanged();
-        }
     }
 
     public static SelectUploadFolderFragment newInstance(BoxVolume boxVolume, ArrayList<Uri> data, Identity activeIdentity) {
@@ -168,16 +144,5 @@ public class SelectUploadFolderFragment extends FilesFragment {
     public String getTitle() {
 
         return getString(R.string.headline_select_upload_folder);
-    }
-
-    @Override
-    public boolean isFabNeeded() {
-
-        return false;
-    }
-
-    public boolean supportBackButton() {
-
-        return true;
     }
 }

@@ -40,7 +40,7 @@
     <string name="add_folder_header">Create folder</string>
     <string name="add_folder_name">Enter folder name</string>
     <string name="create_folder">Create folder</string>
-    <string name="headline_searchresult">Search result</string>
+    <string name="headline_searchresult">Search result:</string>
     <string name="headline_files">File browser</string>
     <string name="filter">Filter</string>
     <string name="no_entrys_found">No files were found</string>

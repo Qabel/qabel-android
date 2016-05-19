@@ -44,7 +44,7 @@ public class UITestHelper {
         int permissionCheck = ContextCompat.checkSelfPermission(activity,
                 Manifest.permission.WRITE_EXTERNAL_STORAGE);
         if (permissionCheck == PackageManager.PERMISSION_GRANTED) {
-            return Spoon.screenshot(getCurrentActivity(activity), screenName);
+            return Spoon.screenshot(activity, screenName);
         } else {
             Log.w("UTTestHelper", "Skipping screenshot because the permission is not granted");
             return null;

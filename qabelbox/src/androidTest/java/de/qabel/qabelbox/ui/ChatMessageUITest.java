@@ -2,157 +2,58 @@ package de.qabel.qabelbox.ui;
 
 import android.content.Context;
 import android.content.Intent;
-import android.os.PowerManager;
-import android.support.design.internal.NavigationMenuItemView;
+import android.support.test.InstrumentationRegistry;
 import android.support.test.espresso.ViewAssertion;
 import android.support.test.espresso.ViewInteraction;
 import android.support.test.rule.ActivityTestRule;
-import android.util.Log;
 
-import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 
-import java.io.IOException;
-
 import de.qabel.core.config.Contact;
-import de.qabel.core.config.Contacts;
 import de.qabel.core.config.Identity;
-import de.qabel.qabelbox.QabelBoxApplication;
+import de.qabel.desktop.repository.exception.PersistenceException;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.activities.MainActivity;
 import de.qabel.qabelbox.chat.ChatMessageItem;
 import de.qabel.qabelbox.chat.ChatServer;
 import de.qabel.qabelbox.exceptions.QblStorageEntityExistsException;
-import de.qabel.qabelbox.exceptions.QblStorageException;
-import de.qabel.qabelbox.helper.AccountHelper;
 import de.qabel.qabelbox.helper.Helper;
-import de.qabel.qabelbox.ui.helper.SystemAnimations;
-import de.qabel.qabelbox.ui.helper.UIActionHelper;
-import de.qabel.qabelbox.ui.helper.UIBoxHelper;
 import de.qabel.qabelbox.ui.helper.UITestHelper;
 import de.qabel.qabelbox.ui.matcher.QabelMatcher;
-import de.qabel.qabelbox.ui.matcher.ToolbarMatcher;
 
 import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.Espresso.pressBack;
 import static android.support.test.espresso.action.ViewActions.click;
-import static android.support.test.espresso.action.ViewActions.pressImeActionButton;
 import static android.support.test.espresso.assertion.ViewAssertions.matches;
-import static android.support.test.espresso.contrib.DrawerActions.openDrawer;
-import static android.support.test.espresso.matcher.ViewMatchers.assertThat;
 import static android.support.test.espresso.matcher.ViewMatchers.hasSibling;
-import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
-import static de.qabel.qabelbox.ui.action.QabelViewAction.setText;
-import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertTrue;
-import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.Matchers.allOf;
-import static org.hamcrest.Matchers.is;
 
-public class ChatMessageUITest {
+public class ChatMessageUITest extends AbstractUITest {
 
     @Rule
     public ActivityTestRule<MainActivity> mActivityTestRule =
             new MainActivityWithoutFilesFragmentTestRule(false);
-    private MainActivity mActivity;
-    private UIBoxHelper mBoxHelper;
-    private PowerManager.WakeLock wakeLock;
-    private SystemAnimations mSystemAnimations;
     private final String TAG = this.getClass().getSimpleName();
-    private Contact contact2, contact1;
-    private Identity identity;
+    private Contact contact;
 
-    @After
-    public void cleanUp() {
-        if (wakeLock != null) {
-            wakeLock.release();
-        }
-        if (mSystemAnimations != null) {
-            mSystemAnimations.enableAll();
-        }
-        mBoxHelper.unbindService(QabelBoxApplication.getInstance());
-        mBoxHelper.removeAllIdentities();
+    public ChatMessageUITest() {
     }
 
     @Before
-    public void setUp() throws IOException, QblStorageException {
-        mBoxHelper = new UIBoxHelper(QabelBoxApplication.getInstance());
-        mBoxHelper.bindService(QabelBoxApplication.getInstance());
-        mBoxHelper.createTokenIfNeeded(false);
-        mBoxHelper.removeAllIdentities();
-        Identity user1 = mBoxHelper.addIdentityWithoutVolume("user1");
+    public void setUp() throws Throwable {
+        super.setUp();
         Identity user2 = mBoxHelper.addIdentityWithoutVolume("user2");
-        Contacts contacts = mBoxHelper.getService().getContacts(user1);
-        for (Contact contact: contacts.getContacts()) {
-            mBoxHelper.getService().deleteContact(contact);
-        }
-        contacts = mBoxHelper.getService().getContacts(user2);
-        for (Contact contact: contacts.getContacts()) {
-            mBoxHelper.getService().deleteContact(contact);
-        }
-
-        contact2 = addContact(user1, user2);
-        contact1 = addContact(user2, user1);
-        mBoxHelper.setActiveIdentity(user2);
+        contact = addContact(identity, user2);
 
         Intent intent = new Intent(Intent.ACTION_MAIN);
         intent.putExtra(MainActivity.START_CONTACTS_FRAGMENT, true);
-        mActivity = mActivityTestRule.launchActivity(intent);
-        wakeLock = UIActionHelper.wakeupDevice(mActivity);
-        mSystemAnimations = new SystemAnimations(mActivity);
-        mSystemAnimations.disableAll();
-        identity = user2;
-    }
-
-    @Ignore
-    @Test
-    public void testSendOneMessage() throws Throwable{
-        //ContactList and click on user
-        onView(withId(R.id.contact_list)).check(matches(isDisplayed()));
-        onView(withText("user1")).perform(click());
-
-        //ChatView is displayed
-        onView(withId(R.id.contact_chat_list)).check(matches(isDisplayed()));
-
-        //Check Username is displayed in chatview
-        ToolbarMatcher.matchToolbarTitle("user1").check(matches(isDisplayed()));
-
-        onView(withId(R.id.etText)).check(matches(isDisplayed())).perform(click());
-        onView(withId(R.id.etText)).perform(setText("text" + 1), pressImeActionButton());
-        UITestHelper.closeKeyboard();
-        onView(withText(R.string.btn_chat_send)).check(matches(isDisplayed())).perform(click());
-
-        onView(withId(R.id.contact_chat_list)).
-                check(matches(isDisplayed())).
-                check(matches(QabelMatcher.withListSize(1)));
-        pressBack();
-
-        //go to identity user 1
-        openDrawer(R.id.drawer_layout);
-        onView(withId(R.id.imageViewExpandIdentity)).check(matches(isDisplayed())).perform(click());
-        onView(allOf(is(instanceOf(NavigationMenuItemView.class)), withText("user1"))).perform(click());
-
-        openDrawer(R.id.drawer_layout);
-        onView(withText(R.string.Contacts)).check(matches(isDisplayed())).perform(click());
-        UITestHelper.screenShot(mActivity, "message" + 1);
-        checkVisibilityState("user2", QabelMatcher.isVisible());
-        onView(withText("user2")).check(matches(isDisplayed())).perform(click());
-
-        onView(withId(R.id.contact_chat_list)).
-                check(matches(isDisplayed())).
-                check(matches(QabelMatcher.withListSize(1)));
-        pressBack();
-
-        //go to user 2
-        openDrawer(R.id.drawer_layout);
-        onView(withId(R.id.imageViewExpandIdentity)).check(matches(isDisplayed())).perform(click());
-        onView(allOf(is(instanceOf(NavigationMenuItemView.class)), withText("user2"))).perform(click());
-        openDrawer(R.id.drawer_layout);
+        intent.putExtra(MainActivity.ACTIVE_IDENTITY, identity.getKeyIdentifier());
+        launchActivity(intent);
     }
 
     /**
@@ -160,28 +61,19 @@ public class ChatMessageUITest {
      */
     @Test
     public void testNewMessageVisualization() throws Throwable {
-        Context context = mActivity.getApplicationContext();
+        Context context = InstrumentationRegistry.getTargetContext();
         String identityKey = identity.getEcPublicKey().getReadableKeyIdentifier();
         ChatServer chatServer = mActivity.chatServer;
-        String contact1Alias = contact1.getAlias();
+        String contact1Alias = contact.getAlias();
 
-        String contact1Key = contact1.getEcPublicKey().getReadableKeyIdentifier();
-
-        int messageCount = chatServer.getAllMessages(identity, contact1).length;
-        Log.d(TAG, "count: " + messageCount);
-
+        String contact1Key = contact.getEcPublicKey().getReadableKeyIdentifier();
 
         ChatMessageItem dbItem = createNewChatMessageItem(contact1Key, identityKey,
                 "from: " + contact1Alias + "message1");
         chatServer.storeIntoDB(identity, dbItem);
-        int newMessageCount = chatServer.getAllMessages(identity, contact1).length;
-
         UITestHelper.screenShot(mActivity, "contactsOneNewMessage");
-        assertThat(1, is(newMessageCount));
-        assertTrue(chatServer.hasNewMessages(identity, contact1));
-        assertFalse(chatServer.hasNewMessages(identity, contact2));
+        assertTrue(chatServer.hasNewMessages(identity, contact));
         refreshViewIntent(context);
-
 
         //check if new view indicator displayed on correct user and click on this item
         checkVisibilityState(contact1Alias, QabelMatcher.isVisible()).perform(click());
@@ -195,10 +87,11 @@ public class ChatMessageUITest {
 
     }
 
-    private Contact addContact(Identity identity, Identity contact) throws QblStorageEntityExistsException {
+    private Contact addContact(Identity identity, Identity contact)
+            throws QblStorageEntityExistsException, PersistenceException {
         Contact asContact = new Contact(contact.getAlias(),
                 contact.getDropUrls(),contact.getEcPublicKey());
-		mBoxHelper.getService().addContact(asContact, identity);
+        contactRepository.save(asContact, identity);
         return asContact;
     }
 
@@ -209,10 +102,6 @@ public class ChatMessageUITest {
         context.sendBroadcast(chatIntent);
     }
 
-    private void onDemandSync() {
-        AccountHelper.startOnDemandSyncAdapter();
-    }
-
     /**
      * check if new message indicator displayed
      *
@@ -221,7 +110,6 @@ public class ChatMessageUITest {
      * @return ViewInteraction
      */
     private ViewInteraction checkVisibilityState(String alias, ViewAssertion visibility) {
-        UITestHelper.sleep(500);
         return onView(allOf(QabelMatcher.withDrawable(R.drawable.eye), hasSibling(withText(alias)))).check(visibility);
     }
 

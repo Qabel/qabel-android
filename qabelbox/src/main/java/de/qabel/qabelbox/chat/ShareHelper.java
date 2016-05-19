@@ -46,7 +46,7 @@ public class ShareHelper {
 
     public static void shareToQabelUser(final MainActivity self, LocalQabelService mService, final BoxObject boxObject) {
 
-        if (mService.getContacts(mService.getActiveIdentity()).getContacts().size() == 0) {
+        if (mService.getContacts(self.getActiveIdentity()).getContacts().size() == 0) {
             UIHelper.showDialogMessage(self, R.string.dialog_headline_info, R.string.cant_share_contactlist_is_empty);
 
         } else {
@@ -101,7 +101,7 @@ public class ShareHelper {
         final BoxNavigation nav = mainActivity.filesFragment.getBoxNavigation();
         final LocalQabelService mService = mainActivity.mService;
         final ChatServer cs = mainActivity.chatServer;
-        final Identity currentIdentity = mService.getActiveIdentity();
+        final Identity currentIdentity = mainActivity.getActiveIdentity();
 
         new AsyncTask<Void, Integer, DropMessage>() {
             public AlertDialog waitMessage;
@@ -115,7 +115,7 @@ public class ShareHelper {
             protected DropMessage doInBackground(Void... params) {
 
                 try {
-                    BoxExternalReference boxExternalReference = nav.createFileMetadata(mService.getActiveIdentity().getEcPublicKey(), boxObject);
+                    BoxExternalReference boxExternalReference = nav.createFileMetadata(mainActivity.getActiveIdentity().getEcPublicKey(), boxObject);
                     nav.commit();
                     return cs.createShareDropMessage(currentIdentity,
                             boxExternalReference.name, boxExternalReference.url, Hex.toHexString(boxExternalReference.key));
@@ -130,7 +130,7 @@ public class ShareHelper {
 
                 if (dm != null) {
                     try {
-                        mService.sendDropMessage(dm, contact, mService.getActiveIdentity(), deliveryStatus -> {
+                        mService.sendDropMessage(dm, contact, mainActivity.getActiveIdentity(), deliveryStatus -> {
                             ChatMessageItem message = new ChatMessageItem(mainActivity.mService.getActiveIdentity(), contact.getEcPublicKey().getReadableKeyIdentifier(), dm.getDropPayload(), dm.getDropPayloadType());
                             cs.storeIntoDB(currentIdentity, message);
                             mainActivity.filesFragment.refresh();

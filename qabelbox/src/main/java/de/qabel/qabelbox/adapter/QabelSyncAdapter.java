@@ -69,7 +69,7 @@ public class QabelSyncAdapter extends AbstractThreadedSyncAdapter {
         Set<Identity> identities;
         try {
             identities = getIdentities().getIdentities();
-        } catch (SQLException | EntityNotFoundExcepion | PersistenceException e) {
+        } catch (SQLException | PersistenceException e) {
             Log.e(TAG, "Sync failed", e);
             return;
         }
@@ -77,7 +77,7 @@ public class QabelSyncAdapter extends AbstractThreadedSyncAdapter {
             Log.i(TAG, "Loading messages for identity "+ identity.getAlias());
             try {
                 chatServer.refreshList(getDropConnector(), identity);
-            } catch (SQLException | EntityNotFoundExcepion | PersistenceException e) {
+            } catch (SQLException | PersistenceException e) {
                 Log.e(TAG, "Drop message retrieval failed", e);
                 return;
             }
@@ -92,16 +92,16 @@ public class QabelSyncAdapter extends AbstractThreadedSyncAdapter {
         context.sendBroadcast(chatIntent);
     }
 
-    private Identities getIdentities() throws SQLException, EntityNotFoundExcepion, PersistenceException {
+    private Identities getIdentities() throws SQLException, PersistenceException {
         AndroidClientDatabase database = factory.getAndroidClientDatabase();
         return factory.getIdentityRepository(database).findAll();
     }
 
-    public DropConnector getDropConnector() throws SQLException, EntityNotFoundExcepion, PersistenceException {
+    public DropConnector getDropConnector() throws SQLException, PersistenceException {
         return new HttpDropConnector(getIdentities(), getContacts());
     }
 
-    private Map<Identity, Contacts> getContacts() throws SQLException, EntityNotFoundExcepion, PersistenceException {
+    private Map<Identity, Contacts> getContacts() throws SQLException, PersistenceException {
         SqliteContactRepository contactRepository = factory.getContactRepository(
                 factory.getAndroidClientDatabase());
         Map<Identity, Contacts> contactMap = new HashMap<>();

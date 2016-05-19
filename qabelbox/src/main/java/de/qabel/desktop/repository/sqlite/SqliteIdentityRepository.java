@@ -66,7 +66,7 @@ public class SqliteIdentityRepository extends AbstractSqliteRepository<Identity>
     }
 
     @Override
-    public Identities findAll() throws EntityNotFoundExcepion, PersistenceException {
+    public Identities findAll() throws PersistenceException {
         Collection<Identity> all = super.findAll("");
         Identities identities = new Identities();
         for (Identity identity : all) {

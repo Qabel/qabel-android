@@ -13,9 +13,6 @@ import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.services.LocalQabelService;
 
-/**
- * Created by danny on 19.01.16.
- */
 public class CreateAccountFinalFragment extends BaseIdentityFragment {
 
     private TextView tvSuccess, tvMessage;
@@ -43,8 +40,8 @@ public class CreateAccountFinalFragment extends BaseIdentityFragment {
                 //no active identities. try to set the first as active
                 Identity identityToSet = identities.getIdentities().iterator().next();
                 service.setActiveIdentity(identityToSet);
-                Identity setted = service.getActiveIdentity();
-                if (setted != null && setted.getAlias().equals(activeIdentity.getAlias())) {
+                Identity active = service.getActiveIdentity();
+                if (active != null) {
                     //active identity set
                     needCreateIdentity = false;
                 } else {

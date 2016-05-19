@@ -102,7 +102,7 @@ public class ContactFragment extends BaseFragment {
     }
 
     private Identity getActiveIdentity() {
-       return getService().getActiveIdentity();
+       return mActivity.getActiveIdentity();
     }
 
     private LocalQabelService getService() {
@@ -159,7 +159,7 @@ public class ContactFragment extends BaseFragment {
     public void exportAllContacts() {
         try {
             LocalQabelService service = getService();
-            Contacts contacts = service.getContacts(service.getActiveIdentity());
+            Contacts contacts = service.getContacts(getActiveIdentity());
             exportedContactCount = contacts.getContacts().size();
             if (exportedContactCount > 0) {
                 String contactJson = ContactExportImport.exportContacts(contacts);
@@ -347,22 +347,19 @@ public class ContactFragment extends BaseFragment {
     public boolean handleFABAction() {
 
         new BottomSheet.Builder(mActivity).title(R.string.add_new_contact).sheet(R.menu.bottom_sheet_add_contact)
-                .listener(new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
+                .listener((dialog, which) -> {
 
-                        switch (which) {
-                            case R.id.add_contact_from_file:
-                                addContactByFile();
-                                break;
-                            case R.id.add_contact_via_qr:
-                                IntentIntegrator integrator = new IntentIntegrator(self);
-                                integrator.initiateScan();
-                                break;
-                            case R.id.add_contact_direct_input:
-                                selectAddContactFragment(getService().getActiveIdentity());
-                                break;
-                        }
+                    switch (which) {
+                        case R.id.add_contact_from_file:
+                            addContactByFile();
+                            break;
+                        case R.id.add_contact_via_qr:
+                            IntentIntegrator integrator = new IntentIntegrator(self);
+                            integrator.initiateScan();
+                            break;
+                        case R.id.add_contact_direct_input:
+                            selectAddContactFragment(getActiveIdentity());
+                            break;
                     }
                 }).show();
 
@@ -410,7 +407,8 @@ public class ContactFragment extends BaseFragment {
                         FileInputStream fis = new FileInputStream(pfd.getFileDescriptor());
                         String json = FileHelper.readFileAsText(fis);
                         fis.close();
-                        ContactExportImport.ContactsParseResult contactsParseResult = ContactExportImport.parse(getService().getActiveIdentity(), json);
+                        ContactExportImport.ContactsParseResult contactsParseResult =
+                                ContactExportImport.parse(getActiveIdentity(), json);
                         int added = 0;
                         int failed = contactsParseResult.getSkippedContacts();
                         for (Contact contact : contactsParseResult.getContacts().getContacts()) {

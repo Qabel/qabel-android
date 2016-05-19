@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.support.test.InstrumentationRegistry;
 import android.support.test.espresso.Espresso;
 import android.support.test.espresso.contrib.RecyclerViewActions;
 import android.support.test.runner.lifecycle.ActivityLifecycleMonitorRegistry;
@@ -55,10 +56,11 @@ public class OpenImageUITest extends FilesFragmentUITestBase {
     @Override
     protected void setupData() throws Exception {
         if (exampleFiles == null) {
+            Context context = InstrumentationRegistry.getTargetContext();
             exampleFiles = Arrays.asList(new ExampleFile("defect.png", new byte[100]),
-                    createImageExampleFile(QabelBoxApplication.getInstance(), "file1.jpg", Bitmap.CompressFormat.JPEG, R.drawable.splash_logo),
-                    createImageExampleFile(QabelBoxApplication.getInstance(), "file2.png", Bitmap.CompressFormat.PNG, R.drawable.splash_logo),
-                    createImageExampleFile(QabelBoxApplication.getInstance(), "file3.png", Bitmap.CompressFormat.PNG, R.drawable.qabel_logo));
+                    createImageExampleFile(context, "file1.jpg", Bitmap.CompressFormat.JPEG, R.drawable.splash_logo),
+                    createImageExampleFile(context, "file2.png", Bitmap.CompressFormat.PNG, R.drawable.splash_logo),
+                    createImageExampleFile(context, "file3.png", Bitmap.CompressFormat.PNG, R.drawable.qabel_logo));
         }
         addExampleFiles(identity, exampleFiles);
     }
@@ -85,8 +87,6 @@ public class OpenImageUITest extends FilesFragmentUITestBase {
 
     @Test
     public void testOpenFiles() throws Throwable {
-
-        mPicassoIdlingResource.init(mActivity);
         testFile("file2.png");
         Instrumentation.ActivityResult activityResult = new Instrumentation.ActivityResult(
                 Activity.RESULT_OK, new Intent());
@@ -100,7 +100,6 @@ public class OpenImageUITest extends FilesFragmentUITestBase {
 
     @Test
     public void testDefectFiles() throws Throwable {
-        mPicassoIdlingResource.init(mActivity);
         testFile("defect.png");
         onView(withDrawable(R.drawable.message_alert_white)).check(matches(isDisplayed()));
         UITestHelper.screenShot(mActivity, "open_defect_file");

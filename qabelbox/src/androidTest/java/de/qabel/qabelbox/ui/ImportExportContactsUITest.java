@@ -114,6 +114,7 @@ public class ImportExportContactsUITest extends AbstractUITest {
     @Test
     public void testExportContactAsQRCode() throws Throwable {
         onView(withId(R.id.contact_list)).perform(RecyclerViewActions.actionOnItem(hasDescendant(withText(CONTACT_1)), longClick()));
+        UITestHelper.screenShot(mActivity, "long click on contact");
         onView(withText(R.string.ExportAsContactWithQRcode)).check(matches(isDisplayed())).perform(click());
         onView(withText(CONTACT_1)).check(matches(isDisplayed()));
         ToolbarMatcher.matchToolbarTitle(mActivity.getString(R.string.headline_qrcode)).check(matches(isDisplayed()));
@@ -153,6 +154,7 @@ public class ImportExportContactsUITest extends AbstractUITest {
         onView(withId(R.id.contact_list))
                 .perform(RecyclerViewActions.actionOnItem(
                         hasDescendant(withText(CONTACT_1)), longClick()));
+        UITestHelper.screenShot(mActivity, "long click on contact");
 
         //Check contact dialog
         onView(withText(CONTACT_1)).inRoot(isDialog()).check(matches(isDisplayed()));

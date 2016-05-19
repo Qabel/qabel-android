@@ -14,6 +14,7 @@ import com.squareup.spoon.Spoon;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.File;
@@ -111,9 +112,11 @@ public class ImportExportContactsUITest extends AbstractUITest {
         }
     }
 
+    @Ignore("longClick in RecyclerView is broken")
     @Test
     public void testExportContactAsQRCode() throws Throwable {
-        onView(withId(R.id.contact_list)).perform(RecyclerViewActions.actionOnItem(hasDescendant(withText(CONTACT_1)), longClick()));
+        onView(withId(R.id.contact_list)).perform(
+                RecyclerViewActions.actionOnItem(hasDescendant(withText(CONTACT_1)), longClick()));
         UITestHelper.screenShot(mActivity, "longClickOnContact");
         onView(withText(R.string.ExportAsContactWithQRcode)).check(matches(isDisplayed())).perform(click());
         onView(withText(CONTACT_1)).check(matches(isDisplayed()));
@@ -122,6 +125,7 @@ public class ImportExportContactsUITest extends AbstractUITest {
 
     }
 
+    @Ignore("longClick in RecyclerView is broken")
     @Test
     public void testExportSingleContact() throws Throwable {
 

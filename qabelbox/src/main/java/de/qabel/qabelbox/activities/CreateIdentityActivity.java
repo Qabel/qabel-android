@@ -176,7 +176,7 @@ public class CreateIdentityActivity extends BaseWizardActivity {
         finish();
         if (mFirstRun) {
             Intent intent = new Intent(mActivity, MainActivity.class);
-            intent.setAction("");
+            intent.putExtra(MainActivity.ACTIVE_IDENTITY, mNewIdentity.getKeyIdentifier());
             startActivity(intent);
         }
     }

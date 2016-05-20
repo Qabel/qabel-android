@@ -10,13 +10,15 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
+import java.io.Closeable;
+
 import de.qabel.core.config.Contact;
 import de.qabel.core.config.Identity;
 
 /**
  * class to store chat messages in database
  */
-public class ChatMessagesDataBase extends SQLiteOpenHelper {
+public class ChatMessagesDataBase extends SQLiteOpenHelper implements Closeable {
 
     private static final int DATABASE_VERSION = 1;
     private static final String DATABASE_NAME = "ChatMessages.db";
@@ -77,8 +79,6 @@ public class ChatMessagesDataBase extends SQLiteOpenHelper {
 
 
     public void put(ChatMessageItem item) {
-
-        Log.i(TAG, "Put into db: " + item.toString() + " " + item.getSenderKey() + " " + item.getReceiverKey());
         ContentValues values = new ContentValues();
 
         values.put(COL_MESSAGE_SENDER, item.getSenderKey());

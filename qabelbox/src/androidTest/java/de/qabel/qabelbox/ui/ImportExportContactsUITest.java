@@ -4,13 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.support.test.InstrumentationRegistry;
-import android.support.test.espresso.contrib.DrawerActions;
-import android.support.test.espresso.contrib.RecyclerViewActions;
 import android.support.test.espresso.intent.matcher.IntentMatchers;
-import android.support.test.espresso.intent.rule.IntentsTestRule;
-import android.util.Log;
-
-import com.squareup.spoon.Spoon;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -25,11 +19,13 @@ import de.qabel.core.config.Contact;
 import de.qabel.core.config.Identity;
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
+import de.qabel.qabelbox.activities.MainActivity;
 import de.qabel.qabelbox.config.ContactExportImport;
 import de.qabel.qabelbox.exceptions.QblStorageEntityExistsException;
 import de.qabel.qabelbox.fragments.ContactFragment;
 import de.qabel.qabelbox.helper.FileHelper;
 import de.qabel.qabelbox.services.LocalQabelService;
+import de.qabel.qabelbox.ui.helper.UITestHelper;
 import de.qabel.qabelbox.ui.matcher.ToolbarMatcher;
 
 import static android.support.test.espresso.Espresso.onView;
@@ -40,18 +36,12 @@ import static android.support.test.espresso.assertion.ViewAssertions.matches;
 import static android.support.test.espresso.intent.Intents.intended;
 import static android.support.test.espresso.matcher.RootMatchers.isDialog;
 import static android.support.test.espresso.matcher.ViewMatchers.assertThat;
-import static android.support.test.espresso.matcher.ViewMatchers.hasDescendant;
 import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
-import static android.support.test.espresso.matcher.ViewMatchers.withClassName;
-import static android.support.test.espresso.matcher.ViewMatchers.withId;
-import static android.support.test.espresso.matcher.ViewMatchers.withParent;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertNull;
 import static junit.framework.Assert.assertTrue;
-import static org.hamcrest.Matchers.allOf;
-import static org.hamcrest.Matchers.endsWith;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 
@@ -67,7 +57,9 @@ public class ImportExportContactsUITest extends AbstractUITest {
     public void setUp() throws Exception {
         super.setUp();
         createTestContacts();
-        launchActivity(null);
+        Intent intent = new Intent(Intent.ACTION_MAIN);
+        intent.putExtra(MainActivity.START_CONTACTS_FRAGMENT, true);
+        launchActivity(intent);
     }
 
     private void createTestContacts() throws JSONException, QblStorageEntityExistsException {
@@ -95,13 +87,6 @@ public class ImportExportContactsUITest extends AbstractUITest {
         onView(withText(R.string.ok)).check(matches(isDisplayed())).perform(click());
     }
 
-    private void goToContacts() {
-        DrawerActions.openDrawer(R.id.drawer_layout);
-        onView(allOf(withText(R.string.Contacts), withParent(withClassName(endsWith("MenuView")))))
-                .perform(click());
-        Spoon.screenshot(mActivity, "contacts");
-    }
-
     private JSONObject checkFile(File file1) {
         try {
             FileInputStream fis = new FileInputStream(file1);
@@ -115,28 +100,22 @@ public class ImportExportContactsUITest extends AbstractUITest {
     }
 
     @Test
-    public void testExportContactAsQRCode() {
-        goToContacts();
-
-        onView(withId(R.id.contact_list)).perform(RecyclerViewActions.actionOnItem(hasDescendant(withText(CONTACT_1)), longClick()));
+    public void testExportContactAsQRCode() throws Throwable {
+        onView(withText(CONTACT_1)).check(matches(isDisplayed())).perform(longClick());
+        UITestHelper.screenShot(mActivity, "longClickOnContact");
         onView(withText(R.string.ExportAsContactWithQRcode)).check(matches(isDisplayed())).perform(click());
-        onView(withText(CONTACT_1)).check(matches(isDisplayed()));
         ToolbarMatcher.matchToolbarTitle(mActivity.getString(R.string.headline_qrcode)).check(matches(isDisplayed()));
-        Spoon.screenshot(mActivity, "contactQR");
+        UITestHelper.screenShot(mActivity, "contactQR");
 
     }
 
     @Test
-    public void testExportSingleContact() throws Exception {
+    public void testExportSingleContact() throws Throwable {
 
         String userName = "contact1";
         File file1 = new File(mActivity.getCacheDir(), "testexportcontact");
-        goToContacts();
-
-        onView(withId(R.id.contact_list))
-                .perform(RecyclerViewActions.actionOnItem(
-                        hasDescendant(withText(userName)), longClick()));
-        Spoon.screenshot(mActivity, "exportOne");
+        onView(withText(userName)).perform(longClick());
+        UITestHelper.screenShot(mActivity, "exportOne");
         Intent data = new Intent();
         data.setData(Uri.fromFile(file1));
         ContactFragment contactFragment = (ContactFragment) mActivity.getFragmentManager().findFragmentById(R.id.fragment_container);
@@ -155,35 +134,29 @@ public class ImportExportContactsUITest extends AbstractUITest {
     }
 
     @Test
-    public void testExportContactToExternal(){
-        goToContacts();
-
-        //Open dialog for Contact 1
-        onView(withId(R.id.contact_list))
-                .perform(RecyclerViewActions.actionOnItem(
-                        hasDescendant(withText(CONTACT_1)), longClick()));
+    public void testExportContactToExternal() throws Throwable {
+        onView(withText(CONTACT_1)).perform(longClick());
+        UITestHelper.screenShot(mActivity, "longClickOnContact");
 
         //Check contact dialog
-        onView(withText(CONTACT_1)).inRoot(isDialog()).check(matches(isDisplayed()));
+        onView(withText(CONTACT_1)).check(matches(isDisplayed()));
 
         //Click Send
         onView(withText(R.string.Send)).inRoot(isDialog()).perform(click());
         //Check Chooser for SendIntent is visible
         intended(IntentMatchers.hasExtra(equalTo(Intent.EXTRA_INTENT),
-                        IntentMatchers.hasAction(Intent.ACTION_SEND)));
+                IntentMatchers.hasAction(Intent.ACTION_SEND)));
 
-
-        Spoon.screenshot(mActivity, "sendContact");
+        UITestHelper.screenShot(mActivity, "sendContact");
     }
 
     @Test
-    public void testExportManyContact() throws JSONException {
+    public void testExportManyContact() throws Throwable {
 
         File file1 = new File(mActivity.getCacheDir(), "testexportallcontact");
         assertNotNull(file1);
-        goToContacts();
         openActionBarOverflowOrOptionsMenu(InstrumentationRegistry.getTargetContext());
-        Spoon.screenshot(mActivity, "exportAll");
+        UITestHelper.screenShot(mActivity, "exportAll");
         Intent data = new Intent();
         data.setData(Uri.fromFile(file1));
         ContactFragment contactFragment = (ContactFragment) mActivity.
@@ -205,7 +178,6 @@ public class ImportExportContactsUITest extends AbstractUITest {
         saveJsonIntoFile(exportUser, file1);
 
         assertNotNull(file1);
-        goToContacts();
 
         Intent data = new Intent();
         data.setData(Uri.fromFile(file1));

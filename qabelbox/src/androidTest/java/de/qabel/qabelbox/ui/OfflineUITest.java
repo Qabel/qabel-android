@@ -22,6 +22,7 @@ import de.qabel.qabelbox.communication.URLs;
 import de.qabel.qabelbox.ui.helper.SystemAnimations;
 import de.qabel.qabelbox.ui.helper.UIActionHelper;
 import de.qabel.qabelbox.ui.helper.UIBoxHelper;
+import de.qabel.qabelbox.ui.helper.UITestHelper;
 
 import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.assertion.ViewAssertions.doesNotExist;
@@ -109,11 +110,11 @@ public class OfflineUITest {
 
 
     @Test
-    public void testOfflineIndicator() {
+    public void testOfflineIndicator() throws Throwable {
         onView(withText(R.string.no_connection)).check(doesNotExist());
         connectivityManager.setConnected(false);
         onView(withText(R.string.no_connection)).check(matches(isDisplayed()));
-        Spoon.screenshot(mActivity, "offlineIndicator");
+        UITestHelper.screenShot(mActivity, "offlineIndicator");
     }
 
     @Test

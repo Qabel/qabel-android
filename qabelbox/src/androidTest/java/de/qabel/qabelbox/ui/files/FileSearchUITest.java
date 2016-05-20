@@ -10,6 +10,7 @@ import java.util.List;
 
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.fragments.FilesSearchResultFragment;
+import de.qabel.qabelbox.ui.helper.UITestHelper;
 import de.qabel.qabelbox.ui.idling.WaitResourceCallback;
 import de.qabel.qabelbox.ui.matcher.QabelMatcher;
 import de.qabel.qabelbox.ui.matcher.ToolbarMatcher;
@@ -43,10 +44,12 @@ public class FileSearchUITest extends FilesFragmentUITestBase {
     }
 
     @Test
-    public void searchNamesTest() {
+    public void searchNamesTest() throws Throwable  {
+        UITestHelper.screenShot(mActivity, "startup");
         testSearch("black", 2);
         testSearch("", 7);
         testSearch("png", 6);
+        UITestHelper.screenShot(mActivity, "after");
     }
 
     @Test
@@ -149,8 +152,6 @@ public class FileSearchUITest extends FilesFragmentUITestBase {
         WaitResourceCallback waitResourceCallback = new WaitResourceCallback();
         getIdlingResource().registerIdleTransitionCallback(waitResourceCallback);
         onView(withId(R.id.action_use_filter)).perform(click());
-
-        //UITestHelper.waitUntil(() -> waitResourceCallback.isDone(), "refresh search failured");
 
         onView(withId(R.id.files_list)).
                 check(matches(isDisplayed())).

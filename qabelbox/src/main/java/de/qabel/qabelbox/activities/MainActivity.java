@@ -16,6 +16,7 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.provider.DocumentsContract;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
@@ -47,6 +48,10 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
+import butterknife.Optional;
 import de.qabel.core.config.Identity;
 import de.qabel.qabelbox.BuildConfig;
 import de.qabel.qabelbox.QabelBoxApplication;
@@ -85,6 +90,8 @@ import de.qabel.qabelbox.storage.BoxFolder;
 import de.qabel.qabelbox.storage.BoxNavigation;
 import de.qabel.qabelbox.storage.BoxObject;
 import de.qabel.qabelbox.storage.BoxVolume;
+import de.qabel.qabelbox.views.DrawerNavigationView;
+import de.qabel.qabelbox.views.DrawerNavigationViewHolder;
 
 public class MainActivity extends CrashReportingActivity
         implements NavigationView.OnNavigationItemSelectedListener,
@@ -123,17 +130,16 @@ public class MainActivity extends CrashReportingActivity
     public static final String START_FILES_FRAGMENT = "START_FILES_FRAGMENT";
     public static final String START_CONTACTS_FRAGMENT = "START_CONTACTS_FRAGMENT";
 
-    private DrawerLayout drawer;
     public BoxVolume boxVolume;
     public ActionBarDrawerToggle toggle;
     private BoxProvider provider;
-    public FloatingActionButton fab;
-    private TextView textViewSelectedIdentity;
-    private MainActivity self;
-    private View appBarMain;
+    @BindView(R.id.drawer_layout) DrawerLayout drawer;
+    @BindView(R.id.nav_view) DrawerNavigationView navigationView;
+    @BindView(R.id.fab) public FloatingActionButton fab;
+    @BindView(R.id.toolbar) Toolbar toolbar;
+    @BindView(R.id.app_bap_main) public View appBarMain;
     public FilesFragment filesFragment;
-    private Toolbar toolbar;
-    private ImageView imageViewExpandIdentity;
+    private MainActivity self;
     private boolean identityMenuExpanded;
 
     // Used to save the document uri that should exported while waiting for the result
@@ -145,9 +151,9 @@ public class MainActivity extends CrashReportingActivity
     public ChatServer chatServer;
     private ContactFragment contactFragment;
     private LightingColorFilter mDrawerIndicatorTintFilter;
-    private TextView textViewBoxAccountName;
 
     private ConnectivityManager connectivityManager;
+    private DrawerNavigationViewHolder drawerHolder;
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -231,7 +237,6 @@ public class MainActivity extends CrashReportingActivity
                             return null;
                         }
                     }.execute();
-                    return;
                 }
             }
         }
@@ -240,7 +245,6 @@ public class MainActivity extends CrashReportingActivity
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
         super.onCreate(savedInstanceState);
         self = this;
         Log.d(TAG, "onCreate " + this.hashCode());
@@ -251,13 +255,13 @@ public class MainActivity extends CrashReportingActivity
             return;
         }
         setContentView(R.layout.activity_main);
-        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        ButterKnife.bind(this);
+        View header = navigationView.getHeaderView(0);
+        drawerHolder = new DrawerNavigationViewHolder(header);
+
         setSupportActionBar(toolbar);
-        appBarMain = findViewById(R.id.app_bap_main);
-        fab = (FloatingActionButton) findViewById(R.id.fab);
         mDrawerIndicatorTintFilter = new LightingColorFilter(0, getResources().getColor(R.color.tintDrawerIndicator));
 
-        initFloatingActionButton();
 
         bindService(serviceIntent, mServiceConnection, Context.BIND_AUTO_CREATE);
 
@@ -287,22 +291,17 @@ public class MainActivity extends CrashReportingActivity
                     AlertDialog.Builder builder = new AlertDialog.Builder(self);
                     builder.setTitle(R.string.no_connection)
                             .setIcon(R.drawable.information)
-                            .setNegativeButton(R.string.close_app, new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int id) {
-                                    self.finishAffinity();
-                                }
+                            .setNegativeButton(R.string.close_app, (dialog, id) -> {
+                                self.finishAffinity();
                             })
                             .setPositiveButton(R.string.retry_action, null);
                     offlineIndicator = builder.create();
                     offlineIndicator.setCancelable(false);
                     offlineIndicator.show();
-                    offlineIndicator.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            if (connectivityManager.isConnected()) {
-                                offlineIndicator.dismiss();
-                                offlineIndicator = null;
-                            }
+                    offlineIndicator.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(v -> {
+                        if (connectivityManager.isConnected()) {
+                            offlineIndicator.dismiss();
+                            offlineIndicator = null;
                         }
                     });
                 } else {
@@ -404,6 +403,7 @@ public class MainActivity extends CrashReportingActivity
         Log.i(TAG, "Provider: " + provider);
 
         provider.setLocalService(mService);
+
         initDrawer();
 
         Identity activeIdentity = mService.getActiveIdentity();
@@ -419,7 +419,6 @@ public class MainActivity extends CrashReportingActivity
         Log.i(TAG, "Intent action: " + action);
 
         // Checks if a fragment should be launched
-
         boolean start_files_fragment = intent.getBooleanExtra(START_FILES_FRAGMENT, true);
         boolean start_contacts_fragment = intent.getBooleanExtra(START_CONTACTS_FRAGMENT, false);
         if (type != null && intent.getAction() != null) {
@@ -515,7 +514,7 @@ public class MainActivity extends CrashReportingActivity
 
     public void refreshFilesBrowser(Identity activeIdentity) {
 
-        textViewSelectedIdentity.setText(activeIdentity.getAlias());
+        drawerHolder.textViewSelectedIdentity.setText(activeIdentity.getAlias());
 
         initBoxVolume(activeIdentity);
         initChatServer();
@@ -572,71 +571,59 @@ public class MainActivity extends CrashReportingActivity
                 VolumeFileTransferHelper.getPrefixFromIdentity(activeIdentity));
     }
 
-    private void initFloatingActionButton() {
-
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                Fragment activeFragment = getFragmentManager().findFragmentById(R.id.fragment_container);
-                String activeFragmentTag = activeFragment.getTag();
-                if (activeFragment instanceof BaseFragment) {
-                    BaseFragment bf = (BaseFragment) activeFragment;
-                    //call fab action in basefragment. if fragment handled this, we are done
-                    if (bf.handleFABAction()) {
-                        return;
-                    }
-                }
-                switch (activeFragmentTag) {
-                    case TAG_FILES_FRAGMENT:
-                        filesFragmentBottomSheet();
-                        break;
-
-                    case TAG_MANAGE_IDENTITIES_FRAGMENT:
-                        selectAddIdentityFragment();
-                        break;
-
-                    default:
-                        Log.e(TAG, "Unknown FAB action for fragment tag: " + activeFragmentTag);
-                }
+    @OnClick(R.id.fab)
+    public void floatingActionButtonClick() {
+        Fragment activeFragment = getFragmentManager().findFragmentById(R.id.fragment_container);
+        String activeFragmentTag = activeFragment.getTag();
+        if (activeFragment instanceof BaseFragment) {
+            BaseFragment bf = (BaseFragment) activeFragment;
+            //call fab action in basefragment. if fragment handled this, we are done
+            if (bf.handleFABAction()) {
+                return;
             }
-        });
+        }
+        switch (activeFragmentTag) {
+            case TAG_FILES_FRAGMENT:
+                filesFragmentBottomSheet();
+                break;
+
+            case TAG_MANAGE_IDENTITIES_FRAGMENT:
+                selectAddIdentityFragment();
+                break;
+
+            default:
+                Log.e(TAG, "Unknown FAB action for fragment tag: " + activeFragmentTag);
+        }
     }
 
     private void filesFragmentBottomSheet() {
 
         new BottomSheet.Builder(self).sheet(R.menu.bottom_sheet_files_add)
                 .grid()
-                .listener(new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-
-                        switch (which) {
-                            case R.id.create_folder:
-                                newFolderDialog();
-                                break;
-                            case R.id.upload_file:
-                                Intent intentOpen = new Intent(Intent.ACTION_OPEN_DOCUMENT);
-                                intentOpen.addCategory(Intent.CATEGORY_OPENABLE);
-                                intentOpen.setType("*/*");
-                                startActivityForResult(intentOpen, REQUEST_CODE_UPLOAD_FILE);
-                                break;
-                        }
+                .listener((dialog, which) -> {
+                    switch (which) {
+                        case R.id.create_folder:
+                            newFolderDialog();
+                            break;
+                        case R.id.upload_file:
+                            Intent intentOpen = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+                            intentOpen.addCategory(Intent.CATEGORY_OPENABLE);
+                            intentOpen.setType("*/*");
+                            startActivityForResult(intentOpen, REQUEST_CODE_UPLOAD_FILE);
+                            break;
                     }
                 }).show();
     }
 
     private void newFolderDialog() {
 
-        UIHelper.showEditTextDialog(this, R.string.add_folder_header, R.string.add_folder_name, R.string.ok, R.string.cancel, new UIHelper.EditTextDialogClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which, EditText editText) {
+        UIHelper.showEditTextDialog(this, R.string.add_folder_header, R.string.add_folder_name,
+                R.string.ok, R.string.cancel, (dialog, which, editText) -> {
 
-                UIHelper.hideKeyboard(self, editText);
-                String newFolderName = editText.getText().toString();
-                if (!newFolderName.equals("")) {
-                    createFolder(newFolderName, filesFragment.getBoxNavigation());
-                }
+            UIHelper.hideKeyboard(self, editText);
+            String newFolderName = editText.getText().toString();
+            if (!newFolderName.equals("")) {
+                createFolder(newFolderName, filesFragment.getBoxNavigation());
             }
         }, null);
     }
@@ -710,7 +697,6 @@ public class MainActivity extends CrashReportingActivity
     @Override
     public void onBackPressed() {
 
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else {
@@ -726,12 +712,9 @@ public class MainActivity extends CrashReportingActivity
                 switch (activeFragment.getTag()) {
                     case TAG_FILES_SHARE_INTO_APP_FRAGMENT:
                         if (!shareFragment.handleBackPressed() && !shareFragment.browseToParent()) {
-                            UIHelper.showDialogMessage(self, R.string.dialog_headline_warning, R.string.share_in_app_go_back_without_upload, R.string.yes, R.string.no, new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    getFragmentManager().popBackStack();
-                                    //finish();
-                                }
+                            UIHelper.showDialogMessage(self, R.string.dialog_headline_warning,
+                                    R.string.share_in_app_go_back_without_upload, R.string.yes, R.string.no, (dialog, which) -> {
+                                getFragmentManager().popBackStack();
                             }, null);
                         }
                         break;
@@ -799,7 +782,6 @@ public class MainActivity extends CrashReportingActivity
         } else if (id == R.id.nav_logout) {
             performLogout();
         }
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
@@ -857,7 +839,7 @@ public class MainActivity extends CrashReportingActivity
     public void changeActiveIdentity(Identity identity) {
 
         mService.setActiveIdentity(identity);
-        textViewSelectedIdentity.setText(identity.getAlias());
+        drawerHolder.textViewSelectedIdentity.setText(identity.getAlias());
         if (filesFragment != null) {
             getFragmentManager().beginTransaction().remove(filesFragment).commit();
             filesFragment = null;
@@ -903,9 +885,7 @@ public class MainActivity extends CrashReportingActivity
                         .title(boxObject.name)
                         .icon((boxObject instanceof BoxFolder ? R.drawable.folder : R.drawable.file))
                         .sheet(R.menu.bottom_sheet_files)
-                        .listener(new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
+                        .listener((dialog, which) -> {
 
                                 switch (which) {
                                     case R.id.open:
@@ -933,8 +913,7 @@ public class MainActivity extends CrashReportingActivity
                                         }
                                         break;
                                 }
-                            }
-                        });
+                            });
                 filterSheet(boxObject, sheet);
                 sheet.show();
             }
@@ -970,12 +949,10 @@ public class MainActivity extends CrashReportingActivity
         provider.notifyRootsUpdated();
         mService.deleteIdentity(identity);
         if (mService.getIdentities().getIdentities().size() == 0) {
-            UIHelper.showDialogMessage(this, R.string.dialog_headline_info, R.string.last_identity_delete_create_new, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
+            UIHelper.showDialogMessage(this, R.string.dialog_headline_info,
+                    R.string.last_identity_delete_create_new, (dialog, which) -> {
 
-                    selectAddIdentityFragment();
-                }
+                selectAddIdentityFragment();
             });
         } else {
             changeActiveIdentity(mService.getIdentities().getIdentities().iterator().next());
@@ -987,7 +964,7 @@ public class MainActivity extends CrashReportingActivity
 
         provider.notifyRootsUpdated();
         mService.modifyIdentity(identity);
-        textViewSelectedIdentity.setText(mService.getActiveIdentity().getAlias());
+        drawerHolder.textViewSelectedIdentity.setText(mService.getActiveIdentity().getAlias());
     }
 
     /**
@@ -1052,104 +1029,76 @@ public class MainActivity extends CrashReportingActivity
         }
     }
 
-    private void initDrawer() {
 
-        drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+    public void selectIdentityLayoutClick() {
+
+        if (identityMenuExpanded) {
+            drawerHolder.imageViewExpandIdentity.setImageResource(R.drawable.menu_down);
+            drawerHolder.imageViewExpandIdentity.setColorFilter(mDrawerIndicatorTintFilter);
+            navigationView.getMenu().clear();
+            navigationView.inflateMenu(R.menu.activity_main_drawer);
+            identityMenuExpanded = false;
+        } else {
+            drawerHolder.imageViewExpandIdentity.setImageResource(R.drawable.menu_up);
+            drawerHolder.imageViewExpandIdentity.setColorFilter(mDrawerIndicatorTintFilter);
+            navigationView.getMenu().clear();
+            List<Identity> identityList = new ArrayList<>(
+                    mService.getIdentities().getIdentities());
+            Collections.sort(identityList, (lhs, rhs) -> lhs.getAlias().compareTo(rhs.getAlias()));
+            for (final Identity identity : identityList) {
+                navigationView.getMenu()
+                        .add(NAV_GROUP_IDENTITIES, Menu.NONE, Menu.NONE, identity.getAlias())
+                        .setIcon(R.drawable.account)
+                        .setOnMenuItemClickListener(item -> {
+                            drawer.closeDrawer(GravityCompat.START);
+                            selectIdentity(identity);
+                            return true;
+                        });
+            }
+            navigationView.getMenu()
+                    .add(NAV_GROUP_IDENTITY_ACTIONS, Menu.NONE, Menu.NONE, R.string.add_identity)
+                    .setIcon(R.drawable.plus_circle)
+                    .setOnMenuItemClickListener(item -> {
+                        drawer.closeDrawer(GravityCompat.START);
+                        selectAddIdentityFragment();
+                        return true;
+                    });
+            navigationView.getMenu()
+                    .add(NAV_GROUP_IDENTITY_ACTIONS, Menu.NONE, Menu.NONE, R.string.manage_identities)
+                    .setIcon(R.drawable.settings)
+                    .setOnMenuItemClickListener(item -> {
+                        drawer.closeDrawer(GravityCompat.START);
+                        selectManageIdentitiesFragment();
+                        return true;
+                    });
+            identityMenuExpanded = true;
+        }
+    }
+
+    private void initDrawer() {
         toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        drawer.setDrawerListener(toggle);
+        drawer.addDrawerListener(toggle);
         toggle.syncState();
 
-        setDrawerLocked(false);
+        drawerHolder.qabelLogo.setOnClickListener(v -> {
+            drawer.closeDrawer(GravityCompat.START);
+            showQRCode(self, mService.getActiveIdentity());
+        });
 
-        final NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        drawerHolder.selectIdentityLayout.setOnClickListener(
+                (View v) -> selectIdentityLayoutClick());
+
+        setDrawerLocked(false);
         navigationView.setNavigationItemSelectedListener(this);
 
         // Map QR-Code indent to alias textview in nav_header_main
-        textViewSelectedIdentity = (TextView) navigationView.findViewById(R.id.textViewSelectedIdentity);
-        textViewBoxAccountName = (TextView) navigationView.findViewById(R.id.accountName);
         String boxName = new AppPreference(self).getAccountName();
-        textViewBoxAccountName.setText(boxName != null ? boxName : getString(R.string.app_name));
+        drawerHolder.textViewBoxAccountName.setText(boxName != null ? boxName : getString(R.string.app_name));
 
-        findViewById(R.id.qabelLogo).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+        drawerHolder.imageViewExpandIdentity.setColorFilter(mDrawerIndicatorTintFilter);
 
-                drawer.closeDrawer(GravityCompat.START);
-                showQRCode(self, mService.getActiveIdentity());
-            }
-        });
-
-        imageViewExpandIdentity = (ImageView) navigationView.findViewById(R.id.imageViewExpandIdentity);
-        imageViewExpandIdentity.setColorFilter(mDrawerIndicatorTintFilter);
-
-        findViewById(R.id.select_identity_layout).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                if (identityMenuExpanded) {
-                    imageViewExpandIdentity.setImageResource(R.drawable.menu_down);
-                    imageViewExpandIdentity.setColorFilter(mDrawerIndicatorTintFilter);
-                    navigationView.getMenu().clear();
-                    navigationView.inflateMenu(R.menu.activity_main_drawer);
-                    identityMenuExpanded = false;
-                } else {
-                    imageViewExpandIdentity.setImageResource(R.drawable.menu_up);
-                    imageViewExpandIdentity.setColorFilter(mDrawerIndicatorTintFilter);
-                    navigationView.getMenu().clear();
-                    List<Identity> identityList = new ArrayList<>(
-                            mService.getIdentities().getIdentities());
-                    Collections.sort(identityList, new Comparator<Identity>() {
-                        @Override
-                        public int compare(Identity lhs, Identity rhs) {
-
-                            return lhs.getAlias().compareTo(rhs.getAlias());
-                        }
-                    });
-                    for (final Identity identity : identityList) {
-                        navigationView.getMenu()
-                                .add(NAV_GROUP_IDENTITIES, Menu.NONE, Menu.NONE, identity.getAlias())
-                                .setIcon(R.drawable.account)
-                                .setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
-                                    @Override
-                                    public boolean onMenuItemClick(MenuItem item) {
-
-                                        drawer.closeDrawer(GravityCompat.START);
-                                        selectIdentity(identity);
-                                        return true;
-                                    }
-                                });
-                    }
-                    navigationView.getMenu()
-                            .add(NAV_GROUP_IDENTITY_ACTIONS, Menu.NONE, Menu.NONE, R.string.add_identity)
-                            .setIcon(R.drawable.plus_circle)
-                            .setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
-                                @Override
-                                public boolean onMenuItemClick(MenuItem item) {
-
-                                    drawer.closeDrawer(GravityCompat.START);
-                                    selectAddIdentityFragment();
-                                    return true;
-                                }
-                            });
-                    navigationView.getMenu()
-                            .add(NAV_GROUP_IDENTITY_ACTIONS, Menu.NONE, Menu.NONE, R.string.manage_identities)
-                            .setIcon(R.drawable.settings)
-                            .setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
-                                @Override
-                                public boolean onMenuItemClick(MenuItem item) {
-
-                                    drawer.closeDrawer(GravityCompat.START);
-                                    selectManageIdentitiesFragment();
-                                    return true;
-                                }
-                            });
-                    identityMenuExpanded = true;
-                }
-            }
-        });
-
-        drawer.setDrawerListener(new DrawerLayout.DrawerListener() {
+        drawer.addDrawerListener(new DrawerLayout.DrawerListener() {
             @Override
             public void onDrawerSlide(View drawerView, float slideOffset) {
 
@@ -1162,10 +1111,9 @@ public class MainActivity extends CrashReportingActivity
 
             @Override
             public void onDrawerClosed(View drawerView) {
-
                 navigationView.getMenu().clear();
                 navigationView.inflateMenu(R.menu.activity_main_drawer);
-                imageViewExpandIdentity.setImageResource(R.drawable.menu_down);
+                drawerHolder.imageViewExpandIdentity.setImageResource(R.drawable.menu_down);
                 identityMenuExpanded = false;
             }
 

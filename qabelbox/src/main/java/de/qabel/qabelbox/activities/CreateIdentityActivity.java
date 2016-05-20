@@ -159,9 +159,7 @@ public class CreateIdentityActivity extends BaseWizardActivity {
 
                 LocalQabelService mService = QabelBoxApplication.getInstance().getService();
                 mService.addIdentity(identity);
-                if (mService.getActiveIdentity() == null) {
-                    mService.setActiveIdentity(identity);
-                }
+                mService.setActiveIdentity(identity);
             }
         });
 

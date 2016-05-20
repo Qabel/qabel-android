@@ -94,8 +94,8 @@ public class FilesFragmentUITest extends FilesFragmentUITestBase {
 
     @Test
     @Ignore("Refactoring needed")
-    public void shareFileTest() throws Exception {
-        Spoon.screenshot(mActivity, "startup");
+    public void shareFileTest() throws Throwable {
+        UITestHelper.screenShot(mActivity, "startup");
         onView(withText(exampleFiles.get(0).getName())).perform(longClick());
 
         onView(withText(R.string.ShareToQabelUser)).perform(click());
@@ -116,7 +116,7 @@ public class FilesFragmentUITest extends FilesFragmentUITestBase {
 
         UITestHelper.waitUntil(() -> waitCallback.isDone(), "Perform share failed!");
 
-       // onView(withText(R.string.dialog_share_sending_in_progress)).inRoot(isDialog()).check(matches(isDisplayed()));
+        // onView(withText(R.string.dialog_share_sending_in_progress)).inRoot(isDialog()).check(matches(isDisplayed()));
 
         //Check success message
         onView(withText(R.string.messsage_file_shared)).inRoot(ToastMatcher.isToast()).check(matches(isDisplayed()));
@@ -153,8 +153,8 @@ public class FilesFragmentUITest extends FilesFragmentUITestBase {
     }
 
     @Test
-    public void sendFileTest() {
-        Spoon.screenshot(mActivity, "startup");
+    public void sendFileTest() throws Throwable {
+        UITestHelper.screenShot(mActivity, "startup");
         onView(withText(exampleFiles.get(0).getName())).perform(longClick());
 
         onView(withText(R.string.Send)).perform(click());

@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.support.test.InstrumentationRegistry;
 import android.support.test.espresso.Espresso;
 import android.support.test.espresso.contrib.RecyclerViewActions;
 import android.support.test.runner.lifecycle.ActivityLifecycleMonitorRegistry;
@@ -21,6 +22,7 @@ import java.util.List;
 
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
+import de.qabel.qabelbox.ui.helper.UITestHelper;
 
 import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.Espresso.pressBack;
@@ -54,10 +56,11 @@ public class OpenImageUITest extends FilesFragmentUITestBase {
     @Override
     protected void setupData() throws Exception {
         if (exampleFiles == null) {
+            Context context = InstrumentationRegistry.getTargetContext();
             exampleFiles = Arrays.asList(new ExampleFile("defect.png", new byte[100]),
-                    createImageExampleFile(QabelBoxApplication.getInstance(), "file1.jpg", Bitmap.CompressFormat.JPEG, R.drawable.splash_logo),
-                    createImageExampleFile(QabelBoxApplication.getInstance(), "file2.png", Bitmap.CompressFormat.PNG, R.drawable.splash_logo),
-                    createImageExampleFile(QabelBoxApplication.getInstance(), "file3.png", Bitmap.CompressFormat.PNG, R.drawable.qabel_logo));
+                    createImageExampleFile(context, "file1.jpg", Bitmap.CompressFormat.JPEG, R.drawable.splash_logo),
+                    createImageExampleFile(context, "file2.png", Bitmap.CompressFormat.PNG, R.drawable.splash_logo),
+                    createImageExampleFile(context, "file3.png", Bitmap.CompressFormat.PNG, R.drawable.qabel_logo));
         }
         addExampleFiles(identity, exampleFiles);
     }
@@ -83,13 +86,11 @@ public class OpenImageUITest extends FilesFragmentUITestBase {
     }
 
     @Test
-    public void testOpenFiles() {
-        testFile("file1.jpg");
-        pressBack();
+    public void testOpenFiles() throws Throwable {
         testFile("file2.png");
         Instrumentation.ActivityResult activityResult = new Instrumentation.ActivityResult(
                 Activity.RESULT_OK, new Intent());
-        Matcher<Intent> expectedIntent = allOf(hasAction(Intent.ACTION_CHOOSER));
+        Matcher<Intent> expectedIntent = hasAction(Intent.ACTION_CHOOSER);
         intending(expectedIntent).respondWith(activityResult);
         onView(withId(R.id.action_imageviewer_open)).perform(click());
         intended(expectedIntent);
@@ -98,9 +99,10 @@ public class OpenImageUITest extends FilesFragmentUITestBase {
     }
 
     @Test
-    public void testDefectFiles() {
+    public void testDefectFiles() throws Throwable {
         testFile("defect.png");
         onView(withDrawable(R.drawable.message_alert_white)).check(matches(isDisplayed()));
+        UITestHelper.screenShot(mActivity, "open_defect_file");
     }
 
     private void testFile(String file) {

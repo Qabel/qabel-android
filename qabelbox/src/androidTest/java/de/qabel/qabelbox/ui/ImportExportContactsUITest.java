@@ -4,12 +4,10 @@ import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.support.test.InstrumentationRegistry;
-import android.support.test.espresso.contrib.RecyclerViewActions;
 import android.support.test.espresso.intent.matcher.IntentMatchers;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.File;
@@ -38,9 +36,7 @@ import static android.support.test.espresso.assertion.ViewAssertions.matches;
 import static android.support.test.espresso.intent.Intents.intended;
 import static android.support.test.espresso.matcher.RootMatchers.isDialog;
 import static android.support.test.espresso.matcher.ViewMatchers.assertThat;
-import static android.support.test.espresso.matcher.ViewMatchers.hasDescendant;
 import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
-import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;
@@ -63,7 +59,7 @@ public class ImportExportContactsUITest extends AbstractUITest {
         createTestContacts();
         Intent intent = new Intent(Intent.ACTION_MAIN);
         intent.putExtra(MainActivity.START_CONTACTS_FRAGMENT, true);
-        mActivity = mActivityTestRule.launchActivity(intent);
+        launchActivity(intent);
     }
 
     private void createTestContacts() throws JSONException, QblStorageEntityExistsException {
@@ -103,28 +99,22 @@ public class ImportExportContactsUITest extends AbstractUITest {
         }
     }
 
-    @Ignore("longClick in RecyclerView is broken")
     @Test
     public void testExportContactAsQRCode() throws Throwable {
-        onView(withId(R.id.contact_list)).perform(
-                RecyclerViewActions.actionOnItem(hasDescendant(withText(CONTACT_1)), longClick()));
+        onView(withText(CONTACT_1)).check(matches(isDisplayed())).perform(longClick());
         UITestHelper.screenShot(mActivity, "longClickOnContact");
         onView(withText(R.string.ExportAsContactWithQRcode)).check(matches(isDisplayed())).perform(click());
-        onView(withText(CONTACT_1)).check(matches(isDisplayed()));
         ToolbarMatcher.matchToolbarTitle(mActivity.getString(R.string.headline_qrcode)).check(matches(isDisplayed()));
         UITestHelper.screenShot(mActivity, "contactQR");
 
     }
 
-    @Ignore("longClick in RecyclerView is broken")
     @Test
     public void testExportSingleContact() throws Throwable {
 
         String userName = "contact1";
         File file1 = new File(mActivity.getCacheDir(), "testexportcontact");
-        onView(withId(R.id.contact_list))
-                .perform(RecyclerViewActions.actionOnItem(
-                        hasDescendant(withText(userName)), longClick()));
+        onView(withText(userName)).perform(longClick());
         UITestHelper.screenShot(mActivity, "exportOne");
         Intent data = new Intent();
         data.setData(Uri.fromFile(file1));
@@ -143,24 +133,19 @@ public class ImportExportContactsUITest extends AbstractUITest {
 
     }
 
-    @Ignore("longClick n tests broken since SDK 23")
     @Test
     public void testExportContactToExternal() throws Throwable {
-        //Open dialog for Contact 1
-        onView(withId(R.id.contact_list))
-                .perform(RecyclerViewActions.actionOnItem(
-                        hasDescendant(withText(CONTACT_1)), longClick()));
+        onView(withText(CONTACT_1)).perform(longClick());
         UITestHelper.screenShot(mActivity, "longClickOnContact");
 
         //Check contact dialog
-        onView(withText(CONTACT_1)).inRoot(isDialog()).check(matches(isDisplayed()));
+        onView(withText(CONTACT_1)).check(matches(isDisplayed()));
 
         //Click Send
         onView(withText(R.string.Send)).inRoot(isDialog()).perform(click());
         //Check Chooser for SendIntent is visible
         intended(IntentMatchers.hasExtra(equalTo(Intent.EXTRA_INTENT),
                 IntentMatchers.hasAction(Intent.ACTION_SEND)));
-
 
         UITestHelper.screenShot(mActivity, "sendContact");
     }

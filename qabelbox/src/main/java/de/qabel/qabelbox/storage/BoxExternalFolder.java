@@ -9,6 +9,7 @@ public class BoxExternalFolder extends BoxFolder implements BoxExternal {
 
     public BoxExternalFolder(String ref, String name, byte[] key, boolean isAccessible) {
         super(ref, name, key);
+        this.isAccessible = isAccessible;
     }
 
 

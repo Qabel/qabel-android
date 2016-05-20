@@ -117,14 +117,13 @@ public abstract class AbstractNavigation implements BoxNavigation {
             return file;
         } else {
             try {
-                Exception ex = transferManager.lookupError(id);
-                throw ex;
-            }catch (QblServerException e){
-                if(e.getStatusCode() == 404){
+               throw transferManager.lookupError(id);
+            } catch (QblServerException e) {
+                if (e.getStatusCode() == 404) {
                     throw new QblStorageNotFound("File not found. Prefix: " + prefix + " Name: " + name);
                 }
                 throw new QblStorageException(e);
-            }catch (Exception e){
+            } catch (Exception e) {
                 throw new QblStorageException(e);
             }
         }
@@ -357,13 +356,18 @@ public abstract class AbstractNavigation implements BoxNavigation {
                 }
             }
         }
-        if (referencesNotFound.size() > 0) {
-            for (BoxExternalReference reference : referencesNotFound) {
+        detachExternals(referencesNotFound);
+
+        return boxExternals;
+    }
+
+    private void detachExternals(List<BoxExternalReference> references) throws QblStorageException {
+        if (references.size() > 0) {
+            for (BoxExternalReference reference : references) {
                 detachExternal(reference.name);
             }
             commit();
         }
-        return boxExternals;
     }
 
     @NonNull

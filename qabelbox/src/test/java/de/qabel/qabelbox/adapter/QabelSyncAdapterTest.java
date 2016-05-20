@@ -4,7 +4,6 @@ import android.app.Application;
 import android.content.SyncResult;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricGradleTestRunner;
@@ -12,7 +11,6 @@ import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
 
 import java.sql.SQLException;
-import java.util.concurrent.CountDownLatch;
 
 import de.qabel.core.config.Contact;
 import de.qabel.core.config.Identity;
@@ -30,6 +28,9 @@ import de.qabel.qabelbox.util.IdentityHelper;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.anyList;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
 
 
 @RunWith(RobolectricGradleTestRunner.class)
@@ -64,12 +65,12 @@ public class QabelSyncAdapterTest {
         db2 = new ChatMessagesDataBase(context, identity2);
         chatServer = new ChatServer(context);
         dropConnector = new MockedDropConnector();
-        syncAdapter = new QabelSyncAdapter(context, true) {
+        syncAdapter = spy(new QabelSyncAdapter(context, true) {
             @Override
             public DropConnector getDropConnector() throws SQLException, PersistenceException {
                 return dropConnector;
             }
-        };
+        });
     }
 
     @Test
@@ -80,6 +81,6 @@ public class QabelSyncAdapterTest {
         SyncResult syncResult = new SyncResult();
         syncAdapter.onPerformSync(null, null, null, null, syncResult);
         assertThat(db1.getAll().length, is(1));
-
+        verify(syncAdapter).notifyForNewMessages(anyList());
     }
 }

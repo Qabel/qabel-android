@@ -20,7 +20,7 @@ import java.util.Set;
 import de.qabel.core.config.Contacts;
 import de.qabel.core.config.Identities;
 import de.qabel.core.config.Identity;
-import de.qabel.desktop.repository.exception.EntityNotFoundExcepion;
+import de.qabel.core.drop.DropMessage;
 import de.qabel.desktop.repository.exception.PersistenceException;
 import de.qabel.desktop.repository.sqlite.AndroidClientDatabase;
 import de.qabel.desktop.repository.sqlite.SqliteContactRepository;
@@ -73,23 +73,27 @@ public class QabelSyncAdapter extends AbstractThreadedSyncAdapter {
             Log.e(TAG, "Sync failed", e);
             return;
         }
+        List<DropMessage> retrievedMessages = new ArrayList<>();
         for (Identity identity: identities) {
             Log.i(TAG, "Loading messages for identity "+ identity.getAlias());
             try {
-                chatServer.refreshList(getDropConnector(), identity);
+                retrievedMessages.addAll(
+                        chatServer.refreshList(getDropConnector(), identity));
             } catch (SQLException | PersistenceException e) {
                 Log.e(TAG, "Drop message retrieval failed", e);
                 return;
             }
         }
-        sendRefreshIntents();
+        notifyForNewMessages(retrievedMessages);
     }
 
-    private void sendRefreshIntents() {
-        Intent intent = new Intent(Helper.INTENT_REFRESH_CONTACTLIST);
-        context.sendBroadcast(intent);
-        Intent chatIntent = new Intent(Helper.INTENT_REFRESH_CHAT);
-        context.sendBroadcast(chatIntent);
+    void notifyForNewMessages(List<DropMessage> retrievedMessages) {
+        if (retrievedMessages.size() > 0) {
+            Intent intent = new Intent(Helper.INTENT_REFRESH_CONTACTLIST);
+            context.sendBroadcast(intent);
+            Intent chatIntent = new Intent(Helper.INTENT_REFRESH_CHAT);
+            context.sendBroadcast(chatIntent);
+        }
     }
 
     private Identities getIdentities() throws SQLException, PersistenceException {

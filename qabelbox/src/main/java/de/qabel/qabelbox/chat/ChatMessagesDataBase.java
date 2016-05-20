@@ -93,7 +93,7 @@ public class ChatMessagesDataBase extends SQLiteOpenHelper implements Closeable 
             if (id == -1) {
                 Log.e(TAG, "Failed put into db: " + item.toString());
             } else {
-                Log.v(TAG, "db entry putted " + item.drop_payload + " id:" + id);
+                Log.v(TAG, "db entry put " + item.drop_payload + " id:" + id);
             }
         } else {
             Log.d(TAG, "already in db");

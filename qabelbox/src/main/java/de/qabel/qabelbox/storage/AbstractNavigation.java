@@ -158,12 +158,10 @@ public abstract class AbstractNavigation implements BoxNavigation {
 
     @Override
     public void navigateToRoot() throws QblStorageException {
-        BoxFolder root = null;
         if (hasParent()) {
             while (hasParent()) {
-                root = parentBoxFolders.pop();
+                navigateToParent();
             }
-            doNavigate(root, false);
         }
     }
 

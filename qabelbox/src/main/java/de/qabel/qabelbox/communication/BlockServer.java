@@ -7,15 +7,11 @@ import android.util.Log;
 import java.io.File;
 
 import de.qabel.qabelbox.communication.callbacks.RequestCallback;
+import de.qabel.qabelbox.communication.callbacks.UploadRequestCallback;
 import de.qabel.qabelbox.config.AppPreference;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 
-/**
- * Created by danny on 11.02.2016.
- * <p>
- * class to handle prefix server network action
- */
 public class BlockServer extends BaseServer {
 
     private final static String TAG = "PrefixServer";
@@ -53,28 +49,18 @@ public class BlockServer extends BaseServer {
     }
 
     public void downloadFile(Context context, String prefix, String path, RequestCallback callback) {
-
         doServerAction(context, prefix, path, "GET", null, callback);
     }
 
-    public void uploadFile(Context context, String prefix, String path, byte[] data, RequestCallback callback) {
-
-        doServerAction(context, prefix, path, "POST", RequestBody.create(JSON, data), callback);
-    }
-
-    public void uploadFile(Context context, String prefix, String name, File file, RequestCallback callback) {
-
-        doServerAction(context, prefix, name, "POST", RequestBody.create(JSON, file), callback);
-
+    public void uploadFile(Context context, String prefix, String name, File file, UploadRequestCallback callback) {
+        doServerAction(context, prefix, name, "POST", new UploadRequestBody(file, JSON, callback), callback);
     }
 
     public void deleteFile(Context context, String prefix, String path, RequestCallback callback) {
-
         doServerAction(context, prefix, path, "DELETE", null, callback);
     }
 
     public synchronized int getNextId() {
-
         return (suffixId + (currentId++) + (int) (System.currentTimeMillis()) % 1000000);
     }
 }

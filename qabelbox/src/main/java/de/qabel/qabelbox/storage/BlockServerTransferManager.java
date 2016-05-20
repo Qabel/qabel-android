@@ -21,6 +21,7 @@ import java.util.concurrent.CountDownLatch;
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.communication.BlockServer;
 import de.qabel.qabelbox.communication.callbacks.RequestCallback;
+import de.qabel.qabelbox.communication.callbacks.UploadRequestCallback;
 import okhttp3.Response;
 
 public class BlockServerTransferManager implements TransferManager {
@@ -68,7 +69,12 @@ public class BlockServerTransferManager implements TransferManager {
         Log.d(TAG, "uploadAndDeleteLocalfile " + prefix + " " + name + " " + localfile.toString());
         final int id = blockServer.getNextId();
         latches.put(id, new CountDownLatch(1));
-        blockServer.uploadFile(context, prefix, name, localfile, new RequestCallback(new int[]{201, 204}) {
+        blockServer.uploadFile(context, prefix, name, localfile, new UploadRequestCallback(new int[]{201, 204}) {
+
+            @Override
+            public void onProgress(long currentBytes, long totalBytes) {
+                boxTransferListener.onProgressChanged(currentBytes, totalBytes);
+            }
 
             @Override
             protected void onSuccess(int statusCode, Response response) {

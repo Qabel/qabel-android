@@ -58,15 +58,13 @@ public abstract class AbstractTransferManagerTest {
     }
 
     @NonNull
-    public File createEmptyTargetfile() {
-        File file = null;
+    public File createEmptyTargetFile() {
         try {
-            file = File.createTempFile("targetfile", "test", tempDir);
+            return File.createTempFile("targetfile", "test", tempDir);
         } catch (IOException e) {
             Log.e(TAG, "Could not create empty targetfile in " + tempDir);
             throw new AssertionError("Could not create empty test file");
         }
-        return file;
     }
 
     private int syncUpload(final String nameOnServer, final File sourceFile) {
@@ -89,7 +87,7 @@ public abstract class AbstractTransferManagerTest {
         return transferId;
     }
 
-    private void assertFalse(boolean assertion) {
+    protected void assertFalse(boolean assertion) {
         assertThat(assertion, is(false));
     }
 
@@ -114,7 +112,7 @@ public abstract class AbstractTransferManagerTest {
     @Test
     public void testDownload() {
         File sourceFile = smallTestFile();
-        File sourceFileBackup = createEmptyTargetfile();
+        File sourceFileBackup = createEmptyTargetFile();
         try {
             FileUtils.copyFile(sourceFile, sourceFileBackup);
         } catch (IOException e) {
@@ -127,7 +125,7 @@ public abstract class AbstractTransferManagerTest {
             fail("Could not find sourcefile: " + sourceFile.getAbsolutePath() + " " + e);
         }
 
-        File targetFile = createEmptyTargetfile();
+        File targetFile = createEmptyTargetFile();
         syncUpload(testFileNameOnServer, sourceFile);
         assertThat(sourceFileOrig, equalTo(sourceFile.getAbsolutePath()));
         assertFalse(sourceFile.exists());
@@ -139,7 +137,7 @@ public abstract class AbstractTransferManagerTest {
 
     @Test
     public void testDownloadMissingFile() {
-        File targetFile = createEmptyTargetfile();
+        File targetFile = createEmptyTargetFile();
         int transferID = syncDownload(testFileNameOnServer + "_missing", targetFile);
         assertTransferHasServerError(transferID, 404);
         assertThat(transferManager.waitFor(transferID), is(false));
@@ -156,7 +154,7 @@ public abstract class AbstractTransferManagerTest {
     public void testDeleteTwice() {
         String fileNameOnServer = testFileNameOnServer;
         File sourceFile = smallTestFile();
-        File targetFile = createEmptyTargetfile();
+        File targetFile = createEmptyTargetFile();
         syncUpload(fileNameOnServer, sourceFile);
         int deleteId0 = syncDelete(fileNameOnServer);
         assertThat(targetFile.length(), equalTo(0L));
@@ -175,7 +173,7 @@ public abstract class AbstractTransferManagerTest {
     public void testDeleteOnNonExistentTargetFile() {
         String fileNameOnServer = testFileNameOnServer + "_missing";
         File sourceFile = smallTestFile();
-        File targetFile = createEmptyTargetfile();
+        File targetFile = createEmptyTargetFile();
         targetFile.delete();
         syncUpload(fileNameOnServer, sourceFile);
         int transferId = syncDelete(fileNameOnServer);
@@ -188,7 +186,7 @@ public abstract class AbstractTransferManagerTest {
     public void testDelete() {
         String fileNameOnServer = testFileNameOnServer;
         File sourceFile = smallTestFile();
-        File targetFile = createEmptyTargetfile();
+        File targetFile = createEmptyTargetFile();
         syncUpload(fileNameOnServer, sourceFile);
         int deleteId = syncDelete(fileNameOnServer);
         assertTransferManagerWasSuccesful(deleteId);

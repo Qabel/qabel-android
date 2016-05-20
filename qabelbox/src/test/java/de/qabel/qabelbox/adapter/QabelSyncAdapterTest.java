@@ -76,7 +76,7 @@ public class QabelSyncAdapterTest {
     @Test
     public void testOnPerformSync() throws Exception {
         assertThat(db1.getAll().length, is(0));
-        DropMessage message = chatServer.createTextDropMessage(identity, "foobar");
+        DropMessage message = ChatServer.createTextDropMessage(identity, "foobar");
         dropConnector.sendDropMessage(message, contact2, identity, null);
         SyncResult syncResult = new SyncResult();
         syncAdapter.onPerformSync(null, null, null, null, syncResult);

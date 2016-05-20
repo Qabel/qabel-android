@@ -139,15 +139,12 @@ public class ContactChatFragment extends ContactBaseFragment {
         emptyView = view.findViewById(R.id.empty_view);
         etText = (EditText) view.findViewById(R.id.etText);
         TextView send = (Button) view.findViewById(R.id.bt_send);
-        send.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+        send.setOnClickListener(v -> {
 
-                final String text = etText.getText().toString();
-                if (text.length() > 0) {
+            final String text = etText.getText().toString();
+            if (text.length() > 0) {
 
-                    sendMessage(text);
-                }
+                sendMessage(text);
             }
         });
         etText.setText("");
@@ -157,15 +154,14 @@ public class ContactChatFragment extends ContactBaseFragment {
 
     private void sendMessage(String text) {
         try {
-            final DropMessage dropMessage = chatServer.createTextDropMessage(getIdentity(), text);
+            final DropMessage dropMessage = ChatServer.createTextDropMessage(getIdentity(), text);
             final Identity identity = getIdentity();
             getDropConnector().sendDropMessage(dropMessage, contact, identity, deliveryStatus -> {
                 boolean sent = false;
                 Log.v(TAG, "delivery status: " + deliveryStatus);
                 if (deliveryStatus != null) {
-                    Iterator it = deliveryStatus.entrySet().iterator();
-                    while (it.hasNext()) {
-                        Map.Entry pair = (Map.Entry) it.next();
+                    for (Object o : deliveryStatus.entrySet()) {
+                        Map.Entry pair = (Map.Entry) o;
                         if ((Boolean) pair.getValue()) {
                             sent = true;
                         }

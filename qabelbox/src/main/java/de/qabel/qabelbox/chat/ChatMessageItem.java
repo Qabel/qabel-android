@@ -115,12 +115,6 @@ public class ChatMessageItem {
      */
     public static class TextMessagePayload extends MessagePayload {
 
-        String message;
-
-        public String getMessage() {
-
-            return message;
-        }
     }
 
     /**
@@ -128,12 +122,7 @@ public class ChatMessageItem {
      */
     public static class ShareMessagePayload extends MessagePayload {
 
-        String message, url, key;
-
-        public String getMessage() {
-
-            return message;
-        }
+        String url, key;
 
         public String getURL() {
 
@@ -147,6 +136,13 @@ public class ChatMessageItem {
     }
 
     public static class MessagePayload {
+
+        String message;
+
+        public String getMessage() {
+
+            return message;
+        }
 
     }
 }

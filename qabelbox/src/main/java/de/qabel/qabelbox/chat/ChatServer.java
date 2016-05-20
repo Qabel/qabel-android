@@ -49,8 +49,9 @@ public class ChatServer {
      * click on refresh button
      */
 
-    public Collection<DropMessage> refreshList(DropConnector connector, Identity identity) {
+    public Collection<ChatMessageItem> refreshList(DropConnector connector, Identity identity) {
         try (ChatMessagesDataBase dataBase = getDataBaseForIdentity(identity)) {
+            List<ChatMessageItem> messages = new ArrayList<>();
             long lastRetrieved = dataBase.getLastRetrievedDropMessageTime();
             Log.d(TAG, "last retrieved dropmessage time " + lastRetrieved + " / " + System.currentTimeMillis());
             String identityKey = getIdentityIdentifier(identity);
@@ -64,6 +65,7 @@ public class ChatServer {
                     cms.receiver = identityKey;
                     cms.isNew = 1;
                     storeIntoDB(dataBase, cms);
+                    messages.add(cms);
                 }
 
                 //@todo replace this with header from server response.
@@ -78,7 +80,7 @@ public class ChatServer {
 
             sendCallbacksRefreshed();
             dataBase.close();
-            return result;
+            return messages;
         }
     }
 
@@ -111,14 +113,14 @@ public class ChatServer {
         }
     }
 
-    public DropMessage createTextDropMessage(Identity identity, String message) {
+    public static DropMessage createTextDropMessage(Identity identity, String message) {
 
         String payload_type = ChatMessageItem.BOX_MESSAGE;
         String payload = createTextDropMessagePayload(message);
         return new DropMessage(identity, payload, payload_type);
     }
 
-    public String createTextDropMessagePayload(String message) {
+    public static String createTextDropMessagePayload(String message) {
         JSONObject payloadJson = new JSONObject();
         try {
             payloadJson.put(TAG_MESSAGE, message);

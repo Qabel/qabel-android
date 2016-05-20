@@ -214,6 +214,7 @@ public class ImportExportContactsUITest extends AbstractUITest {
         }
     }
 
+    @Ignore("longClick broken on real devices since sdk 23")
     @Test
     public void testDeleteContact() throws Throwable {
         assertThat(contactRepository.find(identity).getContacts().size(), equalTo(3));

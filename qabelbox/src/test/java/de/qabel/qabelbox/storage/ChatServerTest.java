@@ -3,6 +3,8 @@ package de.qabel.qabelbox.storage;
 
 import android.content.Context;
 
+import net.bytebuddy.implementation.bytecode.Throw;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -14,6 +16,7 @@ import java.net.URISyntaxException;
 
 import de.qabel.core.config.Contact;
 import de.qabel.core.config.Identity;
+import de.qabel.core.drop.DropMessage;
 import de.qabel.desktop.config.factory.DropUrlGenerator;
 import de.qabel.desktop.config.factory.IdentityBuilder;
 import de.qabel.qabelbox.BuildConfig;
@@ -22,8 +25,11 @@ import de.qabel.qabelbox.SimpleApplication;
 import de.qabel.qabelbox.chat.ChatMessageItem;
 import de.qabel.qabelbox.chat.ChatMessagesDataBase;
 import de.qabel.qabelbox.chat.ChatServer;
+import de.qabel.qabelbox.services.DropConnector;
+import de.qabel.qabelbox.services.MockedDropConnector;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 
 @RunWith(RobolectricGradleTestRunner.class)
@@ -252,6 +258,16 @@ public class ChatServerTest {
         assertThat(item1.getTime(), is(item2.getTime()));
         assertThat(item1.getSenderKey(), is(item2.getSenderKey()));
         assertThat(item1.getReceiverKey(), is(item2.getReceiverKey()));
+    }
+
+    @Test
+    public void testRefresh() throws Throwable {
+        ChatServer chatServer = new ChatServer(context);
+        DropMessage message = ChatServer.createTextDropMessage(identity, "foobar");
+        DropConnector connector = new MockedDropConnector();
+        connector.sendDropMessage(message, contact2, identity, null);
+        assertThat(chatServer.refreshList(connector, identity), hasSize(1));
+        assertThat(chatServer.refreshList(connector, identity), hasSize(0));
     }
 
 }

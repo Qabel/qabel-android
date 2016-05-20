@@ -64,8 +64,11 @@ public class ChatServer {
                     ChatMessageItem cms = new ChatMessageItem(item);
                     cms.receiver = identityKey;
                     cms.isNew = 1;
-                    storeIntoDB(dataBase, cms);
-                    messages.add(cms);
+                    if (storeIntoDB(dataBase, cms) == ChatMessagesDataBase.MessageStatus.DUPLICATE) {
+                        cms.isNew = 0;
+                    } else {
+                        messages.add(cms);
+                    }
                 }
 
                 //@todo replace this with header from server response.
@@ -74,7 +77,6 @@ public class ChatServer {
                     lastRetrieved = Math.max(item.getCreationDate().getTime(), lastRetrieved);
                 }
             }
-            lastRetrieved = 0;
             dataBase.setLastRetrievedDropMessagesTime(lastRetrieved);
             Log.d(TAG, "new retrieved dropmessage time " + lastRetrieved);
 
@@ -89,18 +91,20 @@ public class ChatServer {
     }
 
 
-    public void storeIntoDB(ChatMessagesDataBase dataBase, ChatMessageItem item) {
+    public ChatMessagesDataBase.MessageStatus storeIntoDB(ChatMessagesDataBase dataBase, ChatMessageItem item) {
         if (item != null) {
-            dataBase.put(item);
+            return dataBase.put(item);
         }
+        return ChatMessagesDataBase.MessageStatus.ERROR;
     }
 
-    public void storeIntoDB(Identity identity, ChatMessageItem item) {
+    public ChatMessagesDataBase.MessageStatus storeIntoDB(Identity identity, ChatMessageItem item) {
         if (item != null) {
             try (ChatMessagesDataBase db = getDataBaseForIdentity(identity)) {
-                db.put(item);
+                return db.put(item);
             }
         }
+        return ChatMessagesDataBase.MessageStatus.ERROR;
     }
 
     /**

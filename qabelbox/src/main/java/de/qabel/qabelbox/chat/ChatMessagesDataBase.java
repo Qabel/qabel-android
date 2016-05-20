@@ -78,7 +78,7 @@ public class ChatMessagesDataBase extends SQLiteOpenHelper implements Closeable 
     }
 
 
-    public void put(ChatMessageItem item) {
+    public MessageStatus put(ChatMessageItem item) {
         ContentValues values = new ContentValues();
 
         values.put(COL_MESSAGE_SENDER, item.getSenderKey());
@@ -92,11 +92,14 @@ public class ChatMessagesDataBase extends SQLiteOpenHelper implements Closeable 
             close();
             if (id == -1) {
                 Log.e(TAG, "Failed put into db: " + item.toString());
+                return MessageStatus.ERROR;
             } else {
                 Log.v(TAG, "db entry put " + item.drop_payload + " id:" + id);
+                return MessageStatus.NEW;
             }
         } else {
             Log.d(TAG, "already in db");
+            return MessageStatus.DUPLICATE;
         }
     }
 
@@ -242,5 +245,9 @@ public class ChatMessagesDataBase extends SQLiteOpenHelper implements Closeable 
 
         database.replace(TABLE_NAME_LOAD, null, values);
         close();
+    }
+
+    public enum MessageStatus {
+        NEW, DUPLICATE, ERROR
     }
 }

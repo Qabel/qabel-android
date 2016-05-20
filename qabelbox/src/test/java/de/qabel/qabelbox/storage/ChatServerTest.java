@@ -261,12 +261,13 @@ public class ChatServerTest {
     }
 
     @Test
-    public void testRefresh() throws Throwable {
+    public void testPreventDuplicates() throws Throwable {
         ChatServer chatServer = new ChatServer(context);
         DropMessage message = ChatServer.createTextDropMessage(identity, "foobar");
         DropConnector connector = new MockedDropConnector();
         connector.sendDropMessage(message, contact2, identity, null);
         assertThat(chatServer.refreshList(connector, identity), hasSize(1));
+
         assertThat(chatServer.refreshList(connector, identity), hasSize(0));
     }
 

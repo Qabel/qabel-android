@@ -91,7 +91,7 @@ public class ContactFragment extends BaseFragment {
         setHasOptionsMenu(true);
         mActivity.registerReceiver(refreshContactListReceiver,
                 new IntentFilter(Helper.INTENT_REFRESH_CONTACTLIST));
-        AccountHelper.startOnDemandSyncAdapter();
+        startRefresh();
     }
 
     @Override
@@ -134,7 +134,6 @@ public class ContactFragment extends BaseFragment {
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-
         menu.clear();
         inflater.inflate(R.menu.ab_contacts, menu);
     }
@@ -144,13 +143,17 @@ public class ContactFragment extends BaseFragment {
 
         int id = item.getItemId();
         if (id == R.id.action_contact_refresh) {
-            AccountHelper.startOnDemandSyncAdapter();
+            startRefresh();
         }
         if (id == R.id.action_contact_export_all) {
             exportAllContacts();
 
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    public void startRefresh() {
+        AccountHelper.startOnDemandSyncAdapter();
     }
 
     public void enableDocumentProvider(boolean value) {
@@ -260,8 +263,8 @@ public class ContactFragment extends BaseFragment {
     @Override
     public void onResume() {
 		super.onResume();
-        AccountHelper.startOnDemandSyncAdapter();
-	}
+        startRefresh();
+    }
 
     private void exportContactAsQRCode(Contact contact) {
         mActivity.getFragmentManager().beginTransaction()

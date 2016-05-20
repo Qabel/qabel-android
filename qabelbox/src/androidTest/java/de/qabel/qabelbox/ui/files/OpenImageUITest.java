@@ -66,7 +66,7 @@ public class OpenImageUITest extends FilesFragmentUITestBase {
     }
 
     @Override
-    public void setUp() throws Exception {
+    public void setUp() throws Throwable {
         super.setUp();
         mPicassoIdlingResource = new PicassoIdlingResource();
         Espresso.registerIdlingResources(mPicassoIdlingResource);

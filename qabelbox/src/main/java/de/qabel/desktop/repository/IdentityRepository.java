@@ -13,7 +13,7 @@ public interface IdentityRepository {
 
     Identity find(int id) throws EntityNotFoundExcepion, PersistenceException;
 
-    Identities findAll() throws EntityNotFoundExcepion, PersistenceException;
+    Identities findAll() throws PersistenceException;
 
     void save(Identity identity) throws PersistenceException;
 

@@ -53,6 +53,11 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.Optional;
 import de.qabel.core.config.Identity;
+import de.qabel.desktop.repository.IdentityRepository;
+import de.qabel.desktop.repository.exception.EntityNotFoundExcepion;
+import de.qabel.desktop.repository.exception.PersistenceException;
+import de.qabel.desktop.repository.sqlite.AndroidClientDatabase;
+import de.qabel.desktop.repository.sqlite.SqliteContactRepository;
 import de.qabel.qabelbox.BuildConfig;
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
@@ -82,6 +87,7 @@ import de.qabel.qabelbox.helper.ExternalApps;
 import de.qabel.qabelbox.helper.FileHelper;
 import de.qabel.qabelbox.helper.Sanity;
 import de.qabel.qabelbox.helper.UIHelper;
+import de.qabel.qabelbox.persistence.RepositoryFactory;
 import de.qabel.qabelbox.providers.BoxProvider;
 import de.qabel.qabelbox.services.LocalQabelService;
 import de.qabel.qabelbox.storage.BoxExternalFile;
@@ -129,6 +135,7 @@ public class MainActivity extends CrashReportingActivity
     // Defaults to true and is used in tests to shortcut the activity creation
     public static final String START_FILES_FRAGMENT = "START_FILES_FRAGMENT";
     public static final String START_CONTACTS_FRAGMENT = "START_CONTACTS_FRAGMENT";
+    public static final String ACTIVE_IDENTITY = "ACTIVE_IDENTITY";
 
     public BoxVolume boxVolume;
     public ActionBarDrawerToggle toggle;
@@ -154,6 +161,9 @@ public class MainActivity extends CrashReportingActivity
 
     private ConnectivityManager connectivityManager;
     private DrawerNavigationViewHolder drawerHolder;
+    private Identity activeIdentity;
+    public IdentityRepository identityRepository;
+    public SqliteContactRepository contactRepository;
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -390,7 +400,7 @@ public class MainActivity extends CrashReportingActivity
     private void onLocalServiceConnected(Intent intent) {
 
         Log.d(TAG, "LocalQabelService connected");
-        if (mService.getActiveIdentity() == null) {
+        if (getActiveIdentity() == null) {
             if (Sanity.startWizardActivities(this)) {
                 Log.d(TAG, "started wizard dialog");
                 return;
@@ -406,10 +416,6 @@ public class MainActivity extends CrashReportingActivity
 
         initDrawer();
 
-        Identity activeIdentity = mService.getActiveIdentity();
-        if (activeIdentity != null) {
-            refreshFilesBrowser(activeIdentity);
-        }
 
         // Check if activity is started with ACTION_SEND or ACTION_SEND_MULTIPLE
 
@@ -418,16 +424,33 @@ public class MainActivity extends CrashReportingActivity
 
         Log.i(TAG, "Intent action: " + action);
 
+        RepositoryFactory factory = new RepositoryFactory(getApplicationContext());
+        AndroidClientDatabase db = factory.getAndroidClientDatabase();
+        identityRepository = factory.getIdentityRepository(db);
+        contactRepository = factory.getContactRepository(db);
+
         // Checks if a fragment should be launched
         boolean start_files_fragment = intent.getBooleanExtra(START_FILES_FRAGMENT, true);
         boolean start_contacts_fragment = intent.getBooleanExtra(START_CONTACTS_FRAGMENT, false);
+        String identityKeyId = intent.getStringExtra(ACTIVE_IDENTITY);
+        if (identityKeyId != null) {
+            try {
+                activeIdentity = identityRepository.find(identityKeyId);
+            } catch (EntityNotFoundExcepion | PersistenceException entityNotFoundExcepion) {
+                Log.e(TAG, "Could not activate identity with key id " + identityKeyId);
+            }
+        }  else {
+            activeIdentity = mService.getActiveIdentity();
+        }
+        if (activeIdentity != null) {
+            refreshFilesBrowser(activeIdentity);
+        }
         if (type != null && intent.getAction() != null) {
             String scheme = intent.getScheme();
 
             switch (intent.getAction()) {
                 case Intent.ACTION_VIEW:
                     if (scheme.compareTo(ContentResolver.SCHEME_FILE) == 0 || scheme.compareTo(ContentResolver.SCHEME_CONTENT) == 0) {
-
                         handleActionViewResolver(intent);
 
                     }
@@ -464,6 +487,10 @@ public class MainActivity extends CrashReportingActivity
                 initAndSelectFilesFragment();
             }
         }
+    }
+
+    public Identity getActiveIdentity() {
+        return activeIdentity;
     }
 
     public LocalQabelService getService() {
@@ -529,8 +556,12 @@ public class MainActivity extends CrashReportingActivity
 
         fab.hide();
 
-        final Set<Identity> identities = mService.getIdentities().getIdentities();
-        if (identities.size() > 1) {
+        boolean identities = false;
+        try {
+            identities = identityRepository.findAll().getIdentities().size() > 1;
+        } catch (PersistenceException ignored) {
+        }
+        if (identities) {
             new SelectIdentityForUploadDialog(self, new SelectIdentityForUploadDialog.Result() {
                 @Override
                 public void onCancel() {
@@ -548,8 +579,8 @@ public class MainActivity extends CrashReportingActivity
                 }
             });
         } else {
-            changeActiveIdentity(mService.getActiveIdentity());
-            shareIdentitySelected(data, mService.getActiveIdentity());
+            changeActiveIdentity(getActiveIdentity());
+            shareIdentitySelected(data, getActiveIdentity());
         }
     }
 
@@ -821,9 +852,7 @@ public class MainActivity extends CrashReportingActivity
     }
 
     public void selectIdentity(Identity identity) {
-
         changeActiveIdentity(identity);
-        selectFilesFragment();
     }
 
     public void addIdentity(Identity identity) {
@@ -837,18 +866,13 @@ public class MainActivity extends CrashReportingActivity
     }
 
     public void changeActiveIdentity(Identity identity) {
-
         mService.setActiveIdentity(identity);
-        drawerHolder.textViewSelectedIdentity.setText(identity.getAlias());
-        if (filesFragment != null) {
-            getFragmentManager().beginTransaction().remove(filesFragment).commit();
-            filesFragment = null;
-        }
-        initChatServer();
-        initBoxVolume(identity);
+        Intent intent = new Intent(this, MainActivity.class);
+        intent.putExtra(ACTIVE_IDENTITY, identity.getKeyIdentifier());
+        finish();
+        overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+        startActivity(intent);
 
-        initFilesFragment();
-        selectFilesFragment();
     }
 
     //@todo move this to filesfragment
@@ -955,7 +979,11 @@ public class MainActivity extends CrashReportingActivity
                 selectAddIdentityFragment();
             });
         } else {
-            changeActiveIdentity(mService.getIdentities().getIdentities().iterator().next());
+            try {
+                changeActiveIdentity(identityRepository.findAll().getIdentities().iterator().next());
+            } catch (PersistenceException e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 
@@ -964,7 +992,7 @@ public class MainActivity extends CrashReportingActivity
 
         provider.notifyRootsUpdated();
         mService.modifyIdentity(identity);
-        drawerHolder.textViewSelectedIdentity.setText(mService.getActiveIdentity().getAlias());
+        drawerHolder.textViewSelectedIdentity.setText(getActiveIdentity().getAlias());
     }
 
     /**
@@ -1042,8 +1070,14 @@ public class MainActivity extends CrashReportingActivity
             drawerHolder.imageViewExpandIdentity.setImageResource(R.drawable.menu_up);
             drawerHolder.imageViewExpandIdentity.setColorFilter(mDrawerIndicatorTintFilter);
             navigationView.getMenu().clear();
-            List<Identity> identityList = new ArrayList<>(
-                    mService.getIdentities().getIdentities());
+            List<Identity> identityList;
+            try {
+                identityList = new ArrayList<>(
+                        identityRepository.findAll().getIdentities());
+            } catch (PersistenceException e) {
+                Log.e(TAG, "Could not list identities", e);
+                identityList = new ArrayList<>();
+            }
             Collections.sort(identityList, (lhs, rhs) -> lhs.getAlias().compareTo(rhs.getAlias()));
             for (final Identity identity : identityList) {
                 navigationView.getMenu()
@@ -1083,7 +1117,7 @@ public class MainActivity extends CrashReportingActivity
 
         drawerHolder.qabelLogo.setOnClickListener(v -> {
             drawer.closeDrawer(GravityCompat.START);
-            showQRCode(self, mService.getActiveIdentity());
+            showQRCode(self, getActiveIdentity());
         });
 
         drawerHolder.selectIdentityLayout.setOnClickListener(

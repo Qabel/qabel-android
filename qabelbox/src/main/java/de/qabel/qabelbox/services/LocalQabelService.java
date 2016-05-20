@@ -116,7 +116,7 @@ public class LocalQabelService extends Service implements DropConnector {
     public Identities getIdentities() {
         try {
             return identityRepository.findAll();
-        } catch (EntityNotFoundExcepion | PersistenceException e) {
+        } catch (PersistenceException e) {
             Log.e(TAG, "Could not get identities", e);
             throw new RuntimeException(e);
         }
@@ -171,11 +171,14 @@ public class LocalQabelService extends Service implements DropConnector {
             for (Identity identity: identityRepository.findAll().getIdentities()) {
                 Set<Contact> contacts = contactRepository.find(identity).getContacts();
                 for (Contact contact: contacts) {
-                    contactRepository.delete(contact, identity);
+                    try {
+                        contactRepository.delete(contact, identity);
+                    } catch (EntityNotFoundExcepion ignored) {
+                    }
                 }
                 identityRepository.delete(identity);
             }
-        } catch (EntityNotFoundExcepion | PersistenceException e) {
+        } catch (PersistenceException e) {
             Log.e(TAG, "Error deleting contacts and identities");
         }
     }
@@ -217,7 +220,7 @@ public class LocalQabelService extends Service implements DropConnector {
     public void deleteContact(Contact contact) {
         try {
             contactRepository.delete(contact, getActiveIdentity());
-        } catch (PersistenceException e) {
+        } catch (EntityNotFoundExcepion | PersistenceException e) {
             throw new RuntimeException(e);
         }
     }
@@ -241,7 +244,7 @@ public class LocalQabelService extends Service implements DropConnector {
             for (Identity identity : identityRepository.findAll().getIdentities()) {
                 contactMap.put(identity, contactRepository.find(identity));
             }
-        } catch (PersistenceException | EntityNotFoundExcepion e) {
+        } catch (PersistenceException e) {
             throw new RuntimeException(e);
         }
         return contactMap;
@@ -558,13 +561,9 @@ public class LocalQabelService extends Service implements DropConnector {
 
     public void initRepositories() {
         RepositoryFactory repositoryFactory = new RepositoryFactory(getApplicationContext());
-        try {
-            AndroidClientDatabase androidClientDatabase = repositoryFactory.getAndroidClientDatabase();
-            identityRepository = repositoryFactory.getIdentityRepository(androidClientDatabase);
-            contactRepository = repositoryFactory.getContactRepository(androidClientDatabase);
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
+        AndroidClientDatabase androidClientDatabase = repositoryFactory.getAndroidClientDatabase();
+        identityRepository = repositoryFactory.getIdentityRepository(androidClientDatabase);
+        contactRepository = repositoryFactory.getContactRepository(androidClientDatabase);
     }
 
     protected void initAndroidPersistence() {

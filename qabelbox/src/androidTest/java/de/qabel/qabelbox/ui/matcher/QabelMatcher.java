@@ -54,11 +54,7 @@ public class QabelMatcher {
 
 
     public static ViewAssertion isVisible() {
-        return new ViewAssertion() {
-            public void check(View view, NoMatchingViewException noView) {
-                assertThat(view, new VisibilityMatcher(View.VISIBLE));
-            }
-        };
+        return (view, noView) -> assertThat(view, new VisibilityMatcher(View.VISIBLE));
     }
 
 

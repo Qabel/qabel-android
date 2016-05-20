@@ -85,7 +85,7 @@ public class ContactChatFragment extends ContactBaseFragment {
     }
 
     private Identity getIdentity() {
-        Identity activeIdentity = mActivity.getService().getActiveIdentity();
+        Identity activeIdentity = ((MainActivity) getActivity()).getActiveIdentity();
         if (activeIdentity == null) {
             throw new IllegalStateException("No active identity");
         }
@@ -227,65 +227,58 @@ public class ContactChatFragment extends ContactBaseFragment {
     @NonNull
     private ChatMessageAdapter.OnItemClickListener getOnItemClickListener() {
 
-        return new ChatMessageAdapter.OnItemClickListener() {
+        return item -> {
+            //check if message is instance of sharemessage
+            if (item.getData() instanceof ChatMessageItem.ShareMessagePayload) {
 
-            @Override
-            public void onItemClick(final ChatMessageItem item) {
+                final FilesFragment filesFragment = mActivity.filesFragment;
 
-                //check if message is instance of sharemessage
-                if (item.getData() instanceof ChatMessageItem.ShareMessagePayload) {
+                //check if share from other (not my sended share)
+                String keyIdentifier = mActivity.getActiveIdentity()
+                        .getEcPublicKey().getReadableKeyIdentifier();
+                if (!item.getSenderKey().equals(keyIdentifier)) {
 
-                    final FilesFragment filesFragment = mActivity.filesFragment;
+                    new AsyncTask<Void, Void, BoxNavigation>() {
+                        int errorId;
+                        public AlertDialog wait;
 
-                    //check if share from other (not my sended share)
-                    if (!item.getSenderKey().equals(getService().getActiveIdentity().getEcPublicKey().getReadableKeyIdentifier())) {
+                        @Override
+                        protected void onPreExecute() {
+                            wait = UIHelper.showWaitMessage(getActivity(), R.string.infos, R.string.message_please_wait, false);
+                        }
 
-                        new AsyncTask<Void, Void, BoxNavigation>() {
-                            int errorId;
-                            public AlertDialog wait;
+                        @Override
+                        protected BoxNavigation doInBackground(Void... params) {
 
-                            @Override
-                            protected void onPreExecute() {
-                                wait = UIHelper.showWaitMessage(getActivity(), R.string.infos, R.string.message_please_wait, false);
+                            //navigate to share folder or create this if not exists
+                            BoxNavigation nav = navigateToShareFolder(filesFragment.getBoxVolume());
+                            if (nav == null) {
+                                errorId = R.string.message_cant_navigate_to_share_folder;
+                                return null;
                             }
-
-                            @Override
-                            protected BoxNavigation doInBackground(Void... params) {
-
-                                //navigate to share folder or create this if not exists
-                                BoxNavigation nav = navigateToShareFolder(filesFragment.getBoxVolume());
-                                if (nav == null) {
-                                    errorId = R.string.message_cant_navigate_to_share_folder;
-                                    return null;
-                                }
-                                //check if shared file already exists or attached
-                                if (isAttached(nav, item)) {
-                                    errorId = R.string.message_cant_attach_external_file_exists;
-                                    return null;
-                                }
-                                return nav;
+                            //check if shared file already exists or attached
+                            if (isAttached(nav, item)) {
+                                errorId = R.string.message_cant_attach_external_file_exists;
+                                return null;
                             }
+                            return nav;
+                        }
 
-                            @Override
-                            protected void onPostExecute(BoxNavigation boxNavigation) {
+                        @Override
+                        protected void onPostExecute(BoxNavigation boxNavigation) {
 
-                                wait.dismiss();
-                                if (boxNavigation == null) {
-                                    UIHelper.showDialogMessage(getActivity(), R.string.dialog_headline_info, errorId);
-                                } else {
-                                    BoxExternalReference boxExternalReference = ShareHelper.getBoxExternalReference(contact, item);
-                                    attachCheckedSharedFile(filesFragment, boxNavigation, boxExternalReference);
-                                }
+                            wait.dismiss();
+                            if (boxNavigation == null) {
+                                UIHelper.showDialogMessage(getActivity(), R.string.dialog_headline_info, errorId);
+                            } else {
+                                BoxExternalReference boxExternalReference = ShareHelper.getBoxExternalReference(contact, item);
+                                attachCheckedSharedFile(filesFragment, boxNavigation, boxExternalReference);
                             }
-                        }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-                    }
+                        }
+                    }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
                 }
             }
         };
-    }
-
-    private LocalQabelService getService() {
-        return ((MainActivity) getActivity()).getService();
     }
 
     /**

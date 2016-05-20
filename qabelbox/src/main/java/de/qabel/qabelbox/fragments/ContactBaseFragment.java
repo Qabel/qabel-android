@@ -60,22 +60,23 @@ public class ContactBaseFragment extends BaseFragment {
     }
 
 
-    public void importContactFromUri(MainActivity mActivity, Uri uri) {
+    public void importContactFromUri(MainActivity activity, Uri uri) {
 
 
         Log.d(TAG, "import contact from uri " + uri);
         try {
             int added = 0;
-            ParcelFileDescriptor pfd = mActivity.getContentResolver().openFileDescriptor(uri, "r");
+            ParcelFileDescriptor pfd = activity.getContentResolver().openFileDescriptor(uri, "r");
             FileInputStream fis = new FileInputStream(pfd.getFileDescriptor());
             String json = FileHelper.readFileAsText(fis);
             fis.close();
-            ContactExportImport.ContactsParseResult result = ContactExportImport.parse(QabelBoxApplication.getInstance().getService().getActiveIdentity(), json);
+            ContactExportImport.ContactsParseResult result = ContactExportImport
+                    .parse(activity.getActiveIdentity(), json);
             int failed = result.getSkippedContacts();
             Contacts contacts = result.getContacts();
             for (Contact contact : contacts.getContacts()) {
                 try {
-                    addContactSilent(mActivity.getApplicationContext(), contact);
+                    addContactSilent(activity.getApplicationContext(), contact);
                     added++;
                 } catch (QblStorageEntityExistsException existsException) {
                     Log.w(TAG, "found doublet's. Will ignore it", existsException);
@@ -84,20 +85,20 @@ public class ContactBaseFragment extends BaseFragment {
             }
             if (added == 1 && failed == 0) {
                 UIHelper.showDialogMessage(
-                        mActivity,
-                        mActivity.getString(R.string.dialog_headline_info),
-                        mActivity.getResources().getString(R.string.contact_import_successfull)
+                        activity,
+                        activity.getString(R.string.dialog_headline_info),
+                        activity.getResources().getString(R.string.contact_import_successfull)
                 );
             } else {
                 UIHelper.showDialogMessage(
-                        mActivity,
-                        mActivity.getString(R.string.dialog_headline_info),
-                        mActivity.getResources().getString(R.string.contact_import_successfull_many, added, (added + failed))
+                        activity,
+                        activity.getString(R.string.dialog_headline_info),
+                        activity.getResources().getString(R.string.contact_import_successfull_many, added, (added + failed))
                 );
             }
 
         } catch (IOException | JSONException ioException) {
-            UIHelper.showDialogMessage(mActivity, R.string.dialog_headline_warning, R.string.contact_import_failed, ioException);
+            UIHelper.showDialogMessage(activity, R.string.dialog_headline_warning, R.string.contact_import_failed, ioException);
         }
     }
 

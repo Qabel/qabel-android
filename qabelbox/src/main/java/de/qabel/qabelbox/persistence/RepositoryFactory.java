@@ -21,6 +21,7 @@ import de.qabel.desktop.repository.sqlite.SqliteIdentityRepository;
 import de.qabel.desktop.repository.sqlite.SqlitePrefixRepository;
 import de.qabel.desktop.repository.sqlite.hydrator.DropURLHydrator;
 import de.qabel.desktop.repository.sqlite.hydrator.IdentityHydrator;
+import de.qabel.qabelbox.exceptions.QblPersistenceException;
 
 public class RepositoryFactory {
 
@@ -106,9 +107,13 @@ public class RepositoryFactory {
     }
 
     @NonNull
-    public AndroidClientDatabase getAndroidClientDatabase() throws SQLException {
+    public AndroidClientDatabase getAndroidClientDatabase() throws QblPersistenceException {
         if (connection == null) {
-            connection = DriverManager.getConnection("jdbc:sqlite:" + getDatabasePath());
+            try {
+                connection = DriverManager.getConnection("jdbc:sqlite:" + getDatabasePath());
+            } catch (SQLException e) {
+                throw new QblPersistenceException(e);
+            }
             androidClientDatabase = new AndroidClientDatabase(connection);
             try {
                 androidClientDatabase.migrate();

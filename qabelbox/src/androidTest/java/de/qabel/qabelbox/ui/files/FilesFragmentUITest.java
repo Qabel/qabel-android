@@ -3,8 +3,6 @@ package de.qabel.qabelbox.ui.files;
 import android.content.Intent;
 import android.support.design.internal.NavigationMenuItemView;
 
-import com.squareup.spoon.Spoon;
-
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -61,7 +59,7 @@ public class FilesFragmentUITest extends FilesFragmentUITestBase {
             new ExampleFile("black_2.png", new byte[1024 * 2]));
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() throws Throwable {
         super.setUp();
         mActivity.filesFragment.injectIdleCallback(getIdlingResource());
     }

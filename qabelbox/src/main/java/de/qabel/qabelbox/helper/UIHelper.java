@@ -43,25 +43,18 @@ public class UIHelper {
         }
 
         final FontHelper fontHelper = FontHelper.getInstance();
-        activity.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
+        activity.runOnUiThread(() -> {
+            final AlertDialog dialog = builder.create();
+            dialog.setOnShowListener(dialog1 -> {
 
-                final AlertDialog dialog = builder.create();
-                dialog.setOnShowListener(new DialogInterface.OnShowListener() {
-                    @Override
-                    public void onShow(DialogInterface dialog1) {
+                fontHelper.setCustomeFonts((TextView) dialog.findViewById(android.R.id.message));
+                fontHelper.setCustomeFonts((TextView) dialog.findViewById(android.R.id.title));
 
-                        fontHelper.setCustomeFonts((TextView) dialog.findViewById(android.R.id.message));
-                        fontHelper.setCustomeFonts((TextView) dialog.findViewById(android.R.id.title));
+                fontHelper.setCustomeFonts(dialog.getButton(AlertDialog.BUTTON_POSITIVE));
+                fontHelper.setCustomeFonts(dialog.getButton(AlertDialog.BUTTON_NEGATIVE));
+            });
 
-                        fontHelper.setCustomeFonts(dialog.getButton(AlertDialog.BUTTON_POSITIVE));
-                        fontHelper.setCustomeFonts(dialog.getButton(AlertDialog.BUTTON_NEGATIVE));
-                    }
-                });
-
-                dialog.show();
-            }
+            dialog.show();
         });
     }
 

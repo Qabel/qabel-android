@@ -54,7 +54,7 @@ public class ImportExportContactsUITest extends AbstractUITest {
     private static final String CONTACT_3 = "contact3";
 
     @Override
-    public void setUp() throws Exception {
+    public void setUp() throws Throwable {
         super.setUp();
         createTestContacts();
         Intent intent = new Intent(Intent.ACTION_MAIN);
@@ -62,14 +62,14 @@ public class ImportExportContactsUITest extends AbstractUITest {
         launchActivity(intent);
     }
 
-    private void createTestContacts() throws JSONException, QblStorageEntityExistsException {
+    private void createTestContacts() throws Throwable {
 
         mBoxHelper.setActiveIdentity(identity);
-        assertThat(mBoxHelper.getService().getContacts().getContacts().size(), is(0));
+        assertThat(contactRepository.find(identity).getContacts().size(), is(0));
         createContact(CONTACT_1);
         createContact(CONTACT_2);
         createContact(CONTACT_3);
-        assertThat(mBoxHelper.getService().getContacts().getContacts().size(), is(3));
+        assertThat(contactRepository.find(identity).getContacts().size(), is(3));
     }
 
     private void createContact(String name) throws JSONException, QblStorageEntityExistsException {
@@ -197,6 +197,17 @@ public class ImportExportContactsUITest extends AbstractUITest {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    @Test
+    public void testDeleteContact() throws Throwable {
+        assertThat(contactRepository.find(identity).getContacts().size(), equalTo(3));
+        //Open dialog for Contact 1
+        onView(withText(CONTACT_1)).perform(longClick());
+
+        onView(withText(R.string.Delete)).inRoot(isDialog()).perform(click());
+        onView(withText(R.string.yes)).perform(click());
+        assertThat(contactRepository.find(identity).getContacts().size(), equalTo(2));
     }
 
 

@@ -199,17 +199,12 @@ public class ImportExportContactsUITest extends AbstractUITest {
         }
     }
 
-    @Ignore("longClick broken on real devices since sdk 23")
     @Test
     public void testDeleteContact() throws Throwable {
         assertThat(contactRepository.find(identity).getContacts().size(), equalTo(3));
         //Open dialog for Contact 1
-        onView(withId(R.id.contact_list))
-                .perform(RecyclerViewActions.actionOnItem(
-                        hasDescendant(withText(CONTACT_1)), longClick()));
+        onView(withText(CONTACT_1)).perform(longClick());
 
-        //Check contact dialog
-        onView(withText(CONTACT_1)).inRoot(isDialog()).check(matches(isDisplayed()));
         onView(withText(R.string.Delete)).inRoot(isDialog()).perform(click());
         onView(withText(R.string.yes)).perform(click());
         assertThat(contactRepository.find(identity).getContacts().size(), equalTo(2));

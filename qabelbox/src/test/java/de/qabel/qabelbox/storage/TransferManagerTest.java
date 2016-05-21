@@ -47,34 +47,43 @@ public class TransferManagerTest extends AbstractTransferManagerTest {
         FileUtils.deleteDirectory(tempDir);
     }
 
-    @Test
-    public void testUploadProgress() throws Exception {
+    private File createTestFile(long kb) throws Exception {
         File testFile = createEmptyTargetFile();
         OutputStream outputStream = new FileOutputStream(testFile);
         byte[] testData = new byte[1024];
         Arrays.fill(testData, (byte) 'f');
-        for (int i = 0; i < 100; i++) {
+        for (int i = 0; i < kb; i++) {
             outputStream.write(testData);
         }
         outputStream.close();
+        return testFile;
+    }
+
+    @Test
+    public void testUploadProgress() throws Exception {
+        long kb = 100;
+        File testFile = createTestFile(kb);
         long total = testFile.length();
-        final long[] success = {0};
+        assertEquals(kb * 1024, total);
+        final long[] status = {0, 0};
         int uploadId = transferManager.uploadAndDeleteLocalfileOnSuccess(prefix, testFileNameOnServer, testFile, new BoxTransferListener() {
             @Override
             public void onProgressChanged(long bytesCurrent, long bytesTotal) {
-                success[0] = bytesCurrent;
+                status[0] = bytesCurrent;
+                status[1]++;
                 Log.d(TAG, "progress " + testFileNameOnServer + " " + bytesCurrent + "/" + bytesTotal);
                 assertEquals(0L, bytesCurrent % 2048);
             }
 
             @Override
             public void onFinished() {
-                assertEquals(total, success[0]);
+                assertEquals(total, status[0]);
             }
         });
         transferManager.waitFor(uploadId);
-
-        assertEquals(total, success[0]);
+        assertEquals(total, status[0]);
+        //2kb steps
+        assertEquals(kb / 2, status[1]);
         assertTransferManagerWasSuccesful(uploadId);
         assertFalse(testFile.exists());
     }

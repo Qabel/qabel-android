@@ -90,8 +90,10 @@ public class StorageNotificationTest {
         Notification notification = shadowManger.getAllNotifications().get(0);
         ShadowNotification shadowNotification = shadowOf(notification);
 
-        int expectedProgress = (currentUpload == null ? 100 : currentUpload.getUploadStatusPercent());
-        assertEquals(expectedProgress, shadowNotification.getProgressBar().getProgress());
+        if (currentUpload != null) {
+            int expectedProgress = currentUpload.getUploadStatusPercent();
+            assertEquals(expectedProgress, shadowNotification.getProgressBar().getProgress());
+        }
 
         String expectedTitle = (queue.size() > 0 ?
                 RuntimeEnvironment.application.getResources().
@@ -99,7 +101,7 @@ public class StorageNotificationTest {
                 : RuntimeEnvironment.application.getString(R.string.upload_complete_notification_title));
         assertEquals(expectedTitle, shadowNotification.getContentTitle());
 
-        String expectedContent = null;
+        String expectedContent = "";
         if (currentUpload != null) {
             expectedContent = String.format(RuntimeEnvironment.application.getString(R.string.upload_in_progress_notification_content), currentUpload.name);
         }

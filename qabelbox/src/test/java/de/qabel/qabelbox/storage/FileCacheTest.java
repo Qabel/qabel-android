@@ -16,6 +16,7 @@ import java.io.IOException;
 
 import de.qabel.qabelbox.BuildConfig;
 import de.qabel.qabelbox.SimpleApplication;
+import de.qabel.qabelbox.test.files.FileHelper;
 
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
@@ -32,7 +33,7 @@ public class FileCacheTest {
         Application application = RuntimeEnvironment.application;
         application.deleteDatabase(FileCache.DATABASE_NAME);
         mHelper = new FileCache(application);
-        testFile = new File(BoxTest.createTestFile());
+        testFile = new File(FileHelper.createTestFile());
     }
 
     @After
@@ -60,7 +61,7 @@ public class FileCacheTest {
 
     @Test
     public void testInsertFile() throws IOException {
-        File file = new File(BoxTest.createTestFile());
+        File file = new File(FileHelper.createTestFile());
         BoxFile boxFile = getBoxFile();
         mHelper.put(boxFile, file);
         assertThat(mHelper.get(boxFile), equalTo(file));
@@ -78,7 +79,7 @@ public class FileCacheTest {
 
     @Test
     public void testInvalidEntry() throws IOException {
-        File file = new File(BoxTest.createTestFile());
+        File file = new File(FileHelper.createTestFile());
         file.delete();
         BoxFile boxFile = getBoxFile();
         mHelper.put(boxFile, file);

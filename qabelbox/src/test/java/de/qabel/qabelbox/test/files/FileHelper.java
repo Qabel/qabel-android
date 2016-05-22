@@ -3,6 +3,7 @@ package de.qabel.qabelbox.test.files;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.Arrays;
 
 public class FileHelper {
@@ -12,8 +13,7 @@ public class FileHelper {
     }
 
     public static String createTestFile() throws IOException {
-        File tmpDir = getSystemTmp();
-        File file = File.createTempFile("testfile", "test", tmpDir);
+        File file = createEmptyTargetFile();
         FileOutputStream outputStream = new FileOutputStream(file);
         byte[] testData = new byte[1024];
         Arrays.fill(testData, (byte) 'f');
@@ -25,13 +25,28 @@ public class FileHelper {
     }
 
     public static File smallTestFile() throws IOException {
-        File tmpDir = getSystemTmp();
-        File file = File.createTempFile("testfile", "test", tmpDir);
+        File file = createEmptyTargetFile();
         FileOutputStream outputStream = new FileOutputStream(file);
         byte[] testData = new byte[]{1, 2, 3, 4, 5};
         outputStream.write(testData);
         outputStream.close();
         return file;
+    }
+
+    public static File createEmptyTargetFile() throws IOException {
+        return File.createTempFile("test", null, getSystemTmp());
+    }
+
+    public static File createTestFile(long kb) throws Exception {
+        File testFile = createEmptyTargetFile();
+        OutputStream outputStream = new FileOutputStream(testFile);
+        byte[] testData = new byte[1024];
+        Arrays.fill(testData, (byte) 'f');
+        for (int i = 0; i < kb; i++) {
+            outputStream.write(testData);
+        }
+        outputStream.close();
+        return testFile;
     }
 
 }

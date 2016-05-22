@@ -37,7 +37,7 @@ public class StorageNotificationManager extends QblNotificationManager {
                 | Intent.FLAG_ACTIVITY_SINGLE_TOP);
         notificationIntent.putExtra(MainActivity.ACTIVE_IDENTITY, identityId);
         notificationIntent.putExtra(MainActivity.START_FILES_FRAGMENT, true);
-        notificationIntent.putExtra(MainActivity.START_FILES_FRAGMENT_PATH, path);
+        //notificationIntent.putExtra(MainActivity.START_FILES_FRAGMENT_PATH, path);
         return notificationIntent;
     }
 

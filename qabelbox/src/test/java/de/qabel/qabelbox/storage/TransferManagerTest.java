@@ -12,10 +12,7 @@ import org.robolectric.RobolectricGradleTestRunner;
 import org.robolectric.annotation.Config;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
-import java.util.Arrays;
 import java.util.UUID;
 
 import de.qabel.qabelbox.BuildConfig;
@@ -23,6 +20,7 @@ import de.qabel.qabelbox.SimpleApplication;
 import de.qabel.qabelbox.TestConstants;
 import de.qabel.qabelbox.communication.URLs;
 import de.qabel.qabelbox.exceptions.QblStorageException;
+import de.qabel.qabelbox.test.files.FileHelper;
 
 import static junit.framework.Assert.assertEquals;
 
@@ -47,22 +45,10 @@ public class TransferManagerTest extends AbstractTransferManagerTest {
         FileUtils.deleteDirectory(tempDir);
     }
 
-    private File createTestFile(long kb) throws Exception {
-        File testFile = createEmptyTargetFile();
-        OutputStream outputStream = new FileOutputStream(testFile);
-        byte[] testData = new byte[1024];
-        Arrays.fill(testData, (byte) 'f');
-        for (int i = 0; i < kb; i++) {
-            outputStream.write(testData);
-        }
-        outputStream.close();
-        return testFile;
-    }
-
     @Test
     public void testUploadProgress() throws Exception {
         long kb = 100;
-        File testFile = createTestFile(kb);
+        File testFile = FileHelper.createTestFile(kb);
         long total = testFile.length();
         assertEquals(kb * 1024, total);
         final long[] status = {0, 0};

@@ -10,8 +10,6 @@ import org.junit.runner.RunWith;
 import org.robolectric.RobolectricGradleTestRunner;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -40,6 +38,7 @@ import de.qabel.qabelbox.config.AppPreference;
 import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.exceptions.QblStorageNameConflict;
 import de.qabel.qabelbox.exceptions.QblStorageNotFound;
+import de.qabel.qabelbox.test.files.FileHelper;
 import de.qabel.qabelbox.util.TestHelper;
 
 import static org.hamcrest.Matchers.*;
@@ -48,9 +47,8 @@ import static org.junit.Assert.*;
 @RunWith(RobolectricGradleTestRunner.class)
 @Config(application = SimpleApplication.class, constants = BuildConfig.class)
 public class BoxTest {
-    private static final Logger logger = LoggerFactory.getLogger(BoxTest.class.getName());
-    private static final QblECPublicKey OWNER = new QblECKeyPair().getPub();
 
+    private static final QblECPublicKey OWNER = new QblECKeyPair().getPub();
     private static final String SHARED_FILE_NAME = "sharedFile";
 
     Identity identity;
@@ -96,7 +94,7 @@ public class BoxTest {
         keyPair = new QblECKeyPair();
         keyPairOtherUser = new QblECKeyPair();
 
-        testFilePath = createTestFile();
+        testFilePath = FileHelper.createTestFile();
 
         identity = new Identity("Default Test User", dropURLs, keyPair);
         identity.getPrefixes().add(prefix);
@@ -112,7 +110,7 @@ public class BoxTest {
         volumeOtherUser.createIndex();
 
         BoxNavigation nav = volume.navigate();
-        File file = createSmallTestFile();
+        File file = FileHelper.smallTestFile();
         sharedFile = nav.upload(SHARED_FILE_NAME, new FileInputStream(file), null);
         sharedReference = nav.createFileMetadata(OWNER, sharedFile);
         nav.commit();
@@ -134,33 +132,10 @@ public class BoxTest {
                 deviceID, getContext(), new FakeTransferManager(tmpDir));
     }
 
-    public static String createTestFile() throws IOException {
-        File tmpDir = new File(System.getProperty("java.io.tmpdir"));
-        File file = File.createTempFile("testfile", "test", tmpDir);
-        FileOutputStream outputStream = new FileOutputStream(file);
-        byte[] testData = new byte[1024];
-        Arrays.fill(testData, (byte) 'f');
-        for (int i = 0; i < 5; i++) {
-            outputStream.write(testData);
-        }
-        outputStream.close();
-        return file.getAbsolutePath();
-    }
-
-    public File createSmallTestFile() throws IOException {
-        File tmpDir = new File(System.getProperty("java.io.tmpdir"));
-        File file = File.createTempFile("testfile", "test", tmpDir);
-        FileOutputStream outputStream = new FileOutputStream(file);
-        byte[] testData = new byte[]{1, 2, 3, 4, 5};
-        outputStream.write(testData);
-        outputStream.close();
-        return file;
-    }
-
     public void tearDown() throws IOException {
     }
 
-    private <T extends  BoxObject> T findByName(String name, List<T> boxObjects) {
+    private <T extends BoxObject> T findByName(String name, List<T> boxObjects) {
         T boxObject = null;
         for (T object : boxObjects) {
             if (object.name.equals(name)) {
@@ -209,7 +184,7 @@ public class BoxTest {
         String filename = "foobar";
         //Create
         BoxNavigation nav = volume.navigate();
-        File file = createSmallTestFile();
+        File file = FileHelper.smallTestFile();
         BoxFile boxFile = nav.upload(filename, new FileInputStream(file), null);
 
         //Create external
@@ -378,17 +353,17 @@ public class BoxTest {
     private void checkDeleted(BoxFolder boxFolder, BoxFolder subfolder, BoxFile boxFile, BoxNavigation nav) throws QblStorageException {
         try {
             nav.download(boxFile, null);
-            TestHelper.fail("Could download file in deleted folder");
+            fail("Could download file in deleted folder");
         } catch (QblStorageNotFound e) {
         }
         try {
             nav.navigate(boxFolder);
-            TestHelper.fail("Could navigate to deleted folder");
+            fail("Could navigate to deleted folder");
         } catch (QblStorageNotFound e) {
         }
         try {
             nav.navigate(subfolder);
-            TestHelper.fail("Could navigate to deleted subfolder");
+            fail("Could navigate to deleted subfolder");
         } catch (QblStorageNotFound e) {
         }
     }
@@ -422,7 +397,7 @@ public class BoxTest {
         } catch (QblStorageNameConflict e) {
             return;
         }
-        TestHelper.fail("Expected QblStorageNameConflict");
+        fail("Expected QblStorageNameConflict");
     }
 
     @Test
@@ -434,7 +409,7 @@ public class BoxTest {
         } catch (QblStorageNameConflict e) {
             return;
         }
-        TestHelper.fail("Expected QblStorageNameConflict");
+        fail("Expected QblStorageNameConflict");
     }
 
     @Test
@@ -453,7 +428,7 @@ public class BoxTest {
         } catch (QblStorageNotFound e) {
             return;
         }
-        TestHelper.fail("Expected QblStorageNotFound");
+        fail("Expected QblStorageNotFound");
     }
 
     @Test
@@ -493,7 +468,7 @@ public class BoxTest {
         } catch (QblStorageException e) {
             return;
         }
-        TestHelper.fail("Expected QblStorageException");
+        fail("Expected QblStorageException");
     }
 
     @Test
@@ -550,7 +525,7 @@ public class BoxTest {
 
     @Test
     public void testCacheFailure() throws QblStorageException, IOException {
-        File file = createSmallTestFile();
+        File file = FileHelper.smallTestFile();
         BoxNavigation nav = volume.navigate();
         BoxFile boxFile = nav.upload("foobar", new FileInputStream(file), null);
         nav.commit();

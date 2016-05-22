@@ -10,8 +10,6 @@ import org.junit.runner.RunWith;
 import org.robolectric.RobolectricGradleTestRunner;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -40,6 +38,7 @@ import de.qabel.qabelbox.config.AppPreference;
 import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.exceptions.QblStorageNameConflict;
 import de.qabel.qabelbox.exceptions.QblStorageNotFound;
+import de.qabel.qabelbox.test.files.FileHelper;
 import de.qabel.qabelbox.util.TestHelper;
 
 import static org.hamcrest.Matchers.equalTo;
@@ -55,7 +54,6 @@ import static org.junit.Assert.assertThat;
 @RunWith(RobolectricGradleTestRunner.class)
 @Config(application = SimpleApplication.class, constants = BuildConfig.class)
 public class BoxTest {
-    private static final Logger logger = LoggerFactory.getLogger(BoxTest.class.getName());
     private static final QblECPublicKey OWNER = new QblECKeyPair().getPub();
 
     Identity identity;
@@ -102,7 +100,7 @@ public class BoxTest {
         keyPair = new QblECKeyPair();
         keyPairOtherUser = new QblECKeyPair();
 
-        testFileName = createTestFile();
+        testFileName = FileHelper.createTestFile();
 
         identity = new Identity("Default Test User", dropURLs, keyPair);
         identity.getPrefixes().add(prefix);
@@ -129,29 +127,6 @@ public class BoxTest {
         File tmpDir = new File(System.getProperty("java.io.tmpdir"));
         return new BoxVolume(key, prefix,
                 deviceID, getContext(), new FakeTransferManager(tmpDir));
-    }
-
-    public static String createTestFile() throws IOException {
-        File tmpDir = new File(System.getProperty("java.io.tmpdir"));
-        File file = File.createTempFile("testfile", "test", tmpDir);
-        FileOutputStream outputStream = new FileOutputStream(file);
-        byte[] testData = new byte[1024];
-        Arrays.fill(testData, (byte) 'f');
-        for (int i = 0; i < 100; i++) {
-            outputStream.write(testData);
-        }
-        outputStream.close();
-        return file.getAbsolutePath();
-    }
-
-    public static File smallTestFile() throws IOException {
-        File tmpDir = new File(System.getProperty("java.io.tmpdir"));
-        File file = File.createTempFile("testfile", "test", tmpDir);
-        FileOutputStream outputStream = new FileOutputStream(file);
-        byte[] testData = new byte[]{1, 2, 3, 4, 5};
-        outputStream.write(testData);
-        outputStream.close();
-        return file;
     }
 
     public void tearDown() throws IOException {
@@ -354,13 +329,13 @@ public class BoxTest {
         nav.delete(boxFile);
         nav.commit();
         TestHelper.waitUntil(() -> {
-            try {
-                nav.download(boxFile, null);
-                return false;
-            } catch (QblStorageNotFound e) {
-                return true;
-            }
-        },
+                    try {
+                        nav.download(boxFile, null);
+                        return false;
+                    } catch (QblStorageNotFound e) {
+                        return true;
+                    }
+                },
                 "Expected QblStorageNotFound");
     }
 
@@ -590,7 +565,7 @@ public class BoxTest {
 
     @Test
     public void testCacheFailure() throws QblStorageException, IOException {
-        File file = smallTestFile();
+        File file = FileHelper.smallTestFile();
         BoxNavigation nav = volume.navigate();
         BoxFile boxFile = nav.upload("foobar", new FileInputStream(file), null);
         nav.commit();

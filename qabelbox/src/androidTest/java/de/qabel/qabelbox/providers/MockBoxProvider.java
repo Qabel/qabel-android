@@ -131,14 +131,7 @@ public class MockBoxProvider extends BoxProvider {
         }
 
         @Override
-        protected void showNotification(String contentTitle, String contentText, int progress) {
-            isShowNotificationCalled = true;
-        }
-
-        @Override
-        protected void updateNotification() {
-            // Actual updateNotification() method calls showNotification in any case.
-            showNotification(null, null, 0);
+        protected void updateUploadNotification() {
             isUpdateNotificationCalled = true;
         }
 

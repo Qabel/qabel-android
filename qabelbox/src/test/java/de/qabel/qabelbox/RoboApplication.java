@@ -2,6 +2,8 @@ package de.qabel.qabelbox;
 
 import android.content.ServiceConnection;
 
+import org.robolectric.shadows.ShadowLog;
+
 import de.qabel.qabelbox.communication.URLs;
 import de.qabel.qabelbox.config.AppPreference;
 import de.qabel.qabelbox.services.RoboLocalQabelService;
@@ -15,6 +17,7 @@ public class RoboApplication extends QabelBoxApplication {
         URLs.setBaseAccountingURL(TestConstants.ACCOUNTING_URL);
         new AppPreference(this).setToken(TestConstants.TOKEN);
         super.onCreate();
+        ShadowLog.stream = System.out;
     }
 
     @Override

@@ -16,7 +16,6 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.provider.DocumentsContract;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
@@ -28,9 +27,6 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.EditText;
-import android.widget.ImageView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.cocosw.bottomsheet.BottomSheet;
@@ -44,14 +40,12 @@ import java.io.OutputStream;
 import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
-import butterknife.Optional;
 import de.qabel.core.config.Identity;
 import de.qabel.desktop.repository.IdentityRepository;
 import de.qabel.desktop.repository.exception.EntityNotFoundExcepion;
@@ -136,6 +130,7 @@ public class MainActivity extends CrashReportingActivity
     public static final String START_FILES_FRAGMENT = "START_FILES_FRAGMENT";
     public static final String START_CONTACTS_FRAGMENT = "START_CONTACTS_FRAGMENT";
     public static final String ACTIVE_IDENTITY = "ACTIVE_IDENTITY";
+    public static final String START_FILES_FRAGMENT_PATH = "START_FILES_FRAGMENT_PATH";
 
     public BoxVolume boxVolume;
     public ActionBarDrawerToggle toggle;
@@ -476,7 +471,7 @@ public class MainActivity extends CrashReportingActivity
                     if (start_contacts_fragment) {
                         selectContactsFragment();
                     } else if (start_files_fragment) {
-                        initAndSelectFilesFragment();
+                        initAndSelectFilesFragment(intent);
                     }
                     break;
             }
@@ -484,7 +479,7 @@ public class MainActivity extends CrashReportingActivity
             if (start_contacts_fragment) {
                 selectContactsFragment();
             } else if (start_files_fragment) {
-                initAndSelectFilesFragment();
+                initAndSelectFilesFragment(intent);
             }
         }
     }
@@ -534,8 +529,9 @@ public class MainActivity extends CrashReportingActivity
         }
     }
 
-    private void initAndSelectFilesFragment() {
+    private void initAndSelectFilesFragment(Intent intent) {
         initFilesFragment();
+        String filePath = intent.getStringExtra(START_FILES_FRAGMENT_PATH);
         selectFilesFragment();
     }
 

@@ -23,6 +23,9 @@ public class SyncAdapterChatNotificationManager implements ChatNotificationManag
     private final Context context;
     private int currentId = 0;
 
+    Map<String, Integer> identityToNotificationId = new DefaultHashMap<>(
+            identity -> currentId++
+    );
     private Map<ChatMessageInfo, Integer> notified = new HashMap<>();
 
     public SyncAdapterChatNotificationManager(Context context) {
@@ -37,24 +40,31 @@ public class SyncAdapterChatNotificationManager implements ChatNotificationManag
             if (notified.containsKey(msg)) {
                 continue;
             }
-            Intent intent = new Intent(context, MainActivity.class);
-            intent.putExtra(MainActivity.ACTIVE_IDENTITY, msg.getIdentityKeyId());
-            intent.putExtra(MainActivity.START_CONTACTS_FRAGMENT, true);
-            PendingIntent pendingIntent = PendingIntent.getActivity(
-                    context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT
-            );
-            NotificationCompat.Builder notification = new NotificationCompat.Builder(context)
-                    .setWhen(msg.getSent().getTime())
-                    .setContentIntent(pendingIntent)
-                    .setContentTitle(msg.getContactName())
-                    .setContentText(msg.getMessage())
-                    .setSmallIcon(R.drawable.qabel_logo);
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                notification.setCategory(Notification.CATEGORY_MESSAGE);
-            }
             notified.put(msg, currentId);
-            notificationManager.notify(currentId++, notification.build());
+            showNotification(new ChatNotification(
+                    msg.getIdentityKeyId(), msg.getContactName(), msg.getMessage(), msg.getSent()));
         }
+    }
+
+    void showNotification(ChatNotification notification) {
+        Intent intent = new Intent(context, MainActivity.class);
+        intent.putExtra(MainActivity.ACTIVE_IDENTITY, notification.identityId);
+        intent.putExtra(MainActivity.START_CONTACTS_FRAGMENT, true);
+        PendingIntent pendingIntent = PendingIntent.getActivity(
+                context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT
+        );
+        NotificationCompat.Builder androidNotification = new NotificationCompat.Builder(context)
+                .setWhen(notification.when.getTime())
+                .setContentIntent(pendingIntent)
+                .setContentTitle(notification.contactHeader)
+                .setContentText(notification.message)
+                .setSmallIcon(R.drawable.qabel_logo);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            androidNotification.setCategory(Notification.CATEGORY_MESSAGE);
+        }
+        notificationManager.notify(
+                identityToNotificationId.get(notification.identityId),
+                androidNotification.build());
     }
 
 }

@@ -48,16 +48,8 @@ public class SyncAdapterChatNotificationManagerTest {
 
     @Test
     public void testUpdateNotifications() throws Exception {
-        List<ChatMessageInfo> messages = doUpdateNotifications();
+        doUpdateNotifications();
         assertThat(shadowOf(notificationManager).size(), equalTo(1));
-
-        List<Notification> notifications = shadowOf(notificationManager).getAllNotifications();
-        Notification notification = notifications.get(0);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            assertThat(notification.category, equalTo(Notification.CATEGORY_MESSAGE));
-        }
-        assertThat(notification.when, equalTo(messages.get(0).getSent().getTime()));
-        assertThat(notification.contentIntent, notNullValue());
     }
 
     @NonNull
@@ -74,5 +66,18 @@ public class SyncAdapterChatNotificationManagerTest {
         doUpdateNotifications();
         doUpdateNotifications();
         assertThat(shadowOf(notificationManager).size(), equalTo(1));
+    }
+
+    @Test
+    public void testShowNotification() throws Throwable {
+        ChatNotification notification = new ChatNotification("myid", "header, header", "message",
+                new Date());
+        manager.showNotification(notification);
+        Notification note = shadowOf(notificationManager).getAllNotifications().get(0);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            assertThat(note.category, equalTo(Notification.CATEGORY_MESSAGE));
+        }
+        assertThat(note.when, equalTo(notification.when.getTime()));
+        assertThat(note.contentIntent, notNullValue());
     }
 }

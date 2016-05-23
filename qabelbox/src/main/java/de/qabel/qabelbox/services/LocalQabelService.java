@@ -513,7 +513,7 @@ public class LocalQabelService extends Service implements DropConnector {
         documentIdParser = new DocumentIdParser();
         cachedFinishedUploads = Collections.synchronizedMap(new HashMap<>());
         uploadingQueue = new LinkedBlockingDeque<>();
-        storageNotificationManager = new StorageNotificationManager(this);
+        storageNotificationManager = new StorageNotificationManager(getApplicationContext());
 
     }
 

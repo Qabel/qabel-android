@@ -20,6 +20,7 @@ import java.util.concurrent.CountDownLatch;
 
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.communication.BlockServer;
+import de.qabel.qabelbox.communication.callbacks.DownloadRequestCallback;
 import de.qabel.qabelbox.communication.callbacks.RequestCallback;
 import de.qabel.qabelbox.communication.callbacks.UploadRequestCallback;
 import okhttp3.Response;
@@ -73,7 +74,9 @@ public class BlockServerTransferManager implements TransferManager {
 
             @Override
             public void onProgress(long currentBytes, long totalBytes) {
-                boxTransferListener.onProgressChanged(currentBytes, totalBytes);
+                if (boxTransferListener != null) {
+                    boxTransferListener.onProgressChanged(currentBytes, totalBytes);
+                }
             }
 
             @Override
@@ -122,7 +125,7 @@ public class BlockServerTransferManager implements TransferManager {
 
         final int id = blockServer.getNextId();
         latches.put(id, new CountDownLatch(1));
-        blockServer.downloadFile(context, prefix, name, new RequestCallback() {
+        blockServer.downloadFile(context, prefix, name, new DownloadRequestCallback(file) {
             @Override
             public void onError(Exception e, @Nullable Response response) {
                 if (boxTransferListener != null) {
@@ -133,12 +136,15 @@ public class BlockServerTransferManager implements TransferManager {
             }
 
             @Override
-            public void onSuccess(int statusCode, Response response) {
-                try {
-                    readStreamFromServer(response, file, boxTransferListener);
-                } catch (IOException e) {
-                    Log.e(TAG, "Error reading stream from Server", e);
+            protected void onProgress(long current, long size) {
+                if (boxTransferListener != null) {
+                    boxTransferListener.onProgressChanged(current, size);
                 }
+            }
+
+            @Override
+            public void onSuccess(int statusCode, Response response) {
+                super.onSuccess(statusCode, response);
                 if (boxTransferListener != null) {
                     boxTransferListener.onFinished();
                 }
@@ -147,38 +153,6 @@ public class BlockServerTransferManager implements TransferManager {
         });
 
         return id;
-    }
-
-    /**
-     * read stream from server
-     *
-     * @param response
-     * @param file
-     * @param boxTransferListener
-     * @throws IOException
-     */
-    private void readStreamFromServer(Response response, File file, @Nullable BoxTransferListener boxTransferListener) throws IOException {
-
-        InputStream is = response.body().byteStream();
-        BufferedInputStream input = new BufferedInputStream(is);
-        OutputStream output = new FileOutputStream(file);
-
-        Log.d(TAG, "Server response received. Reading stream with unknown size");
-        final byte[] data = new byte[1024];
-        long total = 0;
-        int count;
-        while ((count = input.read(data)) != -1) {
-            total += count;
-            output.write(data, 0, count);
-        }
-
-        Log.d(TAG, "download filesize after: " + total);
-        if (boxTransferListener != null) {
-            boxTransferListener.onProgressChanged(total, total);
-        }
-        output.flush();
-        output.close();
-        input.close();
     }
 
     /**

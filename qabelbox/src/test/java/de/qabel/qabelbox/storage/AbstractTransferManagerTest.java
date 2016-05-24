@@ -67,16 +67,16 @@ public abstract class AbstractTransferManagerTest {
         }
     }
 
-    private int syncUpload(final String nameOnServer, final File sourceFile) {
-        BoxTransferListener listner = new VerboseTransferManagerListener(sourceFile + " -> " + nameOnServer, "uploading");
-        int transferId = transferManager.uploadAndDeleteLocalfileOnSuccess(prefix, nameOnServer, sourceFile, listner);
+    protected int syncUpload(final String nameOnServer, final File sourceFile) {
+        BoxTransferListener listener = new VerboseTransferManagerListener(sourceFile + " -> " + nameOnServer, "uploading");
+        int transferId = transferManager.uploadAndDeleteLocalfileOnSuccess(prefix, nameOnServer, sourceFile, listener);
         transferManager.waitFor(transferId);
         return transferId;
     }
 
     private int syncDownload(final String nameOnServer, final File targetFile) {
-        BoxTransferListener listner = new VerboseTransferManagerListener(nameOnServer + " -> " + targetFile, "uploading");
-        int transferId = transferManager.download(prefix, nameOnServer, targetFile, listner);
+        BoxTransferListener listener = new VerboseTransferManagerListener(nameOnServer + " -> " + targetFile, "uploading");
+        int transferId = transferManager.download(prefix, nameOnServer, targetFile, listener);
         transferManager.waitFor(transferId);
         return transferId;
     }

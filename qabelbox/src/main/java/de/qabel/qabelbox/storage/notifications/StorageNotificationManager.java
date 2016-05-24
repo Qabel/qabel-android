@@ -5,13 +5,22 @@ import android.app.Notification;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
+import android.support.annotation.IntegerRes;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v7.app.NotificationCompat;
 
+import org.apache.commons.io.FileUtils;
+
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Queue;
 
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.activities.MainActivity;
 import de.qabel.qabelbox.notifications.QblNotificationManager;
+import de.qabel.qabelbox.storage.BoxFile;
+import de.qabel.qabelbox.storage.BoxTransferListener;
 import de.qabel.qabelbox.storage.BoxUploadingFile;
 
 public class StorageNotificationManager extends QblNotificationManager {
@@ -21,6 +30,9 @@ public class StorageNotificationManager extends QblNotificationManager {
     private final int UPLOAD_ID = generateId();
     private String lastUploadPath;
     private String lastOwner;
+    private String lastFilename;
+
+    private Map<String, Integer> downloadNotifications = new HashMap<>();
 
     public StorageNotificationManager(Context context) {
         super(context);
@@ -46,30 +58,77 @@ public class StorageNotificationManager extends QblNotificationManager {
         if (currentUpload != null) {
             lastUploadPath = currentUpload.getPath();
             lastOwner = currentUpload.getOwnerIdentifier();
-            Intent fileIntent = createFileIntent(lastOwner, lastUploadPath);
-            String title = getContext().getResources().getQuantityString(R.plurals.uploadsNotificationTitle,
-                    uploadingQueue.size(), uploadingQueue.size());
-            String content = String.format(getContext().getString(R.string.upload_in_progress_notification_content), currentUpload.name);
+            lastFilename = currentUpload.name;
 
-            showNotification(createNotification(
+            Intent fileIntent = createFileIntent(lastOwner, lastUploadPath);
+            int queueSize = uploadingQueue.size();
+            String title = getContext().getResources().getQuantityString(R.plurals.uploadsNotificationTitle,
+                    queueSize, (queueSize > 1 ? queueSize : currentUpload.name));
+            String content = String.format(getString(R.string.upload_in_progress_notification_content), currentUpload.getUploadStatusPercent() + "%");
+
+            showNotification(UPLOAD_ID, createNotification(
                     fileIntent, title, R.drawable.cloud_upload, content,
                     currentUpload.getUploadStatusPercent()));
         } else {
             Intent fileIntent = createFileIntent(lastOwner, lastUploadPath);
-            showNotification(createNotification(
-                    fileIntent, getContext().getResources().
-                            getString(R.string.upload_complete_notification_title),
-                    R.drawable.cloud_upload, null, null));
+            showNotification(UPLOAD_ID, createNotification(
+                    fileIntent, String.format(getString(R.string.upload_complete_notification_title)),
+                    R.drawable.cloud_upload, String.format(getString(R.string.upload_complete_notification_msg), lastFilename), null));
         }
     }
 
-    private void showNotification(NotificationCompat.Builder builder) {
+    private void showNotification(int id, NotificationCompat.Builder builder) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             builder.setCategory(Notification.CATEGORY_PROGRESS);
         }
         Notification notification = builder.build();
         notification.flags |= Notification.FLAG_AUTO_CANCEL;
-        notify(UPLOAD_ID, notification);
+        notify(id, notification);
+    }
+
+    public BoxTransferListener addDownloadNotifications(final String ownerKey, final String path, final BoxFile file) {
+        int id = generateId();
+        downloadNotifications.put(file.block, id);
+        updateDownloadNotification(ownerKey, path, file, 0, file.size);
+        return new BoxTransferListener() {
+            @Override
+            public void onProgressChanged(long bytesCurrent, long bytesTotal) {
+                updateDownloadNotification(ownerKey, path, file, bytesCurrent, bytesTotal);
+            }
+
+            @Override
+            public void onFinished() {
+                updateDownloadNotification(ownerKey, path, file, 100, 100);
+            }
+        };
+    }
+
+    public void updateDownloadNotification(String ownerKey, String path, BoxFile file, long progress, long total) {
+        Intent fileIntent = createFileIntent(ownerKey, path);
+        Integer id = downloadNotifications.get(file.block);
+        Integer progressValue = getProgressPercent(progress, total);
+        String title, msg;
+        if (progressValue < 100) {
+            title = String.format(getString(R.string.downloading), file.name);
+            msg = FileUtils.byteCountToDisplaySize(progress) + " / " + FileUtils.byteCountToDisplaySize(total);
+        } else {
+            progressValue = null;
+            title = getString(R.string.download_complete);
+            msg = String.format(getString(R.string.download_complete_msg), file.name);
+        }
+        showNotification(id, createNotification(fileIntent, title, R.drawable.download, msg, progressValue));
+    }
+
+    protected NotificationCompat.Builder createNotification(Intent intent, String contentTitle, int iconRes, String contentText, @Nullable Integer progress) {
+        NotificationCompat.Builder builder = createNotification(intent, contentTitle, iconRes, contentText);
+        if (progress != null) {
+            builder.setProgress(100, progress, false);
+        }
+        return builder;
+    }
+
+    int getProgressPercent(long current, long total) {
+        return (int) (100 * current / total);
     }
 
 }

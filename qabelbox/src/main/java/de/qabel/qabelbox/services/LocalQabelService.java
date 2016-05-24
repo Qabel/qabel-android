@@ -65,12 +65,6 @@ public class LocalQabelService extends Service implements DropConnector {
 
     private static final String TAG = "LocalQabelService";
     private static final String PREF_LAST_ACTIVE_IDENTITY = "PREF_LAST_ACTIVE_IDENTITY";
-    public static final String DEFAULT_DROP_SERVER = "http://localhost";
-
-    private static final String PREF_DEVICE_ID_CREATED = "PREF_DEVICE_ID_CREATED";
-    private static final String PREF_DEVICE_ID = "PREF_DEVICE_ID";
-    private static final int NUM_BYTES_DEVICE_ID = 16;
-    private static final int UPLOAD_NOTIFICATION_ID = 162134;
 
     private final IBinder mBinder = new LocalBinder();
 
@@ -393,15 +387,6 @@ public class LocalQabelService extends Service implements DropConnector {
         }
     }
 
-    public byte[] getDeviceID() {
-        String deviceID = sharedPreferences.getString(PREF_DEVICE_ID, "");
-        if (deviceID.equals("")) {
-            // Should never occur
-            throw new RuntimeException("DeviceID not created!");
-        }
-        return Hex.decode(deviceID);
-    }
-
     public HashMap<String, Map<String, BoxUploadingFile>> getPendingUploads() {
         return pendingUploads;
     }
@@ -502,7 +487,6 @@ public class LocalQabelService extends Service implements DropConnector {
         super.onCreate();
         Log.i(TAG, "LocalQabelService created");
         dropHTTP = new DropHTTP();
-        initSharedPreferences();
         initRepositories();
         try {
             migratePersistence();
@@ -514,7 +498,7 @@ public class LocalQabelService extends Service implements DropConnector {
         cachedFinishedUploads = Collections.synchronizedMap(new HashMap<>());
         uploadingQueue = new LinkedBlockingDeque<>();
         storageNotificationManager = new StorageNotificationManager(getApplicationContext());
-
+        sharedPreferences = getSharedPreferences(LocalQabelService.class.getCanonicalName(), MODE_PRIVATE);
     }
 
     private void migratePersistence() throws EntityNotFoundExcepion, PersistenceException {
@@ -547,21 +531,6 @@ public class LocalQabelService extends Service implements DropConnector {
             return;
         }
         this.persistence = androidPersistence;
-    }
-
-    protected void initSharedPreferences() {
-        sharedPreferences = getSharedPreferences(this.getClass().getCanonicalName(), MODE_PRIVATE);
-        if (!sharedPreferences.getBoolean(PREF_DEVICE_ID_CREATED, false)) {
-
-            CryptoUtils cryptoUtils = new CryptoUtils();
-            byte[] deviceID = cryptoUtils.getRandomBytes(NUM_BYTES_DEVICE_ID);
-
-            Log.d(this.getClass().getName(), "New device ID: " + Hex.toHexString(deviceID));
-
-            sharedPreferences.edit().putString(PREF_DEVICE_ID, Hex.toHexString(deviceID))
-                    .putBoolean(PREF_DEVICE_ID_CREATED, true)
-                    .apply();
-        }
     }
 
     @Override

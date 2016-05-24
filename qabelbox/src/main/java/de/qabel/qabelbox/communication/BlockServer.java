@@ -6,6 +6,7 @@ import android.util.Log;
 
 import java.io.File;
 
+import de.qabel.qabelbox.communication.callbacks.DownloadRequestCallback;
 import de.qabel.qabelbox.communication.callbacks.RequestCallback;
 import de.qabel.qabelbox.communication.callbacks.UploadRequestCallback;
 import de.qabel.qabelbox.config.AppPreference;
@@ -48,7 +49,7 @@ public class BlockServer extends BaseServer {
         doRequest(request, callback);
     }
 
-    public void downloadFile(Context context, String prefix, String path, RequestCallback callback) {
+    public void downloadFile(Context context, String prefix, String path, DownloadRequestCallback callback) {
         doServerAction(context, prefix, path, "GET", null, callback);
     }
 

@@ -35,7 +35,7 @@ public abstract class QblNotificationManager {
         notificationManager.notify(getTag(), id, notification);
     }
 
-    protected NotificationCompat.Builder createNotification(Intent intent, String contentTitle, int iconRes, @Nullable String contentText, @Nullable Integer progress) {
+    protected NotificationCompat.Builder createNotification(Intent intent, String contentTitle, int iconRes, @Nullable String contentText) {
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP
                 | Intent.FLAG_ACTIVITY_SINGLE_TOP);
         PendingIntent pendingIntent = PendingIntent.getActivity(context, 0,
@@ -46,11 +46,12 @@ public abstract class QblNotificationManager {
                 .setContentText(contentText)
                 .setSmallIcon(iconRes)
                 .setContentIntent(pendingIntent);
-        if (progress != null) {
-            builder.setProgress(100, progress, false);
-        }
 
         return builder;
+    }
+
+    protected String getString(int resId) {
+        return getContext().getString(resId);
     }
 
 

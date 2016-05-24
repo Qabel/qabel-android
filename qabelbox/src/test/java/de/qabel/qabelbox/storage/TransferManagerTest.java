@@ -6,8 +6,10 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.robolectric.Robolectric;
 import org.robolectric.RobolectricGradleTestRunner;
 import org.robolectric.annotation.Config;
+import org.robolectric.shadows.ShadowNetwork;
 
 import java.io.File;
 import java.io.IOException;
@@ -36,6 +38,7 @@ public class TransferManagerTest extends AbstractTransferManagerTest {
         tempDir.mkdir();
         transferManager = new BlockServerTransferManager(tempDir);
         testFileNameOnServer = "testfile_" + UUID.randomUUID().toString();
+
     }
 
     @After
@@ -66,7 +69,7 @@ public class TransferManagerTest extends AbstractTransferManagerTest {
         transferManager.waitFor(uploadId);
         assertEquals(total, status[0]);
         //2kb steps
-        assertEquals(kb / 20, status[1]);
+        assertEquals(kb / 2, status[1]);
     }
 
     @Test

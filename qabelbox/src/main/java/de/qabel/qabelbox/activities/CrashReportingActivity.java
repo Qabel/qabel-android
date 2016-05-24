@@ -13,7 +13,7 @@ import de.qabel.qabelbox.BuildConfig;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.fragments.SettingsFragment;
 
-public class CrashReportingActivity extends AppCompatActivity {
+public class CrashReportingActivity extends BaseActivity {
 
     private final String TAG = this.getClass().getSimpleName();
     private boolean handleCrashes = false;

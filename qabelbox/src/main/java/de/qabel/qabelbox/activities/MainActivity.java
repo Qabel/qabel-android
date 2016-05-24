@@ -16,7 +16,6 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.provider.DocumentsContract;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
@@ -28,9 +27,6 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.EditText;
-import android.widget.ImageView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.cocosw.bottomsheet.BottomSheet;
@@ -44,19 +40,19 @@ import java.io.OutputStream;
 import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
+
+import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
-import butterknife.Optional;
 import de.qabel.core.config.Identity;
+import de.qabel.desktop.repository.ContactRepository;
 import de.qabel.desktop.repository.IdentityRepository;
 import de.qabel.desktop.repository.exception.EntityNotFoundExcepion;
 import de.qabel.desktop.repository.exception.PersistenceException;
-import de.qabel.desktop.repository.sqlite.AndroidClientDatabase;
 import de.qabel.desktop.repository.sqlite.SqliteContactRepository;
 import de.qabel.qabelbox.BuildConfig;
 import de.qabel.qabelbox.QabelBoxApplication;
@@ -65,9 +61,11 @@ import de.qabel.qabelbox.adapter.FilesAdapter;
 import de.qabel.qabelbox.chat.ChatServer;
 import de.qabel.qabelbox.chat.ShareHelper;
 import de.qabel.qabelbox.communication.VolumeFileTransferHelper;
+import de.qabel.qabelbox.communication.connection.ConnectivityManager;
 import de.qabel.qabelbox.config.AppPreference;
 import de.qabel.qabelbox.config.QabelSchema;
-import de.qabel.qabelbox.communication.connection.ConnectivityManager;
+import de.qabel.qabelbox.dagger.HasComponent;
+import de.qabel.qabelbox.dagger.components.ActivityComponent;
 import de.qabel.qabelbox.dialogs.SelectIdentityForUploadDialog;
 import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.fragments.AboutLicencesFragment;
@@ -87,7 +85,6 @@ import de.qabel.qabelbox.helper.ExternalApps;
 import de.qabel.qabelbox.helper.FileHelper;
 import de.qabel.qabelbox.helper.Sanity;
 import de.qabel.qabelbox.helper.UIHelper;
-import de.qabel.qabelbox.persistence.RepositoryFactory;
 import de.qabel.qabelbox.providers.BoxProvider;
 import de.qabel.qabelbox.services.LocalQabelService;
 import de.qabel.qabelbox.storage.BoxExternalFile;
@@ -102,7 +99,7 @@ import de.qabel.qabelbox.views.DrawerNavigationViewHolder;
 public class MainActivity extends CrashReportingActivity
         implements NavigationView.OnNavigationItemSelectedListener,
         FilesFragment.FilesListListener,
-        IdentitiesFragment.IdentityListListener {
+        IdentitiesFragment.IdentityListListener, HasComponent<ActivityComponent> {
 
     public static final String TAG_CONTACT_CHAT_FRAGMENT = "TAG_CONTACT_CHAT_FRAGMENT";
 
@@ -140,11 +137,16 @@ public class MainActivity extends CrashReportingActivity
     public BoxVolume boxVolume;
     public ActionBarDrawerToggle toggle;
     private BoxProvider provider;
-    @BindView(R.id.drawer_layout) DrawerLayout drawer;
-    @BindView(R.id.nav_view) DrawerNavigationView navigationView;
-    @BindView(R.id.fab) public FloatingActionButton fab;
-    @BindView(R.id.toolbar) Toolbar toolbar;
-    @BindView(R.id.app_bap_main) public View appBarMain;
+    @BindView(R.id.drawer_layout)
+    DrawerLayout drawer;
+    @BindView(R.id.nav_view)
+    DrawerNavigationView navigationView;
+    @BindView(R.id.fab)
+    public FloatingActionButton fab;
+    @BindView(R.id.toolbar)
+    Toolbar toolbar;
+    @BindView(R.id.app_bap_main)
+    public View appBarMain;
     public FilesFragment filesFragment;
     private MainActivity self;
     private boolean identityMenuExpanded;
@@ -159,11 +161,16 @@ public class MainActivity extends CrashReportingActivity
     private ContactFragment contactFragment;
     private LightingColorFilter mDrawerIndicatorTintFilter;
 
-    private ConnectivityManager connectivityManager;
+    @Inject
+    ConnectivityManager connectivityManager;
+
     private DrawerNavigationViewHolder drawerHolder;
     private Identity activeIdentity;
-    public IdentityRepository identityRepository;
-    public SqliteContactRepository contactRepository;
+
+    @Inject
+    IdentityRepository identityRepository;
+    @Inject
+    public ContactRepository contactRepository;
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -256,6 +263,7 @@ public class MainActivity extends CrashReportingActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        getComponent().inject(this);
         self = this;
         Log.d(TAG, "onCreate " + this.hashCode());
         Intent serviceIntent = new Intent(this, LocalQabelService.class);
@@ -275,7 +283,7 @@ public class MainActivity extends CrashReportingActivity
 
         bindService(serviceIntent, mServiceConnection, Context.BIND_AUTO_CREATE);
 
-        installConnectivityManager(new ConnectivityManager(this));
+        installConnectivityManager();
         addBackStackListener();
 
         setupAccount();
@@ -286,11 +294,12 @@ public class MainActivity extends CrashReportingActivity
         AccountHelper.configurePeriodicPolling();
     }
 
-    public void installConnectivityManager(ConnectivityManager manager) {
-        if (this.connectivityManager != null) {
-            connectivityManager.onDestroy();
-        }
-        this.connectivityManager = manager;
+    public void installConnectivityManager(ConnectivityManager connectivityManager) {
+        this.connectivityManager = connectivityManager;
+        installConnectivityManager();
+    }
+
+    public void installConnectivityManager() {
         connectivityManager.setListener(new ConnectivityManager.ConnectivityListener() {
 
             private AlertDialog offlineIndicator;
@@ -424,11 +433,6 @@ public class MainActivity extends CrashReportingActivity
 
         Log.i(TAG, "Intent action: " + action);
 
-        RepositoryFactory factory = new RepositoryFactory(getApplicationContext());
-        AndroidClientDatabase db = factory.getAndroidClientDatabase();
-        identityRepository = factory.getIdentityRepository(db);
-        contactRepository = factory.getContactRepository(db);
-
         // Checks if a fragment should be launched
         boolean start_files_fragment = intent.getBooleanExtra(START_FILES_FRAGMENT, true);
         boolean start_contacts_fragment = intent.getBooleanExtra(START_CONTACTS_FRAGMENT, false);
@@ -439,7 +443,7 @@ public class MainActivity extends CrashReportingActivity
             } catch (EntityNotFoundExcepion | PersistenceException entityNotFoundExcepion) {
                 Log.e(TAG, "Could not activate identity with key id " + identityKeyId);
             }
-        }  else {
+        } else {
             activeIdentity = mService.getActiveIdentity();
         }
         if (activeIdentity != null) {
@@ -651,12 +655,12 @@ public class MainActivity extends CrashReportingActivity
         UIHelper.showEditTextDialog(this, R.string.add_folder_header, R.string.add_folder_name,
                 R.string.ok, R.string.cancel, (dialog, which, editText) -> {
 
-            UIHelper.hideKeyboard(self, editText);
-            String newFolderName = editText.getText().toString();
-            if (!newFolderName.equals("")) {
-                createFolder(newFolderName, filesFragment.getBoxNavigation());
-            }
-        }, null);
+                    UIHelper.hideKeyboard(self, editText);
+                    String newFolderName = editText.getText().toString();
+                    if (!newFolderName.equals("")) {
+                        createFolder(newFolderName, filesFragment.getBoxNavigation());
+                    }
+                }, null);
     }
 
 
@@ -745,8 +749,8 @@ public class MainActivity extends CrashReportingActivity
                         if (!shareFragment.handleBackPressed() && !shareFragment.browseToParent()) {
                             UIHelper.showDialogMessage(self, R.string.dialog_headline_warning,
                                     R.string.share_in_app_go_back_without_upload, R.string.yes, R.string.no, (dialog, which) -> {
-                                getFragmentManager().popBackStack();
-                            }, null);
+                                        getFragmentManager().popBackStack();
+                                    }, null);
                         }
                         break;
                     case TAG_FILES_FRAGMENT:
@@ -911,33 +915,33 @@ public class MainActivity extends CrashReportingActivity
                         .sheet(R.menu.bottom_sheet_files)
                         .listener((dialog, which) -> {
 
-                                switch (which) {
-                                    case R.id.open:
-                                        ExternalApps.openExternApp(self, VolumeFileTransferHelper.getUri(boxObject, boxVolume, filesFragment.getBoxNavigation()), getMimeType(boxObject), Intent.ACTION_VIEW);
-                                        break;
-                                    case R.id.share:
-                                        ExternalApps.share(self, VolumeFileTransferHelper.getUri(boxObject, boxVolume, filesFragment.getBoxNavigation()), getMimeType(boxObject));
-                                        break;
-                                    case R.id.fordward:
-                                        ShareHelper.shareToQabelUser(self, mService, boxObject);
-                                        break;
-                                    case R.id.delete:
-                                        filesFragment.delete(boxObject);
-                                        break;
-                                    case R.id.unshare:
-                                        filesFragment.unshare((BoxFile) boxObject);
-                                        break;
-                                    case R.id.export:
-                                        // Export handled in the MainActivity
-                                        if (boxObject instanceof BoxFolder) {
-                                            Toast.makeText(self, R.string.folder_export_not_implemented,
-                                                    Toast.LENGTH_SHORT).show();
-                                        } else {
-                                            onExport(filesFragment.getBoxNavigation(), boxObject);
-                                        }
-                                        break;
-                                }
-                            });
+                            switch (which) {
+                                case R.id.open:
+                                    ExternalApps.openExternApp(self, VolumeFileTransferHelper.getUri(boxObject, boxVolume, filesFragment.getBoxNavigation()), getMimeType(boxObject), Intent.ACTION_VIEW);
+                                    break;
+                                case R.id.share:
+                                    ExternalApps.share(self, VolumeFileTransferHelper.getUri(boxObject, boxVolume, filesFragment.getBoxNavigation()), getMimeType(boxObject));
+                                    break;
+                                case R.id.fordward:
+                                    ShareHelper.shareToQabelUser(self, mService, boxObject);
+                                    break;
+                                case R.id.delete:
+                                    filesFragment.delete(boxObject);
+                                    break;
+                                case R.id.unshare:
+                                    filesFragment.unshare((BoxFile) boxObject);
+                                    break;
+                                case R.id.export:
+                                    // Export handled in the MainActivity
+                                    if (boxObject instanceof BoxFolder) {
+                                        Toast.makeText(self, R.string.folder_export_not_implemented,
+                                                Toast.LENGTH_SHORT).show();
+                                    } else {
+                                        onExport(filesFragment.getBoxNavigation(), boxObject);
+                                    }
+                                    break;
+                            }
+                        });
                 filterSheet(boxObject, sheet);
                 sheet.show();
             }
@@ -976,8 +980,8 @@ public class MainActivity extends CrashReportingActivity
             UIHelper.showDialogMessage(this, R.string.dialog_headline_info,
                     R.string.last_identity_delete_create_new, (dialog, which) -> {
 
-                selectAddIdentityFragment();
-            });
+                        selectAddIdentityFragment();
+                    });
         } else {
             try {
                 changeActiveIdentity(identityRepository.findAll().getIdentities().iterator().next());
@@ -1235,4 +1239,5 @@ public class MainActivity extends CrashReportingActivity
         }
         handleMainFragmentChange();
     }
+
 }

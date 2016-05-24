@@ -34,11 +34,14 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import javax.inject.Inject;
+
 import de.qabel.core.config.Contact;
 import de.qabel.core.config.Contacts;
 import de.qabel.core.config.Identity;
 import de.qabel.core.crypto.QblECPublicKey;
 import de.qabel.core.drop.DropURL;
+import de.qabel.desktop.repository.ContactRepository;
 import de.qabel.desktop.repository.exception.EntityNotFoundExcepion;
 import de.qabel.desktop.repository.exception.PersistenceException;
 import de.qabel.qabelbox.R;
@@ -48,6 +51,7 @@ import de.qabel.qabelbox.adapter.ContactsAdapter;
 import de.qabel.qabelbox.chat.ChatServer;
 import de.qabel.qabelbox.config.ContactExportImport;
 import de.qabel.qabelbox.config.QabelSchema;
+import de.qabel.qabelbox.dagger.components.ActivityComponent;
 import de.qabel.qabelbox.exceptions.QblStorageEntityExistsException;
 import de.qabel.qabelbox.helper.AccountHelper;
 import de.qabel.qabelbox.helper.ExternalApps;
@@ -67,20 +71,23 @@ public class ContactFragment extends BaseFragment {
     private RecyclerView contactListRecyclerView;
     private ContactsAdapter contactListAdapter;
 
-    private BaseFragment self;
     private TextView contactCount;
     private View emptyView;
     private ChatServer chatServer;
     private String dataToExport;
     private int exportedContactCount;
     private boolean useDocumentProvider = true;//used for tests
-    private Context context;
+
+    @Inject
+    ContactRepository contactRepository;
+
+    @Inject
+    Context context;
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-
-        super.onCreate(savedInstanceState);
-        self = this;
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        getComponent(ActivityComponent.class).inject(this);
         setHasOptionsMenu(true);
         mActivity.registerReceiver(refreshContactListReceiver,
                 new IntentFilter(Helper.INTENT_REFRESH_CONTACTLIST));
@@ -88,9 +95,8 @@ public class ContactFragment extends BaseFragment {
     }
 
     @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-        context = activity.getApplicationContext();
+    public void onAttach(Context context) {
+        super.onAttach(context);
         chatServer = new ChatServer(context);
     }
 
@@ -153,7 +159,7 @@ public class ContactFragment extends BaseFragment {
 
     public void exportAllContacts() {
         try {
-            Contacts contacts = mActivity.contactRepository.find(getActiveIdentity());
+            Contacts contacts = contactRepository.find(getActiveIdentity());
             exportedContactCount = contacts.getContacts().size();
             if (exportedContactCount > 0) {
                 String contactJson = ContactExportImport.exportContacts(contacts);
@@ -242,7 +248,7 @@ public class ContactFragment extends BaseFragment {
                 R.string.yes, R.string.no, (dialog1, which1) -> {
                     try {
                         Log.i(TAG, "Deleting contact "+ contact.getId());
-                        mActivity.contactRepository.delete(contact, getActiveIdentity());
+                        contactRepository.delete(contact, getActiveIdentity());
                     } catch (EntityNotFoundExcepion | PersistenceException e) {
                         throw new RuntimeException(e);
                     }
@@ -270,7 +276,7 @@ public class ContactFragment extends BaseFragment {
      * @param contact
      */
     public void addContactSilent(Contact contact) throws QblStorageEntityExistsException, PersistenceException {
-        mActivity.contactRepository.save(contact, getActiveIdentity());
+        contactRepository.save(contact, getActiveIdentity());
         sendRefreshContactList();
     }
 
@@ -292,7 +298,7 @@ public class ContactFragment extends BaseFragment {
         if (contactListRecyclerView != null && mActivity != null) {
             Contacts contacts;
             try {
-                contacts = mActivity.contactRepository.find(getActiveIdentity());
+                contacts = contactRepository.find(getActiveIdentity());
             } catch (PersistenceException e) {
                 throw new RuntimeException(e);
             }
@@ -341,7 +347,7 @@ public class ContactFragment extends BaseFragment {
                             addContactByFile();
                             break;
                         case R.id.add_contact_via_qr:
-                            IntentIntegrator integrator = new IntentIntegrator(self);
+                            IntentIntegrator integrator = new IntentIntegrator(getActivity());
                             integrator.initiateScan();
                             break;
                         case R.id.add_contact_direct_input:

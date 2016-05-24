@@ -27,6 +27,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import javax.inject.Inject;
+
 import de.qabel.core.config.Contact;
 import de.qabel.core.config.Identity;
 import de.qabel.core.drop.DropMessage;
@@ -37,11 +39,13 @@ import de.qabel.qabelbox.adapter.ChatMessageAdapter;
 import de.qabel.qabelbox.chat.ChatMessageItem;
 import de.qabel.qabelbox.chat.ChatServer;
 import de.qabel.qabelbox.chat.ShareHelper;
+import de.qabel.qabelbox.dagger.components.ActivityComponent;
 import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.helper.AccountHelper;
 import de.qabel.qabelbox.helper.Helper;
 import de.qabel.qabelbox.helper.UIHelper;
 import de.qabel.qabelbox.services.DropConnector;
+import de.qabel.qabelbox.services.HttpDropConnector;
 import de.qabel.qabelbox.services.LocalQabelService;
 import de.qabel.qabelbox.storage.BoxExternalReference;
 import de.qabel.qabelbox.storage.BoxFile;
@@ -66,7 +70,8 @@ public class ContactChatFragment extends ContactBaseFragment {
     private ListView contactListRecyclerView;
     private View emptyView;
     private EditText etText;
-    private ChatServer chatServer;
+    @Inject
+    ChatServer chatServer;
     private boolean isSyncing = false;
     private DropConnector dropConnector;
 
@@ -92,12 +97,10 @@ public class ContactChatFragment extends ContactBaseFragment {
         return activeIdentity;
     }
 
-
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-
-        super.onCreate(savedInstanceState);
-
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        getComponent(ActivityComponent.class).inject(this);
         chatServer = mActivity.chatServer;
         dropConnector = mActivity.getService();
 
@@ -106,6 +109,10 @@ public class ContactChatFragment extends ContactBaseFragment {
         actionBar.setDisplayHomeAsUpEnabled(true);
         setActionBarBackListener();
         mActivity.registerReceiver(refreshChatIntentReceiver, new IntentFilter(Helper.INTENT_REFRESH_CHAT));
+
+        refreshMessages();
+        refreshMessagesAsync();
+
     }
 
     @Override
@@ -144,9 +151,6 @@ public class ContactChatFragment extends ContactBaseFragment {
             }
         });
         etText.setText("");
-
-        refreshMessages();
-        refreshMessagesAsync();
 
         return view;
     }

@@ -1,6 +1,5 @@
 package de.qabel.qabelbox.providers;
 
-import android.app.NotificationManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -20,7 +19,6 @@ import android.provider.DocumentsContract.Root;
 import android.provider.DocumentsProvider;
 import android.provider.MediaStore.Video.Media;
 import android.support.annotation.NonNull;
-import android.support.v7.app.NotificationCompat;
 import android.util.Log;
 
 import org.apache.commons.io.IOUtils;
@@ -40,7 +38,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Callable;
+import java.util.Queue;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingDeque;
@@ -53,6 +51,7 @@ import de.qabel.core.crypto.QblECKeyPair;
 import de.qabel.qabelbox.BuildConfig;
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
+import de.qabel.qabelbox.config.AppPreference;
 import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.exceptions.QblStorageNotFound;
 import de.qabel.qabelbox.services.LocalBroadcastConstants;
@@ -68,6 +67,7 @@ import de.qabel.qabelbox.storage.BoxUploadingFile;
 import de.qabel.qabelbox.storage.BoxVolume;
 import de.qabel.qabelbox.storage.FakeTransferManager;
 import de.qabel.qabelbox.storage.TransferManager;
+import de.qabel.qabelbox.storage.notifications.StorageNotificationManager;
 
 public class BoxProvider extends DocumentsProvider {
 
@@ -86,28 +86,33 @@ public class BoxProvider extends DocumentsProvider {
     public static final String AUTHORITY = ".providers.documents";
     public static final String PATH_SEP = "/";
     public static final String DOCID_SEPARATOR = "::::";
-    
+
+    private static final int KEEP_ALIVE_TIME = 1;
+    private static final TimeUnit KEEP_ALIVE_TIME_UNIT = TimeUnit.SECONDS;
+
     /**
      * Configure the TransferManager used in the BoxProvider
-     *
+     * <p>
      * block references the @see BlockServerTransferManager
      * fake references the @see FakeTransferManager
-     *
+     * <p>
      * This is a hack to change the behavior of the BoxProvider
      * when running with QblJunitTestRunner. Changing the
      * DocumentProvider class is not easily possible
      */
     public static String defaultTransferManager = "block";
 
-    DocumentIdParser mDocumentIdParser;
+    private DocumentIdParser mDocumentIdParser;
     private ThreadPoolExecutor mThreadPoolExecutor;
-
-    private static final int KEEP_ALIVE_TIME = 1;
-    private static final TimeUnit KEEP_ALIVE_TIME_UNIT = TimeUnit.SECONDS;
 
     private Map<String, BoxCursor> folderContentCache;
     private String currentFolder;
     protected LocalQabelService mService;
+
+    private HashMap<String, Map<String, BoxUploadingFile>> pendingUploads;
+    private Queue<BoxUploadingFile> uploadingQueue;
+    private StorageNotificationManager storageNotificationManager;
+    private Map<String, Map<String, BoxFile>> cachedFinishedUploads;
 
     @Override
     public boolean onCreate() {
@@ -127,11 +132,13 @@ public class BoxProvider extends DocumentsProvider {
                 2,
                 KEEP_ALIVE_TIME,
                 KEEP_ALIVE_TIME_UNIT,
-                new LinkedBlockingDeque<Runnable>());
+                new LinkedBlockingDeque<>());
 
         staticBindToApplication();
 
         folderContentCache = new HashMap<>();
+        storageNotificationManager = new StorageNotificationManager(getContext());
+
         return true;
     }
 
@@ -140,12 +147,10 @@ public class BoxProvider extends DocumentsProvider {
     }
 
     void bindToService(Context context) {
-
         Intent intent = new Intent(context, LocalQabelService.class);
         context.bindService(intent, new ServiceConnection() {
             @Override
             public void onServiceConnected(ComponentName name, IBinder service) {
-
                 LocalQabelService.LocalBinder binder = (LocalQabelService.LocalBinder) service;
                 mService = binder.getService();
                 notifyRootsUpdated();
@@ -153,7 +158,6 @@ public class BoxProvider extends DocumentsProvider {
 
             @Override
             public void onServiceDisconnected(ComponentName name) {
-
                 mService = null;
             }
         }, Context.BIND_AUTO_CREATE);
@@ -164,7 +168,6 @@ public class BoxProvider extends DocumentsProvider {
      * This happens if identities or prefixes changed.
      */
     public void notifyRootsUpdated() {
-
         getContext().getContentResolver()
                 .notifyChange(DocumentsContract.buildRootsUri(
                         BuildConfig.APPLICATION_ID + AUTHORITY), null);
@@ -176,7 +179,6 @@ public class BoxProvider extends DocumentsProvider {
      * @param service
      */
     public void setLocalService(LocalQabelService service) {
-
         if (mService == null) {
             mService = service;
         }
@@ -253,9 +255,10 @@ public class BoxProvider extends DocumentsProvider {
         if (context == null) {
             throw new IllegalStateException("Trying to create a volume object without context");
         }
+        byte[] deviceId = new AppPreference(context).getDeviceId();
         File tempDir = context.getCacheDir();
         return new BoxVolume(key, prefix,
-                mService.getDeviceID(), context, createTransferManager(tempDir));
+                deviceId, context, createTransferManager(tempDir));
     }
 
     @NonNull
@@ -593,23 +596,12 @@ public class BoxProvider extends DocumentsProvider {
 
     private File downloadFile(final String documentId, final String mode, final CancellationSignal signal) throws FileNotFoundException {
 
-        final Future<File> future
-                = mThreadPoolExecutor.submit(new Callable<File>() {
-
-            @Override
-            public File call() throws Exception {
-
-                return getFile(signal, documentId);
-            }
-        });
+        final Future<File> future = mThreadPoolExecutor.submit(
+                () -> getFile(signal, documentId));
         if (signal != null) {
-            signal.setOnCancelListener(new CancellationSignal.OnCancelListener() {
-                @Override
-                public void onCancel() {
-
-                    Log.d(TAG, "openDocument cancelling");
-                    future.cancel(true);
-                }
+            signal.setOnCancelListener(() -> {
+                Log.d(TAG, "openDocument cancelling");
+                future.cancel(true);
             });
         }
 
@@ -627,57 +619,25 @@ public class BoxProvider extends DocumentsProvider {
     private File getFile(CancellationSignal signal, final String documentId)
             throws IOException, QblStorageException {
 
-        final int id = 2;
-        //@todo notification handling into separate place
-        final NotificationManager mNotifyManager = (NotificationManager) getContext().getSystemService(Context.NOTIFICATION_SERVICE);
-        final NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(getContext());
-        mBuilder.setContentTitle("Downloading " + mDocumentIdParser.getBaseName(documentId))
-                .setContentText("Download in progress")
-                .setSmallIcon(R.drawable.qabel_logo);
-        mBuilder.setProgress(100, 0, false);
-        mNotifyManager.notify(id, mBuilder.build());
-
         String path = mDocumentIdParser.getFilePath(documentId);
+        String ownerKey = mDocumentIdParser.getIdentity(documentId);
         List<String> strings = mDocumentIdParser.splitPath(path);
         String basename = strings.remove(strings.size() - 1);
         BoxVolume volume = getVolumeForId(documentId);
 
         BoxNavigation navigation = traverseToFolder(volume, strings);
-        BoxFile file = findFileinList(basename, navigation);
-        InputStream inputStream = navigation.download(file, new BoxTransferListener() {
-
-            @Override
-            public void onProgressChanged(long bytesCurrent, long bytesTotal) {
-
-                mBuilder.setProgress(100, (int) (100 * bytesCurrent / bytesTotal), false);
-                mNotifyManager.notify(id, mBuilder.build());
-            }
-
-            @Override
-            public void onFinished() {
-
-            }
-        });
-        String filename;
-        try {
-            filename = mDocumentIdParser.getBaseName(documentId);
-        } catch (FileNotFoundException e) {
-            filename = documentId;
-        }
-        mBuilder.setContentTitle("Downloading " + filename)
-                .setContentText("Download complete")
-                .setSmallIcon(R.drawable.qabel_logo);
-        mBuilder.setProgress(100, 100, false);
-        mNotifyManager.notify(id, mBuilder.build());
+        BoxFile file = findFileInList(basename, navigation);
+        InputStream inputStream = navigation.download(file, storageNotificationManager.addDownloadNotifications(ownerKey, path, file));
         File out = new File(getContext().getExternalCacheDir(), basename);
         FileOutputStream fileOutputStream = new FileOutputStream(out);
         IOUtils.copy(inputStream, fileOutputStream);
         inputStream.close();
         fileOutputStream.close();
+
         return out;
     }
 
-    private BoxFile findFileinList(String basename, BoxNavigation navigation)
+    private BoxFile findFileInList(String basename, BoxNavigation navigation)
             throws QblStorageException, FileNotFoundException {
 
         for (BoxFile file : navigation.listFiles()) {

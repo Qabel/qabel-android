@@ -156,9 +156,8 @@
     <string name="share_via">Teilen über</string>
     <string name="skip_create_identity">Erstellen der Identität überspringen</string>
     <string name="step_x_from_y">Schritt $1/$2</string>
-    <string name="upload">Upload</string>
+    <string name="upload">Hochladen</string>
     <string name="uploading">hochladen</string>
-    <string name="uploading_file">Datei </string>
     <string name="yes">Ja</string>
     <string name="function_not_yet_implenented">Funktion ist noch nicht implementiert</string>
     <string name="refresh">Aktualisieren</string>
@@ -292,4 +291,8 @@ Den Unterstützern der Indigogo Kampagne
     <string name="retry_action">Wiederholen</string>
     <string name="logout">Abmelden</string>
     <string name="new_messages">%d new messages</string>
+    <string name="downloading">Herunterladen %s ...</string>
+    <string name="download_complete">Herunterladen abgeschlossen</string>
+    <string name="download_complete_msg">%s wurde heruntergeladen</string>
+    <string name="download_complete_notification_msg">Hochladen %s abgeschlossen</string>
 </resources>

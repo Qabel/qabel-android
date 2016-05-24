@@ -71,7 +71,7 @@ public class TransferManagerTest extends AbstractTransferManagerTest {
 
     @Test
     public void testDownloadProgress() throws Exception {
-        long kb = 220;
+        long kb = 200;
         File sourceFile = FileHelper.createTestFile(kb);
         long total = sourceFile.length();
         File sourceBackupFile = FileHelper.createEmptyTargetFile();
@@ -81,7 +81,7 @@ public class TransferManagerTest extends AbstractTransferManagerTest {
 
         File targetFile = FileHelper.createEmptyTargetFile();
         long[] progress = new long[]{0, 0};
-        int downloadId = transferManager.download(prefix, testFileNameOnServer, targetFile, total, new BoxTransferListener() {
+        int downloadId = transferManager.download(prefix, testFileNameOnServer, targetFile, new BoxTransferListener() {
 
             @Override
             public void onProgressChanged(long bytesCurrent, long bytesTotal) {
@@ -96,7 +96,6 @@ public class TransferManagerTest extends AbstractTransferManagerTest {
         transferManager.waitFor(downloadId);
         assertEquals(total, targetFile.length());
         assertFileContentIsEqual(sourceBackupFile, targetFile);
-        assertTrue(progress[0] > 0);
         assertTrue("Finished not called", progress[1] == 1);
     }
 

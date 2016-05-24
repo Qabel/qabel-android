@@ -7,12 +7,10 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
 import org.apache.commons.lang3.time.DateUtils;
-import org.w3c.dom.Text;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -56,11 +54,16 @@ public class FileSearchFilterFragment extends BaseFragment implements SeekBar.On
     }
 
     @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        actionBar.setDisplayHomeAsUpEnabled(true);
+        setActionBarBackListener();
+    }
+
+    @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
-        actionBar.setDisplayHomeAsUpEnabled(true);
-        setActionBarBackListener();
     }
 
     @Override

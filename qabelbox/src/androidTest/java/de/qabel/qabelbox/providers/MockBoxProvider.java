@@ -88,11 +88,6 @@ public class MockBoxProvider extends BoxProvider {
         }
 
         @Override
-        public byte[] getDeviceID() {
-            return deviceID;
-        }
-
-        @Override
         public void setActiveIdentity(Identity identity) {
             lastID = identity.getKeyIdentifier();
         }
@@ -100,10 +95,6 @@ public class MockBoxProvider extends BoxProvider {
         @Override
         protected String getLastActiveIdentityID() {
             return lastID;
-        }
-
-        @Override
-        protected void initSharedPreferences() {
         }
 
         @Override

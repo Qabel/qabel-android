@@ -28,6 +28,12 @@ spoon {
 android {
     compileSdkVersion 23
     buildToolsVersion '23.0.3'
+
+    sourceSets {
+        androidTest.java.srcDirs = ['src/androidTest/java', 'src/sharedTest/java']
+        test.java.srcDirs = ['src/test/java', 'src/sharedTest/java']
+    }
+
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
@@ -163,6 +169,9 @@ dependencies {
     compile 'com.squareup.picasso:picasso:2.5.2'
     compile 'com.jakewharton:butterknife:8.0.1'
     apt 'com.jakewharton:butterknife-compiler:8.0.1'
+    apt 'com.google.dagger:dagger-compiler:2.0'
+    compile 'com.google.dagger:dagger:2.0'
+    provided 'javax.annotation:jsr250-api:1.0'
     //for more used sources, see license.txt
 }
 

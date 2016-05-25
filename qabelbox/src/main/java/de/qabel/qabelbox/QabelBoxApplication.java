@@ -13,10 +13,11 @@ import org.spongycastle.jce.provider.BouncyCastleProvider;
 
 import java.security.Security;
 
+import de.qabel.qabelbox.dagger.components.ApplicationComponent;
+import de.qabel.qabelbox.dagger.components.DaggerApplicationComponent;
+import de.qabel.qabelbox.dagger.modules.ApplicationModule;
 import de.qabel.qabelbox.providers.BoxProvider;
 import de.qabel.qabelbox.services.LocalQabelService;
-import de.qabel.qabelbox.storage.BlockServerTransferManager;
-import de.qabel.qabelbox.storage.TransferManager;
 
 public class QabelBoxApplication extends Application {
 
@@ -34,7 +35,6 @@ public class QabelBoxApplication extends Application {
 
     private ServiceConnection mServiceConnection;
 
-
     public BoxProvider getProvider() {
         return boxProvider;
     }
@@ -47,12 +47,29 @@ public class QabelBoxApplication extends Application {
         return mInstance;
     }
 
+    public ApplicationComponent getApplicationComponent() {
+        return ApplicationComponent;
+    }
+
+    private ApplicationComponent ApplicationComponent;
+
+    public static ApplicationComponent getApplicationComponent(Context context) {
+        return ((QabelBoxApplication)context.getApplicationContext()).getApplicationComponent();
+    }
+
     @Override
     public void onCreate() {
         super.onCreate();
         Log.d(TAG, "onCreate");
+        initialiseInjector();
         mInstance = this;
         initService();
+    }
+
+    public void initialiseInjector() {
+        this.ApplicationComponent = DaggerApplicationComponent.builder()
+                .applicationModule(new ApplicationModule(this))
+                .build();
     }
 
     void initService() {

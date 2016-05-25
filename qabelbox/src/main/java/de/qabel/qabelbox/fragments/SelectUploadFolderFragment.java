@@ -31,7 +31,7 @@ public class SelectUploadFolderFragment extends FilesFragment {
     private void loadIdentityFiles(final BoxVolume boxVolume) {
 
         mBoxVolume = boxVolume;
-        filesAdapter = new FilesAdapter(new ArrayList<BoxObject>());
+        filesAdapter = new FilesAdapter(new ArrayList<>());
 
         setAdapter(filesAdapter);
 
@@ -73,10 +73,11 @@ public class SelectUploadFolderFragment extends FilesFragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        actionBar.setDisplayHomeAsUpEnabled(true);
+        mActivity.toggle.setDrawerIndicatorEnabled(false);
         mActivity.fab.hide();
-        return super.onCreateView(inflater, container, savedInstanceState);
     }
 
     private void setClickListener(final FilesAdapter filesAdapter) {
@@ -98,13 +99,6 @@ public class SelectUploadFolderFragment extends FilesFragment {
 
             }
         });
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        actionBar.setDisplayHomeAsUpEnabled(true);
-        mActivity.toggle.setDrawerIndicatorEnabled(false);
     }
 
     @Override

@@ -84,8 +84,8 @@ public class AppPreference {
                 CryptoUtils cryptoUtils = new CryptoUtils();
                 byte[] deviceIDBytes = cryptoUtils.getRandomBytes(NUM_BYTES_DEVICE_ID);
                 deviceID = Hex.toHexString(deviceIDBytes);
-                settings.edit().putString(P_DEVICE_ID, deviceID);
             }
+            settings.edit().putString(P_DEVICE_ID, deviceID);
         }
         return Hex.decode(deviceID);
     }

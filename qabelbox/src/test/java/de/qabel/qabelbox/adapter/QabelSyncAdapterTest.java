@@ -10,23 +10,18 @@ import org.robolectric.RobolectricGradleTestRunner;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
 
-import java.sql.SQLException;
-
 import de.qabel.core.config.Contact;
 import de.qabel.core.config.Identity;
 import de.qabel.core.drop.DropMessage;
-import de.qabel.desktop.repository.exception.PersistenceException;
 import de.qabel.qabelbox.BuildConfig;
 import de.qabel.qabelbox.SimpleApplication;
 import de.qabel.qabelbox.chat.ChatMessagesDataBase;
 import de.qabel.qabelbox.chat.ChatServer;
 import de.qabel.qabelbox.exceptions.QblStorageEntityExistsException;
-import de.qabel.qabelbox.services.DropConnector;
 import de.qabel.qabelbox.services.MockedDropConnector;
 import de.qabel.qabelbox.services.RoboLocalQabelService;
 import de.qabel.qabelbox.util.IdentityHelper;
 
-import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.anyList;
@@ -66,12 +61,9 @@ public class QabelSyncAdapterTest {
         db2 = new ChatMessagesDataBase(context, identity2);
         chatServer = new ChatServer(context);
         dropConnector = new MockedDropConnector();
-        syncAdapter = spy(new QabelSyncAdapter(context, true) {
-            @Override
-            public DropConnector getDropConnector() throws SQLException, PersistenceException {
-                return dropConnector;
-            }
-        });
+        syncAdapter = new QabelSyncAdapter(context, true);
+        syncAdapter.setDropConnector(dropConnector);
+        syncAdapter = spy(syncAdapter);
     }
 
     @Test

@@ -13,6 +13,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.inject.Inject;
+
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.activities.MainActivity;
 import de.qabel.qabelbox.util.DefaultHashMap;
@@ -28,9 +30,10 @@ public class SyncAdapterChatNotificationManager implements ChatNotificationManag
     );
     private Map<ChatMessageInfo, Integer> notified = new HashMap<>();
 
+    @Inject
     public SyncAdapterChatNotificationManager(Context context) {
         this.context = context;
-        this.notificationManager =(NotificationManager) context
+        this.notificationManager = (NotificationManager) context
                 .getSystemService(Context.NOTIFICATION_SERVICE);
     }
 

@@ -12,6 +12,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.inject.Inject;
+
 import de.qabel.core.config.Contact;
 import de.qabel.core.config.Contacts;
 import de.qabel.core.config.Identities;
@@ -33,6 +35,7 @@ public class HttpDropConnector implements DropConnector {
     private Identities identities;
     private Map<Identity, Contacts> contacts;
 
+    @Inject
     public HttpDropConnector(Identities identities, Map<Identity, Contacts> contacts) {
         this.identities = identities;
         this.contacts = contacts;

@@ -19,6 +19,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.inject.Inject;
+
 import de.qabel.core.config.Contact;
 import de.qabel.core.config.Contacts;
 import de.qabel.core.config.Identities;
@@ -28,6 +30,7 @@ import de.qabel.desktop.repository.IdentityRepository;
 import de.qabel.desktop.repository.exception.EntityNotFoundExcepion;
 import de.qabel.desktop.repository.exception.PersistenceException;
 import de.qabel.desktop.repository.sqlite.AndroidClientDatabase;
+import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.chat.ChatMessageInfo;
 import de.qabel.qabelbox.chat.ChatMessageItem;
 import de.qabel.qabelbox.chat.ChatNotificationManager;
@@ -42,13 +45,21 @@ public class QabelSyncAdapter extends AbstractThreadedSyncAdapter {
 
     private static final String TAG = "QabelSyncAdapter";
     ContentResolver mContentResolver;
-    Context context;
-    RepositoryFactory factory;
-    ChatNotificationManager notificationManager;
+    @Inject Context context;
+    @Inject IdentityRepository identityRepository;
+    @Inject ContactRepository contactRepository;
+    @Inject ChatNotificationManager notificationManager;
+    @Inject ChatServer chatServer;
+    DropConnector dropConnector;
 
     public QabelSyncAdapter(Context context, boolean autoInitialize) {
         super(context, autoInitialize);
         init(context);
+    }
+
+    @Inject
+    public void setDropConnector(DropConnector dropConnector) {
+        this.dropConnector = dropConnector;
     }
 
     public QabelSyncAdapter(
@@ -62,8 +73,7 @@ public class QabelSyncAdapter extends AbstractThreadedSyncAdapter {
     private void init(Context context) {
         this.context = context;
         mContentResolver = context.getContentResolver();
-        factory = new RepositoryFactory(context);
-        notificationManager = new SyncAdapterChatNotificationManager(context);
+        QabelBoxApplication.getApplicationComponent(context).inject(this);
     }
 
     @Override
@@ -74,24 +84,18 @@ public class QabelSyncAdapter extends AbstractThreadedSyncAdapter {
 		    ContentProviderClient provider,
 		    SyncResult syncResult) {
         Log.w(TAG, "Starting drop message sync");
-        ChatServer chatServer = new ChatServer(context);
         Set<Identity> identities;
         try {
-            identities = getIdentities().getIdentities();
-        } catch (SQLException | PersistenceException e) {
+            identities = identityRepository.findAll().getIdentities();
+        } catch (PersistenceException e) {
             Log.e(TAG, "Sync failed", e);
             return;
         }
         List<ChatMessageItem> retrievedMessages = new ArrayList<>();
         for (Identity identity: identities) {
             Log.i(TAG, "Loading messages for identity "+ identity.getAlias());
-            try {
-                retrievedMessages.addAll(
-                        chatServer.refreshList(getDropConnector(), identity));
-            } catch (SQLException | PersistenceException e) {
-                Log.e(TAG, "Drop message retrieval failed", e);
-                return;
-            }
+            retrievedMessages.addAll(
+                    chatServer.refreshList(dropConnector, identity));
         }
         notifyForNewMessages(retrievedMessages);
     }
@@ -112,8 +116,6 @@ public class QabelSyncAdapter extends AbstractThreadedSyncAdapter {
     }
 
     private List<ChatMessageInfo> toChatMessageInfo(List<ChatMessageItem> retrievedMessages) {
-        ContactRepository contactRepository = getContactRepository();
-        IdentityRepository identityRepository = getIdentityRepository();
         List<ChatMessageInfo> messages = new ArrayList<>();
         for (ChatMessageItem msg: retrievedMessages) {
             try {
@@ -134,30 +136,4 @@ public class QabelSyncAdapter extends AbstractThreadedSyncAdapter {
         return messages;
     }
 
-    private IdentityRepository getIdentityRepository() {
-        return factory.getIdentityRepository(factory.getAndroidClientDatabase());
-    }
-
-    private Identities getIdentities() throws SQLException, PersistenceException {
-        AndroidClientDatabase database = factory.getAndroidClientDatabase();
-        return factory.getIdentityRepository(database).findAll();
-    }
-
-    public DropConnector getDropConnector() throws SQLException, PersistenceException {
-        return new HttpDropConnector(getIdentities(), getContacts());
-    }
-
-    private Map<Identity, Contacts> getContacts() throws SQLException, PersistenceException {
-        ContactRepository contactRepository = getContactRepository();
-        Map<Identity, Contacts> contactMap = new HashMap<>();
-		for (Identity identity : getIdentities().getIdentities()) {
-			contactMap.put(identity, contactRepository.find(identity));
-		}
-        return contactMap;
-    }
-
-    @NonNull
-    private ContactRepository getContactRepository() {
-        return factory.getContactRepository(factory.getAndroidClientDatabase());
-    }
 }

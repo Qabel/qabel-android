@@ -10,6 +10,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import javax.inject.Inject;
+
 import de.qabel.core.config.Contact;
 import de.qabel.core.config.Identity;
 import de.qabel.core.drop.DropMessage;
@@ -25,6 +27,7 @@ public class ChatServer {
     private final List<ChatServerCallback> callbacks = new ArrayList<>();
     private Context context;
 
+    @Inject
     public ChatServer(Context context) {
         this.context = context;
 

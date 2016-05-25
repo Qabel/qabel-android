@@ -40,6 +40,7 @@ import de.qabel.qabelbox.chat.ChatMessageItem;
 import de.qabel.qabelbox.chat.ChatServer;
 import de.qabel.qabelbox.chat.ShareHelper;
 import de.qabel.qabelbox.dagger.components.ActivityComponent;
+import de.qabel.qabelbox.dagger.components.MainActivityComponent;
 import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.helper.AccountHelper;
 import de.qabel.qabelbox.helper.Helper;
@@ -100,7 +101,7 @@ public class ContactChatFragment extends ContactBaseFragment {
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        getComponent(ActivityComponent.class).inject(this);
+        getComponent(MainActivityComponent.class).inject(this);
         chatServer = mActivity.chatServer;
         dropConnector = mActivity.getService();
 

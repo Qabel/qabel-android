@@ -43,6 +43,7 @@ import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertNull;
 import static junit.framework.Assert.assertTrue;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 
 public class ImportExportContactsUITest extends AbstractUITest {
@@ -59,27 +60,18 @@ public class ImportExportContactsUITest extends AbstractUITest {
         createTestContacts();
         Intent intent = new Intent(Intent.ACTION_MAIN);
         intent.putExtra(MainActivity.START_CONTACTS_FRAGMENT, true);
+        intent.putExtra(MainActivity.ACTIVE_IDENTITY, identity.getKeyIdentifier());
         launchActivity(intent);
     }
 
     private void createTestContacts() throws Throwable {
-
-        mBoxHelper.setActiveIdentity(identity);
-        assertThat(contactRepository.find(identity).getContacts().size(), is(0));
         createContact(CONTACT_1);
         createContact(CONTACT_2);
         createContact(CONTACT_3);
-        assertThat(contactRepository.find(identity).getContacts().size(), is(3));
     }
 
-    private void createContact(String name) throws JSONException, QblStorageEntityExistsException {
-        Identity identity = mBoxHelper.createIdentity(name);
-        String json = ContactExportImport.exportIdentityAsContact(identity);
-        addContact(json);
-    }
-
-    private void addContact(String contactJSON) throws JSONException, QblStorageEntityExistsException {
-        mBoxHelper.getService().addContact(ContactExportImport.parseContactForIdentity(null, new JSONObject(contactJSON)));
+    private void createContact(String name) throws Throwable {
+        contactRepository.save(mBoxHelper.createContact(name), identity);
     }
 
     private void checkMessageBox() {

@@ -18,7 +18,6 @@ import de.qabel.core.drop.DropMessage;
 import de.qabel.desktop.repository.exception.PersistenceException;
 import de.qabel.qabelbox.BuildConfig;
 import de.qabel.qabelbox.SimpleApplication;
-import de.qabel.qabelbox.chat.ChatMessageInfo;
 import de.qabel.qabelbox.chat.ChatMessagesDataBase;
 import de.qabel.qabelbox.chat.ChatServer;
 import de.qabel.qabelbox.exceptions.QblStorageEntityExistsException;
@@ -31,8 +30,6 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.anyList;
-import static org.mockito.Matchers.anyListOf;
-import static org.mockito.Matchers.matches;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 

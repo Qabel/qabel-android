@@ -88,10 +88,6 @@ public class BoxTest {
         return RuntimeEnvironment.application;
     }
 
-    public static void fail(String message) {
-        throw new AssertionError(message);
-    }
-
     @Before
     public void setUp() throws IOException, QblStorageException {
         configureTestServer();
@@ -391,17 +387,17 @@ public class BoxTest {
     private void checkDeleted(BoxFolder boxFolder, BoxFolder subfolder, BoxFile boxFile, BoxNavigation nav) throws QblStorageException {
         try {
             nav.download(boxFile, null);
-            fail("Could download file in deleted folder");
+            TestHelper.fail("Could download file in deleted folder");
         } catch (QblStorageNotFound e) {
         }
         try {
             nav.navigate(boxFolder);
-            fail("Could navigate to deleted folder");
+            TestHelper.fail("Could navigate to deleted folder");
         } catch (QblStorageNotFound e) {
         }
         try {
             nav.navigate(subfolder);
-            fail("Could navigate to deleted subfolder");
+            TestHelper.fail("Could navigate to deleted subfolder");
         } catch (QblStorageNotFound e) {
         }
     }
@@ -435,7 +431,7 @@ public class BoxTest {
         } catch (QblStorageNameConflict e) {
             return;
         }
-        fail("Expected QblStorageNameConflict");
+        TestHelper.fail("Expected QblStorageNameConflict");
     }
 
     @Test
@@ -447,7 +443,7 @@ public class BoxTest {
         } catch (QblStorageNameConflict e) {
             return;
         }
-        fail("Expected QblStorageNameConflict");
+        TestHelper.fail("Expected QblStorageNameConflict");
     }
 
     @Test
@@ -466,7 +462,7 @@ public class BoxTest {
         } catch (QblStorageNotFound e) {
             return;
         }
-        fail("Expected QblStorageNotFound");
+        TestHelper.fail("Expected QblStorageNotFound");
     }
 
     @Test
@@ -506,7 +502,7 @@ public class BoxTest {
         } catch (QblStorageException e) {
             return;
         }
-        fail("Expected QblStorageException");
+        TestHelper.fail("Expected QblStorageException");
     }
 
     @Test

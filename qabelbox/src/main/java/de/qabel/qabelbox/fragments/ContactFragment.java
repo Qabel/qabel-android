@@ -36,6 +36,8 @@ import java.util.Collection;
 
 import javax.inject.Inject;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import de.qabel.core.config.Contact;
 import de.qabel.core.config.Contacts;
 import de.qabel.core.config.Identity;
@@ -52,6 +54,7 @@ import de.qabel.qabelbox.chat.ChatServer;
 import de.qabel.qabelbox.config.ContactExportImport;
 import de.qabel.qabelbox.config.QabelSchema;
 import de.qabel.qabelbox.dagger.components.ActivityComponent;
+import de.qabel.qabelbox.dagger.components.MainActivityComponent;
 import de.qabel.qabelbox.exceptions.QblStorageEntityExistsException;
 import de.qabel.qabelbox.helper.AccountHelper;
 import de.qabel.qabelbox.helper.ExternalApps;
@@ -68,46 +71,37 @@ public class ContactFragment extends BaseFragment {
     public static final int REQUEST_EXPORT_CONTACT = 1001;
     private static final String TAG = "ContactFragment";
 
-    private RecyclerView contactListRecyclerView;
+    @BindView(R.id.contact_list) RecyclerView contactListRecyclerView;
     private ContactsAdapter contactListAdapter;
 
-    private TextView contactCount;
-    private View emptyView;
-    private ChatServer chatServer;
+    @BindView(R.id.contactCount) TextView contactCount;
+
+    @BindView(R.id.empty_view) View emptyView;
     private String dataToExport;
     private int exportedContactCount;
     private boolean useDocumentProvider = true;//used for tests
 
-    @Inject
-    ContactRepository contactRepository;
+    @Inject ContactRepository contactRepository;
 
-    @Inject
-    Context context;
+    @Inject Context context;
+
+    @Inject ChatServer chatServer;
+
+    @Inject Identity activeIdentity;
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        getComponent(ActivityComponent.class).inject(this);
+        getComponent(MainActivityComponent.class).inject(this);
         setHasOptionsMenu(true);
         mActivity.registerReceiver(refreshContactListReceiver,
                 new IntentFilter(Helper.INTENT_REFRESH_CONTACTLIST));
         startRefresh();
-    }
-
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        chatServer = new ChatServer(context);
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
-        context = null;
+        refreshContactList();
     }
 
     private Identity getActiveIdentity() {
-       return mActivity.getActiveIdentity();
+        return activeIdentity;
     }
 
     @Override
@@ -115,21 +109,11 @@ public class ContactFragment extends BaseFragment {
                              Bundle savedInstanceState) {
 
         View view = inflater.inflate(R.layout.fragment_contacts, container, false);
-        contactCount = (TextView) view.findViewById(R.id.contactCount);
-        contactListRecyclerView = (RecyclerView) view.findViewById(R.id.contact_list);
+        ButterKnife.bind(this, view);
         contactListRecyclerView.setHasFixedSize(true);
-        emptyView = view.findViewById(R.id.empty_view);
         RecyclerView.LayoutManager recyclerViewLayoutManager = new LinearLayoutManager(view.getContext());
         contactListRecyclerView.setLayoutManager(recyclerViewLayoutManager);
-        refreshContactList();
-
         return view;
-    }
-
-    @Override
-    public void onViewCreated(View view, Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-        refreshContactList();
     }
 
     @Override
@@ -298,35 +282,33 @@ public class ContactFragment extends BaseFragment {
     }
 
     private void refreshContactList() {
-        if (contactListRecyclerView != null && mActivity != null) {
-            Contacts contacts;
-            try {
-                contacts = contactRepository.find(getActiveIdentity());
-            } catch (PersistenceException e) {
-                throw new RuntimeException(e);
-            }
-            final int count = contacts.getContacts().size();
-            ArrayList<ContactAdapterItem> items = new ArrayList<>();
-            for (Contact c : contacts.getContacts()) {
-                items.add(new ContactAdapterItem(c, chatServer.hasNewMessages(getActiveIdentity(), c)));
-            }
-            contactListAdapter = new ContactsAdapter(items);
-            setClickListener();
-
-            getActivity().runOnUiThread(() -> {
-                if (count == 0) {
-                    contactCount.setVisibility(View.INVISIBLE);
-                } else {
-                    contactCount.setText(getString(R.string.contact_count).replace("%1", "" + count));
-                    contactCount.setVisibility(View.VISIBLE);
-                }
-                contactListAdapter.setEmptyView(emptyView);
-                contactListRecyclerView.setAdapter(contactListAdapter);
-
-                contactListAdapter.notifyDataSetChanged();
-
-            });
+        Contacts contacts;
+        try {
+            contacts = contactRepository.find(getActiveIdentity());
+        } catch (PersistenceException e) {
+            throw new RuntimeException(e);
         }
+        final int count = contacts.getContacts().size();
+        ArrayList<ContactAdapterItem> items = new ArrayList<>();
+        for (Contact c : contacts.getContacts()) {
+            items.add(new ContactAdapterItem(c, chatServer.hasNewMessages(getActiveIdentity(), c)));
+        }
+        contactListAdapter = new ContactsAdapter(items);
+        setClickListener();
+
+        getActivity().runOnUiThread(() -> {
+            if (count == 0) {
+                contactCount.setVisibility(View.INVISIBLE);
+            } else {
+                contactCount.setText(getString(R.string.contact_count).replace("%1", "" + count));
+                contactCount.setVisibility(View.VISIBLE);
+            }
+            contactListAdapter.setEmptyView(emptyView);
+            contactListRecyclerView.setAdapter(contactListAdapter);
+
+            contactListAdapter.notifyDataSetChanged();
+
+        });
     }
 
     @Override

@@ -9,6 +9,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.SharedPreferences;
 import android.graphics.LightingColorFilter;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -48,12 +49,12 @@ import javax.inject.Inject;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import de.qabel.core.config.Identities;
 import de.qabel.core.config.Identity;
 import de.qabel.desktop.repository.ContactRepository;
 import de.qabel.desktop.repository.IdentityRepository;
 import de.qabel.desktop.repository.exception.EntityNotFoundExcepion;
 import de.qabel.desktop.repository.exception.PersistenceException;
-import de.qabel.desktop.repository.sqlite.SqliteContactRepository;
 import de.qabel.qabelbox.BuildConfig;
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
@@ -65,7 +66,9 @@ import de.qabel.qabelbox.communication.connection.ConnectivityManager;
 import de.qabel.qabelbox.config.AppPreference;
 import de.qabel.qabelbox.config.QabelSchema;
 import de.qabel.qabelbox.dagger.HasComponent;
-import de.qabel.qabelbox.dagger.components.ActivityComponent;
+import de.qabel.qabelbox.dagger.components.MainActivityComponent;
+import de.qabel.qabelbox.dagger.modules.ActivityModule;
+import de.qabel.qabelbox.dagger.modules.MainActivityModule;
 import de.qabel.qabelbox.dialogs.SelectIdentityForUploadDialog;
 import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.fragments.AboutLicencesFragment;
@@ -83,6 +86,7 @@ import de.qabel.qabelbox.helper.AccountHelper;
 import de.qabel.qabelbox.helper.CacheFileHelper;
 import de.qabel.qabelbox.helper.ExternalApps;
 import de.qabel.qabelbox.helper.FileHelper;
+import de.qabel.qabelbox.helper.PreferencesHelper;
 import de.qabel.qabelbox.helper.Sanity;
 import de.qabel.qabelbox.helper.UIHelper;
 import de.qabel.qabelbox.providers.BoxProvider;
@@ -99,7 +103,8 @@ import de.qabel.qabelbox.views.DrawerNavigationViewHolder;
 public class MainActivity extends CrashReportingActivity
         implements NavigationView.OnNavigationItemSelectedListener,
         FilesFragment.FilesListListener,
-        IdentitiesFragment.IdentityListListener, HasComponent<ActivityComponent> {
+        IdentitiesFragment.IdentityListListener,
+        HasComponent<MainActivityComponent> {
 
     public static final String TAG_CONTACT_CHAT_FRAGMENT = "TAG_CONTACT_CHAT_FRAGMENT";
 
@@ -165,12 +170,19 @@ public class MainActivity extends CrashReportingActivity
     ConnectivityManager connectivityManager;
 
     private DrawerNavigationViewHolder drawerHolder;
-    private Identity activeIdentity;
+
+    @Inject
+    Identity activeIdentity;
 
     @Inject
     IdentityRepository identityRepository;
     @Inject
     public ContactRepository contactRepository;
+
+    @Inject
+    SharedPreferences sharedPreferences;
+
+    private MainActivityComponent component;
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -263,7 +275,10 @@ public class MainActivity extends CrashReportingActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getComponent().inject(this);
+        component = getApplicationComponent()
+                .plus(new ActivityModule(this))
+                .plus(new MainActivityModule(this));
+        component.inject(this);
         self = this;
         Log.d(TAG, "onCreate " + this.hashCode());
         Intent serviceIntent = new Intent(this, LocalQabelService.class);
@@ -436,16 +451,6 @@ public class MainActivity extends CrashReportingActivity
         // Checks if a fragment should be launched
         boolean start_files_fragment = intent.getBooleanExtra(START_FILES_FRAGMENT, true);
         boolean start_contacts_fragment = intent.getBooleanExtra(START_CONTACTS_FRAGMENT, false);
-        String identityKeyId = intent.getStringExtra(ACTIVE_IDENTITY);
-        if (identityKeyId != null) {
-            try {
-                activeIdentity = identityRepository.find(identityKeyId);
-            } catch (EntityNotFoundExcepion | PersistenceException entityNotFoundExcepion) {
-                Log.e(TAG, "Could not activate identity with key id " + identityKeyId);
-            }
-        } else {
-            activeIdentity = mService.getActiveIdentity();
-        }
         if (activeIdentity != null) {
             refreshFilesBrowser(activeIdentity);
         }
@@ -870,7 +875,7 @@ public class MainActivity extends CrashReportingActivity
     }
 
     public void changeActiveIdentity(Identity identity) {
-        mService.setActiveIdentity(identity);
+        PreferencesHelper.setLastActiveIdentityID(sharedPreferences, identity.getKeyIdentifier());
         Intent intent = new Intent(this, MainActivity.class);
         intent.putExtra(ACTIVE_IDENTITY, identity.getKeyIdentifier());
         finish();
@@ -1240,4 +1245,8 @@ public class MainActivity extends CrashReportingActivity
         handleMainFragmentChange();
     }
 
+    @Override
+    public MainActivityComponent getComponent() {
+        return component;
+    }
 }

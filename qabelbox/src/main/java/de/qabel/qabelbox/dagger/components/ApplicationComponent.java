@@ -7,7 +7,6 @@ import javax.inject.Singleton;
 import dagger.Component;
 import de.qabel.qabelbox.dagger.modules.ActivityModule;
 import de.qabel.qabelbox.dagger.modules.ApplicationModule;
-import de.qabel.qabelbox.dagger.modules.IdentityModule;
 import de.qabel.qabelbox.dagger.modules.RepositoryModule;
 
 @Component(modules = {ApplicationModule.class, RepositoryModule.class})
@@ -16,5 +15,4 @@ public interface ApplicationComponent {
     Context context();
 
     ActivityComponent plus(ActivityModule activityModule);
-    IdentityComponent plus(IdentityModule identityModule);
 }

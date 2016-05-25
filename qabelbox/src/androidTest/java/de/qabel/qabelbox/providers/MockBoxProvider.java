@@ -93,8 +93,8 @@ public class MockBoxProvider extends BoxProvider {
         }
 
         @Override
-        protected void setLastActiveIdentityID(String identityID) {
-            lastID = identityID;
+        public void setActiveIdentity(Identity identity) {
+            lastID = identity.getKeyIdentifier();
         }
 
         @Override

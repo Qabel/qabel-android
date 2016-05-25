@@ -22,7 +22,6 @@ import org.spongycastle.util.encoders.Hex;
 import java.io.FileNotFoundException;
 import java.net.URI;
 import java.security.SecureRandom;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -57,6 +56,7 @@ import de.qabel.desktop.repository.sqlite.AndroidClientDatabase;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.activities.MainActivity;
 import de.qabel.qabelbox.exceptions.QblStorageEntityExistsException;
+import de.qabel.qabelbox.helper.PreferencesHelper;
 import de.qabel.qabelbox.persistence.AndroidPersistence;
 import de.qabel.qabelbox.persistence.PersistenceMigration;
 import de.qabel.qabelbox.persistence.QblSQLiteParams;
@@ -71,7 +71,7 @@ public class LocalQabelService extends Service implements DropConnector {
     private final static Logger LOGGER = LoggerFactory.getLogger(LocalQabelService.class.getName());
 
     private static final String TAG = "LocalQabelService";
-    private static final String PREF_LAST_ACTIVE_IDENTITY = "PREF_LAST_ACTIVE_IDENTITY";
+    public static final String PREF_LAST_ACTIVE_IDENTITY = "PREF_LAST_ACTIVE_IDENTITY";
     public static final String DEFAULT_DROP_SERVER = "http://localhost";
 
     private static final String PREF_DEVICE_ID_CREATED = "PREF_DEVICE_ID_CREATED";
@@ -93,12 +93,6 @@ public class LocalQabelService extends Service implements DropConnector {
     SharedPreferences sharedPreferences;
     private IdentityRepository identityRepository;
     private ContactRepository contactRepository;
-
-    protected void setLastActiveIdentityID(String identityID) {
-        sharedPreferences.edit()
-                .putString(PREF_LAST_ACTIVE_IDENTITY, identityID)
-                .apply();
-    }
 
     protected String getLastActiveIdentityID() {
         return sharedPreferences.getString(PREF_LAST_ACTIVE_IDENTITY, "");
@@ -128,7 +122,7 @@ public class LocalQabelService extends Service implements DropConnector {
     }
 
     public void setActiveIdentity(Identity identity) {
-        setLastActiveIdentityID(identity.getKeyIdentifier());
+        PreferencesHelper.setLastActiveIdentityID(sharedPreferences, identity.getKeyIdentifier());
     }
 
     public void deleteIdentity(Identity identity) {

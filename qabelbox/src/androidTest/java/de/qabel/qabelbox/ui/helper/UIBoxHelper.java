@@ -19,9 +19,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import de.qabel.core.config.Contact;
 import de.qabel.core.config.DropServer;
 import de.qabel.core.config.Identity;
 import de.qabel.core.crypto.QblECKeyPair;
+import de.qabel.core.crypto.QblECPublicKey;
 import de.qabel.core.drop.AdjustableDropIdGenerator;
 import de.qabel.core.drop.DropIdGenerator;
 import de.qabel.core.drop.DropURL;
@@ -202,16 +204,27 @@ public class UIBoxHelper {
 
     @NonNull
     public Identity createIdentity(String identityName) {
+        Collection<DropURL> dropURLs = createDropURLList();
+        Identity identity = new Identity(identityName, dropURLs, new QblECKeyPair());
+        identity.getPrefixes().add(TestConstants.PREFIX);
+        return identity;
+    }
+
+    @NonNull
+    public Collection<DropURL> createDropURLList() {
         URI uri = URI.create(QabelBoxApplication.DEFAULT_DROP_SERVER);
         DropServer dropServer = new DropServer(uri, "", true);
         DropIdGenerator adjustableDropIdGenerator = new AdjustableDropIdGenerator(2 * 8);
         DropURL dropURL = new DropURL(dropServer, adjustableDropIdGenerator);
         Collection<DropURL> dropURLs = new ArrayList<>();
         dropURLs.add(dropURL);
+        return dropURLs;
+    }
 
-        Identity identity = new Identity(identityName, dropURLs, new QblECKeyPair());
-        identity.getPrefixes().add(TestConstants.PREFIX);
-        return identity;
+    @NonNull
+    public Contact createContact(String contactName) {
+        DropIdGenerator adjustableDropIdGenerator = new AdjustableDropIdGenerator(2 * 8);
+        return new Contact(contactName, createDropURLList(), new QblECKeyPair().getPub());
     }
 
     private void initBoxVolume(Identity activeIdentity) throws QblStorageException {

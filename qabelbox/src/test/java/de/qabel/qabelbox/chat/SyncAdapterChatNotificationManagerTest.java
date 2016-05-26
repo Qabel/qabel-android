@@ -37,8 +37,9 @@ public class SyncAdapterChatNotificationManagerTest {
         notificationManager = (NotificationManager) RuntimeEnvironment.application
                 .getSystemService(Context.NOTIFICATION_SERVICE);
         shadowOf(notificationManager).cancelAll();
+
         manager = new SyncAdapterChatNotificationManager(
-                RuntimeEnvironment.application.getApplicationContext());
+                new AndroidChatNotificationPresenter(RuntimeEnvironment.application));
         now = new Date();
     }
 
@@ -68,7 +69,7 @@ public class SyncAdapterChatNotificationManagerTest {
     public void testShowNotification() throws Throwable {
         ChatNotification notification = new ChatNotification("myid", "header, header", "message",
                 new Date());
-        manager.showNotification(notification);
+        new AndroidChatNotificationPresenter(RuntimeEnvironment.application).showNotification(notification);
         Notification note = shadowOf(notificationManager).getAllNotifications().get(0);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             assertThat(note.category, equalTo(Notification.CATEGORY_MESSAGE));

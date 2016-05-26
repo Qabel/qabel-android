@@ -6,10 +6,10 @@ import javax.inject.Singleton;
 
 import dagger.Module;
 import dagger.Provides;
-import de.qabel.core.config.Identity;
 import de.qabel.qabelbox.QabelBoxApplication;
+import de.qabel.qabelbox.chat.AndroidChatNotificationPresenter;
 import de.qabel.qabelbox.chat.ChatNotificationManager;
-import de.qabel.qabelbox.chat.ChatServer;
+import de.qabel.qabelbox.chat.ChatNotificationPresenter;
 import de.qabel.qabelbox.chat.SyncAdapterChatNotificationManager;
 import de.qabel.qabelbox.services.DropConnector;
 import de.qabel.qabelbox.services.HttpDropConnector;
@@ -27,12 +27,17 @@ public class ApplicationModule {
         return application;
     }
 
-    @Provides DropConnector providesDropConnector(HttpDropConnector connector) {
+    @Singleton @Provides DropConnector providesDropConnector(HttpDropConnector connector) {
         return connector;
     }
 
-    @Provides ChatNotificationManager providesChatNotificationManager(
+    @Singleton @Provides ChatNotificationManager providesChatNotificationManager(
             SyncAdapterChatNotificationManager manager) {
         return manager;
+    }
+
+    @Singleton @Provides ChatNotificationPresenter providesChatNotificationPresenter(
+            AndroidChatNotificationPresenter presenter) {
+        return presenter;
     }
 }

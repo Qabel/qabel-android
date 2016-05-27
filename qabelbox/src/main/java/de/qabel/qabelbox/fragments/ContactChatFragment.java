@@ -80,6 +80,9 @@ public class ContactChatFragment extends ContactBaseFragment {
     @Inject
     DropConnector dropConnector;
 
+    @Inject
+    Context context;
+
     public static ContactChatFragment newInstance(Contact contact) {
 
         ContactChatFragment fragment = new ContactChatFragment();
@@ -112,7 +115,6 @@ public class ContactChatFragment extends ContactBaseFragment {
         actionBar.setDisplayHomeAsUpEnabled(true);
         setActionBarBackListener();
         mActivity.registerReceiver(refreshChatIntentReceiver, new IntentFilter(Helper.INTENT_REFRESH_CHAT));
-
         refreshMessages();
         refreshMessagesAsync();
 
@@ -210,6 +212,8 @@ public class ContactChatFragment extends ContactBaseFragment {
             messages.add(item);
         }
         chatServer.setAllMessagesRead(getIdentity(), contact);
+        Intent intent = new Intent(Helper.INTENT_REFRESH_CONTACTLIST);
+        context.sendBroadcast(intent);
         fillAdapter(messages);
     }
 

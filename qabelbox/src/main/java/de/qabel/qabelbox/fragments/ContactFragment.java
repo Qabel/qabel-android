@@ -197,14 +197,12 @@ public class ContactFragment extends BaseFragment {
 
     private void setClickListener() {
 
-        contactListAdapter.setOnItemClickListener(new ContactsAdapter.OnItemClickListener() {
-
-            @Override
-            public void onItemClick(View view, final int position) {
-
-                final Contact contact = contactListAdapter.getContact(position);
-                getFragmentManager().beginTransaction().add(R.id.fragment_container, ContactChatFragment.newInstance(contact), MainActivity.TAG_CONTACT_CHAT_FRAGMENT).addToBackStack(MainActivity.TAG_CONTACT_CHAT_FRAGMENT).commit();
-            }
+        contactListAdapter.setOnItemClickListener((view, position) -> {
+            final Contact contact = contactListAdapter.getContact(position);
+            getFragmentManager().beginTransaction().add(R.id.fragment_container,
+                    ContactChatFragment.newInstance(contact),
+                    MainActivity.TAG_CONTACT_CHAT_FRAGMENT)
+                    .addToBackStack(MainActivity.TAG_CONTACT_CHAT_FRAGMENT).commit();
         }, (view, position) -> longContactClickAction(position));
     }
 

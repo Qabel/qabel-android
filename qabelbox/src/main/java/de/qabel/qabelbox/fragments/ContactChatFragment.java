@@ -15,20 +15,20 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 import javax.inject.Inject;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
 import de.qabel.core.config.Contact;
 import de.qabel.core.config.Identity;
 import de.qabel.core.drop.DropMessage;
@@ -39,15 +39,12 @@ import de.qabel.qabelbox.adapter.ChatMessageAdapter;
 import de.qabel.qabelbox.chat.ChatMessageItem;
 import de.qabel.qabelbox.chat.ChatServer;
 import de.qabel.qabelbox.chat.ShareHelper;
-import de.qabel.qabelbox.dagger.components.ActivityComponent;
 import de.qabel.qabelbox.dagger.components.MainActivityComponent;
 import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.helper.AccountHelper;
 import de.qabel.qabelbox.helper.Helper;
 import de.qabel.qabelbox.helper.UIHelper;
 import de.qabel.qabelbox.services.DropConnector;
-import de.qabel.qabelbox.services.HttpDropConnector;
-import de.qabel.qabelbox.services.LocalQabelService;
 import de.qabel.qabelbox.storage.BoxExternalReference;
 import de.qabel.qabelbox.storage.BoxFile;
 import de.qabel.qabelbox.storage.BoxFolder;
@@ -68,13 +65,20 @@ public class ContactChatFragment extends ContactBaseFragment {
     private final ArrayList<ChatMessageItem> messages = new ArrayList<>();
 
 
-    private ListView contactListRecyclerView;
-    private View emptyView;
-    private EditText etText;
+    @BindView(R.id.contact_chat_list)
+    ListView contactListRecyclerView;
+
+    @BindView(R.id.etText)
+    EditText etText;
+
     @Inject
     ChatServer chatServer;
-    private boolean isSyncing = false;
-    private DropConnector dropConnector;
+
+    @Inject
+    Identity activeIdentity;
+
+    @Inject
+    DropConnector dropConnector;
 
     public static ContactChatFragment newInstance(Contact contact) {
 
@@ -91,19 +95,17 @@ public class ContactChatFragment extends ContactBaseFragment {
     }
 
     private Identity getIdentity() {
-        Identity activeIdentity = ((MainActivity) getActivity()).getActiveIdentity();
-        if (activeIdentity == null) {
-            throw new IllegalStateException("No active identity");
-        }
         return activeIdentity;
+    }
+
+    public Contact getContact() {
+        return contact;
     }
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         getComponent(MainActivityComponent.class).inject(this);
-        chatServer = mActivity.chatServer;
-        dropConnector = mActivity.getService();
 
         setHasOptionsMenu(true);
         ((MainActivity) getActivity()).toggle.setDrawerIndicatorEnabled(false);
@@ -136,21 +138,20 @@ public class ContactChatFragment extends ContactBaseFragment {
                              Bundle savedInstanceState) {
 
         final View view = inflater.inflate(R.layout.fragment_contact_chat, container, false);
-        contactListRecyclerView = (ListView) view.findViewById(R.id.contact_chat_list);
-        emptyView = view.findViewById(R.id.empty_view);
-        etText = (EditText) view.findViewById(R.id.etText);
-        TextView send = (Button) view.findViewById(R.id.bt_send);
-        send.setOnClickListener(v -> {
-
-            final String text = etText.getText().toString();
-            if (text.length() > 0) {
-
-                sendMessage(text);
-            }
-        });
+        ButterKnife.bind(this, view);
         etText.setText("");
 
         return view;
+    }
+
+    @OnClick(R.id.bt_send)
+    void clickSend(TextView send) {
+        send.setOnClickListener(v -> {
+            final String text = etText.getText().toString();
+            if (text.length() > 0) {
+                sendMessage(text);
+            }
+        });
     }
 
     private void sendMessage(String text) {

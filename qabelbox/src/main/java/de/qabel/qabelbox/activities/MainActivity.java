@@ -49,6 +49,7 @@ import javax.inject.Inject;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import de.qabel.core.config.Contact;
 import de.qabel.core.config.Identities;
 import de.qabel.core.config.Identity;
 import de.qabel.desktop.repository.ContactRepository;
@@ -74,6 +75,7 @@ import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.fragments.AboutLicencesFragment;
 import de.qabel.qabelbox.fragments.BaseFragment;
 import de.qabel.qabelbox.fragments.ContactBaseFragment;
+import de.qabel.qabelbox.fragments.ContactChatFragment;
 import de.qabel.qabelbox.fragments.ContactFragment;
 import de.qabel.qabelbox.fragments.CreateIdentityMainFragment;
 import de.qabel.qabelbox.fragments.FilesFragment;
@@ -138,6 +140,7 @@ public class MainActivity extends CrashReportingActivity
     public static final String START_FILES_FRAGMENT = "START_FILES_FRAGMENT";
     public static final String START_CONTACTS_FRAGMENT = "START_CONTACTS_FRAGMENT";
     public static final String ACTIVE_IDENTITY = "ACTIVE_IDENTITY";
+    public static final String ACTIVE_CONTACT = "ACTIVE_CONTACT";
 
     public BoxVolume boxVolume;
     public ActionBarDrawerToggle toggle;
@@ -449,8 +452,9 @@ public class MainActivity extends CrashReportingActivity
         Log.i(TAG, "Intent action: " + action);
 
         // Checks if a fragment should be launched
-        boolean start_files_fragment = intent.getBooleanExtra(START_FILES_FRAGMENT, true);
-        boolean start_contacts_fragment = intent.getBooleanExtra(START_CONTACTS_FRAGMENT, false);
+        boolean startFilesFragment = intent.getBooleanExtra(START_FILES_FRAGMENT, true);
+        boolean startContactsFragment = intent.getBooleanExtra(START_CONTACTS_FRAGMENT, false);
+        String activeContact = intent.getStringExtra(ACTIVE_CONTACT);
         if (activeIdentity != null) {
             refreshFilesBrowser(activeIdentity);
         }
@@ -482,17 +486,17 @@ public class MainActivity extends CrashReportingActivity
                     }
                     break;
                 default:
-                    if (start_contacts_fragment) {
-                        selectContactsFragment();
-                    } else if (start_files_fragment) {
+                    if (startContactsFragment) {
+                        selectContactsFragment(activeContact);
+                    } else if (startFilesFragment) {
                         initAndSelectFilesFragment();
                     }
                     break;
             }
         } else {
-            if (start_contacts_fragment) {
-                selectContactsFragment();
-            } else if (start_files_fragment) {
+            if (startContactsFragment) {
+                selectContactsFragment(activeContact);
+            } else if (startFilesFragment) {
                 initAndSelectFilesFragment();
             }
         }
@@ -1211,6 +1215,22 @@ public class MainActivity extends CrashReportingActivity
     private void selectManageIdentitiesFragment() {
         showMainFragment(IdentitiesFragment.newInstance(mService.getIdentities()),
                 TAG_MANAGE_IDENTITIES_FRAGMENT);
+    }
+
+    private void selectContactsFragment(String activeContact) {
+        if (activeContact == null) {
+            selectContactsFragment();
+        }
+        try {
+            Contact contact = contactRepository.findByKeyId(activeIdentity, activeContact);
+            Log.d(TAG, "Selecting chat with  contact " + contact.getAlias());
+            getFragmentManager().beginTransaction().add(R.id.fragment_container,
+                    ContactChatFragment.newInstance(contact),
+                    MainActivity.TAG_CONTACT_CHAT_FRAGMENT)
+                    .addToBackStack(MainActivity.TAG_CONTACT_CHAT_FRAGMENT).commit();
+        } catch (EntityNotFoundExcepion entityNotFoundExcepion) {
+            selectContactsFragment();
+        }
     }
 
     private void selectContactsFragment() {

@@ -3,6 +3,7 @@ package de.qabel.qabelbox.chat;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Build;
 
 import org.junit.Before;
@@ -16,6 +17,7 @@ import java.util.Date;
 
 import de.qabel.qabelbox.BuildConfig;
 import de.qabel.qabelbox.SimpleApplication;
+import de.qabel.qabelbox.activities.MainActivity;
 import de.qabel.qabelbox.util.IdentityHelper;
 
 import static org.hamcrest.Matchers.*;
@@ -61,5 +63,28 @@ public class AndroidChatNotificationPresenterTest {
         assertThat(actual, equalTo(notification));
     }
 
+    @Test
+    public void testNotificationShowsList() throws Throwable {
+        ChatNotification notification = new ChatNotification(IdentityHelper.createIdentity("identity", null),
+                "foo, bar", "message", this.notification.when);
+        Intent intent = presenter.getIntent(notification);
+        assertThat(intent.getStringExtra(MainActivity.ACTIVE_IDENTITY),
+                equalTo(notification.identity.getKeyIdentifier()));
+        assertThat(intent.getBooleanExtra(MainActivity.START_CONTACTS_FRAGMENT, false), is(true));
+        assertThat(intent.getStringExtra(MainActivity.ACTIVE_CONTACT), nullValue());
+    }
 
+    @Test
+    public void testNotificationShowsChat() throws Throwable {
+        ChatNotification notification = new ChatNotification(
+                IdentityHelper.createIdentity("identity", null),
+                IdentityHelper.createContact("contact"),
+                "message", this.notification.when);
+        Intent intent = presenter.getIntent(notification);
+        assertThat(intent.getStringExtra(MainActivity.ACTIVE_IDENTITY),
+                equalTo(notification.identity.getKeyIdentifier()));
+        assertThat(intent.getBooleanExtra(MainActivity.START_CONTACTS_FRAGMENT, false), is(true));
+        assertThat(intent.getStringExtra(MainActivity.ACTIVE_CONTACT),
+                equalTo(notification.contact.getKeyIdentifier()));
+    }
 }

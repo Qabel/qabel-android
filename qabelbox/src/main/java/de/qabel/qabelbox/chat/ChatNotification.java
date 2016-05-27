@@ -13,7 +13,6 @@ public class ChatNotification {
     public String contactHeader;
     public String message;
     public Date when;
-    public Target target;
     @Nullable
     public Contact contact;
 
@@ -25,7 +24,6 @@ public class ChatNotification {
         this.contactHeader = contactHeader;
         this.message = message;
         this.when = when;
-        this.target = Target.LIST;
     }
 
     public ChatNotification(@NonNull Identity identity,
@@ -36,12 +34,7 @@ public class ChatNotification {
         this.contactHeader = contact.getAlias();
         this.message = message;
         this.when = when;
-        this.target = Target.CHAT;
         this.contact = contact;
-    }
-
-    enum Target {
-        LIST, CHAT
     }
 
     @Override
@@ -51,7 +44,6 @@ public class ChatNotification {
                 ", contactHeader='" + contactHeader + '\'' +
                 ", message='" + message + '\'' +
                 ", when=" + when +
-                ", target=" + target +
                 ", contact=" + contact +
                 '}';
     }
@@ -67,7 +59,6 @@ public class ChatNotification {
         if (!contactHeader.equals(that.contactHeader)) return false;
         if (!message.equals(that.message)) return false;
         if (!when.equals(that.when)) return false;
-        if (target != that.target) return false;
         return contact != null ? contact.equals(that.contact) : that.contact == null;
 
     }
@@ -78,7 +69,6 @@ public class ChatNotification {
         result = 31 * result + contactHeader.hashCode();
         result = 31 * result + message.hashCode();
         result = 31 * result + when.hashCode();
-        result = 31 * result + target.hashCode();
         result = 31 * result + (contact != null ? contact.hashCode() : 0);
         return result;
     }

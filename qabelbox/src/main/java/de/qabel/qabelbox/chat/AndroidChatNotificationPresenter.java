@@ -50,7 +50,7 @@ public class AndroidChatNotificationPresenter implements ChatNotificationPresent
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             androidNotification.setCategory(Notification.CATEGORY_MESSAGE);
         }
-        notificationManager.notify(identityToNotificationId.get(notification.identityId),
+        notificationManager.notify("ChatNotification", identityToNotificationId.get(notification.identityId),
                 androidNotification.build());
     }
 }

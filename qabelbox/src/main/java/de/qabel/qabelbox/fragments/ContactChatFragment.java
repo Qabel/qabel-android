@@ -116,9 +116,6 @@ public class ContactChatFragment extends ContactBaseFragment {
         activity.fab.hide();
         actionBar.setDisplayHomeAsUpEnabled(true);
         setActionBarBackListener();
-        IntentFilter filter = new IntentFilter(Helper.INTENT_REFRESH_CONTACTLIST);
-        filter.setPriority(10);
-        mActivity.registerReceiver(refreshChatIntentReceiver, filter);
         refreshMessages();
         refreshMessagesAsync();
     }
@@ -444,13 +441,16 @@ public class ContactChatFragment extends ContactBaseFragment {
     public void onStart() {
         super.onStart();
         chatServer.addListener(chatServerCallback);
+        IntentFilter filter = new IntentFilter(Helper.INTENT_REFRESH_CONTACTLIST);
+        filter.setPriority(10);
+        mActivity.registerReceiver(refreshChatIntentReceiver, filter);
         refreshMessages();
     }
 
     @Override
     public void onStop() {
-        mActivity.unregisterReceiver(refreshChatIntentReceiver);
         super.onStop();
+        mActivity.unregisterReceiver(refreshChatIntentReceiver);
         chatServer.removeListener(chatServerCallback);
     }
 

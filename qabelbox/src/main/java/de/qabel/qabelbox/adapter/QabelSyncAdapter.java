@@ -53,7 +53,7 @@ public class QabelSyncAdapter extends AbstractThreadedSyncAdapter {
     @Inject ChatNotificationManager notificationManager;
     @Inject ChatServer chatServer;
     DropConnector dropConnector;
-    private List<ChatMessageInfo> currentMessages;
+    private List<ChatMessageInfo> currentMessages = new ArrayList<>();
     private BroadcastReceiver receiver;
 
     public QabelSyncAdapter(Context context, boolean autoInitialize) {

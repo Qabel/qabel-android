@@ -59,8 +59,6 @@ public class AndroidChatNotificationPresenter implements ChatNotificationPresent
     @NonNull
     Intent getIntent(ChatNotification notification) {
         Intent intent = new Intent(context, MainActivity.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP
-                       | Intent.FLAG_ACTIVITY_SINGLE_TOP);
         intent.putExtra(MainActivity.ACTIVE_IDENTITY, notification.identity.getKeyIdentifier());
         intent.putExtra(MainActivity.START_CONTACTS_FRAGMENT, true);
         if (notification.contact != null) {

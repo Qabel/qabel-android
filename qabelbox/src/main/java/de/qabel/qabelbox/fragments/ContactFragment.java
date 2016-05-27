@@ -94,10 +94,12 @@ public class ContactFragment extends BaseFragment {
         super.onActivityCreated(savedInstanceState);
         getComponent(MainActivityComponent.class).inject(this);
         setHasOptionsMenu(true);
-        mActivity.registerReceiver(refreshContactListReceiver,
-                new IntentFilter(Helper.INTENT_REFRESH_CONTACTLIST));
         startRefresh();
         refreshContactList();
+        IntentFilter filter = new IntentFilter(Helper.INTENT_REFRESH_CONTACTLIST);
+        filter.setPriority(10);
+        context.registerReceiver(refreshContactListReceiver,
+                filter);
     }
 
     private Identity getActiveIdentity() {
@@ -446,7 +448,6 @@ public class ContactFragment extends BaseFragment {
     }
 
     private void selectAddContactFragment(Identity identity) {
-
         getFragmentManager().beginTransaction()
                 .replace(R.id.fragment_container, AddContactFragment.newInstance(identity), null)
                 .addToBackStack(null)
@@ -459,6 +460,9 @@ public class ContactFragment extends BaseFragment {
         public void onReceive(Context context, Intent intent) {
             Log.v(TAG, "receive refresh contactlist event");
             refreshContactList();
+            if (isOrderedBroadcast()) {
+                abortBroadcast();
+            }
         }
     };
 
@@ -470,16 +474,13 @@ public class ContactFragment extends BaseFragment {
 
     @Override
     public void onStop() {
-        chatServer.removeListener(chatServerCallback);
         super.onStop();
+        chatServer.removeListener(chatServerCallback);
+        context.unregisterReceiver(refreshContactListReceiver);
     }
 
-    private final ChatServer.ChatServerCallback chatServerCallback = new ChatServer.ChatServerCallback() {
-
-        @Override
-        public void onRefreshed() {
-            Log.d(TAG, "refreshed ");
-            sendRefreshContactList();
-        }
+    private final ChatServer.ChatServerCallback chatServerCallback = () -> {
+        Log.d(TAG, "refreshed ");
+        sendRefreshContactList();
     };
 }

@@ -111,19 +111,16 @@ public class ContactChatFragment extends ContactBaseFragment {
         getComponent(MainActivityComponent.class).inject(this);
 
         setHasOptionsMenu(true);
-        ((MainActivity) getActivity()).toggle.setDrawerIndicatorEnabled(false);
+        MainActivity activity = (MainActivity) getActivity();
+        activity.toggle.setDrawerIndicatorEnabled(false);
+        activity.fab.hide();
         actionBar.setDisplayHomeAsUpEnabled(true);
         setActionBarBackListener();
-        mActivity.registerReceiver(refreshChatIntentReceiver, new IntentFilter(Helper.INTENT_REFRESH_CHAT));
+        IntentFilter filter = new IntentFilter(Helper.INTENT_REFRESH_CONTACTLIST);
+        filter.setPriority(10);
+        mActivity.registerReceiver(refreshChatIntentReceiver, filter);
         refreshMessages();
         refreshMessagesAsync();
-
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        mActivity.unregisterReceiver(refreshChatIntentReceiver);
     }
 
     private final BroadcastReceiver refreshChatIntentReceiver = new BroadcastReceiver() {
@@ -131,7 +128,12 @@ public class ContactChatFragment extends ContactBaseFragment {
         @Override
         public void onReceive(Context context, Intent intent) {
             Log.v(TAG, "receive refresh chat event");
-            refreshMessages();
+            if (chatServer.hasNewMessages(activeIdentity, contact)) {
+                refreshMessages();
+                if (isOrderedBroadcast()) {
+                    abortBroadcast();
+                }
+            }
         }
     };
 
@@ -213,7 +215,7 @@ public class ContactChatFragment extends ContactBaseFragment {
         }
         chatServer.setAllMessagesRead(getIdentity(), contact);
         Intent intent = new Intent(Helper.INTENT_REFRESH_CONTACTLIST);
-        context.sendBroadcast(intent);
+        context.sendOrderedBroadcast(intent, null);
         fillAdapter(messages);
     }
 
@@ -237,7 +239,8 @@ public class ContactChatFragment extends ContactBaseFragment {
             //check if message is instance of sharemessage
             if (item.getData() instanceof ChatMessageItem.ShareMessagePayload) {
 
-                final FilesFragment filesFragment = mActivity.filesFragment;
+                // TODO Maybe there isn't a filesFragment.
+                FilesFragment filesFragment = mActivity.filesFragment;
 
                 //check if share from other (not my sended share)
                 String keyIdentifier = mActivity.getActiveIdentity()
@@ -405,7 +408,6 @@ public class ContactChatFragment extends ContactBaseFragment {
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-
         menu.clear();
         inflater.inflate(R.menu.ab_chat_detail_refresh, menu);
     }
@@ -440,23 +442,17 @@ public class ContactChatFragment extends ContactBaseFragment {
 
     @Override
     public void onStart() {
-
         super.onStart();
         chatServer.addListener(chatServerCallback);
+        refreshMessages();
     }
 
     @Override
     public void onStop() {
-
-        chatServer.removeListener(chatServerCallback);
+        mActivity.unregisterReceiver(refreshChatIntentReceiver);
         super.onStop();
+        chatServer.removeListener(chatServerCallback);
     }
 
-    private final ChatServer.ChatServerCallback chatServerCallback = new ChatServer.ChatServerCallback() {
-
-        @Override
-        public void onRefreshed() {
-
-        }
-    };
+    private final ChatServer.ChatServerCallback chatServerCallback = () -> {};
 }

@@ -274,7 +274,6 @@ public class MainActivity extends CrashReportingActivity
         }
     }
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -383,9 +382,7 @@ public class MainActivity extends CrashReportingActivity
         }
         //check if navigation drawer need to reset
         if (getFragmentManager().getBackStackEntryCount() == 0 || (activeFragment instanceof BaseFragment) && !((BaseFragment) activeFragment).supportBackButton()) {
-            if (activeFragment instanceof SelectUploadFolderFragment) {
-            } else {
-
+            if (!(activeFragment instanceof SelectUploadFolderFragment)) {
                 getSupportActionBar().setDisplayHomeAsUpEnabled(false);
                 toggle.setDrawerIndicatorEnabled(true);
             }
@@ -394,12 +391,7 @@ public class MainActivity extends CrashReportingActivity
 
     private void addBackStackListener() {
 
-        getFragmentManager().addOnBackStackChangedListener(new FragmentManager.OnBackStackChangedListener() {
-            @Override
-            public void onBackStackChanged() {
-                handleMainFragmentChange();
-            }
-        });
+        getFragmentManager().addOnBackStackChangedListener(() -> handleMainFragmentChange());
     }
 
     @NonNull
@@ -409,7 +401,6 @@ public class MainActivity extends CrashReportingActivity
 
             @Override
             public void onServiceConnected(ComponentName name, IBinder service) {
-
                 LocalQabelService.LocalBinder binder = (LocalQabelService.LocalBinder) service;
                 mService = binder.getService();
                 QabelBoxApplication.getInstance().serviceCreatedOutside(mService);
@@ -424,6 +415,11 @@ public class MainActivity extends CrashReportingActivity
         };
     }
 
+
+    @Override
+    public void onResume() {
+        super.onResume();
+    }
     private void onLocalServiceConnected(Intent intent) {
 
         Log.d(TAG, "LocalQabelService connected");
@@ -442,10 +438,15 @@ public class MainActivity extends CrashReportingActivity
         provider.setLocalService(mService);
 
         initDrawer();
+        handleIntent(intent);
+    }
 
+    @Override
+    protected void onNewIntent(Intent intent) {
+        handleIntent(intent);
+    }
 
-        // Check if activity is started with ACTION_SEND or ACTION_SEND_MULTIPLE
-
+    private void handleIntent(Intent intent) {
         String action = intent.getAction();
         String type = intent.getType();
 
@@ -455,9 +456,7 @@ public class MainActivity extends CrashReportingActivity
         boolean startFilesFragment = intent.getBooleanExtra(START_FILES_FRAGMENT, true);
         boolean startContactsFragment = intent.getBooleanExtra(START_CONTACTS_FRAGMENT, false);
         String activeContact = intent.getStringExtra(ACTIVE_CONTACT);
-        if (activeIdentity != null) {
-            refreshFilesBrowser(activeIdentity);
-        }
+        refreshFilesBrowser(activeIdentity);
         if (type != null && intent.getAction() != null) {
             String scheme = intent.getScheme();
 
@@ -959,13 +958,6 @@ public class MainActivity extends CrashReportingActivity
 
 
     @Override
-    protected void onNewIntent(Intent intent) {
-
-        Log.d(TAG, "onCreateOnIntent");
-        onLocalServiceConnected(intent);
-    }
-
-    @Override
     public void onScrolledToBottom(boolean scrolledToBottom) {
 
         if (scrolledToBottom) {
@@ -1220,6 +1212,7 @@ public class MainActivity extends CrashReportingActivity
     private void selectContactsFragment(String activeContact) {
         if (activeContact == null) {
             selectContactsFragment();
+            return;
         }
         try {
             Contact contact = contactRepository.findByKeyId(activeIdentity, activeContact);
@@ -1229,6 +1222,7 @@ public class MainActivity extends CrashReportingActivity
                     MainActivity.TAG_CONTACT_CHAT_FRAGMENT)
                     .addToBackStack(MainActivity.TAG_CONTACT_CHAT_FRAGMENT).commit();
         } catch (EntityNotFoundExcepion entityNotFoundExcepion) {
+            Log.w(TAG, "Could not find contact " + activeContact);
             selectContactsFragment();
         }
     }

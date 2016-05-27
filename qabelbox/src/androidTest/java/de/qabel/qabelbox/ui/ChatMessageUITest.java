@@ -63,7 +63,7 @@ public class ChatMessageUITest extends AbstractUITest {
     public void testNewMessageVisualization() throws Throwable {
         Context context = InstrumentationRegistry.getTargetContext();
         String identityKey = identity.getEcPublicKey().getReadableKeyIdentifier();
-        ChatServer chatServer = mActivity.chatServer;
+        ChatServer chatServer = new ChatServer(context);
         String contact1Alias = contact.getAlias();
 
         String contact1Key = contact.getEcPublicKey().getReadableKeyIdentifier();
@@ -81,7 +81,6 @@ public class ChatMessageUITest extends AbstractUITest {
         //check if RecyclerView contain correct count of data
         onView(withId(R.id.contact_chat_list)).check(matches(QabelMatcher.withListSize(1)));
         pressBack();
-        refreshViewIntent(context);
         //check if indicator not displayed (we have viewed the item)
         checkVisibilityState(contact1Alias, QabelMatcher.isInvisible());
 
@@ -97,9 +96,7 @@ public class ChatMessageUITest extends AbstractUITest {
 
     private void refreshViewIntent(Context context) {
         Intent intent = new Intent(Helper.INTENT_REFRESH_CONTACTLIST);
-        context.sendBroadcast(intent);
-        Intent chatIntent = new Intent(Helper.INTENT_REFRESH_CHAT);
-        context.sendBroadcast(chatIntent);
+        context.sendOrderedBroadcast(intent, null);
     }
 
     /**

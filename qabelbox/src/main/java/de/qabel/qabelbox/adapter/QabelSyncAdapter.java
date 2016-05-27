@@ -2,10 +2,12 @@ package de.qabel.qabelbox.adapter;
 
 import android.accounts.Account;
 import android.content.AbstractThreadedSyncAdapter;
+import android.content.BroadcastReceiver;
 import android.content.ContentProviderClient;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SyncResult;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -51,6 +53,8 @@ public class QabelSyncAdapter extends AbstractThreadedSyncAdapter {
     @Inject ChatNotificationManager notificationManager;
     @Inject ChatServer chatServer;
     DropConnector dropConnector;
+    private List<ChatMessageInfo> currentMessages;
+    private BroadcastReceiver receiver;
 
     public QabelSyncAdapter(Context context, boolean autoInitialize) {
         super(context, autoInitialize);
@@ -74,7 +78,22 @@ public class QabelSyncAdapter extends AbstractThreadedSyncAdapter {
         this.context = context;
         mContentResolver = context.getContentResolver();
         QabelBoxApplication.getApplicationComponent(context).inject(this);
+        registerNotificationReceiver();
     }
+
+    private void registerNotificationReceiver() {
+        IntentFilter filter = new IntentFilter(Helper.INTENT_REFRESH_CONTACTLIST);
+        filter.setPriority(0);
+        receiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                notificationManager.updateNotifications(currentMessages);
+            }
+        };
+        context.registerReceiver(receiver, filter);
+    }
+
+
 
     @Override
     public void onPerformSync(
@@ -101,18 +120,16 @@ public class QabelSyncAdapter extends AbstractThreadedSyncAdapter {
     }
 
     void notifyForNewMessages(List<ChatMessageItem> retrievedMessages) {
-        if (retrievedMessages.size() > 0) {
-            Intent intent = new Intent(Helper.INTENT_REFRESH_CONTACTLIST);
-            context.sendBroadcast(intent);
-            Intent chatIntent = new Intent(Helper.INTENT_REFRESH_CHAT);
-            context.sendBroadcast(chatIntent);
+        if (retrievedMessages.size() == 0) {
+            return;
         }
         updateNotificationManager(retrievedMessages);
+        Intent intent = new Intent(Helper.INTENT_REFRESH_CONTACTLIST);
+        context.sendOrderedBroadcast(intent, null);
     }
 
     private void updateNotificationManager(List<ChatMessageItem> retrievedMessages) {
-        List<ChatMessageInfo> messages = toChatMessageInfo(retrievedMessages);
-        notificationManager.updateNotifications(messages);
+        currentMessages = toChatMessageInfo(retrievedMessages);
     }
 
     private List<ChatMessageInfo> toChatMessageInfo(List<ChatMessageItem> retrievedMessages) {

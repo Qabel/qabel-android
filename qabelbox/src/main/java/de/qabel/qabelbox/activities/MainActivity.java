@@ -41,7 +41,6 @@ import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 
 import javax.inject.Inject;
 
@@ -417,27 +416,12 @@ public class MainActivity extends CrashReportingActivity
     }
 
 
-    @Override
-    public void onResume() {
-        super.onResume();
-    }
     private void onLocalServiceConnected(Intent intent) {
 
         Log.d(TAG, "LocalQabelService connected");
-        if (getActiveIdentity() == null) {
-            if (Sanity.startWizardActivities(this)) {
-                Log.d(TAG, "started wizard dialog");
-                return;
-            } else {
-                Set<Identity> identities = mService.getIdentities().getIdentities();
-                mService.setActiveIdentity(identities.iterator().next());
-            }
-        }
         provider = ((QabelBoxApplication) getApplication()).getProvider();
         Log.i(TAG, "Provider: " + provider);
-
         provider.setLocalService(mService);
-
         initDrawer();
         handleIntent(intent);
     }
@@ -554,16 +538,12 @@ public class MainActivity extends CrashReportingActivity
     }
 
     public void refreshFilesBrowser(Identity activeIdentity) {
-
-        drawerHolder.textViewSelectedIdentity.setText(activeIdentity.getAlias());
-
-        initBoxVolume(activeIdentity);
-        initChatServer();
-        initFilesFragment();
-    }
-
-    private void initChatServer() {
-        chatServer = new ChatServer(getApplicationContext());
+        try {
+            initBoxVolume(activeIdentity);
+            initFilesFragment();
+        } catch (RuntimeException e) {
+            Log.e(TAG, "Could not init box volume in MainActivity", e);
+        }
     }
 
     private void shareIntoApp(final ArrayList<Uri> data) {
@@ -1138,6 +1118,7 @@ public class MainActivity extends CrashReportingActivity
 
         drawerHolder.imageViewExpandIdentity.setColorFilter(mDrawerIndicatorTintFilter);
 
+        drawerHolder.textViewSelectedIdentity.setText(activeIdentity.getAlias());
         drawer.addDrawerListener(new DrawerLayout.DrawerListener() {
             @Override
             public void onDrawerSlide(View drawerView, float slideOffset) {

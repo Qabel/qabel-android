@@ -3,7 +3,6 @@ package de.qabel.qabelbox.ui;
 import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
-import android.support.test.InstrumentationRegistry;
 import android.support.test.espresso.intent.matcher.IntentMatchers;
 
 import org.json.JSONException;
@@ -21,7 +20,6 @@ import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.activities.MainActivity;
 import de.qabel.qabelbox.config.ContactExportImport;
-import de.qabel.qabelbox.exceptions.QblStorageEntityExistsException;
 import de.qabel.qabelbox.fragments.ContactFragment;
 import de.qabel.qabelbox.helper.FileHelper;
 import de.qabel.qabelbox.services.LocalQabelService;
@@ -43,8 +41,6 @@ import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertNull;
 import static junit.framework.Assert.assertTrue;
 import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
 
 public class ImportExportContactsUITest extends AbstractUITest {
 
@@ -146,8 +142,7 @@ public class ImportExportContactsUITest extends AbstractUITest {
     public void testExportManyContact() throws Throwable {
 
         File file1 = new File(mActivity.getCacheDir(), "testexportallcontact");
-        assertNotNull(file1);
-        openActionBarOverflowOrOptionsMenu(InstrumentationRegistry.getTargetContext());
+        openActionBarOverflowOrOptionsMenu(mContext);
         UITestHelper.screenShot(mActivity, "exportAll");
         Intent data = new Intent();
         data.setData(Uri.fromFile(file1));

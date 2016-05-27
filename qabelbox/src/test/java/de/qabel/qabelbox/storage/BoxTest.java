@@ -42,17 +42,8 @@ import de.qabel.qabelbox.exceptions.QblStorageNameConflict;
 import de.qabel.qabelbox.exceptions.QblStorageNotFound;
 import de.qabel.qabelbox.util.TestHelper;
 
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.greaterThanOrEqualTo;
-import static org.hamcrest.Matchers.instanceOf;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.hamcrest.Matchers.startsWith;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.*;
 
 @RunWith(RobolectricGradleTestRunner.class)
 @Config(application = SimpleApplication.class, constants = BuildConfig.class)

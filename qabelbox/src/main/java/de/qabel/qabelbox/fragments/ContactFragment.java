@@ -53,7 +53,6 @@ import de.qabel.qabelbox.adapter.ContactsAdapter;
 import de.qabel.qabelbox.chat.ChatServer;
 import de.qabel.qabelbox.config.ContactExportImport;
 import de.qabel.qabelbox.config.QabelSchema;
-import de.qabel.qabelbox.dagger.components.ActivityComponent;
 import de.qabel.qabelbox.dagger.components.MainActivityComponent;
 import de.qabel.qabelbox.exceptions.QblStorageEntityExistsException;
 import de.qabel.qabelbox.helper.AccountHelper;
@@ -96,10 +95,6 @@ public class ContactFragment extends BaseFragment {
         setHasOptionsMenu(true);
         startRefresh();
         refreshContactList();
-        IntentFilter filter = new IntentFilter(Helper.INTENT_REFRESH_CONTACTLIST);
-        filter.setPriority(10);
-        context.registerReceiver(refreshContactListReceiver,
-                filter);
     }
 
     private Identity getActiveIdentity() {
@@ -274,13 +269,6 @@ public class ContactFragment extends BaseFragment {
         context.sendBroadcast(intent);
     }
 
-    @Override
-    public void onDestroy() {
-        Log.v(TAG, "unregisterReceiver");
-        mActivity.unregisterReceiver(refreshContactListReceiver);
-        super.onDestroy();
-    }
-
     private void refreshContactList() {
         Contacts contacts;
         try {
@@ -332,7 +320,7 @@ public class ContactFragment extends BaseFragment {
                             addContactByFile();
                             break;
                         case R.id.add_contact_via_qr:
-                            IntentIntegrator integrator = new IntentIntegrator(getActivity());
+                            IntentIntegrator integrator = new IntentIntegrator(this);
                             integrator.initiateScan();
                             break;
                         case R.id.add_contact_direct_input:
@@ -357,7 +345,7 @@ public class ContactFragment extends BaseFragment {
     @Override
     public void onActivityResult(int requestCode, int resultCode,
                                  Intent resultData) {
-
+        Log.d(TAG, "ContactFragment onActivityResult");
         if (resultCode == Activity.RESULT_OK) {
 
             if (requestCode == REQUEST_EXPORT_CONTACT) {
@@ -420,12 +408,14 @@ public class ContactFragment extends BaseFragment {
                                     mActivity.getString(R.string.contact_import_zero_additions)
                             );
                         }
+                        refreshContactList();
                     } catch (IOException | JSONException ioException) {
                         UIHelper.showDialogMessage(mActivity, R.string.dialog_headline_warning, R.string.contact_import_failed, ioException);
                     }
                 }
             }
 
+            Log.d(TAG, "Checking for QR code scan");
             IntentResult scanResult = IntentIntegrator.parseActivityResult(requestCode, resultCode, resultData);
             if (scanResult != null && scanResult.getContents() != null) {
                 String[] result = scanResult.getContents().split("\\r?\\n");
@@ -438,6 +428,7 @@ public class ContactFragment extends BaseFragment {
                         QblECPublicKey publicKey = new QblECPublicKey(Hex.decode(result[3]));
                         Contact contact = new Contact(result[1], dropURLs, publicKey);
                         addContactSilent(contact);
+                        refreshContactList();
                     } catch (Exception e) {
                         Log.w(TAG, "add contact failed", e);
                         UIHelper.showDialogMessage(mActivity, R.string.dialog_headline_warning, R.string.contact_import_failed, e);
@@ -470,6 +461,10 @@ public class ContactFragment extends BaseFragment {
     public void onStart() {
         super.onStart();
         chatServer.addListener(chatServerCallback);
+        IntentFilter filter = new IntentFilter(Helper.INTENT_REFRESH_CONTACTLIST);
+        filter.setPriority(10);
+        context.registerReceiver(refreshContactListReceiver,
+                filter);
     }
 
     @Override

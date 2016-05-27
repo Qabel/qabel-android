@@ -2,7 +2,6 @@ package de.qabel.qabelbox.activities;
 
 import android.app.AlertDialog;
 import android.app.Fragment;
-import android.app.FragmentManager;
 import android.content.ComponentName;
 import android.content.ContentResolver;
 import android.content.Context;
@@ -50,7 +49,6 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import de.qabel.core.config.Contact;
-import de.qabel.core.config.Identities;
 import de.qabel.core.config.Identity;
 import de.qabel.desktop.repository.ContactRepository;
 import de.qabel.desktop.repository.IdentityRepository;
@@ -189,7 +187,7 @@ public class MainActivity extends CrashReportingActivity
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-
+        Log.d(TAG, "On Activity result");
         final Uri uri;
         if (requestCode == REQUEST_EXTERN_VIEWER_APP) {
             Log.d(TAG, "result from extern app " + resultCode);
@@ -205,6 +203,7 @@ public class MainActivity extends CrashReportingActivity
                         Log.w(TAG, "Recieved data with identity null");
                     }
                     addIdentity(identity);
+                    return;
                 }
             }
             if (data != null) {
@@ -229,7 +228,6 @@ public class MainActivity extends CrashReportingActivity
                             VolumeFileTransferHelper.upload(self, uri, boxNavigation, boxVolume);
                         }
                     }
-
                     return;
                 }
                 if (requestCode == REQUEST_CODE_DELETE_FILE) {
@@ -269,9 +267,12 @@ public class MainActivity extends CrashReportingActivity
                             return null;
                         }
                     }.execute();
+                    return;
                 }
             }
         }
+        Log.d(TAG, "super.onActivityResult");
+        super.onActivityResult(requestCode, resultCode, data);
     }
 
     @Override
@@ -1032,7 +1033,6 @@ public class MainActivity extends CrashReportingActivity
     protected void onDestroy() {
 
         if (mServiceConnection != null && mService != null) {
-
             unbindService(mServiceConnection);
         }
         if (isTaskRoot()) {

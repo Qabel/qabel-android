@@ -45,7 +45,8 @@ public class AndroidChatNotificationPresenter implements ChatNotificationPresent
                 .setContentIntent(pendingIntent)
                 .setContentTitle(notification.contactHeader)
                 .setContentText(notification.message)
-                .setSmallIcon(R.drawable.qabel_logo);
+                .setSmallIcon(R.drawable.qabel_logo)
+                .setAutoCancel(true);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             androidNotification.setCategory(Notification.CATEGORY_MESSAGE);
         }

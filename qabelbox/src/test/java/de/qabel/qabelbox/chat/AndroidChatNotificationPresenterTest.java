@@ -47,6 +47,7 @@ public class AndroidChatNotificationPresenterTest {
         }
         assertThat(note.when, equalTo(notification.when.getTime()));
         assertThat(note.contentIntent, notNullValue());
+        assertThat(shadowOf(note).getContentText(), equalTo(notification.message));
     }
 
     @Test

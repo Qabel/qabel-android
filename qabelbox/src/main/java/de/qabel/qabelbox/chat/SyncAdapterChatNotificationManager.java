@@ -28,20 +28,21 @@ public class SyncAdapterChatNotificationManager implements ChatNotificationManag
 
     @Override
     public void updateNotifications(List<ChatMessageInfo> receivedMessages) {
-        Iterable<ChatMessageInfo> messages = filterDuplicated(receivedMessages);
-        for (ChatNotification msg: constructNotifications(messages)) {
-            chatNotificationPresenter.showNotification(msg);
+        for (List<ChatMessageInfo> byIdentity: filterDuplicated(receivedMessages).values()) {
+            for (ChatNotification msg: constructNotifications(byIdentity)) {
+                chatNotificationPresenter.showNotification(msg);
+            }
         }
     }
 
-    public Iterable<ChatMessageInfo> filterDuplicated(List<ChatMessageInfo> receivedMessages) {
-        List<ChatMessageInfo> messages = new ArrayList<>();
+    public DefaultHashMap<String, List<ChatMessageInfo>> filterDuplicated(List<ChatMessageInfo> receivedMessages) {
+        DefaultHashMap<String, List<ChatMessageInfo>> messages = new DefaultHashMap<>(identity -> new ArrayList<>());
         for (ChatMessageInfo msg: receivedMessages) {
             if (notified.contains(msg)) {
                 continue;
             }
             notified.add(msg);
-            messages.add(msg);
+            messages.get(msg.getIdentityKeyId()).add(msg);
         }
         return messages;
     }

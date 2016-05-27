@@ -23,6 +23,7 @@ import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 
 @RunWith(RobolectricGradleTestRunner.class)
@@ -84,4 +85,20 @@ public class SyncAdapterChatNotificationManagerTest {
         assertThat(chatNotifications.get(0), equalTo(expected));
     }
 
+    @Test
+    public void testOneMessageToDifferentIdentities() throws Throwable {
+        List<ChatMessageInfo> messages = new ArrayList<>();
+        ChatMessageInfo message = createExampleMessage(now);
+        ChatMessageInfo secondMessage = createExampleMessage(now);
+        messages.add(message);
+        messages.add(secondMessage);
+        ChatNotification expected = new ChatNotification(message.getIdentityKeyId(),
+                message.getContactName(), message.getMessage(), now);
+        ChatNotification secondExpected = new ChatNotification(secondMessage.getIdentityKeyId(),
+                secondMessage.getContactName(), secondMessage.getMessage(), now);
+
+        manager.updateNotifications(messages);
+        verify(presenter).showNotification(expected);
+        verify(presenter).showNotification(secondExpected);
+    }
 }

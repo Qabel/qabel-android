@@ -74,6 +74,7 @@ public class ChatMessageUITest extends AbstractUITest {
         UITestHelper.screenShot(mActivity, "contactsOneNewMessage");
         assertTrue(chatServer.hasNewMessages(identity, contact));
         refreshViewIntent(context);
+        UITestHelper.sleep(500);
 
         //check if new view indicator displayed on correct user and click on this item
         checkVisibilityState(contact1Alias, QabelMatcher.isVisible()).perform(click());

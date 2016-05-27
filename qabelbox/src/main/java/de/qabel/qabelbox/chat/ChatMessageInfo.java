@@ -7,7 +7,7 @@ import java.util.Date;
 import de.qabel.core.config.Contact;
 import de.qabel.core.config.Identity;
 
-public class ChatMessageInfo {
+public class ChatMessageInfo implements Comparable<ChatMessageInfo> {
 
     @NonNull
     private Date sent;
@@ -98,6 +98,11 @@ public class ChatMessageInfo {
         this.type = type;
     }
 
+    @Override
+    public int compareTo(ChatMessageInfo another) {
+        if (another == null) { return 1; }
+        return sent.compareTo(another.getSent());
+    }
 
 
     public enum MessageType {

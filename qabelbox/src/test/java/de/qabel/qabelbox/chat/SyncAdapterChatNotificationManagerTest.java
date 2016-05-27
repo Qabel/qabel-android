@@ -22,7 +22,6 @@ import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.SimpleApplication;
 import de.qabel.qabelbox.util.IdentityHelper;
 
-import static de.qabel.qabelbox.chat.ChatNotification.Target.CHAT;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
@@ -88,11 +87,10 @@ public class SyncAdapterChatNotificationManagerTest {
         messages.add(message);
         messages.add(createExampleMessage(DateUtils.addMinutes(now, 1)));
 
-        List<ChatNotification> chatNotifications = manager.constructNotifications(messages);
-        assertThat(chatNotifications, hasSize(1));
+        ChatNotification notification = manager.constructNotification(messages);
         ChatNotification expected = new ChatNotification(message.getIdentity(),
                 message.getContact(), context.getString(R.string.new_messages, 2), now);
-        assertThat(chatNotifications.get(0), equalTo(expected));
+        assertThat(notification, equalTo(expected));
     }
 
     @Test
@@ -110,5 +108,27 @@ public class SyncAdapterChatNotificationManagerTest {
         manager.updateNotifications(messages);
         verify(presenter).showNotification(expected);
         verify(presenter).showNotification(secondExpected);
+    }
+
+    @Test
+    public void testMultipleSendersToSingleIdentity() throws Throwable {
+        List<ChatMessageInfo> messages = new ArrayList<>();
+        ChatMessageInfo message = createExampleMessage(now);
+        ChatMessageInfo secondMessage = createExampleMessage(DateUtils.addMinutes(now, 1));
+        secondMessage.setContact(IdentityHelper.createContact("second"));
+        messages.add(message);
+        messages.add(secondMessage);
+
+        ChatNotification notification = manager.constructNotification(messages);
+        assertThat(notification, notNullValue());
+        assertThat(notification.contact, nullValue());
+        assertThat(notification.message, equalTo(context.getString(R.string.new_messages, 2)));
+        assertThat(notification.contactHeader, equalTo(
+                message.getContact().getAlias() + ", " + secondMessage.getContact().getAlias()));
+    }
+
+    @Test
+    public void testNoNotification() throws Throwable {
+        assertThat(manager.constructNotification(new ArrayList<>()), nullValue());
     }
 }

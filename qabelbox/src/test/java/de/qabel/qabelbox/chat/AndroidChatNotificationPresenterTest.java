@@ -16,6 +16,7 @@ import java.util.Date;
 
 import de.qabel.qabelbox.BuildConfig;
 import de.qabel.qabelbox.SimpleApplication;
+import de.qabel.qabelbox.util.IdentityHelper;
 
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
@@ -33,7 +34,8 @@ public class AndroidChatNotificationPresenterTest {
     public void setUp() throws Exception {
         notificationManager = (NotificationManager) RuntimeEnvironment.application
                 .getSystemService(Context.NOTIFICATION_SERVICE);
-        notification = new ChatNotification("myid", "header, header", "message",
+        notification = new ChatNotification(IdentityHelper.createIdentity("identity", null),
+                "header, header", "message",
                 new Date());
         presenter = new AndroidChatNotificationPresenter(RuntimeEnvironment.application);
     }

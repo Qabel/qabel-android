@@ -12,6 +12,9 @@ import javax.inject.Inject;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.util.DefaultHashMap;
 
+import static de.qabel.qabelbox.chat.ChatNotification.Target.CHAT;
+import static de.qabel.qabelbox.chat.ChatNotification.Target.LIST;
+
 public class SyncAdapterChatNotificationManager implements ChatNotificationManager {
 
     private final Context context;
@@ -42,29 +45,29 @@ public class SyncAdapterChatNotificationManager implements ChatNotificationManag
                 continue;
             }
             notified.add(msg);
-            messages.get(msg.getIdentityKeyId()).add(msg);
+            messages.get(msg.getIdentity().getKeyIdentifier()).add(msg);
         }
         return messages;
     }
 
     List<ChatNotification> constructNotifications(Iterable<ChatMessageInfo> messages) {
-        DefaultHashMap<String, List<ChatMessageInfo>> map =
+        DefaultHashMap<String, List<ChatMessageInfo>> byContact =
                 new DefaultHashMap<>(contact -> new ArrayList<>());
         for (ChatMessageInfo msg: messages) {
-            map.get(msg.getContactName()).add(msg);
+            byContact.get(msg.getContact().getKeyIdentifier()).add(msg);
         }
         List<ChatNotification> notifications = new ArrayList<>();
-        for (List<ChatMessageInfo> contactMessages: map.values()) {
+        for (List<ChatMessageInfo> contactMessages: byContact.values()) {
             ChatMessageInfo first = contactMessages.get(0);
             if (contactMessages.size() > 1) {
                 String body = context.getString(R.string.new_messages, contactMessages.size());
                 notifications.add(
-                        new ChatNotification(first.getIdentityKeyId(), first.getContactName(),
+                        new ChatNotification(first.getIdentity(), first.getContact(),
                                 body, first.getSent())
                 );
             } else {
                 notifications.add(
-                        new ChatNotification(first.getIdentityKeyId(), first.getContactName(),
+                        new ChatNotification(first.getIdentity(), first.getContact(),
                                 first.getMessage(), first.getSent())
                 );
             }

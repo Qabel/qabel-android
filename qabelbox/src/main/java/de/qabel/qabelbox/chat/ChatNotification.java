@@ -1,32 +1,58 @@
 package de.qabel.qabelbox.chat;
 
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import java.util.Date;
 
+import de.qabel.core.config.Contact;
+import de.qabel.core.config.Identity;
+
 public class ChatNotification {
-    public String identityId;
+    public Identity identity;
     public String contactHeader;
     public String message;
     public Date when;
+    public Target target;
+    @Nullable
+    public Contact contact;
 
-    public ChatNotification(@NonNull String identityId,
+    public ChatNotification(@NonNull Identity identity,
                             @NonNull String contactHeader,
                             @NonNull String message,
                             @NonNull Date when) {
-        this.identityId = identityId;
+        this.identity = identity;
         this.contactHeader = contactHeader;
         this.message = message;
         this.when = when;
+        this.target = Target.LIST;
+    }
+
+    public ChatNotification(@NonNull Identity identity,
+                            @NonNull Contact contact,
+                            @NonNull String message,
+                            @NonNull Date when) {
+        this.identity = identity;
+        this.contactHeader = contact.getAlias();
+        this.message = message;
+        this.when = when;
+        this.target = Target.CHAT;
+        this.contact = contact;
+    }
+
+    enum Target {
+        LIST, CHAT
     }
 
     @Override
     public String toString() {
         return "ChatNotification{" +
-                "identityId='" + identityId + '\'' +
+                "identity=" + identity +
                 ", contactHeader='" + contactHeader + '\'' +
                 ", message='" + message + '\'' +
                 ", when=" + when +
+                ", target=" + target +
+                ", contact=" + contact +
                 '}';
     }
 
@@ -37,19 +63,23 @@ public class ChatNotification {
 
         ChatNotification that = (ChatNotification) o;
 
-        if (!identityId.equals(that.identityId)) return false;
+        if (!identity.equals(that.identity)) return false;
         if (!contactHeader.equals(that.contactHeader)) return false;
         if (!message.equals(that.message)) return false;
-        return when.equals(that.when);
+        if (!when.equals(that.when)) return false;
+        if (target != that.target) return false;
+        return contact != null ? contact.equals(that.contact) : that.contact == null;
 
     }
 
     @Override
     public int hashCode() {
-        int result = identityId.hashCode();
+        int result = identity.hashCode();
         result = 31 * result + contactHeader.hashCode();
         result = 31 * result + message.hashCode();
         result = 31 * result + when.hashCode();
+        result = 31 * result + target.hashCode();
+        result = 31 * result + (contact != null ? contact.hashCode() : 0);
         return result;
     }
 }

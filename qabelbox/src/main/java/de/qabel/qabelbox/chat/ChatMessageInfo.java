@@ -4,24 +4,27 @@ import android.support.annotation.NonNull;
 
 import java.util.Date;
 
+import de.qabel.core.config.Contact;
+import de.qabel.core.config.Identity;
+
 public class ChatMessageInfo {
 
     @NonNull
     private Date sent;
     @NonNull
-    private String contactName;
+    private Contact contact;
     @NonNull
-    private String identityKeyId;
+    private Identity identity;
     @NonNull
     private String message;
     @NonNull
     private MessageType type;
 
-    public ChatMessageInfo(@NonNull String contactName, @NonNull String identityKeyId,
+    public ChatMessageInfo(@NonNull Contact contact, @NonNull Identity identity,
                            @NonNull String message, @NonNull Date sent, @NonNull MessageType type) {
         this.sent = sent;
-        this.contactName = contactName;
-        this.identityKeyId = identityKeyId;
+        this.contact = contact;
+        this.identity = identity;
         this.message = message;
         this.type = type;
     }
@@ -36,21 +39,21 @@ public class ChatMessageInfo {
     }
 
     @NonNull
-    public String getContactName() {
-        return contactName;
+    public Contact getContact() {
+        return contact;
     }
 
-    public void setContactName(@NonNull String contactName) {
-        this.contactName = contactName;
+    public void setContact(@NonNull Contact contact) {
+        this.contact = contact;
     }
 
     @NonNull
-    public String getIdentityKeyId() {
-        return identityKeyId;
+    public Identity getIdentity() {
+        return identity;
     }
 
-    public void setIdentityKeyId(@NonNull String identityKeyId) {
-        this.identityKeyId = identityKeyId;
+    public void setIdentity(@NonNull Identity identity) {
+        this.identity = identity;
     }
 
     @NonNull
@@ -70,8 +73,8 @@ public class ChatMessageInfo {
         ChatMessageInfo that = (ChatMessageInfo) o;
 
         if (!getSent().equals(that.getSent())) return false;
-        if (!getContactName().equals(that.getContactName())) return false;
-        if (!getIdentityKeyId().equals(that.getIdentityKeyId())) return false;
+        if (!getContact().equals(that.getContact())) return false;
+        if (!getIdentity().equals(that.getIdentity())) return false;
         if (!getMessage().equals(that.getMessage())) return false;
         return getType() == that.getType();
 
@@ -80,8 +83,8 @@ public class ChatMessageInfo {
     @Override
     public int hashCode() {
         int result = getSent().hashCode();
-        result = 31 * result + getContactName().hashCode();
-        result = 31 * result + getIdentityKeyId().hashCode();
+        result = 31 * result + getContact().hashCode();
+        result = 31 * result + getIdentity().hashCode();
         result = 31 * result + getMessage().hashCode();
         result = 31 * result + getType().hashCode();
         return result;

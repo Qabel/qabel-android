@@ -122,8 +122,8 @@ public class QabelSyncAdapter extends AbstractThreadedSyncAdapter {
                 Identity identity = identityRepository.find(msg.getReceiverKey());
                 Contact contact = contactRepository.findByKeyId(identity, msg.getSenderKey());
                 ChatMessageInfo messageInfo = new ChatMessageInfo(
-                        contact.getAlias(),
-                        identity.getKeyIdentifier(),
+                        contact,
+                        identity,
                         msg.getData().getMessage(),
                         new Date(msg.getTime()),
                         ChatMessageInfo.MessageType.MESSAGE);

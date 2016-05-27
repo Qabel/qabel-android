@@ -36,7 +36,9 @@ public class AndroidChatNotificationPresenter implements ChatNotificationPresent
     @Override
     public void showNotification(ChatNotification notification) {
         Intent intent = new Intent(context, MainActivity.class);
-        intent.putExtra(MainActivity.ACTIVE_IDENTITY, notification.identityId);
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP
+                       | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        intent.putExtra(MainActivity.ACTIVE_IDENTITY, notification.identity.getKeyIdentifier());
         intent.putExtra(MainActivity.START_CONTACTS_FRAGMENT, true);
         PendingIntent pendingIntent = PendingIntent.getActivity(
                 context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT
@@ -50,7 +52,8 @@ public class AndroidChatNotificationPresenter implements ChatNotificationPresent
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             androidNotification.setCategory(Notification.CATEGORY_MESSAGE);
         }
-        notificationManager.notify("ChatNotification", identityToNotificationId.get(notification.identityId),
+        notificationManager.notify("ChatNotification", identityToNotificationId.get(
+                notification.identity.getKeyIdentifier()),
                 androidNotification.build());
     }
 }

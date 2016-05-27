@@ -7,6 +7,7 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import de.qabel.core.config.Contact;
 import de.qabel.core.config.DropServer;
 import de.qabel.core.config.Identity;
 import de.qabel.core.crypto.QblECKeyPair;
@@ -40,6 +41,17 @@ public class IdentityHelper {
             }
             identity.getPrefixes().add(prefix);
             return identity;
+        } catch (URISyntaxException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static Contact createContact(String contactName) {
+        try {
+            identity = new IdentityBuilder(new DropUrlGenerator(QabelBoxApplication.DEFAULT_DROP_SERVER))
+                    .withAlias(contactName).build();
+
+            return new Contact(contactName, identity.getDropUrls(), identity.getEcPublicKey());
         } catch (URISyntaxException e) {
             throw new RuntimeException(e);
         }

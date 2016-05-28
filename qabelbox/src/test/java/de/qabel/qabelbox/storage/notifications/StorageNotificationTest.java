@@ -26,9 +26,9 @@ import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.SimpleApplication;
 import de.qabel.qabelbox.TestConstants;
 import de.qabel.qabelbox.activities.MainActivity;
-import de.qabel.qabelbox.storage.BoxFile;
-import de.qabel.qabelbox.storage.BoxTransferListener;
-import de.qabel.qabelbox.storage.BoxUploadingFile;
+import de.qabel.qabelbox.storage.model.BoxFile;
+import de.qabel.qabelbox.storage.transfer.BoxTransferListener;
+import de.qabel.qabelbox.storage.model.BoxUploadingFile;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;

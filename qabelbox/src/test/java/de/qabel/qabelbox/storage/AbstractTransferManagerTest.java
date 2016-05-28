@@ -14,6 +14,8 @@ import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.TestConstants;
 import de.qabel.qabelbox.config.AppPreference;
 import de.qabel.qabelbox.exceptions.QblServerException;
+import de.qabel.qabelbox.storage.transfer.BoxTransferListener;
+import de.qabel.qabelbox.storage.transfer.TransferManager;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;

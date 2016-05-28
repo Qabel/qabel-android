@@ -16,6 +16,7 @@ import java.io.IOException;
 
 import de.qabel.qabelbox.BuildConfig;
 import de.qabel.qabelbox.SimpleApplication;
+import de.qabel.qabelbox.storage.model.BoxFile;
 import de.qabel.qabelbox.test.files.FileHelper;
 
 import static org.hamcrest.Matchers.*;

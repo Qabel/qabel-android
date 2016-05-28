@@ -1,4 +1,4 @@
-package de.qabel.qabelbox.storage;
+package de.qabel.qabelbox.storage.navigation;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
@@ -38,6 +38,18 @@ import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.exceptions.QblStorageNameConflict;
 import de.qabel.qabelbox.exceptions.QblStorageNotFound;
 import de.qabel.qabelbox.providers.BoxProvider;
+import de.qabel.qabelbox.storage.BoxVolume;
+import de.qabel.qabelbox.storage.DirectoryMetadata;
+import de.qabel.qabelbox.storage.FileCache;
+import de.qabel.qabelbox.storage.FileMetadata;
+import de.qabel.qabelbox.storage.model.BoxExternalFile;
+import de.qabel.qabelbox.storage.model.BoxExternalFolder;
+import de.qabel.qabelbox.storage.model.BoxExternalReference;
+import de.qabel.qabelbox.storage.model.BoxFile;
+import de.qabel.qabelbox.storage.model.BoxFolder;
+import de.qabel.qabelbox.storage.model.BoxObject;
+import de.qabel.qabelbox.storage.transfer.BoxTransferListener;
+import de.qabel.qabelbox.storage.transfer.TransferManager;
 
 public abstract class AbstractNavigation implements BoxNavigation {
 

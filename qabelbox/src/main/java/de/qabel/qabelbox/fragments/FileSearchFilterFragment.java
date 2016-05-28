@@ -17,8 +17,8 @@ import java.util.Date;
 
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.helper.Formatter;
-import de.qabel.qabelbox.storage.BoxFile;
-import de.qabel.qabelbox.storage.BoxObject;
+import de.qabel.qabelbox.storage.model.BoxFile;
+import de.qabel.qabelbox.storage.model.BoxObject;
 import de.qabel.qabelbox.storage.StorageSearch;
 
 /**

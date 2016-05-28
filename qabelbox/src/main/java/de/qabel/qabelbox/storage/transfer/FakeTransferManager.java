@@ -1,4 +1,4 @@
-package de.qabel.qabelbox.storage;
+package de.qabel.qabelbox.storage.transfer;
 
 import android.support.annotation.Nullable;
 

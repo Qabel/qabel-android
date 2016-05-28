@@ -53,9 +53,11 @@ import de.qabel.qabelbox.persistence.PersistenceMigration;
 import de.qabel.qabelbox.persistence.QblSQLiteParams;
 import de.qabel.qabelbox.persistence.RepositoryFactory;
 import de.qabel.qabelbox.providers.DocumentIdParser;
-import de.qabel.qabelbox.storage.BoxFile;
-import de.qabel.qabelbox.storage.BoxTransferListener;
-import de.qabel.qabelbox.storage.BoxUploadingFile;
+import de.qabel.qabelbox.storage.model.BoxFile;
+import de.qabel.qabelbox.storage.notifications.AndroidStorageNotificationManager;
+import de.qabel.qabelbox.storage.notifications.StorageNotificationManager;
+import de.qabel.qabelbox.storage.transfer.BoxTransferListener;
+import de.qabel.qabelbox.storage.model.BoxUploadingFile;
 import de.qabel.qabelbox.storage.notifications.AndroidStorageNotificationPresenter;
 
 public class LocalQabelService extends Service implements DropConnector {
@@ -63,7 +65,7 @@ public class LocalQabelService extends Service implements DropConnector {
     private final static Logger LOGGER = LoggerFactory.getLogger(LocalQabelService.class.getName());
 
     private static final String TAG = "LocalQabelService";
-    private static final String PREF_LAST_ACTIVE_IDENTITY = "PREF_LAST_ACTIVE_IDENTITY";
+    public static final String PREF_LAST_ACTIVE_IDENTITY = "PREF_LAST_ACTIVE_IDENTITY";
 
     private final IBinder mBinder = new LocalBinder();
 
@@ -73,7 +75,7 @@ public class LocalQabelService extends Service implements DropConnector {
     private DropHTTP dropHTTP;
     private HashMap<String, Map<String, BoxUploadingFile>> pendingUploads;
     private Queue<BoxUploadingFile> uploadingQueue;
-    private AndroidStorageNotificationPresenter storageNotificationManager;
+    private StorageNotificationManager storageNotificationManager;
     private Map<String, Map<String, BoxFile>> cachedFinishedUploads;
     private DocumentIdParser documentIdParser;
 
@@ -436,7 +438,8 @@ public class LocalQabelService extends Service implements DropConnector {
     }
 
     protected void updateUploadNotification() {
-        storageNotificationManager.updateUploadNotification(uploadingQueue);
+        storageNotificationManager.updateUploadNotification(
+                uploadingQueue.size(), uploadingQueue.peek());
     }
 
     public BoxTransferListener getUploadTransferListener(final BoxUploadingFile boxUploadingFile) {
@@ -490,7 +493,9 @@ public class LocalQabelService extends Service implements DropConnector {
         documentIdParser = new DocumentIdParser();
         cachedFinishedUploads = Collections.synchronizedMap(new HashMap<>());
         uploadingQueue = new LinkedBlockingDeque<>();
-        storageNotificationManager = new AndroidStorageNotificationPresenter(getApplicationContext());
+        // TODO Move to dagger
+        storageNotificationManager = new AndroidStorageNotificationManager(
+                new AndroidStorageNotificationPresenter(getApplicationContext()));
         sharedPreferences = getSharedPreferences(LocalQabelService.class.getCanonicalName(), MODE_PRIVATE);
     }
 

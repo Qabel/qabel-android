@@ -1,4 +1,4 @@
-package de.qabel.qabelbox.storage;
+package de.qabel.qabelbox.storage.navigation;
 
 import android.content.Context;
 import android.support.annotation.Nullable;
@@ -24,6 +24,10 @@ import java.util.Stack;
 import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.exceptions.QblStorageNotFound;
 import de.qabel.qabelbox.helper.FileHelper;
+import de.qabel.qabelbox.storage.BoxVolume;
+import de.qabel.qabelbox.storage.DirectoryMetadata;
+import de.qabel.qabelbox.storage.model.BoxFolder;
+import de.qabel.qabelbox.storage.transfer.TransferManager;
 
 public class FolderNavigation extends AbstractNavigation {
 

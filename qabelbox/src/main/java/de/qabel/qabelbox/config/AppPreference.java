@@ -18,6 +18,7 @@ public class AppPreference {
     private static final String P_ACCOUNT_EMAIL = "boxemail";
     private static final String P_LAST_APP_START_VERSION = "lastappstartversion";
     private static final String P_WELCOME_SCREEN_SHOWN_AT = "welcomescreenshownat";
+    private static final String P_LAST_ACTIVE_IDENTITY = "P_LAST_ACTIVE_IDENTITY";
 
     private final Context context;
     private final SharedPreferences settings;
@@ -94,4 +95,13 @@ public class AppPreference {
         SharedPreferences oldPrefs = context.getSharedPreferences(LocalQabelService.class.getCanonicalName(), Context.MODE_PRIVATE);
         return oldPrefs.getString(P_DEVICE_ID, null);
     }
+
+    public String getLastActiveIdentityKey() {
+        return settings.getString(P_LAST_ACTIVE_IDENTITY, null);
+    }
+
+    public void setLastActiveIdentityKey(String identityKey) {
+        settings.edit().putString(P_LAST_ACTIVE_IDENTITY, identityKey);
+    }
+
 }

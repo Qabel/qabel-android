@@ -22,9 +22,8 @@ import de.qabel.qabelbox.config.AppPreference;
 import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.providers.BoxProvider;
 import de.qabel.qabelbox.providers.MockBoxProvider;
-import de.qabel.qabelbox.storage.BlockServerTransferManager;
 import de.qabel.qabelbox.storage.BoxVolume;
-import de.qabel.qabelbox.storage.FakeTransferManager;
+import de.qabel.qabelbox.storage.transfer.FakeTransferManager;
 
 public abstract class MockedBoxProviderTest extends InstrumentationTestCase {
 

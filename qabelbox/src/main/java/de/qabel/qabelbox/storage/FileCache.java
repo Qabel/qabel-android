@@ -11,8 +11,9 @@ import android.util.Log;
 import java.io.File;
 
 import de.qabel.qabelbox.storage.FileCacheContract.FileEntry;
+import de.qabel.qabelbox.storage.model.BoxFile;
 
-class FileCache extends SQLiteOpenHelper {
+public class FileCache extends SQLiteOpenHelper {
 
     private static final String CREATE_TABLE =
             "CREATE TABLE IF NOT EXISTS " + FileEntry.TABLE_NAME + "( " +

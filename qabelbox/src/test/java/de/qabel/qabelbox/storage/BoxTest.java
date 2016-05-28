@@ -38,6 +38,13 @@ import de.qabel.qabelbox.config.AppPreference;
 import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.exceptions.QblStorageNameConflict;
 import de.qabel.qabelbox.exceptions.QblStorageNotFound;
+import de.qabel.qabelbox.storage.model.BoxExternalFile;
+import de.qabel.qabelbox.storage.model.BoxExternalReference;
+import de.qabel.qabelbox.storage.model.BoxFile;
+import de.qabel.qabelbox.storage.model.BoxFolder;
+import de.qabel.qabelbox.storage.model.BoxObject;
+import de.qabel.qabelbox.storage.navigation.BoxNavigation;
+import de.qabel.qabelbox.storage.transfer.FakeTransferManager;
 import de.qabel.qabelbox.test.files.FileHelper;
 import de.qabel.qabelbox.util.TestHelper;
 

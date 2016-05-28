@@ -1,4 +1,6 @@
-package de.qabel.qabelbox.storage;
+package de.qabel.qabelbox.storage.model;
+
+import de.qabel.qabelbox.storage.model.BoxObject;
 
 public class BoxUploadingFile extends BoxObject {
 

@@ -30,12 +30,12 @@ import de.qabel.qabelbox.helper.UIHelper;
 import de.qabel.qabelbox.providers.DocumentIdParser;
 import de.qabel.qabelbox.services.LocalBroadcastConstants;
 import de.qabel.qabelbox.services.LocalQabelService;
-import de.qabel.qabelbox.storage.BoxExternalFile;
-import de.qabel.qabelbox.storage.BoxFile;
-import de.qabel.qabelbox.storage.BoxFolder;
-import de.qabel.qabelbox.storage.BoxNavigation;
-import de.qabel.qabelbox.storage.BoxObject;
-import de.qabel.qabelbox.storage.BoxUploadingFile;
+import de.qabel.qabelbox.storage.model.BoxExternalFile;
+import de.qabel.qabelbox.storage.model.BoxFile;
+import de.qabel.qabelbox.storage.model.BoxFolder;
+import de.qabel.qabelbox.storage.navigation.BoxNavigation;
+import de.qabel.qabelbox.storage.model.BoxObject;
+import de.qabel.qabelbox.storage.model.BoxUploadingFile;
 import de.qabel.qabelbox.storage.BoxVolume;
 import de.qabel.qabelbox.storage.StorageSearch;
 

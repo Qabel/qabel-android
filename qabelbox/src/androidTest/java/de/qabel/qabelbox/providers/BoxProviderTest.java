@@ -10,7 +10,6 @@ import android.provider.DocumentsContract;
 import android.util.Log;
 
 import org.apache.commons.io.IOUtils;
-import org.junit.Ignore;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -26,11 +25,10 @@ import java.util.Arrays;
 import java.util.List;
 
 import de.qabel.qabelbox.BuildConfig;
-import de.qabel.qabelbox.communication.VolumeFileTransferHelper;
 import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.helper.MockedBoxProviderTest;
-import de.qabel.qabelbox.storage.BoxFolder;
-import de.qabel.qabelbox.storage.BoxNavigation;
+import de.qabel.qabelbox.storage.model.BoxFolder;
+import de.qabel.qabelbox.storage.navigation.BoxNavigation;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.startsWith;

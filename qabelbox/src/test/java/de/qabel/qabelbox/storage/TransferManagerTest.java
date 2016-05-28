@@ -20,6 +20,8 @@ import de.qabel.qabelbox.SimpleApplication;
 import de.qabel.qabelbox.TestConstants;
 import de.qabel.qabelbox.communication.URLs;
 import de.qabel.qabelbox.exceptions.QblStorageException;
+import de.qabel.qabelbox.storage.transfer.BlockServerTransferManager;
+import de.qabel.qabelbox.storage.transfer.BoxTransferListener;
 import de.qabel.qabelbox.test.files.FileHelper;
 
 import static junit.framework.Assert.assertEquals;

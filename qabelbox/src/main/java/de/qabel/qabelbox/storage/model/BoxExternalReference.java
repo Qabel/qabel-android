@@ -1,4 +1,4 @@
-package de.qabel.qabelbox.storage;
+package de.qabel.qabelbox.storage.model;
 
 import de.qabel.core.crypto.QblECPublicKey;
 import de.qabel.qabelbox.communication.URLs;

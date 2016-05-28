@@ -2,9 +2,9 @@ package de.qabel.qabelbox.storage.notifications;
 
 import javax.inject.Inject;
 
-import de.qabel.qabelbox.storage.BoxFile;
-import de.qabel.qabelbox.storage.BoxTransferListener;
-import de.qabel.qabelbox.storage.BoxUploadingFile;
+import de.qabel.qabelbox.storage.model.BoxFile;
+import de.qabel.qabelbox.storage.transfer.BoxTransferListener;
+import de.qabel.qabelbox.storage.model.BoxUploadingFile;
 
 public class AndroidStorageNotificationManager implements StorageNotificationManager {
 

@@ -9,6 +9,8 @@ import java.io.IOException;
 import de.qabel.core.crypto.QblECKeyPair;
 import de.qabel.core.crypto.QblECPublicKey;
 import de.qabel.qabelbox.exceptions.QblStorageException;
+import de.qabel.qabelbox.storage.model.BoxExternalFile;
+import de.qabel.qabelbox.storage.model.BoxFile;
 
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;

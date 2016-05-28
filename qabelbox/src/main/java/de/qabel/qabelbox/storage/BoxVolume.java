@@ -29,6 +29,9 @@ import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.exceptions.QblStorageNotFound;
 import de.qabel.qabelbox.providers.BoxProvider;
 import de.qabel.qabelbox.providers.DocumentIdParser;
+import de.qabel.qabelbox.storage.navigation.BoxNavigation;
+import de.qabel.qabelbox.storage.navigation.FolderNavigation;
+import de.qabel.qabelbox.storage.transfer.TransferManager;
 
 public class BoxVolume {
 
@@ -100,7 +103,7 @@ public class BoxVolume {
                 this, PATH_ROOT, null, context);
     }
 
-    DirectoryMetadata getDirectoryMetadata() throws QblStorageException {
+    public DirectoryMetadata getDirectoryMetadata() throws QblStorageException {
 
         String rootRef = getRootRef();
         logger.info("Navigating to " + rootRef);

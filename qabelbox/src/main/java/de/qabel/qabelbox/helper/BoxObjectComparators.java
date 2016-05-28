@@ -2,10 +2,10 @@ package de.qabel.qabelbox.helper;
 
 import java.util.Comparator;
 
-import de.qabel.qabelbox.storage.BoxFile;
-import de.qabel.qabelbox.storage.BoxFolder;
-import de.qabel.qabelbox.storage.BoxObject;
-import de.qabel.qabelbox.storage.BoxUploadingFile;
+import de.qabel.qabelbox.storage.model.BoxFile;
+import de.qabel.qabelbox.storage.model.BoxFolder;
+import de.qabel.qabelbox.storage.model.BoxObject;
+import de.qabel.qabelbox.storage.model.BoxUploadingFile;
 
 public class BoxObjectComparators {
 

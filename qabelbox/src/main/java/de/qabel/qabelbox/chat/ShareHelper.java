@@ -10,12 +10,9 @@ import android.widget.Toast;
 
 import org.spongycastle.util.encoders.Hex;
 
-import java.util.Map;
-
 import de.qabel.core.config.Contact;
 import de.qabel.core.config.Identity;
 import de.qabel.core.drop.DropMessage;
-import de.qabel.core.drop.DropURL;
 import de.qabel.core.exceptions.QblDropPayloadSizeException;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.activities.MainActivity;
@@ -23,10 +20,10 @@ import de.qabel.qabelbox.dialogs.SelectContactForShareDialog;
 import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.helper.UIHelper;
 import de.qabel.qabelbox.services.LocalQabelService;
-import de.qabel.qabelbox.storage.BoxExternalReference;
-import de.qabel.qabelbox.storage.BoxFile;
-import de.qabel.qabelbox.storage.BoxNavigation;
-import de.qabel.qabelbox.storage.BoxObject;
+import de.qabel.qabelbox.storage.model.BoxExternalReference;
+import de.qabel.qabelbox.storage.model.BoxFile;
+import de.qabel.qabelbox.storage.navigation.BoxNavigation;
+import de.qabel.qabelbox.storage.model.BoxObject;
 
 /**
  * Created by danny on 19.02.16.

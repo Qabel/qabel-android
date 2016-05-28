@@ -14,6 +14,7 @@ import java.util.UUID;
 import de.qabel.qabelbox.BuildConfig;
 import de.qabel.qabelbox.SimpleApplication;
 import de.qabel.qabelbox.exceptions.QblStorageException;
+import de.qabel.qabelbox.storage.transfer.FakeTransferManager;
 
 @RunWith(RobolectricGradleTestRunner.class)
 @Config(application = SimpleApplication.class, constants = BuildConfig.class)

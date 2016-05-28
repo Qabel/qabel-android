@@ -1,4 +1,4 @@
-package de.qabel.qabelbox.storage;
+package de.qabel.qabelbox.storage.transfer;
 
 import android.content.Context;
 import android.support.annotation.Nullable;
@@ -7,12 +7,8 @@ import android.util.Log;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.BufferedInputStream;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;

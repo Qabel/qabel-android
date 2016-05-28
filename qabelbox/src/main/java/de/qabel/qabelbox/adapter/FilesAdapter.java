@@ -24,11 +24,11 @@ import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.helper.BoxObjectComparators;
 import de.qabel.qabelbox.helper.Formatter;
 import de.qabel.qabelbox.services.LocalQabelService;
-import de.qabel.qabelbox.storage.BoxExternalFile;
-import de.qabel.qabelbox.storage.BoxFile;
-import de.qabel.qabelbox.storage.BoxFolder;
-import de.qabel.qabelbox.storage.BoxObject;
-import de.qabel.qabelbox.storage.BoxUploadingFile;
+import de.qabel.qabelbox.storage.model.BoxExternalFile;
+import de.qabel.qabelbox.storage.model.BoxFile;
+import de.qabel.qabelbox.storage.model.BoxFolder;
+import de.qabel.qabelbox.storage.model.BoxObject;
+import de.qabel.qabelbox.storage.model.BoxUploadingFile;
 
 public class FilesAdapter extends RecyclerView.Adapter<FilesAdapter.FilesViewHolder> {
 

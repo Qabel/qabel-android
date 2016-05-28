@@ -1,4 +1,4 @@
-package de.qabel.qabelbox.storage;
+package de.qabel.qabelbox.storage.model;
 
 import android.support.annotation.NonNull;
 

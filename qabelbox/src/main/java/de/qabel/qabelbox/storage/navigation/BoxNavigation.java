@@ -1,9 +1,14 @@
-package de.qabel.qabelbox.storage;
+package de.qabel.qabelbox.storage.navigation;
 
 import android.support.annotation.Nullable;
 
 import de.qabel.core.crypto.QblECPublicKey;
 import de.qabel.qabelbox.exceptions.QblStorageException;
+import de.qabel.qabelbox.storage.model.BoxExternalReference;
+import de.qabel.qabelbox.storage.model.BoxFile;
+import de.qabel.qabelbox.storage.model.BoxFolder;
+import de.qabel.qabelbox.storage.model.BoxObject;
+import de.qabel.qabelbox.storage.transfer.BoxTransferListener;
 
 import java.io.InputStream;
 import java.util.List;

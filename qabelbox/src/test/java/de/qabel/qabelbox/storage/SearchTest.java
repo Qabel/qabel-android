@@ -21,6 +21,12 @@ import de.qabel.core.crypto.QblECKeyPair;
 import de.qabel.qabelbox.BuildConfig;
 import de.qabel.qabelbox.SimpleApplication;
 import de.qabel.qabelbox.exceptions.QblStorageException;
+import de.qabel.qabelbox.storage.model.BoxExternalReference;
+import de.qabel.qabelbox.storage.model.BoxFile;
+import de.qabel.qabelbox.storage.model.BoxFolder;
+import de.qabel.qabelbox.storage.model.BoxObject;
+import de.qabel.qabelbox.storage.navigation.BoxNavigation;
+import de.qabel.qabelbox.storage.transfer.FakeTransferManager;
 import de.qabel.qabelbox.test.TestConstants;
 import de.qabel.qabelbox.test.files.FileHelper;
 

@@ -8,14 +8,14 @@ import android.content.Intent;
 import android.support.annotation.Nullable;
 import android.support.v7.app.NotificationCompat;
 
-public abstract class QblNotificationManager {
+public abstract class QblNotificationPresenter {
 
     private final NotificationManager notificationManager;
     private final Context context;
 
     private int idSequence = 0;
 
-    public QblNotificationManager(Context context) {
+    public QblNotificationPresenter(Context context) {
         this.context = context;
         this.notificationManager = (NotificationManager)
                 context.getSystemService(Context.NOTIFICATION_SERVICE);

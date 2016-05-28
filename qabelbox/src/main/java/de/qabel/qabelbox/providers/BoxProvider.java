@@ -67,7 +67,7 @@ import de.qabel.qabelbox.storage.BoxUploadingFile;
 import de.qabel.qabelbox.storage.BoxVolume;
 import de.qabel.qabelbox.storage.FakeTransferManager;
 import de.qabel.qabelbox.storage.TransferManager;
-import de.qabel.qabelbox.storage.notifications.StorageNotificationManager;
+import de.qabel.qabelbox.storage.notifications.StorageNotificationPresenter;
 
 public class BoxProvider extends DocumentsProvider {
 
@@ -111,7 +111,7 @@ public class BoxProvider extends DocumentsProvider {
 
     private HashMap<String, Map<String, BoxUploadingFile>> pendingUploads;
     private Queue<BoxUploadingFile> uploadingQueue;
-    private StorageNotificationManager storageNotificationManager;
+    private StorageNotificationPresenter storageNotificationManager;
     private Map<String, Map<String, BoxFile>> cachedFinishedUploads;
 
     @Override
@@ -137,7 +137,7 @@ public class BoxProvider extends DocumentsProvider {
         staticBindToApplication();
 
         folderContentCache = new HashMap<>();
-        storageNotificationManager = new StorageNotificationManager(getContext());
+        storageNotificationManager = new StorageNotificationPresenter(getContext());
 
         return true;
     }

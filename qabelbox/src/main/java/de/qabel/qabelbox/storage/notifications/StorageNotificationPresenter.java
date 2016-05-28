@@ -5,8 +5,6 @@ import android.app.Notification;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
-import android.support.annotation.IntegerRes;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.NotificationCompat;
 
@@ -18,14 +16,14 @@ import java.util.Queue;
 
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.activities.MainActivity;
-import de.qabel.qabelbox.notifications.QblNotificationManager;
+import de.qabel.qabelbox.notifications.QblNotificationPresenter;
 import de.qabel.qabelbox.storage.BoxFile;
 import de.qabel.qabelbox.storage.BoxTransferListener;
 import de.qabel.qabelbox.storage.BoxUploadingFile;
 
-public class StorageNotificationManager extends QblNotificationManager {
+public class StorageNotificationPresenter extends QblNotificationPresenter {
 
-    private static final String TAG = StorageNotificationManager.class.getSimpleName();
+    private static final String TAG = StorageNotificationPresenter.class.getSimpleName();
 
     private final int UPLOAD_ID = generateId();
     private String lastUploadPath;
@@ -34,7 +32,7 @@ public class StorageNotificationManager extends QblNotificationManager {
 
     private Map<String, Integer> downloadNotifications = new HashMap<>();
 
-    public StorageNotificationManager(Context context) {
+    public StorageNotificationPresenter(Context context) {
         super(context);
     }
 

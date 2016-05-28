@@ -12,7 +12,6 @@ import android.util.Log;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.spongycastle.util.encoders.Hex;
 
 import java.io.FileNotFoundException;
 import java.net.URI;
@@ -33,7 +32,6 @@ import de.qabel.core.config.Identities;
 import de.qabel.core.config.Identity;
 import de.qabel.core.crypto.AbstractBinaryDropMessage;
 import de.qabel.core.crypto.BinaryDropMessageV0;
-import de.qabel.core.crypto.CryptoUtils;
 import de.qabel.core.drop.DropMessage;
 import de.qabel.core.drop.DropURL;
 import de.qabel.core.exceptions.QblDropInvalidMessageSizeException;
@@ -58,7 +56,7 @@ import de.qabel.qabelbox.providers.DocumentIdParser;
 import de.qabel.qabelbox.storage.BoxFile;
 import de.qabel.qabelbox.storage.BoxTransferListener;
 import de.qabel.qabelbox.storage.BoxUploadingFile;
-import de.qabel.qabelbox.storage.notifications.StorageNotificationManager;
+import de.qabel.qabelbox.storage.notifications.StorageNotificationPresenter;
 
 public class LocalQabelService extends Service implements DropConnector {
 
@@ -75,7 +73,7 @@ public class LocalQabelService extends Service implements DropConnector {
     private DropHTTP dropHTTP;
     private HashMap<String, Map<String, BoxUploadingFile>> pendingUploads;
     private Queue<BoxUploadingFile> uploadingQueue;
-    private StorageNotificationManager storageNotificationManager;
+    private StorageNotificationPresenter storageNotificationManager;
     private Map<String, Map<String, BoxFile>> cachedFinishedUploads;
     private DocumentIdParser documentIdParser;
 
@@ -492,7 +490,7 @@ public class LocalQabelService extends Service implements DropConnector {
         documentIdParser = new DocumentIdParser();
         cachedFinishedUploads = Collections.synchronizedMap(new HashMap<>());
         uploadingQueue = new LinkedBlockingDeque<>();
-        storageNotificationManager = new StorageNotificationManager(getApplicationContext());
+        storageNotificationManager = new StorageNotificationPresenter(getApplicationContext());
         sharedPreferences = getSharedPreferences(LocalQabelService.class.getCanonicalName(), MODE_PRIVATE);
     }
 

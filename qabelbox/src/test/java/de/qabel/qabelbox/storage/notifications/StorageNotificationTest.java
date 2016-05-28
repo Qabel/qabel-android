@@ -6,8 +6,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
-import com.google.android.apps.common.testing.accessibility.framework.proto.FrameworkProtos;
-
 import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.Test;
@@ -22,7 +20,6 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
-import java.util.Set;
 
 import de.qabel.qabelbox.BuildConfig;
 import de.qabel.qabelbox.R;
@@ -46,13 +43,13 @@ public class StorageNotificationTest {
     private static final String UPLOAD_PATH = "path";
 
     private NotificationManager notificationManager;
-    private StorageNotificationManager storageNotificationManager;
+    private StorageNotificationPresenter storageNotificationManager;
 
     @Before
     public void setUp() {
         notificationManager = (NotificationManager) RuntimeEnvironment.application
                 .getSystemService(Context.NOTIFICATION_SERVICE);
-        storageNotificationManager = new StorageNotificationManager(
+        storageNotificationManager = new StorageNotificationPresenter(
                 RuntimeEnvironment.application.getApplicationContext());
     }
 

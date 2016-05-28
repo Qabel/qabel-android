@@ -68,6 +68,7 @@ import de.qabel.qabelbox.storage.BoxVolume;
 import de.qabel.qabelbox.storage.FakeTransferManager;
 import de.qabel.qabelbox.storage.TransferManager;
 import de.qabel.qabelbox.storage.notifications.StorageNotificationPresenter;
+import de.qabel.qabelbox.storage.notifications.StorageNotificationManager;
 
 public class BoxProvider extends DocumentsProvider {
 

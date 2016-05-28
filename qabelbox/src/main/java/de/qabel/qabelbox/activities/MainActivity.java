@@ -138,6 +138,7 @@ public class MainActivity extends CrashReportingActivity
     public static final String START_CONTACTS_FRAGMENT = "START_CONTACTS_FRAGMENT";
     public static final String ACTIVE_IDENTITY = "ACTIVE_IDENTITY";
     public static final String ACTIVE_CONTACT = "ACTIVE_CONTACT";
+    public static final String START_FILES_FRAGMENT_PATH = "START_FILES_FRAGMENT_PATH";
 
     public BoxVolume boxVolume;
     public ActionBarDrawerToggle toggle;
@@ -534,6 +535,7 @@ public class MainActivity extends CrashReportingActivity
 
     private void initAndSelectFilesFragment() {
         initFilesFragment();
+        //String filePath = intent.getStringExtra(START_FILES_FRAGMENT_PATH);
         selectFilesFragment();
     }
 

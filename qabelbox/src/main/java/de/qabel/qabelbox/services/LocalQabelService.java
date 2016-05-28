@@ -56,6 +56,7 @@ import de.qabel.qabelbox.providers.DocumentIdParser;
 import de.qabel.qabelbox.storage.BoxFile;
 import de.qabel.qabelbox.storage.BoxTransferListener;
 import de.qabel.qabelbox.storage.BoxUploadingFile;
+import de.qabel.qabelbox.storage.notifications.StorageNotificationManager;
 import de.qabel.qabelbox.storage.notifications.StorageNotificationPresenter;
 
 public class LocalQabelService extends Service implements DropConnector {
@@ -144,7 +145,7 @@ public class LocalQabelService extends Service implements DropConnector {
 
     /**
      * Reset the persistence
-     * <p>
+     *
      * This should only be used in testing.
      */
     public void deleteContactsAndIdentities() {

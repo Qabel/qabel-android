@@ -43,13 +43,13 @@ public class StorageNotificationTest {
     private static final String UPLOAD_PATH = "path";
 
     private NotificationManager notificationManager;
-    private StorageNotificationPresenter storageNotificationManager;
+    private AndroidStorageNotificationPresenter storageNotificationManager;
 
     @Before
     public void setUp() {
         notificationManager = (NotificationManager) RuntimeEnvironment.application
                 .getSystemService(Context.NOTIFICATION_SERVICE);
-        storageNotificationManager = new StorageNotificationPresenter(
+        storageNotificationManager = new AndroidStorageNotificationPresenter(
                 RuntimeEnvironment.application.getApplicationContext());
     }
 

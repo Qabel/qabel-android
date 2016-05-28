@@ -67,7 +67,8 @@ import de.qabel.qabelbox.storage.BoxUploadingFile;
 import de.qabel.qabelbox.storage.BoxVolume;
 import de.qabel.qabelbox.storage.FakeTransferManager;
 import de.qabel.qabelbox.storage.TransferManager;
-import de.qabel.qabelbox.storage.notifications.StorageNotificationPresenter;
+import de.qabel.qabelbox.storage.notifications.AndroidStorageNotificationManager;
+import de.qabel.qabelbox.storage.notifications.AndroidStorageNotificationPresenter;
 import de.qabel.qabelbox.storage.notifications.StorageNotificationManager;
 
 public class BoxProvider extends DocumentsProvider {
@@ -112,7 +113,7 @@ public class BoxProvider extends DocumentsProvider {
 
     private HashMap<String, Map<String, BoxUploadingFile>> pendingUploads;
     private Queue<BoxUploadingFile> uploadingQueue;
-    private StorageNotificationPresenter storageNotificationManager;
+    private StorageNotificationManager storageNotificationManager;
     private Map<String, Map<String, BoxFile>> cachedFinishedUploads;
 
     @Override
@@ -138,7 +139,9 @@ public class BoxProvider extends DocumentsProvider {
         staticBindToApplication();
 
         folderContentCache = new HashMap<>();
-        storageNotificationManager = new StorageNotificationPresenter(getContext());
+        //TODO move to dagger
+        storageNotificationManager = new AndroidStorageNotificationManager(
+                new AndroidStorageNotificationPresenter(getContext()));
 
         return true;
     }
@@ -628,7 +631,7 @@ public class BoxProvider extends DocumentsProvider {
 
         BoxNavigation navigation = traverseToFolder(volume, strings);
         BoxFile file = findFileInList(basename, navigation);
-        InputStream inputStream = navigation.download(file, storageNotificationManager.addDownloadNotifications(ownerKey, path, file));
+        InputStream inputStream = navigation.download(file, storageNotificationManager.addDownloadNotification(ownerKey, path, file));
         File out = new File(getContext().getExternalCacheDir(), basename);
         FileOutputStream fileOutputStream = new FileOutputStream(out);
         IOUtils.copy(inputStream, fileOutputStream);

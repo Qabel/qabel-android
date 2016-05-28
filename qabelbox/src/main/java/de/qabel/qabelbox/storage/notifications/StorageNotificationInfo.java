@@ -1,15 +1,12 @@
 package de.qabel.qabelbox.storage.notifications;
 
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import de.qabel.qabelbox.notifications.QblNotificationInfo;
 
 public class StorageNotificationInfo implements QblNotificationInfo {
 
-    protected static final int DOWNLOAD = 1;
-    protected static final int UPLOAD = 1;
-
-    private int type;
     private String fileName;
     private String path;
     private String identityKeyId;
@@ -17,13 +14,11 @@ public class StorageNotificationInfo implements QblNotificationInfo {
     private long doneBytes;
     private long totalBytes;
 
-    public StorageNotificationInfo(int type,
-                                   @NonNull String fileName,
+    public StorageNotificationInfo(@NonNull String fileName,
                                    @NonNull String path,
                                    @NonNull String identityKeyId,
                                    long doneBytes,
                                    long totalBytes) {
-        this.type = type;
         this.fileName = fileName;
         this.path = path;
         this.identityKeyId = identityKeyId;
@@ -33,11 +28,7 @@ public class StorageNotificationInfo implements QblNotificationInfo {
 
     @Override
     public String getIdentifier() {
-        return this.type + path + fileName + identityKeyId;
-    }
-
-    public int getType() {
-        return this.type;
+        return identityKeyId + path + fileName;
     }
 
     public String getFileName() {
@@ -52,12 +43,28 @@ public class StorageNotificationInfo implements QblNotificationInfo {
         return identityKeyId;
     }
 
+    public void setProgress(long doneBytes, long totalBytes) {
+        this.doneBytes = doneBytes;
+        this.totalBytes = totalBytes;
+    }
+
     public long getDoneBytes() {
         return doneBytes;
     }
 
     public long getTotalBytes() {
         return totalBytes;
+    }
+
+    public int getProgress() {
+        return (int) (100 * doneBytes / totalBytes);
+    }
+
+    public void complete(){
+        totalBytes = doneBytes;
+    }
+    public boolean isComplete() {
+        return doneBytes == totalBytes;
     }
 
 }

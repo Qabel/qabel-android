@@ -45,6 +45,8 @@ import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+import javax.inject.Inject;
+
 import de.qabel.core.config.Identities;
 import de.qabel.core.config.Identity;
 import de.qabel.core.crypto.QblECKeyPair;
@@ -52,24 +54,25 @@ import de.qabel.qabelbox.BuildConfig;
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.config.AppPreference;
+import de.qabel.qabelbox.dagger.components.BoxComponent;
+import de.qabel.qabelbox.dagger.components.DaggerBoxComponent;
+import de.qabel.qabelbox.dagger.modules.ContextModule;
 import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.exceptions.QblStorageNotFound;
 import de.qabel.qabelbox.services.LocalBroadcastConstants;
 import de.qabel.qabelbox.services.LocalQabelService;
-import de.qabel.qabelbox.storage.transfer.BlockServerTransferManager;
+import de.qabel.qabelbox.storage.BoxVolume;
 import de.qabel.qabelbox.storage.model.BoxExternalFile;
 import de.qabel.qabelbox.storage.model.BoxFile;
 import de.qabel.qabelbox.storage.model.BoxFolder;
-import de.qabel.qabelbox.storage.navigation.BoxNavigation;
 import de.qabel.qabelbox.storage.model.BoxObject;
-import de.qabel.qabelbox.storage.transfer.BoxTransferListener;
 import de.qabel.qabelbox.storage.model.BoxUploadingFile;
-import de.qabel.qabelbox.storage.BoxVolume;
+import de.qabel.qabelbox.storage.navigation.BoxNavigation;
+import de.qabel.qabelbox.storage.notifications.StorageNotificationManager;
+import de.qabel.qabelbox.storage.transfer.BlockServerTransferManager;
+import de.qabel.qabelbox.storage.transfer.BoxTransferListener;
 import de.qabel.qabelbox.storage.transfer.FakeTransferManager;
 import de.qabel.qabelbox.storage.transfer.TransferManager;
-import de.qabel.qabelbox.storage.notifications.AndroidStorageNotificationManager;
-import de.qabel.qabelbox.storage.notifications.AndroidStorageNotificationPresenter;
-import de.qabel.qabelbox.storage.notifications.StorageNotificationManager;
 
 public class BoxProvider extends DocumentsProvider {
 
@@ -103,8 +106,11 @@ public class BoxProvider extends DocumentsProvider {
      * DocumentProvider class is not easily possible
      */
     public static String defaultTransferManager = "block";
+    @Inject
+    StorageNotificationManager storageNotificationManager;
+    @Inject
+    DocumentIdParser mDocumentIdParser;
 
-    private DocumentIdParser mDocumentIdParser;
     private ThreadPoolExecutor mThreadPoolExecutor;
 
     private Map<String, BoxCursor> folderContentCache;
@@ -113,21 +119,16 @@ public class BoxProvider extends DocumentsProvider {
 
     private HashMap<String, Map<String, BoxUploadingFile>> pendingUploads;
     private Queue<BoxUploadingFile> uploadingQueue;
-    private StorageNotificationManager storageNotificationManager;
     private Map<String, Map<String, BoxFile>> cachedFinishedUploads;
+
+    BoxComponent boxComponent;
 
     @Override
     public boolean onCreate() {
 
         final Context context = getContext();
-        if (context == null) {
-            Log.e(TAG, "No context available in BoxProvider, exiting");
-            return false;
-        }
 
         bindToService(context);
-
-        mDocumentIdParser = new DocumentIdParser();
 
         mThreadPoolExecutor = new ThreadPoolExecutor(
                 2,
@@ -139,9 +140,9 @@ public class BoxProvider extends DocumentsProvider {
         staticBindToApplication();
 
         folderContentCache = new HashMap<>();
-        //TODO move to dagger
-        storageNotificationManager = new AndroidStorageNotificationManager(
-                new AndroidStorageNotificationPresenter(getContext()));
+
+        boxComponent = DaggerBoxComponent.builder().contextModule(new ContextModule(context)).build();
+        boxComponent.inject(this);
 
         return true;
     }

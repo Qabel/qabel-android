@@ -12,6 +12,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.inject.Inject;
+
 import de.qabel.core.config.Contact;
 import de.qabel.core.config.Contacts;
 import de.qabel.core.config.Identities;
@@ -26,16 +28,20 @@ import de.qabel.core.exceptions.QblSpoofedSenderException;
 import de.qabel.core.exceptions.QblVersionMismatchException;
 import de.qabel.core.http.DropHTTP;
 import de.qabel.core.http.HTTPResult;
+import de.qabel.desktop.repository.ContactRepository;
+import de.qabel.desktop.repository.IdentityRepository;
+import de.qabel.desktop.repository.exception.PersistenceException;
 
 public class HttpDropConnector implements DropConnector {
     private static final String TAG = "HttpDropConnector";
     private DropHTTP dropHTTP;
-    private Identities identities;
-    private Map<Identity, Contacts> contacts;
+    private IdentityRepository identityRepository;
+    private ContactRepository contactRepository;
 
-    public HttpDropConnector(Identities identities, Map<Identity, Contacts> contacts) {
-        this.identities = identities;
-        this.contacts = contacts;
+    @Inject
+    public HttpDropConnector(IdentityRepository identityRepository, ContactRepository contactRepository) {
+        this.identityRepository = identityRepository;
+        this.contactRepository = contactRepository;
         this.dropHTTP = new DropHTTP();
     }
 
@@ -171,11 +177,23 @@ public class HttpDropConnector implements DropConnector {
     }
 
     private Identities getIdentities() {
-        return identities;
+        try {
+            return identityRepository.findAll();
+        } catch (PersistenceException e) {
+            throw new IllegalStateException(e);
+        }
     }
 
     private Map<Identity, Contacts> getAllContacts() {
-        return contacts;
+        try {
+            Map<Identity, Contacts> contacts = new HashMap<>();
+            for (Identity identity: getIdentities().getIdentities()) {
+                contacts.put(identity, contactRepository.find(identity));
+            }
+            return contacts;
+        } catch (PersistenceException e) {
+            throw new IllegalStateException("Could not retrieve Identities", e);
+        }
     }
 
     /**

@@ -2,13 +2,13 @@ package de.qabel.qabelbox.activities;
 
 import android.app.AlertDialog;
 import android.app.Fragment;
-import android.app.FragmentManager;
 import android.content.ComponentName;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.SharedPreferences;
 import android.graphics.LightingColorFilter;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -41,19 +41,18 @@ import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 
 import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import de.qabel.core.config.Contact;
 import de.qabel.core.config.Identity;
 import de.qabel.desktop.repository.ContactRepository;
 import de.qabel.desktop.repository.IdentityRepository;
 import de.qabel.desktop.repository.exception.EntityNotFoundExcepion;
 import de.qabel.desktop.repository.exception.PersistenceException;
-import de.qabel.desktop.repository.sqlite.SqliteContactRepository;
 import de.qabel.qabelbox.BuildConfig;
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
@@ -65,12 +64,15 @@ import de.qabel.qabelbox.communication.connection.ConnectivityManager;
 import de.qabel.qabelbox.config.AppPreference;
 import de.qabel.qabelbox.config.QabelSchema;
 import de.qabel.qabelbox.dagger.HasComponent;
-import de.qabel.qabelbox.dagger.components.ActivityComponent;
+import de.qabel.qabelbox.dagger.components.MainActivityComponent;
+import de.qabel.qabelbox.dagger.modules.ActivityModule;
+import de.qabel.qabelbox.dagger.modules.MainActivityModule;
 import de.qabel.qabelbox.dialogs.SelectIdentityForUploadDialog;
 import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.fragments.AboutLicencesFragment;
 import de.qabel.qabelbox.fragments.BaseFragment;
 import de.qabel.qabelbox.fragments.ContactBaseFragment;
+import de.qabel.qabelbox.fragments.ContactChatFragment;
 import de.qabel.qabelbox.fragments.ContactFragment;
 import de.qabel.qabelbox.fragments.CreateIdentityMainFragment;
 import de.qabel.qabelbox.fragments.FilesFragment;
@@ -83,6 +85,7 @@ import de.qabel.qabelbox.helper.AccountHelper;
 import de.qabel.qabelbox.helper.CacheFileHelper;
 import de.qabel.qabelbox.helper.ExternalApps;
 import de.qabel.qabelbox.helper.FileHelper;
+import de.qabel.qabelbox.helper.PreferencesHelper;
 import de.qabel.qabelbox.helper.Sanity;
 import de.qabel.qabelbox.helper.UIHelper;
 import de.qabel.qabelbox.providers.BoxProvider;
@@ -99,7 +102,8 @@ import de.qabel.qabelbox.views.DrawerNavigationViewHolder;
 public class MainActivity extends CrashReportingActivity
         implements NavigationView.OnNavigationItemSelectedListener,
         FilesFragment.FilesListListener,
-        IdentitiesFragment.IdentityListListener, HasComponent<ActivityComponent> {
+        IdentitiesFragment.IdentityListListener,
+        HasComponent<MainActivityComponent> {
 
     public static final String TAG_CONTACT_CHAT_FRAGMENT = "TAG_CONTACT_CHAT_FRAGMENT";
 
@@ -133,6 +137,7 @@ public class MainActivity extends CrashReportingActivity
     public static final String START_FILES_FRAGMENT = "START_FILES_FRAGMENT";
     public static final String START_CONTACTS_FRAGMENT = "START_CONTACTS_FRAGMENT";
     public static final String ACTIVE_IDENTITY = "ACTIVE_IDENTITY";
+    public static final String ACTIVE_CONTACT = "ACTIVE_CONTACT";
 
     public BoxVolume boxVolume;
     public ActionBarDrawerToggle toggle;
@@ -165,16 +170,23 @@ public class MainActivity extends CrashReportingActivity
     ConnectivityManager connectivityManager;
 
     private DrawerNavigationViewHolder drawerHolder;
-    private Identity activeIdentity;
+
+    @Inject
+    Identity activeIdentity;
 
     @Inject
     IdentityRepository identityRepository;
     @Inject
     public ContactRepository contactRepository;
 
+    @Inject
+    SharedPreferences sharedPreferences;
+
+    private MainActivityComponent component;
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-
+        Log.d(TAG, "On Activity result");
         final Uri uri;
         if (requestCode == REQUEST_EXTERN_VIEWER_APP) {
             Log.d(TAG, "result from extern app " + resultCode);
@@ -190,6 +202,7 @@ public class MainActivity extends CrashReportingActivity
                         Log.w(TAG, "Recieved data with identity null");
                     }
                     addIdentity(identity);
+                    return;
                 }
             }
             if (data != null) {
@@ -214,7 +227,6 @@ public class MainActivity extends CrashReportingActivity
                             VolumeFileTransferHelper.upload(self, uri, boxNavigation, boxVolume);
                         }
                     }
-
                     return;
                 }
                 if (requestCode == REQUEST_CODE_DELETE_FILE) {
@@ -254,16 +266,21 @@ public class MainActivity extends CrashReportingActivity
                             return null;
                         }
                     }.execute();
+                    return;
                 }
             }
         }
+        Log.d(TAG, "super.onActivityResult");
+        super.onActivityResult(requestCode, resultCode, data);
     }
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getComponent().inject(this);
+        component = getApplicationComponent()
+                .plus(new ActivityModule(this))
+                .plus(new MainActivityModule(this));
+        component.inject(this);
         self = this;
         Log.d(TAG, "onCreate " + this.hashCode());
         Intent serviceIntent = new Intent(this, LocalQabelService.class);
@@ -365,9 +382,7 @@ public class MainActivity extends CrashReportingActivity
         }
         //check if navigation drawer need to reset
         if (getFragmentManager().getBackStackEntryCount() == 0 || (activeFragment instanceof BaseFragment) && !((BaseFragment) activeFragment).supportBackButton()) {
-            if (activeFragment instanceof SelectUploadFolderFragment) {
-            } else {
-
+            if (!(activeFragment instanceof SelectUploadFolderFragment)) {
                 getSupportActionBar().setDisplayHomeAsUpEnabled(false);
                 toggle.setDrawerIndicatorEnabled(true);
             }
@@ -376,12 +391,7 @@ public class MainActivity extends CrashReportingActivity
 
     private void addBackStackListener() {
 
-        getFragmentManager().addOnBackStackChangedListener(new FragmentManager.OnBackStackChangedListener() {
-            @Override
-            public void onBackStackChanged() {
-                handleMainFragmentChange();
-            }
-        });
+        getFragmentManager().addOnBackStackChangedListener(() -> handleMainFragmentChange());
     }
 
     @NonNull
@@ -391,7 +401,6 @@ public class MainActivity extends CrashReportingActivity
 
             @Override
             public void onServiceConnected(ComponentName name, IBinder service) {
-
                 LocalQabelService.LocalBinder binder = (LocalQabelService.LocalBinder) service;
                 mService = binder.getService();
                 QabelBoxApplication.getInstance().serviceCreatedOutside(mService);
@@ -406,49 +415,34 @@ public class MainActivity extends CrashReportingActivity
         };
     }
 
+
     private void onLocalServiceConnected(Intent intent) {
 
         Log.d(TAG, "LocalQabelService connected");
-        if (getActiveIdentity() == null) {
-            if (Sanity.startWizardActivities(this)) {
-                Log.d(TAG, "started wizard dialog");
-                return;
-            } else {
-                Set<Identity> identities = mService.getIdentities().getIdentities();
-                mService.setActiveIdentity(identities.iterator().next());
-            }
-        }
         provider = ((QabelBoxApplication) getApplication()).getProvider();
         Log.i(TAG, "Provider: " + provider);
-
         provider.setLocalService(mService);
-
         initDrawer();
+        handleIntent(intent);
+    }
 
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        handleIntent(intent);
+    }
 
-        // Check if activity is started with ACTION_SEND or ACTION_SEND_MULTIPLE
-
+    private void handleIntent(Intent intent) {
         String action = intent.getAction();
         String type = intent.getType();
 
         Log.i(TAG, "Intent action: " + action);
 
         // Checks if a fragment should be launched
-        boolean start_files_fragment = intent.getBooleanExtra(START_FILES_FRAGMENT, true);
-        boolean start_contacts_fragment = intent.getBooleanExtra(START_CONTACTS_FRAGMENT, false);
-        String identityKeyId = intent.getStringExtra(ACTIVE_IDENTITY);
-        if (identityKeyId != null) {
-            try {
-                activeIdentity = identityRepository.find(identityKeyId);
-            } catch (EntityNotFoundExcepion | PersistenceException entityNotFoundExcepion) {
-                Log.e(TAG, "Could not activate identity with key id " + identityKeyId);
-            }
-        } else {
-            activeIdentity = mService.getActiveIdentity();
-        }
-        if (activeIdentity != null) {
-            refreshFilesBrowser(activeIdentity);
-        }
+        boolean startFilesFragment = intent.getBooleanExtra(START_FILES_FRAGMENT, true);
+        boolean startContactsFragment = intent.getBooleanExtra(START_CONTACTS_FRAGMENT, false);
+        String activeContact = intent.getStringExtra(ACTIVE_CONTACT);
+        refreshFilesBrowser(activeIdentity);
         if (type != null && intent.getAction() != null) {
             String scheme = intent.getScheme();
 
@@ -477,17 +471,17 @@ public class MainActivity extends CrashReportingActivity
                     }
                     break;
                 default:
-                    if (start_contacts_fragment) {
-                        selectContactsFragment();
-                    } else if (start_files_fragment) {
+                    if (startContactsFragment) {
+                        selectContactsFragment(activeContact);
+                    } else if (startFilesFragment) {
                         initAndSelectFilesFragment();
                     }
                     break;
             }
         } else {
-            if (start_contacts_fragment) {
-                selectContactsFragment();
-            } else if (start_files_fragment) {
+            if (startContactsFragment) {
+                selectContactsFragment(activeContact);
+            } else if (startFilesFragment) {
                 initAndSelectFilesFragment();
             }
         }
@@ -544,16 +538,12 @@ public class MainActivity extends CrashReportingActivity
     }
 
     public void refreshFilesBrowser(Identity activeIdentity) {
-
-        drawerHolder.textViewSelectedIdentity.setText(activeIdentity.getAlias());
-
-        initBoxVolume(activeIdentity);
-        initChatServer();
-        initFilesFragment();
-    }
-
-    private void initChatServer() {
-        chatServer = new ChatServer(getApplicationContext());
+        try {
+            initBoxVolume(activeIdentity);
+            initFilesFragment();
+        } catch (RuntimeException e) {
+            Log.e(TAG, "Could not init box volume in MainActivity", e);
+        }
     }
 
     private void shareIntoApp(final ArrayList<Uri> data) {
@@ -870,7 +860,7 @@ public class MainActivity extends CrashReportingActivity
     }
 
     public void changeActiveIdentity(Identity identity) {
-        mService.setActiveIdentity(identity);
+        PreferencesHelper.setLastActiveIdentityID(sharedPreferences, identity.getKeyIdentifier());
         Intent intent = new Intent(this, MainActivity.class);
         intent.putExtra(ACTIVE_IDENTITY, identity.getKeyIdentifier());
         finish();
@@ -950,13 +940,6 @@ public class MainActivity extends CrashReportingActivity
 
 
     @Override
-    protected void onNewIntent(Intent intent) {
-
-        Log.d(TAG, "onCreateOnIntent");
-        onLocalServiceConnected(intent);
-    }
-
-    @Override
     public void onScrolledToBottom(boolean scrolledToBottom) {
 
         if (scrolledToBottom) {
@@ -1030,7 +1013,6 @@ public class MainActivity extends CrashReportingActivity
     protected void onDestroy() {
 
         if (mServiceConnection != null && mService != null) {
-
             unbindService(mServiceConnection);
         }
         if (isTaskRoot()) {
@@ -1136,6 +1118,7 @@ public class MainActivity extends CrashReportingActivity
 
         drawerHolder.imageViewExpandIdentity.setColorFilter(mDrawerIndicatorTintFilter);
 
+        drawerHolder.textViewSelectedIdentity.setText(activeIdentity.getAlias());
         drawer.addDrawerListener(new DrawerLayout.DrawerListener() {
             @Override
             public void onDrawerSlide(View drawerView, float slideOffset) {
@@ -1208,6 +1191,24 @@ public class MainActivity extends CrashReportingActivity
                 TAG_MANAGE_IDENTITIES_FRAGMENT);
     }
 
+    private void selectContactsFragment(String activeContact) {
+        if (activeContact == null) {
+            selectContactsFragment();
+            return;
+        }
+        try {
+            Contact contact = contactRepository.findByKeyId(activeIdentity, activeContact);
+            Log.d(TAG, "Selecting chat with  contact " + contact.getAlias());
+            getFragmentManager().beginTransaction().add(R.id.fragment_container,
+                    ContactChatFragment.newInstance(contact),
+                    MainActivity.TAG_CONTACT_CHAT_FRAGMENT)
+                    .addToBackStack(MainActivity.TAG_CONTACT_CHAT_FRAGMENT).commit();
+        } catch (EntityNotFoundExcepion entityNotFoundExcepion) {
+            Log.w(TAG, "Could not find contact " + activeContact);
+            selectContactsFragment();
+        }
+    }
+
     private void selectContactsFragment() {
         contactFragment = new ContactFragment();
         showMainFragment(contactFragment, TAG_CONTACT_LIST_FRAGMENT);
@@ -1240,4 +1241,8 @@ public class MainActivity extends CrashReportingActivity
         handleMainFragmentChange();
     }
 
+    @Override
+    public MainActivityComponent getComponent() {
+        return component;
+    }
 }

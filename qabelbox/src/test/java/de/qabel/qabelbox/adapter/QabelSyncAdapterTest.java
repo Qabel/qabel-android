@@ -4,14 +4,11 @@ import android.app.Application;
 import android.content.SyncResult;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricGradleTestRunner;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
-
-import java.util.concurrent.CountDownLatch;
 
 import de.qabel.core.config.Contact;
 import de.qabel.core.config.Identity;
@@ -21,14 +18,17 @@ import de.qabel.qabelbox.SimpleApplication;
 import de.qabel.qabelbox.chat.ChatMessagesDataBase;
 import de.qabel.qabelbox.chat.ChatServer;
 import de.qabel.qabelbox.exceptions.QblStorageEntityExistsException;
+import de.qabel.qabelbox.services.MockedDropConnector;
 import de.qabel.qabelbox.services.RoboLocalQabelService;
 import de.qabel.qabelbox.util.IdentityHelper;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.anyList;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
 
 
-@Ignore("SSL error on build server")
 @RunWith(RobolectricGradleTestRunner.class)
 @Config(application = SimpleApplication.class, constants = BuildConfig.class)
 public class QabelSyncAdapterTest {
@@ -42,6 +42,7 @@ public class QabelSyncAdapterTest {
     private ChatServer chatServer;
     private Contact contact1;
     private Contact contact2;
+    private MockedDropConnector dropConnector;
 
     @Before
     public void setUp() throws QblStorageEntityExistsException {
@@ -59,21 +60,21 @@ public class QabelSyncAdapterTest {
         db1 = new ChatMessagesDataBase(context, identity);
         db2 = new ChatMessagesDataBase(context, identity2);
         chatServer = new ChatServer(context);
+        dropConnector = new MockedDropConnector();
         syncAdapter = new QabelSyncAdapter(context, true);
+        syncAdapter.setDropConnector(dropConnector);
+        syncAdapter = spy(syncAdapter);
     }
 
     @Test
+    @SuppressWarnings("unchecked")
     public void testOnPerformSync() throws Exception {
         assertThat(db1.getAll().length, is(0));
-        assertThat(db2.getAll().length, is(0));
-        DropMessage message = chatServer.createTextDropMessage(identity, "foobar");
-        final CountDownLatch lock = new CountDownLatch(1);
-        service.sendDropMessage(message, contact2, identity,
-                deliveryStatus -> lock.countDown());
-        lock.await();
+        DropMessage message = ChatServer.createTextDropMessage(identity, "foobar");
+        dropConnector.sendDropMessage(message, contact2, identity, null);
         SyncResult syncResult = new SyncResult();
         syncAdapter.onPerformSync(null, null, null, null, syncResult);
-        assertThat(db2.getAll().length, is(1));
-
+        assertThat(db1.getAll().length, is(1));
+        verify(syncAdapter).notifyForNewMessages(anyList());
     }
 }

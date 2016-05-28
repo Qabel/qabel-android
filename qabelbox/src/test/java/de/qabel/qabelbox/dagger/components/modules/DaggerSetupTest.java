@@ -8,19 +8,15 @@ import org.robolectric.RobolectricGradleTestRunner;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
 
-import de.qabel.core.config.Identity;
 import de.qabel.qabelbox.BuildConfig;
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.SimpleApplication;
 import de.qabel.qabelbox.dagger.components.ActivityComponent;
 import de.qabel.qabelbox.dagger.components.ApplicationComponent;
 import de.qabel.qabelbox.dagger.components.DaggerApplicationComponent;
-import de.qabel.qabelbox.dagger.components.IdentityComponent;
 import de.qabel.qabelbox.dagger.modules.ActivityModule;
 import de.qabel.qabelbox.dagger.modules.ApplicationModule;
-import de.qabel.qabelbox.dagger.modules.IdentityModule;
 import de.qabel.qabelbox.dagger.modules.RepositoryModule;
-import de.qabel.qabelbox.util.IdentityHelper;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
@@ -41,15 +37,6 @@ public class DaggerSetupTest {
                             (QabelBoxApplication) RuntimeEnvironment.application))
                     .repositoryModule(new RepositoryModule())
                 .build();
-    }
-
-    @Test
-    public void testIdentity() throws Throwable {
-        Identity identity = IdentityHelper.createIdentity("foo", "bar");
-        IdentityComponent identityComponent = getApplicationComponent()
-
-                .plus(new IdentityModule(identity));
-        assertThat(identityComponent.identity(), equalTo(identity));
     }
 
     @Test

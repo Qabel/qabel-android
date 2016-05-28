@@ -10,6 +10,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import javax.inject.Inject;
+
 import de.qabel.core.config.Contact;
 import de.qabel.core.config.Identity;
 import de.qabel.core.drop.DropMessage;
@@ -25,6 +27,7 @@ public class ChatServer {
     private final List<ChatServerCallback> callbacks = new ArrayList<>();
     private Context context;
 
+    @Inject
     public ChatServer(Context context) {
         this.context = context;
 
@@ -49,8 +52,9 @@ public class ChatServer {
      * click on refresh button
      */
 
-    public Collection<DropMessage> refreshList(DropConnector connector, Identity identity) {
+    public Collection<ChatMessageItem> refreshList(DropConnector connector, Identity identity) {
         try (ChatMessagesDataBase dataBase = getDataBaseForIdentity(identity)) {
+            List<ChatMessageItem> messages = new ArrayList<>();
             long lastRetrieved = dataBase.getLastRetrievedDropMessageTime();
             Log.d(TAG, "last retrieved dropmessage time " + lastRetrieved + " / " + System.currentTimeMillis());
             String identityKey = getIdentityIdentifier(identity);
@@ -63,7 +67,11 @@ public class ChatServer {
                     ChatMessageItem cms = new ChatMessageItem(item);
                     cms.receiver = identityKey;
                     cms.isNew = 1;
-                    storeIntoDB(dataBase, cms);
+                    if (storeIntoDB(dataBase, cms) == ChatMessagesDataBase.MessageStatus.DUPLICATE) {
+                        cms.isNew = 0;
+                    } else {
+                        messages.add(cms);
+                    }
                 }
 
                 //@todo replace this with header from server response.
@@ -72,13 +80,12 @@ public class ChatServer {
                     lastRetrieved = Math.max(item.getCreationDate().getTime(), lastRetrieved);
                 }
             }
-            lastRetrieved = 0;
             dataBase.setLastRetrievedDropMessagesTime(lastRetrieved);
             Log.d(TAG, "new retrieved dropmessage time " + lastRetrieved);
 
             sendCallbacksRefreshed();
             dataBase.close();
-            return result;
+            return messages;
         }
     }
 
@@ -87,18 +94,20 @@ public class ChatServer {
     }
 
 
-    public void storeIntoDB(ChatMessagesDataBase dataBase, ChatMessageItem item) {
+    public ChatMessagesDataBase.MessageStatus storeIntoDB(ChatMessagesDataBase dataBase, ChatMessageItem item) {
         if (item != null) {
-            dataBase.put(item);
+            return dataBase.put(item);
         }
+        return ChatMessagesDataBase.MessageStatus.ERROR;
     }
 
-    public void storeIntoDB(Identity identity, ChatMessageItem item) {
+    public ChatMessagesDataBase.MessageStatus storeIntoDB(Identity identity, ChatMessageItem item) {
         if (item != null) {
             try (ChatMessagesDataBase db = getDataBaseForIdentity(identity)) {
-                db.put(item);
+                return db.put(item);
             }
         }
+        return ChatMessagesDataBase.MessageStatus.ERROR;
     }
 
     /**
@@ -111,14 +120,14 @@ public class ChatServer {
         }
     }
 
-    public DropMessage createTextDropMessage(Identity identity, String message) {
+    public static DropMessage createTextDropMessage(Identity identity, String message) {
 
         String payload_type = ChatMessageItem.BOX_MESSAGE;
         String payload = createTextDropMessagePayload(message);
         return new DropMessage(identity, payload, payload_type);
     }
 
-    public String createTextDropMessagePayload(String message) {
+    public static String createTextDropMessagePayload(String message) {
         JSONObject payloadJson = new JSONObject();
         try {
             payloadJson.put(TAG_MESSAGE, message);

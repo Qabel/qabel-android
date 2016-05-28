@@ -36,6 +36,8 @@ import java.util.Collection;
 
 import javax.inject.Inject;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import de.qabel.core.config.Contact;
 import de.qabel.core.config.Contacts;
 import de.qabel.core.config.Identity;
@@ -51,7 +53,7 @@ import de.qabel.qabelbox.adapter.ContactsAdapter;
 import de.qabel.qabelbox.chat.ChatServer;
 import de.qabel.qabelbox.config.ContactExportImport;
 import de.qabel.qabelbox.config.QabelSchema;
-import de.qabel.qabelbox.dagger.components.ActivityComponent;
+import de.qabel.qabelbox.dagger.components.MainActivityComponent;
 import de.qabel.qabelbox.exceptions.QblStorageEntityExistsException;
 import de.qabel.qabelbox.helper.AccountHelper;
 import de.qabel.qabelbox.helper.ExternalApps;
@@ -68,46 +70,35 @@ public class ContactFragment extends BaseFragment {
     public static final int REQUEST_EXPORT_CONTACT = 1001;
     private static final String TAG = "ContactFragment";
 
-    private RecyclerView contactListRecyclerView;
+    @BindView(R.id.contact_list) RecyclerView contactListRecyclerView;
     private ContactsAdapter contactListAdapter;
 
-    private TextView contactCount;
-    private View emptyView;
-    private ChatServer chatServer;
+    @BindView(R.id.contactCount) TextView contactCount;
+
+    @BindView(R.id.empty_view) View emptyView;
     private String dataToExport;
     private int exportedContactCount;
     private boolean useDocumentProvider = true;//used for tests
 
-    @Inject
-    ContactRepository contactRepository;
+    @Inject ContactRepository contactRepository;
 
-    @Inject
-    Context context;
+    @Inject Context context;
+
+    @Inject ChatServer chatServer;
+
+    @Inject Identity activeIdentity;
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        getComponent(ActivityComponent.class).inject(this);
+        getComponent(MainActivityComponent.class).inject(this);
         setHasOptionsMenu(true);
-        mActivity.registerReceiver(refreshContactListReceiver,
-                new IntentFilter(Helper.INTENT_REFRESH_CONTACTLIST));
-        AccountHelper.startOnDemandSyncAdapter();
-    }
-
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        chatServer = new ChatServer(context);
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
-        context = null;
+        startRefresh();
+        refreshContactList();
     }
 
     private Identity getActiveIdentity() {
-       return mActivity.getActiveIdentity();
+        return activeIdentity;
     }
 
     @Override
@@ -115,26 +106,15 @@ public class ContactFragment extends BaseFragment {
                              Bundle savedInstanceState) {
 
         View view = inflater.inflate(R.layout.fragment_contacts, container, false);
-        contactCount = (TextView) view.findViewById(R.id.contactCount);
-        contactListRecyclerView = (RecyclerView) view.findViewById(R.id.contact_list);
+        ButterKnife.bind(this, view);
         contactListRecyclerView.setHasFixedSize(true);
-        emptyView = view.findViewById(R.id.empty_view);
         RecyclerView.LayoutManager recyclerViewLayoutManager = new LinearLayoutManager(view.getContext());
         contactListRecyclerView.setLayoutManager(recyclerViewLayoutManager);
-        refreshContactList();
-
         return view;
     }
 
     @Override
-    public void onViewCreated(View view, Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-        refreshContactList();
-    }
-
-    @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-
         menu.clear();
         inflater.inflate(R.menu.ab_contacts, menu);
     }
@@ -144,13 +124,17 @@ public class ContactFragment extends BaseFragment {
 
         int id = item.getItemId();
         if (id == R.id.action_contact_refresh) {
-            AccountHelper.startOnDemandSyncAdapter();
+            startRefresh();
         }
         if (id == R.id.action_contact_export_all) {
             exportAllContacts();
 
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    public void startRefresh() {
+        AccountHelper.startOnDemandSyncAdapter();
     }
 
     public void enableDocumentProvider(boolean value) {
@@ -210,14 +194,12 @@ public class ContactFragment extends BaseFragment {
 
     private void setClickListener() {
 
-        contactListAdapter.setOnItemClickListener(new ContactsAdapter.OnItemClickListener() {
-
-            @Override
-            public void onItemClick(View view, final int position) {
-
-                final Contact contact = contactListAdapter.getContact(position);
-                getFragmentManager().beginTransaction().add(R.id.fragment_container, ContactChatFragment.newInstance(contact), MainActivity.TAG_CONTACT_CHAT_FRAGMENT).addToBackStack(MainActivity.TAG_CONTACT_CHAT_FRAGMENT).commit();
-            }
+        contactListAdapter.setOnItemClickListener((view, position) -> {
+            final Contact contact = contactListAdapter.getContact(position);
+            getFragmentManager().beginTransaction().add(R.id.fragment_container,
+                    ContactChatFragment.newInstance(contact),
+                    MainActivity.TAG_CONTACT_CHAT_FRAGMENT)
+                    .addToBackStack(MainActivity.TAG_CONTACT_CHAT_FRAGMENT).commit();
         }, (view, position) -> longContactClickAction(position));
     }
 
@@ -260,8 +242,8 @@ public class ContactFragment extends BaseFragment {
     @Override
     public void onResume() {
 		super.onResume();
-        AccountHelper.startOnDemandSyncAdapter();
-	}
+        startRefresh();
+    }
 
     private void exportContactAsQRCode(Contact contact) {
         mActivity.getFragmentManager().beginTransaction()
@@ -287,43 +269,34 @@ public class ContactFragment extends BaseFragment {
         context.sendBroadcast(intent);
     }
 
-    @Override
-    public void onDestroy() {
-        Log.v(TAG, "unregisterReceiver");
-        mActivity.unregisterReceiver(refreshContactListReceiver);
-        super.onDestroy();
-    }
-
     private void refreshContactList() {
-        if (contactListRecyclerView != null && mActivity != null) {
-            Contacts contacts;
-            try {
-                contacts = contactRepository.find(getActiveIdentity());
-            } catch (PersistenceException e) {
-                throw new RuntimeException(e);
-            }
-            final int count = contacts.getContacts().size();
-            ArrayList<ContactAdapterItem> items = new ArrayList<>();
-            for (Contact c : contacts.getContacts()) {
-                items.add(new ContactAdapterItem(c, chatServer.hasNewMessages(getActiveIdentity(), c)));
-            }
-            contactListAdapter = new ContactsAdapter(items);
-            setClickListener();
-
-            getActivity().runOnUiThread(() -> {
-                if (count == 0) {
-                    contactCount.setVisibility(View.INVISIBLE);
-                } else {
-                    contactCount.setText(getString(R.string.contact_count).replace("%1", "" + count));
-                    contactCount.setVisibility(View.VISIBLE);
-                }
-                contactListAdapter.setEmptyView(emptyView);
-                contactListRecyclerView.setAdapter(contactListAdapter);
-
-                contactListAdapter.notifyDataSetChanged();
-
-            });
+        Contacts contacts;
+        try {
+            contacts = contactRepository.find(getActiveIdentity());
+        } catch (PersistenceException e) {
+            throw new RuntimeException(e);
         }
+        final int count = contacts.getContacts().size();
+        ArrayList<ContactAdapterItem> items = new ArrayList<>();
+        for (Contact c : contacts.getContacts()) {
+            items.add(new ContactAdapterItem(c, chatServer.hasNewMessages(getActiveIdentity(), c)));
+        }
+        contactListAdapter = new ContactsAdapter(items);
+        setClickListener();
+
+        getActivity().runOnUiThread(() -> {
+            if (count == 0) {
+                contactCount.setVisibility(View.INVISIBLE);
+            } else {
+                contactCount.setText(getString(R.string.contact_count).replace("%1", "" + count));
+                contactCount.setVisibility(View.VISIBLE);
+            }
+            contactListAdapter.setEmptyView(emptyView);
+            contactListRecyclerView.setAdapter(contactListAdapter);
+
+            contactListAdapter.notifyDataSetChanged();
+
+        });
     }
 
     @Override
@@ -347,7 +320,7 @@ public class ContactFragment extends BaseFragment {
                             addContactByFile();
                             break;
                         case R.id.add_contact_via_qr:
-                            IntentIntegrator integrator = new IntentIntegrator(getActivity());
+                            IntentIntegrator integrator = new IntentIntegrator(this);
                             integrator.initiateScan();
                             break;
                         case R.id.add_contact_direct_input:
@@ -372,7 +345,7 @@ public class ContactFragment extends BaseFragment {
     @Override
     public void onActivityResult(int requestCode, int resultCode,
                                  Intent resultData) {
-
+        Log.d(TAG, "ContactFragment onActivityResult");
         if (resultCode == Activity.RESULT_OK) {
 
             if (requestCode == REQUEST_EXPORT_CONTACT) {
@@ -435,12 +408,14 @@ public class ContactFragment extends BaseFragment {
                                     mActivity.getString(R.string.contact_import_zero_additions)
                             );
                         }
+                        refreshContactList();
                     } catch (IOException | JSONException ioException) {
                         UIHelper.showDialogMessage(mActivity, R.string.dialog_headline_warning, R.string.contact_import_failed, ioException);
                     }
                 }
             }
 
+            Log.d(TAG, "Checking for QR code scan");
             IntentResult scanResult = IntentIntegrator.parseActivityResult(requestCode, resultCode, resultData);
             if (scanResult != null && scanResult.getContents() != null) {
                 String[] result = scanResult.getContents().split("\\r?\\n");
@@ -453,6 +428,7 @@ public class ContactFragment extends BaseFragment {
                         QblECPublicKey publicKey = new QblECPublicKey(Hex.decode(result[3]));
                         Contact contact = new Contact(result[1], dropURLs, publicKey);
                         addContactSilent(contact);
+                        refreshContactList();
                     } catch (Exception e) {
                         Log.w(TAG, "add contact failed", e);
                         UIHelper.showDialogMessage(mActivity, R.string.dialog_headline_warning, R.string.contact_import_failed, e);
@@ -463,7 +439,6 @@ public class ContactFragment extends BaseFragment {
     }
 
     private void selectAddContactFragment(Identity identity) {
-
         getFragmentManager().beginTransaction()
                 .replace(R.id.fragment_container, AddContactFragment.newInstance(identity), null)
                 .addToBackStack(null)
@@ -476,6 +451,9 @@ public class ContactFragment extends BaseFragment {
         public void onReceive(Context context, Intent intent) {
             Log.v(TAG, "receive refresh contactlist event");
             refreshContactList();
+            if (isOrderedBroadcast()) {
+                abortBroadcast();
+            }
         }
     };
 
@@ -483,20 +461,21 @@ public class ContactFragment extends BaseFragment {
     public void onStart() {
         super.onStart();
         chatServer.addListener(chatServerCallback);
+        IntentFilter filter = new IntentFilter(Helper.INTENT_REFRESH_CONTACTLIST);
+        filter.setPriority(10);
+        context.registerReceiver(refreshContactListReceiver,
+                filter);
     }
 
     @Override
     public void onStop() {
-        chatServer.removeListener(chatServerCallback);
         super.onStop();
+        chatServer.removeListener(chatServerCallback);
+        context.unregisterReceiver(refreshContactListReceiver);
     }
 
-    private final ChatServer.ChatServerCallback chatServerCallback = new ChatServer.ChatServerCallback() {
-
-        @Override
-        public void onRefreshed() {
-            Log.d(TAG, "refreshed ");
-            sendRefreshContactList();
-        }
+    private final ChatServer.ChatServerCallback chatServerCallback = () -> {
+        Log.d(TAG, "refreshed ");
+        sendRefreshContactList();
     };
 }

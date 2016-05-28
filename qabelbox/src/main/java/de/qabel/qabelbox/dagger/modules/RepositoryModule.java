@@ -29,4 +29,5 @@ public class RepositoryModule {
             RepositoryFactory factory, AndroidClientDatabase database) {
         return factory.getContactRepository(database);
     }
+
 }

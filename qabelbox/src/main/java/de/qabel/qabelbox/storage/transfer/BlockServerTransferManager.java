@@ -32,11 +32,15 @@ public class BlockServerTransferManager implements TransferManager {
     private final Context context;
 
     public BlockServerTransferManager(File tempDir) {
-        this.tempDir = tempDir;
+        this(QabelBoxApplication.getInstance().getApplicationContext(), tempDir);
+    }
+
+    public BlockServerTransferManager(Context context, File tmpDir){
+        this.tempDir = tmpDir;
         latches = new ConcurrentHashMap<>();
         errors = new HashMap<>();
 
-        context = QabelBoxApplication.getInstance().getApplicationContext();
+        this.context = context;
         blockServer = new BlockServer(context);
     }
 

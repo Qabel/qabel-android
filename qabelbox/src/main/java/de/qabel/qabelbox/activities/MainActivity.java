@@ -34,6 +34,7 @@ import com.cocosw.bottomsheet.BottomSheet;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -422,7 +423,6 @@ public class MainActivity extends CrashReportingActivity
         Log.d(TAG, "LocalQabelService connected");
         provider = ((QabelBoxApplication) getApplication()).getProvider();
         Log.i(TAG, "Provider: " + provider);
-        provider.setLocalService(mService);
         initDrawer();
         handleIntent(intent);
     }
@@ -592,10 +592,18 @@ public class MainActivity extends CrashReportingActivity
     }
 
     private void initBoxVolume(Identity activeIdentity) {
-
-        boxVolume = provider.getVolumeForRoot(
-                activeIdentity.getEcPublicKey().getReadableKeyIdentifier(),
-                VolumeFileTransferHelper.getPrefixFromIdentity(activeIdentity));
+        try {
+            System.out.println("Init BOX");
+            System.out.println(activeIdentity.getAlias());
+            System.out.println(activeIdentity.getEcPublicKey());
+            System.out.println(activeIdentity.getEcPublicKey().getReadableKeyIdentifier());
+            boxVolume = provider.getVolumeForRoot(
+                    activeIdentity.getEcPublicKey().getReadableKeyIdentifier(),
+                    VolumeFileTransferHelper.getPrefixFromIdentity(activeIdentity));
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+            //TODO Cannot create volume
+        }
     }
 
     @OnClick(R.id.fab)

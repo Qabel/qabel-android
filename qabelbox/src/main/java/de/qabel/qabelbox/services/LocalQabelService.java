@@ -396,7 +396,6 @@ public class LocalQabelService extends Service implements DropConnector {
         BoxUploadingFile boxUploadingFile = new BoxUploadingFile(filename, uploadPath,
                 documentIdParser.getIdentity(documentId));
         uploadsInPath.put(filename, boxUploadingFile);
-        pendingUploads.put(uploadPath, uploadsInPath);
         uploadingQueue.add(boxUploadingFile);
         updateUploadNotification();
         broadcastUploadStatus(documentId, LocalBroadcastConstants.UPLOAD_STATUS_NEW, extras);

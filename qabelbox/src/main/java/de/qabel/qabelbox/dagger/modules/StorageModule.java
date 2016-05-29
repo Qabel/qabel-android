@@ -8,7 +8,11 @@ import javax.inject.Singleton;
 
 import dagger.Module;
 import dagger.Provides;
+import de.qabel.desktop.repository.IdentityRepository;
+import de.qabel.qabelbox.config.AppPreference;
 import de.qabel.qabelbox.providers.DocumentIdParser;
+import de.qabel.qabelbox.storage.AndroidBoxManager;
+import de.qabel.qabelbox.storage.BoxManager;
 import de.qabel.qabelbox.storage.notifications.AndroidStorageNotificationManager;
 import de.qabel.qabelbox.storage.notifications.AndroidStorageNotificationPresenter;
 import de.qabel.qabelbox.storage.notifications.StorageNotificationManager;
@@ -34,7 +38,18 @@ public class StorageModule {
     }
 
     @Singleton @Provides
-    TransferManager providesTransferManager(File tmpFile){
-        return new BlockServerTransferManager(tmpFile);
+    TransferManager providesTransferManager(Context context, File tmpFile){
+        return new BlockServerTransferManager(context, tmpFile);
     }
+
+    @Singleton @Provides BoxManager providesBoxManager(Context context,
+                                                       StorageNotificationManager notificationManager,
+                                                       DocumentIdParser documentIdParser,
+                                                       AppPreference preferences,
+                                                       TransferManager transferManager,
+                                                       IdentityRepository identityRepository){
+        return new AndroidBoxManager(context, notificationManager,
+                documentIdParser, preferences, transferManager, identityRepository);
+    }
+
 }

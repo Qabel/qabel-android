@@ -72,7 +72,7 @@ public class BaseServer {
             }
         });
 
-        urls = new URLs();
+        urls = new URLs(context);
         OkHttpClient.Builder builder = new OkHttpClient.Builder();
         builder.connectTimeout(15, TimeUnit.SECONDS); // connect timeout
         builder.readTimeout(15, TimeUnit.SECONDS);    // socket timeout

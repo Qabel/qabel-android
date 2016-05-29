@@ -1,7 +1,5 @@
 package de.qabel.qabelbox.storage.model;
 
-import de.qabel.qabelbox.storage.model.BoxObject;
-
 public class BoxUploadingFile extends BoxObject {
 
     private String path;
@@ -23,10 +21,4 @@ public class BoxUploadingFile extends BoxObject {
         return ownerIdentifier;
     }
 
-    public int getUploadStatusPercent() {
-        if (totalSize == 0 || uploadedSize == 0) {
-            return 0;
-        }
-        return (int) (100 * uploadedSize / totalSize);
-    }
 }

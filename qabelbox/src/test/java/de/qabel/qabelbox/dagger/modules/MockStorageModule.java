@@ -16,7 +16,7 @@ public class MockStorageModule extends StorageModule {
     }
 
     @Override
-    TransferManager providesTransferManager(File tmpFile) {
+    TransferManager providesTransferManager(Context context, File tmpFile) {
         return new FakeTransferManager(tmpFile);
     }
 }

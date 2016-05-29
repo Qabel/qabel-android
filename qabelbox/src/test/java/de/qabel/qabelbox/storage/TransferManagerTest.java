@@ -4,6 +4,7 @@ package de.qabel.qabelbox.storage;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.Robolectric;
@@ -49,6 +50,7 @@ public class TransferManagerTest extends AbstractTransferManagerTest {
         FileUtils.deleteDirectory(tempDir);
     }
 
+    @Ignore("Moved to RxJava with timebased tracking")
     @Test
     public void testUploadProgress() throws Exception {
         long kb = 200;

@@ -67,8 +67,9 @@ public class StorageNotificationTest {
         verify(fakePresenter).updateUploadNotification(1, expectedInfo);
 
         queue.poll();
+        expectedInfo.setProgress(uploadingFile.uploadedSize, uploadingFile.totalSize);
         storageNotificationManager.updateUploadNotification(queue.size(), queue.peek());
-        verify(fakePresenter).updateUploadNotification(0, null);
+        verify(fakePresenter).updateUploadNotification(0, expectedInfo);
     }
 /*
     TODO redesign

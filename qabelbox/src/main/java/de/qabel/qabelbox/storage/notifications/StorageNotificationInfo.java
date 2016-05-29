@@ -60,11 +60,47 @@ public class StorageNotificationInfo implements QblNotificationInfo {
         return (int) (100 * doneBytes / totalBytes);
     }
 
-    public void complete(){
+    public void complete() {
         totalBytes = doneBytes;
     }
+
     public boolean isComplete() {
         return doneBytes == totalBytes;
     }
 
+    @Override
+    public String toString() {
+        return "StorageNotifcationInfo{" +
+                "file='" + fileName + '\'' +
+                ", path='" + path + '\'' +
+                ", owner='" + identityKeyId + '\'' +
+                ", status " + doneBytes + "/" + totalBytes +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof StorageNotificationInfo)) return false;
+
+        StorageNotificationInfo that = (StorageNotificationInfo) o;
+
+        if (!fileName.equals(that.fileName) ||
+                !path.equals(that.path) ||
+                !identityKeyId.equals(that.identityKeyId) ||
+                doneBytes != that.doneBytes ||
+                totalBytes != that.totalBytes) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = fileName.hashCode();
+        result = 31 * result + path.hashCode();
+        result = 31 * result + identityKeyId.hashCode();
+        result = 31 * result + new Long(doneBytes).intValue();
+        result = 31 * result + new Long(totalBytes).intValue();
+        return result;
+    }
 }

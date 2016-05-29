@@ -6,8 +6,11 @@ import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
 
 import java.io.FileNotFoundException;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -59,6 +62,32 @@ public class AndroidBoxManager implements BoxManager {
         this.appPreferences = preferences;
         this.transferManager = transferManager;
         this.identityRepository = identityRepository;
+    }
+
+    @Override
+    @Nullable
+    public Collection<BoxFile> getCachedFinishedUploads(String path){
+        Map<String, BoxFile> files = this.cachedFinishedUploads.get(path);
+        if(files != null){
+            return files.values();
+        }
+        return null;
+    }
+
+    @Override
+    public void clearCachedUploads(String path){
+        this.cachedFinishedUploads.remove(path);
+    }
+
+    @Override
+    public List<BoxUploadingFile> getPendingUploads(String path){
+        List<BoxUploadingFile> uploadingFiles = new LinkedList<>();
+        for(BoxUploadingFile f : uploadingQueue){
+            if(f.getPath().equals(path)){
+                uploadingFiles.add(f);
+            }
+        }
+        return uploadingFiles;
     }
 
     @Override

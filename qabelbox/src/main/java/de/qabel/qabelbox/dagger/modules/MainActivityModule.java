@@ -12,6 +12,9 @@ import de.qabel.desktop.repository.exception.EntityNotFoundExcepion;
 import de.qabel.desktop.repository.exception.PersistenceException;
 import de.qabel.qabelbox.activities.MainActivity;
 import de.qabel.qabelbox.dagger.scopes.ActivityScope;
+import de.qabel.qabelbox.exceptions.QblStorageException;
+import de.qabel.qabelbox.storage.BoxManager;
+import de.qabel.qabelbox.storage.BoxVolume;
 
 import static de.qabel.qabelbox.activities.MainActivity.ACTIVE_IDENTITY;
 import static de.qabel.qabelbox.services.LocalQabelService.PREF_LAST_ACTIVE_IDENTITY;
@@ -62,6 +65,18 @@ public class MainActivityModule {
     @Provides SharedPreferences provideSharedPreferences() {
         return mainActivity.getSharedPreferences(
                 "LocalQabelService", Context.MODE_PRIVATE);
+    }
+
+    @Provides
+    BoxVolume provideBoxVolume(BoxManager boxManager, Identity activeIdentity){
+        try {
+            if (activeIdentity != null) {
+                return boxManager.createBoxVolume(activeIdentity);
+            }
+        }catch (QblStorageException e){
+            throw new IllegalStateException("Starting MainActivity without Volume");
+        }
+        return null;
     }
 
 

@@ -1,5 +1,6 @@
 package de.qabel.qabelbox.fragments;
 
+import android.app.Activity;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -24,51 +25,8 @@ import de.qabel.qabelbox.storage.BoxVolume;
 public class SelectUploadFolderFragment extends FilesFragment {
 
     private final String TAG = this.getClass().getSimpleName();
+
     private ArrayList<Uri> uris;
-
-    private void loadIdentityFiles(final BoxVolume boxVolume) {
-
-        mBoxVolume = boxVolume;
-        filesAdapter = new FilesAdapter(new ArrayList<>());
-
-        setAdapter(filesAdapter);
-
-        new AsyncTask<Void, Void, Void>() {
-            @Override
-            protected void onPreExecute() {
-                super.onPreExecute();
-                setIsLoading(true);
-            }
-
-            @Override
-            protected Void doInBackground(Void... params) {
-
-                try {
-                    setBoxNavigation(boxVolume.navigate());
-                } catch (QblStorageException e) {
-                    Log.w(TAG, "Cannot navigate to root. maybe first initialization", e);
-                    try {
-                        boxVolume.createIndex();
-                        setBoxNavigation(boxVolume.navigate());
-                    } catch (QblStorageException e1) {
-                        Log.e(TAG, "Creating a volume failed", e1);
-                        cancel(true);
-                        return null;
-                    }
-                }
-                fillAdapter(filesAdapter);
-                setClickListener(filesAdapter);
-                return null;
-            }
-
-            @Override
-            protected void onPostExecute(Void aVoid) {
-                super.onPostExecute(aVoid);
-                setIsLoading(false);
-                notifyFilesAdapterChanged();
-            }
-        }.executeOnExecutor(serialExecutor);
-    }
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
@@ -78,9 +36,14 @@ public class SelectUploadFolderFragment extends FilesFragment {
         mActivity.fab.hide();
     }
 
-    private void setClickListener(final FilesAdapter filesAdapter) {
+    @Override
+    public void setAdapter(FilesAdapter adapter) {
+        super.setAdapter(adapter);
+        setClickListener();
+    }
 
-        filesAdapter.setOnItemClickListener(new FilesAdapter.OnItemClickListener() {
+    private void setClickListener() {
+        setOnItemClickListener(new FilesAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(View view, int position) {
 
@@ -124,17 +87,14 @@ public class SelectUploadFolderFragment extends FilesFragment {
     }
 
     public static SelectUploadFolderFragment newInstance(BoxVolume boxVolume, ArrayList<Uri> data, Identity activeIdentity) {
-
         SelectUploadFolderFragment fragment = new SelectUploadFolderFragment();
-        fillFragmentData(boxVolume, fragment);
         fragment.uris = data;
-        fragment.loadIdentityFiles(fragment.getBoxVolume());
+        //fragment.loadIdentityFiles(boxVolume);
         return fragment;
     }
 
     @Override
     public String getTitle() {
-
         return getString(R.string.headline_select_upload_folder);
     }
 }

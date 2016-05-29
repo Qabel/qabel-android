@@ -581,9 +581,8 @@ public class MainActivity extends CrashReportingActivity
     }
 
     private void shareIdentitySelected(final ArrayList<Uri> data, Identity activeIdentity) {
-
         toggle.setDrawerIndicatorEnabled(false);
-        shareFragment = SelectUploadFolderFragment.newInstance(boxVolume, data, activeIdentity);
+        shareFragment = SelectUploadFolderFragment.newInstance(null, data, activeIdentity);
         getFragmentManager().beginTransaction()
                 .add(R.id.fragment_container,
                         shareFragment, TAG_FILES_SHARE_INTO_APP_FRAGMENT)
@@ -882,7 +881,7 @@ public class MainActivity extends CrashReportingActivity
                     .commitAllowingStateLoss();
         }
         initBoxVolume(activeIdentity);
-        filesFragment = FilesFragment.newInstance(boxVolume);
+        filesFragment = new FilesFragment();
         filesFragment.setOnItemClickListener(new FilesAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(View view, int position) {

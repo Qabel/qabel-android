@@ -1,5 +1,6 @@
 package de.qabel.qabelbox.fragments;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -20,16 +21,22 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import java.util.Map;
+
+import javax.inject.Inject;
 
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.adapter.FilesAdapter;
+import de.qabel.qabelbox.dagger.components.MainActivityComponent;
 import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.helper.UIHelper;
 import de.qabel.qabelbox.providers.DocumentIdParser;
 import de.qabel.qabelbox.services.LocalBroadcastConstants;
 import de.qabel.qabelbox.services.LocalQabelService;
+import de.qabel.qabelbox.storage.BoxManager;
 import de.qabel.qabelbox.storage.model.BoxExternalFile;
 import de.qabel.qabelbox.storage.model.BoxFile;
 import de.qabel.qabelbox.storage.model.BoxFolder;
@@ -42,75 +49,50 @@ import de.qabel.qabelbox.storage.StorageSearch;
 public class FilesFragment extends FilesFragmentBase {
 
     private static final String TAG = "FilesFragment";
+
     protected BoxNavigation boxNavigation;
+
     private AsyncTask<Void, Void, Void> browseToTask;
 
     private MenuItem mSearchAction;
     private boolean isSearchOpened = false;
     private EditText searchText;
-    protected BoxVolume mBoxVolume;
     private AsyncTask<String, Void, StorageSearch> searchTask;
     private StorageSearch mCachedStorageSearch;
-    private DocumentIdParser documentIdParser;
-    private LocalQabelService mService;
 
-    public static FilesFragment newInstance(final BoxVolume boxVolume) {
-        final FilesFragment filesFragment = new FilesFragment();
-        fillFragmentData(boxVolume, filesFragment);
-        return filesFragment;
-    }
+    @Inject
+    BoxManager boxManager;
 
-    protected static void fillFragmentData(final BoxVolume boxVolume, final FilesFragment filesFragment) {
+    @Inject
+    BoxVolume mBoxVolume;
 
-        filesFragment.mBoxVolume = boxVolume;
-        final FilesAdapter filesAdapter = new FilesAdapter(new ArrayList<BoxObject>());
-
-        filesFragment.setAdapter(filesAdapter);
-
-        new AsyncTask<Void, Void, Void>() {
-            @Override
-            protected void onPreExecute() {
-                super.onPreExecute();
-                filesFragment.setIsLoading(true);
-            }
-
-            @Override
-            protected Void doInBackground(Void... params) {
-                try {
-                    filesFragment.setBoxNavigation(boxVolume.navigate());
-                } catch (QblStorageException e) {
-                    Log.w(TAG, "Cannot navigate to root. maybe first initialization", e);
-                    try {
-                        boxVolume.createIndex();
-                        filesFragment.setBoxNavigation(boxVolume.navigate());
-                    } catch (QblStorageException e1) {
-                        Log.e(TAG, "Creating a volume failed", e1);
-                        cancel(true);
-                        return null;
-                    }
-                }
-                filesFragment.fillAdapter(filesAdapter);
-                return null;
-            }
-
-            @Override
-            protected void onPostExecute(Void aVoid) {
-                super.onPostExecute(aVoid);
-                filesFragment.setIsLoading(false);
-                filesFragment.notifyFilesAdapterChanged();
-            }
-        }.executeOnExecutor(serialExecutor);
+    public FilesFragment() {
+        setAdapter(new FilesAdapter(new ArrayList<>(20)));
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+    }
 
-        documentIdParser = new DocumentIdParser();
-
-        mService = QabelBoxApplication.getInstance().getService();
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
         LocalBroadcastManager.getInstance(getActivity()).registerReceiver(mMessageReceiver,
                 new IntentFilter(LocalBroadcastConstants.INTENT_UPLOAD_BROADCAST));
+    }
+
+    @Override
+    public void onDetach() {
+        LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(mMessageReceiver);
+        super.onDetach();
+    }
+
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        getComponent(MainActivityComponent.class).inject(this);
+        initializeNavigation();
     }
 
     private BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
@@ -142,10 +124,47 @@ public class FilesFragment extends FilesFragmentBase {
         }
     };
 
+    private void initializeNavigation() {
+        setAdapter(filesAdapter);
+        new AsyncTask<Void, Void, Void>() {
+            @Override
+            protected void onPreExecute() {
+                super.onPreExecute();
+                setIsLoading(true);
+            }
+
+            @Override
+            protected Void doInBackground(Void... params) {
+                try {
+                    setBoxNavigation(mBoxVolume.navigate());
+                } catch (QblStorageException e) {
+                    e.printStackTrace();
+                    Log.w(TAG, "Cannot navigate to root. maybe first initialization", e);
+                    try {
+                        mBoxVolume.createIndex();
+                        setBoxNavigation(mBoxVolume.navigate());
+                    } catch (QblStorageException e1) {
+                        Log.e(TAG, "Creating a volume failed", e1);
+                        cancel(true);
+                        return null;
+                    }
+                }
+                fillAdapter(filesAdapter);
+                return null;
+            }
+
+            @Override
+            protected void onPostExecute(Void aVoid) {
+                super.onPostExecute(aVoid);
+                setIsLoading(false);
+                notifyFilesAdapterChanged();
+            }
+        }.executeOnExecutor(serialExecutor);
+    }
+
     @Override
     public void onDestroy() {
         super.onDestroy();
-        LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(mMessageReceiver);
     }
 
     public void navigateBackToRoot() {
@@ -519,7 +538,9 @@ public class FilesFragment extends FilesFragmentBase {
     @Override
     public void refresh() {
         if (boxNavigation == null) {
-            Log.e(TAG, "Refresh failed because the boxNavigation object is null");
+            if (mBoxVolume != null) {
+                initializeNavigation();
+            }
             return;
         }
         AsyncTask<Void, Void, Void> asyncTask = new AsyncTask<Void, Void, Void>() {
@@ -527,7 +548,7 @@ public class FilesFragment extends FilesFragmentBase {
             protected Void doInBackground(Void... params) {
                 try {
                     boxNavigation.reload();
-                    mService.getCachedFinishedUploads().clear();
+                    boxManager.clearCachedUploads(boxNavigation.getPath());
                     loadBoxObjectsToAdapter(boxNavigation, filesAdapter);
                 } catch (QblStorageException e) {
                     Log.e(TAG, "refresh failed", e);
@@ -650,28 +671,21 @@ public class FilesFragment extends FilesFragmentBase {
     }
 
     private void insertPendingUploads(FilesAdapter filesAdapter) {
-
-        if (mService != null && mService.getPendingUploads() != null) {
-            Map<String, BoxUploadingFile> uploadsInPath = mService.getPendingUploads().get(boxNavigation.getPath());
-            if (uploadsInPath != null) {
-                for (BoxUploadingFile boxUploadingFile : uploadsInPath.values()) {
-                    filesAdapter.remove(boxUploadingFile.name);
-
-                    filesAdapter.add(boxUploadingFile);
-                }
-            }
+        List<BoxUploadingFile> uploadsInPath = boxManager.getPendingUploads(boxNavigation.getPath());
+        for (BoxUploadingFile boxUploadingFile : uploadsInPath) {
+            filesAdapter.remove(boxUploadingFile.name);
+            filesAdapter.add(boxUploadingFile);
         }
     }
 
     private void insertCachedFinishedUploads(FilesAdapter filesAdapter) {
+        Collection<BoxFile> cachedFiles = boxManager.
+                getCachedFinishedUploads(boxNavigation.getPath());
 
-        if (mService != null && mService.getCachedFinishedUploads() != null) {
-            Map<String, BoxFile> cachedFiles = mService.getCachedFinishedUploads().get(boxNavigation.getPath());
-            if (cachedFiles != null) {
-                for (BoxFile boxFile : cachedFiles.values()) {
-                    filesAdapter.remove(boxFile.name);
-                    filesAdapter.add(boxFile);
-                }
+        if (cachedFiles != null) {
+            for (BoxFile boxFile : cachedFiles) {
+                filesAdapter.remove(boxFile.name);
+                filesAdapter.add(boxFile);
             }
         }
     }

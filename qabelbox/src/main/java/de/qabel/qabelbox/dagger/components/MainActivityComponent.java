@@ -5,6 +5,7 @@ import de.qabel.qabelbox.activities.MainActivity;
 import de.qabel.qabelbox.dagger.modules.MainActivityModule;
 import de.qabel.qabelbox.fragments.ContactChatFragment;
 import de.qabel.qabelbox.fragments.ContactFragment;
+import de.qabel.qabelbox.fragments.FilesFragment;
 
 @Subcomponent(
         modules = MainActivityModule.class
@@ -17,4 +18,6 @@ public interface MainActivityComponent {
     void inject(ContactFragment contactFragment);
 
     void inject(ContactChatFragment contactChatFragment);
+
+    void inject(FilesFragment filesFragment);
 }

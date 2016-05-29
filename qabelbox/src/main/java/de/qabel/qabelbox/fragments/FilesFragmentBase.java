@@ -167,6 +167,7 @@ public abstract class FilesFragmentBase extends BaseFragment {
     }
 
     public void setOnItemClickListener(FilesAdapter.OnItemClickListener onItemClickListener) {
+        System.out.println("SET ON CLICK");
         filesAdapter.setOnItemClickListener(onItemClickListener);
     }
 

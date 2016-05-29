@@ -2,6 +2,7 @@ package de.qabel.qabelbox.communication;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.concurrent.TimeUnit;
 
 import de.qabel.qabelbox.communication.callbacks.UploadRequestCallback;
 import okhttp3.MediaType;
@@ -10,6 +11,8 @@ import okhttp3.internal.Util;
 import okio.BufferedSink;
 import okio.Okio;
 import okio.Source;
+import rx.Observable;
+import rx.Subscription;
 
 public class UploadRequestBody extends RequestBody {
 
@@ -38,18 +41,22 @@ public class UploadRequestBody extends RequestBody {
     @Override
     public void writeTo(BufferedSink sink) throws IOException {
         Source source = null;
+        Subscription progressSubscription = null;
         try {
             source = Okio.source(file);
-            long total = 0;
+            long total[] = new long[]{0};
             long read;
+            Observable<Long> observable = Observable.interval(250, TimeUnit.MILLISECONDS);
+            progressSubscription = observable.subscribe(aLong -> listener.onProgress(total[0], file.length()));
 
             while ((read = source.read(sink.buffer(), SEGMENT_SIZE)) != -1) {
-                total += read;
+                total[0] += read;
                 sink.flush();
-                this.listener.onProgress(total, contentLength());
-
             }
         } finally {
+            if (progressSubscription != null) {
+                progressSubscription.unsubscribe();
+            }
             Util.closeQuietly(source);
         }
     }

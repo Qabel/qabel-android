@@ -6,9 +6,11 @@ import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
 
 import java.io.FileNotFoundException;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Queue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import javax.inject.Inject;
 
@@ -23,6 +25,7 @@ import de.qabel.qabelbox.dagger.components.BoxComponent;
 import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.providers.DocumentIdParser;
 import de.qabel.qabelbox.services.LocalBroadcastConstants;
+import de.qabel.qabelbox.services.LocalQabelService;
 import de.qabel.qabelbox.storage.model.BoxFile;
 import de.qabel.qabelbox.storage.model.BoxUploadingFile;
 import de.qabel.qabelbox.storage.notifications.StorageNotificationManager;
@@ -39,8 +42,9 @@ public class AndroidBoxManager implements BoxManager {
     TransferManager transferManager;
 
     //TODO Queue is currently not used!
-    private Queue<BoxUploadingFile> uploadingQueue;
-    private Map<String, Map<String, BoxFile>> cachedFinishedUploads;
+    private Queue<BoxUploadingFile> uploadingQueue = new LinkedBlockingQueue<>();
+    private Map<String, Map<String, BoxFile>> cachedFinishedUploads =
+            Collections.synchronizedMap(new HashMap<>());
 
     @Inject
     public AndroidBoxManager(Context context,
@@ -144,6 +148,11 @@ public class AndroidBoxManager implements BoxManager {
         } catch (EntityNotFoundExcepion | PersistenceException e) {
             throw new QblStorageException("Cannot create BoxVolume");
         }
+    }
+
+    @Override
+    public BoxVolume createBoxVolume(Identity identity) throws QblStorageException {
+        return createBoxVolume(identity.getKeyIdentifier(), identity.getPrefixes().get(0));
     }
 
     @Override

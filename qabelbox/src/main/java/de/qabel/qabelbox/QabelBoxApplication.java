@@ -16,7 +16,6 @@ import java.security.Security;
 import de.qabel.qabelbox.dagger.components.ApplicationComponent;
 import de.qabel.qabelbox.dagger.components.DaggerApplicationComponent;
 import de.qabel.qabelbox.dagger.modules.ApplicationModule;
-import de.qabel.qabelbox.providers.BoxProvider;
 import de.qabel.qabelbox.services.LocalQabelService;
 
 public class QabelBoxApplication extends Application {
@@ -26,7 +25,6 @@ public class QabelBoxApplication extends Application {
     public static final String DEFAULT_DROP_SERVER = "https://test-drop.qabel.de";
 
     static QabelBoxApplication mInstance = null;
-    public static BoxProvider boxProvider;
 
     static {
         // Enforce SpongyCastle as JCE provider
@@ -34,10 +32,6 @@ public class QabelBoxApplication extends Application {
     }
 
     private ServiceConnection mServiceConnection;
-
-    public BoxProvider getProvider() {
-        return boxProvider;
-    }
 
     /**
      * @deprecated This is not guaranteed to be initialised

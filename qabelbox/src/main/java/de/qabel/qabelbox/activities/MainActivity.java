@@ -34,7 +34,6 @@ import com.cocosw.bottomsheet.BottomSheet;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -91,12 +90,13 @@ import de.qabel.qabelbox.helper.Sanity;
 import de.qabel.qabelbox.helper.UIHelper;
 import de.qabel.qabelbox.providers.BoxProvider;
 import de.qabel.qabelbox.services.LocalQabelService;
+import de.qabel.qabelbox.storage.BoxManager;
+import de.qabel.qabelbox.storage.BoxVolume;
 import de.qabel.qabelbox.storage.model.BoxExternalFile;
 import de.qabel.qabelbox.storage.model.BoxFile;
 import de.qabel.qabelbox.storage.model.BoxFolder;
-import de.qabel.qabelbox.storage.navigation.BoxNavigation;
 import de.qabel.qabelbox.storage.model.BoxObject;
-import de.qabel.qabelbox.storage.BoxVolume;
+import de.qabel.qabelbox.storage.navigation.BoxNavigation;
 import de.qabel.qabelbox.views.DrawerNavigationView;
 import de.qabel.qabelbox.views.DrawerNavigationViewHolder;
 
@@ -143,7 +143,7 @@ public class MainActivity extends CrashReportingActivity
 
     public BoxVolume boxVolume;
     public ActionBarDrawerToggle toggle;
-    private BoxProvider provider;
+
     @BindView(R.id.drawer_layout)
     DrawerLayout drawer;
     @BindView(R.id.nav_view)
@@ -183,6 +183,9 @@ public class MainActivity extends CrashReportingActivity
 
     @Inject
     SharedPreferences sharedPreferences;
+
+    @Inject
+    BoxManager boxManager;
 
     private MainActivityComponent component;
 
@@ -421,8 +424,6 @@ public class MainActivity extends CrashReportingActivity
     private void onLocalServiceConnected(Intent intent) {
 
         Log.d(TAG, "LocalQabelService connected");
-        provider = ((QabelBoxApplication) getApplication()).getProvider();
-        Log.i(TAG, "Provider: " + provider);
         initDrawer();
         handleIntent(intent);
     }
@@ -443,7 +444,6 @@ public class MainActivity extends CrashReportingActivity
         boolean startFilesFragment = intent.getBooleanExtra(START_FILES_FRAGMENT, true);
         boolean startContactsFragment = intent.getBooleanExtra(START_CONTACTS_FRAGMENT, false);
         String activeContact = intent.getStringExtra(ACTIVE_CONTACT);
-        refreshFilesBrowser(activeIdentity);
         if (type != null && intent.getAction() != null) {
             String scheme = intent.getScheme();
 
@@ -594,13 +594,8 @@ public class MainActivity extends CrashReportingActivity
     private void initBoxVolume(Identity activeIdentity) {
         try {
             System.out.println("Init BOX");
-            System.out.println(activeIdentity.getAlias());
-            System.out.println(activeIdentity.getEcPublicKey());
-            System.out.println(activeIdentity.getEcPublicKey().getReadableKeyIdentifier());
-            boxVolume = provider.getVolumeForRoot(
-                    activeIdentity.getEcPublicKey().getReadableKeyIdentifier(),
-                    VolumeFileTransferHelper.getPrefixFromIdentity(activeIdentity));
-        } catch (FileNotFoundException e) {
+            boxVolume = boxManager.createBoxVolume(activeIdentity);
+        } catch (QblStorageException e) {
             e.printStackTrace();
             //TODO Cannot create volume
         }
@@ -863,7 +858,7 @@ public class MainActivity extends CrashReportingActivity
 
         mService.addIdentity(identity);
         changeActiveIdentity(identity);
-        provider.notifyRootsUpdated();
+        boxManager.notifyBoxChanged();
         Snackbar.make(appBarMain, "Added identity: " + identity.getAlias(), Snackbar.LENGTH_LONG)
                 .show();
         selectFilesFragment();
@@ -886,6 +881,7 @@ public class MainActivity extends CrashReportingActivity
             getFragmentManager().beginTransaction().remove(filesFragment)
                     .commitAllowingStateLoss();
         }
+        initBoxVolume(activeIdentity);
         filesFragment = FilesFragment.newInstance(boxVolume);
         filesFragment.setOnItemClickListener(new FilesAdapter.OnItemClickListener() {
             @Override
@@ -966,8 +962,7 @@ public class MainActivity extends CrashReportingActivity
 
     @Override
     public void deleteIdentity(Identity identity) {
-
-        provider.notifyRootsUpdated();
+        boxManager.notifyBoxChanged();
         mService.deleteIdentity(identity);
         if (mService.getIdentities().getIdentities().size() == 0) {
             UIHelper.showDialogMessage(this, R.string.dialog_headline_info,
@@ -986,8 +981,7 @@ public class MainActivity extends CrashReportingActivity
 
     @Override
     public void modifyIdentity(Identity identity) {
-
-        provider.notifyRootsUpdated();
+        boxManager.notifyBoxChanged();
         mService.modifyIdentity(identity);
         drawerHolder.textViewSelectedIdentity.setText(getActiveIdentity().getAlias());
     }

@@ -36,17 +36,11 @@ public class MockBoxProvider extends BoxProvider {
     public boolean isUpdateNotificationCalled;
 
 
-    @Override
     void bindToService(final Context context) {
         setParametersForTests();
         attachInfoForTests(context);
         LocalQabelService service = new MockedLocalQabelService(context);
         service.onCreate();
-        setLocalService(service);
-    }
-
-    @Override
-    void staticBindToApplication() {
     }
 
     public void mockBindToService(Context context) {

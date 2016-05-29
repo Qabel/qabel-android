@@ -31,6 +31,10 @@ import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.TestConstants;
 import de.qabel.qabelbox.communication.VolumeFileTransferHelper;
 import de.qabel.qabelbox.config.AppPreference;
+import de.qabel.qabelbox.dagger.components.BoxComponent;
+import de.qabel.qabelbox.dagger.components.DaggerBoxComponent;
+import de.qabel.qabelbox.dagger.components.TestBoxComponent;
+import de.qabel.qabelbox.dagger.modules.ContextModule;
 import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.helper.RealTokerGetter;
 import de.qabel.qabelbox.providers.BoxProvider;
@@ -47,7 +51,6 @@ public class UIBoxHelper {
     private final String TAG = this.getClass().getSimpleName();
 
     private LocalQabelService mService;
-    private BoxProvider provider;
     private Map<String, BoxVolume> identityVolumes = new HashMap<>();
 
     private boolean finished = false;
@@ -55,8 +58,8 @@ public class UIBoxHelper {
     @Deprecated
     public BoxVolume mBoxVolume;
 
+    public UIBoxHelper(Context context) {
 
-    public UIBoxHelper(Context activity) {
     }
 
     public UIBoxHelper() {
@@ -80,8 +83,6 @@ public class UIBoxHelper {
             public void onServiceConnected(ComponentName name, IBinder service) {
 
                 Log.d(TAG, "LocalQabelService connected");
-                provider = app.getProvider();
-                Log.i(TAG, "Provider: " + provider);
                 LocalQabelService.LocalBinder binder = (LocalQabelService.LocalBinder) service;
                 mService = binder.getService();
 
@@ -227,16 +228,14 @@ public class UIBoxHelper {
     }
 
     private void initBoxVolume(Identity activeIdentity) throws QblStorageException {
-
-        provider.setLocalService(mService);
-        BoxVolume boxVolume = provider.getVolumeForRoot(
+/*        BoxVolume boxVolume = provider.getVolumeForRoot(
                 activeIdentity.getEcPublicKey().getReadableKeyIdentifier(),
                 VolumeFileTransferHelper.getPrefixFromIdentity(activeIdentity));
         boxVolume.createIndex();
         identityVolumes.put(activeIdentity.getKeyIdentifier(), boxVolume);
 
         //TODO Legacy
-        mBoxVolume = boxVolume;
+        mBoxVolume = boxVolume;*/
     }
 
     public void setActiveIdentity(Identity identity) {

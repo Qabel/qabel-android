@@ -145,8 +145,6 @@ public class BoxProvider extends DocumentsProvider {
                 KEEP_ALIVE_TIME_UNIT,
                 new LinkedBlockingDeque<>());
 
-        staticBindToApplication();
-
         folderContentCache = new HashMap<>();
 
         boxComponent = DaggerBoxComponent.builder().contextModule(new ContextModule(context)).build();
@@ -157,11 +155,6 @@ public class BoxProvider extends DocumentsProvider {
 
         return true;
     }
-
-    void staticBindToApplication() {
-        QabelBoxApplication.boxProvider = this;
-    }
-
 
     /**
      * Notify the system that the roots have changed

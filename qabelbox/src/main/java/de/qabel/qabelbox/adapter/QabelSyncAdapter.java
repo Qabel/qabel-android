@@ -124,8 +124,10 @@ public class QabelSyncAdapter extends AbstractThreadedSyncAdapter {
             return;
         }
         updateNotificationManager(retrievedMessages);
-        Intent intent = new Intent(Helper.INTENT_REFRESH_CONTACTLIST);
-        context.sendOrderedBroadcast(intent, null);
+        Intent notificationIntent = new Intent(Helper.INTENT_SHOW_NOTIFICATION);
+        context.sendOrderedBroadcast(notificationIntent, null);
+        Intent refresh = new Intent(Helper.INTENT_REFRESH_CONTACTLIST);
+        context.sendBroadcast(refresh);
     }
 
     private void updateNotificationManager(List<ChatMessageItem> retrievedMessages) {

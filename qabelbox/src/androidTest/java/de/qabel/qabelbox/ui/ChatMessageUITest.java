@@ -1,5 +1,6 @@
 package de.qabel.qabelbox.ui;
 
+import android.app.Fragment;
 import android.content.Context;
 import android.content.Intent;
 import android.support.test.InstrumentationRegistry;
@@ -19,8 +20,10 @@ import de.qabel.qabelbox.activities.MainActivity;
 import de.qabel.qabelbox.chat.ChatMessageItem;
 import de.qabel.qabelbox.chat.ChatServer;
 import de.qabel.qabelbox.exceptions.QblStorageEntityExistsException;
+import de.qabel.qabelbox.fragments.ContactFragment;
 import de.qabel.qabelbox.helper.Helper;
 import de.qabel.qabelbox.ui.helper.UITestHelper;
+import de.qabel.qabelbox.ui.idling.InjectedIdlingResource;
 import de.qabel.qabelbox.ui.matcher.QabelMatcher;
 
 import static android.support.test.espresso.Espresso.onView;
@@ -61,6 +64,11 @@ public class ChatMessageUITest extends AbstractUITest {
      */
     @Test
     public void testNewMessageVisualization() throws Throwable {
+        InjectedIdlingResource idlingResource = new InjectedIdlingResource();
+        ContactFragment fragment = (ContactFragment) mActivity.getFragmentManager()
+                .findFragmentByTag(MainActivity.TAG_CONTACT_LIST_FRAGMENT);
+        fragment.setIdleCallback(idlingResource);
+
         Context context = InstrumentationRegistry.getTargetContext();
         String identityKey = identity.getEcPublicKey().getReadableKeyIdentifier();
         ChatServer chatServer = new ChatServer(context);
@@ -72,9 +80,8 @@ public class ChatMessageUITest extends AbstractUITest {
                 "from: " + contact1Alias + "message1");
         chatServer.storeIntoDB(identity, dbItem);
         UITestHelper.screenShot(mActivity, "contactsOneNewMessage");
-        assertTrue(chatServer.hasNewMessages(identity, contact));
         refreshViewIntent(context);
-        UITestHelper.sleep(500);
+        idlingResource.busy();
 
         //check if new view indicator displayed on correct user and click on this item
         checkVisibilityState(contact1Alias, QabelMatcher.isVisible()).perform(click());
@@ -97,7 +104,7 @@ public class ChatMessageUITest extends AbstractUITest {
 
     private void refreshViewIntent(Context context) {
         Intent intent = new Intent(Helper.INTENT_REFRESH_CONTACTLIST);
-        context.sendOrderedBroadcast(intent, null);
+        context.sendBroadcast(intent, null);
     }
 
     /**

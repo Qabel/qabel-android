@@ -50,7 +50,6 @@ import de.qabel.core.config.Identity;
 import de.qabel.desktop.repository.IdentityRepository;
 import de.qabel.desktop.repository.exception.PersistenceException;
 import de.qabel.qabelbox.BuildConfig;
-import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.QblBroadcastConstants;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.config.AppPreference;
@@ -59,7 +58,7 @@ import de.qabel.qabelbox.dagger.components.DaggerBoxComponent;
 import de.qabel.qabelbox.dagger.modules.ContextModule;
 import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.exceptions.QblStorageNotFound;
-import de.qabel.qabelbox.services.LocalBroadcastConstants;
+import de.qabel.qabelbox.services.StorageBroadcastConstants;
 import de.qabel.qabelbox.storage.BoxManager;
 import de.qabel.qabelbox.storage.BoxVolume;
 import de.qabel.qabelbox.storage.model.BoxExternalFile;
@@ -549,11 +548,11 @@ public class BoxProvider extends DocumentsProvider {
             BoxTransferListener boxTransferListener = boxManager.addUploadTransfer(documentId);
             BoxFile boxFile = navigation.upload(basename, new FileInputStream(tmp), boxTransferListener);
             navigation.commit();
-            boxManager.removeUpload(documentId, LocalBroadcastConstants.UPLOAD_STATUS_FINISHED, boxFile);
+            boxManager.removeUpload(documentId, StorageBroadcastConstants.UPLOAD_STATUS_FINISHED, boxFile);
         } catch (FileNotFoundException | QblStorageException e1) {
             Log.e(TAG, "Upload failed", e1);
             try {
-                boxManager.removeUpload(documentId, LocalBroadcastConstants.UPLOAD_STATUS_FAILED, null);
+                boxManager.removeUpload(documentId, StorageBroadcastConstants.UPLOAD_STATUS_FAILED, null);
             } catch (QblStorageException e) {
                 //Should not be possible
                 Log.e(TAG, "Removing failed upload failed", e);

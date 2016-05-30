@@ -24,11 +24,9 @@ import de.qabel.desktop.repository.exception.EntityNotFoundExcepion;
 import de.qabel.desktop.repository.exception.PersistenceException;
 import de.qabel.qabelbox.QblBroadcastConstants;
 import de.qabel.qabelbox.config.AppPreference;
-import de.qabel.qabelbox.dagger.components.BoxComponent;
 import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.providers.DocumentIdParser;
-import de.qabel.qabelbox.services.LocalBroadcastConstants;
-import de.qabel.qabelbox.services.LocalQabelService;
+import de.qabel.qabelbox.services.StorageBroadcastConstants;
 import de.qabel.qabelbox.storage.model.BoxFile;
 import de.qabel.qabelbox.storage.model.BoxUploadingFile;
 import de.qabel.qabelbox.storage.notifications.StorageNotificationManager;
@@ -45,8 +43,8 @@ public class AndroidBoxManager implements BoxManager {
     TransferManager transferManager;
 
     //TODO Queue is currently not used!
-    private Queue<BoxUploadingFile> uploadingQueue = new LinkedBlockingQueue<>();
-    private Map<String, Map<String, BoxFile>> cachedFinishedUploads =
+    private static Queue<BoxUploadingFile> uploadingQueue = new LinkedBlockingQueue<>();
+    private static Map<String, Map<String, BoxFile>> cachedFinishedUploads =
             Collections.synchronizedMap(new HashMap<>());
 
     @Inject
@@ -66,24 +64,24 @@ public class AndroidBoxManager implements BoxManager {
 
     @Override
     @Nullable
-    public Collection<BoxFile> getCachedFinishedUploads(String path){
+    public Collection<BoxFile> getCachedFinishedUploads(String path) {
         Map<String, BoxFile> files = this.cachedFinishedUploads.get(path);
-        if(files != null){
+        if (files != null) {
             return files.values();
         }
         return null;
     }
 
     @Override
-    public void clearCachedUploads(String path){
+    public void clearCachedUploads(String path) {
         this.cachedFinishedUploads.remove(path);
     }
 
     @Override
-    public List<BoxUploadingFile> getPendingUploads(String path){
+    public List<BoxUploadingFile> getPendingUploads(String path) {
         List<BoxUploadingFile> uploadingFiles = new LinkedList<>();
-        for(BoxUploadingFile f : uploadingQueue){
-            if(f.getPath().equals(path)){
+        for (BoxUploadingFile f : uploadingQueue) {
+            if (f.getPath().equals(path)) {
                 uploadingFiles.add(f);
             }
         }
@@ -101,7 +99,7 @@ public class AndroidBoxManager implements BoxManager {
 
             uploadingQueue.add(boxUploadingFile);
             updateUploadNotifications();
-            broadcastUploadStatus(documentId, LocalBroadcastConstants.UPLOAD_STATUS_NEW);
+            broadcastUploadStatus(documentId, StorageBroadcastConstants.UPLOAD_STATUS_NEW);
             return new BoxTransferListener() {
                 @Override
                 public void onProgressChanged(long bytesCurrent, long bytesTotal) {
@@ -122,10 +120,10 @@ public class AndroidBoxManager implements BoxManager {
     }
 
     private void broadcastUploadStatus(String documentId, int uploadStatus) {
-        Intent intent = new Intent(LocalBroadcastConstants.INTENT_UPLOAD_BROADCAST);
-        intent.putExtra(LocalBroadcastConstants.EXTRA_UPLOAD_DOCUMENT_ID, documentId);
-        intent.putExtra(LocalBroadcastConstants.EXTRA_UPLOAD_STATUS, uploadStatus);
-        LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
+        Intent intent = new Intent(QblBroadcastConstants.Storage.BOX_UPLOAD_CHANGED);
+        intent.putExtra(StorageBroadcastConstants.EXTRA_UPLOAD_DOCUMENT_ID, documentId);
+        intent.putExtra(StorageBroadcastConstants.EXTRA_UPLOAD_STATUS, uploadStatus);
+        context.sendBroadcast(intent);
     }
 
 
@@ -139,7 +137,7 @@ public class AndroidBoxManager implements BoxManager {
             BoxUploadingFile uploadingFile = uploadingQueue.poll();
             String uploadPath = documentIdParser.getPath(documentId);
             switch (cause) {
-                case LocalBroadcastConstants.UPLOAD_STATUS_FINISHED:
+                case StorageBroadcastConstants.UPLOAD_STATUS_FINISHED:
                     cacheFinishedUpload(documentId, resultFile);
                     break;
             }

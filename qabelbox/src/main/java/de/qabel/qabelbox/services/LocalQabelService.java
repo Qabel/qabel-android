@@ -4,16 +4,13 @@ import android.app.Service;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Binder;
-import android.os.Bundle;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
-import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.FileNotFoundException;
 import java.net.URI;
 import java.security.SecureRandom;
 import java.util.ArrayList;
@@ -22,9 +19,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Queue;
 import java.util.Set;
-import java.util.concurrent.LinkedBlockingDeque;
 
 import de.qabel.core.config.Contact;
 import de.qabel.core.config.Contacts;
@@ -52,13 +47,6 @@ import de.qabel.qabelbox.persistence.AndroidPersistence;
 import de.qabel.qabelbox.persistence.PersistenceMigration;
 import de.qabel.qabelbox.persistence.QblSQLiteParams;
 import de.qabel.qabelbox.persistence.RepositoryFactory;
-import de.qabel.qabelbox.providers.DocumentIdParser;
-import de.qabel.qabelbox.storage.model.BoxFile;
-import de.qabel.qabelbox.storage.notifications.AndroidStorageNotificationManager;
-import de.qabel.qabelbox.storage.notifications.StorageNotificationManager;
-import de.qabel.qabelbox.storage.transfer.BoxTransferListener;
-import de.qabel.qabelbox.storage.model.BoxUploadingFile;
-import de.qabel.qabelbox.storage.notifications.AndroidStorageNotificationPresenter;
 
 public class LocalQabelService extends Service implements DropConnector {
 
@@ -73,11 +61,6 @@ public class LocalQabelService extends Service implements DropConnector {
     protected static final int DB_VERSION = 1;
     protected AndroidPersistence persistence;
     private DropHTTP dropHTTP;
-    private HashMap<String, Map<String, BoxUploadingFile>> pendingUploads;
-    private Queue<BoxUploadingFile> uploadingQueue;
-    private StorageNotificationManager storageNotificationManager;
-    private Map<String, Map<String, BoxFile>> cachedFinishedUploads;
-    private DocumentIdParser documentIdParser;
 
     SharedPreferences sharedPreferences;
     private IdentityRepository identityRepository;
@@ -146,7 +129,7 @@ public class LocalQabelService extends Service implements DropConnector {
 
     /**
      * Reset the persistence
-     *
+     * <p>
      * This should only be used in testing.
      */
     public void deleteContactsAndIdentities() {
@@ -382,96 +365,6 @@ public class LocalQabelService extends Service implements DropConnector {
         }
     }
 
-    public HashMap<String, Map<String, BoxUploadingFile>> getPendingUploads() {
-        return pendingUploads;
-    }
-
-    public BoxUploadingFile addPendingUpload(String documentId, Bundle extras) throws FileNotFoundException {
-        String uploadPath = documentIdParser.getPath(documentId);
-        String filename = documentIdParser.getBaseName(documentId);
-        Map<String, BoxUploadingFile> uploadsInPath = pendingUploads.get(uploadPath);
-        if (uploadsInPath == null) {
-            uploadsInPath = new HashMap<>();
-        }
-        BoxUploadingFile boxUploadingFile = new BoxUploadingFile(filename, uploadPath,
-                documentIdParser.getIdentity(documentId));
-        uploadsInPath.put(filename, boxUploadingFile);
-        uploadingQueue.add(boxUploadingFile);
-        updateUploadNotification();
-        broadcastUploadStatus(documentId, LocalBroadcastConstants.UPLOAD_STATUS_NEW, extras);
-        return boxUploadingFile;
-    }
-
-    public boolean removePendingUpload(String documentId, int cause, @Nullable Bundle extras) throws FileNotFoundException {
-        String uploadPath = documentIdParser.getPath(documentId);
-        Map<String, BoxUploadingFile> uploadsInPath = pendingUploads.get(uploadPath);
-        switch (cause) {
-            case LocalBroadcastConstants.UPLOAD_STATUS_FINISHED:
-                broadcastUploadStatus(documentId, LocalBroadcastConstants.UPLOAD_STATUS_FINISHED, extras);
-                cacheFinishedUpload(documentId, extras);
-                break;
-            case LocalBroadcastConstants.UPLOAD_STATUS_FAILED:
-                broadcastUploadStatus(documentId, LocalBroadcastConstants.UPLOAD_STATUS_FAILED, extras);
-                break;
-        }
-        return uploadsInPath != null && uploadsInPath.remove(documentIdParser.getBaseName(documentId)) != null;
-    }
-
-    private void cacheFinishedUpload(String documentId, Bundle extras) {
-        if (extras != null) {
-            BoxFile boxFile = extras.getParcelable(LocalBroadcastConstants.EXTRA_FILE);
-            if (boxFile != null) {
-                try {
-                    Map<String, BoxFile> cachedFiles = cachedFinishedUploads.get(documentIdParser.getPath(documentId));
-                    if (cachedFiles == null) {
-                        cachedFiles = new HashMap<>();
-                    }
-                    cachedFiles.remove(boxFile.name);
-                    cachedFiles.put(boxFile.name, boxFile);
-                    cachedFinishedUploads.put(documentIdParser.getPath(documentId), cachedFiles);
-                } catch (FileNotFoundException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-    }
-
-    protected void updateUploadNotification() {
-        storageNotificationManager.updateUploadNotification(
-                uploadingQueue.size(), uploadingQueue.peek());
-    }
-
-    public BoxTransferListener getUploadTransferListener(final BoxUploadingFile boxUploadingFile) {
-        return new BoxTransferListener() {
-            @Override
-            public void onProgressChanged(long bytesCurrent, long bytesTotal) {
-                boxUploadingFile.totalSize = bytesTotal;
-                boxUploadingFile.uploadedSize = bytesCurrent;
-                updateUploadNotification();
-            }
-
-            @Override
-            public void onFinished() {
-                uploadingQueue.remove(boxUploadingFile);
-                updateUploadNotification();
-            }
-        };
-    }
-
-    protected void broadcastUploadStatus(String documentId, int uploadStatus, @Nullable Bundle extras) {
-        Intent intent = new Intent(LocalBroadcastConstants.INTENT_UPLOAD_BROADCAST);
-        intent.putExtra(LocalBroadcastConstants.EXTRA_UPLOAD_DOCUMENT_ID, documentId);
-        intent.putExtra(LocalBroadcastConstants.EXTRA_UPLOAD_STATUS, uploadStatus);
-        if (extras != null) {
-            intent.putExtra(LocalBroadcastConstants.EXTRA_UPLOAD_EXTRA, extras);
-        }
-        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
-    }
-
-    public Map<String, Map<String, BoxFile>> getCachedFinishedUploads() {
-        return cachedFinishedUploads;
-    }
-
     @Override
     public IBinder onBind(Intent intent) {
         return mBinder;
@@ -488,13 +381,6 @@ public class LocalQabelService extends Service implements DropConnector {
         } catch (EntityNotFoundExcepion | PersistenceException e) {
             Log.e(TAG, "Migration of identities and contatcs failed", e);
         }
-        pendingUploads = new HashMap<>();
-        documentIdParser = new DocumentIdParser();
-        cachedFinishedUploads = Collections.synchronizedMap(new HashMap<>());
-        uploadingQueue = new LinkedBlockingDeque<>();
-        // TODO Move to dagger
-        storageNotificationManager = new AndroidStorageNotificationManager(
-                new AndroidStorageNotificationPresenter(getApplicationContext()));
         sharedPreferences = getSharedPreferences(LocalQabelService.class.getCanonicalName(), MODE_PRIVATE);
     }
 

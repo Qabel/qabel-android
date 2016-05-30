@@ -29,22 +29,17 @@ import de.qabel.core.drop.DropURL;
 import de.qabel.qabelbox.BuildConfig;
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.TestConstants;
-import de.qabel.qabelbox.communication.VolumeFileTransferHelper;
 import de.qabel.qabelbox.config.AppPreference;
-import de.qabel.qabelbox.dagger.components.BoxComponent;
-import de.qabel.qabelbox.dagger.components.DaggerBoxComponent;
-import de.qabel.qabelbox.dagger.components.TestBoxComponent;
-import de.qabel.qabelbox.dagger.modules.ContextModule;
 import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.helper.RealTokerGetter;
 import de.qabel.qabelbox.providers.BoxProvider;
 import de.qabel.qabelbox.services.LocalQabelService;
-import de.qabel.qabelbox.storage.model.BoxFile;
-import de.qabel.qabelbox.storage.model.BoxFolder;
-import de.qabel.qabelbox.storage.navigation.BoxNavigation;
-import de.qabel.qabelbox.storage.model.BoxObject;
 import de.qabel.qabelbox.storage.BoxVolume;
 import de.qabel.qabelbox.storage.StorageSearch;
+import de.qabel.qabelbox.storage.model.BoxFile;
+import de.qabel.qabelbox.storage.model.BoxFolder;
+import de.qabel.qabelbox.storage.model.BoxObject;
+import de.qabel.qabelbox.storage.navigation.BoxNavigation;
 
 public class UIBoxHelper {
 

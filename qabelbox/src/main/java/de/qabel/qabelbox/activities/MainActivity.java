@@ -16,6 +16,7 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.provider.DocumentsContract;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
@@ -141,7 +142,6 @@ public class MainActivity extends CrashReportingActivity
     public static final String ACTIVE_CONTACT = "ACTIVE_CONTACT";
     public static final String START_FILES_FRAGMENT_PATH = "START_FILES_FRAGMENT_PATH";
 
-    public BoxVolume boxVolume;
     public ActionBarDrawerToggle toggle;
 
     @BindView(R.id.drawer_layout)
@@ -187,6 +187,8 @@ public class MainActivity extends CrashReportingActivity
     @Inject
     BoxManager boxManager;
 
+    @Inject
+    BoxVolume boxVolume;
     private MainActivityComponent component;
 
     @Override
@@ -460,7 +462,7 @@ public class MainActivity extends CrashReportingActivity
                     if (imageUri != null) {
                         ArrayList<Uri> data = new ArrayList<Uri>();
                         data.add(imageUri);
-                        shareIntoApp(data);
+                        shareIntoApp(data, intent);
                     }
 
                     break;
@@ -468,7 +470,7 @@ public class MainActivity extends CrashReportingActivity
                     Log.i(TAG, "Action send multiple in main activity");
                     ArrayList<Uri> imageUris = intent.getParcelableArrayListExtra(Intent.EXTRA_STREAM);
                     if (imageUris != null && imageUris.size() > 0) {
-                        shareIntoApp(imageUris);
+                        shareIntoApp(imageUris, intent);
                     }
                     break;
                 default:
@@ -539,19 +541,15 @@ public class MainActivity extends CrashReportingActivity
         selectFilesFragment();
     }
 
-    public void refreshFilesBrowser(Identity activeIdentity) {
-        try {
-            initBoxVolume(activeIdentity);
-            initFilesFragment();
-        } catch (RuntimeException e) {
-            Log.e(TAG, "Could not init box volume in MainActivity", e);
-        }
-    }
-
-    private void shareIntoApp(final ArrayList<Uri> data) {
-
+    private void shareIntoApp(final ArrayList<Uri> data, Intent intent) {
         fab.hide();
-
+        if (intent.hasExtra(ACTIVE_IDENTITY)) {
+            String key = intent.getStringExtra(ACTIVE_IDENTITY);
+            if (activeIdentity != null && activeIdentity.getKeyIdentifier().equals(key)) {
+                shareIdentitySelected(data);
+                return;
+            }
+        }
         boolean identities = false;
         try {
             identities = identityRepository.findAll().getIdentities().size() > 1;
@@ -561,43 +559,31 @@ public class MainActivity extends CrashReportingActivity
             new SelectIdentityForUploadDialog(self, new SelectIdentityForUploadDialog.Result() {
                 @Override
                 public void onCancel() {
-
                     UIHelper.showDialogMessage(self, R.string.dialog_headline_warning, R.string.share_into_app_canceled);
                     onBackPressed();
                 }
 
                 @Override
                 public void onIdentitySelected(Identity identity) {
-
-                    changeActiveIdentity(identity);
-
-                    shareIdentitySelected(data, identity);
+                    changeActiveIdentity(identity, intent);
+                    shareIdentitySelected(data);
                 }
             });
         } else {
-            changeActiveIdentity(getActiveIdentity());
-            shareIdentitySelected(data, getActiveIdentity());
+            changeActiveIdentity(getActiveIdentity(), intent);
+            shareIdentitySelected(data);
         }
     }
 
-    private void shareIdentitySelected(final ArrayList<Uri> data, Identity activeIdentity) {
+    private void shareIdentitySelected(final ArrayList<Uri> data) {
         toggle.setDrawerIndicatorEnabled(false);
-        shareFragment = SelectUploadFolderFragment.newInstance(null, data, activeIdentity);
+        shareFragment = new SelectUploadFolderFragment();
+        shareFragment.setUris(data);
         getFragmentManager().beginTransaction()
                 .add(R.id.fragment_container,
                         shareFragment, TAG_FILES_SHARE_INTO_APP_FRAGMENT)
                 .addToBackStack(null)
                 .commit();
-    }
-
-    private void initBoxVolume(Identity activeIdentity) {
-        try {
-            System.out.println("Init BOX");
-            boxVolume = boxManager.createBoxVolume(activeIdentity);
-        } catch (QblStorageException e) {
-            e.printStackTrace();
-            //TODO Cannot create volume
-        }
     }
 
     @OnClick(R.id.fab)
@@ -856,21 +842,28 @@ public class MainActivity extends CrashReportingActivity
     public void addIdentity(Identity identity) {
 
         mService.addIdentity(identity);
-        changeActiveIdentity(identity);
+        changeActiveIdentity(identity, null);
         boxManager.notifyBoxChanged();
         Snackbar.make(appBarMain, "Added identity: " + identity.getAlias(), Snackbar.LENGTH_LONG)
                 .show();
         selectFilesFragment();
     }
 
-    public void changeActiveIdentity(Identity identity) {
-        PreferencesHelper.setLastActiveIdentityID(sharedPreferences, identity.getKeyIdentifier());
-        Intent intent = new Intent(this, MainActivity.class);
-        intent.putExtra(ACTIVE_IDENTITY, identity.getKeyIdentifier());
-        finish();
-        overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
-        startActivity(intent);
+    private void changeActiveIdentity(Identity identity) {
+        changeActiveIdentity(identity, null);
+    }
 
+    private void changeActiveIdentity(Identity identity, @Nullable Intent intent) {
+        if (activeIdentity == null || !identity.equals(activeIdentity)) {
+            PreferencesHelper.setLastActiveIdentityID(sharedPreferences, identity.getKeyIdentifier());
+            if (intent == null) {
+                intent = new Intent(this, MainActivity.class);
+            }
+            intent.putExtra(ACTIVE_IDENTITY, identity.getKeyIdentifier());
+            finish();
+            overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+            startActivity(intent);
+        }
     }
 
     //@todo move this to filesfragment
@@ -880,7 +873,6 @@ public class MainActivity extends CrashReportingActivity
             getFragmentManager().beginTransaction().remove(filesFragment)
                     .commitAllowingStateLoss();
         }
-        initBoxVolume(activeIdentity);
         filesFragment = new FilesFragment();
         filesFragment.setOnItemClickListener(new FilesAdapter.OnItemClickListener() {
             @Override
@@ -966,7 +958,6 @@ public class MainActivity extends CrashReportingActivity
         if (mService.getIdentities().getIdentities().size() == 0) {
             UIHelper.showDialogMessage(this, R.string.dialog_headline_info,
                     R.string.last_identity_delete_create_new, (dialog, which) -> {
-
                         selectAddIdentityFragment();
                     });
         } else {

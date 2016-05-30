@@ -23,19 +23,16 @@ import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 
 import javax.inject.Inject;
 
-import de.qabel.qabelbox.QabelBoxApplication;
+import de.qabel.qabelbox.QblBroadcastConstants;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.adapter.FilesAdapter;
 import de.qabel.qabelbox.dagger.components.MainActivityComponent;
 import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.helper.UIHelper;
-import de.qabel.qabelbox.providers.DocumentIdParser;
-import de.qabel.qabelbox.services.LocalBroadcastConstants;
-import de.qabel.qabelbox.services.LocalQabelService;
+import de.qabel.qabelbox.services.StorageBroadcastConstants;
 import de.qabel.qabelbox.storage.BoxManager;
 import de.qabel.qabelbox.storage.model.BoxExternalFile;
 import de.qabel.qabelbox.storage.model.BoxFile;
@@ -78,13 +75,13 @@ public class FilesFragment extends FilesFragmentBase {
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
-        LocalBroadcastManager.getInstance(getActivity()).registerReceiver(mMessageReceiver,
-                new IntentFilter(LocalBroadcastConstants.INTENT_UPLOAD_BROADCAST));
+        activity.registerReceiver(mMessageReceiver,
+                new IntentFilter(QblBroadcastConstants.Storage.BOX_UPLOAD_CHANGED));
     }
 
     @Override
     public void onDetach() {
-        LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(mMessageReceiver);
+        getActivity().unregisterReceiver(mMessageReceiver);
         super.onDetach();
     }
 
@@ -102,21 +99,21 @@ public class FilesFragment extends FilesFragmentBase {
             if (filesAdapter == null) {
                 return;
             }
-            String documentId = intent.getStringExtra(LocalBroadcastConstants.EXTRA_UPLOAD_DOCUMENT_ID);
-            int uploadStatus = intent.getIntExtra(LocalBroadcastConstants.EXTRA_UPLOAD_STATUS, -1);
+            String documentId = intent.getStringExtra(StorageBroadcastConstants.EXTRA_UPLOAD_DOCUMENT_ID);
+            int uploadStatus = intent.getIntExtra(StorageBroadcastConstants.EXTRA_UPLOAD_STATUS, -1);
 
             switch (uploadStatus) {
-                case LocalBroadcastConstants.UPLOAD_STATUS_NEW:
+                case StorageBroadcastConstants.UPLOAD_STATUS_NEW:
                     Log.d(TAG, "Received new uploadAndDeleteLocalfile: " + documentId);
                     fillAdapter(filesAdapter);
                     notifyFilesAdapterChanged();
                     break;
-                case LocalBroadcastConstants.UPLOAD_STATUS_FINISHED:
+                case StorageBroadcastConstants.UPLOAD_STATUS_FINISHED:
                     Log.d(TAG, "Received upload finished: " + documentId);
                     fillAdapter(filesAdapter);
                     notifyFilesAdapterChanged();
                     break;
-                case LocalBroadcastConstants.UPLOAD_STATUS_FAILED:
+                case StorageBroadcastConstants.UPLOAD_STATUS_FAILED:
                     Log.d(TAG, "Received uploadAndDeleteLocalfile failed: " + documentId);
                     refresh();
                     break;
@@ -310,7 +307,7 @@ public class FilesFragment extends FilesFragmentBase {
         InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(searchText.getWindowToken(), 0);
 
-        imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.RESULT_HIDDEN);
+        imm.toggleSoftInput(InputMethodManager.SHOW_IMPLICIT, InputMethodManager.RESULT_HIDDEN);
         mSearchAction.setIcon(R.drawable.magnify_white);
         action.setTitle(getTitle());
         isSearchOpened = false;

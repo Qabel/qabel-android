@@ -19,6 +19,7 @@ import de.qabel.qabelbox.util.DefaultHashMap;
 
 public class AndroidChatNotificationPresenter implements ChatNotificationPresenter {
 
+    private static final long[] VIBRATE_PATTERN = new long[]{0, 100, 200, 100};
     Context context;
     NotificationManager notificationManager;
     private int currentId = 0;
@@ -47,6 +48,7 @@ public class AndroidChatNotificationPresenter implements ChatNotificationPresent
                 .setContentText(notification.message)
                 .setSmallIcon(R.drawable.qabel_logo)
                 .setPriority(Notification.PRIORITY_HIGH)
+                .setVibrate(VIBRATE_PATTERN)
                 .setAutoCancel(true);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             androidNotification.setCategory(Notification.CATEGORY_MESSAGE);

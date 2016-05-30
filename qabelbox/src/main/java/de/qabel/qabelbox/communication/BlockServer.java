@@ -15,7 +15,7 @@ import okhttp3.RequestBody;
 
 public class BlockServer extends BaseServer {
 
-    private final static String TAG = "PrefixServer";
+    private final static String TAG = BlockServer.class.getSimpleName();
     public static final String BLOCKS = "blocks/";
     private int currentId = 0;
     private final int suffixId;

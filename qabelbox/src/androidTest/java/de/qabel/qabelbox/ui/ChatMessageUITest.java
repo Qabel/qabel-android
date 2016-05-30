@@ -1,6 +1,5 @@
 package de.qabel.qabelbox.ui;
 
-import android.app.Fragment;
 import android.content.Context;
 import android.content.Intent;
 import android.support.test.InstrumentationRegistry;
@@ -33,7 +32,6 @@ import static android.support.test.espresso.assertion.ViewAssertions.matches;
 import static android.support.test.espresso.matcher.ViewMatchers.hasSibling;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
-import static junit.framework.Assert.assertTrue;
 import static org.hamcrest.Matchers.allOf;
 
 public class ChatMessageUITest extends AbstractUITest {

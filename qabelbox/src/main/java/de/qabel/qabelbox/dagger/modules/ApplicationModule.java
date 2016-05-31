@@ -7,6 +7,7 @@ import javax.inject.Singleton;
 
 import dagger.Module;
 import dagger.Provides;
+import dagger.internal.Factory;
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.chat.AndroidChatNotificationPresenter;
 import de.qabel.qabelbox.chat.ChatNotificationManager;
@@ -42,8 +43,10 @@ public class ApplicationModule {
         return presenter;
     }
 
-    @Provides NotificationCompat.Builder providesNotificationBuilder(Context context) {
-        return new NotificationCompat.Builder(context);
+    @Provides
+    Factory<NotificationCompat.Builder> providesNotificationBuilder(
+            Context context) {
+        return () -> new NotificationCompat.Builder(context);
     }
 
 }

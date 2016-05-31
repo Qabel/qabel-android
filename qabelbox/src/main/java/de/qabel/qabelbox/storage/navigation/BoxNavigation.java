@@ -33,6 +33,10 @@ public interface BoxNavigation {
 
     void navigate(BoxFolder target) throws QblStorageException;
 
+    BoxFile getFile(String name) throws QblStorageException;
+
+    void navigate(String[] path) throws QblStorageException;
+
     BoxNavigation navigate(BoxExternalReference target);
 
     List<BoxFile> listFiles() throws QblStorageException;

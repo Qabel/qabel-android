@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import de.qabel.qabelbox.exceptions.QblStorageException;
+
 /**
  * Document IDs are built like this:
  * public-key::::prefix::::/filepath
@@ -68,5 +70,21 @@ public class DocumentIdParser {
         } else {
             return identity;
         }
+    }
+
+    public DocumentId parse(String documentId) throws QblStorageException {
+        String[] parts = documentId.split(BoxProvider.DOCID_SEPARATOR, MAX_TOKEN_SPLITS);
+        if (parts.length != 3) {
+            throw new QblStorageException("Invalid documentId: " + documentId);
+        }
+        String identityKey = parts[0];
+        String prefix = parts[1];
+
+        String completePath = parts[2];
+        String[] pathParts = completePath.split("/");
+        String filename = pathParts[pathParts.length - 1];
+        String[] path = Arrays.copyOf(pathParts, pathParts.length - 1);
+
+        return new DocumentId(identityKey, prefix, path, filename);
     }
 }

@@ -5,6 +5,7 @@ import org.junit.Test;
 
 import java.io.FileNotFoundException;
 
+import de.qabel.qabelbox.providers.DocumentId;
 import de.qabel.qabelbox.providers.DocumentIdParser;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -15,7 +16,7 @@ import static org.hamcrest.core.Is.is;
 public class DocumentIdParserTest {
 
     public static final String SEP = "::::";
-    private DocumentIdParser p;
+    private DocumentIdParser documentIdParser;
     private String pub = "8520f0098930a754748b7ddcb43ef75a0dbf3a0d26381af4eba4a98eaa9b4e6a";
     private String prefix = "D7A75A70-8D28-11E5-A8EB-280369A460B9";
     private String rootId = pub + SEP + prefix;
@@ -26,79 +27,95 @@ public class DocumentIdParserTest {
 
     @Before
     public void setUp() {
-        p = new DocumentIdParser();
+        documentIdParser = new DocumentIdParser();
     }
 
     @Test
     public void testExtractIdentity() throws FileNotFoundException {
-        assertThat(p.getIdentity(rootId), is(pub));
+        assertThat(documentIdParser.getIdentity(rootId), is(pub));
     }
 
     @Test(expected = FileNotFoundException.class)
     public void testNoIdentity() throws FileNotFoundException {
-        p.getIdentity("::::foobar");
+        documentIdParser.getIdentity("::::foobar");
     }
 
     @Test
     public void testExtractPrefix() throws FileNotFoundException {
-        assertThat(p.getPrefix(rootId), is(prefix));
+        assertThat(documentIdParser.getPrefix(rootId), is(prefix));
     }
 
     @Test(expected = FileNotFoundException.class)
     public void testNoPrefix() throws FileNotFoundException {
-        p.getPrefix("foo::::");
+        documentIdParser.getPrefix("foo::::");
     }
 
 
     @Test
     public void testExtractFilePath() throws FileNotFoundException {
-        assertThat(p.getFilePath(rootId + "::::" + filePath + fileName), is(filePath + fileName));
+        assertThat(documentIdParser.getFilePath(rootId + "::::" + filePath + fileName), is(filePath + fileName));
 
     }
 
     @Test
     public void testExtractBaseName() throws FileNotFoundException {
-        assertThat(p.getBaseName(rootId + "::::" + filePath + fileName), is(fileName));
+        assertThat(documentIdParser.getBaseName(rootId + "::::" + filePath + fileName), is(fileName));
     }
 
     @Test(expected = FileNotFoundException.class)
     public void testNoFilePath() throws FileNotFoundException {
-        p.getFilePath(rootId);
+        documentIdParser.getFilePath(rootId);
     }
 
     @Test
     public void testBuildId() {
-        assertThat(p.buildId(pub, prefix, filePath), is(rootId + SEP + filePath));
-        assertThat(p.buildId(pub, prefix, null), is(rootId));
-        assertThat(p.buildId(pub, null, null), is(pub));
-        assertThat(p.buildId(null, null, null), nullValue());
+        assertThat(documentIdParser.buildId(pub, prefix, filePath), is(rootId + SEP + filePath));
+        assertThat(documentIdParser.buildId(pub, prefix, null), is(rootId));
+        assertThat(documentIdParser.buildId(pub, null, null), is(pub));
+        assertThat(documentIdParser.buildId(null, null, null), nullValue());
     }
 
     @Test
     public void testGetPath() throws FileNotFoundException {
-        assertThat(p.getPath(rootId + SEP + filePath + fileName), is(filePath));
+        assertThat(documentIdParser.getPath(rootId + SEP + filePath + fileName), is(filePath));
     }
 
     @Test
     public void testPathWithToken() throws Exception {
-        assertThat(p.getPath(dottedId), is(dottedPath));
+        assertThat(documentIdParser.getPath(dottedId), is(dottedPath));
     }
 
     @Test
     public void testBasenameWithToken() throws Exception {
-        assertThat(p.getBaseName(dottedId + fileName), is(fileName));
+        assertThat(documentIdParser.getBaseName(dottedId + fileName), is(fileName));
     }
 
 
     @Test
     public void testFilePathWithToken() throws Exception {
-        assertThat(p.getFilePath(dottedId + fileName), is(dottedPath + fileName));
-        assertThat(p.getFilePath(dottedId + SEP), is(dottedPath + SEP));
+        assertThat(documentIdParser.getFilePath(dottedId + fileName), is(dottedPath + fileName));
+        assertThat(documentIdParser.getFilePath(dottedId + SEP), is(dottedPath + SEP));
     }
 
     @Test
     public void testPrefixWithToken() throws Exception {
-        assertThat(p.getPrefix(dottedId), is(prefix));
+        assertThat(documentIdParser.getPrefix(dottedId), is(prefix));
+    }
+
+    @Test
+    public void testParseDocumentID() throws Exception {
+        DocumentId documentId = documentIdParser.parse(dottedId);
+
+        assertThat(documentId.getIdentityKey(), is(pub));
+        assertThat(documentId.getPrefix(), is(prefix));
+
+        assertThat(documentId.getFileName(), is(fileName));
+        assertThat(documentId.getPathString(), is(filePath));
+    }
+
+    @Test
+    public void testDocumentId() throws Exception {
+        assertThat(dottedId, is(documentIdParser.parse(dottedId).toString()));
     }
 }
 

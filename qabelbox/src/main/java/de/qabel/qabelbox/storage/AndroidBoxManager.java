@@ -3,9 +3,17 @@ package de.qabel.qabelbox.storage;
 import android.content.Context;
 import android.content.Intent;
 import android.support.annotation.Nullable;
-import android.support.v4.content.LocalBroadcastManager;
 
+import org.spongycastle.crypto.params.KeyParameter;
+
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.security.InvalidKeyException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -13,27 +21,46 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
+import java.util.UUID;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import javax.inject.Inject;
 
 import de.qabel.core.config.Identity;
+import de.qabel.core.crypto.CryptoUtils;
 import de.qabel.core.crypto.QblECKeyPair;
 import de.qabel.desktop.repository.IdentityRepository;
 import de.qabel.desktop.repository.exception.EntityNotFoundExcepion;
 import de.qabel.desktop.repository.exception.PersistenceException;
 import de.qabel.qabelbox.QblBroadcastConstants;
 import de.qabel.qabelbox.config.AppPreference;
+import de.qabel.qabelbox.exceptions.QblServerException;
 import de.qabel.qabelbox.exceptions.QblStorageException;
+import de.qabel.qabelbox.exceptions.QblStorageNotFound;
+import de.qabel.qabelbox.providers.DocumentId;
 import de.qabel.qabelbox.providers.DocumentIdParser;
 import de.qabel.qabelbox.services.StorageBroadcastConstants;
 import de.qabel.qabelbox.storage.model.BoxFile;
 import de.qabel.qabelbox.storage.model.BoxUploadingFile;
+import de.qabel.qabelbox.storage.navigation.BoxNavigation;
 import de.qabel.qabelbox.storage.notifications.StorageNotificationManager;
 import de.qabel.qabelbox.storage.transfer.BoxTransferListener;
 import de.qabel.qabelbox.storage.transfer.TransferManager;
 
 public class AndroidBoxManager implements BoxManager {
+
+    private final FileCache fileCache;
+    private final CryptoUtils cryptoUtils;
+
+    private class UploadResult {
+        protected long mTime;
+        protected long size;
+
+        protected UploadResult(long mTime, long size) {
+            this.mTime = mTime;
+            this.size = size;
+        }
+    }
 
     Context context;
     StorageNotificationManager storageNotificationManager;
@@ -60,12 +87,14 @@ public class AndroidBoxManager implements BoxManager {
         this.appPreferences = preferences;
         this.transferManager = transferManager;
         this.identityRepository = identityRepository;
+        this.fileCache = new FileCache(context);
+        this.cryptoUtils = new CryptoUtils();
     }
 
     @Override
     @Nullable
     public Collection<BoxFile> getCachedFinishedUploads(String path) {
-        Map<String, BoxFile> files = this.cachedFinishedUploads.get(path);
+        Map<String, BoxFile> files = cachedFinishedUploads.get(path);
         if (files != null) {
             return files.values();
         }
@@ -74,7 +103,7 @@ public class AndroidBoxManager implements BoxManager {
 
     @Override
     public void clearCachedUploads(String path) {
-        this.cachedFinishedUploads.remove(path);
+        cachedFinishedUploads.remove(path);
     }
 
     @Override
@@ -88,35 +117,29 @@ public class AndroidBoxManager implements BoxManager {
         return uploadingFiles;
     }
 
-    @Override
-    public BoxTransferListener addUploadTransfer(String documentId) throws QblStorageException {
-        try {
-            String uploadPath = documentIdParser.getPath(documentId);
-            String filename = documentIdParser.getBaseName(documentId);
+    protected BoxTransferListener addUploadTransfer(DocumentId documentId) throws QblStorageException {
 
-            final BoxUploadingFile boxUploadingFile = new BoxUploadingFile(filename, uploadPath,
-                    documentIdParser.getIdentity(documentId));
+        final BoxUploadingFile boxUploadingFile = new BoxUploadingFile(documentId.getFileName(),
+                documentId.getPathString(), documentId.getIdentityKey());
 
-            uploadingQueue.add(boxUploadingFile);
-            updateUploadNotifications();
-            broadcastUploadStatus(documentId, StorageBroadcastConstants.UPLOAD_STATUS_NEW);
-            return new BoxTransferListener() {
-                @Override
-                public void onProgressChanged(long bytesCurrent, long bytesTotal) {
-                    boxUploadingFile.totalSize = bytesTotal;
-                    boxUploadingFile.uploadedSize = bytesCurrent;
-                    updateUploadNotifications();
-                }
+        uploadingQueue.add(boxUploadingFile);
+        updateUploadNotifications();
+        broadcastUploadStatus(documentId.toString(), StorageBroadcastConstants.UPLOAD_STATUS_NEW);
 
-                @Override
-                public void onFinished() {
-                    boxUploadingFile.uploadedSize = boxUploadingFile.totalSize;
-                    updateUploadNotifications();
-                }
-            };
-        } catch (FileNotFoundException e) {
-            throw new QblStorageException(e);
-        }
+        return new BoxTransferListener() {
+            @Override
+            public void onProgressChanged(long bytesCurrent, long bytesTotal) {
+                boxUploadingFile.totalSize = bytesTotal;
+                boxUploadingFile.uploadedSize = bytesCurrent;
+                updateUploadNotifications();
+            }
+
+            @Override
+            public void onFinished() {
+                boxUploadingFile.uploadedSize = boxUploadingFile.totalSize;
+                updateUploadNotifications();
+            }
+        };
     }
 
     private void broadcastUploadStatus(String documentId, int uploadStatus) {
@@ -131,24 +154,18 @@ public class AndroidBoxManager implements BoxManager {
         storageNotificationManager.updateUploadNotification(uploadingQueue.size(), uploadingQueue.peek());
     }
 
-    @Override
-    public void removeUpload(String documentId, int cause, @Nullable BoxFile resultFile) throws QblStorageException {
-        try {
-            BoxUploadingFile uploadingFile = uploadingQueue.poll();
-            String uploadPath = documentIdParser.getPath(documentId);
-            switch (cause) {
-                case StorageBroadcastConstants.UPLOAD_STATUS_FINISHED:
-                    cacheFinishedUpload(documentId, resultFile);
-                    break;
-            }
-            updateUploadNotifications();
-            broadcastUploadStatus(documentId, cause);
-        } catch (FileNotFoundException e) {
-            throw new QblStorageException(e);
+    private void removeUpload(String documentId, int cause, @Nullable BoxFile resultFile) throws QblStorageException {
+        uploadingQueue.poll();
+        switch (cause) {
+            case StorageBroadcastConstants.UPLOAD_STATUS_FINISHED:
+                cacheFinishedUpload(documentId, resultFile);
+                break;
         }
+        updateUploadNotifications();
+        broadcastUploadStatus(documentId, cause);
     }
 
-    public void cacheFinishedUpload(String documentId, BoxFile boxFile) {
+    private void cacheFinishedUpload(String documentId, BoxFile boxFile) {
         try {
             Map<String, BoxFile> cachedFiles = cachedFinishedUploads.get(documentIdParser.getPath(documentId));
             if (cachedFiles == null) {
@@ -183,7 +200,143 @@ public class AndroidBoxManager implements BoxManager {
     }
 
     @Override
-    public void notifyBoxChanged() {
+    public void notifyBoxVolumesChanged() {
         context.sendBroadcast(new Intent(QblBroadcastConstants.Storage.BOX_VOLUMES_CHANGES));
+    }
+
+    @Override
+    public File downloadFile(String documentId) throws QblStorageException {
+        try {
+            String path = documentIdParser.getFilePath(documentId);
+            String ownerKey = documentIdParser.getIdentity(documentId);
+            String prefix = documentIdParser.getPrefix(documentId);
+            List<String> strings = documentIdParser.splitPath(path);
+
+            String basename = strings.remove(strings.size() - 1);
+
+            BoxVolume volume = createBoxVolume(ownerKey, prefix);
+            BoxNavigation navigation = volume.navigate();
+
+            BoxFile file = navigation.getFile(basename);
+
+            return downloadFile(file, storageNotificationManager.addDownloadNotification(ownerKey, path, file));
+        } catch (IOException e) {
+            throw new QblStorageException("Cannot download file!", e);
+        }
+    }
+
+    @Override
+    public InputStream downloadStream(BoxFile boxFile, BoxTransferListener boxTransferListener) throws QblStorageException {
+        try {
+            File file = downloadFile(boxFile, boxTransferListener);
+            return new FileInputStream(file);
+        } catch (IOException e) {
+            throw new QblStorageException(e);
+        }
+    }
+
+    @Override
+    public File downloadFile(BoxFile boxFile, BoxTransferListener boxTransferListener) throws QblStorageException {
+        File file = fileCache.get(boxFile);
+        if (file != null) {
+            return file;
+        }
+        File downloadedFile = blockingDownload(boxFile.prefix,
+                BLOCKS_PREFIX + boxFile.block, boxTransferListener);
+        File outputFile = new File(context.getExternalCacheDir(), boxFile.name);
+        decryptFile(boxFile.key, downloadedFile, outputFile);
+        fileCache.put(boxFile, outputFile);
+        return outputFile;
+    }
+
+    @Override
+    public File blockingDownload(String prefix, String name, BoxTransferListener boxTransferListener) throws QblStorageException {
+        File target = transferManager.createTempFile();
+        int id = transferManager.download(prefix, name, target, boxTransferListener);
+        if (transferManager.waitFor(id)) {
+            return target;
+        } else {
+            try {
+                throw transferManager.lookupError(id);
+            } catch (QblServerException e) {
+                if (e.getStatusCode() == 404) {
+                    throw new QblStorageNotFound("File not found. Prefix: " + prefix + " Name: " + name);
+                }
+                throw new QblStorageException(e);
+            } catch (Exception e) {
+                throw new QblStorageException(e);
+            }
+        }
+    }
+
+    private void decryptFile(byte[] boxFileKey, File sourceFile, File targetFile) throws QblStorageException {
+        KeyParameter key = new KeyParameter(boxFileKey);
+        try {
+            if (!cryptoUtils.decryptFileAuthenticatedSymmetricAndValidateTag(
+                    new FileInputStream(sourceFile), targetFile, key)
+                    || targetFile.length() == 0) {
+                throw new QblStorageException("Decryption failed");
+            }
+        } catch (IOException | InvalidKeyException e) {
+            throw new QblStorageException(e);
+        }
+    }
+
+    protected long blockingUpload(String prefix, String name,
+                                  File file, BoxTransferListener boxTransferListener) {
+        int id = transferManager.uploadAndDeleteLocalfileOnSuccess(prefix, name, file, boxTransferListener);
+        transferManager.waitFor(id);
+        return currentSecondsFromEpoch();
+    }
+
+    private long currentSecondsFromEpoch() {
+        return System.currentTimeMillis() / 1000;
+    }
+
+    protected UploadResult uploadEncrypted(
+            InputStream content, KeyParameter key, String prefix, String block,
+            BoxTransferListener boxTransferListener) throws QblStorageException {
+        try {
+            File tempFile = transferManager.createTempFile();
+            OutputStream outputStream = new FileOutputStream(tempFile);
+            if (!cryptoUtils.encryptStreamAuthenticatedSymmetric(content, outputStream, key, null)) {
+                throw new QblStorageException("Encryption failed");
+            }
+            outputStream.flush();
+            Long size = tempFile.length();
+            Long mTime = blockingUpload(prefix, block, tempFile, boxTransferListener);
+            return new UploadResult(mTime, size);
+        } catch (IOException | InvalidKeyException e) {
+            throw new QblStorageException(e);
+        }
+    }
+
+    @Override
+    public BoxFile upload(String documentIdString, InputStream content) throws QblStorageException {
+        DocumentId documentId = documentIdParser.parse(documentIdString);
+
+        KeyParameter key = cryptoUtils.generateSymmetricKey();
+        String block = UUID.randomUUID().toString();
+
+        BoxTransferListener boxTransferListener = addUploadTransfer(documentId);
+        try {
+            UploadResult uploadResult = uploadEncrypted(content, key, documentId.getPrefix(),
+                    BLOCKS_PREFIX + block, boxTransferListener);
+
+            BoxFile boxResult = new BoxFile(documentId.getPrefix(), block,
+                    documentId.getFileName(), uploadResult.size, uploadResult.mTime, key.getKey());
+
+            removeUpload(documentIdString, StorageBroadcastConstants.UPLOAD_STATUS_FINISHED, boxResult);
+            return boxResult;
+        } catch (QblStorageException e) {
+            removeUpload(documentIdString, StorageBroadcastConstants.UPLOAD_STATUS_FAILED, null);
+            throw e;
+        }
+    }
+
+    @Override
+    public void upload(String prefix, String block, byte[] key,
+                       InputStream content, BoxTransferListener boxTransferListener) throws QblStorageException {
+        uploadEncrypted(content, new KeyParameter(key), prefix, block, boxTransferListener);
     }
 }

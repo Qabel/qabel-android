@@ -843,7 +843,7 @@ public class MainActivity extends CrashReportingActivity
 
         mService.addIdentity(identity);
         changeActiveIdentity(identity, null);
-        boxManager.notifyBoxChanged();
+        boxManager.notifyBoxVolumesChanged();
         Snackbar.make(appBarMain, "Added identity: " + identity.getAlias(), Snackbar.LENGTH_LONG)
                 .show();
         selectFilesFragment();
@@ -953,7 +953,7 @@ public class MainActivity extends CrashReportingActivity
 
     @Override
     public void deleteIdentity(Identity identity) {
-        boxManager.notifyBoxChanged();
+        boxManager.notifyBoxVolumesChanged();
         mService.deleteIdentity(identity);
         if (mService.getIdentities().getIdentities().size() == 0) {
             UIHelper.showDialogMessage(this, R.string.dialog_headline_info,
@@ -971,7 +971,7 @@ public class MainActivity extends CrashReportingActivity
 
     @Override
     public void modifyIdentity(Identity identity) {
-        boxManager.notifyBoxChanged();
+        boxManager.notifyBoxVolumesChanged();
         mService.modifyIdentity(identity);
         drawerHolder.textViewSelectedIdentity.setText(getActiveIdentity().getAlias());
     }

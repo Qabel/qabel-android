@@ -2,6 +2,8 @@ package de.qabel.qabelbox.storage;
 
 import android.support.annotation.Nullable;
 
+import java.io.File;
+import java.io.InputStream;
 import java.util.Collection;
 import java.util.List;
 
@@ -13,6 +15,8 @@ import de.qabel.qabelbox.storage.transfer.BoxTransferListener;
 
 public interface BoxManager {
 
+    String BLOCKS_PREFIX = "blocks/";
+
     @Nullable
     Collection<BoxFile> getCachedFinishedUploads(String path);
 
@@ -20,11 +24,17 @@ public interface BoxManager {
 
     List<BoxUploadingFile> getPendingUploads(String path);
 
-    BoxTransferListener addUploadTransfer(String documentId) throws QblStorageException;
-    void removeUpload(String documentId, int cause, @Nullable BoxFile resultFile) throws QblStorageException;
-
     BoxVolume createBoxVolume(String identity, String prefix) throws QblStorageException;
     BoxVolume createBoxVolume(Identity identity) throws QblStorageException;
-    void notifyBoxChanged();
+    void notifyBoxVolumesChanged();
 
+    File downloadFile(String documentId) throws QblStorageException;
+    InputStream downloadStream(BoxFile boxFile, BoxTransferListener boxTransferListener) throws QblStorageException;
+    File downloadFile(BoxFile boxFile, BoxTransferListener boxTransferListener) throws QblStorageException;
+    File blockingDownload(String prefix, String name, BoxTransferListener boxTransferListener) throws QblStorageException;
+
+    BoxFile upload(String documentIdString, InputStream content) throws QblStorageException;
+
+    void upload(String prefix, String block, byte[] key,
+                InputStream content, BoxTransferListener boxTransferListener) throws QblStorageException;
 }

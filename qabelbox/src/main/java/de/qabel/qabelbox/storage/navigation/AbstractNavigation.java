@@ -129,7 +129,7 @@ public abstract class AbstractNavigation implements BoxNavigation {
             return file;
         } else {
             try {
-               throw transferManager.lookupError(id);
+                throw transferManager.lookupError(id);
             } catch (QblServerException e) {
                 if (e.getStatusCode() == 404) {
                     throw new QblStorageNotFound("File not found. Prefix: " + prefix + " Name: " + name);
@@ -179,7 +179,7 @@ public abstract class AbstractNavigation implements BoxNavigation {
     /**
      * Navigates to a direct subfolder.
      *
-     * @param target Subfolder to navigate to
+     * @param target Subfolder to navigateToChild to
      * @throws QblStorageException
      */
     @Override
@@ -199,6 +199,50 @@ public abstract class AbstractNavigation implements BoxNavigation {
         } catch (QblStorageException e) {
             throw new QblStorageNotFound("Invalid key");
         }
+    }
+
+    @Override
+    public BoxFile getFile(String name) throws QblStorageException {
+        for (BoxFile file : listFiles()) {
+            if (file.name.equals(name)) {
+                return file;
+            }
+        }
+        for (BoxObject boxObject : listExternals()) {
+            if (boxObject.name.equals(name) && boxObject instanceof BoxExternalFile) {
+                return (BoxFile) boxObject;
+            }
+        }
+        throw new QblStorageNotFound(name + " not found.");
+    }
+
+    @Override
+    public void navigate(String[] path) throws QblStorageException {
+        for (String current : path) {
+            if (!navigateToChild(current)) {
+                throw new QblStorageNotFound("Cannot navigateToChild to: " + current + "(" + path + ")");
+            }
+        }
+    }
+
+    private boolean navigateToChild(String target) throws QblStorageException {
+        for (BoxFolder boxFolder : listFolders()) {
+            if (boxFolder.name.equals(target)) {
+                doNavigate(boxFolder, true);
+                return true;
+            }
+        }
+        for (BoxFile f : listFiles()) {
+            if (f.name.equals(target)) {
+                return true;
+            }
+        }
+        for (BoxObject f : listExternals()) {
+            if (f.name.equals(target)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private void doNavigate(BoxFolder target, boolean isChild) throws QblStorageException {

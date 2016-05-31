@@ -83,8 +83,10 @@ public class FileCache extends SQLiteOpenHelper {
                 return null;
             }
         } catch (CursorIndexOutOfBoundsException e) {
-            cursor.close();
             return null;
+        } finally {
+            cursor.close();
+            close();
         }
     }
 }

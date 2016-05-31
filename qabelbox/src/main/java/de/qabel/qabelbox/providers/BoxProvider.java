@@ -543,7 +543,8 @@ public class BoxProvider extends DocumentsProvider {
                     mDocumentIdParser.getFilePath(documentId));
             String basename = splitPath.remove(splitPath.size() - 1);
             Log.i(TAG, "Navigating to folder");
-            BoxNavigation navigation = traverseToFolder(volume, splitPath);
+            BoxNavigation navigation = volume.navigate();
+            navigation.navigate();traverseToFolder(volume, splitPath);
             Log.i(TAG, "Starting uploadAndDeleteLocalfile");
             BoxTransferListener boxTransferListener = boxManager.addUploadTransfer(documentId);
             BoxFile boxFile = navigation.upload(basename, new FileInputStream(tmp), boxTransferListener);

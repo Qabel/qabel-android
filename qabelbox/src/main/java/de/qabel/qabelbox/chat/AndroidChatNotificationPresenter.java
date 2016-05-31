@@ -46,7 +46,7 @@ public class AndroidChatNotificationPresenter implements ChatNotificationPresent
                 context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT
         );
         NotificationCompat.Builder notificationBuilder = builder.get();
-        notificationBuilder.setDefaults(Notification.DEFAULT_LIGHTS | Notification.DEFAULT_VIBRATE)
+        notificationBuilder.setDefaults(Notification.DEFAULT_ALL)
                .setWhen(notification.when.getTime())
                .setContentIntent(pendingIntent)
                .setContentTitle(notification.contactHeader)

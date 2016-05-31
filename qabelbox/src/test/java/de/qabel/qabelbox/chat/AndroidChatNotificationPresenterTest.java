@@ -5,6 +5,7 @@ import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
+import android.support.v7.app.NotificationCompat;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -15,6 +16,8 @@ import org.robolectric.annotation.Config;
 
 import java.util.Date;
 
+import javax.inject.Provider;
+
 import de.qabel.qabelbox.BuildConfig;
 import de.qabel.qabelbox.SimpleApplication;
 import de.qabel.qabelbox.activities.MainActivity;
@@ -22,6 +25,8 @@ import de.qabel.qabelbox.util.IdentityHelper;
 
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
 import static org.robolectric.Shadows.shadowOf;
 
 @RunWith(RobolectricGradleTestRunner.class)
@@ -31,6 +36,7 @@ public class AndroidChatNotificationPresenterTest {
     NotificationManager notificationManager;
     private ChatNotification notification;
     private AndroidChatNotificationPresenter presenter;
+    private NotificationCompat.Builder builder;
 
     @Before
     public void setUp() throws Exception {
@@ -39,7 +45,11 @@ public class AndroidChatNotificationPresenterTest {
         notification = new ChatNotification(IdentityHelper.createIdentity("identity", null),
                 "header, header", "message",
                 new Date());
-        presenter = new AndroidChatNotificationPresenter(RuntimeEnvironment.application);
+        presenter = new AndroidChatNotificationPresenter(RuntimeEnvironment.application,
+                () -> {
+                    builder = spy(new NotificationCompat.Builder(RuntimeEnvironment.application));
+                    return builder;
+                });
     }
 
     @Test
@@ -52,7 +62,7 @@ public class AndroidChatNotificationPresenterTest {
         assertThat(note.when, equalTo(notification.when.getTime()));
         assertThat(note.contentIntent, notNullValue());
         assertThat(shadowOf(note).getContentText(), equalTo(notification.message));
-        assertThat(note.vibrate, equalTo(new long[]{0, 100, 200, 100}));
+        verify(builder).setDefaults(Notification.DEFAULT_LIGHTS | Notification.DEFAULT_VIBRATE);
     }
 
     @Test

@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.support.annotation.Nullable;
 
+import org.apache.commons.io.IOUtils;
 import org.spongycastle.crypto.params.KeyParameter;
 
 import java.io.File;
@@ -89,6 +90,11 @@ public class AndroidBoxManager implements BoxManager {
         this.identityRepository = identityRepository;
         this.fileCache = new FileCache(context);
         this.cryptoUtils = new CryptoUtils();
+    }
+
+    @Override
+    public CryptoUtils getCryptoUtils() {
+        return cryptoUtils;
     }
 
     @Override
@@ -188,7 +194,7 @@ public class AndroidBoxManager implements BoxManager {
             QblECKeyPair key = retrievedIdentity.getPrimaryKeyPair();
 
             byte[] deviceId = appPreferences.getDeviceId();
-            return new BoxVolume(key, prefix, deviceId, context, transferManager);
+            return new BoxVolume(key, prefix, deviceId, context, this);
         } catch (EntityNotFoundExcepion | PersistenceException e) {
             throw new QblStorageException("Cannot create BoxVolume");
         }
@@ -205,30 +211,21 @@ public class AndroidBoxManager implements BoxManager {
     }
 
     @Override
-    public File downloadFile(String documentId) throws QblStorageException {
-        try {
-            String path = documentIdParser.getFilePath(documentId);
-            String ownerKey = documentIdParser.getIdentity(documentId);
-            String prefix = documentIdParser.getPrefix(documentId);
-            List<String> strings = documentIdParser.splitPath(path);
+    public File downloadFileDecrypted(String documentIdString) throws QblStorageException {
+        DocumentId documentId = documentIdParser.parse(documentIdString);
 
-            String basename = strings.remove(strings.size() - 1);
+        BoxVolume volume = createBoxVolume(documentId.getIdentityKey(), documentId.getPrefix());
+        BoxNavigation navigation = volume.navigate();
+        navigation.navigate(documentId.getFilePath());
 
-            BoxVolume volume = createBoxVolume(ownerKey, prefix);
-            BoxNavigation navigation = volume.navigate();
-
-            BoxFile file = navigation.getFile(basename);
-
-            return downloadFile(file, storageNotificationManager.addDownloadNotification(ownerKey, path, file));
-        } catch (IOException e) {
-            throw new QblStorageException("Cannot download file!", e);
-        }
+        BoxFile file = navigation.getFile(documentId.getFileName());
+        return downloadFileDecrypted(file, documentId.getIdentityKey(), documentId.getPathString());
     }
 
     @Override
-    public InputStream downloadStream(BoxFile boxFile, BoxTransferListener boxTransferListener) throws QblStorageException {
+    public InputStream downloadStreamDecrypted(BoxFile boxFile, String identityKeyIdentifier, String path) throws QblStorageException {
         try {
-            File file = downloadFile(boxFile, boxTransferListener);
+            File file = downloadFileDecrypted(boxFile, identityKeyIdentifier, path);
             return new FileInputStream(file);
         } catch (IOException e) {
             throw new QblStorageException(e);
@@ -236,16 +233,20 @@ public class AndroidBoxManager implements BoxManager {
     }
 
     @Override
-    public File downloadFile(BoxFile boxFile, BoxTransferListener boxTransferListener) throws QblStorageException {
+    public File downloadFileDecrypted(BoxFile boxFile, String identityKeyIdentifier, String path) throws QblStorageException {
         File file = fileCache.get(boxFile);
         if (file != null) {
             return file;
         }
+
         File downloadedFile = blockingDownload(boxFile.prefix,
-                BLOCKS_PREFIX + boxFile.block, boxTransferListener);
+                BLOCKS_PREFIX + boxFile.block,
+                storageNotificationManager.addDownloadNotification(identityKeyIdentifier, path, boxFile));
+
         File outputFile = new File(context.getExternalCacheDir(), boxFile.name);
         decryptFile(boxFile.key, downloadedFile, outputFile);
         fileCache.put(boxFile, outputFile);
+
         return outputFile;
     }
 
@@ -282,10 +283,32 @@ public class AndroidBoxManager implements BoxManager {
         }
     }
 
+    @Override
+    public File downloadDecrypted(String prefix, String name, byte[] key, BoxTransferListener boxTransferListener) throws QblStorageException {
+        File downloadedFile = blockingDownload(prefix, name, boxTransferListener);
+
+        File outputFile = transferManager.createTempFile();
+        decryptFile(key, downloadedFile, outputFile);
+        return outputFile;
+    }
+
+    @Override
+    public void blockingUpload(String prefix, String name, InputStream inputStream) throws QblStorageException {
+        try {
+            File tmpFile = transferManager.createTempFile();
+            IOUtils.copy(inputStream, new FileOutputStream(tmpFile));
+            blockingUpload(prefix, name, tmpFile, null);
+        } catch (IOException e) {
+            throw new QblStorageException(e);
+        }
+    }
+
     protected long blockingUpload(String prefix, String name,
-                                  File file, BoxTransferListener boxTransferListener) {
+                                  File file, BoxTransferListener boxTransferListener) throws QblStorageException {
         int id = transferManager.uploadAndDeleteLocalfileOnSuccess(prefix, name, file, boxTransferListener);
-        transferManager.waitFor(id);
+        if (!transferManager.waitFor(id)) {
+            throw new QblStorageException("Upload failed!");
+        }
         return currentSecondsFromEpoch();
     }
 
@@ -312,7 +335,7 @@ public class AndroidBoxManager implements BoxManager {
     }
 
     @Override
-    public BoxFile upload(String documentIdString, InputStream content) throws QblStorageException {
+    public BoxFile uploadEncrypted(String documentIdString, InputStream content) throws QblStorageException {
         DocumentId documentId = documentIdParser.parse(documentIdString);
 
         KeyParameter key = cryptoUtils.generateSymmetricKey();
@@ -335,8 +358,27 @@ public class AndroidBoxManager implements BoxManager {
     }
 
     @Override
-    public void upload(String prefix, String block, byte[] key,
-                       InputStream content, BoxTransferListener boxTransferListener) throws QblStorageException {
+    public BoxFile uploadEncrypted(String documentIdString, File content) throws QblStorageException {
+        try {
+            return uploadEncrypted(documentIdString, new FileInputStream(content));
+        } catch (FileNotFoundException e) {
+            throw new QblStorageException(e);
+        }
+    }
+
+    @Override
+    public void uploadEncrypted(String prefix, String block, byte[] key,
+                                InputStream content, BoxTransferListener boxTransferListener) throws QblStorageException {
         uploadEncrypted(content, new KeyParameter(key), prefix, block, boxTransferListener);
     }
+
+    @Override
+    public void delete(String prefix, String ref) throws QblStorageException {
+        int requestId = transferManager.delete(prefix, ref);
+        this.fileCache.remove(ref);
+        if (!transferManager.waitFor(requestId)) {
+            throw new QblStorageException("Cannot delete file!");
+        }
+    }
+
 }

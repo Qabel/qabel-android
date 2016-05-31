@@ -5,6 +5,7 @@ import org.junit.Test;
 
 import java.io.FileNotFoundException;
 
+import de.qabel.qabelbox.providers.BoxProvider;
 import de.qabel.qabelbox.providers.DocumentId;
 import de.qabel.qabelbox.providers.DocumentIdParser;
 
@@ -20,10 +21,10 @@ public class DocumentIdParserTest {
     private String pub = "8520f0098930a754748b7ddcb43ef75a0dbf3a0d26381af4eba4a98eaa9b4e6a";
     private String prefix = "D7A75A70-8D28-11E5-A8EB-280369A460B9";
     private String rootId = pub + SEP + prefix;
-    private String filePath = "foo/bar/baz/";
+    private String filePath = "foo/bar/baz";
     private String fileName = "lorem.txt";
-    private String dottedPath = "::::/foo/bar/baz/";
-    private String dottedId = rootId + SEP + "::::/foo/bar/baz/";
+    private String dottedPath = "::::/foo/bar/baz";
+    private String dottedId = rootId + SEP + filePath + BoxProvider.PATH_SEP + fileName;
 
     @Before
     public void setUp() {
@@ -59,7 +60,7 @@ public class DocumentIdParserTest {
 
     @Test
     public void testExtractBaseName() throws FileNotFoundException {
-        assertThat(documentIdParser.getBaseName(rootId + "::::" + filePath + fileName), is(fileName));
+        assertThat(documentIdParser.getBaseName(dottedId), is(fileName));
     }
 
     @Test(expected = FileNotFoundException.class)
@@ -77,24 +78,24 @@ public class DocumentIdParserTest {
 
     @Test
     public void testGetPath() throws FileNotFoundException {
-        assertThat(documentIdParser.getPath(rootId + SEP + filePath + fileName), is(filePath));
+        assertThat(documentIdParser.getPath(dottedId), is(filePath + BoxProvider.PATH_SEP));
     }
 
     @Test
     public void testPathWithToken() throws Exception {
-        assertThat(documentIdParser.getPath(dottedId), is(dottedPath));
+        assertThat(documentIdParser.getPath(dottedId), is(filePath + BoxProvider.PATH_SEP));
     }
 
     @Test
     public void testBasenameWithToken() throws Exception {
-        assertThat(documentIdParser.getBaseName(dottedId + fileName), is(fileName));
+        assertThat(documentIdParser.getBaseName(dottedId), is(fileName));
     }
 
 
     @Test
     public void testFilePathWithToken() throws Exception {
-        assertThat(documentIdParser.getFilePath(dottedId + fileName), is(dottedPath + fileName));
-        assertThat(documentIdParser.getFilePath(dottedId + SEP), is(dottedPath + SEP));
+        assertThat(documentIdParser.getFilePath(dottedId), is(filePath + BoxProvider.PATH_SEP + fileName));
+        assertThat(documentIdParser.getFilePath(dottedId + SEP), is(filePath + BoxProvider.PATH_SEP + fileName + SEP));
     }
 
     @Test

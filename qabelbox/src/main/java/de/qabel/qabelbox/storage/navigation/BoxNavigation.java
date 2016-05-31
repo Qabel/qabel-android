@@ -35,7 +35,7 @@ public interface BoxNavigation {
 
     BoxFile getFile(String name) throws QblStorageException;
 
-    void navigate(String[] path) throws QblStorageException;
+    void navigate(String path) throws QblStorageException;
 
     BoxNavigation navigate(BoxExternalReference target);
 
@@ -49,9 +49,9 @@ public interface BoxNavigation {
 
     List<BoxObject> listExternals() throws QblStorageException;
 
-    BoxFile upload(String name, InputStream content, @Nullable BoxTransferListener boxTransferListener) throws QblStorageException;
+    BoxFile upload(String name, InputStream content) throws QblStorageException;
 
-    InputStream download(BoxFile file, @Nullable BoxTransferListener boxTransferListener) throws QblStorageException;
+    InputStream download(BoxFile file) throws QblStorageException;
 
     BoxExternalReference createFileMetadata(QblECPublicKey owner, BoxFile boxFile) throws QblStorageException;
 

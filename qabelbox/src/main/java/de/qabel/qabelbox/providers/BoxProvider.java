@@ -242,36 +242,35 @@ public class BoxProvider extends DocumentsProvider {
     }
 
     @Override
-    public Cursor queryDocument(String documentId, String[] projection)
+    public Cursor queryDocument(String documentIdString, String[] projection)
             throws FileNotFoundException {
-
         MatrixCursor cursor = createCursor(projection, false);
-        String logInfos = shrinkDocumentId(documentId);
-        if (projection != null) {
-            logInfos += " projSize=" + projection.length;
-        } else {
-            logInfos += " projection=null. All fields used";
-        }
-        Log.v(TAG, "QueryDocument " + logInfos);
-        String filePath = mDocumentIdParser.getFilePath(documentId);
-
-        BoxVolume volume = getVolumeForId(documentId);
-
-        if (filePath.equals(PATH_SEP)) {
-            // root id
-            insertRootDoc(cursor, documentId);
-            return cursor;
-        }
-
         try {
-            List<String> strings = mDocumentIdParser.splitPath(mDocumentIdParser.getFilePath(documentId));
-            String basename = strings.remove(strings.size() - 1);
-            BoxNavigation navigation =
-                    traverseToFolder(volume, strings);
-            Log.d(TAG, "Inserting basename " + basename);
-            insertFileByName(cursor, navigation, documentId, basename);
+            DocumentId documentId = mDocumentIdParser.parse(documentIdString);
+            String logInfos = shrinkDocumentId(documentIdString);
+            if (projection != null) {
+                logInfos += " projSize=" + projection.length;
+            } else {
+                logInfos += " projection=null. All fields used";
+            }
+            Log.v(TAG, "QueryDocument " + logInfos);
+            String filePath = documentId.getFilePath();
+
+            BoxVolume volume = getVolumeForRoot(documentId.getIdentityKey(),
+                    documentId.getPrefix());
+
+            if (filePath.equals(PATH_SEP)) {
+                // root id
+                insertRootDoc(cursor, documentIdString);
+                return cursor;
+            }
+            BoxNavigation navigation = volume.navigate();
+            System.out.println(documentId.getFilePath());
+            navigation.navigate(documentId.getPathString());
+            Log.d(TAG, "Inserting basename " + documentId.getFileName());
+            insertFileByName(cursor, navigation, documentIdString, documentId.getFileName());
         } catch (QblStorageException e) {
-            Log.i(TAG, "Could not find document " + documentId, e);
+            Log.i(TAG, "Could not find document " + documentIdString, e);
             throw new FileNotFoundException("Failed navigating the volume");
         }
 
@@ -369,12 +368,12 @@ public class BoxProvider extends DocumentsProvider {
 
         Log.v(TAG, "createBoxCursor");
         BoxCursor cursor = createCursor(projection, false);
-
-        BoxVolume volume = getVolumeForId(parentDocumentId);
         try {
-            BoxNavigation navigation =
-                    traverseToFolder(volume, mDocumentIdParser.splitPath(
-                            mDocumentIdParser.getFilePath(parentDocumentId)));
+            DocumentId parentId = mDocumentIdParser.parse(parentDocumentId);
+            BoxVolume volume = getVolumeForRoot(parentId.getIdentityKey(), parentId.getPrefix());
+
+            BoxNavigation navigation = volume.navigate();
+            navigation.navigate(parentId.getPathString());
             insertFolderListing(cursor, navigation, parentDocumentId);
         } catch (QblStorageException e) {
             Log.e(TAG, "Could not navigate", e);
@@ -465,27 +464,6 @@ public class BoxProvider extends DocumentsProvider {
         row.add(Document.COLUMN_MIME_TYPE, Document.MIME_TYPE_DIR);
     }
 
-    BoxNavigation traverseToFolder(BoxVolume volume, List<String> filePath) throws QblStorageException {
-
-        Log.d(TAG, "Traversing to " + filePath.toString());
-        BoxNavigation navigation = volume.navigate();
-        PARTS:
-        for (String part : filePath) {
-            if (part.equals("")) {
-                continue;
-            }
-            for (BoxFolder folder : navigation.listFolders()) {
-                Log.i(TAG, "Part: " + part + " Folder: " + folder.name);
-                if (part.equals(folder.name)) {
-                    navigation.navigate(folder);
-                    continue PARTS;
-                }
-            }
-            throw new QblStorageNotFound("Folder not found, giving up at " + part);
-        }
-        return navigation;
-    }
-
     @Override
     public ParcelFileDescriptor openDocument(final String documentId,
                                              final String mode, final CancellationSignal signal)
@@ -517,8 +495,11 @@ public class BoxProvider extends DocumentsProvider {
                     new AsyncTask<Void, Void, String>() {
                         @Override
                         protected String doInBackground(Void... params) {
-
-                            uploadFile(documentId, tmp);
+                            try {
+                                boxManager.uploadEncrypted(documentId, tmp);
+                            } catch (QblStorageException e1) {
+                                Log.e(TAG, "Cannot upload file!");
+                            }
                             return documentId;
                         }
                     }.execute();
@@ -532,32 +513,6 @@ public class BoxProvider extends DocumentsProvider {
             File tmp = downloadFile(documentId, mode, signal);
             final int accessMode = ParcelFileDescriptor.parseMode(mode);
             return ParcelFileDescriptor.open(tmp, accessMode);
-        }
-    }
-
-    private void uploadFile(String documentId, File tmp) {
-
-        try {
-            BoxVolume volume = getVolumeForId(documentId);
-            List<String> splitPath = mDocumentIdParser.splitPath(
-                    mDocumentIdParser.getFilePath(documentId));
-            String basename = splitPath.remove(splitPath.size() - 1);
-            Log.i(TAG, "Navigating to folder");
-            BoxNavigation navigation = volume.navigate();
-            navigation.navigate();traverseToFolder(volume, splitPath);
-            Log.i(TAG, "Starting uploadAndDeleteLocalfile");
-            BoxTransferListener boxTransferListener = boxManager.addUploadTransfer(documentId);
-            BoxFile boxFile = navigation.upload(basename, new FileInputStream(tmp), boxTransferListener);
-            navigation.commit();
-            boxManager.removeUpload(documentId, StorageBroadcastConstants.UPLOAD_STATUS_FINISHED, boxFile);
-        } catch (FileNotFoundException | QblStorageException e1) {
-            Log.e(TAG, "Upload failed", e1);
-            try {
-                boxManager.removeUpload(documentId, StorageBroadcastConstants.UPLOAD_STATUS_FAILED, null);
-            } catch (QblStorageException e) {
-                //Should not be possible
-                Log.e(TAG, "Removing failed upload failed", e);
-            }
         }
     }
 
@@ -585,43 +540,7 @@ public class BoxProvider extends DocumentsProvider {
 
     private File getFile(CancellationSignal signal, final String documentId)
             throws IOException, QblStorageException {
-
-        String path = mDocumentIdParser.getFilePath(documentId);
-        String ownerKey = mDocumentIdParser.getIdentity(documentId);
-        List<String> strings = mDocumentIdParser.splitPath(path);
-        String basename = strings.remove(strings.size() - 1);
-        BoxVolume volume = getVolumeForId(documentId);
-
-        BoxNavigation navigation = traverseToFolder(volume, strings);
-        BoxFile file = findFileInList(basename, navigation);
-        InputStream inputStream = navigation.download(file, storageNotificationManager.addDownloadNotification(ownerKey, path, file));
-        File out = new File(getContext().getExternalCacheDir(), basename);
-        FileOutputStream fileOutputStream = new FileOutputStream(out);
-        IOUtils.copy(inputStream, fileOutputStream);
-        inputStream.close();
-        fileOutputStream.close();
-
-        return out;
-    }
-
-    private BoxFile findFileInList(String basename, BoxNavigation navigation)
-            throws QblStorageException, FileNotFoundException {
-
-        for (BoxFile file : navigation.listFiles()) {
-            Log.d(TAG, "find file: " + file.name);
-            if (file.name.equals(basename)) {
-                return file;
-            }
-        }
-        for (BoxObject file : navigation.listExternals()) {
-            Log.d(TAG, "find file: " + file.name);
-            if (file instanceof BoxExternalFile) {
-                if (file.name.equals(basename)) {
-                    return (BoxExternalFile) file;
-                }
-            }
-        }
-        throw new FileNotFoundException("can't find file in BoxNavigation: " + basename);
+        return boxManager.downloadFileDecrypted(documentId);
     }
 
     @Override
@@ -629,17 +548,20 @@ public class BoxProvider extends DocumentsProvider {
 
         Log.d(TAG, "createDocument: " + parentDocumentId + "; " + mimeType + "; " + displayName);
 
-        String parentPath = mDocumentIdParser.getFilePath(parentDocumentId);
-        BoxVolume volume = getVolumeForId(parentDocumentId);
-
         try {
 
-            BoxNavigation navigation = traverseToFolder(volume, mDocumentIdParser.splitPath(parentPath));
+            DocumentId parentId = mDocumentIdParser.parse(parentDocumentId);
+            String parentPath = parentId.getFilePath();
+            BoxVolume volume = getVolumeForRoot(parentId.getIdentityKey(), parentId.getPrefix());
+
+
+            BoxNavigation navigation = volume.navigate();
+            navigation.navigate(parentPath);
 
             if (mimeType.equals(Document.MIME_TYPE_DIR)) {
                 navigation.createFolder(displayName);
             } else {
-                navigation.upload(displayName, new ByteArrayInputStream(new byte[0]), null);
+                navigation.upload(displayName, new ByteArrayInputStream(new byte[0]));
             }
             navigation.commit();
 
@@ -655,14 +577,14 @@ public class BoxProvider extends DocumentsProvider {
 
         Log.d(TAG, "deleteDocument: " + documentId);
 
-        String path = mDocumentIdParser.getFilePath(documentId);
-        BoxVolume volume = getVolumeForId(documentId);
-
         try {
-            List<String> splitPath = mDocumentIdParser.splitPath(path);
-            String basename = splitPath.remove(splitPath.size() - 1);
-            BoxNavigation navigation = traverseToFolder(volume, splitPath);
 
+            DocumentId document = mDocumentIdParser.parse(documentId);
+            BoxVolume volume = getVolumeForRoot(document.getIdentityKey(), document.getPrefix());
+            BoxNavigation navigation = volume.navigate();
+            navigation.navigate(document.getPathString());
+
+            String basename = document.getFileName();
             for (BoxFile file : navigation.listFiles()) {
                 if (file.name.equals(basename)) {
                     navigation.delete(file);
@@ -688,19 +610,22 @@ public class BoxProvider extends DocumentsProvider {
 
         Log.d(TAG, "renameDocument: " + documentId + " to " + displayName);
 
-        String path = mDocumentIdParser.getFilePath(documentId);
-        BoxVolume volume = getVolumeForId(documentId);
-
         try {
-            List<String> splitPath = mDocumentIdParser.splitPath(path);
-            String basename = splitPath.remove(splitPath.size() - 1);
-            BoxNavigation navigation = traverseToFolder(volume, splitPath);
-            splitPath.add(PATH_SEP + displayName);
-            String newPath = StringUtils.join(splitPath, "");
+
+            DocumentId document = mDocumentIdParser.parse(documentId);
+            BoxVolume volume = getVolumeForId(documentId);
+
+            String[] splitPath = document.getPath();
+            String basename = document.getFileName();
+            BoxNavigation navigation = volume.navigate();
+
+            String[] newPath = Arrays.copyOf(splitPath, splitPath.length + 1);
+            newPath[newPath.length-1] = displayName;
+
             String renamedId = mDocumentIdParser.buildId(
                     mDocumentIdParser.getIdentity(documentId),
                     mDocumentIdParser.getPrefix(documentId),
-                    newPath);
+                    StringUtils.join(newPath, PATH_SEP));
 
             for (BoxFile file : navigation.listFiles()) {
                 if (file.name.equals(basename)) {

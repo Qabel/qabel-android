@@ -109,7 +109,7 @@ public class FilesFragment extends FilesFragmentBase {
                     notifyFilesAdapterChanged();
                     break;
                 case StorageBroadcastConstants.UPLOAD_STATUS_FINISHED:
-                    Log.d(TAG, "Received upload finished: " + documentId);
+                    Log.d(TAG, "Received uploadEncrypted finished: " + documentId);
                     fillAdapter(filesAdapter);
                     notifyFilesAdapterChanged();
                     break;

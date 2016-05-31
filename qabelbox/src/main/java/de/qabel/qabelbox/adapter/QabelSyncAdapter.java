@@ -54,7 +54,6 @@ public class QabelSyncAdapter extends AbstractThreadedSyncAdapter {
     @Inject ChatServer chatServer;
     DropConnector dropConnector;
     private List<ChatMessageInfo> currentMessages = new ArrayList<>();
-    private BroadcastReceiver receiver;
 
     public QabelSyncAdapter(Context context, boolean autoInitialize) {
         super(context, autoInitialize);
@@ -82,9 +81,9 @@ public class QabelSyncAdapter extends AbstractThreadedSyncAdapter {
     }
 
     private void registerNotificationReceiver() {
-        IntentFilter filter = new IntentFilter(Helper.INTENT_REFRESH_CONTACTLIST);
+        IntentFilter filter = new IntentFilter(Helper.INTENT_SHOW_NOTIFICATION);
         filter.setPriority(0);
-        receiver = new BroadcastReceiver() {
+        BroadcastReceiver receiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
                 notificationManager.updateNotifications(currentMessages);

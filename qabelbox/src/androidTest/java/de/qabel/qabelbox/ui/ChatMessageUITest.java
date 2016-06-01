@@ -21,6 +21,7 @@ import de.qabel.qabelbox.chat.ChatServer;
 import de.qabel.qabelbox.exceptions.QblStorageEntityExistsException;
 import de.qabel.qabelbox.fragments.ContactFragment;
 import de.qabel.qabelbox.helper.Helper;
+import de.qabel.qabelbox.navigation.MainNavigator;
 import de.qabel.qabelbox.ui.helper.UITestHelper;
 import de.qabel.qabelbox.ui.idling.InjectedIdlingResource;
 import de.qabel.qabelbox.ui.matcher.QabelMatcher;
@@ -64,7 +65,7 @@ public class ChatMessageUITest extends AbstractUITest {
     public void testNewMessageVisualization() throws Throwable {
         InjectedIdlingResource idlingResource = new InjectedIdlingResource();
         ContactFragment fragment = (ContactFragment) mActivity.getFragmentManager()
-                .findFragmentByTag(MainActivity.TAG_CONTACT_LIST_FRAGMENT);
+                .findFragmentByTag(MainNavigator.TAG_CONTACT_LIST_FRAGMENT);
         fragment.setIdleCallback(idlingResource);
 
         Context context = InstrumentationRegistry.getTargetContext();

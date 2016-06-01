@@ -7,6 +7,7 @@ import android.support.test.espresso.intent.matcher.IntentMatchers;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.File;
@@ -138,6 +139,7 @@ public class ImportExportContactsUITest extends AbstractUITest {
         UITestHelper.screenShot(mActivity, "sendContact");
     }
 
+    @Ignore
     @Test
     public void testExportManyContact() throws Throwable {
 

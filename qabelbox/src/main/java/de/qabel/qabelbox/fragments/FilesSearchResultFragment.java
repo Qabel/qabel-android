@@ -12,9 +12,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import de.qabel.qabelbox.R;
-import de.qabel.qabelbox.activities.MainActivity;
 import de.qabel.qabelbox.adapter.FilesAdapter;
 import de.qabel.qabelbox.exceptions.QblStorageException;
+import de.qabel.qabelbox.navigation.MainNavigator;
 import de.qabel.qabelbox.storage.BoxFile;
 import de.qabel.qabelbox.storage.BoxFolder;
 import de.qabel.qabelbox.storage.BoxNavigation;
@@ -80,7 +80,7 @@ public class FilesSearchResultFragment extends FilesFragmentBase {
      * update search cache in files fragment
      */
     private void updateSearchCache() {
-        FilesFragment fragment = (FilesFragment) mActivity.getFragmentManager().findFragmentByTag(MainActivity.TAG_FILES_FRAGMENT);
+        FilesFragment fragment = (FilesFragment) mActivity.getFragmentManager().findFragmentByTag(MainNavigator.TAG_FILES_FRAGMENT);
         if (fragment != null) {
             fragment.setCachedSearchResult(mSearchResult);
         }
@@ -180,7 +180,7 @@ public class FilesSearchResultFragment extends FilesFragmentBase {
             protected StorageSearch doInBackground(String... params) {
                 try {
                     BoxNavigation nav = ((FilesFragment) getFragmentManager().
-                            findFragmentByTag(MainActivity.TAG_FILES_FRAGMENT)).getBoxNavigation();
+                            findFragmentByTag(MainNavigator.TAG_FILES_FRAGMENT)).getBoxNavigation();
                     nav.reload();
                     return new StorageSearch(nav);
                 } catch (QblStorageException e) {

@@ -12,6 +12,8 @@ import de.qabel.desktop.repository.exception.EntityNotFoundExcepion;
 import de.qabel.desktop.repository.exception.PersistenceException;
 import de.qabel.qabelbox.activities.MainActivity;
 import de.qabel.qabelbox.dagger.scopes.ActivityScope;
+import de.qabel.qabelbox.navigation.MainNavigator;
+import de.qabel.qabelbox.navigation.Navigator;
 
 import static de.qabel.qabelbox.activities.MainActivity.ACTIVE_IDENTITY;
 import static de.qabel.qabelbox.services.LocalQabelService.PREF_LAST_ACTIVE_IDENTITY;
@@ -62,6 +64,10 @@ public class MainActivityModule {
     @Provides SharedPreferences provideSharedPreferences() {
         return mainActivity.getSharedPreferences(
                 "LocalQabelService", Context.MODE_PRIVATE);
+    }
+
+    @ActivityScope @Provides Navigator provideNavigator(MainNavigator navigator) {
+        return navigator;
     }
 
 

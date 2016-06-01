@@ -11,7 +11,6 @@ public class QblJUnitRunner extends AndroidJUnitRunner {
 
     @Override
     public void onCreate(Bundle arguments) {
-        BoxProvider.defaultTransferManager = "fake";
         CreateIdentityActivity.FAKE_COMMUNICATION = true;
         arguments.putString("disableAnalytics", "true");
         AccountHelper.SYNC_INTERVAL = 0;

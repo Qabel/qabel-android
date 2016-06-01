@@ -93,17 +93,6 @@ public class BoxProvider extends DocumentsProvider {
     private static final int KEEP_ALIVE_TIME = 1;
     private static final TimeUnit KEEP_ALIVE_TIME_UNIT = TimeUnit.SECONDS;
 
-    /**
-     * Configure the TransferManager used in the BoxProvider
-     * <p>
-     * block references the @see BlockServerTransferManager
-     * fake references the @see FakeTransferManager
-     * <p>
-     * This is a hack to change the behavior of the BoxProvider
-     * when running with QblJunitTestRunner. Changing the
-     * DocumentProvider class is not easily possible
-     */
-    public static String defaultTransferManager = "block";
     @Inject
     StorageNotificationManager storageNotificationManager;
     @Inject
@@ -232,18 +221,10 @@ public class BoxProvider extends DocumentsProvider {
         }
     }
 
-    @NonNull
-    protected TransferManager createTransferManager(File tempDir) {
-        if (defaultTransferManager.equals("block")) {
-            return new BlockServerTransferManager(tempDir);
-        } else {
-            return new FakeTransferManager(tempDir);
-        }
-    }
-
     @Override
     public Cursor queryDocument(String documentIdString, String[] projection)
             throws FileNotFoundException {
+
         MatrixCursor cursor = createCursor(projection, false);
         try {
             DocumentId documentId = mDocumentIdParser.parse(documentIdString);
@@ -265,8 +246,10 @@ public class BoxProvider extends DocumentsProvider {
                 return cursor;
             }
             BoxNavigation navigation = volume.navigate();
-            System.out.println(documentId.getFilePath());
             navigation.navigate(documentId.getPathString());
+            if(navigation.getFile(documentId.getFileName(), false) == null){
+                return null;
+            }
             Log.d(TAG, "Inserting basename " + documentId.getFileName());
             insertFileByName(cursor, navigation, documentIdString, documentId.getFileName());
         } catch (QblStorageException e) {
@@ -500,6 +483,7 @@ public class BoxProvider extends DocumentsProvider {
                             } catch (QblStorageException e1) {
                                 Log.e(TAG, "Cannot upload file!");
                             }
+                           Log.d(TAG,"UPLOAD DONE");
                             return documentId;
                         }
                     }.execute();

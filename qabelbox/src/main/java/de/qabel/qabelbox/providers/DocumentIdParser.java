@@ -82,9 +82,14 @@ public class DocumentIdParser {
 
         String completePath = parts[2];
         String[] pathParts = completePath.split("/");
-        String filename = pathParts[pathParts.length - 1];
-        String[] path = Arrays.copyOf(pathParts, pathParts.length - 1);
-
+        String filename = "";
+        String[] path;
+        if (pathParts.length > 0) {
+            filename = pathParts[pathParts.length - 1];
+            path = Arrays.copyOf(pathParts, pathParts.length - 1);
+        } else {
+            path = new String[]{""};
+        }
         return new DocumentId(identityKey, prefix, path, filename);
     }
 }

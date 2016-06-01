@@ -218,7 +218,7 @@ public class AndroidBoxManager implements BoxManager {
         BoxNavigation navigation = volume.navigate();
         navigation.navigate(documentId.getFilePath());
 
-        BoxFile file = navigation.getFile(documentId.getFileName());
+        BoxFile file = navigation.getFile(documentId.getFileName(), true);
         return downloadFileDecrypted(file, documentId.getIdentityKey(), documentId.getPathString());
     }
 

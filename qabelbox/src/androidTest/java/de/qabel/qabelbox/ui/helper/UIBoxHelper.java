@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 
 import de.qabel.core.config.Contact;
+import de.qabel.core.config.Contacts;
 import de.qabel.core.config.DropServer;
 import de.qabel.core.config.Identities;
 import de.qabel.core.config.Identity;
@@ -49,6 +50,7 @@ public class UIBoxHelper {
 
     private Context context;
     private BoxManager boxManager;
+
     private IdentityRepository identityRepository;
     private AppPreference preference;
     private ContactRepository contactRepository;
@@ -149,9 +151,7 @@ public class UIBoxHelper {
 
         Identity identity = createIdentity(identityName);
         identityRepository.save(identity);
-        Log.d(TAG, "identity added " + identity.getAlias() + " " + identity.getPrefixes().get(0) + " " + identity.getEcPublicKey().getReadableKeyIdentifier());
-        identity = identityRepository.find(identity.getKeyIdentifier());
-        Log.d(TAG, "identity added " + identity.getAlias() + " " + identity.getPrefixes().get(0) + " " + identity.getEcPublicKey().getReadableKeyIdentifier());
+        Log.d(TAG, "identity added " + identity.getAlias() + " " + identity.getEcPublicKey().getReadableKeyIdentifier());
 
         preference.setLastActiveIdentityKey(identity.getKeyIdentifier());
         try {
@@ -257,11 +257,23 @@ public class UIBoxHelper {
     public void removeAllIdentities()throws Exception {
         Identities identities = identityRepository.findAll();
         for(Identity id : identities.getIdentities()){
+            Contacts contacts = contactRepository.find(id);
+            for(Contact c : contacts.getContacts()) {
+                contactRepository.delete(c, id);
+            }
             identityRepository.delete(id);
         }
     }
 
     public void addContact(Contact contact, Identity identity) throws Exception {
         contactRepository.save(contact, identity);
+    }
+
+    public IdentityRepository getIdentityRepository() {
+        return identityRepository;
+    }
+
+    public ContactRepository getContactRepository() {
+        return contactRepository;
     }
  }

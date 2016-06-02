@@ -54,9 +54,13 @@ public class ImportExportContactsUITest extends AbstractUITest {
     @Override
     public void setUp() throws Throwable {
         super.setUp();
+        System.out.println("CONTACTS: " + contactRepository.find(identity).getContacts().size());
         createTestContacts();
+        System.out.println("CONTACTS2: " + contactRepository.find(identity).getContacts().size());
+
         Intent intent = new Intent(Intent.ACTION_MAIN);
         intent.putExtra(MainActivity.START_CONTACTS_FRAGMENT, true);
+        intent.putExtra(MainActivity.START_FILES_FRAGMENT, false);
         intent.putExtra(MainActivity.ACTIVE_IDENTITY, identity.getKeyIdentifier());
         launchActivity(intent);
     }
@@ -109,8 +113,7 @@ public class ImportExportContactsUITest extends AbstractUITest {
         data.setData(Uri.fromFile(file1));
         ContactFragment contactFragment = (ContactFragment) mActivity.getFragmentManager().findFragmentById(R.id.fragment_container);
         contactFragment.enableDocumentProvider(false);
-        final LocalQabelService service = QabelBoxApplication.getInstance().getService();
-        Contact contact = service.getContacts().getContacts().iterator().next();
+        Contact contact = contactRepository.find(identity).getContacts().iterator().next();
         userName = contact.getAlias();
         contactFragment.exportContact(contact);
         contactFragment.onActivityResult(ContactFragment.REQUEST_EXPORT_CONTACT, Activity.RESULT_OK, data);

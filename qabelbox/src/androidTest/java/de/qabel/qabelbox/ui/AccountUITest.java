@@ -16,14 +16,13 @@ public class AccountUITest {
     protected AppPreference appPreference;
 
     @Before
-    public void setUp() {
+    public void setUp() throws Exception {
         Context context = InstrumentationRegistry.getTargetContext();
         appPreference = new AppPreference(context);
         appPreference.clear();
         appPreference.setWelcomeScreenShownAt(1);
         URLs.setBaseBlockURL(TestConstants.BLOCK_URL);
         UIBoxHelper uiBoxHelper = new UIBoxHelper(InstrumentationRegistry.getTargetContext());
-        uiBoxHelper.bindService(QabelBoxApplication.getInstance());
         uiBoxHelper.createTokenIfNeeded(false);
         uiBoxHelper.removeAllIdentities();
         uiBoxHelper.addIdentity("identity");

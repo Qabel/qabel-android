@@ -37,8 +37,12 @@ public class StorageModule {
         return context.getCacheDir();
     }
 
-    @Singleton @Provides
-    TransferManager providesTransferManager(Context context, File tmpFile){
+    @Provides
+    public TransferManager providesTransferManager(Context context, File tmpFile){
+        return createTransferManager(context, tmpFile);
+    }
+
+    protected TransferManager createTransferManager(Context context, File tmpFile){
         return new BlockServerTransferManager(context, tmpFile);
     }
 

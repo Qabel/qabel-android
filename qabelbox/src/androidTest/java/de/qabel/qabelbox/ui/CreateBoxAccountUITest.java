@@ -32,6 +32,7 @@ import de.qabel.qabelbox.ui.helper.UIActionHelper;
 import de.qabel.qabelbox.ui.helper.UIBoxHelper;
 import de.qabel.qabelbox.ui.helper.UITestHelper;
 import de.qabel.qabelbox.ui.idling.InjectedIdlingResource;
+import de.qabel.qabelbox.util.BoxTestHelper;
 import okhttp3.Response;
 
 import static android.support.test.espresso.Espresso.onView;
@@ -54,7 +55,7 @@ import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.endsWith;
 import static org.hamcrest.Matchers.is;
 
-public class CreateBoxAccountUITest extends UIBoxHelper {
+public class CreateBoxAccountUITest {
 
     @Rule
     public ActivityTestRule<CreateAccountActivity> mActivityTestRule = new ActivityTestRule<>(CreateAccountActivity.class, false, false);
@@ -75,7 +76,7 @@ public class CreateBoxAccountUITest extends UIBoxHelper {
         if (mSystemAnimations != null) {
             mSystemAnimations.enableAll();
         }
-        unbindService(QabelBoxApplication.getInstance());
+
         if (idlingResource !=null) {
             Espresso.unregisterIdlingResources(idlingResource);
         }
@@ -83,13 +84,14 @@ public class CreateBoxAccountUITest extends UIBoxHelper {
 
 
     @Before
-    public void setUp() throws IOException, QblStorageException {
+    public void setUp() throws Exception {
 
         URLs.setBaseAccountingURL(TestConstants.ACCOUNTING_URL);
 
-        bindService(QabelBoxApplication.getInstance());
+        UIBoxHelper testHelper = new UIBoxHelper(InstrumentationRegistry.getTargetContext());
         new AppPreference(InstrumentationRegistry.getTargetContext()).clear();
-        removeAllIdentities();
+
+        testHelper.removeAllIdentities();
 
         mActivity = mActivityTestRule.launchActivity(null);
         wakeLock = UIActionHelper.wakeupDevice(mActivity);

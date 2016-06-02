@@ -446,6 +446,7 @@ public class MainActivity extends CrashReportingActivity
         boolean startFilesFragment = intent.getBooleanExtra(START_FILES_FRAGMENT, true);
         boolean startContactsFragment = intent.getBooleanExtra(START_CONTACTS_FRAGMENT, false);
         String activeContact = intent.getStringExtra(ACTIVE_CONTACT);
+        String filePath = intent.getStringExtra(START_FILES_FRAGMENT_PATH);
         if (type != null && intent.getAction() != null) {
             String scheme = intent.getScheme();
 
@@ -477,7 +478,7 @@ public class MainActivity extends CrashReportingActivity
                     if (startContactsFragment) {
                         selectContactsFragment(activeContact);
                     } else if (startFilesFragment) {
-                        initAndSelectFilesFragment();
+                        initAndSelectFilesFragment(filePath);
                     }
                     break;
             }
@@ -485,7 +486,7 @@ public class MainActivity extends CrashReportingActivity
             if (startContactsFragment) {
                 selectContactsFragment(activeContact);
             } else if (startFilesFragment) {
-                initAndSelectFilesFragment();
+                initAndSelectFilesFragment(filePath);
             }
         }
     }
@@ -535,10 +536,9 @@ public class MainActivity extends CrashReportingActivity
         }
     }
 
-    private void initAndSelectFilesFragment() {
+    private void initAndSelectFilesFragment(String path) {
         initFilesFragment();
-        //String filePath = intent.getStringExtra(START_FILES_FRAGMENT_PATH);
-        selectFilesFragment();
+        selectFilesFragment(path);
     }
 
     private void shareIntoApp(final ArrayList<Uri> data, Intent intent) {
@@ -1217,7 +1217,15 @@ public class MainActivity extends CrashReportingActivity
     }
 
     private void selectFilesFragment() {
-        filesFragment.navigateBackToRoot();
+        selectFilesFragment(null);
+    }
+
+    private void selectFilesFragment(String path) {
+        if (path != null) {
+            filesFragment.navigateTo(path);
+        } else {
+            filesFragment.navigateBackToRoot();
+        }
         filesFragment.setIsLoading(false);
         showMainFragment(filesFragment, TAG_FILES_FRAGMENT);
     }

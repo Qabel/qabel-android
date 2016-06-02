@@ -66,15 +66,14 @@ public class FilesFragmentUITest extends FilesFragmentUITestBase {
 
     @Override
     protected void setupData() throws Exception {
-        testIdentity = mBoxHelper.addIdentity("spoon");
+        testIdentity = identity;
         testIdentity2 = mBoxHelper.addIdentityWithoutVolume("spoon2");
 
         testContact = new Contact(identity.getAlias(), identity.getDropUrls(), identity.getEcPublicKey());
         testContact2 = new Contact(testIdentity2.getAlias(), testIdentity2.getDropUrls(), testIdentity2.getEcPublicKey());
 
-        mBoxHelper.getService().addContact(testContact);
-        mBoxHelper.setActiveIdentity(identity);
-        mBoxHelper.getService().addContact(testContact2);
+        mBoxHelper.addContact(testContact, testIdentity2);
+        mBoxHelper.addContact(testContact2, identity);
 
         mBoxHelper.setActiveIdentity(identity);
 
@@ -84,9 +83,13 @@ public class FilesFragmentUITest extends FilesFragmentUITestBase {
     }
 
     @Override
-    public void cleanUp(){
-        mBoxHelper.deleteIdentity(testIdentity);
-        mBoxHelper.deleteIdentity(testIdentity2);
+    public void cleanUp() {
+        try {
+            mBoxHelper.deleteIdentity(testIdentity);
+            mBoxHelper.deleteIdentity(testIdentity2);
+        } catch (Exception e) {
+            //TODO Bad
+        }
         super.cleanUp();
     }
 

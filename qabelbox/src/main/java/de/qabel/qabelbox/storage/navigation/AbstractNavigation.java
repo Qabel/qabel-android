@@ -180,6 +180,9 @@ public abstract class AbstractNavigation implements BoxNavigation {
 
     @Override
     public void navigate(String path) throws QblStorageException {
+        if(parentBoxFolders.size() > 0){
+            navigateToRoot();
+        }
         String[] parts = path.split(BoxProvider.PATH_SEP);
         for (String current : parts) {
             if (current.isEmpty()) {

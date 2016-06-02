@@ -45,7 +45,6 @@ public class AbstractUITest {
         if (mSystemAnimations != null) {
             mSystemAnimations.enableAll();
         }
-        mBoxHelper.unbindService(QabelBoxApplication.getInstance());
     }
 
     @Before
@@ -57,8 +56,7 @@ public class AbstractUITest {
         identityRepository = factory.getIdentityRepository(database);
         contactRepository = factory.getContactRepository(database);
 
-        mBoxHelper = new UIBoxHelper(QabelBoxApplication.getInstance());
-        mBoxHelper.bindService(QabelBoxApplication.getInstance());
+        mBoxHelper = new UIBoxHelper(mContext);
         mBoxHelper.createTokenIfNeeded(false);
         mBoxHelper.removeAllIdentities();
         identity = mBoxHelper.addIdentity("spoon123");

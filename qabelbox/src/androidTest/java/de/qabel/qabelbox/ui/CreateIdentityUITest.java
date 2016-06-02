@@ -1,6 +1,7 @@
 package de.qabel.qabelbox.ui;
 
 import android.os.PowerManager;
+import android.support.test.InstrumentationRegistry;
 import android.support.test.rule.ActivityTestRule;
 
 import org.junit.After;
@@ -35,14 +36,14 @@ import static org.hamcrest.Matchers.endsWith;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertThat;
 
-public class CreateIdentityUITest extends UIBoxHelper {
+public class CreateIdentityUITest {
 
     @Rule
     public ActivityTestRule<CreateIdentityActivity> mActivityTestRule =
             new ActivityTestRule<>(CreateIdentityActivity.class, false, false);
 
     private CreateIdentityActivity mActivity;
-
+    private UIBoxHelper helper;
     private PowerManager.WakeLock wakeLock;
     private SystemAnimations mSystemAnimations;
 
@@ -55,14 +56,14 @@ public class CreateIdentityUITest extends UIBoxHelper {
         if (mSystemAnimations != null) {
             mSystemAnimations.enableAll();
         }
-        unbindService(QabelBoxApplication.getInstance());
     }
 
 
     @Before
-    public void setUp() throws IOException, QblStorageException {
-        bindService(QabelBoxApplication.getInstance());
-        removeAllIdentities();
+    public void setUp() throws Exception {
+
+        new UIBoxHelper(InstrumentationRegistry.getTargetContext());
+        helper.removeAllIdentities();
 
 
         URLs.setBaseBlockURL(TestConstants.BLOCK_URL);
@@ -75,14 +76,13 @@ public class CreateIdentityUITest extends UIBoxHelper {
     }
 
 
-
     @Test
     public void testCreateIdentity() throws Throwable {
         String identity = "spoon2";
         createIdentityPerformEnterName(identity);
         defaultSecurityLevel();
         createIdentityPerformConfirm();
-        assertThat(getCurrentIdentity().getAlias(), equalTo(identity));
+        assertThat(helper.getCurrentIdentity().getAlias(), equalTo(identity));
     }
 
     private void createIdentityPerformEnterName(String identity) throws Throwable {

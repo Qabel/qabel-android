@@ -51,7 +51,9 @@ public abstract class FilesFragmentUITestBase extends AbstractUITest {
 
     @Override
     public void cleanUp() {
-        Espresso.unregisterIdlingResources(idlingResource);
+        if(idlingResource != null){
+            Espresso.unregisterIdlingResources(idlingResource);
+        }
         super.cleanUp();
     }
 

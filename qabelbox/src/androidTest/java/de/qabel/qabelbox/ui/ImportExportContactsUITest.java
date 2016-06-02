@@ -157,7 +157,7 @@ public class ImportExportContactsUITest extends AbstractUITest {
     }
 
     @Test
-    public void testImportSingleContact() {
+    public void testImportSingleContact() throws Exception {
         String userToImport = "importUser1";
         Identity importUser1 = mBoxHelper.addIdentity(userToImport);
         String exportUser = ContactExportImport.exportIdentityAsContact(importUser1);

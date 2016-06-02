@@ -90,7 +90,8 @@ public class BoxTest {
     @Before
     public void setUp() throws IOException, QblStorageException {
         configureTestServer();
-        boxManager = BoxTestHelper.createBoxManager(RuntimeEnvironment.application);
+        BoxTestHelper helper = new BoxTestHelper(RuntimeEnvironment.application);
+        boxManager = helper.createBoxManager();
 
         URI uri = URI.create(QabelBoxApplication.DEFAULT_DROP_SERVER);
         DropServer dropServer = new DropServer(uri, "", true);

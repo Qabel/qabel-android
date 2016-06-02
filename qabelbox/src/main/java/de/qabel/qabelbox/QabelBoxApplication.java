@@ -48,20 +48,20 @@ public class QabelBoxApplication extends Application {
     private ApplicationComponent ApplicationComponent;
 
     public static ApplicationComponent getApplicationComponent(Context context) {
-        return ((QabelBoxApplication)context.getApplicationContext()).getApplicationComponent();
+        return ((QabelBoxApplication) context.getApplicationContext()).getApplicationComponent();
     }
 
     @Override
     public void onCreate() {
         super.onCreate();
         Log.d(TAG, "onCreate");
-        initialiseInjector();
+        this.ApplicationComponent = initialiseInjector();
         mInstance = this;
         initService();
     }
 
-    public void initialiseInjector() {
-        this.ApplicationComponent = DaggerApplicationComponent.builder()
+    protected ApplicationComponent initialiseInjector() {
+        return DaggerApplicationComponent.builder()
                 .applicationModule(new ApplicationModule(this))
                 .build();
     }

@@ -76,9 +76,8 @@ public class OfflineUITest {
     }
 
 
-    public void setupBeforeLaunch() {
-        mBoxHelper = new UIBoxHelper(QabelBoxApplication.getInstance());
-        mBoxHelper.bindService(QabelBoxApplication.getInstance());
+    public void setupBeforeLaunch() throws Exception{
+        mBoxHelper = new UIBoxHelper(InstrumentationRegistry.getTargetContext());
         mBoxHelper.createTokenIfNeeded(false);
 
         mBoxHelper.removeAllIdentities();
@@ -88,7 +87,7 @@ public class OfflineUITest {
     }
 
     @Before
-    public void setUp() {
+    public void setUp() throws Exception {
         setupBeforeLaunch();
 
         URLs.setBaseBlockURL(TestConstants.BLOCK_URL);
@@ -101,11 +100,10 @@ public class OfflineUITest {
     }
 
     @After
-    public void tearDown() {
+    public void tearDown() throws Exception {
         mBoxHelper.deleteIdentity(testIdentity);
         wakeLock.release();
         mSystemAnimations.enableAll();
-        mBoxHelper.unbindService(QabelBoxApplication.getInstance());
     }
 
 

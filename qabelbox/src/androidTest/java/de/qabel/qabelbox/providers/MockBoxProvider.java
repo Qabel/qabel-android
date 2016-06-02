@@ -63,14 +63,14 @@ public class MockBoxProvider extends BoxProvider {
         info.readPermission = Manifest.permission.MANAGE_DOCUMENTS;
         info.writePermission = Manifest.permission.MANAGE_DOCUMENTS;
         attachInfo(context, info);
-        RepositoryFactory factory = new RepositoryFactory(context);
-        IdentityRepository repository = factory.getIdentityRepository(factory.getAndroidClientDatabase());
+        BoxTestHelper testHelper = new BoxTestHelper(context);
+        IdentityRepository repository = testHelper.createIdentityRepository();
         Identities identities = repository.findAll();
         for(Identity stored : identities.getIdentities()){
             repository.delete(stored);
         }
         repository.save(identity);
-        boxManager = BoxTestHelper.createBoxManager(context);
+        boxManager = testHelper.createBoxManager();
     }
 }
 

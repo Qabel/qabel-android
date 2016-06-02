@@ -90,7 +90,8 @@ public class SearchTest {
         byte[] deviceID = utils.getRandomBytes(16);
         QblECKeyPair keyPair = new QblECKeyPair();
 
-        BoxManager manager = BoxTestHelper.createBoxManager(RuntimeEnvironment.application);
+        BoxTestHelper helper = new BoxTestHelper(RuntimeEnvironment.application);
+        BoxManager manager = helper.createBoxManager();
 
         BoxVolume volume = new BoxVolume(keyPair, TestConstants.PREFIX,
                 deviceID, RuntimeEnvironment.application,

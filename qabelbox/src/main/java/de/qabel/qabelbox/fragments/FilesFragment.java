@@ -57,6 +57,8 @@ public class FilesFragment extends FilesFragmentBase {
     private AsyncTask<String, Void, StorageSearch> searchTask;
     private StorageSearch mCachedStorageSearch;
 
+    private String targetPath;
+
     @Inject
     BoxManager boxManager;
 
@@ -145,6 +147,14 @@ public class FilesFragment extends FilesFragmentBase {
                         cancel(true);
                         return null;
                     }
+                }
+                if (targetPath != null) {
+                    try {
+                        boxNavigation.navigate(targetPath);
+                    } catch (QblStorageException e) {
+                        Log.e(TAG, "Cannot navigate to " + targetPath);
+                    }
+                    targetPath = null;
                 }
                 fillAdapter(filesAdapter);
                 return null;
@@ -535,9 +545,6 @@ public class FilesFragment extends FilesFragmentBase {
     @Override
     public void refresh() {
         if (boxNavigation == null) {
-            if (mBoxVolume != null) {
-                initializeNavigation();
-            }
             return;
         }
         AsyncTask<Void, Void, Void> asyncTask = new AsyncTask<Void, Void, Void>() {
@@ -778,6 +785,55 @@ public class FilesFragment extends FilesFragmentBase {
             browseToTask.cancel(true);
             browseToTask = null;
             Log.d(TAG, "Canceled browserToTask");
+        }
+    }
+
+    public void navigateTo(String path) {
+        Log.d(TAG, "Browsing to " + path);
+        if (!areTasksPending() && boxNavigation != null) {
+            browseToTask = new AsyncTask<Void, Void, Void>() {
+                @Override
+                protected void onPreExecute() {
+                    super.onPreExecute();
+                    preBrowseTo();
+                }
+
+                @Override
+                protected Void doInBackground(Void... voids) {
+                    waitForBoxNavigation();
+                    try {
+                        boxNavigation.navigate(path);
+                        fillAdapter(filesAdapter);
+                    } catch (QblStorageException e) {
+                        Log.e(TAG, "browseTo failed", e);
+                    }
+                    return null;
+                }
+
+                @Override
+                protected void onPostExecute(Void aVoid) {
+
+                    super.onPostExecute(aVoid);
+                    setIsLoading(false);
+                    updateSubtitle();
+                    notifyFilesAdapterChanged();
+                    browseToTask = null;
+                }
+
+                @Override
+                protected void onCancelled() {
+
+                    super.onCancelled();
+                    setIsLoading(false);
+                    browseToTask = null;
+                    Toast.makeText(getActivity(), R.string.aborted,
+                            Toast.LENGTH_SHORT).show();
+                }
+            };
+            browseToTask.executeOnExecutor(serialExecutor);
+        } else {
+            targetPath = path;
+            Log.w(TAG, "Other Task is still in progress. Will ignore this");
         }
     }
 }

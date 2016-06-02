@@ -10,18 +10,17 @@ import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.config.AppPreference;
 import de.qabel.qabelbox.helper.Sanity;
 
-/**
- * Created by danny on 11.01.2016.
- */
 public class SplashActivity extends CrashReportingActivity {
 
     public static final String START_MAIN = "START_MAIN";
-    private final long SPLASH_TIME = 1500;
+    private final long LONG_SPLASH_TIME = 1500;
+    private final long SHORT_SPLASH_TIME = 200;
     private SplashActivity mActivity;
     private AppPreference prefs;
     final private String TAG = this.getClass().getSimpleName();
 
     private boolean start_main;
+    private boolean welcomeScreenShown;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,7 +30,8 @@ public class SplashActivity extends CrashReportingActivity {
         start_main = splashIntent.getBooleanExtra(START_MAIN, true);
         mActivity = this;
         setupAppPreferences();
-        if (prefs.getWelcomeScreenShownAt() == 0) {
+        welcomeScreenShown = prefs.getWelcomeScreenShownAt() == 0;
+        if (welcomeScreenShown) {
             Intent intent = new Intent(mActivity, WelcomeScreenActivity.class);
             startActivity(intent);
             overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
@@ -41,8 +41,6 @@ public class SplashActivity extends CrashReportingActivity {
         overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
         setContentView(R.layout.activity_splashscreen);
         setupAppPreferences();
-
-
     }
 
     private void setupAppPreferences() {
@@ -68,7 +66,6 @@ public class SplashActivity extends CrashReportingActivity {
 
     @Override
     public void onWindowFocusChanged(boolean hasFocus) {
-
         super.onWindowFocusChanged(hasFocus);
         if (hasFocus) {
             startDelayedHandler();
@@ -77,28 +74,25 @@ public class SplashActivity extends CrashReportingActivity {
 
     private void startDelayedHandler() {
 
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                if (!start_main) {
-                    return;
-                }
+        new Handler().postDelayed(() -> {
+            if (!start_main) {
+                return;
+            }
 
-                if (prefs.getWelcomeScreenShownAt() == 0) {
-                    Intent intent = new Intent(mActivity, WelcomeScreenActivity.class);
-                    startActivity(intent);
-                    overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
-                    finish();
-                } else if (!Sanity.startWizardActivities(mActivity)) {
+            if (!welcomeScreenShown) {
+                Intent intent = new Intent(mActivity, WelcomeScreenActivity.class);
+                startActivity(intent);
+                overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+                finish();
+            } else if (!Sanity.startWizardActivities(mActivity)) {
 
-                    Intent intent = new Intent(mActivity, MainActivity.class);
-                    intent.setAction("");
-                    startActivity(intent);
-                    overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
-                    finish();
-                }
+                Intent intent = new Intent(mActivity, MainActivity.class);
+                intent.setAction("");
+                startActivity(intent);
+                overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+                finish();
             }
         }
-                , SPLASH_TIME);
+                ,welcomeScreenShown ? SHORT_SPLASH_TIME : LONG_SPLASH_TIME);
     }
 }

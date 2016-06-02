@@ -3,8 +3,6 @@ package de.qabel.qabelbox.providers;
 import android.Manifest;
 import android.content.Context;
 import android.content.pm.ProviderInfo;
-import android.os.Bundle;
-import android.support.annotation.Nullable;
 
 import org.spongycastle.util.encoders.Hex;
 
@@ -15,16 +13,17 @@ import de.qabel.core.config.Identities;
 import de.qabel.core.config.Identity;
 import de.qabel.core.crypto.CryptoUtils;
 import de.qabel.core.crypto.QblECKeyPair;
-import de.qabel.core.exceptions.QblInvalidEncryptionKeyException;
 import de.qabel.desktop.repository.IdentityRepository;
-import de.qabel.desktop.repository.exception.PersistenceException;
 import de.qabel.qabelbox.BuildConfig;
-import de.qabel.qabelbox.persistence.AndroidPersistence;
-import de.qabel.qabelbox.persistence.QblSQLiteParams;
+import de.qabel.qabelbox.TestApplication;
+import de.qabel.qabelbox.TestConstants;
+import de.qabel.qabelbox.config.AppPreference;
+import de.qabel.qabelbox.dagger.test.BoxTestHelper;
 import de.qabel.qabelbox.persistence.RepositoryFactory;
-import de.qabel.qabelbox.services.LocalQabelService;
-import de.qabel.qabelbox.storage.BoxManager;
-import de.qabel.qabelbox.util.BoxTestHelper;
+import de.qabel.qabelbox.storage.AndroidBoxManager;
+import de.qabel.qabelbox.storage.notifications.AndroidStorageNotificationManager;
+import de.qabel.qabelbox.storage.notifications.AndroidStorageNotificationPresenter;
+import de.qabel.qabelbox.storage.transfer.FakeTransferManager;
 
 public class MockBoxProvider extends BoxProvider {
 
@@ -43,7 +42,7 @@ public class MockBoxProvider extends BoxProvider {
     }
 
     private void setParametersForTests() {
-        prefix = UUID.randomUUID().toString();
+        prefix = TestConstants.PREFIX;
         CryptoUtils utils = new CryptoUtils();
         deviceID = utils.getRandomBytes(16);
         keyPair = new QblECKeyPair(Hex.decode(PRIVATE_KEY));
@@ -63,14 +62,20 @@ public class MockBoxProvider extends BoxProvider {
         info.readPermission = Manifest.permission.MANAGE_DOCUMENTS;
         info.writePermission = Manifest.permission.MANAGE_DOCUMENTS;
         attachInfo(context, info);
-        BoxTestHelper testHelper = new BoxTestHelper(context);
-        IdentityRepository repository = testHelper.createIdentityRepository();
+
+        RepositoryFactory repositoryFactory = new RepositoryFactory(context);
+        IdentityRepository repository = repositoryFactory.getIdentityRepository(repositoryFactory.getAndroidClientDatabase());
         Identities identities = repository.findAll();
         for(Identity stored : identities.getIdentities()){
             repository.delete(stored);
         }
         repository.save(identity);
-        boxManager = testHelper.createBoxManager();
+        boxManager = new AndroidBoxManager(context,
+                new AndroidStorageNotificationManager(new AndroidStorageNotificationPresenter(context)),
+                new DocumentIdParser(),
+                new AppPreference(context),
+                new FakeTransferManager(context.getExternalCacheDir()),
+                identityRepository);
     }
 }
 

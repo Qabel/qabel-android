@@ -31,13 +31,12 @@ import de.qabel.qabelbox.helper.RealTokerGetter;
 import de.qabel.qabelbox.providers.BoxProvider;
 import de.qabel.qabelbox.storage.BoxManager;
 import de.qabel.qabelbox.storage.BoxVolume;
-import de.qabel.qabelbox.storage.DirectoryMetadata;
 import de.qabel.qabelbox.storage.StorageSearch;
 import de.qabel.qabelbox.storage.model.BoxFile;
 import de.qabel.qabelbox.storage.model.BoxFolder;
 import de.qabel.qabelbox.storage.model.BoxObject;
 import de.qabel.qabelbox.storage.navigation.BoxNavigation;
-import de.qabel.qabelbox.util.BoxTestHelper;
+import de.qabel.qabelbox.dagger.test.BoxTestHelper;
 
 public class UIBoxHelper {
 
@@ -56,7 +55,7 @@ public class UIBoxHelper {
 
     public UIBoxHelper(Context context) {
         this.context = context;
-        BoxTestHelper helper = new BoxTestHelper(context);
+        BoxTestHelper helper = new BoxTestHelper((QabelBoxApplication)context.getApplicationContext());
         boxManager = helper.createBoxManager();
         identityRepository = helper.createIdentityRepository();
         contactRepository = helper.createContactRepository();
@@ -150,7 +149,10 @@ public class UIBoxHelper {
 
         Identity identity = createIdentity(identityName);
         identityRepository.save(identity);
-        Log.d(TAG, "identity added " + identity.getAlias() + " " + identity.getEcPublicKey().getReadableKeyIdentifier());
+        Log.d(TAG, "identity added " + identity.getAlias() + " " + identity.getPrefixes().get(0) + " " + identity.getEcPublicKey().getReadableKeyIdentifier());
+        identity = identityRepository.find(identity.getKeyIdentifier());
+        Log.d(TAG, "identity added " + identity.getAlias() + " " + identity.getPrefixes().get(0) + " " + identity.getEcPublicKey().getReadableKeyIdentifier());
+
         preference.setLastActiveIdentityKey(identity.getKeyIdentifier());
         try {
             initBoxVolume(identity);

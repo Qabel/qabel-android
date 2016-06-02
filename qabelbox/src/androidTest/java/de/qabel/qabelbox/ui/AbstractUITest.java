@@ -66,8 +66,10 @@ public class AbstractUITest {
     protected void launchActivity(@Nullable Intent intent) {
         if (intent == null) {
             intent = new Intent(mContext, MainActivity.class);
-            intent.putExtra(MainActivity.ACTIVE_IDENTITY, identity.getKeyIdentifier());
             intent.putExtra(MainActivity.START_FILES_FRAGMENT, false);
+        }
+        if(!intent.hasExtra(MainActivity.ACTIVE_IDENTITY)){
+            intent.putExtra(MainActivity.ACTIVE_IDENTITY, identity.getKeyIdentifier());
         }
         mActivity = mActivityTestRule.launchActivity(intent);
         wakeLock = UIActionHelper.wakeupDevice(mActivity);

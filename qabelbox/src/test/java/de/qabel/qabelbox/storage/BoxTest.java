@@ -32,6 +32,7 @@ import de.qabel.core.drop.DropURL;
 import de.qabel.qabelbox.BuildConfig;
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.SimpleApplication;
+import de.qabel.qabelbox.TestApplication;
 import de.qabel.qabelbox.TestConstants;
 import de.qabel.qabelbox.communication.URLs;
 import de.qabel.qabelbox.config.AppPreference;
@@ -44,9 +45,8 @@ import de.qabel.qabelbox.storage.model.BoxFile;
 import de.qabel.qabelbox.storage.model.BoxFolder;
 import de.qabel.qabelbox.storage.model.BoxObject;
 import de.qabel.qabelbox.storage.navigation.BoxNavigation;
-import de.qabel.qabelbox.storage.transfer.FakeTransferManager;
 import de.qabel.qabelbox.test.files.FileHelper;
-import de.qabel.qabelbox.util.BoxTestHelper;
+import de.qabel.qabelbox.dagger.test.BoxTestHelper;
 import de.qabel.qabelbox.util.TestHelper;
 
 import static org.hamcrest.Matchers.*;
@@ -90,7 +90,7 @@ public class BoxTest {
     @Before
     public void setUp() throws IOException, QblStorageException {
         configureTestServer();
-        BoxTestHelper helper = new BoxTestHelper(RuntimeEnvironment.application);
+        BoxTestHelper helper = new BoxTestHelper((TestApplication)RuntimeEnvironment.application);
         boxManager = helper.createBoxManager();
 
         URI uri = URI.create(QabelBoxApplication.DEFAULT_DROP_SERVER);

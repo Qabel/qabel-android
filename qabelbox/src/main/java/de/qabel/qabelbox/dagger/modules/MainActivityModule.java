@@ -11,13 +11,13 @@ import de.qabel.desktop.repository.IdentityRepository;
 import de.qabel.desktop.repository.exception.EntityNotFoundExcepion;
 import de.qabel.desktop.repository.exception.PersistenceException;
 import de.qabel.qabelbox.activities.MainActivity;
+import de.qabel.qabelbox.config.AppPreference;
 import de.qabel.qabelbox.dagger.scopes.ActivityScope;
 import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.storage.BoxManager;
 import de.qabel.qabelbox.storage.BoxVolume;
 
 import static de.qabel.qabelbox.activities.MainActivity.ACTIVE_IDENTITY;
-import static de.qabel.qabelbox.services.LocalQabelService.PREF_LAST_ACTIVE_IDENTITY;
 
 @ActivityScope
 @Module
@@ -35,7 +35,7 @@ public class MainActivityModule {
     }
 
     @Provides Identity provideActiveIdentity(IdentityRepository identityRepository,
-                                             SharedPreferences sharedPreferences) {
+                                             AppPreference sharedPreferences) {
         String identityKeyId = mainActivity.getIntent().getStringExtra(ACTIVE_IDENTITY);
         if (identityKeyId != null) {
             try {
@@ -45,7 +45,7 @@ public class MainActivityModule {
                         "Could not activate identity with key id " + identityKeyId);
             }
         } else {
-            String keyId = sharedPreferences.getString(PREF_LAST_ACTIVE_IDENTITY, "");
+            String keyId = sharedPreferences.getLastActiveIdentityKey();
             try {
                 return identityRepository.find(keyId);
             } catch (EntityNotFoundExcepion | PersistenceException entityNotFoundExcepion) {

@@ -6,7 +6,6 @@ import android.util.Log;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.Robolectric;
 import org.robolectric.RobolectricGradleTestRunner;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
@@ -21,16 +20,16 @@ import de.qabel.core.crypto.CryptoUtils;
 import de.qabel.core.crypto.QblECKeyPair;
 import de.qabel.qabelbox.BuildConfig;
 import de.qabel.qabelbox.SimpleApplication;
+import de.qabel.qabelbox.TestApplication;
 import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.storage.model.BoxExternalReference;
 import de.qabel.qabelbox.storage.model.BoxFile;
 import de.qabel.qabelbox.storage.model.BoxFolder;
 import de.qabel.qabelbox.storage.model.BoxObject;
 import de.qabel.qabelbox.storage.navigation.BoxNavigation;
-import de.qabel.qabelbox.storage.transfer.FakeTransferManager;
 import de.qabel.qabelbox.test.TestConstants;
 import de.qabel.qabelbox.test.files.FileHelper;
-import de.qabel.qabelbox.util.BoxTestHelper;
+import de.qabel.qabelbox.dagger.test.BoxTestHelper;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertEquals;
@@ -90,7 +89,7 @@ public class SearchTest {
         byte[] deviceID = utils.getRandomBytes(16);
         QblECKeyPair keyPair = new QblECKeyPair();
 
-        BoxTestHelper helper = new BoxTestHelper(RuntimeEnvironment.application);
+        BoxTestHelper helper = new BoxTestHelper((TestApplication)RuntimeEnvironment.application);
         BoxManager manager = helper.createBoxManager();
 
         BoxVolume volume = new BoxVolume(keyPair, TestConstants.PREFIX,

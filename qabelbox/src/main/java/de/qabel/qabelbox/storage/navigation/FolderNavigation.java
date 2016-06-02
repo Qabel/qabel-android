@@ -2,6 +2,7 @@ package de.qabel.qabelbox.storage.navigation;
 
 import android.content.Context;
 import android.support.annotation.Nullable;
+import android.util.Log;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,7 +29,7 @@ import de.qabel.qabelbox.storage.model.BoxFolder;
 
 public class FolderNavigation extends AbstractNavigation {
 
-    private static final Logger logger = LoggerFactory.getLogger(FolderNavigation.class.getName());
+    private static final String TAG = FolderNavigation.class.getName();
 
     public FolderNavigation(String prefix, DirectoryMetadata dm, QblECKeyPair keyPair, @Nullable byte[] dmKey, byte[] deviceId,
                             BoxManager boxManager, BoxVolume boxVolume, String path,
@@ -46,8 +47,9 @@ public class FolderNavigation extends AbstractNavigation {
     }
 
     private void uploadDirectoryMetadataRoot() throws QblStorageException {
+        Log.d(TAG, "Uploading directory metadata root (" + dm.getFileName() +")");
         try {
-            byte[] plaintext = FileHelper.toByteArray(new FileInputStream(dm.path));
+            byte[] plaintext = FileHelper.toByteArray(new FileInputStream(dm.getPath()));
             byte[] encrypted = boxManager.getCryptoUtils().
                     createBox(keyPair, keyPair.getPub(), plaintext, 0);
             boxManager.blockingUpload(prefix, dm.getFileName(), new ByteArrayInputStream(encrypted));
@@ -57,7 +59,7 @@ public class FolderNavigation extends AbstractNavigation {
     }
 
     private void uploadDirectoryMetadataSubFolder() throws QblStorageException {
-        logger.info("Uploading directory metadata");
+        Log.d(TAG, "Uploading directory metadata (" + dm.getFileName() +")");
         try {
             boxManager.uploadEncrypted(prefix, dm.getFileName(), dmKey, new FileInputStream(dm.getPath()), null);
         } catch (FileNotFoundException e) {
@@ -74,29 +76,15 @@ public class FolderNavigation extends AbstractNavigation {
     }
 
     protected DirectoryMetadata reloadMetadataSubFolder() throws QblStorageException {
-        logger.info("Reloading directory metadata");
+        Log.d(TAG, "Reloading directory metadata (" + dm.getFileName()+")");
         // duplicate of navigate()
         File indexDl = boxManager.downloadDecrypted(prefix, dm.getFileName(), dmKey, null);
         return DirectoryMetadata.openDatabase(indexDl, deviceId, dm.getFileName(), dm.getTempDir());
     }
 
     protected DirectoryMetadata reloadMetadataRoot() throws QblStorageException {
-        // TODO: duplicate with BoxVoume.navigate()
-        String rootRef = dm.getFileName();
-        File indexDl = boxManager.blockingDownload(prefix, rootRef, null);
-        File tmp;
-        try {
-            byte[] encrypted = FileHelper.toByteArray(new FileInputStream(indexDl));
-            DecryptedPlaintext plaintext = boxManager.getCryptoUtils().readBox(keyPair, encrypted);
-            tmp = File.createTempFile("dir", "db", dm.getTempDir());
-            logger.info("Using " + tmp.toString() + " for the metadata file");
-            OutputStream out = new FileOutputStream(tmp);
-            out.write(plaintext.getPlaintext());
-            out.close();
-        } catch (IOException | InvalidCipherTextException | InvalidKeyException e) {
-            throw new QblStorageException(e);
-        }
-        return DirectoryMetadata.openDatabase(tmp, deviceId, rootRef, dm.getTempDir());
+        Log.d(TAG, "Reloading directory metadata root");
+        return boxVolume.getDirectoryMetadata();
     }
 
     @Override

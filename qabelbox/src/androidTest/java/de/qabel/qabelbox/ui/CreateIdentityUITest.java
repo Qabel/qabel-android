@@ -62,7 +62,7 @@ public class CreateIdentityUITest {
     @Before
     public void setUp() throws Exception {
 
-        new UIBoxHelper(InstrumentationRegistry.getTargetContext());
+        helper = new UIBoxHelper(InstrumentationRegistry.getTargetContext());
         helper.removeAllIdentities();
 
 

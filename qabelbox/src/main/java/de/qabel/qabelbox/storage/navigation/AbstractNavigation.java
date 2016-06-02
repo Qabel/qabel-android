@@ -57,7 +57,7 @@ public abstract class AbstractNavigation implements BoxNavigation {
 
     protected final String prefix;
 
-    private final BoxVolume boxVolume;
+    protected final BoxVolume boxVolume;
     protected final BoxManager boxManager;
 
     private final Set<String> deleteQueue = new HashSet<>();
@@ -239,6 +239,7 @@ public abstract class AbstractNavigation implements BoxNavigation {
     public void commit() throws QblStorageException {
         byte[] version = dm.getVersion();
         dm.commit();
+        Log.d(TAG, "Committing DM (" + dm.getFileName() +")" + getPath());
         DirectoryMetadata updatedDM = null;
         try {
             updatedDM = reloadMetadata();
@@ -549,7 +550,7 @@ public abstract class AbstractNavigation implements BoxNavigation {
         BoxFolder folder = new BoxFolder(dm.getFileName(), name, secretKey);
         this.dm.insertFolder(folder);
         BoxNavigation newFolder = new FolderNavigation(prefix, dm, keyPair, secretKey,
-                deviceId, boxManager, boxVolume, currentPath + BoxProvider.PATH_SEP + folder.name,
+                deviceId, boxManager, boxVolume, currentPath + folder.name + BoxProvider.PATH_SEP,
                 parentBoxFolders, context);
         newFolder.commit();
         return folder;

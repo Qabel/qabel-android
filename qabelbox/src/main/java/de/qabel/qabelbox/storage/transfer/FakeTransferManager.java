@@ -1,6 +1,7 @@
 package de.qabel.qabelbox.storage.transfer;
 
 import android.support.annotation.Nullable;
+import android.util.Log;
 
 import org.apache.commons.io.FileUtils;
 
@@ -12,6 +13,8 @@ import java.util.Random;
 import de.qabel.qabelbox.exceptions.QblServerException;
 
 public class FakeTransferManager implements TransferManager {
+
+    private static final String TAG = FakeTransferManager.class.getSimpleName();
 
     private final File tempDir;
     private final Random random = new Random();
@@ -42,9 +45,11 @@ public class FakeTransferManager implements TransferManager {
         File storedFile = createTempFile();
         int id = random.nextInt();
         try {
+            Log.d(TAG, "Stored File: " + createKey(prefix, name));
             FileUtils.copyFile(localfile, storedFile);
             localfile.delete();
         } catch (IOException e) {
+            Log.d(TAG, "Error storing file: " + createKey(prefix, name));
             errors.put(id, e);
             return id;
         }
@@ -65,6 +70,7 @@ public class FakeTransferManager implements TransferManager {
         File storedFile = uploads.get(createKey(prefix, name));
         int id = random.nextInt();
         if (storedFile == null) {
+            Log.d(TAG, "Stored File not found: " + createKey(prefix, name));
             errors.put(id, new QblServerException(404, "File not found"));
         } else {
             try {
@@ -85,6 +91,7 @@ public class FakeTransferManager implements TransferManager {
     @Override
     public int delete(String prefix, String name) {
         File remove = uploads.remove(createKey(prefix, name));
+        Log.d(TAG, "Delete File: " + createKey(prefix, name));
         if (remove != null) {
             remove.delete();
         }

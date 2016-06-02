@@ -13,7 +13,6 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
-import java.io.IOException;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 
@@ -26,13 +25,11 @@ import de.qabel.qabelbox.communication.BoxAccountRegisterServer;
 import de.qabel.qabelbox.communication.URLs;
 import de.qabel.qabelbox.communication.callbacks.JsonRequestCallback;
 import de.qabel.qabelbox.config.AppPreference;
-import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.ui.helper.SystemAnimations;
 import de.qabel.qabelbox.ui.helper.UIActionHelper;
 import de.qabel.qabelbox.ui.helper.UIBoxHelper;
 import de.qabel.qabelbox.ui.helper.UITestHelper;
 import de.qabel.qabelbox.ui.idling.InjectedIdlingResource;
-import de.qabel.qabelbox.util.BoxTestHelper;
 import okhttp3.Response;
 
 import static android.support.test.espresso.Espresso.onView;

@@ -1,6 +1,7 @@
 package de.qabel.qabelbox.storage;
 
 import android.content.Context;
+import android.util.Log;
 
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
@@ -35,7 +36,7 @@ import de.qabel.qabelbox.storage.transfer.TransferManager;
 
 public class BoxVolume {
 
-    private static final Logger logger = LoggerFactory.getLogger(BoxVolume.class.getName());
+    private static final String TAG = BoxVolume.class.getSimpleName();
     private static final String PATH_ROOT = "/";
     private final String rootId;
     private final Context context;
@@ -75,7 +76,7 @@ public class BoxVolume {
     public DirectoryMetadata getDirectoryMetadata() throws QblStorageException {
 
         String rootRef = getRootRef();
-        logger.info("Navigating to " + rootRef);
+        Log.d(TAG, "Downloading Root " + rootRef);
         File indexDl = boxManager.blockingDownload(prefix, rootRef, null);
         File tmp;
         try {
@@ -118,6 +119,7 @@ public class BoxVolume {
 
     public void createIndex() throws QblStorageException {
         String rootRef = getRootRef();
+        Log.d(TAG, "Uploading Root " + rootRef);
         DirectoryMetadata dm = DirectoryMetadata.newDatabase(rootRef, deviceId, tempDir);
         try {
             byte[] plaintext = IOUtils.toByteArray(new FileInputStream(dm.path));

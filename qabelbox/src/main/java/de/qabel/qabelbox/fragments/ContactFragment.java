@@ -61,6 +61,7 @@ import de.qabel.qabelbox.helper.Helper;
 import de.qabel.qabelbox.helper.UIHelper;
 import de.qabel.qabelbox.listeners.IdleCallback;
 import de.qabel.qabelbox.navigation.MainNavigator;
+import de.qabel.qabelbox.ui.views.ChatFragment;
 
 /**
  * Fragment that shows a contact list.
@@ -216,7 +217,7 @@ public class ContactFragment extends BaseFragment {
         contactListAdapter.setOnItemClickListener((view, position) -> {
             final Contact contact = contactListAdapter.getContact(position);
             getFragmentManager().beginTransaction().add(R.id.fragment_container,
-                    ContactChatFragment.newInstance(contact),
+                    ChatFragment.Companion.withContact(contact),
                     MainNavigator.TAG_CONTACT_CHAT_FRAGMENT)
                     .addToBackStack(MainNavigator.TAG_CONTACT_CHAT_FRAGMENT).commit();
         }, (view, position) -> longContactClickAction(position));

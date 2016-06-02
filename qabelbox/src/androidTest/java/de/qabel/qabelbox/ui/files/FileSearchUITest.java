@@ -28,7 +28,7 @@ import static android.support.test.espresso.matcher.ViewMatchers.withHint;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static de.qabel.qabelbox.ui.action.QabelViewAction.setText;
 
-@Ignore("Unstable UI")
+@Ignore("Needs refactoring")
 public class FileSearchUITest extends FilesFragmentUITestBase {
 
     private List<ExampleFile> exampleFiles = Arrays.asList(

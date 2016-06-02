@@ -161,7 +161,7 @@ public abstract class AbstractNavigation implements BoxNavigation {
     }
 
     @Override
-    public BoxFile getFile(String name, boolean force) throws QblStorageException {
+    public BoxFile getFile(String name, boolean forceNotNull) throws QblStorageException {
         for (BoxFile file : listFiles()) {
             if (file.name.equals(name)) {
                 return file;
@@ -172,7 +172,7 @@ public abstract class AbstractNavigation implements BoxNavigation {
                 return (BoxFile) boxObject;
             }
         }
-        if(force){
+        if(forceNotNull){
             throw new QblStorageNotFound(name + " not found.");
         }
         return null;

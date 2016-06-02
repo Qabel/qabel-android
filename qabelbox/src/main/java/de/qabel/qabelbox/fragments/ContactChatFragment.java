@@ -120,19 +120,6 @@ public class ContactChatFragment extends ContactBaseFragment {
         refreshMessagesAsync();
     }
 
-    private final BroadcastReceiver refreshChatIntentReceiver = new BroadcastReceiver() {
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            Log.v(TAG, "receive refresh chat event");
-            if (chatServer.hasNewMessages(activeIdentity, contact)) {
-                refreshMessages();
-                if (isOrderedBroadcast()) {
-                    abortBroadcast();
-                }
-            }
-        }
-    };
 
     @Override
     public View onCreateView(final LayoutInflater inflater, final ViewGroup container,
@@ -437,13 +424,37 @@ public class ContactChatFragment extends ContactBaseFragment {
         return true;
     }
 
+    private final BroadcastReceiver refreshChatIntentReceiver = new BroadcastReceiver() {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Log.v(TAG, "receive refresh chat event");
+            if (chatServer.hasNewMessages(activeIdentity, contact)) {
+                refreshMessages();
+            }
+        }
+    };
+
+    private final BroadcastReceiver showNotificationReceiver = new BroadcastReceiver() {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (isOrderedBroadcast() && chatServer.hasNewMessages(activeIdentity, contact)) {
+                Log.v(TAG, "Aborting chat notification");
+                abortBroadcast();
+            }
+        }
+    };
+
     @Override
     public void onStart() {
         super.onStart();
         chatServer.addListener(chatServerCallback);
-        IntentFilter filter = new IntentFilter(Helper.INTENT_REFRESH_CONTACTLIST);
+        IntentFilter filter = new IntentFilter(Helper.INTENT_SHOW_NOTIFICATION);
         filter.setPriority(10);
-        mActivity.registerReceiver(refreshChatIntentReceiver, filter);
+        mActivity.registerReceiver(showNotificationReceiver, filter);
+        IntentFilter refreshFilter = new IntentFilter(Helper.INTENT_REFRESH_CONTACTLIST);
+        mActivity.registerReceiver(refreshChatIntentReceiver, refreshFilter);
         refreshMessages();
     }
 
@@ -451,6 +462,7 @@ public class ContactChatFragment extends ContactBaseFragment {
     public void onStop() {
         super.onStop();
         mActivity.unregisterReceiver(refreshChatIntentReceiver);
+        mActivity.unregisterReceiver(showNotificationReceiver);
         chatServer.removeListener(chatServerCallback);
     }
 

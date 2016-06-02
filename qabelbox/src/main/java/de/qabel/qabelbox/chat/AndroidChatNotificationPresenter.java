@@ -7,18 +7,21 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.support.annotation.NonNull;
-import android.support.v4.app.NotificationCompat;
+import android.support.v7.app.NotificationCompat;
 
 import java.util.Map;
 
 import javax.inject.Inject;
+import javax.inject.Provider;
 
+import dagger.internal.Factory;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.activities.MainActivity;
 import de.qabel.qabelbox.util.DefaultHashMap;
 
 public class AndroidChatNotificationPresenter implements ChatNotificationPresenter {
 
+    private Provider<NotificationCompat.Builder> builder;
     Context context;
     NotificationManager notificationManager;
     private int currentId = 0;
@@ -28,10 +31,12 @@ public class AndroidChatNotificationPresenter implements ChatNotificationPresent
     );
 
     @Inject
-    public AndroidChatNotificationPresenter(Context context) {
+    public AndroidChatNotificationPresenter(Context context,
+                                            Factory<NotificationCompat.Builder> builder) {
         this.notificationManager = (NotificationManager) context
                 .getSystemService(Context.NOTIFICATION_SERVICE);
         this.context = context;
+        this.builder = builder;
     }
 
     @Override
@@ -40,20 +45,21 @@ public class AndroidChatNotificationPresenter implements ChatNotificationPresent
         PendingIntent pendingIntent = PendingIntent.getActivity(
                 context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT
         );
-        NotificationCompat.Builder androidNotification = new NotificationCompat.Builder(context)
-                .setWhen(notification.when.getTime())
-                .setContentIntent(pendingIntent)
-                .setContentTitle(notification.contactHeader)
-                .setContentText(notification.message)
-                .setSmallIcon(R.drawable.qabel_logo)
-                .setPriority(Notification.PRIORITY_HIGH)
-                .setAutoCancel(true);
+        NotificationCompat.Builder notificationBuilder = builder.get();
+        notificationBuilder.setDefaults(Notification.DEFAULT_ALL)
+               .setWhen(notification.when.getTime())
+               .setContentIntent(pendingIntent)
+               .setContentTitle(notification.contactHeader)
+               .setContentText(notification.message)
+               .setSmallIcon(R.drawable.qabel_logo)
+               .setPriority(Notification.PRIORITY_HIGH)
+               .setAutoCancel(true);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            androidNotification.setCategory(Notification.CATEGORY_MESSAGE);
+            notificationBuilder.setCategory(Notification.CATEGORY_MESSAGE);
         }
         notificationManager.notify("ChatNotification", identityToNotificationId.get(
                 notification.identity.getKeyIdentifier()),
-                androidNotification.build());
+                notificationBuilder.build());
     }
 
     @NonNull

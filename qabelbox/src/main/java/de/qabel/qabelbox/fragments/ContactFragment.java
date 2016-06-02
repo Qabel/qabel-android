@@ -47,7 +47,6 @@ import de.qabel.desktop.repository.ContactRepository;
 import de.qabel.desktop.repository.exception.EntityNotFoundExcepion;
 import de.qabel.desktop.repository.exception.PersistenceException;
 import de.qabel.qabelbox.R;
-import de.qabel.qabelbox.activities.MainActivity;
 import de.qabel.qabelbox.adapter.ContactAdapterItem;
 import de.qabel.qabelbox.adapter.ContactsAdapter;
 import de.qabel.qabelbox.chat.ChatServer;
@@ -60,6 +59,8 @@ import de.qabel.qabelbox.helper.ExternalApps;
 import de.qabel.qabelbox.helper.FileHelper;
 import de.qabel.qabelbox.helper.Helper;
 import de.qabel.qabelbox.helper.UIHelper;
+import de.qabel.qabelbox.listeners.IdleCallback;
+import de.qabel.qabelbox.navigation.MainNavigator;
 
 /**
  * Fragment that shows a contact list.
@@ -87,6 +88,24 @@ public class ContactFragment extends BaseFragment {
     @Inject ChatServer chatServer;
 
     @Inject Identity activeIdentity;
+
+    IdleCallback idleCallback;
+
+    public void setIdleCallback(IdleCallback idleCallback) {
+        this.idleCallback = idleCallback;
+    }
+
+    void busy() {
+        if (idleCallback != null) {
+            idleCallback.busy();
+        }
+    }
+
+    void idle() {
+        if (idleCallback != null) {
+            idleCallback.idle();
+        }
+    }
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
@@ -198,8 +217,8 @@ public class ContactFragment extends BaseFragment {
             final Contact contact = contactListAdapter.getContact(position);
             getFragmentManager().beginTransaction().add(R.id.fragment_container,
                     ContactChatFragment.newInstance(contact),
-                    MainActivity.TAG_CONTACT_CHAT_FRAGMENT)
-                    .addToBackStack(MainActivity.TAG_CONTACT_CHAT_FRAGMENT).commit();
+                    MainNavigator.TAG_CONTACT_CHAT_FRAGMENT)
+                    .addToBackStack(MainNavigator.TAG_CONTACT_CHAT_FRAGMENT).commit();
         }, (view, position) -> longContactClickAction(position));
     }
 
@@ -265,6 +284,7 @@ public class ContactFragment extends BaseFragment {
 
     private void sendRefreshContactList() {
         Log.d(TAG, "send refresh intent");
+        busy();
         Intent intent = new Intent(Helper.INTENT_REFRESH_CONTACTLIST);
         context.sendBroadcast(intent);
     }
@@ -297,6 +317,7 @@ public class ContactFragment extends BaseFragment {
             contactListAdapter.notifyDataSetChanged();
 
         });
+        idle();
     }
 
     @Override
@@ -457,21 +478,35 @@ public class ContactFragment extends BaseFragment {
         }
     };
 
+    private final BroadcastReceiver showNotificationReceiver = new BroadcastReceiver() {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Log.v(TAG, "Aborting chat notification");
+            if (isOrderedBroadcast()) {
+                abortBroadcast();
+            }
+        }
+    };
+
     @Override
     public void onStart() {
         super.onStart();
         chatServer.addListener(chatServerCallback);
-        IntentFilter filter = new IntentFilter(Helper.INTENT_REFRESH_CONTACTLIST);
+        IntentFilter filter = new IntentFilter(Helper.INTENT_SHOW_NOTIFICATION);
         filter.setPriority(10);
-        context.registerReceiver(refreshContactListReceiver,
+        mActivity.registerReceiver(showNotificationReceiver,
                 filter);
+        IntentFilter refreshFilter = new IntentFilter(Helper.INTENT_REFRESH_CONTACTLIST);
+        mActivity.registerReceiver(refreshContactListReceiver, refreshFilter);
     }
 
     @Override
     public void onStop() {
         super.onStop();
         chatServer.removeListener(chatServerCallback);
-        context.unregisterReceiver(refreshContactListReceiver);
+        mActivity.unregisterReceiver(refreshContactListReceiver);
+        mActivity.unregisterReceiver(showNotificationReceiver);
     }
 
     private final ChatServer.ChatServerCallback chatServerCallback = () -> {

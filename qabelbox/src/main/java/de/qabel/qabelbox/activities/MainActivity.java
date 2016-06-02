@@ -48,11 +48,9 @@ import javax.inject.Inject;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
-import de.qabel.core.config.Contact;
 import de.qabel.core.config.Identity;
 import de.qabel.desktop.repository.ContactRepository;
 import de.qabel.desktop.repository.IdentityRepository;
-import de.qabel.desktop.repository.exception.EntityNotFoundExcepion;
 import de.qabel.desktop.repository.exception.PersistenceException;
 import de.qabel.qabelbox.BuildConfig;
 import de.qabel.qabelbox.QabelBoxApplication;
@@ -70,15 +68,11 @@ import de.qabel.qabelbox.dagger.modules.ActivityModule;
 import de.qabel.qabelbox.dagger.modules.MainActivityModule;
 import de.qabel.qabelbox.dialogs.SelectIdentityForUploadDialog;
 import de.qabel.qabelbox.exceptions.QblStorageException;
-import de.qabel.qabelbox.fragments.AboutLicencesFragment;
 import de.qabel.qabelbox.fragments.BaseFragment;
 import de.qabel.qabelbox.fragments.ContactBaseFragment;
-import de.qabel.qabelbox.fragments.ContactChatFragment;
-import de.qabel.qabelbox.fragments.ContactFragment;
 import de.qabel.qabelbox.fragments.CreateIdentityMainFragment;
 import de.qabel.qabelbox.fragments.FilesFragment;
 import de.qabel.qabelbox.fragments.FilesFragmentBase;
-import de.qabel.qabelbox.fragments.HelpMainFragment;
 import de.qabel.qabelbox.fragments.IdentitiesFragment;
 import de.qabel.qabelbox.fragments.QRcodeFragment;
 import de.qabel.qabelbox.fragments.SelectUploadFolderFragment;
@@ -89,6 +83,7 @@ import de.qabel.qabelbox.helper.FileHelper;
 import de.qabel.qabelbox.helper.PreferencesHelper;
 import de.qabel.qabelbox.helper.Sanity;
 import de.qabel.qabelbox.helper.UIHelper;
+import de.qabel.qabelbox.navigation.MainNavigator;
 import de.qabel.qabelbox.providers.BoxProvider;
 import de.qabel.qabelbox.services.LocalQabelService;
 import de.qabel.qabelbox.storage.BoxManager;
@@ -102,26 +97,17 @@ import de.qabel.qabelbox.views.DrawerNavigationView;
 import de.qabel.qabelbox.views.DrawerNavigationViewHolder;
 
 public class MainActivity extends CrashReportingActivity
-        implements NavigationView.OnNavigationItemSelectedListener,
-        FilesFragment.FilesListListener,
+        implements FilesFragment.FilesListListener,
         IdentitiesFragment.IdentityListListener,
-        HasComponent<MainActivityComponent> {
+        HasComponent<MainActivityComponent>, NavigationView.OnNavigationItemSelectedListener {
 
-    public static final String TAG_CONTACT_CHAT_FRAGMENT = "TAG_CONTACT_CHAT_FRAGMENT";
-
+    private static final int REQUEST_SETTINGS = 17;
     private static final int REQUEST_CODE_CHOOSE_EXPORT = 14;
     private static final int REQUEST_CREATE_IDENTITY = 16;
-    private static final int REQUEST_SETTINGS = 17;
     public static final int REQUEST_EXPORT_IDENTITY = 18;
     public static final int REQUEST_EXTERN_VIEWER_APP = 19;
     public static final int REQUEST_EXTERN_SHARE_APP = 20;
 
-    public static final String TAG_FILES_FRAGMENT = "TAG_FILES_FRAGMENT";
-    private static final String TAG_CONTACT_LIST_FRAGMENT = "TAG_CONTACT_LIST_FRAGMENT";
-    private static final String TAG_ABOUT_FRAGMENT = "TAG_ABOUT_FRAGMENT";
-    private static final String TAG_HELP_FRAGMENT = "TAG_HELP_FRAGMENT";
-    private static final String TAG_MANAGE_IDENTITIES_FRAGMENT = "TAG_MANAGE_IDENTITIES_FRAGMENT";
-    private static final String TAG_FILES_SHARE_INTO_APP_FRAGMENT = "TAG_FILES_SHARE_INTO_APP_FRAGMENT";
     private static final String TAG = "BoxMainActivity";
 
     private static final int REQUEST_CODE_UPLOAD_FILE = 12;
@@ -165,7 +151,6 @@ public class MainActivity extends CrashReportingActivity
     private ServiceConnection mServiceConnection;
     private SelectUploadFolderFragment shareFragment;
     public ChatServer chatServer;
-    private ContactFragment contactFragment;
     private LightingColorFilter mDrawerIndicatorTintFilter;
 
     @Inject
@@ -185,6 +170,9 @@ public class MainActivity extends CrashReportingActivity
     SharedPreferences sharedPreferences;
 
     @Inject
+    MainNavigator navigator;
+
+    @Inject
     BoxManager boxManager;
 
     @Inject
@@ -199,9 +187,6 @@ public class MainActivity extends CrashReportingActivity
             Log.d(TAG, "result from extern app " + resultCode);
         }
         if (resultCode == RESULT_OK) {
-            if (requestCode == REQUEST_SETTINGS) {
-                //add functions if ui need refresh after settings changed
-            }
             if (requestCode == REQUEST_CREATE_IDENTITY) {
                 if (data != null && data.hasExtra(CreateIdentityActivity.P_IDENTITY)) {
                     Identity identity = (Identity) data.getSerializableExtra(CreateIdentityActivity.P_IDENTITY);
@@ -369,7 +354,7 @@ public class MainActivity extends CrashReportingActivity
         });
     }
 
-    private void handleMainFragmentChange() {
+    public void handleMainFragmentChange() {
         // Set FAB visibility according to currently visible fragment
         Fragment activeFragment = getFragmentManager().findFragmentById(R.id.fragment_container);
 
@@ -476,7 +461,7 @@ public class MainActivity extends CrashReportingActivity
                     break;
                 default:
                     if (startContactsFragment) {
-                        selectContactsFragment(activeContact);
+                        navigator.selectContactsFragment(activeContact);
                     } else if (startFilesFragment) {
                         initAndSelectFilesFragment(filePath);
                     }
@@ -484,7 +469,7 @@ public class MainActivity extends CrashReportingActivity
             }
         } else {
             if (startContactsFragment) {
-                selectContactsFragment(activeContact);
+                navigator.selectContactsFragment(activeContact);
             } else if (startFilesFragment) {
                 initAndSelectFilesFragment(filePath);
             }
@@ -538,7 +523,7 @@ public class MainActivity extends CrashReportingActivity
 
     private void initAndSelectFilesFragment(String path) {
         initFilesFragment();
-        selectFilesFragment(path);
+        navigator.selectFilesFragment();
     }
 
     private void shareIntoApp(final ArrayList<Uri> data, Intent intent) {
@@ -581,7 +566,7 @@ public class MainActivity extends CrashReportingActivity
         shareFragment.setUris(data);
         getFragmentManager().beginTransaction()
                 .add(R.id.fragment_container,
-                        shareFragment, TAG_FILES_SHARE_INTO_APP_FRAGMENT)
+                        shareFragment, navigator.TAG_FILES_SHARE_INTO_APP_FRAGMENT)
                 .addToBackStack(null)
                 .commit();
     }
@@ -598,11 +583,11 @@ public class MainActivity extends CrashReportingActivity
             }
         }
         switch (activeFragmentTag) {
-            case TAG_FILES_FRAGMENT:
+            case MainNavigator.TAG_FILES_FRAGMENT:
                 filesFragmentBottomSheet();
                 break;
 
-            case TAG_MANAGE_IDENTITIES_FRAGMENT:
+            case MainNavigator.TAG_MANAGE_IDENTITIES_FRAGMENT:
                 selectAddIdentityFragment();
                 break;
 
@@ -715,7 +700,6 @@ public class MainActivity extends CrashReportingActivity
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else {
-
             Fragment activeFragment = getFragmentManager().findFragmentById(R.id.fragment_container);
             if (activeFragment == null) {
                 super.onBackPressed();
@@ -725,7 +709,7 @@ public class MainActivity extends CrashReportingActivity
                 getFragmentManager().popBackStack();
             } else {
                 switch (activeFragment.getTag()) {
-                    case TAG_FILES_SHARE_INTO_APP_FRAGMENT:
+                    case MainNavigator.TAG_FILES_SHARE_INTO_APP_FRAGMENT:
                         if (!shareFragment.handleBackPressed() && !shareFragment.browseToParent()) {
                             UIHelper.showDialogMessage(self, R.string.dialog_headline_warning,
                                     R.string.share_in_app_go_back_without_upload, R.string.yes, R.string.no, (dialog, which) -> {
@@ -733,13 +717,13 @@ public class MainActivity extends CrashReportingActivity
                                     }, null);
                         }
                         break;
-                    case TAG_FILES_FRAGMENT:
+                    case MainNavigator.TAG_FILES_FRAGMENT:
                         toggle.setDrawerIndicatorEnabled(true);
                         if (!filesFragment.handleBackPressed() && !filesFragment.browseToParent()) {
                             finishAffinity();
                         }
                         break;
-                    case TAG_CONTACT_LIST_FRAGMENT:
+                    case MainNavigator.TAG_CONTACT_LIST_FRAGMENT:
                         super.onBackPressed();
                         break;
                     default:
@@ -774,31 +758,6 @@ public class MainActivity extends CrashReportingActivity
         }
 
         return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    public boolean onNavigationItemSelected(MenuItem item) {
-        // Handle navigation view item clicks here.
-        int id = item.getItemId();
-        if (id == R.id.nav_tellafriend) {
-            ShareHelper.tellAFriend(this);
-        }
-        if (id == R.id.nav_contacts) {
-            selectContactsFragment();
-        } else if (id == R.id.nav_browse) {
-            selectFilesFragment();
-        } else if (id == R.id.nav_settings) {
-            Intent intent = new Intent(this, SettingsActivity.class);
-            startActivityForResult(intent, REQUEST_SETTINGS);
-        } else if (id == R.id.nav_about) {
-            selectAboutFragment();
-        } else if (id == R.id.nav_help) {
-            selectHelpFragment();
-        } else if (id == R.id.nav_logout) {
-            performLogout();
-        }
-        drawer.closeDrawer(GravityCompat.START);
-        return true;
     }
 
     //@todo move outside
@@ -846,7 +805,7 @@ public class MainActivity extends CrashReportingActivity
         boxManager.notifyBoxVolumesChanged();
         Snackbar.make(appBarMain, "Added identity: " + identity.getAlias(), Snackbar.LENGTH_LONG)
                 .show();
-        selectFilesFragment();
+        navigator.selectFilesFragment();
     }
 
     private void changeActiveIdentity(Identity identity) {
@@ -1025,18 +984,6 @@ public class MainActivity extends CrashReportingActivity
         filesFragment.refresh();
     }
 
-    private void setDrawerLocked(boolean locked) {
-
-        if (locked) {
-            drawer.setDrawerListener(null);
-            drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
-            toggle.setDrawerIndicatorEnabled(false);
-        } else {
-            drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
-            toggle.setDrawerIndicatorEnabled(true);
-        }
-    }
-
 
     public void selectIdentityLayoutClick() {
 
@@ -1082,7 +1029,7 @@ public class MainActivity extends CrashReportingActivity
                     .setIcon(R.drawable.settings)
                     .setOnMenuItemClickListener(item -> {
                         drawer.closeDrawer(GravityCompat.START);
-                        selectManageIdentitiesFragment();
+                        navigator.selectManageIdentitiesFragment();
                         return true;
                     });
             identityMenuExpanded = true;
@@ -1103,7 +1050,8 @@ public class MainActivity extends CrashReportingActivity
         drawerHolder.selectIdentityLayout.setOnClickListener(
                 (View v) -> selectIdentityLayoutClick());
 
-        setDrawerLocked(false);
+        drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
+        toggle.setDrawerIndicatorEnabled(true);
         navigationView.setNavigationItemSelectedListener(this);
 
         // Map QR-Code indent to alias textview in nav_header_main
@@ -1139,18 +1087,6 @@ public class MainActivity extends CrashReportingActivity
         });
     }
 
-    private void performLogout() {
-        new AppPreference(this).logout();
-        swapWithCreateAccountActivity();
-    }
-
-    private void swapWithCreateAccountActivity() {
-        Intent intent = new Intent(self, CreateAccountActivity.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_TASK_ON_HOME);
-        startActivity(intent);
-        finish();
-    }
-
     public static void showQRCode(MainActivity activity, Identity identity) {
         activity.getFragmentManager().beginTransaction()
                 .replace(R.id.fragment_container, QRcodeFragment.newInstance(identity), null)
@@ -1177,74 +1113,33 @@ public class MainActivity extends CrashReportingActivity
                 Toast.LENGTH_SHORT).show();
     }
 
-    /*
-        FRAGMENT SELECTION METHODS
-    */
-    private void selectManageIdentitiesFragment() {
-        showMainFragment(IdentitiesFragment.newInstance(mService.getIdentities()),
-                TAG_MANAGE_IDENTITIES_FRAGMENT);
-    }
-
-    private void selectContactsFragment(String activeContact) {
-        if (activeContact == null) {
-            selectContactsFragment();
-            return;
-        }
-        try {
-            Contact contact = contactRepository.findByKeyId(activeIdentity, activeContact);
-            Log.d(TAG, "Selecting chat with  contact " + contact.getAlias());
-            getFragmentManager().beginTransaction().add(R.id.fragment_container,
-                    ContactChatFragment.newInstance(contact),
-                    MainActivity.TAG_CONTACT_CHAT_FRAGMENT)
-                    .addToBackStack(MainActivity.TAG_CONTACT_CHAT_FRAGMENT).commit();
-        } catch (EntityNotFoundExcepion entityNotFoundExcepion) {
-            Log.w(TAG, "Could not find contact " + activeContact);
-            selectContactsFragment();
-        }
-    }
-
-    private void selectContactsFragment() {
-        contactFragment = new ContactFragment();
-        showMainFragment(contactFragment, TAG_CONTACT_LIST_FRAGMENT);
-    }
-
-    private void selectHelpFragment() {
-        showMainFragment(new HelpMainFragment(), TAG_HELP_FRAGMENT);
-    }
-
-    private void selectAboutFragment() {
-        showMainFragment(AboutLicencesFragment.newInstance(), TAG_ABOUT_FRAGMENT);
-    }
-
-    private void selectFilesFragment() {
-        selectFilesFragment(null);
-    }
-
-    private void selectFilesFragment(String path) {
-        if (path != null) {
-            filesFragment.navigateTo(path);
-        } else {
-            filesFragment.navigateBackToRoot();
-        }
-        filesFragment.setIsLoading(false);
-        showMainFragment(filesFragment, TAG_FILES_FRAGMENT);
-    }
-
-    private void showMainFragment(Fragment fragment, String tag) {
-        getFragmentManager().beginTransaction()
-                .replace(R.id.fragment_container, fragment, tag).commit();
-        try {
-            while (getFragmentManager().executePendingTransactions()) {
-                Thread.sleep(50);
-            }
-        } catch (InterruptedException e) {
-            Log.e(TAG, "Error waiting for fragment change", e);
-        }
-        handleMainFragmentChange();
-    }
-
     @Override
     public MainActivityComponent getComponent() {
         return component;
+    }
+
+    @Override
+    public boolean onNavigationItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        if (id == R.id.nav_tellafriend) {
+            ShareHelper.tellAFriend(this);
+        }
+        if (id == R.id.nav_contacts) {
+            navigator.selectContactsFragment();
+        } else if (id == R.id.nav_browse) {
+            navigator.selectFilesFragment();
+        } else if (id == R.id.nav_settings) {
+            Intent intent = new Intent(this, SettingsActivity.class);
+            startActivityForResult(intent, REQUEST_SETTINGS);
+        } else if (id == R.id.nav_about) {
+            navigator.selectAboutFragment();
+        } else if (id == R.id.nav_help) {
+            navigator.selectHelpFragment();
+        } else if (id == R.id.nav_logout) {
+            new AppPreference(this).logout();
+            navigator.selectCreateAccountActivity();
+        }
+        drawer.closeDrawer(GravityCompat.START);
+        return true;
     }
 }

@@ -11,6 +11,7 @@ plugins {
     id "me.tatarka.retrolambda" version "3.2.5"
 }
 apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
 apply plugin: 'spoon'
 apply plugin: 'me.tatarka.retrolambda'
 apply plugin: 'com.neenbedankt.android-apt'
@@ -34,6 +35,7 @@ android {
         androidTest.java.srcDirs = ['src/androidTest/java', 'src/sharedTest/java']
         test.java.srcDirs = ['src/test/java', 'src/sharedTest/java']
         debug.java.srcDirs += 'src/sharedTest/java'
+        main.java.srcDirs += 'src/main/kotlin'
     }
 
     compileOptions {
@@ -50,6 +52,7 @@ android {
         applicationId "de.qabel.qabel"
         minSdkVersion 19
         targetSdkVersion 23
+        multiDexEnabled true
         /*
         add code to automatically generate version name and code,
         on base of timestamp or change it manual*/
@@ -99,6 +102,16 @@ android {
             resValue "string", "account_type", "de.qabel.qabel.debug.account"
             resValue "string", "authority", "de.qabel.qabel.debug.providers.internal"
         }
+
+    }
+
+    productFlavors {
+        normal {
+        }
+
+        developer {
+            minSdkVersion 21 // avoid multiDex for faster dev builds
+        }
     }
 
     productFlavors {
@@ -125,6 +138,7 @@ configurations.all {
 }
 repositories {
     maven { url "https://oss.sonatype.org/content/repositories/snapshots" }
+    mavenCentral()
 }
 
 tasks.withType(Test) {
@@ -135,6 +149,7 @@ dependencies {
     sourceCompatibility = JavaVersion.VERSION_1_7
     targetCompatibility = JavaVersion.VERSION_1_7
     compile fileTree(dir: 'libs', include: ['*.jar'])
+    compile 'com.android.support:multidex:1.0.1'
     testCompile 'junit:junit:4.12'
     testCompile 'org.xerial:sqlite-jdbc:3.8.11.2'
     testCompile "org.robolectric:robolectric:3.1-SNAPSHOT"
@@ -189,7 +204,17 @@ dependencies {
     apt 'com.google.dagger:dagger-compiler:2.0'
     compile 'com.google.dagger:dagger:2.0'
     provided 'javax.annotation:jsr250-api:1.0'
+    compile 'io.reactivex:rxandroid:1.2.0'
+    // Because RxAndroid releases are few and far between, it is recommended you also
+    // explicitly depend on RxJava's latest version for bug fixes and new features.
     compile 'io.reactivex:rxjava:1.1.5'
+    compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+    testCompile "com.nhaarman:mockito-kotlin:0.5.0"
+    // See https://github.com/JakeWharton/RxBinding for additional bindings
+    compile 'com.jakewharton.rxbinding:rxbinding:0.4.0'
+    compile 'com.jakewharton.rxbinding:rxbinding-kotlin:0.4.0'
+    compile 'com.jakewharton.rxbinding:rxbinding-recyclerview-v7:0.4.0'
+    compile 'com.jakewharton.rxbinding:rxbinding-recyclerview-v7-kotlin:0.4.0'
     //for more used sources, see license.txt
 }
 

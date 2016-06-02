@@ -46,6 +46,7 @@ Everything below this line describes the usage of the Qabel Android Client for d
 # <a name="getting_started"></a>Getting started
 
 * Install Android Studio.
+* Install the Kotlin plugin from JetBrains
 * Open the SDK Manager from Tools/Android/SDK Manager
 * Install the SDK version 23. Make sure you install the "Android Support Repository" and the latest "Android SDK build-tools"
 * Import the project from git (File/New/Project from version control)
@@ -53,12 +54,13 @@ Everything below this line describes the usage of the Qabel Android Client for d
 
     `<resources> <string name="hockeykey">dummykey</string> </resources>`
 * Select the qabelbox module
+* For faster development builds, select the 'developerDebug' build variant
 * Click "Run" and you're done.
 
 
 # Usage
 
-You can run the tests either dirctly from AndroidStudio with the following gradle tasks:
+You can run the tests either directly from AndroidStudio with the following gradle tasks:
 
 * `./gradlew test` runs the local unit tests
 * `./gradlew spoon` runs all instrumentation tests on all connected devices and emulators

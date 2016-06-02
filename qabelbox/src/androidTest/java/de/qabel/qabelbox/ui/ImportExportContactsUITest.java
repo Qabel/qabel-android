@@ -54,9 +54,8 @@ public class ImportExportContactsUITest extends AbstractUITest {
     @Override
     public void setUp() throws Throwable {
         super.setUp();
-        System.out.println("CONTACTS: " + contactRepository.find(identity).getContacts().size());
+
         createTestContacts();
-        System.out.println("CONTACTS2: " + contactRepository.find(identity).getContacts().size());
 
         Intent intent = new Intent(Intent.ACTION_MAIN);
         intent.putExtra(MainActivity.START_CONTACTS_FRAGMENT, true);

@@ -249,9 +249,13 @@ public class UIBoxHelper {
         if (forceCreated && preference.getToken() == null) {
             preference.setToken(new RealTokerGetter().getToken(context));
         } else {
-            preference.setToken(TestConstants.TOKEN);
-            preference.setAccountName("testUser");
+            setTestAccount();
         }
+    }
+
+    public void setTestAccount(){
+        preference.setToken(TestConstants.TOKEN);
+        preference.setAccountName("testUser");
     }
 
     public void removeAllIdentities()throws Exception {

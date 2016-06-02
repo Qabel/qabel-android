@@ -43,7 +43,7 @@ public class CreateIdentityActivity extends BaseWizardActivity {
     public static final int REQUEST_CODE_IMPORT_IDENTITY = 1;
     /**
      * Fake the prefix request
-     *
+     * <p>
      * This is set by the QblJUnitTestRunner to prevent network requests to the block server
      * in test runs.
      */
@@ -173,6 +173,9 @@ public class CreateIdentityActivity extends BaseWizardActivity {
         Intent result = new Intent();
         result.putExtra(P_IDENTITY, mNewIdentity);
         setResult(activityResult, result);
+        if (FAKE_COMMUNICATION) {
+            return;
+        }
         finish();
         if (mFirstRun) {
             Intent intent = new Intent(mActivity, MainActivity.class);

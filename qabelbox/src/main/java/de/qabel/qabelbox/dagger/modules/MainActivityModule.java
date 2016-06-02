@@ -49,7 +49,11 @@ public class MainActivityModule {
         } else {
             String keyId = sharedPreferences.getLastActiveIdentityKey();
             try {
-                return identityRepository.find(keyId);
+                if(keyId != null){
+                    return identityRepository.find(keyId);
+                }else {
+                    throw new PersistenceException("Not last active identity found");
+                }
             } catch (EntityNotFoundExcepion | PersistenceException entityNotFoundExcepion) {
                 try {
                     Identities identities = identityRepository.findAll();

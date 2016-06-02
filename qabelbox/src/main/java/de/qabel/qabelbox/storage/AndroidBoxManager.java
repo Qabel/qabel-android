@@ -286,7 +286,6 @@ public class AndroidBoxManager implements BoxManager {
     @Override
     public File downloadDecrypted(String prefix, String name, byte[] key, BoxTransferListener boxTransferListener) throws QblStorageException {
         File downloadedFile = blockingDownload(prefix, name, boxTransferListener);
-
         File outputFile = transferManager.createTempFile();
         decryptFile(key, downloadedFile, outputFile);
         return outputFile;

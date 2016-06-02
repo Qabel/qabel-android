@@ -247,7 +247,7 @@ public class BoxProvider extends DocumentsProvider {
             }
             BoxNavigation navigation = volume.navigate();
             navigation.navigate(documentId.getPathString());
-            if(navigation.getFile(documentId.getFileName(), false) == null){
+            if (navigation.getFile(documentId.getFileName(), false) == null) {
                 return null;
             }
             Log.d(TAG, "Inserting basename " + documentId.getFileName());
@@ -479,11 +479,19 @@ public class BoxProvider extends DocumentsProvider {
                         @Override
                         protected String doInBackground(Void... params) {
                             try {
-                                boxManager.uploadEncrypted(documentId, tmp);
-                            } catch (QblStorageException e1) {
-                                Log.e(TAG, "Cannot upload file!");
+                                DocumentId documentId1 = mDocumentIdParser.parse(documentId);
+                                String path = documentId1.getFilePath();
+                                BoxVolume volume = getVolumeForRoot(documentId1.getIdentityKey(),
+                                        documentId1.getPrefix());
+                                BoxNavigation boxNavigation = volume.navigate();
+                                boxNavigation.navigate(path);
+                                boxNavigation.upload(documentId1.getFileName(),
+                                        new FileInputStream(tmp));
+                                boxNavigation.commit();
+                            } catch (FileNotFoundException | QblStorageException e1) {
+                                Log.e(TAG, "Cannot upload file!", e);
                             }
-                           Log.d(TAG,"UPLOAD DONE");
+                            Log.d(TAG, "UPLOAD DONE");
                             return documentId;
                         }
                     }.execute();
@@ -604,7 +612,7 @@ public class BoxProvider extends DocumentsProvider {
             BoxNavigation navigation = volume.navigate();
 
             String[] newPath = Arrays.copyOf(splitPath, splitPath.length + 1);
-            newPath[newPath.length-1] = displayName;
+            newPath[newPath.length - 1] = displayName;
 
             String renamedId = mDocumentIdParser.buildId(
                     mDocumentIdParser.getIdentity(documentId),

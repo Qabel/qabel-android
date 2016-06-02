@@ -43,8 +43,6 @@ public class MockBoxProvider extends BoxProvider {
 
     private void setParametersForTests() {
         prefix = TestConstants.PREFIX;
-        CryptoUtils utils = new CryptoUtils();
-        deviceID = utils.getRandomBytes(16);
         keyPair = new QblECKeyPair(Hex.decode(PRIVATE_KEY));
         rootDocId = PUB_KEY + BoxProvider.DOCID_SEPARATOR + prefix + BoxProvider.DOCID_SEPARATOR
                 + BoxProvider.PATH_SEP;
@@ -73,9 +71,10 @@ public class MockBoxProvider extends BoxProvider {
         boxManager = new AndroidBoxManager(context,
                 new AndroidStorageNotificationManager(new AndroidStorageNotificationPresenter(context)),
                 new DocumentIdParser(),
-                new AppPreference(context),
+                appPrefereces,
                 new FakeTransferManager(context.getExternalCacheDir()),
                 identityRepository);
+        deviceID = appPrefereces.getDeviceId();
     }
 }
 

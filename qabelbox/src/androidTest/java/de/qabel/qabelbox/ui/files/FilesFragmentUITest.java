@@ -77,8 +77,6 @@ public class FilesFragmentUITest extends FilesFragmentUITestBase {
 
         mBoxHelper.setActiveIdentity(identity);
 
-        mBoxHelper.createFolder(TEST_FOLDER, testIdentity, null);
-
         addExampleFiles(identity, exampleFiles);
     }
 

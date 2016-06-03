@@ -83,8 +83,7 @@ public class FilesFragmentUITest extends FilesFragmentUITestBase {
     @Override
     public void cleanUp() {
         try {
-            mBoxHelper.deleteIdentity(testIdentity);
-            mBoxHelper.deleteIdentity(testIdentity2);
+            mBoxHelper.removeAllIdentities();
         } catch (Exception e) {
             //TODO Bad
         }

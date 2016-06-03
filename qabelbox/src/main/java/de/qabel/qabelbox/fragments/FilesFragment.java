@@ -31,6 +31,7 @@ import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.adapter.FilesAdapter;
 import de.qabel.qabelbox.dagger.components.MainActivityComponent;
 import de.qabel.qabelbox.exceptions.QblStorageException;
+import de.qabel.qabelbox.exceptions.QblStorageNotFound;
 import de.qabel.qabelbox.helper.UIHelper;
 import de.qabel.qabelbox.services.StorageBroadcastConstants;
 import de.qabel.qabelbox.storage.BoxManager;
@@ -136,8 +137,7 @@ public class FilesFragment extends FilesFragmentBase {
             protected Void doInBackground(Void... params) {
                 try {
                     setBoxNavigation(mBoxVolume.navigate());
-                } catch (QblStorageException e) {
-                    e.printStackTrace();
+                } catch (QblStorageNotFound e) {
                     Log.w(TAG, "Cannot navigate to root. maybe first initialization", e);
                     try {
                         mBoxVolume.createIndex();
@@ -147,8 +147,15 @@ public class FilesFragment extends FilesFragmentBase {
                         cancel(true);
                         return null;
                     }
+                } catch (QblStorageException e) {
+                    getActivity().runOnUiThread(() ->
+                            Toast.makeText(getActivity(),
+                                    R.string.error_reason_io, Toast.LENGTH_LONG)
+                    );
+                    cancel(true);
+                    return null;
                 }
-                if (targetPath != null) {
+                if (boxNavigation != null && targetPath != null) {
                     try {
                         boxNavigation.navigate(targetPath);
                     } catch (QblStorageException e) {
@@ -165,6 +172,12 @@ public class FilesFragment extends FilesFragmentBase {
                 super.onPostExecute(aVoid);
                 setIsLoading(false);
                 notifyFilesAdapterChanged();
+            }
+
+            @Override
+            protected void onCancelled() {
+                setIsLoading(false);
+                super.onCancelled();
             }
         }.executeOnExecutor(serialExecutor);
     }

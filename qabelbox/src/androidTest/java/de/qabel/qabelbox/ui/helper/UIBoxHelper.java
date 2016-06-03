@@ -280,4 +280,8 @@ public class UIBoxHelper {
     public ContactRepository getContactRepository() {
         return contactRepository;
     }
+
+    public BoxManager getBoxManager(){
+        return this.boxManager;
+    }
  }

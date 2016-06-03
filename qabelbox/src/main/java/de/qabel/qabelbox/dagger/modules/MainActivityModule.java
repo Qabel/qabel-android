@@ -2,6 +2,7 @@ package de.qabel.qabelbox.dagger.modules;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.util.Log;
 
 import dagger.Module;
 import dagger.Provides;
@@ -52,7 +53,8 @@ public class MainActivityModule {
                 if(keyId != null){
                     return identityRepository.find(keyId);
                 }else {
-                    throw new PersistenceException("Not last active identity found");
+                    Log.w("MainActivityModule", "No last-active identity found");
+                    throw new PersistenceException("No last active identity found");
                 }
             } catch (EntityNotFoundExcepion | PersistenceException entityNotFoundExcepion) {
                 try {

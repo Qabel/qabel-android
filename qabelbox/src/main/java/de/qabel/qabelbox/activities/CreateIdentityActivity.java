@@ -43,7 +43,7 @@ public class CreateIdentityActivity extends BaseWizardActivity {
     public static final int REQUEST_CODE_IMPORT_IDENTITY = 1;
     /**
      * Fake the prefix request
-     * <p>
+     *
      * This is set by the QblJUnitTestRunner to prevent network requests to the block server
      * in test runs.
      */

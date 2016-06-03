@@ -12,6 +12,7 @@ import de.qabel.qabelbox.ui.idling.InjectedIdlingResource;
 
 public abstract class FilesFragmentUITestBase extends AbstractUITest {
 
+    protected boolean autoLaunch = true;
     private InjectedIdlingResource idlingResource;
 
     protected class ExampleFile {
@@ -42,9 +43,12 @@ public abstract class FilesFragmentUITestBase extends AbstractUITest {
     public void setUp() throws Throwable {
         super.setUp();
         setupData();
-        Intent intent = new Intent(mContext, MainActivity.class);
-        intent.putExtra(MainActivity.ACTIVE_IDENTITY, identity.getKeyIdentifier());
-        launchActivity(intent);
+        if(autoLaunch) {
+            Intent intent = new Intent(mContext, MainActivity.class);
+            intent.putExtra(MainActivity.ACTIVE_IDENTITY, mBoxHelper.
+                    getCurrentIdentity().getKeyIdentifier());
+            launchActivity(intent);
+        }
         idlingResource = new InjectedIdlingResource();
         Espresso.registerIdlingResources(idlingResource);
     }

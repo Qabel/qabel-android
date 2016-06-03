@@ -57,10 +57,9 @@ public class ImportExportContactsUITest extends AbstractUITest {
 
         createTestContacts();
 
-        Intent intent = new Intent(Intent.ACTION_MAIN);
-        intent.putExtra(MainActivity.START_CONTACTS_FRAGMENT, true);
+        Intent intent = new Intent(mContext, MainActivity.class);
         intent.putExtra(MainActivity.START_FILES_FRAGMENT, false);
-        intent.putExtra(MainActivity.ACTIVE_IDENTITY, identity.getKeyIdentifier());
+        intent.putExtra(MainActivity.START_CONTACTS_FRAGMENT, true);
         launchActivity(intent);
     }
 

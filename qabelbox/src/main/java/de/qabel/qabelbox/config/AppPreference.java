@@ -86,7 +86,7 @@ public class AppPreference {
                 byte[] deviceIDBytes = cryptoUtils.getRandomBytes(NUM_BYTES_DEVICE_ID);
                 deviceID = Hex.toHexString(deviceIDBytes);
             }
-            settings.edit().putString(P_DEVICE_ID, deviceID);
+            settings.edit().putString(P_DEVICE_ID, deviceID).commit();
         }
         return Hex.decode(deviceID);
     }
@@ -101,7 +101,7 @@ public class AppPreference {
     }
 
     public void setLastActiveIdentityKey(String identityKey) {
-        settings.edit().putString(P_LAST_ACTIVE_IDENTITY, identityKey);
+        settings.edit().putString(P_LAST_ACTIVE_IDENTITY, identityKey).commit();
     }
 
 }

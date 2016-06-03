@@ -1,4 +1,4 @@
-package de.qabel.qabelbox.dagger.test;
+package de.qabel.qabelbox.util;
 
 
 import javax.inject.Inject;

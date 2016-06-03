@@ -29,7 +29,7 @@ import de.qabel.qabelbox.storage.model.BoxObject;
 import de.qabel.qabelbox.storage.navigation.BoxNavigation;
 import de.qabel.qabelbox.test.TestConstants;
 import de.qabel.qabelbox.test.files.FileHelper;
-import de.qabel.qabelbox.dagger.test.BoxTestHelper;
+import de.qabel.qabelbox.util.BoxTestHelper;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertEquals;

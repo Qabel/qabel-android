@@ -7,18 +7,13 @@ import android.content.pm.ProviderInfo;
 import org.spongycastle.util.encoders.Hex;
 
 import java.util.ArrayList;
-import java.util.UUID;
 
 import de.qabel.core.config.Identities;
 import de.qabel.core.config.Identity;
-import de.qabel.core.crypto.CryptoUtils;
 import de.qabel.core.crypto.QblECKeyPair;
 import de.qabel.desktop.repository.IdentityRepository;
 import de.qabel.qabelbox.BuildConfig;
-import de.qabel.qabelbox.TestApplication;
 import de.qabel.qabelbox.TestConstants;
-import de.qabel.qabelbox.config.AppPreference;
-import de.qabel.qabelbox.dagger.test.BoxTestHelper;
 import de.qabel.qabelbox.persistence.RepositoryFactory;
 import de.qabel.qabelbox.storage.AndroidBoxManager;
 import de.qabel.qabelbox.storage.notifications.AndroidStorageNotificationManager;

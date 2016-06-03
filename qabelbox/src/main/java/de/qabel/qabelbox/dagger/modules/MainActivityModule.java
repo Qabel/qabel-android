@@ -37,26 +37,29 @@ public class MainActivityModule {
         return mainActivity;
     }
 
-    @Provides Identity provideActiveIdentity(IdentityRepository identityRepository,
-                                             AppPreference sharedPreferences) {
+    @Provides
+    Identity provideActiveIdentity(IdentityRepository identityRepository,
+                                   AppPreference sharedPreferences) {
         String identityKeyId = mainActivity.getIntent().getStringExtra(ACTIVE_IDENTITY);
+        Identity activeIdentity = null;
         if (identityKeyId != null) {
             try {
-                return identityRepository.find(identityKeyId);
+                activeIdentity = identityRepository.find(identityKeyId);
             } catch (EntityNotFoundExcepion | PersistenceException entityNotFoundExcepion) {
-                throw new IllegalStateException(
-                        "Could not activate identity with key id " + identityKeyId);
+                Log.w("MainActivityModule", "Given Identity not found (" + identityKeyId + ")");
             }
-        } else {
+        }
+        if (activeIdentity == null) {
             String keyId = sharedPreferences.getLastActiveIdentityKey();
             try {
-                if(keyId != null){
-                    return identityRepository.find(keyId);
-                }else {
-                    Log.w("MainActivityModule", "No last-active identity found");
-                    throw new PersistenceException("No last active identity found");
+                if (keyId != null) {
+                    activeIdentity = identityRepository.find(keyId);
                 }
             } catch (EntityNotFoundExcepion | PersistenceException entityNotFoundExcepion) {
+                Log.w("MainActivityModule", "Last-active identity not found");
+            }
+
+            if (activeIdentity == null) {
                 try {
                     Identities identities = identityRepository.findAll();
                     if (identities.getIdentities().size() == 0) {
@@ -68,24 +71,28 @@ public class MainActivityModule {
                 }
             }
         }
+        return activeIdentity;
     }
 
-    @Provides SharedPreferences provideSharedPreferences() {
+    @Provides
+    SharedPreferences provideSharedPreferences() {
         return mainActivity.getSharedPreferences(
                 "LocalQabelService", Context.MODE_PRIVATE);
     }
 
-    @ActivityScope @Provides Navigator provideNavigator(MainNavigator navigator) {
+    @ActivityScope
+    @Provides
+    Navigator provideNavigator(MainNavigator navigator) {
         return navigator;
     }
 
     @Provides
-    BoxVolume provideBoxVolume(BoxManager boxManager, Identity activeIdentity){
+    BoxVolume provideBoxVolume(BoxManager boxManager, Identity activeIdentity) {
         try {
             if (activeIdentity != null) {
                 return boxManager.createBoxVolume(activeIdentity);
             }
-        }catch (QblStorageException e){
+        } catch (QblStorageException e) {
             throw new IllegalStateException("Starting MainActivity without Volume");
         }
         return null;

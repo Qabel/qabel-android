@@ -1,5 +1,6 @@
 package de.qabel.qabelbox;
 
+import android.content.Context;
 import android.content.ServiceConnection;
 
 import org.robolectric.shadows.ShadowLog;
@@ -18,6 +19,11 @@ public class RoboApplication extends TestApplication {
         new AppPreference(this).setToken(TestConstants.TOKEN);
         super.onCreate();
         ShadowLog.stream = System.out;
+    }
+
+    @Override
+    protected void installMultiDex(Context base) {
+        // not needed for robolectric
     }
 
     @Override

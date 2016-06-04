@@ -18,21 +18,16 @@ import okhttp3.Response;
 public class AccountManager {
 
     private static final String TAG = AccountManager.class.getSimpleName();
-    private static final String VERSION_KEY = "accountVersion";
 
     private Context context;
     private AppPreference preferences;
     private BlockServer blockServer;
     private BoxAccountRegisterServer accountRegisterServer;
 
-    private long version = 0;
-
     private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            if (!intent.hasExtra(VERSION_KEY) || intent.getLongExtra(VERSION_KEY, 0) != version) {
-                refreshQuota();
-            }
+            refreshQuota();
         }
     };
 
@@ -43,7 +38,7 @@ public class AccountManager {
         this.blockServer = blockServer;
         this.accountRegisterServer = registerServer;
         context.registerReceiver(broadcastReceiver,
-                new IntentFilter(QblBroadcastConstants.Account.ACCOUNT_CHANGED));
+                new IntentFilter(QblBroadcastConstants.Storage.BOX_CHANGED));
     }
 
     public void refreshQuota() {
@@ -56,8 +51,7 @@ public class AccountManager {
             @Override
             protected void onSuccess(Response response, BoxQuota model) {
                 preferences.setBoxQuota(model);
-                version++;
-                broadcastAccountChanged(version);
+                broadcastAccountChanged();
             }
 
             @Override
@@ -67,16 +61,13 @@ public class AccountManager {
         });
     }
 
-    private void broadcastAccountChanged(long version) {
-        System.out.println("SEND BROADCAST");
-        Intent intent = new Intent(QblBroadcastConstants.Account.ACCOUNT_CHANGED);
-        intent.putExtra(VERSION_KEY, version);
-        context.sendBroadcast(intent);
+    private void broadcastAccountChanged() {
+        context.sendBroadcast(new Intent(QblBroadcastConstants.Account.ACCOUNT_CHANGED));
     }
 
-    public BoxQuota getBoxQuota(){
+    public BoxQuota getBoxQuota() {
         BoxQuota quota = preferences.getBoxQuota();
-        if(quota.getQuota() < 0){
+        if (quota.getQuota() < 0) {
             refreshQuota();
         }
         return quota;

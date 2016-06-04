@@ -6,6 +6,7 @@ public class QblBroadcastConstants {
 
     public class Storage {
         public static final String BOX_VOLUMES_CHANGES = PREFIX + "boxVolumesChanged";
+        public static final String BOX_CHANGED = PREFIX + "boxChanged";
         public static final String BOX_UPLOAD_CHANGED = PREFIX + "boxUploadChanged";
     }
 

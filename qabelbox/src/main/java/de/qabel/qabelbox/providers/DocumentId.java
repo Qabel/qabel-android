@@ -33,6 +33,9 @@ public class DocumentId {
     }
 
     public String getPathString() {
+        if(path.length == 0){
+            return PATH_SEPARATOR;
+        }
         return StringUtils.join(PATH_SEPARATOR, path);
     }
 

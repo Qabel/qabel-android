@@ -2,20 +2,28 @@ package de.qabel.qabelbox.config;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.util.Log;
 
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.spongycastle.util.encoders.Hex;
 
 import de.qabel.core.crypto.CryptoUtils;
+import de.qabel.qabelbox.persistence.SimpleJSONModel;
 import de.qabel.qabelbox.services.LocalQabelService;
+import de.qabel.qabelbox.storage.model.BoxQuota;
 
 public class AppPreference {
 
+    private static final String TAG = AppPreference.class.getSimpleName();
     private static final int NUM_BYTES_DEVICE_ID = 16;
 
     private static final String P_DEVICE_ID = "PREF_DEVICE_ID";
     private static final String P_TOKEN = "token";
     private static final String P_ACCOUNT_NAME = "boxaccount";
     private static final String P_ACCOUNT_EMAIL = "boxemail";
+    private static final String P_ACCOUNT_QUOTA = "boxquota";
+
     private static final String P_LAST_APP_START_VERSION = "lastappstartversion";
     private static final String P_WELCOME_SCREEN_SHOWN_AT = "welcomescreenshownat";
     private static final String P_LAST_ACTIVE_IDENTITY = "P_LAST_ACTIVE_IDENTITY";
@@ -102,6 +110,35 @@ public class AppPreference {
 
     public void setLastActiveIdentityKey(String identityKey) {
         settings.edit().putString(P_LAST_ACTIVE_IDENTITY, identityKey).commit();
+    }
+
+    public BoxQuota getBoxQuota() {
+        return getJsonModel(P_ACCOUNT_QUOTA, new BoxQuota());
+    }
+
+    public void setBoxQuota(BoxQuota boxQuota) {
+        putJsonModel(P_ACCOUNT_QUOTA, boxQuota);
+    }
+
+    private <T extends SimpleJSONModel> void putJsonModel(String key, T model) {
+        try {
+            this.settings.edit().putString(key, model.toJson().toString()).commit();
+        } catch (JSONException e) {
+            Log.e(TAG, "Error writing model to preferences");
+        }
+    }
+
+    private <T extends SimpleJSONModel> T getJsonModel(String key, T model) {
+        String json = settings.getString(key, null);
+        try {
+            if (json != null && !json.isEmpty()) {
+                model.fromJson(new JSONObject(json));
+                return model;
+            }
+        } catch (JSONException e) {
+            Log.e(TAG, "Error reading model from preferences", e);
+        }
+        return model;
     }
 
 }

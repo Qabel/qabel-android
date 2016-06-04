@@ -10,6 +10,7 @@ import de.qabel.qabelbox.dagger.modules.ActivityModule;
 import de.qabel.qabelbox.dagger.modules.ApplicationModule;
 import de.qabel.qabelbox.dagger.modules.RepositoryModule;
 import de.qabel.qabelbox.dagger.modules.StorageModule;
+import de.qabel.qabelbox.fragments.SettingsFragment;
 import de.qabel.qabelbox.services.HttpDropConnector;
 
 @Component(modules = {ApplicationModule.class, RepositoryModule.class, StorageModule.class})
@@ -20,4 +21,6 @@ public interface ApplicationComponent {
     ActivityComponent plus(ActivityModule activityModule);
 
     void inject(QabelSyncAdapter syncAdapter);
+
+    void inject(SettingsFragment settingsFragment);
 }

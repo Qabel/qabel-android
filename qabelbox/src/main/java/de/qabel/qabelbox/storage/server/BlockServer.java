@@ -19,4 +19,6 @@ public interface BlockServer {
     void deleteFile(String prefix, String path, RequestCallback callback);
 
     void getQuota(JSONModelCallback<BoxQuota> callback);
+
+    int getNextId();
 }

@@ -344,4 +344,10 @@ To all people who have supported our Indigogo Campaign
     <string name="downloading">Downloading %s ...</string>
     <string name="download_complete">Download complete</string>
     <string name="download_complete_msg">Download %s completed</string>
+
+    <string name="settings_title_box_quota">Storage</string>
+    <string name="used_storage">%1$s of %2$s in use </string>
+    <string name="unlimited_storage">unlimited storage, %1$s in use</string>
+    <string name="download_complete_notification_msg">Downloading %s completed</string>
+    <string name="currently_not_available">aktuell nicht verfügbar</string>
 </resources>

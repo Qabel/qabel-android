@@ -19,6 +19,7 @@ import de.qabel.qabelbox.storage.server.AndroidBlockServer;
 import de.qabel.qabelbox.communication.callbacks.DownloadRequestCallback;
 import de.qabel.qabelbox.communication.callbacks.RequestCallback;
 import de.qabel.qabelbox.communication.callbacks.UploadRequestCallback;
+import de.qabel.qabelbox.storage.server.BlockServer;
 import okhttp3.Response;
 
 public class BlockServerTransferManager implements TransferManager {
@@ -28,20 +29,16 @@ public class BlockServerTransferManager implements TransferManager {
     private final File tempDir;
     private final Map<Integer, CountDownLatch> latches;
     private final Map<Integer, Exception> errors;
-    private final AndroidBlockServer blockServer;
+    private final BlockServer blockServer;
     private final Context context;
 
-    public BlockServerTransferManager(File tempDir) {
-        this(QabelBoxApplication.getInstance().getApplicationContext(), tempDir);
-    }
-
-    public BlockServerTransferManager(Context context, File tmpDir){
+    public BlockServerTransferManager(Context context, BlockServer blockServer, File tmpDir){
         this.tempDir = tmpDir;
         latches = new ConcurrentHashMap<>();
         errors = new HashMap<>();
 
         this.context = context;
-        blockServer = new AndroidBlockServer(context);
+        this.blockServer = blockServer;
     }
 
     @Override

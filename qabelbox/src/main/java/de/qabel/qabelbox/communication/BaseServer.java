@@ -37,7 +37,11 @@ public class BaseServer {
      * create new instance of http client and set timeouts
      */
     public BaseServer(Context context) {
+        this(new AppPreference(context), context);
+    }
 
+    public BaseServer(AppPreference preferences, Context context){
+        this.preferences = preferences;
         connectivityManager = new ConnectivityManager(context);
         connectivityManager.setListener(new ConnectivityManager.ConnectivityListener() {
             @Override
@@ -82,7 +86,6 @@ public class BaseServer {
         builder.readTimeout(15, TimeUnit.SECONDS);    // socket timeout
         builder.writeTimeout(10, TimeUnit.SECONDS);
         client = builder.build();
-        preferences = new AppPreference(context);
     }
 
     protected String getToken(){
@@ -107,12 +110,9 @@ public class BaseServer {
         });
 
         if (connectivityManager.isConnected()) {
-            System.out.println("EXECUTE");
             Call call = client.newCall(request);
             call.enqueue(callback);
             requestAction.setCall(call);
-        }else {
-            System.out.println("NOT CONNECTED");
         }
         requestActionQueue.add(requestAction);
     }

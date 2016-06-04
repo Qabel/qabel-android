@@ -16,6 +16,8 @@ import de.qabel.qabelbox.storage.BoxManager;
 import de.qabel.qabelbox.storage.notifications.AndroidStorageNotificationManager;
 import de.qabel.qabelbox.storage.notifications.AndroidStorageNotificationPresenter;
 import de.qabel.qabelbox.storage.notifications.StorageNotificationManager;
+import de.qabel.qabelbox.storage.server.AndroidBlockServer;
+import de.qabel.qabelbox.storage.server.BlockServer;
 import de.qabel.qabelbox.storage.transfer.BlockServerTransferManager;
 import de.qabel.qabelbox.storage.transfer.TransferManager;
 
@@ -38,12 +40,12 @@ public class StorageModule {
     }
 
     @Provides
-    public TransferManager providesTransferManager(Context context, File tmpFile){
-        return createTransferManager(context, tmpFile);
+    public TransferManager providesTransferManager(Context context,BlockServer blockServer, File tmpFile){
+        return createTransferManager(context,blockServer, tmpFile);
     }
 
-    protected TransferManager createTransferManager(Context context, File tmpFile){
-        return new BlockServerTransferManager(context, tmpFile);
+    protected TransferManager createTransferManager(Context context, BlockServer blockServer, File tmpFile){
+        return new BlockServerTransferManager(context, blockServer, tmpFile);
     }
 
     @Singleton @Provides BoxManager providesBoxManager(Context context,
@@ -54,6 +56,11 @@ public class StorageModule {
                                                        IdentityRepository identityRepository){
         return new AndroidBoxManager(context, notificationManager,
                 documentIdParser, preferences, transferManager, identityRepository);
+    }
+
+    @Singleton @Provides
+    BlockServer providesBlockServer(AppPreference preference, Context context){
+        return new AndroidBlockServer(preference, context);
     }
 
 }

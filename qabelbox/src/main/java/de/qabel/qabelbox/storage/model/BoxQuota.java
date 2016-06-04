@@ -11,8 +11,8 @@ public class BoxQuota extends SimpleJSONModel {
     private static final String KEY_QUOTA = "quota";
 
 
-    private long size;
-    private long quota;
+    private long size = 0;
+    private long quota = -1;
 
     public long getSize() {
         return size;

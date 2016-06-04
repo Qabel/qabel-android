@@ -23,11 +23,9 @@ public class AndroidBlockServer extends BaseServer implements BlockServer {
     public static final String BLOCKS = "blocks/";
     private int currentId = 0;
     private final int suffixId;
-    private AppPreference preferences;
 
-    public AndroidBlockServer(Context context) {
-        super(context);
-        preferences = new AppPreference(context);
+    public AndroidBlockServer(AppPreference preference, Context context) {
+        super(preference, context);
         //maybe it can be bether to create a unique id. but normally we have only one instance in boxvolume of blockserver so it should no collision occurs
         suffixId = (this.getClass().hashCode() % 0xffff) * 0x10000;
     }
@@ -48,7 +46,7 @@ public class AndroidBlockServer extends BaseServer implements BlockServer {
 
         builder = builder.method(method, body);
 
-        addHeader(preferences.getToken(), builder);
+        addHeader(getToken(), builder);
         Request request = builder.build();
         Log.v(TAG, "blockserver request " + request.toString());
 
@@ -73,9 +71,10 @@ public class AndroidBlockServer extends BaseServer implements BlockServer {
     @Override
     public void getQuota(JSONModelCallback<BoxQuota> callback) {
         String url = getUrls().getBaseBlock() + BlockServer.API_QUOTA;
-        doServerAction(url, null, callback, preferences.getToken());
+        doServerAction(url, null, callback, getToken());
     }
 
+    @Override
     public synchronized int getNextId() {
         return (suffixId + (currentId++) + (int) (System.currentTimeMillis()) % 1000000);
     }

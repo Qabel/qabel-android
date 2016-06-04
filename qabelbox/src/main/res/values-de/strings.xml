@@ -295,4 +295,10 @@ Den Unterstützern der Indigogo Kampagne
     <string name="download_complete">Herunterladen abgeschlossen</string>
     <string name="download_complete_msg">%s wurde heruntergeladen</string>
     <string name="download_complete_notification_msg">Hochladen %s abgeschlossen</string>
+
+
+    <string name="settings_title_box_quota">Speicher</string>
+    <string name="used_storage">%1$s von %2$s belegt</string>
+    <string name="unlimited_storage">unbegrenzter Speicher, %1$s belegt</string>
+    <string name="currently_not_available">currently not available</string>
 </resources>

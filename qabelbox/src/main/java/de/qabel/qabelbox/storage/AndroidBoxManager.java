@@ -116,9 +116,7 @@ public class AndroidBoxManager implements BoxManager {
     @Override
     public List<BoxUploadingFile> getPendingUploads(String path) {
         List<BoxUploadingFile> uploadingFiles = new LinkedList<>();
-        Iterator<BoxUploadingFile> it = uploadingQueue.iterator();
-        while(it.hasNext()) {
-            BoxUploadingFile f = it.next();
+        for (BoxUploadingFile f : uploadingQueue) {
             if (f.getPath().equals(path)) {
                 uploadingFiles.add(f);
             }

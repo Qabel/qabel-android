@@ -6,6 +6,7 @@ import javax.inject.Singleton;
 
 import dagger.Component;
 import de.qabel.qabelbox.adapter.QabelSyncAdapter;
+import de.qabel.qabelbox.dagger.modules.AccountModule;
 import de.qabel.qabelbox.dagger.modules.ActivityModule;
 import de.qabel.qabelbox.dagger.modules.ApplicationModule;
 import de.qabel.qabelbox.dagger.modules.RepositoryModule;
@@ -13,7 +14,7 @@ import de.qabel.qabelbox.dagger.modules.StorageModule;
 import de.qabel.qabelbox.fragments.SettingsFragment;
 import de.qabel.qabelbox.services.HttpDropConnector;
 
-@Component(modules = {ApplicationModule.class, RepositoryModule.class, StorageModule.class})
+@Component(modules = {ApplicationModule.class, RepositoryModule.class, AccountModule.class, StorageModule.class})
 @Singleton
 public interface ApplicationComponent {
     Context context();

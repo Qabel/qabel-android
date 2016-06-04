@@ -1,8 +1,11 @@
 package de.qabel.qabelbox.fragments;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.preference.PreferenceFragment;
-import android.support.annotation.Nullable;
 import android.view.View;
 
 import net.hockeyapp.android.FeedbackManager;
@@ -11,22 +14,25 @@ import org.apache.commons.io.FileUtils;
 
 import javax.inject.Inject;
 
+import de.qabel.qabelbox.QblBroadcastConstants;
 import de.qabel.qabelbox.R;
+import de.qabel.qabelbox.account.AccountManager;
 import de.qabel.qabelbox.activities.BaseActivity;
-import de.qabel.qabelbox.communication.callbacks.JSONModelCallback;
-import de.qabel.qabelbox.config.AppPreference;
 import de.qabel.qabelbox.storage.model.BoxQuota;
-import de.qabel.qabelbox.storage.server.BlockServer;
-import okhttp3.Response;
 
 public class SettingsFragment extends PreferenceFragment {
 
     final public static String APP_PREF_NAME = "settings";
 
     @Inject
-    AppPreference preferences;
-    @Inject
-    BlockServer blockServer;
+    AccountManager accountManager;
+
+    private BroadcastReceiver accountBroadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            refreshQuota();
+        }
+    };
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -53,33 +59,24 @@ public class SettingsFragment extends PreferenceFragment {
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         ((BaseActivity)getActivity()).getApplicationComponent().inject(this);
+        refreshQuota();
+    }
 
-        BoxQuota quota = preferences.getBoxQuota();
-        if (quota.getQuota() < 0) {
-            blockServer.getQuota(new JSONModelCallback<BoxQuota>() {
-                @Override
-                protected BoxQuota createModel() {
-                    return new BoxQuota();
-                }
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        getActivity().registerReceiver(accountBroadcastReceiver,
+                new IntentFilter(QblBroadcastConstants.Account.ACCOUNT_CHANGED));
+    }
 
-                @Override
-                protected void onSuccess(Response response, BoxQuota model) {
-                    preferences.setBoxQuota(model);
-                    getActivity().runOnUiThread(() -> refreshQuota());
-                }
-
-                @Override
-                protected void onError(Exception e, @Nullable Response response) {
-                    refreshQuota();
-                }
-            });
-        } else {
-            refreshQuota();
-        }
+    @Override
+    public void onDetach() {
+        getActivity().unregisterReceiver(accountBroadcastReceiver);
+        super.onDetach();
     }
 
     private void refreshQuota() {
-        BoxQuota quota = preferences.getBoxQuota();
+        BoxQuota quota = accountManager.getBoxQuota();
         String summaryLabel;
         String usedStorage = FileUtils.byteCountToDisplaySize(quota.getSize());
         if(quota.getQuota() < 0){

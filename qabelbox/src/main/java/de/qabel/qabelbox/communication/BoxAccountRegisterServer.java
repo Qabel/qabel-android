@@ -32,8 +32,12 @@ public class BoxAccountRegisterServer extends BaseServer {
     private static final String JSON_PASSWORD_NEW_1 = "new_password1";
     private static final String JSON_PASSWORD_NEW_2 = "new_password2";
 
+    @Deprecated
     public BoxAccountRegisterServer(Context context){
         super(context);
+    }
+    public BoxAccountRegisterServer(Context context, AppPreference preference){
+        super(preference, context);
     }
 
     private void doServerAction(String url, JSONObject json, JsonRequestCallback callback) {

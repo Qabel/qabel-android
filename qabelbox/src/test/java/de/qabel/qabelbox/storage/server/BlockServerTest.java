@@ -12,6 +12,7 @@ import org.robolectric.annotation.Config;
 import de.qabel.qabelbox.BuildConfig;
 import de.qabel.qabelbox.SimpleApplication;
 import de.qabel.qabelbox.communication.callbacks.JSONModelCallback;
+import de.qabel.qabelbox.config.AppPreference;
 import de.qabel.qabelbox.storage.model.BoxQuota;
 import de.qabel.qabelbox.util.TestHelper;
 import okhttp3.Response;
@@ -28,7 +29,8 @@ public class BlockServerTest {
 
     @Before
     public void setUp() {
-        blockServer = new AndroidBlockServer(RuntimeEnvironment.application);
+        blockServer = new AndroidBlockServer(new AppPreference(RuntimeEnvironment.application),
+                RuntimeEnvironment.application);
     }
 
     @Test

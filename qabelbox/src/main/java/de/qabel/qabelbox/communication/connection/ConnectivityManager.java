@@ -15,7 +15,7 @@ public class ConnectivityManager {
         public void onReceive(Context context, Intent intent) {
             if (listener != null) {
                 if (isConnected()) {
-                    listener.handleConnectionEtablished();
+                    listener.handleConnectionEstablished();
                 } else {
                     listener.handleConnectionLost();
                 }
@@ -55,7 +55,7 @@ public class ConnectivityManager {
 
         void handleConnectionLost();
 
-        void handleConnectionEtablished();
+        void handleConnectionEstablished();
 
         void onDestroy();
     }

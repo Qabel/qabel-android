@@ -1,4 +1,4 @@
-package de.qabel.qabelbox.storage;
+package de.qabel.qabelbox.storage.transfer;
 
 
 import junit.framework.Assert;
@@ -6,13 +6,10 @@ import junit.framework.Assert;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.Robolectric;
 import org.robolectric.RobolectricGradleTestRunner;
 import org.robolectric.annotation.Config;
-import org.robolectric.shadows.ShadowNetwork;
 
 import java.io.File;
 import java.io.IOException;
@@ -23,8 +20,6 @@ import de.qabel.qabelbox.SimpleApplication;
 import de.qabel.qabelbox.TestConstants;
 import de.qabel.qabelbox.communication.URLs;
 import de.qabel.qabelbox.exceptions.QblStorageException;
-import de.qabel.qabelbox.storage.transfer.BlockServerTransferManager;
-import de.qabel.qabelbox.storage.transfer.BoxTransferListener;
 import de.qabel.qabelbox.test.files.FileHelper;
 
 import static junit.framework.Assert.assertEquals;

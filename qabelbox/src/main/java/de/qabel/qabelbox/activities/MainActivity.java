@@ -338,7 +338,7 @@ public class MainActivity extends CrashReportingActivity
             }
 
             @Override
-            public void handleConnectionEtablished() {
+            public void handleConnectionEstablished() {
                 if (offlineIndicator != null && offlineIndicator.isShowing()) {
                     offlineIndicator.dismiss();
                     offlineIndicator = null;

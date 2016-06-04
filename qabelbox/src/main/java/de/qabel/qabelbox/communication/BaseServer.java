@@ -12,19 +12,23 @@ import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
+import de.qabel.qabelbox.communication.callbacks.JsonRequestCallback;
 import de.qabel.qabelbox.communication.callbacks.RequestCallback;
 import de.qabel.qabelbox.communication.connection.ConnectivityManager;
+import de.qabel.qabelbox.config.AppPreference;
 import okhttp3.Call;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
+import okhttp3.RequestBody;
 
 public class BaseServer {
 
     protected final OkHttpClient client;
     protected final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
     private static final String TAG = "BaseServer";
-    URLs urls;
+    private URLs urls;
+    private AppPreference preferences;
 
     private ConnectivityManager connectivityManager;
     private List<RequestAction> requestActionQueue = new LinkedList<>();
@@ -48,7 +52,7 @@ public class BaseServer {
             }
 
             @Override
-            public void handleConnectionEtablished() {
+            public void handleConnectionEstablished() {
                 if (!requestActionQueue.isEmpty()) {
                     List<RequestAction> failedActions = new LinkedList<RequestAction>();
                     for (RequestAction action : requestActionQueue) {
@@ -78,6 +82,11 @@ public class BaseServer {
         builder.readTimeout(15, TimeUnit.SECONDS);    // socket timeout
         builder.writeTimeout(10, TimeUnit.SECONDS);
         client = builder.build();
+        preferences = new AppPreference(context);
+    }
+
+    protected String getToken(){
+        return preferences.getToken();
     }
 
     protected void doRequest(final Request request, RequestCallback callback) {
@@ -98,9 +107,12 @@ public class BaseServer {
         });
 
         if (connectivityManager.isConnected()) {
+            System.out.println("EXECUTE");
             Call call = client.newCall(request);
             call.enqueue(callback);
             requestAction.setCall(call);
+        }else {
+            System.out.println("NOT CONNECTED");
         }
         requestActionQueue.add(requestAction);
     }
@@ -119,6 +131,18 @@ public class BaseServer {
         if (token != null) {
             builder.addHeader("Authorization", "Token " + token);
         }
+    }
+
+    protected void doServerAction(String url, JSONObject json, JsonRequestCallback callback, String token) {
+        Request.Builder builder = new Request.Builder()
+                .url(url);
+        if (json != null) {
+            RequestBody body = RequestBody.create(JSON, json.toString());
+            builder.post(body);
+        }
+        addHeader(token, builder);
+        final Request request = builder.build();
+        doRequest(request, callback);
     }
 
     /**
@@ -148,5 +172,9 @@ public class BaseServer {
             }
         }
         return resultString;
+    }
+
+    protected URLs getUrls() {
+        return urls;
     }
 }

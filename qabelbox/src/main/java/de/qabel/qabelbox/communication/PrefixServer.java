@@ -24,7 +24,7 @@ public class PrefixServer extends BaseServer {
     }
 
     public void getPrefix(Context context, JsonRequestCallback callback) {
-        doServerAction(getUrls().getPrefix(), null, callback, getToken());
+        doServerAction(getUrls().getPrefix(), new JSONObject(), callback, getToken());
     }
 
     /**

@@ -11,6 +11,7 @@ import de.qabel.qabelbox.QblBroadcastConstants;
 import de.qabel.qabelbox.communication.BoxAccountRegisterServer;
 import de.qabel.qabelbox.communication.callbacks.JSONModelCallback;
 import de.qabel.qabelbox.config.AppPreference;
+import de.qabel.qabelbox.storage.data.BoxQuotaJSONAdapter;
 import de.qabel.qabelbox.storage.model.BoxQuota;
 import de.qabel.qabelbox.storage.server.BlockServer;
 import okhttp3.Response;
@@ -42,12 +43,9 @@ public class AccountManager {
     }
 
     public void refreshQuota() {
-        blockServer.getQuota(new JSONModelCallback<BoxQuota>() {
-            @Override
-            protected BoxQuota createModel() {
-                return new BoxQuota();
-            }
-
+        blockServer.getQuota(new JSONModelCallback<BoxQuota>(
+                new BoxQuotaJSONAdapter()) {
+            
             @Override
             protected void onSuccess(Response response, BoxQuota model) {
                 preferences.setBoxQuota(model);

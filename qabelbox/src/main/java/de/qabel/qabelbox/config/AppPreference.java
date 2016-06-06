@@ -9,8 +9,9 @@ import org.json.JSONObject;
 import org.spongycastle.util.encoders.Hex;
 
 import de.qabel.core.crypto.CryptoUtils;
-import de.qabel.qabelbox.persistence.SimpleJSONModel;
+import de.qabel.qabelbox.persistence.SimpleJSONAdapter;
 import de.qabel.qabelbox.services.LocalQabelService;
+import de.qabel.qabelbox.storage.data.BoxQuotaJSONAdapter;
 import de.qabel.qabelbox.storage.model.BoxQuota;
 
 public class AppPreference {
@@ -30,6 +31,7 @@ public class AppPreference {
 
     private final Context context;
     private final SharedPreferences settings;
+    private final BoxQuotaJSONAdapter boxQuotaJSONAdapter = new BoxQuotaJSONAdapter();
 
     public AppPreference(Context context) {
         this.context = context;
@@ -113,32 +115,31 @@ public class AppPreference {
     }
 
     public BoxQuota getBoxQuota() {
-        return getJsonModel(P_ACCOUNT_QUOTA, new BoxQuota());
+        return getJsonModel(P_ACCOUNT_QUOTA, boxQuotaJSONAdapter);
     }
 
     public void setBoxQuota(BoxQuota boxQuota) {
-        putJsonModel(P_ACCOUNT_QUOTA, boxQuota);
+        putJsonModel(P_ACCOUNT_QUOTA, boxQuota, boxQuotaJSONAdapter);
     }
 
-    private <T extends SimpleJSONModel> void putJsonModel(String key, T model) {
+    private <T> void putJsonModel(String key, T model, SimpleJSONAdapter<T> adapter) {
         try {
-            this.settings.edit().putString(key, model.toJson().toString()).commit();
+            this.settings.edit().putString(key, adapter.toJson(model).toString()).commit();
         } catch (JSONException e) {
             Log.e(TAG, "Error writing model to preferences");
         }
     }
 
-    private <T extends SimpleJSONModel> T getJsonModel(String key, T model) {
+    private <T> T getJsonModel(String key, SimpleJSONAdapter<T> adapter) {
         String json = settings.getString(key, null);
         try {
             if (json != null && !json.isEmpty()) {
-                model.fromJson(new JSONObject(json));
-                return model;
+                return adapter.fromJson(new JSONObject(json));
             }
         } catch (JSONException e) {
             Log.e(TAG, "Error reading model from preferences", e);
         }
-        return model;
+        return null;
     }
 
 }

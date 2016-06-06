@@ -45,18 +45,20 @@ Everything below this line describes the usage of the Qabel Android Client for d
 
 # <a name="getting_started"></a>Getting started
 
-* Install Android Studio.
-* Install the Kotlin plugin from JetBrains
-* Open the SDK Manager from Tools/Android/SDK Manager
+* Install the Android [SDK](https://developer.android.com/studio/index.html) 
 * Install the SDK version 23. Make sure you install the "Android Support Repository" and the latest "Android SDK build-tools"
-* Import the project from git (File/New/Project from version control)
+* Install the [NDK](https://developer.android.com/ndk/index.html)
+* Checkout the project from git
 * Create the file /qabelbox/src/main/res/values/params.xml with the following contents:
 
     `<resources> <string name="hockeykey">dummykey</string> </resources>`
-* Select the qabelbox module
-* For faster development builds, select the 'developerDebug' build variant
-* Click "Run" and you're done.
+* Create a local.properties file at the root of your source checkout and add an sdk.dir and ndk.dir entry to it.  For example:
 
+        sdk.dir=/Android/SDK
+        ndk.dir=/Android/NDK
+        
+* Run `./gradlew build`
+* Usage of Android Studio with the Kotlin plugin is recommended for development
 
 # Usage
 

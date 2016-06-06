@@ -6,6 +6,7 @@ import junit.framework.Assert;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricGradleTestRunner;
@@ -74,6 +75,7 @@ public class TransferManagerTest extends AbstractTransferManagerTest {
         Assert.assertTrue("Finished not called", status[1] > 0);
     }
 
+    @Ignore("Server response 404")
     @Test
     public void testDownloadProgress() throws Exception {
         long kb = 200;

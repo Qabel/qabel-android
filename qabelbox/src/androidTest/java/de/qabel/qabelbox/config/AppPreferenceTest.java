@@ -40,14 +40,4 @@ public class AppPreferenceTest {
         assertThat(appPreference.getToken(), nullValue());
     }
 
-    @Test
-    public void testLogout() {
-        appPreference.setToken("token");
-        appPreference.setAccountEMail("email");
-        appPreference.setAccountName("name");
-        appPreference.logout();
-        assertThat(appPreference.getToken(), nullValue());
-        assertThat(appPreference.getAccountEMail(), equalTo("email"));
-        assertThat(appPreference.getAccountName(), equalTo("name"));
-    }
 }

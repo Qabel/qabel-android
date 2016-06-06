@@ -13,6 +13,7 @@ import de.qabel.qabelbox.BuildConfig;
 import de.qabel.qabelbox.SimpleApplication;
 import de.qabel.qabelbox.communication.callbacks.JSONModelCallback;
 import de.qabel.qabelbox.config.AppPreference;
+import de.qabel.qabelbox.storage.data.BoxQuotaJSONAdapter;
 import de.qabel.qabelbox.storage.model.BoxQuota;
 import de.qabel.qabelbox.util.TestHelper;
 import okhttp3.Response;
@@ -23,28 +24,20 @@ import static junit.framework.Assert.assertEquals;
 @Config(application = SimpleApplication.class, constants = BuildConfig.class)
 public class BlockServerTest {
 
-    private static final long DEFAULT_QUOTA = 2147483648L;
-
     private BlockServer blockServer;
 
     @Before
     public void setUp() {
-        blockServer = new AndroidBlockServer(new AppPreference(RuntimeEnvironment.application),
-                RuntimeEnvironment.application);
+        blockServer = new MockBlockServer();
     }
 
     @Test
     public void testQuota() throws Exception {
         BoxQuota[] quota = new BoxQuota[1];
-        blockServer.getQuota(new JSONModelCallback<BoxQuota>() {
+        blockServer.getQuota(new JSONModelCallback<BoxQuota>(new BoxQuotaJSONAdapter()) {
             @Override
             protected void onSuccess(Response response, BoxQuota model) {
                 quota[0] = model;
-            }
-
-            @Override
-            protected BoxQuota createModel() {
-                return new BoxQuota();
             }
 
             @Override
@@ -52,10 +45,10 @@ public class BlockServerTest {
                 //Should not happen
             }
         });
-        TestHelper.waitUntil(() -> quota[0] != null, "Error waiting for request!");
 
         BoxQuota boxQuota = quota[0];
-        assertEquals(DEFAULT_QUOTA, boxQuota.getQuota());
+        assertEquals(MockBlockServer.SIZE, boxQuota.getSize());
+        assertEquals(MockBlockServer.QUOTA, boxQuota.getQuota());
     }
 
 }

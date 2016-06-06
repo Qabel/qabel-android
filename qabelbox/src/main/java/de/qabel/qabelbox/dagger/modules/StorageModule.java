@@ -67,6 +67,10 @@ public class StorageModule {
     @Singleton
     @Provides
     BlockServer providesBlockServer(AppPreference preference, Context context) {
+        return createBlockServer(preference, context);
+    }
+
+    protected BlockServer createBlockServer(AppPreference preference, Context context){
         return new AndroidBlockServer(preference, context);
     }
 

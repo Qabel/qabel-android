@@ -12,7 +12,6 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 import de.qabel.core.config.Contact;
@@ -20,7 +19,7 @@ import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.chat.ChatMessageItem;
 import de.qabel.qabelbox.helper.Formatter;
 
-public class ChatMessageAdapter extends BaseAdapter {
+public class ChatMessageItemAdapter extends BaseAdapter {
 
     private final String TAG = getClass().getSimpleName();
     private String contactPublicKey;
@@ -28,7 +27,7 @@ public class ChatMessageAdapter extends BaseAdapter {
     private OnItemClickListener onItemClickListener;
     private View emptyView;
 
-    public ChatMessageAdapter(ArrayList<ChatMessageItem> allMessages, Contact contact) {
+    public ChatMessageItemAdapter(ArrayList<ChatMessageItem> allMessages, Contact contact) {
 
         mMessages = new ArrayList<>();
         registerDataSetObserver(observer);

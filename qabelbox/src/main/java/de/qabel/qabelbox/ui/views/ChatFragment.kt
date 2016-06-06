@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import butterknife.ButterKnife
 import de.qabel.core.config.Contact
 import de.qabel.qabelbox.R
+import de.qabel.qabelbox.adapter.ChatMessageAdapter
 import de.qabel.qabelbox.dagger.components.MainActivityComponent
 import de.qabel.qabelbox.dagger.modules.ChatModule
 import de.qabel.qabelbox.dto.ChatMessage
@@ -30,6 +31,8 @@ class ChatFragment : ChatView, BaseFragment() {
         }
     }
 
+    val adapter = ChatMessageAdapter()
+
     lateinit override var contactKeyId: String
     lateinit var presenter: ChatPresenter
 
@@ -39,6 +42,7 @@ class ChatFragment : ChatView, BaseFragment() {
         val component = getComponent(MainActivityComponent::class.java).plus(ChatModule(this))
         component.inject(this);
 
+        contact_chat_list.adapter = adapter
     }
 
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?,
@@ -54,13 +58,13 @@ class ChatFragment : ChatView, BaseFragment() {
 
     override fun showMessages(messages: List<ChatMessage>) {
         val intent = Intent(Helper.INTENT_REFRESH_CONTACTLIST);
-        activity?.sendOrderedBroadcast(intent, null);
+        activity?.sendBroadcast(intent, null);
         fillAdapter(messages);
     }
 
     private fun fillAdapter(messages: List<ChatMessage>) {
-        if (contact_chat_list.adapter == null) {
-        }
+        adapter.chatMessages = messages
+        adapter.notifyDataSetChanged()
     }
 
     override fun getTitle(): String? = presenter.title

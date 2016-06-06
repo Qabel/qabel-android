@@ -35,7 +35,7 @@ import de.qabel.core.drop.DropMessage;
 import de.qabel.core.exceptions.QblDropPayloadSizeException;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.activities.MainActivity;
-import de.qabel.qabelbox.adapter.ChatMessageAdapter;
+import de.qabel.qabelbox.adapter.ChatMessageItemAdapter;
 import de.qabel.qabelbox.chat.ChatMessageItem;
 import de.qabel.qabelbox.chat.ChatServer;
 import de.qabel.qabelbox.chat.ShareHelper;
@@ -45,12 +45,12 @@ import de.qabel.qabelbox.helper.AccountHelper;
 import de.qabel.qabelbox.helper.Helper;
 import de.qabel.qabelbox.helper.UIHelper;
 import de.qabel.qabelbox.services.DropConnector;
+import de.qabel.qabelbox.storage.BoxVolume;
 import de.qabel.qabelbox.storage.model.BoxExternalReference;
 import de.qabel.qabelbox.storage.model.BoxFile;
 import de.qabel.qabelbox.storage.model.BoxFolder;
-import de.qabel.qabelbox.storage.navigation.BoxNavigation;
 import de.qabel.qabelbox.storage.model.BoxObject;
-import de.qabel.qabelbox.storage.BoxVolume;
+import de.qabel.qabelbox.storage.navigation.BoxNavigation;
 
 /**
  * Activities that contain this fragment must implement the
@@ -207,17 +207,17 @@ public class ContactChatFragment extends ContactBaseFragment {
     private void fillAdapter(final ArrayList<ChatMessageItem> data) {
 
         if (contactListRecyclerView.getAdapter() == null) {
-            ChatMessageAdapter contactListAdapter = new ChatMessageAdapter(data, contact);
+            ChatMessageItemAdapter contactListAdapter = new ChatMessageItemAdapter(data, contact);
             contactListRecyclerView.setAdapter(contactListAdapter);
             contactListAdapter.setOnItemClickListener(getOnItemClickListener());
         }
-        ChatMessageAdapter adapter = (ChatMessageAdapter) contactListRecyclerView.getAdapter();
+        ChatMessageItemAdapter adapter = (ChatMessageItemAdapter) contactListRecyclerView.getAdapter();
         adapter.setMessages(data, contact);
         adapter.notifyDataSetChanged();
     }
 
     @NonNull
-    private ChatMessageAdapter.OnItemClickListener getOnItemClickListener() {
+    private ChatMessageItemAdapter.OnItemClickListener getOnItemClickListener() {
 
         return item -> {
             //check if message is instance of sharemessage

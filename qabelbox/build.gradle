@@ -1,20 +1,8 @@
-buildscript {
-    repositories {
-        mavenCentral()
-        jcenter()
-    }
-    dependencies {
-        classpath 'com.neenbedankt.gradle.plugins:android-apt:1.8'
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-        classpath "org.jetbrains.kotlin:kotlin-android-extensions:$kotlin_version"
-    }
-}
-plugins {
-    id "me.tatarka.retrolambda" version "3.2.5"
-}
 apply plugin: 'com.android.application'
-apply plugin: 'kotlin-android'
 apply plugin: 'spoon'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-android-extensions'
+apply plugin: 'me.tatarka.retrolambda'
 apply plugin: 'com.neenbedankt.android-apt'
 
 
@@ -36,7 +24,6 @@ android {
         androidTest.java.srcDirs = ['src/androidTest/java', 'src/sharedTest/java']
         test.java.srcDirs = ['src/test/java', 'src/sharedTest/java']
         debug.java.srcDirs += 'src/sharedTest/java'
-        main.java.srcDirs += 'src/main/kotlin'
     }
 
     compileOptions {
@@ -203,10 +190,6 @@ dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     testCompile "com.nhaarman:mockito-kotlin:0.5.0"
     // See https://github.com/JakeWharton/RxBinding for additional bindings
-    compile 'com.jakewharton.rxbinding:rxbinding:0.4.0'
-    compile 'com.jakewharton.rxbinding:rxbinding-kotlin:0.4.0'
-    compile 'com.jakewharton.rxbinding:rxbinding-recyclerview-v7:0.4.0'
-    compile 'com.jakewharton.rxbinding:rxbinding-recyclerview-v7-kotlin:0.4.0'
     //for more used sources, see license.txt
 }
 
@@ -221,4 +204,16 @@ check << {
     assert "$project.tasks.spoonFreeDebugTest.output".startsWith("$buildDir/custom-report-dir")
 
     println "SUCCESS"
+}
+
+buildscript {
+    repositories {
+        mavenCentral()
+        jcenter()
+    }
+    dependencies {
+        classpath 'com.neenbedankt.gradle.plugins:android-apt:1.8'
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        classpath "org.jetbrains.kotlin:kotlin-android-extensions:$kotlin_version"
+    }
 }

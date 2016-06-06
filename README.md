@@ -54,8 +54,8 @@ Everything below this line describes the usage of the Qabel Android Client for d
     `<resources> <string name="hockeykey">dummykey</string> </resources>`
 * Create a local.properties file at the root of your source checkout and add an sdk.dir and ndk.dir entry to it.  For example:
 
-        sdk.dir=/Android/SDK
-        ndk.dir=/Android/NDK
+        sdk.dir=/opt/Android/SDK
+        ndk.dir=/opt/Android/NDK
         
 * Run `./gradlew build`
 * Usage of Android Studio with the Kotlin plugin is recommended for development

@@ -86,6 +86,7 @@ import de.qabel.qabelbox.helper.UIHelper;
 import de.qabel.qabelbox.navigation.MainNavigator;
 import de.qabel.qabelbox.providers.BoxProvider;
 import de.qabel.qabelbox.services.LocalQabelService;
+import de.qabel.qabelbox.settings.SettingsActivity;
 import de.qabel.qabelbox.storage.BoxManager;
 import de.qabel.qabelbox.storage.BoxVolume;
 import de.qabel.qabelbox.storage.model.BoxExternalFile;

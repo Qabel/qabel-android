@@ -11,8 +11,7 @@ import de.qabel.qabelbox.dagger.modules.ActivityModule;
 import de.qabel.qabelbox.dagger.modules.ApplicationModule;
 import de.qabel.qabelbox.dagger.modules.RepositoryModule;
 import de.qabel.qabelbox.dagger.modules.StorageModule;
-import de.qabel.qabelbox.fragments.SettingsFragment;
-import de.qabel.qabelbox.services.HttpDropConnector;
+import de.qabel.qabelbox.settings.fragments.SettingsFragment;
 
 @Component(modules = {ApplicationModule.class, RepositoryModule.class, AccountModule.class, StorageModule.class})
 @Singleton
@@ -23,5 +22,4 @@ public interface ApplicationComponent {
 
     void inject(QabelSyncAdapter syncAdapter);
 
-    void inject(SettingsFragment settingsFragment);
 }

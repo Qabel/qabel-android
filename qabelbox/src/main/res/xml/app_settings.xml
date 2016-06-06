@@ -2,7 +2,7 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
     <PreferenceCategory android:title="DEBUG">
         <Preference
-            android:key="@string/settings_key_internal_feedback"
+            android:key="@string/setting_internalfeedback"
             android:summary="@string/debug_send_feedback_to_pm"
             android:title="@string/debug_send_feedback" />
     </PreferenceCategory>
@@ -16,7 +16,7 @@
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/settings_headline_boxaccount">
         <Preference
-            android:key="@string/settings_key_change_password"
+            android:key="@string/setting_change_account_password"
             android:summary="@string/settings_change_account_password_summary"
             android:title="@string/settings_change_account_password" />
         <Preference

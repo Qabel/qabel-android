@@ -1,0 +1,5 @@
+<resources>
+    <string name="setting_change_account_password" translatable="false">change_account_password</string>
+    <string name="setting_internalfeedback" translatable="false">internalfeedback</string>
+
+</resources>

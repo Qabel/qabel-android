@@ -24,7 +24,7 @@ import java.util.concurrent.TimeUnit;
 
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
-import de.qabel.qabelbox.fragments.SettingsFragment;
+import de.qabel.qabelbox.settings.fragments.SettingsFragment;
 import de.qabel.qabelbox.ui.idling.ElapsedTimeIdlingResource;
 
 import static android.support.test.espresso.Espresso.closeSoftKeyboard;

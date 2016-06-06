@@ -27,7 +27,7 @@ class ChatUseCaseTest {
 
     @Test
     fun testNoMessages() {
-        val useCase = ChatUseCase(identity, contact, transformer, chatServer)
+        val useCase = TransformingChatUseCase(identity, contact, transformer, chatServer)
         var list: List<ChatMessage>? = null
         useCase.retrieve().subscribe({
             messages -> list = messages

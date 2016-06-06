@@ -10,10 +10,14 @@ class MainChatPresenter @Inject constructor(private val view: ChatView,
         get() = useCase.contact.alias
 
     init {
-        view.showEmpty()
+        refreshMessages()
     }
 
     override fun refreshMessages() {
-        useCase.retrieve().subscribe({messages -> view.showMessages(messages)})
+        useCase.retrieve().subscribe({ messages ->
+            if (messages.size > 0) {
+                view.showMessages(messages)
+            } else (view.showEmpty())
+        })
     }
 }

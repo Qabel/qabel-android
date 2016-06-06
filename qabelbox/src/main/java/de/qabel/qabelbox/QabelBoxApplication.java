@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.IBinder;
 import android.support.annotation.NonNull;
+import android.support.multidex.MultiDex;
 import android.util.Log;
 
 import org.spongycastle.jce.provider.BouncyCastleProvider;
@@ -32,6 +33,16 @@ public class QabelBoxApplication extends Application {
     }
 
     private ServiceConnection mServiceConnection;
+
+    @Override
+    protected void attachBaseContext(Context base) {
+        installMultiDex(base);
+        super.attachBaseContext(base);
+    }
+
+    protected void installMultiDex(Context base) {
+        MultiDex.install(base);
+    }
 
     /**
      * @deprecated This is not guaranteed to be initialised

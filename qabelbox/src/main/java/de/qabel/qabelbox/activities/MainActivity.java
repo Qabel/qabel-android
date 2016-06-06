@@ -2,11 +2,13 @@ package de.qabel.qabelbox.activities;
 
 import android.app.AlertDialog;
 import android.app.Fragment;
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.graphics.LightingColorFilter;
@@ -54,7 +56,10 @@ import de.qabel.desktop.repository.IdentityRepository;
 import de.qabel.desktop.repository.exception.PersistenceException;
 import de.qabel.qabelbox.BuildConfig;
 import de.qabel.qabelbox.QabelBoxApplication;
+import de.qabel.qabelbox.QblBroadcastConstants;
 import de.qabel.qabelbox.R;
+import de.qabel.qabelbox.account.AccountManager;
+import de.qabel.qabelbox.account.AccountStatusCodes;
 import de.qabel.qabelbox.adapter.FilesAdapter;
 import de.qabel.qabelbox.chat.ChatServer;
 import de.qabel.qabelbox.chat.ShareHelper;
@@ -174,11 +179,26 @@ public class MainActivity extends CrashReportingActivity
     MainNavigator navigator;
 
     @Inject
+    AccountManager accountManager;
+
+    @Inject
     BoxManager boxManager;
 
     @Inject
     BoxVolume boxVolume;
     private MainActivityComponent component;
+
+    private BroadcastReceiver accountBroadCastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            int statusCode = intent.getIntExtra(QblBroadcastConstants.STATUS_CODE_PARAM, -1);
+            switch (statusCode) {
+                case AccountStatusCodes.LOGOUT:
+                    navigator.selectCreateAccountActivity();
+                    break;
+            }
+        }
+    };
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -278,6 +298,10 @@ public class MainActivity extends CrashReportingActivity
         Log.d(TAG, "onCreate " + this.hashCode());
         Intent serviceIntent = new Intent(this, LocalQabelService.class);
         mServiceConnection = getServiceConnection();
+
+        registerReceiver(accountBroadCastReceiver,
+                new IntentFilter(QblBroadcastConstants.Account.ACCOUNT_CHANGED));
+
         if (Sanity.startWizardActivities(this)) {
             Log.d(TAG, "started wizard dialog");
             return;
@@ -977,6 +1001,8 @@ public class MainActivity extends CrashReportingActivity
             connectivityManager.onDestroy();
         }
 
+        unregisterReceiver(accountBroadCastReceiver);
+
         super.onDestroy();
     }
 
@@ -1031,6 +1057,15 @@ public class MainActivity extends CrashReportingActivity
                     .setOnMenuItemClickListener(item -> {
                         drawer.closeDrawer(GravityCompat.START);
                         navigator.selectManageIdentitiesFragment();
+                        return true;
+                    });
+            navigationView.getMenu()
+                    .add(NAV_GROUP_IDENTITY_ACTIONS, Menu.NONE, Menu.NONE, R.string.logout)
+                    .setIcon(R.drawable.account_off)
+                    .setOnMenuItemClickListener(item -> {
+                        UIHelper.showConfirmationDialog(self, R.string.logout,
+                                R.string.logout_confirmation, R.drawable.account_off,
+                                (dialog, which) -> accountManager.logout());
                         return true;
                     });
             identityMenuExpanded = true;
@@ -1136,9 +1171,6 @@ public class MainActivity extends CrashReportingActivity
             navigator.selectAboutFragment();
         } else if (id == R.id.nav_help) {
             navigator.selectHelpFragment();
-        } else if (id == R.id.nav_logout) {
-            new AppPreference(this).logout();
-            navigator.selectCreateAccountActivity();
         }
         drawer.closeDrawer(GravityCompat.START);
         return true;

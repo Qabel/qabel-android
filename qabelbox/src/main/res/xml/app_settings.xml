@@ -2,7 +2,7 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
     <PreferenceCategory android:title="DEBUG">
         <Preference
-            android:key="@string/setting_internalfeedback"
+            android:key="@string/setting_internal_feedback"
             android:summary="@string/debug_send_feedback_to_pm"
             android:title="@string/debug_send_feedback" />
     </PreferenceCategory>
@@ -16,14 +16,22 @@
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/settings_headline_boxaccount">
         <Preference
+            android:key="@string/setting_account_name"
+            android:selectable="false"
+            android:summary=""
+            android:title="" />
+        <Preference
+            android:key="@string/setting_box_quota"
+            android:selectable="false"
+            android:summary=""
+            android:title="@string/settings_title_box_quota" />
+        <Preference
             android:key="@string/setting_change_account_password"
             android:summary="@string/settings_change_account_password_summary"
             android:title="@string/settings_change_account_password" />
         <Preference
-            android:key="boxquota"
-            android:summary=""
-            android:selectable="false"
-            android:title="@string/settings_title_box_quota">
-        </Preference>
+            android:key="@string/setting_logout"
+            android:title="@string/logout"
+            android:icon="@drawable/account_off" />
     </PreferenceCategory>
 </PreferenceScreen>

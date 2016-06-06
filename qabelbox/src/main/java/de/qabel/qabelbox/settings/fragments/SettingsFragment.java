@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.preference.Preference;
 import android.preference.PreferenceFragment;
 
 import org.apache.commons.io.FileUtils;
@@ -14,6 +15,8 @@ import javax.inject.Inject;
 import de.qabel.qabelbox.QblBroadcastConstants;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.account.AccountManager;
+import de.qabel.qabelbox.config.AppPreference;
+import de.qabel.qabelbox.helper.UIHelper;
 import de.qabel.qabelbox.settings.SettingsActivity;
 import de.qabel.qabelbox.settings.navigation.SettingsNavigator;
 import de.qabel.qabelbox.storage.model.BoxQuota;
@@ -25,12 +28,14 @@ public class SettingsFragment extends PreferenceFragment {
     @Inject
     AccountManager accountManager;
     @Inject
+    AppPreference appPreferences;
+    @Inject
     SettingsNavigator settingsNavigator;
 
     private BroadcastReceiver accountBroadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            refreshQuota();
+            refreshAccountData();
         }
     };
 
@@ -46,8 +51,17 @@ public class SettingsFragment extends PreferenceFragment {
             settingsNavigator.selectChangeAccountPasswordFragment();
             return true;
         });
-        findPreference(getString(R.string.setting_internalfeedback)).setOnPreferenceClickListener(preference -> {
+        findPreference(getString(R.string.setting_internal_feedback)).setOnPreferenceClickListener(preference -> {
             settingsNavigator.showFeedbackActivity();
+            return true;
+        });
+        findPreference(getString(R.string.setting_logout)).setOnPreferenceClickListener(preference -> {
+            UIHelper.showConfirmationDialog(getActivity(), R.string.logout,
+                    R.string.logout_confirmation, R.drawable.account_off,
+                    (dialog, which) -> {
+                        accountManager.logout();
+                        getActivity().finish();
+                    });
             return true;
         });
     }
@@ -56,7 +70,7 @@ public class SettingsFragment extends PreferenceFragment {
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         ((SettingsActivity)getActivity()).getComponent().inject(this);
-        refreshQuota();
+        refreshAccountData();
     }
 
     @Override
@@ -72,7 +86,15 @@ public class SettingsFragment extends PreferenceFragment {
         super.onDetach();
     }
 
-    private void refreshQuota() {
+    private void refreshAccountData() {
+        String accountName = appPreferences.getAccountName();
+        String email = appPreferences.getAccountEMail();
+
+        Preference accountPref = findPreference(getString(R.string.setting_account_name));
+        accountPref.setTitle(getString(R.string.loggedInAs, accountName));
+        accountPref.setSummary(email);
+
+
         BoxQuota quota = accountManager.getBoxQuota();
         String summaryLabel;
         String usedStorage = FileUtils.byteCountToDisplaySize(quota.getSize());
@@ -84,7 +106,7 @@ public class SettingsFragment extends PreferenceFragment {
         } else {
             summaryLabel = getString(R.string.unlimited_storage, usedStorage);
         }
-        findPreference("boxquota").setSummary(summaryLabel);
+        findPreference(getString(R.string.setting_box_quota)).setSummary(summaryLabel);
     }
 }
 

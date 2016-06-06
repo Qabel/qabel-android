@@ -83,10 +83,6 @@ public class AppPreference {
         settings.edit().putLong(P_WELCOME_SCREEN_SHOWN_AT, time).commit();
     }
 
-    public void logout() {
-        setToken(null);
-    }
-
     public byte[] getDeviceId() {
         String deviceID = settings.getString(P_DEVICE_ID, null);
         if (deviceID == null) {

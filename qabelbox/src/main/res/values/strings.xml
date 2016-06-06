@@ -81,6 +81,7 @@
     <string name="create_account_password_infos">Please enter your password</string>
     <string name="create_box_account">Register a Qabel account</string>
     <string name="login">Login</string>
+    <string name="loggedInAs">Logged in as %s</string>
     <string name="create_account_username_hint">Username</string>
     <string name="create_account_login_infos">Please log in to your Qabel account </string>
     <string name="create_account_enter_name_infos">Please enter a username for your Qabel account. A username can have up to 30 characters</string>
@@ -336,6 +337,7 @@ To all people who have supported our Indigogo Campaign
     <string name="close_app">Close App</string>
     <string name="retry_action">Retry</string>
     <string name="logout">Logout</string>
+    <string name="logout_confirmation">Are you sure you want to logout?</string>
     <string name="new_messages">%d new messages</string>
 
 

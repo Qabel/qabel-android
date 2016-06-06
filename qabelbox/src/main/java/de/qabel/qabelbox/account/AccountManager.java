@@ -45,11 +45,11 @@ public class AccountManager {
     public void refreshQuota() {
         blockServer.getQuota(new JSONModelCallback<BoxQuota>(
                 new BoxQuotaJSONAdapter()) {
-            
+
             @Override
             protected void onSuccess(Response response, BoxQuota model) {
                 preferences.setBoxQuota(model);
-                broadcastAccountChanged();
+                broadcastAccountChanged(AccountStatusCodes.QUOTA_UPDATED);
             }
 
             @Override
@@ -59,8 +59,10 @@ public class AccountManager {
         });
     }
 
-    private void broadcastAccountChanged() {
-        context.sendBroadcast(new Intent(QblBroadcastConstants.Account.ACCOUNT_CHANGED));
+    private void broadcastAccountChanged(int statusCode) {
+        Intent intent = new Intent(QblBroadcastConstants.Account.ACCOUNT_CHANGED);
+        intent.putExtra(QblBroadcastConstants.STATUS_CODE_PARAM, statusCode);
+        context.sendBroadcast(intent);
     }
 
     public BoxQuota getBoxQuota() {
@@ -69,5 +71,12 @@ public class AccountManager {
             refreshQuota();
         }
         return quota;
+    }
+
+    public void logout(){
+        preferences.setToken(null);
+        preferences.setAccountName(null);
+        preferences.setAccountEMail(null);
+        broadcastAccountChanged(AccountStatusCodes.LOGOUT);
     }
 }

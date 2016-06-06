@@ -3,6 +3,7 @@ package de.qabel.qabelbox;
 public class QblBroadcastConstants {
 
     private static final String PREFIX = "de.qabel.";
+    public static final String STATUS_CODE_PARAM = PREFIX + "statusCode";
 
     public class Storage {
         public static final String BOX_VOLUMES_CHANGES = PREFIX + "boxVolumesChanged";

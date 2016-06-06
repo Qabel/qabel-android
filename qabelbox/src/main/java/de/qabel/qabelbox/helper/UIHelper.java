@@ -20,6 +20,13 @@ import java.io.IOException;
 
 public class UIHelper {
 
+    public static void showConfirmationDialog(final Activity activity, final int headline,
+                                              final int message, int icon,
+                                              final DialogInterface.OnClickListener buttonOkListener){
+        showDialogMessage(activity, activity.getString(headline), activity.getString(message),
+                R.string.ok, R.string.cancel, icon, buttonOkListener, ((dialog, which) -> dialog.cancel()));
+    }
+
     /**
      * show dialog with one buttonhelp
      */
@@ -28,15 +35,21 @@ public class UIHelper {
         showDialogMessage(activity, activity.getString(headline), activity.getString(message), buttonOk, buttonCancel, buttonOkListener, buttonCancelListener);
     }
 
+    public static void showDialogMessage(final Activity activity, final String headline, final String message, final int buttonOk, final int buttonCancel, final DialogInterface.OnClickListener buttonOkListener, final DialogInterface.OnClickListener buttonCancelListener) {
+        showDialogMessage(activity, headline, message, buttonOk, buttonCancel, null, buttonOkListener, buttonCancelListener);
+    }
     /**
      * show dialog with one button
      */
-    public static void showDialogMessage(final Activity activity, final String headline, final String message, final int buttonOk, final int buttonCancel, final DialogInterface.OnClickListener buttonOkListener, final DialogInterface.OnClickListener buttonCancelListener) {
+    public static void showDialogMessage(final Activity activity, final String headline, final String message, final int buttonOk, final int buttonCancel, Integer icon, final DialogInterface.OnClickListener buttonOkListener, final DialogInterface.OnClickListener buttonCancelListener) {
 
         final AlertDialog.Builder builder =
                 new AlertDialog.Builder(activity);
         builder.setTitle(headline);
         builder.setMessage(message);
+        if(icon != null){
+            builder.setIcon(icon);
+        }
         builder.setPositiveButton(buttonOk, buttonOkListener);
         if (buttonCancel != Integer.MIN_VALUE) {
             builder.setNegativeButton(buttonCancel, buttonCancelListener);

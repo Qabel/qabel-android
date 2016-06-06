@@ -35,7 +35,7 @@ public class ChangeBoxAccountPasswordFragment extends Fragment {
 
     @BindView(R.id.et_old_password)
     EditText etOldPassword;
-    @BindView(R.id.et_password)
+    @BindView(R.id.et_password1)
     EditText etPassword1;
     @BindView(R.id.et_password2)
     EditText etPassword2;
@@ -55,7 +55,7 @@ public class ChangeBoxAccountPasswordFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_change_box_account_password, container, false);
+        final View view = inflater.inflate(R.layout.fragment_change_box_account_password, container, false);
         this.viewBinder = ButterKnife.bind(this, view);
         setHasOptionsMenu(true);
 

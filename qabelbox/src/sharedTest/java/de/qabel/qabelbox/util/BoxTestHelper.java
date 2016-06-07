@@ -37,7 +37,7 @@ public class BoxTestHelper {
         return identityRepository;
     }
 
-    public AppPreference getAppPreference(){
+    public AppPreference getAppPreferences(){
         return preference;
     }
 

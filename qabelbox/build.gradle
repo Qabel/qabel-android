@@ -45,8 +45,8 @@ android {
         add code to automatically generate version name and code,
         on base of timestamp or change it manual*/
 
-        versionCode System.getenv("BUILD_NUMBER") as Integer ?: 6
-        versionName "0.6." + (System.getenv("BUILD_NUMBER") as Integer ?: 0)
+        versionCode System.getenv("BUILD_NUMBER") as Integer ?: 7
+        versionName "0.7." + (System.getenv("BUILD_NUMBER") as Integer ?: 0)
         testInstrumentationRunner "de.qabel.qabelbox.QblJUnitRunner"
 
         testApplicationId "de.qabel.test"

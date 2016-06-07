@@ -10,7 +10,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
-import android.content.SharedPreferences;
 import android.graphics.LightingColorFilter;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -85,7 +84,6 @@ import de.qabel.qabelbox.helper.AccountHelper;
 import de.qabel.qabelbox.helper.CacheFileHelper;
 import de.qabel.qabelbox.helper.ExternalApps;
 import de.qabel.qabelbox.helper.FileHelper;
-import de.qabel.qabelbox.helper.PreferencesHelper;
 import de.qabel.qabelbox.helper.Sanity;
 import de.qabel.qabelbox.helper.UIHelper;
 import de.qabel.qabelbox.navigation.MainNavigator;
@@ -173,7 +171,7 @@ public class MainActivity extends CrashReportingActivity
     public ContactRepository contactRepository;
 
     @Inject
-    SharedPreferences sharedPreferences;
+    AppPreference appPreferences;
 
     @Inject
     MainNavigator navigator;
@@ -839,7 +837,7 @@ public class MainActivity extends CrashReportingActivity
 
     private void changeActiveIdentity(Identity identity, @Nullable Intent intent) {
         if (activeIdentity == null || !identity.equals(activeIdentity)) {
-            PreferencesHelper.setLastActiveIdentityID(sharedPreferences, identity.getKeyIdentifier());
+            appPreferences.setLastActiveIdentityKey(identity.getKeyIdentifier());
             if (intent == null) {
                 intent = new Intent(this, MainActivity.class);
             }

@@ -6,6 +6,8 @@ import dagger.Subcomponent;
 import de.qabel.qabelbox.dagger.modules.ActivityModule;
 import de.qabel.qabelbox.dagger.modules.MainActivityModule;
 import de.qabel.qabelbox.dagger.scopes.ActivityScope;
+import de.qabel.qabelbox.settings.dagger.SettingsActivityComponent;
+import de.qabel.qabelbox.settings.dagger.SettingsActivityModule;
 
 @ActivityScope
 @Subcomponent(
@@ -13,6 +15,7 @@ import de.qabel.qabelbox.dagger.scopes.ActivityScope;
 )
 public interface ActivityComponent {
     MainActivityComponent plus(MainActivityModule mainActivityModule);
+    SettingsActivityComponent plus(SettingsActivityModule settingsActivityModule);
 
     AppCompatActivity activity();
 }

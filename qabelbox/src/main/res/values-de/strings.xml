@@ -125,6 +125,7 @@
     <string name="last_identity_delete_create_new">Sie haben alle Ihre Identitäten gelöscht. Erstellen Sie eine neue</string>
     <string name="listdata_loading">Lade</string>
     <string name="login">Login</string>
+    <string name="loggedInAs">Angemeldet als %s</string>
     <string name="manage_identities">Identitäten verwalten</string>
     <string name="messsage_enter_contact_manual">Bitte geben Sie die Details Ihres Kontaktes ein. Sie können dies auch abbrechen und den Kontakt über den QR Code importieren</string>
     <string name="navigation_drawer_close">Navigation schließen</string>
@@ -295,4 +296,10 @@ Den Unterstützern der Indigogo Kampagne
     <string name="download_complete">Herunterladen abgeschlossen</string>
     <string name="download_complete_msg">%s wurde heruntergeladen</string>
     <string name="download_complete_notification_msg">Hochladen %s abgeschlossen</string>
+
+
+    <string name="settings_title_box_quota">Speicher</string>
+    <string name="used_storage">%1$s von %2$s belegt</string>
+    <string name="unlimited_storage">unbegrenzter Speicher, %1$s belegt</string>
+    <string name="currently_not_available">currently not available</string>
 </resources>

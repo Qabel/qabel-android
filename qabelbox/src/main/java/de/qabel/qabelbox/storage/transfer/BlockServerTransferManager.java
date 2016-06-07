@@ -15,10 +15,11 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 
 import de.qabel.qabelbox.QabelBoxApplication;
-import de.qabel.qabelbox.communication.BlockServer;
+import de.qabel.qabelbox.storage.server.AndroidBlockServer;
 import de.qabel.qabelbox.communication.callbacks.DownloadRequestCallback;
 import de.qabel.qabelbox.communication.callbacks.RequestCallback;
 import de.qabel.qabelbox.communication.callbacks.UploadRequestCallback;
+import de.qabel.qabelbox.storage.server.BlockServer;
 import okhttp3.Response;
 
 public class BlockServerTransferManager implements TransferManager {
@@ -31,17 +32,13 @@ public class BlockServerTransferManager implements TransferManager {
     private final BlockServer blockServer;
     private final Context context;
 
-    public BlockServerTransferManager(File tempDir) {
-        this(QabelBoxApplication.getInstance().getApplicationContext(), tempDir);
-    }
-
-    public BlockServerTransferManager(Context context, File tmpDir){
+    public BlockServerTransferManager(Context context, BlockServer blockServer, File tmpDir){
         this.tempDir = tmpDir;
         latches = new ConcurrentHashMap<>();
         errors = new HashMap<>();
 
         this.context = context;
-        blockServer = new BlockServer(context);
+        this.blockServer = blockServer;
     }
 
     @Override
@@ -70,7 +67,7 @@ public class BlockServerTransferManager implements TransferManager {
         Log.d(TAG, "uploadAndDeleteLocalfile " + prefix + " " + name + " " + localfile.toString());
         final int id = blockServer.getNextId();
         latches.put(id, new CountDownLatch(1));
-        blockServer.uploadFile(context, prefix, name, localfile, new UploadRequestCallback(new int[]{201, 204}) {
+        blockServer.uploadFile(prefix, name, localfile, new UploadRequestCallback(new int[]{201, 204}) {
 
             @Override
             public void onProgress(long currentBytes, long totalBytes) {
@@ -125,7 +122,7 @@ public class BlockServerTransferManager implements TransferManager {
 
         final int id = blockServer.getNextId();
         latches.put(id, new CountDownLatch(1));
-        blockServer.downloadFile(context, prefix, name, new DownloadRequestCallback(file) {
+        blockServer.downloadFile(prefix, name, new DownloadRequestCallback(file) {
             @Override
             public void onError(Exception e, @Nullable Response response) {
                 if (boxTransferListener != null) {
@@ -163,7 +160,6 @@ public class BlockServerTransferManager implements TransferManager {
      */
     @Override
     public boolean waitFor(int id) {
-
         logger.info("Waiting for " + id);
         try {
             latches.get(id).await();
@@ -184,7 +180,7 @@ public class BlockServerTransferManager implements TransferManager {
         Log.d(TAG, "delete " + prefix + " " + name);
         final int id = blockServer.getNextId();
         latches.put(id, new CountDownLatch(1));
-        blockServer.deleteFile(context, prefix, name, new RequestCallback(new int[]{200, 204, 404}) {
+        blockServer.deleteFile(prefix, name, new RequestCallback(new int[]{200, 204, 404}) {
             @Override
             public void onError(Exception e, @Nullable Response response) {
                 latches.get(id).countDown();

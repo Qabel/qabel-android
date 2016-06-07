@@ -1,7 +1,5 @@
 package de.qabel.qabelbox.dagger.modules;
 
-import android.content.Context;
-import android.content.SharedPreferences;
 import android.util.Log;
 
 import dagger.Module;
@@ -14,9 +12,9 @@ import de.qabel.desktop.repository.exception.PersistenceException;
 import de.qabel.qabelbox.activities.MainActivity;
 import de.qabel.qabelbox.config.AppPreference;
 import de.qabel.qabelbox.dagger.scopes.ActivityScope;
+import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.navigation.MainNavigator;
 import de.qabel.qabelbox.navigation.Navigator;
-import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.storage.BoxManager;
 import de.qabel.qabelbox.storage.BoxVolume;
 
@@ -72,12 +70,6 @@ public class MainActivityModule {
             }
         }
         return activeIdentity;
-    }
-
-    @Provides
-    SharedPreferences provideSharedPreferences() {
-        return mainActivity.getSharedPreferences(
-                "LocalQabelService", Context.MODE_PRIVATE);
     }
 
     @ActivityScope

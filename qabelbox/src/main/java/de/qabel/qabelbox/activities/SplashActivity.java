@@ -12,14 +12,15 @@ import de.qabel.qabelbox.helper.Sanity;
 
 public class SplashActivity extends CrashReportingActivity {
 
-    public static final String START_MAIN = "START_MAIN";
     private final long LONG_SPLASH_TIME = 1500;
     private final long SHORT_SPLASH_TIME = 200;
-    private SplashActivity mActivity;
+
+    public static String SKIP_SPLASH = "SKIP_SPLASH";
+
     private AppPreference prefs;
+    private boolean skipSplash;
     final private String TAG = this.getClass().getSimpleName();
 
-    private boolean start_main;
     private boolean welcomeScreenShown;
 
     @Override
@@ -27,18 +28,9 @@ public class SplashActivity extends CrashReportingActivity {
 
         super.onCreate(savedInstanceState);
         Intent splashIntent = getIntent();
-        start_main = splashIntent.getBooleanExtra(START_MAIN, true);
-        mActivity = this;
+        skipSplash = splashIntent.getBooleanExtra(SKIP_SPLASH, false);
         setupAppPreferences();
-        welcomeScreenShown = prefs.getWelcomeScreenShownAt() == 0;
-        if (welcomeScreenShown) {
-            Intent intent = new Intent(mActivity, WelcomeScreenActivity.class);
-            startActivity(intent);
-            overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
-            finish();
-            return;
-        }
-        overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+        welcomeScreenShown = prefs.getWelcomeScreenShownAt() != 0;
         setContentView(R.layout.activity_splashscreen);
         setupAppPreferences();
     }
@@ -59,7 +51,6 @@ public class SplashActivity extends CrashReportingActivity {
         } else {
             if (lastAppStartVersion != currentAppVersionCode) {
                 prefs.setLastAppStartVersion(currentAppVersionCode);
-                //@todo show whatsnew screen
             }
         }
     }
@@ -73,26 +64,21 @@ public class SplashActivity extends CrashReportingActivity {
     }
 
     private void startDelayedHandler() {
-
+        long waitTime = welcomeScreenShown ? SHORT_SPLASH_TIME : LONG_SPLASH_TIME;
         new Handler().postDelayed(() -> {
-            if (!start_main) {
-                return;
-            }
-
             if (!welcomeScreenShown) {
-                Intent intent = new Intent(mActivity, WelcomeScreenActivity.class);
-                startActivity(intent);
-                overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
-                finish();
-            } else if (!Sanity.startWizardActivities(mActivity)) {
-
-                Intent intent = new Intent(mActivity, MainActivity.class);
-                intent.setAction("");
-                startActivity(intent);
-                overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
-                finish();
+                launch(WelcomeScreenActivity.class);
+            } else if (!Sanity.startWizardActivities(this)) {
+                launch(MainActivity.class);
             }
         }
-                ,welcomeScreenShown ? SHORT_SPLASH_TIME : LONG_SPLASH_TIME);
+                ,skipSplash ? 0 : waitTime);
+    }
+
+    private void launch(Class activity) {
+        Intent intent = new Intent(this, activity);
+        startActivity(intent);
+        overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+        finish();
     }
 }

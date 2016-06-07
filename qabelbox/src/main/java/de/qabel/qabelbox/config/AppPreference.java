@@ -112,7 +112,7 @@ public class AppPreference {
 
     public BoxQuota getBoxQuota() {
         BoxQuota quota = getJsonModel(P_ACCOUNT_QUOTA, boxQuotaJSONAdapter);
-        if(quota == null){
+        if (quota == null) {
             quota = new BoxQuota();
         }
         return quota;
@@ -124,7 +124,8 @@ public class AppPreference {
 
     private <T> void putJsonModel(String key, T model, SimpleJSONAdapter<T> adapter) {
         try {
-            this.settings.edit().putString(key, adapter.toJson(model).toString()).commit();
+            String value = (model != null ? adapter.toJson(model).toString() : null);
+            this.settings.edit().putString(key, value).commit();
         } catch (JSONException e) {
             Log.e(TAG, "Error writing model to preferences");
         }

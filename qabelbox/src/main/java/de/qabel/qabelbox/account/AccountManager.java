@@ -75,8 +75,6 @@ public class AccountManager {
 
     public void logout(){
         preferences.setToken(null);
-        preferences.setAccountName(null);
-        preferences.setAccountEMail(null);
         broadcastAccountChanged(AccountStatusCodes.LOGOUT);
     }
 }

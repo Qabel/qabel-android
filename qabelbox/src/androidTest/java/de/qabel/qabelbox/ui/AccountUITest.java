@@ -12,7 +12,7 @@ import de.qabel.qabelbox.communication.URLs;
 import de.qabel.qabelbox.config.AppPreference;
 import de.qabel.qabelbox.ui.helper.UIBoxHelper;
 
-public class AccountUITest {
+public class AccountUITest extends AbstractUITest {
     protected AppPreference appPreference;
 
     @Before
@@ -21,11 +21,6 @@ public class AccountUITest {
         appPreference = new AppPreference(context);
         appPreference.clear();
         appPreference.setWelcomeScreenShownAt(1);
-        URLs.setBaseBlockURL(TestConstants.BLOCK_URL);
-        UIBoxHelper uiBoxHelper = new UIBoxHelper(InstrumentationRegistry.getTargetContext());
-        uiBoxHelper.createTokenIfNeeded(false);
-        uiBoxHelper.removeAllIdentities();
-        uiBoxHelper.addIdentity("identity");
     }
 
     @After

@@ -20,6 +20,7 @@ import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 
@@ -45,8 +46,8 @@ public class LogoutUITest extends AccountUITest {
         assertIdentitiesNotDeleted();
         appPreference = new AppPreference(mainActivityActivityTestRule.getActivity());
         assertThat("Login token not deleted", appPreference.getToken(), nullValue());
-        assertThat("Login name not deleted", appPreference.getAccountName(), nullValue());
-        assertThat("Login email not deleted", appPreference.getAccountEMail(), nullValue());
+        assertThat("Login name deleted", appPreference.getAccountName(), notNullValue());
+        assertThat("Login email deleted", appPreference.getAccountEMail(), notNullValue());
     }
 
     public void assertIdentitiesNotDeleted() throws Exception {

@@ -58,10 +58,10 @@ public class UIBoxHelper {
     public UIBoxHelper(Context context) {
         this.context = context;
         BoxTestHelper helper = new BoxTestHelper((QabelBoxApplication)context.getApplicationContext());
-        boxManager = helper.createBoxManager();
-        identityRepository = helper.createIdentityRepository();
-        contactRepository = helper.createContactRepository();
-        preference = helper.createAppPreferences();
+        boxManager = helper.getBoxManager();
+        identityRepository = helper.getIdentityRepository();
+        contactRepository = helper.getContactRepository();
+        preference = helper.getAppPreferences();
     }
 
     public void uploadFile(Identity identity, String name, byte[] data, String path) throws QblStorageException, IOException {

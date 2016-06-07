@@ -6,6 +6,7 @@ import javax.inject.Inject;
 import de.qabel.desktop.repository.ContactRepository;
 import de.qabel.desktop.repository.IdentityRepository;
 import de.qabel.qabelbox.QabelBoxApplication;
+import de.qabel.qabelbox.account.AccountManager;
 import de.qabel.qabelbox.config.AppPreference;
 import de.qabel.qabelbox.dagger.components.MockApplicationComponent;
 import de.qabel.qabelbox.storage.BoxManager;
@@ -21,24 +22,31 @@ public class BoxTestHelper {
     @Inject
     AppPreference preference;
 
-    public BoxTestHelper(QabelBoxApplication context){
-        ((MockApplicationComponent)context.getApplicationComponent()).inject(this);
+    @Inject
+    AccountManager accountManager;
+
+    public BoxTestHelper(QabelBoxApplication context) {
+        ((MockApplicationComponent) context.getApplicationComponent()).inject(this);
     }
 
-    public BoxManager createBoxManager() {
+    public BoxManager getBoxManager() {
         return boxManager;
     }
 
-    public IdentityRepository createIdentityRepository(){
+    public IdentityRepository getIdentityRepository() {
         return identityRepository;
     }
 
-    public AppPreference createAppPreferences(){
+    public AppPreference getAppPreferences() {
         return preference;
     }
 
-    public ContactRepository createContactRepository(){
+    public ContactRepository getContactRepository() {
         return contactRepository;
+    }
+
+    public AccountManager getAccountManager() {
+        return accountManager;
     }
 
 }

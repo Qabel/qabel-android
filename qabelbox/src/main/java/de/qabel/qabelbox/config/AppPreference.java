@@ -111,7 +111,11 @@ public class AppPreference {
     }
 
     public BoxQuota getBoxQuota() {
-        return getJsonModel(P_ACCOUNT_QUOTA, boxQuotaJSONAdapter);
+        BoxQuota quota = getJsonModel(P_ACCOUNT_QUOTA, boxQuotaJSONAdapter);
+        if(quota == null){
+            quota = new BoxQuota();
+        }
+        return quota;
     }
 
     public void setBoxQuota(BoxQuota boxQuota) {

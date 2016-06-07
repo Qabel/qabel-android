@@ -61,7 +61,7 @@ public class UIBoxHelper {
         boxManager = helper.getBoxManager();
         identityRepository = helper.getIdentityRepository();
         contactRepository = helper.getContactRepository();
-        preference = helper.getAppPreferences();
+        preference = helper.getAppPreference();
     }
 
     public void uploadFile(Identity identity, String name, byte[] data, String path) throws QblStorageException, IOException {

@@ -16,6 +16,7 @@ import de.qabel.qabelbox.fragments.BaseFragment
 import de.qabel.qabelbox.helper.Helper
 import de.qabel.qabelbox.ui.presenters.ChatPresenter
 import kotlinx.android.synthetic.main.fragment_contact_chat.*
+import kotlinx.android.synthetic.main.fragment_contact_chat.view.*
 
 class ChatFragment : ChatView, BaseFragment() {
 
@@ -42,14 +43,13 @@ class ChatFragment : ChatView, BaseFragment() {
         val component = getComponent(MainActivityComponent::class.java).plus(ChatModule(this))
         component.inject(this);
 
-        contact_chat_list.adapter = adapter
+        //contact_chat_list.adapter = adapter
     }
 
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
         val view = inflater?.inflate(R.layout.fragment_contact_chat, container, false)
                 ?: throw IllegalStateException("Could not create view")
-        ButterKnife.bind(this, view)
         return view
     }
 
@@ -68,4 +68,5 @@ class ChatFragment : ChatView, BaseFragment() {
     }
 
     override fun getTitle(): String? = presenter.title
+
 }

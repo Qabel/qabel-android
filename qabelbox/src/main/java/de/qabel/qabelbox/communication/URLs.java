@@ -20,19 +20,26 @@ public class URLs {
             BASE_BLOCK = context.getString(R.string.blockServer);
         }
     }
+
     @Deprecated
-    public URLs(){
+    public URLs() {
         this(QabelBoxApplication.getInstance().getApplicationContext());
     }
 
     public static void setBaseAccountingURL(String url) {
-
         BASE_ACCOUNTING = url;
     }
 
     public static void setBaseBlockURL(String url) {
-
         BASE_BLOCK = url;
+    }
+
+    public String getBaseAccounting() {
+        return BASE_ACCOUNTING;
+    }
+
+    public String getBaseBlock() {
+        return BASE_BLOCK;
     }
 
     //

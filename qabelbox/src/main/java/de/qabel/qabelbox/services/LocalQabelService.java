@@ -2,7 +2,6 @@ package de.qabel.qabelbox.services;
 
 import android.app.Service;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Binder;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
@@ -41,8 +40,8 @@ import de.qabel.desktop.repository.IdentityRepository;
 import de.qabel.desktop.repository.exception.EntityNotFoundExcepion;
 import de.qabel.desktop.repository.exception.PersistenceException;
 import de.qabel.desktop.repository.sqlite.AndroidClientDatabase;
+import de.qabel.qabelbox.config.AppPreference;
 import de.qabel.qabelbox.exceptions.QblStorageEntityExistsException;
-import de.qabel.qabelbox.helper.PreferencesHelper;
 import de.qabel.qabelbox.persistence.AndroidPersistence;
 import de.qabel.qabelbox.persistence.PersistenceMigration;
 import de.qabel.qabelbox.persistence.QblSQLiteParams;
@@ -62,12 +61,13 @@ public class LocalQabelService extends Service implements DropConnector {
     protected AndroidPersistence persistence;
     private DropHTTP dropHTTP;
 
-    SharedPreferences sharedPreferences;
+    private AppPreference appPreferences;
+
     private IdentityRepository identityRepository;
     private ContactRepository contactRepository;
 
     protected String getLastActiveIdentityID() {
-        return sharedPreferences.getString(PREF_LAST_ACTIVE_IDENTITY, "");
+        return appPreferences.getLastActiveIdentityKey();
     }
 
     public void addIdentity(Identity identity) {
@@ -94,7 +94,7 @@ public class LocalQabelService extends Service implements DropConnector {
     }
 
     public void setActiveIdentity(Identity identity) {
-        PreferencesHelper.setLastActiveIdentityID(sharedPreferences, identity.getKeyIdentifier());
+        appPreferences.setLastActiveIdentityKey(identity.getKeyIdentifier());
     }
 
     public void deleteIdentity(Identity identity) {
@@ -381,7 +381,7 @@ public class LocalQabelService extends Service implements DropConnector {
         } catch (EntityNotFoundExcepion | PersistenceException e) {
             Log.e(TAG, "Migration of identities and contatcs failed", e);
         }
-        sharedPreferences = getSharedPreferences(LocalQabelService.class.getCanonicalName(), MODE_PRIVATE);
+        appPreferences = new AppPreference(getApplicationContext());
     }
 
     private void migratePersistence() throws EntityNotFoundExcepion, PersistenceException {

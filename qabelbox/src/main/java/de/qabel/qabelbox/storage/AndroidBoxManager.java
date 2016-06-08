@@ -18,6 +18,7 @@ import java.security.InvalidKeyException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -210,6 +211,10 @@ public class AndroidBoxManager implements BoxManager {
         context.sendBroadcast(new Intent(QblBroadcastConstants.Storage.BOX_VOLUMES_CHANGES));
     }
 
+    private void notifyBoxChanged() {
+        context.sendBroadcast(new Intent(QblBroadcastConstants.Storage.BOX_CHANGED));
+    }
+
     @Override
     public File downloadFileDecrypted(String documentIdString) throws QblStorageException {
         DocumentId documentId = documentIdParser.parse(documentIdString);
@@ -353,6 +358,8 @@ public class AndroidBoxManager implements BoxManager {
         } catch (QblStorageException e) {
             removeUpload(documentIdString, StorageBroadcastConstants.UPLOAD_STATUS_FAILED, null);
             throw e;
+        } finally {
+            notifyBoxChanged();
         }
     }
 
@@ -378,6 +385,7 @@ public class AndroidBoxManager implements BoxManager {
         if (!transferManager.waitFor(requestId)) {
             throw new QblStorageException("Cannot delete file!");
         }
+        notifyBoxChanged();
     }
 
 }

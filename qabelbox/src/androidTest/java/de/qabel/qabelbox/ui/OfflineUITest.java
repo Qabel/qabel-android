@@ -1,12 +1,9 @@
 package de.qabel.qabelbox.ui;
 
 import android.app.Activity;
-import android.content.Context;
 import android.os.PowerManager;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.rule.ActivityTestRule;
-
-import com.squareup.spoon.Spoon;
 
 import org.junit.After;
 import org.junit.Before;
@@ -14,7 +11,6 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import de.qabel.core.config.Identity;
-import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.TestConstants;
 import de.qabel.qabelbox.activities.MainActivity;
@@ -66,7 +62,7 @@ public class OfflineUITest {
                 @Override
                 public void run() {
                     if (connected) {
-                        listener.handleConnectionEtablished();
+                        listener.handleConnectionEstablished();
                     } else {
                         listener.handleConnectionLost();
                     }

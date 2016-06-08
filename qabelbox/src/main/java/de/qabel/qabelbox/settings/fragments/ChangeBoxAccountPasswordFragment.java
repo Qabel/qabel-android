@@ -1,6 +1,5 @@
-package de.qabel.qabelbox.fragments;
+package de.qabel.qabelbox.settings.fragments;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Fragment;
 import android.os.Bundle;
@@ -19,50 +18,66 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 
+import javax.inject.Inject;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.Unbinder;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.communication.BoxAccountRegisterServer;
 import de.qabel.qabelbox.communication.callbacks.JsonRequestCallback;
 import de.qabel.qabelbox.helper.UIHelper;
+import de.qabel.qabelbox.settings.SettingsActivity;
 import de.qabel.qabelbox.validation.PasswordValidator;
 import okhttp3.Response;
 
 public class ChangeBoxAccountPasswordFragment extends Fragment {
 
-    private EditText etOldPassword, etPassword1, etPassword2;
-    private BoxAccountRegisterServer mBoxAccountServer;
+    @BindView(R.id.et_old_password)
+    EditText etOldPassword;
+    @BindView(R.id.et_password1)
+    EditText etPassword1;
+    @BindView(R.id.et_password2)
+    EditText etPassword2;
+
+    @Inject
+    BoxAccountRegisterServer mBoxAccountServer;
+
+    private Unbinder viewBinder;
     private PasswordValidator validator = new PasswordValidator();
+
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        ((SettingsActivity)getActivity()).getComponent().inject(this);
+    }
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-
-        View view = inflater.inflate(R.layout.fragment_change_box_account_password, container, false);
-
-        etOldPassword = (EditText) view.findViewById(R.id.et_old_password);
-        etPassword1 = (EditText) view.findViewById(R.id.et_password1);
-        etPassword2 = (EditText) view.findViewById(R.id.et_password2);
+        final View view = inflater.inflate(R.layout.fragment_change_box_account_password, container, false);
+        this.viewBinder = ButterKnife.bind(this, view);
         setHasOptionsMenu(true);
-        //tvMessage.setText(mMessageId);
 
         return view;
     }
 
     @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-        mBoxAccountServer = new BoxAccountRegisterServer(getActivity().getApplicationContext());
+    public void onDestroyView() {
+        super.onDestroyView();
+        if(viewBinder != null){
+            viewBinder.unbind();
+        }
     }
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-
         menu.clear();
         inflater.inflate(R.menu.ab_next, menu);
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-
         if (item.getItemId() == R.id.action_ok) {
             String pw = etPassword1.getText().toString();
             String pwRepeat = etPassword2.getText().toString();

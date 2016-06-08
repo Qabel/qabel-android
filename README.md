@@ -6,7 +6,7 @@
 > The Qabel Android Client
 
 [![Build Status](https://jenkins.prae.me/buildStatus/icon?job=qabel-android-nightly)](https://jenkins.prae.me/job/qabel-android-nightly/)
-[![version](https://img.shields.io/badge/beta-0.6.0--beta.1-ff690f.svg)](https://qabel.de)
+[![version](https://img.shields.io/badge/beta-0.7.1--beta.1-ff690f.svg)](https://qabel.de)
 
 This project provides a Client for <a href="https://qabel.de"><img alt="Qabel" src="https://files.qabel.de/img/qabel-kl.png" height="18px"/></a> targeting Android. It is a small part of the qabel platform.
 
@@ -45,7 +45,7 @@ Everything below this line describes the usage of the Qabel Android Client for d
 
 # <a name="getting_started"></a>Getting started
 
-* Install the Android [SDK](https://developer.android.com/studio/index.html) 
+* Install the Android [SDK](https://developer.android.com/studio/index.html)
 * Install the SDK version 23. Make sure you install the "Android Support Repository" and the latest "Android SDK build-tools"
 * Install the [NDK](https://developer.android.com/ndk/index.html)
 * Checkout the project from git
@@ -56,7 +56,7 @@ Everything below this line describes the usage of the Qabel Android Client for d
 
         sdk.dir=/opt/Android/SDK
         ndk.dir=/opt/Android/NDK
-        
+
 * Run `./gradlew build`
 * Usage of Android Studio with the Kotlin plugin is recommended for development
 

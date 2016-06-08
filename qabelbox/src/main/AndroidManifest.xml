@@ -81,7 +81,7 @@
             android:theme="@style/AppVPITheme"
             android:windowSoftInputMode="adjustPan"/>
         <activity
-            android:name=".activities.SettingsActivity"
+            android:name=".settings.SettingsActivity"
             android:label="@string/app_name"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar"

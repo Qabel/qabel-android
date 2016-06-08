@@ -9,7 +9,7 @@ import de.qabel.qabelbox.communication.connection.ConnectivityManager;
 @Module
 public class ActivityModule {
 
-    private final AppCompatActivity activity;
+    protected final AppCompatActivity activity;
 
     public ActivityModule(AppCompatActivity activity) {
         this.activity = activity;

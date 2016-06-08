@@ -32,28 +32,12 @@ public class BoxAccountRegisterServer extends BaseServer {
     private static final String JSON_PASSWORD_NEW_1 = "new_password1";
     private static final String JSON_PASSWORD_NEW_2 = "new_password2";
 
+    @Deprecated
     public BoxAccountRegisterServer(Context context){
         super(context);
     }
-
-    /**
-     * main function for server action
-     *
-     * @param url
-     * @param json
-     * @param callback
-     * @param token
-     */
-    private void doServerAction(String url, JSONObject json, JsonRequestCallback callback, String token) {
-
-        RequestBody body = RequestBody.create(JSON, json.toString());
-        Request.Builder builder = new Request.Builder()
-                .url(url)
-                .post(body);
-        addHeader(token, builder);
-        final Request request = builder.build();
-        Log.v(TAG, "request: " + request.toString() + " JSON: " + json.toString());
-        doRequest(request, callback);
+    public BoxAccountRegisterServer(Context context, AppPreference preference){
+        super(preference, context);
     }
 
     private void doServerAction(String url, JSONObject json, JsonRequestCallback callback) {
@@ -72,7 +56,7 @@ public class BoxAccountRegisterServer extends BaseServer {
             e.printStackTrace();
         }
 
-        doServerAction(urls.getRegister(), json, callback);
+        doServerAction(getUrls().getRegister(), json, callback);
     }
 
     public void login(String username, String password, JsonRequestCallback callback) {
@@ -85,13 +69,12 @@ public class BoxAccountRegisterServer extends BaseServer {
             e.printStackTrace();
         }
 
-        doServerAction(urls.getLogin(), json, callback);
+        doServerAction(getUrls().getLogin(), json, callback);
     }
 
     public void logout(Context context, JsonRequestCallback callback) {
-
         JSONObject json = new JSONObject();
-        doServerAction(urls.getLogout(), json, callback, new AppPreference(context).getToken());
+        doServerAction(getUrls().getLogout(), json, callback, new AppPreference(context).getToken());
     }
 
     public void changePassword(Context context, String old_password, String new_password1, String new_password2, JsonRequestCallback callback) {
@@ -105,7 +88,7 @@ public class BoxAccountRegisterServer extends BaseServer {
             e.printStackTrace();
         }
 
-        doServerAction(urls.getPasswordChange(), json, callback, new AppPreference(context).getToken());
+        doServerAction(getUrls().getPasswordChange(), json, callback, new AppPreference(context).getToken());
     }
 
     public void resetPassword(String email, JsonRequestCallback callback) {
@@ -117,7 +100,7 @@ public class BoxAccountRegisterServer extends BaseServer {
             e.printStackTrace();
         }
 
-        doServerAction(urls.getPasswordReset(), json, callback);
+        doServerAction(getUrls().getPasswordReset(), json, callback);
     }
 
     /**

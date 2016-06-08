@@ -20,22 +20,18 @@ import android.provider.MediaStore.Video.Media;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -58,19 +54,13 @@ import de.qabel.qabelbox.dagger.components.DaggerBoxComponent;
 import de.qabel.qabelbox.dagger.modules.ContextModule;
 import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.exceptions.QblStorageNotFound;
-import de.qabel.qabelbox.services.StorageBroadcastConstants;
 import de.qabel.qabelbox.storage.BoxManager;
 import de.qabel.qabelbox.storage.BoxVolume;
-import de.qabel.qabelbox.storage.model.BoxExternalFile;
 import de.qabel.qabelbox.storage.model.BoxFile;
 import de.qabel.qabelbox.storage.model.BoxFolder;
 import de.qabel.qabelbox.storage.model.BoxObject;
 import de.qabel.qabelbox.storage.navigation.BoxNavigation;
 import de.qabel.qabelbox.storage.notifications.StorageNotificationManager;
-import de.qabel.qabelbox.storage.transfer.BlockServerTransferManager;
-import de.qabel.qabelbox.storage.transfer.BoxTransferListener;
-import de.qabel.qabelbox.storage.transfer.FakeTransferManager;
-import de.qabel.qabelbox.storage.transfer.TransferManager;
 
 public class BoxProvider extends DocumentsProvider {
 
@@ -480,7 +470,7 @@ public class BoxProvider extends DocumentsProvider {
                         protected String doInBackground(Void... params) {
                             try {
                                 DocumentId documentId1 = mDocumentIdParser.parse(documentId);
-                                String path = documentId1.getFilePath();
+                                String path = documentId1.getPathString();
                                 BoxVolume volume = getVolumeForRoot(documentId1.getIdentityKey(),
                                         documentId1.getPrefix());
                                 BoxNavigation boxNavigation = volume.navigate();

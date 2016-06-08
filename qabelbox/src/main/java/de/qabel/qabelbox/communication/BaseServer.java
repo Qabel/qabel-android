@@ -12,19 +12,23 @@ import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
+import de.qabel.qabelbox.communication.callbacks.JsonRequestCallback;
 import de.qabel.qabelbox.communication.callbacks.RequestCallback;
 import de.qabel.qabelbox.communication.connection.ConnectivityManager;
+import de.qabel.qabelbox.config.AppPreference;
 import okhttp3.Call;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
+import okhttp3.RequestBody;
 
 public class BaseServer {
 
     protected final OkHttpClient client;
     protected final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
     private static final String TAG = "BaseServer";
-    URLs urls;
+    private URLs urls;
+    private AppPreference preferences;
 
     private ConnectivityManager connectivityManager;
     private List<RequestAction> requestActionQueue = new LinkedList<>();
@@ -33,7 +37,11 @@ public class BaseServer {
      * create new instance of http client and set timeouts
      */
     public BaseServer(Context context) {
+        this(new AppPreference(context), context);
+    }
 
+    public BaseServer(AppPreference preferences, Context context){
+        this.preferences = preferences;
         connectivityManager = new ConnectivityManager(context);
         connectivityManager.setListener(new ConnectivityManager.ConnectivityListener() {
             @Override
@@ -48,7 +56,7 @@ public class BaseServer {
             }
 
             @Override
-            public void handleConnectionEtablished() {
+            public void handleConnectionEstablished() {
                 if (!requestActionQueue.isEmpty()) {
                     List<RequestAction> failedActions = new LinkedList<RequestAction>();
                     for (RequestAction action : requestActionQueue) {
@@ -78,6 +86,10 @@ public class BaseServer {
         builder.readTimeout(15, TimeUnit.SECONDS);    // socket timeout
         builder.writeTimeout(10, TimeUnit.SECONDS);
         client = builder.build();
+    }
+
+    protected String getToken(){
+        return preferences.getToken();
     }
 
     protected void doRequest(final Request request, RequestCallback callback) {
@@ -121,6 +133,18 @@ public class BaseServer {
         }
     }
 
+    protected void doServerAction(String url, JSONObject json, JsonRequestCallback callback, String token) {
+        Request.Builder builder = new Request.Builder()
+                .url(url);
+        if (json != null) {
+            RequestBody body = RequestBody.create(JSON, json.toString());
+            builder.post(body);
+        }
+        addHeader(token, builder);
+        final Request request = builder.build();
+        doRequest(request, callback);
+    }
+
     /**
      * try to parse json objecct as array, otherwise try to get as string.
      *
@@ -148,5 +172,9 @@ public class BaseServer {
             }
         }
         return resultString;
+    }
+
+    protected URLs getUrls() {
+        return urls;
     }
 }

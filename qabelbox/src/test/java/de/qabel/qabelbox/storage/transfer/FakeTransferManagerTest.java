@@ -1,4 +1,4 @@
-package de.qabel.qabelbox.storage;
+package de.qabel.qabelbox.storage.transfer;
 
 import junit.framework.Assert;
 
@@ -17,8 +17,6 @@ import java.util.UUID;
 import de.qabel.qabelbox.BuildConfig;
 import de.qabel.qabelbox.SimpleApplication;
 import de.qabel.qabelbox.exceptions.QblStorageException;
-import de.qabel.qabelbox.storage.transfer.BoxTransferListener;
-import de.qabel.qabelbox.storage.transfer.FakeTransferManager;
 import de.qabel.qabelbox.test.files.FileHelper;
 
 import static junit.framework.Assert.assertEquals;

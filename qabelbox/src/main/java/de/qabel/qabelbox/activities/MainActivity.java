@@ -484,7 +484,7 @@ public class MainActivity extends CrashReportingActivity
                     break;
                 default:
                     if (startContactsFragment) {
-                        navigator.selectContactsFragment(activeContact);
+                        navigator.selectChatFragment(activeContact);
                     } else if (startFilesFragment) {
                         initAndSelectFilesFragment(filePath);
                     }
@@ -492,7 +492,7 @@ public class MainActivity extends CrashReportingActivity
             }
         } else {
             if (startContactsFragment) {
-                navigator.selectContactsFragment(activeContact);
+                navigator.selectChatFragment(activeContact);
             } else if (startFilesFragment) {
                 initAndSelectFilesFragment(filePath);
             }
@@ -1159,7 +1159,7 @@ public class MainActivity extends CrashReportingActivity
             ShareHelper.tellAFriend(this);
         }
         if (id == R.id.nav_contacts) {
-            navigator.selectContactsFragment();
+            navigator.selectChatFragment();
         } else if (id == R.id.nav_browse) {
             navigator.selectFilesFragment();
         } else if (id == R.id.nav_settings) {

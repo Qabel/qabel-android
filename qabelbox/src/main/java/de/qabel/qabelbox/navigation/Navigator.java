@@ -5,9 +5,9 @@ public interface Navigator {
 
     void selectManageIdentitiesFragment();
 
-    void selectContactsFragment(String activeContact);
+    void selectChatFragment(String activeContact);
 
-    void selectContactsFragment();
+    void selectChatFragment();
 
     void selectHelpFragment();
 

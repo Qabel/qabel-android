@@ -10,7 +10,7 @@ import de.qabel.qabelbox.dto.MessagePayload
 open class ChatMessageAdapter(var messages: List<ChatMessage>): RecyclerView.Adapter<ChatMessageViewHolder>() {
 
     companion object {
-        const val NO_MESSAGE = 0
+        const val NO_MESSAGE = R.layout.item_no_message
         const val INCOMING_TEXT = R.layout.item_chat_message_in
         const val INCOMING_SHARE = R.layout.item_share_message_in
         const val OUTGOING_TEXT = R.layout.item_chat_message_out

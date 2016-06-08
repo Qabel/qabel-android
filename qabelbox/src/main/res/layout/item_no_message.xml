@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:id="@+id/checkMessageIn"
+    android:layout_height="wrap_content"
+    android:layout_gravity="center_horizontal"
+    android:orientation="horizontal">
+
+    <ImageView
+        android:layout_width="20sp"
+        android:layout_height="25sp"
+        android:layout_marginTop="10sp"
+        android:background="@drawable/chat_in_left"/>
+
+</LinearLayout>

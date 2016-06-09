@@ -28,47 +28,10 @@
             android:text="This is an example Message"
             android:textColor="@color/white"/>
 
-        <RelativeLayout
-            android:id="@+id/messageFileContainer"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="5sp"
-            android:layout_marginLeft="5sp"
-            android:layout_below="@+id/tvText"
-            android:background="@drawable/round_box"
-            android:padding="0sp"
-            android:visibility="invisible">
-
-            <ImageView
-                android:id="@+id/messageFileIcon"
-                style="@style/ListIcon"
-                android:layout_alignParentLeft="true"
-                android:layout_alignParentStart="true"
-                android:layout_alignParentTop="true"
-                android:background="@drawable/file"/>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_toRightOf="@+id/messageFileIcon">
-
-                <de.qabel.qabelbox.views.TextViewFont
-                    android:id="@+id/tvLink"
-                    style="@style/ListSecondTextLine"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:gravity="center_vertical|left"
-                    android:ellipsize="end"
-                    android:text="@string/messsage_file_shared"
-                    android:textColor="@color/text_black"/>
-            </LinearLayout>
-        </RelativeLayout>
-
         <de.qabel.qabelbox.views.TextViewFont
             android:id="@+id/tvDate"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/messageFileContainer"
             android:layout_alignParentRight="true"
             android:layout_marginTop="5sp"
             android:text="Fr. 15.39"

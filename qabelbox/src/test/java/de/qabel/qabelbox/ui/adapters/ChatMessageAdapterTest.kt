@@ -1,6 +1,5 @@
 package de.qabel.qabelbox.ui.adapters
 
-import android.app.Fragment
 import android.view.View
 import android.widget.LinearLayout
 import android.widget.RelativeLayout

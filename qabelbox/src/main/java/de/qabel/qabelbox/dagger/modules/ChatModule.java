@@ -1,5 +1,7 @@
 package de.qabel.qabelbox.dagger.modules;
 
+import android.content.Context;
+
 import dagger.Module;
 import dagger.Provides;
 import de.qabel.core.config.Contact;
@@ -32,27 +34,36 @@ public class ChatModule {
     }
 
     @Provides
-    ChatMessageTransformer provideTransformer(IdentityRepository identityRepository, ContactRepository contactRepository) {
-        return new ChatMessageTransformer(identityRepository, contactRepository);
-    }
-
-    @Provides
-    public ChatUseCase provideChatUseCase(Identity identity, Contact contact, ChatMessageTransformer transformer, ChatServer chatServer) {
-        return new TransformingChatUseCase(identity, contact, transformer, chatServer);
-    }
-
-    @ActivityScope
-    @Provides
-    public ChatPresenter provideChatPresenter(TransformingChatUseCase chatUseCase) {
-        return new MainChatPresenter(view, chatUseCase);
-    }
-
-    @ActivityScope
-    @Provides Contact provideContact(ContactRepository contactRepository, Identity identity) {
+    Contact provideContact(ContactRepository contactRepository, Identity identity) {
         try {
             return contactRepository.findByKeyId(identity, view.getContactKeyId());
         } catch (EntityNotFoundExcepion e) {
             throw new IllegalStateException("Contact not found");
         }
     }
+
+
+    @Provides
+    ChatMessageTransformer provideTransformer(IdentityRepository identityRepository,
+                                              ContactRepository contactRepository) {
+        return new ChatMessageTransformer(identityRepository, contactRepository);
+    }
+
+
+    @Provides
+    public ChatUseCase provideChatUseCase(Identity identity, Contact contact,
+                                          ChatMessageTransformer transformer, ChatServer chatServer) {
+        return new TransformingChatUseCase(identity, contact, transformer, chatServer);
+    }
+
+
+    @Provides ChatServer provideChatServer(Context context) {
+        return new ChatServer(context);
+    }
+
+    @Provides
+    public ChatPresenter provideChatPresenter(ChatUseCase chatUseCase) {
+        return new MainChatPresenter(view, chatUseCase);
+    }
+
 }

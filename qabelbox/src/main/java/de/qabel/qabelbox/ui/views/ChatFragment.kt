@@ -2,6 +2,7 @@ package de.qabel.qabelbox.ui.views
 
 import android.content.Intent
 import android.os.Bundle
+import android.support.v7.widget.LinearLayoutManager
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -14,6 +15,8 @@ import de.qabel.qabelbox.dto.ChatMessage
 import de.qabel.qabelbox.fragments.BaseFragment
 import de.qabel.qabelbox.helper.Helper
 import de.qabel.qabelbox.ui.presenters.ChatPresenter
+import kotlinx.android.synthetic.main.fragment_contact_chat.*
+import javax.inject.Inject
 
 class ChatFragment : ChatView, BaseFragment() {
 
@@ -32,15 +35,18 @@ class ChatFragment : ChatView, BaseFragment() {
     val adapter = ChatMessageAdapter(listOf())
 
     lateinit override var contactKeyId: String
+    @Inject
     lateinit var presenter: ChatPresenter
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        contactKeyId = savedInstanceState?.getString(ARG_CONTACT)?: ""
+        contactKeyId = arguments.getString(ARG_CONTACT)?: throw IllegalArgumentException(
+                "Starting ChatFragment without contactKeyId")
         val component = getComponent(MainActivityComponent::class.java).plus(ChatModule(this))
         component.inject(this);
 
-        //contact_chat_list.adapter = adapter
+        contact_chat_list.layoutManager = LinearLayoutManager(view.context)
+        contact_chat_list.adapter = adapter
     }
 
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?,
@@ -64,6 +70,6 @@ class ChatFragment : ChatView, BaseFragment() {
         adapter.notifyDataSetChanged()
     }
 
-    override fun getTitle(): String? = presenter.title
+    //override fun getTitle(): String? = presenter.title
 
 }

@@ -60,11 +60,11 @@ public class UIHelper {
             final AlertDialog dialog = builder.create();
             dialog.setOnShowListener(dialog1 -> {
 
-                fontHelper.setCustomeFonts((TextView) dialog.findViewById(android.R.id.message));
-                fontHelper.setCustomeFonts((TextView) dialog.findViewById(android.R.id.title));
+                fontHelper.setCustomFonts((TextView) dialog.findViewById(android.R.id.message));
+                fontHelper.setCustomFonts((TextView) dialog.findViewById(android.R.id.title));
 
-                fontHelper.setCustomeFonts(dialog.getButton(AlertDialog.BUTTON_POSITIVE));
-                fontHelper.setCustomeFonts(dialog.getButton(AlertDialog.BUTTON_NEGATIVE));
+                fontHelper.setCustomFonts(dialog.getButton(AlertDialog.BUTTON_POSITIVE));
+                fontHelper.setCustomFonts(dialog.getButton(AlertDialog.BUTTON_NEGATIVE));
             });
 
             dialog.show();
@@ -118,8 +118,8 @@ public class UIHelper {
             public void onShow(DialogInterface dialog1) {
 
                 final FontHelper fontHelper = FontHelper.getInstance();
-                fontHelper.setCustomeFonts((TextView) dialog.findViewById(android.R.id.message));
-                fontHelper.setCustomeFonts((TextView) dialog.findViewById(android.R.id.title));
+                fontHelper.setCustomFonts((TextView) dialog.findViewById(android.R.id.message));
+                fontHelper.setCustomFonts((TextView) dialog.findViewById(android.R.id.title));
             }
         });
 
@@ -182,11 +182,11 @@ public class UIHelper {
                     @Override
                     public void onShow(DialogInterface dialog1) {
 
-                        fontHelper.setCustomeFonts((TextView) dialog.findViewById(android.R.id.message));
-                        fontHelper.setCustomeFonts((TextView) dialog.findViewById(android.R.id.title));
+                        fontHelper.setCustomFonts((TextView) dialog.findViewById(android.R.id.message));
+                        fontHelper.setCustomFonts((TextView) dialog.findViewById(android.R.id.title));
 
-                        fontHelper.setCustomeFonts(dialog.getButton(AlertDialog.BUTTON_POSITIVE));
-                        fontHelper.setCustomeFonts(dialog.getButton(AlertDialog.BUTTON_NEGATIVE));
+                        fontHelper.setCustomFonts(dialog.getButton(AlertDialog.BUTTON_POSITIVE));
+                        fontHelper.setCustomFonts(dialog.getButton(AlertDialog.BUTTON_NEGATIVE));
                     }
                 });
 
@@ -228,11 +228,11 @@ public class UIHelper {
                     @Override
                     public void onShow(DialogInterface dialog1) {
 
-                        fontHelper.setCustomeFonts((TextView) dialog.findViewById(android.R.id.message));
-                        fontHelper.setCustomeFonts((TextView) dialog.findViewById(android.R.id.title));
+                        fontHelper.setCustomFonts((TextView) dialog.findViewById(android.R.id.message));
+                        fontHelper.setCustomFonts((TextView) dialog.findViewById(android.R.id.title));
 
-                        fontHelper.setCustomeFonts(dialog.getButton(AlertDialog.BUTTON_POSITIVE));
-                        fontHelper.setCustomeFonts(dialog.getButton(AlertDialog.BUTTON_NEGATIVE));
+                        fontHelper.setCustomFonts(dialog.getButton(AlertDialog.BUTTON_POSITIVE));
+                        fontHelper.setCustomFonts(dialog.getButton(AlertDialog.BUTTON_NEGATIVE));
                     }
                 });
 
@@ -268,10 +268,10 @@ public class UIHelper {
                     @Override
                     public void onShow(DialogInterface dialog1) {
 
-                        fontHelper.setCustomeFonts((TextView) dialog.findViewById(android.R.id.message));
-                        fontHelper.setCustomeFonts((TextView) dialog.findViewById(android.R.id.title));
+                        fontHelper.setCustomFonts((TextView) dialog.findViewById(android.R.id.message));
+                        fontHelper.setCustomFonts((TextView) dialog.findViewById(android.R.id.title));
 
-                        fontHelper.setCustomeFonts(dialog.getButton(AlertDialog.BUTTON_POSITIVE));
+                        fontHelper.setCustomFonts(dialog.getButton(AlertDialog.BUTTON_POSITIVE));
 
                     }
                 });

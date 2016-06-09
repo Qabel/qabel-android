@@ -7,10 +7,9 @@ import android.widget.TextView;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.views.TextViewQabelFont;
 
-/**
- * Created by danny on 12.01.2016.
- */
 public class FontHelper {
+
+    public static boolean disable = false;
 
     private Typeface[] fonts;
     private static FontHelper instance = null;
@@ -28,8 +27,7 @@ public class FontHelper {
         return instance;
     }
 
-    private void loadCustomeFonts(Context context) {
-
+    private void loadCustomFonts(Context context) {
         //load fonts in fixed order, 0=normal, 1=bold, 2=italic, 3=bolditalic
         String[] fontList = context.getResources().getStringArray(R.array.fonts);
         fonts = new Typeface[fontList.length];
@@ -40,11 +38,14 @@ public class FontHelper {
         }
     }
 
-    public void setCustomeFonts(TextView view) {
+    public void setCustomFonts(TextView view) {
+        if (disable) {
+            return;
+        }
 
         if (view != null && !view.isInEditMode()) {
             if (fonts == null) {
-                loadCustomeFonts(view.getContext());
+                loadCustomFonts(view.getContext());
             }
             int style = Typeface.NORMAL;
             if (view.getTypeface() != null) {
@@ -57,8 +58,11 @@ public class FontHelper {
     }
 
     public void setQabelFont(TextViewQabelFont tv) {
+        if (disable) {
+            return;
+        }
         if (qabelFont == null) {
-            loadCustomeFonts(tv.getContext());
+            loadCustomFonts(tv.getContext());
         }
         tv.setTypeface(qabelFont);
     }

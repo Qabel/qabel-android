@@ -3,19 +3,20 @@ package de.qabel.qabelbox.ui.adapters
 import android.app.Fragment
 import android.view.View
 import android.widget.LinearLayout
+import com.natpryce.hamkrest.assertion.assertThat
+import com.natpryce.hamkrest.equalTo
+import com.nhaarman.mockito_kotlin.any
+import com.nhaarman.mockito_kotlin.mock
+import com.nhaarman.mockito_kotlin.stub
 import de.qabel.qabelbox.BuildConfig
 import de.qabel.qabelbox.SimpleApplication
-import com.nhaarman.mockito_kotlin.*
-import com.natpryce.hamkrest.*
-import com.natpryce.hamkrest.assertion.assertThat
-import com.natpryce.hamkrest.should.shouldMatch
-import de.qabel.qabelbox.chat.ChatMessageItem
+import de.qabel.qabelbox.adapter.ChatMessageAdapter
 import de.qabel.qabelbox.dto.ChatMessage
 import de.qabel.qabelbox.dto.MessagePayload
 import de.qabel.qabelbox.dto.SymmetricKey
-
+import de.qabel.qabelbox.helper.FontHelper
+import de.qabel.qabelbox.test.shadows.TextViewFontShadow
 import org.junit.Before
-import org.junit.After
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricGradleTestRunner
@@ -25,7 +26,8 @@ import java.net.URL
 import java.util.*
 
 @RunWith(RobolectricGradleTestRunner::class)
-@Config(application = SimpleApplication::class, constants = BuildConfig::class)
+@Config(application = SimpleApplication::class, constants = BuildConfig::class,
+        shadows = arrayOf(TextViewFontShadow::class), manifest = "src/main/AndroidManifest.xml")
 class ChatMessageAdapterTest {
 
     lateinit var adapter: ChatMessageAdapter
@@ -39,6 +41,7 @@ class ChatMessageAdapterTest {
     fun setUp() {
         adapter = ChatMessageAdapter(listOf())
         stub(fragment.getString(any())).toReturn("ressource string")
+        FontHelper.disable = true;
     }
 
     @Test
@@ -52,7 +55,7 @@ class ChatMessageAdapterTest {
     fun itemAt() {
         val second = message.copy(direction = ChatMessage.Direction.OUTGOING)
         val third : ChatMessage? = null
-        adapter.messages = listOf(message, message)
+        adapter.messages = listOf(message, second)
         assertThat(adapter.getItemAtPosition(0)!!, equalTo(message))
         assertThat(adapter.getItemAtPosition(1)!!, equalTo(second))
         assertThat(adapter.getItemAtPosition(2), equalTo(third))

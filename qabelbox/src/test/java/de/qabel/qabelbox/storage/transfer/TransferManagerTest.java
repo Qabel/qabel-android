@@ -23,7 +23,6 @@ import de.qabel.qabelbox.storage.transfer.AbstractTransferManagerTest;
 import de.qabel.qabelbox.storage.transfer.BlockServerTransferManager;
 import de.qabel.qabelbox.storage.server.AndroidBlockServer;
 
-@Ignore("The test servers are flaky")
 @RunWith(RobolectricGradleTestRunner.class)
 @Config(application = SimpleApplication.class, constants = BuildConfig.class)
 public class TransferManagerTest extends AbstractTransferManagerTest {

@@ -5,7 +5,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import butterknife.ButterKnife
 import de.qabel.core.config.Contact
 import de.qabel.qabelbox.R
 import de.qabel.qabelbox.adapter.ChatMessageAdapter
@@ -15,8 +14,6 @@ import de.qabel.qabelbox.dto.ChatMessage
 import de.qabel.qabelbox.fragments.BaseFragment
 import de.qabel.qabelbox.helper.Helper
 import de.qabel.qabelbox.ui.presenters.ChatPresenter
-import kotlinx.android.synthetic.main.fragment_contact_chat.*
-import kotlinx.android.synthetic.main.fragment_contact_chat.view.*
 
 class ChatFragment : ChatView, BaseFragment() {
 
@@ -32,7 +29,7 @@ class ChatFragment : ChatView, BaseFragment() {
         }
     }
 
-    val adapter = ChatMessageAdapter()
+    val adapter = ChatMessageAdapter(listOf())
 
     lateinit override var contactKeyId: String
     lateinit var presenter: ChatPresenter
@@ -63,7 +60,7 @@ class ChatFragment : ChatView, BaseFragment() {
     }
 
     private fun fillAdapter(messages: List<ChatMessage>) {
-        adapter.chatMessages = messages
+        adapter.messages = messages
         adapter.notifyDataSetChanged()
     }
 

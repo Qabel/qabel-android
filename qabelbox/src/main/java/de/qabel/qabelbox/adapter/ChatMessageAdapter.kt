@@ -23,12 +23,8 @@ open class ChatMessageAdapter(var messages: List<ChatMessage>): RecyclerView.Ada
             throw IllegalArgumentException("Parent view group is null")
         }
 
-        val layout = when(viewType) {
-            0 -> LayoutInflater.from(parent.context)
-                    .inflate(R.layout.item_chat_message_in, parent, false);
-            else -> LayoutInflater.from(parent.context)
-                    .inflate(R.layout.item_chat_message_in, parent, false);
-        }
+        val layout = LayoutInflater.from(parent.context)
+                    .inflate(viewType, parent, false);
         return ChatMessageViewHolder(layout)
     }
 

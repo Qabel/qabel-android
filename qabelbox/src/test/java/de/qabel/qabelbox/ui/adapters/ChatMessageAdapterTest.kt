@@ -3,12 +3,18 @@ package de.qabel.qabelbox.ui.adapters
 import android.app.Fragment
 import android.view.View
 import android.widget.LinearLayout
+import android.widget.RelativeLayout
 import com.natpryce.hamkrest.assertion.assertThat
 import com.natpryce.hamkrest.equalTo
+import com.natpryce.hamkrest.nothing
+import com.natpryce.hamkrest.sameInstance
+import com.natpryce.hamkrest.should.shouldMatch
 import com.nhaarman.mockito_kotlin.any
 import com.nhaarman.mockito_kotlin.mock
+import com.nhaarman.mockito_kotlin.notNull
 import com.nhaarman.mockito_kotlin.stub
 import de.qabel.qabelbox.BuildConfig
+import de.qabel.qabelbox.R
 import de.qabel.qabelbox.SimpleApplication
 import de.qabel.qabelbox.adapter.ChatMessageAdapter
 import de.qabel.qabelbox.dto.ChatMessage
@@ -16,6 +22,7 @@ import de.qabel.qabelbox.dto.MessagePayload
 import de.qabel.qabelbox.dto.SymmetricKey
 import de.qabel.qabelbox.helper.FontHelper
 import de.qabel.qabelbox.test.shadows.TextViewFontShadow
+import de.qabel.qabelbox.views.TextViewFont
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -79,7 +86,32 @@ class ChatMessageAdapterTest {
     }
 
     @Test
-    fun createsCorrectViewHolder() {
-        val holder = adapter.onCreateViewHolder(LinearLayout(RuntimeEnvironment.application), 0)
+    fun createsTextViewHolder() {
+        for (type in listOf(ChatMessageAdapter.INCOMING_TEXT, ChatMessageAdapter.OUTGOING_TEXT)) {
+            val holder = adapter.onCreateViewHolder(
+                    LinearLayout(RuntimeEnvironment.application), type)
+            checkNotNull(holder?.itemView?.findViewById(R.id.tvText) as? TextViewFont)
+            checkNotNull(holder?.itemView?.findViewById(R.id.tvDate) as? TextViewFont)
+            check(holder?.itemView?.findViewById(R.id.messageFileContainer) == null)
+        }
+    }
+
+    @Test
+    fun createsShareViewHolder() {
+        for (type in listOf(ChatMessageAdapter.INCOMING_SHARE, ChatMessageAdapter.OUTGOING_SHARE)) {
+            val holder = adapter.onCreateViewHolder(
+                    LinearLayout(RuntimeEnvironment.application), type)
+            checkNotNull(holder?.itemView?.findViewById(R.id.tvText) as? TextViewFont)
+            checkNotNull(holder?.itemView?.findViewById(R.id.tvDate) as? TextViewFont)
+            checkNotNull(holder?.itemView?.findViewById(R.id.messageFileContainer) as? RelativeLayout)
+        }
+    }
+
+    @Test
+    fun createsEmptyMessageViewHolder() {
+        val holder = adapter.onCreateViewHolder(
+                LinearLayout(RuntimeEnvironment.application), ChatMessageAdapter.NO_MESSAGE)
+        check(holder?.itemView?.findViewById(R.id.messageFileContainer) == null)
+        check(holder?.itemView?.findViewById(R.id.tvText) == null)
     }
 }

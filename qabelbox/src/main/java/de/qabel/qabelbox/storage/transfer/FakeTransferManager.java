@@ -6,7 +6,12 @@ import android.util.Log;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.Random;
 
@@ -46,7 +51,7 @@ public class FakeTransferManager implements TransferManager {
         int id = random.nextInt();
         try {
             Log.d(TAG, "Stored File: " + createKey(prefix, name));
-            FileUtils.copyFile(localfile, storedFile);
+            copyWithProgress(localfile, storedFile, boxTransferListener);
             localfile.delete();
         } catch (IOException e) {
             Log.d(TAG, "Error storing file: " + createKey(prefix, name));
@@ -58,6 +63,22 @@ public class FakeTransferManager implements TransferManager {
             boxTransferListener.onFinished();
         }
         return id;
+    }
+
+    private void copyWithProgress(File source, File target, BoxTransferListener transferListener) throws IOException {
+        InputStream inputStream = new FileInputStream(source);
+        OutputStream outputStream = new FileOutputStream(target);
+        byte[] buffer = new byte[4048];
+        long total = source.length();
+        long count = 0;
+        int n;
+        while (-1 != (n = inputStream.read(buffer))) {
+            outputStream.write(buffer, 0, n);
+            count += n;
+            if(transferListener != null){
+                transferListener.onProgressChanged(count, total);
+            }
+        }
     }
 
     @Override
@@ -74,10 +95,13 @@ public class FakeTransferManager implements TransferManager {
             errors.put(id, new QblServerException(404, "File not found"));
         } else {
             try {
-                FileUtils.copyFile(storedFile, file);
+                copyWithProgress(storedFile, file, boxTransferListener);
             } catch (IOException e) {
                 errors.put(id, new QblServerException(400, "Fake transfer manager"));
                 return id;
+            }
+            if (boxTransferListener != null) {
+                boxTransferListener.onFinished();
             }
         }
         return id;

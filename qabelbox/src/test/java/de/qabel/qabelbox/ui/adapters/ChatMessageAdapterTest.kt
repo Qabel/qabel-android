@@ -6,13 +6,13 @@ import android.widget.LinearLayout
 import android.widget.RelativeLayout
 import com.natpryce.hamkrest.assertion.assertThat
 import com.natpryce.hamkrest.equalTo
-import com.natpryce.hamkrest.nothing
-import com.natpryce.hamkrest.sameInstance
 import com.natpryce.hamkrest.should.shouldMatch
 import com.nhaarman.mockito_kotlin.any
 import com.nhaarman.mockito_kotlin.mock
-import com.nhaarman.mockito_kotlin.notNull
 import com.nhaarman.mockito_kotlin.stub
+import com.nhaarman.mockito_kotlin.verify
+import de.qabel.core.config.Contact
+import de.qabel.core.config.Identity
 import de.qabel.qabelbox.BuildConfig
 import de.qabel.qabelbox.R
 import de.qabel.qabelbox.SimpleApplication
@@ -23,6 +23,7 @@ import de.qabel.qabelbox.dto.SymmetricKey
 import de.qabel.qabelbox.helper.FontHelper
 import de.qabel.qabelbox.test.shadows.TextViewFontShadow
 import de.qabel.qabelbox.views.TextViewFont
+import kotlinx.android.synthetic.main.item_chat_message_in.view.*
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -38,34 +39,30 @@ import java.util.*
 class ChatMessageAdapterTest {
 
     lateinit var adapter: ChatMessageAdapter
-    lateinit var holder: ChatMessageViewHolder
-    val view = mock<View>()
-    val fragment = mock<Fragment>()
-    val message = ChatMessage(mock(), mock(), ChatMessage.Direction.INCOMING,
-            Date(), MessagePayload.TextMessage("Text"))
+    lateinit var message: ChatMessage
 
     @Before
     fun setUp() {
+        message = ChatMessage(mock(), mock(), ChatMessage.Direction.INCOMING,
+            Date(), MessagePayload.TextMessage("Text"))
         adapter = ChatMessageAdapter(listOf())
-        stub(fragment.getString(any())).toReturn("ressource string")
         FontHelper.disable = true;
     }
 
     @Test
     fun testGetItemCount() {
-        assertThat(adapter.itemCount, equalTo(0))
+        adapter.itemCount shouldMatch  equalTo(0)
         adapter.messages = listOf(message, message)
-        assertThat(adapter.itemCount, equalTo(2))
+        adapter.itemCount shouldMatch equalTo(2)
     }
 
     @Test
     fun itemAt() {
         val second = message.copy(direction = ChatMessage.Direction.OUTGOING)
-        val third : ChatMessage? = null
         adapter.messages = listOf(message, second)
-        assertThat(adapter.getItemAtPosition(0)!!, equalTo(message))
-        assertThat(adapter.getItemAtPosition(1)!!, equalTo(second))
-        assertThat(adapter.getItemAtPosition(2), equalTo(third))
+        adapter.getItemAtPosition(0)!! shouldMatch equalTo(message)
+        adapter.getItemAtPosition(1)!! shouldMatch equalTo(second)
+        adapter.getItemAtPosition(2) shouldMatch equalTo(null as ChatMessage?)
     }
 
     @Test
@@ -113,5 +110,30 @@ class ChatMessageAdapterTest {
                 LinearLayout(RuntimeEnvironment.application), ChatMessageAdapter.NO_MESSAGE)
         check(holder?.itemView?.findViewById(R.id.messageFileContainer) == null)
         check(holder?.itemView?.findViewById(R.id.tvText) == null)
+    }
+
+    @Test
+    fun viewHolderCanBindItself() {
+        val contact = mock<Contact>()
+        stub(contact.alias).toReturn("contact")
+        val view = mock<View>()
+        val text: TextViewFont = mock()
+        val date: TextViewFont = mock()
+        stub(view.tvText).toReturn(text)
+        stub(view.tvDate).toReturn(date)
+        val holder = ChatMessageViewHolder(view)
+        val msg = ChatMessage(mock<Identity>(), contact,
+                ChatMessage.Direction.INCOMING, Date(), MessagePayload.TextMessage("text"))
+        holder.bindTo(msg)
+        verify(text).text = "text"
+        verify(date).text  = any()
+    }
+
+    @Test
+    fun bindViewHolder() {
+        adapter.messages = listOf(message)
+        val holder: ChatMessageViewHolder = mock()
+        adapter.onBindViewHolder(holder, 0)
+        verify(holder).bindTo(message)
     }
 }

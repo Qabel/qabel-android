@@ -40,7 +40,6 @@
             android:id="@+id/tvDate"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/messageFileContainer"
             android:layout_alignParentLeft="true"
             android:layout_marginTop="5sp"
             android:text="Fr. 15.39"

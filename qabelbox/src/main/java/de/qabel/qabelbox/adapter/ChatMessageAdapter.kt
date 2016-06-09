@@ -46,7 +46,7 @@ open class ChatMessageAdapter(var messages: List<ChatMessage>): RecyclerView.Ada
     override fun getItemCount(): Int = messages.size
 
     override fun onBindViewHolder(holder: ChatMessageViewHolder?, position: Int) {
-        throw UnsupportedOperationException()
+        holder?.bindTo(getItemAtPosition(position) ?: return)
     }
 
     fun getItemAtPosition(position: Int): ChatMessage? = messages.getOrNull(position)

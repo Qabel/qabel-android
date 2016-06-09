@@ -43,6 +43,7 @@ import static junit.framework.Assert.assertNull;
 import static junit.framework.Assert.assertTrue;
 import static org.hamcrest.Matchers.equalTo;
 
+@Ignore("Ignored until the LocalQabelService is removed")
 public class ImportExportContactsUITest extends AbstractUITest {
 
     private final String TAG = this.getClass().getSimpleName();

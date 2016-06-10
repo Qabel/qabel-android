@@ -6,13 +6,11 @@ import android.support.test.InstrumentationRegistry;
 import org.junit.After;
 import org.junit.Before;
 
-import de.qabel.qabelbox.QabelBoxApplication;
-import de.qabel.qabelbox.TestConstants;
-import de.qabel.qabelbox.communication.URLs;
 import de.qabel.qabelbox.config.AppPreference;
-import de.qabel.qabelbox.ui.helper.UIBoxHelper;
 
 public class AccountUITest extends AbstractUITest {
+    public static final String ACCOUNT_NAME = "account_name";
+    public static final String ACCOUNT_E_MAIL = "account@example.com";
     protected AppPreference appPreference;
 
     @Before
@@ -31,8 +29,8 @@ public class AccountUITest extends AbstractUITest {
     }
 
     public void setAccountPreferences() {
-        appPreference.setAccountName(LogoutUITest.ACCOUNT_NAME);
-        appPreference.setAccountEMail(LogoutUITest.ACCOUNT_E_MAIL);
+        appPreference.setAccountName(ACCOUNT_NAME);
+        appPreference.setAccountEMail(ACCOUNT_E_MAIL);
     }
 
 }

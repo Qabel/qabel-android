@@ -3,6 +3,7 @@ package de.qabel.qabelbox.settings;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
+import android.view.View;
 
 import javax.inject.Inject;
 
@@ -52,7 +53,12 @@ public class SettingsActivity extends CrashReportingActivity
         actionBar.setDisplayHomeAsUpEnabled(true);
         actionBar.setHomeButtonEnabled(true);
         actionBar.setTitle(R.string.headline_settings);
-        toolbar.setNavigationOnClickListener(v -> onBackPressed());
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                SettingsActivity.this.onBackPressed();
+            }
+        });
     }
 
     @Override

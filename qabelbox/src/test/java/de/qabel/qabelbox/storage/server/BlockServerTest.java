@@ -6,16 +6,13 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricGradleTestRunner;
-import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
 
 import de.qabel.qabelbox.BuildConfig;
 import de.qabel.qabelbox.SimpleApplication;
 import de.qabel.qabelbox.communication.callbacks.JSONModelCallback;
-import de.qabel.qabelbox.config.AppPreference;
 import de.qabel.qabelbox.storage.data.BoxQuotaJSONAdapter;
 import de.qabel.qabelbox.storage.model.BoxQuota;
-import de.qabel.qabelbox.util.TestHelper;
 import okhttp3.Response;
 
 import static junit.framework.Assert.assertEquals;
@@ -33,7 +30,7 @@ public class BlockServerTest {
 
     @Test
     public void testQuota() throws Exception {
-        BoxQuota[] quota = new BoxQuota[1];
+        final BoxQuota[] quota = new BoxQuota[1];
         blockServer.getQuota(new JSONModelCallback<BoxQuota>(new BoxQuotaJSONAdapter()) {
             @Override
             protected void onSuccess(Response response, BoxQuota model) {

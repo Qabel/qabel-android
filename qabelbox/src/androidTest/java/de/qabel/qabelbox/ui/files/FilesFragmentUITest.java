@@ -10,6 +10,7 @@ import org.junit.Test;
 import java.io.File;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.Callable;
 
 import de.qabel.core.config.Contact;
 import de.qabel.core.config.Identity;
@@ -106,13 +107,18 @@ public class FilesFragmentUITest extends FilesFragmentUITestBase {
         //Check Contact is Visible
         onView(withText(testContact2.getAlias())).check(matches(isDisplayed()));
 
-        WaitResourceCallback waitCallback = new WaitResourceCallback();
+        final WaitResourceCallback waitCallback = new WaitResourceCallback();
         getIdlingResource().registerIdleTransitionCallback(waitCallback);
 
         //Perform share
         onView(withText(R.string.ok)).perform(click());
 
-        UITestHelper.waitUntil(() -> waitCallback.isDone(), "Perform share failed!");
+        UITestHelper.waitUntil(new Callable<Boolean>() {
+            @Override
+            public Boolean call() throws Exception {
+                return waitCallback.isDone();
+            }
+        }, "Perform share failed!");
 
         // onView(withText(R.string.dialog_share_sending_in_progress)).inRoot(isDialog()).check(matches(isDisplayed()));
 

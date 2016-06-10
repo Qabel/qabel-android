@@ -16,6 +16,7 @@ import org.robolectric.annotation.Config;
 
 import java.util.Date;
 
+import dagger.internal.Factory;
 import de.qabel.qabelbox.BuildConfig;
 import de.qabel.qabelbox.SimpleApplication;
 import de.qabel.qabelbox.activities.MainActivity;
@@ -25,6 +26,7 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
@@ -47,9 +49,12 @@ public class AndroidChatNotificationPresenterTest {
                 "header, header", "message",
                 new Date());
         presenter = new AndroidChatNotificationPresenter(RuntimeEnvironment.application,
-                () -> {
-                    builder = spy(new NotificationCompat.Builder(RuntimeEnvironment.application));
-                    return builder;
+                new Factory<NotificationCompat.Builder>() {
+                    @Override
+                    public NotificationCompat.Builder get() {
+                        builder = spy(new NotificationCompat.Builder(RuntimeEnvironment.application));
+                        return builder;
+                    }
                 });
     }
 
@@ -62,7 +67,7 @@ public class AndroidChatNotificationPresenterTest {
         }
         assertThat(note.when, equalTo(notification.when.getTime()));
         assertThat(note.contentIntent, notNullValue());
-        assertThat(shadowOf(note).getContentText(), equalTo(notification.message));
+        assertEquals(shadowOf(note).getContentText(), notification.message);
         verify(builder).setDefaults(Notification.DEFAULT_ALL);
     }
 

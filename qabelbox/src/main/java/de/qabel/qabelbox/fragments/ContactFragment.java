@@ -3,6 +3,7 @@ package de.qabel.qabelbox.fragments;
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.Uri;
@@ -214,48 +215,62 @@ public class ContactFragment extends BaseFragment {
 
     private void setClickListener() {
 
-        contactListAdapter.setOnItemClickListener((view, position) -> {
-            final Contact contact = contactListAdapter.getContact(position);
-            getFragmentManager().beginTransaction().add(R.id.fragment_container,
-                    ChatFragment.Companion.withContact(contact),
-                    MainNavigator.TAG_CONTACT_CHAT_FRAGMENT)
-                    .addToBackStack(MainNavigator.TAG_CONTACT_CHAT_FRAGMENT).commit();
-        }, (view, position) -> longContactClickAction(position));
+        contactListAdapter.setOnItemClickListener(new ContactsAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(View view, int position) {
+                final Contact contact = contactListAdapter.getContact(position);
+                ContactFragment.this.getFragmentManager().beginTransaction().add(R.id.fragment_container,
+                        ChatFragment.Companion.withContact(contact),
+                        MainNavigator.TAG_CONTACT_CHAT_FRAGMENT)
+                        .addToBackStack(MainNavigator.TAG_CONTACT_CHAT_FRAGMENT).commit();
+            }
+        }, new ContactsAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(View view, int position) {
+                ContactFragment.this.longContactClickAction(position);
+            }
+        });
     }
 
     private void longContactClickAction(final int position) {
         final Contact contact = contactListAdapter.getContact(position);
         new BottomSheet.Builder(mActivity).title(contact.getAlias()).sheet(R.menu.bottom_sheet_contactlist)
-                .listener((dialog, which) -> {
-                    switch (which) {
-                        case R.id.contact_list_item_delete:
-                            deleteContact(contact);
-                            break;
-                        case R.id.contact_list_item_export:
-                            exportContact(contact);
-                            break;
-                        case R.id.contact_list_item_qrcode:
-                            exportContactAsQRCode(contact);
-                            break;
-                        case R.id.contact_list_item_send:
-                            exportContactToExternal(contact);
-                            break;
+                .listener(new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        switch (which) {
+                            case R.id.contact_list_item_delete:
+                                ContactFragment.this.deleteContact(contact);
+                                break;
+                            case R.id.contact_list_item_export:
+                                ContactFragment.this.exportContact(contact);
+                                break;
+                            case R.id.contact_list_item_qrcode:
+                                ContactFragment.this.exportContactAsQRCode(contact);
+                                break;
+                            case R.id.contact_list_item_send:
+                                ContactFragment.this.exportContactToExternal(contact);
+                                break;
+                        }
                     }
                 }).show();
     }
 
-    private void deleteContact(Contact contact) {
+    private void deleteContact(final Contact contact) {
         UIHelper.showDialogMessage(getActivity(), getString(R.string.dialog_headline_warning),
                 getString(R.string.dialog_message_delete_contact_question).replace("%1", contact.getAlias()),
-                R.string.yes, R.string.no, (dialog1, which1) -> {
-                    try {
-                        Log.i(TAG, "Deleting contact "+ contact.getId());
-                        contactRepository.delete(contact, getActiveIdentity());
-                    } catch (EntityNotFoundExcepion | PersistenceException e) {
-                        throw new RuntimeException(e);
+                R.string.yes, R.string.no, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog1, int which1) {
+                        try {
+                            Log.i(TAG, "Deleting contact " + contact.getId());
+                            contactRepository.delete(contact, ContactFragment.this.getActiveIdentity());
+                        } catch (EntityNotFoundExcepion | PersistenceException e) {
+                            throw new RuntimeException(e);
+                        }
+                        ContactFragment.this.sendRefreshContactList();
+                        UIHelper.showDialogMessage(mActivity, R.string.dialog_headline_info, ContactFragment.this.getString(R.string.contact_deleted).replace("%1", contact.getAlias()));
                     }
-                    sendRefreshContactList();
-                    UIHelper.showDialogMessage(mActivity, R.string.dialog_headline_info, getString(R.string.contact_deleted).replace("%1", contact.getAlias()));
                 }, null);
     }
 
@@ -305,18 +320,21 @@ public class ContactFragment extends BaseFragment {
         contactListAdapter = new ContactsAdapter(items);
         setClickListener();
 
-        getActivity().runOnUiThread(() -> {
-            if (count == 0) {
-                contactCount.setVisibility(View.INVISIBLE);
-            } else {
-                contactCount.setText(getString(R.string.contact_count).replace("%1", "" + count));
-                contactCount.setVisibility(View.VISIBLE);
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (count == 0) {
+                    contactCount.setVisibility(View.INVISIBLE);
+                } else {
+                    contactCount.setText(ContactFragment.this.getString(R.string.contact_count).replace("%1", "" + count));
+                    contactCount.setVisibility(View.VISIBLE);
+                }
+                contactListAdapter.setEmptyView(emptyView);
+                contactListRecyclerView.setAdapter(contactListAdapter);
+
+                contactListAdapter.notifyDataSetChanged();
+
             }
-            contactListAdapter.setEmptyView(emptyView);
-            contactListRecyclerView.setAdapter(contactListAdapter);
-
-            contactListAdapter.notifyDataSetChanged();
-
         });
         idle();
     }
@@ -335,19 +353,22 @@ public class ContactFragment extends BaseFragment {
     public boolean handleFABAction() {
 
         new BottomSheet.Builder(mActivity).title(R.string.add_new_contact).sheet(R.menu.bottom_sheet_add_contact)
-                .listener((dialog, which) -> {
+                .listener(new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
 
-                    switch (which) {
-                        case R.id.add_contact_from_file:
-                            addContactByFile();
-                            break;
-                        case R.id.add_contact_via_qr:
-                            IntentIntegrator integrator = new IntentIntegrator(this);
-                            integrator.initiateScan();
-                            break;
-                        case R.id.add_contact_direct_input:
-                            selectAddContactFragment(getActiveIdentity());
-                            break;
+                        switch (which) {
+                            case R.id.add_contact_from_file:
+                                ContactFragment.this.addContactByFile();
+                                break;
+                            case R.id.add_contact_via_qr:
+                                IntentIntegrator integrator = new IntentIntegrator(ContactFragment.this);
+                                integrator.initiateScan();
+                                break;
+                            case R.id.add_contact_direct_input:
+                                ContactFragment.this.selectAddContactFragment(getActiveIdentity());
+                                break;
+                        }
                     }
                 }).show();
 
@@ -510,8 +531,11 @@ public class ContactFragment extends BaseFragment {
         mActivity.unregisterReceiver(showNotificationReceiver);
     }
 
-    private final ChatServer.ChatServerCallback chatServerCallback = () -> {
-        Log.d(TAG, "refreshed ");
-        sendRefreshContactList();
+    private final ChatServer.ChatServerCallback chatServerCallback = new ChatServer.ChatServerCallback() {
+        @Override
+        public void onRefreshed() {
+            Log.d(TAG, "refreshed ");
+            ContactFragment.this.sendRefreshContactList();
+        }
     };
 }

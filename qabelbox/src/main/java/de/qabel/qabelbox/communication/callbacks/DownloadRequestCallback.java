@@ -8,10 +8,10 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.concurrent.TimeUnit;
 
-import okhttp3.Headers;
 import okhttp3.Response;
 import rx.Observable;
 import rx.Subscription;
+import rx.functions.Action1;
 
 public abstract class DownloadRequestCallback extends RequestCallback {
 
@@ -38,11 +38,16 @@ public abstract class DownloadRequestCallback extends RequestCallback {
             OutputStream output = new FileOutputStream(outputFile);
 
             final byte[] data = new byte[SEGMENT_SIZE];
-            long contentLength = response.body().contentLength();
-            long total[] = new long[]{0};
+            final long contentLength = response.body().contentLength();
+            final long total[] = new long[]{0};
             int count;
             Observable<Long> observable = Observable.interval(250, TimeUnit.MILLISECONDS);
-            progressSubscription = observable.subscribe(aLong -> onProgress(total[0], contentLength));
+            progressSubscription = observable.subscribe(new Action1<Long>() {
+                @Override
+                public void call(Long aLong) {
+                    DownloadRequestCallback.this.onProgress(total[0], contentLength);
+                }
+            });
             while ((count = input.read(data)) != -1) {
                 total[0] += count;
                 output.write(data, 0, count);

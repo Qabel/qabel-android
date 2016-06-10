@@ -9,15 +9,16 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.ActionBar;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -35,14 +36,14 @@ import de.qabel.qabelbox.exceptions.QblStorageNotFound;
 import de.qabel.qabelbox.helper.UIHelper;
 import de.qabel.qabelbox.services.StorageBroadcastConstants;
 import de.qabel.qabelbox.storage.BoxManager;
+import de.qabel.qabelbox.storage.BoxVolume;
+import de.qabel.qabelbox.storage.StorageSearch;
 import de.qabel.qabelbox.storage.model.BoxExternalFile;
 import de.qabel.qabelbox.storage.model.BoxFile;
 import de.qabel.qabelbox.storage.model.BoxFolder;
-import de.qabel.qabelbox.storage.navigation.BoxNavigation;
 import de.qabel.qabelbox.storage.model.BoxObject;
 import de.qabel.qabelbox.storage.model.BoxUploadingFile;
-import de.qabel.qabelbox.storage.BoxVolume;
-import de.qabel.qabelbox.storage.StorageSearch;
+import de.qabel.qabelbox.storage.navigation.BoxNavigation;
 
 public class FilesFragment extends FilesFragmentBase {
 
@@ -67,7 +68,7 @@ public class FilesFragment extends FilesFragmentBase {
     BoxVolume mBoxVolume;
 
     public FilesFragment() {
-        setAdapter(new FilesAdapter(new ArrayList<>(20)));
+        setAdapter(new FilesAdapter(new ArrayList<BoxObject>(20)));
     }
 
     @Override
@@ -148,9 +149,13 @@ public class FilesFragment extends FilesFragmentBase {
                         return null;
                     }
                 } catch (QblStorageException e) {
-                    getActivity().runOnUiThread(() ->
-                            Toast.makeText(getActivity(),
-                                    R.string.error_reason_io, Toast.LENGTH_LONG)
+                    getActivity().runOnUiThread(new Runnable() {
+                                                    @Override
+                                                    public void run() {
+                                                        Toast.makeText(getActivity(),
+                                                                R.string.error_reason_io, Toast.LENGTH_LONG);
+                                                    }
+                                                }
                     );
                     cancel(true);
                     return null;
@@ -295,15 +300,18 @@ public class FilesFragment extends FilesFragmentBase {
         searchText = (EditText) action.getCustomView().findViewById(R.id.edtSearch);
 
         //add editor action listener
-        searchText.setOnEditorActionListener((v, actionId, event) -> {
+        searchText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
 
-            if (actionId == EditorInfo.IME_ACTION_SEARCH) {
-                String text = searchText.getText().toString();
-                removeSearchInActionbar(action);
-                startSearch(text);
-                return true;
+                if (actionId == EditorInfo.IME_ACTION_SEARCH) {
+                    String text = searchText.getText().toString();
+                    FilesFragment.this.removeSearchInActionbar(action);
+                    FilesFragment.this.startSearch(text);
+                    return true;
+                }
+                return false;
             }
-            return false;
         });
 
         searchText.requestFocus();
@@ -550,8 +558,11 @@ public class FilesFragment extends FilesFragmentBase {
                         }.execute();
                     }
                 })
-                .setNegativeButton(R.string.cancel, (dialog, which) -> {
-                    showAbortMessage();
+                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        FilesFragment.this.showAbortMessage();
+                    }
                 }).create().show();
     }
 
@@ -801,7 +812,7 @@ public class FilesFragment extends FilesFragmentBase {
         }
     }
 
-    public void navigateTo(String path) {
+    public void navigateTo(final String path) {
         Log.d(TAG, "Browsing to " + path);
         if (!areTasksPending() && boxNavigation != null) {
             browseToTask = new AsyncTask<Void, Void, Void>() {

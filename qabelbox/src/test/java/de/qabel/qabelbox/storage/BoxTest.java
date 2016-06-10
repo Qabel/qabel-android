@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.Callable;
 
 import de.qabel.core.config.DropServer;
 import de.qabel.core.config.Identity;
@@ -49,8 +50,18 @@ import de.qabel.qabelbox.test.files.FileHelper;
 import de.qabel.qabelbox.util.BoxTestHelper;
 import de.qabel.qabelbox.util.TestHelper;
 
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.greaterThanOrEqualTo;
+import static org.hamcrest.Matchers.instanceOf;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.startsWith;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 
 @RunWith(RobolectricGradleTestRunner.class)
 @Config(application = SimpleApplication.class, constants = BuildConfig.class)
@@ -294,12 +305,15 @@ public class BoxTest {
         final BoxFile boxFile = uploadFile(nav);
         nav.delete(boxFile);
         nav.commit();
-        TestHelper.waitUntil(() -> {
-            try {
-                nav.download(boxFile);
-                return false;
-            } catch (QblStorageNotFound e) {
-                return true;
+        TestHelper.waitUntil(new Callable<Boolean>() {
+            @Override
+            public Boolean call() throws Exception {
+                try {
+                    nav.download(boxFile);
+                    return false;
+                } catch (QblStorageNotFound e) {
+                    return true;
+                }
             }
         }, "Expected QblStorageNotFound");
     }

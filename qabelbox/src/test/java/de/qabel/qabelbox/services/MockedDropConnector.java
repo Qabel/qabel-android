@@ -12,13 +12,19 @@ import java.util.Map;
 import de.qabel.core.config.Contact;
 import de.qabel.core.config.Identity;
 import de.qabel.core.drop.DropMessage;
+import de.qabel.core.drop.DropURL;
 import de.qabel.core.exceptions.QblDropPayloadSizeException;
 import de.qabel.qabelbox.util.DefaultHashMap;
 
 public class MockedDropConnector implements DropConnector {
 
     Map<String, List<DropMessage>> messages = new DefaultHashMap<>(
-            (String identity) -> new ArrayList<>());
+            new DefaultHashMap.DefaultValueFactory<String, List<DropMessage>>() {
+                @Override
+                public List<DropMessage> defaultValueFor(String identity) {
+                    return new ArrayList<>();
+                }
+            });
 
     @Override
     public void sendDropMessage(DropMessage dropMessage, Contact recipient, Identity identity,
@@ -26,7 +32,7 @@ public class MockedDropConnector implements DropConnector {
             throws QblDropPayloadSizeException {
         messages.get(identity.getKeyIdentifier()).add(dropMessage);
         if (dropResultCallback != null) {
-            dropResultCallback.onSendDropResult(new HashMap<>());
+            dropResultCallback.onSendDropResult(new HashMap<DropURL, Boolean>());
         }
 
     }

@@ -12,6 +12,7 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import de.qabel.core.config.Contact;
@@ -43,8 +44,12 @@ public class ChatMessageItemAdapter extends BaseAdapter {
                 mMessages.add(message);
             }
         }
-        Collections.sort(mMessages, (o1, o2) ->
-                (o1.getTime() > o2.getTime() ? 1 : (o1.getTime() == o2.getTime() ? 0 : -1)));
+        Collections.sort(mMessages, new Comparator<ChatMessageItem>() {
+            @Override
+            public int compare(ChatMessageItem o1, ChatMessageItem o2) {
+                return (o1.getTime() > o2.getTime() ? 1 : (o1.getTime() == o2.getTime() ? 0 : -1));
+            }
+        });
 
     }
 

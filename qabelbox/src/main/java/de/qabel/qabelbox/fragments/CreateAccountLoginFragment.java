@@ -57,15 +57,18 @@ public class CreateAccountLoginFragment extends BaseIdentityFragment {
         etPassword = (EditText) view.findViewById(R.id.et_password);
         resetPassword = view.findViewById(R.id.reset_password);
 
-        resetPassword.setOnClickListener(v -> {
+        resetPassword.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
 
-            getFragmentManager().popBackStack();
-            CreateAccountResetPasswordFragment fragment = new CreateAccountResetPasswordFragment();
-            Bundle bundle = new Bundle();
-            bundle.putString(ACCOUNT_EMAIL, accountEmail);
-            fragment.setArguments(bundle);
-            getActivity().getFragmentManager().beginTransaction().replace(
-                    R.id.fragment_container_content, fragment).addToBackStack(null).commit();
+                CreateAccountLoginFragment.this.getFragmentManager().popBackStack();
+                CreateAccountResetPasswordFragment fragment = new CreateAccountResetPasswordFragment();
+                Bundle bundle = new Bundle();
+                bundle.putString(ACCOUNT_EMAIL, accountEmail);
+                fragment.setArguments(bundle);
+                CreateAccountLoginFragment.this.getActivity().getFragmentManager().beginTransaction().replace(
+                        R.id.fragment_container_content, fragment).addToBackStack(null).commit();
+            }
         });
         setHasOptionsMenu(true);
         return view;
@@ -118,7 +121,7 @@ public class CreateAccountLoginFragment extends BaseIdentityFragment {
     @NonNull
     private JsonRequestCallback createCallback(final String username, final AlertDialog dialog) {
 
-        CreateAccountActivity accountActivity = (CreateAccountActivity) getActivity();
+        final CreateAccountActivity accountActivity = (CreateAccountActivity) getActivity();
         accountActivity.runIdleCallback(false);
         return new JsonRequestCallback(new int[]{200, 400, 429}) {
 

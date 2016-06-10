@@ -18,7 +18,6 @@ import java.security.InvalidKeyException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -74,7 +73,7 @@ public class AndroidBoxManager implements BoxManager {
     //TODO Queue is currently not used!
     private static Queue<BoxUploadingFile> uploadingQueue = new LinkedBlockingQueue<>();
     private static Map<String, Map<String, BoxFile>> cachedFinishedUploads =
-            Collections.synchronizedMap(new HashMap<>());
+            Collections.synchronizedMap(new HashMap<String, Map<String, BoxFile>>());
 
     @Inject
     public AndroidBoxManager(Context context,

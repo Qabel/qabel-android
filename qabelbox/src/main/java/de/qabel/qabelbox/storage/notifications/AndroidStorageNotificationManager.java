@@ -3,8 +3,8 @@ package de.qabel.qabelbox.storage.notifications;
 import javax.inject.Inject;
 
 import de.qabel.qabelbox.storage.model.BoxFile;
-import de.qabel.qabelbox.storage.transfer.BoxTransferListener;
 import de.qabel.qabelbox.storage.model.BoxUploadingFile;
+import de.qabel.qabelbox.storage.transfer.BoxTransferListener;
 
 public class AndroidStorageNotificationManager implements StorageNotificationManager {
 
@@ -32,7 +32,7 @@ public class AndroidStorageNotificationManager implements StorageNotificationMan
     }
 
     @Override
-    public BoxTransferListener addDownloadNotification(String ownerKey, String path, BoxFile file) {
+    public BoxTransferListener addDownloadNotification(final String ownerKey, final String path, final BoxFile file) {
         return new BoxTransferListener() {
 
             private StorageNotificationInfo notificationInfo =

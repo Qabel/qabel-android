@@ -19,7 +19,12 @@ public abstract class QblNotificationPresenter<T, V extends QblNotificationInfo>
     private int idSequence = 0;
 
     private DefaultHashMap<T, Integer> infoMap = new DefaultHashMap<>(
-            key -> idSequence++);
+            new DefaultHashMap.DefaultValueFactory<T, Integer>() {
+                @Override
+                public Integer defaultValueFor(T key) {
+                    return idSequence++;
+                }
+            });
 
     public QblNotificationPresenter(Context context) {
         this.context = context;

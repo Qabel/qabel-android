@@ -10,20 +10,24 @@ import android.widget.Toast;
 
 import org.spongycastle.util.encoders.Hex;
 
+import java.util.Map;
+
 import de.qabel.core.config.Contact;
 import de.qabel.core.config.Identity;
 import de.qabel.core.drop.DropMessage;
+import de.qabel.core.drop.DropURL;
 import de.qabel.core.exceptions.QblDropPayloadSizeException;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.activities.MainActivity;
 import de.qabel.qabelbox.dialogs.SelectContactForShareDialog;
 import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.helper.UIHelper;
+import de.qabel.qabelbox.services.DropConnector;
 import de.qabel.qabelbox.services.LocalQabelService;
 import de.qabel.qabelbox.storage.model.BoxExternalReference;
 import de.qabel.qabelbox.storage.model.BoxFile;
-import de.qabel.qabelbox.storage.navigation.BoxNavigation;
 import de.qabel.qabelbox.storage.model.BoxObject;
+import de.qabel.qabelbox.storage.navigation.BoxNavigation;
 
 /**
  * Created by danny on 19.02.16.
@@ -127,17 +131,20 @@ public class ShareHelper {
 
                 if (dm != null) {
                     try {
-                        mService.sendDropMessage(dm, contact, mainActivity.getActiveIdentity(), deliveryStatus -> {
-                            ChatMessageItem message = new ChatMessageItem(mainActivity.mService.getActiveIdentity(), contact.getEcPublicKey().getReadableKeyIdentifier(), dm.getDropPayload(), dm.getDropPayloadType());
-                            cs.storeIntoDB(currentIdentity, message);
-                            mainActivity.filesFragment.refresh();
-                            mainActivity.runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    Toast.makeText(mainActivity, R.string.messsage_file_shared, Toast.LENGTH_SHORT).show();
-                                }
-                            });
+                        mService.sendDropMessage(dm, contact, mainActivity.getActiveIdentity(), new DropConnector.OnSendDropMessageResult() {
+                            @Override
+                            public void onSendDropResult(Map<DropURL, Boolean> deliveryStatus) {
+                                ChatMessageItem message = new ChatMessageItem(mainActivity.mService.getActiveIdentity(), contact.getEcPublicKey().getReadableKeyIdentifier(), dm.getDropPayload(), dm.getDropPayloadType());
+                                cs.storeIntoDB(currentIdentity, message);
+                                mainActivity.filesFragment.refresh();
+                                mainActivity.runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        Toast.makeText(mainActivity, R.string.messsage_file_shared, Toast.LENGTH_SHORT).show();
+                                    }
+                                });
 
+                            }
                         });
                     } catch (QblDropPayloadSizeException e) {
                         Log.e(TAG, "cant send share", e);

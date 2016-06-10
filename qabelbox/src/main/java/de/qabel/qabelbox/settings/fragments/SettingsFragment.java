@@ -2,6 +2,7 @@ package de.qabel.qabelbox.settings.fragments;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
@@ -47,22 +48,34 @@ public class SettingsFragment extends PreferenceFragment {
 
         // Load the preferences from an XML resource
         addPreferencesFromResource(R.xml.app_settings);
-        findPreference(getString(R.string.setting_change_account_password)).setOnPreferenceClickListener(preference -> {
-            settingsNavigator.selectChangeAccountPasswordFragment();
-            return true;
+        findPreference(getString(R.string.setting_change_account_password)).setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                settingsNavigator.selectChangeAccountPasswordFragment();
+                return true;
+            }
         });
-        findPreference(getString(R.string.setting_internal_feedback)).setOnPreferenceClickListener(preference -> {
-            settingsNavigator.showFeedbackActivity();
-            return true;
+        findPreference(getString(R.string.setting_internal_feedback)).setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                settingsNavigator.showFeedbackActivity();
+                return true;
+            }
         });
-        findPreference(getString(R.string.setting_logout)).setOnPreferenceClickListener(preference -> {
-            UIHelper.showConfirmationDialog(getActivity(), R.string.logout,
-                    R.string.logout_confirmation, R.drawable.account_off,
-                    (dialog, which) -> {
-                        accountManager.logout();
-                        getActivity().finish();
-                    });
-            return true;
+        findPreference(getString(R.string.setting_logout)).setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                UIHelper.showConfirmationDialog(SettingsFragment.this.getActivity(), R.string.logout,
+                        R.string.logout_confirmation, R.drawable.account_off,
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                accountManager.logout();
+                                SettingsFragment.this.getActivity().finish();
+                            }
+                        });
+                return true;
+            }
         });
     }
 

@@ -13,10 +13,10 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import java.io.IOException;
+
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.views.EditTextFont;
-
-import java.io.IOException;
 
 public class UIHelper {
 
@@ -24,7 +24,12 @@ public class UIHelper {
                                               final int message, int icon,
                                               final DialogInterface.OnClickListener buttonOkListener){
         showDialogMessage(activity, activity.getString(headline), activity.getString(message),
-                R.string.ok, R.string.cancel, icon, buttonOkListener, ((dialog, which) -> dialog.cancel()));
+                R.string.ok, R.string.cancel, icon, buttonOkListener, (new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                    }
+                }));
     }
 
     /**
@@ -56,18 +61,24 @@ public class UIHelper {
         }
 
         final FontHelper fontHelper = FontHelper.getInstance();
-        activity.runOnUiThread(() -> {
-            final AlertDialog dialog = builder.create();
-            dialog.setOnShowListener(dialog1 -> {
+        activity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                final AlertDialog dialog = builder.create();
+                dialog.setOnShowListener(new DialogInterface.OnShowListener() {
+                    @Override
+                    public void onShow(DialogInterface dialog1) {
 
-                fontHelper.setCustomFonts((TextView) dialog.findViewById(android.R.id.message));
-                fontHelper.setCustomFonts((TextView) dialog.findViewById(android.R.id.title));
+                        fontHelper.setCustomFonts((TextView) dialog.findViewById(android.R.id.message));
+                        fontHelper.setCustomFonts((TextView) dialog.findViewById(android.R.id.title));
 
-                fontHelper.setCustomFonts(dialog.getButton(AlertDialog.BUTTON_POSITIVE));
-                fontHelper.setCustomFonts(dialog.getButton(AlertDialog.BUTTON_NEGATIVE));
-            });
+                        fontHelper.setCustomFonts(dialog.getButton(AlertDialog.BUTTON_POSITIVE));
+                        fontHelper.setCustomFonts(dialog.getButton(AlertDialog.BUTTON_NEGATIVE));
+                    }
+                });
 
-            dialog.show();
+                dialog.show();
+            }
         });
     }
 

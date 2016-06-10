@@ -12,6 +12,8 @@ import org.robolectric.RobolectricGradleTestRunner;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
 
+import java.util.concurrent.Callable;
+
 import de.qabel.qabelbox.BuildConfig;
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.QblBroadcastConstants;
@@ -56,7 +58,7 @@ public class AccountManagerTest {
 
     @Test
     public void testRefreshQuota() throws Exception {
-        int[] statusCodes = new int[]{0};
+        final int[] statusCodes = new int[]{0};
         BroadcastReceiver receiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
@@ -72,7 +74,12 @@ public class AccountManagerTest {
         assertEquals(0, quota.getSize());
         assertEquals(-1, quota.getQuota());
 
-        TestHelper.waitUntil(() -> statusCodes[0] > 0, "Error waiting for quota");
+        TestHelper.waitUntil(new Callable<Boolean>() {
+            @Override
+            public Boolean call() throws Exception {
+                return statusCodes[0] > 0;
+            }
+        }, "Error waiting for quota");
         assertEquals(AccountStatusCodes.QUOTA_UPDATED, statusCodes[0]);
         quota = accountManager.getBoxQuota();
 

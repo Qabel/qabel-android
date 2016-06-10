@@ -65,13 +65,16 @@ public class SplashActivity extends CrashReportingActivity {
 
     private void startDelayedHandler() {
         long waitTime = welcomeScreenShown ? SHORT_SPLASH_TIME : LONG_SPLASH_TIME;
-        new Handler().postDelayed(() -> {
-            if (!welcomeScreenShown) {
-                launch(WelcomeScreenActivity.class);
-            } else if (!Sanity.startWizardActivities(this)) {
-                launch(MainActivity.class);
-            }
-        }
+        new Handler().postDelayed(new Runnable() {
+                                      @Override
+                                      public void run() {
+                                          if (!welcomeScreenShown) {
+                                              SplashActivity.this.launch(WelcomeScreenActivity.class);
+                                          } else if (!Sanity.startWizardActivities(SplashActivity.this)) {
+                                              SplashActivity.this.launch(MainActivity.class);
+                                          }
+                                      }
+                                  }
                 ,skipSplash ? 0 : waitTime);
     }
 

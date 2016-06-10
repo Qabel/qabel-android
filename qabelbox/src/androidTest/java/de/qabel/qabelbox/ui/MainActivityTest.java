@@ -8,8 +8,8 @@ import de.qabel.core.config.Contact;
 import de.qabel.core.config.Identity;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.activities.MainActivity;
-import de.qabel.qabelbox.fragments.ContactChatFragment;
 import de.qabel.qabelbox.navigation.MainNavigator;
+import de.qabel.qabelbox.ui.views.ChatFragment;
 import de.qabel.qabelbox.util.IdentityHelper;
 
 import static android.support.test.espresso.Espresso.onView;
@@ -61,9 +61,9 @@ public class MainActivityTest extends AbstractUITest {
         intent.putExtra(MainActivity.ACTIVE_CONTACT, contact.getKeyIdentifier());
         intent.putExtra(MainActivity.START_CONTACTS_FRAGMENT, true);
         launchActivity(intent);
-        ContactChatFragment fragment = (ContactChatFragment) mActivity.getFragmentManager().findFragmentByTag(
+        ChatFragment fragment = (ChatFragment) mActivity.getFragmentManager().findFragmentByTag(
                 MainNavigator.TAG_CONTACT_CHAT_FRAGMENT);
         assertThat(fragment, notNullValue());
-        assertThat(fragment.getContact().getKeyIdentifier(), equalTo(contact.getKeyIdentifier()));
+        assertThat(fragment.getContactKeyId(), equalTo(contact.getKeyIdentifier()));
     }
 }

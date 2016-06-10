@@ -17,6 +17,7 @@ class TransformingChatUseCase @Inject constructor(val identity: Identity, overri
             chatMessageTransformer.transform(msg)
         } ?: listOf()
         subscriber.onNext(messages)
+        chatServer.setAllMessagesRead(identity, contact)
         subscriber.onCompleted()
     }
 }

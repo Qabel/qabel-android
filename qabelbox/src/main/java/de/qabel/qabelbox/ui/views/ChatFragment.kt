@@ -16,9 +16,15 @@ import de.qabel.qabelbox.fragments.BaseFragment
 import de.qabel.qabelbox.helper.Helper
 import de.qabel.qabelbox.ui.presenters.ChatPresenter
 import kotlinx.android.synthetic.main.fragment_contact_chat.*
+import kotlinx.android.synthetic.main.fragment_contact_chat.view.*
 import javax.inject.Inject
 
 class ChatFragment : ChatView, BaseFragment() {
+    override var messageText: String
+        get() = view?.etText?.text.toString()
+        set(value) {
+            view?.etText?.setText(value)
+        }
 
     companion object {
         val ARG_CONTACT = "CONTACT"

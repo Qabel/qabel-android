@@ -18,7 +18,7 @@ import de.qabel.qabelbox.util.DefaultHashMap;
 
 public class MockedDropConnector implements DropConnector {
 
-    Map<String, List<DropMessage>> messages = new DefaultHashMap<>(
+    public Map<String, List<DropMessage>> messages = new DefaultHashMap<>(
             new DefaultHashMap.DefaultValueFactory<String, List<DropMessage>>() {
                 @Override
                 public List<DropMessage> defaultValueFor(String identity) {

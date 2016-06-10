@@ -13,6 +13,7 @@ import de.qabel.qabelbox.chat.ChatServer;
 import de.qabel.qabelbox.dagger.scopes.ActivityScope;
 import de.qabel.qabelbox.interactor.ChatUseCase;
 import de.qabel.qabelbox.interactor.TransformingChatUseCase;
+import de.qabel.qabelbox.services.DropConnector;
 import de.qabel.qabelbox.transformers.ChatMessageTransformer;
 import de.qabel.qabelbox.ui.presenters.ChatPresenter;
 import de.qabel.qabelbox.ui.presenters.MainChatPresenter;
@@ -52,8 +53,9 @@ public class ChatModule {
 
     @Provides
     public ChatUseCase provideChatUseCase(Identity identity, Contact contact,
-                                          ChatMessageTransformer transformer, ChatServer chatServer) {
-        return new TransformingChatUseCase(identity, contact, transformer, chatServer);
+                                          ChatMessageTransformer transformer, ChatServer chatServer,
+                                          DropConnector connector) {
+        return new TransformingChatUseCase(identity, contact, transformer, chatServer, connector);
     }
 
 

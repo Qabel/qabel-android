@@ -5,9 +5,6 @@
 <img align="left" width="0" height="150px" hspace="25"/>
 > The Qabel Android Client
 
-[![Build Status](https://jenkins.prae.me/buildStatus/icon?job=qabel-android-nightly)](https://jenkins.prae.me/job/qabel-android-nightly/)
-[![version](https://img.shields.io/badge/beta-0.7.1--beta.1-ff690f.svg)](https://qabel.de)
-
 This project provides a Client for <a href="https://qabel.de"><img alt="Qabel" src="https://files.qabel.de/img/qabel-kl.png" height="18px"/></a> targeting Android. It is a small part of the qabel platform.
 
 <br style="clear: both"/>

@@ -193,6 +193,13 @@ dependencies {
     testCompile "com.nhaarman:mockito-kotlin:0.5.0"
     testCompile 'com.natpryce:hamkrest:1.2.0.0'
     // See https://github.com/JakeWharton/RxBinding for additional bindings
+    compile "org.jetbrains.anko:anko-sdk21:$anko_version" // according to minSDK 21
+
+    // Anko libs matching support libs
+    compile "org.jetbrains.anko:anko-appcompat-v7:$anko_version"
+    compile "org.jetbrains.anko:anko-design:$anko_version"
+    compile "org.jetbrains.anko:anko-recyclerview-v7:$anko_version"
+    compile "org.jetbrains.anko:anko-cardview-v7:$anko_version"
     //for more used sources, see license.txt
 }
 

@@ -71,6 +71,7 @@ class ChatFragment : ChatView, BaseFragment(), AnkoLogger {
     }
 
     override fun showEmpty() {
+        adapter.messages = listOf()
     }
 
     override fun showMessages(messages: List<ChatMessage>) {

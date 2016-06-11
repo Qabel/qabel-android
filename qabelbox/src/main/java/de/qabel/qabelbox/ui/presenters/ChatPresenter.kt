@@ -6,4 +6,6 @@ interface ChatPresenter {
 
     val title: String
 
+    fun sendMessage()
+
 }

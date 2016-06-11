@@ -20,4 +20,11 @@ class MainChatPresenter @Inject constructor(private val view: ChatView,
             } else (view.showEmpty())
         })
     }
+
+    override fun sendMessage() {
+        if (view.messageText.isNotEmpty()) {
+            useCase.send(view.messageText).subscribe({ refreshMessages() })
+        }
+    }
+
 }

@@ -50,6 +50,7 @@ class ChatFragment : ChatView, BaseFragment() {
                 "Starting ChatFragment without contactKeyId")
         val component = getComponent(MainActivityComponent::class.java).plus(ChatModule(this))
         component.inject(this);
+        bt_send.setOnClickListener { presenter.sendMessage() }
 
         contact_chat_list.layoutManager = LinearLayoutManager(view.context)
         contact_chat_list.adapter = adapter

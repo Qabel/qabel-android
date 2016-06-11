@@ -17,14 +17,19 @@ import de.qabel.qabelbox.helper.Helper
 import de.qabel.qabelbox.ui.presenters.ChatPresenter
 import kotlinx.android.synthetic.main.fragment_contact_chat.*
 import kotlinx.android.synthetic.main.fragment_contact_chat.view.*
+import org.jetbrains.anko.AnkoLogger
+import org.jetbrains.anko.debug
+import org.jetbrains.anko.verbose
 import javax.inject.Inject
 
-class ChatFragment : ChatView, BaseFragment() {
+class ChatFragment : ChatView, BaseFragment(), AnkoLogger {
     override var messageText: String
         get() = view?.etText?.text.toString()
         set(value) {
             view?.etText?.setText(value)
         }
+
+    var injectCompleted = false
 
     companion object {
         val ARG_CONTACT = "CONTACT"
@@ -48,8 +53,10 @@ class ChatFragment : ChatView, BaseFragment() {
         super.onActivityCreated(savedInstanceState)
         contactKeyId = arguments.getString(ARG_CONTACT)?: throw IllegalArgumentException(
                 "Starting ChatFragment without contactKeyId")
+        verbose("Starting ChatFragment with contact $contactKeyId")
         val component = getComponent(MainActivityComponent::class.java).plus(ChatModule(this))
         component.inject(this);
+        injectCompleted = true
         bt_send.setOnClickListener { presenter.sendMessage() }
 
         contact_chat_list.layoutManager = LinearLayoutManager(view.context)
@@ -67,16 +74,18 @@ class ChatFragment : ChatView, BaseFragment() {
     }
 
     override fun showMessages(messages: List<ChatMessage>) {
+        debug("Showing ${messages.size} messages")
         val intent = Intent(Helper.INTENT_REFRESH_CONTACTLIST);
         activity?.sendBroadcast(intent, null);
         fillAdapter(messages);
     }
 
     private fun fillAdapter(messages: List<ChatMessage>) {
+        debug("Filling adapter with ${messages.size} messages")
         adapter.messages = messages
         adapter.notifyDataSetChanged()
     }
 
-    //override fun getTitle(): String? = presenter.title
+    override fun getTitle(): String? = if (injectCompleted) presenter.title else { "" }
 
 }

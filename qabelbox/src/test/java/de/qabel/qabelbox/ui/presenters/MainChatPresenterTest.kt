@@ -49,6 +49,7 @@ class MainChatPresenterTest {
         presenter.sendMessage()
         verify(useCase).send(view.messageText)
         verify(view).showMessages(listOf(sampleMessage))
+        verify(view).messageText = ""
     }
 
     @Test fun emptyMessageIsIgnored() {

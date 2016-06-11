@@ -118,7 +118,7 @@ public class ChatMessageUITest extends AbstractUITest {
     }
 
     private ChatMessageItem createNewChatMessageItem(String sender, String receiver, String message) {
-        return new ChatMessageItem(-1, (short) 1, System.currentTimeMillis() + System.nanoTime() % 1000, sender, receiver, message, ChatMessageItem.BOX_MESSAGE, mActivity.chatServer.createTextDropMessagePayload(message));
+        return new ChatMessageItem(-1, (short) 1, System.currentTimeMillis() + System.nanoTime() % 1000, sender, receiver, message, ChatMessageItem.BOX_MESSAGE, ChatServer.createTextDropMessagePayload(message));
     }
 
 }

@@ -15,6 +15,7 @@ class MainChatPresenter @Inject constructor(private val view: ChatView,
 
     override fun refreshMessages() {
         useCase.retrieve().subscribe({ messages ->
+            view.refresh()
             if (messages.size > 0) {
                 view.showMessages(messages)
             } else (view.showEmpty())
@@ -24,6 +25,7 @@ class MainChatPresenter @Inject constructor(private val view: ChatView,
     override fun sendMessage() {
         if (view.messageText.isNotEmpty()) {
             useCase.send(view.messageText).subscribe({ refreshMessages() })
+            view.messageText = ""
         }
     }
 

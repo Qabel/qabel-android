@@ -18,7 +18,7 @@ class TransformingChatUseCase @Inject constructor(val identity: Identity, overri
     override fun send(text: String): Observable<ChatMessage> = observable { subscriber ->
         val message = ChatServer.createTextDropMessage(identity, text)
         val item = ChatMessageItem(identity, contact.keyIdentifier,
-                message.dropPayload, message .dropPayloadType)
+                message.dropPayload, message.dropPayloadType)
         subscriber.onNext(chatMessageTransformer.transform(item))
         connector.sendDropMessage(message, contact, identity, { results ->
             if (results.all { it.value }) {

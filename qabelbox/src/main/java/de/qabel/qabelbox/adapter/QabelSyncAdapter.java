@@ -10,38 +10,28 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SyncResult;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.util.Log;
 
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import javax.inject.Inject;
 
 import de.qabel.core.config.Contact;
-import de.qabel.core.config.Contacts;
-import de.qabel.core.config.Identities;
 import de.qabel.core.config.Identity;
 import de.qabel.desktop.repository.ContactRepository;
 import de.qabel.desktop.repository.IdentityRepository;
 import de.qabel.desktop.repository.exception.EntityNotFoundExcepion;
 import de.qabel.desktop.repository.exception.PersistenceException;
-import de.qabel.desktop.repository.sqlite.AndroidClientDatabase;
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.chat.ChatMessageInfo;
 import de.qabel.qabelbox.chat.ChatMessageItem;
 import de.qabel.qabelbox.chat.ChatNotificationManager;
 import de.qabel.qabelbox.chat.ChatServer;
-import de.qabel.qabelbox.chat.SyncAdapterChatNotificationManager;
 import de.qabel.qabelbox.helper.Helper;
-import de.qabel.qabelbox.persistence.RepositoryFactory;
 import de.qabel.qabelbox.services.DropConnector;
-import de.qabel.qabelbox.services.HttpDropConnector;
 
 public class QabelSyncAdapter extends AbstractThreadedSyncAdapter {
 
@@ -125,8 +115,10 @@ public class QabelSyncAdapter extends AbstractThreadedSyncAdapter {
         updateNotificationManager(retrievedMessages);
         Intent notificationIntent = new Intent(Helper.INTENT_SHOW_NOTIFICATION);
         context.sendOrderedBroadcast(notificationIntent, null);
-        Intent refresh = new Intent(Helper.INTENT_REFRESH_CONTACTLIST);
-        context.sendBroadcast(refresh);
+        Intent refreshList = new Intent(Helper.INTENT_REFRESH_CONTACTLIST);
+        context.sendBroadcast(refreshList);
+        Intent refreshChat = new Intent(Helper.INTENT_REFRESH_CHAT);
+        context.sendBroadcast(refreshChat);
     }
 
     private void updateNotificationManager(List<ChatMessageItem> retrievedMessages) {

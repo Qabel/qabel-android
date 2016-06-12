@@ -2,6 +2,7 @@ package de.qabel.qabelbox.ui.presenters
 
 import de.qabel.qabelbox.interactor.ChatUseCase
 import de.qabel.qabelbox.ui.views.ChatView
+import rx.lang.kotlin.onError
 import javax.inject.Inject
 
 class MainChatPresenter @Inject constructor(private val view: ChatView,
@@ -14,7 +15,9 @@ class MainChatPresenter @Inject constructor(private val view: ChatView,
     }
 
     override fun refreshMessages() {
-        useCase.retrieve().subscribe({ messages ->
+        useCase.retrieve().toList().onError {
+            view.showEmpty()
+        }.subscribe({ messages ->
             view.refresh()
             if (messages.size > 0) {
                 view.showMessages(messages)
@@ -24,7 +27,11 @@ class MainChatPresenter @Inject constructor(private val view: ChatView,
 
     override fun sendMessage() {
         if (view.messageText.isNotEmpty()) {
-            useCase.send(view.messageText).subscribe({ refreshMessages() })
+            useCase.send(view.messageText).doOnCompleted {
+                refreshMessages()
+            }.subscribe { message ->
+                view.appendMessage(message)
+            }
             view.messageText = ""
         }
     }

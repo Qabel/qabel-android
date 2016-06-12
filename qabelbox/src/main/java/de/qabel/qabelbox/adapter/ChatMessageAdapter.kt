@@ -19,9 +19,7 @@ open class ChatMessageAdapter(var messages: List<ChatMessage>): RecyclerView.Ada
     }
 
     override fun onCreateViewHolder(parent: ViewGroup?, viewType: Int): ChatMessageViewHolder? {
-        if (parent == null) {
-            throw IllegalArgumentException("Parent view group is null")
-        }
+        parent ?: throw IllegalArgumentException("Parent view group is null")
 
         val layout = LayoutInflater.from(parent.context)
                     .inflate(viewType, parent, false);

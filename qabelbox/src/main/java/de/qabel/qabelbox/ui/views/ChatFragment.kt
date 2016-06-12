@@ -21,7 +21,9 @@ import de.qabel.qabelbox.ui.presenters.ChatPresenter
 import kotlinx.android.synthetic.main.fragment_contact_chat.*
 import kotlinx.android.synthetic.main.fragment_contact_chat.view.*
 import org.jetbrains.anko.AnkoLogger
-import org.jetbrains.anko.warn
+import org.jetbrains.anko.ctx
+import org.jetbrains.anko.debug
+import org.jetbrains.anko.onUiThread
 import javax.inject.Inject
 
 class ChatFragment : ChatView, BaseFragment(), AnkoLogger {
@@ -38,9 +40,10 @@ class ChatFragment : ChatView, BaseFragment(), AnkoLogger {
 
         fun withContact(contact: Contact): ChatFragment {
             val fragment = ChatFragment()
-            val bundle = Bundle()
-            bundle.putString(ARG_CONTACT, contact.keyIdentifier)
-            fragment.arguments = bundle
+            fragment.arguments = with(Bundle()) {
+                putString(ARG_CONTACT, contact.keyIdentifier)
+                this
+            }
             return fragment
         }
     }
@@ -74,24 +77,25 @@ class ChatFragment : ChatView, BaseFragment(), AnkoLogger {
 
     override fun onStart() {
         super.onStart()
-        activity.registerReceiver(broadcastReceiver, IntentFilter(Helper.INTENT_REFRESH_CHAT))
+        ctx.registerReceiver(broadcastReceiver, IntentFilter(Helper.INTENT_REFRESH_CHAT))
     }
 
     override fun onStop() {
         super.onStop()
-        activity.unregisterReceiver(broadcastReceiver)
+        ctx.unregisterReceiver(broadcastReceiver)
     }
 
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
-        val view = inflater?.inflate(R.layout.fragment_contact_chat, container, false)
+        return inflater?.inflate(R.layout.fragment_contact_chat, container, false)
                 ?: throw IllegalStateException("Could not create view")
-        return view
     }
 
     override fun showEmpty() {
-        adapter.messages = listOf()
-        adapter.notifyDataSetChanged()
+        onUiThread {
+            adapter.messages = listOf()
+            adapter.notifyDataSetChanged()
+        }
     }
 
     override fun refresh() {
@@ -100,12 +104,22 @@ class ChatFragment : ChatView, BaseFragment(), AnkoLogger {
     }
 
     override fun showMessages(messages: List<ChatMessage>) {
-        warn("Showing ${messages.size} messages")
-        fillAdapter(messages);
+        debug("Showing ${messages.size} messages")
+        onUiThread {
+            fillAdapter(messages);
+        }
     }
 
+    override fun appendMessage(message: ChatMessage) {
+        onUiThread {
+            adapter.messages = adapter.messages + message
+            adapter.notifyDataSetChanged()
+        }
+    }
+
+
     private fun fillAdapter(messages: List<ChatMessage>) {
-        warn("Filling adapter with ${messages.size} messages")
+        debug("Filling adapter with ${messages.size} messages")
         adapter.messages = messages
         adapter.notifyDataSetChanged()
     }

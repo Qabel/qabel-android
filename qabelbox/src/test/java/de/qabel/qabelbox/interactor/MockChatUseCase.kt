@@ -14,5 +14,10 @@ open class MockChatUseCase(val chatMessage: ChatMessage,
         return chatMessage.toSingletonObservable()
     }
 
-    override fun retrieve() = observable<List<ChatMessage>> { it.onNext(messages); it.onCompleted() }
+    override fun retrieve() = observable<ChatMessage> {
+        messages.forEach { msg ->
+            it.onNext(msg)
+        }
+        it.onCompleted()
+    }
 }

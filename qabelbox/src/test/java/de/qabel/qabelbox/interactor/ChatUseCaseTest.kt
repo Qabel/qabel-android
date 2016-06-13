@@ -6,6 +6,7 @@ import com.nhaarman.mockito_kotlin.*
 import de.qabel.core.drop.DropMessage
 import de.qabel.qabelbox.BuildConfig
 import de.qabel.qabelbox.SimpleApplication
+import de.qabel.qabelbox.chat.ChatMessageItem
 import de.qabel.qabelbox.chat.ChatServer
 import de.qabel.qabelbox.dto.ChatMessage
 import de.qabel.qabelbox.repositories.MockContactRepository
@@ -21,6 +22,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricGradleTestRunner
 import org.robolectric.annotation.Config
+import java.util.*
 
 @RunWith(RobolectricGradleTestRunner::class)
 @Config(application = SimpleApplication::class , constants = BuildConfig::class)
@@ -40,10 +42,23 @@ class ChatUseCaseTest {
     fun testNoMessages() {
         val useCase = TransformingChatUseCase(identity, contact, transformer, chatServer, mock())
         var list: List<ChatMessage>? = null
-        useCase.retrieve().subscribe({
+        useCase.retrieve().toList().toBlocking().subscribe({
             messages -> list = messages
         })
         assertThat(list, hasSize(0))
+    }
+
+    @Test
+    fun testMessagesRetrieved() {
+        whenever(chatServer.getAllMessages(identity, contact)).thenReturn(
+                arrayOf(ChatMessageItem(1, 1, Date().time, contact.keyIdentifier, identity.keyIdentifier,
+                        "1", ChatMessageItem.BOX_MESSAGE, "{\"msg\": \"text\"}")))
+        val useCase = TransformingChatUseCase(identity, contact, transformer, chatServer, mock())
+        var list: List<ChatMessage>? = null
+        useCase.retrieve().toList().toBlocking().subscribe({
+            messages -> list = messages
+        })
+        assertThat(list, hasSize(1))
         verify(chatServer).setAllMessagesRead(identity, contact)
     }
 

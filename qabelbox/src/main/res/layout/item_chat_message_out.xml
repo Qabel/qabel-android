@@ -36,7 +36,9 @@
             android:layout_marginTop="5sp"
             android:text="Fr. 15.39"
             android:textColor="@color/white"
-            android:textSize="12sp"/>
+            android:textSize="12sp"
+            android:layout_alignParentStart="false"
+            android:layout_alignParentEnd="true"/>
     </RelativeLayout>
 
     <ImageView

@@ -92,8 +92,10 @@ open class QabelSyncAdapter : AbstractThreadedSyncAdapter {
         if (retrievedMessages.size == 0) {
             return
         }
+        val pairs = retrievedMessages.flatMap { listOf(it.receiver, it.sender) }.filterNotNull()
         updateNotificationManager(retrievedMessages)
         val notificationIntent = Intent(Helper.INTENT_SHOW_NOTIFICATION)
+        notificationIntent.putStringArrayListExtra(Helper.AFFECTED_IDENTITIES_AND_CONTACTS, ArrayList(pairs))
         context.sendOrderedBroadcast(notificationIntent, null)
         val refreshList = Intent(Helper.INTENT_REFRESH_CONTACTLIST)
         context.sendBroadcast(refreshList)

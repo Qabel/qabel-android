@@ -10,6 +10,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import de.qabel.core.config.Contact
+import de.qabel.core.config.Identity
 import de.qabel.qabelbox.R
 import de.qabel.qabelbox.adapter.ChatMessageAdapter
 import de.qabel.qabelbox.dagger.components.MainActivityComponent
@@ -53,6 +54,8 @@ class ChatFragment : ChatView, BaseFragment(), AnkoLogger {
     lateinit override var contactKeyId: String
     @Inject
     lateinit var presenter: ChatPresenter
+    @Inject
+    lateinit var identity: Identity
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
@@ -75,14 +78,32 @@ class ChatFragment : ChatView, BaseFragment(), AnkoLogger {
         }
     }
 
+    /**
+     * Block notifications in which only the currently active contact
+     * and identity are involved.
+     */
+    private val notificationBlockReceiver = object: BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            if (isOrderedBroadcast) {
+                val ids = intent?.getStringArrayListExtra(Helper.AFFECTED_IDENTITIES_AND_CONTACTS)
+                        ?.filterNotNull() ?: return
+                if (ids.all({(it == contactKeyId) or (it == identity.keyIdentifier)})) {
+                    abortBroadcast();
+                }
+            }
+        }
+    }
+
     override fun onStart() {
         super.onStart()
         ctx.registerReceiver(broadcastReceiver, IntentFilter(Helper.INTENT_REFRESH_CHAT))
+        ctx.registerReceiver(notificationBlockReceiver, IntentFilter(Helper.INTENT_SHOW_NOTIFICATION))
     }
 
     override fun onStop() {
         super.onStop()
         ctx.unregisterReceiver(broadcastReceiver)
+        ctx.unregisterReceiver(notificationBlockReceiver)
     }
 
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?,

@@ -113,9 +113,11 @@ class ChatFragment : ChatView, BaseFragment(), AnkoLogger {
     }
 
     override fun showEmpty() {
+        busy()
         onUiThread {
             adapter.messages = listOf()
             adapter.notifyDataSetChanged()
+            idle()
         }
     }
 
@@ -126,15 +128,19 @@ class ChatFragment : ChatView, BaseFragment(), AnkoLogger {
 
     override fun showMessages(messages: List<ChatMessage>) {
         debug("Showing ${messages.size} messages")
+        busy()
         onUiThread {
             fillAdapter(messages);
+            idle()
         }
     }
 
     override fun appendMessage(message: ChatMessage) {
+        busy()
         onUiThread {
             adapter.messages = adapter.messages + message
             adapter.notifyDataSetChanged()
+            idle()
         }
     }
 

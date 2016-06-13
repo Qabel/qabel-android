@@ -60,7 +60,6 @@ import de.qabel.qabelbox.helper.ExternalApps;
 import de.qabel.qabelbox.helper.FileHelper;
 import de.qabel.qabelbox.helper.Helper;
 import de.qabel.qabelbox.helper.UIHelper;
-import de.qabel.qabelbox.listeners.IdleCallback;
 import de.qabel.qabelbox.navigation.MainNavigator;
 import de.qabel.qabelbox.ui.views.ChatFragment;
 
@@ -90,24 +89,6 @@ public class ContactFragment extends BaseFragment {
     @Inject ChatServer chatServer;
 
     @Inject Identity activeIdentity;
-
-    IdleCallback idleCallback;
-
-    public void setIdleCallback(IdleCallback idleCallback) {
-        this.idleCallback = idleCallback;
-    }
-
-    void busy() {
-        if (idleCallback != null) {
-            idleCallback.busy();
-        }
-    }
-
-    void idle() {
-        if (idleCallback != null) {
-            idleCallback.idle();
-        }
-    }
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {

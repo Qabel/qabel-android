@@ -29,8 +29,6 @@ public abstract class FilesFragmentBase extends BaseFragment {
     protected View mEmptyView;
     protected View mLoadingView;
 
-    private IdleCallback idleCallback;
-
     public interface FilesListListener {
 
         void onScrolledToBottom(boolean scrolledToBottom);
@@ -166,17 +164,14 @@ public abstract class FilesFragmentBase extends BaseFragment {
 
 
     public void injectIdleCallback(IdleCallback callback) {
-        idleCallback = callback;
+        setIdleCallback(callback);
     }
 
     public void runIdleCallback(boolean isIdle) {
-        if (idleCallback == null) {
-            return;
-        }
         if (isIdle) {
-            idleCallback.idle();
+            idle();
         } else {
-            idleCallback.busy();
+            busy();
         }
     }
 

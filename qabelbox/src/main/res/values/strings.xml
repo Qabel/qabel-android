@@ -186,7 +186,7 @@
     <string name="fileshare_label_in_chatmessage">Shared file %1</string>
     <string name="headline_share_to_qabeluser">Share to QabelUser</string>
     <string name="accept_share">Accept share</string>
-    <string name="cant_share_contactlist_is_empty">Cant share file. You have no contact in contactlist</string>
+    <string name="cant_share_contactlist_is_empty">Can\'t share file. You have no contact in contactlist</string>
     <string name="share_only_files_possibility">Only files can be shared</string>
     <string name="dialog_share_sending_in_progress">File is uploading for sharing</string>
     <string name="messsage_file_shared">File successfully shared</string>

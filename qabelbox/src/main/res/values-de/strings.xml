@@ -125,6 +125,7 @@
     <string name="last_identity_delete_create_new">Sie haben alle Ihre Identitäten gelöscht. Erstellen Sie eine neue</string>
     <string name="listdata_loading">Lade</string>
     <string name="login">Login</string>
+    <string name="loggedInAs">Angemeldet als %s</string>
     <string name="manage_identities">Identitäten verwalten</string>
     <string name="messsage_enter_contact_manual">Bitte geben Sie die Details Ihres Kontaktes ein. Sie können dies auch abbrechen und den Kontakt über den QR Code importieren</string>
     <string name="navigation_drawer_close">Navigation schließen</string>
@@ -156,9 +157,8 @@
     <string name="share_via">Teilen über</string>
     <string name="skip_create_identity">Erstellen der Identität überspringen</string>
     <string name="step_x_from_y">Schritt $1/$2</string>
-    <string name="upload">Upload</string>
+    <string name="upload">Hochladen</string>
     <string name="uploading">hochladen</string>
-    <string name="uploading_file">Datei </string>
     <string name="yes">Ja</string>
     <string name="function_not_yet_implenented">Funktion ist noch nicht implementiert</string>
     <string name="refresh">Aktualisieren</string>
@@ -292,4 +292,14 @@ Den Unterstützern der Indigogo Kampagne
     <string name="retry_action">Wiederholen</string>
     <string name="logout">Abmelden</string>
     <string name="new_messages">%d new messages</string>
+    <string name="downloading">Herunterladen %s ...</string>
+    <string name="download_complete">Herunterladen abgeschlossen</string>
+    <string name="download_complete_msg">%s wurde heruntergeladen</string>
+    <string name="download_complete_notification_msg">Hochladen %s abgeschlossen</string>
+
+
+    <string name="settings_title_box_quota">Speicher</string>
+    <string name="used_storage">%1$s von %2$s belegt</string>
+    <string name="unlimited_storage">unbegrenzter Speicher, %1$s belegt</string>
+    <string name="currently_not_available">currently not available</string>
 </resources>

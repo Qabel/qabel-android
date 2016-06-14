@@ -1,25 +1,15 @@
 package de.qabel.qabelbox.services;
 
-import android.app.Notification;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.app.Service;
-import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Binder;
-import android.os.Bundle;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
-import android.support.v4.content.LocalBroadcastManager;
-import android.support.v7.app.NotificationCompat;
 import android.util.Log;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.spongycastle.util.encoders.Hex;
 
-import java.io.FileNotFoundException;
 import java.net.URI;
 import java.security.SecureRandom;
 import java.util.ArrayList;
@@ -28,9 +18,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Queue;
 import java.util.Set;
-import java.util.concurrent.LinkedBlockingDeque;
 
 import de.qabel.core.config.Contact;
 import de.qabel.core.config.Contacts;
@@ -38,7 +26,6 @@ import de.qabel.core.config.Identities;
 import de.qabel.core.config.Identity;
 import de.qabel.core.crypto.AbstractBinaryDropMessage;
 import de.qabel.core.crypto.BinaryDropMessageV0;
-import de.qabel.core.crypto.CryptoUtils;
 import de.qabel.core.drop.DropMessage;
 import de.qabel.core.drop.DropURL;
 import de.qabel.core.exceptions.QblDropInvalidMessageSizeException;
@@ -53,18 +40,12 @@ import de.qabel.desktop.repository.IdentityRepository;
 import de.qabel.desktop.repository.exception.EntityNotFoundExcepion;
 import de.qabel.desktop.repository.exception.PersistenceException;
 import de.qabel.desktop.repository.sqlite.AndroidClientDatabase;
-import de.qabel.qabelbox.R;
-import de.qabel.qabelbox.activities.MainActivity;
+import de.qabel.qabelbox.config.AppPreference;
 import de.qabel.qabelbox.exceptions.QblStorageEntityExistsException;
-import de.qabel.qabelbox.helper.PreferencesHelper;
 import de.qabel.qabelbox.persistence.AndroidPersistence;
 import de.qabel.qabelbox.persistence.PersistenceMigration;
 import de.qabel.qabelbox.persistence.QblSQLiteParams;
 import de.qabel.qabelbox.persistence.RepositoryFactory;
-import de.qabel.qabelbox.providers.DocumentIdParser;
-import de.qabel.qabelbox.storage.BoxFile;
-import de.qabel.qabelbox.storage.BoxTransferListener;
-import de.qabel.qabelbox.storage.BoxUploadingFile;
 
 public class LocalQabelService extends Service implements DropConnector {
 
@@ -72,12 +53,6 @@ public class LocalQabelService extends Service implements DropConnector {
 
     private static final String TAG = "LocalQabelService";
     public static final String PREF_LAST_ACTIVE_IDENTITY = "PREF_LAST_ACTIVE_IDENTITY";
-    public static final String DEFAULT_DROP_SERVER = "http://localhost";
-
-    private static final String PREF_DEVICE_ID_CREATED = "PREF_DEVICE_ID_CREATED";
-    private static final String PREF_DEVICE_ID = "PREF_DEVICE_ID";
-    private static final int NUM_BYTES_DEVICE_ID = 16;
-    private static final int UPLOAD_NOTIFICATION_ID = 162134;
 
     private final IBinder mBinder = new LocalBinder();
 
@@ -85,17 +60,14 @@ public class LocalQabelService extends Service implements DropConnector {
     protected static final int DB_VERSION = 1;
     protected AndroidPersistence persistence;
     private DropHTTP dropHTTP;
-    private HashMap<String, Map<String, BoxUploadingFile>> pendingUploads;
-    private Queue<BoxUploadingFile> uploadingQueue;
-    private Map<String, Map<String, BoxFile>> cachedFinishedUploads;
-    private DocumentIdParser documentIdParser;
 
-    SharedPreferences sharedPreferences;
+    private AppPreference appPreferences;
+
     private IdentityRepository identityRepository;
     private ContactRepository contactRepository;
 
     protected String getLastActiveIdentityID() {
-        return sharedPreferences.getString(PREF_LAST_ACTIVE_IDENTITY, "");
+        return appPreferences.getLastActiveIdentityKey();
     }
 
     public void addIdentity(Identity identity) {
@@ -122,7 +94,7 @@ public class LocalQabelService extends Service implements DropConnector {
     }
 
     public void setActiveIdentity(Identity identity) {
-        PreferencesHelper.setLastActiveIdentityID(sharedPreferences, identity.getKeyIdentifier());
+        appPreferences.setLastActiveIdentityKey(identity.getKeyIdentifier());
     }
 
     public void deleteIdentity(Identity identity) {
@@ -157,14 +129,14 @@ public class LocalQabelService extends Service implements DropConnector {
 
     /**
      * Reset the persistence
-     *
+     * <p>
      * This should only be used in testing.
      */
     public void deleteContactsAndIdentities() {
         try {
-            for (Identity identity: identityRepository.findAll().getIdentities()) {
+            for (Identity identity : identityRepository.findAll().getIdentities()) {
                 Set<Contact> contacts = contactRepository.find(identity).getContacts();
-                for (Contact contact: contacts) {
+                for (Contact contact : contacts) {
                     try {
                         contactRepository.delete(contact, identity);
                     } catch (EntityNotFoundExcepion ignored) {
@@ -323,7 +295,7 @@ public class LocalQabelService extends Service implements DropConnector {
         Collection<DropMessage> plainMessages = new ArrayList<>();
 
         List<Contact> ccc = new ArrayList<>();
-        for (Contacts contacts: getAllContacts().values()) {
+        for (Contacts contacts : getAllContacts().values()) {
             ccc.addAll(contacts.getContacts());
         }
         Collections.shuffle(ccc, new SecureRandom());
@@ -393,133 +365,6 @@ public class LocalQabelService extends Service implements DropConnector {
         }
     }
 
-    public byte[] getDeviceID() {
-        String deviceID = sharedPreferences.getString(PREF_DEVICE_ID, "");
-        if (deviceID.equals("")) {
-            // Should never occur
-            throw new RuntimeException("DeviceID not created!");
-        }
-        return Hex.decode(deviceID);
-    }
-
-    public HashMap<String, Map<String, BoxUploadingFile>> getPendingUploads() {
-        return pendingUploads;
-    }
-
-    public BoxUploadingFile addPendingUpload(String documentId, Bundle extras) throws FileNotFoundException {
-        String uploadPath = documentIdParser.getPath(documentId);
-        String filename = documentIdParser.getBaseName(documentId);
-        Map<String, BoxUploadingFile> uploadsInPath = pendingUploads.get(uploadPath);
-        if (uploadsInPath == null) {
-            uploadsInPath = new HashMap<>();
-        }
-        BoxUploadingFile boxUploadingFile = new BoxUploadingFile(filename);
-        uploadsInPath.put(filename, boxUploadingFile);
-        pendingUploads.put(uploadPath, uploadsInPath);
-        uploadingQueue.add(boxUploadingFile);
-        updateNotification();
-        broadcastUploadStatus(documentId, LocalBroadcastConstants.UPLOAD_STATUS_NEW, extras);
-        return boxUploadingFile;
-    }
-
-    public boolean removePendingUpload(String documentId, int cause, @Nullable Bundle extras) throws FileNotFoundException {
-        String uploadPath = documentIdParser.getPath(documentId);
-        Map<String, BoxUploadingFile> uploadsInPath = pendingUploads.get(uploadPath);
-        switch (cause) {
-            case LocalBroadcastConstants.UPLOAD_STATUS_FINISHED:
-                broadcastUploadStatus(documentId, LocalBroadcastConstants.UPLOAD_STATUS_FINISHED, extras);
-                cacheFinishedUpload(documentId, extras);
-                break;
-            case LocalBroadcastConstants.UPLOAD_STATUS_FAILED:
-                broadcastUploadStatus(documentId, LocalBroadcastConstants.UPLOAD_STATUS_FAILED, extras);
-                break;
-        }
-        return uploadsInPath != null && uploadsInPath.remove(documentIdParser.getBaseName(documentId)) != null;
-    }
-
-    private void cacheFinishedUpload(String documentId, Bundle extras) {
-        if (extras != null) {
-            BoxFile boxFile = extras.getParcelable(LocalBroadcastConstants.EXTRA_FILE);
-            if (boxFile != null) {
-                try {
-                    Map<String, BoxFile> cachedFiles = cachedFinishedUploads.get(documentIdParser.getPath(documentId));
-                    if (cachedFiles == null) {
-                        cachedFiles = new HashMap<>();
-                    }
-                    cachedFiles.remove(boxFile.name);
-                    cachedFiles.put(boxFile.name, boxFile);
-                    cachedFinishedUploads.put(documentIdParser.getPath(documentId), cachedFiles);
-                } catch (FileNotFoundException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-    }
-
-    protected void updateNotification() {
-        BoxUploadingFile boxUploadingFile = uploadingQueue.peek();
-        if (boxUploadingFile != null) {
-            showNotification(getResources().getQuantityString(R.plurals.uploadsNotificationTitle,
-                    uploadingQueue.size(), uploadingQueue.size()),
-                    String.format(getString(R.string.upload_in_progress_notification_content), boxUploadingFile.name),
-                    boxUploadingFile.getUploadStatusPercent());
-        } else {
-            showNotification((getString(R.string.upload_complete_notification_title)), null, 100);
-        }
-    }
-
-    protected void showNotification(String contentTitle, @Nullable String contentText, int progress) {
-        Intent notificationIntent = new Intent(this, MainActivity.class);
-        notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP
-                | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-        PendingIntent intent = PendingIntent.getActivity(this, 0,
-                notificationIntent, 0);
-
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
-        builder.setContentTitle(contentTitle)
-                .setContentText(contentText)
-                .setSmallIcon(R.drawable.qabel_logo)
-                .setProgress(100, progress, false)
-                .setContentIntent(intent);
-
-        Notification notification = builder.build();
-        notification.flags |= Notification.FLAG_AUTO_CANCEL;
-
-        NotificationManager notifyManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        notifyManager.notify(UPLOAD_NOTIFICATION_ID, builder.build());
-    }
-
-    public BoxTransferListener getUploadTransferListener(final BoxUploadingFile boxUploadingFile) {
-        return new BoxTransferListener() {
-            @Override
-            public void onProgressChanged(long bytesCurrent, long bytesTotal) {
-                boxUploadingFile.totalSize = bytesTotal;
-                boxUploadingFile.uploadedSize = bytesCurrent;
-                updateNotification();
-            }
-
-            @Override
-            public void onFinished() {
-                uploadingQueue.remove(boxUploadingFile);
-                updateNotification();
-            }
-        };
-    }
-
-    protected void broadcastUploadStatus(String documentId, int uploadStatus, @Nullable Bundle extras) {
-        Intent intent = new Intent(LocalBroadcastConstants.INTENT_UPLOAD_BROADCAST);
-        intent.putExtra(LocalBroadcastConstants.EXTRA_UPLOAD_DOCUMENT_ID, documentId);
-        intent.putExtra(LocalBroadcastConstants.EXTRA_UPLOAD_STATUS, uploadStatus);
-        if (extras != null) {
-            intent.putExtra(LocalBroadcastConstants.EXTRA_UPLOAD_EXTRA, extras);
-        }
-        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
-    }
-
-    public Map<String, Map<String, BoxFile>> getCachedFinishedUploads() {
-        return cachedFinishedUploads;
-    }
-
     @Override
     public IBinder onBind(Intent intent) {
         return mBinder;
@@ -530,18 +375,13 @@ public class LocalQabelService extends Service implements DropConnector {
         super.onCreate();
         Log.i(TAG, "LocalQabelService created");
         dropHTTP = new DropHTTP();
-        initSharedPreferences();
         initRepositories();
         try {
             migratePersistence();
         } catch (EntityNotFoundExcepion | PersistenceException e) {
             Log.e(TAG, "Migration of identities and contatcs failed", e);
         }
-        pendingUploads = new HashMap<>();
-        documentIdParser = new DocumentIdParser();
-        cachedFinishedUploads = Collections.synchronizedMap(new HashMap<>());
-        uploadingQueue = new LinkedBlockingDeque<>();
-
+        appPreferences = new AppPreference(getApplicationContext());
     }
 
     private void migratePersistence() throws EntityNotFoundExcepion, PersistenceException {
@@ -561,8 +401,9 @@ public class LocalQabelService extends Service implements DropConnector {
     }
 
     protected void initAndroidPersistence() {
-       initAndroidPersistence(DB_NAME);
+        initAndroidPersistence(DB_NAME);
     }
+
     protected void initAndroidPersistence(String dbName) {
         AndroidPersistence androidPersistence;
         QblSQLiteParams params = new QblSQLiteParams(getApplicationContext(), dbName, null, DB_VERSION);
@@ -573,21 +414,6 @@ public class LocalQabelService extends Service implements DropConnector {
             return;
         }
         this.persistence = androidPersistence;
-    }
-
-    protected void initSharedPreferences() {
-        sharedPreferences = getSharedPreferences(this.getClass().getCanonicalName(), MODE_PRIVATE);
-        if (!sharedPreferences.getBoolean(PREF_DEVICE_ID_CREATED, false)) {
-
-            CryptoUtils cryptoUtils = new CryptoUtils();
-            byte[] deviceID = cryptoUtils.getRandomBytes(NUM_BYTES_DEVICE_ID);
-
-            Log.d(this.getClass().getName(), "New device ID: " + Hex.toHexString(deviceID));
-
-            sharedPreferences.edit().putString(PREF_DEVICE_ID, Hex.toHexString(deviceID))
-                    .putBoolean(PREF_DEVICE_ID_CREATED, true)
-                    .apply();
-        }
     }
 
     @Override

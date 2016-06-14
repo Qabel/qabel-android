@@ -1,12 +1,9 @@
 package de.qabel.qabelbox.ui;
 
 import android.app.Activity;
-import android.content.Context;
 import android.os.PowerManager;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.rule.ActivityTestRule;
-
-import com.squareup.spoon.Spoon;
 
 import org.junit.After;
 import org.junit.Before;
@@ -14,7 +11,6 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import de.qabel.core.config.Identity;
-import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.TestConstants;
 import de.qabel.qabelbox.activities.MainActivity;
@@ -66,7 +62,7 @@ public class OfflineUITest {
                 @Override
                 public void run() {
                     if (connected) {
-                        listener.handleConnectionEtablished();
+                        listener.handleConnectionEstablished();
                     } else {
                         listener.handleConnectionLost();
                     }
@@ -76,9 +72,8 @@ public class OfflineUITest {
     }
 
 
-    public void setupBeforeLaunch() {
-        mBoxHelper = new UIBoxHelper(QabelBoxApplication.getInstance());
-        mBoxHelper.bindService(QabelBoxApplication.getInstance());
+    public void setupBeforeLaunch() throws Exception{
+        mBoxHelper = new UIBoxHelper(InstrumentationRegistry.getTargetContext());
         mBoxHelper.createTokenIfNeeded(false);
 
         mBoxHelper.removeAllIdentities();
@@ -88,7 +83,7 @@ public class OfflineUITest {
     }
 
     @Before
-    public void setUp() {
+    public void setUp() throws Exception {
         setupBeforeLaunch();
 
         URLs.setBaseBlockURL(TestConstants.BLOCK_URL);
@@ -101,11 +96,10 @@ public class OfflineUITest {
     }
 
     @After
-    public void tearDown() {
+    public void tearDown() throws Exception {
         mBoxHelper.deleteIdentity(testIdentity);
         wakeLock.release();
         mSystemAnimations.enableAll();
-        mBoxHelper.unbindService(QabelBoxApplication.getInstance());
     }
 
 

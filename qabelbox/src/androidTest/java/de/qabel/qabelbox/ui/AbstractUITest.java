@@ -12,6 +12,7 @@ import org.junit.Before;
 import org.junit.Rule;
 
 import de.qabel.core.config.Identity;
+import de.qabel.desktop.repository.ContactRepository;
 import de.qabel.desktop.repository.IdentityRepository;
 import de.qabel.desktop.repository.sqlite.AndroidClientDatabase;
 import de.qabel.desktop.repository.sqlite.SqliteContactRepository;
@@ -35,7 +36,7 @@ public class AbstractUITest {
     private SystemAnimations mSystemAnimations;
     protected Context mContext;
     protected IdentityRepository identityRepository;
-    protected SqliteContactRepository contactRepository;
+    protected ContactRepository contactRepository;
 
     @After
     public void cleanUp() {
@@ -45,31 +46,29 @@ public class AbstractUITest {
         if (mSystemAnimations != null) {
             mSystemAnimations.enableAll();
         }
-        mBoxHelper.unbindService(QabelBoxApplication.getInstance());
     }
 
     @Before
     public void setUp() throws Throwable {
         URLs.setBaseBlockURL(TestConstants.BLOCK_URL);
         mContext = InstrumentationRegistry.getTargetContext();
-        RepositoryFactory factory = new RepositoryFactory(mContext);
-        AndroidClientDatabase database = factory.getAndroidClientDatabase();
-        identityRepository = factory.getIdentityRepository(database);
-        contactRepository = factory.getContactRepository(database);
 
-        mBoxHelper = new UIBoxHelper(QabelBoxApplication.getInstance());
-        mBoxHelper.bindService(QabelBoxApplication.getInstance());
+        mBoxHelper = new UIBoxHelper(mContext);
         mBoxHelper.createTokenIfNeeded(false);
         mBoxHelper.removeAllIdentities();
         identity = mBoxHelper.addIdentity("spoon123");
+        identityRepository = mBoxHelper.getIdentityRepository();
+        contactRepository = mBoxHelper.getContactRepository();
 
     }
 
     protected void launchActivity(@Nullable Intent intent) {
         if (intent == null) {
             intent = new Intent(mContext, MainActivity.class);
-            intent.putExtra(MainActivity.ACTIVE_IDENTITY, identity.getKeyIdentifier());
             intent.putExtra(MainActivity.START_FILES_FRAGMENT, false);
+        }
+        if(!intent.hasExtra(MainActivity.ACTIVE_IDENTITY)){
+            intent.putExtra(MainActivity.ACTIVE_IDENTITY, identity.getKeyIdentifier());
         }
         mActivity = mActivityTestRule.launchActivity(intent);
         wakeLock = UIActionHelper.wakeupDevice(mActivity);

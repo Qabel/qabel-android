@@ -8,7 +8,7 @@ import de.qabel.qabelbox.dagger.components.ApplicationComponent;
 public abstract class BaseActivity extends AppCompatActivity {
 
 
-    ApplicationComponent getApplicationComponent() {
+    public ApplicationComponent getApplicationComponent() {
         return QabelBoxApplication.getApplicationComponent(getApplicationContext());
     }
 

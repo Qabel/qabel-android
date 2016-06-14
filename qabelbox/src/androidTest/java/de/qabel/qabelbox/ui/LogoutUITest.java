@@ -1,8 +1,6 @@
 package de.qabel.qabelbox.ui;
 
-import android.content.Intent;
 import android.support.test.InstrumentationRegistry;
-import android.support.test.espresso.intent.Intents;
 import android.support.test.espresso.intent.rule.IntentsTestRule;
 
 import org.junit.Test;
@@ -18,11 +16,8 @@ import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.action.ViewActions.click;
 import static android.support.test.espresso.assertion.ViewAssertions.matches;
 import static android.support.test.espresso.contrib.DrawerActions.openDrawer;
-import static android.support.test.espresso.intent.matcher.IntentMatchers.hasComponent;
-import static android.support.test.espresso.intent.matcher.IntentMatchers.hasFlag;
 import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
-import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.notNullValue;
@@ -41,16 +36,15 @@ public class LogoutUITest extends AccountUITest {
         appPreference.setToken(TestConstants.TOKEN);
         mainActivityActivityTestRule.launchActivity(null);
         openDrawer(R.id.drawer_layout);
+        onView(withText(R.string.headline_settings)).perform(click());
         onView(withText(R.string.logout))
                 .check(matches(isDisplayed()))
                 .perform(click());
-        Intents.intended(allOf(
-                hasFlag(Intent.FLAG_ACTIVITY_CLEAR_TASK),
-                hasFlag(Intent.FLAG_ACTIVITY_TASK_ON_HOME),
-                hasComponent("de.qabel.qabelbox.activities.CreateAccountActivity")));
-        onView(withText(R.string.create_account_login_infos)).check(matches(isDisplayed()));
+
+        onView(withText(R.string.ok)).perform(click());
 
         assertIdentitiesNotDeleted();
+        appPreference = new AppPreference(mainActivityActivityTestRule.getActivity());
         assertThat("Login token not deleted", appPreference.getToken(), nullValue());
         assertThat("Login name deleted", appPreference.getAccountName(), notNullValue());
         assertThat("Login email deleted", appPreference.getAccountEMail(), notNullValue());

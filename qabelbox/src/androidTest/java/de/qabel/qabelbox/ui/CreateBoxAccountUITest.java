@@ -13,7 +13,6 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
-import java.io.IOException;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 
@@ -26,7 +25,6 @@ import de.qabel.qabelbox.communication.BoxAccountRegisterServer;
 import de.qabel.qabelbox.communication.URLs;
 import de.qabel.qabelbox.communication.callbacks.JsonRequestCallback;
 import de.qabel.qabelbox.config.AppPreference;
-import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.ui.helper.SystemAnimations;
 import de.qabel.qabelbox.ui.helper.UIActionHelper;
 import de.qabel.qabelbox.ui.helper.UIBoxHelper;
@@ -54,7 +52,7 @@ import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.endsWith;
 import static org.hamcrest.Matchers.is;
 
-public class CreateBoxAccountUITest extends UIBoxHelper {
+public class CreateBoxAccountUITest {
 
     @Rule
     public ActivityTestRule<CreateAccountActivity> mActivityTestRule = new ActivityTestRule<>(CreateAccountActivity.class, false, false);
@@ -75,7 +73,7 @@ public class CreateBoxAccountUITest extends UIBoxHelper {
         if (mSystemAnimations != null) {
             mSystemAnimations.enableAll();
         }
-        unbindService(QabelBoxApplication.getInstance());
+
         if (idlingResource !=null) {
             Espresso.unregisterIdlingResources(idlingResource);
         }
@@ -83,13 +81,14 @@ public class CreateBoxAccountUITest extends UIBoxHelper {
 
 
     @Before
-    public void setUp() throws IOException, QblStorageException {
+    public void setUp() throws Exception {
 
         URLs.setBaseAccountingURL(TestConstants.ACCOUNTING_URL);
 
-        bindService(QabelBoxApplication.getInstance());
+        UIBoxHelper testHelper = new UIBoxHelper(InstrumentationRegistry.getTargetContext());
         new AppPreference(InstrumentationRegistry.getTargetContext()).clear();
-        removeAllIdentities();
+
+        testHelper.removeAllIdentities();
 
         mActivity = mActivityTestRule.launchActivity(null);
         wakeLock = UIActionHelper.wakeupDevice(mActivity);

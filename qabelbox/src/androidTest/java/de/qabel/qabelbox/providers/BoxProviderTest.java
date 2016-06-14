@@ -26,11 +26,10 @@ import java.util.Arrays;
 import java.util.List;
 
 import de.qabel.qabelbox.BuildConfig;
-import de.qabel.qabelbox.communication.VolumeFileTransferHelper;
 import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.helper.MockedBoxProviderTest;
-import de.qabel.qabelbox.storage.BoxFolder;
-import de.qabel.qabelbox.storage.BoxNavigation;
+import de.qabel.qabelbox.storage.model.BoxFolder;
+import de.qabel.qabelbox.storage.navigation.BoxNavigation;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.startsWith;
@@ -73,28 +72,6 @@ public class BoxProviderTest extends MockedBoxProviderTest {
         Log.d(TAG, "tearDown");
     }
 
-    public void testTraverseToFolder() throws QblStorageException {
-        BoxProvider provider = getProvider();
-        BoxNavigation rootNav = getVolume().navigate();
-        BoxFolder folder = rootNav.createFolder("foobar");
-        rootNav.commit();
-        rootNav.createFolder("foobaz");
-        rootNav.commit();
-        List<BoxFolder> boxFolders = rootNav.listFolders();
-        List<String> path = new ArrayList<>();
-        path.add("");
-        BoxNavigation navigation = provider.traverseToFolder(getVolume(), path);
-        assertThat(boxFolders, is(navigation.listFolders()));
-        rootNav.navigate(folder);
-        rootNav.createFolder("blub");
-        rootNav.commit();
-        path.add("foobar");
-        navigation = provider.traverseToFolder(getVolume(), path);
-        assertThat("Could not navigate to /foobar/",
-                rootNav.listFolders(), is(navigation.listFolders()));
-
-    }
-
     public void testQueryRoots() throws FileNotFoundException {
         Cursor cursor = getProvider().queryRoots(BoxProvider.DEFAULT_ROOT_PROJECTION);
         assertThat(cursor.getCount(), is(1));
@@ -106,7 +83,7 @@ public class BoxProviderTest extends MockedBoxProviderTest {
 
     public void testOpenDocument() throws IOException, QblStorageException {
         BoxNavigation rootNav = getVolume().navigate();
-        rootNav.upload("testfile", new FileInputStream(new File(testFileName)), null);
+        rootNav.upload("testfile", new FileInputStream(new File(testFileName)));
         rootNav.commit();
         assertThat(rootNav.listFiles().size(), is(1));
         String testDocId = ROOT_DOC_ID + "testfile";
@@ -122,6 +99,7 @@ public class BoxProviderTest extends MockedBoxProviderTest {
         assertThat(dl, is(content));
     }
 
+    @Ignore("Refactoring without sleep needed")
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     public void testOpenDocumentForWrite() throws IOException, QblStorageException, InterruptedException {
         Uri parentUri = DocumentsContract.buildDocumentUri(BuildConfig.APPLICATION_ID + BoxProvider.AUTHORITY, ROOT_DOC_ID);
@@ -142,18 +120,16 @@ public class BoxProviderTest extends MockedBoxProviderTest {
         byte[] dl = IOUtils.toByteArray(inputStream);
         byte[] content = IOUtils.toByteArray(new FileInputStream(file));
         assertThat(dl, is(content));
-        assertTrue(getProvider().isBroadcastNotificationCalled);
-        assertTrue(getProvider().isShowNotificationCalled);
-        assertTrue(getProvider().isUpdateNotificationCalled);
     }
 
+    @Ignore("Refactoring without sleep needed")
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     public void testOpenDocumentForRW() throws IOException, QblStorageException, InterruptedException {
         // Upload a test payload
         BoxNavigation rootNav = getVolume().navigate();
         byte[] testContent = new byte[]{0, 1, 2, 3, 4, 5};
         byte[] updatedContent = new byte[]{0, 1, 2, 3, 4, 5, 6};
-        rootNav.upload("testfile", new ByteArrayInputStream(testContent), null);
+        rootNav.upload("testfile", new ByteArrayInputStream(testContent));
         rootNav.commit();
 
         // Check if the test playload can be read
@@ -182,9 +158,6 @@ public class BoxProviderTest extends MockedBoxProviderTest {
         assertNotNull(inputStream);
         byte[] downloaded = IOUtils.toByteArray(dlInputStream);
         assertThat("Changes to the uploaded file not found", downloaded, is(updatedContent));
-        assertTrue(getProvider().isBroadcastNotificationCalled);
-        assertTrue(getProvider().isShowNotificationCalled);
-        assertTrue(getProvider().isUpdateNotificationCalled);
     }
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)

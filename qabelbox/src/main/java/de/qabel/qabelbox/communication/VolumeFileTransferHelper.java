@@ -19,8 +19,8 @@ import java.util.List;
 import de.qabel.core.config.Identity;
 import de.qabel.qabelbox.BuildConfig;
 import de.qabel.qabelbox.providers.BoxProvider;
-import de.qabel.qabelbox.storage.BoxNavigation;
-import de.qabel.qabelbox.storage.BoxObject;
+import de.qabel.qabelbox.storage.navigation.BoxNavigation;
+import de.qabel.qabelbox.storage.model.BoxObject;
 import de.qabel.qabelbox.storage.BoxVolume;
 
 /**
@@ -85,7 +85,7 @@ public class VolumeFileTransferHelper {
             File file = new File(uri.toString());
             name = file.getName();
         } else {
-            Log.e(TAG, "Cannot handle URI for upload: " + uri.toString());
+            Log.e(TAG, "Cannot handle URI for uploadEncrypted: " + uri.toString());
             return null;
         }
         return name;

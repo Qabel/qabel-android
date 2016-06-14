@@ -1,0 +1,7 @@
+<resources>
+    <string name="setting_change_account_password" translatable="false">change_account_password</string>
+    <string name="setting_internal_feedback" translatable="false">internal_feedback</string>
+    <string name="setting_logout" translatable="false">logout</string>
+    <string name="setting_box_quota" translatable="false">box_quota</string>
+    <string name="setting_account_name" translatable="false">account_name</string>
+</resources>

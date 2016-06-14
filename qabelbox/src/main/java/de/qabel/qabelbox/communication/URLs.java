@@ -1,21 +1,18 @@
 package de.qabel.qabelbox.communication;
 
 import android.content.Context;
+import android.support.design.widget.CoordinatorLayout;
 
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
 
-/**
- * Created by danny on 26.01.2016.
- */
 public class URLs {
 
     private static String BASE_ACCOUNTING;
     private static String BASE_BLOCK;
 
-    public URLs() {
+    public URLs(Context context) {
 
-        Context context = QabelBoxApplication.getInstance().getApplicationContext();
         if (BASE_ACCOUNTING == null) {
             BASE_ACCOUNTING = context.getString(R.string.accountingServer);
         }
@@ -24,14 +21,25 @@ public class URLs {
         }
     }
 
-    public static void setBaseAccountingURL(String url) {
+    @Deprecated
+    public URLs() {
+        this(QabelBoxApplication.getInstance().getApplicationContext());
+    }
 
+    public static void setBaseAccountingURL(String url) {
         BASE_ACCOUNTING = url;
     }
 
     public static void setBaseBlockURL(String url) {
-
         BASE_BLOCK = url;
+    }
+
+    public String getBaseAccounting() {
+        return BASE_ACCOUNTING;
+    }
+
+    public String getBaseBlock() {
+        return BASE_BLOCK;
     }
 
     //

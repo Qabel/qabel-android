@@ -1,6 +1,7 @@
 package de.qabel.qabelbox.storage;
 
 import android.content.Context;
+import android.util.Log;
 
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
@@ -29,24 +30,27 @@ import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.exceptions.QblStorageNotFound;
 import de.qabel.qabelbox.providers.BoxProvider;
 import de.qabel.qabelbox.providers.DocumentIdParser;
+import de.qabel.qabelbox.storage.navigation.BoxNavigation;
+import de.qabel.qabelbox.storage.navigation.FolderNavigation;
+import de.qabel.qabelbox.storage.transfer.TransferManager;
 
 public class BoxVolume {
 
-    private static final Logger logger = LoggerFactory.getLogger(BoxVolume.class.getName());
+    private static final String TAG = BoxVolume.class.getSimpleName();
     private static final String PATH_ROOT = "/";
     private final String rootId;
     private final Context context;
+    private final BoxManager boxManager;
 
     private QblECKeyPair keyPair;
     private byte[] deviceId;
     private CryptoUtils cryptoUtils;
     private File tempDir;
-    private final TransferManager transferManager;
     private String prefix;
 
     public BoxVolume(
             QblECKeyPair keyPair, String prefix,
-            byte[] deviceId, Context context, TransferManager transferManager) {
+            byte[] deviceId, Context context, BoxManager boxManager) {
 
         this.keyPair = keyPair;
         this.deviceId = deviceId;
@@ -56,58 +60,27 @@ public class BoxVolume {
 
         this.rootId = new DocumentIdParser().buildId(
                 keyPair.getPub().getReadableKeyIdentifier(), prefix, null);
-        this.transferManager = transferManager;
         this.prefix = prefix;
-
+        this.boxManager = boxManager;
     }
 
     public String getDocumentId(String path) {
         return rootId + BoxProvider.DOCID_SEPARATOR + path;
     }
 
-    private InputStream blockingDownload(String name) throws QblStorageNotFound {
-
-        File tmp = transferManager.createTempFile();
-        int id = transferManager.download(prefix, name, tmp, null);
-        if (transferManager.waitFor(id)) {
-            try {
-                return new FileInputStream(tmp);
-            } catch (FileNotFoundException e) {
-                throw new QblStorageNotFound("Download failed");
-            }
-        } else {
-            throw new QblStorageNotFound("Download failed");
-        }
-    }
-
-    private void blockingUpload(String name,
-                                InputStream inputStream) throws QblStorageException {
-
-        File tmp = transferManager.createTempFile();
-        try {
-            IOUtils.copy(inputStream, new FileOutputStream(tmp));
-        } catch (IOException e) {
-            throw new QblStorageException(e);
-        }
-        int id = transferManager.uploadAndDeleteLocalfileOnSuccess(prefix, name, tmp, null);
-        if (!transferManager.waitFor(id)) {
-            throw new QblStorageException("Upload failed");
-        }
-    }
-
     public BoxNavigation navigate() throws QblStorageException {
-        return new FolderNavigation(prefix, getDirectoryMetadata(), keyPair, null, deviceId, transferManager,
+        return new FolderNavigation(prefix, getDirectoryMetadata(), keyPair, null, deviceId, boxManager,
                 this, PATH_ROOT, null, context);
     }
 
-    DirectoryMetadata getDirectoryMetadata() throws QblStorageException {
+    public DirectoryMetadata getDirectoryMetadata() throws QblStorageException {
 
         String rootRef = getRootRef();
-        logger.info("Navigating to " + rootRef);
-        InputStream indexDl = blockingDownload(rootRef);
+        Log.d(TAG, "Downloading Root " + rootRef);
+        File indexDl = boxManager.blockingDownload(prefix, rootRef, null);
         File tmp;
         try {
-            byte[] encrypted = IOUtils.toByteArray(indexDl);
+            byte[] encrypted = IOUtils.toByteArray(new FileInputStream(indexDl));
             if (encrypted.length == 0) {
                 throw new QblStorageException("Empty file");
             }
@@ -140,13 +113,18 @@ public class BoxVolume {
         return uuid.toString();
     }
 
+    public String getPublicKeyIdentifier(){
+        return this.keyPair.getPub().getReadableKeyIdentifier();
+    }
+
     public void createIndex() throws QblStorageException {
         String rootRef = getRootRef();
+        Log.d(TAG, "Uploading Root " + rootRef);
         DirectoryMetadata dm = DirectoryMetadata.newDatabase(rootRef, deviceId, tempDir);
         try {
             byte[] plaintext = IOUtils.toByteArray(new FileInputStream(dm.path));
             byte[] encrypted = cryptoUtils.createBox(keyPair, keyPair.getPub(), plaintext, 0);
-            blockingUpload(rootRef, new ByteArrayInputStream(encrypted));
+            boxManager.blockingUpload(prefix, rootRef, new ByteArrayInputStream(encrypted));
         } catch (IOException e) {
             throw new QblStorageException(e);
         } catch (InvalidKeyException e) {

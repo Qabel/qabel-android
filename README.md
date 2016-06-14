@@ -5,9 +5,6 @@
 <img align="left" width="0" height="150px" hspace="25"/>
 > The Qabel Android Client
 
-[![Build Status](https://jenkins.prae.me/buildStatus/icon?job=qabel-android-nightly)](https://jenkins.prae.me/job/qabel-android-nightly/)
-[![version](https://img.shields.io/badge/beta-0.6.0--beta.1-ff690f.svg)](https://qabel.de)
-
 This project provides a Client for <a href="https://qabel.de"><img alt="Qabel" src="https://files.qabel.de/img/qabel-kl.png" height="18px"/></a> targeting Android. It is a small part of the qabel platform.
 
 <br style="clear: both"/>
@@ -45,20 +42,24 @@ Everything below this line describes the usage of the Qabel Android Client for d
 
 # <a name="getting_started"></a>Getting started
 
-* Install Android Studio.
-* Open the SDK Manager from Tools/Android/SDK Manager
+* Install the Android [SDK](https://developer.android.com/studio/index.html)
 * Install the SDK version 23. Make sure you install the "Android Support Repository" and the latest "Android SDK build-tools"
-* Import the project from git (File/New/Project from version control)
+* Install the [NDK](https://developer.android.com/ndk/index.html)
+* Checkout the project from git
 * Create the file /qabelbox/src/main/res/values/params.xml with the following contents:
 
     `<resources> <string name="hockeykey">dummykey</string> </resources>`
-* Select the qabelbox module
-* Click "Run" and you're done.
+* Create a local.properties file at the root of your source checkout and add an sdk.dir and ndk.dir entry to it.  For example:
 
+        sdk.dir=/opt/Android/SDK
+        ndk.dir=/opt/Android/NDK
+
+* Run `./gradlew build`
+* Usage of Android Studio with the Kotlin plugin is recommended for development
 
 # Usage
 
-You can run the tests either dirctly from AndroidStudio with the following gradle tasks:
+You can run the tests either directly from AndroidStudio with the following gradle tasks:
 
 * `./gradlew test` runs the local unit tests
 * `./gradlew spoon` runs all instrumentation tests on all connected devices and emulators

@@ -3,15 +3,13 @@ package de.qabel.qabelbox.activities;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 
 import net.hockeyapp.android.CrashManager;
 import net.hockeyapp.android.UpdateManager;
 
-import de.qabel.qabelbox.BuildConfig;
 import de.qabel.qabelbox.R;
-import de.qabel.qabelbox.fragments.SettingsFragment;
+import de.qabel.qabelbox.settings.fragments.SettingsFragment;
 
 public class CrashReportingActivity extends BaseActivity {
 

@@ -17,16 +17,10 @@ import de.qabel.qabelbox.services.DropConnector;
 import de.qabel.qabelbox.services.HttpDropConnector;
 
 @Module
-public class ApplicationModule {
+public class ApplicationModule extends ContextModule {
 
     public ApplicationModule(QabelBoxApplication application) {
-        this.application = application;
-    }
-
-    private final QabelBoxApplication application;
-
-    @Provides @Singleton public Context provideApplicationContext() {
-        return application;
+        super(application);
     }
 
     @Singleton @Provides DropConnector providesDropConnector(HttpDropConnector connector) {

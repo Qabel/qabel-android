@@ -20,9 +20,16 @@ import de.qabel.core.crypto.CryptoUtils;
 import de.qabel.core.crypto.QblECKeyPair;
 import de.qabel.qabelbox.BuildConfig;
 import de.qabel.qabelbox.SimpleApplication;
+import de.qabel.qabelbox.TestApplication;
 import de.qabel.qabelbox.exceptions.QblStorageException;
+import de.qabel.qabelbox.storage.model.BoxExternalReference;
+import de.qabel.qabelbox.storage.model.BoxFile;
+import de.qabel.qabelbox.storage.model.BoxFolder;
+import de.qabel.qabelbox.storage.model.BoxObject;
+import de.qabel.qabelbox.storage.navigation.BoxNavigation;
 import de.qabel.qabelbox.test.TestConstants;
 import de.qabel.qabelbox.test.files.FileHelper;
+import de.qabel.qabelbox.util.BoxTestHelper;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertEquals;
@@ -82,9 +89,12 @@ public class SearchTest {
         byte[] deviceID = utils.getRandomBytes(16);
         QblECKeyPair keyPair = new QblECKeyPair();
 
+        BoxTestHelper helper = new BoxTestHelper((TestApplication)RuntimeEnvironment.application);
+        BoxManager manager = helper.getBoxManager();
+
         BoxVolume volume = new BoxVolume(keyPair, TestConstants.PREFIX,
                 deviceID, RuntimeEnvironment.application,
-                new FakeTransferManager(FileHelper.getSystemTmp()));
+                manager);
 
         volume.createIndex();
 
@@ -105,7 +115,7 @@ public class SearchTest {
 
         assertThat(navigation.listFiles().size(), is(0));
 
-        BoxFile sharedFile = navigation.upload(L0_FILE_1, new FileInputStream(testFile), null);
+        BoxFile sharedFile = navigation.upload(L0_FILE_1, new FileInputStream(testFile));
         BoxExternalReference externalReference = navigation.createFileMetadata(keyPair.getPub(), sharedFile);
         navigation.commit();
 
@@ -113,16 +123,16 @@ public class SearchTest {
         navigation.commit();
         navigation.navigate(folder);
 
-        navigation.upload(L1_FILE_1, new FileInputStream(testFile), null);
+        navigation.upload(L1_FILE_1, new FileInputStream(testFile));
         navigation.commit();
-        navigation.upload(L1_FILE_2_SMALL, new FileInputStream(smallFile), null);
+        navigation.upload(L1_FILE_2_SMALL, new FileInputStream(smallFile));
         navigation.commit();
 
         folder = navigation.createFolder(L1_DIR_1);
         navigation.commit();
         navigation.navigate(folder);
 
-        navigation.upload(L2_FILE_1, new FileInputStream(testFile), null);
+        navigation.upload(L2_FILE_1, new FileInputStream(testFile));
         navigation.commit();
 
         navigation.navigateToParent();
@@ -131,7 +141,7 @@ public class SearchTest {
         navigation.commit();
         navigation.navigate(folder);
 
-        navigation.upload(L2_FILE_2, new FileInputStream(testFile), null);
+        navigation.upload(L2_FILE_2, new FileInputStream(testFile));
         navigation.commit();
 
         //Add shares folder and shared file

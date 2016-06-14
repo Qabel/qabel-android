@@ -173,6 +173,9 @@ public class CreateIdentityActivity extends BaseWizardActivity {
         Intent result = new Intent();
         result.putExtra(P_IDENTITY, mNewIdentity);
         setResult(activityResult, result);
+        if (FAKE_COMMUNICATION) {
+            return;
+        }
         finish();
         if (mFirstRun) {
             Intent intent = new Intent(mActivity, MainActivity.class);

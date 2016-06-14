@@ -1,10 +1,9 @@
 package de.qabel.qabelbox.providers;
 
-import android.app.NotificationManager;
-import android.content.ComponentName;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.ServiceConnection;
+import android.content.IntentFilter;
 import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.net.Uri;
@@ -12,7 +11,6 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.CancellationSignal;
 import android.os.Handler;
-import android.os.IBinder;
 import android.os.ParcelFileDescriptor;
 import android.provider.DocumentsContract;
 import android.provider.DocumentsContract.Document;
@@ -20,54 +18,49 @@ import android.provider.DocumentsContract.Root;
 import android.provider.DocumentsProvider;
 import android.provider.MediaStore.Video.Media;
 import android.support.annotation.NonNull;
-import android.support.v7.app.NotificationCompat;
 import android.util.Log;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+import javax.inject.Inject;
+
 import de.qabel.core.config.Identities;
 import de.qabel.core.config.Identity;
-import de.qabel.core.crypto.QblECKeyPair;
+import de.qabel.desktop.repository.IdentityRepository;
+import de.qabel.desktop.repository.exception.PersistenceException;
 import de.qabel.qabelbox.BuildConfig;
-import de.qabel.qabelbox.QabelBoxApplication;
+import de.qabel.qabelbox.QblBroadcastConstants;
 import de.qabel.qabelbox.R;
+import de.qabel.qabelbox.config.AppPreference;
+import de.qabel.qabelbox.dagger.components.BoxComponent;
+import de.qabel.qabelbox.dagger.components.DaggerBoxComponent;
+import de.qabel.qabelbox.dagger.modules.ContextModule;
 import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.exceptions.QblStorageNotFound;
-import de.qabel.qabelbox.services.LocalBroadcastConstants;
-import de.qabel.qabelbox.services.LocalQabelService;
-import de.qabel.qabelbox.storage.BlockServerTransferManager;
-import de.qabel.qabelbox.storage.BoxExternalFile;
-import de.qabel.qabelbox.storage.BoxFile;
-import de.qabel.qabelbox.storage.BoxFolder;
-import de.qabel.qabelbox.storage.BoxNavigation;
-import de.qabel.qabelbox.storage.BoxObject;
-import de.qabel.qabelbox.storage.BoxTransferListener;
-import de.qabel.qabelbox.storage.BoxUploadingFile;
+import de.qabel.qabelbox.storage.BoxManager;
 import de.qabel.qabelbox.storage.BoxVolume;
-import de.qabel.qabelbox.storage.FakeTransferManager;
-import de.qabel.qabelbox.storage.TransferManager;
+import de.qabel.qabelbox.storage.model.BoxFile;
+import de.qabel.qabelbox.storage.model.BoxFolder;
+import de.qabel.qabelbox.storage.model.BoxObject;
+import de.qabel.qabelbox.storage.navigation.BoxNavigation;
+import de.qabel.qabelbox.storage.notifications.StorageNotificationManager;
 
 public class BoxProvider extends DocumentsProvider {
 
@@ -86,77 +79,59 @@ public class BoxProvider extends DocumentsProvider {
     public static final String AUTHORITY = ".providers.documents";
     public static final String PATH_SEP = "/";
     public static final String DOCID_SEPARATOR = "::::";
-    
-    /**
-     * Configure the TransferManager used in the BoxProvider
-     *
-     * block references the @see BlockServerTransferManager
-     * fake references the @see FakeTransferManager
-     *
-     * This is a hack to change the behavior of the BoxProvider
-     * when running with QblJunitTestRunner. Changing the
-     * DocumentProvider class is not easily possible
-     */
-    public static String defaultTransferManager = "block";
-
-    DocumentIdParser mDocumentIdParser;
-    private ThreadPoolExecutor mThreadPoolExecutor;
 
     private static final int KEEP_ALIVE_TIME = 1;
     private static final TimeUnit KEEP_ALIVE_TIME_UNIT = TimeUnit.SECONDS;
 
+    @Inject
+    StorageNotificationManager storageNotificationManager;
+    @Inject
+    DocumentIdParser mDocumentIdParser;
+
+    @Inject
+    IdentityRepository identityRepository;
+
+    @Inject
+    AppPreference appPrefereces;
+
+    @Inject
+    BoxManager boxManager;
+
+    private ThreadPoolExecutor mThreadPoolExecutor;
+
     private Map<String, BoxCursor> folderContentCache;
     private String currentFolder;
-    protected LocalQabelService mService;
+
+    BoxComponent boxComponent;
+
+    private BroadcastReceiver volumesChangedBroadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            notifyRootsUpdated();
+        }
+    };
 
     @Override
     public boolean onCreate() {
 
         final Context context = getContext();
-        if (context == null) {
-            Log.e(TAG, "No context available in BoxProvider, exiting");
-            return false;
-        }
-
-        bindToService(context);
-
-        mDocumentIdParser = new DocumentIdParser();
 
         mThreadPoolExecutor = new ThreadPoolExecutor(
                 2,
                 2,
                 KEEP_ALIVE_TIME,
                 KEEP_ALIVE_TIME_UNIT,
-                new LinkedBlockingDeque<Runnable>());
-
-        staticBindToApplication();
+                new LinkedBlockingDeque<>());
 
         folderContentCache = new HashMap<>();
+
+        boxComponent = DaggerBoxComponent.builder().contextModule(new ContextModule(context)).build();
+        boxComponent.inject(this);
+
+        context.registerReceiver(volumesChangedBroadcastReceiver,
+                new IntentFilter(QblBroadcastConstants.Storage.BOX_VOLUMES_CHANGES));
+
         return true;
-    }
-
-    void staticBindToApplication() {
-        QabelBoxApplication.boxProvider = this;
-    }
-
-    void bindToService(Context context) {
-
-        Intent intent = new Intent(context, LocalQabelService.class);
-        context.bindService(intent, new ServiceConnection() {
-            @Override
-            public void onServiceConnected(ComponentName name, IBinder service) {
-
-                LocalQabelService.LocalBinder binder = (LocalQabelService.LocalBinder) service;
-                mService = binder.getService();
-                notifyRootsUpdated();
-            }
-
-            @Override
-            public void onServiceDisconnected(ComponentName name) {
-
-                mService = null;
-            }
-        }, Context.BIND_AUTO_CREATE);
     }
 
     /**
@@ -164,22 +139,9 @@ public class BoxProvider extends DocumentsProvider {
      * This happens if identities or prefixes changed.
      */
     public void notifyRootsUpdated() {
-
         getContext().getContentResolver()
                 .notifyChange(DocumentsContract.buildRootsUri(
                         BuildConfig.APPLICATION_ID + AUTHORITY), null);
-    }
-
-    /**
-     * Used to temporary inject the service if it is not ready yet
-     *
-     * @param service
-     */
-    public void setLocalService(LocalQabelService service) {
-
-        if (mService == null) {
-            mService = service;
-        }
     }
 
     @Override
@@ -188,28 +150,29 @@ public class BoxProvider extends DocumentsProvider {
         String[] netProjection = reduceProjection(projection, DEFAULT_ROOT_PROJECTION);
 
         MatrixCursor result = new MatrixCursor(netProjection);
-        if (mService == null) {
-            return result;
-        }
-        Identities identities = mService.getIdentities();
-        for (Identity identity : identities.getIdentities()) {
-            final MatrixCursor.RowBuilder row = result.newRow();
-            String pub_key = identity.getEcPublicKey().getReadableKeyIdentifier();
-            String prefix;
-            try {
-                prefix = identity.getPrefixes().get(0);
-            } catch (IndexOutOfBoundsException e) {
-                Log.e(TAG, "Could not find a prefix in identity " + pub_key);
-                continue;
+        try {
+            Identities identities = identityRepository.findAll();
+            for (Identity identity : identities.getIdentities()) {
+                final MatrixCursor.RowBuilder row = result.newRow();
+                String pub_key = identity.getEcPublicKey().getReadableKeyIdentifier();
+                String prefix;
+                try {
+                    prefix = identity.getPrefixes().get(0);
+                } catch (IndexOutOfBoundsException e) {
+                    Log.e(TAG, "Could not find a prefix in identity " + pub_key);
+                    continue;
+                }
+                row.add(Root.COLUMN_ROOT_ID,
+                        mDocumentIdParser.buildId(pub_key, prefix, null));
+                row.add(Root.COLUMN_DOCUMENT_ID,
+                        mDocumentIdParser.buildId(pub_key, prefix, "/"));
+                row.add(Root.COLUMN_ICON, R.drawable.qabel_logo);
+                row.add(Root.COLUMN_FLAGS, Root.FLAG_SUPPORTS_CREATE);
+                row.add(Root.COLUMN_TITLE, "Qabel Box");
+                row.add(Root.COLUMN_SUMMARY, identity.getAlias());
             }
-            row.add(Root.COLUMN_ROOT_ID,
-                    mDocumentIdParser.buildId(pub_key, prefix, null));
-            row.add(Root.COLUMN_DOCUMENT_ID,
-                    mDocumentIdParser.buildId(pub_key, prefix, "/"));
-            row.add(Root.COLUMN_ICON, R.drawable.qabel_logo);
-            row.add(Root.COLUMN_FLAGS, Root.FLAG_SUPPORTS_CREATE);
-            row.add(Root.COLUMN_TITLE, "Qabel Box");
-            row.add(Root.COLUMN_SUMMARY, identity.getAlias());
+        } catch (PersistenceException e) {
+            throw new FileNotFoundException("Error loading identities");
         }
 
         return result;
@@ -238,66 +201,49 @@ public class BoxProvider extends DocumentsProvider {
         return result.toArray(projection);
     }
 
-    public BoxVolume getVolumeForRoot(String identity, String prefix) {
+    public BoxVolume getVolumeForRoot(String identity, String prefix) throws FileNotFoundException {
 
-        if (prefix == null) {
-            throw new RuntimeException("No prefix supplied");
-        }
-        Identity retrievedIdentity = mService.getIdentities().getByKeyIdentifier(identity);
-        if (retrievedIdentity == null) {
-            throw new RuntimeException("Identity " + identity + "is unknown!");
-        }
-        QblECKeyPair key = retrievedIdentity.getPrimaryKeyPair();
-
-        Context context = getContext();
-        if (context == null) {
-            throw new IllegalStateException("Trying to create a volume object without context");
-        }
-        File tempDir = context.getCacheDir();
-        return new BoxVolume(key, prefix,
-                mService.getDeviceID(), context, createTransferManager(tempDir));
-    }
-
-    @NonNull
-    protected TransferManager createTransferManager(File tempDir) {
-        if (defaultTransferManager.equals("block")) {
-            return new BlockServerTransferManager(tempDir);
-        } else {
-            return new FakeTransferManager(tempDir);
+        try {
+            return boxManager.createBoxVolume(identity, prefix);
+        } catch (QblStorageException e) {
+            e.printStackTrace();
+            throw new FileNotFoundException("Cannot create BoxVolume");
         }
     }
 
     @Override
-    public Cursor queryDocument(String documentId, String[] projection)
+    public Cursor queryDocument(String documentIdString, String[] projection)
             throws FileNotFoundException {
 
         MatrixCursor cursor = createCursor(projection, false);
-        String logInfos = shrinkDocumentId(documentId);
-        if (projection != null) {
-            logInfos += " projSize=" + projection.length;
-        } else {
-            logInfos += " projection=null. All fields used";
-        }
-        Log.v(TAG, "QueryDocument " + logInfos);
-        String filePath = mDocumentIdParser.getFilePath(documentId);
-
-        BoxVolume volume = getVolumeForId(documentId);
-
-        if (filePath.equals(PATH_SEP)) {
-            // root id
-            insertRootDoc(cursor, documentId);
-            return cursor;
-        }
-
         try {
-            List<String> strings = mDocumentIdParser.splitPath(mDocumentIdParser.getFilePath(documentId));
-            String basename = strings.remove(strings.size() - 1);
-            BoxNavigation navigation =
-                    traverseToFolder(volume, strings);
-            Log.d(TAG, "Inserting basename " + basename);
-            insertFileByName(cursor, navigation, documentId, basename);
+            DocumentId documentId = mDocumentIdParser.parse(documentIdString);
+            String logInfos = shrinkDocumentId(documentIdString);
+            if (projection != null) {
+                logInfos += " projSize=" + projection.length;
+            } else {
+                logInfos += " projection=null. All fields used";
+            }
+            Log.v(TAG, "QueryDocument " + logInfos);
+            String filePath = documentId.getFilePath();
+
+            BoxVolume volume = getVolumeForRoot(documentId.getIdentityKey(),
+                    documentId.getPrefix());
+
+            if (filePath.equals(PATH_SEP)) {
+                // root id
+                insertRootDoc(cursor, documentIdString);
+                return cursor;
+            }
+            BoxNavigation navigation = volume.navigate();
+            navigation.navigate(documentId.getPathString());
+            if (navigation.getFile(documentId.getFileName(), false) == null) {
+                return null;
+            }
+            Log.d(TAG, "Inserting basename " + documentId.getFileName());
+            insertFileByName(cursor, navigation, documentIdString, documentId.getFileName());
         } catch (QblStorageException e) {
-            Log.i(TAG, "Could not find document " + documentId, e);
+            Log.i(TAG, "Could not find document " + documentIdString, e);
             throw new FileNotFoundException("Failed navigating the volume");
         }
 
@@ -395,12 +341,12 @@ public class BoxProvider extends DocumentsProvider {
 
         Log.v(TAG, "createBoxCursor");
         BoxCursor cursor = createCursor(projection, false);
-
-        BoxVolume volume = getVolumeForId(parentDocumentId);
         try {
-            BoxNavigation navigation =
-                    traverseToFolder(volume, mDocumentIdParser.splitPath(
-                            mDocumentIdParser.getFilePath(parentDocumentId)));
+            DocumentId parentId = mDocumentIdParser.parse(parentDocumentId);
+            BoxVolume volume = getVolumeForRoot(parentId.getIdentityKey(), parentId.getPrefix());
+
+            BoxNavigation navigation = volume.navigate();
+            navigation.navigate(parentId.getPathString());
             insertFolderListing(cursor, navigation, parentDocumentId);
         } catch (QblStorageException e) {
             Log.e(TAG, "Could not navigate", e);
@@ -491,27 +437,6 @@ public class BoxProvider extends DocumentsProvider {
         row.add(Document.COLUMN_MIME_TYPE, Document.MIME_TYPE_DIR);
     }
 
-    BoxNavigation traverseToFolder(BoxVolume volume, List<String> filePath) throws QblStorageException {
-
-        Log.d(TAG, "Traversing to " + filePath.toString());
-        BoxNavigation navigation = volume.navigate();
-        PARTS:
-        for (String part : filePath) {
-            if (part.equals("")) {
-                continue;
-            }
-            for (BoxFolder folder : navigation.listFolders()) {
-                Log.i(TAG, "Part: " + part + " Folder: " + folder.name);
-                if (part.equals(folder.name)) {
-                    navigation.navigate(folder);
-                    continue PARTS;
-                }
-            }
-            throw new QblStorageNotFound("Folder not found, giving up at " + part);
-        }
-        return navigation;
-    }
-
     @Override
     public ParcelFileDescriptor openDocument(final String documentId,
                                              final String mode, final CancellationSignal signal)
@@ -522,7 +447,6 @@ public class BoxProvider extends DocumentsProvider {
         final boolean isRead = (mode.indexOf('r') != -1);
 
         if (isWrite) {
-            final BoxUploadingFile boxUploadingFile = mService.addPendingUpload(documentId, null);
             // Attach a close listener if the document is opened in write mode.
             try {
                 Handler handler = new Handler(getContext().getMainLooper());
@@ -532,26 +456,35 @@ public class BoxProvider extends DocumentsProvider {
                 } else {
                     tmp = File.createTempFile("uploadAndDeleteLocalfile", "", getContext().getExternalCacheDir());
                 }
-                ParcelFileDescriptor.OnCloseListener onCloseListener = new ParcelFileDescriptor.OnCloseListener() {
-                    @Override
-                    public void onClose(IOException e) {
-                        // Update the file with the cloud server.  The client is done writing.
-                        Log.i(TAG, "A file with id " + documentId + " has been closed!  Time to " +
-                                "update the server.");
-                        if (e != null) {
-                            Log.e(TAG, "IOException in onClose", e);
-                            return;
-                        }
-                        // in another thread!
-                        new AsyncTask<Void, Void, String>() {
-                            @Override
-                            protected String doInBackground(Void... params) {
-
-                                uploadFile(documentId, tmp, mService.getUploadTransferListener(boxUploadingFile));
-                                return documentId;
-                            }
-                        }.execute();
+                ParcelFileDescriptor.OnCloseListener onCloseListener = e -> {
+                    // Update the file with the cloud server.  The client is done writing.
+                    Log.i(TAG, "A file with id " + documentId + " has been closed!  Time to " +
+                            "update the server.");
+                    if (e != null) {
+                        Log.e(TAG, "IOException in onClose", e);
+                        return;
                     }
+                    // in another thread!
+                    new AsyncTask<Void, Void, String>() {
+                        @Override
+                        protected String doInBackground(Void... params) {
+                            try {
+                                DocumentId documentId1 = mDocumentIdParser.parse(documentId);
+                                String path = documentId1.getPathString();
+                                BoxVolume volume = getVolumeForRoot(documentId1.getIdentityKey(),
+                                        documentId1.getPrefix());
+                                BoxNavigation boxNavigation = volume.navigate();
+                                boxNavigation.navigate(path);
+                                boxNavigation.upload(documentId1.getFileName(),
+                                        new FileInputStream(tmp));
+                                boxNavigation.commit();
+                            } catch (FileNotFoundException | QblStorageException e1) {
+                                Log.e(TAG, "Cannot upload file!", e);
+                            }
+                            Log.d(TAG, "UPLOAD DONE");
+                            return documentId;
+                        }
+                    }.execute();
                 };
                 return ParcelFileDescriptor.open(tmp, ParcelFileDescriptor.parseMode(mode), handler,
                         onCloseListener);
@@ -565,51 +498,14 @@ public class BoxProvider extends DocumentsProvider {
         }
     }
 
-    private void uploadFile(String documentId, File tmp, BoxTransferListener boxTransferListener) {
-
-        try {
-            BoxVolume volume = getVolumeForId(documentId);
-            List<String> splitPath = mDocumentIdParser.splitPath(
-                    mDocumentIdParser.getFilePath(documentId));
-            String basename = splitPath.remove(splitPath.size() - 1);
-            Log.i(TAG, "Navigating to folder");
-            BoxNavigation navigation = traverseToFolder(volume, splitPath);
-            Log.i(TAG, "Starting uploadAndDeleteLocalfile");
-            BoxFile boxFile = navigation.upload(basename, new FileInputStream(tmp), boxTransferListener);
-            navigation.commit();
-            Bundle extras = new Bundle();
-            extras.putParcelable(LocalBroadcastConstants.EXTRA_FILE, boxFile);
-            mService.removePendingUpload(documentId, LocalBroadcastConstants.UPLOAD_STATUS_FINISHED, extras);
-        } catch (FileNotFoundException | QblStorageException e1) {
-            Log.e(TAG, "Upload failed", e1);
-            try {
-                mService.removePendingUpload(documentId, LocalBroadcastConstants.UPLOAD_STATUS_FAILED, null);
-            } catch (FileNotFoundException e) {
-                //Should not be possible
-                Log.e(TAG, "Removing failed upload failed", e);
-            }
-        }
-    }
-
     private File downloadFile(final String documentId, final String mode, final CancellationSignal signal) throws FileNotFoundException {
 
-        final Future<File> future
-                = mThreadPoolExecutor.submit(new Callable<File>() {
-
-            @Override
-            public File call() throws Exception {
-
-                return getFile(signal, documentId);
-            }
-        });
+        final Future<File> future = mThreadPoolExecutor.submit(
+                () -> getFile(signal, documentId));
         if (signal != null) {
-            signal.setOnCancelListener(new CancellationSignal.OnCancelListener() {
-                @Override
-                public void onCancel() {
-
-                    Log.d(TAG, "openDocument cancelling");
-                    future.cancel(true);
-                }
+            signal.setOnCancelListener(() -> {
+                Log.d(TAG, "openDocument cancelling");
+                future.cancel(true);
             });
         }
 
@@ -626,75 +522,7 @@ public class BoxProvider extends DocumentsProvider {
 
     private File getFile(CancellationSignal signal, final String documentId)
             throws IOException, QblStorageException {
-
-        final int id = 2;
-        //@todo notification handling into separate place
-        final NotificationManager mNotifyManager = (NotificationManager) getContext().getSystemService(Context.NOTIFICATION_SERVICE);
-        final NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(getContext());
-        mBuilder.setContentTitle("Downloading " + mDocumentIdParser.getBaseName(documentId))
-                .setContentText("Download in progress")
-                .setSmallIcon(R.drawable.qabel_logo);
-        mBuilder.setProgress(100, 0, false);
-        mNotifyManager.notify(id, mBuilder.build());
-
-        String path = mDocumentIdParser.getFilePath(documentId);
-        List<String> strings = mDocumentIdParser.splitPath(path);
-        String basename = strings.remove(strings.size() - 1);
-        BoxVolume volume = getVolumeForId(documentId);
-
-        BoxNavigation navigation = traverseToFolder(volume, strings);
-        BoxFile file = findFileinList(basename, navigation);
-        InputStream inputStream = navigation.download(file, new BoxTransferListener() {
-
-            @Override
-            public void onProgressChanged(long bytesCurrent, long bytesTotal) {
-
-                mBuilder.setProgress(100, (int) (100 * bytesCurrent / bytesTotal), false);
-                mNotifyManager.notify(id, mBuilder.build());
-            }
-
-            @Override
-            public void onFinished() {
-
-            }
-        });
-        String filename;
-        try {
-            filename = mDocumentIdParser.getBaseName(documentId);
-        } catch (FileNotFoundException e) {
-            filename = documentId;
-        }
-        mBuilder.setContentTitle("Downloading " + filename)
-                .setContentText("Download complete")
-                .setSmallIcon(R.drawable.qabel_logo);
-        mBuilder.setProgress(100, 100, false);
-        mNotifyManager.notify(id, mBuilder.build());
-        File out = new File(getContext().getExternalCacheDir(), basename);
-        FileOutputStream fileOutputStream = new FileOutputStream(out);
-        IOUtils.copy(inputStream, fileOutputStream);
-        inputStream.close();
-        fileOutputStream.close();
-        return out;
-    }
-
-    private BoxFile findFileinList(String basename, BoxNavigation navigation)
-            throws QblStorageException, FileNotFoundException {
-
-        for (BoxFile file : navigation.listFiles()) {
-            Log.d(TAG, "find file: " + file.name);
-            if (file.name.equals(basename)) {
-                return file;
-            }
-        }
-        for (BoxObject file : navigation.listExternals()) {
-            Log.d(TAG, "find file: " + file.name);
-            if (file instanceof BoxExternalFile) {
-                if (file.name.equals(basename)) {
-                    return (BoxExternalFile) file;
-                }
-            }
-        }
-        throw new FileNotFoundException("can't find file in BoxNavigation: " + basename);
+        return boxManager.downloadFileDecrypted(documentId);
     }
 
     @Override
@@ -702,17 +530,20 @@ public class BoxProvider extends DocumentsProvider {
 
         Log.d(TAG, "createDocument: " + parentDocumentId + "; " + mimeType + "; " + displayName);
 
-        String parentPath = mDocumentIdParser.getFilePath(parentDocumentId);
-        BoxVolume volume = getVolumeForId(parentDocumentId);
-
         try {
 
-            BoxNavigation navigation = traverseToFolder(volume, mDocumentIdParser.splitPath(parentPath));
+            DocumentId parentId = mDocumentIdParser.parse(parentDocumentId);
+            String parentPath = parentId.getFilePath();
+            BoxVolume volume = getVolumeForRoot(parentId.getIdentityKey(), parentId.getPrefix());
+
+
+            BoxNavigation navigation = volume.navigate();
+            navigation.navigate(parentPath);
 
             if (mimeType.equals(Document.MIME_TYPE_DIR)) {
                 navigation.createFolder(displayName);
             } else {
-                navigation.upload(displayName, new ByteArrayInputStream(new byte[0]), null);
+                navigation.upload(displayName, new ByteArrayInputStream(new byte[0]));
             }
             navigation.commit();
 
@@ -728,14 +559,14 @@ public class BoxProvider extends DocumentsProvider {
 
         Log.d(TAG, "deleteDocument: " + documentId);
 
-        String path = mDocumentIdParser.getFilePath(documentId);
-        BoxVolume volume = getVolumeForId(documentId);
-
         try {
-            List<String> splitPath = mDocumentIdParser.splitPath(path);
-            String basename = splitPath.remove(splitPath.size() - 1);
-            BoxNavigation navigation = traverseToFolder(volume, splitPath);
 
+            DocumentId document = mDocumentIdParser.parse(documentId);
+            BoxVolume volume = getVolumeForRoot(document.getIdentityKey(), document.getPrefix());
+            BoxNavigation navigation = volume.navigate();
+            navigation.navigate(document.getPathString());
+
+            String basename = document.getFileName();
             for (BoxFile file : navigation.listFiles()) {
                 if (file.name.equals(basename)) {
                     navigation.delete(file);
@@ -761,19 +592,22 @@ public class BoxProvider extends DocumentsProvider {
 
         Log.d(TAG, "renameDocument: " + documentId + " to " + displayName);
 
-        String path = mDocumentIdParser.getFilePath(documentId);
-        BoxVolume volume = getVolumeForId(documentId);
-
         try {
-            List<String> splitPath = mDocumentIdParser.splitPath(path);
-            String basename = splitPath.remove(splitPath.size() - 1);
-            BoxNavigation navigation = traverseToFolder(volume, splitPath);
-            splitPath.add(PATH_SEP + displayName);
-            String newPath = StringUtils.join(splitPath, "");
+
+            DocumentId document = mDocumentIdParser.parse(documentId);
+            BoxVolume volume = getVolumeForId(documentId);
+
+            String[] splitPath = document.getPath();
+            String basename = document.getFileName();
+            BoxNavigation navigation = volume.navigate();
+
+            String[] newPath = Arrays.copyOf(splitPath, splitPath.length + 1);
+            newPath[newPath.length - 1] = displayName;
+
             String renamedId = mDocumentIdParser.buildId(
                     mDocumentIdParser.getIdentity(documentId),
                     mDocumentIdParser.getPrefix(documentId),
-                    newPath);
+                    StringUtils.join(newPath, PATH_SEP));
 
             for (BoxFile file : navigation.listFiles()) {
                 if (file.name.equals(basename)) {

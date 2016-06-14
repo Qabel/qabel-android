@@ -1,17 +1,11 @@
 package de.qabel.qabelbox.ui.helper;
 
-import android.content.ComponentName;
 import android.content.Context;
-import android.content.Intent;
-import android.content.ServiceConnection;
-import android.net.Uri;
-import android.os.IBinder;
-import android.provider.DocumentsContract;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -20,88 +14,54 @@ import java.util.List;
 import java.util.Map;
 
 import de.qabel.core.config.Contact;
+import de.qabel.core.config.Contacts;
 import de.qabel.core.config.DropServer;
+import de.qabel.core.config.Identities;
 import de.qabel.core.config.Identity;
 import de.qabel.core.crypto.QblECKeyPair;
-import de.qabel.core.crypto.QblECPublicKey;
 import de.qabel.core.drop.AdjustableDropIdGenerator;
 import de.qabel.core.drop.DropIdGenerator;
 import de.qabel.core.drop.DropURL;
-import de.qabel.qabelbox.BuildConfig;
+import de.qabel.desktop.repository.ContactRepository;
+import de.qabel.desktop.repository.IdentityRepository;
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.TestConstants;
-import de.qabel.qabelbox.communication.VolumeFileTransferHelper;
 import de.qabel.qabelbox.config.AppPreference;
 import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.helper.RealTokerGetter;
 import de.qabel.qabelbox.providers.BoxProvider;
-import de.qabel.qabelbox.services.LocalQabelService;
-import de.qabel.qabelbox.storage.BoxFile;
-import de.qabel.qabelbox.storage.BoxFolder;
-import de.qabel.qabelbox.storage.BoxNavigation;
-import de.qabel.qabelbox.storage.BoxObject;
+import de.qabel.qabelbox.storage.BoxManager;
 import de.qabel.qabelbox.storage.BoxVolume;
 import de.qabel.qabelbox.storage.StorageSearch;
+import de.qabel.qabelbox.storage.model.BoxFile;
+import de.qabel.qabelbox.storage.model.BoxFolder;
+import de.qabel.qabelbox.storage.model.BoxObject;
+import de.qabel.qabelbox.storage.navigation.BoxNavigation;
+import de.qabel.qabelbox.util.BoxTestHelper;
 
 public class UIBoxHelper {
 
     private final String TAG = this.getClass().getSimpleName();
 
-    private LocalQabelService mService;
-    private BoxProvider provider;
     private Map<String, BoxVolume> identityVolumes = new HashMap<>();
-
-    private boolean finished = false;
 
     @Deprecated
     public BoxVolume mBoxVolume;
 
+    private Context context;
+    private BoxManager boxManager;
 
-    public UIBoxHelper(Context activity) {
-    }
+    private IdentityRepository identityRepository;
+    private AppPreference preference;
+    private ContactRepository contactRepository;
 
-    public UIBoxHelper() {
-    }
-
-    public void unbindService(final QabelBoxApplication app) {
-
-        Intent serviceIntent = new Intent(app.getApplicationContext(), LocalQabelService.class);
-        finished = false;
-        app.stopService(serviceIntent);
-    }
-
-    public void bindService(final QabelBoxApplication app) {
-
-        Intent serviceIntent = new Intent(app.getApplicationContext(), LocalQabelService.class);
-        finished = false;
-        //app.stopService(serviceIntent);
-        app.bindService(serviceIntent, new ServiceConnection() {
-
-            @Override
-            public void onServiceConnected(ComponentName name, IBinder service) {
-
-                Log.d(TAG, "LocalQabelService connected");
-                provider = app.getProvider();
-                Log.i(TAG, "Provider: " + provider);
-                LocalQabelService.LocalBinder binder = (LocalQabelService.LocalBinder) service;
-                mService = binder.getService();
-
-                finished = true;
-            }
-
-            @Override
-            public void onServiceDisconnected(ComponentName name) {
-
-                mService = null;
-            }
-        }, Context.BIND_AUTO_CREATE);
-        while (!finished) {
-            try {
-                Thread.sleep(100);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
+    public UIBoxHelper(Context context) {
+        this.context = context;
+        BoxTestHelper helper = new BoxTestHelper((QabelBoxApplication)context.getApplicationContext());
+        boxManager = helper.getBoxManager();
+        identityRepository = helper.getIdentityRepository();
+        contactRepository = helper.getContactRepository();
+        preference = helper.getAppPreferences();
     }
 
     public void uploadFile(Identity identity, String name, byte[] data, String path) throws QblStorageException, IOException {
@@ -110,14 +70,14 @@ public class UIBoxHelper {
     }
 
     public void uploadFile(BoxVolume boxVolume, String name, byte[] data, String path) throws IOException {
-        String folderId = boxVolume.getDocumentId(path);
-        Uri uploadUri = DocumentsContract.buildDocumentUri(
-                BuildConfig.APPLICATION_ID + BoxProvider.AUTHORITY, folderId + name);
-        Context self = QabelBoxApplication.getInstance().getApplicationContext();
-
-        OutputStream upload = self.getContentResolver().openOutputStream(uploadUri, "w");
-        upload.write(data);
-        upload.close();
+       try {
+           BoxNavigation nav = boxVolume.navigate();
+           nav.navigate(path);
+           nav.upload(name, new ByteArrayInputStream(data));
+           nav.commit();
+       }catch (QblStorageException e){
+           throw new IOException(e);
+       }
     }
 
     private <S extends BoxObject> S getBoxObject(Class<S> boxClazz, BoxNavigation boxNavigation, String name) throws QblStorageException {
@@ -174,25 +134,26 @@ public class UIBoxHelper {
 
     public BoxFolder createFolder(String name, Identity identity, String path) throws QblStorageException {
         BoxNavigation navigation = createNavigation(identity, path);
-        return navigation.createFolder(name);
+        BoxFolder folder =  navigation.createFolder(name);
+        navigation.commit();
+        return folder;
     }
 
-    public Identity addIdentityWithoutVolume(final String identityName) {
-
+    public Identity addIdentityWithoutVolume(final String identityName) throws Exception {
         Identity identity = createIdentity(identityName);
-        mService.addIdentity(identity);
+        identityRepository.save(identity);
         Log.d(TAG, "identity added " + identity.getAlias() + " " + identity.getEcPublicKey().getReadableKeyIdentifier());
-        mService.setActiveIdentity(identity);
+        preference.setLastActiveIdentityKey(identity.getKeyIdentifier());
         return identity;
     }
 
-    public Identity addIdentity(final String identityName) {
+    public Identity addIdentity(final String identityName) throws Exception {
 
         Identity identity = createIdentity(identityName);
-        mService.addIdentity(identity);
+        identityRepository.save(identity);
         Log.d(TAG, "identity added " + identity.getAlias() + " " + identity.getEcPublicKey().getReadableKeyIdentifier());
-        mService.setActiveIdentity(identity);
 
+        preference.setLastActiveIdentityKey(identity.getKeyIdentifier());
         try {
             initBoxVolume(identity);
         } catch (QblStorageException e) {
@@ -228,11 +189,7 @@ public class UIBoxHelper {
     }
 
     private void initBoxVolume(Identity activeIdentity) throws QblStorageException {
-
-        provider.setLocalService(mService);
-        BoxVolume boxVolume = provider.getVolumeForRoot(
-                activeIdentity.getEcPublicKey().getReadableKeyIdentifier(),
-                VolumeFileTransferHelper.getPrefixFromIdentity(activeIdentity));
+        BoxVolume boxVolume = boxManager.createBoxVolume(activeIdentity);
         boxVolume.createIndex();
         identityVolumes.put(activeIdentity.getKeyIdentifier(), boxVolume);
 
@@ -241,17 +198,21 @@ public class UIBoxHelper {
     }
 
     public void setActiveIdentity(Identity identity) {
-        mService.setActiveIdentity(identity);
+        preference.setLastActiveIdentityKey(identity.getKeyIdentifier());
         mBoxVolume = identityVolumes.get(identity.getKeyIdentifier());
     }
 
-    public void deleteIdentity(Identity identity) {
+    public void deleteIdentity(Identity identity) throws Exception {
         identityVolumes.remove(identity.getKeyIdentifier());
-        mService.deleteIdentity(identity);
+        identityRepository.delete(identity);
     }
 
-    public Identity getCurrentIdentity() {
-        return mService.getActiveIdentity();
+    public Identity getCurrentIdentity() throws Exception {
+        String key = preference.getLastActiveIdentityKey();
+        if (key != null) {
+            return identityRepository.find(key);
+        }
+        return null;
     }
 
     /**
@@ -285,22 +246,42 @@ public class UIBoxHelper {
      * @param forceCreated set to true if create new forced
      */
     public void createTokenIfNeeded(boolean forceCreated) {
-        Context applicationContext = QabelBoxApplication.getInstance().getApplicationContext();
-        AppPreference prefs = new AppPreference(applicationContext);
-        if (forceCreated && prefs.getToken() == null) {
-            prefs.setToken(new RealTokerGetter().getToken(applicationContext));
+        if (forceCreated && preference.getToken() == null) {
+            preference.setToken(new RealTokerGetter().getToken(context));
         } else {
-            prefs.setToken(TestConstants.TOKEN);
-            prefs.setAccountName("testUser");
+            setTestAccount();
         }
     }
 
-    public void removeAllIdentities() {
-        mService.deleteContactsAndIdentities();
+    public void setTestAccount(){
+        preference.setToken(TestConstants.TOKEN);
+        preference.setAccountName("testUser");
     }
 
-    public LocalQabelService getService() {
-        return mService;
+    public void removeAllIdentities()throws Exception {
+        Identities identities = identityRepository.findAll();
+        for(Identity id : identities.getIdentities()){
+            Contacts contacts = contactRepository.find(id);
+            for(Contact c : contacts.getContacts()) {
+                contactRepository.delete(c, id);
+            }
+            identityRepository.delete(id);
+        }
     }
 
-}
+    public void addContact(Contact contact, Identity identity) throws Exception {
+        contactRepository.save(contact, identity);
+    }
+
+    public IdentityRepository getIdentityRepository() {
+        return identityRepository;
+    }
+
+    public ContactRepository getContactRepository() {
+        return contactRepository;
+    }
+
+    public BoxManager getBoxManager(){
+        return this.boxManager;
+    }
+ }

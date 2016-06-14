@@ -14,8 +14,10 @@ import java.sql.Statement;
 
 import de.qabel.core.crypto.QblECPublicKey;
 import de.qabel.qabelbox.exceptions.QblStorageException;
+import de.qabel.qabelbox.storage.model.BoxExternalFile;
+import de.qabel.qabelbox.storage.model.BoxFile;
 
-class FileMetadata {
+public class FileMetadata {
     private static final Logger logger = LoggerFactory.getLogger(FileMetadata.class.getName());
     private static final String JDBC_PREFIX = "jdbc:sqlite:";
     private static final String JDBC_CLASS = "org.sqldroid.SQLDroidDriver";
@@ -119,7 +121,7 @@ class FileMetadata {
         }
     }
 
-    BoxExternalFile getFile() throws QblStorageException {
+    public BoxExternalFile getFile() throws QblStorageException {
         try (Statement statement = connection.createStatement()) {
             ResultSet rs = statement.executeQuery("SELECT owner, prefix, block, name, size, mtime, key FROM file LIMIT 1");
             if (rs.next()) {

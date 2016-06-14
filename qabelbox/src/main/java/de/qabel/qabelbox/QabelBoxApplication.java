@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.IBinder;
 import android.support.annotation.NonNull;
+import android.support.multidex.MultiDex;
 import android.util.Log;
 
 import org.spongycastle.jce.provider.BouncyCastleProvider;
@@ -16,7 +17,6 @@ import java.security.Security;
 import de.qabel.qabelbox.dagger.components.ApplicationComponent;
 import de.qabel.qabelbox.dagger.components.DaggerApplicationComponent;
 import de.qabel.qabelbox.dagger.modules.ApplicationModule;
-import de.qabel.qabelbox.providers.BoxProvider;
 import de.qabel.qabelbox.services.LocalQabelService;
 
 public class QabelBoxApplication extends Application {
@@ -26,7 +26,6 @@ public class QabelBoxApplication extends Application {
     public static final String DEFAULT_DROP_SERVER = "https://test-drop.qabel.de";
 
     static QabelBoxApplication mInstance = null;
-    public static BoxProvider boxProvider;
 
     static {
         // Enforce SpongyCastle as JCE provider
@@ -35,8 +34,14 @@ public class QabelBoxApplication extends Application {
 
     private ServiceConnection mServiceConnection;
 
-    public BoxProvider getProvider() {
-        return boxProvider;
+    @Override
+    protected void attachBaseContext(Context base) {
+        installMultiDex(base);
+        super.attachBaseContext(base);
+    }
+
+    protected void installMultiDex(Context base) {
+        MultiDex.install(base);
     }
 
     /**
@@ -54,20 +59,20 @@ public class QabelBoxApplication extends Application {
     private ApplicationComponent ApplicationComponent;
 
     public static ApplicationComponent getApplicationComponent(Context context) {
-        return ((QabelBoxApplication)context.getApplicationContext()).getApplicationComponent();
+        return ((QabelBoxApplication) context.getApplicationContext()).getApplicationComponent();
     }
 
     @Override
     public void onCreate() {
         super.onCreate();
         Log.d(TAG, "onCreate");
-        initialiseInjector();
+        this.ApplicationComponent = initialiseInjector();
         mInstance = this;
         initService();
     }
 
-    public void initialiseInjector() {
-        this.ApplicationComponent = DaggerApplicationComponent.builder()
+    protected ApplicationComponent initialiseInjector() {
+        return DaggerApplicationComponent.builder()
                 .applicationModule(new ApplicationModule(this))
                 .build();
     }

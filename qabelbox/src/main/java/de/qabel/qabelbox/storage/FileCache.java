@@ -11,8 +11,9 @@ import android.util.Log;
 import java.io.File;
 
 import de.qabel.qabelbox.storage.FileCacheContract.FileEntry;
+import de.qabel.qabelbox.storage.model.BoxFile;
 
-class FileCache extends SQLiteOpenHelper {
+public class FileCache extends SQLiteOpenHelper {
 
     private static final String CREATE_TABLE =
             "CREATE TABLE IF NOT EXISTS " + FileEntry.TABLE_NAME + "( " +
@@ -24,6 +25,13 @@ class FileCache extends SQLiteOpenHelper {
     public static final int DATABASE_VERSION = 1;
     public static final String DATABASE_NAME = "FileCache.db";
     private static final String TAG = "FileCache";
+
+    private class CacheEntry {
+        String ref;
+        long mTime;
+        long size;
+        String path;
+    }
 
     public FileCache(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -39,23 +47,36 @@ class FileCache extends SQLiteOpenHelper {
         sqLiteDatabase.execSQL("DROP TABLE " + FileEntry.TABLE_NAME + ";");
     }
 
-    public void remove(BoxFile boxFile) {
-        SQLiteDatabase database = getReadableDatabase();
+    public void remove(CacheEntry entry) {
+        File cachedFile = new File(entry.path);
+        if (cachedFile.exists()) {
+            if (!cachedFile.delete()) {
+                Log.d(TAG, "Cannot delete cached file.");
+            }
+        }
+        SQLiteDatabase database = getWritableDatabase();
         int rows = database.delete(FileEntry.TABLE_NAME, FileEntry.COL_REF + "=?",
-                new String[]{boxFile.block});
+                new String[]{entry.ref});
         if (rows == 0) {
-            Log.i(TAG, "Trying to remove non existing cache entry: " + boxFile.block);
+            Log.i(TAG, "Trying to remove non existing cache entry: " + entry.ref);
+        }
+    }
+
+    public void remove(String ref) {
+        CacheEntry entry = getCachedEntry(ref);
+        if (entry != null) {
+            remove(entry);
         }
     }
 
     public long put(BoxFile boxFile, File file) {
-        remove(boxFile);
-        Log.i(TAG, "Put into cache: " + boxFile.block);
+        remove(boxFile.block);
+        Log.i(TAG, "Put into cache: " + boxFile.block + "(" + file.getAbsolutePath() + ")");
         ContentValues values = new ContentValues();
         values.put(FileEntry.COL_REF, boxFile.block);
         values.put(FileEntry.COL_PATH, file.getAbsolutePath());
         values.put(FileEntry.COL_MTIME, boxFile.mtime);
-        values.put(FileEntry.COL_SIZE, boxFile.size);
+        values.put(FileEntry.COL_SIZE, file.length());
         long id = getWritableDatabase().insert(FileEntry.TABLE_NAME, null, values);
         if (id == -1) {
             Log.e(TAG, "Failed putting into cache: " + boxFile.block);
@@ -64,26 +85,42 @@ class FileCache extends SQLiteOpenHelper {
     }
 
     public File get(BoxFile boxFile) {
-        SQLiteDatabase database = getReadableDatabase();
-        Cursor cursor = database.query(FileEntry.TABLE_NAME, new String[]{FileEntry.COL_PATH},
-                FileEntry.COL_REF + "=? AND " +
-                        FileEntry.COL_MTIME + "=" + boxFile.mtime.toString() + " AND " +
-                        FileEntry.COL_SIZE + "=" + boxFile.size.toString(),
-                new String[]{boxFile.block}, null, null, null);
-        cursor.moveToFirst();
-        try {
-            String path = cursor.getString(cursor.getColumnIndexOrThrow(FileEntry.COL_PATH));
-            cursor.close();
-            File file = new File(path);
-            if (file.exists()) {
+        CacheEntry cacheEntry = getCachedEntry(boxFile.block);
+
+        Log.i(TAG, "get from cache: " + boxFile.block + "(" + (cacheEntry != null ? cacheEntry.path : "null") + ")");
+        if (cacheEntry != null) {
+            File file = new File(cacheEntry.path);
+            if (boxFile.mtime == cacheEntry.mTime &&
+                    file.exists() &&
+                    file.length() == cacheEntry.size) {
                 return file;
             } else {
-                remove(boxFile);
+                remove(cacheEntry);
+            }
+        }
+        return null;
+    }
+
+    private CacheEntry getCachedEntry(String ref) {
+        SQLiteDatabase database = getReadableDatabase();
+        Cursor cursor = database.query(FileEntry.TABLE_NAME, new String[]{FileEntry.COL_PATH, FileEntry.COL_MTIME, FileEntry.COL_SIZE},
+                FileEntry.COL_REF + "=?",
+                new String[]{ref}, null, null, null);
+        try {
+            if (!cursor.moveToFirst()) {
                 return null;
             }
+            CacheEntry entry = new CacheEntry();
+            entry.ref = ref;
+            entry.path = cursor.getString(cursor.getColumnIndex(FileEntry.COL_PATH));
+            entry.mTime = cursor.getLong(cursor.getColumnIndex(FileEntry.COL_MTIME));
+            entry.size = cursor.getLong(cursor.getColumnIndex(FileEntry.COL_SIZE));
+            return entry;
         } catch (CursorIndexOutOfBoundsException e) {
-            cursor.close();
+            e.printStackTrace();
             return null;
+        } finally {
+            cursor.close();
         }
     }
 }

@@ -3,6 +3,9 @@ package de.qabel.qabelbox.storage;
 import de.qabel.core.crypto.QblECPublicKey;
 import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.exceptions.QblStorageNameConflict;
+import de.qabel.qabelbox.storage.model.BoxExternalReference;
+import de.qabel.qabelbox.storage.model.BoxFile;
+import de.qabel.qabelbox.storage.model.BoxFolder;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,7 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-class DirectoryMetadata {
+public class DirectoryMetadata {
     private static final Logger logger = LoggerFactory.getLogger(DirectoryMetadata.class.getName());
     private static final String JDBC_PREFIX = "jdbc:sqlite:";
     private static final String JDBC_CLASS = "org.sqldroid.SQLDroidDriver";
@@ -25,9 +28,9 @@ class DirectoryMetadata {
     private final Connection connection;
 
     private final String fileName;
-    byte[] deviceId;
+    public byte[] deviceId;
     String root;
-    File path;
+    public File path;
 
     private static final int TYPE_FILE = 0;
     private static final int TYPE_FOLDER = 1;
@@ -90,7 +93,7 @@ class DirectoryMetadata {
         this.tempDir = tempDir;
     }
 
-    static DirectoryMetadata newDatabase(String root, byte[] deviceId, File tempDir) throws QblStorageException {
+    public static DirectoryMetadata newDatabase(String root, byte[] deviceId, File tempDir) throws QblStorageException {
         File path;
         try {
             path = File.createTempFile("dir", "db", tempDir);
@@ -117,7 +120,7 @@ class DirectoryMetadata {
         return dm;
     }
 
-    static DirectoryMetadata openDatabase(File path, byte[] deviceId, String fileName, File tempDir) throws QblStorageException {
+    public static DirectoryMetadata openDatabase(File path, byte[] deviceId, String fileName, File tempDir) throws QblStorageException {
         Connection connection;
         try {
             Class.forName(JDBC_CLASS);
@@ -281,7 +284,7 @@ class DirectoryMetadata {
         return md.digest();
     }
 
-    byte[] getVersion() throws QblStorageException {
+    public byte[] getVersion() throws QblStorageException {
         Statement statement = null;
         try {
             statement = connection.createStatement();
@@ -305,7 +308,7 @@ class DirectoryMetadata {
         }
     }
 
-    void commit() throws QblStorageException {
+    public void commit() throws QblStorageException {
         byte[] oldVersion = getVersion();
         MessageDigest md;
         try {
@@ -339,7 +342,7 @@ class DirectoryMetadata {
     }
 
 
-    List<BoxFile> listFiles() throws QblStorageException {
+    public List<BoxFile> listFiles() throws QblStorageException {
         Statement statement = null;
         try {
             statement = connection.createStatement();
@@ -364,12 +367,12 @@ class DirectoryMetadata {
     }
 
 
-    void insertFile(BoxFile file) throws QblStorageException {
+    public void insertFile(BoxFile file) throws QblStorageException {
         int type = isA(file.name);
         if ((type != TYPE_NONE) && (type != TYPE_FILE)) {
             throw new QblStorageNameConflict(file.name);
         }
-        ;
+
         PreparedStatement st = null;
         try {
             st = connection.prepareStatement(
@@ -399,7 +402,7 @@ class DirectoryMetadata {
         }
     }
 
-    void deleteFile(BoxFile file) throws QblStorageException {
+    public void deleteFile(BoxFile file) throws QblStorageException {
         try {
             PreparedStatement st = connection.prepareStatement(
                     "DELETE FROM files WHERE name=?");
@@ -413,7 +416,7 @@ class DirectoryMetadata {
         }
     }
 
-    List<BoxExternalReference> listExternalReferences() throws QblStorageException {
+    public List<BoxExternalReference> listExternalReferences() throws QblStorageException {
         try (Statement statement = connection.createStatement()) {
             ResultSet rs = statement.executeQuery(
                     "SELECT is_folder, url, name, owner, key FROM externals");
@@ -429,7 +432,7 @@ class DirectoryMetadata {
         }
     }
 
-    void insertExternalReference(BoxExternalReference file) throws QblStorageException {
+    public void insertExternalReference(BoxExternalReference file) throws QblStorageException {
         int type = isA(file.name);
         if ((type != TYPE_NONE) && (type != TYPE_FILE)) {
             throw new QblStorageNameConflict(file.name);
@@ -451,7 +454,7 @@ class DirectoryMetadata {
         }
     }
 
-    void deleteExternalReference(String name) throws QblStorageException {
+    public void deleteExternalReference(String name) throws QblStorageException {
         try (PreparedStatement st = connection.prepareStatement(
                 "DELETE FROM externals WHERE name=?")) {
             st.setString(1, name);
@@ -464,7 +467,7 @@ class DirectoryMetadata {
         }
     }
 
-    void insertFolder(BoxFolder folder) throws QblStorageException {
+    public void insertFolder(BoxFolder folder) throws QblStorageException {
         int type = isA(folder.name);
         if ((type != TYPE_NONE) && (type != TYPE_FOLDER)) {
             throw new QblStorageNameConflict(folder.name);
@@ -484,7 +487,7 @@ class DirectoryMetadata {
         }
     }
 
-    void deleteFolder(BoxFolder folder) throws QblStorageException {
+    public void deleteFolder(BoxFolder folder) throws QblStorageException {
         PreparedStatement st = null;
         try {
             st = connection.prepareStatement(
@@ -506,7 +509,7 @@ class DirectoryMetadata {
         }
     }
 
-    List<BoxFolder> listFolders() throws QblStorageException {
+    public List<BoxFolder> listFolders() throws QblStorageException {
         Statement statement = null;
         try {
             statement = connection.createStatement();
@@ -529,7 +532,7 @@ class DirectoryMetadata {
         }
     }
 
-    BoxFile getFile(String name) throws QblStorageException {
+    public BoxFile getFile(String name) throws QblStorageException {
         PreparedStatement statement = null;
         try {
             statement = connection.prepareStatement(

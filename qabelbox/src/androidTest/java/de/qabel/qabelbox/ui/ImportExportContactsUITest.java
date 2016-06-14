@@ -43,6 +43,7 @@ import static junit.framework.Assert.assertNull;
 import static junit.framework.Assert.assertTrue;
 import static org.hamcrest.Matchers.equalTo;
 
+@Ignore("Ignored until the LocalQabelService is removed")
 public class ImportExportContactsUITest extends AbstractUITest {
 
     private final String TAG = this.getClass().getSimpleName();
@@ -54,10 +55,12 @@ public class ImportExportContactsUITest extends AbstractUITest {
     @Override
     public void setUp() throws Throwable {
         super.setUp();
+
         createTestContacts();
-        Intent intent = new Intent(Intent.ACTION_MAIN);
+
+        Intent intent = new Intent(mContext, MainActivity.class);
+        intent.putExtra(MainActivity.START_FILES_FRAGMENT, false);
         intent.putExtra(MainActivity.START_CONTACTS_FRAGMENT, true);
-        intent.putExtra(MainActivity.ACTIVE_IDENTITY, identity.getKeyIdentifier());
         launchActivity(intent);
     }
 
@@ -109,8 +112,7 @@ public class ImportExportContactsUITest extends AbstractUITest {
         data.setData(Uri.fromFile(file1));
         ContactFragment contactFragment = (ContactFragment) mActivity.getFragmentManager().findFragmentById(R.id.fragment_container);
         contactFragment.enableDocumentProvider(false);
-        final LocalQabelService service = QabelBoxApplication.getInstance().getService();
-        Contact contact = service.getContacts().getContacts().iterator().next();
+        Contact contact = contactRepository.find(identity).getContacts().iterator().next();
         userName = contact.getAlias();
         contactFragment.exportContact(contact);
         contactFragment.onActivityResult(ContactFragment.REQUEST_EXPORT_CONTACT, Activity.RESULT_OK, data);
@@ -159,7 +161,7 @@ public class ImportExportContactsUITest extends AbstractUITest {
     }
 
     @Test
-    public void testImportSingleContact() {
+    public void testImportSingleContact() throws Exception {
         String userToImport = "importUser1";
         Identity importUser1 = mBoxHelper.addIdentity(userToImport);
         String exportUser = ContactExportImport.exportIdentityAsContact(importUser1);

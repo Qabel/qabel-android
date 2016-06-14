@@ -10,8 +10,6 @@ import org.junit.runner.RunWith;
 import org.robolectric.RobolectricGradleTestRunner;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -34,12 +32,21 @@ import de.qabel.core.drop.DropURL;
 import de.qabel.qabelbox.BuildConfig;
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.SimpleApplication;
+import de.qabel.qabelbox.TestApplication;
 import de.qabel.qabelbox.TestConstants;
 import de.qabel.qabelbox.communication.URLs;
 import de.qabel.qabelbox.config.AppPreference;
 import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.exceptions.QblStorageNameConflict;
 import de.qabel.qabelbox.exceptions.QblStorageNotFound;
+import de.qabel.qabelbox.storage.model.BoxExternalFile;
+import de.qabel.qabelbox.storage.model.BoxExternalReference;
+import de.qabel.qabelbox.storage.model.BoxFile;
+import de.qabel.qabelbox.storage.model.BoxFolder;
+import de.qabel.qabelbox.storage.model.BoxObject;
+import de.qabel.qabelbox.storage.navigation.BoxNavigation;
+import de.qabel.qabelbox.test.files.FileHelper;
+import de.qabel.qabelbox.util.BoxTestHelper;
 import de.qabel.qabelbox.util.TestHelper;
 
 import static org.hamcrest.Matchers.*;
@@ -48,10 +55,11 @@ import static org.junit.Assert.*;
 @RunWith(RobolectricGradleTestRunner.class)
 @Config(application = SimpleApplication.class, constants = BuildConfig.class)
 public class BoxTest {
-    private static final Logger logger = LoggerFactory.getLogger(BoxTest.class.getName());
-    private static final QblECPublicKey OWNER = new QblECKeyPair().getPub();
 
+    private static final QblECPublicKey OWNER = new QblECKeyPair().getPub();
     private static final String SHARED_FILE_NAME = "sharedFile";
+
+    private BoxManager boxManager;
 
     Identity identity;
     Identity identityOtherUser;
@@ -82,6 +90,9 @@ public class BoxTest {
     @Before
     public void setUp() throws IOException, QblStorageException {
         configureTestServer();
+        BoxTestHelper helper = new BoxTestHelper((TestApplication)RuntimeEnvironment.application);
+        boxManager = helper.getBoxManager();
+
         URI uri = URI.create(QabelBoxApplication.DEFAULT_DROP_SERVER);
         DropServer dropServer = new DropServer(uri, "", true);
         DropURL dropURL = new DropURL(dropServer);
@@ -96,7 +107,7 @@ public class BoxTest {
         keyPair = new QblECKeyPair();
         keyPairOtherUser = new QblECKeyPair();
 
-        testFilePath = createTestFile();
+        testFilePath = FileHelper.createTestFile();
 
         identity = new Identity("Default Test User", dropURLs, keyPair);
         identity.getPrefixes().add(prefix);
@@ -112,8 +123,8 @@ public class BoxTest {
         volumeOtherUser.createIndex();
 
         BoxNavigation nav = volume.navigate();
-        File file = createSmallTestFile();
-        sharedFile = nav.upload(SHARED_FILE_NAME, new FileInputStream(file), null);
+        File file = FileHelper.smallTestFile();
+        sharedFile = nav.upload(SHARED_FILE_NAME, new FileInputStream(file));
         sharedReference = nav.createFileMetadata(OWNER, sharedFile);
         nav.commit();
 
@@ -129,38 +140,14 @@ public class BoxTest {
             throw new NullPointerException("Identity is null");
         }
         QblECKeyPair key = identity.getPrimaryKeyPair();
-        File tmpDir = new File(System.getProperty("java.io.tmpdir"));
         return new BoxVolume(key, prefix,
-                deviceID, getContext(), new FakeTransferManager(tmpDir));
-    }
-
-    public static String createTestFile() throws IOException {
-        File tmpDir = new File(System.getProperty("java.io.tmpdir"));
-        File file = File.createTempFile("testfile", "test", tmpDir);
-        FileOutputStream outputStream = new FileOutputStream(file);
-        byte[] testData = new byte[1024];
-        Arrays.fill(testData, (byte) 'f');
-        for (int i = 0; i < 5; i++) {
-            outputStream.write(testData);
-        }
-        outputStream.close();
-        return file.getAbsolutePath();
-    }
-
-    public File createSmallTestFile() throws IOException {
-        File tmpDir = new File(System.getProperty("java.io.tmpdir"));
-        File file = File.createTempFile("testfile", "test", tmpDir);
-        FileOutputStream outputStream = new FileOutputStream(file);
-        byte[] testData = new byte[]{1, 2, 3, 4, 5};
-        outputStream.write(testData);
-        outputStream.close();
-        return file;
+                deviceID, getContext(), boxManager);
     }
 
     public void tearDown() throws IOException {
     }
 
-    private <T extends  BoxObject> T findByName(String name, List<T> boxObjects) {
+    private <T extends BoxObject> T findByName(String name, List<T> boxObjects) {
         T boxObject = null;
         for (T object : boxObjects) {
             if (object.name.equals(name)) {
@@ -182,13 +169,13 @@ public class BoxTest {
         assertThat(boxFile.key, is(equalTo(boxFileReceived.key)));
         assertThat(OWNER, is(equalTo(boxFileReceived.owner)));
 
-        InputStream inputStream = navOtherUser.download(boxFileReceived, null);
+        InputStream inputStream = navOtherUser.download(boxFileReceived);
         assertArrayEquals(originalFile, IOUtils.toByteArray(inputStream));
     }
 
     private BoxFile uploadFile(BoxNavigation nav, String name) throws QblStorageException, FileNotFoundException {
         File file = new File(testFilePath);
-        BoxFile boxFile = nav.upload(name, new FileInputStream(file), null);
+        BoxFile boxFile = nav.upload(name, new FileInputStream(file));
         nav.commit();
         return boxFile;
     }
@@ -209,8 +196,8 @@ public class BoxTest {
         String filename = "foobar";
         //Create
         BoxNavigation nav = volume.navigate();
-        File file = createSmallTestFile();
-        BoxFile boxFile = nav.upload(filename, new FileInputStream(file), null);
+        File file = FileHelper.smallTestFile();
+        BoxFile boxFile = nav.upload(filename, new FileInputStream(file));
 
         //Create external
         BoxExternalReference boxExternalReference = nav.createFileMetadata(OWNER, boxFile);
@@ -230,13 +217,13 @@ public class BoxTest {
     public void testUpdateSharedFile() throws QblStorageException, IOException {
         BoxNavigation nav = volume.navigate();
 
-        BoxFile updatedFile = nav.upload(SHARED_FILE_NAME, new FileInputStream(testFilePath), null);
+        BoxFile updatedFile = nav.upload(SHARED_FILE_NAME, new FileInputStream(testFilePath));
         nav.commit();
 
         BoxNavigation otherNav = volumeOtherUser.navigate();
 
         // Check that updated file
-        byte[] localData = IOUtils.toByteArray(nav.download(updatedFile, null));
+        byte[] localData = IOUtils.toByteArray(nav.download(updatedFile));
         checkExternalReceivedBoxFile(localData, updatedFile, otherNav);
     }
 
@@ -247,7 +234,7 @@ public class BoxTest {
         nav.commit();
 
         // Check that updated file can still be read
-        byte[] originalData = IOUtils.toByteArray(nav.download(sharedFile, null));
+        byte[] originalData = IOUtils.toByteArray(nav.download(sharedFile));
         checkExternalReceivedBoxFile(originalData, sharedFile, volumeOtherUser.navigate());
     }
 
@@ -309,7 +296,7 @@ public class BoxTest {
         nav.commit();
         TestHelper.waitUntil(() -> {
             try {
-                nav.download(boxFile, null);
+                nav.download(boxFile);
                 return false;
             } catch (QblStorageNotFound e) {
                 return true;
@@ -320,7 +307,7 @@ public class BoxTest {
     private BoxFile uploadFile(BoxNavigation nav) throws QblStorageException, IOException {
         File file = new File(testFilePath);
         long time = System.currentTimeMillis() / 1000;
-        BoxFile boxFile = nav.upload("foobar", new FileInputStream(file), null);
+        BoxFile boxFile = nav.upload("foobar", new FileInputStream(file));
         assertThat(boxFile.mtime, greaterThanOrEqualTo(time));
         assertThat(boxFile.size, not(equalTo(boxFile.mtime)));
         nav.commit();
@@ -329,7 +316,7 @@ public class BoxTest {
     }
 
     private void checkFile(BoxFile boxFile, BoxNavigation nav) throws QblStorageException, IOException {
-        InputStream dlStream = nav.download(boxFile, null);
+        InputStream dlStream = nav.download(boxFile);
         assertThat("Download stream is null", dlStream, notNullValue());
         byte[] dl = IOUtils.toByteArray(dlStream);
         File file = new File(testFilePath);
@@ -377,18 +364,18 @@ public class BoxTest {
 
     private void checkDeleted(BoxFolder boxFolder, BoxFolder subfolder, BoxFile boxFile, BoxNavigation nav) throws QblStorageException {
         try {
-            nav.download(boxFile, null);
-            TestHelper.fail("Could download file in deleted folder");
+            nav.download(boxFile);
+            fail("Could download file in deleted folder");
         } catch (QblStorageNotFound e) {
         }
         try {
             nav.navigate(boxFolder);
-            TestHelper.fail("Could navigate to deleted folder");
+            fail("Could navigate to deleted folder");
         } catch (QblStorageNotFound e) {
         }
         try {
             nav.navigate(subfolder);
-            TestHelper.fail("Could navigate to deleted subfolder");
+            fail("Could navigate to deleted subfolder");
         } catch (QblStorageNotFound e) {
         }
     }
@@ -406,8 +393,8 @@ public class BoxTest {
         BoxNavigation nav = volume.navigate();
         BoxNavigation nav2 = volumeFromAnotherDevice.navigate();
         File file = new File(testFilePath);
-        nav.upload("foobar", new FileInputStream(file), null);
-        nav2.upload("foobar", new FileInputStream(file), null);
+        nav.upload("foobar", new FileInputStream(file));
+        nav2.upload("foobar", new FileInputStream(file));
         nav2.commit();
         nav.commit();
         assertThat(nav.listFiles().size(), is(3));
@@ -418,23 +405,23 @@ public class BoxTest {
         BoxNavigation nav = volume.navigate();
         nav.createFolder("foobar");
         try {
-            nav.upload("foobar", new FileInputStream(new File(testFilePath)), null);
+            nav.upload("foobar", new FileInputStream(new File(testFilePath)));
         } catch (QblStorageNameConflict e) {
             return;
         }
-        TestHelper.fail("Expected QblStorageNameConflict");
+        fail("Expected QblStorageNameConflict");
     }
 
     @Test
     public void testFolderNameConflict() throws QblStorageException, FileNotFoundException {
         BoxNavigation nav = volume.navigate();
-        nav.upload("foobar", new FileInputStream(new File(testFilePath)), null);
+        nav.upload("foobar", new FileInputStream(new File(testFilePath)));
         try {
             nav.createFolder("foobar");
         } catch (QblStorageNameConflict e) {
             return;
         }
-        TestHelper.fail("Expected QblStorageNameConflict");
+        fail("Expected QblStorageNameConflict");
     }
 
     @Test
@@ -453,7 +440,7 @@ public class BoxTest {
         } catch (QblStorageNotFound e) {
             return;
         }
-        TestHelper.fail("Expected QblStorageNotFound");
+        fail("Expected QblStorageNotFound");
     }
 
     @Test
@@ -493,7 +480,7 @@ public class BoxTest {
         } catch (QblStorageException e) {
             return;
         }
-        TestHelper.fail("Expected QblStorageException");
+        fail("Expected QblStorageException");
     }
 
     @Test
@@ -501,7 +488,7 @@ public class BoxTest {
         BoxNavigation nav = volume.navigate();
         BoxNavigation nav2 = volumeFromAnotherDevice.navigate();
         File file = new File(testFilePath);
-        nav.upload("foobar", new FileInputStream(file), null);
+        nav.upload("foobar", new FileInputStream(file));
         nav2.createFolder("foobar");
         nav2.commit();
         nav.commit();
@@ -545,21 +532,21 @@ public class BoxTest {
             outputStream.write(testData);
         }
         outputStream.close();
-        nav.upload("large file", new FileInputStream(file), null);
+        nav.upload("large file", new FileInputStream(file));
     }
 
     @Test
     public void testCacheFailure() throws QblStorageException, IOException {
-        File file = createSmallTestFile();
+        File file = FileHelper.smallTestFile();
         BoxNavigation nav = volume.navigate();
-        BoxFile boxFile = nav.upload("foobar", new FileInputStream(file), null);
+        BoxFile boxFile = nav.upload("foobar", new FileInputStream(file));
         nav.commit();
 
         // warm up cache
-        nav.download(boxFile, null);
+        nav.download(boxFile);
         corruptCachedFile(boxFile);
 
-        InputStream dlStream = nav.download(boxFile, null);
+        InputStream dlStream = nav.download(boxFile);
         assertThat("Download stream is null", dlStream, notNullValue());
         byte[] dl = IOUtils.toByteArray(dlStream);
         byte[] content = IOUtils.toByteArray(new FileInputStream(file));
@@ -568,7 +555,8 @@ public class BoxTest {
 
     private void corruptCachedFile(BoxFile boxFile) throws IOException {
         // corrupt the file
-        FileOutputStream outputStream = new FileOutputStream(new FileCache(getContext()).get(boxFile));
+        FileOutputStream outputStream = new FileOutputStream(
+                new FileCache(getContext()).get(boxFile));
         outputStream.write(1);
         outputStream.close();
     }

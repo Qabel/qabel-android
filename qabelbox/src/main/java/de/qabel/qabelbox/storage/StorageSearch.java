@@ -8,6 +8,10 @@ import java.util.List;
 import java.util.Map;
 
 import de.qabel.qabelbox.exceptions.QblStorageException;
+import de.qabel.qabelbox.storage.model.BoxFile;
+import de.qabel.qabelbox.storage.model.BoxFolder;
+import de.qabel.qabelbox.storage.model.BoxObject;
+import de.qabel.qabelbox.storage.navigation.BoxNavigation;
 
 /**
  * Represents a search across a BoxVolume path.

@@ -23,26 +23,8 @@ public class PrefixServer extends BaseServer {
         super(context);
     }
 
-    /**
-     * main function for server action
-     *
-     * @param url
-     * @param callback
-     * @param token
-     */
-    private void doServerAction(String url, JsonRequestCallback callback, String token) {
-
-        Request.Builder builder = new Request.Builder()
-                .post(RequestBody.create(JSON, "{}"))
-                .url(url);
-        addHeader(token, builder);
-        Request request = builder.build();
-        Log.d(TAG, "request " + request.toString());
-        doRequest(request, callback);
-    }
-
     public void getPrefix(Context context, JsonRequestCallback callback) {
-        doServerAction(urls.getPrefix(), callback, new AppPreference(context).getToken());
+        doServerAction(getUrls().getPrefix(), new JSONObject(), callback, getToken());
     }
 
     /**

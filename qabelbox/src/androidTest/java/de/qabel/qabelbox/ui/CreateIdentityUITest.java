@@ -1,6 +1,7 @@
 package de.qabel.qabelbox.ui;
 
 import android.os.PowerManager;
+import android.support.test.InstrumentationRegistry;
 import android.support.test.rule.ActivityTestRule;
 
 import org.junit.After;
@@ -10,12 +11,15 @@ import org.junit.Test;
 
 import java.io.IOException;
 
+import de.qabel.core.config.Identities;
+import de.qabel.core.config.Identity;
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.TestConstants;
 import de.qabel.qabelbox.activities.CreateIdentityActivity;
 import de.qabel.qabelbox.communication.URLs;
 import de.qabel.qabelbox.exceptions.QblStorageException;
+import de.qabel.qabelbox.helper.AccountHelper;
 import de.qabel.qabelbox.ui.helper.SystemAnimations;
 import de.qabel.qabelbox.ui.helper.UIActionHelper;
 import de.qabel.qabelbox.ui.helper.UIBoxHelper;
@@ -33,16 +37,17 @@ import static de.qabel.qabelbox.ui.action.QabelViewAction.setText;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.endsWith;
 import static org.hamcrest.Matchers.equalTo;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
-public class CreateIdentityUITest extends UIBoxHelper {
+public class CreateIdentityUITest {
 
     @Rule
     public ActivityTestRule<CreateIdentityActivity> mActivityTestRule =
             new ActivityTestRule<>(CreateIdentityActivity.class, false, false);
 
     private CreateIdentityActivity mActivity;
-
+    private UIBoxHelper helper;
     private PowerManager.WakeLock wakeLock;
     private SystemAnimations mSystemAnimations;
 
@@ -55,14 +60,15 @@ public class CreateIdentityUITest extends UIBoxHelper {
         if (mSystemAnimations != null) {
             mSystemAnimations.enableAll();
         }
-        unbindService(QabelBoxApplication.getInstance());
     }
 
 
     @Before
-    public void setUp() throws IOException, QblStorageException {
-        bindService(QabelBoxApplication.getInstance());
-        removeAllIdentities();
+    public void setUp() throws Exception {
+
+        helper = new UIBoxHelper(InstrumentationRegistry.getTargetContext());
+        helper.setTestAccount();
+        helper.removeAllIdentities();
 
 
         URLs.setBaseBlockURL(TestConstants.BLOCK_URL);
@@ -75,14 +81,17 @@ public class CreateIdentityUITest extends UIBoxHelper {
     }
 
 
-
     @Test
     public void testCreateIdentity() throws Throwable {
         String identity = "spoon2";
         createIdentityPerformEnterName(identity);
         defaultSecurityLevel();
         createIdentityPerformConfirm();
-        assertThat(getCurrentIdentity().getAlias(), equalTo(identity));
+
+        Identities current = helper.getIdentityRepository().findAll();
+        assertEquals(1, current.getIdentities().size());
+        Identity created = current.getIdentities().iterator().next();
+        assertThat(created.getAlias(), equalTo(identity));
     }
 
     private void createIdentityPerformEnterName(String identity) throws Throwable {
@@ -102,8 +111,6 @@ public class CreateIdentityUITest extends UIBoxHelper {
     private void createIdentityPerformConfirm() {
         onView(withText(R.string.create_identity_final)).check(matches(isDisplayed()));
         onView(withText(R.string.finish)).perform(click());
-        onView(withText(R.string.headline_files)).check(matches(isDisplayed()));
-        UITestHelper.sleep(500);
     }
 }
 

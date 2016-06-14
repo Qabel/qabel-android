@@ -5,6 +5,8 @@ import android.test.AndroidTestCase;
 
 import org.junit.Test;
 
+import de.qabel.qabelbox.storage.model.BoxFile;
+
 
 public class BoxFileTest extends AndroidTestCase {
 

@@ -3,23 +3,22 @@ package de.qabel.qabelbox.providers;
 import android.Manifest;
 import android.content.Context;
 import android.content.pm.ProviderInfo;
-import android.os.Bundle;
-import android.support.annotation.Nullable;
 
 import org.spongycastle.util.encoders.Hex;
 
 import java.util.ArrayList;
-import java.util.UUID;
 
 import de.qabel.core.config.Identities;
 import de.qabel.core.config.Identity;
-import de.qabel.core.crypto.CryptoUtils;
 import de.qabel.core.crypto.QblECKeyPair;
-import de.qabel.core.exceptions.QblInvalidEncryptionKeyException;
+import de.qabel.desktop.repository.IdentityRepository;
 import de.qabel.qabelbox.BuildConfig;
-import de.qabel.qabelbox.persistence.AndroidPersistence;
-import de.qabel.qabelbox.persistence.QblSQLiteParams;
-import de.qabel.qabelbox.services.LocalQabelService;
+import de.qabel.qabelbox.TestConstants;
+import de.qabel.qabelbox.persistence.RepositoryFactory;
+import de.qabel.qabelbox.storage.AndroidBoxManager;
+import de.qabel.qabelbox.storage.notifications.AndroidStorageNotificationManager;
+import de.qabel.qabelbox.storage.notifications.AndroidStorageNotificationPresenter;
+import de.qabel.qabelbox.storage.transfer.FakeTransferManager;
 
 public class MockBoxProvider extends BoxProvider {
 
@@ -31,32 +30,14 @@ public class MockBoxProvider extends BoxProvider {
     public static final String PUB_KEY = "8520f0098930a754748b7ddcb43ef75a0dbf3a0d26381af4eba4a98eaa9b4e6a";
     public static final String PRIVATE_KEY = "77076d0a7318a57d3c16c17251b26645df4c2f87ebc0992ab177fba51db92c2a";
     public Identity identity;
-    public boolean isBroadcastNotificationCalled;
-    public boolean isShowNotificationCalled;
-    public boolean isUpdateNotificationCalled;
 
-
-    @Override
-    void bindToService(final Context context) {
+    public void bindToContext(final Context context) throws Exception {
         setParametersForTests();
         attachInfoForTests(context);
-        LocalQabelService service = new MockedLocalQabelService(context);
-        service.onCreate();
-        setLocalService(service);
-    }
-
-    @Override
-    void staticBindToApplication() {
-    }
-
-    public void mockBindToService(Context context) {
-        bindToService(context);
     }
 
     private void setParametersForTests() {
-        prefix = UUID.randomUUID().toString();
-        CryptoUtils utils = new CryptoUtils();
-        deviceID = utils.getRandomBytes(16);
+        prefix = TestConstants.PREFIX;
         keyPair = new QblECKeyPair(Hex.decode(PRIVATE_KEY));
         rootDocId = PUB_KEY + BoxProvider.DOCID_SEPARATOR + prefix + BoxProvider.DOCID_SEPARATOR
                 + BoxProvider.PATH_SEP;
@@ -66,7 +47,7 @@ public class MockBoxProvider extends BoxProvider {
         identity.setPrefixes(prefixes);
     }
 
-    private void attachInfoForTests(Context context) {
+    private void attachInfoForTests(Context context) throws Exception {
         ProviderInfo info = new ProviderInfo();
         info.authority = BuildConfig.APPLICATION_ID + AUTHORITY;
         info.exported = true;
@@ -74,78 +55,21 @@ public class MockBoxProvider extends BoxProvider {
         info.readPermission = Manifest.permission.MANAGE_DOCUMENTS;
         info.writePermission = Manifest.permission.MANAGE_DOCUMENTS;
         attachInfo(context, info);
-    }
 
-
-    private class MockedLocalQabelService extends LocalQabelService {
-
-        private final Context context;
-
-        protected static final String TEST_DB_NAME = "qabel-service-test";
-
-        public MockedLocalQabelService(Context context) {
-            this.context = context;
+        RepositoryFactory repositoryFactory = new RepositoryFactory(context);
+        IdentityRepository repository = repositoryFactory.getIdentityRepository(repositoryFactory.getAndroidClientDatabase());
+        Identities identities = repository.findAll();
+        for(Identity stored : identities.getIdentities()){
+            repository.delete(stored);
         }
-
-        @Override
-        public byte[] getDeviceID() {
-            return deviceID;
-        }
-
-        @Override
-        public void setActiveIdentity(Identity identity) {
-            lastID = identity.getKeyIdentifier();
-        }
-
-        @Override
-        protected String getLastActiveIdentityID() {
-            return lastID;
-        }
-
-        @Override
-        protected void initSharedPreferences() {
-        }
-
-        @Override
-        public Context getApplicationContext() {
-            return context;
-        }
-
-        @Override
-        protected void initAndroidPersistence() {
-            AndroidPersistence androidPersistence;
-            QblSQLiteParams params = new QblSQLiteParams(context, TEST_DB_NAME, null, DB_VERSION);
-            try {
-                androidPersistence = new AndroidPersistence(params);
-            } catch (QblInvalidEncryptionKeyException e) {
-                return;
-            }
-            this.persistence = androidPersistence;
-        }
-
-        @Override
-        public Identities getIdentities() {
-            Identities identities = new Identities();
-            identities.put(identity);
-            return identities;
-        }
-
-        @Override
-        protected void showNotification(String contentTitle, String contentText, int progress) {
-            isShowNotificationCalled = true;
-        }
-
-        @Override
-        protected void updateNotification() {
-            // Actual updateNotification() method calls showNotification in any case.
-            showNotification(null, null, 0);
-            isUpdateNotificationCalled = true;
-        }
-
-        @Override
-        protected void broadcastUploadStatus(String documentId, int uploadStatus, @Nullable Bundle extras) {
-            isBroadcastNotificationCalled = true;
-        }
+        repository.save(identity);
+        boxManager = new AndroidBoxManager(context,
+                new AndroidStorageNotificationManager(new AndroidStorageNotificationPresenter(context)),
+                new DocumentIdParser(),
+                appPrefereces,
+                new FakeTransferManager(context.getExternalCacheDir()),
+                identityRepository);
+        deviceID = appPrefereces.getDeviceId();
     }
 }
 

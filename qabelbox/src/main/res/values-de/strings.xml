@@ -291,4 +291,5 @@ Den Unterstützern der Indigogo Kampagne
     <string name="close_app">App schließen</string>
     <string name="retry_action">Wiederholen</string>
     <string name="logout">Abmelden</string>
+    <string name="new_messages">%d new messages</string>
 </resources>

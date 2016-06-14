@@ -18,8 +18,8 @@ public class AccountHelper {
     private static final String ACCOUNT_TYPE = BuildConfig.ACCOUNT_TYPE;
     public static final Account DEFAULT_ACCOUNT = new Account(ACCOUNT, ACCOUNT_TYPE);
     public static final String AUTHORITY = BuildConfig.AUTHORITY;
-    // every 30 minutes
-    public static long SYNC_INTERVAL = 60*30;
+    // every 5 minutes
+    public static long SYNC_INTERVAL = 60*5;
     private static final String TAG = "AccountHelper";
 
     public static void createSyncAccount(Context context) {

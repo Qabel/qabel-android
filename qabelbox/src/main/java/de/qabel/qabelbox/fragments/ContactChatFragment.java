@@ -15,18 +15,20 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import javax.inject.Inject;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
 import de.qabel.core.config.Contact;
 import de.qabel.core.config.Identity;
 import de.qabel.core.drop.DropMessage;
@@ -37,12 +39,12 @@ import de.qabel.qabelbox.adapter.ChatMessageAdapter;
 import de.qabel.qabelbox.chat.ChatMessageItem;
 import de.qabel.qabelbox.chat.ChatServer;
 import de.qabel.qabelbox.chat.ShareHelper;
+import de.qabel.qabelbox.dagger.components.MainActivityComponent;
 import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.helper.AccountHelper;
 import de.qabel.qabelbox.helper.Helper;
 import de.qabel.qabelbox.helper.UIHelper;
 import de.qabel.qabelbox.services.DropConnector;
-import de.qabel.qabelbox.services.LocalQabelService;
 import de.qabel.qabelbox.storage.BoxExternalReference;
 import de.qabel.qabelbox.storage.BoxFile;
 import de.qabel.qabelbox.storage.BoxFolder;
@@ -63,12 +65,23 @@ public class ContactChatFragment extends ContactBaseFragment {
     private final ArrayList<ChatMessageItem> messages = new ArrayList<>();
 
 
-    private ListView contactListRecyclerView;
-    private View emptyView;
-    private EditText etText;
-    private ChatServer chatServer;
-    private boolean isSyncing = false;
-    private DropConnector dropConnector;
+    @BindView(R.id.contact_chat_list)
+    ListView contactListRecyclerView;
+
+    @BindView(R.id.etText)
+    EditText etText;
+
+    @Inject
+    ChatServer chatServer;
+
+    @Inject
+    Identity activeIdentity;
+
+    @Inject
+    DropConnector dropConnector;
+
+    @Inject
+    Context context;
 
     public static ContactChatFragment newInstance(Contact contact) {
 
@@ -85,83 +98,60 @@ public class ContactChatFragment extends ContactBaseFragment {
     }
 
     private Identity getIdentity() {
-        Identity activeIdentity = ((MainActivity) getActivity()).getActiveIdentity();
-        if (activeIdentity == null) {
-            throw new IllegalStateException("No active identity");
-        }
         return activeIdentity;
     }
 
+    public Contact getContact() {
+        return contact;
+    }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-
-        super.onCreate(savedInstanceState);
-
-        chatServer = mActivity.chatServer;
-        dropConnector = mActivity.getService();
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        getComponent(MainActivityComponent.class).inject(this);
 
         setHasOptionsMenu(true);
-        ((MainActivity) getActivity()).toggle.setDrawerIndicatorEnabled(false);
+        MainActivity activity = (MainActivity) getActivity();
+        activity.toggle.setDrawerIndicatorEnabled(false);
+        activity.fab.hide();
         actionBar.setDisplayHomeAsUpEnabled(true);
         setActionBarBackListener();
-        mActivity.registerReceiver(refreshChatIntentReceiver, new IntentFilter(Helper.INTENT_REFRESH_CHAT));
+        refreshMessages();
+        refreshMessagesAsync();
     }
 
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        mActivity.unregisterReceiver(refreshChatIntentReceiver);
-    }
-
-    private final BroadcastReceiver refreshChatIntentReceiver = new BroadcastReceiver() {
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            Log.v(TAG, "receive refresh chat event");
-            refreshMessages();
-        }
-    };
 
     @Override
     public View onCreateView(final LayoutInflater inflater, final ViewGroup container,
                              Bundle savedInstanceState) {
 
         final View view = inflater.inflate(R.layout.fragment_contact_chat, container, false);
-        contactListRecyclerView = (ListView) view.findViewById(R.id.contact_chat_list);
-        emptyView = view.findViewById(R.id.empty_view);
-        etText = (EditText) view.findViewById(R.id.etText);
-        TextView send = (Button) view.findViewById(R.id.bt_send);
-        send.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                final String text = etText.getText().toString();
-                if (text.length() > 0) {
-
-                    sendMessage(text);
-                }
-            }
-        });
+        ButterKnife.bind(this, view);
         etText.setText("");
-
-        refreshMessages();
-        refreshMessagesAsync();
 
         return view;
     }
 
+    @OnClick(R.id.bt_send)
+    void clickSend(TextView send) {
+        send.setOnClickListener(v -> {
+            final String text = etText.getText().toString();
+            if (text.length() > 0) {
+                sendMessage(text);
+            }
+        });
+    }
+
     private void sendMessage(String text) {
         try {
-            final DropMessage dropMessage = chatServer.createTextDropMessage(getIdentity(), text);
+            final DropMessage dropMessage = ChatServer.createTextDropMessage(getIdentity(), text);
             final Identity identity = getIdentity();
             getDropConnector().sendDropMessage(dropMessage, contact, identity, deliveryStatus -> {
                 boolean sent = false;
                 Log.v(TAG, "delivery status: " + deliveryStatus);
                 if (deliveryStatus != null) {
-                    Iterator it = deliveryStatus.entrySet().iterator();
-                    while (it.hasNext()) {
-                        Map.Entry pair = (Map.Entry) it.next();
+                    for (Object o : deliveryStatus.entrySet()) {
+                        Map.Entry pair = (Map.Entry) o;
                         if ((Boolean) pair.getValue()) {
                             sent = true;
                         }
@@ -208,6 +198,8 @@ public class ContactChatFragment extends ContactBaseFragment {
             messages.add(item);
         }
         chatServer.setAllMessagesRead(getIdentity(), contact);
+        Intent intent = new Intent(Helper.INTENT_REFRESH_CONTACTLIST);
+        context.sendOrderedBroadcast(intent, null);
         fillAdapter(messages);
     }
 
@@ -231,7 +223,8 @@ public class ContactChatFragment extends ContactBaseFragment {
             //check if message is instance of sharemessage
             if (item.getData() instanceof ChatMessageItem.ShareMessagePayload) {
 
-                final FilesFragment filesFragment = mActivity.filesFragment;
+                // TODO Maybe there isn't a filesFragment.
+                FilesFragment filesFragment = mActivity.filesFragment;
 
                 //check if share from other (not my sended share)
                 String keyIdentifier = mActivity.getActiveIdentity()
@@ -399,7 +392,6 @@ public class ContactChatFragment extends ContactBaseFragment {
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-
         menu.clear();
         inflater.inflate(R.menu.ab_chat_detail_refresh, menu);
     }
@@ -432,25 +424,47 @@ public class ContactChatFragment extends ContactBaseFragment {
         return true;
     }
 
+    private final BroadcastReceiver refreshChatIntentReceiver = new BroadcastReceiver() {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Log.v(TAG, "receive refresh chat event");
+            if (chatServer.hasNewMessages(activeIdentity, contact)) {
+                refreshMessages();
+            }
+        }
+    };
+
+    private final BroadcastReceiver showNotificationReceiver = new BroadcastReceiver() {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (isOrderedBroadcast() && chatServer.hasNewMessages(activeIdentity, contact)) {
+                Log.v(TAG, "Aborting chat notification");
+                abortBroadcast();
+            }
+        }
+    };
+
     @Override
     public void onStart() {
-
         super.onStart();
         chatServer.addListener(chatServerCallback);
+        IntentFilter filter = new IntentFilter(Helper.INTENT_SHOW_NOTIFICATION);
+        filter.setPriority(10);
+        mActivity.registerReceiver(showNotificationReceiver, filter);
+        IntentFilter refreshFilter = new IntentFilter(Helper.INTENT_REFRESH_CONTACTLIST);
+        mActivity.registerReceiver(refreshChatIntentReceiver, refreshFilter);
+        refreshMessages();
     }
 
     @Override
     public void onStop() {
-
-        chatServer.removeListener(chatServerCallback);
         super.onStop();
+        mActivity.unregisterReceiver(refreshChatIntentReceiver);
+        mActivity.unregisterReceiver(showNotificationReceiver);
+        chatServer.removeListener(chatServerCallback);
     }
 
-    private final ChatServer.ChatServerCallback chatServerCallback = new ChatServer.ChatServerCallback() {
-
-        @Override
-        public void onRefreshed() {
-
-        }
-    };
+    private final ChatServer.ChatServerCallback chatServerCallback = () -> {};
 }

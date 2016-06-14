@@ -337,6 +337,7 @@ To all people who have supported our Indigogo Campaign
     <string name="close_app">Close App</string>
     <string name="retry_action">Retry</string>
     <string name="logout">Logout</string>
+    <string name="new_messages">%d new messages</string>
 
 
 </resources>

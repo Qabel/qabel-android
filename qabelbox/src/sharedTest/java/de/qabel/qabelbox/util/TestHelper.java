@@ -2,8 +2,6 @@ package de.qabel.qabelbox.util;
 
 import java.util.concurrent.Callable;
 
-import de.qabel.qabelbox.storage.BoxTest;
-
 public class TestHelper {
     public static void waitUntil(Callable<Boolean> requirement, String message) throws Exception {
         long maximumTime = System.currentTimeMillis() + 10000L;
@@ -14,6 +12,10 @@ public class TestHelper {
             }
             Thread.sleep(pollInterval);
         }
-        BoxTest.fail(message);
+        fail(message);
+    }
+
+    public static void fail(String message) {
+        throw new AssertionError(message);
     }
 }

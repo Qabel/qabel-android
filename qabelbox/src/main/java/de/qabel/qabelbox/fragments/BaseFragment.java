@@ -2,14 +2,21 @@ package de.qabel.qabelbox.fragments;
 
 import android.app.Activity;
 import android.app.Fragment;
+import android.content.Context;
+import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.view.View;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
+import javax.inject.Inject;
+
+import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.activities.MainActivity;
+import de.qabel.qabelbox.dagger.HasComponent;
+import de.qabel.qabelbox.dagger.components.ActivityComponent;
 
 /**
  * Base Fragment
@@ -19,7 +26,20 @@ public abstract class BaseFragment extends Fragment {
 
     protected static Executor serialExecutor = Executors.newSingleThreadExecutor();
     protected ActionBar actionBar;
+
     protected MainActivity mActivity;
+
+    @SuppressWarnings("unchecked")
+    protected <C> C getComponent(Class<C> componentType) {
+        return componentType.cast(((HasComponent<C>)getActivity()).getComponent());
+    }
+
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        mActivity = (MainActivity) getActivity();
+        actionBar = mActivity.getSupportActionBar();
+    }
 
     /**
      * @return title for fragment
@@ -34,14 +54,6 @@ public abstract class BaseFragment extends Fragment {
     public boolean isFabNeeded() {
 
         return false;
-    }
-
-    @Override
-    public void onAttach(Activity activity) {
-
-        super.onAttach(activity);
-        mActivity = (MainActivity) getActivity();
-        actionBar = mActivity.getSupportActionBar();
     }
 
     @Override

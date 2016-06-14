@@ -1,23 +1,20 @@
 package de.qabel.qabelbox.fragments;
 
-import android.app.Activity;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import de.qabel.qabelbox.R;
-import de.qabel.qabelbox.activities.MainActivity;
 import de.qabel.qabelbox.adapter.FilesAdapter;
 import de.qabel.qabelbox.exceptions.QblStorageException;
+import de.qabel.qabelbox.navigation.MainNavigator;
 import de.qabel.qabelbox.storage.BoxFile;
 import de.qabel.qabelbox.storage.BoxFolder;
 import de.qabel.qabelbox.storage.BoxNavigation;
@@ -34,7 +31,7 @@ public class FilesSearchResultFragment extends FilesFragmentBase {
 
     public static FilesSearchResultFragment newInstance(StorageSearch storageSearch, String searchText) {
         FilesSearchResultFragment fragment = new FilesSearchResultFragment();
-        FilesAdapter filesAdapter = new FilesAdapter(new ArrayList<BoxObject>());
+        FilesAdapter filesAdapter = new FilesAdapter(new ArrayList<>());
         fragment.setAdapter(filesAdapter);
         fragment.mSearchResult = storageSearch.filterOnlyFiles();
         fragment.mSearchText = searchText;
@@ -45,25 +42,18 @@ public class FilesSearchResultFragment extends FilesFragmentBase {
     }
 
     @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
         actionBar.setDisplayHomeAsUpEnabled(true);
         actionBar.setHomeButtonEnabled(true);
+        setActionBarBackListener(v -> updateSearchCache());
+        swipeRefreshLayout.setOnRefreshListener(this::restartSearch);
+        setClickListener();
     }
 
     @Override
     public void refresh() {
         restartSearch();
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setActionBarBackListener(v -> updateSearchCache());
-        if(actionBar != null){
-            actionBar.setDisplayHomeAsUpEnabled(true);
-            actionBar.setHomeButtonEnabled(true);
-        }
     }
 
 
@@ -90,7 +80,7 @@ public class FilesSearchResultFragment extends FilesFragmentBase {
      * update search cache in files fragment
      */
     private void updateSearchCache() {
-        FilesFragment fragment = (FilesFragment) mActivity.getFragmentManager().findFragmentByTag(MainActivity.TAG_FILES_FRAGMENT);
+        FilesFragment fragment = (FilesFragment) mActivity.getFragmentManager().findFragmentByTag(MainNavigator.TAG_FILES_FRAGMENT);
         if (fragment != null) {
             fragment.setCachedSearchResult(mSearchResult);
         }
@@ -155,15 +145,6 @@ public class FilesSearchResultFragment extends FilesFragmentBase {
         filesAdapter.sort();
     }
 
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-
-        View v = super.onCreateView(inflater, container, savedInstanceState);
-        swipeRefreshLayout.setOnRefreshListener(() -> restartSearch());
-        setClickListener();
-        return v;
-    }
-
     private void showSearchSpinner(boolean visibility) {
         setIsLoading(visibility);
     }
@@ -199,7 +180,7 @@ public class FilesSearchResultFragment extends FilesFragmentBase {
             protected StorageSearch doInBackground(String... params) {
                 try {
                     BoxNavigation nav = ((FilesFragment) getFragmentManager().
-                            findFragmentByTag(MainActivity.TAG_FILES_FRAGMENT)).getBoxNavigation();
+                            findFragmentByTag(MainNavigator.TAG_FILES_FRAGMENT)).getBoxNavigation();
                     nav.reload();
                     return new StorageSearch(nav);
                 } catch (QblStorageException e) {
@@ -219,12 +200,8 @@ public class FilesSearchResultFragment extends FilesFragmentBase {
 
 
     private void handleFilterAction() {
-        FileSearchFilterFragment fragment = FileSearchFilterFragment.newInstance(mFilterData, mSearchResult, new FileSearchFilterFragment.CallbackListener() {
-            @Override
-            public void onSuccess(FileSearchFilterFragment.FilterData data) {
-                filterData(data);
-            }
-        });
+        FileSearchFilterFragment fragment =
+                FileSearchFilterFragment.newInstance(mFilterData, mSearchResult, this::filterData);
         mActivity.toggle.setDrawerIndicatorEnabled(false);
         getFragmentManager().beginTransaction().add(R.id.fragment_container, fragment).addToBackStack(null).commit();
     }

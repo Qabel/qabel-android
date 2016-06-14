@@ -3,101 +3,63 @@ package de.qabel.qabelbox.ui.files;
 import android.content.Intent;
 import android.net.Uri;
 import android.support.annotation.NonNull;
-import android.support.test.espresso.contrib.DrawerActions;
-import android.support.test.rule.ActivityTestRule;
-
-import com.squareup.spoon.Spoon;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.junit.After;
-import org.junit.Rule;
 import org.junit.Test;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Iterator;
+import java.util.Set;
 
+import de.qabel.core.config.Contact;
 import de.qabel.core.config.Identity;
-import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
-import de.qabel.qabelbox.TestConstants;
-import de.qabel.qabelbox.activities.MainActivity;
-import de.qabel.qabelbox.communication.URLs;
 import de.qabel.qabelbox.config.ContactExportImport;
 import de.qabel.qabelbox.config.IdentityExportImport;
 import de.qabel.qabelbox.config.QabelSchema;
 import de.qabel.qabelbox.helper.FileHelper;
-import de.qabel.qabelbox.ui.helper.UIBoxHelper;
+import de.qabel.qabelbox.ui.AbstractUITest;
 import de.qabel.qabelbox.ui.helper.UITestHelper;
-import de.qabel.qabelbox.ui.matcher.ToolbarMatcher;
+import de.qabel.qabelbox.util.IdentityHelper;
 
 import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.action.ViewActions.click;
 import static android.support.test.espresso.assertion.ViewAssertions.matches;
-import static android.support.test.espresso.contrib.DrawerActions.openDrawer;
 import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
-import static android.support.test.espresso.matcher.ViewMatchers.withClassName;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
-import static android.support.test.espresso.matcher.ViewMatchers.withParent;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
+import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertNull;
 import static junit.framework.Assert.assertTrue;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.allOf;
-import static org.hamcrest.Matchers.endsWith;
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.hasProperty;
+import static org.hamcrest.Matchers.hasSize;
 
-public class OpenQabelFilesFromExternalAppsUITest extends UIBoxHelper {
-    @Rule
-    public ActivityTestRule<MainActivity> mActivityTestRule = new ActivityTestRule<>(MainActivity.class, false, false);
-    private MainActivity mActivity;
-
-    public OpenQabelFilesFromExternalAppsUITest() throws IOException {
-
-        setupData();
-    }
-
-    @After
-    public void cleanUp() {
-        unbindService(QabelBoxApplication.getInstance());
-    }
-
+public class OpenQabelFilesFromExternalAppsUITest extends AbstractUITest {
 
     @Test
     public void testOpenQcoFileFromExternal() throws Throwable {
         String userToImport = "contact1";
         File tempQcoFile = createQcoFile(userToImport, QabelSchema.FILE_SUFFIX_CONTACT);
-        createIdentityIfNeeded();
         launchExternalIntent(Uri.fromFile(tempQcoFile));
         checkMessageBox();
         tempQcoFile.delete();
-        goToContacts();
         UITestHelper.screenShot(mActivity, "openQCO");
-        onView(withText(userToImport)).check(matches(isDisplayed()));
-
+        Iterator<Contact> iterator = contactRepository.find(identity).getContacts().iterator();
+        assertTrue("No contact found in contact repository", iterator.hasNext());
+        assertEquals("Contact does not have the correct alias",
+                iterator.next().getAlias(), userToImport);
     }
 
-
-    /**
-     * open app with file extension but with ne ready app
-     */
-    @Test
-    public void testOpenQcoSanityFromExternal() throws Throwable{
-        String userToImport = "contact1";
-        File tempQcoFile = createQcoFile(userToImport, QabelSchema.FILE_SUFFIX_CONTACT);
-        removeAllIdentities();
-        launchExternalIntent(Uri.fromFile(tempQcoFile));
-        mActivity = mActivityTestRule.getActivity();
-        try {
-            UITestHelper.screenShot(UITestHelper.getCurrentActivity(mActivity), "openQCOWithNoIdentity");
-        } catch (Throwable throwable) {
-            //indicate no error on tested code
-        }
-
-        ToolbarMatcher.matchToolbarTitle(mActivity.getString(R.string.headline_add_identity))
-                .check(matches(isDisplayed()));
-    }
 
     /**
      * open a file with unknown extension
@@ -106,7 +68,6 @@ public class OpenQabelFilesFromExternalAppsUITest extends UIBoxHelper {
     public void testOpenUnknownFileTypeFromExternal() throws Throwable{
         String userToImport = "contact1";
         File tempQcoFile = createQcoFile(userToImport, ".unknown");
-        createIdentityIfNeeded();
         launchExternalIntent(Uri.fromFile(tempQcoFile));
         onView(withText(R.string.cant_import_file_type_is_unknown)).check(matches(isDisplayed()));
         UITestHelper.screenShot(mActivity, "openQCO");
@@ -129,7 +90,6 @@ public class OpenQabelFilesFromExternalAppsUITest extends UIBoxHelper {
             e.printStackTrace();
             assertNull(e);
         }
-        createIdentityIfNeeded();
         launchExternalIntent(Uri.fromFile(tempQcoFile));
         UITestHelper.screenShot(mActivity, "corruptContact");
         onView(withText(R.string.contact_import_failed)).check(matches(isDisplayed()));
@@ -143,45 +103,22 @@ public class OpenQabelFilesFromExternalAppsUITest extends UIBoxHelper {
     @Test
     public void testOpenQidFileFromExternal() throws Throwable{
         String userToImport = "identity1.qid";
-        File tempQidFile = createQIDFile(userToImport);
-        createIdentityIfNeeded();
+        Identity identity1 = createIdentity(userToImport);
+        String exportUser = IdentityExportImport.exportIdentity(identity1);
+        File tmpDir = new File(System.getProperty("java.io.tmpdir"));
+        File tempQidFile = new File(tmpDir, userToImport + "." + QabelSchema.FILE_SUFFIX_IDENTITY);
+        saveFile(exportUser, tempQidFile);
         launchExternalIntent(Uri.fromFile(tempQidFile));
         onView(withText(R.string.idenity_imported)).check(matches(isDisplayed()));
         onView(withText(R.string.ok)).check(matches(isDisplayed())).perform(click());
         tempQidFile.delete();
-        openDrawer(R.id.drawer_layout);
-        onView(withId(R.id.select_identity_layout)).check(matches(isDisplayed())).perform(click());
-        onView(withText(userToImport)).check(matches(isDisplayed()));
-
-
-    }
-
-    private void setupData() {
-        URLs.setBaseBlockURL(TestConstants.BLOCK_URL);
-        mActivity = mActivityTestRule.getActivity();
-
-        bindService(QabelBoxApplication.getInstance());
-        createTokenIfNeeded(false);
-        removeAllIdentities();
-        addIdentity("spoon");
-
-    }
-
-    private void createIdentityIfNeeded() {
-        if (getCurrentIdentity() == null) {
-            addIdentity("spoon");
-        }
+        Set<Identity> identities = identityRepository.findAll().getIdentities();
+        assertThat(identities, hasSize(2));
     }
 
     private void checkMessageBox() {
         onView(withText(R.string.dialog_headline_info)).check(matches(isDisplayed()));
         onView(withText(R.string.ok)).check(matches(isDisplayed())).perform(click());
-    }
-
-    private void goToContacts() throws Throwable{
-        DrawerActions.openDrawer(R.id.drawer_layout);
-        onView(withText(R.string.Contacts)).perform(click());
-        UITestHelper.screenShot(mActivity, "contacts");
     }
 
     private void checkFile(File file1) {
@@ -200,8 +137,7 @@ public class OpenQabelFilesFromExternalAppsUITest extends UIBoxHelper {
         Intent intent = new Intent();
         intent.setAction(Intent.ACTION_VIEW);
         intent.setDataAndType(uri, "application/json");
-        mActivityTestRule.launchActivity(intent);
-        mActivity = mActivityTestRule.getActivity();
+        launchActivity(intent);
     }
 
     @NonNull
@@ -214,16 +150,10 @@ public class OpenQabelFilesFromExternalAppsUITest extends UIBoxHelper {
         return file1;
     }
 
-
-    @NonNull
-    private File createQIDFile(String identityName) {
-        Identity identity = createIdentity(identityName);
-        String exportUser = IdentityExportImport.exportIdentity(identity);
-        File tmpDir = new File(System.getProperty("java.io.tmpdir"));
-        File file1 = new File(tmpDir, identityName + "." + QabelSchema.FILE_SUFFIX_IDENTITY);
-        saveFile(exportUser, file1);
-        return file1;
+    private Identity createIdentity(String name) {
+        return IdentityHelper.createIdentity(name, null);
     }
+
 
     private void saveFile(String exportUser, File file1) {
         saveJsonIntoFile(exportUser, file1);

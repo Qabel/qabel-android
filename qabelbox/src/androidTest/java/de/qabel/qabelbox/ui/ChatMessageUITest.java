@@ -19,8 +19,11 @@ import de.qabel.qabelbox.activities.MainActivity;
 import de.qabel.qabelbox.chat.ChatMessageItem;
 import de.qabel.qabelbox.chat.ChatServer;
 import de.qabel.qabelbox.exceptions.QblStorageEntityExistsException;
+import de.qabel.qabelbox.fragments.ContactFragment;
 import de.qabel.qabelbox.helper.Helper;
+import de.qabel.qabelbox.navigation.MainNavigator;
 import de.qabel.qabelbox.ui.helper.UITestHelper;
+import de.qabel.qabelbox.ui.idling.InjectedIdlingResource;
 import de.qabel.qabelbox.ui.matcher.QabelMatcher;
 
 import static android.support.test.espresso.Espresso.onView;
@@ -30,7 +33,6 @@ import static android.support.test.espresso.assertion.ViewAssertions.matches;
 import static android.support.test.espresso.matcher.ViewMatchers.hasSibling;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
-import static junit.framework.Assert.assertTrue;
 import static org.hamcrest.Matchers.allOf;
 
 public class ChatMessageUITest extends AbstractUITest {
@@ -61,9 +63,14 @@ public class ChatMessageUITest extends AbstractUITest {
      */
     @Test
     public void testNewMessageVisualization() throws Throwable {
+        InjectedIdlingResource idlingResource = new InjectedIdlingResource();
+        ContactFragment fragment = (ContactFragment) mActivity.getFragmentManager()
+                .findFragmentByTag(MainNavigator.TAG_CONTACT_LIST_FRAGMENT);
+        fragment.setIdleCallback(idlingResource);
+
         Context context = InstrumentationRegistry.getTargetContext();
         String identityKey = identity.getEcPublicKey().getReadableKeyIdentifier();
-        ChatServer chatServer = mActivity.chatServer;
+        ChatServer chatServer = new ChatServer(context);
         String contact1Alias = contact.getAlias();
 
         String contact1Key = contact.getEcPublicKey().getReadableKeyIdentifier();
@@ -72,8 +79,8 @@ public class ChatMessageUITest extends AbstractUITest {
                 "from: " + contact1Alias + "message1");
         chatServer.storeIntoDB(identity, dbItem);
         UITestHelper.screenShot(mActivity, "contactsOneNewMessage");
-        assertTrue(chatServer.hasNewMessages(identity, contact));
         refreshViewIntent(context);
+        idlingResource.busy();
 
         //check if new view indicator displayed on correct user and click on this item
         checkVisibilityState(contact1Alias, QabelMatcher.isVisible()).perform(click());
@@ -81,7 +88,6 @@ public class ChatMessageUITest extends AbstractUITest {
         //check if RecyclerView contain correct count of data
         onView(withId(R.id.contact_chat_list)).check(matches(QabelMatcher.withListSize(1)));
         pressBack();
-        refreshViewIntent(context);
         //check if indicator not displayed (we have viewed the item)
         checkVisibilityState(contact1Alias, QabelMatcher.isInvisible());
 
@@ -97,9 +103,7 @@ public class ChatMessageUITest extends AbstractUITest {
 
     private void refreshViewIntent(Context context) {
         Intent intent = new Intent(Helper.INTENT_REFRESH_CONTACTLIST);
-        context.sendBroadcast(intent);
-        Intent chatIntent = new Intent(Helper.INTENT_REFRESH_CHAT);
-        context.sendBroadcast(chatIntent);
+        context.sendBroadcast(intent, null);
     }
 
     /**

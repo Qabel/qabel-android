@@ -4,7 +4,6 @@ import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
-import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
@@ -44,7 +43,12 @@ public class SyncAdapterChatNotificationManager implements ChatNotificationManag
     }
 
     public DefaultHashMap<String, List<ChatMessageInfo>> filterDuplicated(List<ChatMessageInfo> receivedMessages) {
-        DefaultHashMap<String, List<ChatMessageInfo>> messages = new DefaultHashMap<>(identity -> new ArrayList<>());
+        DefaultHashMap<String, List<ChatMessageInfo>> messages = new DefaultHashMap<>(new DefaultHashMap.DefaultValueFactory<String, List<ChatMessageInfo>>() {
+            @Override
+            public List<ChatMessageInfo> defaultValueFor(String identity) {
+                return new ArrayList<>();
+            }
+        });
         for (ChatMessageInfo msg: receivedMessages) {
             if (notified.contains(msg)) {
                 continue;
@@ -81,7 +85,12 @@ public class SyncAdapterChatNotificationManager implements ChatNotificationManag
 
     @NonNull
     private DefaultHashMap<Contact, Integer> countMessagesByContact(List<ChatMessageInfo> messages) {
-        DefaultHashMap<Contact, Integer> byContact = new DefaultHashMap<>(contact -> 0);
+        DefaultHashMap<Contact, Integer> byContact = new DefaultHashMap<>(new DefaultHashMap.DefaultValueFactory<Contact, Integer>() {
+            @Override
+            public Integer defaultValueFor(Contact contact) {
+                return 0;
+            }
+        });
         for (ChatMessageInfo msg: messages) {
             byContact.put(msg.getContact(), byContact.get(msg.getContact()) + 1);
         }

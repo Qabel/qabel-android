@@ -1,22 +1,18 @@
 package de.qabel.qabelbox.fragments;
 
-import android.app.Activity;
 import android.app.Fragment;
-import android.content.Context;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v7.app.ActionBar;
 import android.view.View;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
-import javax.inject.Inject;
-
-import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.activities.MainActivity;
 import de.qabel.qabelbox.dagger.HasComponent;
-import de.qabel.qabelbox.dagger.components.ActivityComponent;
+import de.qabel.qabelbox.listeners.IdleCallback;
 
 /**
  * Base Fragment
@@ -28,6 +24,25 @@ public abstract class BaseFragment extends Fragment {
     protected ActionBar actionBar;
 
     protected MainActivity mActivity;
+
+    @Nullable
+    protected IdleCallback idle;
+
+    public void setIdleCallback(@Nullable IdleCallback idle) {
+        this.idle = idle;
+    }
+
+    public void busy() {
+        if (idle != null) {
+            idle.busy();
+        }
+    }
+
+    public void idle() {
+        if (idle != null) {
+            idle.idle();
+        }
+    }
 
     @SuppressWarnings("unchecked")
     protected <C> C getComponent(Class<C> componentType) {

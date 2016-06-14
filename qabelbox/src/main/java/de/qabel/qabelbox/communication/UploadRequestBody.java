@@ -13,6 +13,7 @@ import okio.Okio;
 import okio.Source;
 import rx.Observable;
 import rx.Subscription;
+import rx.functions.Action1;
 
 public class UploadRequestBody extends RequestBody {
 
@@ -44,10 +45,15 @@ public class UploadRequestBody extends RequestBody {
         Subscription progressSubscription = null;
         try {
             source = Okio.source(file);
-            long total[] = new long[]{0};
+            final long total[] = new long[]{0};
             long read;
             Observable<Long> observable = Observable.interval(250, TimeUnit.MILLISECONDS);
-            progressSubscription = observable.subscribe(aLong -> listener.onProgress(total[0], file.length()));
+            progressSubscription = observable.subscribe(new Action1<Long>() {
+                @Override
+                public void call(Long aLong) {
+                    listener.onProgress(total[0], file.length());
+                }
+            });
 
             while ((read = source.read(sink.buffer(), SEGMENT_SIZE)) != -1) {
                 total[0] += read;

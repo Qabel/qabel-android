@@ -2,8 +2,6 @@ apply plugin: 'com.android.application'
 apply plugin: 'spoon'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
-apply plugin: 'me.tatarka.retrolambda'
-apply plugin: 'com.neenbedankt.android-apt'
 
 
 // This section is optional
@@ -30,8 +28,8 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_1_7
+        targetCompatibility JavaVersion.VERSION_1_7
     }
     dexOptions {
         jumboMode true
@@ -131,7 +129,11 @@ dependencies {
     sourceCompatibility = JavaVersion.VERSION_1_7
     targetCompatibility = JavaVersion.VERSION_1_7
     compile fileTree(dir: 'libs', include: ['*.jar'])
+    kapt 'com.jakewharton:butterknife-compiler:8.0.1'
+    kapt 'com.google.dagger:dagger-compiler:2.4'
     compile 'com.android.support:multidex:1.0.1'
+    compile 'com.google.dagger:dagger:2.4'
+    provided 'javax.annotation:jsr250-api:1.0'
     testCompile 'junit:junit:4.12'
     testCompile 'org.xerial:sqlite-jdbc:3.8.11.2'
     testCompile "org.robolectric:robolectric:3.1"
@@ -181,19 +183,24 @@ dependencies {
     //download and handle images easy
     compile 'com.squareup.picasso:picasso:2.5.2'
     compile 'com.jakewharton:butterknife:8.0.1'
-    apt 'com.jakewharton:butterknife-compiler:8.0.1'
     testCompile "org.mockito:mockito-core:2.0.52-beta"
-    kapt 'com.google.dagger:dagger-compiler:2.4'
-    apt 'com.google.dagger:dagger-compiler:2.4'
-    compile 'com.google.dagger:dagger:2.4'
-    provided 'javax.annotation:jsr250-api:1.0'
     compile 'io.reactivex:rxandroid:1.2.0'
     // Because RxAndroid releases are few and far between, it is recommended you also
     // explicitly depend on RxJava's latest version for bug fixes and new features.
     compile 'io.reactivex:rxjava:1.1.5'
+    compile 'io.reactivex:rxkotlin:0.55.0'
     compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     testCompile "com.nhaarman:mockito-kotlin:0.5.0"
+    testCompile 'com.natpryce:hamkrest:1.2.0.0'
+    androidTestCompile 'com.natpryce:hamkrest:1.2.0.0'
     // See https://github.com/JakeWharton/RxBinding for additional bindings
+    compile "org.jetbrains.anko:anko-sdk21:$anko_version" // according to minSDK 21
+
+    // Anko libs matching support libs
+    compile "org.jetbrains.anko:anko-appcompat-v7:$anko_version"
+    compile "org.jetbrains.anko:anko-design:$anko_version"
+    compile "org.jetbrains.anko:anko-recyclerview-v7:$anko_version"
+    compile "org.jetbrains.anko:anko-cardview-v7:$anko_version"
     //for more used sources, see license.txt
 }
 
@@ -216,7 +223,6 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'com.neenbedankt.gradle.plugins:android-apt:1.8'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath "org.jetbrains.kotlin:kotlin-android-extensions:$kotlin_version"
     }

@@ -33,6 +33,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingDeque;
@@ -121,7 +122,7 @@ public class BoxProvider extends DocumentsProvider {
                 2,
                 KEEP_ALIVE_TIME,
                 KEEP_ALIVE_TIME_UNIT,
-                new LinkedBlockingDeque<>());
+                new LinkedBlockingDeque<Runnable>());
 
         folderContentCache = new HashMap<>();
 
@@ -456,35 +457,38 @@ public class BoxProvider extends DocumentsProvider {
                 } else {
                     tmp = File.createTempFile("uploadAndDeleteLocalfile", "", getContext().getExternalCacheDir());
                 }
-                ParcelFileDescriptor.OnCloseListener onCloseListener = e -> {
-                    // Update the file with the cloud server.  The client is done writing.
-                    Log.i(TAG, "A file with id " + documentId + " has been closed!  Time to " +
-                            "update the server.");
-                    if (e != null) {
-                        Log.e(TAG, "IOException in onClose", e);
-                        return;
-                    }
-                    // in another thread!
-                    new AsyncTask<Void, Void, String>() {
-                        @Override
-                        protected String doInBackground(Void... params) {
-                            try {
-                                DocumentId documentId1 = mDocumentIdParser.parse(documentId);
-                                String path = documentId1.getPathString();
-                                BoxVolume volume = getVolumeForRoot(documentId1.getIdentityKey(),
-                                        documentId1.getPrefix());
-                                BoxNavigation boxNavigation = volume.navigate();
-                                boxNavigation.navigate(path);
-                                boxNavigation.upload(documentId1.getFileName(),
-                                        new FileInputStream(tmp));
-                                boxNavigation.commit();
-                            } catch (FileNotFoundException | QblStorageException e1) {
-                                Log.e(TAG, "Cannot upload file!", e);
-                            }
-                            Log.d(TAG, "UPLOAD DONE");
-                            return documentId;
+                ParcelFileDescriptor.OnCloseListener onCloseListener = new ParcelFileDescriptor.OnCloseListener() {
+                    @Override
+                    public void onClose(final IOException e) {
+                        // Update the file with the cloud server.  The client is done writing.
+                        Log.i(TAG, "A file with id " + documentId + " has been closed!  Time to " +
+                                "update the server.");
+                        if (e != null) {
+                            Log.e(TAG, "IOException in onClose", e);
+                            return;
                         }
-                    }.execute();
+                        // in another thread!
+                        new AsyncTask<Void, Void, String>() {
+                            @Override
+                            protected String doInBackground(Void... params) {
+                                try {
+                                    DocumentId documentId1 = mDocumentIdParser.parse(documentId);
+                                    String path = documentId1.getPathString();
+                                    BoxVolume volume = getVolumeForRoot(documentId1.getIdentityKey(),
+                                            documentId1.getPrefix());
+                                    BoxNavigation boxNavigation = volume.navigate();
+                                    boxNavigation.navigate(path);
+                                    boxNavigation.upload(documentId1.getFileName(),
+                                            new FileInputStream(tmp));
+                                    boxNavigation.commit();
+                                } catch (FileNotFoundException | QblStorageException e1) {
+                                    Log.e(TAG, "Cannot upload file!", e1);
+                                }
+                                Log.d(TAG, "UPLOAD DONE");
+                                return documentId;
+                            }
+                        }.execute();
+                    }
                 };
                 return ParcelFileDescriptor.open(tmp, ParcelFileDescriptor.parseMode(mode), handler,
                         onCloseListener);
@@ -501,11 +505,19 @@ public class BoxProvider extends DocumentsProvider {
     private File downloadFile(final String documentId, final String mode, final CancellationSignal signal) throws FileNotFoundException {
 
         final Future<File> future = mThreadPoolExecutor.submit(
-                () -> getFile(signal, documentId));
+                new Callable<File>() {
+                    @Override
+                    public File call() throws Exception {
+                        return BoxProvider.this.getFile(signal, documentId);
+                    }
+                });
         if (signal != null) {
-            signal.setOnCancelListener(() -> {
-                Log.d(TAG, "openDocument cancelling");
-                future.cancel(true);
+            signal.setOnCancelListener(new CancellationSignal.OnCancelListener() {
+                @Override
+                public void onCancel() {
+                    Log.d(TAG, "openDocument cancelling");
+                    future.cancel(true);
+                }
             });
         }
 

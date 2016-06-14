@@ -1,8 +1,8 @@
 package de.qabel.desktop.repository;
 
-import de.qabel.core.config.SyncSettingItem;
-
 import java.util.WeakHashMap;
+
+import de.qabel.core.config.SyncSettingItem;
 
 public class EntityManager {
     private WeakHashMap<Class, WeakHashMap<Integer, Object>> entities = new WeakHashMap<>();
@@ -24,7 +24,7 @@ public class EntityManager {
 
     public <T> void put(Class<T> entityType, Object entity, int id) {
         if (!entities.containsKey(entityType)) {
-            entities.put(entityType, new WeakHashMap<>());
+            entities.put(entityType, new WeakHashMap<Integer, Object>());
         }
         entities.get(entityType).put(id, entity);
     }

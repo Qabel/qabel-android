@@ -14,13 +14,9 @@ import org.junit.Rule;
 import de.qabel.core.config.Identity;
 import de.qabel.desktop.repository.ContactRepository;
 import de.qabel.desktop.repository.IdentityRepository;
-import de.qabel.desktop.repository.sqlite.AndroidClientDatabase;
-import de.qabel.desktop.repository.sqlite.SqliteContactRepository;
-import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.TestConstants;
 import de.qabel.qabelbox.activities.MainActivity;
 import de.qabel.qabelbox.communication.URLs;
-import de.qabel.qabelbox.persistence.RepositoryFactory;
 import de.qabel.qabelbox.ui.helper.SystemAnimations;
 import de.qabel.qabelbox.ui.helper.UIActionHelper;
 import de.qabel.qabelbox.ui.helper.UIBoxHelper;
@@ -62,10 +58,15 @@ public class AbstractUITest {
 
     }
 
+    protected Intent getDefaultIntent() {
+        Intent intent = new Intent(mContext, MainActivity.class);
+        intent.putExtra(MainActivity.START_FILES_FRAGMENT, false);
+        return intent;
+    }
+
     protected void launchActivity(@Nullable Intent intent) {
         if (intent == null) {
-            intent = new Intent(mContext, MainActivity.class);
-            intent.putExtra(MainActivity.START_FILES_FRAGMENT, false);
+            intent = getDefaultIntent();
         }
         if(!intent.hasExtra(MainActivity.ACTIVE_IDENTITY)){
             intent.putExtra(MainActivity.ACTIVE_IDENTITY, identity.getKeyIdentifier());

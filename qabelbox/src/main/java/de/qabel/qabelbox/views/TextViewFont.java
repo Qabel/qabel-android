@@ -10,23 +10,23 @@ public class TextViewFont extends TextView {
 
     public TextViewFont(Context context) {
         super(context);
-        FontHelper.getInstance().setCustomeFonts(this);
+        FontHelper.getInstance().setCustomFonts(this);
     }
 
     public TextViewFont(Context context, AttributeSet attrs) {
         super(context, attrs);
-        FontHelper.getInstance().setCustomeFonts(this);
+        FontHelper.getInstance().setCustomFonts(this);
     }
 
     public TextViewFont(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        FontHelper.getInstance().setCustomeFonts(this);
+        FontHelper.getInstance().setCustomFonts(this);
     }
 /*
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     public TextViewFont(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
-        FontHelper.getInstance(context).setCustomeFonts(this);
+        FontHelper.getInstance(context).setCustomFonts(this);
     }*/
 
 

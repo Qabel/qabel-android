@@ -20,7 +20,7 @@ import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.chat.ChatMessageItem;
 import de.qabel.qabelbox.helper.Formatter;
 
-public class ChatMessageAdapter extends BaseAdapter {
+public class ChatMessageItemAdapter extends BaseAdapter {
 
     private final String TAG = getClass().getSimpleName();
     private String contactPublicKey;
@@ -28,7 +28,7 @@ public class ChatMessageAdapter extends BaseAdapter {
     private OnItemClickListener onItemClickListener;
     private View emptyView;
 
-    public ChatMessageAdapter(ArrayList<ChatMessageItem> allMessages, Contact contact) {
+    public ChatMessageItemAdapter(ArrayList<ChatMessageItem> allMessages, Contact contact) {
 
         mMessages = new ArrayList<>();
         registerDataSetObserver(observer);
@@ -44,8 +44,12 @@ public class ChatMessageAdapter extends BaseAdapter {
                 mMessages.add(message);
             }
         }
-        Collections.sort(mMessages, (o1, o2) ->
-                (o1.getTime() > o2.getTime() ? 1 : (o1.getTime() == o2.getTime() ? 0 : -1)));
+        Collections.sort(mMessages, new Comparator<ChatMessageItem>() {
+            @Override
+            public int compare(ChatMessageItem o1, ChatMessageItem o2) {
+                return (o1.getTime() > o2.getTime() ? 1 : (o1.getTime() == o2.getTime() ? 0 : -1));
+            }
+        });
 
     }
 

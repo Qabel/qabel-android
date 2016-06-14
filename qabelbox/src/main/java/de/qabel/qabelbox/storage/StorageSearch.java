@@ -2,6 +2,7 @@ package de.qabel.qabelbox.storage;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.Hashtable;
 import java.util.List;
@@ -302,10 +303,13 @@ public class StorageSearch {
 
     public StorageSearch sortByName(final boolean caseSensitive) {
 
-        Collections.sort(results, (o1, o2) -> {
-            String s1 = o1.name;
-            String s2 = o2.name;
-            return (caseSensitive ? s1.compareTo(s2) : s1.compareToIgnoreCase(s2));
+        Collections.sort(results, new Comparator<BoxObject>() {
+            @Override
+            public int compare(BoxObject o1, BoxObject o2) {
+                String s1 = o1.name;
+                String s2 = o2.name;
+                return (caseSensitive ? s1.compareTo(s2) : s1.compareToIgnoreCase(s2));
+            }
         });
 
         return this;

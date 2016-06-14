@@ -2,6 +2,7 @@ package de.qabel.qabelbox.fragments;
 
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -14,12 +15,12 @@ import java.util.List;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.adapter.FilesAdapter;
 import de.qabel.qabelbox.exceptions.QblStorageException;
-import de.qabel.qabelbox.storage.model.BoxFile;
-import de.qabel.qabelbox.storage.model.BoxFolder;
-import de.qabel.qabelbox.storage.navigation.BoxNavigation;
-import de.qabel.qabelbox.storage.model.BoxObject;
 import de.qabel.qabelbox.navigation.MainNavigator;
 import de.qabel.qabelbox.storage.StorageSearch;
+import de.qabel.qabelbox.storage.model.BoxFile;
+import de.qabel.qabelbox.storage.model.BoxFolder;
+import de.qabel.qabelbox.storage.model.BoxObject;
+import de.qabel.qabelbox.storage.navigation.BoxNavigation;
 
 public class FilesSearchResultFragment extends FilesFragmentBase {
 
@@ -31,7 +32,7 @@ public class FilesSearchResultFragment extends FilesFragmentBase {
 
     public static FilesSearchResultFragment newInstance(StorageSearch storageSearch, String searchText) {
         FilesSearchResultFragment fragment = new FilesSearchResultFragment();
-        FilesAdapter filesAdapter = new FilesAdapter(new ArrayList<>());
+        FilesAdapter filesAdapter = new FilesAdapter(new ArrayList<BoxObject>());
         fragment.setAdapter(filesAdapter);
         fragment.mSearchResult = storageSearch.filterOnlyFiles();
         fragment.mSearchText = searchText;
@@ -46,8 +47,18 @@ public class FilesSearchResultFragment extends FilesFragmentBase {
         super.onActivityCreated(savedInstanceState);
         actionBar.setDisplayHomeAsUpEnabled(true);
         actionBar.setHomeButtonEnabled(true);
-        setActionBarBackListener(v -> updateSearchCache());
-        swipeRefreshLayout.setOnRefreshListener(this::restartSearch);
+        setActionBarBackListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                FilesSearchResultFragment.this.updateSearchCache();
+            }
+        });
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                FilesSearchResultFragment.this.restartSearch();
+            }
+        });
         setClickListener();
     }
 
@@ -201,7 +212,12 @@ public class FilesSearchResultFragment extends FilesFragmentBase {
 
     private void handleFilterAction() {
         FileSearchFilterFragment fragment =
-                FileSearchFilterFragment.newInstance(mFilterData, mSearchResult, this::filterData);
+                FileSearchFilterFragment.newInstance(mFilterData, mSearchResult, new FileSearchFilterFragment.CallbackListener() {
+                    @Override
+                    public void onSuccess(FileSearchFilterFragment.FilterData data) {
+                        FilesSearchResultFragment.this.filterData(data);
+                    }
+                });
         mActivity.toggle.setDrawerIndicatorEnabled(false);
         getFragmentManager().beginTransaction().add(R.id.fragment_container, fragment).addToBackStack(null).commit();
     }

@@ -33,15 +33,15 @@ public class BoxTestHelper {
         return boxManager;
     }
 
-    public IdentityRepository getIdentityRepository() {
+    public IdentityRepository getIdentityRepository(){
         return identityRepository;
     }
 
-    public AppPreference getAppPreferences() {
+    public AppPreference getAppPreferences(){
         return preference;
     }
 
-    public ContactRepository getContactRepository() {
+    public ContactRepository getContactRepository(){
         return contactRepository;
     }
 

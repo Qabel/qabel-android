@@ -27,7 +27,12 @@ public class AndroidChatNotificationPresenter implements ChatNotificationPresent
     private int currentId = 0;
 
     Map<String, Integer> identityToNotificationId = new DefaultHashMap<>(
-            identity -> currentId++
+            new DefaultHashMap.DefaultValueFactory<String, Integer>() {
+                @Override
+                public Integer defaultValueFor(String identity) {
+                    return currentId++;
+                }
+            }
     );
 
     @Inject

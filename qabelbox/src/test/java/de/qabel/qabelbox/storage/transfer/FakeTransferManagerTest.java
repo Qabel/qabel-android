@@ -74,7 +74,7 @@ public class FakeTransferManagerTest extends AbstractTransferManagerTest {
         assertFalse(sourceFile.exists());
 
         File targetFile = FileHelper.createEmptyTargetFile();
-        long[] progress = new long[]{0, 0};
+        final long[] progress = new long[]{0, 0};
         int downloadId = transferManager.download(prefix, testFileNameOnServer, targetFile, new BoxTransferListener() {
 
             @Override

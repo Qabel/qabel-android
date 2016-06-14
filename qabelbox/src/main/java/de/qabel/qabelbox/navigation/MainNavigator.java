@@ -20,6 +20,7 @@ import de.qabel.qabelbox.fragments.ContactChatFragment;
 import de.qabel.qabelbox.fragments.ContactFragment;
 import de.qabel.qabelbox.fragments.HelpMainFragment;
 import de.qabel.qabelbox.fragments.IdentitiesFragment;
+import de.qabel.qabelbox.ui.views.ChatFragment;
 
 public class MainNavigator implements Navigator {
 
@@ -78,26 +79,26 @@ public class MainNavigator implements Navigator {
     }
 
     @Override
-    public void selectContactsFragment(String activeContact) {
+    public void selectChatFragment(String activeContact) {
         if (activeContact == null) {
-            selectContactsFragment();
+            selectChatFragment();
             return;
         }
         try {
             Contact contact = contactRepository.findByKeyId(activeIdentity, activeContact);
             Log.d(TAG, "Selecting chat with  contact " + contact.getAlias());
             activity.getFragmentManager().beginTransaction().add(R.id.fragment_container,
-                    ContactChatFragment.newInstance(contact),
+                    ChatFragment.Companion.withContact(contact),
                     TAG_CONTACT_CHAT_FRAGMENT)
                     .addToBackStack(TAG_CONTACT_CHAT_FRAGMENT).commit();
         } catch (EntityNotFoundExcepion entityNotFoundExcepion) {
             Log.w(TAG, "Could not find contact " + activeContact);
-            selectContactsFragment();
+            selectChatFragment();
         }
     }
 
     @Override
-    public void selectContactsFragment() {
+    public void selectChatFragment() {
         showMainFragment(new ContactFragment(), TAG_CONTACT_LIST_FRAGMENT);
     }
 

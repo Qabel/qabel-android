@@ -39,8 +39,13 @@ public class ApplicationModule extends ContextModule {
 
     @Provides
     Factory<NotificationCompat.Builder> providesNotificationBuilder(
-            Context context) {
-        return () -> new NotificationCompat.Builder(context);
+            final Context context) {
+        return new Factory<NotificationCompat.Builder>() {
+            @Override
+            public NotificationCompat.Builder get() {
+                return new NotificationCompat.Builder(context);
+            }
+        };
     }
 
 }

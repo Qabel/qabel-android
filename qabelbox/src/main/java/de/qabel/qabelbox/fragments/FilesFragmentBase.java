@@ -29,8 +29,6 @@ public abstract class FilesFragmentBase extends BaseFragment {
     protected View mEmptyView;
     protected View mLoadingView;
 
-    private IdleCallback idleCallback;
-
     public interface FilesListListener {
 
         void onScrolledToBottom(boolean scrolledToBottom);
@@ -58,9 +56,19 @@ public abstract class FilesFragmentBase extends BaseFragment {
         View view = inflater.inflate(R.layout.fragment_files, container, false);
         setupLoadingViews(view);
         swipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.swipeRefresh);
-        swipeRefreshLayout.setOnRefreshListener(() -> mListener.onDoRefresh(this));
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                mListener.onDoRefresh(FilesFragmentBase.this);
+            }
+        });
 
-        swipeRefreshLayout.post(() -> swipeRefreshLayout.setRefreshing(isLoading));
+        swipeRefreshLayout.post(new Runnable() {
+            @Override
+            public void run() {
+                swipeRefreshLayout.setRefreshing(isLoading);
+            }
+        });
         filesListRecyclerView = (RecyclerView) view.findViewById(R.id.files_list);
         filesListRecyclerView.setHasFixedSize(false);
 
@@ -124,14 +132,22 @@ public abstract class FilesFragmentBase extends BaseFragment {
         if (!isLoading) {
             mLoadingView.setVisibility(View.GONE);
         }
-        swipeRefreshLayout.post(() -> swipeRefreshLayout.setRefreshing(isLoading));
+        swipeRefreshLayout.post(new Runnable() {
+            @Override
+            public void run() {
+                swipeRefreshLayout.setRefreshing(isLoading);
+            }
+        });
     }
 
     protected void notifyFilesAdapterChanged() {
         new Handler(Looper.getMainLooper()).
-                post(() -> {
-                    if (filesListRecyclerView != null && !filesListRecyclerView.isComputingLayout()) {
-                        filesAdapter.notifyDataSetChanged();
+                post(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (filesListRecyclerView != null && !filesListRecyclerView.isComputingLayout()) {
+                            filesAdapter.notifyDataSetChanged();
+                        }
                     }
                 });
     }
@@ -148,17 +164,14 @@ public abstract class FilesFragmentBase extends BaseFragment {
 
 
     public void injectIdleCallback(IdleCallback callback) {
-        idleCallback = callback;
+        setIdleCallback(callback);
     }
 
     public void runIdleCallback(boolean isIdle) {
-        if (idleCallback == null) {
-            return;
-        }
         if (isIdle) {
-            idleCallback.idle();
+            idle();
         } else {
-            idleCallback.busy();
+            busy();
         }
     }
 

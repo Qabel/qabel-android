@@ -27,7 +27,7 @@ public class LoginUITest extends AccountUITest {
         setAccountPreferences();
         activityTestRule.launchActivity(null);
         onView(withId(R.id.et_username)).check(matches(allOf(
-                withText(LogoutUITest.ACCOUNT_NAME), not(isEnabled()))));
+                withText(AccountUITest.ACCOUNT_NAME), not(isEnabled()))));
         onView(withId(R.id.et_password)).check(matches(withText("")));
 
         // No idea why 2 clicks are needed.
@@ -35,6 +35,6 @@ public class LoginUITest extends AccountUITest {
         onView(withId(R.id.reset_password)).perform(click());
 
         onView(withId(R.id.et_email)).check(matches(allOf(
-                withText(LogoutUITest.ACCOUNT_E_MAIL), not(isEnabled()))));
+                withText(AccountUITest.ACCOUNT_E_MAIL), not(isEnabled()))));
     }
 }

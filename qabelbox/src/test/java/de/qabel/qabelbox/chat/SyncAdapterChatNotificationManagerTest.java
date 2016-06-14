@@ -22,11 +22,12 @@ import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.SimpleApplication;
 import de.qabel.qabelbox.util.IdentityHelper;
 
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.nullValue;
+import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 
 @RunWith(RobolectricGradleTestRunner.class)
@@ -53,14 +54,14 @@ public class SyncAdapterChatNotificationManagerTest {
     @Test
     public void testUpdateNotifications() throws Exception {
         doUpdateNotifications();
-        verify(presenter).showNotification(any());
+        verify(presenter).showNotification(any(ChatNotification.class));
     }
 
     @Test
     public void testDuplicateNotificationsPrevented() {
         doUpdateNotifications();
         doUpdateNotifications();
-        verify(presenter).showNotification(any());
+        verify(presenter).showNotification(any(ChatNotification.class));
     }
 
 
@@ -129,6 +130,6 @@ public class SyncAdapterChatNotificationManagerTest {
 
     @Test
     public void testNoNotification() throws Throwable {
-        assertThat(manager.constructNotification(new ArrayList<>()), nullValue());
+        assertThat(manager.constructNotification(new ArrayList<ChatMessageInfo>()), nullValue());
     }
 }

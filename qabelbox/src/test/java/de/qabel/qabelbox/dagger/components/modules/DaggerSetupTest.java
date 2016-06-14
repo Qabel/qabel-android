@@ -1,5 +1,6 @@
 package de.qabel.qabelbox.dagger.components.modules;
 
+import android.content.Context;
 import android.support.v7.app.AppCompatActivity;
 
 import org.junit.Test;
@@ -28,7 +29,7 @@ public class DaggerSetupTest {
     @Test
     public void testApplication() throws Throwable {
         ApplicationComponent component = getApplicationComponent();
-        assertThat(component.context(), equalTo(RuntimeEnvironment.application));
+        assertThat(component.context(), equalTo((Context) RuntimeEnvironment.application));
     }
 
     public ApplicationComponent getApplicationComponent() {

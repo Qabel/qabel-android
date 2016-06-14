@@ -9,6 +9,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
+import de.qabel.desktop.repository.RunnableTransaction;
 import de.qabel.desktop.repository.TransactionManager;
 import de.qabel.desktop.repository.exception.PersistenceException;
 import de.qabel.desktop.repository.sqlite.builder.QueryBuilder;
@@ -60,13 +61,16 @@ public abstract class AbstractClientDatabase implements ClientDatabase {
         }
     }
 
-    public void migrate(AbstractMigration migration) throws MigrationException {
+    public void migrate(final AbstractMigration migration) throws MigrationException {
         try {
-            getTransactionManager().transactional(() -> {
-                logger.info("Migrating " + migration.getClass().getSimpleName());
-                migration.up();
-                setVersion(migration.getVersion());
-                logger.info("ClientDatabase now on version " + getVersion());
+            getTransactionManager().transactional(new RunnableTransaction() {
+                @Override
+                public void run() throws Exception {
+                    logger.info("Migrating " + migration.getClass().getSimpleName());
+                    migration.up();
+                    AbstractClientDatabase.this.setVersion(migration.getVersion());
+                    logger.info("ClientDatabase now on version " + AbstractClientDatabase.this.getVersion());
+                }
             });
         } catch (PersistenceException e) {
             throw new MigrationFailedException(migration, e.getMessage(), e);

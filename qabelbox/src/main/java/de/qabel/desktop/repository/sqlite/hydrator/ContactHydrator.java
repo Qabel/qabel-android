@@ -1,5 +1,11 @@
 package de.qabel.desktop.repository.sqlite.hydrator;
 
+import org.spongycastle.util.encoders.Hex;
+
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.LinkedList;
+
 import de.qabel.core.config.Contact;
 import de.qabel.core.crypto.QblECPublicKey;
 import de.qabel.core.drop.DropURL;
@@ -7,11 +13,6 @@ import de.qabel.desktop.config.factory.ContactFactory;
 import de.qabel.desktop.repository.EntityManager;
 import de.qabel.desktop.repository.exception.PersistenceException;
 import de.qabel.desktop.repository.sqlite.SqliteDropUrlRepository;
-import org.spongycastle.util.encoders.Hex;
-
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.LinkedList;
 
 public class ContactHydrator extends AbstractHydrator<Contact> {
     private EntityManager em;
@@ -44,7 +45,7 @@ public class ContactHydrator extends AbstractHydrator<Contact> {
 
         QblECPublicKey publicKey = new QblECPublicKey(Hex.decode(publicKeyAsHex));
 
-        Contact contact = contactFactory.createContact(publicKey, new LinkedList<>(), alias);
+        Contact contact = contactFactory.createContact(publicKey, new LinkedList<DropURL>(), alias);
         contact.setId(id);
         contact.setPhone(phone);
         contact.setEmail(email);

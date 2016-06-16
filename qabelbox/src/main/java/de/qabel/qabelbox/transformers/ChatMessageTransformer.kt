@@ -2,7 +2,7 @@ package de.qabel.qabelbox.transformers
 
 import de.qabel.desktop.repository.ContactRepository
 import de.qabel.desktop.repository.IdentityRepository
-import de.qabel.desktop.repository.exception.EntityNotFoundExcepion
+import de.qabel.desktop.repository.exception.EntityNotFoundException
 import de.qabel.qabelbox.chat.ChatMessageItem
 import de.qabel.qabelbox.dto.ChatMessage
 import de.qabel.qabelbox.dto.MessagePayload
@@ -19,7 +19,7 @@ class ChatMessageTransformer @Inject constructor(
         val time = Date(chatMessageItem.time)
         val (direction, identity) = try {
             Pair(ChatMessage.Direction.INCOMING, identityRepository.find(chatMessageItem.receiver))
-        } catch (e: EntityNotFoundExcepion) {
+        } catch (e: EntityNotFoundException) {
             Pair(ChatMessage.Direction.OUTGOING, identityRepository.find(chatMessageItem.sender))
         }
         val contact = contactRepository.findByKeyId(identity,

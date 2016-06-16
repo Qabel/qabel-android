@@ -1,18 +1,18 @@
 package de.qabel.desktop.repository.sqlite;
 
-import de.qabel.core.config.Account;
-import de.qabel.desktop.config.factory.DefaultAccountFactory;
-import de.qabel.desktop.repository.AccountRepository;
-import de.qabel.desktop.repository.EntityManager;
-import de.qabel.desktop.repository.exception.EntityNotFoundExcepion;
-import de.qabel.desktop.repository.exception.PersistenceException;
-import de.qabel.desktop.repository.sqlite.hydrator.AccountHydrator;
-
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.LinkedList;
 import java.util.List;
+
+import de.qabel.core.config.Account;
+import de.qabel.desktop.config.factory.DefaultAccountFactory;
+import de.qabel.desktop.repository.AccountRepository;
+import de.qabel.desktop.repository.EntityManager;
+import de.qabel.desktop.repository.exception.EntityNotFoundException;
+import de.qabel.desktop.repository.exception.PersistenceException;
+import de.qabel.desktop.repository.sqlite.hydrator.AccountHydrator;
 
 public class SqliteAccountRepository extends AbstractSqliteRepository<Account> implements AccountRepository {
     public static final String TABLE_NAME = "account";
@@ -26,16 +26,16 @@ public class SqliteAccountRepository extends AbstractSqliteRepository<Account> i
     }
 
     @Override
-    public Account find(String id) throws EntityNotFoundExcepion {
+    public Account find(String id) throws EntityNotFoundException {
         try {
             return super.findBy("id=?", id);
         } catch (PersistenceException e) {
-            throw new EntityNotFoundExcepion("no account with id " + id, e);
+            throw new EntityNotFoundException("no account with id " + id, e);
         }
     }
 
     @Override
-    public Account find(int id) throws EntityNotFoundExcepion {
+    public Account find(int id) throws EntityNotFoundException {
         return find(String.valueOf(id));
     }
 
@@ -62,7 +62,7 @@ public class SqliteAccountRepository extends AbstractSqliteRepository<Account> i
                 throw new PersistenceException("failed to update account", e);
             }
             return;
-        } catch (EntityNotFoundExcepion ignored) {}
+        } catch (EntityNotFoundException ignored) {}
 
         try (PreparedStatement statement = database.prepare(
             "INSERT INTO `account` (`provider`, `user`, `auth`) VALUES (?, ?, ?)"

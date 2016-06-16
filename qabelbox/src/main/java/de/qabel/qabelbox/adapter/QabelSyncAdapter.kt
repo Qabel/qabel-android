@@ -7,7 +7,7 @@ import android.util.Log
 import de.qabel.core.config.Identity
 import de.qabel.desktop.repository.ContactRepository
 import de.qabel.desktop.repository.IdentityRepository
-import de.qabel.desktop.repository.exception.EntityNotFoundExcepion
+import de.qabel.desktop.repository.exception.EntityNotFoundException
 import de.qabel.desktop.repository.exception.PersistenceException
 import de.qabel.qabelbox.QabelBoxApplication
 import de.qabel.qabelbox.chat.ChatMessageInfo
@@ -120,7 +120,7 @@ open class QabelSyncAdapter : AbstractThreadedSyncAdapter {
                         Date(msg.time),
                         ChatMessageInfo.MessageType.MESSAGE)
                 messages.add(messageInfo)
-            } catch (entityNotFoundExcepion: EntityNotFoundExcepion) {
+            } catch (entityNotFoundException: EntityNotFoundException) {
                 Log.w(TAG, "Could not find contact " + msg.senderKey
                         + " for identity " + msg.receiverKey)
             } catch (entityNotFoundExcepion: PersistenceException) {

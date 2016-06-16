@@ -61,8 +61,8 @@ Everything below this line describes the usage of the Qabel Android Client for d
 
 You can run the tests either directly from AndroidStudio with the following gradle tasks:
 
-* `./gradlew test` runs the local unit tests
-* `./gradlew spoon` runs all instrumentation tests on all connected devices and emulators
+* `./gradlew testDeveloperDebugUnitTest` runs the local unit tests
+* `./gradlew spoonDeveloperDebugAndroidTest` runs all instrumentation tests on all connected devices and emulators
 
 ## Common errors
 

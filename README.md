@@ -59,10 +59,14 @@ Everything below this line describes the usage of the Qabel Android Client for d
 
 # Usage
 
-You can run the tests either directly from AndroidStudio with the following gradle tasks:
+You can run the tests with the following gradle tasks:
 
 * `./gradlew testDeveloperDebugUnitTest` runs the local unit tests
 * `./gradlew spoonDeveloperDebugAndroidTest` runs all instrumentation tests on all connected devices and emulators
+
+# Development
+
+To run the unit tests directly from Android Studio, you need to change the default options for the JUnit task. Change the vm-options to `-ea -Djava.library.path=libs/` so that the android studio testrunner finds the crypto library we use.
 
 ## Common errors
 
@@ -77,9 +81,6 @@ sudo apt-get install lib32stdc++6 lib32z1
 
 The test server addresses are hard coded in TestConstants.java and the live servers are configured in a string ressource `servers.xml`
 
-# Development
-
-To run the unit test in Android Studio, you need to change the default options for the JUnit task. Change the vm-options to `-ea -Djava.library.path=libs/` so that the android studio testrunner finds the crypto library we use.
 
 # Contribution
 

@@ -28,7 +28,6 @@ class ContactsViewHolder(itemView: View, val clickListener: (ContactDto) -> Unit
         itemView?.alpha = if (contact.identities.size > 0) 1f else 0.35f
 
         itemView?.textViewItemName?.text = contact.contact.alias
-        itemView?.textViewItemDetail?.text = contact.contact.keyIdentifier
         itemView?.tv_initial?.text = getInitials(contact.contact.alias);
         itemView?.contact_icon_border?.background = ContactIconDrawable(colors)
         itemView?.setOnClickListener({ clickListener.invoke(contact) });

@@ -1,4 +1,4 @@
-package de.qabel.qabelbox.contacts.view
+package de.qabel.qabelbox.contacts.view.widgets
 
 import android.graphics.*
 import android.graphics.drawable.Drawable

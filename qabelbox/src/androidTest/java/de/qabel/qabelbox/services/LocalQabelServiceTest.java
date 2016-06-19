@@ -3,6 +3,7 @@ package de.qabel.qabelbox.services;
 import android.content.Intent;
 import android.test.ServiceTestCase;
 
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -113,7 +114,7 @@ public class LocalQabelServiceTest extends ServiceTestCase<LocalQabelServiceTest
         assertEquals(2, contacts.size());
     }
 
-    public void testSendAndReceiveDropMessage() throws QblDropPayloadSizeException, URISyntaxException, QblDropInvalidURL, InterruptedException, QblStorageEntityExistsException {
+    public void testSendAndReceiveDropMessage() throws QblDropPayloadSizeException, URISyntaxException, QblDropInvalidURL, InterruptedException, QblStorageEntityExistsException, IOException {
         QblECKeyPair senderKeypair = new QblECKeyPair();
         Identity senderIdentity = new Identity("SenderIdentity", new ArrayList<DropURL>(), senderKeypair);
 
@@ -150,7 +151,7 @@ public class LocalQabelServiceTest extends ServiceTestCase<LocalQabelServiceTest
         assertEquals(1, dropMessages.size());
     }
 
-    public void testReceiveDropMessagesEmpty() {
+    public void testReceiveDropMessagesEmpty() throws IOException {
         Collection<DropMessage> dropMessages =
                 mService.retrieveDropMessages(URI.create("http://localhost/empty"), 0);
 

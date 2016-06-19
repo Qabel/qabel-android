@@ -8,7 +8,7 @@ import de.qabel.qabelbox.contacts.view.widgets.ContactIconDrawable
 import kotlinx.android.synthetic.main.item_contacts.view.*
 import kotlinx.android.synthetic.main.list_header.view.*
 
-open class ContactsViewHolder(itemView: View, val clickListener: (ContactDto) -> Unit,
+class ContactsViewHolder(itemView: View, val clickListener: (ContactDto) -> Unit,
                               val longClickListener: (ContactDto) -> Boolean) :
         RecyclerView.ViewHolder(itemView) {
 

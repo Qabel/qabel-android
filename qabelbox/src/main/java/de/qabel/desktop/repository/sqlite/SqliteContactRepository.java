@@ -247,7 +247,7 @@ public class SqliteContactRepository extends AbstractSqliteRepository<Contact> i
 
             try (PreparedStatement statement = database.prepare(
                     selectBuilder.toString() + fromBuilder.toString() + whereBuilder.toString() +
-                            " GROUP BY " + StringUtils.join(", ", customHydrator.getGroupByFields("c")) + " ORDER BY c.alias DESC"
+                            " GROUP BY " + StringUtils.join(", ", customHydrator.getGroupByFields("c")) + " ORDER BY c.alias"
             )) {
                 int paramIndex = 1;
                 for (String identityKey : identityKeyMap.values()) {

@@ -72,7 +72,7 @@
     </style>
 
     <style name="SmallGreyMessageText">
-        <item name="android:textColor">@color/grey_text_color</item>
+        <item name="android:textColor">@color/light_gray</item>
         <item name="android:textSize">@dimen/textsize_small</item>
     </style>
 

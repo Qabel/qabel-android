@@ -46,20 +46,23 @@ class MainContactsUseCase @Inject constructor(val identity: Identity,
     }
 
 
-    override fun saveContact(contact: Contact) = observable<Void> { subscriber ->
+    override fun saveContact(contact: Contact) = observable<Unit> { subscriber ->
         contactRepository.save(contact, identity)
-        subscriber.onCompleted()
-    }
-
-    override fun deleteContact(contact: Contact) = observable<Void> { subscriber ->
-        contactRepository.delete(contact, identity)
+        subscriber.onNext(Unit);
         subscriber.onCompleted();
     }
 
-    override fun exportContact(contactKey: String, outputStream: FileOutputStream) = observable<Void> { subscriber ->
+    override fun deleteContact(contact: Contact) = observable<Unit> { subscriber ->
+        contactRepository.delete(contact, identity)
+        subscriber.onNext(Unit);
+        subscriber.onCompleted();
+    }
+
+    override fun exportContact(contactKey: String, outputStream: FileOutputStream) = observable<Unit> { subscriber ->
         val contact = contactRepository.findByKeyId(identity, contactKey);
         val contactJSON = ContactExportImport.exportContact(contact);
         outputStream.bufferedWriter(Charset.defaultCharset()).write(contactJSON);
+        subscriber.onNext(Unit);
         subscriber.onCompleted();
     }
 
@@ -68,6 +71,7 @@ class MainContactsUseCase @Inject constructor(val identity: Identity,
         val contacts = contactRepository.find(targetIdentity);
         val contactsJSON = ContactExportImport.exportContacts(contacts);
         outputStream.bufferedWriter().write(contactsJSON);
+        subscriber.onNext(contacts.contacts.size);
         subscriber.onCompleted();
     }
 

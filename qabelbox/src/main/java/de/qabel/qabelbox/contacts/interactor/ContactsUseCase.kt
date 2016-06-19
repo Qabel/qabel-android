@@ -12,10 +12,10 @@ interface ContactsUseCase {
 
     fun load(): Observable<ContactDto>
     fun search(filter : String): Observable<ContactDto>
-    fun exportContact(contactKey : String, outputStream: FileOutputStream) : Observable<Void>
+    fun exportContact(contactKey : String, outputStream: FileOutputStream) : Observable<Unit>
     fun exportAllContacts(identityKey : String, outputStream: FileOutputStream) : Observable<Int>
     fun importContacts(file : FileDescriptor) : Observable<Pair<Int, Int>>
-    fun saveContact(contact : Contact): Observable<Void>
-    fun deleteContact(contact : Contact): Observable<Void>
+    fun saveContact(contact : Contact): Observable<Unit>
+    fun deleteContact(contact : Contact): Observable<Unit>
 
 }

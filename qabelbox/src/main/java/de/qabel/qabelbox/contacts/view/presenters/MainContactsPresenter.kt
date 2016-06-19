@@ -56,10 +56,10 @@ class MainContactsPresenter @Inject constructor(private val view: ContactsView,
                 R.string.yes, R.string.no, DialogInterface.OnClickListener { dialog1, which1 ->
             info { "Deleting contact " + contact.contact.id }
             useCase.deleteContact(contact.contact).subscribe {
-                refresh()
                 UIHelper.showDialogMessage(activity, R.string.dialog_headline_info,
                         activity.getString(R.string.contact_deleted).
                                 replace("%1", contact.contact.alias))
+                refresh()
             }
         }, null)
     }

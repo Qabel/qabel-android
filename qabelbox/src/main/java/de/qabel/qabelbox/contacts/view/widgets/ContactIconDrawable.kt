@@ -19,7 +19,7 @@ class ContactIconDrawable(var colors: List<Int>) : Drawable() {
             backgroundPaint.color = colors[i];
             canvas?.drawArc(bounds.left.toFloat(), bounds.top.toFloat(), bounds.right.toFloat(),
                     bounds.bottom.toFloat(), current, eachDegrees, true, backgroundPaint);
-            current = current.plus(eachDegrees).plus(if (i < colors.size.dec()) space.dec().toFloat() else (space / 2).toFloat());
+            current = current.plus(eachDegrees).plus(if (i < colors.size.dec()) space.toFloat() else (space / 2).toFloat());
         }
     }
 

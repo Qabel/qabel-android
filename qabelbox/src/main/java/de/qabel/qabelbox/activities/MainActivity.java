@@ -1218,7 +1218,7 @@ public class MainActivity extends CrashReportingActivity
             ShareHelper.tellAFriend(this);
         }
         if (id == R.id.nav_contacts) {
-            navigator.selectChatFragment();
+            navigator.selectContactsFragment();
         } else if (id == R.id.nav_browse) {
             navigator.selectFilesFragment();
         } else if (id == R.id.nav_settings) {

@@ -49,7 +49,7 @@ import de.qabel.desktop.repository.exception.EntityNotFoundExcepion;
 import de.qabel.desktop.repository.exception.PersistenceException;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.adapter.ContactAdapterItem;
-import de.qabel.qabelbox.adapter.ContactsAdapter;
+import de.qabel.qabelbox.contacts.view.adapters.ContactsAdapter;
 import de.qabel.qabelbox.chat.ChatServer;
 import de.qabel.qabelbox.config.ContactExportImport;
 import de.qabel.qabelbox.config.QabelSchema;
@@ -196,7 +196,7 @@ public class ContactFragment extends BaseFragment {
 
     private void setClickListener() {
 
-        contactListAdapter.setOnItemClickListener(new ContactsAdapter.OnItemClickListener() {
+       /* contactListAdapter.setOnItemClickListener(new ContactsAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(View view, int position) {
                 final Contact contact = contactListAdapter.getContact(position);
@@ -210,11 +210,11 @@ public class ContactFragment extends BaseFragment {
             public void onItemClick(View view, int position) {
                 ContactFragment.this.longContactClickAction(position);
             }
-        });
+        });*/
     }
 
     private void longContactClickAction(final int position) {
-        final Contact contact = contactListAdapter.getContact(position);
+        final Contact contact= null ;//contactListAdapter.getContact(position).getContact();
         new BottomSheet.Builder(mActivity).title(contact.getAlias()).sheet(R.menu.bottom_sheet_contactlist)
                 .listener(new DialogInterface.OnClickListener() {
                     @Override
@@ -293,7 +293,7 @@ public class ContactFragment extends BaseFragment {
         } catch (PersistenceException e) {
             throw new RuntimeException(e);
         }
-        final int count = contacts.getContacts().size();
+       /* final int count = contacts.getContacts().size();
         ArrayList<ContactAdapterItem> items = new ArrayList<>();
         for (Contact c : contacts.getContacts()) {
             items.add(new ContactAdapterItem(c, chatServer.hasNewMessages(getActiveIdentity(), c)));
@@ -316,7 +316,7 @@ public class ContactFragment extends BaseFragment {
                 contactListAdapter.notifyDataSetChanged();
 
             }
-        });
+        });*/
         idle();
     }
 
@@ -346,9 +346,9 @@ public class ContactFragment extends BaseFragment {
                                 IntentIntegrator integrator = new IntentIntegrator(ContactFragment.this);
                                 integrator.initiateScan();
                                 break;
-                            case R.id.add_contact_direct_input:
+                           /* case R.id.add_contact_direct_input:
                                 ContactFragment.this.selectAddContactFragment(getActiveIdentity());
-                                break;
+                                break;*/
                         }
                     }
                 }).show();

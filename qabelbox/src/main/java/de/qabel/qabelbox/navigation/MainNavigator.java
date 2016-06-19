@@ -15,14 +15,16 @@ import de.qabel.desktop.repository.exception.PersistenceException;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.activities.CreateAccountActivity;
 import de.qabel.qabelbox.activities.MainActivity;
+import de.qabel.qabelbox.contacts.view.ContactsFragment;
 import de.qabel.qabelbox.fragments.AboutLicencesFragment;
 import de.qabel.qabelbox.fragments.ContactChatFragment;
 import de.qabel.qabelbox.fragments.ContactFragment;
 import de.qabel.qabelbox.fragments.HelpMainFragment;
 import de.qabel.qabelbox.fragments.IdentitiesFragment;
+import de.qabel.qabelbox.storage.navigation.AbstractNavigation;
 import de.qabel.qabelbox.ui.views.ChatFragment;
 
-public class MainNavigator implements Navigator {
+public class MainNavigator extends AbstractNavigator implements Navigator {
 
     public static final String TAG_CONTACT_CHAT_FRAGMENT = "TAG_CONTACT_CHAT_FRAGMENT";
     public static final String TAG_FILES_FRAGMENT = "TAG_FILES_FRAGMENT";
@@ -81,25 +83,20 @@ public class MainNavigator implements Navigator {
     @Override
     public void selectChatFragment(String activeContact) {
         if (activeContact == null) {
-            selectChatFragment();
             return;
         }
         try {
             Contact contact = contactRepository.findByKeyId(activeIdentity, activeContact);
             Log.d(TAG, "Selecting chat with  contact " + contact.getAlias());
-            activity.getFragmentManager().beginTransaction().add(R.id.fragment_container,
-                    ChatFragment.Companion.withContact(contact),
-                    TAG_CONTACT_CHAT_FRAGMENT)
-                    .addToBackStack(TAG_CONTACT_CHAT_FRAGMENT).commit();
+            showFragment(activity, ChatFragment.Companion.withContact(contact), TAG_CONTACT_CHAT_FRAGMENT, true, true);
         } catch (EntityNotFoundExcepion entityNotFoundExcepion) {
             Log.w(TAG, "Could not find contact " + activeContact);
-            selectChatFragment();
         }
     }
 
     @Override
-    public void selectChatFragment() {
-        showMainFragment(new ContactFragment(), TAG_CONTACT_LIST_FRAGMENT);
+    public void selectContactsFragment() {
+        showMainFragment(new ContactsFragment(), TAG_CONTACT_LIST_FRAGMENT);
     }
 
     @Override
@@ -120,15 +117,7 @@ public class MainNavigator implements Navigator {
     }
 
     private void showMainFragment(Fragment fragment, String tag) {
-        activity.getFragmentManager().beginTransaction()
-                .replace(R.id.fragment_container, fragment, tag).commit();
-        try {
-            while (activity.getFragmentManager().executePendingTransactions()) {
-                Thread.sleep(50);
-            }
-        } catch (InterruptedException e) {
-            Log.e(TAG, "Error waiting for fragment change", e);
-        }
+        showFragment(activity, fragment, tag, false, true);
         activity.handleMainFragmentChange();
     }
 

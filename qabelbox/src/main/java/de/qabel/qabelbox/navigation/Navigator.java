@@ -7,7 +7,7 @@ public interface Navigator {
 
     void selectChatFragment(String activeContact);
 
-    void selectChatFragment();
+    void selectContactsFragment();
 
     void selectHelpFragment();
 

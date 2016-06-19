@@ -300,13 +300,13 @@ public class UIHelper {
      * @param message
      * @param e
      */
-    public static void showDialogMessage(Activity activity, int headline, int message, Exception e) {
+    public static void showDialogMessage(Activity activity, int headline, int message, Throwable e) {
 
         String reason = getUserReadableMessage(activity, e);
         showDialogMessage(activity, headline, activity.getString(message) + (reason == null ? "" : reason));
     }
 
-    private static String getUserReadableMessage(Activity activity, Exception e) {
+    private static String getUserReadableMessage(Activity activity, Throwable e) {
 
         String reason = activity.getString(R.string.reason_for_error);
         if (e instanceof IOException) {

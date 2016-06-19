@@ -15,4 +15,8 @@ public class QblBroadcastConstants {
         public static final String ACCOUNT_CHANGED = PREFIX + "accountChanged";
     }
 
+    public static class Contacts {
+        public static final String CONTACTS_CHANGED = PREFIX + "accountChanged";
+
+    }
 }

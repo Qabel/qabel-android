@@ -9,10 +9,10 @@ import de.qabel.qabelbox.R;
 
 public class AbstractNavigator {
 
-    protected void showFragment(Activity activity, Fragment fragment, String tag, boolean addToBackstack, boolean waitForTransaction) {
+    protected void showFragment(Activity activity, Fragment fragment, String tag, boolean addToBackStack, boolean waitForTransaction) {
         FragmentTransaction fragmentTransaction = activity.getFragmentManager().beginTransaction()
                 .replace(R.id.fragment_container, fragment, tag);
-        if(addToBackstack){
+        if(addToBackStack){
             fragmentTransaction.addToBackStack(tag);
         }
         fragmentTransaction.commit();

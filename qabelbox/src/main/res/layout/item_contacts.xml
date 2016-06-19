@@ -1,32 +1,46 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<android.support.v7.widget.CardView
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/card_view"
-    style="@style/ListItemCardView"
-    xmlns:android="http://schemas.android.com/apk/res/android"
-
-    xmlns:card_view="http://schemas.android.com/apk/res-auto"
-    card_view:cardCornerRadius="4dp">
+    style="@style/ListItemCardView">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
-        android:orientation="horizontal"
-        android:padding="5dp"
-        >
+        android:orientation="horizontal">
 
-        <ImageView
-            android:id="@+id/itemIcon"
+        <de.qabel.qabelbox.views.SquareFrameLayout
+            android:id="@+id/contact_icon_border"
             style="@style/ListIcon"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
             android:layout_gravity="center_vertical"
-            android:src="@drawable/qabel_logo"/>
+            android:padding="5sp">
+
+            <de.qabel.qabelbox.views.SquareFrameLayout
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_gravity="center_vertical"
+                android:background="@drawable/identity_circle">
+                <de.qabel.qabelbox.views.TextViewFont
+                    android:id="@+id/tv_initial"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerInParent="true"
+                    android:layout_gravity="center"
+                    android:gravity="center"
+                    android:textSize="@dimen/textsize_splash"
+                    android:textColor="@color/white" />
+            </de.qabel.qabelbox.views.SquareFrameLayout>
+        </de.qabel.qabelbox.views.SquareFrameLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:paddingLeft="5sp">
 
 
             <LinearLayout
@@ -37,17 +51,9 @@
                 <de.qabel.qabelbox.views.TextViewFont
                     android:id="@+id/textViewItemName"
                     style="@style/ListFirstTextLine"
-                    android:layout_gravity="left|center_vertical"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"/>
-
-                <ImageView
-                    android:layout_width="15dp"
-                    android:layout_height="15dp"
-                    android:layout_gravity="left|center_vertical"
-                    android:layout_marginLeft="3dp"
-                    android:src="@drawable/eye"
-                    android:id="@+id/newMessageIndicator"/>
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="left|center_vertical" />
             </LinearLayout>
 
 
@@ -57,9 +63,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:ellipsize="end"
-                android:lines="1"
-                />
+                android:lines="1" />
 
         </LinearLayout>
     </LinearLayout>
-</android.support.v7.widget.CardView>
+</LinearLayout>

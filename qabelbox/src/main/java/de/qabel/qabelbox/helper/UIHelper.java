@@ -97,8 +97,10 @@ public class UIHelper {
     }
 
     public static void showDialogMessage(Activity activity, int headline, int message, DialogInterface.OnClickListener buttonOkListener) {
-
         showDialogMessage(activity, headline, message, R.string.ok, Integer.MIN_VALUE, buttonOkListener, null);
+    }
+    public static void showDialogMessage(Activity activity, int headline, String message, DialogInterface.OnClickListener buttonOkListener) {
+        showDialogMessage(activity, activity.getString(headline), message, R.string.ok, Integer.MIN_VALUE, buttonOkListener, null);
     }
 
     public static void showDialogMessage(Activity activity, int headline, int message, int buttonOk) {

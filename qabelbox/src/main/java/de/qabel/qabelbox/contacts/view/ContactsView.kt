@@ -7,7 +7,12 @@ interface ContactsView {
 
     fun showEmpty()
 
-    open fun loadData(data : List<ContactDto>)
+    fun loadData(data : List<ContactDto>)
+
+    fun showMessage(title : Int, message : Int)
+    fun showMessage(title : Int, message : Int, paramA : Any?, paramB : Any?)
+    fun showQuantityMessage(title : Int, message : Int, quantity : Int, vararg params : Any)
+    fun showConfirmation(title : Int, message: Int, params: Any, yesClick : () -> Unit)
 
 }
 

@@ -1,32 +1,23 @@
 package de.qabel.qabelbox.contacts.view.presenters
 
-import android.app.Activity
-import android.content.DialogInterface
-import android.content.Intent
-import android.net.Uri
-import com.google.zxing.integration.android.IntentIntegrator
 import de.qabel.core.config.Contact
 import de.qabel.core.crypto.QblECPublicKey
 import de.qabel.core.drop.DropURL
 import de.qabel.qabelbox.R
 import de.qabel.qabelbox.config.ContactExportImport
 import de.qabel.qabelbox.config.QabelSchema
-import de.qabel.qabelbox.contacts.ContactsRequestCodes
 import de.qabel.qabelbox.contacts.dto.ContactDto
 import de.qabel.qabelbox.contacts.interactor.ContactsUseCase
 import de.qabel.qabelbox.contacts.view.ContactsView
-import de.qabel.qabelbox.helper.ExternalApps
-import de.qabel.qabelbox.helper.UIHelper
 import org.apache.commons.io.FileUtils
 import org.jetbrains.anko.AnkoLogger
-import org.jetbrains.anko.debug
 import org.jetbrains.anko.info
 import org.jetbrains.anko.warn
 import org.spongycastle.util.encoders.Hex
 import rx.lang.kotlin.onError
 import java.io.File
+import java.io.FileDescriptor
 import java.io.FileOutputStream
-import java.io.IOException
 import java.util.*
 import javax.inject.Inject
 
@@ -49,122 +40,100 @@ class MainContactsPresenter @Inject constructor(private val view: ContactsView,
         })
     }
 
-    override fun deleteContact(activity: Activity, contact: ContactDto) {
-        UIHelper.showDialogMessage(activity, activity.getString(R.string.dialog_headline_warning),
-                activity.getString(R.string.dialog_message_delete_contact_question).
-                        replace("%1", contact.contact.alias),
-                R.string.yes, R.string.no, DialogInterface.OnClickListener { dialog1, which1 ->
-            info { "Deleting contact " + contact.contact.id }
-            useCase.deleteContact(contact.contact).subscribe {
-                UIHelper.showDialogMessage(activity, R.string.dialog_headline_info,
-                        activity.getString(R.string.contact_deleted).
-                                replace("%1", contact.contact.alias))
-                refresh()
-            }
-        }, null)
+    override fun deleteContact(contact: ContactDto) {
+        view.showConfirmation(R.string.dialog_headline_warning,
+                R.string.dialog_message_delete_contact_question,
+                contact.contact.alias,
+                {
+                    info { "Deleting contact " + contact.contact.id }
+                    view.showMessage(R.string.dialog_headline_info,
+                            R.string.contact_deleted,
+                            contact.contact.alias, Unit);
+                    refresh()
+                })
     }
 
     override fun exportContact(contact: ContactDto) {
         throw UnsupportedOperationException()
     }
 
-    override fun handleActivityResult(activity: Activity, requestCode: Int, resultData: Intent?) {
-        if (resultData != null) {
-            when (requestCode) {
-                ContactsRequestCodes.REQUEST_EXPORT_CONTACT -> {
-                    val uri = resultData.data
-                    val exportKey = resultData.getStringExtra(ContactsRequestCodes.Params.EXPORT_PARAM)
-                    val exportType = resultData.getIntExtra(ContactsRequestCodes.Params.EXPORT_TYPE, 0)
-                    activity.contentResolver.openFileDescriptor(uri, "w")!!.use({ pfd ->
-                        FileOutputStream(pfd.fileDescriptor).use({ fileOutputStream ->
-                            val action = when (exportType) {
-                                EXPORT_ONE -> useCase.exportContact(exportKey, fileOutputStream)
-                                else -> useCase.exportAllContacts(exportKey, fileOutputStream)
-                            };
-                            action.onError { throwable ->
-                                UIHelper.showDialogMessage(activity,
-                                        R.string.dialog_headline_warning,
-                                        R.string.contact_export_failed, throwable)
-                            }
-                            action.subscribe {
-                                UIHelper.showDialogMessage(activity, R.string.dialog_headline_info,
-                                        activity.resources.getQuantityString(
-                                                R.plurals.contact_export_successfully, 1, 1))
-                            }
-                        })
-                    })
-                }
-                ContactsRequestCodes.REQUEST_IMPORT_CONTACT -> {
-                    val uri = resultData.data;
-                    val pfd = activity.contentResolver.openFileDescriptor(uri, "r")
-                    try {
-                        useCase.importContacts(pfd.fileDescriptor)
-                                .onError { throwable ->
-                                    UIHelper.showDialogMessage(activity,
-                                            R.string.dialog_headline_warning,
-                                            R.string.contact_import_failed,
-                                            throwable)
-                                }
-                                .subscribe { result ->
-                                    if (result.first > 0) {
-                                        if (result.first == 1 && result.second == 0) {
-                                            UIHelper.showDialogMessage(
-                                                    activity,
-                                                    activity.getString(R.string.dialog_headline_info),
-                                                    activity.resources.getString(R.string.contact_import_successfull))
-                                        } else {
-                                            UIHelper.showDialogMessage(
-                                                    activity,
-                                                    activity.getString(R.string.dialog_headline_info),
-                                                    activity.resources.getString(R.string.contact_import_successfull_many, result.first,
-                                                            result.first + result.second))
-                                        }
-                                    } else {
-                                        UIHelper.showDialogMessage(
-                                                activity,
-                                                activity.getString(R.string.dialog_headline_info),
-                                                activity.getString(R.string.contact_import_zero_additions))
-                                    }
-                                    refresh()
-                                }
-                    } catch(exception: Throwable) {
-                        exception.printStackTrace();
-                    }
-                }
-            }
-        }
-
-        val scanResult = IntentIntegrator.parseActivityResult(requestCode, Activity.RESULT_OK, resultData)
-        if (scanResult != null && scanResult.contents != null) {
-            debug { "Checking for QR code scan" }
-            val result = scanResult.contents.split("\\r?\\n".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
-            if (result.size == 4 && result[0] == "QABELCONTACT") {
-                val dropURL = DropURL(result[2])
-                val dropURLs = ArrayList<DropURL>()
-                dropURLs.add(dropURL)
-                val publicKey = QblECPublicKey(Hex.decode(result[3]))
-                val contact = Contact(result[1], dropURLs, publicKey)
-                useCase.saveContact(contact)
-                        .onError { throwable ->
-                            warn("add contact failed", throwable)
-                            UIHelper.showDialogMessage(activity, R.string.dialog_headline_warning,
-                                    R.string.contact_import_failed, throwable)
-                            refresh()
-                        }
-                        .subscribe { refresh() };
-
-            }
-        }
-    }
-
-    override fun sendContact(activity: Activity, contact: ContactDto) {
+    override fun sendContact(contact: ContactDto, cacheDir: File): File? {
+        var targetFile: File? = null;
         try {
             val contactJson = ContactExportImport.exportContact(contact.contact)
-            val tmpFile = File(activity.externalCacheDir, QabelSchema.createContactFilename(contact.contact.alias))
-            FileUtils.writeStringToFile(tmpFile, contactJson)
-            ExternalApps.share(activity, Uri.fromFile(tmpFile), "application/json")
+            targetFile = File(cacheDir, QabelSchema.createContactFilename(contact.contact.alias))
+            FileUtils.writeStringToFile(targetFile, contactJson)
         } catch (e: Exception) {
-            UIHelper.showDialogMessage(activity, R.string.dialog_headline_warning, R.string.contact_export_failed, e)
+            view.showMessage(R.string.dialog_headline_warning, R.string.contact_export_failed)
+        }
+        return targetFile;
+    }
+
+    override fun exportContacts(exportType: Int, exportKey: String, target: FileDescriptor) {
+        FileOutputStream(target).use({ fileOutputStream ->
+            val action = when (exportType) {
+                EXPORT_ONE -> useCase.exportContact(exportKey, fileOutputStream)
+                else -> useCase.exportAllContacts(exportKey, fileOutputStream)
+            };
+            action.onError { throwable ->
+                view.showMessage(R.string.dialog_headline_warning, R.string.contact_export_failed);
+            }
+            action.subscribe {
+                view.showQuantityMessage(R.string.dialog_headline_info,
+                        R.plurals.contact_export_successfully, 1, 1)
+            }
+        })
+    }
+
+    override fun importContacts(target: FileDescriptor) {
+        useCase.importContacts(target)
+                .onError { throwable ->
+                    view.showMessage(
+                            R.string.dialog_headline_warning,
+                            R.string.contact_import_failed)
+                }
+                .subscribe { result ->
+                    if (result.first > 0) {
+                        if (result.first == 1 && result.second == 0) {
+                            view.showMessage(R.string.dialog_headline_info,
+                                    R.string.contact_import_successfull)
+                        } else {
+                            view.showMessage(R.string.dialog_headline_info,
+                                    R.string.contact_import_successfull_many,
+                                    result.first,
+                                    result.first + result.second)
+                        }
+                    } else {
+                        view.showMessage(R.string.dialog_headline_info,
+                                R.string.contact_import_zero_additions)
+                    }
+                    refresh()
+                }
+    }
+
+    override fun handleScanResult(result: String) {
+        val result = result.split("\\r?\\n".toRegex());
+        if (result.size == 4 && result[0] == "QABELCONTACT") {
+            val dropURL = DropURL(result[2])
+            val dropURLs = ArrayList<DropURL>()
+            dropURLs.add(dropURL)
+            val publicKey = QblECPublicKey(Hex.decode(result[3]))
+            val contact = Contact(result[1], dropURLs, publicKey)
+            useCase.saveContact(contact)
+                    .onError { throwable ->
+                        warn("add contact failed", throwable)
+                        view.showMessage(R.string.dialog_headline_warning,
+                                R.string.contact_import_failed)
+                        refresh()
+                    }
+                    .subscribe {
+                        view.showMessage(R.string.dialog_headline_info,
+                                R.string.contact_import_successfull)
+                        refresh()
+                    };
+        } else {
+            view.showMessage(R.string.dialog_headline_warning,
+                    R.string.contact_import_failed)
         }
     }
 

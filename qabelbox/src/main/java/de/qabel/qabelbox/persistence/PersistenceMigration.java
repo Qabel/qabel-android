@@ -7,7 +7,7 @@ import de.qabel.core.config.Contacts;
 import de.qabel.core.config.Identity;
 import de.qabel.desktop.repository.ContactRepository;
 import de.qabel.desktop.repository.IdentityRepository;
-import de.qabel.desktop.repository.exception.EntityNotFoundExcepion;
+import de.qabel.desktop.repository.exception.EntityNotFoundException;
 import de.qabel.desktop.repository.exception.PersistenceException;
 
 public class PersistenceMigration {
@@ -15,7 +15,7 @@ public class PersistenceMigration {
     public static void migrate(AndroidPersistence persistence,
                                IdentityRepository identityRepository,
                                ContactRepository contactRepository)
-            throws PersistenceException, EntityNotFoundExcepion {
+            throws PersistenceException, EntityNotFoundException {
         List<Identity> identities = persistence.getEntities(Identity.class);
         List<Contacts> contactsList = persistence.getEntities(Contacts.class);
         for (Identity identity: identities) {

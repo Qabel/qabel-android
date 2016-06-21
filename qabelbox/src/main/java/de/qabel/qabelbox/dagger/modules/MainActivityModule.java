@@ -7,7 +7,7 @@ import dagger.Provides;
 import de.qabel.core.config.Identities;
 import de.qabel.core.config.Identity;
 import de.qabel.desktop.repository.IdentityRepository;
-import de.qabel.desktop.repository.exception.EntityNotFoundExcepion;
+import de.qabel.desktop.repository.exception.EntityNotFoundException;
 import de.qabel.desktop.repository.exception.PersistenceException;
 import de.qabel.qabelbox.activities.MainActivity;
 import de.qabel.qabelbox.config.AppPreference;
@@ -43,7 +43,7 @@ public class MainActivityModule {
         if (identityKeyId != null) {
             try {
                 activeIdentity = identityRepository.find(identityKeyId);
-            } catch (EntityNotFoundExcepion | PersistenceException entityNotFoundExcepion) {
+            } catch (EntityNotFoundException | PersistenceException entityNotFoundException) {
                 Log.w("MainActivityModule", "Given Identity not found (" + identityKeyId + ")");
             }
         }
@@ -53,7 +53,7 @@ public class MainActivityModule {
                 if (keyId != null) {
                     activeIdentity = identityRepository.find(keyId);
                 }
-            } catch (EntityNotFoundExcepion | PersistenceException entityNotFoundExcepion) {
+            } catch (EntityNotFoundException | PersistenceException entityNotFoundException) {
                 Log.w("MainActivityModule", "Last-active identity not found");
             }
 

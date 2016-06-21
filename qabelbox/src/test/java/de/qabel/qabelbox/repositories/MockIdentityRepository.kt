@@ -3,7 +3,7 @@ package de.qabel.qabelbox.repositories
 import de.qabel.core.config.Identities
 import de.qabel.core.config.Identity
 import de.qabel.desktop.repository.IdentityRepository
-import de.qabel.desktop.repository.exception.EntityNotFoundExcepion
+import de.qabel.desktop.repository.exception.EntityNotFoundException
 
 class MockIdentityRepository(val identity: Identity): IdentityRepository {
 
@@ -21,7 +21,7 @@ class MockIdentityRepository(val identity: Identity): IdentityRepository {
 
     private fun findOrError(boolean: Boolean): Identity {
         if (boolean) { return identity }
-        throw EntityNotFoundExcepion("Identity not the same as the injected one")
+        throw EntityNotFoundException("Identity not the same as the injected one")
     }
 
 }

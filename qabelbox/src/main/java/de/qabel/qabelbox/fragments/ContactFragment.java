@@ -45,7 +45,7 @@ import de.qabel.core.config.Identity;
 import de.qabel.core.crypto.QblECPublicKey;
 import de.qabel.core.drop.DropURL;
 import de.qabel.desktop.repository.ContactRepository;
-import de.qabel.desktop.repository.exception.EntityNotFoundExcepion;
+import de.qabel.desktop.repository.exception.EntityNotFoundException;
 import de.qabel.desktop.repository.exception.PersistenceException;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.adapter.ContactAdapterItem;
@@ -246,7 +246,7 @@ public class ContactFragment extends BaseFragment {
                         try {
                             Log.i(TAG, "Deleting contact " + contact.getId());
                             contactRepository.delete(contact, ContactFragment.this.getActiveIdentity());
-                        } catch (EntityNotFoundExcepion | PersistenceException e) {
+                        } catch (EntityNotFoundException | PersistenceException e) {
                             throw new RuntimeException(e);
                         }
                         ContactFragment.this.sendRefreshContactList();

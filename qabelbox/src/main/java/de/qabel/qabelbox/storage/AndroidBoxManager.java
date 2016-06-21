@@ -31,7 +31,7 @@ import de.qabel.core.config.Identity;
 import de.qabel.core.crypto.CryptoUtils;
 import de.qabel.core.crypto.QblECKeyPair;
 import de.qabel.desktop.repository.IdentityRepository;
-import de.qabel.desktop.repository.exception.EntityNotFoundExcepion;
+import de.qabel.desktop.repository.exception.EntityNotFoundException;
 import de.qabel.desktop.repository.exception.PersistenceException;
 import de.qabel.qabelbox.QblBroadcastConstants;
 import de.qabel.qabelbox.config.AppPreference;
@@ -195,7 +195,7 @@ public class AndroidBoxManager implements BoxManager {
 
             byte[] deviceId = appPreferences.getDeviceId();
             return new BoxVolume(key, prefix, deviceId, context, this);
-        } catch (EntityNotFoundExcepion | PersistenceException e) {
+        } catch (EntityNotFoundException | PersistenceException e) {
             throw new QblStorageException("Cannot create BoxVolume");
         }
     }

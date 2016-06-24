@@ -125,9 +125,9 @@ public class ContactFragment extends BaseFragment {
     public boolean onOptionsItemSelected(MenuItem item) {
 
         int id = item.getItemId();
-        if (id == R.id.action_contact_refresh) {
+        /*if (id == R.id.action_contact_refresh) {
             startRefresh();
-        }
+        }*/
         if (id == R.id.action_contact_export_all) {
             exportAllContacts();
 

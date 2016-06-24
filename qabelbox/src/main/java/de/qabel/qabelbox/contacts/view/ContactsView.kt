@@ -5,6 +5,8 @@ import de.qabel.qabelbox.contacts.dto.ContactDto
 
 interface ContactsView {
 
+    var searchString : String?
+
     fun showEmpty()
 
     fun loadData(data : List<ContactDto>)

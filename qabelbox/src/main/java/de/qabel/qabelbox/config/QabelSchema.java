@@ -4,6 +4,9 @@ import de.qabel.qabelbox.helper.FileHelper;
 
 public class QabelSchema {
 
+    public static final int TYPE_EXPORT_ONE = 1;
+    public static final int TYPE_EXPORT_ALL = 2;
+
     public static final String FILE_SUFFIX_CONTACT = "qco";
     public static final String FILE_SUFFIX_IDENTITY = "qid";
 

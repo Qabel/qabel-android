@@ -302,4 +302,5 @@ Den Unterstützern der Indigogo Kampagne
     <string name="used_storage">%1$s von %2$s belegt</string>
     <string name="unlimited_storage">unbegrenzter Speicher, %1$s belegt</string>
     <string name="currently_not_available">currently not available</string>
+    <string name="search">Suche</string>
 </resources>

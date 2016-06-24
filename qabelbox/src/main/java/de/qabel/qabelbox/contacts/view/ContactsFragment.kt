@@ -8,14 +8,16 @@ import android.content.IntentFilter
 import android.net.Uri
 import android.os.Bundle
 import android.support.v7.widget.LinearLayoutManager
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.support.v7.widget.SearchView
+import android.view.*
+import butterknife.BindView
+import butterknife.ButterKnife
 import com.cocosw.bottomsheet.BottomSheet
 import com.google.zxing.integration.android.IntentIntegrator
 import de.qabel.core.config.Identity
 import de.qabel.qabelbox.QblBroadcastConstants
 import de.qabel.qabelbox.R
+import de.qabel.qabelbox.config.QabelSchema
 import de.qabel.qabelbox.contacts.ContactsRequestCodes
 import de.qabel.qabelbox.contacts.dagger.ContactsModule
 import de.qabel.qabelbox.contacts.dto.ContactDto
@@ -24,8 +26,10 @@ import de.qabel.qabelbox.contacts.view.navigation.ContactsNavigator
 import de.qabel.qabelbox.contacts.view.presenters.ContactsPresenter
 import de.qabel.qabelbox.dagger.components.MainActivityComponent
 import de.qabel.qabelbox.fragments.BaseFragment
+import de.qabel.qabelbox.fragments.ContactFragment
 import de.qabel.qabelbox.helper.ExternalApps
 import de.qabel.qabelbox.helper.UIHelper
+import de.qabel.qabelbox.navigation.Navigator
 import kotlinx.android.synthetic.main.fragment_contacts.*
 import kotlinx.android.synthetic.main.fragment_contacts.view.*
 import org.jetbrains.anko.AnkoLogger
@@ -34,19 +38,25 @@ import org.jetbrains.anko.debug
 import org.jetbrains.anko.onUiThread
 import javax.inject.Inject
 
-class ContactsFragment : ContactsView, BaseFragment(), AnkoLogger {
+class ContactsFragment() : ContactsView, BaseFragment(), AnkoLogger, SearchView.OnQueryTextListener {
+
+    override var searchString: String? = null
 
     var injectCompleted = false
 
-    val adapter = ContactsAdapter({
-        //TODO Contact Clicked
+    val adapter = ContactsAdapter({ contact ->
+        mainNavigator.selectChatFragment(contact.contact.keyIdentifier)
     }, { contact ->
         BottomSheet.Builder(activity).title(contact.contact.alias).sheet(R.menu.bottom_sheet_contactlist).
                 listener({ dialog, which ->
                     when (which) {
                         R.id.contact_list_item_delete -> presenter.deleteContact(contact)
-                        R.id.contact_list_item_export -> presenter.exportContact(contact)
-                        R.id.contact_list_item_qrcode -> navigator.showQrCodeFragment(activity, contact.contact)
+                        R.id.contact_list_item_export -> startContactExport(
+                                QabelSchema.createContactFilename(contact.contact.alias),
+                                QabelSchema.TYPE_EXPORT_ONE,
+                                contact.contact.keyIdentifier)
+                        R.id.contact_list_item_qrcode -> navigator.showQrCodeFragment(activity,
+                                contact.contact)
                         R.id.contact_list_item_send -> {
                             val file = presenter.sendContact(contact, activity.externalCacheDir);
                             ExternalApps.share(activity, Uri.fromFile(file), "application/json");
@@ -61,7 +71,12 @@ class ContactsFragment : ContactsView, BaseFragment(), AnkoLogger {
     @Inject
     lateinit var navigator: ContactsNavigator
     @Inject
+    lateinit var mainNavigator : Navigator
+    @Inject
     lateinit var identity: Identity
+
+    @BindView(R.id.contact_search)
+    lateinit var contactSearch: SearchView
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
@@ -69,9 +84,28 @@ class ContactsFragment : ContactsView, BaseFragment(), AnkoLogger {
         component.inject(this);
         injectCompleted = true
 
+        setHasOptionsMenu(true);
         contact_list.layoutManager = LinearLayoutManager(view.context);
         contact_list.adapter = adapter;
         updateView(adapter.getContactCount());
+    }
+
+    override fun onViewCreated(view: View?, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        ButterKnife.bind(this, view as  View);
+        contactSearch.setOnQueryTextListener(this)
+        contactSearch.queryHint = getString(R.string.search);
+    }
+
+    override fun onQueryTextSubmit(query: String?): Boolean {
+        UIHelper.hideKeyboard(activity, view);
+        return false;
+    }
+
+    override fun onQueryTextChange(newText: String?): Boolean {
+        searchString = newText;
+        presenter.refresh();
+        return true;
     }
 
     private val broadcastReceiver = object : BroadcastReceiver() {
@@ -87,8 +121,8 @@ class ContactsFragment : ContactsView, BaseFragment(), AnkoLogger {
         ctx.registerReceiver(broadcastReceiver, IntentFilter(QblBroadcastConstants.Contacts.CONTACTS_CHANGED))
     }
 
-    override fun onStop() {
-        super.onStop()
+    override fun onPause() {
+        super.onPause()
         ctx.unregisterReceiver(broadcastReceiver)
     }
 
@@ -96,6 +130,24 @@ class ContactsFragment : ContactsView, BaseFragment(), AnkoLogger {
                               savedInstanceState: Bundle?): View? {
         return inflater?.inflate(R.layout.fragment_contacts, container, false)
                 ?: throw IllegalStateException("Could not create view")
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater?) {
+        inflater?.inflate(R.menu.ab_contacts, menu)
+    }
+
+    override fun onPrepareOptionsMenu(menu: Menu?) {
+        super.onPrepareOptionsMenu(menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
+        when(item?.itemId){
+            R.id.action_contact_export_all -> startContactExport(
+                    QabelSchema.FILE_PREFIX_CONTACTS,
+                    QabelSchema.TYPE_EXPORT_ALL,
+                    identity.keyIdentifier)
+        }
+        return true;
     }
 
     override fun showEmpty() {
@@ -146,6 +198,16 @@ class ContactsFragment : ContactsView, BaseFragment(), AnkoLogger {
             }
         }.show()
         return true;
+    }
+
+    private fun startContactExport(filename : String, exportType : Int, exportKey : String){
+        val intent = Intent(Intent.ACTION_CREATE_DOCUMENT)
+        intent.addCategory(Intent.CATEGORY_OPENABLE)
+        intent.type = "application/json"
+        intent.putExtra(ContactsRequestCodes.Params.EXPORT_TYPE, exportType);
+        intent.putExtra(ContactsRequestCodes.Params.EXPORT_PARAM, exportKey);
+        intent.putExtra(Intent.EXTRA_TITLE, filename + "." + QabelSchema.FILE_SUFFIX_CONTACT)
+        startActivityForResult(intent, ContactFragment.REQUEST_EXPORT_CONTACT)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int,

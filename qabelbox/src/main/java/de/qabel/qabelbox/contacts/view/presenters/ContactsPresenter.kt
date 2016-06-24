@@ -10,8 +10,6 @@ interface ContactsPresenter {
 
     fun deleteContact(contact : ContactDto)
 
-    fun exportContact(contact : ContactDto)
-
     fun sendContact(contact: ContactDto, cacheDir: File): File?
 
     fun exportContacts(exportType : Int, exportKey : String, target : FileDescriptor)

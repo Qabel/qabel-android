@@ -1,8 +1,5 @@
 package de.qabel.qabelbox.contacts.view.presenters
 
-import de.qabel.core.config.Contact
-import de.qabel.core.crypto.QblECPublicKey
-import de.qabel.core.drop.DropURL
 import de.qabel.qabelbox.R
 import de.qabel.qabelbox.config.ContactExportImport
 import de.qabel.qabelbox.config.QabelSchema
@@ -13,25 +10,23 @@ import org.apache.commons.io.FileUtils
 import org.jetbrains.anko.AnkoLogger
 import org.jetbrains.anko.info
 import org.jetbrains.anko.warn
-import org.spongycastle.util.encoders.Hex
 import rx.lang.kotlin.onError
 import java.io.File
 import java.io.FileDescriptor
 import java.io.FileOutputStream
-import java.util.*
 import javax.inject.Inject
 
 class MainContactsPresenter @Inject constructor(private val view: ContactsView,
                                                 private val useCase: ContactsUseCase) : ContactsPresenter, AnkoLogger {
-    var EXPORT_ONE = 1;
-    val EXPORT_ALL = 2;
 
     init {
         refresh()
     }
 
     override fun refresh() {
-        useCase.load().toList().onError {
+        (if (view.searchString != null) useCase.search(view.searchString as String)
+        else useCase.load())
+                .toList().onError {
             view.showEmpty()
         }.subscribe({ contacts ->
             if (contacts.size > 0) {
@@ -53,10 +48,6 @@ class MainContactsPresenter @Inject constructor(private val view: ContactsView,
                 })
     }
 
-    override fun exportContact(contact: ContactDto) {
-        throw UnsupportedOperationException()
-    }
-
     override fun sendContact(contact: ContactDto, cacheDir: File): File? {
         var targetFile: File? = null;
         try {
@@ -72,7 +63,7 @@ class MainContactsPresenter @Inject constructor(private val view: ContactsView,
     override fun exportContacts(exportType: Int, exportKey: String, target: FileDescriptor) {
         FileOutputStream(target).use({ fileOutputStream ->
             val action = when (exportType) {
-                EXPORT_ONE -> useCase.exportContact(exportKey, fileOutputStream)
+                QabelSchema.TYPE_EXPORT_ONE -> useCase.exportContact(exportKey, fileOutputStream)
                 else -> useCase.exportAllContacts(exportKey, fileOutputStream)
             };
             action.onError { throwable ->
@@ -93,15 +84,15 @@ class MainContactsPresenter @Inject constructor(private val view: ContactsView,
                             R.string.contact_import_failed)
                 }
                 .subscribe { result ->
-                    if (result.first > 0) {
-                        if (result.first == 1 && result.second == 0) {
+                    if (result.successCount > 0) {
+                        if (result.successCount == 1 && result.failedCount == 0) {
                             view.showMessage(R.string.dialog_headline_info,
                                     R.string.contact_import_successfull)
                         } else {
                             view.showMessage(R.string.dialog_headline_info,
                                     R.string.contact_import_successfull_many,
-                                    result.first,
-                                    result.first + result.second)
+                                    result.successCount,
+                                    result.successCount + result.failedCount)
                         }
                     } else {
                         view.showMessage(R.string.dialog_headline_info,
@@ -112,29 +103,16 @@ class MainContactsPresenter @Inject constructor(private val view: ContactsView,
     }
 
     override fun handleScanResult(result: String) {
-        val result = result.split("\\r?\\n".toRegex());
-        if (result.size == 4 && result[0] == "QABELCONTACT") {
-            val dropURL = DropURL(result[2])
-            val dropURLs = ArrayList<DropURL>()
-            dropURLs.add(dropURL)
-            val publicKey = QblECPublicKey(Hex.decode(result[3]))
-            val contact = Contact(result[1], dropURLs, publicKey)
-            useCase.saveContact(contact)
-                    .onError { throwable ->
-                        warn("add contact failed", throwable)
-                        view.showMessage(R.string.dialog_headline_warning,
-                                R.string.contact_import_failed)
-                        refresh()
-                    }
-                    .subscribe {
-                        view.showMessage(R.string.dialog_headline_info,
-                                R.string.contact_import_successfull)
-                        refresh()
-                    };
-        } else {
+        useCase.importContactString(result).doOnCompleted {
+            view.showMessage(R.string.dialog_headline_info,
+                    R.string.contact_import_successfull)
+            refresh()
+        }.onError { throwable ->
+            warn("add contact failed", throwable)
             view.showMessage(R.string.dialog_headline_warning,
                     R.string.contact_import_failed)
-        }
+            refresh()
+        }.subscribe { };
     }
 
 }

@@ -785,8 +785,9 @@ public class MainActivity extends CrashReportingActivity
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+        super.onCreateOptionsMenu(menu);
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.ab_main, menu);
+      //  getMenuInflater().inflate(R.menu.ab_main, menu);
         return true;
     }
 
@@ -797,11 +798,6 @@ public class MainActivity extends CrashReportingActivity
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        if (id == R.id.action_infos) {
-            String text = getString(R.string.dummy_infos_text);
-            UIHelper.showDialogMessage(self, R.string.dialog_headline_info, text);
-            return true;
-        }
 
         return super.onOptionsItemSelected(item);
     }

@@ -44,6 +44,18 @@ class ContactsFragment() : ContactsView, BaseFragment(), AnkoLogger, SearchView.
 
     var injectCompleted = false
 
+    @Inject
+    lateinit var presenter: ContactsPresenter
+    @Inject
+    lateinit var navigator: ContactsNavigator
+    @Inject
+    lateinit var mainNavigator : Navigator
+    @Inject
+    lateinit var identity: Identity
+
+    @BindView(R.id.contact_search)
+    lateinit var contactSearch: SearchView
+
     val adapter = ContactsAdapter({ contact ->
         mainNavigator.selectChatFragment(contact.contact.keyIdentifier)
     }, { contact ->
@@ -65,18 +77,6 @@ class ContactsFragment() : ContactsView, BaseFragment(), AnkoLogger, SearchView.
                 }).show();
         true;
     });
-
-    @Inject
-    lateinit var presenter: ContactsPresenter
-    @Inject
-    lateinit var navigator: ContactsNavigator
-    @Inject
-    lateinit var mainNavigator : Navigator
-    @Inject
-    lateinit var identity: Identity
-
-    @BindView(R.id.contact_search)
-    lateinit var contactSearch: SearchView
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)

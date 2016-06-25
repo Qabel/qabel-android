@@ -232,7 +232,7 @@ class ContactsFragment() : ContactsView, BaseFragment(), AnkoLogger, SearchView.
 
             val scanResult = IntentIntegrator.parseActivityResult(requestCode, Activity.RESULT_OK, resultData)
             if (scanResult != null && scanResult.contents != null) {
-                debug { "Checking for QR code scan" }
+                debug("Checking for QR code scan");
                 presenter.handleScanResult(scanResult.contents);
             }
         }

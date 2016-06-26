@@ -8,6 +8,7 @@ import de.qabel.desktop.StringUtils;
 import de.qabel.desktop.config.factory.DefaultContactFactory;
 import de.qabel.desktop.repository.ContactRepository;
 import de.qabel.desktop.repository.EntityManager;
+import de.qabel.desktop.repository.IdentityRepository;
 import de.qabel.desktop.repository.exception.EntityNotFoundExcepion;
 import de.qabel.desktop.repository.exception.PersistenceException;
 import de.qabel.desktop.repository.sqlite.hydrator.ContactHydrator;
@@ -21,6 +22,7 @@ import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -28,8 +30,9 @@ import java.util.Set;
 public class SqliteContactRepository extends AbstractSqliteRepository<Contact> implements ContactRepository {
     public static final String TABLE_NAME = "contact";
     private final SqliteDropUrlRepository dropUrlRepository;
+    private final IdentityRepository identityRepository;
 
-    public SqliteContactRepository(ClientDatabase database, EntityManager em) {
+    public SqliteContactRepository(ClientDatabase database, EntityManager em, IdentityRepository identityRepository) {
         this(
                 database,
                 new ContactHydrator(
@@ -37,13 +40,15 @@ public class SqliteContactRepository extends AbstractSqliteRepository<Contact> i
                         new DefaultContactFactory(),
                         new SqliteDropUrlRepository(database, new DropURLHydrator())
                 ),
-                new SqliteDropUrlRepository(database, new DropURLHydrator())
+                new SqliteDropUrlRepository(database, new DropURLHydrator()),
+                identityRepository
         );
     }
 
-    public SqliteContactRepository(ClientDatabase database, Hydrator<Contact> hydrator, SqliteDropUrlRepository dropUrlRepository) {
+    public SqliteContactRepository(ClientDatabase database, Hydrator<Contact> hydrator, SqliteDropUrlRepository dropUrlRepository, IdentityRepository identityRepository) {
         super(database, hydrator, TABLE_NAME);
         this.dropUrlRepository = dropUrlRepository;
+        this.identityRepository = identityRepository;
     }
 
     Contact find(Integer id) throws PersistenceException, EntityNotFoundExcepion {
@@ -206,8 +211,58 @@ public class SqliteContactRepository extends AbstractSqliteRepository<Contact> i
     }
 
     @Override
-    public Collection<Pair<Contact, List<Identity>>> find(Identities identities, String searchString) throws PersistenceException {
+    public Contact findByKeyId(String keyId) throws EntityNotFoundExcepion {
         try {
+            try (PreparedStatement statement = database.prepare(
+                    "SELECT " + StringUtils.join(",", hydrator.getFields("c")) + " FROM " + TABLE_NAME + " c " +
+                            "WHERE c.publicKey = ? " +
+                            "LIMIT 1"
+            )) {
+                statement.setString(1, keyId);
+                try (ResultSet results = statement.executeQuery()) {
+                    if (!results.next()) {
+                        throw new EntityNotFoundExcepion(
+                                "no contact found for key '" + keyId + "'");
+                    }
+                    return hydrator.hydrateOne(results);
+                }
+            }
+        } catch (SQLException e) {
+            throw new EntityNotFoundExcepion("exception while searching contact: " + e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public List<Identity> findContactIdentities(String contactKey) throws PersistenceException, EntityNotFoundExcepion {
+        try {
+            Identities identities = identityRepository.findAll();
+            try (PreparedStatement statement = database.prepare(
+                    "SELECT c2.publicKey " +
+                            "FROM " + TABLE_NAME + " c " +
+                            "JOIN identity_contacts ic ON (c.id = ic.contact_id) " +
+                            "JOIN identity i ON (i.id = ic.identity_id) " +
+                            "JOIN contact c2 ON (c2.id = i.contact_id) " +
+                            "WHERE c.publicKey = ? "
+            )) {
+                statement.setString(1, contactKey);
+                List<Identity> contactIdentities = new LinkedList<>();
+                try (ResultSet results = statement.executeQuery()) {
+                    while (results.next()) {
+                        contactIdentities.add(identities.getByKeyIdentifier(results.getString(1)));
+                    }
+                }
+                return contactIdentities;
+            }
+        } catch (SQLException e) {
+            throw new EntityNotFoundExcepion("exception while searching contact: " + e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public Collection<Pair<Contact, List<Identity>>> findWithIdentities(String searchString) throws PersistenceException {
+        try {
+
+            Identities identities = identityRepository.findAll();
 
             Map<String, String> identityKeyMap = new HashMap<>();
             for (Identity identity : identities.getIdentities()) {

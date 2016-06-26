@@ -65,7 +65,7 @@ class ContactRepositoryTest {
 
     @Test
     fun testFindAll() {
-        val contacts = contactRepository.find(identityRepository.findAll(), null);
+        val contacts = contactRepository.findWithIdentities(null);
         var index = 0;
         for (contact in contacts) {
             val storedDto = storedContacts[index];
@@ -79,7 +79,7 @@ class ContactRepositoryTest {
     @Test
     fun testFindAllFiltered() {
         val filter = "xfo";
-        val contacts = contactRepository.find(identityRepository.findAll(), filter);
+        val contacts = contactRepository.findWithIdentities(filter);
         Assert.assertEquals(1, contacts.size)
         var fooContact = contacts.iterator().next();
         assertThat("XFoo", equalTo(fooContact.first.alias));

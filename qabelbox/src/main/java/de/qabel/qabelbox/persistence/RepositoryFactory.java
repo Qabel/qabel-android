@@ -93,7 +93,7 @@ public class RepositoryFactory {
 
     @NonNull
     public SqliteContactRepository getContactRepository(AndroidClientDatabase clientDatabase) {
-        return new SqliteContactRepository(clientDatabase, getEntityManager());
+        return new SqliteContactRepository(clientDatabase, getEntityManager(), getIdentityRepository(clientDatabase));
     }
 
     @NonNull

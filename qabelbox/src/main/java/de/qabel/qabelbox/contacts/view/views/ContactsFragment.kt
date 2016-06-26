@@ -52,7 +52,8 @@ class ContactsFragment() : ContactsView, BaseFragment(), AnkoLogger, SearchView.
     lateinit var contactSearch: SearchView
 
     val adapter = ContactsAdapter({ contact ->
-        navigator.selectChatFragment(contact.contact.keyIdentifier)
+        if(contact.active) navigator.selectChatFragment(contact.contact.keyIdentifier)
+        else navigator.selectContactDetailsFragment(contact);
     }, { contact ->
         BottomSheet.Builder(activity).title(contact.contact.alias).sheet(R.menu.bottom_sheet_contactlist).
                 listener({ dialog, which ->

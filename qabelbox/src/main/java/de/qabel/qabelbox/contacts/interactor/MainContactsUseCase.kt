@@ -30,19 +30,19 @@ class MainContactsUseCase @Inject constructor(val identity: Identity,
     }
 
     private fun load(subscriber: Subscriber<in ContactDto>, filter: String?) {
-        val contacts = contactRepository.find(identityRepository.findAll(), filter).map {
+        contactRepository.findWithIdentities(filter).map {
             pair ->
-            ContactDto(pair.first, pair.second);
+            val contactDto = ContactDto(pair.first, pair.second);
+            contactDto.active = pair.second.map { ident -> ident.keyIdentifier }.contains(identity.keyIdentifier);
+            subscriber.onNext(contactDto)
         };
-        contacts.map { subscriber.onNext(it) }
         subscriber.onCompleted()
     }
 
-    override fun loadContact(keyIdentifier: String)= observable<ContactDto> { subscriber ->
-        val contact = contactRepository.findByKeyId(identity, keyIdentifier);
-        //TODO EXTEND REPO
-        var pair = contactRepository.find(identityRepository.findAll(), contact.alias).first();
-        subscriber.onNext(ContactDto(contact, pair.second))
+    override fun loadContact(keyIdentifier: String) = observable<ContactDto> { subscriber ->
+        val contact = contactRepository.findByKeyId(keyIdentifier);
+        val contactIdentities = contactRepository.findContactIdentities(contact.keyIdentifier);
+        subscriber.onNext(ContactDto(contact, contactIdentities))
         subscriber.onCompleted();
     }
 
@@ -72,8 +72,7 @@ class MainContactsUseCase @Inject constructor(val identity: Identity,
 
     override fun exportAllContacts(targetFile: FileDescriptor) = observable<Int> { subscriber ->
         FileOutputStream(targetFile).use({ fileOutputStream ->
-            val contacts = contactRepository.find(identityRepository.findAll(), null)
-                    .map { pair -> pair.first };
+            val contacts = contactRepository.findWithIdentities(null).map { pair -> pair.first };
             val contactsJSON = ContactExportImport.exportContactsToJSON(contacts);
             val writer = fileOutputStream.bufferedWriter();
             writer.write(contactsJSON);

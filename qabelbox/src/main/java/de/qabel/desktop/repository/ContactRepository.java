@@ -22,6 +22,9 @@ public interface ContactRepository {
 
     Contact findByKeyId(Identity identity, String keyId) throws EntityNotFoundExcepion;
 
-    Collection<Pair<Contact, List<Identity>>> find(Identities identities, String searchString) throws PersistenceException;
+    Collection<Pair<Contact, List<Identity>>> findWithIdentities(String searchString) throws PersistenceException;
 
+    Contact findByKeyId(String keyId) throws EntityNotFoundExcepion;
+
+    List<Identity> findContactIdentities(String contactKey) throws PersistenceException, EntityNotFoundExcepion;
 }

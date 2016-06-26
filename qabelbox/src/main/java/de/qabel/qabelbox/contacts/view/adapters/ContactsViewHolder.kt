@@ -24,8 +24,9 @@ class ContactsViewHolder(itemView: View, val clickListener: (ContactDto) -> Unit
                 else -> Color.CYAN
             })
         }
-        //set grey if no identity associated
-        itemView?.alpha = if (contact.identities.size > 0) 1f else 0.35f
+        //set grey if no identity or assciated identities not active associated
+        System.out.println(contact.contact.alias + " _ " + contact.active)
+        itemView?.alpha = if (contact.active && contact.identities.size > 0) 1f else 0.35f
 
         itemView?.textViewItemName?.text = contact.contact.alias
         //TODO Field for Mail/Phone

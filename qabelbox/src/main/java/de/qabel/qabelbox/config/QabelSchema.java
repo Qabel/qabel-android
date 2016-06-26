@@ -20,4 +20,8 @@ public class QabelSchema {
                 "." + QabelSchema.FILE_SUFFIX_CONTACT;
     }
 
+    public static String createExportContactsFileName() {
+        return FILE_PREFIX_CONTACTS + "." + FILE_SUFFIX_CONTACT;
+    }
+
 }

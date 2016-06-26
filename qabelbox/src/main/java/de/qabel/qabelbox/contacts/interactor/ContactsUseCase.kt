@@ -14,8 +14,8 @@ interface ContactsUseCase {
 
     fun load(): Observable<ContactDto>
     fun search(filter : String): Observable<ContactDto>
-    fun exportContact(contactKey : String, outputStream: FileOutputStream) : Observable<Unit>
-    fun exportAllContacts(identityKey : String, outputStream: FileOutputStream) : Observable<Int>
+    fun exportContact(contactKey : String, outputStream: FileDescriptor) : Observable<Int>
+    fun exportAllContacts(targetFile: FileDescriptor) : Observable<Int>
     fun importContacts(file : FileDescriptor) : Observable<ContactsParseResult>
     fun importContactString(contactString : String) : Observable<ContactParseResult>
     fun saveContact(contact : Contact): Observable<Unit>

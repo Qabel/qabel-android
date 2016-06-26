@@ -13,8 +13,11 @@ interface ContactsView {
 
     fun showMessage(title : Int, message : Int)
     fun showMessage(title : Int, message : Int, paramA : Any?, paramB : Any?)
-    fun showQuantityMessage(title : Int, message : Int, quantity : Int, vararg params : Any)
+    fun showQuantityMessage(title : Int, message : Int, quantity : Int, param : Any?)
     fun showConfirmation(title : Int, message: Int, params: Any, yesClick : () -> Unit)
+
+    fun startExportFileChooser(filename: String, requestCode: Int)
+    fun startImportFileChooser(requestCode: Int)
 
 }
 

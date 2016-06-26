@@ -17,16 +17,14 @@ import com.google.zxing.integration.android.IntentIntegrator
 import de.qabel.core.config.Identity
 import de.qabel.qabelbox.QblBroadcastConstants
 import de.qabel.qabelbox.R
-import de.qabel.qabelbox.config.QabelSchema
-import de.qabel.qabelbox.contacts.ContactsRequestCodes
 import de.qabel.qabelbox.contacts.dagger.ContactsModule
 import de.qabel.qabelbox.contacts.dto.ContactDto
 import de.qabel.qabelbox.contacts.view.adapters.ContactsAdapter
 import de.qabel.qabelbox.contacts.view.navigation.ContactsNavigator
 import de.qabel.qabelbox.contacts.view.presenters.ContactsPresenter
 import de.qabel.qabelbox.dagger.components.MainActivityComponent
+import de.qabel.qabelbox.external.ExternalFileAction
 import de.qabel.qabelbox.fragments.BaseFragment
-import de.qabel.qabelbox.fragments.ContactFragment
 import de.qabel.qabelbox.helper.ExternalApps
 import de.qabel.qabelbox.helper.UIHelper
 import de.qabel.qabelbox.navigation.Navigator
@@ -49,7 +47,7 @@ class ContactsFragment() : ContactsView, BaseFragment(), AnkoLogger, SearchView.
     @Inject
     lateinit var navigator: ContactsNavigator
     @Inject
-    lateinit var mainNavigator : Navigator
+    lateinit var mainNavigator: Navigator
     @Inject
     lateinit var identity: Identity
 
@@ -63,10 +61,7 @@ class ContactsFragment() : ContactsView, BaseFragment(), AnkoLogger, SearchView.
                 listener({ dialog, which ->
                     when (which) {
                         R.id.contact_list_item_delete -> presenter.deleteContact(contact)
-                        R.id.contact_list_item_export -> startContactExport(
-                                QabelSchema.createContactFilename(contact.contact.alias),
-                                QabelSchema.TYPE_EXPORT_ONE,
-                                contact.contact.keyIdentifier)
+                        R.id.contact_list_item_export -> presenter.startContactExport(contact)
                         R.id.contact_list_item_qrcode -> navigator.showQrCodeFragment(activity,
                                 contact.contact)
                         R.id.contact_list_item_send -> {
@@ -136,16 +131,9 @@ class ContactsFragment() : ContactsView, BaseFragment(), AnkoLogger, SearchView.
         inflater?.inflate(R.menu.ab_contacts, menu)
     }
 
-    override fun onPrepareOptionsMenu(menu: Menu?) {
-        super.onPrepareOptionsMenu(menu)
-    }
-
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
-        when(item?.itemId){
-            R.id.action_contact_export_all -> startContactExport(
-                    QabelSchema.FILE_PREFIX_CONTACTS,
-                    QabelSchema.TYPE_EXPORT_ALL,
-                    identity.keyIdentifier)
+        when (item?.itemId) {
+            R.id.action_contact_export_all -> presenter.startContactsExport()
         }
         return true;
     }
@@ -185,12 +173,7 @@ class ContactsFragment() : ContactsView, BaseFragment(), AnkoLogger, SearchView.
     override fun handleFABAction(): Boolean {
         BottomSheet.Builder(activity).title(R.string.add_new_contact).sheet(R.menu.bottom_sheet_add_contact).listener { dialog, which ->
             when (which) {
-                R.id.add_contact_from_file -> {
-                    val intent = Intent(Intent.ACTION_OPEN_DOCUMENT)
-                    intent.addCategory(Intent.CATEGORY_OPENABLE)
-                    intent.type = "*/*"
-                    startActivityForResult(intent, ContactsRequestCodes.REQUEST_IMPORT_CONTACT);
-                }
+                R.id.add_contact_from_file -> presenter.startContactsImport()
                 R.id.add_contact_via_qr -> {
                     val integrator = IntentIntegrator(this)
                     integrator.initiateScan()
@@ -200,41 +183,44 @@ class ContactsFragment() : ContactsView, BaseFragment(), AnkoLogger, SearchView.
         return true;
     }
 
-    private fun startContactExport(filename : String, exportType : Int, exportKey : String){
+    override fun startExportFileChooser(filename: String, requestCode: Int) {
         val intent = Intent(Intent.ACTION_CREATE_DOCUMENT)
         intent.addCategory(Intent.CATEGORY_OPENABLE)
         intent.type = "application/json"
-        intent.putExtra(ContactsRequestCodes.Params.EXPORT_TYPE, exportType);
-        intent.putExtra(ContactsRequestCodes.Params.EXPORT_PARAM, exportKey);
-        intent.putExtra(Intent.EXTRA_TITLE, filename + "." + QabelSchema.FILE_SUFFIX_CONTACT)
-        startActivityForResult(intent, ContactFragment.REQUEST_EXPORT_CONTACT)
+        intent.putExtra(Intent.EXTRA_TITLE, filename)
+        startActivityForResult(intent, requestCode)
+    }
+
+    override fun startImportFileChooser(requestCode: Int) {
+        val intent = Intent(Intent.ACTION_OPEN_DOCUMENT)
+        intent.addCategory(Intent.CATEGORY_OPENABLE)
+        intent.type = "*/*"
+        startActivityForResult(intent, requestCode);
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int,
                                   resultData: Intent?) {
         if (resultCode == Activity.RESULT_OK) {
-            if (resultData != null) {
-                when (requestCode) {
-                    ContactsRequestCodes.REQUEST_EXPORT_CONTACT -> {
-                        val uri = resultData.data
-                        val exportKey = resultData.getStringExtra(ContactsRequestCodes.Params.EXPORT_PARAM)
-                        val exportType = resultData.getIntExtra(ContactsRequestCodes.Params.EXPORT_TYPE, 0)
-                        val file = activity.contentResolver.openFileDescriptor(uri, "w");
-                        presenter.exportContacts(exportType, exportKey, file.fileDescriptor);
-                    }
-                    ContactsRequestCodes.REQUEST_IMPORT_CONTACT -> {
-                        val uri = resultData.data;
-                        val fileDescriptor = activity.contentResolver.openFileDescriptor(uri, "r");
-                        presenter.importContacts(fileDescriptor.fileDescriptor);
-                    }
+            val action = presenter.externalAction;
+            if (action == null || action.requestCode != requestCode) {
+                debug("Dismatching  activity result. Cancel handling.");
+                return;
+            }
+            when (action) {
+                is ExternalFileAction -> {
+                    val uri = resultData?.data
+                    debug("Open file " + uri.toString() + " WITH MODE " + action.accessMode);
+                    val file = activity.contentResolver.openFileDescriptor(uri, action.accessMode);
+                    presenter.handleExternalFileAction(action, file.fileDescriptor);
+                }
+                else -> {
+                    val scanResult = IntentIntegrator.parseActivityResult(requestCode, Activity.RESULT_OK, resultData)
+                    presenter.handleScanResult(action, scanResult.contents);
                 }
             }
-
-            val scanResult = IntentIntegrator.parseActivityResult(requestCode, Activity.RESULT_OK, resultData)
-            if (scanResult != null && scanResult.contents != null) {
-                debug("Checking for QR code scan");
-                presenter.handleScanResult(scanResult.contents);
-            }
+        } else {
+            //TODO Display action canceled
+            presenter.externalAction = null;
         }
     }
 
@@ -242,12 +228,12 @@ class ContactsFragment() : ContactsView, BaseFragment(), AnkoLogger, SearchView.
         UIHelper.showDialogMessage(activity, title, message);
     }
 
-    override fun showMessage(title: Int, message: Int, paramA: Any?, paramB : Any?) {
+    override fun showMessage(title: Int, message: Int, paramA: Any?, paramB: Any?) {
         UIHelper.showDialogMessage(activity, title, activity.getString(message, paramA, paramB));
     }
 
-    override fun showQuantityMessage(title: Int, message: Int, quantity: Int, vararg params: Any) {
-        UIHelper.showDialogMessage(activity, title, activity.resources.getQuantityString(message, quantity, params));
+    override fun showQuantityMessage(title: Int, message: Int, quantity: Int, param: Any?) {
+        UIHelper.showDialogMessage(activity, title, activity.resources.getQuantityString(message, quantity, param));
     }
 
     override fun showConfirmation(title: Int, message: Int, params: Any, yesClick: () -> Unit) {

@@ -14,9 +14,7 @@ import rx.lang.kotlin.observable
 import java.io.FileDescriptor
 import java.io.FileInputStream
 import java.io.FileOutputStream
-import java.nio.charset.Charset
 import javax.inject.Inject
-import kotlin.concurrent.thread
 
 
 class MainContactsUseCase @Inject constructor(val identity: Identity,
@@ -32,14 +30,12 @@ class MainContactsUseCase @Inject constructor(val identity: Identity,
     }
 
     private fun load(subscriber: Subscriber<in ContactDto>, filter: String?) {
-        thread {
-            val contacts = contactRepository.find(identityRepository.findAll(), filter).map {
-                pair ->
-                ContactDto(pair.first, pair.second);
-            };
-            contacts.map { subscriber.onNext(it) }
-            subscriber.onCompleted()
-        }
+        val contacts = contactRepository.find(identityRepository.findAll(), filter).map {
+            pair ->
+            ContactDto(pair.first, pair.second);
+        };
+        contacts.map { subscriber.onNext(it) }
+        subscriber.onCompleted()
     }
 
 
@@ -55,26 +51,36 @@ class MainContactsUseCase @Inject constructor(val identity: Identity,
         subscriber.onCompleted();
     }
 
-    override fun exportContact(contactKey: String, outputStream: FileOutputStream) = observable<Unit> { subscriber ->
-        val contact = contactRepository.findByKeyId(identity, contactKey);
-        val contactJSON = ContactExportImport.exportContact(contact);
-        outputStream.bufferedWriter(Charset.defaultCharset()).write(contactJSON);
-        subscriber.onNext(Unit);
-        subscriber.onCompleted();
+    override fun exportContact(contactKey: String, target: FileDescriptor) = observable<Int> { subscriber ->
+        FileOutputStream(target).use({ fileOutputStream ->
+            val contact = contactRepository.findByKeyId(identity, contactKey);
+            val contactJSON = ContactExportImport.exportContact(contact);
+            val writer = fileOutputStream.bufferedWriter();
+            writer.write(contactJSON);
+            writer.close();
+            subscriber.onNext(1);
+            subscriber.onCompleted();
+        });
     }
 
-    override fun exportAllContacts(identityKey: String, outputStream: FileOutputStream) = observable<Int> { subscriber ->
-        val targetIdentity = identityRepository.find(identityKey);
-        val contacts = contactRepository.find(targetIdentity);
-        val contactsJSON = ContactExportImport.exportContacts(contacts);
-        outputStream.bufferedWriter().write(contactsJSON);
-        subscriber.onNext(contacts.contacts.size);
-        subscriber.onCompleted();
+    override fun exportAllContacts(targetFile: FileDescriptor) = observable<Int> { subscriber ->
+        FileOutputStream(targetFile).use({ fileOutputStream ->
+            val contacts = contactRepository.find(identityRepository.findAll(), null)
+                    .map { pair -> pair.first };
+            val contactsJSON = ContactExportImport.exportContactsToJSON(contacts);
+            val writer = fileOutputStream.bufferedWriter();
+            writer.write(contactsJSON);
+            writer.close();
+            subscriber.onNext(contacts.size);
+            subscriber.onCompleted();
+        });
     }
 
     override fun importContacts(file: FileDescriptor) = observable<ContactsParseResult> { subscriber ->
-        val input = FileInputStream(file).bufferedReader().readText();
-        val contacts = ContactExportImport.importContactJson(input);
+        val reader = FileInputStream(file).bufferedReader();
+        val input = reader.readText();
+        reader.close();
+        val contacts = ContactExportImport.importContactFromJson(input);
         var importedContacts = 0;
         contacts.forEach { contact ->
             try {

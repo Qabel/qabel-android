@@ -2,8 +2,8 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id="@+id/contact_list_item_details"
-        android:title="Details"
-        android:icon="@drawable/qabel_logo"/>
+        android:title="@string/contact"
+        android:icon="@drawable/account"/>
     <item
         android:id="@+id/contact_list_item_export"
         android:title="@string/Export"

@@ -92,6 +92,12 @@ public abstract class BaseFragment extends Fragment {
         }
     }
 
+    protected void configureAsSubFragment() {
+        mActivity.toggle.setDrawerIndicatorEnabled(false);
+        actionBar.setDisplayHomeAsUpEnabled(true);
+        setActionBarBackListener();
+    }
+
     /**
      * set own back listener in actionbar
      */

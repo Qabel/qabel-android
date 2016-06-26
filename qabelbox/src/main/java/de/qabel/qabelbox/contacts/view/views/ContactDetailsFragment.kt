@@ -46,9 +46,13 @@ class ContactDetailsFragment() : ContactDetailsView, BaseFragment(), AnkoLogger 
         val component = getComponent(MainActivityComponent::class.java).plus(ContactDetailsModule(this))
         component.inject(this);
         injectCompleted = true
+
         setHasOptionsMenu(true);
+        configureAsSubFragment();
+
         presenter.refreshContact();
     }
+
 
     override fun onViewCreated(view: View?, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -77,6 +81,8 @@ class ContactDetailsFragment() : ContactDetailsView, BaseFragment(), AnkoLogger 
     }
 
     override fun getTitle(): String? = (if (injectCompleted) presenter.title else "")
+
+    override fun supportBackButton(): Boolean = true
 
     override fun loadContact(contact: ContactDto) {
         adapter.loadContact(contact);

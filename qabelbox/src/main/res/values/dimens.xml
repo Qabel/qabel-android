@@ -19,7 +19,7 @@
     <dimen name="border_small">4dp</dimen>
     <dimen name="border_middle">6dp</dimen>
     <dimen name="border_big">10dp</dimen>
-    <dimen name="textsize_welcome_header">23dp</dimen>-->
+    <dimen name="textsize_welcome_header">23sp</dimen>
     <dimen name="textsize_welcome_screen">20dp</dimen>
     <dimen name="textsize_welcome_checkbox">14dp</dimen>
     <dimen name="welcome_shadow_dx">3dp</dimen>

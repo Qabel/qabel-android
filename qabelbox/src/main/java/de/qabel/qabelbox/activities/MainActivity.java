@@ -498,6 +498,7 @@ public class MainActivity extends CrashReportingActivity
                     break;
                 default:
                     if (startContactsFragment) {
+                        navigator.selectContactsFragment();
                         navigator.selectChatFragment(activeContact);
                     } else if (startFilesFragment) {
                         initAndSelectFilesFragment(filePath);
@@ -506,6 +507,7 @@ public class MainActivity extends CrashReportingActivity
             }
         } else {
             if (startContactsFragment) {
+                navigator.selectContactsFragment();
                 navigator.selectChatFragment(activeContact);
             } else if (startFilesFragment) {
                 initAndSelectFilesFragment(filePath);

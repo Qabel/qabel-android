@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Button
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:textAllCaps="false"
+    android:gravity="left|center_vertical"
+    android:background="@drawable/separator_gray"
+    android:drawablePadding="5sp"
+    android:drawableStart="@drawable/message_text">
+</Button>

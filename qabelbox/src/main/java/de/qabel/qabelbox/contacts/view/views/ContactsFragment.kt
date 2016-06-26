@@ -1,4 +1,4 @@
-package de.qabel.qabelbox.contacts.view
+package de.qabel.qabelbox.contacts.view.views
 
 import android.app.Activity
 import android.content.BroadcastReceiver
@@ -20,7 +20,6 @@ import de.qabel.qabelbox.R
 import de.qabel.qabelbox.contacts.dagger.ContactsModule
 import de.qabel.qabelbox.contacts.dto.ContactDto
 import de.qabel.qabelbox.contacts.view.adapters.ContactsAdapter
-import de.qabel.qabelbox.contacts.view.navigation.ContactsNavigator
 import de.qabel.qabelbox.contacts.view.presenters.ContactsPresenter
 import de.qabel.qabelbox.dagger.components.MainActivityComponent
 import de.qabel.qabelbox.external.ExternalFileAction
@@ -45,9 +44,7 @@ class ContactsFragment() : ContactsView, BaseFragment(), AnkoLogger, SearchView.
     @Inject
     lateinit var presenter: ContactsPresenter
     @Inject
-    lateinit var navigator: ContactsNavigator
-    @Inject
-    lateinit var mainNavigator: Navigator
+    lateinit var navigator: Navigator
     @Inject
     lateinit var identity: Identity
 
@@ -55,15 +52,15 @@ class ContactsFragment() : ContactsView, BaseFragment(), AnkoLogger, SearchView.
     lateinit var contactSearch: SearchView
 
     val adapter = ContactsAdapter({ contact ->
-        mainNavigator.selectChatFragment(contact.contact.keyIdentifier)
+        navigator.selectChatFragment(contact.contact.keyIdentifier)
     }, { contact ->
         BottomSheet.Builder(activity).title(contact.contact.alias).sheet(R.menu.bottom_sheet_contactlist).
                 listener({ dialog, which ->
                     when (which) {
+                        R.id.contact_list_item_details -> navigator.selectContactDetailsFragment(contact)
                         R.id.contact_list_item_delete -> presenter.deleteContact(contact)
                         R.id.contact_list_item_export -> presenter.startContactExport(contact)
-                        R.id.contact_list_item_qrcode -> navigator.showQrCodeFragment(activity,
-                                contact.contact)
+                        R.id.contact_list_item_qrcode -> navigator.selectQrCodeFragment(contact.contact)
                         R.id.contact_list_item_send -> {
                             val file = presenter.sendContact(contact, activity.externalCacheDir);
                             ExternalApps.share(activity, Uri.fromFile(file), "application/json");

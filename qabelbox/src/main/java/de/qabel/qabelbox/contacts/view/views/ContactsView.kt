@@ -1,4 +1,4 @@
-package de.qabel.qabelbox.contacts.view
+package de.qabel.qabelbox.contacts.view.views
 
 import de.qabel.qabelbox.contacts.dto.ContactDto
 

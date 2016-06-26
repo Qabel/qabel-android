@@ -42,6 +42,7 @@
     <string name="confirm_delete_title">Löschen?</string>
     <string name="message_step_is_needed_or_close_app">%s wird benötigt um Qabel zu benutzen. Möchten Sie Qabel jetzt schließen?</string>
     <string name="contact_count">%d Kontakte</string>
+    <string name="contact">Kontakt</string>
     <string name="contact_deleted">Kontakt mit dem Namen %1 gelöscht</string>
     <string name="identity_as_contact_export_successfully">Kontakt exportiert. Sie können diesen Kontakt nun weitergeben.</string>
     <string name="contact_import_failed">Importieren des Kontaktes fehlgeschlagen</string>
@@ -303,4 +304,6 @@ Den Unterstützern der Indigogo Kampagne
     <string name="unlimited_storage">unbegrenzter Speicher, %1$s belegt</string>
     <string name="currently_not_available">currently not available</string>
     <string name="search">Suche</string>
+    <string name="send_message">Nachricht senden</string>
+    <string name="send_message_as">Nachricht senden als %s</string>
 </resources>

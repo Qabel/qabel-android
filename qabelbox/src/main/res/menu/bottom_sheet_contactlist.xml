@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
+        android:id="@+id/contact_list_item_details"
+        android:title="Details"
+        android:icon="@drawable/qabel_logo"/>
+    <item
         android:id="@+id/contact_list_item_export"
         android:title="@string/Export"
         android:icon="@drawable/export"/>

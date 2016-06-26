@@ -1,7 +1,7 @@
 package de.qabel.qabelbox.contacts.dagger;
 
 import dagger.Subcomponent;
-import de.qabel.qabelbox.contacts.view.ContactsFragment;
+import de.qabel.qabelbox.contacts.view.views.ContactsFragment;
 import de.qabel.qabelbox.dagger.scopes.ActivityScope;
 
 @ActivityScope

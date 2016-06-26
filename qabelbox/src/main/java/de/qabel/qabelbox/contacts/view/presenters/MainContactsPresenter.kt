@@ -6,7 +6,7 @@ import de.qabel.qabelbox.config.QabelSchema
 import de.qabel.qabelbox.contacts.ContactsRequestCodes
 import de.qabel.qabelbox.contacts.dto.ContactDto
 import de.qabel.qabelbox.contacts.interactor.ContactsUseCase
-import de.qabel.qabelbox.contacts.view.ContactsView
+import de.qabel.qabelbox.contacts.view.views.ContactsView
 import de.qabel.qabelbox.external.ExternalAction
 import de.qabel.qabelbox.external.ExternalFileAction
 import org.apache.commons.io.FileUtils

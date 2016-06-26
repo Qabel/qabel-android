@@ -38,6 +38,13 @@ class MainContactsUseCase @Inject constructor(val identity: Identity,
         subscriber.onCompleted()
     }
 
+    override fun loadContact(keyIdentifier: String)= observable<ContactDto> { subscriber ->
+        val contact = contactRepository.findByKeyId(identity, keyIdentifier);
+        //TODO EXTEND REPO
+        var pair = contactRepository.find(identityRepository.findAll(), contact.alias).first();
+        subscriber.onNext(ContactDto(contact, pair.second))
+        subscriber.onCompleted();
+    }
 
     override fun saveContact(contact: Contact) = observable<Unit> { subscriber ->
         contactRepository.save(contact, identity)
@@ -51,8 +58,8 @@ class MainContactsUseCase @Inject constructor(val identity: Identity,
         subscriber.onCompleted();
     }
 
-    override fun exportContact(contactKey: String, target: FileDescriptor) = observable<Int> { subscriber ->
-        FileOutputStream(target).use({ fileOutputStream ->
+    override fun exportContact(contactKey: String, targetFile: FileDescriptor) = observable<Int> { subscriber ->
+        FileOutputStream(targetFile).use({ fileOutputStream ->
             val contact = contactRepository.findByKeyId(identity, contactKey);
             val contactJSON = ContactExportImport.exportContact(contact);
             val writer = fileOutputStream.bufferedWriter();

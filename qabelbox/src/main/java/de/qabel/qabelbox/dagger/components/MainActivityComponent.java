@@ -5,6 +5,8 @@ import org.jetbrains.annotations.NotNull;
 import dagger.Subcomponent;
 import de.qabel.core.config.Identity;
 import de.qabel.qabelbox.activities.MainActivity;
+import de.qabel.qabelbox.contacts.dagger.ContactDetailsComponent;
+import de.qabel.qabelbox.contacts.dagger.ContactDetailsModule;
 import de.qabel.qabelbox.contacts.dagger.ContactsComponent;
 import de.qabel.qabelbox.contacts.dagger.ContactsModule;
 import de.qabel.qabelbox.dagger.modules.ChatModule;
@@ -33,6 +35,7 @@ public interface MainActivityComponent {
     ChatComponent plus(ChatModule chatModule);
 
     ContactsComponent plus(ContactsModule contactsModule);
+    ContactDetailsComponent plus(ContactDetailsModule contactDetailsModule);
 
 }
 

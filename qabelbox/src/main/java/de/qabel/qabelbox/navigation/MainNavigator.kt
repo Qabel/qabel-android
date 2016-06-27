@@ -2,10 +2,6 @@ package de.qabel.qabelbox.navigation
 
 import android.app.Fragment
 import android.content.Intent
-import android.util.Log
-
-import javax.inject.Inject
-
 import de.qabel.core.config.Contact
 import de.qabel.core.config.Identity
 import de.qabel.desktop.repository.ContactRepository
@@ -25,6 +21,7 @@ import de.qabel.qabelbox.fragments.QRcodeFragment
 import de.qabel.qabelbox.ui.views.ChatFragment
 import org.jetbrains.anko.AnkoLogger
 import org.jetbrains.anko.warn
+import javax.inject.Inject
 
 class MainNavigator
 @Inject
@@ -45,6 +42,11 @@ constructor(var activity: MainActivity,
         const val TAG_MANAGE_IDENTITIES_FRAGMENT = "TAG_MANAGE_IDENTITIES_FRAGMENT"
         const val TAG_FILES_SHARE_INTO_APP_FRAGMENT = "TAG_FILES_SHARE_INTO_APP_FRAGMENT"
 
+    }
+
+    private fun showMainFragment(fragment: Fragment, tag: String) {
+        showFragment(activity, fragment, tag, false, true)
+        activity.handleMainFragmentChange()
     }
 
     override fun selectCreateAccountActivity() {
@@ -81,11 +83,6 @@ constructor(var activity: MainActivity,
         showMainFragment(activity.filesFragment, TAG_FILES_FRAGMENT)
     }
 
-    private fun showMainFragment(fragment: Fragment, tag: String) {
-        showFragment(activity, fragment, tag, false, true)
-        activity.handleMainFragmentChange()
-    }
-
     override fun selectContactsFragment() {
         showMainFragment(ContactsFragment(), TAG_CONTACT_LIST_FRAGMENT)
     }
@@ -106,12 +103,12 @@ constructor(var activity: MainActivity,
     }
 
     override fun selectContactChat(contactKey: String, withIdentity: Identity) {
-        if (activeIdentity.equals(withIdentity)) {
+        if (activeIdentity.keyIdentifier.equals(withIdentity.keyIdentifier)) {
             try {
                 val contact = contactRepository.findByKeyId(withIdentity, contactKey);
                 showFragment(activity, ChatFragment.withContact(contact), TAG_CONTACT_CHAT_FRAGMENT, true, true)
             } catch (entityNotFoundExcepion: EntityNotFoundExcepion) {
-                warn( "Could not find contact " + contactKey, entityNotFoundExcepion)
+                warn("Could not find contact " + contactKey, entityNotFoundExcepion)
             }
         } else {
             val intent = Intent(activity, MainActivity::class.java)

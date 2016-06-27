@@ -1,6 +1,7 @@
 package de.qabel.qabelbox.dagger.modules;
 
 import android.util.Log;
+import android.widget.Toast;
 
 import dagger.Module;
 import dagger.Provides;
@@ -9,6 +10,7 @@ import de.qabel.core.config.Identity;
 import de.qabel.desktop.repository.IdentityRepository;
 import de.qabel.desktop.repository.exception.EntityNotFoundExcepion;
 import de.qabel.desktop.repository.exception.PersistenceException;
+import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.activities.MainActivity;
 import de.qabel.qabelbox.config.AppPreference;
 import de.qabel.qabelbox.dagger.scopes.ActivityScope;
@@ -39,19 +41,25 @@ public class MainActivityModule {
     Identity provideActiveIdentity(IdentityRepository identityRepository,
                                    AppPreference sharedPreferences) {
         String identityKeyId = mainActivity.getIntent().getStringExtra(ACTIVE_IDENTITY);
+        String lastActiveId = sharedPreferences.getLastActiveIdentityKey();
         Identity activeIdentity = null;
         if (identityKeyId != null) {
             try {
                 activeIdentity = identityRepository.find(identityKeyId);
+
+                //Show Toast if active identity is not last active identity.
+                if (activeIdentity != null && lastActiveId != null && lastActiveId.equals(identityKeyId)) {
+                    Toast.makeText(mainActivity, mainActivity.getString(R.string.active_identity_changed,
+                            activeIdentity.getAlias()), Toast.LENGTH_SHORT).show();
+                }
             } catch (EntityNotFoundExcepion | PersistenceException entityNotFoundExcepion) {
                 Log.w("MainActivityModule", "Given Identity not found (" + identityKeyId + ")");
             }
         }
         if (activeIdentity == null) {
-            String keyId = sharedPreferences.getLastActiveIdentityKey();
             try {
-                if (keyId != null) {
-                    activeIdentity = identityRepository.find(keyId);
+                if (lastActiveId != null) {
+                    activeIdentity = identityRepository.find(lastActiveId);
                 }
             } catch (EntityNotFoundExcepion | PersistenceException entityNotFoundExcepion) {
                 Log.w("MainActivityModule", "Last-active identity not found");

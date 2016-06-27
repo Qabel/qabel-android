@@ -226,12 +226,12 @@ class ContactsFragment() : ContactsView, BaseFragment(), AnkoLogger, SearchView.
         UIHelper.showDialogMessage(activity, title, message);
     }
 
-    override fun showMessage(title: Int, message: Int, paramA: Any?, paramB: Any?) {
-        UIHelper.showDialogMessage(activity, title, activity.getString(message, paramA, paramB));
+    override fun showMessage(title: Int, message: Int, vararg messageParams : Any?) {
+        UIHelper.showDialogMessage(activity, title, activity.getString(message, *messageParams));
     }
 
-    override fun showQuantityMessage(title: Int, message: Int, quantity: Int, param: Any?) {
-        UIHelper.showDialogMessage(activity, title, activity.resources.getQuantityString(message, quantity, param));
+    override fun showQuantityMessage(title: Int, message: Int, quantity: Int, vararg messageParams: Any?) {
+        UIHelper.showDialogMessage(activity, title, activity.resources.getQuantityString(message, quantity, *messageParams));
     }
 
     override fun showConfirmation(title: Int, message: Int, params: Any, yesClick: () -> Unit) {

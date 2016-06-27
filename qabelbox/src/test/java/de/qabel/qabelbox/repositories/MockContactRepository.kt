@@ -8,8 +8,17 @@ import de.qabel.desktop.repository.ContactRepository
 import de.qabel.desktop.repository.exception.EntityNotFoundExcepion
 
 class MockContactRepository(val contact: Contact): ContactRepository {
-    override fun find(identities: Identities?, searchString : String?): MutableCollection<Pair<Contact, MutableList<Identity>>>? {
+
+    override fun findContactWithIdentities(key: String?): Pair<Contact, MutableList<Identity>>? {
         throw UnsupportedOperationException()
+    }
+
+    override fun findWithIdentities(searchString: String?): MutableCollection<Pair<Contact, MutableList<Identity>>>? {
+        throw UnsupportedOperationException()
+    }
+
+    override fun findByKeyId(keyId: String?): Contact? {
+        return findByKeyId(null, keyId);
     }
 
     override fun find(identity: Identity?): Contacts? {

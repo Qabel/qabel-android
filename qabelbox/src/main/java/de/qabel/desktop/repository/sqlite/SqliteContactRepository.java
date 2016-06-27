@@ -4,6 +4,7 @@ import de.qabel.core.config.Contact;
 import de.qabel.core.config.Contacts;
 import de.qabel.core.config.Identities;
 import de.qabel.core.config.Identity;
+import de.qabel.core.drop.DropURL;
 import de.qabel.desktop.StringUtils;
 import de.qabel.desktop.config.factory.DefaultContactFactory;
 import de.qabel.desktop.repository.ContactRepository;
@@ -14,13 +15,17 @@ import de.qabel.desktop.repository.exception.PersistenceException;
 import de.qabel.desktop.repository.sqlite.hydrator.ContactHydrator;
 import de.qabel.desktop.repository.sqlite.hydrator.ContactIdentitiesHydrator;
 import de.qabel.desktop.repository.sqlite.hydrator.DropURLHydrator;
+import de.qabel.desktop.repository.sqlite.hydrator.SimpleContactHydrator;
 import kotlin.Pair;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Types;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -28,27 +33,23 @@ import java.util.Map;
 import java.util.Set;
 
 public class SqliteContactRepository extends AbstractSqliteRepository<Contact> implements ContactRepository {
+
     public static final String TABLE_NAME = "contact";
+
     private final SqliteDropUrlRepository dropUrlRepository;
     private final IdentityRepository identityRepository;
+    private final EntityManager entityManager;
 
     public SqliteContactRepository(ClientDatabase database, EntityManager em, IdentityRepository identityRepository) {
-        this(
-                database,
-                new ContactHydrator(
-                        em,
-                        new DefaultContactFactory(),
-                        new SqliteDropUrlRepository(database, new DropURLHydrator())
-                ),
-                new SqliteDropUrlRepository(database, new DropURLHydrator()),
-                identityRepository
-        );
-    }
+        super(database, new ContactHydrator(
+                em,
+                new DefaultContactFactory(),
+                new SqliteDropUrlRepository(database, new DropURLHydrator())
+        ), TABLE_NAME);
 
-    public SqliteContactRepository(ClientDatabase database, Hydrator<Contact> hydrator, SqliteDropUrlRepository dropUrlRepository, IdentityRepository identityRepository) {
-        super(database, hydrator, TABLE_NAME);
-        this.dropUrlRepository = dropUrlRepository;
+        this.dropUrlRepository = new SqliteDropUrlRepository(database, new DropURLHydrator());
         this.identityRepository = identityRepository;
+        this.entityManager = em;
     }
 
     Contact find(Integer id) throws PersistenceException, EntityNotFoundExcepion {
@@ -233,97 +234,115 @@ public class SqliteContactRepository extends AbstractSqliteRepository<Contact> i
     }
 
     @Override
-    public List<Identity> findContactIdentities(String contactKey) throws PersistenceException, EntityNotFoundExcepion {
+    public Pair<Contact, List<Identity>> findContactWithIdentities(String key) throws PersistenceException, EntityNotFoundExcepion {
+        Contact contact = findByKeyId(key);
+
+        Identities identities = identityRepository.findAll();
+        Map<Integer, List<String>> associatedIdentities = findContactIdentityKeys(
+                Collections.singletonList(contact.getId()));
+        List<Identity> contactIdentities;
+        if (associatedIdentities.containsKey(contact.getId())) {
+            contactIdentities = new ArrayList<>(associatedIdentities.get(contact.getId()).size());
+            for (String identityKey : associatedIdentities.get(contact.getId())) {
+                contactIdentities.add(identities.getByKeyIdentifier(identityKey));
+            }
+        } else {
+            contactIdentities = Collections.emptyList();
+        }
+        return new Pair<>(contact, contactIdentities);
+    }
+
+
+    private Collection<Contact> find(String searchString) throws PersistenceException {
+        SimpleContactHydrator hydrator = new SimpleContactHydrator(entityManager);
+        StringBuilder queryBuilder = new StringBuilder(
+                "SELECT " + StringUtils.join(",", hydrator.getFields("c")) + " " +
+                        "FROM contact c ");
+
+        boolean filterResults = (searchString != null && !searchString.trim().isEmpty());
+        if (filterResults) {
+            queryBuilder.append("WHERE (lower(c.alias) LIKE ? OR c.phone LIKE ? OR c.email LIKE ?)");
+        }
+
+        try (PreparedStatement statement = database.prepare(queryBuilder.toString())) {
+            int paramIndex = 1;
+            if (filterResults) {
+                String lowerWildSearchString = searchString.toLowerCase() + "%";
+                statement.setString(paramIndex++, lowerWildSearchString);
+                statement.setString(paramIndex++, lowerWildSearchString);
+                statement.setString(paramIndex++, lowerWildSearchString);
+            }
+            try (ResultSet resultSet = statement.executeQuery()) {
+                return hydrator.hydrateAll(resultSet);
+            }
+        } catch (SQLException e) {
+            throw new PersistenceException("failed to load all contacts", e);
+        }
+    }
+
+    private Map<Integer, List<String>> findContactIdentityKeys(List<Integer> contactIds) throws PersistenceException {
         try {
-            Identities identities = identityRepository.findAll();
+            Map<Integer, List<String>> contactIdentityMap = new HashMap<>();
             try (PreparedStatement statement = database.prepare(
-                    "SELECT c2.publicKey " +
+                    "SELECT c.id, c2.publicKey " +
                             "FROM " + TABLE_NAME + " c " +
                             "JOIN identity_contacts ic ON (c.id = ic.contact_id) " +
                             "JOIN identity i ON (i.id = ic.identity_id) " +
                             "JOIN contact c2 ON (c2.id = i.contact_id) " +
-                            "WHERE c.publicKey = ? "
+                            "WHERE c.id IN (" + StringUtils.join(",", contactIds) + ")"
             )) {
-                statement.setString(1, contactKey);
-                List<Identity> contactIdentities = new LinkedList<>();
                 try (ResultSet results = statement.executeQuery()) {
                     while (results.next()) {
-                        contactIdentities.add(identities.getByKeyIdentifier(results.getString(1)));
+                        int id = results.getInt(1);
+                        List<String> identityKeys = contactIdentityMap.get(id);
+                        if (identityKeys == null) {
+                            identityKeys = new LinkedList<>();
+                            contactIdentityMap.put(id, identityKeys);
+                        }
+                        identityKeys.add(results.getString(2));
                     }
                 }
-                return contactIdentities;
+                return contactIdentityMap;
             }
         } catch (SQLException e) {
-            throw new EntityNotFoundExcepion("exception while searching contact: " + e.getMessage(), e);
+            throw new PersistenceException("Error loading identities for contacts");
         }
     }
 
     @Override
     public Collection<Pair<Contact, List<Identity>>> findWithIdentities(String searchString) throws PersistenceException {
-        try {
 
-            Identities identities = identityRepository.findAll();
-
-            Map<String, String> identityKeyMap = new HashMap<>();
-            for (Identity identity : identities.getIdentities()) {
-                String key = "id_" + identity.getId();
-                identityKeyMap.put(key, identity.getKeyIdentifier());
-            }
-
-            ContactIdentitiesHydrator customHydrator = new ContactIdentitiesHydrator(
-                    identities, identityKeyMap, new DefaultContactFactory(),
-                    new SqliteDropUrlRepository(database, new DropURLHydrator()));
-
-            StringBuilder selectBuilder = new StringBuilder();
-            selectBuilder.append("SELECT " + StringUtils.join(",", customHydrator.getFields("c")));
-
-            StringBuilder fromBuilder = new StringBuilder();
-            StringBuilder whereBuilder = new StringBuilder();
-            //Remove Identity Contacts
-            fromBuilder.append(" FROM " + TABLE_NAME + " c LEFT JOIN identity ident on ident.contact_id = c.id ");
-            whereBuilder.append(" WHERE ident.id is null ");
-
-            //Check contact is connected to identities
-            for (Map.Entry<String, String> identityEntry : identityKeyMap.entrySet()) {
-                String key = identityEntry.getKey();
-                String identityContactsAlias = "ic_" + key;
-                String identityAlias = "i_" + key;
-                fromBuilder.append("LEFT JOIN identity_contacts " + identityContactsAlias +
-                        " ON (c.id = " + identityContactsAlias + ".contact_id) ");
-                fromBuilder.append("LEFT JOIN identity " + identityAlias +
-                        " ON (" + identityAlias + ".id = " + identityContactsAlias + ".identity_id) ");
-                fromBuilder.append("LEFT JOIN contact " + key +
-                        " ON (" + key + ".id = " + identityAlias + ".contact_id AND " + key + ".publicKey = ?)");
-            }
-            boolean filterResults = searchString != null && !searchString.trim().isEmpty();
-            if (filterResults) {
-                whereBuilder.append(" AND (lower(c.alias) LIKE ? OR c.phone LIKE ? OR c.email LIKE ?) ");
-            }
-
-            try (PreparedStatement statement = database.prepare(
-                    selectBuilder.toString() + fromBuilder.toString() + whereBuilder.toString() +
-                            " GROUP BY " + StringUtils.join(", ", customHydrator.getGroupByFields("c")) + " ORDER BY c.alias"
-            )) {
-                int paramIndex = 1;
-                for (String identityKey : identityKeyMap.values()) {
-                    statement.setString(paramIndex, identityKey);
-                    paramIndex++;
-                }
-                if (filterResults) {
-                    int count = paramIndex + 3;
-                    String lowerWildSearchString = searchString.toLowerCase() + "%";
-                    while (paramIndex < count) {
-                        statement.setString(paramIndex, lowerWildSearchString);
-                        paramIndex++;
-                    }
-                }
-
-                try (ResultSet results = statement.executeQuery()) {
-                    return customHydrator.hydrateAll(results);
-                }
-            }
-        } catch (SQLException e) {
-            throw new PersistenceException("Failed to load contacts with identites " + e.getMessage(), e);
+        Identities identities = identityRepository.findAll();
+        Collection<Contact> contacts = find(searchString);
+        List<Integer> contactsIDs = new ArrayList<>(contacts.size());
+        for (Contact c : contacts) {
+            contactsIDs.add(c.getId());
         }
+
+        Map<Integer, List<DropURL>> contactsDropUrls = dropUrlRepository.findDropUrls(contactsIDs);
+        Map<Integer, List<String>> contactIdentityKeys = findContactIdentityKeys(contactsIDs);
+
+        List<Pair<Contact, List<Identity>>> resultList = new ArrayList<>(contacts.size());
+        for (Contact c : contacts) {
+            List<DropURL> dropURLs = contactsDropUrls.get(c.getId());
+            if (dropURLs != null) {
+                for (DropURL dropURL : dropURLs) {
+                    c.addDrop(dropURL);
+                }
+            }
+
+            List<String> contactIdentKeys = contactIdentityKeys.get(c.getId());
+            List<Identity> contactIdentities;
+            if (contactIdentKeys != null) {
+                contactIdentities = new ArrayList<>(contactIdentKeys.size());
+                for (String identityKey : contactIdentKeys) {
+                    contactIdentities.add(identities.getByKeyIdentifier(identityKey));
+                }
+            } else {
+                contactIdentities = Collections.emptyList();
+            }
+            resultList.add(new Pair(c, contactIdentities));
+        }
+        return resultList;
     }
 }

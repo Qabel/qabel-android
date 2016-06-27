@@ -1,7 +1,5 @@
-package de.qabel.qabelbox.contacts
+package de.qabel.qabelbox.persistence
 
-import com.natpryce.hamkrest.matches
-import org.junit.Assert.assertThat
 import de.qabel.core.config.Identity
 import de.qabel.desktop.repository.ContactRepository
 import de.qabel.desktop.repository.IdentityRepository
@@ -12,8 +10,10 @@ import de.qabel.qabelbox.contacts.dto.ContactDto
 import de.qabel.qabelbox.test.TestConstants
 import de.qabel.qabelbox.util.BoxTestHelper
 import de.qabel.qabelbox.util.IdentityHelper
-import org.hamcrest.Matchers.*
+import org.hamcrest.Matchers.equalTo
+import org.hamcrest.Matchers.hasSize
 import org.junit.Assert
+import org.junit.Assert.assertThat
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith

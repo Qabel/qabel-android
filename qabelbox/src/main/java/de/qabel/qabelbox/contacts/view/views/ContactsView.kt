@@ -12,8 +12,8 @@ interface ContactsView {
     fun loadData(data : List<ContactDto>)
 
     fun showMessage(title : Int, message : Int)
-    fun showMessage(title : Int, message : Int, paramA : Any?, paramB : Any?)
-    fun showQuantityMessage(title : Int, message : Int, quantity : Int, param : Any?)
+    fun showMessage(title : Int, message : Int, vararg messageParams : Any?)
+    fun showQuantityMessage(title : Int, message : Int, quantity : Int, vararg messageParams : Any?)
     fun showConfirmation(title : Int, message: Int, params: Any, yesClick : () -> Unit)
 
     fun startExportFileChooser(filename: String, requestCode: Int)

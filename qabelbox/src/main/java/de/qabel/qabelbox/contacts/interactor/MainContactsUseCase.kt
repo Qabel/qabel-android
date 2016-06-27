@@ -18,7 +18,6 @@ import javax.inject.Inject
 
 
 class MainContactsUseCase @Inject constructor(val identity: Identity,
-                                              private val identityRepository: IdentityRepository,
                                               private val contactRepository: ContactRepository) : ContactsUseCase {
 
     override fun search(filter: String) = observable<ContactDto> { subscriber ->
@@ -40,9 +39,8 @@ class MainContactsUseCase @Inject constructor(val identity: Identity,
     }
 
     override fun loadContact(keyIdentifier: String) = observable<ContactDto> { subscriber ->
-        val contact = contactRepository.findByKeyId(keyIdentifier);
-        val contactIdentities = contactRepository.findContactIdentities(contact.keyIdentifier);
-        subscriber.onNext(ContactDto(contact, contactIdentities))
+        val contact = contactRepository.findContactWithIdentities(keyIdentifier);
+        subscriber.onNext(ContactDto(contact.first, contact.second))
         subscriber.onCompleted();
     }
 

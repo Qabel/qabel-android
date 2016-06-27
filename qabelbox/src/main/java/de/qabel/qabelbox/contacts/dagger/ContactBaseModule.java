@@ -13,9 +13,8 @@ public abstract class ContactBaseModule {
 
     @Provides
     public ContactsUseCase provideContactsUseCase(Identity identity,
-                                                  IdentityRepository identityRepository,
                                                   ContactRepository contactRepository) {
-        return new MainContactsUseCase(identity, identityRepository, contactRepository);
+        return new MainContactsUseCase(identity, contactRepository);
     }
 
 }

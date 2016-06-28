@@ -114,7 +114,7 @@ public class MainNavigator implements Navigator {
 
     @Override
     public void selectFilesFragment() {
-        throw new NotImplementedError();
+        Log.e(TAG, "Files fragment not implemented");
     }
 
     private void showMainFragment(Fragment fragment, String tag) {

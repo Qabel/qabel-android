@@ -1,8 +1,8 @@
 package de.qabel.qabelbox.persistence;
 
 import de.qabel.core.config.Persistable;
-import de.qabel.core.config.Persistence;
 import de.qabel.core.exceptions.QblInvalidEncryptionKeyException;
+import de.qabel.desktop.legacy.Persistence;
 import de.qabel.qabelbox.exceptions.QblPersistenceException;
 
 import org.slf4j.Logger;

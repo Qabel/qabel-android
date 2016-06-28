@@ -15,10 +15,8 @@ import de.qabel.desktop.repository.IdentityRepository;
 import de.qabel.qabelbox.BuildConfig;
 import de.qabel.qabelbox.TestConstants;
 import de.qabel.qabelbox.persistence.RepositoryFactory;
-import de.qabel.qabelbox.storage.AndroidBoxManager;
 import de.qabel.qabelbox.storage.notifications.AndroidStorageNotificationManager;
 import de.qabel.qabelbox.storage.notifications.AndroidStorageNotificationPresenter;
-import de.qabel.qabelbox.storage.transfer.FakeTransferManager;
 
 public class MockBoxProvider extends BoxProvider {
 

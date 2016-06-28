@@ -19,7 +19,6 @@ import de.qabel.core.drop.DropMessage;
 import de.qabel.core.drop.DropURL;
 import de.qabel.core.exceptions.QblDropInvalidURL;
 import de.qabel.core.exceptions.QblDropPayloadSizeException;
-import de.qabel.qabelbox.exceptions.QblStorageEntityExistsException;
 
 public class LocalQabelServiceTest extends ServiceTestCase<LocalQabelServiceTester> {
 

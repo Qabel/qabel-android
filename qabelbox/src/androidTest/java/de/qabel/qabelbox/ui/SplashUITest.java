@@ -14,7 +14,6 @@ import java.io.IOException;
 
 import de.qabel.qabelbox.activities.SplashActivity;
 import de.qabel.qabelbox.config.AppPreference;
-import de.qabel.qabelbox.exceptions.QblStorageException;
 
 import static android.support.test.espresso.intent.matcher.ComponentNameMatchers.hasClassName;
 import static android.support.test.espresso.intent.matcher.IntentMatchers.hasComponent;

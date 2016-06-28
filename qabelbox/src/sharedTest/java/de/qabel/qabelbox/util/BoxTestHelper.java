@@ -9,12 +9,9 @@ import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.account.AccountManager;
 import de.qabel.qabelbox.config.AppPreference;
 import de.qabel.qabelbox.dagger.components.MockApplicationComponent;
-import de.qabel.qabelbox.storage.BoxManager;
 
 public class BoxTestHelper {
 
-    @Inject
-    BoxManager boxManager;
     @Inject
     IdentityRepository identityRepository;
     @Inject
@@ -29,9 +26,6 @@ public class BoxTestHelper {
         ((MockApplicationComponent) context.getApplicationComponent()).inject(this);
     }
 
-    public BoxManager getBoxManager() {
-        return boxManager;
-    }
 
     public IdentityRepository getIdentityRepository(){
         return identityRepository;

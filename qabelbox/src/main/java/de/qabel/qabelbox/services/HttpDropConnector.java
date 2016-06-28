@@ -58,7 +58,7 @@ public class HttpDropConnector implements DropConnector {
     @Override
     public void sendDropMessage(final DropMessage dropMessage, final Contact recipient,
                                 final Identity identity,
-                                @Nullable final LocalQabelService.OnSendDropMessageResult dropResultCallback)
+                                @Nullable final OnSendDropMessageResult dropResultCallback)
             throws QblDropPayloadSizeException {
         new Thread(new Runnable() {
             final BinaryDropMessageV0 binaryMessage = new BinaryDropMessageV0(dropMessage);

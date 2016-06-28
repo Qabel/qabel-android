@@ -16,6 +16,12 @@ import android.provider.DocumentsContract.Root
 import android.provider.DocumentsProvider
 import android.provider.MediaStore.Video.Media
 import android.util.Log
+import de.qabel.box.storage.BoxFolder
+import de.qabel.box.storage.BoxNavigation
+import de.qabel.box.storage.BoxObject
+import de.qabel.box.storage.BoxVolume
+import de.qabel.box.storage.exceptions.QblStorageException
+import de.qabel.box.storage.exceptions.QblStorageNotFound
 import de.qabel.desktop.repository.IdentityRepository
 import de.qabel.desktop.repository.exception.PersistenceException
 import de.qabel.qabelbox.BuildConfig
@@ -24,15 +30,7 @@ import de.qabel.qabelbox.R
 import de.qabel.qabelbox.config.AppPreference
 import de.qabel.qabelbox.dagger.components.DaggerBoxComponent
 import de.qabel.qabelbox.dagger.modules.ContextModule
-import de.qabel.qabelbox.exceptions.QblStorageException
-import de.qabel.qabelbox.exceptions.QblStorageNotFound
-import de.qabel.qabelbox.storage.BoxManager
-import de.qabel.qabelbox.storage.BoxVolume
-import de.qabel.qabelbox.storage.model.BoxFolder
-import de.qabel.qabelbox.storage.model.BoxObject
-import de.qabel.qabelbox.storage.navigation.BoxNavigation
 import de.qabel.qabelbox.storage.notifications.StorageNotificationManager
-import org.apache.commons.lang3.StringUtils
 import java.io.*
 import java.net.URLConnection
 import java.util.*
@@ -51,9 +49,6 @@ open class BoxProvider : DocumentsProvider() {
 
     @Inject
     lateinit var appPreferences: AppPreference
-
-    @Inject
-    lateinit var boxManager: BoxManager
 
     lateinit private var mThreadPoolExecutor: ThreadPoolExecutor
 
@@ -156,7 +151,8 @@ open class BoxProvider : DocumentsProvider() {
     fun getVolumeForRoot(identity: String, prefix: String): BoxVolume {
 
         try {
-            return boxManager.createBoxVolume(identity, prefix)
+            throw NotImplementedError("box manager not implemented")
+            // return boxManager.createBoxVolume(identity, prefix)
         } catch (e: QblStorageException) {
             e.printStackTrace()
             throw FileNotFoundException("Cannot create BoxVolume")
@@ -190,7 +186,7 @@ open class BoxProvider : DocumentsProvider() {
             }
             val navigation = volume.navigate()
             navigation.navigate(documentId.pathString)
-            if (navigation.getFile(documentId.fileName, false) == null) {
+            if (navigation.getFile(documentId.fileName) == null) {
                 return null
             }
             Log.d(TAG, "Inserting basename " + documentId.fileName)
@@ -239,11 +235,14 @@ open class BoxProvider : DocumentsProvider() {
                 return
             }
         }
+
+        /*
         val external = navigation.getExternal(basename)
         if (external != null) {
             insertFile(cursor, documentId, external)
             return
         }
+        */
         throw QblStorageNotFound("File not found")
     }
 
@@ -365,9 +364,11 @@ open class BoxProvider : DocumentsProvider() {
         for (file in navigation.listFiles()) {
             insertFile(cursor, parentDocumentId + file.name, file)
         }
+        /*
         for (file in navigation.listExternalNames()) {
             insertFile(cursor, parentDocumentId + file.name, file)
         }
+        */
     }
 
     private fun insertFile(cursor: MatrixCursor, documentId: String, file: BoxObject) {
@@ -430,8 +431,7 @@ open class BoxProvider : DocumentsProvider() {
                                         documentId1.prefix)
                                 val boxNavigation = volume.navigate()
                                 boxNavigation.navigate(path)
-                                boxNavigation.upload(documentId1.fileName,
-                                        FileInputStream(tmp))
+                                boxNavigation.upload(documentId1.fileName, tmp)
                                 boxNavigation.commit()
                             } catch (e1: FileNotFoundException) {
                                 Log.e(TAG, "Cannot upload file!", e1)
@@ -476,7 +476,8 @@ open class BoxProvider : DocumentsProvider() {
 
     @Throws(IOException::class, QblStorageException::class)
     private fun getFile(documentId: String): File {
-        return boxManager.downloadFileDecrypted(documentId)
+        throw NotImplementedError("box manager not implemented")
+        //return boxManager.downloadFileDecrypted(documentId)
     }
 
     @Throws(FileNotFoundException::class)
@@ -497,7 +498,7 @@ open class BoxProvider : DocumentsProvider() {
             if (mimeType == Document.MIME_TYPE_DIR) {
                 navigation.createFolder(displayName)
             } else {
-                navigation.upload(displayName, ByteArrayInputStream(ByteArray(0)))
+                navigation.upload(displayName, createTempFile())
             }
             navigation.commit()
 
@@ -545,7 +546,9 @@ open class BoxProvider : DocumentsProvider() {
 
     @Throws(FileNotFoundException::class)
     override fun renameDocument(documentId: String, displayName: String): String {
+        throw FileNotFoundException("not implemented!")
 
+        /*
         Log.d(TAG, "renameDocument: $documentId to $displayName")
 
         try {
@@ -584,6 +587,7 @@ open class BoxProvider : DocumentsProvider() {
             Log.e(TAG, "could not create file", e)
             throw FileNotFoundException()
         }
+        */
 
     }
 

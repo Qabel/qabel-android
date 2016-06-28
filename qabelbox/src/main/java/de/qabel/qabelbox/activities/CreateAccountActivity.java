@@ -15,7 +15,11 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 
+import javax.inject.Inject;
+
 import de.qabel.core.config.Identities;
+import de.qabel.desktop.repository.IdentityRepository;
+import de.qabel.desktop.repository.exception.PersistenceException;
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.communication.BoxAccountRegisterServer;
@@ -29,10 +33,12 @@ import de.qabel.qabelbox.fragments.CreateIdentityEditTextFragment;
 import de.qabel.qabelbox.helper.Formatter;
 import de.qabel.qabelbox.helper.UIHelper;
 import de.qabel.qabelbox.listeners.IdleCallback;
-import de.qabel.qabelbox.services.LocalQabelService;
 import okhttp3.Response;
 
 public class CreateAccountActivity extends BaseWizardActivity {
+
+    @Inject
+    IdentityRepository identityRepository;
 
     private static final int FRAGMENT_ENTER_NAME = 1;
     private static final int FRAGMENT_ENTER_EMAIL = 2;
@@ -51,6 +57,7 @@ public class CreateAccountActivity extends BaseWizardActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        QabelBoxApplication.getApplicationComponent(getApplicationContext()).inject(this);
         AppPreference appPreference = new AppPreference(getApplicationContext());
         mBoxAccountName = appPreference.getAccountName();
         mBoxAccountEMail = appPreference.getAccountEMail();
@@ -167,10 +174,18 @@ public class CreateAccountActivity extends BaseWizardActivity {
         return null;
     }
 
+    private boolean hasIdentities() {
+        try {
+            return identityRepository.findAll().getIdentities().size() > 0;
+        } catch (PersistenceException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     @Override
     public void completeWizard() {
 
-        if (QabelBoxApplication.getInstance().getService().getIdentities().getIdentities().size() > 0) {
+        if (hasIdentities()) {
             //fallback if identity exists after box account created. this case should never thrown
             Log.e(TAG, "Identity exist after create box account");
             Toast.makeText(mActivity, R.string.skip_create_identity, Toast.LENGTH_SHORT).show();
@@ -315,8 +330,12 @@ public class CreateAccountActivity extends BaseWizardActivity {
         super.updateActionBar(step);
         //override next button text with create identity
         if (step == fragments.length - 1) {
-            LocalQabelService service = QabelBoxApplication.getInstance().getService();
-            Identities identities = service.getIdentities();
+            Identities identities = null;
+            try {
+                identities = identityRepository.findAll();
+            } catch (PersistenceException e) {
+                throw new RuntimeException(e);
+            }
             if (identities == null || identities.getIdentities().size() == 0) {
                 mActionNext.setTitle(R.string.btn_create_identity);
             } else {

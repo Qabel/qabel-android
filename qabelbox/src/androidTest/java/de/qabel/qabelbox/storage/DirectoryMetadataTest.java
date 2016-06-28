@@ -3,10 +3,7 @@ package de.qabel.qabelbox.storage;
 import junit.framework.TestCase;
 
 import de.qabel.core.crypto.QblECKeyPair;
-import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.storage.model.BoxExternalReference;
-import de.qabel.qabelbox.storage.model.BoxFile;
-import de.qabel.qabelbox.storage.model.BoxFolder;
 
 import org.junit.Test;
 

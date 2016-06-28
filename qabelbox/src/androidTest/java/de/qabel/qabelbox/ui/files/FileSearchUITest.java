@@ -10,7 +10,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import de.qabel.qabelbox.R;
-import de.qabel.qabelbox.fragments.FilesSearchResultFragment;
 import de.qabel.qabelbox.ui.helper.UITestHelper;
 import de.qabel.qabelbox.ui.idling.WaitResourceCallback;
 import de.qabel.qabelbox.ui.matcher.QabelMatcher;

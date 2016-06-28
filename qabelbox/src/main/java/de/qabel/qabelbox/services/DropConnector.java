@@ -14,7 +14,7 @@ import de.qabel.core.exceptions.QblDropPayloadSizeException;
 public interface DropConnector {
     void sendDropMessage(DropMessage dropMessage, Contact recipient,
                          Identity identity,
-                         @Nullable LocalQabelService.OnSendDropMessageResult dropResultCallback)
+                         @Nullable OnSendDropMessageResult dropResultCallback)
             throws QblDropPayloadSizeException;
 
     Collection<DropMessage> retrieveDropMessages(Identity identity, long sinceDate);

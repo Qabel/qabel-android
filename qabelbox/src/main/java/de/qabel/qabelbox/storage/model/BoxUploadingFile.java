@@ -1,5 +1,7 @@
 package de.qabel.qabelbox.storage.model;
 
+import de.qabel.box.storage.BoxObject;
+
 public class BoxUploadingFile extends BoxObject {
 
     private String path;
@@ -21,4 +23,8 @@ public class BoxUploadingFile extends BoxObject {
         return ownerIdentifier;
     }
 
+    @Override
+    public String getRef() {
+        return null;
+    }
 }

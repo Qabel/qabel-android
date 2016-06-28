@@ -10,8 +10,8 @@ import android.util.Log;
 
 import java.io.File;
 
+import de.qabel.box.storage.BoxFile;
 import de.qabel.qabelbox.storage.FileCacheContract.FileEntry;
-import de.qabel.qabelbox.storage.model.BoxFile;
 
 public class FileCache extends SQLiteOpenHelper {
 
@@ -70,27 +70,27 @@ public class FileCache extends SQLiteOpenHelper {
     }
 
     public long put(BoxFile boxFile, File file) {
-        remove(boxFile.block);
-        Log.i(TAG, "Put into cache: " + boxFile.block + "(" + file.getAbsolutePath() + ")");
+        remove(boxFile.getBlock());
+        Log.i(TAG, "Put into cache: " + boxFile.getBlock() + "(" + file.getAbsolutePath() + ")");
         ContentValues values = new ContentValues();
-        values.put(FileEntry.COL_REF, boxFile.block);
+        values.put(FileEntry.COL_REF, boxFile.getBlock());
         values.put(FileEntry.COL_PATH, file.getAbsolutePath());
-        values.put(FileEntry.COL_MTIME, boxFile.mtime);
+        values.put(FileEntry.COL_MTIME, boxFile.getMtime());
         values.put(FileEntry.COL_SIZE, file.length());
         long id = getWritableDatabase().insert(FileEntry.TABLE_NAME, null, values);
         if (id == -1) {
-            Log.e(TAG, "Failed putting into cache: " + boxFile.block);
+            Log.e(TAG, "Failed putting into cache: " + boxFile.getBlock());
         }
         return id;
     }
 
     public File get(BoxFile boxFile) {
-        CacheEntry cacheEntry = getCachedEntry(boxFile.block);
+        CacheEntry cacheEntry = getCachedEntry(boxFile.getBlock());
 
-        Log.i(TAG, "get from cache: " + boxFile.block + "(" + (cacheEntry != null ? cacheEntry.path : "null") + ")");
+        Log.i(TAG, "get from cache: " + boxFile.getBlock() + "(" + (cacheEntry != null ? cacheEntry.path : "null") + ")");
         if (cacheEntry != null) {
             File file = new File(cacheEntry.path);
-            if (boxFile.mtime == cacheEntry.mTime &&
+            if (boxFile.getMtime() == cacheEntry.mTime &&
                     file.exists() &&
                     file.length() == cacheEntry.size) {
                 return file;

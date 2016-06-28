@@ -27,15 +27,8 @@ import de.qabel.desktop.repository.IdentityRepository;
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.TestConstants;
 import de.qabel.qabelbox.config.AppPreference;
-import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.helper.RealTokerGetter;
 import de.qabel.qabelbox.providers.BoxProvider;
-import de.qabel.qabelbox.storage.BoxManager;
-import de.qabel.qabelbox.storage.BoxVolume;
-import de.qabel.qabelbox.storage.StorageSearch;
-import de.qabel.qabelbox.storage.model.BoxFile;
-import de.qabel.qabelbox.storage.model.BoxFolder;
-import de.qabel.qabelbox.storage.model.BoxObject;
 import de.qabel.qabelbox.storage.navigation.BoxNavigation;
 import de.qabel.qabelbox.util.BoxTestHelper;
 

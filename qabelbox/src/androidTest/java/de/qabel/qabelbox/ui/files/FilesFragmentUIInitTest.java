@@ -10,7 +10,6 @@ import java.io.ByteArrayInputStream;
 
 import de.qabel.core.config.Identity;
 import de.qabel.qabelbox.activities.MainActivity;
-import de.qabel.qabelbox.storage.BoxVolume;
 
 import static junit.framework.Assert.assertNull;
 import static org.junit.Assert.assertNotNull;

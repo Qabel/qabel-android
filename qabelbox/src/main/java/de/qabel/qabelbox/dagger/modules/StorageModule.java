@@ -9,19 +9,13 @@ import javax.inject.Singleton;
 import dagger.Module;
 import dagger.Provides;
 import de.qabel.desktop.repository.IdentityRepository;
-import de.qabel.qabelbox.account.AccountManager;
-import de.qabel.qabelbox.communication.BoxAccountRegisterServer;
 import de.qabel.qabelbox.config.AppPreference;
 import de.qabel.qabelbox.providers.DocumentIdParser;
-import de.qabel.qabelbox.storage.AndroidBoxManager;
-import de.qabel.qabelbox.storage.BoxManager;
 import de.qabel.qabelbox.storage.notifications.AndroidStorageNotificationManager;
 import de.qabel.qabelbox.storage.notifications.AndroidStorageNotificationPresenter;
 import de.qabel.qabelbox.storage.notifications.StorageNotificationManager;
 import de.qabel.qabelbox.storage.server.AndroidBlockServer;
 import de.qabel.qabelbox.storage.server.BlockServer;
-import de.qabel.qabelbox.storage.transfer.BlockServerTransferManager;
-import de.qabel.qabelbox.storage.transfer.TransferManager;
 
 @Module
 public class StorageModule {
@@ -41,27 +35,6 @@ public class StorageModule {
     @Provides
     File providesCacheDir(Context context) {
         return context.getCacheDir();
-    }
-
-    @Provides
-    public TransferManager providesTransferManager(Context context, BlockServer blockServer, File tmpFile) {
-        return createTransferManager(context, blockServer, tmpFile);
-    }
-
-    protected TransferManager createTransferManager(Context context, BlockServer blockServer, File tmpFile) {
-        return new BlockServerTransferManager(context, blockServer, tmpFile);
-    }
-
-    @Singleton
-    @Provides
-    BoxManager providesBoxManager(Context context,
-                                  StorageNotificationManager notificationManager,
-                                  DocumentIdParser documentIdParser,
-                                  AppPreference preferences,
-                                  TransferManager transferManager,
-                                  IdentityRepository identityRepository) {
-        return new AndroidBoxManager(context, notificationManager,
-                documentIdParser, preferences, transferManager, identityRepository);
     }
 
     @Singleton

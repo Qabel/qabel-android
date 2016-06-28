@@ -5,18 +5,13 @@ import android.app.Instrumentation;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.Uri;
-import android.os.PowerManager;
-import android.support.test.InstrumentationRegistry;
 import android.support.test.espresso.ViewInteraction;
 import android.support.test.espresso.action.ViewActions;
 import android.support.test.espresso.contrib.DrawerActions;
-import android.test.ActivityInstrumentationTestCase2;
 import android.test.suitebuilder.annotation.MediumTest;
 
 import org.apache.commons.io.FileUtils;
-import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.File;
@@ -26,19 +21,10 @@ import java.util.LinkedList;
 import java.util.List;
 
 import de.qabel.core.config.Contact;
-import de.qabel.core.config.Identity;
 import de.qabel.core.exceptions.QblDropInvalidURL;
-import de.qabel.desktop.config.factory.DropUrlGenerator;
-import de.qabel.desktop.config.factory.IdentityBuilder;
-import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.activities.MainActivity;
 import de.qabel.qabelbox.config.ContactExportImportTest;
-import de.qabel.qabelbox.services.LocalQabelService;
-import de.qabel.qabelbox.ui.helper.SystemAnimations;
-import de.qabel.qabelbox.ui.helper.UIActionHelper;
-import de.qabel.qabelbox.ui.helper.UIBoxHelper;
-import de.qabel.qabelbox.ui.helper.UITestHelper;
 
 import static android.support.test.InstrumentationRegistry.getInstrumentation;
 import static android.support.test.espresso.Espresso.onView;

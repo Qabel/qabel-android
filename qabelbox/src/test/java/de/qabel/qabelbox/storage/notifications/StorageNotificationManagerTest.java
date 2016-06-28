@@ -7,7 +7,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.internal.verification.VerificationModeFactory;
-import org.mockito.verification.VerificationMode;
 import org.robolectric.RobolectricGradleTestRunner;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
@@ -17,12 +16,11 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
 
+import de.qabel.box.storage.BoxFile;
 import de.qabel.qabelbox.BuildConfig;
 import de.qabel.qabelbox.SimpleApplication;
 import de.qabel.qabelbox.TestConstants;
-import de.qabel.qabelbox.storage.model.BoxFile;
 import de.qabel.qabelbox.storage.model.BoxUploadingFile;
-import de.qabel.qabelbox.storage.transfer.BoxTransferListener;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -123,7 +121,7 @@ public class StorageNotificationManagerTest {
         expectedInfo.setProgress(progress, size);
         verify(fakePresenter, VerificationModeFactory.atLeastOnce()).updateDownloadNotification(expectedInfo);
 
-        progress += file.size / 3;
+        progress += file.getSize() / 3;
         listener.onProgressChanged(progress, size);
         expectedInfo.setProgress(progress, size);
         verify(fakePresenter, VerificationModeFactory.atLeastOnce()).updateDownloadNotification(expectedInfo);
@@ -159,11 +157,11 @@ public class StorageNotificationManagerTest {
         verify(fakePresenter).updateDownloadNotification(expectedInfoB);
 
         expectedInfoA.setProgress(50, sizeA);
-        listenerA.onProgressChanged(50, fileA.size);
+        listenerA.onProgressChanged(50, fileA.getSize());
         verify(fakePresenter, VerificationModeFactory.atLeastOnce()).updateDownloadNotification(expectedInfoB);
 
         expectedInfoB.setProgress(100, sizeB);
-        listenerB.onProgressChanged(100, fileB.size);
+        listenerB.onProgressChanged(100, fileB.getSize());
         verify(fakePresenter, VerificationModeFactory.atLeastOnce()).updateDownloadNotification(expectedInfoB);
 
         expectedInfoB.complete();

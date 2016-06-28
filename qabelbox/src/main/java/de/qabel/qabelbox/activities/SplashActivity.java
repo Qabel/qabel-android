@@ -6,6 +6,11 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
 
+import javax.inject.Inject;
+
+import de.qabel.desktop.repository.IdentityRepository;
+import de.qabel.desktop.repository.exception.PersistenceException;
+import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.config.AppPreference;
 import de.qabel.qabelbox.helper.Sanity;
@@ -23,10 +28,14 @@ public class SplashActivity extends CrashReportingActivity {
 
     private boolean welcomeScreenShown;
 
+    @Inject
+    IdentityRepository identityRepository;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
+        QabelBoxApplication.getApplicationComponent(getApplicationContext()).inject(this);
         Intent splashIntent = getIntent();
         skipSplash = splashIntent.getBooleanExtra(SKIP_SPLASH, false);
         setupAppPreferences();
@@ -70,8 +79,13 @@ public class SplashActivity extends CrashReportingActivity {
                                       public void run() {
                                           if (!welcomeScreenShown) {
                                               SplashActivity.this.launch(WelcomeScreenActivity.class);
-                                          } else if (!Sanity.startWizardActivities(SplashActivity.this)) {
-                                              SplashActivity.this.launch(MainActivity.class);
+                                          } else try {
+                                              if (!Sanity.startWizardActivities(SplashActivity.this,
+                                                      identityRepository.findAll())) {
+                                                  SplashActivity.this.launch(MainActivity.class);
+                                              }
+                                          } catch (PersistenceException e) {
+                                              throw new RuntimeException(e);
                                           }
                                       }
                                   }

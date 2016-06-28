@@ -37,6 +37,7 @@ import com.cocosw.bottomsheet.BottomSheet;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.NotImplementedException;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -76,7 +77,6 @@ import de.qabel.qabelbox.dagger.modules.MainActivityModule;
 import de.qabel.qabelbox.dialogs.SelectIdentityForUploadDialog;
 import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.fragments.BaseFragment;
-import de.qabel.qabelbox.fragments.ContactBaseFragment;
 import de.qabel.qabelbox.fragments.CreateIdentityMainFragment;
 import de.qabel.qabelbox.fragments.FilesFragment;
 import de.qabel.qabelbox.fragments.FilesFragmentBase;
@@ -548,7 +548,8 @@ public class MainActivity extends CrashReportingActivity
         if (extension != null && extension.length() > 0) {
             extension = extension.split(" ")[0];
             if (QabelSchema.FILE_SUFFIX_CONTACT.equals(extension)) {
-                new ContactBaseFragment().importContactFromUri(self, uri);
+                //TODO
+                throw new NotImplementedException("Currently not implemented");
             } else if (QabelSchema.FILE_SUFFIX_IDENTITY.equals(extension)) {
                 if (
                         new CreateIdentityMainFragment().importIdentity(self, intent)) {

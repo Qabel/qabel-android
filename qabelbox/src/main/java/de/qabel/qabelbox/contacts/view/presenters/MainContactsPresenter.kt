@@ -1,7 +1,7 @@
 package de.qabel.qabelbox.contacts.view.presenters
 
+import de.qabel.core.config.ContactExportImport
 import de.qabel.qabelbox.R
-import de.qabel.qabelbox.config.ContactExportImport
 import de.qabel.qabelbox.config.QabelSchema
 import de.qabel.qabelbox.contacts.ContactsRequestCodes
 import de.qabel.qabelbox.contacts.dto.ContactDto

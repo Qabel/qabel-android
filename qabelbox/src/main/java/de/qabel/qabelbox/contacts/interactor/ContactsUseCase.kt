@@ -1,13 +1,11 @@
 package de.qabel.qabelbox.contacts.interactor
 
 import de.qabel.core.config.Contact
-import de.qabel.qabelbox.config.ContactExportImport
 import de.qabel.qabelbox.contacts.dto.ContactDto
 import de.qabel.qabelbox.contacts.dto.ContactParseResult
 import de.qabel.qabelbox.contacts.dto.ContactsParseResult
 import rx.Observable
 import java.io.FileDescriptor
-import java.io.FileOutputStream
 
 
 interface ContactsUseCase {

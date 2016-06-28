@@ -22,12 +22,12 @@ import java.io.IOException;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import de.qabel.core.config.ContactExportImport;
 import de.qabel.core.config.Identities;
 import de.qabel.core.config.Identity;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.activities.MainActivity;
 import de.qabel.qabelbox.adapter.IdentitiesAdapter;
-import de.qabel.qabelbox.config.ContactExportImport;
 import de.qabel.qabelbox.config.IdentityExportImport;
 import de.qabel.qabelbox.config.QabelSchema;
 import de.qabel.qabelbox.helper.UIHelper;
@@ -194,7 +194,7 @@ public class IdentitiesFragment extends BaseFragment {
                     try (ParcelFileDescriptor pfd = mActivity.getContentResolver().openFileDescriptor(uri, "w");
                          FileOutputStream fileOutputStream = new FileOutputStream(pfd.getFileDescriptor())) {
                         if (requestCode == MainActivity.REQUEST_EXPORT_IDENTITY_AS_CONTACT) {
-                            fileOutputStream.write((ContactExportImport.exportIdentityAsContact(identityToExport)).getBytes());
+                            fileOutputStream.write(ContactExportImport.INSTANCE.exportIdentityAsContact(identityToExport).getBytes());
                             UIHelper.showDialogMessage(activity, R.string.dialog_headline_info, R.string.identity_as_contact_export_successfully);
                         } else {
                             fileOutputStream.write((IdentityExportImport.exportIdentity(identityToExport)).getBytes());

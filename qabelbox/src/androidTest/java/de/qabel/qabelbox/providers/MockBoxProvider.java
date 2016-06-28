@@ -61,6 +61,7 @@ public class MockBoxProvider extends BoxProvider {
             repository.delete(stored);
         }
         repository.save(identity);
+        /*
         boxManager = new AndroidBoxManager(context,
                 new AndroidStorageNotificationManager(new AndroidStorageNotificationPresenter(context)),
                 new DocumentIdParser(),
@@ -68,6 +69,7 @@ public class MockBoxProvider extends BoxProvider {
                 new FakeTransferManager(context.getExternalCacheDir()),
                 identityRepository);
         deviceID = appPrefereces.getDeviceId();
+                */
     }
 }
 

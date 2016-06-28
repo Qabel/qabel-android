@@ -84,7 +84,7 @@ class BoxProviderTest : MockedBoxProviderTest() {
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     fun testCreateFile() {
-        val testDocId = MockedBoxProviderTest.ROOT_DOC_ID + "testfile.png"
+        val testDocId =     If youMockedBoxProviderTest.ROOT_DOC_ID + "testfile.png"
         val parentDocumentUri = DocumentsContract.buildDocumentUri(BuildConfig.APPLICATION_ID + BoxProvider.AUTHORITY, MockedBoxProviderTest.ROOT_DOC_ID)
         val documentUri = DocumentsContract.buildDocumentUri(BuildConfig.APPLICATION_ID + BoxProvider.AUTHORITY, testDocId)
         Assert.assertNotNull("Could not build document URI", documentUri)

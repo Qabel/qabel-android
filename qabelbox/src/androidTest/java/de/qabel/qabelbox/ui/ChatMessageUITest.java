@@ -93,7 +93,7 @@ public class ChatMessageUITest extends AbstractUITest {
     }
 
     private Contact addContact(Identity identity, Identity contact)
-            throws QblStorageEntityExistsException, PersistenceException {
+            throws PersistenceException {
         Contact asContact = new Contact(contact.getAlias(),
                 contact.getDropUrls(),contact.getEcPublicKey());
         contactRepository.save(asContact, identity);

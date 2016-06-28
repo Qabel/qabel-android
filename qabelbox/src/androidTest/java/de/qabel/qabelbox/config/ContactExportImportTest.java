@@ -246,19 +246,4 @@ public class ContactExportImportTest {
 
     }
 
-    public static void deleteTestContacts() {
-        LocalQabelService service = new LocalQabelService();
-        try {
-            for (Contact c : initTestContacts()) {
-                service.deleteContact(c);
-            }
-        } catch (URISyntaxException e) {
-            e.printStackTrace();
-        } catch (QblDropInvalidURL qblDropInvalidURL) {
-            qblDropInvalidURL.printStackTrace();
-        }
-
-    }
-
-
 }

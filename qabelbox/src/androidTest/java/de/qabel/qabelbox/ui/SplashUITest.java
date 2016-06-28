@@ -29,7 +29,7 @@ public class SplashUITest {
     private AppPreference appPreference;
 
     @Before
-    public void setUp() throws IOException, QblStorageException {
+    public void setUp() throws IOException {
         appPreference = new AppPreference(InstrumentationRegistry.getTargetContext());
         Intents.init();
     }

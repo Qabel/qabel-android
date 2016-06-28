@@ -53,7 +53,7 @@ public class WelcomeScreenUITest {
     }
 
     @Before
-    public void setUp() throws IOException, QblStorageException {
+    public void setUp() throws IOException {
         new AppPreference(InstrumentationRegistry.getTargetContext()).setWelcomeScreenShownAt(0);
         mActivity = mActivityTestRule.launchActivity(null);
         wakeLock = UIActionHelper.wakeupDevice(mActivity);

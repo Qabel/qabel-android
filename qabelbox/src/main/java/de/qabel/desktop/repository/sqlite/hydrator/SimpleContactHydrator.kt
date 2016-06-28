@@ -4,7 +4,7 @@ import de.qabel.core.config.Contact
 import de.qabel.core.crypto.QblECPublicKey
 import de.qabel.core.drop.DropURL
 import de.qabel.desktop.repository.EntityManager
-import de.qabel.desktop.repository.sqlite.fields.ContactFields
+import de.qabel.desktop.repository.sqlite.schemas.ContactDB
 import org.spongycastle.util.encoders.Hex
 import java.sql.ResultSet
 import java.util.*
@@ -39,7 +39,7 @@ class SimpleContactHydrator(private val entityManager: EntityManager) : Abstract
     }
 
     override fun getFields(): Array<out String>? {
-        return ContactFields.ENTITY_FIELDS.toTypedArray();
+        return ContactDB.ENTITY_FIELDS.toTypedArray();
     }
 
 }

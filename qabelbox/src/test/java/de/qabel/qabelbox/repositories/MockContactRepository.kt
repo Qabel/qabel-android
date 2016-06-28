@@ -5,9 +5,13 @@ import de.qabel.core.config.Contacts
 import de.qabel.core.config.Identities
 import de.qabel.core.config.Identity
 import de.qabel.desktop.repository.ContactRepository
-import de.qabel.desktop.repository.exception.EntityNotFoundExcepion
+import de.qabel.desktop.repository.exception.EntityNotFoundException
 
 class MockContactRepository(val contact: Contact): ContactRepository {
+
+    override fun exists(contact: Contact?): Boolean? {
+        throw UnsupportedOperationException()
+    }
 
     override fun findContactWithIdentities(key: String?): Pair<Contact, MutableList<Identity>>? {
         throw UnsupportedOperationException()
@@ -35,6 +39,6 @@ class MockContactRepository(val contact: Contact): ContactRepository {
 
     override fun findByKeyId(identity: Identity?, keyId: String?): Contact? =
             if(keyId == contact.keyIdentifier) { contact }
-            else throw EntityNotFoundExcepion("Contact not the same as the injected one")
+            else throw EntityNotFoundException("Contact not the same as the injected one")
 
 }

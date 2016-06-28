@@ -1,5 +1,6 @@
 package de.qabel.qabelbox.persistence
 
+import de.qabel.core.config.Contact
 import de.qabel.core.config.Identity
 import de.qabel.desktop.repository.ContactRepository
 import de.qabel.desktop.repository.IdentityRepository
@@ -39,6 +40,8 @@ class ContactRepositoryTest {
 
         val identityA = IdentityHelper.createIdentity("Identity A", TestConstants.PREFIX);
         val identityB = IdentityHelper.createIdentity("Identity B", TestConstants.PREFIX);
+        storedContacts.add(ContactDto(Contact(identityA.alias, identityA.dropUrls, identityA.ecPublicKey), emptyList()));
+        storedContacts.add(ContactDto(Contact(identityB.alias, identityB.dropUrls, identityB.ecPublicKey), emptyList()));
 
         identityRepository.save(identityA);
         identityRepository.save(identityB);

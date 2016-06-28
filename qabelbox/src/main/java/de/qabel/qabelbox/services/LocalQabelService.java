@@ -38,7 +38,7 @@ import de.qabel.core.http.DropHTTP;
 import de.qabel.core.http.HTTPResult;
 import de.qabel.desktop.repository.ContactRepository;
 import de.qabel.desktop.repository.IdentityRepository;
-import de.qabel.desktop.repository.exception.EntityNotFoundExcepion;
+import de.qabel.desktop.repository.exception.EntityNotFoundException;
 import de.qabel.desktop.repository.exception.PersistenceException;
 import de.qabel.desktop.repository.sqlite.AndroidClientDatabase;
 import de.qabel.qabelbox.config.AppPreference;
@@ -140,7 +140,7 @@ public class LocalQabelService extends Service implements DropConnector {
                 for (Contact contact : contacts) {
                     try {
                         contactRepository.delete(contact, identity);
-                    } catch (EntityNotFoundExcepion ignored) {
+                    } catch (EntityNotFoundException ignored) {
                     }
                 }
                 identityRepository.delete(identity);
@@ -175,7 +175,7 @@ public class LocalQabelService extends Service implements DropConnector {
         try {
             contactRepository.findByKeyId(identity, contact.getKeyIdentifier());
             throw new QblStorageEntityExistsException("Contact exists");
-        } catch (EntityNotFoundExcepion ignored) {
+        } catch (EntityNotFoundException ignored) {
             try {
                 contactRepository.save(contact, identity);
             } catch (PersistenceException e) {
@@ -187,7 +187,7 @@ public class LocalQabelService extends Service implements DropConnector {
     public void deleteContact(Contact contact) {
         try {
             contactRepository.delete(contact, getActiveIdentity());
-        } catch (EntityNotFoundExcepion | PersistenceException e) {
+        } catch (EntityNotFoundException | PersistenceException e) {
             throw new RuntimeException(e);
         }
     }
@@ -383,13 +383,13 @@ public class LocalQabelService extends Service implements DropConnector {
         initRepositories();
         try {
             migratePersistence();
-        } catch (EntityNotFoundExcepion | PersistenceException e) {
+        } catch (EntityNotFoundException | PersistenceException e) {
             Log.e(TAG, "Migration of identities and contatcs failed", e);
         }
         appPreferences = new AppPreference(getApplicationContext());
     }
 
-    private void migratePersistence() throws EntityNotFoundExcepion, PersistenceException {
+    private void migratePersistence() throws EntityNotFoundException, PersistenceException {
         initAndroidPersistence();
         PersistenceMigration.migrate(persistence, identityRepository, contactRepository);
     }

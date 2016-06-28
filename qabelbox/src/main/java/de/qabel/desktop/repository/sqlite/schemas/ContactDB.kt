@@ -1,7 +1,10 @@
-package de.qabel.desktop.repository.sqlite.fields
+package de.qabel.desktop.repository.sqlite.schemas
 
 
-object ContactFields {
+object ContactDB {
+
+    const val TABLE_NAME = "contact"
+    const val TABLE_ALIAS = "c";
 
     const val ID = "id";
     const val ALIAS = "alias";

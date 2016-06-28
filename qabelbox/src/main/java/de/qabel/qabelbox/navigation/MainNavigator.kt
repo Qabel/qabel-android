@@ -6,7 +6,7 @@ import de.qabel.core.config.Contact
 import de.qabel.core.config.Identity
 import de.qabel.desktop.repository.ContactRepository
 import de.qabel.desktop.repository.IdentityRepository
-import de.qabel.desktop.repository.exception.EntityNotFoundExcepion
+import de.qabel.desktop.repository.exception.EntityNotFoundException
 import de.qabel.desktop.repository.exception.PersistenceException
 import de.qabel.qabelbox.R
 import de.qabel.qabelbox.activities.CreateAccountActivity
@@ -107,8 +107,8 @@ constructor(var activity: MainActivity,
             try {
                 val contact = contactRepository.findByKeyId(withIdentity, contactKey);
                 showFragment(activity, ChatFragment.withContact(contact), TAG_CONTACT_CHAT_FRAGMENT, true, true)
-            } catch (entityNotFoundExcepion: EntityNotFoundExcepion) {
-                warn("Could not find contact " + contactKey, entityNotFoundExcepion)
+            } catch (entityNotFoundException: EntityNotFoundException) {
+                warn("Could not find contact " + contactKey, entityNotFoundException)
             }
         } else {
             val intent = Intent(activity, MainActivity::class.java)

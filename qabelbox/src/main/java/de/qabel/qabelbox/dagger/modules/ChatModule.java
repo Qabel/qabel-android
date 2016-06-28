@@ -8,7 +8,7 @@ import de.qabel.core.config.Contact;
 import de.qabel.core.config.Identity;
 import de.qabel.desktop.repository.ContactRepository;
 import de.qabel.desktop.repository.IdentityRepository;
-import de.qabel.desktop.repository.exception.EntityNotFoundExcepion;
+import de.qabel.desktop.repository.exception.EntityNotFoundException;
 import de.qabel.qabelbox.chat.ChatServer;
 import de.qabel.qabelbox.dagger.scopes.ActivityScope;
 import de.qabel.qabelbox.interactor.ChatUseCase;
@@ -38,7 +38,7 @@ public class ChatModule {
     Contact provideContact(ContactRepository contactRepository, Identity identity) {
         try {
             return contactRepository.findByKeyId(identity, view.getContactKeyId());
-        } catch (EntityNotFoundExcepion e) {
+        } catch (EntityNotFoundException e) {
             throw new IllegalStateException("Contact not found");
         }
     }

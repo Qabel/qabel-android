@@ -12,7 +12,7 @@ class ContactsViewHolder(itemView: View, val clickListener: (ContactDto) -> Unit
                          val longClickListener: (ContactDto) -> Boolean) :
         RecyclerView.ViewHolder(itemView) {
 
-    open fun bindTo(contact: ContactDto) {
+    fun bindTo(contact: ContactDto) {
         //set grey if no identity or assciated identities not active associated
         itemView?.alpha = if (contact.active && contact.identities.size > 0) 1f else 0.35f
 
@@ -27,7 +27,7 @@ class ContactsViewHolder(itemView: View, val clickListener: (ContactDto) -> Unit
     }
 
     class ContactHeaderViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        open fun bindTo(c: Char) {
+        fun bindTo(c: Char) {
             itemView?.txtHeader?.text = c.toString()
         }
     }

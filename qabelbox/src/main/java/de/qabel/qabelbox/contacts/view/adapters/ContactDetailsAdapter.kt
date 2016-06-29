@@ -22,12 +22,12 @@ class ContactDetailsAdapter(private val onSendMessageClick: (identity: Identity)
         currentContact = contact;
         view?.apply {
             contact_icon_border.background = ContactIconDrawable(contact.contactColors(ctx))
-            tv_initial?.text = contact.initials();
-            editTextContactName?.text = contact.contact.alias;
-            editTextContactDropURL?.text = contact.readableUrl();
-            editTextContactPublicKey?.text = contact.readableKey();
+            tv_initial.text = contact.initials();
+            editTextContactName.text = contact.contact.alias;
+            editTextContactDropURL.text = contact.readableUrl();
+            editTextContactPublicKey.text = contact.readableKey();
 
-            contact_details_actions?.removeAllViews();
+            contact_details_actions.removeAllViews();
             if (contact.identities.size > 0) {
                 contact.identities.forEach { identity ->
                     addMessageButton(ctx.getString(R.string.send_message_as, identity.alias));

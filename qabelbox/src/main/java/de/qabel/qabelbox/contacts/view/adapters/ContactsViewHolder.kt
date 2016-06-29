@@ -32,7 +32,7 @@ class ContactsViewHolder(itemView: View, val clickListener: (ContactDto) -> Unit
 
     class ContactHeaderViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         fun bindTo(c: Char) {
-            itemView?.txtHeader?.text = c.toString()
+            itemView.txtHeader.text = c.toString()
         }
     }
 

@@ -44,10 +44,9 @@ class ContactDetailsAdapter(private val onSendMessageClick: (identity: Identity)
             button.text = text;
             button.setOnClickListener { button ->
                 if (currentContact != null) {
-                    val index = contact_details_actions?.indexOfChild(button);
-                    if (index!! >= 0) {
-                        onSendMessageClick(currentContact!!.identities[index])
-                    }
+                    contact_details_actions?.indexOfChild(button)?.apply {
+                        onSendMessageClick(currentContact!!.identities[this])
+                    };
                 }
             }
             contact_details_actions?.addView(button);

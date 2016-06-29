@@ -9,7 +9,7 @@ import javax.inject.Inject
 class MainContactDetailsPresenter @Inject constructor(private val view: ContactDetailsView,
                                                      private val useCase: ContactsUseCase) : ContactDetailsPresenter, AnkoLogger {
     override val title: String
-        get() = (if(contact != null) contact!!.contact.alias else "")
+        get() = contact?.contact?.alias ?:  ""
 
     var contact : ContactDto? = null
 

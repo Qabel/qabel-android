@@ -5,7 +5,7 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import de.qabel.qabelbox.R
 import de.qabel.qabelbox.contacts.dto.ContactDto
-import de.qabel.qabelbox.ui.adapters.ContactsViewHolder
+import de.qabel.qabelbox.contacts.view.adapters.ContactsViewHolder
 import java.util.*
 
 class ContactsAdapter(val clickListener: (ContactDto) -> Unit,

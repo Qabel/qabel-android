@@ -11,9 +11,9 @@ import java.util.*
 
 class SimpleContactHydrator(private val entityManager: EntityManager) : AbstractHydrator<Contact>() {
 
-    override fun hydrateOne(resultSet: ResultSet?): Contact? {
+    override fun hydrateOne(resultSet: ResultSet): Contact {
         var column = 1
-        val id = resultSet!!.getInt(column++)
+        val id = resultSet.getInt(column++)
         if (entityManager.contains(Contact::class.java, id)) {
             return entityManager.get(Contact::class.java, id)
         }
@@ -21,7 +21,7 @@ class SimpleContactHydrator(private val entityManager: EntityManager) : Abstract
         val alias = resultSet.getString(column++)
         val publicKeyAsHex = resultSet.getString(column++)
         val phone = resultSet.getString(column++)
-        val email = resultSet.getString(column++)
+        val email = resultSet.getString(column)
 
         val publicKey = QblECPublicKey(Hex.decode(publicKeyAsHex))
 
@@ -34,11 +34,11 @@ class SimpleContactHydrator(private val entityManager: EntityManager) : Abstract
         return contact
     }
 
-    override fun recognize(instance: Contact?) {
+    override fun recognize(instance: Contact) {
         entityManager.put(Contact::class.java, instance)
     }
 
-    override fun getFields(): Array<out String>? {
+    override fun getFields(): Array<out String> {
         return ContactDB.ENTITY_FIELDS.toTypedArray();
     }
 

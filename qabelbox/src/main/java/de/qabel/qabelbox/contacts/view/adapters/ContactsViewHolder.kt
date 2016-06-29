@@ -14,16 +14,20 @@ class ContactsViewHolder(itemView: View, val clickListener: (ContactDto) -> Unit
 
     fun bindTo(contact: ContactDto) {
         //set grey if no identity or assciated identities not active associated
-        itemView?.alpha = if (contact.active && contact.identities.size > 0) 1f else 0.35f
+        itemView?.apply {
+            alpha = if (contact.active && contact.identities.size > 0) 1f else 0.35f
 
-        itemView?.textViewItemName?.text = contact.contact.alias
-        //TODO Field for Mail/Phone
-        //itemView?.textViewItemDetail?.text = contact.contact.email
-        itemView?.tv_initial?.text = contact.initials();
-        itemView?.contact_icon_border?.background = ContactIconDrawable(
-                contact.contactColors(itemView.context));
-        itemView?.setOnClickListener({ clickListener.invoke(contact) });
-        itemView?.setOnLongClickListener({ longClickListener.invoke(contact); });
+            textViewItemName.text = contact.contact.alias
+            //TODO Field for Mail/Phone
+            //itemView?.textViewItemDetail?.text = contact.contact.email
+
+            tv_initial.text = contact.initials();
+            contact_icon_border.background = ContactIconDrawable(
+                    contact.contactColors(itemView.context));
+
+            setOnClickListener({ clickListener.invoke(contact) });
+            setOnLongClickListener({ longClickListener.invoke(contact); });
+        }
     }
 
     class ContactHeaderViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {

@@ -20,36 +20,38 @@ class ContactDetailsAdapter(private val onSendMessageClick: (identity: Identity)
 
     fun loadContact(contact: ContactDto) {
         currentContact = contact;
-        if(view != null) {
-            view!!.contact_icon_border?.background = ContactIconDrawable(contact.contactColors(view!!.ctx))
-            view?.tv_initial?.text = contact.initials();
-            view?.editTextContactName?.text = contact.contact.alias;
-            view?.editTextContactDropURL?.text = contact.readableUrl();
-            view?.editTextContactPublicKey?.text = contact.readableKey();
+        view?.apply {
+            contact_icon_border.background = ContactIconDrawable(contact.contactColors(ctx))
+            tv_initial?.text = contact.initials();
+            editTextContactName?.text = contact.contact.alias;
+            editTextContactDropURL?.text = contact.readableUrl();
+            editTextContactPublicKey?.text = contact.readableKey();
 
-            view?.contact_details_actions?.removeAllViews();
+            contact_details_actions?.removeAllViews();
             if (contact.identities.size > 0) {
                 contact.identities.forEach { identity ->
-                    addMessageButton(view?.ctx?.getString(R.string.send_message_as, identity.alias));
+                    addMessageButton(ctx.getString(R.string.send_message_as, identity.alias));
                 }
             } else {
-                addMessageButton(view?.ctx?.getString(R.string.btn_chat_send, contact.identities.first().alias))
+                addMessageButton(ctx.getString(R.string.btn_chat_send, contact.identities.first().alias))
             }
         }
     }
 
     private fun addMessageButton(text: String?) {
-        val button = view?.ctx?.layoutInflater?.inflate(R.layout.contact_details_message_button, null) as Button;
-        button.text = text;
-        button.setOnClickListener { button ->
-            if (currentContact != null) {
-                val index = view?.contact_details_actions?.indexOfChild(button);
-                if (index!! >= 0) {
-                    onSendMessageClick(currentContact!!.identities[index])
+        view?.apply {
+            val button = ctx.layoutInflater.inflate(R.layout.contact_details_message_button, null) as Button;
+            button.text = text;
+            button.setOnClickListener { button ->
+                if (currentContact != null) {
+                    val index = contact_details_actions?.indexOfChild(button);
+                    if (index!! >= 0) {
+                        onSendMessageClick(currentContact!!.identities[index])
+                    }
                 }
             }
+            contact_details_actions?.addView(button);
         }
-        view?.contact_details_actions?.addView(button);
     }
 
 }

@@ -29,8 +29,8 @@ class ContactDetailsAdapter(private val onSendMessageClick: (identity: Identity)
 
             contact_details_actions.removeAllViews();
             if (contact.identities.size > 0) {
-                contact.identities.forEach { identity ->
-                    addMessageButton(ctx.getString(R.string.send_message_as, identity.alias));
+                contact.identities.forEach {
+                    addMessageButton(ctx.getString(R.string.send_message_as, it.alias));
                 }
             } else {
                 addMessageButton(ctx.getString(R.string.btn_chat_send, contact.identities.first().alias))

@@ -14,6 +14,7 @@ import de.qabel.desktop.repository.sqlite.hydrator.ContactHydrator
 import de.qabel.desktop.repository.sqlite.hydrator.DropURLHydrator
 import de.qabel.desktop.repository.sqlite.hydrator.SimpleContactHydrator
 import de.qabel.desktop.repository.sqlite.schemas.ContactDB
+import de.qabel.desktop.util.DefaultHashMap
 import java.sql.SQLException
 import java.util.*
 
@@ -25,28 +26,6 @@ class SqliteContactRepository(database: ClientDatabase,
                 entityManager,
                 DefaultContactFactory(),
                 SqliteDropUrlRepository(database, DropURLHydrator())), ContactDB.TABLE_NAME), ContactRepository {
-
-    /** TODO
-     * Kotlin currently not support AutoCloseable, just Closeable
-     * Some hope : "TODO: Provide use kotlin package for AutoCloseable"
-     * **/
-    inline fun <T : AutoCloseable, R> T.use(block: (T) -> R): R {
-        var closed = false
-        try {
-            return block(this)
-        } catch (e: Exception) {
-            closed = true
-            try {
-                close()
-            } catch (closeException: Exception) {
-            }
-            throw e
-        } finally {
-            if (!closed) {
-                close()
-            }
-        }
-    }
 
     @Throws(PersistenceException::class, EntityNotFoundException::class)
     internal fun find(id: Int?): Contact {
@@ -109,7 +88,7 @@ class SqliteContactRepository(database: ClientDatabase,
                     return false;
                 })
             }
-        }catch(ex : SQLException){
+        } catch(ex: SQLException) {
             throw PersistenceException("failed to check for existing contact", ex);
         }
     }
@@ -292,7 +271,7 @@ class SqliteContactRepository(database: ClientDatabase,
     @Throws(PersistenceException::class)
     private fun findContactIdentityKeys(contactIds: List<Int>): Map<Int, List<String>> {
         try {
-            val contactIdentityMap = HashMap<Int, MutableList<String>>()
+            val contactIdentityMap = DefaultHashMap<Int, MutableList<String>>({ LinkedList<String>() })
             database.prepare(
                     "SELECT c.id, c2.publicKey " +
                             "FROM " + ContactDB.TABLE_NAME + " " + ContactDB.TABLE_ALIAS + " " +
@@ -304,18 +283,12 @@ class SqliteContactRepository(database: ClientDatabase,
                     while (results.next()) {
                         val id = results.getInt(1)
                         val identityKey = results.getString(2);
-
-                        if (contactIdentityMap.contains(id)) {
-                            contactIdentityMap[id]!!.add(identityKey);
-                        } else {
-                            contactIdentityMap.put(id, mutableListOf(identityKey))
-                        }
+                        contactIdentityMap.getOrDefault(id).add(identityKey);
                     }
                 })
                 return contactIdentityMap
             }
         } catch (e: SQLException) {
-            e.printStackTrace()
             throw PersistenceException("Error loading identities for contacts")
         }
 
@@ -334,11 +307,9 @@ class SqliteContactRepository(database: ClientDatabase,
         val resultList = ArrayList<Pair<Contact, List<Identity>>>(contacts.size)
         contacts.map { contact ->
             contactsDropUrls[contact.id]?.forEach { dropUrl -> contact.addDrop(dropUrl) }
-            resultList.add(Pair(contact, if (contactIdentityKeys.contains(contact.id)) {
-                contactIdentityKeys[contact.id]!!.map { identityKey -> identities.getByKeyIdentifier(identityKey) }
-            } else emptyList()))
+            resultList.add(Pair(contact,
+                    contactIdentityKeys.mapEntities(contact.id, identities)))
         }
-
         return resultList
     }
 }

@@ -3,6 +3,7 @@ package de.qabel.qabelbox.services;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
+import java.io.IOException;
 import java.net.URI;
 import java.security.SecureRandom;
 import java.util.ArrayList;
@@ -204,6 +205,10 @@ public class HttpDropConnector implements DropConnector {
      */
     HTTPResult<Collection<byte[]>> getDropMessages(URI uri, long sinceDate) {
         Log.v(TAG, "retrieveDropMessage: " + uri.toString() + " at: " + sinceDate);
-        return dropHTTP.receiveMessages(uri, sinceDate);
+        try {
+            return dropHTTP.receiveMessages(uri, sinceDate);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

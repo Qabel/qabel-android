@@ -18,7 +18,6 @@ import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.activities.MainActivity;
 import de.qabel.qabelbox.chat.ChatMessageItem;
 import de.qabel.qabelbox.chat.ChatServer;
-import de.qabel.qabelbox.exceptions.QblStorageEntityExistsException;
 import de.qabel.qabelbox.fragments.ContactFragment;
 import de.qabel.qabelbox.helper.Helper;
 import de.qabel.qabelbox.navigation.MainNavigator;
@@ -94,7 +93,7 @@ public class ChatMessageUITest extends AbstractUITest {
     }
 
     private Contact addContact(Identity identity, Identity contact)
-            throws QblStorageEntityExistsException, PersistenceException {
+            throws PersistenceException {
         Contact asContact = new Contact(contact.getAlias(),
                 contact.getDropUrls(),contact.getEcPublicKey());
         contactRepository.save(asContact, identity);

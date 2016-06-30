@@ -138,24 +138,6 @@
             android:windowSoftInputMode="stateHidden|adjustResize"/>
 
         <service
-            android:name=".services.QabelService"
-            android:enabled="true"
-            android:exported="true"
-            android:permission=".QABELSERVICE">
-            <intent-filter>
-                <action android:name=".service.QabelService"></action>
-            </intent-filter>
-        </service>
-
-        <service
-            android:name=".services.LocalQabelService"
-            android:enabled="true"
-            android:exported="false">
-            <intent-filter>
-                <action android:name=".service.LocalQabelService"></action>
-            </intent-filter>
-        </service>
-        <service
             android:name=".services.QabelSyncService"
             android:exported="true"
             android:process=":sync">
@@ -175,20 +157,6 @@
                 android:name="android.accounts.AccountAuthenticator"
                 android:resource="@xml/authenticator"/>
         </service>
-
-        <provider
-            android:name=".services.QabelContentProvider"
-            android:authorities="${applicationId}.services.QabelContentProvider"
-            android:exported="true"
-            android:readPermission=".QABEL_READ_RESOURCES"
-            android:writePermission=".QABEL_WRITE_RESOURCES">
-            <path-permission
-                android:path="/contacts"
-                android:readPermission=".QABEL_READ_CONTACTS"/>
-            <path-permission
-                android:path="/identities"
-                android:readPermission=".QABEL_READ_IDENTITIES"/>
-        </provider>
 
         <provider
             android:name=".providers.BoxProvider"

@@ -28,11 +28,13 @@ import de.qabel.core.crypto.QblECKeyPair;
 import de.qabel.core.drop.AdjustableDropIdGenerator;
 import de.qabel.core.drop.DropIdGenerator;
 import de.qabel.core.drop.DropURL;
+import de.qabel.desktop.repository.exception.PersistenceException;
 import de.qabel.qabelbox.BuildConfig;
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.RoboApplication;
 import de.qabel.qabelbox.communication.callbacks.JsonRequestCallback;
 import de.qabel.qabelbox.config.AppPreference;
+import de.qabel.qabelbox.persistence.RepositoryFactory;
 import okhttp3.Response;
 
 import static junit.framework.Assert.assertNotNull;
@@ -77,9 +79,9 @@ public class OfflineTest {
     }
 
     @Before
-    public void setUp() {
+    public void setUp() throws PersistenceException {
         QabelBoxApplication application = (QabelBoxApplication) RuntimeEnvironment.application;
-        application.getService().addIdentity(createIdentity("spoon"));
+        application.getApplicationComponent().identityRepository().save(createIdentity("spoon"));
         AppPreference preference = new AppPreference(application);
         preference.setToken("MAGICFAIRY");
         preference.setAccountName("TestFoo");

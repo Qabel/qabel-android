@@ -54,7 +54,6 @@ import de.qabel.qabelbox.chat.ChatServer;
 import de.qabel.qabelbox.config.ContactExportImport;
 import de.qabel.qabelbox.config.QabelSchema;
 import de.qabel.qabelbox.dagger.components.MainActivityComponent;
-import de.qabel.qabelbox.exceptions.QblStorageEntityExistsException;
 import de.qabel.qabelbox.helper.AccountHelper;
 import de.qabel.qabelbox.helper.ExternalApps;
 import de.qabel.qabelbox.helper.FileHelper;
@@ -273,7 +272,7 @@ public class ContactFragment extends BaseFragment {
      *
      * @param contact
      */
-    public void addContactSilent(Contact contact) throws QblStorageEntityExistsException, PersistenceException {
+    public void addContactSilent(Contact contact) throws PersistenceException {
         contactRepository.save(contact, getActiveIdentity());
         sendRefreshContactList();
     }
@@ -405,7 +404,7 @@ public class ContactFragment extends BaseFragment {
                             try {
                                 addContactSilent(contact);
                                 added++;
-                            } catch (PersistenceException | QblStorageEntityExistsException e) {
+                            } catch (PersistenceException e) {
                                 failed++;
                                 Log.w(TAG, "found doublette. Will ignore it", e);
                             }

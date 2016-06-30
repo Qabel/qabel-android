@@ -14,9 +14,9 @@ import org.robolectric.annotation.Config;
 import java.io.File;
 import java.io.IOException;
 
+import de.qabel.box.storage.BoxFile;
 import de.qabel.qabelbox.BuildConfig;
 import de.qabel.qabelbox.SimpleApplication;
-import de.qabel.qabelbox.storage.model.BoxFile;
 import de.qabel.qabelbox.test.files.FileHelper;
 
 import static org.hamcrest.Matchers.*;
@@ -67,14 +67,12 @@ public class FileCacheTest {
         mHelper.put(boxFile, file);
         assertThat(mHelper.get(boxFile), equalTo(file));
         // name change is ignored
-        boxFile.name = "foobar";
+        boxFile.setName("foobar");
         assertThat(mHelper.get(boxFile), equalTo(file));
         // mtime change not.
-        boxFile.mtime += 1;
+        boxFile.setMtime(boxFile.getMtime() + 1);
         assertNull(mHelper.get(boxFile));
-        boxFile.mtime -= 1;
-        // size change also not
-        boxFile.size += 1;
+        boxFile.setMtime(boxFile.getMtime() - 1);
         assertNull(mHelper.get(boxFile));
     }
 

@@ -20,6 +20,7 @@ import de.qabel.qabelbox.fragments.ContactFragment;
 import de.qabel.qabelbox.fragments.HelpMainFragment;
 import de.qabel.qabelbox.fragments.IdentitiesFragment;
 import de.qabel.qabelbox.ui.views.ChatFragment;
+import kotlin.NotImplementedError;
 
 public class MainNavigator implements Navigator {
 
@@ -113,9 +114,7 @@ public class MainNavigator implements Navigator {
 
     @Override
     public void selectFilesFragment() {
-        activity.filesFragment.navigateBackToRoot();
-        activity.filesFragment.setIsLoading(false);
-        showMainFragment(activity.filesFragment, TAG_FILES_FRAGMENT);
+        Log.e(TAG, "Files fragment not implemented");
     }
 
     private void showMainFragment(Fragment fragment, String tag) {

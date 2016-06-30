@@ -6,30 +6,21 @@ import android.net.Uri;
 import android.os.ParcelFileDescriptor;
 import android.util.Log;
 
-import com.google.zxing.integration.android.IntentResult;
-
 import org.json.JSONException;
-import org.spongycastle.util.encoders.Hex;
 
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
 
 import de.qabel.core.config.Contact;
 import de.qabel.core.config.Contacts;
-import de.qabel.core.crypto.QblECPublicKey;
-import de.qabel.core.drop.DropURL;
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.activities.MainActivity;
 import de.qabel.qabelbox.config.ContactExportImport;
 import de.qabel.qabelbox.config.QabelSchema;
-import de.qabel.qabelbox.exceptions.QblStorageEntityExistsException;
 import de.qabel.qabelbox.helper.FileHelper;
 import de.qabel.qabelbox.helper.Helper;
 import de.qabel.qabelbox.helper.UIHelper;
-import de.qabel.qabelbox.services.LocalQabelService;
 
 /**
  * Created by danny on 29.03.16.
@@ -48,10 +39,7 @@ public class ContactBaseFragment extends BaseFragment {
      *
      * @param contact
      */
-    protected void addContactSilent(Context context, Contact contact) throws QblStorageEntityExistsException {
-        LocalQabelService service = QabelBoxApplication.getInstance().getService();
-        service.addContact(contact);
-        sendRefreshContactList(context);
+    protected void addContactSilent(Context context, Contact contact) {
     }
 
     protected void sendRefreshContactList(Context context) {
@@ -75,13 +63,8 @@ public class ContactBaseFragment extends BaseFragment {
             int failed = result.getSkippedContacts();
             Contacts contacts = result.getContacts();
             for (Contact contact : contacts.getContacts()) {
-                try {
-                    addContactSilent(activity.getApplicationContext(), contact);
-                    added++;
-                } catch (QblStorageEntityExistsException existsException) {
-                    Log.w(TAG, "found doublet's. Will ignore it", existsException);
-                    failed++;
-                }
+                addContactSilent(activity.getApplicationContext(), contact);
+                added++;
             }
             if (added == 1 && failed == 0) {
                 UIHelper.showDialogMessage(

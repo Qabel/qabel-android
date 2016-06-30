@@ -12,7 +12,7 @@ import android.view.ViewGroup
 import de.qabel.core.config.Contact
 import de.qabel.core.config.Identity
 import de.qabel.qabelbox.R
-import de.qabel.qabelbox.adapter.ChatMessageAdapter
+import de.qabel.qabelbox.ui.adapters.ChatMessageAdapter
 import de.qabel.qabelbox.dagger.components.MainActivityComponent
 import de.qabel.qabelbox.dagger.modules.ChatModule
 import de.qabel.qabelbox.dto.ChatMessage

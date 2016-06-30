@@ -15,7 +15,7 @@ import de.qabel.core.config.Identity
 import de.qabel.qabelbox.BuildConfig
 import de.qabel.qabelbox.R
 import de.qabel.qabelbox.SimpleApplication
-import de.qabel.qabelbox.adapter.ChatMessageAdapter
+import de.qabel.qabelbox.ui.adapters.ChatMessageAdapter
 import de.qabel.qabelbox.dto.ChatMessage
 import de.qabel.qabelbox.dto.MessagePayload
 import de.qabel.qabelbox.dto.SymmetricKey

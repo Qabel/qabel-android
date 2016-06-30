@@ -1,39 +1,47 @@
 package de.qabel.qabelbox.ui.views
 
-import android.support.test.espresso.Espresso
-import com.natpryce.hamkrest.should.shouldMatch
-import de.qabel.qabelbox.activities.MainActivity
+import android.content.Intent
 import de.qabel.qabelbox.navigation.MainNavigator
 import de.qabel.qabelbox.ui.AbstractUITest
 import de.qabel.qabelbox.ui.idling.InjectedIdlingResource
-import de.qabel.qabelbox.util.IdentityHelper
-import org.junit.Assert.*
-import org.mockito.Matchers.*
-import org.mockito.Mockito.*
-import org.hamcrest.Matchers.*
-
-import org.junit.Before
-import org.junit.After
+import de.qabel.qabelbox.ui.presenters.FileBrowserPresenter
 import org.junit.Test
-import org.junit.runner.RunWith
+
+import android.support.test.espresso.Espresso
+import android.support.test.espresso.Espresso.onView
+import android.support.test.espresso.action.ViewActions.click
+import android.support.test.espresso.assertion.ViewAssertions
+import android.support.test.espresso.matcher.ViewMatchers.*
+import de.qabel.qabelbox.R
+import de.qabel.qabelbox.activities.MainActivity
+import de.qabel.qabelbox.dto.BrowserEntry
+import de.qabel.qabelbox.ui.presenters.ChatPresenter
+import org.junit.Ignore
+import org.mockito.Mockito.*
+import java.util.*
 
 class FileBrowserFragmentTest: AbstractUITest() {
 
 
-    val contact = IdentityHelper.createContact("contact")
     lateinit var fragment: FileBrowserFragment
+    lateinit var presenter: FileBrowserPresenter
 
     override fun setUp() {
         super.setUp()
-        contactRepository.save(contact, identity)
+    }
+
+    override fun getDefaultIntent(): Intent {
+        return Intent(mContext, MainActivity::class.java).apply {
+            putExtra(MainActivity.START_FILES_FRAGMENT, true)
+        }
     }
 
     fun launch() {
-        with(defaultIntent) {
-            launchActivity(this)
-        }
+        launchActivity(defaultIntent)
         fragment = mActivity.fragmentManager.findFragmentByTag(
                 MainNavigator.TAG_FILES_FRAGMENT) as FileBrowserFragment
+        presenter = mock(FileBrowserPresenter::class.java)
+        fragment.presenter = presenter
 
         val resource = InjectedIdlingResource()
         Espresso.registerIdlingResources(resource);
@@ -41,8 +49,22 @@ class FileBrowserFragmentTest: AbstractUITest() {
     }
 
 
+    @Ignore
     @Test
-    fun testShowEmptyFileBrowser() {
+    fun refreshActionBarButton() {
         launch()
+        onView(withId(R.id.menu_refresh)).perform(click())
+        verify(presenter).onRefresh()
+    }
+
+    @Test
+    fun entryClick() {
+        launch()
+        val file = BrowserEntry.File("Name.txt", 42000, Date())
+        val entries = listOf(file)
+        fragment.showEntries(entries)
+
+        onView(withText(file.name)).perform(click())
+        verify(presenter).onClick(file)
     }
 }

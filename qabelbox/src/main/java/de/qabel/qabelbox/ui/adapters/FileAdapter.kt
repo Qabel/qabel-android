@@ -4,37 +4,41 @@ import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import de.qabel.qabelbox.R
-import de.qabel.qabelbox.dto.FileEntry
+import de.qabel.qabelbox.dto.BrowserEntry
 
-open class FileAdapter(var files: MutableList<FileEntry>): RecyclerView.Adapter<FileViewHolder>() {
-
-    companion object {
-        const val NO_MESSAGE = R.layout.item_no_message
-        const val INCOMING_TEXT = R.layout.item_chat_message_in
-        const val INCOMING_SHARE = R.layout.item_share_message_in
-        const val OUTGOING_TEXT = R.layout.item_chat_message_out
-        const val OUTGOING_SHARE = R.layout.item_share_message_out
-    }
+open class FileAdapter(var entries: MutableList<BrowserEntry>,
+                       val click: (BrowserEntry) -> Unit = {},
+                       val longClick: (BrowserEntry) -> Boolean = { true }):
+        RecyclerView.Adapter<FileViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup?, viewType: Int): FileViewHolder? {
         parent ?: throw IllegalArgumentException("Parent view group is null")
 
         val layout = LayoutInflater.from(parent.context)
-                .inflate(viewType, parent, false);
-        return FileViewHolder(layout)
+                .inflate(R.layout.item_files, parent, false)
+        val holder = FileViewHolder(layout)
+
+        return holder
     }
 
     override fun getItemViewType(position: Int): Int {
         return 0
     }
 
-    override fun getItemCount(): Int = files.size
+    override fun getItemCount(): Int = entries.size
 
     override fun onBindViewHolder(holder: FileViewHolder?, position: Int) {
-        holder?.bindTo(getItemAtPosition(position) ?: return)
+        holder ?: return
+        val entry = getItemAtPosition(position) ?: return
+
+        holder.bindTo(entry)
+        with(holder.itemView) {
+            setOnClickListener { click(entry) }
+            setOnLongClickListener { longClick(entry) }
+        }
     }
 
-    fun getItemAtPosition(position: Int): FileEntry? = files.getOrNull(position)
+    fun getItemAtPosition(position: Int): BrowserEntry? = entries.getOrNull(position)
 
 }
 

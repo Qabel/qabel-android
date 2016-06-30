@@ -391,7 +391,7 @@ public class MainActivity extends CrashReportingActivity
                         navigator.selectContactsFragment();
                         navigator.selectChatFragment(activeContact);
                     } else if (startFilesFragment) {
-                        //initAndSelectFilesFragment(filePath);
+                        navigator.selectFilesFragment();
                     }
                     break;
             }
@@ -400,7 +400,7 @@ public class MainActivity extends CrashReportingActivity
                 navigator.selectContactsFragment();
                 navigator.selectChatFragment(activeContact);
             } else if (startFilesFragment) {
-                //initAndSelectFilesFragment(filePath);
+                navigator.selectFilesFragment();
             }
         }
     }
@@ -758,7 +758,7 @@ public class MainActivity extends CrashReportingActivity
         } catch (PersistenceException e) {
             throw new RuntimeException(e);
         }
-        i.putExtra(CreateIdentityActivity.FIRST_RUN, identitiesCount == 0 ? true : false);
+        i.putExtra(CreateIdentityActivity.FIRST_RUN, identitiesCount == 0);
 
         if (identitiesCount == 0) {
             finish();
@@ -766,11 +766,6 @@ public class MainActivity extends CrashReportingActivity
         } else {
             self.startActivityForResult(i, REQUEST_CREATE_IDENTITY);
         }
-    }
-
-    private void showAbortMessage() {
-        Toast.makeText(self, R.string.aborted,
-                Toast.LENGTH_SHORT).show();
     }
 
     @Override

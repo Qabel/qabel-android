@@ -16,6 +16,7 @@ import de.qabel.qabelbox.storage.notifications.AndroidStorageNotificationPresent
 import de.qabel.qabelbox.storage.notifications.StorageNotificationManager;
 import de.qabel.qabelbox.storage.server.AndroidBlockServer;
 import de.qabel.qabelbox.storage.server.BlockServer;
+import de.qabel.qabelbox.ui.presenters.FileBrowserPresenter;
 
 @Module
 public class StorageModule {

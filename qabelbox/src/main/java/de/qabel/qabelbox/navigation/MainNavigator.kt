@@ -19,6 +19,7 @@ import de.qabel.qabelbox.fragments.HelpMainFragment
 import de.qabel.qabelbox.fragments.IdentitiesFragment
 import de.qabel.qabelbox.fragments.QRcodeFragment
 import de.qabel.qabelbox.ui.views.ChatFragment
+import de.qabel.qabelbox.ui.views.FileBrowserFragment
 import org.jetbrains.anko.AnkoLogger
 import org.jetbrains.anko.warn
 import javax.inject.Inject
@@ -77,9 +78,8 @@ constructor(var activity: MainActivity,
         showMainFragment(AboutLicencesFragment(), TAG_ABOUT_FRAGMENT)
     }
 
-    override fun selectFilesFragment() {
-        TODO("FilesFragment is under construction");
-    }
+    override fun selectFilesFragment()
+            = showMainFragment(FileBrowserFragment.newInstance(), TAG_FILES_FRAGMENT)
 
     override fun selectContactsFragment() {
         showMainFragment(ContactsFragment(), TAG_CONTACT_LIST_FRAGMENT)

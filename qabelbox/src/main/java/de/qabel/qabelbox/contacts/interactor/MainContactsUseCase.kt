@@ -3,12 +3,11 @@ package de.qabel.qabelbox.contacts.interactor
 import de.qabel.core.config.Contact
 import de.qabel.core.config.ContactExportImport
 import de.qabel.core.config.Identity
+import de.qabel.core.contacts.ContactExchangeFormats
 import de.qabel.desktop.repository.ContactRepository
-import de.qabel.desktop.repository.IdentityRepository
 import de.qabel.qabelbox.contacts.dto.ContactDto
 import de.qabel.qabelbox.contacts.dto.ContactParseResult
 import de.qabel.qabelbox.contacts.dto.ContactsParseResult
-import de.qabel.qabelbox.exceptions.QblStorageEntityExistsException
 import rx.Subscriber
 import rx.lang.kotlin.observable
 import java.io.FileDescriptor
@@ -19,6 +18,8 @@ import javax.inject.Inject
 
 class MainContactsUseCase @Inject constructor(private val activeIdentity: Identity,
                                               private val contactRepository: ContactRepository) : ContactsUseCase {
+
+    private val contactExchangeFormats = ContactExchangeFormats();
 
     override fun search(filter: String) = observable<ContactDto> { subscriber ->
         load(subscriber, filter)
@@ -70,7 +71,7 @@ class MainContactsUseCase @Inject constructor(private val activeIdentity: Identi
         val contacts = contactRepository.findWithIdentities(null).map { pair -> pair.first };
         FileOutputStream(targetFile).use({ stream ->
             stream.bufferedWriter().use { writer ->
-                writer.write(ContactExportImport.exportContactsToJSON(contacts))
+                writer.write(contactExchangeFormats.exportToContactsJSON(contacts.toSet()))
             }
             subscriber.onNext(contacts.size);
             subscriber.onCompleted();
@@ -85,7 +86,7 @@ class MainContactsUseCase @Inject constructor(private val activeIdentity: Identi
             }
         }
 
-        val contacts = ContactExportImport.importContactFromJson(inputString);
+        val contacts = contactExchangeFormats.importFromContactsJSON(inputString);
         var importedContacts = 0;
         contacts.forEach { contact ->
             if (!contactRepository.exists(contact)) {
@@ -99,7 +100,7 @@ class MainContactsUseCase @Inject constructor(private val activeIdentity: Identi
 
     override fun importContactString(contactString: String) = observable<ContactParseResult> {
         subscriber ->
-        val contact = ContactExportImport.importFromContactString(contactString);
+        val contact = contactExchangeFormats.importFromContactString(contactString);
         if (!contactRepository.exists(contact)) {
             contactRepository.save(contact, activeIdentity)
         }

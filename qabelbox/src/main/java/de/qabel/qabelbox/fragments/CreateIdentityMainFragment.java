@@ -18,14 +18,17 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URISyntaxException;
 
+import javax.inject.Inject;
+
 import de.qabel.core.config.Identity;
 import de.qabel.core.exceptions.QblDropInvalidURL;
+import de.qabel.desktop.repository.IdentityRepository;
+import de.qabel.desktop.repository.exception.PersistenceException;
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.activities.CreateIdentityActivity;
 import de.qabel.qabelbox.config.IdentityExportImport;
 import de.qabel.qabelbox.helper.UIHelper;
-import de.qabel.qabelbox.services.LocalQabelService;
 
 /**
  * Created by danny on 19.01.16.
@@ -34,6 +37,16 @@ public class CreateIdentityMainFragment extends BaseIdentityFragment implements 
 
     private Button mCreateIdentity;
     private Button mImportIdentity;
+
+    @Inject
+    IdentityRepository identityRepository;
+
+
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        QabelBoxApplication.getApplicationComponent(getActivity().getApplicationContext()).inject(this);
+    }
 
     @Nullable
     @Override
@@ -88,11 +101,7 @@ public class CreateIdentityMainFragment extends BaseIdentityFragment implements 
                 }
                 Identity importedIdentity = IdentityExportImport.parseIdentity(stringBuilder.toString());
 
-                LocalQabelService mService = QabelBoxApplication.getInstance().getService();
-                mService.addIdentity(importedIdentity);
-                if (mService.getActiveIdentity() == null) {
-                    mService.setActiveIdentity(importedIdentity);
-                }
+                identityRepository.save(importedIdentity);
 
                 if (activity instanceof CreateIdentityActivity) {
                     CreateIdentityActivity createActivity = (CreateIdentityActivity) activity;
@@ -101,7 +110,7 @@ public class CreateIdentityMainFragment extends BaseIdentityFragment implements 
                     createActivity.completeWizard();
                 }
                 return true;
-            } catch (IOException | JSONException | URISyntaxException | QblDropInvalidURL e) {
+            } catch (IOException | JSONException | URISyntaxException | QblDropInvalidURL| PersistenceException e) {
                 UIHelper.showDialogMessage(activity, R.string.dialog_headline_info, R.string.cant_read_identity);
             }
         }

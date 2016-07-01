@@ -5,8 +5,6 @@ import android.support.test.InstrumentationRegistry;
 import android.support.test.espresso.action.ViewActions;
 import android.support.test.rule.ActivityTestRule;
 
-import com.squareup.spoon.Spoon;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -18,7 +16,6 @@ import java.io.IOException;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.activities.WelcomeScreenActivity;
 import de.qabel.qabelbox.config.AppPreference;
-import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.ui.helper.SystemAnimations;
 import de.qabel.qabelbox.ui.helper.UIActionHelper;
 import de.qabel.qabelbox.ui.helper.UITestHelper;
@@ -56,7 +53,7 @@ public class WelcomeScreenUITest {
     }
 
     @Before
-    public void setUp() throws IOException, QblStorageException {
+    public void setUp() throws IOException {
         new AppPreference(InstrumentationRegistry.getTargetContext()).setWelcomeScreenShownAt(0);
         mActivity = mActivityTestRule.launchActivity(null);
         wakeLock = UIActionHelper.wakeupDevice(mActivity);

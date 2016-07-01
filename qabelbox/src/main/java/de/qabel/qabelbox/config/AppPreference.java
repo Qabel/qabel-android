@@ -10,7 +10,6 @@ import org.spongycastle.util.encoders.Hex;
 
 import de.qabel.core.crypto.CryptoUtils;
 import de.qabel.qabelbox.persistence.SimpleJSONAdapter;
-import de.qabel.qabelbox.services.LocalQabelService;
 import de.qabel.qabelbox.storage.data.BoxQuotaJSONAdapter;
 import de.qabel.qabelbox.storage.model.BoxQuota;
 
@@ -98,7 +97,8 @@ public class AppPreference {
     }
 
     private String getLegacyDeviceId() {
-        SharedPreferences oldPrefs = context.getSharedPreferences(LocalQabelService.class.getCanonicalName(), Context.MODE_PRIVATE);
+        SharedPreferences oldPrefs = context.getSharedPreferences(
+                "de.qabel.qabelbox.services.LocalQabelService", Context.MODE_PRIVATE);
         return oldPrefs.getString(P_DEVICE_ID, null);
     }
 

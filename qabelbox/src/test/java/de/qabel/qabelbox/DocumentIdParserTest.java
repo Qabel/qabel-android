@@ -73,7 +73,6 @@ public class DocumentIdParserTest {
         assertThat(documentIdParser.buildId(pub, prefix, filePath), is(rootId + SEP + filePath));
         assertThat(documentIdParser.buildId(pub, prefix, null), is(rootId));
         assertThat(documentIdParser.buildId(pub, null, null), is(pub));
-        assertThat(documentIdParser.buildId(null, null, null), nullValue());
     }
 
     @Test

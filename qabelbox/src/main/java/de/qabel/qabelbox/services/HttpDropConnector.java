@@ -58,7 +58,7 @@ public class HttpDropConnector implements DropConnector {
     @Override
     public void sendDropMessage(final DropMessage dropMessage, final Contact recipient,
                                 final Identity identity,
-                                @Nullable final LocalQabelService.OnSendDropMessageResult dropResultCallback)
+                                @Nullable final OnSendDropMessageResult dropResultCallback)
             throws QblDropPayloadSizeException {
         new Thread(new Runnable() {
             final BinaryDropMessageV0 binaryMessage = new BinaryDropMessageV0(dropMessage);
@@ -209,6 +209,10 @@ public class HttpDropConnector implements DropConnector {
      */
     HTTPResult<Collection<byte[]>> getDropMessages(URI uri, long sinceDate) throws IOException {
         Log.v(TAG, "retrieveDropMessage: " + uri.toString() + " at: " + sinceDate);
-        return dropHTTP.receiveMessages(uri, sinceDate);
+        try {
+            return dropHTTP.receiveMessages(uri, sinceDate);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

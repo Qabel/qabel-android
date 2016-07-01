@@ -1,15 +1,15 @@
 package de.qabel.qabelbox.persistence;
 
+import de.qabel.core.config.Persistable;
+import de.qabel.core.exceptions.QblInvalidEncryptionKeyException;
+import de.qabel.desktop.legacy.Persistence;
+import de.qabel.qabelbox.exceptions.QblPersistenceException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import de.qabel.core.config.Persistable;
-import de.qabel.core.exceptions.QblInvalidEncryptionKeyException;
-import de.qabel.desktop.legacy.Persistence;
-import de.qabel.qabelbox.exceptions.QblPersistenceException;
 
 public class AndroidPersistence extends Persistence<QblSQLiteParams> {
 

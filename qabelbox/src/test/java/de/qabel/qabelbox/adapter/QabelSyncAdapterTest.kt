@@ -10,8 +10,8 @@ import de.qabel.qabelbox.BuildConfig
 import de.qabel.qabelbox.SimpleApplication
 import de.qabel.qabelbox.chat.ChatMessagesDataBase
 import de.qabel.qabelbox.chat.ChatServer
+import de.qabel.qabelbox.persistence.RepositoryFactory
 import de.qabel.qabelbox.services.MockedDropConnector
-import de.qabel.qabelbox.services.RoboLocalQabelService
 import de.qabel.qabelbox.util.IdentityHelper
 import org.hamcrest.Matchers.`is`
 import org.junit.Assert.assertThat
@@ -29,7 +29,6 @@ import org.robolectric.annotation.Config
 @Config(application = SimpleApplication::class, constants = BuildConfig::class)
 class QabelSyncAdapterTest {
     lateinit var context: Application
-    lateinit var service: RoboLocalQabelService
     lateinit var identity: Identity
     lateinit var identity2: Identity
     lateinit var syncAdapter: QabelSyncAdapter
@@ -43,16 +42,17 @@ class QabelSyncAdapterTest {
     @Before
     fun setUp() {
         context = RuntimeEnvironment.application
-        service = RoboLocalQabelService()
-        service.onCreate()
+        val factory = RepositoryFactory(context)
         identity = IdentityHelper.createIdentity("foo", null)
         identity2 = IdentityHelper.createIdentity("bar", null)
-        service.addIdentity(identity)
-        service.addIdentity(identity2)
+        val identityRepository = factory.getIdentityRepository(factory.androidClientDatabase)
+        identityRepository.save(identity)
+        identityRepository.save(identity2)
         contact1 = Contact("contact1", identity.dropUrls, identity.ecPublicKey)
         contact2 = Contact("contact2", identity2.dropUrls, identity2.ecPublicKey)
-        service.addContact(contact1, identity2)
-        service.addContact(contact2, identity)
+        val contactRepository = factory.getContactRepository(factory.androidClientDatabase)
+        contactRepository.save(contact1, identity2)
+        contactRepository.save(contact2, identity)
         db1 = ChatMessagesDataBase(context, identity)
         db2 = ChatMessagesDataBase(context, identity2)
         chatServer = ChatServer(context)

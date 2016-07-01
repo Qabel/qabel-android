@@ -4,20 +4,16 @@ import android.app.AlertDialog;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.content.BroadcastReceiver;
-import android.content.ComponentName;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.ServiceConnection;
 import android.graphics.LightingColorFilter;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.IBinder;
 import android.provider.DocumentsContract;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
@@ -30,18 +26,10 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.EditText;
 import android.widget.Toast;
 
-import com.cocosw.bottomsheet.BottomSheet;
-
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.NotImplementedException;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -57,16 +45,13 @@ import de.qabel.core.config.Identity;
 import de.qabel.desktop.repository.ContactRepository;
 import de.qabel.desktop.repository.IdentityRepository;
 import de.qabel.desktop.repository.exception.PersistenceException;
-import de.qabel.qabelbox.BuildConfig;
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.QblBroadcastConstants;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.account.AccountManager;
 import de.qabel.qabelbox.account.AccountStatusCodes;
-import de.qabel.qabelbox.adapter.FilesAdapter;
 import de.qabel.qabelbox.chat.ChatServer;
 import de.qabel.qabelbox.chat.ShareHelper;
-import de.qabel.qabelbox.communication.VolumeFileTransferHelper;
 import de.qabel.qabelbox.communication.connection.ConnectivityManager;
 import de.qabel.qabelbox.config.AppPreference;
 import de.qabel.qabelbox.config.QabelSchema;
@@ -74,38 +59,23 @@ import de.qabel.qabelbox.dagger.HasComponent;
 import de.qabel.qabelbox.dagger.components.MainActivityComponent;
 import de.qabel.qabelbox.dagger.modules.ActivityModule;
 import de.qabel.qabelbox.dagger.modules.MainActivityModule;
-import de.qabel.qabelbox.dialogs.SelectIdentityForUploadDialog;
-import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.fragments.BaseFragment;
 import de.qabel.qabelbox.fragments.CreateIdentityMainFragment;
-import de.qabel.qabelbox.fragments.FilesFragment;
-import de.qabel.qabelbox.fragments.FilesFragmentBase;
 import de.qabel.qabelbox.fragments.IdentitiesFragment;
 import de.qabel.qabelbox.fragments.QRcodeFragment;
-import de.qabel.qabelbox.fragments.SelectUploadFolderFragment;
 import de.qabel.qabelbox.helper.AccountHelper;
 import de.qabel.qabelbox.helper.CacheFileHelper;
-import de.qabel.qabelbox.helper.ExternalApps;
 import de.qabel.qabelbox.helper.FileHelper;
 import de.qabel.qabelbox.helper.Sanity;
 import de.qabel.qabelbox.helper.UIHelper;
 import de.qabel.qabelbox.navigation.MainNavigator;
-import de.qabel.qabelbox.providers.BoxProvider;
-import de.qabel.qabelbox.services.LocalQabelService;
 import de.qabel.qabelbox.settings.SettingsActivity;
-import de.qabel.qabelbox.storage.BoxManager;
-import de.qabel.qabelbox.storage.BoxVolume;
-import de.qabel.qabelbox.storage.model.BoxExternalFile;
-import de.qabel.qabelbox.storage.model.BoxFile;
-import de.qabel.qabelbox.storage.model.BoxFolder;
-import de.qabel.qabelbox.storage.model.BoxObject;
-import de.qabel.qabelbox.storage.navigation.BoxNavigation;
 import de.qabel.qabelbox.views.DrawerNavigationView;
 import de.qabel.qabelbox.views.DrawerNavigationViewHolder;
+import kotlin.NotImplementedError;
 
 public class MainActivity extends CrashReportingActivity
-        implements FilesFragment.FilesListListener,
-        IdentitiesFragment.IdentityListListener,
+        implements IdentitiesFragment.IdentityListListener,
         HasComponent<MainActivityComponent>, NavigationView.OnNavigationItemSelectedListener {
 
     private static final int REQUEST_SETTINGS = 17;
@@ -147,16 +117,11 @@ public class MainActivity extends CrashReportingActivity
     Toolbar toolbar;
     @BindView(R.id.app_bap_main)
     public View appBarMain;
-    public FilesFragment filesFragment;
     private MainActivity self;
     private boolean identityMenuExpanded;
 
     // Used to save the document uri that should exported while waiting for the result
     // of the create document intent.
-    private Uri exportUri;
-    public LocalQabelService mService;
-    private ServiceConnection mServiceConnection;
-    private SelectUploadFolderFragment shareFragment;
     public ChatServer chatServer;
     private LightingColorFilter mDrawerIndicatorTintFilter;
 
@@ -182,11 +147,6 @@ public class MainActivity extends CrashReportingActivity
     @Inject
     AccountManager accountManager;
 
-    @Inject
-    BoxManager boxManager;
-
-    @Inject
-    BoxVolume boxVolume;
     private MainActivityComponent component;
 
     private BroadcastReceiver accountBroadCastReceiver = new BroadcastReceiver() {
@@ -232,16 +192,7 @@ public class MainActivity extends CrashReportingActivity
                     return;
                 }
                 if (requestCode == REQUEST_CODE_UPLOAD_FILE) {
-                    uri = data.getData();
-
-                    if (filesFragment != null) {
-                        BoxNavigation boxNavigation = filesFragment.getBoxNavigation();
-                        if (boxNavigation != null) {
-                            String path = boxNavigation.getPath();
-                            VolumeFileTransferHelper.upload(self, uri, boxNavigation, boxVolume);
-                        }
-                    }
-                    return;
+                    throw new NotImplementedError();
                 }
                 if (requestCode == REQUEST_CODE_DELETE_FILE) {
                     uri = data.getData();
@@ -254,32 +205,6 @@ public class MainActivity extends CrashReportingActivity
                             return DocumentsContract.deleteDocument(getContentResolver(), params[0]);
                         }
                     }.execute(uri);
-                    return;
-                }
-                if (requestCode == REQUEST_CODE_CHOOSE_EXPORT) {
-                    uri = data.getData();
-                    Log.i(TAG, "Export uri chosen: " + uri.toString());
-                    new AsyncTask<Void, Void, Void>() {
-
-                        @Override
-                        protected Void doInBackground(Void... params) {
-
-                            try {
-                                InputStream inputStream = getContentResolver().openInputStream(exportUri);
-                                OutputStream outputStream = getContentResolver().openOutputStream(uri);
-                                if (inputStream == null || outputStream == null) {
-                                    Log.e(TAG, "could not open streams");
-                                    return null;
-                                }
-                                IOUtils.copy(inputStream, outputStream);
-                                inputStream.close();
-                                outputStream.close();
-                            } catch (IOException e) {
-                                Log.e(TAG, "Failed to export file", e);
-                            }
-                            return null;
-                        }
-                    }.execute();
                     return;
                 }
             }
@@ -297,15 +222,16 @@ public class MainActivity extends CrashReportingActivity
         component.inject(this);
         self = this;
         Log.d(TAG, "onCreate " + this.hashCode());
-        Intent serviceIntent = new Intent(this, LocalQabelService.class);
-        mServiceConnection = getServiceConnection();
-
         registerReceiver(accountBroadCastReceiver,
                 new IntentFilter(QblBroadcastConstants.Account.ACCOUNT_CHANGED));
 
-        if (Sanity.startWizardActivities(this)) {
-            Log.d(TAG, "started wizard dialog");
-            return;
+        try {
+            if (Sanity.startWizardActivities(this, identityRepository.findAll())) {
+                Log.d(TAG, "started wizard dialog");
+                return;
+            }
+        } catch (PersistenceException e) {
+            throw new RuntimeException(e);
         }
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
@@ -316,12 +242,12 @@ public class MainActivity extends CrashReportingActivity
         mDrawerIndicatorTintFilter = new LightingColorFilter(0, getResources().getColor(R.color.tintDrawerIndicator));
 
 
-        bindService(serviceIntent, mServiceConnection, Context.BIND_AUTO_CREATE);
-
         installConnectivityManager();
         addBackStackListener();
 
         setupAccount();
+        initDrawer();
+        handleIntent(getIntent());
     }
 
     private void setupAccount() {
@@ -404,13 +330,6 @@ public class MainActivity extends CrashReportingActivity
                 fragment.updateSubtitle();
             }
         }
-        //check if navigation drawer need to reset
-        if (getFragmentManager().getBackStackEntryCount() == 0 || (activeFragment instanceof BaseFragment) && !((BaseFragment) activeFragment).supportBackButton()) {
-            if (!(activeFragment instanceof SelectUploadFolderFragment)) {
-                getSupportActionBar().setDisplayHomeAsUpEnabled(false);
-                toggle.setDrawerIndicatorEnabled(true);
-            }
-        }
     }
 
     private void addBackStackListener() {
@@ -421,35 +340,6 @@ public class MainActivity extends CrashReportingActivity
                 MainActivity.this.handleMainFragmentChange();
             }
         });
-    }
-
-    @NonNull
-    private ServiceConnection getServiceConnection() {
-
-        return new ServiceConnection() {
-
-            @Override
-            public void onServiceConnected(ComponentName name, IBinder service) {
-                LocalQabelService.LocalBinder binder = (LocalQabelService.LocalBinder) service;
-                mService = binder.getService();
-                QabelBoxApplication.getInstance().serviceCreatedOutside(mService);
-                onLocalServiceConnected(getIntent());
-            }
-
-            @Override
-            public void onServiceDisconnected(ComponentName name) {
-
-                mService = null;
-            }
-        };
-    }
-
-
-    private void onLocalServiceConnected(Intent intent) {
-
-        Log.d(TAG, "LocalQabelService connected");
-        initDrawer();
-        handleIntent(intent);
     }
 
     @Override
@@ -485,7 +375,7 @@ public class MainActivity extends CrashReportingActivity
                     if (imageUri != null) {
                         ArrayList<Uri> data = new ArrayList<Uri>();
                         data.add(imageUri);
-                        shareIntoApp(data, intent);
+                        //shareIntoApp(data, intent);
                     }
 
                     break;
@@ -493,7 +383,7 @@ public class MainActivity extends CrashReportingActivity
                     Log.i(TAG, "Action send multiple in main activity");
                     ArrayList<Uri> imageUris = intent.getParcelableArrayListExtra(Intent.EXTRA_STREAM);
                     if (imageUris != null && imageUris.size() > 0) {
-                        shareIntoApp(imageUris, intent);
+                        //shareIntoApp(imageUris, intent);
                     }
                     break;
                 default:
@@ -501,7 +391,7 @@ public class MainActivity extends CrashReportingActivity
                         navigator.selectContactsFragment();
                         navigator.selectChatFragment(activeContact);
                     } else if (startFilesFragment) {
-                        initAndSelectFilesFragment(filePath);
+                        //initAndSelectFilesFragment(filePath);
                     }
                     break;
             }
@@ -510,17 +400,13 @@ public class MainActivity extends CrashReportingActivity
                 navigator.selectContactsFragment();
                 navigator.selectChatFragment(activeContact);
             } else if (startFilesFragment) {
-                initAndSelectFilesFragment(filePath);
+                //initAndSelectFilesFragment(filePath);
             }
         }
     }
 
     public Identity getActiveIdentity() {
         return activeIdentity;
-    }
-
-    public LocalQabelService getService() {
-        return mService;
     }
 
     /**
@@ -549,7 +435,7 @@ public class MainActivity extends CrashReportingActivity
             extension = extension.split(" ")[0];
             if (QabelSchema.FILE_SUFFIX_CONTACT.equals(extension)) {
                 //TODO
-                throw new NotImplementedException("Currently not implemented");
+                throw new NotImplementedError();
             } else if (QabelSchema.FILE_SUFFIX_IDENTITY.equals(extension)) {
                 if (
                         new CreateIdentityMainFragment().importIdentity(self, intent)) {
@@ -559,56 +445,6 @@ public class MainActivity extends CrashReportingActivity
                 UIHelper.showDialogMessage(this, R.string.infos, R.string.cant_import_file_type_is_unknown);
             }
         }
-    }
-
-    private void initAndSelectFilesFragment(String path) {
-        initFilesFragment();
-        navigator.selectFilesFragment();
-    }
-
-    private void shareIntoApp(final ArrayList<Uri> data, final Intent intent) {
-        fab.hide();
-        if (intent.hasExtra(ACTIVE_IDENTITY)) {
-            String key = intent.getStringExtra(ACTIVE_IDENTITY);
-            if (activeIdentity != null && activeIdentity.getKeyIdentifier().equals(key)) {
-                shareIdentitySelected(data);
-                return;
-            }
-        }
-        boolean identities = false;
-        try {
-            identities = identityRepository.findAll().getIdentities().size() > 1;
-        } catch (PersistenceException ignored) {
-        }
-        if (identities) {
-            new SelectIdentityForUploadDialog(self, new SelectIdentityForUploadDialog.Result() {
-                @Override
-                public void onCancel() {
-                    UIHelper.showDialogMessage(self, R.string.dialog_headline_warning, R.string.share_into_app_canceled);
-                    onBackPressed();
-                }
-
-                @Override
-                public void onIdentitySelected(Identity identity) {
-                    changeActiveIdentity(identity, intent);
-                    shareIdentitySelected(data);
-                }
-            });
-        } else {
-            changeActiveIdentity(getActiveIdentity(), intent);
-            shareIdentitySelected(data);
-        }
-    }
-
-    private void shareIdentitySelected(final ArrayList<Uri> data) {
-        toggle.setDrawerIndicatorEnabled(false);
-        shareFragment = new SelectUploadFolderFragment();
-        shareFragment.setUris(data);
-        getFragmentManager().beginTransaction()
-                .add(R.id.fragment_container,
-                        shareFragment, navigator.TAG_FILES_SHARE_INTO_APP_FRAGMENT)
-                .addToBackStack(null)
-                .commit();
     }
 
     @OnClick(R.id.fab)
@@ -624,7 +460,6 @@ public class MainActivity extends CrashReportingActivity
         }
         switch (activeFragmentTag) {
             case MainNavigator.TAG_FILES_FRAGMENT:
-                filesFragmentBottomSheet();
                 break;
 
             case MainNavigator.TAG_MANAGE_IDENTITIES_FRAGMENT:
@@ -635,111 +470,6 @@ public class MainActivity extends CrashReportingActivity
                 Log.e(TAG, "Unknown FAB action for fragment tag: " + activeFragmentTag);
         }
     }
-
-    private void filesFragmentBottomSheet() {
-
-        new BottomSheet.Builder(self).sheet(R.menu.bottom_sheet_files_add)
-                .grid()
-                .listener(new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        switch (which) {
-                            case R.id.create_folder:
-                                MainActivity.this.newFolderDialog();
-                                break;
-                            case R.id.upload_file:
-                                Intent intentOpen = new Intent(Intent.ACTION_OPEN_DOCUMENT);
-                                intentOpen.addCategory(Intent.CATEGORY_OPENABLE);
-                                intentOpen.setType("*/*");
-                                MainActivity.this.startActivityForResult(intentOpen, REQUEST_CODE_UPLOAD_FILE);
-                                break;
-                        }
-                    }
-                }).show();
-    }
-
-    private void newFolderDialog() {
-
-        UIHelper.showEditTextDialog(this, R.string.add_folder_header, R.string.add_folder_name,
-                R.string.ok, R.string.cancel, new UIHelper.EditTextDialogClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which, EditText editText) {
-
-                        UIHelper.hideKeyboard(self, editText);
-                        String newFolderName = editText.getText().toString();
-                        if (!newFolderName.equals("")) {
-                            MainActivity.this.createFolder(newFolderName, filesFragment.getBoxNavigation());
-                        }
-                    }
-                }, null);
-    }
-
-
-    protected void filterSheet(BoxObject boxObject, BottomSheet.Builder sheet) {
-
-        if (!(boxObject instanceof BoxFile) || !((BoxFile) boxObject).isShared()) {
-            sheet.remove(R.id.unshare);
-        }
-        if (!(boxObject instanceof BoxFile)) {
-
-            sheet.remove(R.id.unshare);
-        }
-        if (boxObject instanceof BoxExternalFile) {
-            sheet.remove(R.id.fordward);
-        }
-        if (!(boxObject instanceof BoxFile)) {
-            sheet.remove(R.id.open);
-            sheet.remove(R.id.export);
-            sheet.remove(R.id.share);
-            sheet.remove(R.id.fordward);
-        }
-    }
-
-    /**
-     * open system show file dialog
-     *
-     * @param boxObject
-     */
-
-    public void showFile(BoxObject boxObject) {
-
-        Uri uri = VolumeFileTransferHelper.getUri(boxObject, boxVolume, filesFragment.getBoxNavigation());
-        String type = getMimeType(uri);
-        Log.v(TAG, "Mime type: " + type);
-        Log.v(TAG, "Uri: " + uri.toString() + " " + uri.toString().length());
-
-        //check if file type is image
-        if (type != null && type.indexOf("image") == 0) {
-            Intent intent = new Intent(self, ImageViewerActivity.class);
-            intent.putExtra(ImageViewerActivity.P_URI, uri);
-            intent.putExtra(ImageViewerActivity.P_TYPE, type);
-            startActivity(intent);
-            return;
-        }
-
-        Intent viewIntent = new Intent();
-        viewIntent.setDataAndType(uri, type);
-        //check if file type is video
-        if (type != null && type.indexOf("video") == 0) {
-            viewIntent.setAction(Intent.ACTION_VIEW);
-        }
-        viewIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-        startActivityForResult(Intent.createChooser(viewIntent, "Open with"), REQUEST_EXTERN_VIEWER_APP);
-    }
-
-    //@todo move outside
-    private String getMimeType(BoxObject boxObject) {
-
-        return getMimeType(VolumeFileTransferHelper.getUri(boxObject, boxVolume, filesFragment.getBoxNavigation()));
-    }
-
-    //@todo move outside
-    private String getMimeType(Uri uri) {
-
-        return URLConnection.guessContentTypeFromName(uri.toString());
-    }
-
-
     @Override
     public void onBackPressed() {
 
@@ -755,23 +485,6 @@ public class MainActivity extends CrashReportingActivity
                 getFragmentManager().popBackStack();
             } else {
                 switch (activeFragment.getTag()) {
-                    case MainNavigator.TAG_FILES_SHARE_INTO_APP_FRAGMENT:
-                        if (!shareFragment.handleBackPressed() && !shareFragment.browseToParent()) {
-                            UIHelper.showDialogMessage(self, R.string.dialog_headline_warning,
-                                    R.string.share_in_app_go_back_without_upload, R.string.yes, R.string.no, new DialogInterface.OnClickListener() {
-                                        @Override
-                                        public void onClick(DialogInterface dialog, int which) {
-                                            MainActivity.this.getFragmentManager().popBackStack();
-                                        }
-                                    }, null);
-                        }
-                        break;
-                    case MainNavigator.TAG_FILES_FRAGMENT:
-                        toggle.setDrawerIndicatorEnabled(true);
-                        if (!filesFragment.handleBackPressed() && !filesFragment.browseToParent()) {
-                            finishAffinity();
-                        }
-                        break;
                     case MainNavigator.TAG_CONTACT_LIST_FRAGMENT:
                         super.onBackPressed();
                         break;
@@ -805,49 +518,18 @@ public class MainActivity extends CrashReportingActivity
         return super.onOptionsItemSelected(item);
     }
 
-    //@todo move outside
-    public void createFolder(final String name, final BoxNavigation boxNavigation) {
-
-        new AsyncTask<Void, Void, Void>() {
-            @Override
-            protected Void doInBackground(Void... params) {
-                try {
-                    boxNavigation.createFolder(name);
-                    boxNavigation.commit();
-                } catch (QblStorageException e) {
-                    Log.e(TAG, "Failed creating folder " + name, e);
-                }
-                return null;
-            }
-
-            @Override
-            protected void onCancelled() {
-                filesFragment.setIsLoading(false);
-                showAbortMessage();
-            }
-
-            @Override
-            protected void onPreExecute() {
-                filesFragment.setIsLoading(true);
-            }
-
-            @Override
-            protected void onPostExecute(Void aVoid) {
-                super.onPostExecute(aVoid);
-                onDoRefresh(filesFragment);
-            }
-        }.execute();
-    }
-
     public void selectIdentity(Identity identity) {
         changeActiveIdentity(identity);
     }
 
     public void addIdentity(Identity identity) {
 
-        mService.addIdentity(identity);
+        try {
+            identityRepository.save(identity);
+        } catch (PersistenceException e) {
+            throw new RuntimeException(e);
+        }
         changeActiveIdentity(identity, null);
-        boxManager.notifyBoxVolumesChanged();
         Snackbar.make(appBarMain, "Added identity: " + identity.getAlias(), Snackbar.LENGTH_LONG)
                 .show();
         navigator.selectFilesFragment();
@@ -869,156 +551,43 @@ public class MainActivity extends CrashReportingActivity
             startActivity(intent);
         }
     }
-
-    //@todo move this to filesfragment
-    private void initFilesFragment() {
-
-        if (filesFragment != null) {
-            getFragmentManager().beginTransaction().remove(filesFragment)
-                    .commitAllowingStateLoss();
-        }
-        filesFragment = new FilesFragment();
-        filesFragment.setOnItemClickListener(new FilesAdapter.OnItemClickListener() {
-            @Override
-            public void onItemClick(View view, int position) {
-
-                final BoxObject boxObject = filesFragment.getFilesAdapter().get(position);
-                if (boxObject != null) {
-                    if (boxObject instanceof BoxFolder) {
-                        filesFragment.browseTo(((BoxFolder) boxObject));
-                    } else if (boxObject instanceof BoxFile) {
-                        // Open
-                        showFile(boxObject);
-                    }
-                }
-            }
-
-            @Override
-            public void onItemLockClick(View view, final int position) {
-
-                final BoxObject boxObject = filesFragment.getFilesAdapter().get(position);
-                if (boxObject.name.equals(BoxFolder.RECEIVED_SHARE_NAME)) {
-                    return;
-                }
-                BottomSheet.Builder sheet = new BottomSheet.Builder(self)
-                        .title(boxObject.name)
-                        .icon((boxObject instanceof BoxFolder ? R.drawable.folder : R.drawable.file))
-                        .sheet(R.menu.bottom_sheet_files)
-                        .listener(new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-
-                                switch (which) {
-                                    case R.id.open:
-                                        ExternalApps.openExternApp(self, VolumeFileTransferHelper.getUri(boxObject, boxVolume, filesFragment.getBoxNavigation()), getMimeType(boxObject), Intent.ACTION_VIEW);
-                                        break;
-                                    case R.id.share:
-                                        ExternalApps.share(self, VolumeFileTransferHelper.getUri(boxObject, boxVolume, filesFragment.getBoxNavigation()), getMimeType(boxObject));
-                                        break;
-                                    case R.id.fordward:
-                                        ShareHelper.shareToQabelUser(self, mService, boxObject);
-                                        break;
-                                    case R.id.delete:
-                                        filesFragment.delete(boxObject);
-                                        break;
-                                    case R.id.unshare:
-                                        filesFragment.unshare((BoxFile) boxObject);
-                                        break;
-                                    case R.id.export:
-                                        // Export handled in the MainActivity
-                                        if (boxObject instanceof BoxFolder) {
-                                            Toast.makeText(self, R.string.folder_export_not_implemented,
-                                                    Toast.LENGTH_SHORT).show();
-                                        } else {
-                                            onExport(filesFragment.getBoxNavigation(), boxObject);
-                                        }
-                                        break;
-                                }
-                            }
-                        });
-                filterSheet(boxObject, sheet);
-                sheet.show();
-            }
-        });
-    }
-
-
-    @Override
-    public void onScrolledToBottom(boolean scrolledToBottom) {
-
-        if (scrolledToBottom) {
-            fab.hide();
-        } else {
-            Fragment activeFragment = getFragmentManager().findFragmentById(R.id.fragment_container);
-            if (activeFragment != null) {
-                if (activeFragment instanceof BaseFragment && ((BaseFragment) activeFragment).handleFABAction()) {
-                    fab.show();
-                }
-            }
-        }
-    }
-
     @Override
     public void deleteIdentity(Identity identity) {
-        boxManager.notifyBoxVolumesChanged();
-        mService.deleteIdentity(identity);
-        if (mService.getIdentities().getIdentities().size() == 0) {
-            UIHelper.showDialogMessage(this, R.string.dialog_headline_info,
-                    R.string.last_identity_delete_create_new, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            MainActivity.this.selectAddIdentityFragment();
+        try {
+            identityRepository.delete(identity);
+            if (identityRepository.findAll().getIdentities().size() == 0) {
+                UIHelper.showDialogMessage(this, R.string.dialog_headline_info,
+                        R.string.last_identity_delete_create_new, new DialogInterface.OnClickListener() {
+                                                                                          @Override
+                                                                                          public void onClick(DialogInterface dialog, int which) {
+                                MainActivity.this.selectAddIdentityFragment();
                         }
-                    });
-        } else {
-            try {
-                changeActiveIdentity(identityRepository.findAll().getIdentities().iterator().next());
-            } catch (PersistenceException e) {
-                throw new RuntimeException(e);
+                        });
+            } else {
+                try {
+                    changeActiveIdentity(identityRepository.findAll().getIdentities().iterator().next());
+                } catch (PersistenceException e) {
+                    throw new RuntimeException(e);
+                }
             }
+        } catch (PersistenceException e) {
+            throw new RuntimeException(e);
         }
     }
 
     @Override
     public void modifyIdentity(Identity identity) {
-        boxManager.notifyBoxVolumesChanged();
-        mService.modifyIdentity(identity);
-        drawerHolder.textViewSelectedIdentity.setText(getActiveIdentity().getAlias());
-    }
-
-    /**
-     * Handle an export request sent from the FilesFragment
-     */
-    //@todo move outside
-    public void onExport(BoxNavigation boxNavigation, BoxObject boxObject) {
-
-        String path = boxNavigation.getPath(boxObject);
-        String documentId = boxVolume.getDocumentId(path);
-        Uri uri = DocumentsContract.buildDocumentUri(
-                BuildConfig.APPLICATION_ID + BoxProvider.AUTHORITY, documentId);
-        exportUri = uri;
-
-        // Chose a suitable place for this file, determined by the mime type
-        String type = getMimeType(uri);
-        if (type == null) {
-            type = FALLBACK_MIMETYPE;
+        try {
+            identityRepository.save(identity);
+        } catch (PersistenceException e) {
+            throw new RuntimeException(e);
         }
-        Log.i(TAG, "Mime type: " + type);
-        Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT)
-                .addCategory(Intent.CATEGORY_OPENABLE)
-                .putExtra(Intent.EXTRA_TITLE, boxObject.name);
-        intent.setDataAndType(uri, type);
-        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-        // the activity result will handle the actual file copy
-        startActivityForResult(intent, REQUEST_CODE_CHOOSE_EXPORT);
+        drawerHolder.textViewSelectedIdentity.setText(getActiveIdentity().getAlias());
     }
 
     @Override
     protected void onDestroy() {
 
-        if (mServiceConnection != null && mService != null) {
-            unbindService(mServiceConnection);
-        }
         if (isTaskRoot()) {
             new CacheFileHelper().freeCacheAsynchron(QabelBoxApplication.getInstance().getApplicationContext());
         }
@@ -1031,12 +600,6 @@ public class MainActivity extends CrashReportingActivity
 
         super.onDestroy();
     }
-
-    @Override
-    public void onDoRefresh(final FilesFragmentBase filesFragment) {
-        filesFragment.refresh();
-    }
-
 
     public void selectIdentityLayoutClick() {
 
@@ -1189,7 +752,12 @@ public class MainActivity extends CrashReportingActivity
     private void selectAddIdentityFragment() {
 
         Intent i = new Intent(self, CreateIdentityActivity.class);
-        int identitiesCount = mService.getIdentities().getIdentities().size();
+        int identitiesCount = 0;
+        try {
+            identitiesCount = identityRepository.findAll().getIdentities().size();
+        } catch (PersistenceException e) {
+            throw new RuntimeException(e);
+        }
         i.putExtra(CreateIdentityActivity.FIRST_RUN, identitiesCount == 0 ? true : false);
 
         if (identitiesCount == 0) {

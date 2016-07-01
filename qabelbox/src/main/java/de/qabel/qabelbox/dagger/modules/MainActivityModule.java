@@ -14,11 +14,8 @@ import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.activities.MainActivity;
 import de.qabel.qabelbox.config.AppPreference;
 import de.qabel.qabelbox.dagger.scopes.ActivityScope;
-import de.qabel.qabelbox.exceptions.QblStorageException;
 import de.qabel.qabelbox.navigation.MainNavigator;
 import de.qabel.qabelbox.navigation.Navigator;
-import de.qabel.qabelbox.storage.BoxManager;
-import de.qabel.qabelbox.storage.BoxVolume;
 
 import static de.qabel.qabelbox.activities.MainActivity.ACTIVE_IDENTITY;
 
@@ -84,18 +81,6 @@ public class MainActivityModule {
     @Provides
     Navigator provideNavigator(MainNavigator navigator) {
         return navigator;
-    }
-
-    @Provides
-    BoxVolume provideBoxVolume(BoxManager boxManager, Identity activeIdentity) {
-        try {
-            if (activeIdentity != null) {
-                return boxManager.createBoxVolume(activeIdentity);
-            }
-        } catch (QblStorageException e) {
-            throw new IllegalStateException("Starting MainActivity without Volume");
-        }
-        return null;
     }
 
 

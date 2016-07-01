@@ -2,9 +2,8 @@ package de.qabel.qabelbox.storage.notifications;
 
 import javax.inject.Inject;
 
-import de.qabel.qabelbox.storage.model.BoxFile;
+import de.qabel.box.storage.BoxFile;
 import de.qabel.qabelbox.storage.model.BoxUploadingFile;
-import de.qabel.qabelbox.storage.transfer.BoxTransferListener;
 
 public class AndroidStorageNotificationManager implements StorageNotificationManager {
 
@@ -26,7 +25,7 @@ public class AndroidStorageNotificationManager implements StorageNotificationMan
             displayFile = lastUpload;
         }
         presenter.updateUploadNotification(queueSize,
-                new StorageNotificationInfo(displayFile.name, displayFile.getPath(),
+                new StorageNotificationInfo(displayFile.getName(), displayFile.getPath(),
                         displayFile.getOwnerIdentifier(), displayFile.uploadedSize,
                         displayFile.totalSize));
     }
@@ -36,7 +35,7 @@ public class AndroidStorageNotificationManager implements StorageNotificationMan
         return new BoxTransferListener() {
 
             private StorageNotificationInfo notificationInfo =
-                    new StorageNotificationInfo(file.name, path, ownerKey, 0, file.size);
+                    new StorageNotificationInfo(file.getName(), path, ownerKey, 0, file.getSize());
 
             @Override
             public void onProgressChanged(long bytesCurrent, long bytesTotal) {

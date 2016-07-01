@@ -15,6 +15,8 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import javax.inject.Inject;
+
 import de.qabel.core.config.DropServer;
 import de.qabel.core.config.Identities;
 import de.qabel.core.config.Identity;
@@ -22,6 +24,8 @@ import de.qabel.core.crypto.QblECKeyPair;
 import de.qabel.core.drop.AdjustableDropIdGenerator;
 import de.qabel.core.drop.DropIdGenerator;
 import de.qabel.core.drop.DropURL;
+import de.qabel.desktop.repository.IdentityRepository;
+import de.qabel.desktop.repository.exception.PersistenceException;
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.TestConstants;
@@ -32,12 +36,8 @@ import de.qabel.qabelbox.fragments.CreateIdentityDropBitsFragment;
 import de.qabel.qabelbox.fragments.CreateIdentityEditTextFragment;
 import de.qabel.qabelbox.fragments.CreateIdentityFinalFragment;
 import de.qabel.qabelbox.fragments.CreateIdentityMainFragment;
-import de.qabel.qabelbox.services.LocalQabelService;
 import okhttp3.Response;
 
-/**
- * Created by danny on 11.01.2016.
- */
 public class CreateIdentityActivity extends BaseWizardActivity {
 
     public static final int REQUEST_CODE_IMPORT_IDENTITY = 1;
@@ -57,12 +57,20 @@ public class CreateIdentityActivity extends BaseWizardActivity {
     private String prefix = null;
     int tryCount = 0;
 
+    @Inject
+    IdentityRepository identityRepository;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        QabelBoxApplication.getApplicationComponent(getApplicationContext()).inject(this);
 
         super.onCreate(savedInstanceState);
-        if (QabelBoxApplication.getInstance().getService().getIdentities().getIdentities().size() > 0) {
-            canExit = true;
+        try {
+            if (identityRepository.findAll().getIdentities().size() > 0) {
+                canExit = true;
+            }
+        } catch (PersistenceException e) {
+            throw new RuntimeException(e);
         }
 
     }
@@ -111,7 +119,12 @@ public class CreateIdentityActivity extends BaseWizardActivity {
                     return getString(R.string.create_identity_enter_all_data);
                 }
 
-                Identities identities = QabelBoxApplication.getInstance().getService().getIdentities();
+                Identities identities = null;
+                try {
+                    identities = identityRepository.findAll();
+                } catch (PersistenceException e) {
+                    throw new RuntimeException(e);
+                }
                 if (identities != null) {
                     for (Identity identity : identities.getIdentities()) {
                         if (identity.getAlias().equals(editText)) {
@@ -156,10 +169,11 @@ public class CreateIdentityActivity extends BaseWizardActivity {
             }
 
             private void addIdentity(Identity identity) {
-
-                LocalQabelService mService = QabelBoxApplication.getInstance().getService();
-                mService.addIdentity(identity);
-                mService.setActiveIdentity(identity);
+                try {
+                    identityRepository.save(identity);
+                } catch (PersistenceException e) {
+                    throw new RuntimeException(e);
+                }
             }
         });
 

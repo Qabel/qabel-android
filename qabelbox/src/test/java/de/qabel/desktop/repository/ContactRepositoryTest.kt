@@ -1,4 +1,4 @@
-package de.qabel.qabelbox.persistence
+package de.qabel.desktop.repository
 
 import de.qabel.core.config.Contact
 import de.qabel.core.config.Identity

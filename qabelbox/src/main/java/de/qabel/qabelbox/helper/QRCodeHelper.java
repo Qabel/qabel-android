@@ -16,20 +16,21 @@ import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
 
 import de.qabel.core.config.Contact;
-import de.qabel.core.config.ContactExportImport;
 import de.qabel.core.config.Identity;
+import de.qabel.core.contacts.ContactExchangeFormats;
 
 public class QRCodeHelper {
 
-    private final String TAG = "QRCodeHelper";
+    private static final String TAG = "QRCodeHelper";
+    private static final ContactExchangeFormats contactExchangeFormats = new ContactExchangeFormats();
 
     public void generateQRCode(final Activity activity, final Identity identity, final ImageView iv) {
-        generateQRCode(activity, ContactExportImport.INSTANCE.exportToContactString(
+        generateQRCode(activity, contactExchangeFormats.exportToContactString(
                 new Contact(identity.getAlias(), identity.getDropUrls(), identity.getEcPublicKey())), iv);
     }
 
     public void generateQRCode(final Activity activity, final Contact contact, final ImageView iv) {
-        generateQRCode(activity, ContactExportImport.INSTANCE.exportToContactString(contact), iv);
+        generateQRCode(activity, contactExchangeFormats.exportToContactString(contact), iv);
     }
 
     private void generateQRCode(final Activity activity, final String text, final ImageView iv) {

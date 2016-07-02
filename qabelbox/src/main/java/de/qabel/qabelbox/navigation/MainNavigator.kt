@@ -78,9 +78,7 @@ constructor(var activity: MainActivity,
     }
 
     override fun selectFilesFragment() {
-        activity.filesFragment.navigateBackToRoot()
-        activity.filesFragment.setIsLoading(false)
-        showMainFragment(activity.filesFragment, TAG_FILES_FRAGMENT)
+        TODO("FilesFragment is under construction");
     }
 
     override fun selectContactsFragment() {

@@ -40,7 +40,13 @@ fun ContactDto.contactColors(ctx: Context): List<Int> {
     val allColors = ctx.resources.getIntArray(R.array.contact_colors);
     val colors = mutableListOf<Int>();
     identities.map { identity ->
-        colors.add(allColors[identity.id % allColors.size]);
+        var colorIndex = identity.id % allColors.size / 2;
+        var centerIndex = allColors.size / 2;
+        if (identity.id % 2 == 0) {
+            colors.add(allColors[centerIndex + colorIndex])
+        } else {
+            colors.add(allColors[centerIndex - colorIndex])
+        }
     }
     return colors.toList();
 }

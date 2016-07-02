@@ -36,7 +36,7 @@ class MainContactsUseCase @Inject constructor(private val activeIdentity: Identi
         contactRepository.findWithIdentities(filter).map {
             pair ->
             subscriber.onNext(ContactDto(pair.first, pair.second,
-                    !pair.second.none { identity -> identity.equals(activeIdentity) }))
+                    !pair.second.none { identity -> identity.keyIdentifier.equals(activeIdentity.keyIdentifier) }))
         };
         subscriber.onCompleted()
     }

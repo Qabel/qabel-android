@@ -255,7 +255,7 @@ class SqliteContactRepository(database: ClientDatabase,
             database.prepare(queryBuilder.toString()).use { statement ->
                 var paramIndex = 1
                 if (filterResults) {
-                    val lowerWildSearchString = searchString!!.toLowerCase() + "%"
+                    val lowerWildSearchString = searchString.toLowerCase() + "%"
                     statement.setString(paramIndex++, lowerWildSearchString)
                     statement.setString(paramIndex++, lowerWildSearchString)
                     statement.setString(paramIndex, lowerWildSearchString)

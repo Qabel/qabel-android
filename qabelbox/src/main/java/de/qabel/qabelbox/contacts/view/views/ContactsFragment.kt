@@ -33,6 +33,7 @@ import org.jetbrains.anko.AnkoLogger
 import org.jetbrains.anko.ctx
 import org.jetbrains.anko.debug
 import org.jetbrains.anko.onUiThread
+import java.io.File
 import javax.inject.Inject
 
 class ContactsFragment() : ContactsView, BaseFragment(), AnkoLogger, SearchView.OnQueryTextListener {
@@ -62,14 +63,15 @@ class ContactsFragment() : ContactsView, BaseFragment(), AnkoLogger, SearchView.
                         R.id.contact_list_item_delete -> presenter.deleteContact(contact)
                         R.id.contact_list_item_export -> presenter.startContactExport(contact)
                         R.id.contact_list_item_qrcode -> navigator.selectQrCodeFragment(contact.contact)
-                        R.id.contact_list_item_send -> {
-                            val file = presenter.sendContact(contact, activity.externalCacheDir);
-                            ExternalApps.share(activity, Uri.fromFile(file), "application/json");
-                        }
+                        R.id.contact_list_item_send -> presenter.sendContact(contact, activity.externalCacheDir)
                     }
                 }).show();
         true;
     });
+
+    override fun startShareDialog(targetFile : File){
+        ExternalApps.share(activity, Uri.fromFile(targetFile), "application/json");
+    }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)

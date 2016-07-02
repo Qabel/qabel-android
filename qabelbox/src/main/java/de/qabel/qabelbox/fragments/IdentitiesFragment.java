@@ -194,7 +194,7 @@ public class IdentitiesFragment extends BaseFragment {
                     try (ParcelFileDescriptor pfd = mActivity.getContentResolver().openFileDescriptor(uri, "w");
                          FileOutputStream fileOutputStream = new FileOutputStream(pfd.getFileDescriptor())) {
                         if (requestCode == MainActivity.REQUEST_EXPORT_IDENTITY_AS_CONTACT) {
-                            fileOutputStream.write(ContactExportImport.INSTANCE.exportIdentityAsContact(identityToExport).getBytes());
+                            fileOutputStream.write(ContactExportImport.exportIdentityAsContact(identityToExport).getBytes());
                             UIHelper.showDialogMessage(activity, R.string.dialog_headline_info, R.string.identity_as_contact_export_successfully);
                         } else {
                             fileOutputStream.write((IdentityExportImport.exportIdentity(identityToExport)).getBytes());

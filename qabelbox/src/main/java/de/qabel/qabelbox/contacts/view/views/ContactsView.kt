@@ -1,6 +1,7 @@
 package de.qabel.qabelbox.contacts.view.views
 
 import de.qabel.qabelbox.contacts.dto.ContactDto
+import java.io.File
 
 
 interface ContactsView {
@@ -19,5 +20,6 @@ interface ContactsView {
     fun startExportFileChooser(filename: String, requestCode: Int)
     fun startImportFileChooser(requestCode: Int)
 
+    open fun startShareDialog(targetFile: File)
 }
 

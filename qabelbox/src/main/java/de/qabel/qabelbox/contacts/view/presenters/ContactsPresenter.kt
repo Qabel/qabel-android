@@ -12,7 +12,7 @@ interface ContactsPresenter {
     fun refresh()
 
     fun deleteContact(contact: ContactDto)
-    fun sendContact(contact: ContactDto, cacheDir: File): File?
+    fun sendContact(contact: ContactDto, cacheDir: File)
 
     fun handleExternalFileAction(externalAction: ExternalAction, target: FileDescriptor)
     fun handleScanResult(externalAction: ExternalAction, result: String)

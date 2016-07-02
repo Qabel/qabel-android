@@ -5,11 +5,14 @@ import de.qabel.core.config.ContactExportImport
 import de.qabel.core.config.Identity
 import de.qabel.core.contacts.ContactExchangeFormats
 import de.qabel.desktop.repository.ContactRepository
+import de.qabel.qabelbox.config.QabelSchema
 import de.qabel.qabelbox.contacts.dto.ContactDto
 import de.qabel.qabelbox.contacts.dto.ContactParseResult
 import de.qabel.qabelbox.contacts.dto.ContactsParseResult
+import org.apache.commons.io.FileUtils
 import rx.Subscriber
 import rx.lang.kotlin.observable
+import java.io.File
 import java.io.FileDescriptor
 import java.io.FileInputStream
 import java.io.FileOutputStream
@@ -56,8 +59,19 @@ class MainContactsUseCase @Inject constructor(private val activeIdentity: Identi
         subscriber.onCompleted();
     }
 
+    override fun exportContact(contactKey: String, targetDirectory: File) = observable<File> { subscriber ->
+        val contact = contactRepository.findByKeyId(contactKey);
+        File(targetDirectory, QabelSchema.createContactFilename(contact.alias)).let {
+            file ->
+            FileUtils.writeStringToFile(file,
+                    contactExchangeFormats.exportToContactsJSON(setOf(contact)))
+            subscriber.onNext(file);
+            subscriber.onCompleted();
+        }
+    }
+
     override fun exportContact(contactKey: String, targetFile: FileDescriptor) = observable<Int> { subscriber ->
-        val contact = contactRepository.findByKeyId(activeIdentity, contactKey);
+        val contact = contactRepository.findByKeyId(contactKey);
         FileOutputStream(targetFile).use({ stream ->
             stream.bufferedWriter().use { writer ->
                 writer.write(ContactExportImport.exportContact(contact))

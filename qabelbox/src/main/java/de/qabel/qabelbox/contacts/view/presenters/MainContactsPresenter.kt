@@ -1,6 +1,5 @@
 package de.qabel.qabelbox.contacts.view.presenters
 
-import de.qabel.core.config.ContactExportImport
 import de.qabel.qabelbox.R
 import de.qabel.qabelbox.config.QabelSchema
 import de.qabel.qabelbox.contacts.ContactsRequestCodes
@@ -9,7 +8,6 @@ import de.qabel.qabelbox.contacts.interactor.ContactsUseCase
 import de.qabel.qabelbox.contacts.view.views.ContactsView
 import de.qabel.qabelbox.external.ExternalAction
 import de.qabel.qabelbox.external.ExternalFileAction
-import org.apache.commons.io.FileUtils
 import org.jetbrains.anko.AnkoLogger
 import org.jetbrains.anko.info
 import org.jetbrains.anko.warn
@@ -55,17 +53,13 @@ class MainContactsPresenter @Inject constructor(private val view: ContactsView,
                 })
     }
 
-    override fun sendContact(contact: ContactDto, cacheDir: File): File? {
-        var targetFile: File? = null;
-        try {
-            //TODO Move to usecase
-            val contactJson = ContactExportImport.exportContact(contact.contact)
-            targetFile = File(cacheDir, QabelSchema.createContactFilename(contact.contact.alias))
-            FileUtils.writeStringToFile(targetFile, contactJson)
-        } catch (e: Exception) {
-            view.showMessage(R.string.dialog_headline_warning, R.string.contact_export_failed)
-        }
-        return targetFile;
+    override fun sendContact(contact: ContactDto, cacheDir: File) {
+        useCase.exportContact(contact.contact.keyIdentifier, cacheDir)
+                .subscribe({ exportedContactFile ->
+                    view.startShareDialog(exportedContactFile);
+                }, {
+                    view.showMessage(R.string.dialog_headline_warning, R.string.contact_export_failed)
+                });
     }
 
     override fun handleExternalFileAction(externalAction: ExternalAction, target: FileDescriptor) {

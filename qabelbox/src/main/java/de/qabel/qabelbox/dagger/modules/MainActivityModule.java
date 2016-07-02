@@ -44,11 +44,12 @@ public class MainActivityModule {
             try {
                 activeIdentity = identityRepository.find(identityKeyId);
 
+                //TODO Working very bad. Redesign identity selection!
                 //Show Toast if active identity is not last active identity.
-                if (activeIdentity != null && lastActiveId != null && lastActiveId.equals(identityKeyId)) {
+                /*if (activeIdentity != null && lastActiveId != null && lastActiveId.equals(identityKeyId)) {
                     Toast.makeText(mainActivity, mainActivity.getString(R.string.active_identity_changed,
                             activeIdentity.getAlias()), Toast.LENGTH_SHORT).show();
-                }
+                }*/
             } catch (EntityNotFoundException | PersistenceException entityNotFoundException) {
                 Log.w("MainActivityModule", "Given Identity not found (" + identityKeyId + ")");
             }

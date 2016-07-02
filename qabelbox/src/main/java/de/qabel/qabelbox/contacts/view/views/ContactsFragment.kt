@@ -27,6 +27,9 @@ import de.qabel.qabelbox.fragments.BaseFragment
 import de.qabel.qabelbox.helper.ExternalApps
 import de.qabel.qabelbox.helper.UIHelper
 import de.qabel.qabelbox.navigation.Navigator
+import de.qabel.qabelbox.ui.extensions.showConfirmation
+import de.qabel.qabelbox.ui.extensions.showMessage
+import de.qabel.qabelbox.ui.extensions.showQuantityMessage
 import kotlinx.android.synthetic.main.fragment_contacts.*
 import kotlinx.android.synthetic.main.fragment_contacts.view.*
 import org.jetbrains.anko.AnkoLogger
@@ -53,7 +56,7 @@ class ContactsFragment() : ContactsView, BaseFragment(), AnkoLogger, SearchView.
     lateinit var contactSearch: SearchView
 
     val adapter = ContactsAdapter({ contact ->
-        if(contact.active) navigator.selectChatFragment(contact.contact.keyIdentifier)
+        if (contact.active) navigator.selectChatFragment(contact.contact.keyIdentifier)
         else navigator.selectContactDetailsFragment(contact);
     }, { contact ->
         BottomSheet.Builder(activity).title(contact.contact.alias).sheet(R.menu.bottom_sheet_contactlist).
@@ -69,7 +72,7 @@ class ContactsFragment() : ContactsView, BaseFragment(), AnkoLogger, SearchView.
         true;
     });
 
-    override fun startShareDialog(targetFile : File){
+    override fun startShareDialog(targetFile: File) {
         ExternalApps.share(activity, Uri.fromFile(targetFile), "application/json");
     }
 
@@ -224,20 +227,46 @@ class ContactsFragment() : ContactsView, BaseFragment(), AnkoLogger, SearchView.
         }
     }
 
-    override fun showMessage(title: Int, message: Int) {
-        UIHelper.showDialogMessage(activity, title, message);
+    override fun showImportFailed() {
+        showMessage(R.string.dialog_headline_warning, R.string.contact_import_failed);
     }
 
-    override fun showMessage(title: Int, message: Int, vararg messageParams : Any?) {
-        UIHelper.showDialogMessage(activity, title, activity.getString(message, *messageParams));
+    override fun showImportSuccess(imported: Int, size: Int) {
+        if (imported > 0) {
+            if (imported == 1 && imported == size) {
+                showMessage(R.string.dialog_headline_info,
+                        R.string.contact_import_successfull)
+            } else {
+                showMessage(R.string.dialog_headline_info,
+                        R.string.contact_import_successfull_many,
+                        imported,
+                        size)
+            }
+        } else {
+            showMessage(R.string.dialog_headline_info,
+                    R.string.contact_import_zero_additions)
+        }
     }
 
-    override fun showQuantityMessage(title: Int, message: Int, quantity: Int, vararg messageParams: Any?) {
-        UIHelper.showDialogMessage(activity, title, activity.resources.getQuantityString(message, quantity, *messageParams));
+    override fun showExportFailed() {
+        showMessage(R.string.dialog_headline_warning,
+                R.string.contact_export_failed);
     }
 
-    override fun showConfirmation(title: Int, message: Int, params: Any, yesClick: () -> Unit) {
-        UIHelper.showDialogMessage(activity, title, activity.getString(message, params),
-                { dialogInterface, i -> yesClick() });
+    override fun showExportSuccess(size: Int) {
+        showQuantityMessage(R.string.dialog_headline_info,
+                R.plurals.contact_export_successfully, size, size)
     }
+
+    override fun showDeleteContactConfirmation(contact: ContactDto, yesClick: () -> Unit) {
+        showConfirmation(R.string.confirm_delete_title, R.string.dialog_message_delete_contact_question,
+                contact.contact.alias, yesClick);
+    }
+
+    override fun showContactDeletedMessage(contact : ContactDto){
+        showMessage(R.string.dialog_headline_info,
+                R.string.contact_deleted,
+                contact.contact.alias);
+    }
+
 }

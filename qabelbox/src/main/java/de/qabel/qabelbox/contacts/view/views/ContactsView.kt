@@ -12,14 +12,19 @@ interface ContactsView {
 
     fun loadData(data : List<ContactDto>)
 
-    fun showMessage(title : Int, message : Int)
-    fun showMessage(title : Int, message : Int, vararg messageParams : Any?)
-    fun showQuantityMessage(title : Int, message : Int, quantity : Int, vararg messageParams : Any?)
-    fun showConfirmation(title : Int, message: Int, params: Any, yesClick : () -> Unit)
-
     fun startExportFileChooser(filename: String, requestCode: Int)
     fun startImportFileChooser(requestCode: Int)
 
-    open fun startShareDialog(targetFile: File)
+    fun startShareDialog(targetFile: File)
+
+    fun showExportFailed()
+    fun showExportSuccess(size: Int)
+
+    fun showImportFailed()
+    fun showImportSuccess(imported: Int, size: Int)
+
+    fun showDeleteContactConfirmation(contact: ContactDto, yesClick: () -> Unit)
+    fun showContactDeletedMessage(contact: ContactDto)
+
 }
 

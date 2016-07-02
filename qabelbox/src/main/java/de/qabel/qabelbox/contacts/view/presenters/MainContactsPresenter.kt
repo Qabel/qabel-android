@@ -1,6 +1,5 @@
 package de.qabel.qabelbox.contacts.view.presenters
 
-import de.qabel.qabelbox.R
 import de.qabel.qabelbox.config.QabelSchema
 import de.qabel.qabelbox.contacts.ContactsRequestCodes
 import de.qabel.qabelbox.contacts.dto.ContactDto
@@ -18,6 +17,7 @@ import javax.inject.Inject
 class MainContactsPresenter @Inject constructor(private val view: ContactsView,
                                                 private val useCase: ContactsUseCase) : ContactsPresenter, AnkoLogger {
 
+    //TODO Store external action in Bundle
     override var externalAction: ExternalAction? = null;
 
     init {
@@ -39,15 +39,12 @@ class MainContactsPresenter @Inject constructor(private val view: ContactsView,
     }
 
     override fun deleteContact(contact: ContactDto) {
-        view.showConfirmation(R.string.dialog_headline_warning,
-                R.string.dialog_message_delete_contact_question,
-                contact.contact.alias,
+        view.showDeleteContactConfirmation(
+                contact,
                 {
                     info("Deleting contact " + contact.contact.id);
                     useCase.deleteContact(contact.contact).subscribe({
-                        view.showMessage(R.string.dialog_headline_info,
-                                R.string.contact_deleted,
-                                contact.contact.alias, Unit);
+                        view.showContactDeletedMessage(contact)
                         refresh()
                     })
                 })
@@ -58,7 +55,7 @@ class MainContactsPresenter @Inject constructor(private val view: ContactsView,
                 .subscribe({ exportedContactFile ->
                     view.startShareDialog(exportedContactFile);
                 }, {
-                    view.showMessage(R.string.dialog_headline_warning, R.string.contact_export_failed)
+                    view.showExportFailed()
                 });
     }
 
@@ -77,35 +74,20 @@ class MainContactsPresenter @Inject constructor(private val view: ContactsView,
             else -> useCase.exportAllContacts(target)
         };
         exportAction.subscribe({ exportedCount ->
-            view.showQuantityMessage(R.string.dialog_headline_info,
-                    R.plurals.contact_export_successfully, exportedCount, exportedCount)
+            view.showExportSuccess(exportedCount)
         }, { throwable ->
-            view.showMessage(R.string.dialog_headline_warning, R.string.contact_export_failed);
+            view.showExportFailed()
         })
     }
 
     private fun handleContactImport(target: FileDescriptor) {
         useCase.importContacts(target)
                 .subscribe({ result ->
-                    if (result.successCount > 0) {
-                        if (result.successCount == 1 && result.failedCount == 0) {
-                            view.showMessage(R.string.dialog_headline_info,
-                                    R.string.contact_import_successfull)
-                        } else {
-                            view.showMessage(R.string.dialog_headline_info,
-                                    R.string.contact_import_successfull_many,
-                                    result.successCount,
-                                    result.successCount + result.failedCount)
-                        }
-                    } else {
-                        view.showMessage(R.string.dialog_headline_info,
-                                R.string.contact_import_zero_additions)
-                    }
+                    view.showImportSuccess(result.successCount,
+                            result.successCount + result.failedCount)
                     refresh()
                 }, { throwable ->
-                    view.showMessage(
-                            R.string.dialog_headline_warning,
-                            R.string.contact_import_failed)
+                    view.showExportFailed();
                 })
     }
 
@@ -113,11 +95,10 @@ class MainContactsPresenter @Inject constructor(private val view: ContactsView,
         when (externalAction.requestCode) {
             ContactsRequestCodes.REQUEST_QR_IMPORT_CONTACT -> {
                 useCase.importContactString(result).subscribe({
-                    view.showMessage(R.string.dialog_headline_info,
-                            R.string.contact_import_successfull)
+                    view.showImportSuccess(1, 1);
                     refresh()
                 }, { throwable ->
-                    view.showMessage(R.string.dialog_headline_warning, R.string.contact_export_failed);
+                    view.showImportFailed()
                 });
             }
             ContactsRequestCodes.REQUEST_QR_VERIFY_CONTACT -> {

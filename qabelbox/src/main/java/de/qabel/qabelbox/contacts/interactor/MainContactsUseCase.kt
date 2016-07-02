@@ -29,10 +29,10 @@ class MainContactsUseCase @Inject constructor(private val activeIdentity: Identi
     }
 
     override fun load() = observable<ContactDto> { subscriber ->
-        load(subscriber, null)
+        load(subscriber, "")
     }
 
-    private fun load(subscriber: Subscriber<in ContactDto>, filter: String?) {
+    private fun load(subscriber: Subscriber<in ContactDto>, filter: String) {
         contactRepository.findWithIdentities(filter).map {
             pair ->
             subscriber.onNext(ContactDto(pair.first, pair.second,
@@ -82,7 +82,7 @@ class MainContactsUseCase @Inject constructor(private val activeIdentity: Identi
     }
 
     override fun exportAllContacts(targetFile: FileDescriptor) = observable<Int> { subscriber ->
-        val contacts = contactRepository.findWithIdentities(null).map { pair -> pair.first };
+        val contacts = contactRepository.findWithIdentities().map { pair -> pair.first };
         FileOutputStream(targetFile).use({ stream ->
             stream.bufferedWriter().use { writer ->
                 writer.write(contactExchangeFormats.exportToContactsJSON(contacts.toSet()))

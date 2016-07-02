@@ -68,7 +68,7 @@ class ContactRepositoryTest {
 
     @Test
     fun testFindAll() {
-        val contacts = contactRepository.findWithIdentities(null);
+        val contacts = contactRepository.findWithIdentities();
         var index = 0;
         for (contact in contacts) {
             val storedDto = storedContacts[index];

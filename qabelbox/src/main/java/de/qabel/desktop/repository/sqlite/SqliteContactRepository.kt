@@ -240,13 +240,13 @@ class SqliteContactRepository(database: ClientDatabase,
 
 
     @Throws(PersistenceException::class)
-    private fun find(searchString: String?): Collection<Contact> {
+    private fun find(searchString: String): Collection<Contact> {
         val hydrator = SimpleContactHydrator(entityManager)
         val queryBuilder = StringBuilder(
                 "SELECT " + StringUtils.join(",", hydrator.getFields("c")) + " " +
                         "FROM contact c ")
 
-        val filterResults = searchString != null && !searchString.trim().isEmpty()
+        val filterResults = !searchString.trim().isEmpty()
         if (filterResults) {
             queryBuilder.append("WHERE (lower(c.alias) LIKE ? OR c.phone LIKE ? OR c.email LIKE ?)")
         }
@@ -295,7 +295,7 @@ class SqliteContactRepository(database: ClientDatabase,
     }
 
     @Throws(PersistenceException::class)
-    override fun findWithIdentities(searchString: String?): Collection<Pair<Contact, List<Identity>>> {
+    override fun findWithIdentities(searchString: String): Collection<Pair<Contact, List<Identity>>> {
 
         val identities = identityRepository.findAll()
         val contacts = find(searchString)

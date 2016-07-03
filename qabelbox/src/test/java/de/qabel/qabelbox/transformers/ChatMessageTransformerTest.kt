@@ -21,7 +21,7 @@ class ChatMessageTransformerTest {
     val identity = IdentityHelper.createIdentity("identity", null)
     val contact = IdentityHelper.createContact("contact_name")
     val identityRepository = MockIdentityRepository(identity)
-    val contactRepository = MockContactRepository(contact)
+    val contactRepository = MockContactRepository(contact, identity)
     val chatMessageTransformer = ChatMessageTransformer(identityRepository, contactRepository)
     val now = Date()
 

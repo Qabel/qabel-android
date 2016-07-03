@@ -12,7 +12,9 @@ import java.util.*
 class MockContactRepository(val contacts: MutableMap<String, Contact> = mutableMapOf(),
                             val identityMapping: DefaultHashMap<Identity, MutableSet<String>> = DefaultHashMap({ key -> HashSet() })) : ContactRepository {
 
-    constructor(contact: Contact) : this(mutableMapOf(Pair(contact.keyIdentifier, contact)))
+    constructor(contact: Contact, identity: Identity) : this() {
+        save(contact, identity)
+    }
 
     override fun find(identity: Identity): Contacts {
         val identityContacts = identityMapping.getOrDefault(identity);
@@ -61,10 +63,10 @@ class MockContactRepository(val contacts: MutableMap<String, Contact> = mutableM
                 .map { contact -> Pair(contact, findContactIdentities(contact.keyIdentifier)) }
     }
 
-    private fun findContactIdentities(key : String) : List<Identity> {
+    private fun findContactIdentities(key: String): List<Identity> {
         val identities = mutableListOf<Identity>();
-        for((identity, contactKeys) in identityMapping){
-            if(contactKeys.contains(key)){
+        for ((identity, contactKeys) in identityMapping) {
+            if (contactKeys.contains(key)) {
                 identities.add(identity);
             }
         }

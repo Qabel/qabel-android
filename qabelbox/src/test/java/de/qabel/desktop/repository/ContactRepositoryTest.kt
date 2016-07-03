@@ -2,8 +2,6 @@ package de.qabel.desktop.repository
 
 import de.qabel.core.config.Contact
 import de.qabel.core.config.Identity
-import de.qabel.desktop.repository.ContactRepository
-import de.qabel.desktop.repository.IdentityRepository
 import de.qabel.qabelbox.BuildConfig
 import de.qabel.qabelbox.QabelBoxApplication
 import de.qabel.qabelbox.SimpleApplication
@@ -48,7 +46,7 @@ class ContactRepositoryTest {
 
         var i = 0;
         do {
-            var contact = IdentityHelper.createContact("TestContact" + i);
+            val contact = IdentityHelper.createContact("TestContact" + i);
             val contactIdentities = LinkedList<Identity>();
             contactIdentities.add(identityA);
             contactRepository.save(contact, identityA);
@@ -56,11 +54,11 @@ class ContactRepositoryTest {
             if (i % 2 == 0) {
                 contactIdentities.add(identityB)
                 contactRepository.save(contact, identityB);
-            };
+            }
             storedContacts.add(ContactDto(contact, contactIdentities));
             i++;
         } while (i < 5)
-        var contact = IdentityHelper.createContact("XFoo");
+        val contact = IdentityHelper.createContact("XFoo");
         contactRepository.save(contact, identityB);
         storedContacts.add(ContactDto(contact, Arrays.asList(identityB)));
     }
@@ -84,7 +82,7 @@ class ContactRepositoryTest {
         val filter = "xfo";
         val contacts = contactRepository.findWithIdentities(filter);
         Assert.assertEquals(1, contacts.size)
-        var fooContact = contacts.iterator().next();
+        val fooContact = contacts.iterator().next();
         assertThat("XFoo", equalTo(fooContact.first.alias));
         assertThat(1, equalTo(fooContact.second.size));
     }

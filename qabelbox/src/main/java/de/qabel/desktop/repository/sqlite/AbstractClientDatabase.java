@@ -1,8 +1,5 @@
 package de.qabel.desktop.repository.sqlite;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -17,7 +14,7 @@ import de.qabel.desktop.repository.sqlite.migration.AbstractMigration;
 import de.qabel.desktop.repository.sqlite.migration.MigrationFailedException;
 
 public abstract class AbstractClientDatabase implements ClientDatabase {
-    private static final Logger logger = LoggerFactory.getLogger(DesktopClientDatabase.class);
+//    private static final Logger logger = LoggerFactory.getLogger(AbstractClientDatabase.class);
     protected final Connection connection;
     protected TransactionManager transactionManager;
 
@@ -66,10 +63,10 @@ public abstract class AbstractClientDatabase implements ClientDatabase {
             getTransactionManager().transactional(new RunnableTransaction() {
                 @Override
                 public void run() throws Exception {
-                    logger.info("Migrating " + migration.getClass().getSimpleName());
+  //                  logger.info("Migrating " + migration.getClass().getSimpleName());
                     migration.up();
                     AbstractClientDatabase.this.setVersion(migration.getVersion());
-                    logger.info("ClientDatabase now on version " + AbstractClientDatabase.this.getVersion());
+    //                logger.info("ClientDatabase now on version " + AbstractClientDatabase.this.getVersion());
                 }
             });
         } catch (PersistenceException e) {
@@ -104,7 +101,7 @@ public abstract class AbstractClientDatabase implements ClientDatabase {
 
     @Override
     public PreparedStatement prepare(String sql) throws SQLException {
-        logger.trace(sql);
+      //  logger.trace(sql);
         return connection.prepareStatement(sql);
     }
 

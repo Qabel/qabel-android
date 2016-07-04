@@ -19,7 +19,7 @@ import java.io.FileOutputStream
 import javax.inject.Inject
 
 
-class MainContactsUseCase @Inject constructor(private val activeIdentity: Identity,
+open class MainContactsUseCase @Inject constructor(private val activeIdentity: Identity,
                                               private val contactRepository: ContactRepository) : ContactsUseCase {
 
     private val contactExchangeFormats = ContactExchangeFormats();

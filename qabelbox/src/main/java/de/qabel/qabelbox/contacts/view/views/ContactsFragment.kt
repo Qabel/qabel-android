@@ -63,7 +63,7 @@ class ContactsFragment() : ContactsView, BaseFragment(), AnkoLogger, SearchView.
                 listener({ dialog, which ->
                     when (which) {
                         R.id.contact_list_item_details -> navigator.selectContactDetailsFragment(contact)
-                        R.id.contact_list_item_delete -> presenter.deleteContact(contact)
+                        R.id.contact_list_item_delete -> showDeleteContactConfirmation(contact)
                         R.id.contact_list_item_export -> presenter.startContactExport(contact)
                         R.id.contact_list_item_qrcode -> navigator.selectQrCodeFragment(contact.contact)
                         R.id.contact_list_item_send -> presenter.sendContact(contact, activity.externalCacheDir)
@@ -81,6 +81,7 @@ class ContactsFragment() : ContactsView, BaseFragment(), AnkoLogger, SearchView.
         val component = getComponent(MainActivityComponent::class.java).plus(ContactsModule(this))
         component.inject(this);
         injectCompleted = true
+        presenter.refresh();
 
         setHasOptionsMenu(true);
         contact_list.layoutManager = LinearLayoutManager(view.context);
@@ -177,13 +178,15 @@ class ContactsFragment() : ContactsView, BaseFragment(), AnkoLogger, SearchView.
         BottomSheet.Builder(activity).title(R.string.add_new_contact).sheet(R.menu.bottom_sheet_add_contact).listener { dialog, which ->
             when (which) {
                 R.id.add_contact_from_file -> presenter.startContactsImport()
-                R.id.add_contact_via_qr -> {
-                    val integrator = IntentIntegrator(this)
-                    integrator.initiateScan()
-                }
+                R.id.add_contact_via_qr -> presenter.startContactImportScan(IntentIntegrator.REQUEST_CODE)
             }
         }.show()
         return true;
+    }
+
+    override fun startQRScan() {
+        val integrator = IntentIntegrator(this)
+        integrator.initiateScan()
     }
 
     override fun startExportFileChooser(filename: String, requestCode: Int) {
@@ -258,9 +261,11 @@ class ContactsFragment() : ContactsView, BaseFragment(), AnkoLogger, SearchView.
                 R.plurals.contact_export_successfully, size, size)
     }
 
-    override fun showDeleteContactConfirmation(contact: ContactDto, yesClick: () -> Unit) {
+    fun showDeleteContactConfirmation(contact: ContactDto) {
         showConfirmation(R.string.confirm_delete_title, R.string.dialog_message_delete_contact_question,
-                contact.contact.alias, yesClick);
+                contact.contact.alias, {
+            presenter.deleteContact(contact)
+        });
     }
 
     override fun showContactDeletedMessage(contact : ContactDto){

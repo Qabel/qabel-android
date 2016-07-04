@@ -20,15 +20,11 @@ class MainContactsPresenter @Inject constructor(private val view: ContactsView,
     //TODO Store external action in Bundle
     override var externalAction: ExternalAction? = null;
 
-    init {
-        refresh()
-    }
-
-
     override fun refresh() {
-        (if (view.searchString != null) useCase.search(view.searchString as String)
-        else useCase.load())
-                .toList().subscribe({ contacts ->
+        val search = view.searchString
+        (if (search != null)
+            useCase.search(search)
+        else useCase.load()).toList().subscribe({ contacts ->
             if (contacts.size > 0) {
                 view.loadData(contacts)
             } else (view.showEmpty())
@@ -39,15 +35,11 @@ class MainContactsPresenter @Inject constructor(private val view: ContactsView,
     }
 
     override fun deleteContact(contact: ContactDto) {
-        view.showDeleteContactConfirmation(
-                contact,
-                {
-                    info("Deleting contact " + contact.contact.id);
-                    useCase.deleteContact(contact.contact).subscribe({
-                        view.showContactDeletedMessage(contact)
-                        refresh()
-                    })
-                })
+        info("Deleting contact " + contact.contact.id);
+        useCase.deleteContact(contact.contact).subscribe({
+            view.showContactDeletedMessage(contact)
+            refresh()
+        })
     }
 
     override fun sendContact(contact: ContactDto, cacheDir: File) {
@@ -92,7 +84,7 @@ class MainContactsPresenter @Inject constructor(private val view: ContactsView,
     }
 
     override fun handleScanResult(externalAction: ExternalAction, result: String) {
-        when (externalAction.requestCode) {
+        when (externalAction.actionType) {
             ContactsRequestCodes.REQUEST_QR_IMPORT_CONTACT -> {
                 useCase.importContactString(result).subscribe({
                     view.showImportSuccess(1, 1);
@@ -120,6 +112,11 @@ class MainContactsPresenter @Inject constructor(private val view: ContactsView,
     override fun startContactsImport() {
         externalAction = ExternalFileAction(ContactsRequestCodes.REQUEST_IMPORT_CONTACT, "r");
         view.startImportFileChooser(ContactsRequestCodes.REQUEST_IMPORT_CONTACT);
+    }
+
+    override fun startContactImportScan(requestCode : Int){
+        externalAction = ExternalAction(requestCode, ContactsRequestCodes.REQUEST_IMPORT_CONTACT);
+        view.startQRScan();
     }
 
 }

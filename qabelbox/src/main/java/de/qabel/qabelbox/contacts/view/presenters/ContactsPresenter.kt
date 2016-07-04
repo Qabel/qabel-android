@@ -19,6 +19,8 @@ interface ContactsPresenter {
 
     fun startContactExport(contact: ContactDto)
     fun startContactsExport()
+
     fun startContactsImport()
+    fun startContactImportScan(requestCode: Int)
 
 }

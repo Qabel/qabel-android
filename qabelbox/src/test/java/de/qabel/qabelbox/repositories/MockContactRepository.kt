@@ -59,7 +59,7 @@ class MockContactRepository(val contacts: MutableMap<String, Contact> = mutableM
 
     override fun findWithIdentities(searchString: String): Collection<Pair<Contact, List<Identity>>> {
         return contacts.values
-                .filter { contact -> contact.alias.toLowerCase().startsWith(searchString) }
+                .filter { contact -> contact.alias.toLowerCase().startsWith(searchString.toLowerCase()) }
                 .map { contact -> Pair(contact, findContactIdentities(contact.keyIdentifier)) }
     }
 

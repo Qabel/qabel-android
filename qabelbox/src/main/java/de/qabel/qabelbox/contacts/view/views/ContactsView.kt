@@ -23,8 +23,9 @@ interface ContactsView {
     fun showImportFailed()
     fun showImportSuccess(imported: Int, size: Int)
 
-    fun showDeleteContactConfirmation(contact: ContactDto, yesClick: () -> Unit)
     fun showContactDeletedMessage(contact: ContactDto)
+
+    fun startQRScan()
 
 }
 

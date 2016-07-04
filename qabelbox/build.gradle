@@ -132,6 +132,7 @@ dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     compile ('com.github.Qabel:qabel-core:0.8.0') {
         exclude group: 'org.json', module: 'json'
+        exclude group: 'org.apache.logging.log4j'
         exclude group: 'commons-logging', module: 'commons-logging'
         exclude group: 'org.apache.httpcomponents', module: 'httpclient'
     }

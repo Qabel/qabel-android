@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/background_white"
-    android:padding="@dimen/activity_horizontal_margin"
-    >
+    android:paddingStart="@dimen/default_space"
+    android:paddingEnd="@dimen/default_space">
 
     <RelativeLayout
         android:id="@+id/etLayout"
@@ -19,33 +18,33 @@
             android:textColor="@color/white"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true"
             android:layout_centerInParent="true"
             android:clickable="true"
-
             android:gravity="center"
             android:text="@string/btn_chat_send"/>
 
         <de.qabel.qabelbox.views.EditTextFont
             android:id="@+id/etText"
             style="@style/EditText"
+            android:background="@android:color/transparent"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_toLeftOf="@id/bt_send"
-            android:hint="@string/chat_message_hint"
-
-            />
+            android:layout_toStartOf="@id/bt_send"
+            android:layout_centerVertical="true"
+            android:hint="@string/chat_message_hint" />
     </RelativeLayout>
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/contact_chat_list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:background="@drawable/separator_gray"
         android:layout_above="@id/etLayout"
-        android:layout_gravity="center_horizontal|top"
+        android:paddingStart="@dimen/default_space"
+        android:paddingEnd="@dimen/default_space"
+        android:paddingBottom="@dimen/default_space"
         android:scrollbars="vertical"
-        android:dividerHeight="0dp"
-        android:divider="@null"
         android:stackFromBottom="true"
         android:transcriptMode="normal"/>
 

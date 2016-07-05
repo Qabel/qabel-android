@@ -68,7 +68,9 @@ class ChatFragment : ChatView, BaseFragment(), AnkoLogger {
 
         configureAsSubFragment();
 
-        contact_chat_list.layoutManager = LinearLayoutManager(view.context)
+        val layoutManager = LinearLayoutManager(view.context);
+        layoutManager.stackFromEnd = true;
+        contact_chat_list.layoutManager = layoutManager;
         contact_chat_list.adapter = adapter
     }
 

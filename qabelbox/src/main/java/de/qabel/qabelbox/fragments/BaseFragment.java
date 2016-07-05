@@ -98,6 +98,10 @@ public abstract class BaseFragment extends Fragment {
         setActionBarBackListener();
     }
 
+    protected void configureAsMainFragment(){
+        mActivity.toggle.setDrawerIndicatorEnabled(true);
+    }
+
     /**
      * set own back listener in actionbar
      */

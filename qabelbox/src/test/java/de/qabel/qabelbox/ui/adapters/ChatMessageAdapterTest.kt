@@ -22,7 +22,7 @@ import de.qabel.qabelbox.dto.SymmetricKey
 import de.qabel.qabelbox.helper.FontHelper
 import de.qabel.qabelbox.test.shadows.TextViewFontShadow
 import de.qabel.qabelbox.views.TextViewFont
-import kotlinx.android.synthetic.main.item_chat_message_in.view.*
+import kotlinx.android.synthetic.main.chat_message_in.view.*
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith

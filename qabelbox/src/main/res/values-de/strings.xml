@@ -11,7 +11,7 @@
     <string name="ExportPrivateKey">Exportiere privaten Schlüssel</string>
     <string name="ExportAsContact">Exportiere öffentlichen Kontakt</string>
     <string name="ExportAsContactWithQRcode">Zeige QR</string>
-    <string name="Open">Öffnen</string>
+    <string name="open">öffnen</string>
     <string name="Rename">Umbenennen</string>
     <string name="Select">Auswählen</string>
     <string name="Send">Senden</string>

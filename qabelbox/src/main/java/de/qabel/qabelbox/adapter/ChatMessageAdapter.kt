@@ -12,10 +12,10 @@ open class ChatMessageAdapter(var messages: List<ChatMessage>): RecyclerView.Ada
 
     companion object {
         const val NO_MESSAGE = R.layout.item_no_message
-        const val INCOMING_TEXT = R.layout.item_chat_message_in
-        const val INCOMING_SHARE = R.layout.item_share_message_in
-        const val OUTGOING_TEXT = R.layout.item_chat_message_out
-        const val OUTGOING_SHARE = R.layout.item_share_message_out
+        const val INCOMING_TEXT = R.layout.chat_message_in
+        const val INCOMING_SHARE = R.layout.chat_message_in
+        const val OUTGOING_TEXT = R.layout.chat_message_out
+        const val OUTGOING_SHARE = R.layout.chat_message_out
     }
 
     override fun onCreateViewHolder(parent: ViewGroup?, viewType: Int): ChatMessageViewHolder? {
@@ -44,7 +44,8 @@ open class ChatMessageAdapter(var messages: List<ChatMessage>): RecyclerView.Ada
     override fun getItemCount(): Int = messages.size
 
     override fun onBindViewHolder(holder: ChatMessageViewHolder?, position: Int) {
-        holder?.bindTo(getItemAtPosition(position) ?: return)
+        val item = getItemAtPosition(position) ?: return;
+        holder?.bindTo(item, getItemAtPosition(position.dec())?.direction != item.direction)
     }
 
     fun getItemAtPosition(position: Int): ChatMessage? = messages.getOrNull(position)

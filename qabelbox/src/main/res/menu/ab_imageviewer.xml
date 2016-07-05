@@ -12,6 +12,6 @@
         android:id="@+id/action_imageviewer_open"
         android:icon="@drawable/image_white"
         android:orderInCategory="201"
-        android:title="@string/Open"
+        android:title="@string/open"
         app:showAsAction="always"/>
 </menu>

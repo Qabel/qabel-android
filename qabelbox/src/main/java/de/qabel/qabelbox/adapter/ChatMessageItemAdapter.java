@@ -82,11 +82,11 @@ public class ChatMessageItemAdapter extends BaseAdapter {
         if (getItemViewType(position) == INCOMING) {
             if (convertView == null || convertView.getId() == R.id.checkMessageOut)
                 convertView = LayoutInflater.from(parent.getContext())
-                        .inflate(R.layout.item_chat_message_in, parent, false);
+                        .inflate(R.layout.chat_message_in, parent, false);
         } else {
             if (convertView == null || convertView.getId() == R.id.checkMessageIn)
                 convertView = LayoutInflater.from(parent.getContext())
-                        .inflate(R.layout.item_chat_message_out, parent, false);
+                        .inflate(R.layout.chat_message_out, parent, false);
         }
 
         ChatMessageItem message = mMessages.get(position);
@@ -170,7 +170,7 @@ public class ChatMessageItemAdapter extends BaseAdapter {
     public ContactViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
 
 		View v = LayoutInflater.from(parent.getContext())
-				.inflate(R.layout.item_chat_message_out, parent, false);
+				.inflate(R.layout.chat_message_out, parent, false);
 		return new ContactViewHolder(v);
 	}*/
 

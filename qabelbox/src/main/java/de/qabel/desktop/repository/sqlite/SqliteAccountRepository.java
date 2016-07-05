@@ -1,11 +1,5 @@
 package de.qabel.desktop.repository.sqlite;
 
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.LinkedList;
-import java.util.List;
-
 import de.qabel.core.config.Account;
 import de.qabel.desktop.config.factory.DefaultAccountFactory;
 import de.qabel.desktop.repository.AccountRepository;
@@ -13,6 +7,12 @@ import de.qabel.desktop.repository.EntityManager;
 import de.qabel.desktop.repository.exception.EntityNotFoundException;
 import de.qabel.desktop.repository.exception.PersistenceException;
 import de.qabel.desktop.repository.sqlite.hydrator.AccountHydrator;
+
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.LinkedList;
+import java.util.List;
 
 public class SqliteAccountRepository extends AbstractSqliteRepository<Account> implements AccountRepository {
     public static final String TABLE_NAME = "account";

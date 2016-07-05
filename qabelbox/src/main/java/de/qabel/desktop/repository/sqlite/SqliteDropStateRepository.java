@@ -1,12 +1,12 @@
 package de.qabel.desktop.repository.sqlite;
 
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-
 import de.qabel.desktop.repository.DropStateRepository;
 import de.qabel.desktop.repository.exception.EntityNotFoundException;
 import de.qabel.desktop.repository.exception.PersistenceException;
+
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 public class SqliteDropStateRepository implements DropStateRepository {
     public static final String TABLE_NAME = "drop_state";

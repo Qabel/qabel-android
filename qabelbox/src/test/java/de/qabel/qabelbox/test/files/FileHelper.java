@@ -5,6 +5,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Arrays;
+import java.util.UUID;
 
 public class FileHelper {
 
@@ -47,6 +48,14 @@ public class FileHelper {
         }
         outputStream.close();
         return testFile;
+    }
+
+    public static File createTmpDir(){
+        File tmpDir = new File(getSystemTmp(), UUID.randomUUID().toString());
+        if(!tmpDir.mkdirs()){
+            throw new RuntimeException("Cannot create tmp directory");
+        }
+        return tmpDir;
     }
 
 }

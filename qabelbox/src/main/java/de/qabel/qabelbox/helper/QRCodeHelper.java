@@ -17,28 +17,20 @@ import com.google.zxing.qrcode.QRCodeWriter;
 
 import de.qabel.core.config.Contact;
 import de.qabel.core.config.Identity;
+import de.qabel.core.contacts.ContactExchangeFormats;
 
-/**
- * Created by danny on 04.02.16.
- */
 public class QRCodeHelper {
 
-    private final String TAG = "QRCodeHelper";
+    private static final String TAG = "QRCodeHelper";
+    private static final ContactExchangeFormats contactExchangeFormats = new ContactExchangeFormats();
 
     public void generateQRCode(final Activity activity, final Identity identity, final ImageView iv) {
-        String text = "QABELCONTACT\n"
-                + identity.getAlias() + "\n"
-                + identity.getDropUrls().toArray()[0].toString() + "\n"
-                + identity.getKeyIdentifier();
-        generateQRCode(activity, text, iv);
+        generateQRCode(activity, contactExchangeFormats.exportToContactString(
+                new Contact(identity.getAlias(), identity.getDropUrls(), identity.getEcPublicKey())), iv);
     }
 
     public void generateQRCode(final Activity activity, final Contact contact, final ImageView iv) {
-        String text = "QABELCONTACT\n"
-                + contact.getAlias() + "\n"
-                + contact.getDropUrls().toArray()[0].toString() + "\n"
-                + contact.getKeyIdentifier();
-        generateQRCode(activity, text, iv);
+        generateQRCode(activity, contactExchangeFormats.exportToContactString(contact), iv);
     }
 
     private void generateQRCode(final Activity activity, final String text, final ImageView iv) {

@@ -1,12 +1,5 @@
 package de.qabel.desktop.repository.sqlite;
 
-import org.spongycastle.util.encoders.Hex;
-
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.Collection;
-
 import de.qabel.core.config.Identities;
 import de.qabel.core.config.Identity;
 import de.qabel.desktop.StringUtils;
@@ -17,6 +10,13 @@ import de.qabel.desktop.repository.exception.EntityNotFoundException;
 import de.qabel.desktop.repository.exception.PersistenceException;
 import de.qabel.desktop.repository.sqlite.hydrator.DropURLHydrator;
 import de.qabel.desktop.repository.sqlite.hydrator.IdentityHydrator;
+
+import org.spongycastle.util.encoders.Hex;
+
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.Collection;
 
 public class SqliteIdentityRepository extends AbstractSqliteRepository<Identity> implements IdentityRepository {
     private static final String TABLE_NAME = "identity";

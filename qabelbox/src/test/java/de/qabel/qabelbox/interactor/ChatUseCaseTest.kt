@@ -30,7 +30,7 @@ class ChatUseCaseTest {
     val identity = IdentityHelper.createIdentity("identity", null)
     val contact = IdentityHelper.createContact("contact_name")
     val transformer = ChatMessageTransformer(MockIdentityRepository(identity),
-            MockContactRepository(contact))
+            MockContactRepository(contact, identity))
     lateinit var chatServer: ChatServer
 
     @Before

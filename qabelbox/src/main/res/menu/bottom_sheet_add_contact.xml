@@ -8,10 +8,4 @@
         android:id="@+id/add_contact_from_file"
         android:title="@string/from_file"
         android:icon="@drawable/import_black"/>
-    <item
-        android:id="@+id/add_contact_direct_input"
-        android:title="@string/direct_input"
-        android:icon="@drawable/pencil"/>
-
-
 </menu>

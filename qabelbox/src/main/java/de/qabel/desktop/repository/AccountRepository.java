@@ -1,10 +1,10 @@
 package de.qabel.desktop.repository;
 
-import java.util.List;
-
 import de.qabel.core.config.Account;
 import de.qabel.desktop.repository.exception.EntityNotFoundException;
 import de.qabel.desktop.repository.exception.PersistenceException;
+
+import java.util.List;
 
 public interface AccountRepository {
     /**

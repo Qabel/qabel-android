@@ -18,7 +18,7 @@ import de.qabel.desktop.repository.sqlite.migration.Migration1460987825PreventDu
 
 public class AndroidClientDatabase extends AbstractClientDatabase implements ClientDatabase {
 
-    private static final Logger logger = LoggerFactory.getLogger(DesktopClientDatabase.class);
+    private static final Logger logger = LoggerFactory.getLogger(AndroidClientDatabase.class);
 
     public AndroidClientDatabase(Connection connection) {
         super(connection);

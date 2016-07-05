@@ -1,0 +1,13 @@
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:left="-3sp"
+        android:right="-3sp"
+        android:top="-3sp">
+        <shape android:shape="rectangle">
+            <stroke
+                android:width="1sp"
+                android:color="@color/light_gray" />
+            <!-- we define corner radius, note that radius can be different for each corner -->
+        </shape>
+    </item>
+</layer-list>

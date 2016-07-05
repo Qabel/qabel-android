@@ -1,12 +1,12 @@
 package de.qabel.desktop.repository.sqlite;
 
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-
 import de.qabel.desktop.repository.ClientConfigRepository;
 import de.qabel.desktop.repository.exception.EntityNotFoundException;
 import de.qabel.desktop.repository.exception.PersistenceException;
+
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 public class SqliteClientConfigRepository implements ClientConfigRepository {
     private ClientDatabase database;

@@ -106,10 +106,14 @@ public class HttpDropConnector implements DropConnector {
     public Collection<DropMessage> retrieveDropMessages(Identity identity, long sinceDate) {
         Collection<DropMessage> allMessages = new ArrayList<>();
 
-        for (DropURL dropUrl : identity.getDropUrls()) {
-            Collection<DropMessage> results = this.retrieveDropMessages(dropUrl.getUri(), sinceDate);
-            allMessages.addAll(results);
+        try {
+            for (DropURL dropUrl : identity.getDropUrls()) {
+                Collection<DropMessage> results = this.retrieveDropMessages(dropUrl.getUri(), sinceDate);
+                allMessages.addAll(results);
 
+            }
+        }catch (IOException e){
+            Log.e(TAG, "Error retrieving drop messages", e);
         }
         return allMessages;
     }
@@ -120,7 +124,7 @@ public class HttpDropConnector implements DropConnector {
      * @param uri URI where to retrieve the drop from
      * @return Retrieved, decrypted DropMessages.
      */
-    public Collection<DropMessage> retrieveDropMessages(URI uri, long sinceDate) {
+    public Collection<DropMessage> retrieveDropMessages(URI uri, long sinceDate) throws IOException {
         HTTPResult<Collection<byte[]>> cipherMessages = getDropMessages(uri, sinceDate);
         Collection<DropMessage> plainMessages = new ArrayList<>();
 
@@ -203,7 +207,7 @@ public class HttpDropConnector implements DropConnector {
      * @param uri URI to receive DropMessages from
      * @return HTTPResult with collection of encrypted DropMessages.
      */
-    HTTPResult<Collection<byte[]>> getDropMessages(URI uri, long sinceDate) {
+    HTTPResult<Collection<byte[]>> getDropMessages(URI uri, long sinceDate) throws IOException {
         Log.v(TAG, "retrieveDropMessage: " + uri.toString() + " at: " + sinceDate);
         try {
             return dropHTTP.receiveMessages(uri, sinceDate);

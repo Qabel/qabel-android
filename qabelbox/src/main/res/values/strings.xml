@@ -108,6 +108,7 @@
     <string name="dialog_headline_warning">Warning</string>
     <string name="skip_create_identity">Skipping identity creation</string>
     <string name="last_identity_delete_create_new">You have deleted your last identity. Create a new identity</string>
+    <string name="active_identity_changed">Change to identity %s</string>
     <string name="server_access_failed_or_invalid_check_internet_connection">Server communication failed. Please check if you entered all data and that your internet connection is stable</string>
     <string name="password_to_short">This password is to short. It must contain at least 8 characters.</string>
     <string name="password_contains_user">The password is too similar to the username</string>
@@ -157,6 +158,7 @@
     <string name="contact_import_zero_additions">No new Contacts found</string>
     <string name="cant_import_contact_already_exisits">Can\'t import contact. Contact already in contact list</string>
     <string name="messsage_enter_contact_manual">Please enter the details of the contact. You can also abort this and import the contact from a file or QR code</string>
+    <string name="details">Details</string>
     <string name="share_into_app_select_identity">Please select the identity you want to use for the upload</string>
     <string name="share_into_app_canceled">The upload  was canceled</string>
     <string name="share_to_contact_message">Please select a contact with which you want to share this file</string>
@@ -175,13 +177,17 @@
     <string name="contact_deleted">Contact with name %1 deleted</string>
     <string name="infos">Infos</string>
     <string name="dummy_infos_text">This is the alpha version of Qabel</string>
-    <string name="contact_count">Contact count: %1</string>
+    <string name="contact_count">%d Contacts</string>
+    <string name="contact">Contact</string>
     <string name="message_step_is_needed_or_close_app">%s is required to use Qabel. Are you sure you want close Qabel?</string>
     <string name="chat_message_hint">Enter text</string>
     <string name="refresh">Refresh</string>
     <string name="headline_contact_chat">Chat</string>
     <string name="btn_chat_send">Send</string>
     <string name="cant_send_message">Can\'t send message</string>
+    <string name="send_message">Send message</string>
+    <string name="send_message_as">Send message as %s</string>
+
     <string name="ShareToQabelUser">Share</string>
     <string name="fileshare_label_in_chatmessage">Shared file %1</string>
     <string name="headline_share_to_qabeluser">Share to QabelUser</string>
@@ -350,4 +356,5 @@ To all people who have supported our Indigogo Campaign
     <string name="unlimited_storage">unlimited storage, %1$s in use</string>
     <string name="download_complete_notification_msg">Downloading %s completed</string>
     <string name="currently_not_available">aktuell nicht verfügbar</string>
+    <string name="search">Search</string>
 </resources>

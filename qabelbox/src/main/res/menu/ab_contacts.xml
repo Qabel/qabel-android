@@ -4,13 +4,6 @@
       tools:context=".MainActivity">
 
     <item
-        android:id="@+id/action_contact_refresh"
-        android:orderInCategory="200"
-        android:title="@string/refresh"
-        android:icon="@drawable/sync_white"
-        app:showAsAction="always"/>
-
-    <item
         android:id="@+id/action_contact_export_all"
         android:orderInCategory="200"
         android:title="@string/contact_export_all"

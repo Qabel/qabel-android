@@ -4,11 +4,19 @@ import de.qabel.core.config.Contact;
 import de.qabel.core.config.Entity;
 import de.qabel.core.config.Identity;
 import de.qabel.core.drop.DropURL;
+import de.qabel.core.exceptions.QblDropInvalidURL;
+import de.qabel.desktop.StringUtils;
 import de.qabel.desktop.repository.exception.PersistenceException;
 
+import java.net.URISyntaxException;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 public class SqliteDropUrlRepository extends AbstractSqliteRepository<DropURL> {
     public static final String TABLE_NAME = "drop_url";
@@ -40,7 +48,7 @@ public class SqliteDropUrlRepository extends AbstractSqliteRepository<DropURL> {
     @Deprecated
     public void delete(int contactId) throws SQLException {
         try (PreparedStatement dropDrops = database.prepare(
-            "DELETE FROM " + TABLE_NAME + " WHERE contact_id = ?"
+                "DELETE FROM " + TABLE_NAME + " WHERE contact_id = ?"
         )) {
             dropDrops.setInt(1, contactId);
             dropDrops.execute();
@@ -58,13 +66,40 @@ public class SqliteDropUrlRepository extends AbstractSqliteRepository<DropURL> {
     @Deprecated
     public void store(Entity contact, int contactId) throws SQLException {
         try (PreparedStatement dropStatement = database.prepare(
-            "INSERT INTO " + TABLE_NAME + " (contact_id, url) VALUES (?, ?)"
+                "INSERT INTO " + TABLE_NAME + " (contact_id, url) VALUES (?, ?)"
         )) {
             for (DropURL url : contact.getDropUrls()) {
                 dropStatement.setInt(1, contactId);
                 dropStatement.setString(2, url.toString());
                 dropStatement.execute();
             }
+        }
+    }
+
+    public Map<Integer, List<DropURL>> findDropUrls(List<Integer> contactIds) throws PersistenceException {
+        try {
+            Map<Integer, List<DropURL>> contactDropUrlMap = new HashMap<>();
+            try (PreparedStatement statement = database.prepare(
+                    "SELECT contact_id, url " +
+                            "FROM " + TABLE_NAME + " urls " +
+                            "WHERE contact_id IN (" + StringUtils.join(",", contactIds) + ")"
+            )) {
+                try (ResultSet results = statement.executeQuery()) {
+                    while (results.next()) {
+                        int id = results.getInt(1);
+                        List<DropURL> identityKeys = contactDropUrlMap.get(id);
+                        if (identityKeys == null) {
+                            identityKeys = new LinkedList<>();
+                            contactDropUrlMap.put(id, identityKeys);
+                        }
+                        identityKeys.add(new DropURL(results.getString(2)));
+                    }
+                }
+            }
+            return contactDropUrlMap;
+        } catch (SQLException | QblDropInvalidURL | URISyntaxException e) {
+            e.printStackTrace();
+            throw new PersistenceException("Error loading dropUrls for contacts", e);
         }
     }
 }

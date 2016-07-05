@@ -66,6 +66,8 @@ class ChatFragment : ChatView, BaseFragment(), AnkoLogger {
         injectCompleted = true
         bt_send.setOnClickListener { presenter.sendMessage() }
 
+        configureAsSubFragment();
+
         contact_chat_list.layoutManager = LinearLayoutManager(view.context)
         contact_chat_list.adapter = adapter
     }
@@ -152,5 +154,7 @@ class ChatFragment : ChatView, BaseFragment(), AnkoLogger {
     }
 
     override fun getTitle(): String? = if (injectCompleted) presenter.title else { "" }
+
+    override fun supportBackButton(): Boolean = true
 
 }

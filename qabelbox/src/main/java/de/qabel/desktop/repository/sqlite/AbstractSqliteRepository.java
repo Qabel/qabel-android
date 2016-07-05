@@ -1,13 +1,13 @@
 package de.qabel.desktop.repository.sqlite;
 
+import de.qabel.desktop.StringUtils;
+import de.qabel.desktop.repository.exception.EntityNotFoundException;
+import de.qabel.desktop.repository.exception.PersistenceException;
+
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Collection;
-
-import de.qabel.desktop.StringUtils;
-import de.qabel.desktop.repository.exception.EntityNotFoundException;
-import de.qabel.desktop.repository.exception.PersistenceException;
 
 public abstract class AbstractSqliteRepository<T> {
     protected ClientDatabase database;

@@ -60,7 +60,6 @@ import de.qabel.qabelbox.dagger.components.MainActivityComponent;
 import de.qabel.qabelbox.dagger.modules.ActivityModule;
 import de.qabel.qabelbox.dagger.modules.MainActivityModule;
 import de.qabel.qabelbox.fragments.BaseFragment;
-import de.qabel.qabelbox.fragments.ContactBaseFragment;
 import de.qabel.qabelbox.fragments.CreateIdentityMainFragment;
 import de.qabel.qabelbox.fragments.IdentitiesFragment;
 import de.qabel.qabelbox.fragments.QRcodeFragment;
@@ -389,6 +388,7 @@ public class MainActivity extends CrashReportingActivity
                     break;
                 default:
                     if (startContactsFragment) {
+                        navigator.selectContactsFragment();
                         navigator.selectChatFragment(activeContact);
                     } else if (startFilesFragment) {
                         //initAndSelectFilesFragment(filePath);
@@ -397,6 +397,7 @@ public class MainActivity extends CrashReportingActivity
             }
         } else {
             if (startContactsFragment) {
+                navigator.selectContactsFragment();
                 navigator.selectChatFragment(activeContact);
             } else if (startFilesFragment) {
                 //initAndSelectFilesFragment(filePath);
@@ -433,7 +434,8 @@ public class MainActivity extends CrashReportingActivity
         if (extension != null && extension.length() > 0) {
             extension = extension.split(" ")[0];
             if (QabelSchema.FILE_SUFFIX_CONTACT.equals(extension)) {
-                new ContactBaseFragment().importContactFromUri(self, uri);
+                //TODO
+                throw new NotImplementedError();
             } else if (QabelSchema.FILE_SUFFIX_IDENTITY.equals(extension)) {
                 if (
                         new CreateIdentityMainFragment().importIdentity(self, intent)) {
@@ -499,8 +501,9 @@ public class MainActivity extends CrashReportingActivity
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+        super.onCreateOptionsMenu(menu);
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.ab_main, menu);
+      //  getMenuInflater().inflate(R.menu.ab_main, menu);
         return true;
     }
 
@@ -511,11 +514,6 @@ public class MainActivity extends CrashReportingActivity
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        if (id == R.id.action_infos) {
-            String text = getString(R.string.dummy_infos_text);
-            UIHelper.showDialogMessage(self, R.string.dialog_headline_info, text);
-            return true;
-        }
 
         return super.onOptionsItemSelected(item);
     }
@@ -787,7 +785,7 @@ public class MainActivity extends CrashReportingActivity
             ShareHelper.tellAFriend(this);
         }
         if (id == R.id.nav_contacts) {
-            navigator.selectChatFragment();
+            navigator.selectContactsFragment();
         } else if (id == R.id.nav_browse) {
             navigator.selectFilesFragment();
         } else if (id == R.id.nav_settings) {

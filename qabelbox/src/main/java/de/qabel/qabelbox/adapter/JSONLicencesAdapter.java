@@ -7,13 +7,14 @@ import android.content.DialogInterface;
 import android.support.v7.widget.RecyclerView;
 import android.text.Html;
 import android.text.SpannableString;
+import android.text.method.LinkMovementMethod;
+import android.text.util.Linkify;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -23,9 +24,6 @@ import de.qabel.qabelbox.BuildConfig;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.views.ButtonFont;
 
-/**
- * Created by Jan D.S. Wischweh <mail@wischweh.de> on 01.03.16.
- */
 public class JSONLicencesAdapter extends RecyclerView.Adapter<JSONLicencesAdapter.LicenceViewHolder> {
 
     public static String TAG = "JSONLicencesAdapter";
@@ -35,22 +33,22 @@ public class JSONLicencesAdapter extends RecyclerView.Adapter<JSONLicencesAdapte
         Info
     }
 
-    private static final String JSON_KEY_LICENCENAME = "name";
-    private static final java.lang.String JSON_KEY_COMPONENTS_INFO = "info";
+    private static final String JSON_KEY_LICENCE_NAME = "name";
+    private static final String JSON_KEY_COMPONENTS_INFO = "info";
     private static final String JSON_KEY_COMPONENTS = "components";
-    private static final String JSON_KEY_LICENCESROOT = "licences";
-    private static final String JSON_KEY_LICENCECONTENT = "content";
+    private static final String JSON_KEY_LICENCES_ROOT = "licences";
+    private static final String JSON_KEY_LICENCE_CONTENT = "content";
 
     LayoutInflater inflater;
     Context ctx;
     JSONArray licencesJSON;
     String qapl;
 
-    public JSONLicencesAdapter(Context context, JSONObject masterJSON, String qapl) {
-        licencesJSON = masterJSON.optJSONArray(JSON_KEY_LICENCESROOT);
+    public JSONLicencesAdapter(Context context, JSONObject masterJSON, String qaplText) {
+        licencesJSON = masterJSON.optJSONArray(JSON_KEY_LICENCES_ROOT);
         ctx = context;
         inflater = LayoutInflater.from(ctx);
-        this.qapl = qapl;
+        this.qapl = qaplText;
     }
 
     @Override
@@ -75,8 +73,7 @@ public class JSONLicencesAdapter extends RecyclerView.Adapter<JSONLicencesAdapte
 
     @Override
     public int getItemCount() {
-        int count = licencesJSON.length() + 1;
-        return count;
+        return licencesJSON.length() + 1;
     }
 
     private TYPE getItemType(int position) {
@@ -90,6 +87,23 @@ public class JSONLicencesAdapter extends RecyclerView.Adapter<JSONLicencesAdapte
     @Override
     public int getItemViewType(int position) {
         return getItemType(position).ordinal();
+    }
+
+    protected void showDialog(String header, String content) {
+        final SpannableString s = new SpannableString(content);
+        Linkify.addLinks(s, Linkify.WEB_URLS);
+        AlertDialog alertDialog = new AlertDialog.Builder(ctx).create();
+        alertDialog.setTitle(header);
+        alertDialog.setMessage(s);
+        alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, ctx.getText(R.string.ok),
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                });
+        alertDialog.show();
+        ((TextView) alertDialog.findViewById(android.R.id.message))
+                .setMovementMethod(LinkMovementMethod.getInstance());
     }
 
     class LicenceViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
@@ -110,7 +124,7 @@ public class JSONLicencesAdapter extends RecyclerView.Adapter<JSONLicencesAdapte
         public void onBind(int position) {
             try {
                 licenceJSON = licencesJSON.getJSONObject(position - 1);
-                headline.setText(licenceJSON.getString(JSON_KEY_LICENCENAME));
+                headline.setText(licenceJSON.getString(JSON_KEY_LICENCE_NAME));
                 String content = licenceJSON.optString(JSON_KEY_COMPONENTS_INFO, "") + "\n";
                 JSONArray componentsJSON = licenceJSON.optJSONArray(JSON_KEY_COMPONENTS);
                 if (componentsJSON != null) {
@@ -118,15 +132,14 @@ public class JSONLicencesAdapter extends RecyclerView.Adapter<JSONLicencesAdapte
                         content += componentsJSON.get(i) + "<br/>";
                     }
                     if (content.length() > 0 && componentsJSON.length() > 0) {
-                        content = content.substring(0, content.lastIndexOf("<br/>")); // Strip last linebreak
-                        content.trim();
+                        content = content.substring(0, content.lastIndexOf("<br/>")).trim(); // Strip last linebreak
                     }
                 }
                 SpannableString formattedText = new SpannableString(Html.fromHtml(content));
                 this.content.setText(formattedText, TextView.BufferType.SPANNABLE);
                 this.showLicenceBtn.setOnClickListener(this);
-                licenceText = licenceJSON.getString(JSON_KEY_LICENCENAME);
-                licenceContentText = licenceJSON.getString(JSON_KEY_LICENCECONTENT);
+                licenceText = licenceJSON.getString(JSON_KEY_LICENCE_NAME);
+                licenceContentText = licenceJSON.getString(JSON_KEY_LICENCE_CONTENT);
             } catch (JSONException e) {
                 Log.e(TAG, "Could not parse licences JSON: " + e);
             }
@@ -134,16 +147,7 @@ public class JSONLicencesAdapter extends RecyclerView.Adapter<JSONLicencesAdapte
 
         @Override
         public void onClick(View v) {
-            AlertDialog alertDialog = new AlertDialog.Builder(ctx).create();
-            alertDialog.setTitle(licenceText);
-            alertDialog.setMessage(licenceContentText);
-            alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
-                    new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int which) {
-                            dialog.dismiss();
-                        }
-                    });
-            alertDialog.show();
+            showDialog(licenceText, licenceContentText);
         }
     }
 
@@ -167,16 +171,7 @@ public class JSONLicencesAdapter extends RecyclerView.Adapter<JSONLicencesAdapte
 
         @Override
         public void onClick(View v) {
-            AlertDialog alertDialog = new AlertDialog.Builder(ctx).create();
-            alertDialog.setTitle("QAPL");
-            alertDialog.setMessage(qapl);
-            alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
-                    new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int which) {
-                            dialog.dismiss();
-                        }
-                    });
-            alertDialog.show();
+            showDialog(ctx.getString(R.string.qapl), qapl);
         }
     }
 

@@ -100,6 +100,7 @@
 
     <style name="LicenceListFirstTextLine" parent="ListFirstTextLine">
         <item name="android:textAlignment">center</item>
+        <item name="android:textSize">@dimen/textsize_splash</item>
     </style>
 
     <style name="ListSecondTextLine">
@@ -114,7 +115,7 @@
     <style name="LicenceButton">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:gravity">left|center_vertical</item>
+        <item name="android:gravity">center_horizontal</item>
         <item name="android:drawableRight">@drawable/chevron_right_white</item>
         <item name="android:focusable">true</item>
         <item name="android:clickable">true</item>

@@ -85,6 +85,7 @@ class ContactsFragment() : ContactsView, BaseFragment(), AnkoLogger, SearchView.
 
         setHasOptionsMenu(true);
         configureAsMainFragment();
+
         contact_list.layoutManager = LinearLayoutManager(view.context);
         contact_list.adapter = adapter;
         updateView(adapter.getContactCount());

@@ -8,9 +8,14 @@
     android:baselineAligned="false"
     android:orientation="horizontal">
 
-    <include
+    <ImageView xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
         android:id="@+id/chat_begin_indicator"
-        layout="@layout/chat_message_in_indicator" />
+        android:layout_width="12sp"
+        android:layout_height="25sp"
+        android:layout_marginTop="3dp"
+        android:background="@drawable/chat_in_left"
+        tools:ignore="ContentDescription" />
 
     <LinearLayout
         android:id="@+id/chatTextLayout"

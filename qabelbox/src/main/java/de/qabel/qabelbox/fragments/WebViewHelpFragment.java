@@ -11,9 +11,6 @@ import android.webkit.WebView;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.helper.FileHelper;
 
-/**
- * Created by danny on 23.02.16.
- */
 public class WebViewHelpFragment extends BaseFragment {
 
     public static final int MODE_DATA_POLICY = 0;
@@ -24,12 +21,10 @@ public class WebViewHelpFragment extends BaseFragment {
 
     @Override
     public String getTitle() {
-
         return getResources().getStringArray(R.array.help_headlines)[mode];
     }
 
     public static WebViewHelpFragment newInstance(int mode) {
-
         final WebViewHelpFragment fragment = new WebViewHelpFragment();
         Bundle b = new Bundle();
         b.putInt(PARAM_MODE, mode);
@@ -39,15 +34,18 @@ public class WebViewHelpFragment extends BaseFragment {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-
         super.onCreate(savedInstanceState);
-        setHasOptionsMenu(true);
         Bundle arguments = getArguments();
         if (arguments != null) {
             mode = arguments.getInt(PARAM_MODE);
         } else {
-            new Throwable("Fragment have no arguments");
+            throw new RuntimeException("Fragment have no arguments");
         }
+    }
+
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
         setHasOptionsMenu(true);
         mActivity.toggle.setDrawerIndicatorEnabled(false);
         actionBar.setDisplayHomeAsUpEnabled(true);
@@ -56,14 +54,12 @@ public class WebViewHelpFragment extends BaseFragment {
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-
         menu.clear();
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-
         final View view = inflater.inflate(R.layout.fragment_webview, container, false);
         WebView webView = (WebView) view.findViewById(R.id.webview);
         String file = getResources().getStringArray(R.array.help_asset_filenames)[mode];
@@ -71,24 +67,16 @@ public class WebViewHelpFragment extends BaseFragment {
         webView.loadDataWithBaseURL("file:///android_asset/", FileHelper.loadFileFromAssets(getActivity(), "html/help/" + file),
                 "text/html", "utf-8", null);
 
-        configureWebView(webView);
-
         return view;
-    }
-
-    private void configureWebView(WebView webView) {
-
     }
 
     @Override
     public boolean supportBackButton() {
-
         return true;
     }
 
     @Override
     public boolean isFabNeeded() {
-
         return false;
     }
 }

@@ -1,11 +1,11 @@
-package de.qabel.qabelbox.dagger.modules;
+package de.qabel.qabelbox.box.dagger.modules;
 
 import dagger.Module;
 import dagger.Provides;
+import de.qabel.qabelbox.box.presenters.FileBrowserPresenter;
 import de.qabel.qabelbox.dagger.scopes.ActivityScope;
-import de.qabel.qabelbox.ui.presenters.FileBrowserPresenter;
-import de.qabel.qabelbox.ui.presenters.MainFileBrowserPresenter;
-import de.qabel.qabelbox.ui.views.FileBrowserView;
+import de.qabel.qabelbox.box.presenters.MainFileBrowserPresenter;
+import de.qabel.qabelbox.box.views.FileBrowserView;
 
 @ActivityScope
 @Module

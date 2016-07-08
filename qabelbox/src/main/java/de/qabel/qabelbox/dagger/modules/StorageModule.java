@@ -8,7 +8,6 @@ import javax.inject.Singleton;
 
 import dagger.Module;
 import dagger.Provides;
-import de.qabel.desktop.repository.IdentityRepository;
 import de.qabel.qabelbox.config.AppPreference;
 import de.qabel.qabelbox.providers.DocumentIdParser;
 import de.qabel.qabelbox.storage.notifications.AndroidStorageNotificationManager;
@@ -16,7 +15,6 @@ import de.qabel.qabelbox.storage.notifications.AndroidStorageNotificationPresent
 import de.qabel.qabelbox.storage.notifications.StorageNotificationManager;
 import de.qabel.qabelbox.storage.server.AndroidBlockServer;
 import de.qabel.qabelbox.storage.server.BlockServer;
-import de.qabel.qabelbox.ui.presenters.FileBrowserPresenter;
 
 @Module
 public class StorageModule {

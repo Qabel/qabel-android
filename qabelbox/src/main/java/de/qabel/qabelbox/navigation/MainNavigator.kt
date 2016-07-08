@@ -11,6 +11,7 @@ import de.qabel.desktop.repository.exception.PersistenceException
 import de.qabel.qabelbox.R
 import de.qabel.qabelbox.activities.CreateAccountActivity
 import de.qabel.qabelbox.activities.MainActivity
+import de.qabel.qabelbox.box.views.FileBrowserFragment
 import de.qabel.qabelbox.contacts.dto.ContactDto
 import de.qabel.qabelbox.contacts.view.views.ContactDetailsFragment
 import de.qabel.qabelbox.contacts.view.views.ContactsFragment
@@ -19,7 +20,6 @@ import de.qabel.qabelbox.fragments.HelpMainFragment
 import de.qabel.qabelbox.fragments.IdentitiesFragment
 import de.qabel.qabelbox.fragments.QRcodeFragment
 import de.qabel.qabelbox.ui.views.ChatFragment
-import de.qabel.qabelbox.ui.views.FileBrowserFragment
 import org.jetbrains.anko.AnkoLogger
 import org.jetbrains.anko.warn
 import javax.inject.Inject

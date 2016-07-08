@@ -4,7 +4,7 @@ import android.content.Intent
 import de.qabel.qabelbox.navigation.MainNavigator
 import de.qabel.qabelbox.ui.AbstractUITest
 import de.qabel.qabelbox.ui.idling.InjectedIdlingResource
-import de.qabel.qabelbox.ui.presenters.FileBrowserPresenter
+import de.qabel.qabelbox.box.presenters.FileBrowserPresenter
 import org.junit.Test
 
 import android.support.test.espresso.Espresso
@@ -14,6 +14,7 @@ import android.support.test.espresso.assertion.ViewAssertions
 import android.support.test.espresso.matcher.ViewMatchers.*
 import de.qabel.qabelbox.R
 import de.qabel.qabelbox.activities.MainActivity
+import de.qabel.qabelbox.box.views.FileBrowserFragment
 import de.qabel.qabelbox.dto.BrowserEntry
 import de.qabel.qabelbox.ui.presenters.ChatPresenter
 import org.junit.Ignore

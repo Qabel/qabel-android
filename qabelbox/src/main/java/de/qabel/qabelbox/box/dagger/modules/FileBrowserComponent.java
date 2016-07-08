@@ -1,9 +1,9 @@
-package de.qabel.qabelbox.dagger.components;
+package de.qabel.qabelbox.box.dagger.modules;
 
 import dagger.Subcomponent;
-import de.qabel.qabelbox.dagger.modules.FileBrowserModule;
+import de.qabel.qabelbox.box.dagger.modules.FileBrowserModule;
+import de.qabel.qabelbox.box.views.FileBrowserFragment;
 import de.qabel.qabelbox.dagger.scopes.ActivityScope;
-import de.qabel.qabelbox.ui.views.FileBrowserFragment;
 
 @ActivityScope
 @Subcomponent(

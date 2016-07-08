@@ -1,4 +1,4 @@
-package de.qabel.qabelbox.ui.views
+package de.qabel.qabelbox.box.views
 
 import de.qabel.qabelbox.dto.BrowserEntry
 

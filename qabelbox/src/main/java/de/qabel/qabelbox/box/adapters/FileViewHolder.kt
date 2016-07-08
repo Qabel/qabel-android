@@ -1,4 +1,4 @@
-package de.qabel.qabelbox.ui.adapters
+package de.qabel.qabelbox.box.adapters
 
 import android.support.v7.widget.RecyclerView
 import android.view.View

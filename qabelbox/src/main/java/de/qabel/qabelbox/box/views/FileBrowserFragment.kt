@@ -1,4 +1,4 @@
-package de.qabel.qabelbox.ui.views
+package de.qabel.qabelbox.box.views
 
 import android.os.Bundle
 import android.support.v4.widget.SwipeRefreshLayout
@@ -7,11 +7,11 @@ import android.support.v7.widget.RecyclerView
 import android.view.*
 import de.qabel.qabelbox.R
 import de.qabel.qabelbox.dagger.components.MainActivityComponent
-import de.qabel.qabelbox.dagger.modules.FileBrowserModule
+import de.qabel.qabelbox.box.dagger.modules.FileBrowserModule
 import de.qabel.qabelbox.dto.BrowserEntry
 import de.qabel.qabelbox.fragments.BaseFragment
-import de.qabel.qabelbox.ui.adapters.FileAdapter
-import de.qabel.qabelbox.ui.presenters.FileBrowserPresenter
+import de.qabel.qabelbox.box.adapters.FileAdapter
+import de.qabel.qabelbox.box.presenters.FileBrowserPresenter
 import kotlinx.android.synthetic.main.fragment_files.*
 import org.jetbrains.anko.*
 import org.jetbrains.anko.recyclerview.v7.onItemTouchListener

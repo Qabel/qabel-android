@@ -1,4 +1,4 @@
-package de.qabel.qabelbox.ui.presenters
+package de.qabel.qabelbox.box.presenters
 
 import de.qabel.qabelbox.dto.BrowserEntry
 

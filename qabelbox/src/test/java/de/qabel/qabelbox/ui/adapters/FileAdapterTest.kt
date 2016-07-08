@@ -17,6 +17,8 @@ import com.nhaarman.mockito_kotlin.verify
 import de.qabel.qabelbox.BuildConfig
 import de.qabel.qabelbox.R
 import de.qabel.qabelbox.SimpleApplication
+import de.qabel.qabelbox.box.adapters.FileAdapter
+import de.qabel.qabelbox.box.adapters.FileViewHolder
 import de.qabel.qabelbox.dto.BrowserEntry
 import de.qabel.qabelbox.helper.FontHelper
 import de.qabel.qabelbox.test.shadows.TextViewFontShadow

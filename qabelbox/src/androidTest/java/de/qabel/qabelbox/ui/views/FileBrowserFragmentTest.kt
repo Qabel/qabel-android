@@ -10,13 +10,16 @@ import org.junit.Test
 import android.support.test.espresso.Espresso
 import android.support.test.espresso.Espresso.onView
 import android.support.test.espresso.action.ViewActions.click
+import android.support.test.espresso.action.ViewActions.longClick
 import android.support.test.espresso.assertion.ViewAssertions
 import android.support.test.espresso.matcher.ViewMatchers.*
 import de.qabel.qabelbox.R
 import de.qabel.qabelbox.activities.MainActivity
 import de.qabel.qabelbox.box.views.FileBrowserFragment
 import de.qabel.qabelbox.dto.BrowserEntry
+import de.qabel.qabelbox.helper.UIHelper
 import de.qabel.qabelbox.ui.presenters.ChatPresenter
+import org.hamcrest.core.IsNot
 import org.junit.Ignore
 import org.mockito.Mockito.*
 import java.util.*
@@ -50,7 +53,6 @@ class FileBrowserFragmentTest: AbstractUITest() {
     }
 
 
-    @Ignore
     @Test
     fun refreshActionBarButton() {
         launch()
@@ -67,5 +69,27 @@ class FileBrowserFragmentTest: AbstractUITest() {
 
         onView(withText(file.name)).perform(click())
         verify(presenter).onClick(file)
+    }
+
+    @Test
+    fun bottomSheetForFiles() {
+        launch()
+        val file = BrowserEntry.File("Name.txt", 42000, Date())
+        fragment.showEntries(listOf(file))
+        onView(withText(file.name)).perform(longClick())
+        listOf(R.string.Open, R.string.Send, R.string.Delete, R.string.Export).forEach {
+            onView(withText(it)).check(ViewAssertions.matches(isDisplayed()))
+        }
+    }
+
+    @Test
+    fun bottomSheetForFolders() {
+        launch()
+        val entry = BrowserEntry.Folder("FoobarFolder")
+        fragment.showEntries(listOf(entry))
+        onView(withText(entry.name)).perform(longClick())
+        listOf(R.string.Delete).forEach {
+            onView(withText(R.string.Delete)).check(ViewAssertions.matches(isDisplayed()))
+        }
     }
 }

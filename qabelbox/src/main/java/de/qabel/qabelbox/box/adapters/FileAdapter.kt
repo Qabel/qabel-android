@@ -8,7 +8,7 @@ import de.qabel.qabelbox.dto.BrowserEntry
 
 open class FileAdapter(var entries: MutableList<BrowserEntry>,
                        val click: (BrowserEntry) -> Unit = {},
-                       val longClick: (BrowserEntry) -> Boolean = { true }):
+                       val longClick: (BrowserEntry) -> Unit = {}):
         RecyclerView.Adapter<FileViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup?, viewType: Int): FileViewHolder? {
@@ -34,7 +34,10 @@ open class FileAdapter(var entries: MutableList<BrowserEntry>,
         holder.bindTo(entry)
         with(holder.itemView) {
             setOnClickListener { click(entry) }
-            setOnLongClickListener { longClick(entry) }
+            setOnLongClickListener {
+                longClick(entry)
+                true
+            }
         }
     }
 

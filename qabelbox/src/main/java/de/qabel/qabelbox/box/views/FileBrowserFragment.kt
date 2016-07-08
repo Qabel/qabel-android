@@ -5,6 +5,7 @@ import android.support.v4.widget.SwipeRefreshLayout
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.view.*
+import com.cocosw.bottomsheet.BottomSheet
 import de.qabel.qabelbox.R
 import de.qabel.qabelbox.dagger.components.MainActivityComponent
 import de.qabel.qabelbox.box.dagger.modules.FileBrowserModule
@@ -35,10 +36,33 @@ class FileBrowserFragment: FileBrowserView, BaseFragment(), AnkoLogger,
                 .plus(FileBrowserModule(this))
         component.inject(this)
         setHasOptionsMenu(true)
-        adapter = FileAdapter(mutableListOf(), click = { presenter.onClick(it) })
+        adapter = FileAdapter(mutableListOf(),
+                click = { presenter.onClick(it) }, longClick = { openBottomSheet(it)}
+        )
 
         files_list.layoutManager = LinearLayoutManager(ctx)
         files_list.adapter = adapter
+    }
+
+    fun openBottomSheet(entry: BrowserEntry) {
+        val (icon, sheet) = when(entry) {
+            is BrowserEntry.File -> Pair(R.drawable.file, R.menu.bottom_sheet_files)
+            is BrowserEntry.Folder -> Pair(R.drawable.folder, R.menu.bottom_sheet_folder)
+        }
+        BottomSheet.Builder(activity).title(entry.name).icon(icon).sheet(sheet).listener {
+            dialogInterface, menu_id ->
+            when(entry) {
+                is BrowserEntry.File -> when (menu_id) {
+                    R.id.open -> presenter.open(entry)
+                    R.id.share -> presenter.share(entry)
+                    R.id.delete -> presenter.delete(entry)
+                    R.id.export -> presenter.export(entry)
+                }
+                is BrowserEntry.Folder -> when (menu_id) {
+                    R.id.delete -> presenter.deleteFolder(entry)
+                }
+            }
+        }.show()
     }
 
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?,
@@ -64,6 +88,14 @@ class FileBrowserFragment: FileBrowserView, BaseFragment(), AnkoLogger,
     override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater?) {
         menu?.clear()
         inflater?.inflate(R.menu.ab_files, menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
+        if (item?.itemId == R.id.menu_refresh) {
+            onRefresh()
+            return true
+        }
+        return false
     }
 }
 

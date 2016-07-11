@@ -88,7 +88,7 @@ class ChatMessageAdapterTest {
                     LinearLayout(RuntimeEnvironment.application), type)
             checkNotNull(holder?.itemView?.findViewById(R.id.tvText) as? TextViewFont)
             checkNotNull(holder?.itemView?.findViewById(R.id.tvDate) as? TextViewFont)
-            check(holder?.itemView?.findViewById(R.id.messageFileContainer) == null)
+            check(holder?.itemView?.findViewById(R.id.messageFileContainer)?.visibility == View.GONE)
         }
     }
 

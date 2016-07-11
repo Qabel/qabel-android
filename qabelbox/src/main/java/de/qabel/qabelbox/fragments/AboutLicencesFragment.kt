@@ -16,13 +16,9 @@ import java.io.IOException
 class AboutLicencesFragment : BaseFragment() {
 
     companion object {
-
-        internal val TAG = "AboutLicencesFragment"
-
-        fun newInstance(): AboutLicencesFragment {
-            val fragment = AboutLicencesFragment()
-            return fragment
-        }
+        private val TAG = "AboutLicencesFragment"
+        private val LICENCES_FILE = "licences.json";
+        private val QAPL_FILE = "qapl.txt";
     }
 
     lateinit internal var licensesList: RecyclerView
@@ -33,27 +29,23 @@ class AboutLicencesFragment : BaseFragment() {
         return inflater.inflate(R.layout.fragment_aboutlicences, container, false)
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
+    override fun onActivityCreated(savedInstanceState: Bundle?) {
+        super.onActivityCreated(savedInstanceState)
         licensesList = view.findViewById(R.id.about_licences_list) as RecyclerView
         licensesList.adapter = JSONLicencesAdapter(activity,
-                readJSONFromAssets("licences.json"),
-                readUTF8FromAssets("qapl.txt"))
+                readJSONFromAssets(LICENCES_FILE),
+                readUTF8FromAssets(QAPL_FILE))
 
         licensesList.layoutManager = LinearLayoutManager(activity)
     }
 
     fun readUTF8FromAssets(filename: String): String {
-        try {
-            activity.assets.open(filename).use {
-                stream ->
-                stream.bufferedReader().use {
-                    reader ->
-                    return reader.readText();
-                }
+        activity.assets.open(filename).use {
+            stream ->
+            stream.bufferedReader().use {
+                reader ->
+                return reader.readText();
             }
-        } catch (ex: IOException) {
-            throw RuntimeException("Could not read licencing info", ex)
         }
     }
 

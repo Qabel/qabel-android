@@ -143,7 +143,8 @@ class ChatFragment : ChatView, BaseFragment(), AnkoLogger {
         busy()
         onUiThread {
             adapter.messages = adapter.messages + message
-            adapter.notifyDataSetChanged()
+            adapter.notifyDataSetChanged();
+            contact_chat_list.scrollToPosition(adapter.itemCount - 1)
             idle()
         }
     }

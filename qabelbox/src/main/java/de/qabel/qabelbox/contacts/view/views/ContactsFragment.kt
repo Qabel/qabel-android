@@ -117,8 +117,8 @@ class ContactsFragment() : ContactsView, BaseFragment(), AnkoLogger, SearchView.
         }
     }
 
-    override fun onStart() {
-        super.onStart()
+    override fun onResume() {
+        super.onResume()
         ctx.registerReceiver(broadcastReceiver, IntentFilter(QblBroadcastConstants.Contacts.CONTACTS_CHANGED))
     }
 

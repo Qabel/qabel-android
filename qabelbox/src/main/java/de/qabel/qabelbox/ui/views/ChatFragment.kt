@@ -98,14 +98,14 @@ class ChatFragment : ChatView, BaseFragment(), AnkoLogger {
         }
     }
 
-    override fun onStart() {
-        super.onStart()
+    override fun onResume() {
+        super.onResume()
         ctx.registerReceiver(broadcastReceiver, IntentFilter(Helper.INTENT_REFRESH_CHAT))
         ctx.registerReceiver(notificationBlockReceiver, IntentFilter(Helper.INTENT_SHOW_NOTIFICATION))
     }
 
-    override fun onStop() {
-        super.onStop()
+    override fun onPause() {
+        super.onPause()
         ctx.unregisterReceiver(broadcastReceiver)
         ctx.unregisterReceiver(notificationBlockReceiver)
     }

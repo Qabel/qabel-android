@@ -28,11 +28,11 @@ class ContactDetailsAdapter(private val onSendMessageClick: (identity: Identity)
             editTextContactPublicKey.text = contact.readableKey();
 
             contact_details_actions.removeAllViews();
-            if (contact.identities.size > 0) {
+            if (contact.identities.size > 1) {
                 contact.identities.forEach {
                     addMessageButton(ctx.getString(R.string.send_message_as, it.alias));
                 }
-            } else {
+            } else if(contact.identities.size == 1){
                 addMessageButton(ctx.getString(R.string.btn_chat_send, contact.identities.first().alias))
             }
         }

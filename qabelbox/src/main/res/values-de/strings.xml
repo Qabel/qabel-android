@@ -16,7 +16,7 @@
     <string name="Select">Auswählen</string>
     <string name="Send">Senden</string>
     <string name="ab_filesearch_hint">Stichwort eingeben</string>
-    <string name="ab_use_filter"></string>
+    <string name="ab_use_filter">Benutzen</string>
     <string name="aborted">Abgebrochen</string>
     <string name="action_settings">Einstellungen</string>
     <string name="add">Hinzufügen</string>
@@ -169,7 +169,7 @@
     <string name="filebrowser_file_is_shared_to_other">Geteilt an andere</string>
     <string name="fileshare_label_in_chatmessage">Geteilte Datei %1</string>
     <string name="headline_contact_chat">Chat</string>
-    <string name="headline_share_select_upload_identity"></string>
+    <string name="headline_share_select_upload_identity">Identität für Upload auswählen</string>
     <string name="cant_send_message">Nachricht konnte nicht gesendet werden</string>
     <string name="cant_import_shared_file">Konnte die geteilte Datei nicht importieren</string>
     <string name="cant_share_contactlist_is_empty">Datei kann nicht geteilt werden. Sie haben keine Kontakte in der Kontaktliste</string>
@@ -220,7 +220,7 @@
     <string name="app_info_version_and_build">You use app version $1 from $2</string>
     <string name="message_welcome_disclaimer_headline">\u0020Vertragliches\n</string>
     <string name="message_welcome_disclaimer_message_legal_note">Um fortzufahren,\nakzeptieren sie bitte\nunsere AGB und unsere\nDatenschutzerklärung.</string>
-    <string name="message_welcome_disclaimer_message_privacy_note"></string>
+    <string name="message_welcome_disclaimer_message_privacy_note">und unsere Datenschutzhinweise</string>
     <string name="message_welcome_disclaimer_qabel_is_public_source">\u0020ist publizierter Code</string>
     <string name="help_main_headline_tou">AGB</string>
     <string name="help_main_headline_data_policy">Datenschutzerklärung</string>
@@ -307,4 +307,14 @@ Den Unterstützern der Indigogo Kampagne
     <string name="send_message">Nachricht senden</string>
     <string name="send_message_as">Nachricht senden als %s</string>
     <string name="active_identity_changed">Wechsel zu Identität %s</string>
+    <string name="details">Details</string>
+    <string name="licence.header.intro">Qabel ist unter QaPL veröffentlicht</string>
+    <string name="logout_confirmation">Sind Sie sicher, dass Sie sich abmelden wollen?</string>
+    <string name="upload_complete_notification_msg">%s komplett hochgeladen</string>
+    <string name="about.licences.item.show.btn">Lizenz anzeigen</string>
+    <string name="accept_share">Freigabe annehmen</string>
+    <string name="about.header.qabel.company.qtxt"></string>
+    <string name="about.header.qabel.show.btn">Zeige QaPL</string>
+    <string name="tellAFriendSubject">Du wurdest zu Qabel eingeladen</string>
+    <string name="tellAFriendMessage">Damit haben Sie zunächst die Möglichkeit, Qabel Box zu nutzen. Qabel Box ist ein Ende-zu-Ende verschlüsselter Onlinespeicher, der Ihnen nicht nur die Möglichkeit bietet, Daten verschlüsselt online zu speichern, sondern diese auch nach Belieben mit anderen zu teilen — und das ebenfalls Ende-zu-Ende verschlüsselt. Darüber hinaus verschleiert Qabel auch einen großen Teil der anfallenden Metadaten. Qabel wird ständig erweitert. So wird es Ihnen künftig möglich sein, Ihre gesamte digitale Kommunikation über die Qabel-Plattform anwendungsübergreifend und vor allem einfach und immer Ende-zu-Ende zu verschlüsseln. Werden Sie Teil des Qabel-Ökosystems und legen Sie gleich los: https://qabel.de/de/qabelnow Mehr Infos finden Sie unter https://qabel.de</string>
 </resources>

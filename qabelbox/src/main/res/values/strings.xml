@@ -221,8 +221,8 @@
     </plurals>
     <string name="hockeyapp_feedback_response_button_text"> Send a message</string>
 
-    <string name="licence.header.intro">Qabel is Published under the QAPL:</string>
-    <string name="about.header.qabel.company.qtxt">QABEL</string>
+    <string name="licence.header.intro">Qabel is published under the QaPL</string>
+    <string name="about.header.qabel.company.qtxt" translatable="false">QABEL</string>
     <string name="about.header.qabel.show.btn">Show QaPL</string>
     <string name="about.header.qabel.thanks.header.txt"> thanks:</string>
    <string name="about.header.qabel.thanks.content.txt">Alexander Hartmann
@@ -357,4 +357,6 @@ To all people who have supported our Indigogo Campaign
     <string name="download_complete_notification_msg">Downloading %s completed</string>
     <string name="currently_not_available">aktuell nicht verfügbar</string>
     <string name="search">Search</string>
+    <string name="inbox">Inbox</string>
+    <string name="qapl" translatable="false">QaPL</string>
 </resources>

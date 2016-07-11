@@ -17,7 +17,6 @@
 
     <style name="Theme.PageIndicatorDefaults" parent="android:Theme">
         <item name="vpiIconPageIndicatorStyle">@style/Widget.IconPageIndicator</item>
-        <item name="vpiIconPageIconIndicatorStyle">@style/Widget.IconPageIndicator.Icon</item>
 
     </style>
 
@@ -29,8 +28,4 @@
         <item name="android:layout_marginRight">6dp</item>
     </style>
 
-    <style name="Widget.IconPageIndicator.Icon" parent="Widget.IconPageIndicator">
-        <item name="android:layout_weight">6dp</item>
-        <item name="android:layout_height">6dp</item>
-    </style>
 </resources>

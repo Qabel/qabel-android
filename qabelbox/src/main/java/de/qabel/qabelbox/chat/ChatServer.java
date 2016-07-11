@@ -8,6 +8,7 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedList;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -54,32 +55,25 @@ public class ChatServer {
 
     public Collection<ChatMessageItem> refreshList(DropConnector connector, Identity identity) {
         try (ChatMessagesDataBase dataBase = getDataBaseForIdentity(identity)) {
-            List<ChatMessageItem> messages = new ArrayList<>();
+            List<ChatMessageItem> messages = new LinkedList<>();
             long lastRetrieved = dataBase.getLastRetrievedDropMessageTime();
             Log.d(TAG, "last retrieved dropmessage time " + lastRetrieved + " / " + System.currentTimeMillis());
-            String identityKey = getIdentityIdentifier(identity);
-            Collection<DropMessage> result = connector.retrieveDropMessages(identity, lastRetrieved);
 
-            if (result != null) {
-                Log.d(TAG, "new message count: " + result.size());
-                //store into db
-                for (DropMessage item : result) {
-                    ChatMessageItem cms = new ChatMessageItem(item);
-                    cms.receiver = identityKey;
-                    cms.isNew = 1;
-                    if (storeIntoDB(dataBase, cms) == ChatMessagesDataBase.MessageStatus.DUPLICATE) {
-                        cms.isNew = 0;
-                    } else {
-                        messages.add(cms);
-                    }
-                }
-
-                //@todo replace this with header from server response.
-                //@see https://github.com/Qabel/qabel-android/issues/272
-                for (DropMessage item : result) {
-                    lastRetrieved = Math.max(item.getCreationDate().getTime(), lastRetrieved);
+            DropConnector.RetrieveDropMessagesResult result = connector.retrieveDropMessages(identity, lastRetrieved);
+            lastRetrieved = result.getSinceDate();
+            Log.d(TAG, "new message count: " + result.getMessages().size());
+            //store into db
+            for (DropMessage item : result.getMessages()) {
+                ChatMessageItem cms = new ChatMessageItem(item);
+                cms.receiver = identity.getKeyIdentifier();
+                cms.isNew = 1;
+                if (storeIntoDB(dataBase, cms) == ChatMessagesDataBase.MessageStatus.DUPLICATE) {
+                    cms.isNew = 0;
+                } else {
+                    messages.add(cms);
                 }
             }
+
             dataBase.setLastRetrievedDropMessagesTime(lastRetrieved);
             Log.d(TAG, "new retrieved dropmessage time " + lastRetrieved);
 
@@ -88,11 +82,6 @@ public class ChatServer {
             return messages;
         }
     }
-
-    private String getIdentityIdentifier(Identity identity) {
-        return identity.getEcPublicKey().getReadableKeyIdentifier();
-    }
-
 
     public ChatMessagesDataBase.MessageStatus storeIntoDB(ChatMessagesDataBase dataBase, ChatMessageItem item) {
         if (item != null) {

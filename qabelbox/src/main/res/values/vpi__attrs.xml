@@ -21,6 +21,7 @@
         <attr name="vpiCirclePageIndicatorStyle" format="reference"/>
         <!-- Style of the icon indicator's views. -->
         <attr name="vpiIconPageIndicatorStyle" format="reference"/>
+        <attr name="vpiIconPageIconIndicatorStyle" format="reference"/>
         <!-- Style of the line indicator. -->
         <attr name="vpiLinePageIndicatorStyle" format="reference"/>
         <!-- Style of the title indicator. -->

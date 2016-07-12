@@ -1,6 +1,6 @@
 package de.qabel.qabelbox.box.presenters
 
-import de.qabel.qabelbox.dto.BrowserEntry
+import de.qabel.qabelbox.box.dto.BrowserEntry
 
 interface FileBrowserPresenter {
     fun onRefresh()

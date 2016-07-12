@@ -1,4 +1,4 @@
-package de.qabel.qabelbox.dto
+package de.qabel.qabelbox.box.dto
 
 import java.util.*
 

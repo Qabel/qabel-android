@@ -1,7 +1,7 @@
 package de.qabel.qabelbox.box.presenters
 
-import de.qabel.qabelbox.dto.BrowserEntry
-import de.qabel.qabelbox.dto.BrowserEntry.*
+import de.qabel.qabelbox.box.dto.BrowserEntry
+import de.qabel.qabelbox.box.dto.BrowserEntry.*
 import de.qabel.qabelbox.box.views.FileBrowserView
 import java.util.*
 import javax.inject.Inject

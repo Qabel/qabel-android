@@ -4,7 +4,7 @@ import android.support.v7.widget.RecyclerView
 import android.view.View
 import de.qabel.qabelbox.R
 import de.qabel.qabelbox.dto.ChatMessage
-import de.qabel.qabelbox.dto.BrowserEntry
+import de.qabel.qabelbox.box.dto.BrowserEntry
 import de.qabel.qabelbox.dto.MessagePayload
 import de.qabel.qabelbox.helper.Formatter
 import kotlinx.android.synthetic.main.item_chat_message_in.view.*

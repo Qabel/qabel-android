@@ -9,7 +9,7 @@ import com.cocosw.bottomsheet.BottomSheet
 import de.qabel.qabelbox.R
 import de.qabel.qabelbox.dagger.components.MainActivityComponent
 import de.qabel.qabelbox.box.dagger.modules.FileBrowserModule
-import de.qabel.qabelbox.dto.BrowserEntry
+import de.qabel.qabelbox.box.dto.BrowserEntry
 import de.qabel.qabelbox.fragments.BaseFragment
 import de.qabel.qabelbox.box.adapters.FileAdapter
 import de.qabel.qabelbox.box.presenters.FileBrowserPresenter

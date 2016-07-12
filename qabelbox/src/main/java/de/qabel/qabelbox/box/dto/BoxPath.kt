@@ -1,5 +1,7 @@
 package de.qabel.qabelbox.box.dto
 
+import org.apache.commons.lang3.builder.HashCodeBuilder
+
 sealed class BoxPath() {
 
     abstract val name: String
@@ -25,15 +27,18 @@ sealed class BoxPath() {
         override val parent: BoxPath
             get() = this
 
-    }
+        override fun hashCode(): Int = name.hashCode()
 
-    operator fun unaryMinus() = parent
+    }
 
     override fun equals(other: Any?): Boolean = when(other) {
         is Root -> (this is Root)
-        is BoxPath -> (name == other.name) && parent.equals(-other)
+        is BoxPath -> (name == other.name) && parent.equals(other.parent)
         else -> false
     }
+
+    override fun hashCode(): Int =
+            HashCodeBuilder().append(name).append(parent.hashCode()).toHashCode()
 
 }
 

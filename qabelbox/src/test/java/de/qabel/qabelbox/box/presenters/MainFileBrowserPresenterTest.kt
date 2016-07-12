@@ -25,8 +25,8 @@ class MainFileBrowserPresenterTest {
     val sample = File("foobar.txt", 42000, Date())
     val sampleFiles = listOf(sample)
 
-    fun stubWith(sample: List<BrowserEntry>) {
-        whenever(useCase.list(BoxPath.Root)).thenReturn(sample.toSingletonObservable())
+    fun stubWith(sample: List<BrowserEntry>, path: BoxPath.FolderLike = BoxPath.Root) {
+        whenever(useCase.list(path)).thenReturn(sample.toSingletonObservable())
     }
 
     @Test
@@ -52,6 +52,13 @@ class MainFileBrowserPresenterTest {
         presenter.deleteFolder(BrowserEntry.Folder("folder"))
         verify(view).showEntries(emptyList())
         verify(useCase).delete(eq(BoxPath.Root / "folder"))
+    }
+
+    @Test
+    fun browseToFolder() {
+        stubWith(sampleFiles, path = BoxPath.Root / "folder")
+        presenter.onClick(BrowserEntry.Folder("folder"))
+        verify(view).showEntries(sampleFiles)
     }
 
 }

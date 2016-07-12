@@ -11,6 +11,8 @@ class MainFileBrowserPresenter @Inject constructor(
         private val view: FileBrowserView, private val useCase: FileBrowserUseCase):
         FileBrowserPresenter {
 
+    var path: BoxPath.FolderLike = BoxPath.Root
+
     override fun open(file: File) {
         TODO()
     }
@@ -36,11 +38,16 @@ class MainFileBrowserPresenter @Inject constructor(
     }
 
     override fun onRefresh() {
-        useCase.list(BoxPath.Root).subscribe {
+        useCase.list(path).subscribe {
             view.showEntries(it)
         }
     }
 
-    override fun onClick(entry: BrowserEntry) = TODO()
+    override fun onClick(entry: BrowserEntry) {
+        if (entry is Folder) {
+            path /= entry.name
+            onRefresh()
+        }
+    }
 }
 

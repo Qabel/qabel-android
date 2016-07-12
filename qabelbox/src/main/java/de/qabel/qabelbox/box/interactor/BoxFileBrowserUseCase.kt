@@ -20,7 +20,7 @@ class BoxFileBrowserUseCase(private val volume: BoxVolume) : FileBrowserUseCase 
         throw UnsupportedOperationException("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun list(path: BoxPath.Folder): Observable<BrowserEntry> {
+    override fun list(path: BoxPath.FolderLike): Observable<List<BrowserEntry>> {
         throw UnsupportedOperationException("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 

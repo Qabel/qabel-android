@@ -34,7 +34,7 @@ class BoxFileBrowserUseCaseTest {
 
     @Test
     fun roundTripFile() {
-        val path = BoxPath.Root.file(sampleName)
+        val path = BoxPath.Root * sampleName
         useCase.upload(path, samplePayload.toUploadSource()).waitFor()
         useCase.download(path).waitFor().apply {
             asString() shouldMatch equalTo(samplePayload)

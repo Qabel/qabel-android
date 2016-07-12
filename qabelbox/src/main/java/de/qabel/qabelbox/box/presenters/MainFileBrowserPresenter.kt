@@ -1,36 +1,45 @@
 package de.qabel.qabelbox.box.presenters
 
+import de.qabel.qabelbox.box.dto.BoxPath
 import de.qabel.qabelbox.box.dto.BrowserEntry
 import de.qabel.qabelbox.box.dto.BrowserEntry.*
+import de.qabel.qabelbox.box.interactor.FileBrowserUseCase
 import de.qabel.qabelbox.box.views.FileBrowserView
-import java.util.*
 import javax.inject.Inject
 
 class MainFileBrowserPresenter @Inject constructor(
-        private val view: FileBrowserView): FileBrowserPresenter {
+        private val view: FileBrowserView, private val useCase: FileBrowserUseCase):
+        FileBrowserPresenter {
+
     override fun open(file: File) {
-        throw UnsupportedOperationException("not implemented") //To change body of created functions use File | Settings | File Templates.
+        TODO()
     }
 
     override fun share(file: File) {
-        throw UnsupportedOperationException("not implemented") //To change body of created functions use File | Settings | File Templates.
+        TODO()
     }
 
     override fun delete(file: File) {
-        throw UnsupportedOperationException("not implemented") //To change body of created functions use File | Settings | File Templates.
+        useCase.delete(BoxPath.Root * file.name).subscribe {
+            onRefresh()
+        }
     }
 
     override fun export(file: File) {
-        throw UnsupportedOperationException("not implemented") //To change body of created functions use File | Settings | File Templates.
+        TODO()
     }
 
     override fun deleteFolder(folder: Folder) {
-        throw UnsupportedOperationException("not implemented") //To change body of created functions use File | Settings | File Templates.
+        useCase.delete(BoxPath.Root / folder.name).subscribe {
+            onRefresh()
+        }
     }
 
-    val entries = listOf(File("Name.txt", 42000, Date()))
-
-    override fun onRefresh() = TODO()
+    override fun onRefresh() {
+        useCase.list(BoxPath.Root).subscribe {
+            view.showEntries(it)
+        }
+    }
 
     override fun onClick(entry: BrowserEntry) = TODO()
 }

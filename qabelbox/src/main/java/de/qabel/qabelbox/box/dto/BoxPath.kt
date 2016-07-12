@@ -10,11 +10,11 @@ sealed class BoxPath() {
 
 
     abstract class FolderLike(): BoxPath() {
-        fun div(name: String) = Folder(name, this)
-        fun div(path: File) = File(path.name, this)
-        fun div(path: Folder) = Folder(path.name, this)
+        operator fun div(name: String) = Folder(name, this)
+        operator fun div(path: File) = File(path.name, this)
+        operator fun div(path: Folder) = Folder(path.name, this)
 
-        fun file(name: String) = File(name, this)
+        operator fun times(name: String) = File(name, this)
     }
 
     class Folder(override val name: String, override val parent: BoxPath): FolderLike()
@@ -27,9 +27,13 @@ sealed class BoxPath() {
 
     }
 
-    fun dec() = parent
+    operator fun unaryMinus() = parent
 
-    open fun equals(other: BoxPath): Boolean = (name == other.name) && parent.equals(other.parent)
+    override fun equals(other: Any?): Boolean = when(other) {
+        is Root -> (this is Root)
+        is BoxPath -> (name == other.name) && parent.equals(-other)
+        else -> false
+    }
 
 }
 

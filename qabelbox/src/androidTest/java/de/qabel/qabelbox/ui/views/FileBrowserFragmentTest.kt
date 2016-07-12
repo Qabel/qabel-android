@@ -47,9 +47,10 @@ class FileBrowserFragmentTest: AbstractUITest() {
         presenter = mock(FileBrowserPresenter::class.java)
         fragment.presenter = presenter
 
-        val resource = InjectedIdlingResource()
-        Espresso.registerIdlingResources(resource);
-        fragment.setIdleCallback(resource)
+        with(InjectedIdlingResource()) {
+            Espresso.registerIdlingResources(this)
+            fragment.setIdleCallback(this)
+        }
     }
 
 

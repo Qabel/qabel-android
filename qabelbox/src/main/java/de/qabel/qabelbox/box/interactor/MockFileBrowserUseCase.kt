@@ -5,8 +5,9 @@ import rx.Observable
 import rx.lang.kotlin.toObservable
 import rx.lang.kotlin.toSingletonObservable
 import java.util.*
+import javax.inject.Inject
 
-class MockFileBrowserUseCase: FileBrowserUseCase {
+class MockFileBrowserUseCase @Inject constructor(): FileBrowserUseCase {
     override fun createFolder(path: BoxPath.Folder): Observable<Unit> {
         storage += Pair(path, null)
         return Unit.toSingletonObservable()
@@ -37,7 +38,7 @@ class MockFileBrowserUseCase: FileBrowserUseCase {
         return Unit.toSingletonObservable()
     }
 
-    override fun list(path: BoxPath.Folder): Observable<BrowserEntry> {
+    override fun list(path: BoxPath.FolderLike): Observable<List<BrowserEntry>> {
         return storage.filter { it.first.parent == path }.map { pair ->
             val (filepath, content) = pair
             when (filepath) {
@@ -47,7 +48,7 @@ class MockFileBrowserUseCase: FileBrowserUseCase {
                 }
                 is BoxPath.FolderLike -> BrowserEntry.Folder(filepath.name)
             }
-        }.toObservable()
+        }.toSingletonObservable()
     }
 
     override fun upload(path: BoxPath.File, source: UploadSource): Observable<Unit> {

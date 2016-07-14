@@ -1,6 +1,7 @@
 package de.qabel.qabelbox.box.interactor
 
 import de.qabel.qabelbox.box.dto.*
+import de.qabel.qabelbox.box.toDownloadSource
 import rx.Observable
 import rx.lang.kotlin.toSingletonObservable
 import java.io.ByteArrayInputStream
@@ -57,5 +58,3 @@ class MockFileBrowserUseCase @Inject constructor(): FileBrowserUseCase {
     }
 }
 
-
-fun ByteArray.toDownloadSource() = DownloadSource(ByteArrayInputStream(this))

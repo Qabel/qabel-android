@@ -95,31 +95,7 @@ open class BoxProvider : DocumentsProvider() {
 
     @Throws(FileNotFoundException::class)
     override fun queryRoots(projection: Array<String>): Cursor {
-
-        val netProjection = reduceProjection(projection, DEFAULT_ROOT_PROJECTION)
-
-        val result = MatrixCursor(netProjection)
-        try {
-            val identities = identityRepository.findAll()
-            for (identity in identities.identities) {
-                val row = result.newRow()
-                val pub_key = identity.ecPublicKey.readableKeyIdentifier
-                val prefix = identity.prefixes.firstOrNull() ?: continue
-
-                row.add(Root.COLUMN_ROOT_ID,
-                        mDocumentIdParser.buildId(pub_key, prefix, null))
-                row.add(Root.COLUMN_DOCUMENT_ID,
-                        mDocumentIdParser.buildId(pub_key, prefix, "/"))
-                row.add(Root.COLUMN_ICON, R.drawable.qabel_logo)
-                row.add(Root.COLUMN_FLAGS, Root.FLAG_SUPPORTS_CREATE)
-                row.add(Root.COLUMN_TITLE, "Qabel Box")
-                row.add(Root.COLUMN_SUMMARY, identity.alias)
-            }
-        } catch (e: PersistenceException) {
-            throw FileNotFoundException("Error loading identities")
-        }
-
-        return result
+        TODO()
     }
 
     private fun reduceProjection(projection: Array<String>?, supportedProjection: Array<String>): Array<String> {
@@ -146,90 +122,10 @@ open class BoxProvider : DocumentsProvider() {
     }
 
     @Throws(FileNotFoundException::class)
-    fun getVolumeForRoot(identity: String, prefix: String): BoxVolume {
-
-        try {
-            throw NotImplementedError("box manager not implemented")
-            // return boxManager.createBoxVolume(identity, prefix)
-        } catch (e: QblStorageException) {
-            e.printStackTrace()
-            throw FileNotFoundException("Cannot create BoxVolume")
-        }
-
-    }
-
-    @Throws(FileNotFoundException::class)
     override fun queryDocument(documentIdString: String, projection: Array<String>?): Cursor? {
 
         val cursor = createCursor(projection ?: arrayOf(), false)
-        try {
-            val documentId = mDocumentIdParser.parse(documentIdString)
-            val filePath = documentId.filePath
-
-            val volume = getVolumeForRoot(documentId.identityKey,
-                    documentId.prefix)
-
-            if (filePath == PATH_SEP) {
-                // root id
-                insertRootDoc(cursor, documentIdString)
-                return cursor
-            }
-            val navigation = volume.navigate()
-            navigation.navigate(documentId.pathString)
-            insertFileByName(cursor, navigation, documentIdString, documentId.fileName)
-        } catch (e: QblStorageException) {
-            Log.i(TAG, "Could not find document " + documentIdString, e)
-            throw FileNotFoundException("Failed navigating the volume")
-        }
-
-        Log.v(TAG, "query roots result, cursorCount=" + cursor.count + " cursorColumn=" + cursor.columnCount)
         return cursor
-    }
-
-    private fun shrinkDocumentId(documentId: String?): String? {
-
-        if (documentId == null) {
-            return null
-        }
-        val elements = documentId.split("/".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
-        return elements[elements.size - 1]
-    }
-
-    @Throws(FileNotFoundException::class)
-    private fun getVolumeForId(documentId: String): BoxVolume {
-
-        return getVolumeForRoot(
-                mDocumentIdParser.getIdentity(documentId),
-                mDocumentIdParser.getPrefix(documentId))
-    }
-
-    @Throws(QblStorageException::class)
-    internal fun insertFileByName(cursor: MatrixCursor, navigation: BoxNavigation,
-                                  documentId: String, basename: String) {
-
-        for (folder in navigation.listFolders()) {
-            Log.d(TAG, "Checking folder:" + folder.name)
-            if (basename == folder.name) {
-                insertFolder(cursor, documentId, folder)
-                return
-            }
-        }
-        for (file in navigation.listFiles()) {
-            Log.d(TAG, "Checking file:" + file.name)
-            if (basename == file.name) {
-                insertFile(cursor, documentId, file)
-                return
-            }
-        }
-
-        /*
-        val external = navigation.getExternal(basename)
-        if (external != null) {
-            insertFile(cursor, documentId, external)
-            return
-        }
-        */
-        throw QblStorageNotFound("File not found")
     }
 
     internal fun insertRootDoc(cursor: MatrixCursor, documentId: String) {
@@ -244,25 +140,7 @@ open class BoxProvider : DocumentsProvider() {
 
     @Throws(FileNotFoundException::class)
     override fun queryChildDocuments(parentDocumentId: String, projection: Array<String>, sortOrder: String): Cursor {
-
-        Log.d(TAG, "Query Child Documents: " + parentDocumentId)
-        var cursor: BoxCursor? = folderContentCache[parentDocumentId]
-        if (parentDocumentId == currentFolder && cursor != null) {
-            // best case: we are still in the same folder and we got a cache hit
-            Log.d(TAG, "Up to date cached data found")
-            cursor.setExtraLoading(false)
-            return cursor
-        }
-        if (cursor != null) {
-            // we found it in the cache, but since we changed the folder, we refresh anyway
-            cursor.setExtraLoading(true)
-        } else {
-            Log.d(TAG, "Serving empty listing and refreshing")
-            cursor = createCursor(projection, true)
-        }
-        currentFolder = parentDocumentId
-        asyncChildDocuments(parentDocumentId, projection, cursor)
-        return cursor
+        TODO()
     }
 
     /**
@@ -281,22 +159,8 @@ open class BoxProvider : DocumentsProvider() {
      */
     @Throws(FileNotFoundException::class)
     private fun createBoxCursor(parentDocumentId: String, projection: Array<String>): BoxCursor {
-
-        Log.v(TAG, "createBoxCursor")
         val cursor = createCursor(projection, false)
-        try {
-            val parentId = mDocumentIdParser.parse(parentDocumentId)
-            val volume = getVolumeForRoot(parentId.identityKey, parentId.prefix)
-
-            val navigation = volume.navigate()
-            navigation.navigate(parentId.pathString)
-            insertFolderListing(cursor, navigation, parentDocumentId)
-        } catch (e: QblStorageException) {
-            Log.e(TAG, "Could not navigate", e)
-            throw FileNotFoundException("Failed navigating the volume")
-        }
-
-        folderContentCache.put(parentDocumentId, cursor)
+        TODO()
         return cursor
     }
 
@@ -318,19 +182,7 @@ open class BoxProvider : DocumentsProvider() {
                 BuildConfig.APPLICATION_ID + AUTHORITY, parentDocumentId)
         // tell the original cursor how he gets notified
         result.setNotificationUri(context.contentResolver, uri)
-
-        // create a new cursor and store it
-        mThreadPoolExecutor.execute {
-            try {
-                createBoxCursor(parentDocumentId, projection)
-            } catch (e: FileNotFoundException) {
-                val cursor = createCursor(projection, false)
-                cursor.setError(context.getString(R.string.folderListingUpdateError))
-                folderContentCache.put(parentDocumentId, cursor)
-            }
-
-            context.contentResolver.notifyChange(uri, null)
-        }
+        TODO()
     }
 
     private fun createCursor(projection: Array<String>, extraLoading: Boolean): BoxCursor {
@@ -389,192 +241,23 @@ open class BoxProvider : DocumentsProvider() {
         Log.d(TAG, "Open document: " + documentId)
         val isWrite = mode.indexOf('w') != -1
         val isRead = mode.indexOf('r') != -1
-
-        if (isWrite) {
-            // Attach a close listener if the document is opened in write mode.
-            try {
-                val handler = Handler(context.mainLooper)
-                val tmp: File
-                if (isRead) {
-                    tmp = downloadFile(documentId)
-                } else {
-                    tmp = File.createTempFile("uploadAndDeleteLocalfile", "", context.externalCacheDir)
-                }
-                val onCloseListener = ParcelFileDescriptor.OnCloseListener { e ->
-                    // Update the file with the cloud server.  The client is done writing.
-                    Log.i(TAG, "A file with id $documentId has been closed!  Time to update the server.")
-                    if (e != null) {
-                        Log.e(TAG, "IOException in onClose", e)
-                        return@OnCloseListener
-                    }
-                    // in another thread!
-                    object : AsyncTask<Void, Void, String>() {
-                        override fun doInBackground(vararg params: Void): String {
-                            try {
-                                val documentId1 = mDocumentIdParser.parse(documentId)
-                                val path = documentId1.pathString
-                                val volume = getVolumeForRoot(documentId1.identityKey,
-                                        documentId1.prefix)
-                                val boxNavigation = volume.navigate()
-                                boxNavigation.navigate(path)
-                                boxNavigation.upload(documentId1.fileName, tmp)
-                                boxNavigation.commit()
-                            } catch (e1: FileNotFoundException) {
-                                Log.e(TAG, "Cannot upload file!", e1)
-                            } catch (e1: QblStorageException) {
-                                Log.e(TAG, "Cannot upload file!", e1)
-                            }
-
-                            Log.d(TAG, "UPLOAD DONE")
-                            return documentId
-                        }
-                    }.execute()
-                }
-                return ParcelFileDescriptor.open(tmp, ParcelFileDescriptor.parseMode(mode), handler,
-                        onCloseListener)
-            } catch (e: IOException) {
-                throw FileNotFoundException()
-            }
-
-        } else {
-            val tmp = downloadFile(documentId)
-            val accessMode = ParcelFileDescriptor.parseMode(mode)
-            return ParcelFileDescriptor.open(tmp, accessMode)
-        }
+        TODO()
     }
 
-    @Throws(FileNotFoundException::class)
-    private fun downloadFile(documentId: String): File {
-
-        val future = mThreadPoolExecutor.submit(
-                Callable { this@BoxProvider.getFile(documentId) })
-        try {
-            return future.get()
-        } catch (e: InterruptedException) {
-            Log.d(TAG, "openDocument cancelled download")
-            throw FileNotFoundException()
-        } catch (e: ExecutionException) {
-            Log.d(TAG, "Execution error", e)
-            throw FileNotFoundException()
-        }
-
-    }
-
-    @Throws(IOException::class, QblStorageException::class)
-    private fun getFile(documentId: String): File {
-        throw NotImplementedError("box manager not implemented")
-        //return boxManager.downloadFileDecrypted(documentId)
-    }
 
     @Throws(FileNotFoundException::class)
     override fun createDocument(parentDocumentId: String, mimeType: String, displayName: String): String {
-
-        Log.d(TAG, "createDocument: $parentDocumentId; $mimeType; $displayName")
-
-        try {
-
-            val parentId = mDocumentIdParser.parse(parentDocumentId)
-            val parentPath = parentId.filePath
-            val volume = getVolumeForRoot(parentId.identityKey, parentId.prefix)
-
-
-            val navigation = volume.navigate()
-            navigation.navigate(parentPath)
-
-            if (mimeType == Document.MIME_TYPE_DIR) {
-                navigation.createFolder(displayName)
-            } else {
-                navigation.upload(displayName, createTempFile())
-            }
-            navigation.commit()
-
-            return parentDocumentId + displayName
-        } catch (e: QblStorageException) {
-            Log.e(TAG, "could not create file", e)
-            throw FileNotFoundException()
-        }
-
+        TODO()
     }
 
     @Throws(FileNotFoundException::class)
     override fun deleteDocument(documentId: String) {
-
-        Log.d(TAG, "deleteDocument: " + documentId)
-
-        try {
-
-            val document = mDocumentIdParser.parse(documentId)
-            val volume = getVolumeForRoot(document.identityKey, document.prefix)
-            val navigation = volume.navigate()
-            navigation.navigate(document.pathString)
-
-            val basename = document.fileName
-            for (file in navigation.listFiles()) {
-                if (file.name == basename) {
-                    navigation.delete(file)
-                    navigation.commit()
-                    return
-                }
-            }
-            for (folder in navigation.listFolders()) {
-                if (folder.name == basename) {
-                    navigation.delete(folder)
-                    navigation.commit()
-                    return
-                }
-            }
-        } catch (e: QblStorageException) {
-            Log.e(TAG, "could not create file", e)
-            throw FileNotFoundException()
-        }
-
+        TODO()
     }
 
     @Throws(FileNotFoundException::class)
     override fun renameDocument(documentId: String, displayName: String): String {
         throw FileNotFoundException("not implemented!")
-
-        /*
-        Log.d(TAG, "renameDocument: $documentId to $displayName")
-
-        try {
-
-            val document = mDocumentIdParser.parse(documentId)
-            val volume = getVolumeForId(documentId)
-
-            val splitPath = document.path
-            val basename = document.fileName
-            val navigation = volume.navigate()
-
-            val newPath = Arrays.copyOf(splitPath, splitPath.size + 1)
-            newPath[newPath.size - 1] = displayName
-
-            val renamedId = mDocumentIdParser.buildId(
-                    mDocumentIdParser.getIdentity(documentId),
-                    mDocumentIdParser.getPrefix(documentId),
-                    StringUtils.join(newPath, PATH_SEP))
-
-            for (file in navigation.listFiles()) {
-                if (file.name == basename) {
-                    navigation.rename(file, displayName)
-                    navigation.commit()
-                    return renamedId
-                }
-            }
-            for (folder in navigation.listFolders()) {
-                if (folder.name == basename) {
-                    navigation.rename(folder, displayName)
-                    navigation.commit()
-                    return renamedId
-                }
-            }
-            throw FileNotFoundException()
-        } catch (e: QblStorageException) {
-            Log.e(TAG, "could not create file", e)
-            throw FileNotFoundException()
-        }
-        */
-
     }
 
     companion object {

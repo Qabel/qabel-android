@@ -5,9 +5,9 @@ import org.junit.Test;
 
 import java.io.FileNotFoundException;
 
-import de.qabel.qabelbox.box.providers.BoxProvider;
+import de.qabel.qabelbox.box.provider.BoxProvider;
 import de.qabel.qabelbox.box.provider.DocumentId;
-import de.qabel.qabelbox.box.providers.DocumentIdParser;
+import de.qabel.qabelbox.box.provider.DocumentIdParser;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.nullValue;

@@ -8,7 +8,7 @@ import de.qabel.qabelbox.box.provider.DocumentId
 import rx.Observable
 
 interface ProviderUseCase {
-    fun avaliableRoots(): Observable<List<VolumeRoot>>
+    fun availableRoots(): List<VolumeRoot>
     fun queryChildDocuments(documentId: DocumentId): Observable<List<ProviderEntry>>
     fun download(documentId: DocumentId): Observable<ProviderDownload>
     fun upload(providerUpload: ProviderUpload): Observable<Unit>

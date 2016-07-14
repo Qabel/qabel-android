@@ -4,13 +4,14 @@ import de.qabel.box.storage.exceptions.QblStorageException
 import java.io.FileNotFoundException
 import java.util.ArrayList
 import java.util.Arrays
+import javax.inject.Inject
 
 
 /**
  * Document IDs are built like this:
  * public-key::::prefix::::/filepath
  */
-class DocumentIdParser {
+class DocumentIdParser @Inject constructor(){
 
     @Throws(FileNotFoundException::class)
     fun getIdentity(documentId: String): String {

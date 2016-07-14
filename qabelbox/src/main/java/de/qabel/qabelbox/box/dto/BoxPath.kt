@@ -40,5 +40,7 @@ sealed class BoxPath() {
     override fun hashCode(): Int =
             HashCodeBuilder().append(name).append(parent.hashCode()).toHashCode()
 
+
+    fun toList(): List<String> = if (this is Root) emptyList() else parent.toList() + name
 }
 

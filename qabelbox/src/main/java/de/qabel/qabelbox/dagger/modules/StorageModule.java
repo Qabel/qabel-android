@@ -9,9 +9,12 @@ import javax.inject.Singleton;
 import dagger.Module;
 import dagger.Provides;
 import de.qabel.qabelbox.box.provider.DocumentIdParser;
+import de.qabel.qabelbox.config.AppPreference;
 import de.qabel.qabelbox.storage.notifications.AndroidStorageNotificationManager;
 import de.qabel.qabelbox.storage.notifications.AndroidStorageNotificationPresenter;
 import de.qabel.qabelbox.storage.notifications.StorageNotificationManager;
+import de.qabel.qabelbox.storage.server.AndroidBlockServer;
+import de.qabel.qabelbox.storage.server.BlockServer;
 
 @Module
 public class StorageModule {
@@ -31,6 +34,16 @@ public class StorageModule {
     @Provides
     File providesCacheDir(Context context) {
         return context.getCacheDir();
+    }
+
+    @Singleton
+    @Provides
+    BlockServer providesBlockServer(AppPreference preference, Context context) {
+        return createBlockServer(preference, context);
+    }
+
+    protected BlockServer createBlockServer(AppPreference preference, Context context){
+        return new AndroidBlockServer(preference, context);
     }
 
 }

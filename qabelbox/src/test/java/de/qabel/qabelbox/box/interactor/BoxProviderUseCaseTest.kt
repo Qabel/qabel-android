@@ -1,5 +1,6 @@
 package de.qabel.qabelbox.box.interactor
 
+import de.qabel.qabelbox.box.dto.BoxPath
 import de.qabel.qabelbox.box.dto.VolumeRoot
 import de.qabel.qabelbox.box.provider.DocumentId
 import org.junit.Assert.*
@@ -33,7 +34,7 @@ class BoxProviderUseCaseTest {
     }
     @Test
     fun testQueryChildDocuments() {
-        val id = DocumentId("id", "pref", arrayOf(), "file")
+        val id = DocumentId("id", "pref", BoxPath.Root)
     }
 
     @Test

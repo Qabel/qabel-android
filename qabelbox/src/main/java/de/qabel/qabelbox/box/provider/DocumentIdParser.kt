@@ -1,6 +1,7 @@
 package de.qabel.qabelbox.box.provider
 
 import de.qabel.box.storage.exceptions.QblStorageException
+import de.qabel.qabelbox.box.dto.BoxPath
 import java.io.FileNotFoundException
 import java.util.ArrayList
 import java.util.Arrays
@@ -81,20 +82,21 @@ class DocumentIdParser @Inject constructor(){
         if (parts.size != 3) {
             throw QblStorageException("Invalid documentId: " + documentId)
         }
-        val identityKey = parts[0]
-        val prefix = parts[1]
-
-        val completePath = parts[2]
-        val pathParts = completePath.split("/".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
-        var filename = ""
-        val path: Array<String>
-        if (pathParts.size > 0) {
-            filename = pathParts[pathParts.size - 1]
-            path = Arrays.copyOf(pathParts, pathParts.size - 1)
-        } else {
-            path = arrayOf("")
+        val (identityKey, prefix, completePath) = parts
+        val pathParts = completePath.split("/".toRegex()).dropLastWhile { it.isEmpty() }
+        if (pathParts.size == 0) {
+            return DocumentId(identityKey, prefix, BoxPath.Root)
         }
-        return DocumentId(identityKey, prefix, path, filename)
+        val path = if (documentId.last() == '/') {
+            pathParts.fold<String, BoxPath>(BoxPath.Root) { path, part ->
+                BoxPath.Folder(part, path)
+            }
+        } else {
+            pathParts.fold<String, BoxPath>(BoxPath.Root) { path, part ->
+                BoxPath.File(part, path)
+            }
+        }
+        return DocumentId(identityKey, prefix, path)
     }
 
     companion object {

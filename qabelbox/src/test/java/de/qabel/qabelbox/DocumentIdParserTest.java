@@ -109,7 +109,7 @@ public class DocumentIdParserTest {
         assertThat(documentId.getIdentityKey(), is(pub));
         assertThat(documentId.getPrefix(), is(prefix));
 
-        assertThat(documentId.getFileName(), is(fileName));
+        assertThat(documentId.getPath().getName(), is(fileName));
         assertThat(documentId.getPathString(), is(filePath));
     }
 

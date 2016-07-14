@@ -39,22 +39,6 @@ import javax.inject.Inject
 
 open class BoxProvider : DocumentsProvider() {
 
-    @Inject
-    lateinit var storageNotificationManager: StorageNotificationManager
-    @Inject
-    lateinit var mDocumentIdParser: DocumentIdParser
-
-    @Inject
-    lateinit var identityRepository: IdentityRepository
-
-    @Inject
-    lateinit var appPreferences: AppPreference
-
-    lateinit private var mThreadPoolExecutor: ThreadPoolExecutor
-
-    lateinit private var folderContentCache: MutableMap<String, BoxCursor>
-    lateinit private var currentFolder: String
-
     private val volumesChangedBroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
             notifyRootsUpdated()
@@ -63,16 +47,6 @@ open class BoxProvider : DocumentsProvider() {
 
     override fun onCreate(): Boolean {
         inject()
-
-        mThreadPoolExecutor = ThreadPoolExecutor(
-                2,
-                2,
-                KEEP_ALIVE_TIME.toLong(),
-                KEEP_ALIVE_TIME_UNIT,
-                LinkedBlockingDeque<Runnable>())
-
-        folderContentCache = HashMap<String, BoxCursor>()
-
         context.registerReceiver(volumesChangedBroadcastReceiver,
                 IntentFilter(QblBroadcastConstants.Storage.BOX_VOLUMES_CHANGES))
 
@@ -274,8 +248,5 @@ open class BoxProvider : DocumentsProvider() {
         val PATH_SEP = "/"
         @JvmField
         val DOCID_SEPARATOR = "::::"
-
-        private val KEEP_ALIVE_TIME = 1
-        private val KEEP_ALIVE_TIME_UNIT = TimeUnit.SECONDS
     }
 }

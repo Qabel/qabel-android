@@ -7,9 +7,8 @@ import de.qabel.qabelbox.box.dto.BrowserEntry.File
 import de.qabel.qabelbox.box.dto.DownloadSource
 import de.qabel.qabelbox.box.dto.UploadSource
 import de.qabel.qabelbox.box.interactor.FileBrowserUseCase
-import de.qabel.qabelbox.box.interactor.toByteArrayInputStream
-import de.qabel.qabelbox.box.interactor.toDownloadSource
 import de.qabel.qabelbox.box.views.FileBrowserView
+import de.qabel.qabelbox.util.toDownloadSource
 import org.junit.Before
 import org.junit.Test
 import rx.lang.kotlin.toSingletonObservable

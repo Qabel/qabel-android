@@ -125,7 +125,6 @@ class FileAdapterTest {
         adapter = FileAdapter(mutableListOf(sampleFile),
                 longClick = {
                     longClickedOn = it
-                    true
                 })
         bindViewHolder()
 

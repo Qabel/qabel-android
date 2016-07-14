@@ -7,17 +7,14 @@ import de.qabel.qabelbox.BuildConfig
 import de.qabel.qabelbox.SimpleApplication
 import de.qabel.qabelbox.box.backends.MockLocalStorage
 import de.qabel.qabelbox.box.dto.BoxPath
-import de.qabel.qabelbox.box.dto.DownloadSource
-import de.qabel.qabelbox.box.dto.UploadSource
 import de.qabel.qabelbox.util.IdentityHelper
+import de.qabel.qabelbox.util.asString
+import de.qabel.qabelbox.util.toUploadSource
+import de.qabel.qabelbox.util.waitFor
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricGradleTestRunner
 import org.robolectric.annotation.Config
-import rx.Observable
-import rx.lang.kotlin.firstOrNull
-import java.io.ByteArrayInputStream
-import java.util.*
 
 @RunWith(RobolectricGradleTestRunner::class)
 @Config(application = SimpleApplication::class, constants = BuildConfig::class)
@@ -44,10 +41,3 @@ class BoxFileBrowserUseCaseTest {
 
 }
 
-fun String.toUploadSource() = UploadSource(this.toByteArrayInputStream(), this.length.toLong(), Date())
-fun String.toByteArrayInputStream() = ByteArrayInputStream(this.toByteArray())
-fun String.toDownloadSource() = DownloadSource(this.toByteArrayInputStream())
-
-fun DownloadSource.asString() = source.reader().readText()
-fun <T> Observable<T>.waitFor(): T = this.toBlocking().firstOrNull()
-        ?: throw AssertionError("Got null from observable")

@@ -1,4 +1,4 @@
-package de.qabel.qabelbox.providers
+package de.qabel.qabelbox.box.provider
 
 import de.qabel.box.storage.exceptions.QblStorageException
 import java.io.FileNotFoundException

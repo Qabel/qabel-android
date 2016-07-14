@@ -1,4 +1,4 @@
-package de.qabel.qabelbox.providers
+package de.qabel.qabelbox.box.provider
 
 import android.annotation.TargetApi
 import android.content.Context
@@ -8,7 +8,6 @@ import android.provider.DocumentsContract
 import android.util.Log
 import de.qabel.box.storage.exceptions.QblStorageException
 import de.qabel.qabelbox.BuildConfig
-import de.qabel.qabelbox.helper.MockedBoxProviderTest
 import org.apache.commons.io.IOUtils
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.CoreMatchers.startsWith
@@ -69,7 +68,7 @@ class BoxProviderTest : MockedBoxProviderTest() {
         rootNav.upload("testfile", File(testFileName!!))
         rootNav.commit()
         assertThat(rootNav.listFiles().size, `is`(1))
-        val testDocId = MockedBoxProviderTest.ROOT_DOC_ID + "testfile"
+        val testDocId = ROOT_DOC_ID + "testfile"
         val documentUri = DocumentsContract.buildDocumentUri(BuildConfig.APPLICATION_ID + BoxProvider.AUTHORITY, testDocId)
         Assert.assertNotNull("Could not build document URI", documentUri)
         val query = mockContentResolver.query(documentUri, null, null, null, null)
@@ -84,8 +83,8 @@ class BoxProviderTest : MockedBoxProviderTest() {
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     fun testCreateFile() {
-        val testDocId = MockedBoxProviderTest.ROOT_DOC_ID + "testfile.png"
-        val parentDocumentUri = DocumentsContract.buildDocumentUri(BuildConfig.APPLICATION_ID + BoxProvider.AUTHORITY, MockedBoxProviderTest.ROOT_DOC_ID)
+        val testDocId = ROOT_DOC_ID + "testfile.png"
+        val parentDocumentUri = DocumentsContract.buildDocumentUri(BuildConfig.APPLICATION_ID + BoxProvider.AUTHORITY, ROOT_DOC_ID)
         val documentUri = DocumentsContract.buildDocumentUri(BuildConfig.APPLICATION_ID + BoxProvider.AUTHORITY, testDocId)
         Assert.assertNotNull("Could not build document URI", documentUri)
         var query: Cursor = mockContentResolver.query(documentUri, null, null, null, null)
@@ -101,8 +100,8 @@ class BoxProviderTest : MockedBoxProviderTest() {
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     fun testDeleteFile() {
-        val testDocId = MockedBoxProviderTest.ROOT_DOC_ID + "testfile.png"
-        val parentDocumentUri = DocumentsContract.buildDocumentUri(BuildConfig.APPLICATION_ID + BoxProvider.AUTHORITY, MockedBoxProviderTest.ROOT_DOC_ID)
+        val testDocId = ROOT_DOC_ID + "testfile.png"
+        val parentDocumentUri = DocumentsContract.buildDocumentUri(BuildConfig.APPLICATION_ID + BoxProvider.AUTHORITY, ROOT_DOC_ID)
         val documentUri = DocumentsContract.buildDocumentUri(BuildConfig.APPLICATION_ID + BoxProvider.AUTHORITY, testDocId)
         Assert.assertNotNull("Could not build document URI", documentUri)
         var query: Cursor = mockContentResolver.query(documentUri, null, null, null, null)
@@ -119,8 +118,8 @@ class BoxProviderTest : MockedBoxProviderTest() {
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     fun testRenameFile() {
-        val testDocId = MockedBoxProviderTest.ROOT_DOC_ID + "testfile.png"
-        val parentDocumentUri = DocumentsContract.buildDocumentUri(BuildConfig.APPLICATION_ID + BoxProvider.AUTHORITY, MockedBoxProviderTest.ROOT_DOC_ID)
+        val testDocId = ROOT_DOC_ID + "testfile.png"
+        val parentDocumentUri = DocumentsContract.buildDocumentUri(BuildConfig.APPLICATION_ID + BoxProvider.AUTHORITY, ROOT_DOC_ID)
         val documentUri = DocumentsContract.buildDocumentUri(BuildConfig.APPLICATION_ID + BoxProvider.AUTHORITY, testDocId)
         Assert.assertNotNull("Could not build document URI", documentUri)
         var query: Cursor = mockContentResolver.query(documentUri, null, null, null, null)

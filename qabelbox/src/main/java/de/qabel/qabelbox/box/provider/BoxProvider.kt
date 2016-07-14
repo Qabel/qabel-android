@@ -1,4 +1,4 @@
-package de.qabel.qabelbox.providers
+package de.qabel.qabelbox.box.provider
 
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -62,6 +62,7 @@ open class BoxProvider : DocumentsProvider() {
     }
 
     override fun onCreate(): Boolean {
+        inject()
 
         mThreadPoolExecutor = ThreadPoolExecutor(
                 2,
@@ -71,13 +72,16 @@ open class BoxProvider : DocumentsProvider() {
                 LinkedBlockingDeque<Runnable>())
 
         folderContentCache = HashMap<String, BoxCursor>()
-        val boxComponent = DaggerBoxComponent.builder().contextModule(ContextModule(context)).build()
-        boxComponent.inject(this)
 
         context.registerReceiver(volumesChangedBroadcastReceiver,
                 IntentFilter(QblBroadcastConstants.Storage.BOX_VOLUMES_CHANGES))
 
         return true
+    }
+
+    internal fun inject() {
+        val boxComponent = DaggerBoxComponent.builder().contextModule(ContextModule(context)).build()
+        boxComponent.inject(this)
     }
 
     /**
@@ -100,13 +104,7 @@ open class BoxProvider : DocumentsProvider() {
             for (identity in identities.identities) {
                 val row = result.newRow()
                 val pub_key = identity.ecPublicKey.readableKeyIdentifier
-                val prefix: String
-                try {
-                    prefix = identity.prefixes[0]
-                } catch (e: IndexOutOfBoundsException) {
-                    Log.e(TAG, "Could not find a prefix in identity " + pub_key)
-                    continue
-                }
+                val prefix = identity.prefixes.firstOrNull() ?: continue
 
                 row.add(Root.COLUMN_ROOT_ID,
                         mDocumentIdParser.buildId(pub_key, prefix, null))
@@ -166,14 +164,6 @@ open class BoxProvider : DocumentsProvider() {
         val cursor = createCursor(projection ?: arrayOf(), false)
         try {
             val documentId = mDocumentIdParser.parse(documentIdString)
-            var logInfos: String = shrinkDocumentId(documentIdString)
-                    ?: throw FileNotFoundException("No documentId")
-            if (projection != null) {
-                logInfos += " projSize=" + projection.size
-            } else {
-                logInfos += " projection=null. All fields used"
-            }
-            Log.v(TAG, "QueryDocument " + logInfos)
             val filePath = documentId.filePath
 
             val volume = getVolumeForRoot(documentId.identityKey,
@@ -186,10 +176,6 @@ open class BoxProvider : DocumentsProvider() {
             }
             val navigation = volume.navigate()
             navigation.navigate(documentId.pathString)
-            if (navigation.getFile(documentId.fileName) == null) {
-                return null
-            }
-            Log.d(TAG, "Inserting basename " + documentId.fileName)
             insertFileByName(cursor, navigation, documentIdString, documentId.fileName)
         } catch (e: QblStorageException) {
             Log.i(TAG, "Could not find document " + documentIdString, e)

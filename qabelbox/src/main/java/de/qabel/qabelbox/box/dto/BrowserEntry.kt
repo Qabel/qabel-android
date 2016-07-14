@@ -1,5 +1,6 @@
 package de.qabel.qabelbox.box.dto
 
+import org.apache.commons.lang3.builder.HashCodeBuilder
 import java.util.*
 
 sealed  class BrowserEntry(val name: String) {
@@ -12,6 +13,10 @@ sealed  class BrowserEntry(val name: String) {
             is File -> name == other.name && size == other.size && mTime == other.mTime
             else -> false
         }
+
+        override fun hashCode(): Int{
+            return HashCodeBuilder().append(size).append(mTime).build()
+        }
     }
     class Folder(name: String) : BrowserEntry(name) {
         override fun toString(): String {
@@ -20,6 +25,10 @@ sealed  class BrowserEntry(val name: String) {
         override fun equals(other: Any?): Boolean = when (other) {
             is Folder -> name == other.name
             else -> false
+        }
+
+        override fun hashCode(): Int{
+            return name.hashCode()
         }
     }
 }

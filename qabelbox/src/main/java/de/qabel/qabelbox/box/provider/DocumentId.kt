@@ -1,4 +1,4 @@
-package de.qabel.qabelbox.providers
+package de.qabel.qabelbox.box.provider
 
 import java.util.Arrays
 

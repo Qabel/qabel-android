@@ -1,4 +1,4 @@
-package de.qabel.qabelbox.helper;
+package de.qabel.qabelbox.box.provider;
 
 import android.content.Context;
 import android.test.InstrumentationTestCase;
@@ -15,8 +15,6 @@ import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.TestConstants;
 import de.qabel.qabelbox.communication.URLs;
 import de.qabel.qabelbox.config.AppPreference;
-import de.qabel.qabelbox.providers.BoxProvider;
-import de.qabel.qabelbox.providers.MockBoxProvider;
 
 public abstract class MockedBoxProviderTest extends InstrumentationTestCase {
 
@@ -56,7 +54,7 @@ public abstract class MockedBoxProviderTest extends InstrumentationTestCase {
         MockBoxProvider provider = getProvider();
         String keyIdentifier = provider.keyPair.getPub().getReadableKeyIdentifier();
         volume = provider.getVolumeForRoot(keyIdentifier, MockBoxProvider.prefix);
-        volume.createIndex(volume.getRootRef());
+        volume.createIndex("bucket", MockBoxProvider.prefix);
 
         ROOT_DOC_ID = keyIdentifier + "::::" + MockBoxProvider.prefix + "::::/";
     }

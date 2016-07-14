@@ -159,7 +159,7 @@
         </service>
 
         <provider
-            android:name=".providers.BoxProvider"
+            android:name=".box.providers.BoxProvider"
             android:authorities="${applicationId}.providers.documents"
             android:enabled="true"
             android:exported="true"
@@ -171,7 +171,7 @@
 
         </provider>
         <provider
-            android:name=".providers.InternalContentProvider"
+            android:name=".box.providers.InternalContentProvider"
             android:authorities="${applicationId}.providers.internal"
             android:enabled="true"
             android:syncable="true"

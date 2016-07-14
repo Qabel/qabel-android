@@ -1,4 +1,4 @@
-package de.qabel.qabelbox.providers;
+package de.qabel.qabelbox.box.providers;
 
 import android.content.ContentProvider;
 import android.content.ContentValues;

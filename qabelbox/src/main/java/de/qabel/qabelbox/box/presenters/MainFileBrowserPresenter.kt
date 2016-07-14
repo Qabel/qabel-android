@@ -15,10 +15,6 @@ class MainFileBrowserPresenter @Inject constructor(
 
     var path: BoxPath.FolderLike = BoxPath.Root
 
-    override fun open(file: File) {
-        TODO()
-    }
-
     override fun share(file: File) {
         TODO()
     }
@@ -36,7 +32,9 @@ class MainFileBrowserPresenter @Inject constructor(
     }
 
     override fun export(file: File) {
-        TODO()
+        useCase.download(path * file.name).subscribe { source ->
+            view.export(file, source)
+        }
     }
 
     override fun deleteFolder(folder: Folder) {
@@ -58,9 +56,17 @@ class MainFileBrowserPresenter @Inject constructor(
     }
 
     override fun onClick(entry: BrowserEntry) {
-        if (entry is Folder) {
-            path /= entry.name
-            onRefresh()
+        when(entry) {
+            is Folder -> {
+                path /= entry.name
+                onRefresh()
+            }
+            is File -> {
+                useCase.download(path * entry.name).subscribe { source ->
+                    view.open(entry, source)
+                }
+            }
+
         }
     }
 }

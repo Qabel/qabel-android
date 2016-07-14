@@ -8,8 +8,6 @@ interface FileBrowserPresenter {
 
     fun onClick(entry: BrowserEntry)
 
-    fun open(file: BrowserEntry.File)
-
     fun share(file: BrowserEntry.File)
 
     fun delete(file: BrowserEntry.File)

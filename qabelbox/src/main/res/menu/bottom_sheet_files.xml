@@ -1,17 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
-        android:id="@+id/open"
-        android:title="@string/Open"
-        android:icon="@drawable/open_in_new"/>
-    <item
         android:id="@+id/fordward"
         android:title="@string/ShareToQabelUser"
         android:icon="@drawable/account_multiple"/>
-    <item
-        android:id="@+id/unshare"
-        android:title="@string/Unshare"
-        android:icon="@drawable/account_multiple_minus"/>
     <item
         android:id="@+id/share"
         android:title="@string/Send"

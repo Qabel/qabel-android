@@ -12,6 +12,7 @@ import de.qabel.qabelbox.box.dagger.modules.FileBrowserModule
 import de.qabel.qabelbox.box.dto.BrowserEntry
 import de.qabel.qabelbox.fragments.BaseFragment
 import de.qabel.qabelbox.box.adapters.FileAdapter
+import de.qabel.qabelbox.box.dto.DownloadSource
 import de.qabel.qabelbox.box.presenters.FileBrowserPresenter
 import kotlinx.android.synthetic.main.fragment_files.*
 import org.jetbrains.anko.*
@@ -20,7 +21,6 @@ import javax.inject.Inject
 
 class FileBrowserFragment: FileBrowserView, BaseFragment(), AnkoLogger,
         SwipeRefreshLayout.OnRefreshListener {
-
     companion object {
         fun newInstance() = FileBrowserFragment()
     }
@@ -53,7 +53,6 @@ class FileBrowserFragment: FileBrowserView, BaseFragment(), AnkoLogger,
             dialogInterface, menu_id ->
             when(entry) {
                 is BrowserEntry.File -> when (menu_id) {
-                    R.id.open -> presenter.open(entry)
                     R.id.share -> presenter.share(entry)
                     R.id.delete -> presenter.delete(entry)
                     R.id.export -> presenter.export(entry)
@@ -97,5 +96,14 @@ class FileBrowserFragment: FileBrowserView, BaseFragment(), AnkoLogger,
         }
         return false
     }
+
+    override fun open(file: BrowserEntry.File, source: DownloadSource) {
+        TODO()
+    }
+    override fun export(file: BrowserEntry.File, source: DownloadSource) {
+        TODO()
+    }
+
+
 }
 

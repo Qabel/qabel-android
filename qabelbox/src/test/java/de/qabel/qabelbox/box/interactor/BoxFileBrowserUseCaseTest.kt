@@ -44,8 +44,10 @@ class BoxFileBrowserUseCaseTest {
 
 }
 
-fun String.toUploadSource() = UploadSource(
-        ByteArrayInputStream(this.toByteArray()), this.length.toLong(), Date())
+fun String.toUploadSource() = UploadSource(this.toByteArrayInputStream(), this.length.toLong(), Date())
+fun String.toByteArrayInputStream() = ByteArrayInputStream(this.toByteArray())
+fun String.toDownloadSource() = DownloadSource(this.toByteArrayInputStream())
+
 fun DownloadSource.asString() = source.reader().readText()
 fun <T> Observable<T>.waitFor(): T = this.toBlocking().firstOrNull()
         ?: throw AssertionError("Got null from observable")

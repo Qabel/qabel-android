@@ -2,7 +2,6 @@ package de.qabel.qabelbox.box.interactor
 
 import de.qabel.qabelbox.box.dto.*
 import rx.Observable
-import rx.lang.kotlin.toObservable
 import rx.lang.kotlin.toSingletonObservable
 import java.util.*
 import javax.inject.Inject

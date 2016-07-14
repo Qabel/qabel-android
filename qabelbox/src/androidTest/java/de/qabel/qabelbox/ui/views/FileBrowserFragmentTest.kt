@@ -78,7 +78,7 @@ class FileBrowserFragmentTest: AbstractUITest() {
         val file = BrowserEntry.File("Name.txt", 42000, Date())
         fragment.showEntries(listOf(file))
         onView(withText(file.name)).perform(longClick())
-        listOf(R.string.Open, R.string.Send, R.string.Delete, R.string.Export).forEach {
+        listOf(R.string.Send, R.string.Delete, R.string.Export).forEach {
             onView(withText(it)).check(ViewAssertions.matches(isDisplayed()))
         }
     }

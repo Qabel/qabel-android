@@ -4,8 +4,11 @@ import com.nhaarman.mockito_kotlin.*
 import de.qabel.qabelbox.box.dto.BoxPath
 import de.qabel.qabelbox.box.dto.BrowserEntry
 import de.qabel.qabelbox.box.dto.BrowserEntry.File
+import de.qabel.qabelbox.box.dto.DownloadSource
 import de.qabel.qabelbox.box.dto.UploadSource
 import de.qabel.qabelbox.box.interactor.FileBrowserUseCase
+import de.qabel.qabelbox.box.interactor.toByteArrayInputStream
+import de.qabel.qabelbox.box.interactor.toDownloadSource
 import de.qabel.qabelbox.box.views.FileBrowserView
 import org.junit.Before
 import org.junit.Test
@@ -82,14 +85,40 @@ class MainFileBrowserPresenterTest {
     fun upload() {
         stubWith(sampleFiles)
         whenever(useCase.upload(any(), any())).thenReturn(Unit.toSingletonObservable())
-
         val stream: InputStream = mock()
         val size = 42L
         val mTime: Date = mock()
-        presenter.upload(File("foo.txt", size, mTime), stream)
-        verify(useCase).upload(BoxPath.Root * "foo.txt", UploadSource(stream, size, mTime))
 
+        presenter.upload(File("foo.txt", size, mTime), stream)
+
+        verify(useCase).upload(BoxPath.Root * "foo.txt", UploadSource(stream, size, mTime))
         verify(view).showEntries(sampleFiles)
+    }
+
+    fun mockDownload(): Pair<DownloadSource, File> {
+        val source = "text".toDownloadSource()
+        val entry = File("file.txt", 42, mock())
+        whenever(useCase.download(BoxPath.Root * "file.txt")).thenReturn(
+                source.toSingletonObservable())
+        return Pair(source, entry)
+    }
+
+    @Test
+    fun open() {
+        val (source, entry) = mockDownload()
+
+        presenter.onClick(entry)
+
+        verify(view).open(entry, source)
+    }
+
+    @Test
+    fun export() {
+        val (source, entry) = mockDownload()
+
+        presenter.export(entry)
+
+        verify(view).export(entry, source)
     }
 
 }

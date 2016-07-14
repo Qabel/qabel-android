@@ -54,11 +54,6 @@ class DocumentIdParser @Inject constructor(){
         return filepath
     }
 
-    fun splitPath(filePath: String): List<String> {
-
-        return ArrayList(Arrays.asList(*filePath.split("/".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()))
-    }
-
     @Throws(FileNotFoundException::class)
     fun getBaseName(documentID: String): String {
         val filepath = getFilePath(documentID)

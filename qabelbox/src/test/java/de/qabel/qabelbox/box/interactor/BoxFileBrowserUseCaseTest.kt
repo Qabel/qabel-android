@@ -17,6 +17,7 @@ import org.robolectric.annotation.Config
 import rx.Observable
 import rx.lang.kotlin.firstOrNull
 import java.io.ByteArrayInputStream
+import java.util.*
 
 @RunWith(RobolectricGradleTestRunner::class)
 @Config(application = SimpleApplication::class, constants = BuildConfig::class)
@@ -43,7 +44,8 @@ class BoxFileBrowserUseCaseTest {
 
 }
 
-fun String.toUploadSource() = UploadSource(ByteArrayInputStream(this.toByteArray()))
+fun String.toUploadSource() = UploadSource(
+        ByteArrayInputStream(this.toByteArray()), this.length.toLong(), Date())
 fun DownloadSource.asString() = source.reader().readText()
 fun <T> Observable<T>.waitFor(): T = this.toBlocking().firstOrNull()
         ?: throw AssertionError("Got null from observable")

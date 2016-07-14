@@ -1,6 +1,7 @@
 package de.qabel.qabelbox.box.presenters
 
 import de.qabel.qabelbox.box.dto.BrowserEntry
+import java.io.InputStream
 
 interface FileBrowserPresenter {
     fun onRefresh()
@@ -16,5 +17,9 @@ interface FileBrowserPresenter {
     fun export(file: BrowserEntry.File)
 
     fun deleteFolder(folder: BrowserEntry.Folder)
+
+    fun createFolder(folder: BrowserEntry.Folder)
+
+    fun upload(file: BrowserEntry.File, stream: InputStream)
 }
 

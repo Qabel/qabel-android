@@ -6,9 +6,7 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.database.Cursor
 import android.database.MatrixCursor
-import android.os.AsyncTask
 import android.os.CancellationSignal
-import android.os.Handler
 import android.os.ParcelFileDescriptor
 import android.provider.DocumentsContract
 import android.provider.DocumentsContract.Document
@@ -19,25 +17,20 @@ import android.util.Log
 import de.qabel.box.storage.BoxFolder
 import de.qabel.box.storage.BoxNavigation
 import de.qabel.box.storage.BoxObject
-import de.qabel.box.storage.BoxVolume
 import de.qabel.box.storage.exceptions.QblStorageException
-import de.qabel.box.storage.exceptions.QblStorageNotFound
-import de.qabel.desktop.repository.IdentityRepository
-import de.qabel.desktop.repository.exception.PersistenceException
 import de.qabel.qabelbox.BuildConfig
 import de.qabel.qabelbox.QblBroadcastConstants
 import de.qabel.qabelbox.R
-import de.qabel.qabelbox.config.AppPreference
+import de.qabel.qabelbox.box.interactor.ProviderUseCase
 import de.qabel.qabelbox.dagger.components.DaggerBoxComponent
 import de.qabel.qabelbox.dagger.modules.ContextModule
-import de.qabel.qabelbox.storage.notifications.StorageNotificationManager
-import java.io.*
+import java.io.FileNotFoundException
 import java.net.URLConnection
 import java.util.*
-import java.util.concurrent.*
-import javax.inject.Inject
 
 open class BoxProvider : DocumentsProvider() {
+
+    lateinit var useCase: ProviderUseCase
 
     private val volumesChangedBroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
@@ -53,7 +46,7 @@ open class BoxProvider : DocumentsProvider() {
         return true
     }
 
-    internal fun inject() {
+    open fun inject() {
         val boxComponent = DaggerBoxComponent.builder().contextModule(ContextModule(context)).build()
         boxComponent.inject(this)
     }
@@ -69,7 +62,21 @@ open class BoxProvider : DocumentsProvider() {
 
     @Throws(FileNotFoundException::class)
     override fun queryRoots(projection: Array<String>): Cursor {
-        TODO()
+        val netProjection = reduceProjection(projection, DEFAULT_ROOT_PROJECTION)
+        val result = MatrixCursor(netProjection)
+        useCase.availableRoots().forEach {
+            with(it) {
+                with(result.newRow()) {
+                    add(Root.COLUMN_ROOT_ID, rootID)
+                    add(Root.COLUMN_DOCUMENT_ID, documentID)
+                    add(Root.COLUMN_ICON, R.drawable.qabel_logo)
+                    add(Root.COLUMN_FLAGS, Root.FLAG_SUPPORTS_CREATE)
+                    add(Root.COLUMN_TITLE, "Qabel Box")
+                    add(Root.COLUMN_SUMMARY, alias)
+                }
+            }
+        }
+        return result
     }
 
     private fun reduceProjection(projection: Array<String>?, supportedProjection: Array<String>): Array<String> {
@@ -226,7 +233,7 @@ open class BoxProvider : DocumentsProvider() {
 
     @Throws(FileNotFoundException::class)
     override fun deleteDocument(documentId: String) {
-        TODO()
+        throw FileNotFoundException("not implemented!")
     }
 
     @Throws(FileNotFoundException::class)

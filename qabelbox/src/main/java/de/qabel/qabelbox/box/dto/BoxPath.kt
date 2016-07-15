@@ -6,9 +6,9 @@ sealed class BoxPath() {
 
     abstract val name: String
 
-    abstract val parent: BoxPath
+    abstract val parent: FolderLike
 
-    class File(override val name: String, override val parent: BoxPath): BoxPath()
+    class File(override val name: String, override val parent: FolderLike): BoxPath()
 
 
     abstract class FolderLike(): BoxPath() {
@@ -19,12 +19,12 @@ sealed class BoxPath() {
         operator fun times(name: String) = File(name, this)
     }
 
-    class Folder(override val name: String, override val parent: BoxPath): FolderLike()
+    class Folder(override val name: String, override val parent: FolderLike): FolderLike()
 
     object Root : FolderLike() {
         override val name: String
             get() = ""
-        override val parent: BoxPath
+        override val parent: FolderLike
             get() = this
 
         override fun hashCode(): Int = name.hashCode()

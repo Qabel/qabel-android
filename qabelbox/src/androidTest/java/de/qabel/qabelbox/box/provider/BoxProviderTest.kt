@@ -1,37 +1,37 @@
 package de.qabel.qabelbox.box.provider
 
-import android.annotation.TargetApi
 import android.content.Context
-import android.database.Cursor
-import android.os.Build
-import android.provider.DocumentsContract
-import android.util.Log
-import de.qabel.box.storage.exceptions.QblStorageException
-import de.qabel.qabelbox.BuildConfig
-import org.apache.commons.io.IOUtils
+import com.natpryce.hamkrest.equalTo
+import com.natpryce.hamkrest.should.shouldMatch
+import de.qabel.qabelbox.box.dto.BoxPath
+import de.qabel.qabelbox.box.dto.BrowserEntry
+import de.qabel.qabelbox.box.dto.VolumeRoot
+import de.qabel.qabelbox.box.interactor.ProviderUseCase
+import de.qabel.qabelbox.stubResult
 import org.hamcrest.CoreMatchers.`is`
-import org.hamcrest.CoreMatchers.startsWith
 import org.hamcrest.MatcherAssert.assertThat
-import org.junit.Assert
-import org.junit.Ignore
-import java.io.*
+import org.mockito.Mockito
+import java.io.File
+import java.io.FileOutputStream
 import java.util.*
 
-@Ignore("Files stuff rewrite")
 class BoxProviderTest : MockedBoxProviderTest() {
+    override val context: Context
+        get() = instrumentation.targetContext
 
-    private var testFileName: String? = null
-    private var mContext: Context? = null
+    lateinit var testFileName: String
+    lateinit var useCase: ProviderUseCase
 
-    override fun getContext(): Context {
-        return mContext ?: throw IllegalStateException("No context")
-    }
+    val docId = DocumentId("identity", "prefix", BoxPath.Root)
+    val volume = VolumeRoot("root", docId.toString(), "alias")
+    val volumes = listOf(volume)
+    val sample = BrowserEntry.File("foobar.txt", 42000, Date())
+    val sampleFiles = listOf(sample)
 
-    @Throws(Exception::class)
     override fun setUp() {
-        Log.d(TAG, "setUp")
-        mContext = instrumentation.targetContext
         super.setUp()
+        useCase = Mockito.mock(ProviderUseCase::class.java)
+        provider.injectProvider(useCase)
 
         val tmpDir = File(System.getProperty("java.io.tmpdir"))
         val file = File.createTempFile("testfile", "test", tmpDir)
@@ -45,23 +45,18 @@ class BoxProviderTest : MockedBoxProviderTest() {
         testFileName = file.absolutePath
     }
 
-
-    @Throws(Exception::class)
-    public override fun tearDown() {
-        super.tearDown()
-        Log.d(TAG, "tearDown")
-    }
-
-    @Throws(FileNotFoundException::class)
     fun testQueryRoots() {
+        stubResult(useCase.availableRoots(), volumes)
         val cursor = provider.queryRoots(BoxProvider.DEFAULT_ROOT_PROJECTION)
         assertThat(cursor.count, `is`(1))
         cursor.moveToFirst()
         val documentId = cursor.getString(6)
-        assertThat(documentId, startsWith(MockBoxProvider.PUB_KEY))
+        documentId shouldMatch equalTo(volume.documentID)
 
     }
 
+    /*
+    @Ignore("Files stuff rewrite")
     @Throws(IOException::class, QblStorageException::class)
     fun testOpenDocument() {
         val rootNav = volume.navigate()
@@ -81,6 +76,7 @@ class BoxProviderTest : MockedBoxProviderTest() {
         assertThat(dl, `is`(content))
     }
 
+    @Ignore("Files stuff rewrite")
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     fun testCreateFile() {
         val testDocId = ROOT_DOC_ID + "testfile.png"
@@ -98,6 +94,7 @@ class BoxProviderTest : MockedBoxProviderTest() {
         Assert.assertNotNull("Document not created:" + documentUri.toString(), query)
     }
 
+    @Ignore("Files stuff rewrite")
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     fun testDeleteFile() {
         val testDocId = ROOT_DOC_ID + "testfile.png"
@@ -116,6 +113,7 @@ class BoxProviderTest : MockedBoxProviderTest() {
         Assert.assertNull("Document not deleted:" + documentUri.toString(), query)
     }
 
+    @Ignore("Files stuff rewrite")
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     fun testRenameFile() {
         val testDocId = ROOT_DOC_ID + "testfile.png"
@@ -152,10 +150,11 @@ class BoxProviderTest : MockedBoxProviderTest() {
         assertThat(volume.getDocumentId(navigate.path), `is`(MockedBoxProviderTest.ROOT_DOC_ID + "testfolder/"))
     }
     */
+    * */
 
     companion object {
-
         private val TAG = "BoxProviderTest"
     }
 
 }
+

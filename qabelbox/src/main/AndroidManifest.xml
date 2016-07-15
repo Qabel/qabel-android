@@ -159,8 +159,8 @@
         </service>
 
         <provider
-            android:name=".providers.BoxProvider"
-            android:authorities="${applicationId}.providers.documents"
+            android:name=".box.provider.BoxProvider"
+            android:authorities="${applicationId}.box.provider.documents"
             android:enabled="true"
             android:exported="true"
             android:grantUriPermissions="true"

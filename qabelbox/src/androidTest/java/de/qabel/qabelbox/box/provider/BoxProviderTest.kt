@@ -52,12 +52,9 @@ class BoxProviderTest : MockedBoxProviderTest() {
         cursor.moveToFirst()
         val documentId = cursor.getString(6)
         documentId shouldMatch equalTo(volume.documentID)
-
     }
 
     /*
-    @Ignore("Files stuff rewrite")
-    @Throws(IOException::class, QblStorageException::class)
     fun testOpenDocument() {
         val rootNav = volume.navigate()
         rootNav.upload("testfile", File(testFileName!!))
@@ -74,8 +71,9 @@ class BoxProviderTest : MockedBoxProviderTest() {
         val file = File(testFileName!!)
         val content = IOUtils.toByteArray(FileInputStream(file))
         assertThat(dl, `is`(content))
-    }
+    }*/
 
+    /*
     @Ignore("Files stuff rewrite")
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     fun testCreateFile() {

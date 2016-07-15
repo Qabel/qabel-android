@@ -1,26 +1,35 @@
 package de.qabel.qabelbox.box.interactor
 
-import de.qabel.qabelbox.box.dto.*
+import de.qabel.qabelbox.box.dto.BoxPath
+import de.qabel.qabelbox.box.dto.BrowserEntry
+import de.qabel.qabelbox.box.dto.DownloadSource
+import de.qabel.qabelbox.box.dto.UploadSource
 import de.qabel.qabelbox.box.toDownloadSource
 import rx.Observable
 import rx.lang.kotlin.toSingletonObservable
-import java.io.ByteArrayInputStream
 import java.util.*
 import javax.inject.Inject
 
 class MockFileBrowserUseCase @Inject constructor(): FileBrowserUseCase {
+
+    val storage = mutableListOf<Pair<BoxPath, ByteArray?>>()
+
     override fun createFolder(path: BoxPath.Folder): Observable<Unit> {
         storage += Pair(path, null)
         return Unit.toSingletonObservable()
     }
 
-    val storage = mutableListOf<Pair<BoxPath, ByteArray?>>()
-
     override fun download(path: BoxPath.File): Observable<DownloadSource> {
         for ((filepath, content) in storage) {
             if (filepath == path) {
                 content ?: throw IllegalArgumentException("Not a file")
-                return content.toDownloadSource().toSingletonObservable()
+                return content.toDownloadSource(
+                        BrowserEntry.File(
+                                path.name,
+                                storage.find { it.first == path }?.second?.size?.toLong()
+                                    ?: throw IllegalArgumentException("File not found"),
+                                Date())
+                ).toSingletonObservable()
             }
         }
         return Observable.error<DownloadSource>(IllegalArgumentException("File not found"))

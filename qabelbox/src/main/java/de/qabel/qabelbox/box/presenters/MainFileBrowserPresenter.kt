@@ -2,7 +2,8 @@ package de.qabel.qabelbox.box.presenters
 
 import de.qabel.qabelbox.box.dto.BoxPath
 import de.qabel.qabelbox.box.dto.BrowserEntry
-import de.qabel.qabelbox.box.dto.BrowserEntry.*
+import de.qabel.qabelbox.box.dto.BrowserEntry.File
+import de.qabel.qabelbox.box.dto.BrowserEntry.Folder
 import de.qabel.qabelbox.box.dto.UploadSource
 import de.qabel.qabelbox.box.interactor.FileBrowserUseCase
 import de.qabel.qabelbox.box.views.FileBrowserView
@@ -20,7 +21,7 @@ class MainFileBrowserPresenter @Inject constructor(
     }
 
     override fun upload(file: File, stream: InputStream) {
-        useCase.upload(path * file.name, UploadSource(stream, file.size, file.mTime)).subscribe {
+        useCase.upload(path * file.name, UploadSource(stream, file)).subscribe {
             onRefresh()
         }
     }

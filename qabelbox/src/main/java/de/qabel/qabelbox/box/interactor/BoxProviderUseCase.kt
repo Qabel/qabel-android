@@ -13,8 +13,7 @@ class BoxProviderUseCase(private val volumeManager: VolumeManager) : ProviderUse
         when (documentId.path) {
             is BoxPath.File -> return emptyList<ProviderEntry>().toSingletonObservable()
             is BoxPath.FolderLike -> {
-                val browser = volumeManager.fileBrowser(documentId.copy(path = BoxPath.Root).toString())
-                return browser.list(documentId.path).map { entries ->
+                return browserByDocumentId(documentId).list(documentId.path).map { entries ->
                     entries.map {
                         val path = when (it) {
                             is BrowserEntry.File -> documentId.path * it.name
@@ -28,7 +27,15 @@ class BoxProviderUseCase(private val volumeManager: VolumeManager) : ProviderUse
     }
 
     override fun download(documentId: DocumentId): Observable<ProviderDownload> {
-        TODO()
+        when (documentId.path) {
+            is BoxPath.FolderLike -> return Observable.error(IllegalArgumentException("Not a file"))
+            is BoxPath.File -> {
+                val browserUseCase = browserByDocumentId(documentId)
+                return browserUseCase.download(documentId.path).map {
+                    ProviderDownload(documentId, it)
+                }
+            }
+        }
     }
 
     override fun upload(providerUpload: ProviderUpload): Observable<Unit> {
@@ -38,5 +45,9 @@ class BoxProviderUseCase(private val volumeManager: VolumeManager) : ProviderUse
     override fun delete(documentId: DocumentId): Observable<Unit> {
         TODO()
     }
+
+    private fun browserByDocumentId(documentId: DocumentId)
+            = volumeManager.fileBrowser(documentId.copy(path = BoxPath.Root).toString())
+
 
 }

@@ -6,13 +6,8 @@ import android.provider.DocumentsContract
 
 internal class BoxCursor(columnNames: Array<String>) : MatrixCursor(columnNames) {
 
-    private var extraLoading: Boolean = false
-    private var error: String? = null
-
-    fun setExtraLoading(loading: Boolean) {
-
-        this.extraLoading = loading
-    }
+    var extraLoading: Boolean = false
+    var error: String? = null
 
     override fun getExtras(): Bundle {
 
@@ -22,10 +17,5 @@ internal class BoxCursor(columnNames: Array<String>) : MatrixCursor(columnNames)
             bundle.putString(DocumentsContract.EXTRA_ERROR, error)
         }
         return bundle
-    }
-
-    fun setError(error: String) {
-
-        this.error = error
     }
 }

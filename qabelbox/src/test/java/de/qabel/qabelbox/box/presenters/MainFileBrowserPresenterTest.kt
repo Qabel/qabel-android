@@ -88,16 +88,17 @@ class MainFileBrowserPresenterTest {
         val size = 42L
         val mTime: Date = mock()
 
-        presenter.upload(File("foo.txt", size, mTime), stream)
+        val file = File("foo.txt", size, mTime)
+        presenter.upload(file, stream)
 
-        verify(useCase).upload(BoxPath.Root * "foo.txt", UploadSource(stream, size, mTime))
+        verify(useCase).upload(BoxPath.Root * "foo.txt", UploadSource(stream, file))
         verify(view).showEntries(sampleFiles)
     }
 
     fun mockDownload(): Pair<DownloadSource, File> {
-        val source = "text".toDownloadSource()
-        val entry = File("file.txt", 42, mock())
-        whenever(useCase.download(BoxPath.Root * "file.txt")).thenReturn(
+        val entry = File("foobar.txt", 42, mock())
+        val source = "text".toDownloadSource(entry)
+        whenever(useCase.download(BoxPath.Root * "foobar.txt")).thenReturn(
                 source.toSingletonObservable())
         return Pair(source, entry)
     }

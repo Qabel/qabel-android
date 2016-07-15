@@ -26,7 +26,6 @@ import de.qabel.qabelbox.dagger.components.DaggerBoxComponent
 import de.qabel.qabelbox.dagger.modules.ContextModule
 import java.io.FileNotFoundException
 import java.net.URLConnection
-import java.util.*
 
 open class BoxProvider : DocumentsProvider() {
 
@@ -71,7 +70,7 @@ open class BoxProvider : DocumentsProvider() {
                     add(Root.COLUMN_DOCUMENT_ID, documentID)
                     add(Root.COLUMN_ICON, R.drawable.qabel_logo)
                     add(Root.COLUMN_FLAGS, Root.FLAG_SUPPORTS_CREATE)
-                    add(Root.COLUMN_TITLE, "Qabel Box")
+                    add(Root.COLUMN_TITLE, "Qabel")
                     add(Root.COLUMN_SUMMARY, alias)
                 }
             }
@@ -80,31 +79,17 @@ open class BoxProvider : DocumentsProvider() {
     }
 
     private fun reduceProjection(projection: Array<String>?, supportedProjection: Array<String>): Array<String> {
+        projection ?: return supportedProjection
 
-        if (projection == null) {
-            return supportedProjection
-        }
-        val supported = HashSet(Arrays.asList(*supportedProjection))
-        val result = ArrayList<String>()
-        for (column in projection) {
-            if (supported.contains(column)) {
-                result.add(column)
-            } else {
-                Log.w(TAG, "Requested cursor field don't supported '$column'")
-            }
-        }
-        if (result.size == 0) {
-            Log.e(TAG, "Cursors contain no fields after reduceProjection. Add fallback field")
-            //add fallback if no field supported. this avoid crashes on different third party apps
-            result.add(Document.COLUMN_DOCUMENT_ID)
-        }
-
-        return result.toTypedArray()
+        val supported = supportedProjection.toHashSet()
+        return projection.filter { it in supported }.let {
+            if (it.size == 0) listOf(Document.COLUMN_DOCUMENT_ID)
+            else it
+        }.toTypedArray()
     }
 
     @Throws(FileNotFoundException::class)
     override fun queryDocument(documentIdString: String, projection: Array<String>?): Cursor? {
-
         val cursor = createCursor(projection ?: arrayOf(), false)
         return cursor
     }
@@ -169,9 +154,9 @@ open class BoxProvider : DocumentsProvider() {
     private fun createCursor(projection: Array<String>, extraLoading: Boolean): BoxCursor {
 
         val reduced = reduceProjection(projection, DEFAULT_DOCUMENT_PROJECTION)
-        val cursor = BoxCursor(reduced)
-        cursor.setExtraLoading(extraLoading)
-        return cursor
+        return BoxCursor(reduced).apply {
+            this.extraLoading = extraLoading
+        }
     }
 
     @Throws(QblStorageException::class)

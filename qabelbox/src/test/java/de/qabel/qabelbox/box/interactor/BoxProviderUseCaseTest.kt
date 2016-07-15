@@ -6,10 +6,7 @@ import com.natpryce.hamkrest.hasSize
 import com.natpryce.hamkrest.should.shouldMatch
 import com.nhaarman.mockito_kotlin.mock
 import com.nhaarman.mockito_kotlin.whenever
-import de.qabel.qabelbox.box.dto.BoxPath
-import de.qabel.qabelbox.box.dto.BrowserEntry
-import de.qabel.qabelbox.box.dto.ProviderEntry
-import de.qabel.qabelbox.box.dto.VolumeRoot
+import de.qabel.qabelbox.box.dto.*
 import de.qabel.qabelbox.box.provider.DocumentId
 import de.qabel.qabelbox.box.provider.toDocumentId
 import org.junit.Before
@@ -26,6 +23,8 @@ class BoxProviderUseCaseTest {
     val volumes = listOf(volume)
     val sample = BrowserEntry.File("foobar.txt", 42000, Date())
     val sampleFiles = listOf(sample)
+    val file = BoxPath.Root * "foobar.txt"
+
 
     @Before
     fun setUp() {
@@ -54,14 +53,19 @@ class BoxProviderUseCaseTest {
 
     @Test
     fun testQueryChildFromFiles() {
-        val lst = useCase.queryChildDocuments(docId.copy(path = BoxPath.Root * "file.txt"))
+        val lst = useCase.queryChildDocuments(docId.copy(path = file))
                 .toBlocking().first()
         lst shouldMatch hasSize(equalTo(0))
     }
 
     @Test
     fun testDownload() {
-
+        val source = DownloadSource(sample, mock())
+        whenever(fileBrowser.download(file)).thenReturn(source.toSingletonObservable())
+        val download = useCase.download(docId.copy(path = file)).toBlocking().first()
+        download.documentId shouldMatch equalTo(docId.copy(path = file))
+        download.source.entry shouldMatch equalTo(sample)
+        download.source.source shouldMatch equalTo(source.source)
     }
 
     @Test

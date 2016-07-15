@@ -1,16 +1,19 @@
 package de.qabel.qabelbox.box.provider
 
 import android.content.Context
+import android.provider.DocumentsContract
 import com.natpryce.hamkrest.equalTo
 import com.natpryce.hamkrest.should.shouldMatch
-import de.qabel.qabelbox.box.dto.BoxPath
-import de.qabel.qabelbox.box.dto.BrowserEntry
-import de.qabel.qabelbox.box.dto.VolumeRoot
+import de.qabel.qabelbox.BuildConfig
+import de.qabel.qabelbox.box.dto.*
 import de.qabel.qabelbox.box.interactor.ProviderUseCase
 import de.qabel.qabelbox.stubResult
+import de.qabel.qabelbox.util.asString
+import de.qabel.qabelbox.util.toByteArrayInputStream
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.MatcherAssert.assertThat
 import org.mockito.Mockito
+import rx.lang.kotlin.toSingletonObservable
 import java.io.File
 import java.io.FileOutputStream
 import java.util.*
@@ -27,6 +30,7 @@ class BoxProviderTest : MockedBoxProviderTest() {
     val volumes = listOf(volume)
     val sample = BrowserEntry.File("foobar.txt", 42000, Date())
     val sampleFiles = listOf(sample)
+    val samplePayLoad = "foobar"
 
     override fun setUp() {
         super.setUp()
@@ -54,24 +58,31 @@ class BoxProviderTest : MockedBoxProviderTest() {
         documentId shouldMatch equalTo(volume.documentID)
     }
 
-    /*
+    fun testQueryDocument() {
+        val document = docId.copy(path = BoxPath.Root * "foobar.txt")
+        stubResult(useCase.query(document), sample.toSingletonObservable())
+        val query = provider.queryDocument(document.toString(), null)
+                ?: throw AssertionError("cursor null")
+        query.moveToFirst()
+        val idCol = query.getColumnIndex(DocumentsContract.Document.COLUMN_DOCUMENT_ID)
+        query.getString(idCol) shouldMatch equalTo(document.toString())
+    }
+
     fun testOpenDocument() {
-        val rootNav = volume.navigate()
-        rootNav.upload("testfile", File(testFileName!!))
-        rootNav.commit()
-        assertThat(rootNav.listFiles().size, `is`(1))
-        val testDocId = ROOT_DOC_ID + "testfile"
-        val documentUri = DocumentsContract.buildDocumentUri(BuildConfig.APPLICATION_ID + BoxProvider.AUTHORITY, testDocId)
-        Assert.assertNotNull("Could not build document URI", documentUri)
-        val query = mockContentResolver.query(documentUri, null, null, null, null)
-        Assert.assertNotNull("Document query failed: " + documentUri.toString(), query)
-        Assert.assertTrue(query!!.moveToFirst())
-        val inputStream = mockContentResolver.openInputStream(documentUri)
-        val dl = IOUtils.toByteArray(inputStream!!)
-        val file = File(testFileName!!)
-        val content = IOUtils.toByteArray(FileInputStream(file))
-        assertThat(dl, `is`(content))
-    }*/
+        val document = docId.copy(path = BoxPath.Root * "foobar.txt")
+        stubResult(useCase.query(document), sample.toSingletonObservable())
+        stubResult(useCase.download(document),
+                ProviderDownload(document,
+                    DownloadSource(sample,
+                    samplePayLoad.toByteArrayInputStream())).toSingletonObservable())
+        val documentUri = DocumentsContract.buildDocumentUri(
+                BuildConfig.APPLICATION_ID + BoxProvider.AUTHORITY, document.toString())
+        mockContentResolver.query(documentUri, null, null, null, null).use {
+            assertTrue("No result for query", it.moveToFirst())
+            val inputStream = mockContentResolver.openInputStream(documentUri)
+            inputStream.asString() shouldMatch equalTo(samplePayLoad)
+        }
+    }
 
     /*
     @Ignore("Files stuff rewrite")

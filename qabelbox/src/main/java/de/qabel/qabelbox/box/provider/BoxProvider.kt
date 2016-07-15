@@ -14,16 +14,16 @@ import android.provider.DocumentsContract.Root
 import android.provider.DocumentsProvider
 import android.provider.MediaStore.Video.Media
 import android.util.Log
-import de.qabel.box.storage.BoxFolder
-import de.qabel.box.storage.BoxNavigation
-import de.qabel.box.storage.BoxObject
 import de.qabel.box.storage.exceptions.QblStorageException
 import de.qabel.qabelbox.BuildConfig
 import de.qabel.qabelbox.QblBroadcastConstants
 import de.qabel.qabelbox.R
+import de.qabel.qabelbox.box.dto.BrowserEntry
 import de.qabel.qabelbox.box.interactor.ProviderUseCase
 import de.qabel.qabelbox.dagger.components.DaggerBoxComponent
 import de.qabel.qabelbox.dagger.modules.ContextModule
+import rx.lang.kotlin.firstOrNull
+import java.io.File
 import java.io.FileNotFoundException
 import java.net.URLConnection
 
@@ -90,8 +90,16 @@ open class BoxProvider : DocumentsProvider() {
 
     @Throws(FileNotFoundException::class)
     override fun queryDocument(documentIdString: String, projection: Array<String>?): Cursor? {
-        val cursor = createCursor(projection ?: arrayOf(), false)
-        return cursor
+        val id = try { documentIdString.toDocumentId() } catch (e: QblStorageException) {
+            throw FileNotFoundException("Document not found") }
+        val entry = useCase.query(id).toBlocking().firstOrNull()
+                ?: throw FileNotFoundException("Not found: $documentIdString")
+        return createCursor(projection ?: arrayOf(), false).apply {
+            when (entry) {
+                is BrowserEntry.File -> insertFile(this, id, entry)
+                is BrowserEntry.Folder -> insertFolder(this, id, entry)
+            }
+        }
     }
 
     internal fun insertRootDoc(cursor: MatrixCursor, documentId: String) {
@@ -159,55 +167,45 @@ open class BoxProvider : DocumentsProvider() {
         }
     }
 
-    @Throws(QblStorageException::class)
-    private fun insertFolderListing(cursor: MatrixCursor, navigation: BoxNavigation, parentDocumentId: String) {
+    private fun insertFile(cursor: MatrixCursor, documentId: DocumentId, file: BrowserEntry.File) {
 
-        for (folder in navigation.listFolders()) {
-            insertFolder(cursor, parentDocumentId + folder.name + PATH_SEP, folder)
+        val mimeType = URLConnection.guessContentTypeFromName(file.name) ?: "application/octet-stream"
+        with(cursor.newRow()) {
+            add(Document.COLUMN_DOCUMENT_ID, documentId.toString())
+            add(Document.COLUMN_DISPLAY_NAME, file.name)
+            add(Document.COLUMN_SUMMARY, null)
+            add(Document.COLUMN_FLAGS, Document.FLAG_SUPPORTS_WRITE)
+            add(Document.COLUMN_MIME_TYPE, mimeType)
+            add(Media.DATA, documentId.toString())
         }
-        for (file in navigation.listFiles()) {
-            insertFile(cursor, parentDocumentId + file.name, file)
-        }
-        /*
-        for (file in navigation.listExternalNames()) {
-            insertFile(cursor, parentDocumentId + file.name, file)
-        }
-        */
     }
 
-    private fun insertFile(cursor: MatrixCursor, documentId: String, file: BoxObject) {
-
-        val row = cursor.newRow()
-        var mimeType: String? = URLConnection.guessContentTypeFromName(file.name)
-        if (mimeType == null) {
-            mimeType = "application/octet-stream"
+    private fun insertFolder(cursor: MatrixCursor, documentId: DocumentId, folder: BrowserEntry.Folder) {
+        with(cursor.newRow()) {
+            add(Document.COLUMN_DOCUMENT_ID, documentId.toString())
+            add(Document.COLUMN_DISPLAY_NAME, folder.name)
+            add(Document.COLUMN_SUMMARY, null)
+            add(Document.COLUMN_FLAGS, Document.FLAG_DIR_SUPPORTS_CREATE)
+            add(Document.COLUMN_MIME_TYPE, Document.MIME_TYPE_DIR)
         }
-        row.add(Document.COLUMN_DOCUMENT_ID, documentId)
-        row.add(Document.COLUMN_DISPLAY_NAME, file.name)
-        row.add(Document.COLUMN_SUMMARY, null)
-        row.add(Document.COLUMN_FLAGS, Document.FLAG_SUPPORTS_WRITE)
-        row.add(Document.COLUMN_MIME_TYPE, mimeType)
-        row.add(Media.DATA, documentId)
-    }
-
-    private fun insertFolder(cursor: MatrixCursor, documentId: String, folder: BoxFolder) {
-
-        val row = cursor.newRow()
-        row.add(Document.COLUMN_DOCUMENT_ID, documentId)
-        row.add(Document.COLUMN_DISPLAY_NAME, folder.name)
-        row.add(Document.COLUMN_SUMMARY, null)
-        row.add(Document.COLUMN_FLAGS, Document.FLAG_DIR_SUPPORTS_CREATE)
-        row.add(Document.COLUMN_MIME_TYPE, Document.MIME_TYPE_DIR)
     }
 
     @Throws(FileNotFoundException::class)
     override fun openDocument(documentId: String,
-                              mode: String, signal: CancellationSignal): ParcelFileDescriptor {
-
-        Log.d(TAG, "Open document: " + documentId)
+                              mode: String, signal: CancellationSignal?): ParcelFileDescriptor {
         val isWrite = mode.indexOf('w') != -1
         val isRead = mode.indexOf('r') != -1
-        TODO()
+        if (isWrite) {
+            TODO()
+        }
+        val file = File.createTempFile("boxOpen", "tmp", context.externalCacheDir)
+        if (isRead) {
+            val download = useCase.download(documentId.toDocumentId()).toBlocking().firstOrNull()
+            file.outputStream().run {
+                download.source.source.copyTo(file.outputStream())
+            }
+        }
+        return ParcelFileDescriptor.open(file, ParcelFileDescriptor.parseMode(mode))
     }
 
 

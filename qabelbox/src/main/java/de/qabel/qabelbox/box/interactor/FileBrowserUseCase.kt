@@ -12,5 +12,6 @@ interface FileBrowserUseCase {
     fun delete(path: BoxPath):  Observable<Unit>
     fun list(path: BoxPath.FolderLike): Observable<List<BrowserEntry>>
     fun createFolder(path: BoxPath.Folder): Observable<Unit>
+    fun query(path: BoxPath): Observable<BrowserEntry>
 }
 

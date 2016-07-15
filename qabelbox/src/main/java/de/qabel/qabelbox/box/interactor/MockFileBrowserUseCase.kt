@@ -19,6 +19,16 @@ class MockFileBrowserUseCase @Inject constructor(): FileBrowserUseCase {
         return Unit.toSingletonObservable()
     }
 
+    override fun query(path: BoxPath): Observable<BrowserEntry> {
+        val res = storage.find { it.first == path } ?: throw IllegalArgumentException("File not found")
+        val content = res.second
+        if (content == null) {
+            return BrowserEntry.Folder(path.name).toSingletonObservable()
+        } else {
+            return BrowserEntry.File(res.first.name, content.size.toLong(), Date())
+                    .toSingletonObservable()
+        }
+    }
     override fun download(path: BoxPath.File): Observable<DownloadSource> {
         for ((filepath, content) in storage) {
             if (filepath == path) {

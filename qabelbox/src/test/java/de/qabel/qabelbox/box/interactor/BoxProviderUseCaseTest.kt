@@ -52,6 +52,16 @@ class BoxProviderUseCaseTest {
     }
 
     @Test
+    fun testQuery( ){
+        whenever(fileBrowser.query(file)).thenReturn(sample.toSingletonObservable())
+
+        val result = useCase.query(docId.copy(path = file)).toBlocking().first()
+                as BrowserEntry.File
+
+        result shouldMatch equalTo(sample)
+    }
+
+    @Test
     fun testQueryChildFromFiles() {
         val lst = useCase.queryChildDocuments(docId.copy(path = file))
                 .toBlocking().first()

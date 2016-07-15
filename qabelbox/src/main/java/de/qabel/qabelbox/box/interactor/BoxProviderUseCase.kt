@@ -7,6 +7,10 @@ import rx.lang.kotlin.toSingletonObservable
 
 class BoxProviderUseCase(private val volumeManager: VolumeManager) : ProviderUseCase {
 
+    override fun query(documentId: DocumentId): Observable<BrowserEntry> {
+        return browserByDocumentId(documentId).query(documentId.path)
+    }
+
     override fun availableRoots(): List<VolumeRoot> = volumeManager.roots
 
     override fun queryChildDocuments(documentId: DocumentId): Observable<List<ProviderEntry>> {

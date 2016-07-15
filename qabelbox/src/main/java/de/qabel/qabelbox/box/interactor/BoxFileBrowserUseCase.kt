@@ -8,6 +8,10 @@ import de.qabel.qabelbox.box.dto.UploadSource
 import rx.Observable
 
 class BoxFileBrowserUseCase(private val volume: BoxVolume) : FileBrowserUseCase {
+    override fun query(path: BoxPath): Observable<BrowserEntry> {
+        throw UnsupportedOperationException("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
     override fun upload(path: BoxPath.File, source: UploadSource): Observable<Unit> {
         throw UnsupportedOperationException("not implemented") //To change body of created functions use File | Settings | File Templates.
     }

@@ -6,11 +6,10 @@ import android.support.test.espresso.Espresso.onView
 import android.support.test.espresso.action.ViewActions.click
 import android.support.test.espresso.action.ViewActions.longClick
 import android.support.test.espresso.assertion.ViewAssertions
-import android.support.test.espresso.matcher.ViewMatchers.*
 import android.support.test.espresso.intent.Intents
-import android.support.test.espresso.intent.matcher.IntentMatchers.*
-import org.hamcrest.core.AllOf.allOf
-import com.natpryce.hamkrest.*
+import android.support.test.espresso.intent.matcher.IntentMatchers.hasAction
+import android.support.test.espresso.intent.matcher.IntentMatchers.hasExtra
+import android.support.test.espresso.matcher.ViewMatchers.*
 import de.qabel.qabelbox.R
 import de.qabel.qabelbox.activities.MainActivity
 import de.qabel.qabelbox.box.dto.BrowserEntry
@@ -20,6 +19,7 @@ import de.qabel.qabelbox.navigation.MainNavigator
 import de.qabel.qabelbox.ui.AbstractUITest
 import de.qabel.qabelbox.ui.idling.InjectedIdlingResource
 import de.qabel.qabelbox.util.toDownloadSource
+import org.hamcrest.core.AllOf.allOf
 import org.junit.Ignore
 import org.junit.Test
 import org.mockito.Mockito.mock
@@ -95,7 +95,7 @@ class FileBrowserFragmentTest: AbstractUITest() {
     @Test
     fun openFile() {
         launch()
-        fragment.open(file, "content".toDownloadSource())
+        fragment.open(file, "content".toDownloadSource(file))
         Intents.intended(allOf(hasAction(Intent.ACTION_CHOOSER),
                 hasExtra(Intent.EXTRA_INTENT,
                         allOf(hasAction(Intent.ACTION_SEND)))))

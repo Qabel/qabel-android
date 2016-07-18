@@ -68,6 +68,24 @@ class BoxProviderTest : MockedBoxProviderTest() {
         query.getString(idCol) shouldMatch equalTo(document.toString())
     }
 
+    fun testQueryChildDocuments() {
+        val document = docId.copy(path = BoxPath.Root)
+        val sampleId = document.copy(path = BoxPath.Root * sample.name)
+        val sampleFolder = document.copy(path = BoxPath.Root / "folder")
+        val listing = listOf(ProviderEntry(sampleId, sample),
+                             ProviderEntry(sampleFolder, BrowserEntry.Folder("folder")))
+        stubResult(useCase.queryChildDocuments(document), listing.toSingletonObservable())
+
+        val query = provider.queryChildDocuments(document.toString(), null, null)
+
+        query.count shouldMatch equalTo(2)
+        query.moveToFirst()
+        val idCol = query.getColumnIndex(DocumentsContract.Document.COLUMN_DOCUMENT_ID)
+        query.getString(idCol) shouldMatch equalTo(sampleId.toString())
+        query.moveToNext()
+        query.getString(idCol) shouldMatch equalTo(sampleFolder.toString())
+    }
+
     fun testOpenDocument() {
         val document = docId.copy(path = BoxPath.Root * "foobar.txt")
         stubResult(useCase.query(document), sample.toSingletonObservable())

@@ -102,65 +102,22 @@ open class BoxProvider : DocumentsProvider() {
         }
     }
 
-    internal fun insertRootDoc(cursor: MatrixCursor, documentId: String) {
-
-        val row = cursor.newRow()
-        row.add(Document.COLUMN_DOCUMENT_ID, documentId)
-        row.add(Document.COLUMN_DISPLAY_NAME, "Root")
-        row.add(Document.COLUMN_SUMMARY, null)
-        row.add(Document.COLUMN_FLAGS, Document.FLAG_DIR_SUPPORTS_CREATE)
-        row.add(Document.COLUMN_MIME_TYPE, Document.MIME_TYPE_DIR)
-    }
-
     @Throws(FileNotFoundException::class)
-    override fun queryChildDocuments(parentDocumentId: String, projection: Array<String>, sortOrder: String): Cursor {
-        TODO()
-    }
-
-    /**
-     * Create and fill a new MatrixCursor
-     *
-     *
-     * The cursor can be modified to show a loading and/or an error message.
-
-     * @param parentDocumentId
-     * *
-     * @param projection
-     * *
-     * @return Fully initialized cursor with the directory listing as rows
-     * *
-     * @throws FileNotFoundException
-     */
-    @Throws(FileNotFoundException::class)
-    private fun createBoxCursor(parentDocumentId: String, projection: Array<String>): BoxCursor {
-        val cursor = createCursor(projection, false)
-        TODO()
-        return cursor
-    }
-
-    /**
-     * Query the directory listing, store the cursor in the folderContentCache and
-     * notify the original cursor of the update.
-
-     * @param parentDocumentId
-     * *
-     * @param projection
-     * *
-     * @param result           Original cursor
-     */
-    private fun asyncChildDocuments(parentDocumentId: String, projection: Array<String>,
-                                    result: BoxCursor) {
-
-        Log.v(TAG, "asyncChildDocuments")
-        val uri = DocumentsContract.buildChildDocumentsUri(
-                BuildConfig.APPLICATION_ID + AUTHORITY, parentDocumentId)
-        // tell the original cursor how he gets notified
-        result.setNotificationUri(context.contentResolver, uri)
-        TODO()
+    override fun queryChildDocuments(parentDocumentId: String, projection: Array<String>?, sortOrder: String?): Cursor {
+        val id = try { parentDocumentId.toDocumentId() } catch (e: QblStorageException) {
+            throw FileNotFoundException("Document not found") }
+        val listing = useCase.queryChildDocuments(id).toBlocking().firstOrNull()
+        return createCursor(projection ?: arrayOf(), false).apply {
+            listing.map {
+                when (it.entry) {
+                    is BrowserEntry.File -> insertFile(this, it.documentId, it.entry)
+                    is BrowserEntry.Folder -> insertFolder(this, it.documentId, it.entry)
+                }
+            }
+        }
     }
 
     private fun createCursor(projection: Array<String>, extraLoading: Boolean): BoxCursor {
-
         val reduced = reduceProjection(projection, DEFAULT_DOCUMENT_PROJECTION)
         return BoxCursor(reduced).apply {
             this.extraLoading = extraLoading

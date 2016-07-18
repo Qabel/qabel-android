@@ -4,6 +4,7 @@ import de.qabel.qabelbox.box.dto.*
 import de.qabel.qabelbox.box.provider.DocumentId
 import rx.Observable
 import rx.lang.kotlin.toSingletonObservable
+import java.io.FileNotFoundException
 
 class BoxProviderUseCase(private val volumeManager: VolumeManager) : ProviderUseCase {
 
@@ -32,7 +33,7 @@ class BoxProviderUseCase(private val volumeManager: VolumeManager) : ProviderUse
 
     override fun download(documentId: DocumentId): Observable<ProviderDownload> {
         when (documentId.path) {
-            is BoxPath.FolderLike -> return Observable.error(IllegalArgumentException("Not a file"))
+            is BoxPath.FolderLike -> return Observable.error(FileNotFoundException("Not a file"))
             is BoxPath.File -> {
                 val browserUseCase = browserByDocumentId(documentId)
                 return browserUseCase.download(documentId.path).map {

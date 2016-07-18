@@ -75,7 +75,6 @@ public class CreateIdentityUITest {
     public void testCreateIdentity() throws Throwable {
         String identity = "spoon2";
         createIdentityPerformEnterName(identity);
-        defaultSecurityLevel();
         createIdentityPerformConfirm();
     }
 
@@ -86,10 +85,6 @@ public class CreateIdentityUITest {
         closeSoftKeyboard();
 
         UITestHelper.screenShot(UITestHelper.getCurrentActivity(mActivity), "input");
-        onView(withText(R.string.next)).perform(click());
-    }
-
-    private void defaultSecurityLevel() {
         onView(withText(R.string.next)).perform(click());
     }
 

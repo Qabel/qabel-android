@@ -44,7 +44,13 @@ class BoxProviderUseCase(private val volumeManager: VolumeManager) : ProviderUse
     }
 
     override fun upload(providerUpload: ProviderUpload): Observable<Unit> {
-        TODO()
+        val path = providerUpload.documentId.path
+        when (path) {
+            is BoxPath.FolderLike -> return Observable.error(FileNotFoundException("Not a file"))
+            is BoxPath.File -> {
+                return browserByDocumentId(providerUpload.documentId).upload(path, providerUpload.source)
+            }
+        }
     }
 
     override fun delete(documentId: DocumentId): Observable<Unit> {

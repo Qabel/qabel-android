@@ -1,20 +1,25 @@
 package de.qabel.qabelbox.box.provider
 
+import android.annotation.TargetApi
 import android.content.Context
+import android.os.Build
+import android.os.ParcelFileDescriptor
 import android.provider.DocumentsContract
 import com.natpryce.hamkrest.equalTo
 import com.natpryce.hamkrest.should.shouldMatch
 import de.qabel.qabelbox.BuildConfig
 import de.qabel.qabelbox.box.dto.*
-import de.qabel.qabelbox.box.interactor.ProviderUseCase
+import de.qabel.qabelbox.box.interactor.*
 import de.qabel.qabelbox.stubResult
 import de.qabel.qabelbox.util.asString
 import de.qabel.qabelbox.util.toByteArrayInputStream
+import junit.framework.Assert
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.MatcherAssert.assertThat
 import org.mockito.Mockito
 import rx.lang.kotlin.toSingletonObservable
 import java.io.File
+import java.io.FileNotFoundException
 import java.io.FileOutputStream
 import java.util.*
 
@@ -29,7 +34,6 @@ class BoxProviderTest : MockedBoxProviderTest() {
     val volume = VolumeRoot("root", docId.toString(), "alias")
     val volumes = listOf(volume)
     val sample = BrowserEntry.File("foobar.txt", 42000, Date())
-    val sampleFiles = listOf(sample)
     val samplePayLoad = "foobar"
 
     override fun setUp() {
@@ -103,85 +107,32 @@ class BoxProviderTest : MockedBoxProviderTest() {
     }
 
     /*
-    @Ignore("Files stuff rewrite")
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-    fun testCreateFile() {
-        val testDocId = ROOT_DOC_ID + "testfile.png"
-        val parentDocumentUri = DocumentsContract.buildDocumentUri(BuildConfig.APPLICATION_ID + BoxProvider.AUTHORITY, ROOT_DOC_ID)
-        val documentUri = DocumentsContract.buildDocumentUri(BuildConfig.APPLICATION_ID + BoxProvider.AUTHORITY, testDocId)
-        Assert.assertNotNull("Could not build document URI", documentUri)
-        var query: Cursor = mockContentResolver.query(documentUri, null, null, null, null)
-        Assert.assertNull("Document already there: " + documentUri.toString(), query)
-        val document = DocumentsContract.createDocument(mockContentResolver, parentDocumentUri,
-                "image/png",
-                "testfile.png")
-        Assert.assertNotNull("Create document failed, no document Uri returned", document)
-        assertThat(document.toString(), `is`(documentUri.toString()))
-        query = mockContentResolver.query(documentUri, null, null, null, null)
-        Assert.assertNotNull("Document not created:" + documentUri.toString(), query)
-    }
+    fun testOpenDocumentWritable() {
+        val browser = MockFileBrowserUseCase()
+        val useCase = BoxProviderUseCase(object: VolumeManager {
+            override val roots: List<VolumeRoot>
+                get() = throw UnsupportedOperationException()
 
-    @Ignore("Files stuff rewrite")
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-    fun testDeleteFile() {
-        val testDocId = ROOT_DOC_ID + "testfile.png"
-        val parentDocumentUri = DocumentsContract.buildDocumentUri(BuildConfig.APPLICATION_ID + BoxProvider.AUTHORITY, ROOT_DOC_ID)
-        val documentUri = DocumentsContract.buildDocumentUri(BuildConfig.APPLICATION_ID + BoxProvider.AUTHORITY, testDocId)
-        Assert.assertNotNull("Could not build document URI", documentUri)
-        var query: Cursor = mockContentResolver.query(documentUri, null, null, null, null)
-        Assert.assertNull("Document already there: " + documentUri.toString(), query)
-        val document = DocumentsContract.createDocument(mockContentResolver, parentDocumentUri,
-                "image/png",
-                "testfile.png")
-        Assert.assertNotNull(document)
-        DocumentsContract.deleteDocument(mockContentResolver, document)
-        assertThat(document.toString(), `is`(documentUri.toString()))
-        query = mockContentResolver.query(documentUri, null, null, null, null)
-        Assert.assertNull("Document not deleted:" + documentUri.toString(), query)
-    }
+            override fun fileBrowser(rootID: String) = browser
 
-    @Ignore("Files stuff rewrite")
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-    fun testRenameFile() {
-        val testDocId = ROOT_DOC_ID + "testfile.png"
-        val parentDocumentUri = DocumentsContract.buildDocumentUri(BuildConfig.APPLICATION_ID + BoxProvider.AUTHORITY, ROOT_DOC_ID)
-        val documentUri = DocumentsContract.buildDocumentUri(BuildConfig.APPLICATION_ID + BoxProvider.AUTHORITY, testDocId)
-        Assert.assertNotNull("Could not build document URI", documentUri)
-        var query: Cursor = mockContentResolver.query(documentUri, null, null, null, null)
-        Assert.assertNull("Document already there: " + documentUri.toString(), query)
-        val document = DocumentsContract.createDocument(
-                mockContentResolver, parentDocumentUri,
-                "image/png",
-                "testfile.png")
-        Assert.assertNotNull(document)
-        val renamed = DocumentsContract.renameDocument(mockContentResolver,
-                document, "testfile2.png")
-        Assert.assertNotNull(renamed)
-        assertThat(renamed.toString(), `is`(parentDocumentUri.toString() + "testfile2.png"))
-        query = mockContentResolver.query(documentUri, null, null, null, null)
-        Assert.assertNull("Document not renamed:" + documentUri.toString(), query)
-        query = mockContentResolver.query(renamed, null, null, null, null)
-        Assert.assertNotNull("Document not renamed:" + documentUri.toString(), query)
-    }
+        })
+        provider.injectProvider(useCase)
+        val file = BoxPath.Root * "foobar.txt"
+        val document = docId.copy(path = file)
+        val documentUri = DocumentsContract.buildDocumentUri(
+                BuildConfig.APPLICATION_ID + BoxProvider.AUTHORITY, document.toString())
+        provider.handlerThread.start()
 
-    /*
-    @Throws(QblStorageException::class)
-    fun testGetDocumentId() {
-        assertThat(volume.getDocumentId("/"), `is`(MockedBoxProviderTest.ROOT_DOC_ID))
-        val navigate = volume.navigate()
-        assertThat(volume.getDocumentId(navigate.path), `is`(MockedBoxProviderTest.ROOT_DOC_ID))
-        val folder = navigate.createFolder("testfolder")
-        assertThat(navigate.getPath(folder), `is`("/testfolder/"))
-        navigate.commit()
-        navigate.navigate(folder)
-        assertThat(volume.getDocumentId(navigate.path), `is`(MockedBoxProviderTest.ROOT_DOC_ID + "testfolder/"))
+        val fd = mockContentResolver.openFileDescriptor(documentUri, "w")
+        val out = ParcelFileDescriptor.AutoCloseOutputStream(fd)
+        out.write(samplePayLoad.toByteArray())
+        out.close()
+        while (!provider.handlerThread.looper.queue.isIdle) {
+            Thread.sleep(50)
+        }
+        browser.download(file).toBlocking().first().source.asString() shouldMatch equalTo(samplePayLoad)
     }
     */
-    * */
-
-    companion object {
-        private val TAG = "BoxProviderTest"
-    }
 
 }
 

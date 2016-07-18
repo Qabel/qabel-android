@@ -7,6 +7,7 @@ import android.content.IntentFilter
 import android.database.Cursor
 import android.database.MatrixCursor
 import android.os.CancellationSignal
+import android.os.Handler
 import android.os.ParcelFileDescriptor
 import android.provider.DocumentsContract
 import android.provider.DocumentsContract.Document
@@ -19,17 +20,22 @@ import de.qabel.qabelbox.BuildConfig
 import de.qabel.qabelbox.QblBroadcastConstants
 import de.qabel.qabelbox.R
 import de.qabel.qabelbox.box.dto.BrowserEntry
+import de.qabel.qabelbox.box.dto.ProviderUpload
+import de.qabel.qabelbox.box.dto.UploadSource
 import de.qabel.qabelbox.box.interactor.ProviderUseCase
 import de.qabel.qabelbox.dagger.components.DaggerBoxComponent
 import de.qabel.qabelbox.dagger.modules.ContextModule
 import rx.lang.kotlin.firstOrNull
 import java.io.File
 import java.io.FileNotFoundException
+import java.io.IOException
 import java.net.URLConnection
+import java.util.*
 
 open class BoxProvider : DocumentsProvider() {
 
     lateinit var useCase: ProviderUseCase
+    open val handler by lazy { Handler(context.mainLooper) }
 
     private val volumesChangedBroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
@@ -152,23 +158,37 @@ open class BoxProvider : DocumentsProvider() {
                               mode: String, signal: CancellationSignal?): ParcelFileDescriptor {
         val isWrite = mode.indexOf('w') != -1
         val isRead = mode.indexOf('r') != -1
-        if (isWrite) {
-            TODO()
-        }
+        val id = documentId.toDocumentId()
         val file = File.createTempFile("boxOpen", "tmp", context.externalCacheDir)
         if (isRead) {
-            val download = useCase.download(documentId.toDocumentId()).toBlocking().firstOrNull()
+            val download = useCase.download(id).toBlocking().firstOrNull()
             file.outputStream().run {
                 download.source.source.copyTo(file.outputStream())
             }
         }
-        return ParcelFileDescriptor.open(file, ParcelFileDescriptor.parseMode(mode))
+        val parsedMode = ParcelFileDescriptor.parseMode(mode)
+        if (isWrite) {
+            return ParcelFileDescriptor.open(file, parsedMode, handler,
+                    ParcelFileDescriptor.OnCloseListener { e ->
+                if (e != null) {
+                    Log.e(TAG, "IOException in onClose", e)
+                    return@OnCloseListener
+                }
+                Log.i(TAG, "Uploading saved file")
+                val entry = BrowserEntry.File(id.path.name, file.length(), Date())
+                file.inputStream().use {
+                    useCase.upload(ProviderUpload(id, UploadSource(it, entry))).toBlocking()
+                }
+            })
+        } else {
+            return ParcelFileDescriptor.open(file, parsedMode)
+        }
     }
 
 
     @Throws(FileNotFoundException::class)
     override fun createDocument(parentDocumentId: String, mimeType: String, displayName: String): String {
-        TODO()
+        throw FileNotFoundException("not implemented!")
     }
 
     @Throws(FileNotFoundException::class)

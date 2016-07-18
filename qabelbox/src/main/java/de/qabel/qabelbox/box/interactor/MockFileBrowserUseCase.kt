@@ -7,6 +7,7 @@ import de.qabel.qabelbox.box.dto.UploadSource
 import de.qabel.qabelbox.box.toDownloadSource
 import rx.Observable
 import rx.lang.kotlin.toSingletonObservable
+import java.io.FileNotFoundException
 import java.util.*
 import javax.inject.Inject
 
@@ -42,7 +43,7 @@ class MockFileBrowserUseCase @Inject constructor(): FileBrowserUseCase {
                 ).toSingletonObservable()
             }
         }
-        return Observable.error<DownloadSource>(IllegalArgumentException("File not found"))
+        return Observable.error<DownloadSource>(FileNotFoundException("File not found"))
     }
 
     override fun delete(path: BoxPath): Observable<Unit> {

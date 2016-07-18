@@ -5,6 +5,7 @@ import com.natpryce.hamkrest.equalTo
 import com.natpryce.hamkrest.hasSize
 import com.natpryce.hamkrest.should.shouldMatch
 import com.nhaarman.mockito_kotlin.mock
+import com.nhaarman.mockito_kotlin.verify
 import com.nhaarman.mockito_kotlin.whenever
 import de.qabel.qabelbox.box.dto.*
 import de.qabel.qabelbox.box.provider.DocumentId
@@ -80,7 +81,9 @@ class BoxProviderUseCaseTest {
 
     @Test
     fun testUpload() {
-
+        val source = UploadSource(mock(), sample)
+        useCase.upload(ProviderUpload(docId.copy(path = file), source))
+        verify(fileBrowser).upload(file, source)
     }
 
     @Test

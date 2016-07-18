@@ -6,7 +6,6 @@ import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
-import android.widget.SeekBar;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -32,7 +31,6 @@ import de.qabel.qabelbox.TestConstants;
 import de.qabel.qabelbox.communication.PrefixServer;
 import de.qabel.qabelbox.communication.callbacks.JsonRequestCallback;
 import de.qabel.qabelbox.fragments.BaseIdentityFragment;
-import de.qabel.qabelbox.fragments.CreateIdentityDropBitsFragment;
 import de.qabel.qabelbox.fragments.CreateIdentityEditTextFragment;
 import de.qabel.qabelbox.fragments.CreateIdentityFinalFragment;
 import de.qabel.qabelbox.fragments.CreateIdentityMainFragment;
@@ -52,7 +50,6 @@ public class CreateIdentityActivity extends BaseWizardActivity {
     private String TAG = this.getClass().getSimpleName();
 
     private String mIdentityName;
-    private int mIdentityDropProgress = Integer.MIN_VALUE;
     private Identity mNewIdentity;
     private String prefix = null;
     int tryCount = 0;
@@ -107,7 +104,7 @@ public class CreateIdentityActivity extends BaseWizardActivity {
     @Override
     protected BaseIdentityFragment[] getFragmentList() {
 
-        BaseIdentityFragment fragments[] = new BaseIdentityFragment[4];
+        BaseIdentityFragment fragments[] = new BaseIdentityFragment[3];
         fragments[0] = new CreateIdentityMainFragment();
         fragments[1] = CreateIdentityEditTextFragment.newInstance(R.string.create_identity_enter_name, R.string.create_identity_enter_name_hint, new NextChecker() {
             @Override
@@ -133,19 +130,12 @@ public class CreateIdentityActivity extends BaseWizardActivity {
                     }
                 }
                 setIdentityName(editText);
-                return null;
-            }
-        });
-        fragments[2] = CreateIdentityDropBitsFragment.newInstance(new NextChecker() {
-            @Override
-            public String check(View view) {
 
                 if (prefix == null) {
                     tryCount = 0;
                     loadPrefixInBackground();
                     return getString(R.string.create_idenity_cant_get_prefix);
                 }
-                setIdentityDropBitsProgress(((SeekBar) view).getProgress());
                 Identity identity = createIdentity();
                 addIdentity(identity);
                 setCreatedIdentity(identity);
@@ -157,7 +147,7 @@ public class CreateIdentityActivity extends BaseWizardActivity {
 
                 URI uri = URI.create(getString(R.string.dropServer));
                 DropServer dropServer = new DropServer(uri, "", true);
-                DropIdGenerator adjustableDropIdGenerator = new AdjustableDropIdGenerator((getIdentityDropBitsProgress() + 1) * 64);
+                DropIdGenerator adjustableDropIdGenerator = new AdjustableDropIdGenerator(64);
                 DropURL dropURL = new DropURL(dropServer, adjustableDropIdGenerator);
                 Collection<DropURL> dropURLs = new ArrayList<>();
                 dropURLs.add(dropURL);
@@ -176,8 +166,7 @@ public class CreateIdentityActivity extends BaseWizardActivity {
                 }
             }
         });
-
-        fragments[3] = new CreateIdentityFinalFragment();
+        fragments[2] = new CreateIdentityFinalFragment();
         return fragments;
     }
 
@@ -206,16 +195,6 @@ public class CreateIdentityActivity extends BaseWizardActivity {
     public String getIdentityName() {
 
         return mIdentityName;
-    }
-
-    public void setIdentityDropBitsProgress(int progress) {
-
-        mIdentityDropProgress = progress;
-    }
-
-    public int getIdentityDropBitsProgress() {
-
-        return mIdentityDropProgress;
     }
 
     public void setCreatedIdentity(Identity identity) {

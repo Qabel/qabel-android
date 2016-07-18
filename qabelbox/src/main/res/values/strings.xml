@@ -356,5 +356,6 @@ To all people who have supported our Indigogo Campaign
     <string name="unlimited_storage">unlimited storage, %1$s in use</string>
     <string name="download_complete_notification_msg">Downloading %s completed</string>
     <string name="currently_not_available">aktuell nicht verfügbar</string>
+    <string name="permanently_unavailable">permanently unavailable</string>
     <string name="search">Search</string>
 </resources>

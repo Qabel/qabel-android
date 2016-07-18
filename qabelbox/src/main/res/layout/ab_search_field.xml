@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     android:orientation="horizontal">
 
-    <de.qabel.qabelbox.views.EditTextFont
+    <de.qabel.qabelbox.ui.views.EditTextFont
         android:id="@+id/edtSearch"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

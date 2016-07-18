@@ -5,7 +5,7 @@
               android:layout_height="match_parent"
               android:orientation="vertical">
 
-    <de.qabel.qabelbox.views.TextViewFont
+    <de.qabel.qabelbox.ui.views.TextViewFont
         android:id="@+id/about.licences.item.headline.txt"
         style="@style/LicenceListFirstTextLine"
         android:layout_width="match_parent"
@@ -13,14 +13,14 @@
         android:text="Lorem Ipsum"
         android:textAlignment="center"/>
 
-    <de.qabel.qabelbox.views.TextViewFont
+    <de.qabel.qabelbox.ui.views.TextViewFont
         android:id="@+id/about.licences.item.components.txt"
         style="@style/LicenceListSecondTextLine"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="GSON\nMonkeyLib"/>
 
-    <de.qabel.qabelbox.views.ButtonFont
+    <de.qabel.qabelbox.ui.views.ButtonFont
         style="@style/LicenceButton"
         android:id="@+id/about.licences.item.showlicence.btn"
         android:layout_below="@id/licence_header_intro"

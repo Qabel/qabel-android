@@ -8,7 +8,7 @@ import de.qabel.core.config.Contact
 import de.qabel.core.config.Identity
 import de.qabel.qabelbox.BuildConfig
 import de.qabel.qabelbox.SimpleApplication
-import de.qabel.qabelbox.chat.ChatMessagesDataBase
+import de.qabel.qabelbox.chat.persistence.ChatMessagesDataBase
 import de.qabel.qabelbox.chat.ChatServer
 import de.qabel.qabelbox.persistence.RepositoryFactory
 import de.qabel.qabelbox.services.MockedDropConnector

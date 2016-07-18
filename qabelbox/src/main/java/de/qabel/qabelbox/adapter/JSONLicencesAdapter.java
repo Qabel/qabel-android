@@ -13,7 +13,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -21,7 +20,7 @@ import org.json.JSONObject;
 
 import de.qabel.qabelbox.BuildConfig;
 import de.qabel.qabelbox.R;
-import de.qabel.qabelbox.views.ButtonFont;
+import de.qabel.qabelbox.ui.views.ButtonFont;
 
 /**
  * Created by Jan D.S. Wischweh <mail@wischweh.de> on 01.03.16.

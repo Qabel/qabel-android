@@ -11,7 +11,7 @@ import de.qabel.qabelbox.contacts.view.presenters.ContactDetailsPresenter
 import de.qabel.qabelbox.dagger.components.MainActivityComponent
 import de.qabel.qabelbox.fragments.BaseFragment
 import de.qabel.qabelbox.navigation.Navigator
-import de.qabel.qabelbox.ui.views.ChatFragment
+import de.qabel.qabelbox.chat.view.views.ChatFragment
 import org.jetbrains.anko.AnkoLogger
 import javax.inject.Inject
 

@@ -24,7 +24,7 @@
                 android:layout_gravity="center_horizontal"
                 android:orientation="horizontal">
 
-                <de.qabel.qabelbox.views.TextViewQabelFont
+                <de.qabel.qabelbox.ui.views.TextViewQabelFont
                     android:id="@+id/headline2"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -37,7 +37,7 @@
                     android:textSize="@dimen/textsize_qabel_logo"
                     android:textStyle="normal"/>
 
-                <de.qabel.qabelbox.views.TextViewFont
+                <de.qabel.qabelbox.ui.views.TextViewFont
                     android:id="@+id/headline1"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -55,7 +55,7 @@
                 android:layout_gravity="center_horizontal"
                 android:orientation="vertical">
 
-                <de.qabel.qabelbox.views.TextViewFont
+                <de.qabel.qabelbox.ui.views.TextViewFont
                     android:id="@+id/welcome_text2"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -74,7 +74,7 @@
                     android:gravity="center"
                     android:orientation="vertical">
 
-                    <de.qabel.qabelbox.views.ButtonFont
+                    <de.qabel.qabelbox.ui.views.ButtonFont
                         android:id="@+id/btn_show_legal"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -83,7 +83,7 @@
                         android:gravity="center"
                         android:text="@string/btn_welcome_disclaimer_show_legal_notes"/>
 
-                    <de.qabel.qabelbox.views.CheckBoxFont
+                    <de.qabel.qabelbox.ui.views.CheckBoxFont
                         android:id="@+id/cb_welcome_legal"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -94,7 +94,7 @@
 
                     <!--data policy-->
 
-                    <de.qabel.qabelbox.views.ButtonFont
+                    <de.qabel.qabelbox.ui.views.ButtonFont
                         android:id="@+id/btn_show_privacy"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -103,7 +103,7 @@
                         android:gravity="center"
                         android:text="@string/btn_welcome_disclaimer_show_privacy_notes"/>
 
-                    <de.qabel.qabelbox.views.CheckBoxFont
+                    <de.qabel.qabelbox.ui.views.CheckBoxFont
                         android:id="@+id/cb_welcome_privacy"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -121,7 +121,7 @@
                 android:gravity="left"
                 android:orientation="horizontal">
 
-                <de.qabel.qabelbox.views.TextViewQabelFont
+                <de.qabel.qabelbox.ui.views.TextViewQabelFont
                     android:id="@+id/welcome_text4"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -133,7 +133,7 @@
                     android:textSize="@dimen/textsize_qabel_logo"
                     android:textStyle="normal"/>
 
-                <de.qabel.qabelbox.views.TextViewFont
+                <de.qabel.qabelbox.ui.views.TextViewFont
                     android:id="@+id/welcome_text5"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -155,7 +155,7 @@
                 android:layout_marginBottom="10dp"
                 android:paddingBottom="@dimen/padding_welcome_text_top">
 
-                <de.qabel.qabelbox.views.ButtonFont
+                <de.qabel.qabelbox.ui.views.ButtonFont
                     android:id="@+id/btn_show_qapl"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"

@@ -307,4 +307,5 @@ Den Unterstützern der Indigogo Kampagne
     <string name="send_message">Nachricht senden</string>
     <string name="send_message_as">Nachricht senden als %s</string>
     <string name="active_identity_changed">Wechsel zu Identität %s</string>
+    <string name="permanently_unavailable">nicht mehr verfügbar</string>
 </resources>

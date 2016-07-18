@@ -9,10 +9,10 @@ import dagger.Module;
 import dagger.Provides;
 import dagger.internal.Factory;
 import de.qabel.qabelbox.QabelBoxApplication;
-import de.qabel.qabelbox.chat.AndroidChatNotificationPresenter;
-import de.qabel.qabelbox.chat.ChatNotificationManager;
-import de.qabel.qabelbox.chat.ChatNotificationPresenter;
-import de.qabel.qabelbox.chat.SyncAdapterChatNotificationManager;
+import de.qabel.qabelbox.chat.notifications.AndroidChatNotificationPresenter;
+import de.qabel.qabelbox.chat.notifications.ChatNotificationManager;
+import de.qabel.qabelbox.chat.notifications.ChatNotificationPresenter;
+import de.qabel.qabelbox.chat.notifications.SyncAdapterChatNotificationManager;
 import de.qabel.qabelbox.services.DropConnector;
 import de.qabel.qabelbox.services.HttpDropConnector;
 

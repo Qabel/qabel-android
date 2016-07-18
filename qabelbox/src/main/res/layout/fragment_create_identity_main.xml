@@ -13,7 +13,7 @@
         android:layout_height="20dp"
         android:layout_weight="1"/>
 
-    <de.qabel.qabelbox.views.ButtonFont
+    <de.qabel.qabelbox.ui.views.ButtonFont
         android:id="@+id/bt_create_identity"
         style="@style/Button"
         android:layout_width="match_parent"
@@ -23,7 +23,7 @@
         android:text="@string/create_identity_create"/>
 
 
-    <de.qabel.qabelbox.views.ButtonFont
+    <de.qabel.qabelbox.ui.views.ButtonFont
         android:id="@+id/bt_import_identity"
         style="@style/Button"
         android:layout_width="match_parent"

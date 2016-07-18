@@ -72,13 +72,6 @@ public abstract class BaseFragment extends Fragment {
     }
 
     @Override
-    public void onDetach() {
-        super.onDetach();
-        mActivity = null;
-        actionBar = null;
-    }
-
-    @Override
     public void onResume() {
 
         super.onResume();
@@ -96,6 +89,11 @@ public abstract class BaseFragment extends Fragment {
         mActivity.toggle.setDrawerIndicatorEnabled(false);
         actionBar.setDisplayHomeAsUpEnabled(true);
         setActionBarBackListener();
+    }
+
+    protected void configureAsMainFragment(){
+        actionBar.setDisplayHomeAsUpEnabled(false);
+        mActivity.toggle.setDrawerIndicatorEnabled(true);
     }
 
     /**

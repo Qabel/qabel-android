@@ -13,6 +13,7 @@ import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
 
 import java.net.URISyntaxException;
+import java.util.Date;
 
 import de.qabel.core.config.Contact;
 import de.qabel.core.config.Identity;
@@ -29,6 +30,7 @@ import de.qabel.qabelbox.services.DropConnector;
 import de.qabel.qabelbox.services.MockedDropConnector;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 
@@ -269,6 +271,18 @@ public class ChatServerTest {
         assertThat(chatServer.refreshList(connector, identity), hasSize(1));
 
         assertThat(chatServer.refreshList(connector, identity), hasSize(0));
+    }
+
+    @Test
+    public void testRefreshSinceDate() {
+        ChatServer chatServer = new ChatServer(context);
+        MockedDropConnector dropConnector = new MockedDropConnector();
+        dropConnector.sinceDate = 1420066800000L;
+
+        chatServer.refreshList(dropConnector, identity);
+
+        ChatMessagesDataBase dataBase = new ChatMessagesDataBase(context, identity);
+        assertThat(dataBase.getLastRetrievedDropMessageTime(), equalTo(dropConnector.sinceDate));
     }
 
 }

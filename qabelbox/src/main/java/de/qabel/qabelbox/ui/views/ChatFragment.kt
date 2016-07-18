@@ -68,7 +68,9 @@ class ChatFragment : ChatView, BaseFragment(), AnkoLogger {
 
         configureAsSubFragment();
 
-        contact_chat_list.layoutManager = LinearLayoutManager(view.context)
+        val layoutManager = LinearLayoutManager(view.context);
+        layoutManager.stackFromEnd = true;
+        contact_chat_list.layoutManager = layoutManager;
         contact_chat_list.adapter = adapter
     }
 
@@ -96,14 +98,14 @@ class ChatFragment : ChatView, BaseFragment(), AnkoLogger {
         }
     }
 
-    override fun onStart() {
-        super.onStart()
+    override fun onResume() {
+        super.onResume()
         ctx.registerReceiver(broadcastReceiver, IntentFilter(Helper.INTENT_REFRESH_CHAT))
         ctx.registerReceiver(notificationBlockReceiver, IntentFilter(Helper.INTENT_SHOW_NOTIFICATION))
     }
 
-    override fun onStop() {
-        super.onStop()
+    override fun onPause() {
+        super.onPause()
         ctx.unregisterReceiver(broadcastReceiver)
         ctx.unregisterReceiver(notificationBlockReceiver)
     }
@@ -141,7 +143,8 @@ class ChatFragment : ChatView, BaseFragment(), AnkoLogger {
         busy()
         onUiThread {
             adapter.messages = adapter.messages + message
-            adapter.notifyDataSetChanged()
+            adapter.notifyDataSetChanged();
+            contact_chat_list.scrollToPosition(adapter.itemCount - 1)
             idle()
         }
     }

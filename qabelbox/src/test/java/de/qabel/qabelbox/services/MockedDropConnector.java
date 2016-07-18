@@ -26,6 +26,8 @@ public class MockedDropConnector implements DropConnector {
                 }
             });
 
+    public long sinceDate = 0L;
+
     @Override
     public void sendDropMessage(DropMessage dropMessage, Contact recipient, Identity identity,
                                 @Nullable OnSendDropMessageResult dropResultCallback)
@@ -38,14 +40,14 @@ public class MockedDropConnector implements DropConnector {
     }
 
     @Override
-    public Collection<DropMessage> retrieveDropMessages(Identity identity, long sinceDate) {
+    public RetrieveDropMessagesResult retrieveDropMessages(Identity identity, long sinceDate) {
         ArrayList<DropMessage> filtered = new ArrayList<>();
         for (DropMessage m: messages.get(identity.getKeyIdentifier())) {
             if (m.getCreationDate().after(new Date(sinceDate))) {
                 filtered.add(m);
             }
         }
-        return filtered;
+        return new RetrieveDropMessagesResult(filtered, this.sinceDate);
     }
 
 

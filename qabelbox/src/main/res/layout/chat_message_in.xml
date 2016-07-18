@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/checkMessageIn"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_gravity="center_horizontal"
+    android:baselineAligned="false"
+    android:orientation="horizontal">
+
+    <ImageView xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/chat_begin_indicator"
+        android:layout_width="12sp"
+        android:layout_height="25sp"
+        android:layout_marginTop="3dp"
+        android:background="@drawable/chat_in_left"
+        tools:ignore="ContentDescription" />
+
+    <LinearLayout
+        android:id="@+id/chatTextLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:layout_marginBottom="2sp"
+        android:layout_marginEnd="40sp"
+        android:layout_marginTop="2sp"
+        android:background="@drawable/chat_in_round_box"
+        android:orientation="vertical">
+
+        <de.qabel.qabelbox.views.TextViewFont
+            android:id="@+id/tvText"
+            style="@style/ListSecondTextLine"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="start|top"
+            android:textColor="@color/white" />
+
+        <RelativeLayout
+            android:id="@+id/messageFileContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="start|top"
+            android:background="@drawable/round_box"
+            android:padding="0sp"
+            android:visibility="gone">
+
+            <ImageView
+                android:id="@+id/messageFileIcon"
+                style="@style/ListIcon"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentTop="true"
+                android:background="@drawable/file"
+                tools:ignore="ContentDescription" />
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_toEndOf="@id/messageFileIcon"
+                android:orientation="vertical">
+
+                <de.qabel.qabelbox.views.TextViewFont
+                    android:id="@+id/shareText"
+                    style="@style/ListSecondTextLine"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/text_black" />
+
+                <de.qabel.qabelbox.views.TextViewFont
+                    android:id="@+id/tvLink"
+                    style="@style/ListSecondTextLine"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:textColor="@color/text_black" />
+            </LinearLayout>
+        </RelativeLayout>
+
+        <de.qabel.qabelbox.views.TextViewFont
+            android:id="@+id/tvDate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end|bottom"
+            android:textColor="@color/white"
+            android:textSize="12sp" />
+    </LinearLayout>
+</LinearLayout>

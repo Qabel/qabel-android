@@ -134,7 +134,7 @@
     </plurals>
     <string name="ExportAsContactWithQRcode">Show QR</string>
     <string name="headline_qrcode">QRCode</string>
-    <string name="Open">Open</string>
+    <string name="open">open</string>
     <string name="edit">Edit</string>
     <string name="headline_imageviewer">Image viewer</string>
     <string name="share_subject">Qabel</string>

@@ -16,6 +16,7 @@ class MainFileBrowserPresenter @Inject constructor(
 
     var path: BoxPath.FolderLike = BoxPath.Root
 
+
     override fun share(file: File) {
         TODO()
     }
@@ -33,8 +34,8 @@ class MainFileBrowserPresenter @Inject constructor(
     }
 
     override fun export(file: File) {
-        useCase.download(path * file.name).subscribe { source ->
-            view.export(file, source)
+        useCase.asDocumentId(path * file.name).subscribe {
+            view.export(it)
         }
     }
 
@@ -63,8 +64,8 @@ class MainFileBrowserPresenter @Inject constructor(
                 onRefresh()
             }
             is File -> {
-                useCase.download(path * entry.name).subscribe { source ->
-                    view.open(entry, source)
+                useCase.asDocumentId(path * entry.name).subscribe {
+                    view.open(it)
                 }
             }
 

@@ -7,6 +7,7 @@ import de.qabel.qabelbox.box.dto.BrowserEntry.File
 import de.qabel.qabelbox.box.dto.DownloadSource
 import de.qabel.qabelbox.box.dto.UploadSource
 import de.qabel.qabelbox.box.interactor.FileBrowserUseCase
+import de.qabel.qabelbox.box.provider.DocumentId
 import de.qabel.qabelbox.box.views.FileBrowserView
 import de.qabel.qabelbox.util.toDownloadSource
 import org.junit.Before
@@ -95,30 +96,22 @@ class MainFileBrowserPresenterTest {
         verify(view).showEntries(sampleFiles)
     }
 
-    fun mockDownload(): Pair<DownloadSource, File> {
-        val entry = File("foobar.txt", 42, mock())
-        val source = "text".toDownloadSource(entry)
-        whenever(useCase.download(BoxPath.Root * "foobar.txt")).thenReturn(
-                source.toSingletonObservable())
-        return Pair(source, entry)
-    }
-
     @Test
     fun open() {
-        val (source, entry) = mockDownload()
+        val docId = DocumentId("foo", "bar", BoxPath.Root * sample.name)
+        whenever(useCase.asDocumentId(docId.path)).thenReturn(docId.toSingletonObservable())
+        presenter.onClick(sample)
 
-        presenter.onClick(entry)
-
-        verify(view).open(entry, source)
+        verify(view).open(docId)
     }
 
     @Test
     fun export() {
-        val (source, entry) = mockDownload()
+        val docId = DocumentId("foo", "bar", BoxPath.Root * sample.name)
+        whenever(useCase.asDocumentId(docId.path)).thenReturn(docId.toSingletonObservable())
+        presenter.export(sample)
 
-        presenter.export(entry)
-
-        verify(view).export(entry, source)
+        verify(view).export(docId)
     }
 
 }

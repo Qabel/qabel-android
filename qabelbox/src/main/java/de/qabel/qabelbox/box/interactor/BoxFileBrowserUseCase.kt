@@ -5,9 +5,14 @@ import de.qabel.qabelbox.box.dto.BoxPath
 import de.qabel.qabelbox.box.dto.BrowserEntry
 import de.qabel.qabelbox.box.dto.DownloadSource
 import de.qabel.qabelbox.box.dto.UploadSource
+import de.qabel.qabelbox.box.provider.DocumentId
 import rx.Observable
 
 class BoxFileBrowserUseCase(private val volume: BoxVolume) : FileBrowserUseCase {
+    override fun asDocumentId(path: BoxPath): Observable<DocumentId> {
+        TODO()
+    }
+
     override fun query(path: BoxPath): Observable<BrowserEntry> {
         throw UnsupportedOperationException("not implemented") //To change body of created functions use File | Settings | File Templates.
     }

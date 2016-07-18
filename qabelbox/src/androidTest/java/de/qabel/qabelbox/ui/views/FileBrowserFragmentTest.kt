@@ -12,8 +12,10 @@ import android.support.test.espresso.intent.matcher.IntentMatchers.hasExtra
 import android.support.test.espresso.matcher.ViewMatchers.*
 import de.qabel.qabelbox.R
 import de.qabel.qabelbox.activities.MainActivity
+import de.qabel.qabelbox.box.dto.BoxPath
 import de.qabel.qabelbox.box.dto.BrowserEntry
 import de.qabel.qabelbox.box.presenters.FileBrowserPresenter
+import de.qabel.qabelbox.box.provider.DocumentId
 import de.qabel.qabelbox.box.views.FileBrowserFragment
 import de.qabel.qabelbox.navigation.MainNavigator
 import de.qabel.qabelbox.ui.AbstractUITest
@@ -91,18 +93,4 @@ class FileBrowserFragmentTest: AbstractUITest() {
         }
     }
 
-    @Ignore
-    @Test
-    fun openFile() {
-        launch()
-        fragment.open(file, "content".toDownloadSource(file))
-        Intents.intended(allOf(hasAction(Intent.ACTION_CHOOSER),
-                hasExtra(Intent.EXTRA_INTENT,
-                        allOf(hasAction(Intent.ACTION_SEND)))))
-    }
-
-    @Test
-    fun uploadFile() {
-        launch()
-    }
 }

@@ -1,9 +1,7 @@
 package de.qabel.qabelbox.box.interactor
 
-import de.qabel.qabelbox.box.dto.BoxPath
-import de.qabel.qabelbox.box.dto.BrowserEntry
-import de.qabel.qabelbox.box.dto.DownloadSource
-import de.qabel.qabelbox.box.dto.UploadSource
+import de.qabel.qabelbox.box.dto.*
+import de.qabel.qabelbox.box.provider.DocumentId
 import de.qabel.qabelbox.box.toDownloadSource
 import rx.Observable
 import rx.lang.kotlin.toSingletonObservable
@@ -12,6 +10,11 @@ import java.util.*
 import javax.inject.Inject
 
 class MockFileBrowserUseCase @Inject constructor(): FileBrowserUseCase {
+
+    private val root = DocumentId("identiy", "prefix", BoxPath.Root)
+
+    override fun asDocumentId(path: BoxPath): Observable<DocumentId> =
+            root.copy(path = path).toSingletonObservable()
 
     val storage = mutableListOf<Pair<BoxPath, ByteArray?>>()
 

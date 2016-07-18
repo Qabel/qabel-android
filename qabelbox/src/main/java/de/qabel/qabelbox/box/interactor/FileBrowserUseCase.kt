@@ -4,6 +4,7 @@ import de.qabel.qabelbox.box.dto.BoxPath
 import de.qabel.qabelbox.box.dto.BrowserEntry
 import de.qabel.qabelbox.box.dto.DownloadSource
 import de.qabel.qabelbox.box.dto.UploadSource
+import de.qabel.qabelbox.box.provider.DocumentId
 import rx.Observable
 
 interface FileBrowserUseCase {
@@ -13,5 +14,6 @@ interface FileBrowserUseCase {
     fun list(path: BoxPath.FolderLike): Observable<List<BrowserEntry>>
     fun createFolder(path: BoxPath.Folder): Observable<Unit>
     fun query(path: BoxPath): Observable<BrowserEntry>
+    fun asDocumentId(path: BoxPath): Observable<DocumentId>
 }
 

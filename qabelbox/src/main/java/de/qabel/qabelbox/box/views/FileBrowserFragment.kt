@@ -1,11 +1,14 @@
 package de.qabel.qabelbox.box.views
 
+import android.content.Intent
 import android.os.Bundle
+import android.provider.DocumentsContract
 import android.support.v4.widget.SwipeRefreshLayout
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.view.*
 import com.cocosw.bottomsheet.BottomSheet
+import de.qabel.qabelbox.BuildConfig
 import de.qabel.qabelbox.R
 import de.qabel.qabelbox.dagger.components.MainActivityComponent
 import de.qabel.qabelbox.box.dagger.modules.FileBrowserModule
@@ -14,9 +17,12 @@ import de.qabel.qabelbox.fragments.BaseFragment
 import de.qabel.qabelbox.box.adapters.FileAdapter
 import de.qabel.qabelbox.box.dto.DownloadSource
 import de.qabel.qabelbox.box.presenters.FileBrowserPresenter
+import de.qabel.qabelbox.box.provider.BoxProvider
+import de.qabel.qabelbox.box.provider.DocumentId
 import kotlinx.android.synthetic.main.fragment_files.*
 import org.jetbrains.anko.*
 import org.jetbrains.anko.recyclerview.v7.onItemTouchListener
+import java.net.URLConnection
 import javax.inject.Inject
 
 class FileBrowserFragment: FileBrowserView, BaseFragment(), AnkoLogger,
@@ -97,10 +103,19 @@ class FileBrowserFragment: FileBrowserView, BaseFragment(), AnkoLogger,
         return false
     }
 
-    override fun open(file: BrowserEntry.File, source: DownloadSource) {
-        TODO()
+    override fun open(documentId: DocumentId) {
+        val uri = DocumentsContract.buildDocumentUri(
+                BuildConfig.APPLICATION_ID + BoxProvider.AUTHORITY,
+                documentId.toString())
+        val type = URLConnection.guessContentTypeFromName(uri.toString())
+        val intent = Intent().apply {
+            action = Intent.ACTION_VIEW
+            setDataAndType(uri, type)
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        }
+        startActivity(Intent.createChooser(intent, "Open with").singleTop())
     }
-    override fun export(file: BrowserEntry.File, source: DownloadSource) {
+    override fun export(documentId: DocumentId) {
         TODO()
     }
 

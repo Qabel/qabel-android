@@ -33,7 +33,7 @@ class ContactDetailsAdapter(private val onSendMessageClick: (identity: Identity)
                     addMessageButton(ctx.getString(R.string.send_message_as, it.alias));
                 }
             } else if(contact.identities.size == 1){
-                addMessageButton(ctx.getString(R.string.btn_chat_send, contact.identities.first().alias))
+                addMessageButton(ctx.getString(R.string.send_message, contact.identities.first().alias))
             }
         }
     }

@@ -31,7 +31,7 @@ class ContactDetailsFragment() : ContactDetailsView, BaseFragment(), AnkoLogger 
         }
     }
 
-    var adapter = ContactDetailsAdapter({ identity -> navigator.selectContactChat(contactKeyId, identity) })
+    val adapter = ContactDetailsAdapter({ identity -> navigator.selectContactChat(contactKeyId, identity) })
     lateinit override var contactKeyId: String
     @Inject lateinit var presenter: ContactDetailsPresenter
     @Inject lateinit var navigator: Navigator

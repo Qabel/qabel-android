@@ -74,7 +74,7 @@ constructor(var activity: MainActivity,
     }
 
     override fun selectAboutFragment() {
-        showMainFragment(AboutLicencesFragment.newInstance(), TAG_ABOUT_FRAGMENT)
+        showMainFragment(AboutLicencesFragment(), TAG_ABOUT_FRAGMENT)
     }
 
     override fun selectFilesFragment() {

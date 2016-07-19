@@ -1,77 +1,74 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingBottom="5sp"
+    android:background="@drawable/separator_gray">
 
     <ImageView
         android:id="@+id/about_logo"
-        android:layout_margin="@dimen/activity_vertical_margin"
         android:layout_width="150dp"
-        android:scaleType="fitCenter"
         android:layout_height="wrap_content"
-        android:src="@drawable/splash_logo"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-        android:adjustViewBounds="true"/>
+        android:layout_margin="@dimen/activity_vertical_margin"
+        android:layout_gravity="center_horizontal"
+        android:adjustViewBounds="true"
+        android:scaleType="fitCenter"
+        android:src="@drawable/splash_logo" />
 
     <de.qabel.qabelbox.ui.views.TextViewFont
         android:id="@+id/licence_header_versioninfo"
-        android:layout_below="@id/about_logo"
+        style="@style/LicenceListFirstTextLine"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="v-1.-1.-1 omega"
-        android:layout_marginBottom="@dimen/activity_vertical_margin"
-        style="@style/LicenceListFirstTextLine"/>
+        android:layout_marginBottom="@dimen/activity_vertical_margin" />
 
     <de.qabel.qabelbox.ui.views.TextViewFont
         android:id="@+id/licence_header_intro"
-        android:layout_below="@+id/licence_header_versioninfo"
-        android:layout_width="wrap_content"
+        style="@style/LicenceListFirstTextLine"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/licence.header.intro"
-        android:layout_alignParentLeft="true"
-        android:layout_marginLeft="@dimen/activity_vertical_margin"
-        style="@style/LicenceListFirstTextLine"/>
+        android:text="@string/licence.header.intro" />
+
 
     <de.qabel.qabelbox.ui.views.ButtonFont
-        style="@style/LicenceButton"
         android:id="@+id/about.header.showlicence.btn"
-        android:layout_below="@id/licence_header_intro"
-        android:text="@string/about.header.qabel.show.btn"/>
+        style="@style/LicenceButton"
+        android:layout_width="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:gravity="left|center_vertical"
+        android:text="@string/about.header.qabel.show.btn"
+        android:textAlignment="center" />
 
     <LinearLayout
         android:id="@+id/about.thanks.header.ll"
-        android:layout_below="@id/about.header.showlicence.btn"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_centerHorizontal="true"
-        android:gravity="center_horizontal">
-
+        android:gravity="center_horizontal"
+        android:orientation="horizontal">
 
         <de.qabel.qabelbox.ui.views.QabelBrandingFont
             style="@style/LicenceListFirstTextLine"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/about.header.qabel.company.qtxt"/>
+            android:text="@string/about.header.qabel.company.qtxt" />
 
         <de.qabel.qabelbox.ui.views.TextViewFont
             android:layout_marginLeft="@dimen/textsize_list_first_line_half"
             style="@style/LicenceListFirstTextLine"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/textsize_list_first_line_half"
             android:text="@string/about.header.qabel.thanks.header.txt"
-            android:textAlignment="center"/>
+            android:textAlignment="center" />
 
     </LinearLayout>
-
 
     <de.qabel.qabelbox.ui.views.TextViewFont
         android:id="@+id/about.licences.item.components.txt"
         style="@style/LicenceListSecondTextLine"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/about.thanks.header.ll"
-        android:text="@string/about.header.qabel.thanks.content.txt"/>
+        android:text="@string/about.header.qabel.thanks.content.txt" />
 
-</RelativeLayout>
+</LinearLayout>

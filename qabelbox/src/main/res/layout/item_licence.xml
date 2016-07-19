@@ -1,28 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:layout_marginTop="@dimen/activity_horizontal_margin"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent"
-              android:orientation="vertical">
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingTop="5sp"
+    android:paddingBottom="5sp"
+    android:background="@drawable/separator_gray"
+    android:orientation="vertical">
 
     <de.qabel.qabelbox.ui.views.TextViewFont
         android:id="@+id/about.licences.item.headline.txt"
         style="@style/LicenceListFirstTextLine"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Lorem Ipsum"
-        android:textAlignment="center"/>
+        android:textAlignment="center" />
 
     <de.qabel.qabelbox.ui.views.TextViewFont
         android:id="@+id/about.licences.item.components.txt"
         style="@style/LicenceListSecondTextLine"
+        android:layout_gravity="center_horizontal"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="GSON\nMonkeyLib"/>
+        android:layout_height="wrap_content" />
 
     <de.qabel.qabelbox.ui.views.ButtonFont
         style="@style/LicenceButton"
         android:id="@+id/about.licences.item.showlicence.btn"
-        android:layout_below="@id/licence_header_intro"
-        android:text="@string/about.licences.item.show.btn"/>
+        android:layout_width="wrap_content"
+        android:layout_gravity="center_horizontal"
+        style="@style/LicenceButton"
+        android:gravity="left|center_vertical"
+        android:text="@string/about.licences.item.show.btn"
+        android:textAlignment="center" />
 </LinearLayout>

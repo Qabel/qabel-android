@@ -24,10 +24,8 @@ import java.io.FileOutputStream
 import java.util.*
 
 class BoxProviderTest : MockedBoxProviderTest() {
-    override val context: Context
-        get() = instrumentation.targetContext
+    override val context: Context = instrumentation.targetContext
 
-    lateinit var testFileName: String
     lateinit var useCase: ProviderUseCase
 
     val docId = DocumentId("identity", "prefix", BoxPath.Root)
@@ -40,23 +38,12 @@ class BoxProviderTest : MockedBoxProviderTest() {
         super.setUp()
         useCase = Mockito.mock(ProviderUseCase::class.java)
         provider.injectProvider(useCase)
-
-        val tmpDir = File(System.getProperty("java.io.tmpdir"))
-        val file = File.createTempFile("testfile", "test", tmpDir)
-        val outputStream = FileOutputStream(file)
-        val testData = ByteArray(1024)
-        Arrays.fill(testData, 'f'.toByte())
-        for (i in 0..99) {
-            outputStream.write(testData)
-        }
-        outputStream.close()
-        testFileName = file.absolutePath
     }
 
     fun testQueryRoots() {
         stubResult(useCase.availableRoots(), volumes)
         val cursor = provider.queryRoots(BoxProvider.DEFAULT_ROOT_PROJECTION)
-        assertThat(cursor.count, `is`(1))
+        cursor.count shouldMatch equalTo(1)
         cursor.moveToFirst()
         val documentId = cursor.getString(6)
         documentId shouldMatch equalTo(volume.documentID)

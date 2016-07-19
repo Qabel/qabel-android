@@ -30,7 +30,7 @@ class ContactDetailsAdapter(private val onSendMessageClick: (identity: Identity)
             editTextContactPublicKey.text = contact.readableKey();
 
             contact_details_actions.removeAllViews();
-            if (contact.identities.size > 1) {
+            if (contact.identities.size > 1 || (contact.identities.size == 1 && !contact.active)) {
                 contact.identities.forEach {
                     addMessageButton(view!!.context.getString(R.string.send_message_as, it.alias));
                 }

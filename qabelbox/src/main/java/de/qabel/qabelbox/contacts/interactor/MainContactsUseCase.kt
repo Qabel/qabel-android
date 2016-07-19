@@ -34,16 +34,19 @@ open class MainContactsUseCase @Inject constructor(private val activeIdentity: I
 
     private fun load(subscriber: Subscriber<in ContactDto>, filter: String) {
         contactRepository.findWithIdentities(filter).map {
-            pair ->
-            subscriber.onNext(ContactDto(pair.first, pair.second,
-                    !pair.second.none { identity -> identity.keyIdentifier.equals(activeIdentity.keyIdentifier) }))
+            pair -> subscriber.onNext(transformContact(pair))
         };
         subscriber.onCompleted()
     }
 
+    private fun transformContact(data : Pair<Contact, List<Identity>>) : ContactDto {
+        return ContactDto(data.first, data.second,
+                !data.second.none { identity -> identity.keyIdentifier.equals(activeIdentity.keyIdentifier) })
+    }
+
     override fun loadContact(keyIdentifier: String) = observable<ContactDto> { subscriber ->
         val contact = contactRepository.findContactWithIdentities(keyIdentifier);
-        subscriber.onNext(ContactDto(contact.first, contact.second))
+        subscriber.onNext(transformContact(contact))
         subscriber.onCompleted();
     }
 

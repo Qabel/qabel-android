@@ -1,4 +1,4 @@
-package de.qabel.qabelbox.chat.view.adapter
+package de.qabel.qabelbox.chat.view.adapters
 
 import android.view.View
 import com.nhaarman.mockito_kotlin.any

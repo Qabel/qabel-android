@@ -120,9 +120,6 @@ public class MainActivity extends CrashReportingActivity
     private MainActivity self;
     private boolean identityMenuExpanded;
 
-    // Used to save the document uri that should exported while waiting for the result
-    // of the create document intent.
-    public ChatServer chatServer;
     private LightingColorFilter mDrawerIndicatorTintFilter;
 
     @Inject
@@ -459,9 +456,6 @@ public class MainActivity extends CrashReportingActivity
             }
         }
         switch (activeFragmentTag) {
-            case MainNavigator.TAG_FILES_FRAGMENT:
-                break;
-
             case MainNavigator.TAG_MANAGE_IDENTITIES_FRAGMENT:
                 selectAddIdentityFragment();
                 break;

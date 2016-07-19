@@ -80,7 +80,8 @@ class ContactDetailsFragment() : ContactDetailsView, BaseFragment(), AnkoLogger 
         return true;
     }
 
-    override fun getTitle(): String? = (if (injectCompleted) presenter.title else "")
+    override val title: String
+        get() = (if (injectCompleted) presenter.title else "")
 
     override fun supportBackButton(): Boolean = true
 

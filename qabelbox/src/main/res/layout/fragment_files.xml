@@ -4,8 +4,7 @@
              xmlns:tools="http://schemas.android.com/tools"
              android:layout_width="match_parent"
              android:layout_height="match_parent"
-             android:background="@color/background_material_light"
-             tools:context="de.qabel.qabelbox.fragments.ContactFragment">
+             android:background="@color/background_material_light">
 
     <android.support.v4.widget.SwipeRefreshLayout
         android:id="@+id/swipeRefresh"

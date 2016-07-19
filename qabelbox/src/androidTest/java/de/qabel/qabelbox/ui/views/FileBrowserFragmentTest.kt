@@ -1,15 +1,16 @@
 package de.qabel.qabelbox.ui.views
 
+import android.content.DialogInterface
 import android.content.Intent
 import android.support.test.espresso.Espresso
 import android.support.test.espresso.Espresso.onView
-import android.support.test.espresso.action.ViewActions.click
-import android.support.test.espresso.action.ViewActions.longClick
+import android.support.test.espresso.action.ViewActions.*
 import android.support.test.espresso.assertion.ViewAssertions
 import android.support.test.espresso.intent.Intents
 import android.support.test.espresso.intent.matcher.IntentMatchers.hasAction
 import android.support.test.espresso.intent.matcher.IntentMatchers.hasExtra
 import android.support.test.espresso.matcher.ViewMatchers.*
+import android.text.InputType
 import de.qabel.qabelbox.R
 import de.qabel.qabelbox.activities.MainActivity
 import de.qabel.qabelbox.box.dto.BoxPath
@@ -91,6 +92,25 @@ class FileBrowserFragmentTest: AbstractUITest() {
         listOf(R.string.Delete).forEach {
             onView(withText(R.string.Delete)).check(ViewAssertions.matches(isDisplayed()))
         }
+    }
+
+    @Test
+    fun fabOpen() {
+        launch()
+        onView(withId(R.id.fab)).perform(click())
+        listOf(R.string.upload, R.string.create_folder).forEach {
+            onView(withText(it)).check(ViewAssertions.matches(isDisplayed()))
+        }
+    }
+
+    @Test
+    fun createFolder() {
+        launch()
+        onView(withId(R.id.fab)).perform(click())
+        onView(withText(R.string.create_folder)).perform(click())
+        onView(withHint(R.string.add_folder_name)).perform(typeText("folder"))
+        onView(withText(R.string.ok)).perform(click())
+        verify(presenter).createFolder(BrowserEntry.Folder("folder"))
     }
 
 }

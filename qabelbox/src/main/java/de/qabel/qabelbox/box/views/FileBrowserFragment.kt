@@ -5,31 +5,33 @@ import android.os.Bundle
 import android.provider.DocumentsContract
 import android.support.v4.widget.SwipeRefreshLayout
 import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.RecyclerView
 import android.view.*
 import com.cocosw.bottomsheet.BottomSheet
 import de.qabel.qabelbox.BuildConfig
 import de.qabel.qabelbox.R
-import de.qabel.qabelbox.dagger.components.MainActivityComponent
+import de.qabel.qabelbox.box.adapters.FileAdapter
 import de.qabel.qabelbox.box.dagger.modules.FileBrowserModule
 import de.qabel.qabelbox.box.dto.BrowserEntry
-import de.qabel.qabelbox.fragments.BaseFragment
-import de.qabel.qabelbox.box.adapters.FileAdapter
-import de.qabel.qabelbox.box.dto.DownloadSource
 import de.qabel.qabelbox.box.presenters.FileBrowserPresenter
 import de.qabel.qabelbox.box.provider.BoxProvider
 import de.qabel.qabelbox.box.provider.DocumentId
+import de.qabel.qabelbox.dagger.components.MainActivityComponent
+import de.qabel.qabelbox.fragments.BaseFragment
 import kotlinx.android.synthetic.main.fragment_files.*
 import org.jetbrains.anko.*
-import org.jetbrains.anko.recyclerview.v7.onItemTouchListener
 import java.net.URLConnection
 import javax.inject.Inject
 
 class FileBrowserFragment: FileBrowserView, BaseFragment(), AnkoLogger,
         SwipeRefreshLayout.OnRefreshListener {
+
     companion object {
         fun newInstance() = FileBrowserFragment()
     }
+
+    override val isFabNeeded = true
+
+    override val title: String by lazy { ctx.getString(R.string.filebrowser) }
 
     @Inject
     lateinit var presenter: FileBrowserPresenter
@@ -76,7 +78,7 @@ class FileBrowserFragment: FileBrowserView, BaseFragment(), AnkoLogger,
                 ?: throw IllegalStateException("Could not create view")
     }
 
-    override fun getTitle(): String? = ctx.getString(R.string.filebrowser)
+
 
     override fun showEntries(entries: List<BrowserEntry>) {
         onUiThread {
@@ -117,6 +119,38 @@ class FileBrowserFragment: FileBrowserView, BaseFragment(), AnkoLogger,
     }
     override fun export(documentId: DocumentId) {
         TODO()
+    }
+
+    override fun handleFABAction(): Boolean {
+        BottomSheet.Builder(activity).sheet(R.menu.bottom_sheet_files_add).listener { dialog, which ->
+            when (which) {
+                R.id.upload_file -> {
+                }
+                R.id.create_folder -> {
+                    createFolderDialog()
+                }
+            }
+        }.show()
+        return true
+    }
+
+    private fun createFolderDialog() {
+        UI {
+            alert(R.string.create_folder) {
+                customView {
+                    verticalLayout {
+                        val folderName = editText {
+                            hint = ctx.getString(R.string.add_folder_name)
+                        }
+                        positiveButton(R.string.ok) {
+                            presenter.createFolder(
+                                    BrowserEntry.Folder(folderName.text.toString()))
+                        }
+                        negativeButton(R.string.cancel) { }
+                    }
+                }
+            }.show()
+        }
     }
 
 

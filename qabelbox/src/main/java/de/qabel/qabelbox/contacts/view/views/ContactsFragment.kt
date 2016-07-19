@@ -168,11 +168,8 @@ class ContactsFragment() : ContactsView, BaseFragment(), AnkoLogger, SearchView.
         }
     }
 
-    override fun getTitle(): String = ctx.getString(R.string.Contacts)
-
-    override fun isFabNeeded(): Boolean {
-        return true;
-    }
+    override val title: String by lazy { ctx.getString(R.string.Contacts)}
+    override val isFabNeeded = true
 
     override fun handleFABAction(): Boolean {
         BottomSheet.Builder(activity).title(R.string.add_new_contact).sheet(R.menu.bottom_sheet_add_contact).listener { dialog, which ->

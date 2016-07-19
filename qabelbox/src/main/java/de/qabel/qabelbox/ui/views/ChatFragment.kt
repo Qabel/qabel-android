@@ -153,7 +153,7 @@ class ChatFragment : ChatView, BaseFragment(), AnkoLogger {
         adapter.notifyDataSetChanged()
     }
 
-    override fun getTitle(): String? = if (injectCompleted) presenter.title else { "" }
+    override val title: String by lazy {if (injectCompleted) presenter.title else { "" } }
 
     override fun supportBackButton(): Boolean = true
 

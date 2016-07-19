@@ -18,8 +18,7 @@ import org.robolectric.RuntimeEnvironment
 import org.robolectric.annotation.Config
 
 @RunWith(RobolectricGradleTestRunner::class)
-@Config(application = SimpleApplication::class, constants = BuildConfig::class,
-        shadows = arrayOf(TextViewFontShadow::class), manifest = "src/main/AndroidManifest.xml")
+@Config(application = SimpleApplication::class, constants = BuildConfig::class)
 class ContactDetailsAdapterTest {
 
     val identity = IdentityHelper.createIdentity("Identity B", "prefix");

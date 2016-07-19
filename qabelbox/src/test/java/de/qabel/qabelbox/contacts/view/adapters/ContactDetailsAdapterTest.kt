@@ -22,24 +22,22 @@ import org.robolectric.annotation.Config
         shadows = arrayOf(TextViewFontShadow::class), manifest = "src/main/AndroidManifest.xml")
 class ContactDetailsAdapterTest {
 
+    val identity = IdentityHelper.createIdentity("Identity B", "prefix");
+    val contact = IdentityHelper.createContact("Kontakt A");
+
     @Test
     fun testLoadContact() {
-        val identity = IdentityHelper.createIdentity("Identity B", "prefix");
-        val contact = IdentityHelper.createContact("Kontakt A");
         testView(ContactDto(contact, listOf(identity)))
     }
 
     @Test
     fun testLoadContactWithoutIdentities() {
-        val contact = IdentityHelper.createContact("Kontakt A");
         testView(ContactDto(contact, emptyList()))
     }
 
     @Test
     fun testLoadContactWithMultipleIdentities() {
-        val identity = IdentityHelper.createIdentity("Identity B", "prefix");
         val identityC = IdentityHelper.createIdentity("Identity C", "prefixV");
-        val contact = IdentityHelper.createContact("Kontakt A");
         testView(ContactDto(contact, listOf(identity, identityC)))
     }
 

@@ -57,7 +57,7 @@ class ContactDetailsFragment() : ContactDetailsView, BaseFragment(), AnkoLogger 
     override fun onViewCreated(view: View?, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         ButterKnife.bind(this, view as  View);
-        adapter.view = this;
+        adapter.view = view;
     }
 
     override fun onDestroyView() {

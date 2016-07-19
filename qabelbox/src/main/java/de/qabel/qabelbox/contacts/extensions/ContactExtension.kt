@@ -37,15 +37,17 @@ fun ContactDto.readableUrl(): String {
 }
 
 fun ContactDto.contactColors(ctx: Context): List<Int> {
-    val allColors = ctx.resources.getIntArray(R.array.contact_colors);
+    val allColors = ctx.resources.obtainTypedArray(R.array.contact_colors);
     val colors = mutableListOf<Int>();
+    if(allColors.length() == 0) return colors;
+
     identities.map { identity ->
-        var colorIndex = identity.id % allColors.size / 2;
-        var centerIndex = allColors.size / 2;
+        var colorIndex = identity.id % allColors.length() / 2;
+        var centerIndex = allColors.length() / 2;
         if (identity.id % 2 == 0) {
-            colors.add(allColors[centerIndex + colorIndex])
+            colors.add(allColors.getIndex(centerIndex + colorIndex))
         } else {
-            colors.add(allColors[centerIndex - colorIndex])
+            colors.add(allColors.getIndex(centerIndex - colorIndex))
         }
     }
     return colors.toList();

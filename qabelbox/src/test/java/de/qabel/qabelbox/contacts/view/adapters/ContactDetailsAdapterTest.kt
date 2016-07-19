@@ -1,16 +1,13 @@
 package de.qabel.qabelbox.contacts.view.adapters
 
 import android.widget.LinearLayout
-import com.nhaarman.mockito_kotlin.any
-import com.nhaarman.mockito_kotlin.mock
-import com.nhaarman.mockito_kotlin.stub
-import com.nhaarman.mockito_kotlin.verify
+import com.nhaarman.mockito_kotlin.*
 import de.qabel.qabelbox.BuildConfig
-import de.qabel.qabelbox.R
 import de.qabel.qabelbox.SimpleApplication
 import de.qabel.qabelbox.contacts.dto.ContactDto
-import de.qabel.qabelbox.contacts.extensions.contactColors
+import de.qabel.qabelbox.contacts.view.widgets.ContactIconDrawable
 import de.qabel.qabelbox.test.shadows.TextViewFontShadow
+import de.qabel.qabelbox.ui.views.SquareFrameLayout
 import de.qabel.qabelbox.ui.views.TextViewFont
 import de.qabel.qabelbox.util.IdentityHelper
 import kotlinx.android.synthetic.main.fragment_contact_details.view.*
@@ -25,24 +22,42 @@ import org.robolectric.annotation.Config
         shadows = arrayOf(TextViewFontShadow::class), manifest = "src/main/AndroidManifest.xml")
 class ContactDetailsAdapterTest {
 
-
     @Test
-    fun testLoadContact(){
-        val ctx = RuntimeEnvironment.application;
+    fun testLoadContact() {
         val identity = IdentityHelper.createIdentity("Identity B", "prefix");
         val contact = IdentityHelper.createContact("Kontakt A");
-        val contactDto = ContactDto(contact, listOf(identity));
+        testView(ContactDto(contact, listOf(identity)))
+    }
+
+    @Test
+    fun testLoadContactWithoutIdentities() {
+        val contact = IdentityHelper.createContact("Kontakt A");
+        testView(ContactDto(contact, emptyList()))
+    }
+
+    @Test
+    fun testLoadContactWithMultipleIdentities() {
+        val identity = IdentityHelper.createIdentity("Identity B", "prefix");
+        val identityC = IdentityHelper.createIdentity("Identity C", "prefixV");
+        val contact = IdentityHelper.createContact("Kontakt A");
+        testView(ContactDto(contact, listOf(identity, identityC)))
+    }
+
+    fun testView(contactDto: ContactDto) {
+        val ctx = RuntimeEnvironment.application;
 
         val initialsField: TextViewFont = mock()
         val nameField: TextViewFont = mock();
         val dropField: TextViewFont = mock()
         val keyField: TextViewFont = mock()
-        val actionContainer : LinearLayout = mock()
+        val actionContainer: LinearLayout = mock()
+        val imageView: SquareFrameLayout = mock()
 
-        val adapter = ContactDetailsAdapter({identity -> Unit})
+        val adapter = ContactDetailsAdapter({ identity -> Unit })
         adapter.view = mock()
         stub(adapter.view!!.context).toReturn(ctx)
         stub(adapter.view!!.tv_initial).toReturn(initialsField)
+        stub(adapter.view!!.contact_icon_border).toReturn(imageView)
         stub(adapter.view!!.editTextContactName).toReturn(nameField)
         stub(adapter.view!!.editTextContactDropURL).toReturn(dropField)
         stub(adapter.view!!.editTextContactPublicKey).toReturn(keyField)
@@ -51,11 +66,12 @@ class ContactDetailsAdapterTest {
         adapter.loadContact(contactDto)
 
         verify(initialsField).text = any()
-        verify(nameField).text = contact.alias
+        verify(nameField).text = contactDto.contact.alias
         verify(dropField).text = any()
+        verify(imageView).background = ContactIconDrawable(emptyList())
         verify(keyField).text = any()
         verify(actionContainer).removeAllViews()
-        verify(actionContainer).addView(any())
+        verify(actionContainer, times(contactDto.identities.size)).addView(any())
     }
 
 }

@@ -22,7 +22,6 @@
         android:layout_height="wrap_content" />
 
     <de.qabel.qabelbox.ui.views.ButtonFont
-        style="@style/LicenceButton"
         android:id="@+id/about.licences.item.showlicence.btn"
         android:layout_width="wrap_content"
         android:layout_gravity="center_horizontal"

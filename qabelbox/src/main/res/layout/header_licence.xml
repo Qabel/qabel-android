@@ -58,7 +58,6 @@
             style="@style/LicenceListFirstTextLine"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="@dimen/textsize_list_first_line_half"
             android:text="@string/about.header.qabel.thanks.header.txt"
             android:textAlignment="center" />
 

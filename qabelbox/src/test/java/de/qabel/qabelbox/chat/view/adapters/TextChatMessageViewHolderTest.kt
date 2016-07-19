@@ -26,7 +26,7 @@ import org.robolectric.annotation.Config
 import org.robolectric.shadows.ShadowDateFormat
 import java.util.*
 
-@RunWith(RobolectricTestRunner::class)
+@RunWith(RobolectricGradleTestRunner::class)
 @Config(application = SimpleApplication::class, constants = BuildConfig::class,
         shadows = arrayOf(TextViewFontShadow::class, ShadowDateFormat::class), manifest = "src/main/AndroidManifest.xml")
 class TextChatMessageViewHolderTest {

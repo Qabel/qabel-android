@@ -20,6 +20,7 @@ import kotlinx.android.synthetic.main.chat_message_in.view.*
 import kotlinx.android.synthetic.main.chat_message_share.view.*
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.robolectric.RobolectricGradleTestRunner
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.RuntimeEnvironment
 import org.robolectric.annotation.Config
@@ -27,7 +28,7 @@ import org.robolectric.shadows.ShadowDateFormat
 import java.net.URL
 import java.util.*
 
-@RunWith(RobolectricTestRunner::class)
+@RunWith(RobolectricGradleTestRunner::class)
 @Config(application = SimpleApplication::class, constants = BuildConfig::class,
         shadows = arrayOf(TextViewFontShadow::class, ShadowDateFormat::class), manifest = "src/main/AndroidManifest.xml")
 class ShareChatMessageViewHolderTest {

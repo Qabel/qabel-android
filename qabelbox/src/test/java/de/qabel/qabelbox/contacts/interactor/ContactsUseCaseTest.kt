@@ -125,6 +125,7 @@ class ContactsUseCaseTest {
             contact = data;
         }
         assertThat(contact, notNullValue());
+        assertThat(contact!!.active, `is`(true))
         assertThat(contact!!.contact, equalTo(contactA))
         assertThat(contact!!.identities, hasSize(2))
         assertThat(contact!!.identities, containsInAnyOrder(identityA, identityB))

@@ -8,17 +8,7 @@ import de.qabel.qabelbox.chat.dto.MessagePayload
 import de.qabel.qabelbox.helper.Formatter
 import kotlinx.android.synthetic.main.chat_message_in.view.*
 
-abstract class ChatMessageViewHolderBase<T : MessagePayload>(subLayout : Int, itemView: View) : RecyclerView.ViewHolder(itemView) {
-
-    init {
-        addSubView(subLayout)
-    }
-
-    open fun addSubView(layout: Int) {
-        val contentView = itemView.chatContent;
-        LayoutInflater.from(contentView.context)
-                .inflate(layout, contentView, true);
-    }
+abstract class ChatMessageViewHolderBase<T : MessagePayload>(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
     fun bindTo(message: ChatMessage, showBeginIndicator: Boolean) {
         itemView.chat_begin_indicator?.visibility = if (showBeginIndicator) View.VISIBLE else View.INVISIBLE;

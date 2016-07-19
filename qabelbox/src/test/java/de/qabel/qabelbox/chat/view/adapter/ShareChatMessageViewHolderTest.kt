@@ -1,4 +1,4 @@
-package de.qabel.qabelbox.chat.view.adapters
+package de.qabel.qabelbox.chat.view.adapter
 
 import android.view.View
 import com.nhaarman.mockito_kotlin.any
@@ -7,18 +7,29 @@ import com.nhaarman.mockito_kotlin.stub
 import com.nhaarman.mockito_kotlin.verify
 import de.qabel.core.config.Contact
 import de.qabel.core.config.Identity
+import de.qabel.qabelbox.BuildConfig
 import de.qabel.qabelbox.R
+import de.qabel.qabelbox.SimpleApplication
 import de.qabel.qabelbox.chat.dto.ChatMessage
 import de.qabel.qabelbox.chat.dto.MessagePayload
 import de.qabel.qabelbox.chat.dto.SymmetricKey
+import de.qabel.qabelbox.chat.view.adapters.ShareChatMessageViewHolder
+import de.qabel.qabelbox.test.shadows.TextViewFontShadow
 import de.qabel.qabelbox.ui.views.TextViewFont
 import kotlinx.android.synthetic.main.chat_message_in.view.*
 import kotlinx.android.synthetic.main.chat_message_share.view.*
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
 import org.robolectric.RuntimeEnvironment
+import org.robolectric.annotation.Config
+import org.robolectric.shadows.ShadowDateFormat
 import java.net.URL
 import java.util.*
 
+@RunWith(RobolectricTestRunner::class)
+@Config(application = SimpleApplication::class, constants = BuildConfig::class,
+        shadows = arrayOf(TextViewFontShadow::class, ShadowDateFormat::class), manifest = "src/main/AndroidManifest.xml")
 class ShareChatMessageViewHolderTest {
 
     @Test
@@ -51,6 +62,7 @@ class ShareChatMessageViewHolderTest {
         stub(contact.alias).toReturn("contact")
 
         val view = mock<View>()
+        stub(view.context).toReturn(RuntimeEnvironment.application)
         val messageField: TextViewFont = mock()
         val actionField: TextViewFont = mock();
         val dateField: TextViewFont = mock()

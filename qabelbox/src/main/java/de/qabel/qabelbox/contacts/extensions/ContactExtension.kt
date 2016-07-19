@@ -6,7 +6,7 @@ import de.qabel.qabelbox.contacts.dto.ContactDto
 
 fun ContactDto.initials(): String {
     val names = contact.alias.split(" ".toRegex());
-    var result = StringBuilder();
+    val result = StringBuilder();
     (0 until names.size).map {
         result.append(names[it].first().toUpperCase());
     }
@@ -16,7 +16,7 @@ fun ContactDto.initials(): String {
 fun ContactDto.readableKey(): String {
     val builder = StringBuilder();
     val publicKeyString = contact.ecPublicKey.readableKeyIdentifier;
-    (0 until publicKeyString.length).forEach {
+    (0.until(publicKeyString.length)).forEach {
         builder.append(publicKeyString[it]);
         if (it > 0) {
             val current = it.inc();
@@ -38,18 +38,26 @@ fun ContactDto.readableUrl(): String {
 
 fun ContactDto.contactColors(ctx: Context): List<Int> {
     val allColors = ctx.resources.obtainTypedArray(R.array.contact_colors);
-    val colors = mutableListOf<Int>();
-    if(allColors.length() == 0) return colors;
+    try {
+        val colors = mutableListOf<Int>();
+        val allLength = allColors.length();
+        if (allLength == 0) return colors;
 
-    identities.map { identity ->
-        var colorIndex = identity.id % allColors.length() / 2;
-        var centerIndex = allColors.length() / 2;
-        if (identity.id % 2 == 0) {
-            colors.add(allColors.getIndex(centerIndex + colorIndex))
-        } else {
-            colors.add(allColors.getIndex(centerIndex - colorIndex))
+        val centerIndex = allLength / 2;
+
+        identities.map { identity ->
+            var colorIndex = identity.id.mod(allLength)
+            if (colorIndex > 1) colorIndex /= 2;
+
+            if (identity.id % 2 == 0) {
+                colors.add(allColors.getColor(centerIndex + colorIndex, 0))
+            } else {
+                colors.add(allColors.getColor(centerIndex - colorIndex, 0))
+            }
         }
+        return colors.toList();
+    } finally {
+        allColors.recycle()
     }
-    return colors.toList();
 }
 

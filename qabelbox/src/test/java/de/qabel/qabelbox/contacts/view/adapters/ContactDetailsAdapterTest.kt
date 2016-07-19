@@ -13,11 +13,11 @@ import de.qabel.qabelbox.util.IdentityHelper
 import kotlinx.android.synthetic.main.fragment_contact_details.view.*
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.robolectric.RobolectricTestRunner
+import org.robolectric.RobolectricGradleTestRunner
 import org.robolectric.RuntimeEnvironment
 import org.robolectric.annotation.Config
 
-@RunWith(RobolectricTestRunner::class)
+@RunWith(RobolectricGradleTestRunner::class)
 @Config(application = SimpleApplication::class, constants = BuildConfig::class,
         shadows = arrayOf(TextViewFontShadow::class), manifest = "src/main/AndroidManifest.xml")
 class ContactDetailsAdapterTest {

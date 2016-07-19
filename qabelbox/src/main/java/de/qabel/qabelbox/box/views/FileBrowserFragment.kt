@@ -1,8 +1,10 @@
 package de.qabel.qabelbox.box.views
 
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.provider.DocumentsContract
+import android.provider.OpenableColumns
 import android.support.v4.widget.SwipeRefreshLayout
 import android.support.v7.widget.LinearLayoutManager
 import android.view.*
@@ -15,11 +17,14 @@ import de.qabel.qabelbox.box.dto.BrowserEntry
 import de.qabel.qabelbox.box.presenters.FileBrowserPresenter
 import de.qabel.qabelbox.box.provider.BoxProvider
 import de.qabel.qabelbox.box.provider.DocumentId
+import de.qabel.qabelbox.box.queryNameAndSize
 import de.qabel.qabelbox.dagger.components.MainActivityComponent
 import de.qabel.qabelbox.fragments.BaseFragment
 import kotlinx.android.synthetic.main.fragment_files.*
 import org.jetbrains.anko.*
+import java.io.FileNotFoundException
 import java.net.URLConnection
+import java.util.*
 import javax.inject.Inject
 
 class FileBrowserFragment: FileBrowserView, BaseFragment(), AnkoLogger,
@@ -27,6 +32,7 @@ class FileBrowserFragment: FileBrowserView, BaseFragment(), AnkoLogger,
 
     companion object {
         fun newInstance() = FileBrowserFragment()
+        val REQUEST_OPEN_FILE = 0
     }
 
     override val isFabNeeded = true
@@ -88,6 +94,30 @@ class FileBrowserFragment: FileBrowserView, BaseFragment(), AnkoLogger,
         }
     }
 
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        val uri = data?.data
+        if (uri != null && requestCode == REQUEST_OPEN_FILE) {
+            upload(uri)
+            return
+
+        }
+        super.onActivityResult(requestCode, resultCode, data)
+    }
+
+    private fun upload(fileUri: Uri) {
+        try {
+            with (ctx.contentResolver) {
+                val (filename, size) = queryNameAndSize(fileUri)
+                toast("Uploading $filename with size $size")
+                presenter.upload(BrowserEntry.File(filename, size, Date()),
+                                 openInputStream(fileUri))
+            }
+        } catch (e: FileNotFoundException) {
+            toast(R.string.upload_failed)
+            return
+        }
+    }
+
     override fun onRefresh() {
         presenter.onRefresh()
     }
@@ -118,13 +148,17 @@ class FileBrowserFragment: FileBrowserView, BaseFragment(), AnkoLogger,
         startActivity(Intent.createChooser(intent, "Open with").singleTop())
     }
     override fun export(documentId: DocumentId) {
-        TODO()
     }
 
     override fun handleFABAction(): Boolean {
         BottomSheet.Builder(activity).sheet(R.menu.bottom_sheet_files_add).listener { dialog, which ->
             when (which) {
                 R.id.upload_file -> {
+                    val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
+                        addCategory(Intent.CATEGORY_OPENABLE)
+                        type = "*/*"
+                    }
+                    startActivityForResult(intent, REQUEST_OPEN_FILE)
                 }
                 R.id.create_folder -> {
                     createFolderDialog()

@@ -47,7 +47,6 @@ open class BoxProvider : DocumentsProvider() {
         inject()
         context.registerReceiver(volumesChangedBroadcastReceiver,
                 IntentFilter(QblBroadcastConstants.Storage.BOX_VOLUMES_CHANGES))
-
         return true
     }
 
@@ -66,7 +65,7 @@ open class BoxProvider : DocumentsProvider() {
     }
 
     @Throws(FileNotFoundException::class)
-    override fun queryRoots(projection: Array<String>): Cursor {
+    override fun queryRoots(projection: Array<String>?): Cursor {
         val netProjection = reduceProjection(projection, DEFAULT_ROOT_PROJECTION)
         val result = MatrixCursor(netProjection)
         useCase.availableRoots().forEach {
@@ -139,6 +138,7 @@ open class BoxProvider : DocumentsProvider() {
             add(Document.COLUMN_SUMMARY, null)
             add(Document.COLUMN_FLAGS, Document.FLAG_SUPPORTS_WRITE)
             add(Document.COLUMN_MIME_TYPE, mimeType)
+            add(Document.COLUMN_SIZE, file.size)
             add(Media.DATA, documentId.toString())
         }
     }

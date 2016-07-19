@@ -1,4 +1,4 @@
-package de.qabel.qabelbox.box.dagger.modules;
+package de.qabel.qabelbox.dagger.modules;
 
 import dagger.Module;
 import dagger.Provides;

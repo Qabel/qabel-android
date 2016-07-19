@@ -6,6 +6,8 @@ import android.util.Log;
 
 import java.io.File;
 
+import javax.inject.Inject;
+
 import de.qabel.qabelbox.communication.BaseServer;
 import de.qabel.qabelbox.communication.UploadRequestBody;
 import de.qabel.qabelbox.communication.callbacks.DownloadRequestCallback;

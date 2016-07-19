@@ -26,8 +26,6 @@ public class QabelBoxApplication extends Application {
         Security.insertProviderAt(new BouncyCastleProvider(), 1);
     }
 
-    private ServiceConnection mServiceConnection;
-
     @Override
     protected void attachBaseContext(Context base) {
         installMultiDex(base);
@@ -72,7 +70,6 @@ public class QabelBoxApplication extends Application {
 
     @Override
     public void onTerminate() {
-        unbindService(mServiceConnection);
         super.onTerminate();
     }
 

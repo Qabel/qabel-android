@@ -12,7 +12,7 @@ import com.cocosw.bottomsheet.BottomSheet
 import de.qabel.qabelbox.BuildConfig
 import de.qabel.qabelbox.R
 import de.qabel.qabelbox.box.adapters.FileAdapter
-import de.qabel.qabelbox.box.dagger.modules.FileBrowserModule
+import de.qabel.qabelbox.dagger.modules.FileBrowserModule
 import de.qabel.qabelbox.box.dto.BrowserEntry
 import de.qabel.qabelbox.box.presenters.FileBrowserPresenter
 import de.qabel.qabelbox.box.provider.BoxProvider

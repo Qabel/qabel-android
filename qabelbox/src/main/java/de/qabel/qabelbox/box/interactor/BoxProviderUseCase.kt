@@ -5,8 +5,10 @@ import de.qabel.qabelbox.box.provider.DocumentId
 import rx.Observable
 import rx.lang.kotlin.toSingletonObservable
 import java.io.FileNotFoundException
+import javax.inject.Inject
 
-class BoxProviderUseCase(private val volumeManager: VolumeManager) : ProviderUseCase {
+class BoxProviderUseCase @Inject constructor(private val volumeManager: VolumeManager):
+        ProviderUseCase {
 
     override fun query(documentId: DocumentId): Observable<BrowserEntry> {
         return browserByDocumentId(documentId).query(documentId.path)

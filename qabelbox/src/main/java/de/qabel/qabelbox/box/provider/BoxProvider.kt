@@ -17,23 +17,25 @@ import android.provider.MediaStore.Video.Media
 import android.util.Log
 import de.qabel.box.storage.exceptions.QblStorageException
 import de.qabel.qabelbox.BuildConfig
+import de.qabel.qabelbox.QabelBoxApplication
 import de.qabel.qabelbox.QblBroadcastConstants
 import de.qabel.qabelbox.R
+import de.qabel.qabelbox.dagger.modules.BoxModule
 import de.qabel.qabelbox.box.dto.BrowserEntry
 import de.qabel.qabelbox.box.dto.ProviderUpload
 import de.qabel.qabelbox.box.dto.UploadSource
 import de.qabel.qabelbox.box.interactor.ProviderUseCase
 import de.qabel.qabelbox.dagger.components.DaggerBoxComponent
-import de.qabel.qabelbox.dagger.modules.ContextModule
 import rx.lang.kotlin.firstOrNull
 import java.io.File
 import java.io.FileNotFoundException
-import java.io.IOException
 import java.net.URLConnection
 import java.util.*
+import javax.inject.Inject
 
 open class BoxProvider : DocumentsProvider() {
 
+    @Inject
     lateinit var useCase: ProviderUseCase
     open val handler by lazy { Handler(context.mainLooper) }
 
@@ -51,7 +53,7 @@ open class BoxProvider : DocumentsProvider() {
     }
 
     open fun inject() {
-        val boxComponent = DaggerBoxComponent.builder().contextModule(ContextModule(context)).build()
+        val boxComponent = DaggerBoxComponent.builder().boxModule(BoxModule()).build()
         boxComponent.inject(this)
     }
 

@@ -61,10 +61,11 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="5sp"
             android:drawableStart="@drawable/earth"
+            android:typeface="monospace"
             android:drawablePadding="10sp"
             android:textSize="@dimen/textsize_list_first_line"
             android:singleLine="false"
-            android:lines="2" />
+            android:lines="3" />
 
         <TextView
             android:id="@+id/editTextContactPublicKey"

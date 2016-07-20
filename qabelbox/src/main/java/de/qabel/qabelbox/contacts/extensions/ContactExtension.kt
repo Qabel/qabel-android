@@ -6,26 +6,31 @@ import de.qabel.qabelbox.R
 import de.qabel.qabelbox.contacts.dto.ContactDto
 
 fun ContactDto.initials() = contact.alias.split(" ".toRegex()).map {
-    return it.first().toUpperCase()
-}.joinToString("");
+    it.first().toUpperCase()
+}.joinToString("")
 
 fun ContactDto.readableKey() = contact.keyIdentifier.mapIndexed { i, c ->
-    var extraChar = ""
+    val text = StringBuilder()
+    text.append(c)
     if (i > 0) {
         val current = i.inc()
         if (current % 16 == 0) {
-            extraChar = "\n"
+            text.appendln()
         } else if (current % 4 == 0) {
-            extraChar = " "
+            text.append(" ")
         }
     }
-    return c + extraChar
+    text.toString()
 }.joinToString("")
+
 
 fun ContactDto.readableUrl(): String {
     val dropUrlString = contact.dropUrls.first().toString();
     val last = dropUrlString.lastIndexOf("/").inc();
-    return dropUrlString.substring((0 until last)) + "\n" + dropUrlString.substring(last);
+    val split = (last + (dropUrlString.length - last) / 2);
+    return dropUrlString.substring((0 until last)) + "\n" +
+            dropUrlString.substring((last until split)) + "\n" +
+            dropUrlString.substring(split.inc())
 }
 
 fun ContactDto.contactColors(ctx: Context): List<Int> {
@@ -48,7 +53,5 @@ fun ContactDto.contactColors(ctx: Context): List<Int> {
     }
 }
 
-fun List<Identity>.contains(keyIdentifier: String): Boolean {
-    return this.none { identity -> identity.keyIdentifier.equals(keyIdentifier) };
-}
+fun List<Identity>.contains(keyIdentifier: String) = this.none { identity -> identity.keyIdentifier.equals(keyIdentifier) }.not()
 

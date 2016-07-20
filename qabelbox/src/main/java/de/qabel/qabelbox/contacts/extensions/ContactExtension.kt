@@ -1,6 +1,7 @@
 package de.qabel.qabelbox.contacts.extensions
 
 import android.content.Context
+import de.qabel.core.config.Entity
 import de.qabel.core.config.Identity
 import de.qabel.qabelbox.R
 import de.qabel.qabelbox.contacts.dto.ContactDto
@@ -52,5 +53,5 @@ fun ContactDto.contactColors(ctx: Context): List<Int> {
     }
 }
 
-fun List<Identity>.contains(keyIdentifier: String) = !none { identity -> identity.keyIdentifier.equals(keyIdentifier) }
+fun <T : Entity> List<T>.contains(keyIdentifier: String) = this.any { entity -> entity.keyIdentifier.equals(keyIdentifier) }
 

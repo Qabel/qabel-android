@@ -5,14 +5,9 @@ import de.qabel.core.config.Identity
 import de.qabel.qabelbox.R
 import de.qabel.qabelbox.contacts.dto.ContactDto
 
-fun ContactDto.initials(): String {
-    val names = contact.alias.split(" ".toRegex());
-    val result = StringBuilder();
-    names.map {
-        result.append(it.first().toUpperCase())
-    }
-    return result.toString();
-}
+fun ContactDto.initials() = contact.alias.split(" ".toRegex()).map {
+    return it.first().toUpperCase()
+}.joinToString("");
 
 fun ContactDto.readableKey() = contact.keyIdentifier.mapIndexed { i, c ->
     var extraChar = ""

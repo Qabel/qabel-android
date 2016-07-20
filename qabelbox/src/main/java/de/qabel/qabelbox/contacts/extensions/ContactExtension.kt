@@ -53,5 +53,5 @@ fun ContactDto.contactColors(ctx: Context): List<Int> {
     }
 }
 
-fun List<Identity>.contains(keyIdentifier: String) = this.none { identity -> identity.keyIdentifier.equals(keyIdentifier) }.not()
+fun List<Identity>.contains(keyIdentifier: String) = this.all { identity -> !identity.keyIdentifier.equals(keyIdentifier) }
 

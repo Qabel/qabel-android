@@ -1,7 +1,9 @@
 package de.qabel.qabelbox.contacts
 
+import de.qabel.core.config.Identity
 import de.qabel.qabelbox.BuildConfig
 import de.qabel.qabelbox.SimpleApplication
+import de.qabel.qabelbox.contacts.extensions.contains
 import de.qabel.qabelbox.util.IdentityHelper
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -15,7 +17,7 @@ class ExtensionTest {
     @Test
     fun testIdentityListContains(){
         val identity = IdentityHelper.createIdentity("test2", "test");
-        val data = listOf(IdentityHelper.createIdentity("test1", "test"), identity);
-        assert(data.contains(identity))
+        val data = listOf<Identity>(IdentityHelper.createIdentity("test1", "test"), identity);
+        assert(data.contains(identity.keyIdentifier))
     }
 }

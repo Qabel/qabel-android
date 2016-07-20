@@ -9,22 +9,21 @@ fun ContactDto.initials() = contact.alias.split(" ".toRegex()).map {
     it.first().toUpperCase()
 }.joinToString("")
 
-fun ContactDto.readableKey() = contact.keyIdentifier.mapIndexed { i, c ->
-    val text = StringBuilder()
-    text.append(c)
+fun ContactDto.readableKey() = contact.keyIdentifier.foldIndexed(StringBuilder(), { i, text, char ->
+    text.append(char)
     if (i > 0) {
         val current = i.inc()
         if (current % 16 == 0) {
-            text.appendln()
+            text.append("\n")
         } else if (current % 4 == 0) {
             text.append(" ")
         }
     }
-    text.toString()
-}.joinToString("")
+    text
+})
 
 
-fun ContactDto.readableUrl(): String {
+        fun ContactDto.readableUrl(): String {
     val dropUrlString = contact.dropUrls.first().toString();
     val last = dropUrlString.lastIndexOf("/").inc();
     val split = (last + (dropUrlString.length - last) / 2);

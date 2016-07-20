@@ -23,7 +23,7 @@ fun ContactDto.readableKey() = contact.keyIdentifier.foldIndexed(StringBuilder()
 })
 
 
-        fun ContactDto.readableUrl(): String {
+fun ContactDto.readableUrl(): String {
     val dropUrlString = contact.dropUrls.first().toString();
     val last = dropUrlString.lastIndexOf("/").inc();
     val split = (last + (dropUrlString.length - last) / 2);

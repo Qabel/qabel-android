@@ -84,6 +84,8 @@ class ContactsFragment() : ContactsView, BaseFragment(), AnkoLogger, SearchView.
         presenter.refresh();
 
         setHasOptionsMenu(true);
+        configureAsMainFragment();
+
         contact_list.layoutManager = LinearLayoutManager(view.context);
         contact_list.adapter = adapter;
         updateView(adapter.getContactCount());
@@ -115,8 +117,8 @@ class ContactsFragment() : ContactsView, BaseFragment(), AnkoLogger, SearchView.
         }
     }
 
-    override fun onStart() {
-        super.onStart()
+    override fun onResume() {
+        super.onResume()
         ctx.registerReceiver(broadcastReceiver, IntentFilter(QblBroadcastConstants.Contacts.CONTACTS_CHANGED))
     }
 

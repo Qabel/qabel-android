@@ -16,7 +16,7 @@
         android:paddingRight="@dimen/activity_vertical_margin"
         android:paddingTop="@dimen/activity_vertical_margin">
 
-        <de.qabel.qabelbox.views.TextViewFont
+        <de.qabel.qabelbox.ui.views.TextViewFont
             style="@style/MessageText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -30,7 +30,7 @@
             android:orientation="horizontal">
 
 
-            <de.qabel.qabelbox.views.TextViewFont
+            <de.qabel.qabelbox.ui.views.TextViewFont
                 android:id="@+id/tvMinFileSize"
                 style="@style/MessageText"
                 android:layout_width="wrap_content"
@@ -38,7 +38,7 @@
                 android:layout_alignParentRight="true"
                 android:text="1243 Bytes"/>
 
-            <de.qabel.qabelbox.views.TextViewFont
+            <de.qabel.qabelbox.ui.views.TextViewFont
 
                 style="@style/MessageText"
                 android:layout_width="wrap_content"
@@ -46,7 +46,7 @@
                 android:layout_alignParentRight="true"
                 android:text=" - "/>
 
-            <de.qabel.qabelbox.views.TextViewFont
+            <de.qabel.qabelbox.ui.views.TextViewFont
                 android:id="@+id/tvMaxFileSize"
                 style="@style/MessageText"
                 android:layout_width="wrap_content"
@@ -80,7 +80,7 @@
         android:orientation="vertical"
         android:padding="@dimen/activity_vertical_margin">
 
-        <de.qabel.qabelbox.views.TextViewFont
+        <de.qabel.qabelbox.ui.views.TextViewFont
             android:id="@+id/textView3"
             style="@style/MessageText"
             android:layout_width="wrap_content"
@@ -100,7 +100,7 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
 
-                <de.qabel.qabelbox.views.TextViewFont
+                <de.qabel.qabelbox.ui.views.TextViewFont
                     android:id="@+id/tvMinDate"
                     style="@style/MessageText"
                     android:layout_width="wrap_content"
@@ -108,7 +108,7 @@
                     android:layout_gravity="center"
                     android:text="12.02.2015"/>
 
-                <de.qabel.qabelbox.views.TextViewFont
+                <de.qabel.qabelbox.ui.views.TextViewFont
                     android:id="@+id/btMinDate"
                     style="@style/TextViewButton"
                     android:layout_width="wrap_content"
@@ -119,7 +119,7 @@
                     />
             </LinearLayout>
 
-            <de.qabel.qabelbox.views.TextViewFont
+            <de.qabel.qabelbox.ui.views.TextViewFont
                 style="@style/MessageText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -130,7 +130,7 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
 
-                <de.qabel.qabelbox.views.TextViewFont
+                <de.qabel.qabelbox.ui.views.TextViewFont
                     android:id="@+id/tvMaxDate"
                     style="@style/MessageText"
                     android:layout_width="wrap_content"
@@ -138,7 +138,7 @@
                     android:layout_gravity="center"
                     android:text="12.02.2015"/>
 
-                <de.qabel.qabelbox.views.TextViewFont
+                <de.qabel.qabelbox.ui.views.TextViewFont
                     android:id="@+id/btMaxDate"
                     style="@style/TextViewButton"
                     android:layout_gravity="center"

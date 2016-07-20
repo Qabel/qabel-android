@@ -3,8 +3,6 @@ package de.qabel.qabelbox.chat;
 
 import android.content.Context;
 
-import net.bytebuddy.implementation.bytecode.Throw;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -22,9 +20,8 @@ import de.qabel.desktop.config.factory.IdentityBuilder;
 import de.qabel.qabelbox.BuildConfig;
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.SimpleApplication;
-import de.qabel.qabelbox.chat.ChatMessageItem;
-import de.qabel.qabelbox.chat.ChatMessagesDataBase;
-import de.qabel.qabelbox.chat.ChatServer;
+import de.qabel.qabelbox.chat.persistence.model.ChatMessageItem;
+import de.qabel.qabelbox.chat.persistence.ChatMessagesDataBase;
 import de.qabel.qabelbox.services.DropConnector;
 import de.qabel.qabelbox.services.MockedDropConnector;
 

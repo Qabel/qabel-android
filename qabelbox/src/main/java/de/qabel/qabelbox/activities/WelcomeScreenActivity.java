@@ -17,9 +17,9 @@ import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.config.AppPreference;
 import de.qabel.qabelbox.fragments.WelcomeDisclaimerFragment;
 import de.qabel.qabelbox.fragments.WelcomeTextFragment;
-import de.qabel.qabelbox.views.IconPageIndicator;
-import de.qabel.qabelbox.views.IconPagerAdapter;
-import de.qabel.qabelbox.views.ViewPagerParallax;
+import de.qabel.qabelbox.ui.views.IconPageIndicator;
+import de.qabel.qabelbox.ui.views.IconPagerAdapter;
+import de.qabel.qabelbox.ui.views.ViewPagerParallax;
 
 /**
  * Created by danny on 11.01.2016.

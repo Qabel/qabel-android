@@ -22,7 +22,7 @@ import org.json.JSONObject;
 
 import de.qabel.qabelbox.BuildConfig;
 import de.qabel.qabelbox.R;
-import de.qabel.qabelbox.views.ButtonFont;
+import de.qabel.qabelbox.ui.views.ButtonFont;
 
 public class JSONLicencesAdapter extends RecyclerView.Adapter<JSONLicencesAdapter.LicenceViewHolder> {
 

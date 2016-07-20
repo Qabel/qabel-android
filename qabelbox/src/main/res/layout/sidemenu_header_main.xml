@@ -46,7 +46,7 @@
                 android:layout_gravity="center_vertical"
                 android:src="@drawable/menu_down"/>
 
-            <de.qabel.qabelbox.views.TextViewFont
+            <de.qabel.qabelbox.ui.views.TextViewFont
                 android:id="@+id/accountName"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -59,7 +59,7 @@
                 android:textStyle="bold"
                 />
 
-            <de.qabel.qabelbox.views.TextViewFont
+            <de.qabel.qabelbox.ui.views.TextViewFont
                 android:id="@+id/textViewSelectedIdentity"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

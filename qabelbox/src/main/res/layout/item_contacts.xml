@@ -11,7 +11,7 @@
         android:layout_gravity="center_horizontal"
         android:orientation="horizontal">
 
-        <de.qabel.qabelbox.views.SquareFrameLayout
+        <de.qabel.qabelbox.ui.views.SquareFrameLayout
             android:id="@+id/contact_icon_border"
             style="@style/ListIcon"
             android:layout_width="wrap_content"
@@ -19,13 +19,13 @@
             android:layout_gravity="center_vertical"
             android:padding="5sp">
 
-            <de.qabel.qabelbox.views.SquareFrameLayout
+            <de.qabel.qabelbox.ui.views.SquareFrameLayout
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:layout_gravity="center_vertical"
                 android:background="@drawable/identity_circle">
 
-                <de.qabel.qabelbox.views.TextViewFont
+                <de.qabel.qabelbox.ui.views.TextViewFont
                     android:id="@+id/tv_initial"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -34,8 +34,8 @@
                     android:gravity="center"
                     android:textColor="@color/white"
                     android:textSize="@dimen/textsize_welcome_header" />
-            </de.qabel.qabelbox.views.SquareFrameLayout>
-        </de.qabel.qabelbox.views.SquareFrameLayout>
+            </de.qabel.qabelbox.ui.views.SquareFrameLayout>
+        </de.qabel.qabelbox.ui.views.SquareFrameLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -44,7 +44,7 @@
             android:orientation="vertical"
             android:paddingLeft="5sp">
 
-            <de.qabel.qabelbox.views.TextViewFont
+            <de.qabel.qabelbox.ui.views.TextViewFont
                 android:id="@+id/textViewItemName"
                 style="@style/ListFirstTextLine"
                 android:layout_width="wrap_content"
@@ -52,7 +52,7 @@
                 android:layout_gravity="left|center_vertical"
                 android:lines="1" />
 
-            <de.qabel.qabelbox.views.TextViewFont
+            <de.qabel.qabelbox.ui.views.TextViewFont
                 android:id="@+id/textViewItemDetail"
                 style="@style/ListSecondTextLine"
                 android:layout_width="wrap_content"

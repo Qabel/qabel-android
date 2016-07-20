@@ -1,6 +1,6 @@
 package de.qabel.qabelbox.test.shadows
 
-import de.qabel.qabelbox.views.TextViewFont
+import de.qabel.qabelbox.ui.views.TextViewFont
 import org.robolectric.annotation.Implements
 import org.robolectric.annotation.RealObject
 import org.robolectric.shadows.ShadowView

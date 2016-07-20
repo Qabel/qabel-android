@@ -134,7 +134,7 @@
     </plurals>
     <string name="ExportAsContactWithQRcode">Show QR</string>
     <string name="headline_qrcode">QRCode</string>
-    <string name="Open">Open</string>
+    <string name="open">open</string>
     <string name="edit">Edit</string>
     <string name="headline_imageviewer">Image viewer</string>
     <string name="share_subject">Qabel</string>
@@ -353,6 +353,7 @@ To all people who have supported our Indigogo Campaign
     <string name="unlimited_storage">unlimited storage, %1$s in use</string>
     <string name="download_complete_notification_msg">Downloading %s completed</string>
     <string name="currently_not_available">aktuell nicht verfügbar</string>
+    <string name="permanently_unavailable">permanently unavailable</string>
     <string name="search">Search</string>
     <string name="inbox">Inbox</string>
     <string name="qapl" translatable="false">QaPL</string>

@@ -29,14 +29,14 @@
             android:orientation="vertical">
 
 
-            <de.qabel.qabelbox.views.TextViewFont
+            <de.qabel.qabelbox.ui.views.TextViewFont
                 android:id="@+id/textViewItemName"
                 style="@style/ListFirstTextLine"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"/>
 
 
-            <de.qabel.qabelbox.views.TextViewFont
+            <de.qabel.qabelbox.ui.views.TextViewFont
                 android:id="@+id/textViewItemDetail"
                 style="@style/ListSecondTextLine"
                 android:layout_width="wrap_content"

@@ -40,7 +40,7 @@
             android:layout_gravity="center_vertical"
             android:orientation="vertical">
 
-            <de.qabel.qabelbox.views.TextViewFont
+            <de.qabel.qabelbox.ui.views.TextViewFont
                 android:id="@+id/textViewFolderName"
                 style="@style/ListFirstTextLine"
                 android:gravity="center_vertical"
@@ -56,7 +56,7 @@
                 android:paddingRight="16dp"
                 android:visibility="invisible">
 
-                <de.qabel.qabelbox.views.TextViewFont
+                <de.qabel.qabelbox.ui.views.TextViewFont
                     android:id="@+id/textViewFolderDetailLeft"
                     style="@style/ListSecondTextLine"
                     android:layout_width="wrap_content"
@@ -64,7 +64,7 @@
                     android:layout_alignParentLeft="true"/>
 
 
-                <de.qabel.qabelbox.views.TextViewFont
+                <de.qabel.qabelbox.ui.views.TextViewFont
                     android:id="@+id/textViewFolderDetailRight"
                     style="@style/ListSecondTextLine"
                     android:layout_width="wrap_content"

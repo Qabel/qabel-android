@@ -11,7 +11,7 @@
     <string name="ExportPrivateKey">Exportiere privaten Schlüssel</string>
     <string name="ExportAsContact">Exportiere öffentlichen Kontakt</string>
     <string name="ExportAsContactWithQRcode">Zeige QR</string>
-    <string name="Open">Öffnen</string>
+    <string name="open">öffnen</string>
     <string name="Rename">Umbenennen</string>
     <string name="Select">Auswählen</string>
     <string name="Send">Senden</string>
@@ -314,4 +314,5 @@ Den Unterstützern der Indigogo Kampagne
     <string name="about.header.qabel.show.btn">Zeige QaPL</string>
     <string name="tellAFriendSubject">Du wurdest zu Qabel eingeladen</string>
     <string name="tellAFriendMessage">Damit haben Sie zunächst die Möglichkeit, Qabel Box zu nutzen. Qabel Box ist ein Ende-zu-Ende verschlüsselter Onlinespeicher, der Ihnen nicht nur die Möglichkeit bietet, Daten verschlüsselt online zu speichern, sondern diese auch nach Belieben mit anderen zu teilen — und das ebenfalls Ende-zu-Ende verschlüsselt. Darüber hinaus verschleiert Qabel auch einen großen Teil der anfallenden Metadaten. Qabel wird ständig erweitert. So wird es Ihnen künftig möglich sein, Ihre gesamte digitale Kommunikation über die Qabel-Plattform anwendungsübergreifend und vor allem einfach und immer Ende-zu-Ende zu verschlüsseln. Werden Sie Teil des Qabel-Ökosystems und legen Sie gleich los: https://qabel.de/de/qabelnow Mehr Infos finden Sie unter https://qabel.de</string>
+    <string name="permanently_unavailable">nicht mehr verfügbar</string>
 </resources>

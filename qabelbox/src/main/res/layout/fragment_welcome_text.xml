@@ -23,7 +23,7 @@
                 android:layout_gravity="left"
                 android:orientation="horizontal">
 
-                <de.qabel.qabelbox.views.TextViewFont
+                <de.qabel.qabelbox.ui.views.TextViewFont
                     android:id="@+id/welcome_message_headline_before"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -34,7 +34,7 @@
                     android:textSize="@dimen/textsize_welcome_header"
                     android:textStyle="bold"/>
 
-                <de.qabel.qabelbox.views.TextViewQabelFont
+                <de.qabel.qabelbox.ui.views.TextViewQabelFont
                     android:id="@+id/welcome_message_headline_qabel"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -47,7 +47,7 @@
                     android:paddingRight="10dp"
                     android:paddingBottom="20dp"/>
 
-                <de.qabel.qabelbox.views.TextViewFont
+                <de.qabel.qabelbox.ui.views.TextViewFont
                     android:id="@+id/welcome_message_headline_afer"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -59,7 +59,7 @@
                     android:textStyle="bold"/>
             </LinearLayout>
 
-            <de.qabel.qabelbox.views.TextViewFont
+            <de.qabel.qabelbox.ui.views.TextViewFont
                 android:id="@+id/welcome_message"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"

@@ -7,7 +7,7 @@
               tools:context="de.qabel.qabelbox.fragments.AddContactFragment"
               android:background="@color/background_white">
 
-    <de.qabel.qabelbox.views.SquareFrameLayout
+    <de.qabel.qabelbox.ui.views.SquareFrameLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/white">
@@ -19,7 +19,7 @@
             android:layout_gravity="center"
             android:adjustViewBounds="true"
             android:scaleType="fitXY"/>
-    </de.qabel.qabelbox.views.SquareFrameLayout>
+    </de.qabel.qabelbox.ui.views.SquareFrameLayout>
 
     <ScrollView
         android:layout_width="match_parent"
@@ -31,7 +31,7 @@
             android:layout_height="match_parent"
             android:orientation="vertical">
 
-            <de.qabel.qabelbox.views.TextViewFont
+            <de.qabel.qabelbox.ui.views.TextViewFont
                 android:id="@+id/editTextContactName"
                 style="@style/MessageText"
                 android:layout_width="match_parent"
@@ -41,7 +41,7 @@
                 android:paddingBottom="10dp"
                 android:paddingTop="5dp"/>
 
-            <de.qabel.qabelbox.views.TextViewFont
+            <de.qabel.qabelbox.ui.views.TextViewFont
                 android:id="@+id/editTextContactDropURL"
                 style="@style/MessageText"
                 android:layout_width="match_parent"
@@ -51,7 +51,7 @@
                 android:inputType="textUri"
                 android:paddingBottom="10dp"/>
 
-            <de.qabel.qabelbox.views.TextViewFont
+            <de.qabel.qabelbox.ui.views.TextViewFont
                 android:id="@+id/editTextContactPublicKey"
                 style="@style/MessageText"
                 android:layout_width="match_parent"

@@ -17,7 +17,7 @@ import de.qabel.core.config.Identity;
 import de.qabel.desktop.repository.exception.PersistenceException;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.activities.MainActivity;
-import de.qabel.qabelbox.chat.ChatMessageItem;
+import de.qabel.qabelbox.chat.persistence.model.ChatMessageItem;
 import de.qabel.qabelbox.chat.ChatServer;
 import de.qabel.qabelbox.contacts.view.views.ContactsFragment;
 import de.qabel.qabelbox.helper.Helper;

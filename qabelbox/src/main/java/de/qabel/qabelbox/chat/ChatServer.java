@@ -15,6 +15,8 @@ import javax.inject.Inject;
 import de.qabel.core.config.Contact;
 import de.qabel.core.config.Identity;
 import de.qabel.core.drop.DropMessage;
+import de.qabel.qabelbox.chat.persistence.model.ChatMessageItem;
+import de.qabel.qabelbox.chat.persistence.ChatMessagesDataBase;
 import de.qabel.qabelbox.services.DropConnector;
 
 public class ChatServer {

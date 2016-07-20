@@ -1,6 +1,7 @@
 package de.qabel.qabelbox.contacts.extensions
 
 import android.content.Context
+import de.qabel.core.config.Entity
 import de.qabel.core.config.Identity
 import de.qabel.qabelbox.R
 import de.qabel.qabelbox.contacts.dto.ContactDto
@@ -9,19 +10,18 @@ fun ContactDto.initials() = contact.alias.split(" ".toRegex()).map {
     it.first().toUpperCase()
 }.joinToString("")
 
-fun ContactDto.readableKey() = contact.keyIdentifier.mapIndexed { i, c ->
-    val text = StringBuilder()
-    text.append(c)
+fun ContactDto.readableKey() = contact.keyIdentifier.foldIndexed(StringBuilder(), { i, text, char ->
+    text.append(char)
     if (i > 0) {
         val current = i.inc()
         if (current % 16 == 0) {
-            text.appendln()
+            text.append("\n")
         } else if (current % 4 == 0) {
             text.append(" ")
         }
     }
-    text.toString()
-}.joinToString("")
+    text
+})
 
 
 fun ContactDto.readableUrl(): String {
@@ -53,5 +53,5 @@ fun ContactDto.contactColors(ctx: Context): List<Int> {
     }
 }
 
-fun List<Identity>.contains(keyIdentifier: String) = this.all { identity -> !identity.keyIdentifier.equals(keyIdentifier) }
+fun <T : Entity> List<T>.contains(keyIdentifier: String) = this.any { entity -> entity.keyIdentifier.equals(keyIdentifier) }
 

@@ -9,6 +9,7 @@ import de.qabel.qabelbox.config.QabelSchema
 import de.qabel.qabelbox.contacts.dto.ContactDto
 import de.qabel.qabelbox.contacts.dto.ContactParseResult
 import de.qabel.qabelbox.contacts.dto.ContactsParseResult
+import de.qabel.qabelbox.contacts.extensions.contains
 import org.apache.commons.io.FileUtils
 import rx.Subscriber
 import rx.lang.kotlin.observable
@@ -41,7 +42,7 @@ open class MainContactsUseCase @Inject constructor(private val activeIdentity: I
 
     private fun transformContact(data : Pair<Contact, List<Identity>>) : ContactDto {
         return ContactDto(data.first, data.second,
-                !data.second.none { identity -> identity.keyIdentifier.equals(activeIdentity.keyIdentifier) })
+                !data.second.contains(activeIdentity.keyIdentifier))
     }
 
     override fun loadContact(keyIdentifier: String) = observable<ContactDto> { subscriber ->

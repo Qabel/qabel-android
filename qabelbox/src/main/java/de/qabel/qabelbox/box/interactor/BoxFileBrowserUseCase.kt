@@ -1,14 +1,11 @@
 package de.qabel.qabelbox.box.interactor
 
 import de.qabel.box.storage.BoxVolume
-import de.qabel.qabelbox.box.dto.BoxPath
-import de.qabel.qabelbox.box.dto.BrowserEntry
-import de.qabel.qabelbox.box.dto.DownloadSource
-import de.qabel.qabelbox.box.dto.UploadSource
+import de.qabel.qabelbox.box.dto.*
 import de.qabel.qabelbox.box.provider.DocumentId
 import rx.Observable
 
-class BoxFileBrowserUseCase(private val volume: BoxVolume) : FileBrowserUseCase {
+class BoxFileBrowserUseCase(private val volume: VolumeRoot) : FileBrowserUseCase {
     override fun asDocumentId(path: BoxPath): Observable<DocumentId> {
         TODO()
     }

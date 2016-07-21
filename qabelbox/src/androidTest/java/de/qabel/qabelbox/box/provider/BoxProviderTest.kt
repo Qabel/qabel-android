@@ -1,30 +1,19 @@
 package de.qabel.qabelbox.box.provider
 
-import android.annotation.TargetApi
-import android.content.Context
-import android.os.Build
-import android.os.ParcelFileDescriptor
 import android.provider.DocumentsContract
 import com.natpryce.hamkrest.equalTo
 import com.natpryce.hamkrest.should.shouldMatch
 import de.qabel.qabelbox.BuildConfig
 import de.qabel.qabelbox.box.dto.*
-import de.qabel.qabelbox.box.interactor.*
+import de.qabel.qabelbox.box.interactor.ProviderUseCase
 import de.qabel.qabelbox.stubResult
 import de.qabel.qabelbox.util.asString
 import de.qabel.qabelbox.util.toByteArrayInputStream
-import junit.framework.Assert
-import org.hamcrest.CoreMatchers.`is`
-import org.hamcrest.MatcherAssert.assertThat
 import org.mockito.Mockito
 import rx.lang.kotlin.toSingletonObservable
-import java.io.File
-import java.io.FileNotFoundException
-import java.io.FileOutputStream
 import java.util.*
 
 class BoxProviderTest : MockedBoxProviderTest() {
-    override val context: Context = instrumentation.targetContext
 
     lateinit var useCase: ProviderUseCase
 

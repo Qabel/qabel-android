@@ -11,8 +11,6 @@ abstract class MockedBoxProviderTest : InstrumentationTestCase() {
     lateinit var provider: MockBoxProvider
     lateinit var mockContentResolver: MockContentResolver
 
-    abstract val context: Context
-
     @Before
     public override fun setUp() {
         initMockContext()

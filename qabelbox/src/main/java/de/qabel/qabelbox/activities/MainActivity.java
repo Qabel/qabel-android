@@ -26,7 +26,6 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Toast;
 
 import org.apache.commons.io.FilenameUtils;
 
@@ -50,8 +49,8 @@ import de.qabel.qabelbox.QblBroadcastConstants;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.account.AccountManager;
 import de.qabel.qabelbox.account.AccountStatusCodes;
-import de.qabel.qabelbox.chat.ChatServer;
-import de.qabel.qabelbox.chat.ShareHelper;
+import de.qabel.qabelbox.fragments.BaseFragment;
+import de.qabel.qabelbox.util.ShareHelper;
 import de.qabel.qabelbox.communication.connection.ConnectivityManager;
 import de.qabel.qabelbox.config.AppPreference;
 import de.qabel.qabelbox.config.QabelSchema;
@@ -59,7 +58,6 @@ import de.qabel.qabelbox.dagger.HasComponent;
 import de.qabel.qabelbox.dagger.components.MainActivityComponent;
 import de.qabel.qabelbox.dagger.modules.ActivityModule;
 import de.qabel.qabelbox.dagger.modules.MainActivityModule;
-import de.qabel.qabelbox.fragments.BaseFragment;
 import de.qabel.qabelbox.fragments.CreateIdentityMainFragment;
 import de.qabel.qabelbox.fragments.IdentitiesFragment;
 import de.qabel.qabelbox.fragments.QRcodeFragment;
@@ -70,8 +68,8 @@ import de.qabel.qabelbox.helper.Sanity;
 import de.qabel.qabelbox.helper.UIHelper;
 import de.qabel.qabelbox.navigation.MainNavigator;
 import de.qabel.qabelbox.settings.SettingsActivity;
-import de.qabel.qabelbox.views.DrawerNavigationView;
-import de.qabel.qabelbox.views.DrawerNavigationViewHolder;
+import de.qabel.qabelbox.ui.views.DrawerNavigationView;
+import de.qabel.qabelbox.ui.views.DrawerNavigationViewHolder;
 import kotlin.NotImplementedError;
 
 public class MainActivity extends CrashReportingActivity

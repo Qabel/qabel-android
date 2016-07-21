@@ -19,7 +19,7 @@ import de.qabel.qabelbox.fragments.AboutLicencesFragment
 import de.qabel.qabelbox.fragments.HelpMainFragment
 import de.qabel.qabelbox.fragments.IdentitiesFragment
 import de.qabel.qabelbox.fragments.QRcodeFragment
-import de.qabel.qabelbox.ui.views.ChatFragment
+import de.qabel.qabelbox.chat.view.views.ChatFragment
 import org.jetbrains.anko.AnkoLogger
 import org.jetbrains.anko.warn
 import javax.inject.Inject

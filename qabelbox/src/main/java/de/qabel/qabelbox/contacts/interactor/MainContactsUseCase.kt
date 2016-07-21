@@ -9,6 +9,7 @@ import de.qabel.qabelbox.config.QabelSchema
 import de.qabel.qabelbox.contacts.dto.ContactDto
 import de.qabel.qabelbox.contacts.dto.ContactParseResult
 import de.qabel.qabelbox.contacts.dto.ContactsParseResult
+import de.qabel.qabelbox.contacts.extensions.contains
 import org.apache.commons.io.FileUtils
 import rx.Subscriber
 import rx.lang.kotlin.observable
@@ -20,7 +21,7 @@ import javax.inject.Inject
 
 
 open class MainContactsUseCase @Inject constructor(private val activeIdentity: Identity,
-                                              private val contactRepository: ContactRepository) : ContactsUseCase {
+                                                   private val contactRepository: ContactRepository) : ContactsUseCase {
 
     private val contactExchangeFormats = ContactExchangeFormats();
 
@@ -35,15 +36,17 @@ open class MainContactsUseCase @Inject constructor(private val activeIdentity: I
     private fun load(subscriber: Subscriber<in ContactDto>, filter: String) {
         contactRepository.findWithIdentities(filter).map {
             pair ->
-            subscriber.onNext(ContactDto(pair.first, pair.second,
-                    !pair.second.none { identity -> identity.keyIdentifier.equals(activeIdentity.keyIdentifier) }))
+            subscriber.onNext(transformContact(pair))
         };
         subscriber.onCompleted()
     }
 
+    private fun transformContact(data: Pair<Contact, List<Identity>>)
+            = ContactDto(data.first, data.second, data.second.contains(activeIdentity.keyIdentifier))
+
     override fun loadContact(keyIdentifier: String) = observable<ContactDto> { subscriber ->
         val contact = contactRepository.findContactWithIdentities(keyIdentifier);
-        subscriber.onNext(ContactDto(contact.first, contact.second))
+        subscriber.onNext(transformContact(contact))
         subscriber.onCompleted();
     }
 

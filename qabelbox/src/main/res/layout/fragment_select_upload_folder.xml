@@ -31,7 +31,7 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
 
-                <de.qabel.qabelbox.views.TextViewFont
+                <de.qabel.qabelbox.ui.views.TextViewFont
                     style="@style/ListViewLoadingText"
                     android:text="@string/listdata_loading"
                     android:visibility="visible"/>
@@ -55,7 +55,7 @@
                 android:layout_height="wrap_content"
                 android:visibility="gone">
 
-                <de.qabel.qabelbox.views.TextViewFont
+                <de.qabel.qabelbox.ui.views.TextViewFont
                     style="@style/ListViewLoadingText"
                     android:text="@string/file_list_empty"
 

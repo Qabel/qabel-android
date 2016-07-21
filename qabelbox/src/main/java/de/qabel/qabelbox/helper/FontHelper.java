@@ -5,7 +5,7 @@ import android.graphics.Typeface;
 import android.widget.TextView;
 
 import de.qabel.qabelbox.R;
-import de.qabel.qabelbox.views.TextViewQabelFont;
+import de.qabel.qabelbox.ui.views.TextViewQabelFont;
 
 public class FontHelper {
 

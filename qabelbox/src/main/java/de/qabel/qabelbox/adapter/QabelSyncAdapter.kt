@@ -10,9 +10,9 @@ import de.qabel.desktop.repository.IdentityRepository
 import de.qabel.desktop.repository.exception.EntityNotFoundException
 import de.qabel.desktop.repository.exception.PersistenceException
 import de.qabel.qabelbox.QabelBoxApplication
-import de.qabel.qabelbox.chat.ChatMessageInfo
-import de.qabel.qabelbox.chat.ChatMessageItem
-import de.qabel.qabelbox.chat.ChatNotificationManager
+import de.qabel.qabelbox.chat.persistence.model.ChatMessageInfo
+import de.qabel.qabelbox.chat.persistence.model.ChatMessageItem
+import de.qabel.qabelbox.chat.notifications.ChatNotificationManager
 import de.qabel.qabelbox.chat.ChatServer
 import de.qabel.qabelbox.helper.Helper
 import de.qabel.qabelbox.services.DropConnector

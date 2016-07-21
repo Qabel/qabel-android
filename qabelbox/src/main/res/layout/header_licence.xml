@@ -16,21 +16,22 @@
         android:scaleType="fitCenter"
         android:src="@drawable/splash_logo" />
 
-    <de.qabel.qabelbox.views.TextViewFont
+    <de.qabel.qabelbox.ui.views.TextViewFont
         android:id="@+id/licence_header_versioninfo"
         style="@style/LicenceListFirstTextLine"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="@dimen/activity_vertical_margin" />
 
-    <de.qabel.qabelbox.views.TextViewFont
+    <de.qabel.qabelbox.ui.views.TextViewFont
         android:id="@+id/licence_header_intro"
         style="@style/LicenceListFirstTextLine"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/licence.header.intro" />
 
-    <de.qabel.qabelbox.views.ButtonFont
+
+    <de.qabel.qabelbox.ui.views.ButtonFont
         android:id="@+id/about.header.showlicence.btn"
         style="@style/LicenceButton"
         android:layout_width="wrap_content"
@@ -46,23 +47,23 @@
         android:gravity="center_horizontal"
         android:orientation="horizontal">
 
-        <de.qabel.qabelbox.views.QabelBrandingFont
+        <de.qabel.qabelbox.ui.views.QabelBrandingFont
             style="@style/LicenceListFirstTextLine"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/about.header.qabel.company.qtxt" />
 
-        <de.qabel.qabelbox.views.TextViewFont
+        <de.qabel.qabelbox.ui.views.TextViewFont
+            android:layout_marginLeft="@dimen/textsize_list_first_line_half"
             style="@style/LicenceListFirstTextLine"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="@dimen/textsize_list_first_line_half"
             android:text="@string/about.header.qabel.thanks.header.txt"
             android:textAlignment="center" />
 
     </LinearLayout>
 
-    <de.qabel.qabelbox.views.TextViewFont
+    <de.qabel.qabelbox.ui.views.TextViewFont
         android:id="@+id/about.licences.item.components.txt"
         style="@style/LicenceListSecondTextLine"
         android:layout_width="match_parent"

@@ -20,7 +20,7 @@
         android:paddingTop="0dp"
         android:weightSum="2">
 
-        <de.qabel.qabelbox.views.TextViewFont
+        <de.qabel.qabelbox.ui.views.TextViewFont
             android:id="@+id/ab_left"
             style="@style/ActionBarBottomItem"
             android:drawableLeft="@drawable/chevron_left_white"
@@ -29,7 +29,7 @@
             android:gravity="left|center_vertical"
             android:text="@string/btn_welcome_back"/>
 
-        <de.qabel.qabelbox.views.TextViewFont
+        <de.qabel.qabelbox.ui.views.TextViewFont
             android:id="@+id/ab_right"
             style="@style/ActionBarBottomItem"
             android:clickable="true"
@@ -48,14 +48,14 @@
         android:layout_above="@id/bottomActionBar">
 
 
-        <de.qabel.qabelbox.views.ViewPagerParallax
+        <de.qabel.qabelbox.ui.views.ViewPagerParallax
             android:id="@+id/pager"
             xmlns:android="http://schemas.android.com/apk/res/android"
 
             android:layout_width="match_parent"
             android:layout_height="match_parent"/>
 
-        <de.qabel.qabelbox.views.IconPageIndicator
+        <de.qabel.qabelbox.ui.views.IconPageIndicator
             android:id="@+id/titles"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"

@@ -11,7 +11,7 @@ import de.qabel.qabelbox.contacts.view.presenters.ContactDetailsPresenter
 import de.qabel.qabelbox.dagger.components.MainActivityComponent
 import de.qabel.qabelbox.fragments.BaseFragment
 import de.qabel.qabelbox.navigation.Navigator
-import de.qabel.qabelbox.ui.views.ChatFragment
+import de.qabel.qabelbox.chat.view.views.ChatFragment
 import org.jetbrains.anko.AnkoLogger
 import javax.inject.Inject
 
@@ -31,7 +31,7 @@ class ContactDetailsFragment() : ContactDetailsView, BaseFragment(), AnkoLogger 
         }
     }
 
-    var adapter = ContactDetailsAdapter({ identity -> navigator.selectContactChat(contactKeyId, identity) })
+    val adapter = ContactDetailsAdapter({ identity -> navigator.selectContactChat(contactKeyId, identity) })
     lateinit override var contactKeyId: String
     @Inject lateinit var presenter: ContactDetailsPresenter
     @Inject lateinit var navigator: Navigator
@@ -57,7 +57,7 @@ class ContactDetailsFragment() : ContactDetailsView, BaseFragment(), AnkoLogger 
     override fun onViewCreated(view: View?, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         ButterKnife.bind(this, view as  View);
-        adapter.view = this;
+        adapter.view = view;
     }
 
     override fun onDestroyView() {

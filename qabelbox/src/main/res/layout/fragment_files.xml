@@ -47,7 +47,7 @@
                         android:layout_height="wrap_content"
                         android:src="@drawable/files_empty"/>
 
-                    <de.qabel.qabelbox.views.TextViewFont
+                    <de.qabel.qabelbox.ui.views.TextViewFont
                         style="@style/ListViewLoadingText"
                         android:layout_height="wrap_content"
                         android:gravity="center_horizontal"

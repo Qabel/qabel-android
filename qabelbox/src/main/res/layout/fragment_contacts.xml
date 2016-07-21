@@ -21,7 +21,7 @@
             android:label="@string/search"/>
     </android.support.v7.widget.CardView>
 
-    <de.qabel.qabelbox.views.TextViewFont
+    <de.qabel.qabelbox.ui.views.TextViewFont
         android:id="@+id/contactCount"
         style="@style/SmallGreyMessageText"
         android:layout_width="wrap_content"
@@ -56,7 +56,7 @@
                 android:layout_height="wrap_content"
                 android:src="@drawable/contacts_empty" />
 
-            <de.qabel.qabelbox.views.TextViewFont
+            <de.qabel.qabelbox.ui.views.TextViewFont
                 style="@style/ListViewLoadingText"
                 android:layout_height="wrap_content"
                 android:gravity="center_horizontal"

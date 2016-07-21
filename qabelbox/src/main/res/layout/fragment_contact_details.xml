@@ -10,18 +10,18 @@
         android:layout_height="match_parent"
         android:orientation="vertical">
 
-        <de.qabel.qabelbox.views.SquareFrameLayout
+        <de.qabel.qabelbox.ui.views.SquareFrameLayout
             android:id="@+id/contact_icon_border"
             android:layout_width="wrap_content"
             android:layout_height="100sp"
             android:layout_gravity="center_horizontal"
             android:padding="5sp">
-            <de.qabel.qabelbox.views.SquareFrameLayout
+            <de.qabel.qabelbox.ui.views.SquareFrameLayout
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:layout_gravity="center"
                 android:background="@drawable/identity_circle">
-                <de.qabel.qabelbox.views.TextViewFont
+                <de.qabel.qabelbox.ui.views.TextViewFont
                     android:id="@+id/tv_initial"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -30,10 +30,10 @@
                     android:gravity="center"
                     android:textColor="@color/white"
                     android:textSize="@dimen/textsize_welcome_header" />
-            </de.qabel.qabelbox.views.SquareFrameLayout>
-        </de.qabel.qabelbox.views.SquareFrameLayout>
+            </de.qabel.qabelbox.ui.views.SquareFrameLayout>
+        </de.qabel.qabelbox.ui.views.SquareFrameLayout>
 
-        <de.qabel.qabelbox.views.TextViewFont
+        <de.qabel.qabelbox.ui.views.TextViewFont
             android:id="@+id/editTextContactName"
             android:textSize="@dimen/textsize_qabel_logo"
             android:layout_width="match_parent"
@@ -46,7 +46,7 @@
             android:orientation="vertical">
         </LinearLayout>
 
-        <de.qabel.qabelbox.views.TextViewFont
+        <de.qabel.qabelbox.ui.views.TextViewFont
             android:id="@+id/textView"
             android:textSize="@dimen/textsize_welcome_screen"
             android:layout_width="match_parent"
@@ -61,10 +61,11 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="5sp"
             android:drawableStart="@drawable/earth"
+            android:typeface="monospace"
             android:drawablePadding="10sp"
             android:textSize="@dimen/textsize_list_first_line"
             android:singleLine="false"
-            android:lines="2" />
+            android:lines="3" />
 
         <TextView
             android:id="@+id/editTextContactPublicKey"

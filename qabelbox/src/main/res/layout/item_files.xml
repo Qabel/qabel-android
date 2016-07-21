@@ -11,9 +11,28 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal">
 
-        <ImageView
-            android:id="@+id/fileEntryIcon"
-            style="@style/ListIcon"/>
+        <RelativeLayout
+            android:id="@+id/fileFolderContainer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="left">
+
+            <ImageView
+                android:id="@+id/fileEntryIcon"
+                style="@style/ListIcon"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentTop="true"/>
+
+            <ProgressBar
+                android:id="@+id/entryProgress"
+                style="?android:attr/progressBarStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:visibility="invisible"/>
+
+        </RelativeLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -21,7 +40,7 @@
             android:layout_gravity="center_vertical"
             android:orientation="vertical">
 
-            <de.qabel.qabelbox.views.TextViewFont
+            <de.qabel.qabelbox.ui.views.TextViewFont
                 android:id="@+id/entryName"
                 style="@style/ListFirstTextLine"
                 android:gravity="center_vertical"
@@ -35,7 +54,7 @@
                 android:paddingRight="16dp"
                 android:visibility="invisible">
 
-                <de.qabel.qabelbox.views.TextViewFont
+                <de.qabel.qabelbox.ui.views.TextViewFont
                     android:id="@+id/extraDetails"
                     style="@style/ListSecondTextLine"
                     android:layout_width="wrap_content"
@@ -43,7 +62,7 @@
                     android:layout_alignParentLeft="true"/>
 
 
-                <de.qabel.qabelbox.views.TextViewFont
+                <de.qabel.qabelbox.ui.views.TextViewFont
                     android:id="@+id/modificationTime"
                     style="@style/ListSecondTextLine"
                     android:layout_width="wrap_content"
@@ -61,6 +80,7 @@
         android:id="@+id/separator"
         android:layout_width="match_parent"
         android:layout_height="2dp"
+        android:layout_alignParentBottom="true"
         android:background="@color/light_gray">
     </RelativeLayout>
 </LinearLayout>

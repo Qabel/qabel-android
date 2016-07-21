@@ -7,7 +7,7 @@
     android:paddingRight="5sp"
     android:paddingBottom="5dp">
 
-    <de.qabel.qabelbox.views.TextViewFont
+    <de.qabel.qabelbox.ui.views.TextViewFont
         android:id="@+id/txtHeader"
         style="@style/ListFirstTextLine"
         android:layout_width="match_parent"

@@ -3,7 +3,6 @@ package de.qabel.qabelbox.fragments
 import android.app.Fragment
 import android.os.Bundle
 import android.support.v7.app.ActionBar
-import android.view.View
 
 import java.util.concurrent.Executor
 import java.util.concurrent.Executors
@@ -82,11 +81,15 @@ abstract class BaseFragment : Fragment() {
     }
 
     protected fun configureAsSubFragment() {
-        mActivity!!.toggle.isDrawerIndicatorEnabled = false
-        actionBar!!.setDisplayHomeAsUpEnabled(true)
+        mActivity?.toggle?.isDrawerIndicatorEnabled = false
+        actionBar?.setDisplayHomeAsUpEnabled(true)
         setActionBarBackListener()
     }
 
+    protected fun configureAsMainFragment() {
+        actionBar?.setDisplayHomeAsUpEnabled(false)
+        mActivity?.toggle?.isDrawerIndicatorEnabled = true
+    }
     /**
      * set own back listener in actionbar
      */

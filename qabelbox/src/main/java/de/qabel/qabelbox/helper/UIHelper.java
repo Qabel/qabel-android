@@ -16,7 +16,7 @@ import android.widget.TextView;
 import java.io.IOException;
 
 import de.qabel.qabelbox.R;
-import de.qabel.qabelbox.views.EditTextFont;
+import de.qabel.qabelbox.ui.views.EditTextFont;
 
 public class UIHelper {
 

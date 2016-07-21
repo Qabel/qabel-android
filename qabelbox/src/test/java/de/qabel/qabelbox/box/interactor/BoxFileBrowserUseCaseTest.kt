@@ -80,6 +80,42 @@ class BoxFileBrowserUseCaseTest {
         }
         storage.storage.size eq 4 // index and 2 folder metadata files and 1 file
     }
+
+    @Test
+    fun deleteFile() {
+        val path = BoxPath.Root / "firstFolder" / "subFolder" * sampleName
+        useCase.upload(path, samplePayload.toUploadSource(sample)).waitFor()
+        useCase.delete(path).waitFor()
+        storage.storage.size eq 3 // index and 2 folder metadata files and no file
+        useCase.query(path.parent) evalsTo BrowserEntry.Folder(path.parent.name)
+    }
+
+    @Test
+    fun deleteFolder() {
+        val path = BoxPath.Root / "firstFolder" / "subFolder"
+        useCase.createFolder(path).waitFor()
+        useCase.delete(path).waitFor()
+        storage.storage.size eq 2 // index and 1 folder metadata file
+        useCase.query(path.parent) evalsTo BrowserEntry.Folder(path.parent.name)
+
+    }
+
+    @Test
+    fun list() {
+        val folder = BoxPath.Root / "firstFolder"
+        val subfolderFile = folder * sampleName
+        val file = BoxPath.Root * sampleName
+        useCase.upload(file, samplePayload.toUploadSource(sample)).waitFor()
+        useCase.upload(subfolderFile , samplePayload.toUploadSource(sample)).waitFor()
+        useCase.createFolder(folder).waitFor()
+
+        val listing = useCase.list(BoxPath.Root).toBlocking().first().map { it.name }.toSet()
+        val subfolderListing = useCase.list(folder).toBlocking().first().map { it.name }.toSet()
+
+        listing eq setOf(sample.name, "firstFolder")
+        subfolderListing eq setOf(sample.name)
+    }
+
 }
 
 infix fun <T> T.eq(thing: T) {

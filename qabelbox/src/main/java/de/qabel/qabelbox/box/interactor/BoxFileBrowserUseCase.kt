@@ -1,6 +1,7 @@
 package de.qabel.qabelbox.box.interactor
 
 import de.qabel.box.storage.*
+import de.qabel.box.storage.exceptions.QblStorageException
 import de.qabel.box.storage.exceptions.QblStorageNotFound
 import de.qabel.core.config.Identity
 import de.qabel.qabelbox.box.dto.*
@@ -11,7 +12,6 @@ import rx.lang.kotlin.toSingletonObservable
 import java.io.File
 import java.io.FileNotFoundException
 import java.util.*
-import kotlin.concurrent.thread
 
 class BoxFileBrowserUseCase(identity: Identity,
                             readBackend: StorageReadBackend,
@@ -45,17 +45,30 @@ class BoxFileBrowserUseCase(identity: Identity,
 
 
     override fun query(path: BoxPath): Observable<BrowserEntry> = observable {
-        val nav = navigateTo(path.parent)
-        val file = nav.listFiles().find { it.name == path.name }
-        if (file != null) {
-            it.onNext(BrowserEntry.File(file.name, file.size, Date(file.mtime)))
-        } else {
-            val folder = nav.listFolders().find { it.name == path.name }
-            if (folder != null) {
-                it.onNext(BrowserEntry.Folder(path.name))
-            } else {
-                it.onError(FileNotFoundException("File or folder not found"))
-            }
+        subscriber ->
+        val boxObject = try {
+            queryObject(path)
+        } catch (e: FileNotFoundException) {
+            subscriber.onError(e)
+            return@observable
+        }
+        val entry = boxObject.toEntry()
+        if (entry  == null) {
+            subscriber.onError(FileNotFoundException("File or Folder ${path.name} not found"))
+            return@observable
+        }
+        subscriber.onNext(entry)
+    }
+
+    private fun queryObject(path: BoxPath): BoxObject =
+           queryObjectAndNav(path).first
+
+    private fun queryObjectAndNav(path: BoxPath): Pair<BoxObject, BoxNavigation> {
+        with(navigateTo(path.parent)) {
+            return Pair(listFiles().find { it.name == path.name } ?:
+                    listFolders().find { it.name == path.name } ?:
+                    throw FileNotFoundException("Not found: ${path.name}"),
+                    this)
         }
     }
 
@@ -66,34 +79,54 @@ class BoxFileBrowserUseCase(identity: Identity,
     }
 
     override fun download(path: BoxPath.File): Observable<DownloadSource> =
-            observable { subscriber ->
-            query(path).subscribe { entry ->
-                if (entry is BrowserEntry.File) {
-                    subscriber.onNext(DownloadSource(entry, navigateTo(path.parent).download(path.name)))
-                } else {
-                    subscriber.onError(FileNotFoundException("Not a file"))
-                }
+        observable { subscriber ->
+        query(path).subscribe { entry ->
+            if (entry is BrowserEntry.File) {
+                subscriber.onNext(DownloadSource(entry, navigateTo(path.parent).download(path.name)))
+            } else {
+                subscriber.onError(FileNotFoundException("Not a file"))
             }
+        }
     }
 
-    override fun delete(path: BoxPath): Observable<Unit> {
-        throw UnsupportedOperationException("not implemented") //To change body of created functions use File | Settings | File Templates.
+    override fun delete(path: BoxPath): Observable<Unit> = observable {
+        subscriber ->
+        try {
+            val nav = navigateTo(path.parent)
+            when (path) {
+                is BoxPath.Folder -> nav.getFolder(path.name).let { nav.delete(it) }
+                is BoxPath.File -> nav.getFile(path.name).let { nav.delete(it) }
+            }
+        } catch (e: QblStorageNotFound) {
+        } catch (e: QblStorageException) {
+            subscriber.onError(e)
+            return@observable
+        }
+        subscriber.onNext(Unit)
     }
 
-    override fun list(path: BoxPath.FolderLike): Observable<List<BrowserEntry>> {
-        throw UnsupportedOperationException("not implemented") //To change body of created functions use File | Settings | File Templates.
+    override fun list(path: BoxPath.FolderLike): Observable<List<BrowserEntry>> = observable {
+        subscriber ->
+        val nav = try {
+            navigateTo(path)
+        } catch (e: QblStorageException) {
+            subscriber.onError(e)
+            return@observable
+        }
+        val entries = nav.listFiles() + nav.listFolders()
+        subscriber.onNext(entries.map { it.toEntry() }.filterNotNull())
     }
 
     override fun createFolder(path: BoxPath.FolderLike): Observable<Unit> =
-            observable { subscriber ->
-                if (path !is BoxPath.Root) {
-                    try {
-                        recursiveCreateFolder(path)
-                        subscriber.onNext(Unit)
-                    } catch (e: Exception) {
-                        subscriber.onError(e)
-                    }
+        observable { subscriber ->
+            if (path !is BoxPath.Root) {
+                try {
+                    recursiveCreateFolder(path)
+                    subscriber.onNext(Unit)
+                } catch (e: Exception) {
+                    subscriber.onError(e)
                 }
+            }
     }
 
     private fun navigateTo(path: BoxPath, action: (BoxPath, BoxNavigation) -> (Unit) = {a,b -> }):
@@ -111,4 +144,10 @@ class BoxFileBrowserUseCase(identity: Identity,
             nav.listFolders().find { it.name == p.name } ?: nav.createFolder(p.name)
             nav.commitIfChanged()
         }
+}
+
+fun BoxObject.toEntry() = when (this) {
+    is BoxFile -> BrowserEntry.File(this.name, this.size, Date(this.mtime))
+    is BoxFolder -> BrowserEntry.Folder(this.name)
+    else -> null
 }

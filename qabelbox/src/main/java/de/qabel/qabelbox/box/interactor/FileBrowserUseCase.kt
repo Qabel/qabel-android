@@ -12,7 +12,7 @@ interface FileBrowserUseCase {
     fun download(path: BoxPath.File):  Observable<DownloadSource>
     fun delete(path: BoxPath):  Observable<Unit>
     fun list(path: BoxPath.FolderLike): Observable<List<BrowserEntry>>
-    fun createFolder(path: BoxPath.Folder): Observable<Unit>
+    fun createFolder(path: BoxPath.FolderLike): Observable<Unit>
     fun query(path: BoxPath): Observable<BrowserEntry>
     fun asDocumentId(path: BoxPath): Observable<DocumentId>
 }

@@ -8,3 +8,4 @@ inline fun <T:Any> checkNull(value: T?, lazyMessage: () -> Any) {
 }
 
 fun <T:Any> checkNull(value: T?) = checkNull(value) { "Checked nullable value was not null." }
+

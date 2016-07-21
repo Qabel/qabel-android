@@ -18,8 +18,10 @@ class MockFileBrowserUseCase @Inject constructor(): FileBrowserUseCase {
 
     val storage = mutableListOf<Pair<BoxPath, ByteArray?>>()
 
-    override fun createFolder(path: BoxPath.Folder): Observable<Unit> {
-        storage += Pair(path, null)
+    override fun createFolder(path: BoxPath.FolderLike): Observable<Unit> {
+        if (path !is BoxPath.Root) {
+            storage += Pair(path, null)
+        }
         return Unit.toSingletonObservable()
     }
 

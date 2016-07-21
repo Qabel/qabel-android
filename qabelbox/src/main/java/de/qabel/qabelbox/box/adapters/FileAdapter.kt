@@ -16,9 +16,7 @@ open class FileAdapter(var entries: MutableList<BrowserEntry>,
 
         val layout = LayoutInflater.from(parent.context)
                 .inflate(R.layout.item_files, parent, false)
-        val holder = FileViewHolder(layout)
-
-        return holder
+        return FileViewHolder(layout)
     }
 
     override fun getItemViewType(position: Int): Int {

@@ -3,7 +3,7 @@ package de.qabel.qabelbox.box.dto
 import org.apache.commons.lang3.builder.HashCodeBuilder
 import java.util.*
 
-sealed  class BrowserEntry(val name: String) {
+sealed class BrowserEntry(val name: String) {
     class File(name: String, val size: Long, val mTime: Date) : BrowserEntry(name) {
         override fun toString(): String {
             return "File($name, $size, $mTime)"

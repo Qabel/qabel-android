@@ -9,7 +9,6 @@ interface ProviderUseCase {
     fun queryChildDocuments(documentId: DocumentId): Observable<List<ProviderEntry>>
     fun download(documentId: DocumentId): Observable<ProviderDownload>
     fun upload(providerUpload: ProviderUpload): Observable<Unit>
-    fun delete(documentId: DocumentId): Observable<Unit>
     fun query(documentId: DocumentId): Observable<BrowserEntry>
 }
 

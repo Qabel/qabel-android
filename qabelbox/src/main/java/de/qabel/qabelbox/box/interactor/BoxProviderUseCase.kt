@@ -20,18 +20,25 @@ class BoxProviderUseCase @Inject constructor(private val volumeManager: VolumeMa
         when (documentId.path) {
             is BoxPath.File -> return emptyList<ProviderEntry>().toSingletonObservable()
             is BoxPath.FolderLike -> {
-                return browserByDocumentId(documentId).list(documentId.path).map { entries ->
-                    entries.map {
-                        val path = when (it) {
-                            is BrowserEntry.File -> documentId.path * it.name
-                            is BrowserEntry.Folder -> documentId.path / it.name
-                        }
-                        ProviderEntry(documentId.copy(path = path), it)
-                    }
+                val listing: Observable<List<BrowserEntry>> =
+                        browserByDocumentId(documentId).list(documentId.path)
+                return listing.map { entries ->
+                    transformToProviderEntries(entries, documentId.path, documentId)
                 }
             }
         }
     }
+
+    private fun transformToProviderEntries(entries: List<BrowserEntry>,
+                                           root: BoxPath.FolderLike,
+                                           documentId: DocumentId):List<ProviderEntry> =
+        entries.map {
+            val path = when (it) {
+                is BrowserEntry.File -> root * it.name
+                is BrowserEntry.Folder -> root / it.name
+            }
+            ProviderEntry(documentId.copy(path = path), it)
+        }
 
     override fun download(documentId: DocumentId): Observable<ProviderDownload> {
         when (documentId.path) {
@@ -53,10 +60,6 @@ class BoxProviderUseCase @Inject constructor(private val volumeManager: VolumeMa
                 return browserByDocumentId(providerUpload.documentId).upload(path, providerUpload.source)
             }
         }
-    }
-
-    override fun delete(documentId: DocumentId): Observable<Unit> {
-        TODO()
     }
 
     private fun browserByDocumentId(documentId: DocumentId)

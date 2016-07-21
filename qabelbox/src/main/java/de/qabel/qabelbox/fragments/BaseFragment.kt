@@ -12,10 +12,6 @@ import de.qabel.qabelbox.activities.MainActivity
 import de.qabel.qabelbox.dagger.HasComponent
 import de.qabel.qabelbox.listeners.IdleCallback
 
-/**
- * Base Fragment
- * Created by danny on 08.01.2016.
- */
 abstract class BaseFragment : Fragment() {
     protected var actionBar: ActionBar? = null
 

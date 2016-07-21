@@ -82,33 +82,5 @@ class BoxProviderTest : MockedBoxProviderTest() {
         }
     }
 
-    /*
-    fun testOpenDocumentWritable() {
-        val browser = MockFileBrowserUseCase()
-        val useCase = BoxProviderUseCase(object: VolumeManager {
-            override val roots: List<VolumeRoot>
-                get() = throw UnsupportedOperationException()
-
-            override fun fileBrowser(rootID: String) = browser
-
-        })
-        provider.injectProvider(useCase)
-        val file = BoxPath.Root * "foobar.txt"
-        val document = docId.copy(path = file)
-        val documentUri = DocumentsContract.buildDocumentUri(
-                BuildConfig.APPLICATION_ID + BoxProvider.AUTHORITY, document.toString())
-        provider.handlerThread.start()
-
-        val fd = mockContentResolver.openFileDescriptor(documentUri, "w")
-        val out = ParcelFileDescriptor.AutoCloseOutputStream(fd)
-        out.write(samplePayLoad.toByteArray())
-        out.close()
-        while (!provider.handlerThread.looper.queue.isIdle) {
-            Thread.sleep(50)
-        }
-        browser.download(file).toBlocking().first().source.asString() shouldMatch equalTo(samplePayLoad)
-    }
-    */
-
 }
 

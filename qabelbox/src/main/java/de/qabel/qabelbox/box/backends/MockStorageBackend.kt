@@ -9,7 +9,7 @@ import java.io.ByteArrayInputStream
 import java.io.InputStream
 import java.util.*
 
-class MockLocalStorage: StorageReadBackend, StorageWriteBackend {
+class MockStorageBackend : StorageReadBackend, StorageWriteBackend {
     companion object {
         const val BASE = "local://"
     }

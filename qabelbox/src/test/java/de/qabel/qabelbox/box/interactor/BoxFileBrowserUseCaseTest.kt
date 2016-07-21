@@ -5,7 +5,7 @@ import com.natpryce.hamkrest.should.shouldMatch
 import de.qabel.box.storage.BoxVolume
 import de.qabel.qabelbox.BuildConfig
 import de.qabel.qabelbox.SimpleApplication
-import de.qabel.qabelbox.box.backends.MockLocalStorage
+import de.qabel.qabelbox.box.backends.MockStorageBackend
 import de.qabel.qabelbox.box.dto.BoxPath
 import de.qabel.qabelbox.box.dto.BrowserEntry
 import de.qabel.qabelbox.util.IdentityHelper
@@ -23,7 +23,7 @@ import java.util.*
 class BoxFileBrowserUseCaseTest {
 
     val identityA = IdentityHelper.createIdentity("identity", null)
-    val storage = MockLocalStorage()
+    val storage = MockStorageBackend()
     val deviceId = byteArrayOf(1,2,3)
     val volume = BoxVolume(storage, storage, identityA.primaryKeyPair,
             deviceId, createTempDir(), "prefix")

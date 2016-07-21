@@ -11,15 +11,14 @@ open class FileViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
     open fun bindTo(entry: BrowserEntry): Unit = with(entry) {
         itemView.entryName.text = entry.name
-        when (this) {
-            is BrowserEntry.File -> {
-                itemView.modificationTime.text = Formatter.formatDateTimeString(mTime.time)
-                itemView.fileEntryIcon.setImageResource(R.drawable.file)
-            }
-            is BrowserEntry.Folder -> {
-                itemView.fileEntryIcon.setImageResource(R.drawable.folder)
-            }
+        if (this is BrowserEntry.File) {
+            itemView.modificationTime.text = Formatter.formatDateTimeString(mTime.time)
         }
+        itemView.fileEntryIcon.setImageResource(
+                when (this) {
+                    is BrowserEntry.File -> R.drawable.file
+                    is BrowserEntry.Folder -> R.drawable.folder
+                })
     }
 
 }

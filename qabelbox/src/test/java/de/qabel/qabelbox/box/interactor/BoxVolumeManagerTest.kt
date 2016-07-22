@@ -26,7 +26,7 @@ class BoxVolumeManagerTest {
     val docId = DocumentId(identity.keyIdentifier, identity.prefixes.first(), BoxPath.Root)
     val volume = VolumeRoot(docId.toString().dropLast(1), docId.toString(), identity.alias)
     lateinit var manager: VolumeManager
-    lateinit var fileBrowser: FileBrowserUseCase
+    lateinit var fileBrowser: FileBrowser
 
     @Before
     fun setUp() {

@@ -5,13 +5,13 @@ import de.qabel.qabelbox.box.dto.BrowserEntry
 import de.qabel.qabelbox.box.dto.BrowserEntry.File
 import de.qabel.qabelbox.box.dto.BrowserEntry.Folder
 import de.qabel.qabelbox.box.dto.UploadSource
-import de.qabel.qabelbox.box.interactor.FileBrowserUseCase
+import de.qabel.qabelbox.box.interactor.FileBrowser
 import de.qabel.qabelbox.box.views.FileBrowserView
 import java.io.InputStream
 import javax.inject.Inject
 
 class MainFileBrowserPresenter @Inject constructor(
-        private val view: FileBrowserView, private val useCase: FileBrowserUseCase):
+        private val view: FileBrowserView, private val useCase: FileBrowser):
         FileBrowserPresenter {
 
     var path: BoxPath.FolderLike = BoxPath.Root

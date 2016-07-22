@@ -5,7 +5,7 @@ import com.natpryce.hamkrest.equalTo
 import com.natpryce.hamkrest.should.shouldMatch
 import de.qabel.qabelbox.BuildConfig
 import de.qabel.qabelbox.box.dto.*
-import de.qabel.qabelbox.box.interactor.ProviderUseCase
+import de.qabel.qabelbox.box.interactor.Provider
 import de.qabel.qabelbox.stubResult
 import de.qabel.qabelbox.util.asString
 import de.qabel.qabelbox.util.toByteArrayInputStream
@@ -15,7 +15,7 @@ import java.util.*
 
 class BoxProviderTest : MockedBoxProviderTest() {
 
-    lateinit var useCase: ProviderUseCase
+    lateinit var useCase: Provider
 
     val docId = DocumentId("identity", "prefix", BoxPath.Root)
     val volume = VolumeRoot("root", docId.toString(), "alias")
@@ -25,7 +25,7 @@ class BoxProviderTest : MockedBoxProviderTest() {
 
     override fun setUp() {
         super.setUp()
-        useCase = Mockito.mock(ProviderUseCase::class.java)
+        useCase = Mockito.mock(Provider::class.java)
         provider.injectProvider(useCase)
     }
 

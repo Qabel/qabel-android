@@ -14,11 +14,11 @@ import java.io.File
 import java.io.FileNotFoundException
 import javax.inject.Inject
 
-class BoxFileBrowserUseCase @Inject constructor(identity: Identity,
-                                                readBackend: StorageReadBackend,
-                                                writeBackend: StorageWriteBackend,
-                                                deviceId: ByteArray,
-                                                tempDir: File) : FileBrowserUseCase {
+class BoxFileBrowser @Inject constructor(identity: Identity,
+                                         readBackend: StorageReadBackend,
+                                         writeBackend: StorageWriteBackend,
+                                         deviceId: ByteArray,
+                                         tempDir: File) : FileBrowser {
 
     private val volume: BoxVolume
     private val prefix = identity.prefixes.first()

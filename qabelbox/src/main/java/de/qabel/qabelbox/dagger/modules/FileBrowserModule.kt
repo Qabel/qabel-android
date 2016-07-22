@@ -2,9 +2,9 @@ package de.qabel.qabelbox.dagger.modules
 
 import dagger.Module
 import dagger.Provides
-import de.qabel.qabelbox.box.interactor.BoxFileBrowserUseCase
-import de.qabel.qabelbox.box.interactor.FileBrowserUseCase
-import de.qabel.qabelbox.box.interactor.MockFileBrowserUseCase
+import de.qabel.qabelbox.box.interactor.BoxFileBrowser
+import de.qabel.qabelbox.box.interactor.FileBrowser
+import de.qabel.qabelbox.box.interactor.MockFileBrowser
 import de.qabel.qabelbox.box.presenters.FileBrowserPresenter
 import de.qabel.qabelbox.dagger.scopes.ActivityScope
 import de.qabel.qabelbox.box.presenters.MainFileBrowserPresenter
@@ -16,13 +16,13 @@ class FileBrowserModule(private val view: FileBrowserView) {
 
     @ActivityScope
     @Provides
-    fun providerFileBrowserPresenter(useCase: FileBrowserUseCase): FileBrowserPresenter {
+    fun providerFileBrowserPresenter(useCase: FileBrowser): FileBrowserPresenter {
         return MainFileBrowserPresenter(view, useCase)
     }
 
     @ActivityScope
     @Provides
-    fun provideFileBrowserUseCase(fileBrowserUseCase: MockFileBrowserUseCase): FileBrowserUseCase {
+    fun provideFileBrowserUseCase(fileBrowserUseCase: MockFileBrowser): FileBrowser {
         return fileBrowserUseCase
     }
 }

@@ -6,7 +6,7 @@ import de.qabel.qabelbox.box.dto.BrowserEntry
 import de.qabel.qabelbox.box.dto.BrowserEntry.File
 import de.qabel.qabelbox.box.dto.DownloadSource
 import de.qabel.qabelbox.box.dto.UploadSource
-import de.qabel.qabelbox.box.interactor.FileBrowserUseCase
+import de.qabel.qabelbox.box.interactor.FileBrowser
 import de.qabel.qabelbox.box.provider.DocumentId
 import de.qabel.qabelbox.box.views.FileBrowserView
 import de.qabel.qabelbox.util.toDownloadSource
@@ -19,7 +19,7 @@ import java.util.*
 class MainFileBrowserPresenterTest {
 
     val view: FileBrowserView = mock()
-    val useCase: FileBrowserUseCase = mock()
+    val useCase: FileBrowser = mock()
     lateinit var presenter: MainFileBrowserPresenter
     val sample = File("foobar.txt", 42000, Date())
     val sampleFiles = listOf(sample)

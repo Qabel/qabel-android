@@ -8,7 +8,7 @@ import java.io.FileNotFoundException
 import javax.inject.Inject
 
 class BoxVolumeManager (private val identityRepository: IdentityRepository,
-        private val fileBrowserFactory: (VolumeRoot) -> FileBrowserUseCase):
+        private val fileBrowserFactory: (VolumeRoot) -> FileBrowser):
         VolumeManager {
 
     override val roots: List<VolumeRoot>

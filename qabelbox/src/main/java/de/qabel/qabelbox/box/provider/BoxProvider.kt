@@ -24,7 +24,7 @@ import de.qabel.qabelbox.dagger.modules.BoxModule
 import de.qabel.qabelbox.box.dto.BrowserEntry
 import de.qabel.qabelbox.box.dto.ProviderUpload
 import de.qabel.qabelbox.box.dto.UploadSource
-import de.qabel.qabelbox.box.interactor.ProviderUseCase
+import de.qabel.qabelbox.box.interactor.Provider
 import de.qabel.qabelbox.dagger.components.DaggerBoxComponent
 import de.qabel.qabelbox.dagger.modules.ContextModule
 import rx.lang.kotlin.firstOrNull
@@ -37,7 +37,7 @@ import javax.inject.Inject
 open class BoxProvider : DocumentsProvider() {
 
     @Inject
-    lateinit var useCase: ProviderUseCase
+    lateinit var useCase: Provider
     open val handler by lazy { Handler(context.mainLooper) }
 
     private val volumesChangedBroadcastReceiver = object : BroadcastReceiver() {

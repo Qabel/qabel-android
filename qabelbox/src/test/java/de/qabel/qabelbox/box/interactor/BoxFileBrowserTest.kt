@@ -27,7 +27,7 @@ import java.util.Date
 
 @RunWith(RobolectricGradleTestRunner::class)
 @Config(application = SimpleApplication::class, constants = BuildConfig::class)
-class BoxFileBrowserUseCaseTest {
+class BoxFileBrowserTest {
 
     val identity = IdentityHelper.createIdentity("identity", null)
     val storage = MockStorageBackend()
@@ -36,7 +36,7 @@ class BoxFileBrowserUseCaseTest {
     val volume = VolumeRoot(docId.toString().dropLast(1), docId.toString(), identity.alias)
     //val volume = BoxVolume(storage, storage, identityA.primaryKeyPair,
     //        deviceId, createTempDir(), "prefix")
-    lateinit var useCase: FileBrowserUseCase
+    lateinit var useCase: FileBrowser
 
     val samplePayload = "payload"
     val sampleName = "sampleName"
@@ -44,7 +44,7 @@ class BoxFileBrowserUseCaseTest {
 
     @Before
     fun setUp() {
-         useCase = BoxFileBrowserUseCase(identity, storage, storage, byteArrayOf(1), createTempDir())
+         useCase = BoxFileBrowser(identity, storage, storage, byteArrayOf(1), createTempDir())
     }
 
     @Test

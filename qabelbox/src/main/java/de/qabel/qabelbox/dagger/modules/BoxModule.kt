@@ -15,7 +15,7 @@ class BoxModule {
 
     @Singleton
     @Provides
-    fun provideProviderUseCase(useCase: BoxProviderUseCase): ProviderUseCase {
+    fun provideProviderUseCase(useCase: BoxProvider): Provider {
         return useCase
     }
 

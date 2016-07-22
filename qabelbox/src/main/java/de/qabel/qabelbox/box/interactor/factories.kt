@@ -12,11 +12,11 @@ fun makeFileBrowserFactory(identityRepository: IdentityRepository,
                            readBackend: StorageReadBackend,
                            writeBackend: StorageWriteBackend,
                            tempDir: File):
-        (VolumeRoot) -> FileBrowserUseCase {
-    return fun(volumeRoot: VolumeRoot): FileBrowserUseCase {
+        (VolumeRoot) -> FileBrowser {
+    return fun(volumeRoot: VolumeRoot): FileBrowser {
         val key = volumeRoot.documentID.toDocumentId().identityKey
         val identity = identityRepository.find(key)
-        return BoxFileBrowserUseCase(identity, readBackend, writeBackend, deviceId, tempDir)
+        return BoxFileBrowser(identity, readBackend, writeBackend, deviceId, tempDir)
     }
 }
 

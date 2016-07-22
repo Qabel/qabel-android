@@ -9,7 +9,7 @@ import java.io.FileNotFoundException
 import java.util.*
 import javax.inject.Inject
 
-class MockFileBrowserUseCase @Inject constructor(): FileBrowserUseCase {
+class MockFileBrowser @Inject constructor(): FileBrowser {
 
     private val root = DocumentId("identiy", "prefix", BoxPath.Root)
 

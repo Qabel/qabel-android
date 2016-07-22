@@ -7,7 +7,7 @@ import de.qabel.qabelbox.box.dto.UploadSource
 import de.qabel.qabelbox.box.provider.DocumentId
 import rx.Observable
 
-interface FileBrowserUseCase {
+interface FileBrowser {
     fun upload(path: BoxPath.File, source: UploadSource): Observable<Unit>
     fun download(path: BoxPath.File):  Observable<DownloadSource>
     fun delete(path: BoxPath):  Observable<Unit>

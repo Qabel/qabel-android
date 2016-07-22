@@ -15,10 +15,10 @@ import org.junit.Test
 import rx.lang.kotlin.toSingletonObservable
 import java.util.*
 
-class BoxProviderUseCaseTest {
+class BoxProviderTest {
 
-    lateinit var useCase: BoxProviderUseCase
-    lateinit var fileBrowser: FileBrowserUseCase
+    lateinit var useCase: BoxProvider
+    lateinit var fileBrowser: FileBrowser
     val docId = DocumentId("identity", "prefix", BoxPath.Root)
     val volume = VolumeRoot("root", docId.toString(), "alias")
     val volumes = listOf(volume)
@@ -30,7 +30,7 @@ class BoxProviderUseCaseTest {
     @Before
     fun setUp() {
         fileBrowser = mock()
-        useCase = BoxProviderUseCase(object: VolumeManager {
+        useCase = BoxProvider(object: VolumeManager {
             override val roots: List<VolumeRoot>
                 get() = volumes
 
@@ -84,10 +84,5 @@ class BoxProviderUseCaseTest {
         val source = UploadSource(mock(), sample)
         useCase.upload(ProviderUpload(docId.copy(path = file), source))
         verify(fileBrowser).upload(file, source)
-    }
-
-    @Test
-    fun testDelete() {
-
     }
 }

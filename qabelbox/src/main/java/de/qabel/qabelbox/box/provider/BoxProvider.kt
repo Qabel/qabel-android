@@ -26,6 +26,7 @@ import de.qabel.qabelbox.box.dto.ProviderUpload
 import de.qabel.qabelbox.box.dto.UploadSource
 import de.qabel.qabelbox.box.interactor.ProviderUseCase
 import de.qabel.qabelbox.dagger.components.DaggerBoxComponent
+import de.qabel.qabelbox.dagger.modules.ContextModule
 import rx.lang.kotlin.firstOrNull
 import java.io.File
 import java.io.FileNotFoundException
@@ -53,7 +54,9 @@ open class BoxProvider : DocumentsProvider() {
     }
 
     open fun inject() {
-        val boxComponent = DaggerBoxComponent.builder().boxModule(BoxModule()).build()
+        val boxComponent = DaggerBoxComponent.builder()
+                .contextModule(ContextModule(context))
+                .build()
         boxComponent.inject(this)
     }
 

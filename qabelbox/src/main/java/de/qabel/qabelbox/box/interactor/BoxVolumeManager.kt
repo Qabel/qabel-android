@@ -7,8 +7,7 @@ import de.qabel.qabelbox.box.provider.DocumentId
 import java.io.FileNotFoundException
 import javax.inject.Inject
 
-class BoxVolumeManager @Inject constructor(
-        private val identityRepository: IdentityRepository,
+class BoxVolumeManager (private val identityRepository: IdentityRepository,
         private val fileBrowserFactory: (VolumeRoot) -> FileBrowserUseCase):
         VolumeManager {
 
@@ -20,7 +19,7 @@ class BoxVolumeManager @Inject constructor(
 
     override fun fileBrowser(rootID: String) =
             fileBrowserFactory(roots.find { it.rootID == rootID }
-                    ?: throw FileNotFoundException("No filebrowser for this root id found"))
+                    ?: throw FileNotFoundException("No filebrowser for root id found: " + rootID))
 
 }
 

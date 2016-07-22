@@ -6,18 +6,19 @@ import de.qabel.box.storage.exceptions.QblStorageNotFound
 import de.qabel.core.config.Identity
 import de.qabel.qabelbox.box.dto.*
 import de.qabel.qabelbox.box.provider.DocumentId
+import de.qabel.qabelbox.box.toEntry
 import rx.Observable
 import rx.lang.kotlin.observable
 import rx.lang.kotlin.toSingletonObservable
 import java.io.File
 import java.io.FileNotFoundException
-import java.util.*
+import javax.inject.Inject
 
-class BoxFileBrowserUseCase(identity: Identity,
-                            readBackend: StorageReadBackend,
-                            writeBackend: StorageWriteBackend,
-                            deviceId: ByteArray,
-                            tempDir: File) : FileBrowserUseCase {
+class BoxFileBrowserUseCase @Inject constructor(identity: Identity,
+                                                readBackend: StorageReadBackend,
+                                                writeBackend: StorageWriteBackend,
+                                                deviceId: ByteArray,
+                                                tempDir: File) : FileBrowserUseCase {
 
     private val volume: BoxVolume
     private val prefix = identity.prefixes.first()
@@ -144,10 +145,4 @@ class BoxFileBrowserUseCase(identity: Identity,
             nav.listFolders().find { it.name == p.name } ?: nav.createFolder(p.name)
             nav.commitIfChanged()
         }
-}
-
-fun BoxObject.toEntry() = when (this) {
-    is BoxFile -> BrowserEntry.File(this.name, this.size, Date(this.mtime))
-    is BoxFolder -> BrowserEntry.Folder(this.name)
-    else -> null
 }

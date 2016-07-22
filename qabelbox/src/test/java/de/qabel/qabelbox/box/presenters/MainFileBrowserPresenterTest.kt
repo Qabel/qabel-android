@@ -114,4 +114,22 @@ class MainFileBrowserPresenterTest {
         verify(view).export(docId)
     }
 
+    @Test
+    fun share() {
+        val docId = DocumentId("foo", "bar", BoxPath.Root * sample.name)
+        whenever(useCase.asDocumentId(docId.path)).thenReturn(docId.toSingletonObservable())
+        presenter.share(sample)
+
+        verify(view).share(docId)
+    }
+
+    @Test
+    fun navigateUp() {
+        stubWith(sampleFiles)
+        presenter.path = BoxPath.Root / "folder"
+
+        presenter.navigateUp()
+        verify(view).showEntries(sampleFiles)
+    }
+
 }

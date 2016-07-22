@@ -6,6 +6,7 @@ import de.qabel.qabelbox.box.dto.BrowserEntry.File
 import de.qabel.qabelbox.box.dto.BrowserEntry.Folder
 import de.qabel.qabelbox.box.dto.UploadSource
 import de.qabel.qabelbox.box.interactor.FileBrowser
+import de.qabel.qabelbox.box.provider.DocumentId
 import de.qabel.qabelbox.box.views.FileBrowserView
 import java.io.InputStream
 import javax.inject.Inject
@@ -15,14 +16,17 @@ class MainFileBrowserPresenter @Inject constructor(
         FileBrowserPresenter {
 
     override fun navigateUp() {
-        TODO()
+        path = path.parent
+        onRefresh()
     }
 
     var path: BoxPath.FolderLike = BoxPath.Root
 
 
     override fun share(file: File) {
-        TODO()
+        withDocumentId(file) {
+            view.share(it)
+        }
     }
 
     override fun upload(file: File, stream: InputStream) {
@@ -37,8 +41,15 @@ class MainFileBrowserPresenter @Inject constructor(
         }
     }
 
-    override fun export(file: File) {
+
+    private fun withDocumentId(file: File, callback: (DocumentId)  -> Unit) {
         useCase.asDocumentId(path * file.name).subscribe {
+            callback(it)
+        }
+    }
+
+    override fun export(file: File) {
+        withDocumentId(file) {
             view.export(it)
         }
     }
@@ -68,7 +79,7 @@ class MainFileBrowserPresenter @Inject constructor(
                 onRefresh()
             }
             is File -> {
-                useCase.asDocumentId(path * entry.name).subscribe {
+                withDocumentId(entry) {
                     view.open(it)
                 }
             }

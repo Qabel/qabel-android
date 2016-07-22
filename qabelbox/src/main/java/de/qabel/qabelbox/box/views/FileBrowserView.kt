@@ -7,6 +7,7 @@ import de.qabel.qabelbox.box.provider.DocumentId
 interface FileBrowserView {
     fun showEntries(entries: List<BrowserEntry>)
     fun open(documentId: DocumentId)
+    fun share(documentId: DocumentId)
     fun export(documentId: DocumentId)
 }
 

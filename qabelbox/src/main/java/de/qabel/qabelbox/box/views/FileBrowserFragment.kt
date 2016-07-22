@@ -29,7 +29,6 @@ import javax.inject.Inject
 
 class FileBrowserFragment: FileBrowserView, BaseFragment(), AnkoLogger,
         SwipeRefreshLayout.OnRefreshListener {
-
     companion object {
         fun newInstance() = FileBrowserFragment()
         val REQUEST_OPEN_FILE = 0
@@ -137,19 +136,43 @@ class FileBrowserFragment: FileBrowserView, BaseFragment(), AnkoLogger,
     }
 
     override fun open(documentId: DocumentId) {
-        val uri = DocumentsContract.buildDocumentUri(
-                BuildConfig.APPLICATION_ID + BoxProvider.AUTHORITY,
-                documentId.toString())
-        val type = URLConnection.guessContentTypeFromName(uri.toString())
-        val intent = Intent().apply {
-            action = Intent.ACTION_VIEW
-            setDataAndType(uri, type)
+        val uri = uriFromDocumentId(documentId)
+        val intent = Intent(Intent.ACTION_VIEW).apply {
+            data = uri
+            type = typeFromUri(uri)
             addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
         }
-        startActivity(Intent.createChooser(intent, "Open with").singleTop())
+        startActivity(Intent.createChooser(intent, ctx.getString(R.string.share_via)).singleTop())
     }
+
+    override fun share(documentId: DocumentId) {
+        val uri = uriFromDocumentId(documentId)
+        val shareIntent = Intent(Intent.ACTION_SEND).apply {
+            data = uri
+            type = typeFromUri(uri)
+            putExtra(Intent.EXTRA_SUBJECT, R.string.share_subject)
+            putExtra(Intent.EXTRA_TITLE, R.string.share_subject)
+            putExtra(Intent.EXTRA_TEXT, activity.getString(R.string.share_text))
+            putExtra(Intent.EXTRA_STREAM, uri)
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        }
+        startActivity(Intent.createChooser(shareIntent, activity.getString(R.string.share_via)))
+    }
+
+    private fun typeFromUri(uri: Uri?): String? {
+        val type = URLConnection.guessContentTypeFromName(uri.toString())
+        return type
+    }
+
+    private fun uriFromDocumentId(documentId: DocumentId): Uri? =
+            DocumentsContract.buildDocumentUri(
+                    BuildConfig.APPLICATION_ID + BoxProvider.AUTHORITY,
+                    documentId.toString())
+
+
     override fun export(documentId: DocumentId) {
     }
+
 
     override fun handleFABAction(): Boolean {
         BottomSheet.Builder(activity).sheet(R.menu.bottom_sheet_files_add).listener { dialog, which ->

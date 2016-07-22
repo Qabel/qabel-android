@@ -74,15 +74,13 @@ open class BoxProvider : DocumentsProvider() {
         val netProjection = reduceProjection(projection, DEFAULT_ROOT_PROJECTION)
         val result = MatrixCursor(netProjection)
         useCase.availableRoots().forEach {
-            with(it) {
-                with(result.newRow()) {
-                    add(Root.COLUMN_ROOT_ID, rootID)
-                    add(Root.COLUMN_DOCUMENT_ID, documentID)
-                    add(Root.COLUMN_ICON, R.drawable.qabel_logo)
-                    add(Root.COLUMN_FLAGS, Root.FLAG_SUPPORTS_CREATE)
-                    add(Root.COLUMN_TITLE, "Qabel")
-                    add(Root.COLUMN_SUMMARY, alias)
-                }
+            with(result.newRow()) {
+                add(Root.COLUMN_ROOT_ID, it.rootID)
+                add(Root.COLUMN_DOCUMENT_ID, it.documentID)
+                add(Root.COLUMN_ICON, R.drawable.qabel_logo)
+                add(Root.COLUMN_FLAGS, Root.FLAG_SUPPORTS_CREATE)
+                add(Root.COLUMN_TITLE, "Qabel")
+                add(Root.COLUMN_SUMMARY, it.alias)
             }
         }
         return result

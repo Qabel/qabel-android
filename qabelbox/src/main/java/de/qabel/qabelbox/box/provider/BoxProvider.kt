@@ -100,8 +100,11 @@ open class BoxProvider : DocumentsProvider() {
 
     @Throws(FileNotFoundException::class)
     override fun queryDocument(documentIdString: String, projection: Array<String>?): Cursor? {
-        val id = try { documentIdString.toDocumentId() } catch (e: QblStorageException) {
-            throw FileNotFoundException("Document not found") }
+        val id = try {
+            documentIdString.toDocumentId()
+        } catch (e: QblStorageException) {
+                throw FileNotFoundException("Document not found")
+        }
         val entry = useCase.query(id).toBlocking().firstOrNull()
                 ?: throw FileNotFoundException("Not found: $documentIdString")
         return createCursor(projection ?: arrayOf(), false).apply {
@@ -114,8 +117,11 @@ open class BoxProvider : DocumentsProvider() {
 
     @Throws(FileNotFoundException::class)
     override fun queryChildDocuments(parentDocumentId: String, projection: Array<String>?, sortOrder: String?): Cursor {
-        val id = try { parentDocumentId.toDocumentId() } catch (e: QblStorageException) {
-            throw FileNotFoundException("Document not found") }
+        val id = try {
+            parentDocumentId.toDocumentId()
+        } catch (e: QblStorageException) {
+            throw FileNotFoundException("Document not found")
+        }
         val listing = useCase.queryChildDocuments(id).toBlocking().firstOrNull()
         return createCursor(projection ?: arrayOf(), false).apply {
             listing.map {

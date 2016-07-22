@@ -32,6 +32,7 @@ class FileBrowserFragment: FileBrowserView, BaseFragment(), AnkoLogger,
     companion object {
         fun newInstance() = FileBrowserFragment()
         val REQUEST_OPEN_FILE = 0
+        val REQUEST_EXPORT_FILE = 0
     }
 
     override val isFabNeeded = true
@@ -95,9 +96,16 @@ class FileBrowserFragment: FileBrowserView, BaseFragment(), AnkoLogger,
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         val uri = data?.data
-        if (uri != null && requestCode == REQUEST_OPEN_FILE) {
-            upload(uri)
-            return
+        if (uri != null) {
+            when (requestCode) {
+                REQUEST_OPEN_FILE -> {
+                    upload(uri)
+                    return
+                }
+                REQUEST_EXPORT_FILE -> {
+                    TODO()
+                }
+            }
 
         }
         super.onActivityResult(requestCode, resultCode, data)

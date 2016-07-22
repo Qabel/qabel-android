@@ -6,6 +6,7 @@ import dagger.Module
 import dagger.Provides
 import de.qabel.core.config.Identity
 import de.qabel.desktop.repository.IdentityRepository
+import de.qabel.qabelbox.box.backends.MockStorageBackend
 import de.qabel.qabelbox.box.dto.VolumeRoot
 import de.qabel.qabelbox.box.interactor.*
 
@@ -21,7 +22,9 @@ class BoxModule {
     @Singleton
     @Provides
     fun provideVolumeManager(identityRepository: IdentityRepository): VolumeManager {
-        return BoxVolumeManager(identityRepository, makeFileBrowserFactory(identityRepository))
+        val backend = MockStorageBackend()
+        return BoxVolumeManager(identityRepository, makeFileBrowserFactory(
+                identityRepository, byteArrayOf(1), backend, backend, createTempDir()))
     }
 
 }

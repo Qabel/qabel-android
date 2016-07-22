@@ -1,16 +1,14 @@
 package de.qabel.qabelbox.dagger.modules;
 
 import android.util.Log;
-import android.widget.Toast;
 
 import dagger.Module;
 import dagger.Provides;
 import de.qabel.core.config.Identities;
 import de.qabel.core.config.Identity;
-import de.qabel.desktop.repository.IdentityRepository;
-import de.qabel.desktop.repository.exception.EntityNotFoundException;
-import de.qabel.desktop.repository.exception.PersistenceException;
-import de.qabel.qabelbox.R;
+import de.qabel.core.repository.IdentityRepository;
+import de.qabel.core.repository.exception.EntityNotFoundException;
+import de.qabel.core.repository.exception.PersistenceException;
 import de.qabel.qabelbox.activities.MainActivity;
 import de.qabel.qabelbox.config.AppPreference;
 import de.qabel.qabelbox.dagger.scopes.ActivityScope;

@@ -5,8 +5,8 @@ import android.content.Context;
 import javax.inject.Singleton;
 
 import dagger.Component;
-import de.qabel.desktop.repository.ContactRepository;
-import de.qabel.desktop.repository.IdentityRepository;
+import de.qabel.core.repository.ContactRepository;
+import de.qabel.core.repository.IdentityRepository;
 import de.qabel.qabelbox.activities.CreateAccountActivity;
 import de.qabel.qabelbox.activities.CreateIdentityActivity;
 import de.qabel.qabelbox.activities.SplashActivity;
@@ -18,7 +18,6 @@ import de.qabel.qabelbox.dagger.modules.RepositoryModule;
 import de.qabel.qabelbox.dagger.modules.StorageModule;
 import de.qabel.qabelbox.fragments.CreateAccountFinalFragment;
 import de.qabel.qabelbox.fragments.CreateIdentityMainFragment;
-import de.qabel.qabelbox.settings.fragments.SettingsFragment;
 
 @Component(modules = {ApplicationModule.class, RepositoryModule.class, AccountModule.class, StorageModule.class})
 @Singleton

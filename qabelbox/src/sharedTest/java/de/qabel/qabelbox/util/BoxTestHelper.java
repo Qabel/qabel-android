@@ -3,8 +3,8 @@ package de.qabel.qabelbox.util;
 
 import javax.inject.Inject;
 
-import de.qabel.desktop.repository.ContactRepository;
-import de.qabel.desktop.repository.IdentityRepository;
+import de.qabel.core.repository.ContactRepository;
+import de.qabel.core.repository.IdentityRepository;
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.account.AccountManager;
 import de.qabel.qabelbox.config.AppPreference;

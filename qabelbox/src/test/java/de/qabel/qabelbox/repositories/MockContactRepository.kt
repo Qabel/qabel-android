@@ -3,10 +3,9 @@ package de.qabel.qabelbox.repositories
 import de.qabel.core.config.Contact
 import de.qabel.core.config.Contacts
 import de.qabel.core.config.Identity
-import de.qabel.desktop.repository.ContactRepository
-import de.qabel.desktop.repository.exception.EntityNotFoundException
-import de.qabel.desktop.util.DefaultHashMap
-import de.qabel.qabelbox.contacts.dto.ContactDto
+import de.qabel.core.repository.ContactRepository
+import de.qabel.core.repository.exception.EntityNotFoundException
+import de.qabel.core.util.DefaultHashMap
 import java.util.*
 
 class MockContactRepository(val contacts: MutableMap<String, Contact> = mutableMapOf(),

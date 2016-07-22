@@ -56,7 +56,7 @@ public abstract class MockedBoxProviderTest extends InstrumentationTestCase {
         MockBoxProvider provider = getProvider();
         String keyIdentifier = provider.keyPair.getPub().getReadableKeyIdentifier();
         volume = provider.getVolumeForRoot(keyIdentifier, MockBoxProvider.prefix);
-        volume.createIndex(volume.getRootRef());
+        //volume.createIndex(volume.getRootRef());
 
         ROOT_DOC_ID = keyIdentifier + "::::" + MockBoxProvider.prefix + "::::/";
     }

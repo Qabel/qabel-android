@@ -29,9 +29,9 @@ import de.qabel.core.exceptions.QblSpoofedSenderException;
 import de.qabel.core.exceptions.QblVersionMismatchException;
 import de.qabel.core.http.DropHTTP;
 import de.qabel.core.http.HTTPResult;
-import de.qabel.desktop.repository.ContactRepository;
-import de.qabel.desktop.repository.IdentityRepository;
-import de.qabel.desktop.repository.exception.PersistenceException;
+import de.qabel.core.repository.ContactRepository;
+import de.qabel.core.repository.IdentityRepository;
+import de.qabel.core.repository.exception.PersistenceException;
 
 public class HttpDropConnector implements DropConnector {
     private static final String TAG = "HttpDropConnector";
@@ -112,7 +112,7 @@ public class HttpDropConnector implements DropConnector {
                 allMessages.addAll(results);
 
             }
-        }catch (IOException e){
+        } catch (IOException e) {
             Log.e(TAG, "Error retrieving drop messages", e);
         }
         return allMessages;
@@ -129,7 +129,7 @@ public class HttpDropConnector implements DropConnector {
         Collection<DropMessage> plainMessages = new ArrayList<>();
 
         List<Contact> ccc = new ArrayList<>();
-        for (Contacts contacts: getAllContacts().values()) {
+        for (Contacts contacts : getAllContacts().values()) {
             ccc.addAll(contacts.getContacts());
         }
         Collections.shuffle(ccc, new SecureRandom());
@@ -192,7 +192,7 @@ public class HttpDropConnector implements DropConnector {
     private Map<Identity, Contacts> getAllContacts() {
         try {
             Map<Identity, Contacts> contacts = new HashMap<>();
-            for (Identity identity: getIdentities().getIdentities()) {
+            for (Identity identity : getIdentities().getIdentities()) {
                 contacts.put(identity, contactRepository.find(identity));
             }
             return contacts;

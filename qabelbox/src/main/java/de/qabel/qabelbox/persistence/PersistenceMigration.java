@@ -5,10 +5,10 @@ import java.util.List;
 import de.qabel.core.config.Contact;
 import de.qabel.core.config.Contacts;
 import de.qabel.core.config.Identity;
-import de.qabel.desktop.repository.ContactRepository;
-import de.qabel.desktop.repository.IdentityRepository;
-import de.qabel.desktop.repository.exception.EntityNotFoundException;
-import de.qabel.desktop.repository.exception.PersistenceException;
+import de.qabel.core.repository.ContactRepository;
+import de.qabel.core.repository.IdentityRepository;
+import de.qabel.core.repository.exception.EntityNotFoundException;
+import de.qabel.core.repository.exception.PersistenceException;
 
 public class PersistenceMigration {
 
@@ -16,13 +16,14 @@ public class PersistenceMigration {
                                IdentityRepository identityRepository,
                                ContactRepository contactRepository)
             throws PersistenceException, EntityNotFoundException {
+
         List<Identity> identities = persistence.getEntities(Identity.class);
         List<Contacts> contactsList = persistence.getEntities(Contacts.class);
-        for (Identity identity: identities) {
+        for (Identity identity : identities) {
             identityRepository.save(identity);
         }
-        for (Contacts contacts: contactsList) {
-            for (Contact contact: contacts.getContacts()) {
+        for (Contacts contacts : contactsList) {
+            for (Contact contact : contacts.getContacts()) {
                 Identity identity = identityRepository.find(
                         contacts.getIdentity().getKeyIdentifier());
                 contactRepository.save(contact, identity);

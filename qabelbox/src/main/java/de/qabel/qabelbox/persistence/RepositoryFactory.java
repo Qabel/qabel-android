@@ -10,17 +10,17 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
-import de.qabel.desktop.config.factory.DefaultIdentityFactory;
-import de.qabel.desktop.repository.EntityManager;
-import de.qabel.desktop.repository.IdentityRepository;
+import de.qabel.core.config.factory.DefaultIdentityFactory;
+import de.qabel.core.repository.EntityManager;
+import de.qabel.core.repository.IdentityRepository;
+import de.qabel.core.repository.sqlite.MigrationException;
+import de.qabel.core.repository.sqlite.SqliteContactRepository;
+import de.qabel.core.repository.sqlite.SqliteDropUrlRepository;
+import de.qabel.core.repository.sqlite.SqliteIdentityRepository;
+import de.qabel.core.repository.sqlite.SqlitePrefixRepository;
+import de.qabel.core.repository.sqlite.hydrator.DropURLHydrator;
+import de.qabel.core.repository.sqlite.hydrator.IdentityHydrator;
 import de.qabel.desktop.repository.sqlite.AndroidClientDatabase;
-import de.qabel.desktop.repository.sqlite.MigrationException;
-import de.qabel.desktop.repository.sqlite.SqliteContactRepository;
-import de.qabel.desktop.repository.sqlite.SqliteDropUrlRepository;
-import de.qabel.desktop.repository.sqlite.SqliteIdentityRepository;
-import de.qabel.desktop.repository.sqlite.SqlitePrefixRepository;
-import de.qabel.desktop.repository.sqlite.hydrator.DropURLHydrator;
-import de.qabel.desktop.repository.sqlite.hydrator.IdentityHydrator;
 import de.qabel.qabelbox.exceptions.QblPersistenceException;
 
 public class RepositoryFactory {
@@ -64,11 +64,11 @@ public class RepositoryFactory {
 
 
     public IdentityRepository getIdentityRepository(AndroidClientDatabase clientDatabase) {
-		SqliteDropUrlRepository dropUrlRepository = getSqliteDropUrlRepository(clientDatabase);
-		SqlitePrefixRepository prefixRepository = getSqlitePrefixRepository(clientDatabase);
-		IdentityHydrator hydrator = getIdentityHydrator(getEntityManager(), dropUrlRepository, prefixRepository);
-		return new SqliteIdentityRepository(
-				clientDatabase, hydrator, dropUrlRepository, prefixRepository);
+        SqliteDropUrlRepository dropUrlRepository = getSqliteDropUrlRepository(clientDatabase);
+        SqlitePrefixRepository prefixRepository = getSqlitePrefixRepository(clientDatabase);
+        IdentityHydrator hydrator = getIdentityHydrator(getEntityManager(), dropUrlRepository, prefixRepository);
+        return new SqliteIdentityRepository(
+                clientDatabase, hydrator, dropUrlRepository, prefixRepository);
     }
 
     @NonNull

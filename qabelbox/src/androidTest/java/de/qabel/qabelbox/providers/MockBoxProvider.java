@@ -11,12 +11,9 @@ import java.util.ArrayList;
 import de.qabel.core.config.Identities;
 import de.qabel.core.config.Identity;
 import de.qabel.core.crypto.QblECKeyPair;
-import de.qabel.desktop.repository.IdentityRepository;
 import de.qabel.qabelbox.BuildConfig;
 import de.qabel.qabelbox.TestConstants;
 import de.qabel.qabelbox.persistence.RepositoryFactory;
-import de.qabel.qabelbox.storage.notifications.AndroidStorageNotificationManager;
-import de.qabel.qabelbox.storage.notifications.AndroidStorageNotificationPresenter;
 
 public class MockBoxProvider extends BoxProvider {
 

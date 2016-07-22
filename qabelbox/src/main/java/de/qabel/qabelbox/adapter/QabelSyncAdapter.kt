@@ -5,7 +5,6 @@ import android.content.*
 import android.os.Bundle
 import android.util.Log
 import de.qabel.core.config.Identity
-import de.qabel.desktop.repository.ContactRepository
 import de.qabel.desktop.repository.IdentityRepository
 import de.qabel.desktop.repository.exception.EntityNotFoundException
 import de.qabel.desktop.repository.exception.PersistenceException

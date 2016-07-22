@@ -8,7 +8,6 @@ import javax.inject.Singleton;
 
 import dagger.Module;
 import dagger.Provides;
-import de.qabel.desktop.repository.IdentityRepository;
 import de.qabel.qabelbox.config.AppPreference;
 import de.qabel.qabelbox.providers.DocumentIdParser;
 import de.qabel.qabelbox.storage.notifications.AndroidStorageNotificationManager;

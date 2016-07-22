@@ -2,8 +2,8 @@ package de.qabel.qabelbox.repositories
 
 import de.qabel.core.config.Identities
 import de.qabel.core.config.Identity
-import de.qabel.desktop.repository.IdentityRepository
-import de.qabel.desktop.repository.exception.EntityNotFoundException
+import de.qabel.core.repository.IdentityRepository
+import de.qabel.core.repository.exception.EntityNotFoundException
 
 class MockIdentityRepository(val identity: Identity): IdentityRepository {
 

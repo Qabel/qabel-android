@@ -42,16 +42,15 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import de.qabel.core.config.Identity;
-import de.qabel.desktop.repository.ContactRepository;
-import de.qabel.desktop.repository.IdentityRepository;
-import de.qabel.desktop.repository.exception.PersistenceException;
+import de.qabel.core.repository.ContactRepository;
+import de.qabel.core.repository.IdentityRepository;
+import de.qabel.core.repository.exception.PersistenceException;
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.QblBroadcastConstants;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.account.AccountManager;
 import de.qabel.qabelbox.account.AccountStatusCodes;
 import de.qabel.qabelbox.chat.ChatServer;
-import de.qabel.qabelbox.util.ShareHelper;
 import de.qabel.qabelbox.communication.connection.ConnectivityManager;
 import de.qabel.qabelbox.config.AppPreference;
 import de.qabel.qabelbox.config.QabelSchema;
@@ -72,6 +71,7 @@ import de.qabel.qabelbox.navigation.MainNavigator;
 import de.qabel.qabelbox.settings.SettingsActivity;
 import de.qabel.qabelbox.ui.views.DrawerNavigationView;
 import de.qabel.qabelbox.ui.views.DrawerNavigationViewHolder;
+import de.qabel.qabelbox.util.ShareHelper;
 import kotlin.NotImplementedError;
 
 public class MainActivity extends CrashReportingActivity

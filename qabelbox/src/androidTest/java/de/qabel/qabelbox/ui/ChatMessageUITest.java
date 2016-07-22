@@ -14,7 +14,7 @@ import org.junit.Test;
 
 import de.qabel.core.config.Contact;
 import de.qabel.core.config.Identity;
-import de.qabel.desktop.repository.exception.PersistenceException;
+import de.qabel.core.repository.exception.PersistenceException;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.activities.MainActivity;
 import de.qabel.qabelbox.chat.persistence.model.ChatMessageItem;

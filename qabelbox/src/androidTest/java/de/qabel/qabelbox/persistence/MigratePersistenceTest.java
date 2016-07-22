@@ -16,10 +16,8 @@ import de.qabel.core.config.Identity;
 import de.qabel.core.crypto.QblECKeyPair;
 import de.qabel.desktop.config.factory.DropUrlGenerator;
 import de.qabel.desktop.config.factory.IdentityBuilderFactory;
-import de.qabel.desktop.repository.IdentityRepository;
 import de.qabel.desktop.repository.exception.PersistenceException;
 import de.qabel.desktop.repository.sqlite.AndroidClientDatabase;
-import de.qabel.desktop.repository.sqlite.SqliteContactRepository;
 import de.qabel.qabelbox.QabelBoxApplication;
 
 import static org.hamcrest.MatcherAssert.assertThat;

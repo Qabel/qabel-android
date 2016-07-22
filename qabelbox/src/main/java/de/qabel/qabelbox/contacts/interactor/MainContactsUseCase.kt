@@ -4,7 +4,7 @@ import de.qabel.core.config.Contact
 import de.qabel.core.config.ContactExportImport
 import de.qabel.core.config.Identity
 import de.qabel.core.contacts.ContactExchangeFormats
-import de.qabel.desktop.repository.ContactRepository
+import de.qabel.core.repository.ContactRepository
 import de.qabel.qabelbox.config.QabelSchema
 import de.qabel.qabelbox.contacts.dto.ContactDto
 import de.qabel.qabelbox.contacts.dto.ContactParseResult

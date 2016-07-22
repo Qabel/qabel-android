@@ -4,8 +4,8 @@ import android.content.Context;
 
 import dagger.Module;
 import dagger.Provides;
-import de.qabel.desktop.repository.ContactRepository;
-import de.qabel.desktop.repository.IdentityRepository;
+import de.qabel.core.repository.ContactRepository;
+import de.qabel.core.repository.IdentityRepository;
 import de.qabel.desktop.repository.sqlite.AndroidClientDatabase;
 import de.qabel.qabelbox.persistence.RepositoryFactory;
 

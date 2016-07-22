@@ -1,12 +1,12 @@
 package de.qabel.qabelbox.chat.transformers
 
-import de.qabel.desktop.repository.ContactRepository
-import de.qabel.desktop.repository.IdentityRepository
-import de.qabel.desktop.repository.exception.EntityNotFoundException
-import de.qabel.qabelbox.chat.persistence.model.ChatMessageItem
+import de.qabel.core.repository.ContactRepository
+import de.qabel.core.repository.IdentityRepository
+import de.qabel.core.repository.exception.EntityNotFoundException
 import de.qabel.qabelbox.chat.dto.ChatMessage
 import de.qabel.qabelbox.chat.dto.MessagePayload
 import de.qabel.qabelbox.chat.dto.SymmetricKey
+import de.qabel.qabelbox.chat.persistence.model.ChatMessageItem
 import java.net.URL
 import java.util.*
 import javax.inject.Inject

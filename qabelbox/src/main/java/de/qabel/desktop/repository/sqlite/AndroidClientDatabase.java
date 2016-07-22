@@ -8,13 +8,16 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-import de.qabel.desktop.repository.sqlite.migration.AbstractMigration;
-import de.qabel.desktop.repository.sqlite.migration.Migration1460367000CreateIdentitiy;
-import de.qabel.desktop.repository.sqlite.migration.Migration1460367005CreateContact;
-import de.qabel.desktop.repository.sqlite.migration.Migration1460367010CreateAccount;
-import de.qabel.desktop.repository.sqlite.migration.Migration1460367020DropState;
-import de.qabel.desktop.repository.sqlite.migration.Migration1460367035Entity;
-import de.qabel.desktop.repository.sqlite.migration.Migration1460987825PreventDuplicateContacts;
+import de.qabel.core.repository.sqlite.AbstractClientDatabase;
+import de.qabel.core.repository.sqlite.ClientDatabase;
+import de.qabel.core.repository.sqlite.migration.AbstractMigration;
+import de.qabel.core.repository.sqlite.migration.Migration1460367000CreateIdentitiy;
+import de.qabel.core.repository.sqlite.migration.Migration1460367005CreateContact;
+import de.qabel.core.repository.sqlite.migration.Migration1460367010CreateAccount;
+import de.qabel.core.repository.sqlite.migration.Migration1460367020DropState;
+import de.qabel.core.repository.sqlite.migration.Migration1460367035Entity;
+import de.qabel.core.repository.sqlite.migration.Migration1460987825PreventDuplicateContacts;
+import de.qabel.core.repository.sqlite.migration.Migration1460997040ChatDropMessage;
 
 public class AndroidClientDatabase extends AbstractClientDatabase implements ClientDatabase {
 
@@ -53,7 +56,8 @@ public class AndroidClientDatabase extends AbstractClientDatabase implements Cli
                 new Migration1460367010CreateAccount(connection),
                 new Migration1460367020DropState(connection),
                 new Migration1460367035Entity(connection),
-                new Migration1460987825PreventDuplicateContacts(connection)
+                new Migration1460987825PreventDuplicateContacts(connection),
+                new Migration1460997040ChatDropMessage(connection)
         };
     }
 

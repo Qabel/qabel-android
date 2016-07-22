@@ -128,11 +128,12 @@ class FileBrowserFragment: FileBrowserView, BaseFragment(), AnkoLogger,
     }
 
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
-        if (item?.itemId == R.id.menu_refresh) {
-            onRefresh()
-            return true
+        when(item?.itemId) {
+            R.id.menu_refresh -> onRefresh()
+            R.id.menu_up -> presenter.navigateUp()
+            else -> return false
         }
-        return false
+        return true
     }
 
     override fun open(documentId: DocumentId) {

@@ -14,6 +14,10 @@ class MainFileBrowserPresenter @Inject constructor(
         private val view: FileBrowserView, private val useCase: FileBrowser):
         FileBrowserPresenter {
 
+    override fun navigateUp() {
+        TODO()
+    }
+
     var path: BoxPath.FolderLike = BoxPath.Root
 
 

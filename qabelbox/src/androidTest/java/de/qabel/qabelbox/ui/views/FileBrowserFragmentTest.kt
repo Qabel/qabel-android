@@ -113,4 +113,11 @@ class FileBrowserFragmentTest: AbstractUITest() {
         verify(presenter).createFolder(BrowserEntry.Folder("folder"))
     }
 
+    @Test
+    fun navigateUp() {
+        launch()
+        onView(withId(R.id.menu_up)).perform(click())
+        verify(presenter).navigateUp()
+    }
+
 }

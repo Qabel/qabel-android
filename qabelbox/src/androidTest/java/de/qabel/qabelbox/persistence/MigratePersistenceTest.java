@@ -14,9 +14,11 @@ import de.qabel.core.config.Contact;
 import de.qabel.core.config.Contacts;
 import de.qabel.core.config.Identity;
 import de.qabel.core.crypto.QblECKeyPair;
-import de.qabel.desktop.config.factory.DropUrlGenerator;
-import de.qabel.desktop.config.factory.IdentityBuilderFactory;
-import de.qabel.desktop.repository.exception.PersistenceException;
+import de.qabel.core.config.factory.DropUrlGenerator;
+import de.qabel.core.config.factory.IdentityBuilderFactory;
+import de.qabel.core.repository.IdentityRepository;
+import de.qabel.core.repository.exception.PersistenceException;
+import de.qabel.core.repository.sqlite.SqliteContactRepository;
 import de.qabel.desktop.repository.sqlite.AndroidClientDatabase;
 import de.qabel.qabelbox.QabelBoxApplication;
 

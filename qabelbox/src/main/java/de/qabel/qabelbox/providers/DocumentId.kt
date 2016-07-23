@@ -2,7 +2,7 @@ package de.qabel.qabelbox.providers
 
 import java.util.Arrays
 
-import de.qabel.desktop.StringUtils
+import de.qabel.core.StringUtils
 
 class DocumentId(val identityKey: String, val prefix: String, val path: Array<String>, val fileName: String) {
 

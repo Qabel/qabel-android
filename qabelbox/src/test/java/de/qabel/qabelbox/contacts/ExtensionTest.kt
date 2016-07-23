@@ -3,7 +3,7 @@ package de.qabel.qabelbox.contacts
 import de.qabel.core.config.Identity
 import de.qabel.qabelbox.BuildConfig
 import de.qabel.qabelbox.SimpleApplication
-import de.qabel.qabelbox.contacts.extensions.contains
+import de.qabel.core.extensions.contains
 import de.qabel.qabelbox.util.IdentityHelper
 import org.junit.Test
 import org.junit.runner.RunWith

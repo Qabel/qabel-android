@@ -1,6 +1,7 @@
 package de.qabel.qabelbox.contacts.interactor
 
 import de.qabel.core.contacts.ContactExchangeFormats
+import de.qabel.core.repository.ContactRepository
 import de.qabel.qabelbox.BuildConfig
 import de.qabel.qabelbox.SimpleApplication
 import de.qabel.qabelbox.config.QabelSchema

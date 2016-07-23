@@ -5,9 +5,10 @@ import android.content.*
 import android.os.Bundle
 import android.util.Log
 import de.qabel.core.config.Identity
-import de.qabel.desktop.repository.IdentityRepository
-import de.qabel.desktop.repository.exception.EntityNotFoundException
-import de.qabel.desktop.repository.exception.PersistenceException
+import de.qabel.core.repository.ContactRepository
+import de.qabel.core.repository.IdentityRepository
+import de.qabel.core.repository.exception.EntityNotFoundException
+import de.qabel.core.repository.exception.PersistenceException
 import de.qabel.qabelbox.QabelBoxApplication
 import de.qabel.qabelbox.chat.persistence.model.ChatMessageInfo
 import de.qabel.qabelbox.chat.persistence.model.ChatMessageItem

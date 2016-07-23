@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import de.qabel.core.config.Identities;
 import de.qabel.core.config.Identity;
 import de.qabel.core.crypto.QblECKeyPair;
+import de.qabel.core.repository.IdentityRepository;
 import de.qabel.qabelbox.BuildConfig;
 import de.qabel.qabelbox.TestConstants;
 import de.qabel.qabelbox.persistence.RepositoryFactory;

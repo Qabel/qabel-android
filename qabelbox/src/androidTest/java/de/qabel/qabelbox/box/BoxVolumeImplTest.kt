@@ -1,12 +1,14 @@
 package de.qabel.qabelbox.box
 
+import de.qabel.box.storage.AbstractMetadata
+import de.qabel.box.storage.AndroidBoxVolume
 import de.qabel.box.storage.BoxVolumeConfig
-import de.qabel.box.storage.BoxVolumeImpl
-import de.qabel.qabelbox.box.backends.BoxHttpStorageBackend
+import de.qabel.box.storage.jdbc.DirectoryMetadataDatabase
+import de.qabel.box.storage.tryWith
 import de.qabel.qabelbox.box.backends.MockStorageBackend
-import de.qabel.qabelbox.storage.server.MockBlockServer
 import de.qabel.qabelbox.util.IdentityHelper
 import org.junit.Test
+import java.sql.DriverManager
 
 class BoxVolumeImplTest {
 
@@ -15,7 +17,7 @@ class BoxVolumeImplTest {
     @Test
     fun testNavigate() {
         val backend = MockStorageBackend()
-        val volume = BoxVolumeImpl(BoxVolumeConfig(
+        val volume = AndroidBoxVolume(BoxVolumeConfig(
                 "prefix",
                 byteArrayOf(1,2,3,4),
                 backend,
@@ -27,17 +29,14 @@ class BoxVolumeImplTest {
     }
 
     @Test
-    fun testMockBlockServer() {
-        val backend = BoxHttpStorageBackend(MockBlockServer(), "prefix")
-        val volume = BoxVolumeImpl(BoxVolumeConfig(
-                "prefix",
-                byteArrayOf(1,2,3,4),
-                backend,
-                backend,
-                "Blacke2b",
-                createTempDir()), identity.primaryKeyPair)
-        volume.createIndex("qabel", "prefix")
-        volume.navigate()
+    fun testDM() {
+        val connection = DriverManager.getConnection(
+                AbstractMetadata.JDBC_PREFIX + createTempFile().absolutePath)
+        connection.autoCommit = true
+        tryWith(connection.createStatement()) {execute("PRAGMA journal_mode=MEMORY") }
+        val db = DirectoryMetadataDatabase(connection)
+        db.migrate()
+        db.migrate()
     }
 
 }

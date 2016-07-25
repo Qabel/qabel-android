@@ -146,7 +146,7 @@ public class IdentitiesFragment extends BaseFragment {
                                         IdentitiesFragment.this.exportIdentityAsContact(identity);
                                         break;
                                     case R.id.identities_export_as_contact_qrcode:
-                                        MainActivity.showQRCode(mActivity, identity);
+                                        MainActivity.showQRCode(getMActivity(), identity);
 
                                         //QRCodeHelper.exportIdentityAsContactWithQR(getActivity(), identity);
                                 }
@@ -191,7 +191,7 @@ public class IdentitiesFragment extends BaseFragment {
                 if (resultData != null) {
                     Uri uri = resultData.getData();
 
-                    try (ParcelFileDescriptor pfd = mActivity.getContentResolver().openFileDescriptor(uri, "w");
+                    try (ParcelFileDescriptor pfd = getMActivity().getContentResolver().openFileDescriptor(uri, "w");
                          FileOutputStream fileOutputStream = new FileOutputStream(pfd.getFileDescriptor())) {
                         if (requestCode == MainActivity.REQUEST_EXPORT_IDENTITY_AS_CONTACT) {
                             fileOutputStream.write(ContactExportImport.exportIdentityAsContact(identityToExport).getBytes());

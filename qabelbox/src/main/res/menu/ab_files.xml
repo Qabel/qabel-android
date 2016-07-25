@@ -9,7 +9,10 @@
         android:icon="@drawable/magnify_white"
         android:orderInCategory="200"
         android:title="@string/Select"
-        app:showAsAction="always"/>
+        app:showAsAction="ifRoom"/>
 
-
+    <item
+        android:id="@+id/menu_refresh"
+        app:showAsAction="ifRoom"
+        android:title="@string/refresh"/>
 </menu>

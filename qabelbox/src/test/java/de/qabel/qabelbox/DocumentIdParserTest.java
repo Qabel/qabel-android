@@ -5,9 +5,9 @@ import org.junit.Test;
 
 import java.io.FileNotFoundException;
 
-import de.qabel.qabelbox.providers.BoxProvider;
-import de.qabel.qabelbox.providers.DocumentId;
-import de.qabel.qabelbox.providers.DocumentIdParser;
+import de.qabel.qabelbox.box.provider.BoxProvider;
+import de.qabel.qabelbox.box.provider.DocumentId;
+import de.qabel.qabelbox.box.provider.DocumentIdParser;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.nullValue;
@@ -109,7 +109,7 @@ public class DocumentIdParserTest {
         assertThat(documentId.getIdentityKey(), is(pub));
         assertThat(documentId.getPrefix(), is(prefix));
 
-        assertThat(documentId.getFileName(), is(fileName));
+        assertThat(documentId.getPath().getName(), is(fileName));
         assertThat(documentId.getPathString(), is(filePath));
     }
 

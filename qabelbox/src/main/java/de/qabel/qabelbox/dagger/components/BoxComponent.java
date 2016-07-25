@@ -1,20 +1,14 @@
 package de.qabel.qabelbox.dagger.components;
 
-import android.content.Context;
-
 import javax.inject.Singleton;
 
 import dagger.Component;
-import de.qabel.qabelbox.dagger.modules.ContextModule;
-import de.qabel.qabelbox.dagger.modules.RepositoryModule;
-import de.qabel.qabelbox.dagger.modules.StorageModule;
-import de.qabel.qabelbox.providers.BoxProvider;
+import de.qabel.qabelbox.dagger.modules.BoxModule;
+import de.qabel.qabelbox.box.provider.BoxProvider;
 
-@Component(modules = {ContextModule.class, RepositoryModule.class, StorageModule.class})
+@Component(modules = {BoxModule.class})
 @Singleton
 public interface BoxComponent {
-
-    Context context();
 
     void inject(BoxProvider boxProvider);
 

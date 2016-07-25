@@ -14,11 +14,11 @@ import de.qabel.qabelbox.adapter.QabelSyncAdapter;
 import de.qabel.qabelbox.dagger.modules.AccountModule;
 import de.qabel.qabelbox.dagger.modules.ActivityModule;
 import de.qabel.qabelbox.dagger.modules.ApplicationModule;
+import de.qabel.qabelbox.dagger.modules.BoxModule;
 import de.qabel.qabelbox.dagger.modules.RepositoryModule;
 import de.qabel.qabelbox.dagger.modules.StorageModule;
 import de.qabel.qabelbox.fragments.CreateAccountFinalFragment;
 import de.qabel.qabelbox.fragments.CreateIdentityMainFragment;
-import de.qabel.qabelbox.settings.fragments.SettingsFragment;
 
 @Component(modules = {ApplicationModule.class, RepositoryModule.class, AccountModule.class, StorageModule.class})
 @Singleton
@@ -41,4 +41,5 @@ public interface ApplicationComponent {
     void inject(CreateAccountFinalFragment createAccountFinalFragment);
 
     void inject(CreateIdentityMainFragment createIdentityMainFragment);
+
 }

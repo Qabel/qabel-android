@@ -8,6 +8,7 @@ import de.qabel.qabelbox.contacts.dagger.ContactDetailsModule;
 import de.qabel.qabelbox.contacts.dagger.ContactsComponent;
 import de.qabel.qabelbox.contacts.dagger.ContactsModule;
 import de.qabel.qabelbox.chat.dagger.ChatModule;
+import de.qabel.qabelbox.dagger.modules.FileBrowserModule;
 import de.qabel.qabelbox.dagger.modules.MainActivityModule;
 import de.qabel.qabelbox.dagger.scopes.ActivityScope;
 
@@ -21,6 +22,7 @@ public interface MainActivityComponent {
     MainActivity mainActivity();
 
     ChatComponent plus(ChatModule chatModule);
+    FileBrowserComponent plus(FileBrowserModule fileBrowserModule);
 
     ContactsComponent plus(ContactsModule contactsModule);
     ContactDetailsComponent plus(ContactDetailsModule contactDetailsModule);

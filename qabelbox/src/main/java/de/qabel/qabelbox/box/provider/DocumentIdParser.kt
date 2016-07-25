@@ -1,16 +1,16 @@
-package de.qabel.qabelbox.providers
+package de.qabel.qabelbox.box.provider
 
 import de.qabel.box.storage.exceptions.QblStorageException
+import de.qabel.qabelbox.box.dto.BoxPath
 import java.io.FileNotFoundException
-import java.util.ArrayList
-import java.util.Arrays
+import javax.inject.Inject
 
 
 /**
  * Document IDs are built like this:
  * public-key::::prefix::::/filepath
  */
-class DocumentIdParser {
+class DocumentIdParser @Inject constructor(){
 
     @Throws(FileNotFoundException::class)
     fun getIdentity(documentId: String): String {
@@ -52,11 +52,6 @@ class DocumentIdParser {
         return filepath
     }
 
-    fun splitPath(filePath: String): List<String> {
-
-        return ArrayList(Arrays.asList(*filePath.split("/".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()))
-    }
-
     @Throws(FileNotFoundException::class)
     fun getBaseName(documentID: String): String {
         val filepath = getFilePath(documentID)
@@ -76,28 +71,32 @@ class DocumentIdParser {
 
     @Throws(QblStorageException::class)
     fun parse(documentId: String): DocumentId {
-        val parts = documentId.split(BoxProvider.DOCID_SEPARATOR.toRegex(), MAX_TOKEN_SPLITS).toTypedArray()
-        if (parts.size != 3) {
-            throw QblStorageException("Invalid documentId: " + documentId)
-        }
-        val identityKey = parts[0]
-        val prefix = parts[1]
-
-        val completePath = parts[2]
-        val pathParts = completePath.split("/".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
-        var filename = ""
-        val path: Array<String>
-        if (pathParts.size > 0) {
-            filename = pathParts[pathParts.size - 1]
-            path = Arrays.copyOf(pathParts, pathParts.size - 1)
-        } else {
-            path = arrayOf("")
-        }
-        return DocumentId(identityKey, prefix, path, filename)
+        return documentId.toDocumentId()
     }
 
     companion object {
-
         val MAX_TOKEN_SPLITS = 3
     }
+}
+
+fun String.toDocumentId(): DocumentId {
+    val parts = this.split(BoxProvider.DOCID_SEPARATOR.toRegex(), DocumentIdParser.MAX_TOKEN_SPLITS)
+    if (parts.size != 3) {
+        throw QblStorageException("Invalid documentId: " + this)
+    }
+    val (identityKey, prefix, completePath) = parts
+    val pathParts = completePath.split("/").dropLastWhile(String::isEmpty)
+    if (pathParts.size == 0) {
+        return DocumentId(identityKey, prefix, BoxPath.Root)
+    }
+    val last = pathParts.last()
+    val parents = pathParts.dropLast(1).fold<String, BoxPath.FolderLike>(BoxPath.Root) {
+        path, part -> BoxPath.Folder(part, path)
+    }
+    val path = if (this.endsWith('/')) {
+        BoxPath.Folder(last, parents)
+    } else {
+        BoxPath.File(last, parents)
+    }
+    return DocumentId(identityKey, prefix, path)
 }

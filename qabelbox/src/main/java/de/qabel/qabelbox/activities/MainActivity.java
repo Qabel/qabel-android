@@ -26,7 +26,6 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Toast;
 
 import org.apache.commons.io.FilenameUtils;
 
@@ -50,7 +49,7 @@ import de.qabel.qabelbox.QblBroadcastConstants;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.account.AccountManager;
 import de.qabel.qabelbox.account.AccountStatusCodes;
-import de.qabel.qabelbox.chat.ChatServer;
+import de.qabel.qabelbox.fragments.BaseFragment;
 import de.qabel.qabelbox.util.ShareHelper;
 import de.qabel.qabelbox.communication.connection.ConnectivityManager;
 import de.qabel.qabelbox.config.AppPreference;
@@ -59,7 +58,6 @@ import de.qabel.qabelbox.dagger.HasComponent;
 import de.qabel.qabelbox.dagger.components.MainActivityComponent;
 import de.qabel.qabelbox.dagger.modules.ActivityModule;
 import de.qabel.qabelbox.dagger.modules.MainActivityModule;
-import de.qabel.qabelbox.fragments.BaseFragment;
 import de.qabel.qabelbox.fragments.CreateIdentityMainFragment;
 import de.qabel.qabelbox.fragments.IdentitiesFragment;
 import de.qabel.qabelbox.fragments.QRcodeFragment;
@@ -120,9 +118,6 @@ public class MainActivity extends CrashReportingActivity
     private MainActivity self;
     private boolean identityMenuExpanded;
 
-    // Used to save the document uri that should exported while waiting for the result
-    // of the create document intent.
-    public ChatServer chatServer;
     private LightingColorFilter mDrawerIndicatorTintFilter;
 
     @Inject
@@ -391,7 +386,7 @@ public class MainActivity extends CrashReportingActivity
                         navigator.selectContactsFragment();
                         navigator.selectChatFragment(activeContact);
                     } else if (startFilesFragment) {
-                        //initAndSelectFilesFragment(filePath);
+                        navigator.selectFilesFragment();
                     }
                     break;
             }
@@ -400,7 +395,7 @@ public class MainActivity extends CrashReportingActivity
                 navigator.selectContactsFragment();
                 navigator.selectChatFragment(activeContact);
             } else if (startFilesFragment) {
-                //initAndSelectFilesFragment(filePath);
+                navigator.selectFilesFragment();
             }
         }
     }
@@ -459,9 +454,6 @@ public class MainActivity extends CrashReportingActivity
             }
         }
         switch (activeFragmentTag) {
-            case MainNavigator.TAG_FILES_FRAGMENT:
-                break;
-
             case MainNavigator.TAG_MANAGE_IDENTITIES_FRAGMENT:
                 selectAddIdentityFragment();
                 break;
@@ -758,7 +750,7 @@ public class MainActivity extends CrashReportingActivity
         } catch (PersistenceException e) {
             throw new RuntimeException(e);
         }
-        i.putExtra(CreateIdentityActivity.FIRST_RUN, identitiesCount == 0 ? true : false);
+        i.putExtra(CreateIdentityActivity.FIRST_RUN, identitiesCount == 0);
 
         if (identitiesCount == 0) {
             finish();
@@ -766,11 +758,6 @@ public class MainActivity extends CrashReportingActivity
         } else {
             self.startActivityForResult(i, REQUEST_CREATE_IDENTITY);
         }
-    }
-
-    private void showAbortMessage() {
-        Toast.makeText(self, R.string.aborted,
-                Toast.LENGTH_SHORT).show();
     }
 
     @Override

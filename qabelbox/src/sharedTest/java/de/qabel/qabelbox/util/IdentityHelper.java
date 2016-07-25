@@ -1,5 +1,7 @@
 package de.qabel.qabelbox.util;
 
+import android.support.annotation.NonNull;
+
 import java.net.URISyntaxException;
 
 import de.qabel.core.config.Contact;
@@ -12,13 +14,7 @@ public class IdentityHelper {
 
     private static Identity identity;
 
-    /**
-     * create identity onthefile
-     *
-     * @param identName
-     * @param prefix
-     * @return
-     */
+    @NonNull
     public static Identity createIdentity(String identName, String prefix) {
         try {
             identity = new IdentityBuilder(new DropUrlGenerator(QabelBoxApplication.DEFAULT_DROP_SERVER))
@@ -33,6 +29,7 @@ public class IdentityHelper {
         }
     }
 
+    @NonNull
     public static Contact createContact(String contactName) {
         try {
             identity = new IdentityBuilder(new DropUrlGenerator(QabelBoxApplication.DEFAULT_DROP_SERVER))

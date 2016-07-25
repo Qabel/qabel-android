@@ -23,7 +23,7 @@ class AboutLicencesFragment : BaseFragment() {
 
     lateinit internal var licensesList: RecyclerView
 
-    override fun getTitle(): String? = ctx.getString(R.string.action_about)
+    override val title: String by lazy { ctx.getString(R.string.action_about) }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_aboutlicences, container, false)

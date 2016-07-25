@@ -9,5 +9,7 @@ interface FileBrowserView {
     fun open(documentId: DocumentId)
     fun share(documentId: DocumentId)
     fun export(documentId: DocumentId)
+
+    fun showError(throwable: Throwable)
 }
 

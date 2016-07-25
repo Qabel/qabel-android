@@ -8,6 +8,7 @@ import de.qabel.qabelbox.box.dto.UploadSource
 import de.qabel.qabelbox.box.interactor.FileBrowser
 import de.qabel.qabelbox.box.provider.DocumentId
 import de.qabel.qabelbox.box.views.FileBrowserView
+import rx.lang.kotlin.onError
 import java.io.InputStream
 import javax.inject.Inject
 
@@ -30,15 +31,15 @@ class MainFileBrowserPresenter @Inject constructor(
     }
 
     override fun upload(file: File, stream: InputStream) {
-        useCase.upload(path * file.name, UploadSource(stream, file)).subscribe {
+        useCase.upload(path * file.name, UploadSource(stream, file)).subscribe({
             onRefresh()
-        }
+        }, { view.showError(it) })
     }
 
     override fun delete(file: File) {
-        useCase.delete(BoxPath.Root * file.name).subscribe {
+        useCase.delete(BoxPath.Root * file.name).subscribe({
             onRefresh()
-        }
+        }, { view.showError(it) })
     }
 
 
@@ -55,21 +56,21 @@ class MainFileBrowserPresenter @Inject constructor(
     }
 
     override fun deleteFolder(folder: Folder) {
-        useCase.delete(path / folder.name).subscribe {
+        useCase.delete(path / folder.name).subscribe({
             onRefresh()
-        }
+        }, { view.showError(it) })
     }
 
     override fun createFolder(folder: Folder) {
-        useCase.createFolder(path / folder.name).subscribe {
+        useCase.createFolder(path / folder.name).subscribe({
             onRefresh()
-        }
+        }, { view.showError(it) })
     }
 
     override fun onRefresh() {
-        useCase.list(path).subscribe {
+        useCase.list(path).subscribe({
             view.showEntries(it)
-        }
+        }, { view.showError(it) })
     }
 
     override fun onClick(entry: BrowserEntry) {

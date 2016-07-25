@@ -1,14 +1,13 @@
 package de.qabel.qabelbox.dagger.modules
 
-import javax.inject.Singleton
-
+import android.content.Context
 import dagger.Module
 import dagger.Provides
-import de.qabel.core.config.Identity
 import de.qabel.desktop.repository.IdentityRepository
-import de.qabel.qabelbox.box.backends.MockStorageBackend
-import de.qabel.qabelbox.box.dto.VolumeRoot
 import de.qabel.qabelbox.box.interactor.*
+import de.qabel.qabelbox.config.AppPreference
+import de.qabel.qabelbox.storage.server.BlockServer
+import javax.inject.Singleton
 
 @Module
 class BoxModule {
@@ -21,10 +20,11 @@ class BoxModule {
 
     @Singleton
     @Provides
-    fun provideVolumeManager(identityRepository: IdentityRepository): VolumeManager {
-        val backend = MockStorageBackend()
+    fun provideVolumeManager(identityRepository: IdentityRepository, preference: AppPreference,
+                             context: Context, blockServer: BlockServer):
+            VolumeManager {
         return BoxVolumeManager(identityRepository, makeFileBrowserFactory(
-                identityRepository, byteArrayOf(1), backend, backend, createTempDir()))
+                identityRepository, preference.deviceId, context.cacheDir, blockServer))
     }
 
 }

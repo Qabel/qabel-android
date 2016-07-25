@@ -11,7 +11,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
-import de.qabel.core.accounting.AccountingHTTP;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.fragments.BaseIdentityFragment;
 import de.qabel.qabelbox.fragments.CreateIdentityHeaderFragment;
@@ -36,8 +35,6 @@ public abstract class BaseWizardActivity extends CrashReportingActivity {
     protected int step = 0;
     public int activityResult = RESULT_CANCELED;
     protected boolean mFirstRun;
-    //values for create box account mode
-    AccountingHTTP mAccounting;
     protected boolean canExit = false;
 
     @Override

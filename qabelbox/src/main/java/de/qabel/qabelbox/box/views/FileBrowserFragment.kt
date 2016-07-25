@@ -29,6 +29,12 @@ import javax.inject.Inject
 
 class FileBrowserFragment: FileBrowserView, BaseFragment(), AnkoLogger,
         SwipeRefreshLayout.OnRefreshListener {
+
+    override fun showError(throwable: Throwable) {
+        longToast(throwable.message ?: "Error")
+        error("Error", throwable)
+    }
+
     companion object {
         fun newInstance() = FileBrowserFragment()
         val REQUEST_OPEN_FILE = 0
@@ -103,7 +109,7 @@ class FileBrowserFragment: FileBrowserView, BaseFragment(), AnkoLogger,
                     return
                 }
                 REQUEST_EXPORT_FILE -> {
-                    TODO()
+                    toast(R.string.function_not_yet_implenented)
                 }
             }
 

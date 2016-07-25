@@ -25,7 +25,8 @@ class BoxFileBrowser @Inject constructor(identity: Identity,
     private val key = identity.keyIdentifier
 
     init {
-        volume = BoxVolume(BoxVolumeConfig(
+
+        volume = BoxVolumeImpl(BoxVolumeConfig(
                 prefix,
                 deviceId,
                 readBackend,

@@ -2,7 +2,6 @@ package de.qabel.qabelbox;
 
 import android.app.Application;
 import android.content.Context;
-import android.content.ServiceConnection;
 import android.support.multidex.MultiDex;
 import android.util.Log;
 
@@ -25,8 +24,6 @@ public class QabelBoxApplication extends Application {
         // Enforce SpongyCastle as JCE provider
         Security.insertProviderAt(new BouncyCastleProvider(), 1);
     }
-
-    private ServiceConnection mServiceConnection;
 
     @Override
     protected void attachBaseContext(Context base) {
@@ -72,7 +69,6 @@ public class QabelBoxApplication extends Application {
 
     @Override
     public void onTerminate() {
-        unbindService(mServiceConnection);
         super.onTerminate();
     }
 

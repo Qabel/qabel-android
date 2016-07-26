@@ -102,6 +102,7 @@ public class StorageNotificationManagerTest {
         verify(fakePresenter).updateUploadNotification(0, expectedInfo);
     }
 
+    /*
     @Test
     public void testSingleDownload() {
         String ownerKey = "thisIsMyFile";
@@ -172,4 +173,5 @@ public class StorageNotificationManagerTest {
         listenerA.onFinished();
         verify(fakePresenter, VerificationModeFactory.atLeastOnce()).updateDownloadNotification(expectedInfoA);
     }
+    */
 }

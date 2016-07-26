@@ -11,6 +11,7 @@ import de.qabel.core.repository.exception.PersistenceException
 import de.qabel.qabelbox.R
 import de.qabel.qabelbox.activities.CreateAccountActivity
 import de.qabel.qabelbox.activities.MainActivity
+import de.qabel.qabelbox.box.views.FileBrowserFragment
 import de.qabel.qabelbox.contacts.dto.ContactDto
 import de.qabel.qabelbox.contacts.view.views.ContactDetailsFragment
 import de.qabel.qabelbox.contacts.view.views.ContactsFragment
@@ -77,9 +78,8 @@ constructor(var activity: MainActivity,
         showMainFragment(AboutLicencesFragment(), TAG_ABOUT_FRAGMENT)
     }
 
-    override fun selectFilesFragment() {
-        TODO("FilesFragment is under construction");
-    }
+    override fun selectFilesFragment()
+            = showMainFragment(FileBrowserFragment.newInstance(), TAG_FILES_FRAGMENT)
 
     override fun selectContactsFragment() {
         showMainFragment(ContactsFragment(), TAG_CONTACT_LIST_FRAGMENT)

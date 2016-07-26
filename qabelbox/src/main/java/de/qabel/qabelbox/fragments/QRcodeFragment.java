@@ -55,8 +55,8 @@ public class QRcodeFragment extends BaseFragment {
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        mActivity.toggle.setDrawerIndicatorEnabled(false);
-        actionBar.setDisplayHomeAsUpEnabled(true);
+        getMActivity().toggle.setDrawerIndicatorEnabled(false);
+        getActionBar().setDisplayHomeAsUpEnabled(true);
         setActionBarBackListener();
     }
 

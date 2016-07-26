@@ -98,8 +98,12 @@ public class OfflineUITest {
     @After
     public void tearDown() throws Exception {
         mBoxHelper.deleteIdentity(testIdentity);
-        wakeLock.release();
-        mSystemAnimations.enableAll();
+        if (wakeLock != null) {
+            wakeLock.release();
+        }
+        if (mSystemAnimations != null) {
+            mSystemAnimations.enableAll();
+        }
     }
 
 

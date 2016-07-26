@@ -14,6 +14,7 @@ import de.qabel.qabelbox.sync.QabelSyncAdapter;
 import de.qabel.qabelbox.dagger.modules.AccountModule;
 import de.qabel.qabelbox.dagger.modules.ActivityModule;
 import de.qabel.qabelbox.dagger.modules.ApplicationModule;
+import de.qabel.qabelbox.dagger.modules.BoxModule;
 import de.qabel.qabelbox.dagger.modules.RepositoryModule;
 import de.qabel.qabelbox.dagger.modules.StorageModule;
 import de.qabel.qabelbox.fragments.CreateAccountFinalFragment;
@@ -40,4 +41,5 @@ public interface ApplicationComponent {
     void inject(CreateAccountFinalFragment createAccountFinalFragment);
 
     void inject(CreateIdentityMainFragment createIdentityMainFragment);
+
 }

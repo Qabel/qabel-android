@@ -31,6 +31,7 @@ class MainFileBrowserPresenter @Inject constructor(
     }
 
     override fun upload(file: File, stream: InputStream) {
+        view.refreshStart()
         useCase.upload(path * file.name, UploadSource(stream, file)).subscribe({
             onRefresh()
         }, { view.showError(it) })
@@ -56,20 +57,24 @@ class MainFileBrowserPresenter @Inject constructor(
     }
 
     override fun deleteFolder(folder: Folder) {
+        view.refreshStart()
         useCase.delete(path / folder.name).subscribe({
             onRefresh()
         }, { view.showError(it) })
     }
 
     override fun createFolder(folder: Folder) {
+        view.refreshStart()
         useCase.createFolder(path / folder.name).subscribe({
             onRefresh()
         }, { view.showError(it) })
     }
 
     override fun onRefresh() {
+        view.refreshStart()
         useCase.list(path).subscribe({
             view.showEntries(it)
+            view.refreshDone()
         }, { view.showError(it) })
     }
 

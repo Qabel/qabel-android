@@ -11,5 +11,7 @@ interface FileBrowserView {
     fun export(documentId: DocumentId)
 
     fun showError(throwable: Throwable)
+    open fun refreshDone()
+    open fun refreshStart()
 }
 

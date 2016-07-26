@@ -22,14 +22,10 @@ class BoxHttpStorageBackend (
     override fun getUrl(name: String): String = blockServer.urlForFile(prefix, name)
 
     override fun download(name: String): StorageDownload {
-        return blockingDownload(name)
+        return download(name, null)
     }
 
-    override fun download(name: String, ifModified: String): StorageDownload {
-        return blockingDownload(name, ifModified)
-    }
-
-    private fun blockingDownload(name: String, ifModified: String? = null): StorageDownload {
+    override fun download(name: String, ifModified: String?): StorageDownload {
         val latch = CountDownLatch(1)
         val file = createTempFile()
         var error: Exception? = null
@@ -104,7 +100,7 @@ class BoxHttpStorageBackend (
         val latch = CountDownLatch(1)
         var error: Exception? = null
         var status: Int = 0
-        blockServer.deleteFile(prefix, name, object : RequestCallback() {
+        blockServer.deleteFile(prefix, name, object : RequestCallback(204, 200, 404) {
             override fun onSuccess(statusCode: Int, response: Response?) {
                 status = statusCode
                 latch.countDown()
@@ -117,7 +113,6 @@ class BoxHttpStorageBackend (
         })
         latch.await()
         when (status) {
-            0 -> throw QblStorageException("Download failed")
             503 -> throw QblStorageNotFound("Forbidden")
         }
         error?.let { throw QblStorageException(it) }

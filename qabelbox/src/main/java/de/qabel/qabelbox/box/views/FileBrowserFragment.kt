@@ -27,12 +27,12 @@ import java.net.URLConnection
 import java.util.*
 import javax.inject.Inject
 
-class FileBrowserFragment: FileBrowserView, BaseFragment(), AnkoLogger,
-        SwipeRefreshLayout.OnRefreshListener {
+class FileBrowserFragment: FileBrowserView, BaseFragment(), AnkoLogger {
 
     override fun showError(throwable: Throwable) {
         longToast(throwable.message ?: "Error")
         error("Error", throwable)
+        refreshDone()
     }
 
     companion object {
@@ -62,6 +62,7 @@ class FileBrowserFragment: FileBrowserView, BaseFragment(), AnkoLogger,
 
         files_list.layoutManager = LinearLayoutManager(ctx)
         files_list.adapter = adapter
+        swipeRefresh.setOnRefreshListener { presenter.onRefresh() }
     }
 
     fun openBottomSheet(entry: BrowserEntry) {
@@ -131,8 +132,14 @@ class FileBrowserFragment: FileBrowserView, BaseFragment(), AnkoLogger,
         }
     }
 
-    override fun onRefresh() {
-        presenter.onRefresh()
+    override fun refreshStart() {
+        if (!swipeRefresh.isRefreshing) {
+            swipeRefresh.isRefreshing = true
+        }
+    }
+
+    override fun refreshDone() {
+        swipeRefresh.isRefreshing = false
     }
 
     override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater?) {
@@ -142,7 +149,7 @@ class FileBrowserFragment: FileBrowserView, BaseFragment(), AnkoLogger,
 
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
         when(item?.itemId) {
-            R.id.menu_refresh -> onRefresh()
+            R.id.menu_refresh -> presenter.onRefresh()
             R.id.menu_up -> presenter.navigateUp()
             else -> return false
         }

@@ -3,7 +3,10 @@ package de.qabel.qabelbox.box.interactor
 import de.qabel.box.storage.*
 import de.qabel.box.storage.exceptions.QblStorageException
 import de.qabel.box.storage.exceptions.QblStorageNotFound
+import de.qabel.box.storage.jdbc.DirectoryMetadataDatabase
+import de.qabel.box.storage.jdbc.JdbcDirectoryMetadataFactory
 import de.qabel.core.config.Identity
+import de.qabel.core.repositories.AndroidVersionAdapter
 import de.qabel.qabelbox.box.dto.*
 import de.qabel.qabelbox.box.provider.DocumentId
 import de.qabel.qabelbox.box.toEntry
@@ -26,12 +29,18 @@ class BoxFileBrowser @Inject constructor(identity: Identity,
 
     init {
 
-        volume = BoxVolumeImpl(BoxVolumeConfig(
+        volume = AndroidBoxVolume(BoxVolumeConfig(
                 prefix,
                 deviceId,
                 readBackend,
                 writeBackend,
-                "Blake2b", tempDir), identity.primaryKeyPair)
+                "Blake2b", tempDir,
+                directoryMetadataFactoryFactory = { tempDir, deviceId ->
+                    JdbcDirectoryMetadataFactory(tempDir, deviceId, { connection ->
+                        DirectoryMetadataDatabase(connection, AndroidVersionAdapter(connection))
+                    }
+                    )
+                }), identity.primaryKeyPair)
     }
     private val root: BoxNavigation by lazy {
         try {

@@ -4,7 +4,7 @@ import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
 
-import de.qabel.qabelbox.adapter.QabelSyncAdapter;
+import de.qabel.qabelbox.sync.QabelSyncAdapter;
 
 public class QabelSyncService extends Service {
 

@@ -10,7 +10,7 @@ import de.qabel.core.repository.IdentityRepository;
 import de.qabel.qabelbox.activities.CreateAccountActivity;
 import de.qabel.qabelbox.activities.CreateIdentityActivity;
 import de.qabel.qabelbox.activities.SplashActivity;
-import de.qabel.qabelbox.adapter.QabelSyncAdapter;
+import de.qabel.qabelbox.sync.QabelSyncAdapter;
 import de.qabel.qabelbox.dagger.modules.AccountModule;
 import de.qabel.qabelbox.dagger.modules.ActivityModule;
 import de.qabel.qabelbox.dagger.modules.ApplicationModule;

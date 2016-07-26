@@ -8,23 +8,25 @@ import javax.inject.Singleton;
 import dagger.Module;
 import dagger.Provides;
 import dagger.internal.Factory;
+import de.qabel.core.http.MainDropConnector;
+import de.qabel.core.http.MainDropServer;
+import de.qabel.core.repository.ChatDropMessageRepository;
+import de.qabel.core.repository.ContactRepository;
+import de.qabel.core.repository.DropStateRepository;
+import de.qabel.core.repository.IdentityRepository;
+import de.qabel.core.service.ChatService;
+import de.qabel.core.service.MainChatService;
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.chat.notifications.AndroidChatNotificationPresenter;
 import de.qabel.qabelbox.chat.notifications.ChatNotificationManager;
 import de.qabel.qabelbox.chat.notifications.ChatNotificationPresenter;
 import de.qabel.qabelbox.chat.notifications.SyncAdapterChatNotificationManager;
-import de.qabel.qabelbox.services.DropConnector;
-import de.qabel.qabelbox.services.HttpDropConnector;
 
 @Module
 public class ApplicationModule extends ContextModule {
 
     public ApplicationModule(QabelBoxApplication application) {
         super(application);
-    }
-
-    @Singleton @Provides DropConnector providesDropConnector(HttpDropConnector connector) {
-        return connector;
     }
 
     @Singleton @Provides ChatNotificationManager providesChatNotificationManager(
@@ -35,6 +37,15 @@ public class ApplicationModule extends ContextModule {
     @Singleton @Provides ChatNotificationPresenter providesChatNotificationPresenter(
             AndroidChatNotificationPresenter presenter) {
         return presenter;
+    }
+
+    @Singleton
+    @Provides
+    ChatService providesChatService(IdentityRepository identityRepository, ContactRepository contactRepository,
+                                    DropStateRepository dropStateRepository,
+                                    ChatDropMessageRepository chatDropMessageRepository) {
+        return new MainChatService(new MainDropConnector(new MainDropServer()), identityRepository,
+                contactRepository, chatDropMessageRepository, dropStateRepository);
     }
 
     @Provides

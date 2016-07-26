@@ -6,11 +6,12 @@ import com.natpryce.hamkrest.equalTo
 import com.natpryce.hamkrest.should.shouldMatch
 import com.nhaarman.mockito_kotlin.mock
 import com.nhaarman.mockito_kotlin.verify
+import de.qabel.core.repository.entities.ChatDropMessage
 import de.qabel.qabelbox.BuildConfig
 import de.qabel.qabelbox.R
 import de.qabel.qabelbox.SimpleApplication
 import de.qabel.qabelbox.chat.dto.ChatMessage
-import de.qabel.qabelbox.chat.dto.MessagePayload
+import de.qabel.qabelbox.chat.dto.MessagePayloadDto
 import de.qabel.qabelbox.chat.dto.SymmetricKey
 import de.qabel.qabelbox.checkNull
 import de.qabel.qabelbox.helper.FontHelper
@@ -36,8 +37,8 @@ class ChatMessageAdapterTest {
 
     @Before
     fun setUp() {
-        message = ChatMessage(mock(), mock(), ChatMessage.Direction.INCOMING,
-                Date(), MessagePayload.TextMessage("Text"))
+        message = ChatMessage(mock(), mock(), ChatDropMessage.Direction.INCOMING,
+                Date(), MessagePayloadDto.TextMessage("Text"))
         adapter = ChatMessageAdapter(listOf())
         FontHelper.disable = true;
     }
@@ -51,7 +52,7 @@ class ChatMessageAdapterTest {
 
     @Test
     fun itemAt() {
-        val second = message.copy(direction = ChatMessage.Direction.OUTGOING)
+        val second = message.copy(direction = ChatDropMessage.Direction.OUTGOING)
         adapter.messages = listOf(message, second)
         adapter.getItemAtPosition(0)!! shouldMatch equalTo(message)
         adapter.getItemAtPosition(1)!! shouldMatch equalTo(second)
@@ -61,10 +62,10 @@ class ChatMessageAdapterTest {
     @Test
     fun differentViewsForShareAndTextMessage() {
         val shareMessage = message.copy(messagePayload =
-        MessagePayload.ShareMessage("share message", URL("http://foo"), SymmetricKey(listOf())))
+        MessagePayloadDto.ShareMessage("share message", URL("http://foo"), SymmetricKey(listOf())))
         adapter.messages = listOf(message, shareMessage,
-                message.copy(direction = ChatMessage.Direction.OUTGOING),
-                shareMessage.copy(direction = ChatMessage.Direction.OUTGOING))
+                message.copy(direction = ChatDropMessage.Direction.OUTGOING),
+                shareMessage.copy(direction = ChatDropMessage.Direction.OUTGOING))
         assertThat(adapter.getItemViewType(0), equalTo(ChatMessageAdapter.MessageType.TEXT_IN.ordinal))
         assertThat(adapter.getItemViewType(1), equalTo(ChatMessageAdapter.MessageType.SHARE_IN.ordinal))
         assertThat(adapter.getItemViewType(2), equalTo(ChatMessageAdapter.MessageType.TEXT_OUT.ordinal))

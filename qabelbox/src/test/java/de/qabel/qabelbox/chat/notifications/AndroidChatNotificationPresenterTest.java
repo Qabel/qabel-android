@@ -20,8 +20,6 @@ import dagger.internal.Factory;
 import de.qabel.qabelbox.BuildConfig;
 import de.qabel.qabelbox.SimpleApplication;
 import de.qabel.qabelbox.activities.MainActivity;
-import de.qabel.qabelbox.chat.notifications.AndroidChatNotificationPresenter;
-import de.qabel.qabelbox.chat.notifications.ChatNotification;
 import de.qabel.qabelbox.util.IdentityHelper;
 
 import static org.hamcrest.Matchers.equalTo;

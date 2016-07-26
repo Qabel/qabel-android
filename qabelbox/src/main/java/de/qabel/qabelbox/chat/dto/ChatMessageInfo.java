@@ -1,4 +1,4 @@
-package de.qabel.qabelbox.chat.persistence.model;
+package de.qabel.qabelbox.chat.dto;
 
 import android.support.annotation.NonNull;
 

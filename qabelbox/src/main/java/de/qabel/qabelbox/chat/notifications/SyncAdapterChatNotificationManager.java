@@ -16,7 +16,7 @@ import javax.inject.Inject;
 
 import de.qabel.core.config.Contact;
 import de.qabel.qabelbox.R;
-import de.qabel.qabelbox.chat.persistence.model.ChatMessageInfo;
+import de.qabel.qabelbox.chat.dto.ChatMessageInfo;
 import de.qabel.qabelbox.util.DefaultHashMap;
 
 public class SyncAdapterChatNotificationManager implements ChatNotificationManager {

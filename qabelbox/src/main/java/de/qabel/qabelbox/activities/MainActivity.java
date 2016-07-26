@@ -50,7 +50,6 @@ import de.qabel.qabelbox.QblBroadcastConstants;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.account.AccountManager;
 import de.qabel.qabelbox.account.AccountStatusCodes;
-import de.qabel.qabelbox.chat.ChatServer;
 import de.qabel.qabelbox.communication.connection.ConnectivityManager;
 import de.qabel.qabelbox.config.AppPreference;
 import de.qabel.qabelbox.config.QabelSchema;
@@ -122,7 +121,6 @@ public class MainActivity extends CrashReportingActivity
 
     // Used to save the document uri that should exported while waiting for the result
     // of the create document intent.
-    public ChatServer chatServer;
     private LightingColorFilter mDrawerIndicatorTintFilter;
 
     @Inject

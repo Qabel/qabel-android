@@ -11,7 +11,7 @@ import com.natpryce.hamkrest.should.shouldMatch
 import de.qabel.qabelbox.R
 import de.qabel.qabelbox.activities.MainActivity
 import de.qabel.qabelbox.chat.dto.ChatMessage
-import de.qabel.qabelbox.chat.dto.MessagePayload
+import de.qabel.qabelbox.chat.dto.MessagePayloadDto
 import de.qabel.qabelbox.navigation.MainNavigator
 import de.qabel.qabelbox.ui.AbstractUITest
 import de.qabel.qabelbox.ui.action.QabelViewAction.setText
@@ -63,7 +63,7 @@ class ChatFragmentTest: AbstractUITest() {
     @Test
     fun testShowMessages() {
         val message = ChatMessage(identity, contact, ChatMessage.Direction.INCOMING, Date(),
-                MessagePayload.TextMessage("MESSAGE"))
+                MessagePayloadDto.TextMessage("MESSAGE"))
         launch()
         fragment.showMessages(listOf(message))
         onView(withText("MESSAGE")).check(ViewAssertions.matches(isDisplayed()))

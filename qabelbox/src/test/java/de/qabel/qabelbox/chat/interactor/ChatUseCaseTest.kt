@@ -1,18 +1,16 @@
 package de.qabel.qabelbox.chat.interactor
 
-import com.natpryce.hamkrest.equalTo
-import com.natpryce.hamkrest.should.shouldMatch
 import com.nhaarman.mockito_kotlin.*
-import de.qabel.core.drop.DropMessage
+import de.qabel.core.repository.ChatDropMessageRepository
+import de.qabel.core.repository.entities.ChatDropMessage
+import de.qabel.core.service.ChatService
+import de.qabel.core.service.MainChatService
 import de.qabel.qabelbox.BuildConfig
 import de.qabel.qabelbox.SimpleApplication
-import de.qabel.qabelbox.chat.persistence.model.ChatMessageItem
-import de.qabel.qabelbox.chat.ChatServer
 import de.qabel.qabelbox.chat.dto.ChatMessage
+import de.qabel.qabelbox.chat.transformers.ChatMessageTransformer
 import de.qabel.qabelbox.repositories.MockContactRepository
 import de.qabel.qabelbox.repositories.MockIdentityRepository
-import de.qabel.qabelbox.services.MockedDropConnector
-import de.qabel.qabelbox.chat.transformers.ChatMessageTransformer
 import de.qabel.qabelbox.util.IdentityHelper
 import org.hamcrest.Matchers.hasSize
 import org.hamcrest.Matchers.notNullValue
@@ -31,16 +29,16 @@ class ChatUseCaseTest {
     val contact = IdentityHelper.createContact("contact_name")
     val transformer = ChatMessageTransformer(MockIdentityRepository(identity),
             MockContactRepository(contact, identity))
-    lateinit var chatServer: ChatServer
+    lateinit var chatService: ChatService
 
     @Before
     fun setUp() {
-        chatServer = mock()
+        chatService = mock()
     }
 
     @Test
     fun testNoMessages() {
-        val useCase = TransformingChatUseCase(identity, contact, transformer, chatServer, mock())
+        val useCase = TransformingChatUseCase(identity, contact, transformer, chatService, mock())
         var list: List<ChatMessage>? = null
         useCase.retrieve().toList().toBlocking().subscribe({
             messages -> list = messages
@@ -50,29 +48,32 @@ class ChatUseCaseTest {
 
     @Test
     fun testMessagesRetrieved() {
-        whenever(chatServer.getAllMessages(identity, contact)).thenReturn(
-                arrayOf(ChatMessageItem(1, 1, Date().time, contact.keyIdentifier, identity.keyIdentifier,
-                        "1", ChatMessageItem.BOX_MESSAGE, "{\"msg\": \"text\"}")))
-        val useCase = TransformingChatUseCase(identity, contact, transformer, chatServer, mock())
+        whenever(chatService.refreshMessages()).thenReturn(
+                mapOf(Pair(identity, listOf(ChatDropMessage(contact.id, identity.id,
+                        ChatDropMessage.Direction.OUTGOING, ChatDropMessage.Status.NEW,
+                        ChatDropMessage.MessageType.BOX_MESSAGE, "{\"msg\": \"text\"}", Date().time)))))
+
+        val mockRepo = mock<ChatDropMessageRepository>()
+        val useCase = TransformingChatUseCase(identity, contact, transformer, chatService, mockRepo)
         var list: List<ChatMessage>? = null
         useCase.retrieve().toList().toBlocking().subscribe({
             messages -> list = messages
         })
         assertThat(list, hasSize(1))
-        verify(chatServer).setAllMessagesRead(identity, contact)
+        verify(mockRepo).markAsRead(contact, identity)
     }
 
     @Test
     fun sendMessage() {
-        val connector = spy(MockedDropConnector())
-        val useCase = TransformingChatUseCase(identity, contact, transformer, chatServer, connector)
+        val mockRepo = mock<ChatDropMessageRepository>()
+        val connector = spy(MainChatService(mock(), mock(), mock(), mockRepo, mock()))
+        val useCase = TransformingChatUseCase(identity, contact, transformer, chatService, mockRepo)
         var result: ChatMessage? = null
         useCase.send("Text").subscribe({
             result = it
         })
-        verify(connector).sendDropMessage(any<DropMessage>(), eq(contact), eq(identity), any())
-        verify(chatServer).storeIntoDB(eq(identity), any())
-        connector.messages.size shouldMatch equalTo(1)
+        verify(connector).sendMessage(any<ChatDropMessage>())
+        verify(mockRepo).persist(any<ChatDropMessage>())
         assertThat(result, notNullValue())
     }
 }

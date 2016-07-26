@@ -45,6 +45,6 @@ class BoxVolumeManagerTest {
             it shouldMatch equalTo(volume)
             fileBrowser
         }
-        manager.fileBrowser(volume.rootID) shouldMatch sameInstance(fileBrowser)
+        manager.fileBrowser(volume.documentId) shouldMatch sameInstance(fileBrowser)
     }
 }

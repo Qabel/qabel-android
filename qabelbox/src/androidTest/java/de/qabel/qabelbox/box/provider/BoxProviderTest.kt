@@ -46,6 +46,8 @@ class BoxProviderTest : MockedBoxProviderTest() {
         query.moveToFirst()
         val idCol = query.getColumnIndex(DocumentsContract.Document.COLUMN_DOCUMENT_ID)
         query.getString(idCol) shouldMatch equalTo(document.toString())
+        val nameCol = query.getColumnIndex(DocumentsContract.Document.COLUMN_DISPLAY_NAME)
+        query.getString(nameCol) shouldMatch equalTo("foobar.txt")
     }
 
     fun testQueryChildDocuments() {

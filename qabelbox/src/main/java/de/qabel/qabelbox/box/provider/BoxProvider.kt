@@ -20,6 +20,7 @@ import de.qabel.qabelbox.BuildConfig
 import de.qabel.qabelbox.QabelBoxApplication
 import de.qabel.qabelbox.QblBroadcastConstants
 import de.qabel.qabelbox.R
+import de.qabel.qabelbox.box.dto.BoxPath
 import de.qabel.qabelbox.dagger.modules.BoxModule
 import de.qabel.qabelbox.box.dto.BrowserEntry
 import de.qabel.qabelbox.box.dto.ProviderUpload
@@ -27,6 +28,9 @@ import de.qabel.qabelbox.box.dto.UploadSource
 import de.qabel.qabelbox.box.interactor.Provider
 import de.qabel.qabelbox.dagger.components.DaggerBoxComponent
 import de.qabel.qabelbox.dagger.modules.ContextModule
+import org.jetbrains.anko.AnkoLogger
+import org.jetbrains.anko.info
+import org.jetbrains.anko.warn
 import rx.lang.kotlin.firstOrNull
 import java.io.File
 import java.io.FileNotFoundException
@@ -34,7 +38,7 @@ import java.net.URLConnection
 import java.util.*
 import javax.inject.Inject
 
-open class BoxProvider : DocumentsProvider() {
+open class BoxProvider : DocumentsProvider(), AnkoLogger {
 
     @Inject
     lateinit var useCase: Provider
@@ -101,11 +105,13 @@ open class BoxProvider : DocumentsProvider() {
         val id = try {
             documentIdString.toDocumentId()
         } catch (e: QblStorageException) {
-                throw FileNotFoundException("Document not found")
+            warn("Document $documentIdString not found")
+            throw FileNotFoundException("Document not found")
         }
+        info("Query document: $documentIdString")
         val entry = useCase.query(id).toBlocking().firstOrNull()
                 ?: throw FileNotFoundException("Not found: $documentIdString")
-        return createCursor(projection ?: arrayOf(), false).apply {
+        return createCursor(projection ?: DEFAULT_DOCUMENT_PROJECTION, false).apply {
             when (entry) {
                 is BrowserEntry.File -> insertFile(this, id, entry)
                 is BrowserEntry.Folder -> insertFolder(this, id, entry)
@@ -118,10 +124,13 @@ open class BoxProvider : DocumentsProvider() {
         val id = try {
             parentDocumentId.toDocumentId()
         } catch (e: QblStorageException) {
+            warn("Document $parentDocumentId not found")
             throw FileNotFoundException("Document not found")
         }
-        val listing = useCase.queryChildDocuments(id).toBlocking().firstOrNull()
-        return createCursor(projection ?: arrayOf(), false).apply {
+        info("Retrieve file listing for $parentDocumentId - $id")
+        val listing = useCase.queryChildDocuments(id).toBlocking().firstOrNull() ?: emptyList()
+        info("File listing for $parentDocumentId: $listing")
+        return createCursor(projection ?: DEFAULT_DOCUMENT_PROJECTION, false).apply {
             listing.map {
                 when (it.entry) {
                     is BrowserEntry.File -> insertFile(this, it.documentId, it.entry)
@@ -139,7 +148,7 @@ open class BoxProvider : DocumentsProvider() {
     }
 
     private fun insertFile(cursor: MatrixCursor, documentId: DocumentId, file: BrowserEntry.File) {
-
+        info("Inserting file into cursor: $documentId - $file")
         val mimeType = URLConnection.guessContentTypeFromName(file.name) ?: "application/octet-stream"
         with(cursor.newRow()) {
             add(Document.COLUMN_DOCUMENT_ID, documentId.toString())
@@ -153,6 +162,7 @@ open class BoxProvider : DocumentsProvider() {
     }
 
     private fun insertFolder(cursor: MatrixCursor, documentId: DocumentId, folder: BrowserEntry.Folder) {
+        info("Inserting folder into cursor: $documentId - $folder")
         with(cursor.newRow()) {
             add(Document.COLUMN_DOCUMENT_ID, documentId.toString())
             add(Document.COLUMN_DISPLAY_NAME, folder.name)
@@ -165,6 +175,7 @@ open class BoxProvider : DocumentsProvider() {
     @Throws(FileNotFoundException::class)
     override fun openDocument(documentId: String,
                               mode: String, signal: CancellationSignal?): ParcelFileDescriptor {
+        info("Open document $documentId in mode $mode")
         val isWrite = mode.indexOf('w') != -1
         val isRead = mode.indexOf('r') != -1
         val id = documentId.toDocumentId()

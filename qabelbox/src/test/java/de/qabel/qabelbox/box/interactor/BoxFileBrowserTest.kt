@@ -116,6 +116,12 @@ class BoxFileBrowserTest {
         subfolderListing eq setOf(sample.name)
     }
 
+    @Test
+    fun queryRoot() {
+        val entry = useCase.query(BoxPath.Root).toBlocking().first()
+        entry.name shouldMatch equalTo("")
+    }
+
 }
 
 infix fun <T> T.eq(thing: T) {

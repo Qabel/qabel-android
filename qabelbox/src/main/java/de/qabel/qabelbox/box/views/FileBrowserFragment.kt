@@ -133,13 +133,17 @@ class FileBrowserFragment: FileBrowserView, BaseFragment(), AnkoLogger {
     }
 
     override fun refreshStart() {
-        if (!swipeRefresh.isRefreshing) {
-            swipeRefresh.isRefreshing = true
+        onUiThread {
+            if (!swipeRefresh.isRefreshing) {
+                swipeRefresh.isRefreshing = true
+            }
         }
     }
 
     override fun refreshDone() {
-        swipeRefresh.isRefreshing = false
+        onUiThread {
+            swipeRefresh.isRefreshing = false
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater?) {
@@ -157,27 +161,31 @@ class FileBrowserFragment: FileBrowserView, BaseFragment(), AnkoLogger {
     }
 
     override fun open(documentId: DocumentId) {
-        val uri = uriFromDocumentId(documentId)
-        val intent = Intent(Intent.ACTION_VIEW).apply {
-            data = uri
-            type = typeFromUri(uri)
-            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        onUiThread {
+            val uri = uriFromDocumentId(documentId)
+            val intent = Intent(Intent.ACTION_VIEW).apply {
+                data = uri
+                type = typeFromUri(uri)
+                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            }
+            startActivity(Intent.createChooser(intent, ctx.getString(R.string.share_via)).singleTop())
         }
-        startActivity(Intent.createChooser(intent, ctx.getString(R.string.share_via)).singleTop())
     }
 
     override fun share(documentId: DocumentId) {
-        val uri = uriFromDocumentId(documentId)
-        val shareIntent = Intent(Intent.ACTION_SEND).apply {
-            data = uri
-            type = typeFromUri(uri)
-            putExtra(Intent.EXTRA_SUBJECT, R.string.share_subject)
-            putExtra(Intent.EXTRA_TITLE, R.string.share_subject)
-            putExtra(Intent.EXTRA_TEXT, activity.getString(R.string.share_text))
-            putExtra(Intent.EXTRA_STREAM, uri)
-            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        onUiThread {
+            val uri = uriFromDocumentId(documentId)
+            val shareIntent = Intent(Intent.ACTION_SEND).apply {
+                data = uri
+                type = typeFromUri(uri)
+                putExtra(Intent.EXTRA_SUBJECT, R.string.share_subject)
+                putExtra(Intent.EXTRA_TITLE, R.string.share_subject)
+                putExtra(Intent.EXTRA_TEXT, activity.getString(R.string.share_text))
+                putExtra(Intent.EXTRA_STREAM, uri)
+                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            }
+            startActivity(Intent.createChooser(shareIntent, activity.getString(R.string.share_via)))
         }
-        startActivity(Intent.createChooser(shareIntent, activity.getString(R.string.share_via)))
     }
 
     private fun typeFromUri(uri: Uri?): String? {

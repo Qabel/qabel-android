@@ -1,6 +1,7 @@
 package de.qabel.qabelbox.box
 
 import de.qabel.box.storage.AbstractMetadata
+import de.qabel.box.storage.AndroidBoxVolume
 import de.qabel.box.storage.BoxVolumeConfig
 import de.qabel.box.storage.BoxVolumeImpl
 import de.qabel.box.storage.jdbc.DirectoryMetadataDatabase
@@ -18,15 +19,15 @@ class BoxVolumeImplTest {
     @Test
     fun testNavigate() {
         val backend = MockStorageBackend()
-        val volume = BoxVolumeImpl(BoxVolumeConfig(
+        val volume = AndroidBoxVolume(BoxVolumeConfig(
                 "prefix",
                 byteArrayOf(1,2,3,4),
                 backend,
                 backend,
                 "Blacke2b",
                 createTempDir(),
-                directoryMetadataFactoryFactory = {
-                    JdbcDirectoryMetadataFactory(it.tempDir, it.deviceId) { connection ->
+                directoryMetadataFactoryFactory = { tempDir, deviceId ->
+                    JdbcDirectoryMetadataFactory(tempDir, deviceId) { connection ->
                         DirectoryMetadataDatabase(connection, AndroidVersionAdapter(connection))
                     }
                 }),

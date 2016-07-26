@@ -18,7 +18,7 @@ class BoxVolumeManager (private val identityRepository: IdentityRepository,
         }
 
     override fun fileBrowser(rootID: String) =
-            fileBrowserFactory(roots.find { it.rootID == rootID }
+            fileBrowserFactory(roots.find { it.documentID == rootID }
                     ?: throw FileNotFoundException("No filebrowser for root id found: " + rootID))
 
 }

@@ -62,7 +62,7 @@ class FileBrowserFragment: FileBrowserView, BaseFragment(), AnkoLogger {
 
         files_list.layoutManager = LinearLayoutManager(ctx)
         files_list.adapter = adapter
-        swipeRefresh.setOnRefreshListener { presenter.onRefresh() }
+        swipeRefresh.isEnabled = false
     }
 
     fun openBottomSheet(entry: BrowserEntry) {

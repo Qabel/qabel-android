@@ -66,11 +66,7 @@ class ChatUseCaseTest {
                 ChatDropMessage.MessageType.BOX_MESSAGE, ChatDropMessage.MessagePayload.TextMessage("test123"), Date().time))
 
         val useCase = TransformingChatUseCase(identity, contact, transformer, chatService, chatDropRepository)
-        var list: List<ChatMessage>? = null
-        useCase.retrieve().toList().toBlocking().subscribe({
-            messages ->
-            list = messages
-        })
+        val list: List<ChatMessage> = useCase.retrieve().toList().toBlocking().first()
         assertThat(list, hasSize(1))
         verify(chatDropRepository).markAsRead(contact, identity)
         verify(chatDropRepository).findByContact(contact.id, identity.id)

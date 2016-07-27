@@ -1,25 +1,15 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
-      xmlns:app="http://schemas.android.com/apk/res-auto"
-      xmlns:tools="http://schemas.android.com/tools"
-      tools:context=".MainActivity">
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".MainActivity">
 
-
-    <item
-        android:id="@+id/action_search"
-        android:icon="@drawable/magnify_white"
-        android:orderInCategory="200"
-        android:title="@string/Select"
-        app:showAsAction="ifRoom"/>
 
     <item
         android:id="@+id/menu_refresh"
         android:icon="@drawable/refresh_white"
-        app:showAsAction="ifRoom"
         android:title="@string/refresh"/>
 
     <item
         android:id="@+id/menu_up"
         android:icon="@drawable/menu_up_white"
-        app:showAsAction="ifRoom"
         android:title="@string/filebrowser_up"/>
 </menu>

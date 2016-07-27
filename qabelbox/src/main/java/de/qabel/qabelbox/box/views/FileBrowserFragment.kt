@@ -4,21 +4,19 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.provider.DocumentsContract
-import android.provider.OpenableColumns
-import android.support.v4.widget.SwipeRefreshLayout
 import android.support.v7.widget.LinearLayoutManager
 import android.view.*
 import com.cocosw.bottomsheet.BottomSheet
 import de.qabel.qabelbox.BuildConfig
 import de.qabel.qabelbox.R
 import de.qabel.qabelbox.box.adapters.FileAdapter
-import de.qabel.qabelbox.dagger.modules.FileBrowserModule
 import de.qabel.qabelbox.box.dto.BrowserEntry
 import de.qabel.qabelbox.box.presenters.FileBrowserPresenter
 import de.qabel.qabelbox.box.provider.BoxProvider
 import de.qabel.qabelbox.box.provider.DocumentId
 import de.qabel.qabelbox.box.queryNameAndSize
 import de.qabel.qabelbox.dagger.components.MainActivityComponent
+import de.qabel.qabelbox.dagger.modules.FileBrowserModule
 import de.qabel.qabelbox.fragments.BaseFragment
 import kotlinx.android.synthetic.main.fragment_files.*
 import org.jetbrains.anko.*
@@ -200,6 +198,7 @@ class FileBrowserFragment: FileBrowserView, BaseFragment(), AnkoLogger {
 
 
     override fun export(documentId: DocumentId) {
+        toast(R.string.function_not_yet_implenented)
     }
 
 

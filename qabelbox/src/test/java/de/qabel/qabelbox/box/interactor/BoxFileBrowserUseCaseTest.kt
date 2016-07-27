@@ -2,7 +2,6 @@ package de.qabel.qabelbox.box.interactor
 
 import com.natpryce.hamkrest.equalTo
 import com.natpryce.hamkrest.should.shouldMatch
-import de.qabel.box.storage.BoxVolume
 import de.qabel.qabelbox.BuildConfig
 import de.qabel.qabelbox.SimpleApplication
 import de.qabel.qabelbox.box.backends.MockStorageBackend
@@ -25,8 +24,6 @@ class BoxFileBrowserUseCaseTest {
     val identityA = IdentityHelper.createIdentity("identity", null)
     val storage = MockStorageBackend()
     val deviceId = byteArrayOf(1,2,3)
-    val volume = BoxVolume(storage, storage, identityA.primaryKeyPair,
-            deviceId, createTempDir(), "prefix")
     val useCase = MockFileBrowserUseCase()
 
     val samplePayload = "payload"

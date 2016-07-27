@@ -47,6 +47,7 @@ class FileBrowserFragmentTest: AbstractUITest() {
     }
 
 
+    @Ignore("Action bar bugged on CI emulator")
     @Test
     fun refreshActionBarButton() {
         launch()

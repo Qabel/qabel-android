@@ -149,13 +149,11 @@ class BoxFileBrowser @Inject constructor(identity: Identity,
     override fun createFolder(path: BoxPath.FolderLike): Observable<Unit> =
         observable { subscriber ->
             thread {
-                if (path !is BoxPath.Root) {
-                    try {
-                        recursiveCreateFolder(path)
-                        subscriber.onNext(Unit)
-                    } catch (e: Exception) {
-                        subscriber.onError(e)
-                    }
+                try {
+                    recursiveCreateFolder(path)
+                    subscriber.onNext(Unit)
+                } catch (e: Exception) {
+                    subscriber.onError(e)
                 }
             }
     }

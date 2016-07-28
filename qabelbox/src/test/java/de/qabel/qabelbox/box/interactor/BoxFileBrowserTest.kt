@@ -84,8 +84,10 @@ class BoxFileBrowserTest {
         val path = BoxPath.Root / "firstFolder" / "subFolder" * sampleName
         useCase.upload(path, samplePayload.toUploadSource(sample)).waitFor()
         useCase.delete(path).waitFor()
-        storage.storage.size eq 3 // index and 2 folder metadata files and no file
+        // folder exists
         useCase.query(path.parent) evalsTo BrowserEntry.Folder(path.parent.name)
+        // folder is empty
+        useCase.list(path.parent) evalsTo emptyList()
     }
 
     @Test
@@ -93,7 +95,8 @@ class BoxFileBrowserTest {
         val path = BoxPath.Root / "firstFolder" / "subFolder"
         useCase.createFolder(path).waitFor()
         useCase.delete(path).waitFor()
-        storage.storage.size eq 2 // index and 1 folder metadata file
+
+        useCase.list(path.parent) evalsTo emptyList()
         useCase.query(path.parent) evalsTo BrowserEntry.Folder(path.parent.name)
 
     }

@@ -47,14 +47,6 @@ class FileBrowserFragmentTest: AbstractUITest() {
     }
 
 
-    @Ignore("Action bar bugged on CI emulator")
-    @Test
-    fun refreshActionBarButton() {
-        launch()
-        onView(withId(R.id.menu_refresh)).perform(click())
-        verify(presenter).onRefresh()
-    }
-
     @Test
     fun entryClick() {
         launch()
@@ -105,12 +97,19 @@ class FileBrowserFragmentTest: AbstractUITest() {
         verify(presenter).createFolder(BrowserEntry.Folder("folder"))
     }
 
-    @Ignore("Problem on CI emulator")
     @Test
     fun navigateUp() {
         launch()
         onView(withId(R.id.menu_up)).perform(click())
         verify(presenter).navigateUp()
     }
+
+    @Test
+    fun refreshActionBarButton() {
+        launch()
+        onView(withId(R.id.menu_refresh)).perform(click())
+        verify(presenter).onRefresh()
+    }
+
 
 }

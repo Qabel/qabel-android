@@ -11,6 +11,7 @@ import de.qabel.qabelbox.communication.callbacks.RequestCallback
 import de.qabel.qabelbox.communication.callbacks.UploadRequestCallback
 import de.qabel.qabelbox.storage.server.BlockServer
 import okhttp3.Response
+import java.io.File
 import java.io.InputStream
 import java.util.concurrent.CountDownLatch
 
@@ -21,24 +22,26 @@ class BoxHttpStorageBackend (
 
     override fun getUrl(name: String): String = blockServer.urlForFile(prefix, name)
 
+
+    data class Response(val eTag: String?, val status: Int, val error: Exception?)
+
     override fun download(name: String): StorageDownload {
         return download(name, null)
     }
 
-    override fun download(name: String, ifModified: String?): StorageDownload {
+    fun downloadRequest(file: File, name: String, ifModified: String?): Response {
         val latch = CountDownLatch(1)
-        val file = createTempFile()
         var error: Exception? = null
         var etag: String? = null
         var status: Int = 0
         blockServer.downloadFile(prefix, name, ifModified, object : DownloadRequestCallback(file) {
-            override fun onSuccess(statusCode: Int, response: Response?) {
+            override fun onSuccess(statusCode: Int, response: okhttp3.Response?) {
                 super.onSuccess(statusCode, response)
                 etag = response?.header("Etag")
                 status = statusCode
                 latch.countDown()
             }
-            override fun onError(e: Exception?, response: Response?) {
+            override fun onError(e: Exception?, response: okhttp3.Response?) {
                 error = e
                 status = response?.code() ?: 0
                 latch.countDown()
@@ -46,6 +49,11 @@ class BoxHttpStorageBackend (
 
         })
         latch.await()
+        return Response(etag, status, error)
+    }
+
+    fun handleDownloadResponse(response: Response, file: File): StorageDownload {
+        val (eTag, status, error) = response
         when (status) {
             0 -> throw QblStorageException("Download failed")
             404 -> throw QblStorageNotFound("Not found")
@@ -53,24 +61,28 @@ class BoxHttpStorageBackend (
             304 -> throw UnmodifiedException()
         }
         error?.let { throw QblStorageException(it) }
-        return StorageDownload(file.inputStream(), etag, file.length())
+        return StorageDownload(file.inputStream(), eTag, file.length())
     }
 
-    override fun upload(name: String, content: InputStream): Long {
-        val latch = CountDownLatch(1)
+    override fun download(name: String, ifModified: String?): StorageDownload {
         val file = createTempFile()
-        file.outputStream().use { content.copyTo(it) }
+        val response = downloadRequest(file, name, ifModified)
+        return handleDownloadResponse(response, file)
+    }
+
+    fun uploadRequest(file: File, name: String): Response {
+        val latch = CountDownLatch(1)
         var error: Exception? = null
         var status: Int = 0
         var eTag: String? = null
         blockServer.uploadFile(prefix, name, file, object: UploadRequestCallback(200, 204, 304) {
-            override fun onSuccess(statusCode: Int, response: Response?) {
+            override fun onSuccess(statusCode: Int, response: okhttp3.Response?) {
                 eTag = response?.header("ETag")
                 status = statusCode
                 latch.countDown()
             }
 
-            override fun onError(e: Exception?, response: Response?) {
+            override fun onError(e: Exception?, response: okhttp3.Response?) {
                 error = e
                 status = response?.code() ?: 0
                 latch.countDown()
@@ -81,41 +93,63 @@ class BoxHttpStorageBackend (
 
         })
         latch.await()
-        when (status) {
-            0 -> throw QblStorageException("Upload failed")
-            404 -> throw QblStorageNotFound("Not found")
-        }
-        error?.let { throw QblStorageException(it) }
-        eTag?.let {
-            try {
-                return it.toLong()
-            } catch (ignored: NumberFormatException) {
-
-            }
-        }
-        return System.currentTimeMillis()
+        return Response(eTag, status, error)
     }
 
-    override fun delete(name: String) {
+    fun handleUploadResponse(response: Response): Long {
+        val (eTag, status, error) = response
+        when (status) {
+            0 -> throw QblStorageException("Upload failed")
+            401 -> throw QblStorageException("Permission denied")
+        }
+        error?.let { throw QblStorageException(it) }
+        val tag = eTag?.let {
+            try {
+                 it.toLong()
+            } catch (ignored: NumberFormatException) {
+                null
+            }
+        } ?: System.currentTimeMillis()
+        return tag
+    }
+
+    override fun upload(name: String, content: InputStream): Long {
+        val file = createTempFile()
+        file.outputStream().use { content.copyTo(it) }
+        val response = uploadRequest(file, name)
+        return handleUploadResponse(response)
+    }
+
+    fun deleteRequest(name: String): Response {
         val latch = CountDownLatch(1)
         var error: Exception? = null
         var status: Int = 0
         blockServer.deleteFile(prefix, name, object : RequestCallback(204, 200, 404) {
-            override fun onSuccess(statusCode: Int, response: Response?) {
+            override fun onSuccess(statusCode: Int, response: okhttp3.Response?) {
                 status = statusCode
                 latch.countDown()
             }
-            override fun onError(e: Exception?, response: Response?) {
+            override fun onError(e: Exception?, response: okhttp3.Response?) {
                 error = e
                 latch.countDown()
             }
 
         })
         latch.await()
+        return Response(null, status, error)
+    }
+
+    fun handleDeleteResponse(response: Response) {
+        val (eTag, status, error) = response
         when (status) {
-            503 -> throw QblStorageNotFound("Forbidden")
+            401 -> throw QblStorageNotFound("Forbidden")
         }
         error?.let { throw QblStorageException(it) }
+    }
+
+    override fun delete(name: String) {
+        val response = deleteRequest(name)
+        handleDeleteResponse(response)
     }
 
 }

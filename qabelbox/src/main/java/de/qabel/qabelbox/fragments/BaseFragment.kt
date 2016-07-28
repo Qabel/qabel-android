@@ -23,13 +23,13 @@ abstract class BaseFragment : Fragment() {
         this.idle = idle
     }
 
-    fun busy() = idle?.let { it.busy()}
+    fun busy() = idle?.let { it.busy() }
 
     fun idle() = idle?.let { it.idle() }
 
     @SuppressWarnings("unchecked")
     protected fun <C> getComponent(componentType: Class<C>): C {
-        return componentType.cast((activity as HasComponent<*>).component)
+        return componentType.cast((activity as HasComponent<C>).component)
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {

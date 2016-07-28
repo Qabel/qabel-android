@@ -31,11 +31,7 @@ class BoxFileBrowserTest {
 
     val identity = IdentityHelper.createIdentity("identity", null)
     val storage = MockStorageBackend()
-    val deviceId = byteArrayOf(1,2,3)
     val docId = DocumentId(identity.keyIdentifier, identity.prefixes.first(), BoxPath.Root)
-    val volume = VolumeRoot(docId.toString().dropLast(1), docId.toString(), identity.alias)
-    //val volume = BoxVolume(storage, storage, identityA.primaryKeyPair,
-    //        deviceId, createTempDir(), "prefix")
     lateinit var useCase: FileBrowser
 
     val samplePayload = "payload"

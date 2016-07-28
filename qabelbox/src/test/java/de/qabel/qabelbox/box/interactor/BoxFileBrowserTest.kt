@@ -65,7 +65,6 @@ class BoxFileBrowserTest {
     fun createSubfolder() {
         val path = BoxPath.Root / "firstFolder" / "subFolder"
         useCase.createFolder(path).waitFor()
-        storage.storage.size eq 3 // index and 2 folder metadata files
         useCase.query(path.parent) evalsTo BrowserEntry.Folder(path.parent.name)
         useCase.query(path) evalsTo BrowserEntry.Folder(path.name)
     }
@@ -78,7 +77,6 @@ class BoxFileBrowserTest {
         useCase.download(path).waitFor().apply {
             asString() shouldMatch equalTo(samplePayload)
         }
-        storage.storage.size eq 4 // index and 2 folder metadata files and 1 file
     }
 
     @Test

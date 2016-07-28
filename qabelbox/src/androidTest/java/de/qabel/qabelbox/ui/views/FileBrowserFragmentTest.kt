@@ -14,7 +14,6 @@ import de.qabel.qabelbox.box.views.FileBrowserFragment
 import de.qabel.qabelbox.navigation.MainNavigator
 import de.qabel.qabelbox.ui.AbstractUITest
 import de.qabel.qabelbox.ui.idling.InjectedIdlingResource
-import org.junit.Ignore
 import org.junit.Test
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.verify

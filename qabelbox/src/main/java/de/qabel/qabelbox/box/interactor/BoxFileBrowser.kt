@@ -15,6 +15,7 @@ import rx.lang.kotlin.observable
 import rx.lang.kotlin.toSingletonObservable
 import java.io.File
 import java.io.FileNotFoundException
+import java.sql.Connection
 import javax.inject.Inject
 import kotlin.concurrent.thread
 
@@ -29,20 +30,21 @@ class BoxFileBrowser @Inject constructor(identity: Identity,
     private val key = identity.keyIdentifier
 
     init {
-
+        val dataBaseFactory: (Connection) -> DirectoryMetadataDatabase = { connection ->
+            DirectoryMetadataDatabase(connection, AndroidVersionAdapter(connection))
+        }
         volume = AndroidBoxVolume(BoxVolumeConfig(
                 prefix,
                 deviceId,
                 readBackend,
                 writeBackend,
-                "Blake2b", tempDir,
+                "Blake2b",
+                tempDir,
                 directoryMetadataFactoryFactory = { tempDir, deviceId ->
-                    JdbcDirectoryMetadataFactory(tempDir, deviceId, { connection ->
-                        DirectoryMetadataDatabase(connection, AndroidVersionAdapter(connection))
-                    }
-                    )
+                    JdbcDirectoryMetadataFactory(tempDir, deviceId, dataBaseFactory)
                 }), identity.primaryKeyPair)
     }
+
     private val root: BoxNavigation by lazy {
         try {
             volume.navigate()

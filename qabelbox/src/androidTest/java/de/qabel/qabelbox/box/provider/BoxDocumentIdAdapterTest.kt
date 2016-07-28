@@ -5,7 +5,7 @@ import com.natpryce.hamkrest.equalTo
 import com.natpryce.hamkrest.should.shouldMatch
 import de.qabel.qabelbox.BuildConfig
 import de.qabel.qabelbox.box.dto.*
-import de.qabel.qabelbox.box.interactor.Provider
+import de.qabel.qabelbox.box.interactor.DocumentIdAdapter
 import de.qabel.qabelbox.stubResult
 import de.qabel.qabelbox.util.asString
 import de.qabel.qabelbox.util.toByteArrayInputStream
@@ -13,9 +13,9 @@ import org.mockito.Mockito
 import rx.lang.kotlin.toSingletonObservable
 import java.util.*
 
-class BoxProviderTest : MockedBoxProviderTest() {
+class BoxDocumentIdAdapterTest : MockedBoxDocumentIdAdapterTest() {
 
-    lateinit var useCase: Provider
+    lateinit var useCase: DocumentIdAdapter
 
     val docId = DocumentId("identity", "prefix", BoxPath.Root)
     val volume = VolumeRoot("root", docId.toString(), "alias")
@@ -25,7 +25,7 @@ class BoxProviderTest : MockedBoxProviderTest() {
 
     override fun setUp() {
         super.setUp()
-        useCase = Mockito.mock(Provider::class.java)
+        useCase = Mockito.mock(DocumentIdAdapter::class.java)
         provider.injectProvider(useCase)
     }
 

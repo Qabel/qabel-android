@@ -12,7 +12,7 @@ import de.qabel.qabelbox.util.IdentityHelper
 import org.junit.Test
 import java.sql.DriverManager
 
-class BoxVolumeImplTest {
+class AndroidBoxVolumeTest {
 
     val identity = IdentityHelper.createIdentity("identity", "prefix")
 
@@ -37,7 +37,7 @@ class BoxVolumeImplTest {
     }
 
     @Test
-    fun testDM() {
+    fun testMigrationRespectsDatabaseVersion() {
         val connection = DriverManager.getConnection(
                 AbstractMetadata.JDBC_PREFIX + createTempFile().absolutePath)
         connection.autoCommit = true

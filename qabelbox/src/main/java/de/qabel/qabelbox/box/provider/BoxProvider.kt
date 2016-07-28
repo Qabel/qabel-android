@@ -25,7 +25,7 @@ import de.qabel.qabelbox.dagger.modules.BoxModule
 import de.qabel.qabelbox.box.dto.BrowserEntry
 import de.qabel.qabelbox.box.dto.ProviderUpload
 import de.qabel.qabelbox.box.dto.UploadSource
-import de.qabel.qabelbox.box.interactor.Provider
+import de.qabel.qabelbox.box.interactor.DocumentIdAdapter
 import de.qabel.qabelbox.dagger.components.DaggerBoxComponent
 import de.qabel.qabelbox.dagger.modules.ContextModule
 import org.jetbrains.anko.AnkoLogger
@@ -41,7 +41,7 @@ import javax.inject.Inject
 open class BoxProvider : DocumentsProvider(), AnkoLogger {
 
     @Inject
-    lateinit var useCase: Provider
+    lateinit var useCase: DocumentIdAdapter
     open val handler by lazy { Handler(context.mainLooper) }
 
     private val volumesChangedBroadcastReceiver = object : BroadcastReceiver() {

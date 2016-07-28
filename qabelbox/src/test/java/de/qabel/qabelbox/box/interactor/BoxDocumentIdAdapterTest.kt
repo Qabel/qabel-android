@@ -15,9 +15,9 @@ import org.junit.Test
 import rx.lang.kotlin.toSingletonObservable
 import java.util.*
 
-class BoxProviderTest {
+class BoxDocumentIdAdapterTest {
 
-    lateinit var useCase: BoxProvider
+    lateinit var useCase: BoxDocumentIdAdapter
     lateinit var fileBrowser: FileBrowser
     val docId = DocumentId("identity", "prefix", BoxPath.Root)
     val volume = VolumeRoot("root", docId.toString(), "alias")
@@ -30,7 +30,7 @@ class BoxProviderTest {
     @Before
     fun setUp() {
         fileBrowser = mock()
-        useCase = BoxProvider(object: VolumeManager {
+        useCase = BoxDocumentIdAdapter(object: VolumeManager {
             override val roots: List<VolumeRoot>
                 get() = volumes
 

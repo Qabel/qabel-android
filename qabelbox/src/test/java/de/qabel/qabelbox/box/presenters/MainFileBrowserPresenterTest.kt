@@ -12,7 +12,9 @@ import de.qabel.qabelbox.box.views.FileBrowserView
 import de.qabel.qabelbox.util.toDownloadSource
 import org.junit.Before
 import org.junit.Test
+import rx.Observable
 import rx.lang.kotlin.toSingletonObservable
+import java.io.FileNotFoundException
 import java.io.InputStream
 import java.util.*
 
@@ -41,6 +43,16 @@ class MainFileBrowserPresenterTest {
     }
 
     @Test
+    fun refreshError() {
+        val exception = FileNotFoundException("test")
+        whenever(useCase.list(any())).thenReturn(Observable.error(exception))
+
+        presenter.onRefresh()
+
+        verify(view).showError(exception)
+    }
+
+    @Test
     fun delete() {
         stubWith(emptyList())
         whenever(useCase.delete(any())).thenReturn(Unit.toSingletonObservable())
@@ -62,6 +74,16 @@ class MainFileBrowserPresenterTest {
     }
 
     @Test
+    fun deleteFolderError() {
+        val exception = FileNotFoundException("test")
+        whenever(useCase.delete(any())).thenReturn(Observable.error(exception))
+
+        presenter.deleteFolder(BrowserEntry.Folder("folder"))
+
+        verify(view).showError(exception)
+    }
+
+    @Test
     fun browseToFolder() {
         stubWith(sampleFiles, path = BoxPath.Root / "folder")
         presenter.onClick(BrowserEntry.Folder("folder"))
@@ -79,6 +101,16 @@ class MainFileBrowserPresenterTest {
 
         verify(useCase).createFolder(BoxPath.Root / "folder")
         verify(view).showEntries(list)
+    }
+
+    @Test
+    fun createFolderError() {
+        val exception = FileNotFoundException("test")
+        whenever(useCase.createFolder(any())).thenReturn(Observable.error(exception))
+
+        presenter.createFolder(BrowserEntry.Folder("folder"))
+
+        verify(view).showError(exception)
     }
 
     @Test

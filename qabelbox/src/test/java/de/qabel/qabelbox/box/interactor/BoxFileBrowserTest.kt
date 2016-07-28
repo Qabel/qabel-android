@@ -3,27 +3,23 @@ package de.qabel.qabelbox.box.interactor
 import com.natpryce.hamkrest.assertion.assertThat
 import com.natpryce.hamkrest.equalTo
 import com.natpryce.hamkrest.should.shouldMatch
-import de.qabel.box.storage.BoxVolume
 import de.qabel.qabelbox.BuildConfig
 import de.qabel.qabelbox.SimpleApplication
 import de.qabel.qabelbox.box.backends.MockStorageBackend
 import de.qabel.qabelbox.box.dto.BoxPath
 import de.qabel.qabelbox.box.dto.BrowserEntry
-import de.qabel.qabelbox.box.dto.UploadSource
-import de.qabel.qabelbox.box.dto.VolumeRoot
 import de.qabel.qabelbox.box.provider.DocumentId
 import de.qabel.qabelbox.util.IdentityHelper
 import de.qabel.qabelbox.util.asString
 import de.qabel.qabelbox.util.toUploadSource
 import de.qabel.qabelbox.util.waitFor
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricGradleTestRunner
 import org.robolectric.annotation.Config
 import rx.Observable
-import java.util.Date
+import java.util.*
 
 @RunWith(RobolectricGradleTestRunner::class)
 @Config(application = SimpleApplication::class, constants = BuildConfig::class)

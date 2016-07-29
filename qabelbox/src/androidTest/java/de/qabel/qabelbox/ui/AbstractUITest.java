@@ -61,6 +61,7 @@ public class AbstractUITest {
     protected Intent getDefaultIntent() {
         Intent intent = new Intent(mContext, MainActivity.class);
         intent.putExtra(MainActivity.START_FILES_FRAGMENT, false);
+        intent.putExtra(MainActivity.TEST_RUN, true);
         return intent;
     }
 

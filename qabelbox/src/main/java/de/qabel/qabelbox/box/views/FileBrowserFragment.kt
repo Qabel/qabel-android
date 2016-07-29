@@ -70,7 +70,9 @@ class FileBrowserFragment: FileBrowserView, BaseFragment(), AnkoLogger {
         files_list.adapter = adapter
         swipeRefresh.isEnabled = false
 
-        presenter.onRefresh()
+        if (! (mActivity?.TEST ?: false)) {
+            presenter.onRefresh()
+        }
     }
 
     override fun onSaveInstanceState(outState: Bundle?) {

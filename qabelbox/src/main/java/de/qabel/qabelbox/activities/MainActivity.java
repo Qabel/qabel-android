@@ -96,6 +96,11 @@ public class MainActivity extends CrashReportingActivity
     public static final String ACTIVE_IDENTITY = "ACTIVE_IDENTITY";
     public static final String ACTIVE_CONTACT = "ACTIVE_CONTACT";
     public static final String START_FILES_FRAGMENT_PATH = "START_FILES_FRAGMENT_PATH";
+    // Intent extra to specify that the activity is in test mode which disables auto-refresh
+    public static final String TEST_RUN = "TEST_RUN";
+
+
+    public boolean TEST = false;
 
     public ActionBarDrawerToggle toggle;
 
@@ -309,6 +314,8 @@ public class MainActivity extends CrashReportingActivity
         String type = intent.getType();
 
         Log.i(TAG, "Intent action: " + action);
+
+        TEST = intent.getBooleanExtra(TEST_RUN, false);
 
         // Checks if a fragment should be launched
         boolean startFilesFragment = intent.getBooleanExtra(START_FILES_FRAGMENT, true);

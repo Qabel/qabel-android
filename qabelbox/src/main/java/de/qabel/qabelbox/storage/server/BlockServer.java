@@ -12,7 +12,7 @@ public interface BlockServer {
 
     String API_QUOTA = "/api/v0/quota/";
 
-    void downloadFile(String prefix, String path, DownloadRequestCallback callback);
+    void downloadFile(String prefix, String path, String ifModified, DownloadRequestCallback callback);
 
     void uploadFile(String prefix, String name, File file, UploadRequestCallback callback);
 
@@ -20,5 +20,5 @@ public interface BlockServer {
 
     void getQuota(JSONModelCallback<BoxQuota> callback);
 
-    int getNextId();
+    String urlForFile(String prefix, String path);
 }

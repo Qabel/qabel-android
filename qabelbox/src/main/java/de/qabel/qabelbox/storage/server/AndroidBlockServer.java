@@ -32,23 +32,18 @@ public class AndroidBlockServer extends BaseServer implements BlockServer {
         suffixId = (this.getClass().hashCode() % 0xffff) * 0x10000;
     }
 
-    private void doFileServerAction(String prefix, String path, String method, RequestBody body, RequestCallback callback) {
-        String apiURL = getUrls().getFiles();
-        Uri.Builder uriBuilder = Uri.parse(apiURL).buildUpon()
-                .appendPath(prefix);
-        if (path.startsWith(BLOCKS)) {
-            uriBuilder.appendPath("blocks");
-            path = path.substring(BLOCKS.length());
-        }
-        String url = uriBuilder
-                .appendPath(path)
-                .build().toString();
+    private void doFileServerAction(String prefix, String path, String method,
+                                    RequestBody body, RequestCallback callback,
+                                    String ifModified) {
         Request.Builder builder = new Request.Builder()
-                .url(url);
+                .url(urlForFile(prefix, path));
 
         builder = builder.method(method, body);
 
         addHeader(getToken(), builder);
+        if (ifModified != null) {
+            builder.addHeader("If-None-Match", ifModified);
+        }
         Request request = builder.build();
         Log.v(TAG, "blockserver request " + request.toString());
 
@@ -56,18 +51,18 @@ public class AndroidBlockServer extends BaseServer implements BlockServer {
     }
 
     @Override
-    public void downloadFile(String prefix, String path, DownloadRequestCallback callback) {
-        doFileServerAction(prefix, path, "GET", null, callback);
+    public void downloadFile(String prefix, String path, String ifModified, DownloadRequestCallback callback) {
+        doFileServerAction(prefix, path, "GET", null, callback, ifModified);
     }
 
     @Override
     public void uploadFile(String prefix, String name, File file, UploadRequestCallback callback) {
-        doFileServerAction(prefix, name, "POST", new UploadRequestBody(file, JSON, callback), callback);
+        doFileServerAction(prefix, name, "POST", new UploadRequestBody(file, JSON, callback), callback, null);
     }
 
     @Override
     public void deleteFile(String prefix, String path, RequestCallback callback) {
-        doFileServerAction(prefix, path, "DELETE", null, callback);
+        doFileServerAction(prefix, path, "DELETE", null, callback, null);
     }
 
     @Override
@@ -77,7 +72,17 @@ public class AndroidBlockServer extends BaseServer implements BlockServer {
     }
 
     @Override
-    public synchronized int getNextId() {
-        return (suffixId + (currentId++) + (int) (System.currentTimeMillis()) % 1000000);
+    public String urlForFile(String prefix, String path) {
+        String apiURL = getUrls().getFiles();
+        Uri.Builder uriBuilder = Uri.parse(apiURL).buildUpon()
+                .appendPath(prefix);
+        if (path.startsWith(BLOCKS)) {
+            uriBuilder.appendPath("blocks");
+            path = path.substring(BLOCKS.length());
+        }
+        return uriBuilder
+                .appendPath(path)
+                .build().toString();
     }
+
 }

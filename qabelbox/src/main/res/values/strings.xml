@@ -358,4 +358,7 @@ To all people who have supported our Indigogo Campaign
     <string name="inbox">Inbox</string>
     <string name="qapl" translatable="false">QaPL</string>
     <string name="upload_failed">Could not open the file</string>
+    <string name="filebrowser_up">Navigate up</string>
+    <string name="export_complete">Export complete</string>
+    <string name="export_aborted">Export failed</string>
 </resources>

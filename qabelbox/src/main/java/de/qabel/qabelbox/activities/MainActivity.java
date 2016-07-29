@@ -77,7 +77,6 @@ public class MainActivity extends CrashReportingActivity
         HasComponent<MainActivityComponent>, NavigationView.OnNavigationItemSelectedListener {
 
     private static final int REQUEST_SETTINGS = 17;
-    private static final int REQUEST_CODE_CHOOSE_EXPORT = 14;
     private static final int REQUEST_CREATE_IDENTITY = 16;
     public static final int REQUEST_EXPORT_IDENTITY = 18;
     public static final int REQUEST_EXTERN_VIEWER_APP = 19;
@@ -85,15 +84,10 @@ public class MainActivity extends CrashReportingActivity
 
     private static final String TAG = "BoxMainActivity";
 
-    private static final int REQUEST_CODE_UPLOAD_FILE = 12;
-
     public static final int REQUEST_EXPORT_IDENTITY_AS_CONTACT = 19;
 
-    private static final String FALLBACK_MIMETYPE = "application/octet-stream";
     private static final int NAV_GROUP_IDENTITIES = 1;
     private static final int NAV_GROUP_IDENTITY_ACTIONS = 2;
-    private static final int REQUEST_CODE_OPEN = 21;
-    private static final int REQUEST_CODE_DELETE_FILE = 22;
 
     // Intent extra to specify if the files fragment should be started
     // Defaults to true and is used in tests to shortcut the activity creation
@@ -159,10 +153,6 @@ public class MainActivity extends CrashReportingActivity
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         Log.d(TAG, "On Activity result");
-        final Uri uri;
-        if (requestCode == REQUEST_EXTERN_VIEWER_APP) {
-            Log.d(TAG, "result from extern app " + resultCode);
-        }
         if (resultCode == RESULT_OK) {
             if (requestCode == REQUEST_CREATE_IDENTITY) {
                 if (data != null && data.hasExtra(CreateIdentityActivity.P_IDENTITY)) {
@@ -171,35 +161,6 @@ public class MainActivity extends CrashReportingActivity
                         Log.w(TAG, "Recieved data with identity null");
                     }
                     addIdentity(identity);
-                    return;
-                }
-            }
-            if (data != null) {
-                if (requestCode == REQUEST_CODE_OPEN) {
-                    uri = data.getData();
-                    Log.i(TAG, "Uri: " + uri.toString());
-                    Intent viewIntent = new Intent();
-                    String type = URLConnection.guessContentTypeFromName(uri.toString());
-                    Log.i(TAG, "Mime type: " + type);
-                    viewIntent.setDataAndType(uri, type);
-                    viewIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                    startActivity(Intent.createChooser(viewIntent, "Open with"));
-                    return;
-                }
-                if (requestCode == REQUEST_CODE_UPLOAD_FILE) {
-                    throw new NotImplementedError();
-                }
-                if (requestCode == REQUEST_CODE_DELETE_FILE) {
-                    uri = data.getData();
-                    Log.i(TAG, "Deleting file: " + uri.toString());
-                    new AsyncTask<Uri, Void, Boolean>() {
-
-                        @Override
-                        protected Boolean doInBackground(Uri... params) {
-
-                            return DocumentsContract.deleteDocument(getContentResolver(), params[0]);
-                        }
-                    }.execute(uri);
                     return;
                 }
             }
@@ -353,7 +314,6 @@ public class MainActivity extends CrashReportingActivity
         boolean startFilesFragment = intent.getBooleanExtra(START_FILES_FRAGMENT, true);
         boolean startContactsFragment = intent.getBooleanExtra(START_CONTACTS_FRAGMENT, false);
         String activeContact = intent.getStringExtra(ACTIVE_CONTACT);
-        String filePath = intent.getStringExtra(START_FILES_FRAGMENT_PATH);
         if (type != null && intent.getAction() != null) {
             String scheme = intent.getScheme();
 
@@ -373,13 +333,6 @@ public class MainActivity extends CrashReportingActivity
                         //shareIntoApp(data, intent);
                     }
 
-                    break;
-                case Intent.ACTION_SEND_MULTIPLE:
-                    Log.i(TAG, "Action send multiple in main activity");
-                    ArrayList<Uri> imageUris = intent.getParcelableArrayListExtra(Intent.EXTRA_STREAM);
-                    if (imageUris != null && imageUris.size() > 0) {
-                        //shareIntoApp(imageUris, intent);
-                    }
                     break;
                 default:
                     if (startContactsFragment) {
@@ -497,17 +450,6 @@ public class MainActivity extends CrashReportingActivity
         // Inflate the menu; this adds items to the action bar if it is present.
       //  getMenuInflater().inflate(R.menu.ab_main, menu);
         return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-
-        return super.onOptionsItemSelected(item);
     }
 
     public void selectIdentity(Identity identity) {
@@ -744,7 +686,7 @@ public class MainActivity extends CrashReportingActivity
     private void selectAddIdentityFragment() {
 
         Intent i = new Intent(self, CreateIdentityActivity.class);
-        int identitiesCount = 0;
+        int identitiesCount;
         try {
             identitiesCount = identityRepository.findAll().getIdentities().size();
         } catch (PersistenceException e) {

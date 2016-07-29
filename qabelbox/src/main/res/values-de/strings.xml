@@ -317,4 +317,6 @@ Den Unterstützern der Indigogo Kampagne
     <string name="upload_failed">Konnte die Datei nicht lesen</string>
     <string name="permanently_unavailable">nicht mehr verfügbar</string>
     <string name="filebrowser_up">Übergeordnerter Ordner</string>
+    <string name="export_complete">Export abgeschlossen</string>
+    <string name="export_aborted">Export fehlgeschlagen</string>
 </resources>

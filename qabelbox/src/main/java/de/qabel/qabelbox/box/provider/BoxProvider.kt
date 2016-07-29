@@ -181,7 +181,11 @@ open class BoxProvider : DocumentsProvider(), AnkoLogger {
         val id = documentId.toDocumentId()
         val file = File.createTempFile("boxOpen", "tmp", context.externalCacheDir)
         if (isRead) {
-            val download = useCase.download(id).toBlocking().firstOrNull()
+            val download = try {
+                useCase.download(id).toBlocking().firstOrNull()
+            } catch (e: QblStorageException) {
+                throw FileNotFoundException("Download failed")
+            }
             file.outputStream().run {
                 download.source.source.copyTo(file.outputStream())
             }
@@ -197,7 +201,11 @@ open class BoxProvider : DocumentsProvider(), AnkoLogger {
                 Log.i(TAG, "Uploading saved file")
                 val entry = BrowserEntry.File(id.path.name, file.length(), Date())
                 file.inputStream().use {
-                    useCase.upload(ProviderUpload(id, UploadSource(it, entry))).toBlocking()
+                    try {
+                        useCase.upload(ProviderUpload(id, UploadSource(it, entry))).toBlocking()
+                    } catch (e: QblStorageException) {
+                        throw FileNotFoundException("Upload failed")
+                    }
                 }
             })
         } else {
@@ -230,7 +238,7 @@ open class BoxProvider : DocumentsProvider(), AnkoLogger {
         val DEFAULT_DOCUMENT_PROJECTION = arrayOf(Document.COLUMN_DOCUMENT_ID, Document.COLUMN_MIME_TYPE, Document.COLUMN_DISPLAY_NAME, Document.COLUMN_LAST_MODIFIED, Document.COLUMN_FLAGS, Document.COLUMN_SIZE, Media.DATA)
 
         @JvmField
-        val AUTHORITY = ".providers.documents"
+        val AUTHORITY = ".box.provider.documents"
         @JvmField
         val PATH_SEP = "/"
         @JvmField

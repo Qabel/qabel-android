@@ -487,6 +487,7 @@ public class MainActivity extends CrashReportingActivity
                 intent = new Intent(this, MainActivity.class);
             }
             intent.putExtra(ACTIVE_IDENTITY, identity.getKeyIdentifier());
+            intent.putExtra(TEST_RUN, TEST);
             finish();
             overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
             startActivity(intent);

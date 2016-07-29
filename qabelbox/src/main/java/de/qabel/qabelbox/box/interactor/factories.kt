@@ -1,11 +1,17 @@
 package de.qabel.qabelbox.box.interactor
 
+import de.qabel.box.storage.AndroidBoxVolume
+import de.qabel.box.storage.BoxVolumeConfig
+import de.qabel.box.storage.jdbc.DirectoryMetadataDatabase
+import de.qabel.box.storage.jdbc.JdbcDirectoryMetadataFactory
+import de.qabel.core.repositories.AndroidVersionAdapter
 import de.qabel.desktop.repository.IdentityRepository
 import de.qabel.qabelbox.box.backends.BoxHttpStorageBackend
 import de.qabel.qabelbox.box.dto.VolumeRoot
 import de.qabel.qabelbox.box.provider.toDocumentId
 import de.qabel.qabelbox.storage.server.BlockServer
 import java.io.File
+import java.sql.Connection
 
 fun makeFileBrowserFactory(identityRepository: IdentityRepository,
                            deviceId: ByteArray,
@@ -17,7 +23,21 @@ fun makeFileBrowserFactory(identityRepository: IdentityRepository,
         val key = docId.identityKey
         val identity = identityRepository.find(key)
         val backend = BoxHttpStorageBackend(androidBlockServer, docId.prefix)
-        return BoxFileBrowser(identity, backend, backend, deviceId, tempDir)
+        val dataBaseFactory: (Connection) -> DirectoryMetadataDatabase = { connection ->
+            DirectoryMetadataDatabase(connection, AndroidVersionAdapter(connection))
+        }
+        val volume = AndroidBoxVolume(BoxVolumeConfig(
+                identity.prefixes.first(),
+                deviceId,
+                backend,
+                backend,
+                "Blake2b",
+                tempDir,
+                directoryMetadataFactoryFactory = { tempDir, deviceId ->
+                    JdbcDirectoryMetadataFactory(tempDir, deviceId, dataBaseFactory)
+                }),
+                identity.primaryKeyPair)
+        return BoxFileBrowser(BoxFileBrowser.KeyAndPrefix(key, identity.prefixes.first()),  volume)
     }
 }
 

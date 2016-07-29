@@ -17,33 +17,17 @@ import java.io.File
 import java.io.FileNotFoundException
 import java.sql.Connection
 import javax.inject.Inject
+import javax.inject.Named
 import kotlin.concurrent.thread
 
-class BoxFileBrowser @Inject constructor(identity: Identity,
-                                         readBackend: StorageReadBackend,
-                                         writeBackend: StorageWriteBackend,
-                                         deviceId: ByteArray,
-                                         tempDir: File) : FileBrowser {
+class BoxFileBrowser @Inject constructor(keyAndPrefix: KeyAndPrefix,
+                                         private val volume: BoxVolume
+                                         ) : FileBrowser {
 
-    private val volume: BoxVolume
-    private val prefix = identity.prefixes.first()
-    private val key = identity.keyIdentifier
+    data class KeyAndPrefix(val publicKey: String, val prefix: String)
 
-    init {
-        val dataBaseFactory: (Connection) -> DirectoryMetadataDatabase = { connection ->
-            DirectoryMetadataDatabase(connection, AndroidVersionAdapter(connection))
-        }
-        volume = AndroidBoxVolume(BoxVolumeConfig(
-                prefix,
-                deviceId,
-                readBackend,
-                writeBackend,
-                "Blake2b",
-                tempDir,
-                directoryMetadataFactoryFactory = { tempDir, deviceId ->
-                    JdbcDirectoryMetadataFactory(tempDir, deviceId, dataBaseFactory)
-                }), identity.primaryKeyPair)
-    }
+    private val key = keyAndPrefix.publicKey
+    private val prefix = keyAndPrefix.prefix
 
     private val root: BoxNavigation by lazy {
         try {
@@ -67,7 +51,7 @@ class BoxFileBrowser @Inject constructor(identity: Identity,
             }
             val boxObject = try {
                 queryObject(path)
-            } catch (e: FileNotFoundException) {
+            } catch (e: Throwable) {
                 subscriber.onError(e)
                 return@thread
             }
@@ -94,8 +78,12 @@ class BoxFileBrowser @Inject constructor(identity: Identity,
 
     override fun upload(path: BoxPath.File, source: UploadSource): Observable<Unit> = observable {
         thread {
-            recursiveCreateFolder(path.parent).upload(path.name, source.source, source.entry.size)
-            it.onNext(Unit)
+            try {
+                recursiveCreateFolder(path.parent).upload(path.name, source.source, source.entry.size)
+                it.onNext(Unit)
+            } catch (e: Throwable) {
+                it.onError(e)
+            }
             it.onCompleted()
         }
     }
@@ -103,13 +91,13 @@ class BoxFileBrowser @Inject constructor(identity: Identity,
     override fun download(path: BoxPath.File): Observable<DownloadSource> =
         observable { subscriber ->
             thread {
-                query(path).subscribe { entry ->
+                query(path).subscribe({ entry ->
                     if (entry is BrowserEntry.File) {
                         subscriber.onNext(DownloadSource(entry, navigateTo(path.parent).download(path.name)))
                     } else {
                         subscriber.onError(FileNotFoundException("Not a file"))
                     }
-                }
+                }, { subscriber.onError(it) })
             }
     }
 
@@ -135,12 +123,11 @@ class BoxFileBrowser @Inject constructor(identity: Identity,
         subscriber ->
         thread {
             val nav = try {
-                navigateTo(path)
+                navigateTo(path).apply { reloadMetadata() }
             } catch (e: QblStorageException) {
                 subscriber.onError(e)
                 return@thread
             }
-            nav.reloadMetadata()
             val entries = nav.listFiles() + nav.listFolders()
             subscriber.onNext(entries.map { it.toEntry() }.filterNotNull())
         }
@@ -152,7 +139,7 @@ class BoxFileBrowser @Inject constructor(identity: Identity,
                 try {
                     recursiveCreateFolder(path)
                     subscriber.onNext(Unit)
-                } catch (e: Exception) {
+                } catch (e: Throwable) {
                     subscriber.onError(e)
                 }
             }

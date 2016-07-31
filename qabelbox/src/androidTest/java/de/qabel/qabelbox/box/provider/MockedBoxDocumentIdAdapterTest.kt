@@ -6,7 +6,7 @@ import android.test.mock.MockContentResolver
 import de.qabel.qabelbox.BuildConfig
 import org.junit.Before
 
-abstract class MockedBoxProviderTest : InstrumentationTestCase() {
+abstract class MockedBoxDocumentIdAdapterTest : InstrumentationTestCase() {
 
     lateinit var provider: MockBoxProvider
     lateinit var mockContentResolver: MockContentResolver

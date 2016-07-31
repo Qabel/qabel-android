@@ -10,7 +10,10 @@ data class DocumentId(val identityKey: String, val prefix: String, val path: Box
     override fun toString(): String {
         return identityKey + BoxProvider.DOCID_SEPARATOR +
                 prefix + BoxProvider.DOCID_SEPARATOR +
-                pathString + PATH_SEPARATOR + path.name
+                pathString + PATH_SEPARATOR +
+                if (path is BoxPath.FolderLike && path.name != "") {
+                    path.name + PATH_SEPARATOR
+                } else { path.name }
     }
 
     companion object {

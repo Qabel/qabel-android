@@ -7,8 +7,8 @@ import rx.lang.kotlin.toSingletonObservable
 import java.io.FileNotFoundException
 import javax.inject.Inject
 
-class BoxProviderUseCase @Inject constructor(private val volumeManager: VolumeManager):
-        ProviderUseCase {
+class BoxDocumentIdAdapter @Inject constructor(private val volumeManager: VolumeManager):
+        DocumentIdAdapter {
 
     override fun query(documentId: DocumentId): Observable<BrowserEntry> {
         return browserByDocumentId(documentId).query(documentId.path)

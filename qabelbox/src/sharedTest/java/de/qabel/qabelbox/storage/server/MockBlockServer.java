@@ -27,8 +27,8 @@ public class MockBlockServer implements BlockServer {
     public static final long QUOTA = 22000;
 
     @Override
-    public void downloadFile(String prefix, String path, DownloadRequestCallback callback) {
-        throw new UnsupportedOperationException();
+    public void downloadFile(String prefix, String path, String ifModified, DownloadRequestCallback callback) {
+
     }
 
     @Override
@@ -57,6 +57,11 @@ public class MockBlockServer implements BlockServer {
         }
     }
 
+    @Override
+    public String urlForFile(String prefix, String path) {
+        return null;
+    }
+
     private String createMockQuotaResponse(){
         try {
             JSONObject quotaMockData = new JSONObject();
@@ -69,8 +74,4 @@ public class MockBlockServer implements BlockServer {
         return null;
     }
 
-    @Override
-    public int getNextId() {
-        return new Random().nextInt();
-    }
 }

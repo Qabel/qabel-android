@@ -19,5 +19,7 @@ interface FileBrowserPresenter {
     fun createFolder(folder: BrowserEntry.Folder)
 
     fun upload(file: BrowserEntry.File, stream: InputStream)
+
+    fun navigateUp()
 }
 

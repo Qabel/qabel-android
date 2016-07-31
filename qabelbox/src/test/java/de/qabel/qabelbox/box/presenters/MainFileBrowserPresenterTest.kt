@@ -6,20 +6,22 @@ import de.qabel.qabelbox.box.dto.BrowserEntry
 import de.qabel.qabelbox.box.dto.BrowserEntry.File
 import de.qabel.qabelbox.box.dto.DownloadSource
 import de.qabel.qabelbox.box.dto.UploadSource
-import de.qabel.qabelbox.box.interactor.FileBrowserUseCase
+import de.qabel.qabelbox.box.interactor.FileBrowser
 import de.qabel.qabelbox.box.provider.DocumentId
 import de.qabel.qabelbox.box.views.FileBrowserView
 import de.qabel.qabelbox.util.toDownloadSource
 import org.junit.Before
 import org.junit.Test
+import rx.Observable
 import rx.lang.kotlin.toSingletonObservable
+import java.io.FileNotFoundException
 import java.io.InputStream
 import java.util.*
 
 class MainFileBrowserPresenterTest {
 
     val view: FileBrowserView = mock()
-    val useCase: FileBrowserUseCase = mock()
+    val useCase: FileBrowser = mock()
     lateinit var presenter: MainFileBrowserPresenter
     val sample = File("foobar.txt", 42000, Date())
     val sampleFiles = listOf(sample)
@@ -38,6 +40,16 @@ class MainFileBrowserPresenterTest {
         stubWith(sampleFiles)
         presenter.onRefresh()
         verify(view).showEntries(sampleFiles)
+    }
+
+    @Test
+    fun refreshError() {
+        val exception = FileNotFoundException("test")
+        whenever(useCase.list(any())).thenReturn(Observable.error(exception))
+
+        presenter.onRefresh()
+
+        verify(view).showError(exception)
     }
 
     @Test
@@ -62,6 +74,16 @@ class MainFileBrowserPresenterTest {
     }
 
     @Test
+    fun deleteFolderError() {
+        val exception = FileNotFoundException("test")
+        whenever(useCase.delete(any())).thenReturn(Observable.error(exception))
+
+        presenter.deleteFolder(BrowserEntry.Folder("folder"))
+
+        verify(view).showError(exception)
+    }
+
+    @Test
     fun browseToFolder() {
         stubWith(sampleFiles, path = BoxPath.Root / "folder")
         presenter.onClick(BrowserEntry.Folder("folder"))
@@ -79,6 +101,16 @@ class MainFileBrowserPresenterTest {
 
         verify(useCase).createFolder(BoxPath.Root / "folder")
         verify(view).showEntries(list)
+    }
+
+    @Test
+    fun createFolderError() {
+        val exception = FileNotFoundException("test")
+        whenever(useCase.createFolder(any())).thenReturn(Observable.error(exception))
+
+        presenter.createFolder(BrowserEntry.Folder("folder"))
+
+        verify(view).showError(exception)
     }
 
     @Test
@@ -112,6 +144,24 @@ class MainFileBrowserPresenterTest {
         presenter.export(sample)
 
         verify(view).export(docId)
+    }
+
+    @Test
+    fun share() {
+        val docId = DocumentId("foo", "bar", BoxPath.Root * sample.name)
+        whenever(useCase.asDocumentId(docId.path)).thenReturn(docId.toSingletonObservable())
+        presenter.share(sample)
+
+        verify(view).share(docId)
+    }
+
+    @Test
+    fun navigateUp() {
+        stubWith(sampleFiles)
+        presenter.path = BoxPath.Root / "folder"
+
+        presenter.navigateUp()
+        verify(view).showEntries(sampleFiles)
     }
 
 }

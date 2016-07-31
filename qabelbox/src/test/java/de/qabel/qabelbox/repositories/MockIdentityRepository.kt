@@ -13,7 +13,7 @@ class MockIdentityRepository(val identity: Identity): IdentityRepository {
 
     override fun find(id: Int): Identity? = findOrError(id == identityId)
 
-    override fun findAll(): Identities? = throw UnsupportedOperationException()
+    override fun findAll(): Identities? = Identities().apply { put(identity) }
 
     override fun save(identity: Identity?) = throw UnsupportedOperationException()
 

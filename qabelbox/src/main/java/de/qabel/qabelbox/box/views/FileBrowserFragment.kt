@@ -4,36 +4,39 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.provider.DocumentsContract
-import android.provider.OpenableColumns
-import android.support.v4.widget.SwipeRefreshLayout
 import android.support.v7.widget.LinearLayoutManager
 import android.view.*
 import com.cocosw.bottomsheet.BottomSheet
+import de.qabel.box.storage.exceptions.QblStorageException
 import de.qabel.qabelbox.BuildConfig
 import de.qabel.qabelbox.R
 import de.qabel.qabelbox.box.adapters.FileAdapter
-import de.qabel.qabelbox.dagger.modules.FileBrowserModule
 import de.qabel.qabelbox.box.dto.BrowserEntry
 import de.qabel.qabelbox.box.presenters.FileBrowserPresenter
 import de.qabel.qabelbox.box.provider.BoxProvider
 import de.qabel.qabelbox.box.provider.DocumentId
+import de.qabel.qabelbox.box.provider.toDocumentId
 import de.qabel.qabelbox.box.queryNameAndSize
 import de.qabel.qabelbox.dagger.components.MainActivityComponent
+import de.qabel.qabelbox.dagger.modules.FileBrowserModule
 import de.qabel.qabelbox.fragments.BaseFragment
 import kotlinx.android.synthetic.main.fragment_files.*
 import org.jetbrains.anko.*
 import java.io.FileNotFoundException
+import java.io.IOException
 import java.net.URLConnection
 import java.util.*
 import javax.inject.Inject
 
-class FileBrowserFragment: FileBrowserView, BaseFragment(), AnkoLogger,
-        SwipeRefreshLayout.OnRefreshListener {
-
+class FileBrowserFragment: FileBrowserView, BaseFragment(), AnkoLogger {
     companion object {
         fun newInstance() = FileBrowserFragment()
         val REQUEST_OPEN_FILE = 0
+        val REQUEST_EXPORT_FILE = 1
+        val KEY_EXPORT_DOCUMENT_ID = "EXPORT_DOCUMENT_ID"
     }
+
+    var exportDocumentId: DocumentId? = null
 
     override val isFabNeeded = true
 
@@ -49,6 +52,14 @@ class FileBrowserFragment: FileBrowserView, BaseFragment(), AnkoLogger,
         val component = getComponent(MainActivityComponent::class.java)
                 .plus(FileBrowserModule(this))
         component.inject(this)
+        savedInstanceState?.let {
+            savedInstanceState.getString(KEY_EXPORT_DOCUMENT_ID, null)?.let {
+                try {
+                    exportDocumentId = it.toDocumentId()
+                } catch (ignored: QblStorageException) {}
+            }
+        }
+
         setHasOptionsMenu(true)
         adapter = FileAdapter(mutableListOf(),
                 click = { presenter.onClick(it) }, longClick = { openBottomSheet(it)}
@@ -56,7 +67,23 @@ class FileBrowserFragment: FileBrowserView, BaseFragment(), AnkoLogger,
 
         files_list.layoutManager = LinearLayoutManager(ctx)
         files_list.adapter = adapter
+        swipeRefresh.isEnabled = false
     }
+
+    override fun onSaveInstanceState(outState: Bundle?) {
+        if (exportDocumentId != null) {
+            outState?.putString(KEY_EXPORT_DOCUMENT_ID, exportDocumentId.toString())
+        }
+        super.onSaveInstanceState(outState)
+    }
+
+
+    override fun showError(throwable: Throwable) {
+        longToast(throwable.message ?: "Error")
+        error("Error", throwable)
+        refreshDone()
+    }
+
 
     fun openBottomSheet(entry: BrowserEntry) {
         val (icon, sheet) = when(entry) {
@@ -96,12 +123,44 @@ class FileBrowserFragment: FileBrowserView, BaseFragment(), AnkoLogger,
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         val uri = data?.data
-        if (uri != null && requestCode == REQUEST_OPEN_FILE) {
-            upload(uri)
-            return
+        if (uri != null) {
+            when (requestCode) {
+                REQUEST_OPEN_FILE -> {
+                    upload(uri)
+                    return
+                }
+                REQUEST_EXPORT_FILE -> {
+                    exportFile(uri)
+                    return
+                }
+            }
 
         }
         super.onActivityResult(requestCode, resultCode, data)
+    }
+
+    private fun exportFile(uri: Uri?): Boolean {
+        val exportId = exportDocumentId ?: return true
+        info("Export of $exportId to $uri")
+        async() {
+            val input = ctx.contentResolver.openInputStream(uriFromDocumentId(exportId))
+            val output = ctx.contentResolver.openOutputStream(uri)
+            if (input == null || output == null) {
+                toast(R.string.export_aborted)
+                return@async
+            }
+            try {
+                input.copyTo(output)
+            } catch (e: IOException) {
+                warn("Export of $exportId to $uri failed", e)
+                toast(R.string.export_aborted)
+                return@async
+            }
+            onUiThread {
+                toast(R.string.export_complete)
+            }
+        }
+        return false
     }
 
     private fun upload(fileUri: Uri) {
@@ -118,8 +177,18 @@ class FileBrowserFragment: FileBrowserView, BaseFragment(), AnkoLogger,
         }
     }
 
-    override fun onRefresh() {
-        presenter.onRefresh()
+    override fun refreshStart() {
+        onUiThread {
+            if (!swipeRefresh.isRefreshing) {
+                swipeRefresh.isRefreshing = true
+            }
+        }
+    }
+
+    override fun refreshDone() {
+        onUiThread {
+            swipeRefresh.isRefreshing = false
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater?) {
@@ -128,27 +197,72 @@ class FileBrowserFragment: FileBrowserView, BaseFragment(), AnkoLogger,
     }
 
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
-        if (item?.itemId == R.id.menu_refresh) {
-            onRefresh()
-            return true
+        when(item?.itemId) {
+            R.id.menu_refresh -> presenter.onRefresh()
+            R.id.menu_up -> presenter.navigateUp()
+            else -> return false
         }
-        return false
+        return true
     }
 
     override fun open(documentId: DocumentId) {
-        val uri = DocumentsContract.buildDocumentUri(
-                BuildConfig.APPLICATION_ID + BoxProvider.AUTHORITY,
-                documentId.toString())
-        val type = URLConnection.guessContentTypeFromName(uri.toString())
-        val intent = Intent().apply {
-            action = Intent.ACTION_VIEW
-            setDataAndType(uri, type)
-            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        onUiThread {
+            info("Open With via started for docu id $documentId")
+            val uri = uriFromDocumentId(documentId)
+            val intent = Intent(Intent.ACTION_VIEW).apply {
+                data = uri
+                type = typeFromUri(uri)
+                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            }
+            startActivity(Intent.createChooser(intent, ctx.getString(R.string.chooser_open_with)).singleTop())
         }
-        startActivity(Intent.createChooser(intent, "Open with").singleTop())
     }
+
+    override fun share(documentId: DocumentId) {
+        onUiThread {
+            info("Share via started for docu id $documentId")
+            val uri = uriFromDocumentId(documentId)
+            val shareIntent = Intent(Intent.ACTION_SEND).apply {
+                data = uri
+                type = typeFromUri(uri)
+                putExtra(Intent.EXTRA_SUBJECT, R.string.share_subject)
+                putExtra(Intent.EXTRA_TITLE, R.string.share_subject)
+                putExtra(Intent.EXTRA_TEXT, activity.getString(R.string.share_text))
+                putExtra(Intent.EXTRA_STREAM, uri)
+                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            }
+            startActivity(Intent.createChooser(shareIntent, activity.getString(R.string.share_via)))
+        }
+    }
+
+    private fun typeFromUri(uri: Uri?): String? {
+        return URLConnection.guessContentTypeFromName(uri.toString())
+    }
+
+    private fun uriFromDocumentId(documentId: DocumentId): Uri? =
+            DocumentsContract.buildDocumentUri(
+                    BuildConfig.APPLICATION_ID + BoxProvider.AUTHORITY,
+                    documentId.toString())
+
+
     override fun export(documentId: DocumentId) {
+        onUiThread {
+            exportDocumentId = documentId
+
+            val uri = uriFromDocumentId(documentId)
+            val mimeType = typeFromUri(uri)
+            val createDocument = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
+                data = uri
+                type = mimeType
+                putExtra(Intent.EXTRA_TITLE, documentId.path.name)
+                addCategory(Intent.CATEGORY_OPENABLE)
+                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            }
+            info(createDocument.toString())
+            startActivityForResult(createDocument, REQUEST_EXPORT_FILE)
+        }
     }
+
 
     override fun handleFABAction(): Boolean {
         BottomSheet.Builder(activity).sheet(R.menu.bottom_sheet_files_add).listener { dialog, which ->

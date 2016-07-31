@@ -1,29 +1,19 @@
 package de.qabel.qabelbox.ui.views
 
-import android.content.DialogInterface
 import android.content.Intent
 import android.support.test.espresso.Espresso
 import android.support.test.espresso.Espresso.onView
 import android.support.test.espresso.action.ViewActions.*
 import android.support.test.espresso.assertion.ViewAssertions
-import android.support.test.espresso.intent.Intents
-import android.support.test.espresso.intent.matcher.IntentMatchers.hasAction
-import android.support.test.espresso.intent.matcher.IntentMatchers.hasExtra
 import android.support.test.espresso.matcher.ViewMatchers.*
-import android.text.InputType
 import de.qabel.qabelbox.R
 import de.qabel.qabelbox.activities.MainActivity
-import de.qabel.qabelbox.box.dto.BoxPath
 import de.qabel.qabelbox.box.dto.BrowserEntry
 import de.qabel.qabelbox.box.presenters.FileBrowserPresenter
-import de.qabel.qabelbox.box.provider.DocumentId
 import de.qabel.qabelbox.box.views.FileBrowserFragment
 import de.qabel.qabelbox.navigation.MainNavigator
 import de.qabel.qabelbox.ui.AbstractUITest
 import de.qabel.qabelbox.ui.idling.InjectedIdlingResource
-import de.qabel.qabelbox.util.toDownloadSource
-import org.hamcrest.core.AllOf.allOf
-import org.junit.Ignore
 import org.junit.Test
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.verify
@@ -55,13 +45,6 @@ class FileBrowserFragmentTest: AbstractUITest() {
         }
     }
 
-
-    @Test
-    fun refreshActionBarButton() {
-        launch()
-        onView(withId(R.id.menu_refresh)).perform(click())
-        verify(presenter).onRefresh()
-    }
 
     @Test
     fun entryClick() {
@@ -112,5 +95,20 @@ class FileBrowserFragmentTest: AbstractUITest() {
         onView(withText(R.string.ok)).perform(click())
         verify(presenter).createFolder(BrowserEntry.Folder("folder"))
     }
+
+    @Test
+    fun navigateUp() {
+        launch()
+        onView(withId(R.id.menu_up)).perform(click())
+        verify(presenter).navigateUp()
+    }
+
+    @Test
+    fun refreshActionBarButton() {
+        launch()
+        onView(withId(R.id.menu_refresh)).perform(click())
+        verify(presenter).onRefresh()
+    }
+
 
 }

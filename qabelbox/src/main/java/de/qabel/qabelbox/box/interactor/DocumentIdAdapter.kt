@@ -4,7 +4,7 @@ import de.qabel.qabelbox.box.dto.*
 import de.qabel.qabelbox.box.provider.DocumentId
 import rx.Observable
 
-interface ProviderUseCase {
+interface DocumentIdAdapter {
     fun availableRoots(): List<VolumeRoot>
     fun queryChildDocuments(documentId: DocumentId): Observable<List<ProviderEntry>>
     fun download(documentId: DocumentId): Observable<ProviderDownload>

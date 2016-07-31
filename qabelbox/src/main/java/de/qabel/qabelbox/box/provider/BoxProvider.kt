@@ -20,12 +20,17 @@ import de.qabel.qabelbox.BuildConfig
 import de.qabel.qabelbox.QabelBoxApplication
 import de.qabel.qabelbox.QblBroadcastConstants
 import de.qabel.qabelbox.R
+import de.qabel.qabelbox.box.dto.BoxPath
 import de.qabel.qabelbox.dagger.modules.BoxModule
 import de.qabel.qabelbox.box.dto.BrowserEntry
 import de.qabel.qabelbox.box.dto.ProviderUpload
 import de.qabel.qabelbox.box.dto.UploadSource
-import de.qabel.qabelbox.box.interactor.ProviderUseCase
+import de.qabel.qabelbox.box.interactor.DocumentIdAdapter
 import de.qabel.qabelbox.dagger.components.DaggerBoxComponent
+import de.qabel.qabelbox.dagger.modules.ContextModule
+import org.jetbrains.anko.AnkoLogger
+import org.jetbrains.anko.info
+import org.jetbrains.anko.warn
 import rx.lang.kotlin.firstOrNull
 import java.io.File
 import java.io.FileNotFoundException
@@ -33,10 +38,10 @@ import java.net.URLConnection
 import java.util.*
 import javax.inject.Inject
 
-open class BoxProvider : DocumentsProvider() {
+open class BoxProvider : DocumentsProvider(), AnkoLogger {
 
     @Inject
-    lateinit var useCase: ProviderUseCase
+    lateinit var useCase: DocumentIdAdapter
     open val handler by lazy { Handler(context.mainLooper) }
 
     private val volumesChangedBroadcastReceiver = object : BroadcastReceiver() {
@@ -53,7 +58,9 @@ open class BoxProvider : DocumentsProvider() {
     }
 
     open fun inject() {
-        val boxComponent = DaggerBoxComponent.builder().boxModule(BoxModule()).build()
+        val boxComponent = DaggerBoxComponent.builder()
+                .contextModule(ContextModule(context))
+                .build()
         boxComponent.inject(this)
     }
 
@@ -71,15 +78,13 @@ open class BoxProvider : DocumentsProvider() {
         val netProjection = reduceProjection(projection, DEFAULT_ROOT_PROJECTION)
         val result = MatrixCursor(netProjection)
         useCase.availableRoots().forEach {
-            with(it) {
-                with(result.newRow()) {
-                    add(Root.COLUMN_ROOT_ID, rootID)
-                    add(Root.COLUMN_DOCUMENT_ID, documentID)
-                    add(Root.COLUMN_ICON, R.drawable.qabel_logo)
-                    add(Root.COLUMN_FLAGS, Root.FLAG_SUPPORTS_CREATE)
-                    add(Root.COLUMN_TITLE, "Qabel")
-                    add(Root.COLUMN_SUMMARY, alias)
-                }
+            with(result.newRow()) {
+                add(Root.COLUMN_ROOT_ID, it.rootID)
+                add(Root.COLUMN_DOCUMENT_ID, it.documentID)
+                add(Root.COLUMN_ICON, R.drawable.qabel_logo)
+                add(Root.COLUMN_FLAGS, Root.FLAG_SUPPORTS_CREATE)
+                add(Root.COLUMN_TITLE, "Qabel")
+                add(Root.COLUMN_SUMMARY, it.alias)
             }
         }
         return result
@@ -97,11 +102,16 @@ open class BoxProvider : DocumentsProvider() {
 
     @Throws(FileNotFoundException::class)
     override fun queryDocument(documentIdString: String, projection: Array<String>?): Cursor? {
-        val id = try { documentIdString.toDocumentId() } catch (e: QblStorageException) {
-            throw FileNotFoundException("Document not found") }
+        val id = try {
+            documentIdString.toDocumentId()
+        } catch (e: QblStorageException) {
+            warn("Document $documentIdString not found")
+            throw FileNotFoundException("Document not found")
+        }
+        info("Query document: $documentIdString")
         val entry = useCase.query(id).toBlocking().firstOrNull()
                 ?: throw FileNotFoundException("Not found: $documentIdString")
-        return createCursor(projection ?: arrayOf(), false).apply {
+        return createCursor(projection ?: DEFAULT_DOCUMENT_PROJECTION, false).apply {
             when (entry) {
                 is BrowserEntry.File -> insertFile(this, id, entry)
                 is BrowserEntry.Folder -> insertFolder(this, id, entry)
@@ -111,10 +121,16 @@ open class BoxProvider : DocumentsProvider() {
 
     @Throws(FileNotFoundException::class)
     override fun queryChildDocuments(parentDocumentId: String, projection: Array<String>?, sortOrder: String?): Cursor {
-        val id = try { parentDocumentId.toDocumentId() } catch (e: QblStorageException) {
-            throw FileNotFoundException("Document not found") }
-        val listing = useCase.queryChildDocuments(id).toBlocking().firstOrNull()
-        return createCursor(projection ?: arrayOf(), false).apply {
+        val id = try {
+            parentDocumentId.toDocumentId()
+        } catch (e: QblStorageException) {
+            warn("Document $parentDocumentId not found")
+            throw FileNotFoundException("Document not found")
+        }
+        info("Retrieve file listing for $parentDocumentId - $id")
+        val listing = useCase.queryChildDocuments(id).toBlocking().firstOrNull() ?: emptyList()
+        info("File listing for $parentDocumentId: $listing")
+        return createCursor(projection ?: DEFAULT_DOCUMENT_PROJECTION, false).apply {
             listing.map {
                 when (it.entry) {
                     is BrowserEntry.File -> insertFile(this, it.documentId, it.entry)
@@ -132,7 +148,7 @@ open class BoxProvider : DocumentsProvider() {
     }
 
     private fun insertFile(cursor: MatrixCursor, documentId: DocumentId, file: BrowserEntry.File) {
-
+        info("Inserting file into cursor: $documentId - $file")
         val mimeType = URLConnection.guessContentTypeFromName(file.name) ?: "application/octet-stream"
         with(cursor.newRow()) {
             add(Document.COLUMN_DOCUMENT_ID, documentId.toString())
@@ -146,6 +162,7 @@ open class BoxProvider : DocumentsProvider() {
     }
 
     private fun insertFolder(cursor: MatrixCursor, documentId: DocumentId, folder: BrowserEntry.Folder) {
+        info("Inserting folder into cursor: $documentId - $folder")
         with(cursor.newRow()) {
             add(Document.COLUMN_DOCUMENT_ID, documentId.toString())
             add(Document.COLUMN_DISPLAY_NAME, folder.name)
@@ -158,12 +175,17 @@ open class BoxProvider : DocumentsProvider() {
     @Throws(FileNotFoundException::class)
     override fun openDocument(documentId: String,
                               mode: String, signal: CancellationSignal?): ParcelFileDescriptor {
+        info("Open document $documentId in mode $mode")
         val isWrite = mode.indexOf('w') != -1
         val isRead = mode.indexOf('r') != -1
         val id = documentId.toDocumentId()
         val file = File.createTempFile("boxOpen", "tmp", context.externalCacheDir)
         if (isRead) {
-            val download = useCase.download(id).toBlocking().firstOrNull()
+            val download = try {
+                useCase.download(id).toBlocking().firstOrNull()
+            } catch (e: QblStorageException) {
+                throw FileNotFoundException("Download failed")
+            }
             file.outputStream().run {
                 download.source.source.copyTo(file.outputStream())
             }
@@ -179,7 +201,11 @@ open class BoxProvider : DocumentsProvider() {
                 Log.i(TAG, "Uploading saved file")
                 val entry = BrowserEntry.File(id.path.name, file.length(), Date())
                 file.inputStream().use {
-                    useCase.upload(ProviderUpload(id, UploadSource(it, entry))).toBlocking()
+                    try {
+                        useCase.upload(ProviderUpload(id, UploadSource(it, entry))).toBlocking()
+                    } catch (e: QblStorageException) {
+                        throw FileNotFoundException("Upload failed")
+                    }
                 }
             })
         } else {
@@ -212,7 +238,7 @@ open class BoxProvider : DocumentsProvider() {
         val DEFAULT_DOCUMENT_PROJECTION = arrayOf(Document.COLUMN_DOCUMENT_ID, Document.COLUMN_MIME_TYPE, Document.COLUMN_DISPLAY_NAME, Document.COLUMN_LAST_MODIFIED, Document.COLUMN_FLAGS, Document.COLUMN_SIZE, Media.DATA)
 
         @JvmField
-        val AUTHORITY = ".providers.documents"
+        val AUTHORITY = ".box.provider.documents"
         @JvmField
         val PATH_SEP = "/"
         @JvmField

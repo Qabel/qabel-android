@@ -5,6 +5,6 @@ import de.qabel.qabelbox.box.dto.VolumeRoot
 interface VolumeManager {
     val roots: List<VolumeRoot>
 
-    fun fileBrowser(rootID: String): FileBrowserUseCase
+    fun fileBrowser(rootID: String): FileBrowser
 }
 

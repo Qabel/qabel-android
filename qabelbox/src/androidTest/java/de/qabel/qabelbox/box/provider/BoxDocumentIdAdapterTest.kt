@@ -5,7 +5,7 @@ import com.natpryce.hamkrest.equalTo
 import com.natpryce.hamkrest.should.shouldMatch
 import de.qabel.qabelbox.BuildConfig
 import de.qabel.qabelbox.box.dto.*
-import de.qabel.qabelbox.box.interactor.ProviderUseCase
+import de.qabel.qabelbox.box.interactor.DocumentIdAdapter
 import de.qabel.qabelbox.stubResult
 import de.qabel.qabelbox.util.asString
 import de.qabel.qabelbox.util.toByteArrayInputStream
@@ -13,9 +13,9 @@ import org.mockito.Mockito
 import rx.lang.kotlin.toSingletonObservable
 import java.util.*
 
-class BoxProviderTest : MockedBoxProviderTest() {
+class BoxDocumentIdAdapterTest : MockedBoxDocumentIdAdapterTest() {
 
-    lateinit var useCase: ProviderUseCase
+    lateinit var useCase: DocumentIdAdapter
 
     val docId = DocumentId("identity", "prefix", BoxPath.Root)
     val volume = VolumeRoot("root", docId.toString(), "alias")
@@ -25,7 +25,7 @@ class BoxProviderTest : MockedBoxProviderTest() {
 
     override fun setUp() {
         super.setUp()
-        useCase = Mockito.mock(ProviderUseCase::class.java)
+        useCase = Mockito.mock(DocumentIdAdapter::class.java)
         provider.injectProvider(useCase)
     }
 
@@ -46,6 +46,8 @@ class BoxProviderTest : MockedBoxProviderTest() {
         query.moveToFirst()
         val idCol = query.getColumnIndex(DocumentsContract.Document.COLUMN_DOCUMENT_ID)
         query.getString(idCol) shouldMatch equalTo(document.toString())
+        val nameCol = query.getColumnIndex(DocumentsContract.Document.COLUMN_DISPLAY_NAME)
+        query.getString(nameCol) shouldMatch equalTo("foobar.txt")
     }
 
     fun testQueryChildDocuments() {

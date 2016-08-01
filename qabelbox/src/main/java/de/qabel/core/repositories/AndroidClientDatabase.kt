@@ -1,6 +1,5 @@
-package de.qabel.desktop.repository.sqlite
+package de.qabel.core.repositories
 
-import de.qabel.desktop.repository.sqlite.AndroidVersionAdapter
 import de.qabel.core.repository.sqlite.AbstractClientDatabase
 import de.qabel.core.repository.sqlite.ClientDatabase
 import de.qabel.core.repository.sqlite.migration.*
@@ -12,9 +11,12 @@ import java.sql.SQLException
 
 class AndroidClientDatabase(connection: Connection) : AbstractClientDatabase(connection), ClientDatabase {
 
+    companion object {
+        private val logger = LoggerFactory.getLogger(AndroidClientDatabase::class.java)
+    }
+
     private val versionAdapter = AndroidVersionAdapter(connection)
 
-    //TODO See audax PR
     override var version by versionAdapter
 
     override fun getMigrations(connection: Connection): Array<AbstractMigration> {
@@ -37,10 +39,4 @@ class AndroidClientDatabase(connection: Connection) : AbstractClientDatabase(con
             return super.prepare(sql)
         }
     }
-
-    companion object {
-
-        private val logger = LoggerFactory.getLogger(AndroidClientDatabase::class.java)
-    }
-
 }

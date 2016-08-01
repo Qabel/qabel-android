@@ -1,4 +1,4 @@
-package de.qabel.desktop.repository.sqlite;
+package de.qabel.core.repositories;
 
 import org.sqldroid.SQLDroidConnection;
 import org.sqldroid.SQLDroidPreparedStatement;

@@ -12,7 +12,7 @@ import de.qabel.core.repository.DropStateRepository;
 import de.qabel.core.repository.IdentityRepository;
 import de.qabel.core.repository.sqlite.SqliteChatDropMessageRepository;
 import de.qabel.core.repository.sqlite.SqliteDropStateRepository;
-import de.qabel.desktop.repository.sqlite.AndroidClientDatabase;
+import de.qabel.core.repositories.AndroidClientDatabase;
 import de.qabel.qabelbox.persistence.RepositoryFactory;
 
 @Module

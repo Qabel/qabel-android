@@ -20,7 +20,7 @@ import de.qabel.core.repository.sqlite.SqliteIdentityRepository;
 import de.qabel.core.repository.sqlite.SqlitePrefixRepository;
 import de.qabel.core.repository.sqlite.hydrator.DropURLHydrator;
 import de.qabel.core.repository.sqlite.hydrator.IdentityHydrator;
-import de.qabel.desktop.repository.sqlite.AndroidClientDatabase;
+import de.qabel.core.repositories.AndroidClientDatabase;
 import de.qabel.qabelbox.exceptions.QblPersistenceException;
 
 public class RepositoryFactory {

@@ -10,7 +10,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import de.qabel.desktop.repository.sqlite.AndroidClientDatabase;
+import de.qabel.core.repositories.AndroidClientDatabase;
 
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;

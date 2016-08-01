@@ -26,17 +26,7 @@ import static android.support.test.espresso.assertion.ViewAssertions.matches;
 import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
 
-public class OfflineUITest {
-
-    @Rule
-    public ActivityTestRule<MainActivity> rule = new ActivityTestRule<MainActivity>(MainActivity.class, true, false);
-
-    private MainActivity mActivity;
-    private UIBoxHelper mBoxHelper;
-    private PowerManager.WakeLock wakeLock;
-    private SystemAnimations mSystemAnimations;
-
-    private Identity testIdentity;
+public class OfflineUITest extends AbstractUITest{
 
     private MockConnectivityManager connectivityManager;
 
@@ -72,38 +62,13 @@ public class OfflineUITest {
     }
 
 
-    public void setupBeforeLaunch() throws Exception{
-        mBoxHelper = new UIBoxHelper(InstrumentationRegistry.getTargetContext());
-        mBoxHelper.createTokenIfNeeded(false);
-
-        mBoxHelper.removeAllIdentities();
-        testIdentity = mBoxHelper.addIdentity("spoon");
-        mSystemAnimations = new SystemAnimations(InstrumentationRegistry.getTargetContext());
-        mSystemAnimations.disableAll();
-    }
-
-    @Before
-    public void setUp() throws Exception {
-        setupBeforeLaunch();
-
-        URLs.setBaseBlockURL(TestConstants.BLOCK_URL);
-
-        mActivity = rule.launchActivity(null);
-        wakeLock = UIActionHelper.wakeupDevice(mActivity);
+    @Override
+    public void setUp() throws Throwable {
+        super.setUp();
+        launchActivity(null);
         connectivityManager = new MockConnectivityManager(mActivity);
         mActivity.installConnectivityManager(connectivityManager);
         connectivityManager.setConnected(true);
-    }
-
-    @After
-    public void tearDown() throws Exception {
-        mBoxHelper.deleteIdentity(testIdentity);
-        if (wakeLock != null) {
-            wakeLock.release();
-        }
-        if (mSystemAnimations != null) {
-            mSystemAnimations.enableAll();
-        }
     }
 
 

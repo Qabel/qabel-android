@@ -10,6 +10,7 @@ import com.cocosw.bottomsheet.BottomSheet
 import de.qabel.box.storage.exceptions.QblStorageException
 import de.qabel.qabelbox.BuildConfig
 import de.qabel.qabelbox.R
+import de.qabel.qabelbox.activities.ImageViewerActivity
 import de.qabel.qabelbox.box.adapters.FileAdapter
 import de.qabel.qabelbox.box.dto.BrowserEntry
 import de.qabel.qabelbox.box.presenters.FileBrowserPresenter
@@ -68,6 +69,10 @@ class FileBrowserFragment: FileBrowserView, BaseFragment(), AnkoLogger {
         files_list.layoutManager = LinearLayoutManager(ctx)
         files_list.adapter = adapter
         swipeRefresh.isEnabled = false
+
+        if (! (mActivity?.TEST ?: false)) {
+            presenter.onRefresh()
+        }
     }
 
     override fun onSaveInstanceState(outState: Bundle?) {
@@ -209,13 +214,26 @@ class FileBrowserFragment: FileBrowserView, BaseFragment(), AnkoLogger {
         onUiThread {
             info("Open With via started for docu id $documentId")
             val uri = uriFromDocumentId(documentId)
-            val intent = Intent(Intent.ACTION_VIEW).apply {
-                data = uri
-                type = typeFromUri(uri)
-                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            val mimeType = typeFromUri(uri)
+            if (mimeType.startsWith("image")) {
+                val intent = Intent(ctx, ImageViewerActivity::class.java)
+                intent.putExtra(ImageViewerActivity.P_URI, uri)
+                intent.putExtra(ImageViewerActivity.P_TYPE, mimeType)
+                startActivity(intent)
+            } else {
+                startViewIntent(mimeType, uri)
             }
-            startActivity(Intent.createChooser(intent, ctx.getString(R.string.chooser_open_with)).singleTop())
         }
+    }
+
+    private fun startViewIntent(mimeType: String, uri: Uri?) {
+        val intent = Intent(Intent.ACTION_VIEW).apply {
+            data = uri
+            type = mimeType
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+        }
+        startActivity(Intent.createChooser(intent, ctx.getString(R.string.chooser_open_with)).singleTop())
     }
 
     override fun share(documentId: DocumentId) {
@@ -235,8 +253,8 @@ class FileBrowserFragment: FileBrowserView, BaseFragment(), AnkoLogger {
         }
     }
 
-    private fun typeFromUri(uri: Uri?): String? {
-        return URLConnection.guessContentTypeFromName(uri.toString())
+    private fun typeFromUri(uri: Uri?): String {
+        return URLConnection.guessContentTypeFromName(uri.toString()) ?: "application/octet-stream"
     }
 
     private fun uriFromDocumentId(documentId: DocumentId): Uri? =

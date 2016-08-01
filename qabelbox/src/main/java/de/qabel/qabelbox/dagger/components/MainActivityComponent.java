@@ -19,7 +19,6 @@ import de.qabel.qabelbox.dagger.scopes.ActivityScope;
 public interface MainActivityComponent {
 
     void inject(MainActivity activity);
-    MainActivity mainActivity();
 
     ChatComponent plus(ChatModule chatModule);
     FileBrowserComponent plus(FileBrowserModule fileBrowserModule);

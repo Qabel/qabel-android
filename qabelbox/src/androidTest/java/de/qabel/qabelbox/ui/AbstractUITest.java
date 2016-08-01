@@ -72,6 +72,9 @@ public class AbstractUITest {
         if(!intent.hasExtra(MainActivity.ACTIVE_IDENTITY)){
             intent.putExtra(MainActivity.ACTIVE_IDENTITY, identity.getKeyIdentifier());
         }
+        if (!intent.hasExtra(MainActivity.TEST_RUN)) {
+            intent.putExtra(MainActivity.TEST_RUN, true);
+        }
         mActivity = mActivityTestRule.launchActivity(intent);
         wakeLock = UIActionHelper.wakeupDevice(mActivity);
         mSystemAnimations = new SystemAnimations(mActivity);

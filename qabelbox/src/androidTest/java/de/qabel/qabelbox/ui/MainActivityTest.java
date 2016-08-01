@@ -46,9 +46,8 @@ public class MainActivityTest extends AbstractUITest {
     }
 
     public void startWithIdentity(Identity identity) {
-        Intent intent = new Intent(mContext, MainActivity.class);
+        Intent intent = getDefaultIntent();
         intent.putExtra(MainActivity.ACTIVE_IDENTITY, identity.getKeyIdentifier());
-        intent.putExtra(MainActivity.START_FILES_FRAGMENT, false);
         launchActivity(intent);
     }
 
@@ -56,7 +55,7 @@ public class MainActivityTest extends AbstractUITest {
     public void testStartWithChat() throws Throwable {
         Contact contact = IdentityHelper.createContact("chat contact");
         contactRepository.save(contact, identity);
-        Intent intent = new Intent(mContext, MainActivity.class);
+        Intent intent = getDefaultIntent();
         intent.putExtra(MainActivity.ACTIVE_IDENTITY, identity.getKeyIdentifier());
         intent.putExtra(MainActivity.ACTIVE_CONTACT, contact.getKeyIdentifier());
         intent.putExtra(MainActivity.START_CONTACTS_FRAGMENT, true);

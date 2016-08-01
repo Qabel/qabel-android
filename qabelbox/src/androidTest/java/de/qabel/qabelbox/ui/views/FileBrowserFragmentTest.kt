@@ -29,6 +29,7 @@ class FileBrowserFragmentTest: AbstractUITest() {
     override fun getDefaultIntent(): Intent {
         return Intent(mContext, MainActivity::class.java).apply {
             putExtra(MainActivity.START_FILES_FRAGMENT, true)
+            putExtra(MainActivity.TEST_RUN, true)
         }
     }
 

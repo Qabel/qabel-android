@@ -61,6 +61,7 @@ public class AbstractUITest {
     protected Intent getDefaultIntent() {
         Intent intent = new Intent(mContext, MainActivity.class);
         intent.putExtra(MainActivity.START_FILES_FRAGMENT, false);
+        intent.putExtra(MainActivity.TEST_RUN, true);
         return intent;
     }
 
@@ -70,6 +71,9 @@ public class AbstractUITest {
         }
         if(!intent.hasExtra(MainActivity.ACTIVE_IDENTITY)){
             intent.putExtra(MainActivity.ACTIVE_IDENTITY, identity.getKeyIdentifier());
+        }
+        if (!intent.hasExtra(MainActivity.TEST_RUN)) {
+            intent.putExtra(MainActivity.TEST_RUN, true);
         }
         mActivity = mActivityTestRule.launchActivity(intent);
         wakeLock = UIActionHelper.wakeupDevice(mActivity);

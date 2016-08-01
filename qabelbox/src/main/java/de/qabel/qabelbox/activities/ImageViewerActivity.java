@@ -69,4 +69,9 @@ public class ImageViewerActivity extends CrashReportingActivity {
         onBackPressed();
         return true;
     }
+
+    @Override
+    public void onBackPressed() {
+        finish();
+    }
 }

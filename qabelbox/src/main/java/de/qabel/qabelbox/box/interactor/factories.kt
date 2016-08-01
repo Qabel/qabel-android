@@ -38,7 +38,7 @@ fun makeFileBrowserFactory(identityRepository: IdentityRepository,
                 }),
                 identity.primaryKeyPair)
         val keyAndPrefix = BoxFileBrowser.KeyAndPrefix(key, identity.prefixes.first())
-        return BoxFileBrowser(keyAndPrefix,  BoxVolumeInteractor(volume, keyAndPrefix))
+        return BoxFileBrowser(keyAndPrefix, volume)
     }
 }
 

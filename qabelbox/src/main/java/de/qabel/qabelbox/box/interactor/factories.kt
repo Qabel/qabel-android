@@ -5,7 +5,7 @@ import de.qabel.box.storage.BoxVolumeConfig
 import de.qabel.box.storage.jdbc.DirectoryMetadataDatabase
 import de.qabel.box.storage.jdbc.JdbcDirectoryMetadataFactory
 import de.qabel.core.repositories.AndroidVersionAdapter
-import de.qabel.desktop.repository.IdentityRepository
+import de.qabel.core.repository.IdentityRepository
 import de.qabel.qabelbox.box.backends.BoxHttpStorageBackend
 import de.qabel.qabelbox.box.dto.VolumeRoot
 import de.qabel.qabelbox.box.provider.toDocumentId

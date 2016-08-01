@@ -3,7 +3,7 @@ package de.qabel.qabelbox.dagger.modules
 import android.content.Context
 import dagger.Module
 import dagger.Provides
-import de.qabel.desktop.repository.IdentityRepository
+import de.qabel.core.repository.IdentityRepository
 import de.qabel.qabelbox.box.interactor.*
 import de.qabel.qabelbox.config.AppPreference
 import de.qabel.qabelbox.storage.server.BlockServer

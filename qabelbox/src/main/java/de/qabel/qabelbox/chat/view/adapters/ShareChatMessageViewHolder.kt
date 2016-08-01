@@ -1,20 +1,21 @@
 package de.qabel.qabelbox.chat.view.adapters
 
 import android.view.View
+import de.qabel.core.repository.entities.ChatDropMessage
 import de.qabel.qabelbox.R
 import de.qabel.qabelbox.chat.dto.ChatMessage
-import de.qabel.qabelbox.chat.dto.MessagePayload
+import de.qabel.qabelbox.chat.dto.MessagePayloadDto
 import kotlinx.android.synthetic.main.chat_message_share.view.*
 
 open class ShareChatMessageViewHolder(itemView: View) :
-        ChatMessageViewHolderBase<MessagePayload.ShareMessage>(itemView) {
+        ChatMessageViewHolderBase<MessagePayloadDto.ShareMessage>(itemView) {
 
-    override fun bindTo(payload: MessagePayload.ShareMessage, message: ChatMessage) {
-        val shareStatusLabel = (if (message.direction == ChatMessage.Direction.INCOMING) {
+    override fun bindTo(payload: MessagePayloadDto.ShareMessage, message: ChatMessage) {
+        val shareStatusLabel = (if (message.direction == ChatDropMessage.Direction.INCOMING) {
             when (payload.status) {
-                MessagePayload.ShareMessage.ShareStatus.NEW -> R.string.accept_share
-                MessagePayload.ShareMessage.ShareStatus.ACCEPTED -> R.string.open
-                MessagePayload.ShareMessage.ShareStatus.NOT_REACHABLE -> R.string.currently_not_available
+                MessagePayloadDto.ShareMessage.ShareStatus.NEW -> R.string.accept_share
+                MessagePayloadDto.ShareMessage.ShareStatus.ACCEPTED -> R.string.open
+                MessagePayloadDto.ShareMessage.ShareStatus.NOT_REACHABLE -> R.string.currently_not_available
                 else -> R.string.permanently_unavailable
             }
         } else R.string.open);

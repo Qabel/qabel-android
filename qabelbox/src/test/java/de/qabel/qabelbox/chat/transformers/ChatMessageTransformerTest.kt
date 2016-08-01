@@ -1,10 +1,9 @@
 package de.qabel.qabelbox.chat.transformers
 
+import de.qabel.core.repository.entities.ChatDropMessage
 import de.qabel.qabelbox.BuildConfig
 import de.qabel.qabelbox.SimpleApplication
-import de.qabel.qabelbox.chat.persistence.model.ChatMessageItem
-import de.qabel.qabelbox.chat.dto.ChatMessage
-import de.qabel.qabelbox.chat.dto.MessagePayload
+import de.qabel.qabelbox.chat.dto.MessagePayloadDto
 import de.qabel.qabelbox.repositories.MockContactRepository
 import de.qabel.qabelbox.repositories.MockIdentityRepository
 import de.qabel.qabelbox.util.IdentityHelper
@@ -27,13 +26,14 @@ class ChatMessageTransformerTest {
 
     @Test fun testIncomingTextMessage() {
         val text = "foobar"
-        val message = ChatMessageItem(1, 1, now.time, contact.keyIdentifier, identity.keyIdentifier,
-                "1", ChatMessageItem.BOX_MESSAGE, "{\"msg\": \"$text\"}")
-        message.time_stamp = now.time
+        val message = ChatDropMessage(1, 1,
+                ChatDropMessage.Direction.INCOMING, ChatDropMessage.Status.NEW,
+                ChatDropMessage.MessageType.BOX_MESSAGE, "{\"msg\": \"$text\"}", now.time)
         val msg = chatMessageTransformer.transform(message)
         assert(msg.contact == contact)
         assert(msg.identity == identity)
-        assert((msg.messagePayload as MessagePayload.TextMessage).message == text)
-        assert(msg.direction == ChatMessage.Direction.INCOMING)
+        assert((msg.messagePayload as MessagePayloadDto.TextMessage).message == text)
+        assert(msg.direction == ChatDropMessage.Direction.INCOMING)
+        assert(msg.time.time == now.time)
     }
 }

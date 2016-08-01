@@ -1,23 +1,21 @@
 package de.qabel.qabelbox.chat.dagger;
 
-import android.content.Context;
-
 import dagger.Module;
 import dagger.Provides;
 import de.qabel.core.config.Contact;
 import de.qabel.core.config.Identity;
-import de.qabel.desktop.repository.ContactRepository;
-import de.qabel.desktop.repository.IdentityRepository;
-import de.qabel.desktop.repository.exception.EntityNotFoundException;
-import de.qabel.qabelbox.chat.ChatServer;
-import de.qabel.qabelbox.dagger.scopes.ActivityScope;
+import de.qabel.core.repository.ChatDropMessageRepository;
+import de.qabel.core.repository.ContactRepository;
+import de.qabel.core.repository.IdentityRepository;
+import de.qabel.core.repository.exception.EntityNotFoundException;
+import de.qabel.core.service.ChatService;
 import de.qabel.qabelbox.chat.interactor.ChatUseCase;
 import de.qabel.qabelbox.chat.interactor.TransformingChatUseCase;
-import de.qabel.qabelbox.services.DropConnector;
 import de.qabel.qabelbox.chat.transformers.ChatMessageTransformer;
 import de.qabel.qabelbox.chat.view.presenters.ChatPresenter;
 import de.qabel.qabelbox.chat.view.presenters.MainChatPresenter;
 import de.qabel.qabelbox.chat.view.views.ChatView;
+import de.qabel.qabelbox.dagger.scopes.ActivityScope;
 
 @ActivityScope
 @Module
@@ -53,14 +51,9 @@ public class ChatModule {
 
     @Provides
     public ChatUseCase provideChatUseCase(Identity identity, Contact contact,
-                                          ChatMessageTransformer transformer, ChatServer chatServer,
-                                          DropConnector connector) {
-        return new TransformingChatUseCase(identity, contact, transformer, chatServer, connector);
-    }
-
-
-    @Provides ChatServer provideChatServer(Context context) {
-        return new ChatServer(context);
+                                          ChatMessageTransformer transformer, ChatService chatService,
+                                          ChatDropMessageRepository chatDropMessageRepository) {
+        return new TransformingChatUseCase(identity, contact, transformer, chatService, chatDropMessageRepository);
     }
 
     @Provides

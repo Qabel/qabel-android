@@ -4,9 +4,7 @@ import android.app.FragmentTransaction;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -16,9 +14,6 @@ import de.qabel.qabelbox.fragments.BaseIdentityFragment;
 import de.qabel.qabelbox.fragments.CreateIdentityHeaderFragment;
 import de.qabel.qabelbox.helper.UIHelper;
 
-/**
- * Created by danny on 11.01.2016.
- */
 public abstract class BaseWizardActivity extends CrashReportingActivity {
 
     private String TAG = this.getClass().getSimpleName();

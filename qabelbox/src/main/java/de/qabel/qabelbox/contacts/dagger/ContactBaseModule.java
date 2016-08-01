@@ -3,8 +3,7 @@ package de.qabel.qabelbox.contacts.dagger;
 import dagger.Module;
 import dagger.Provides;
 import de.qabel.core.config.Identity;
-import de.qabel.desktop.repository.ContactRepository;
-import de.qabel.desktop.repository.IdentityRepository;
+import de.qabel.core.repository.ContactRepository;
 import de.qabel.qabelbox.contacts.interactor.ContactsUseCase;
 import de.qabel.qabelbox.contacts.interactor.MainContactsUseCase;
 

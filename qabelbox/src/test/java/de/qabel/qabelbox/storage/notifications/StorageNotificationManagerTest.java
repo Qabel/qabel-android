@@ -109,7 +109,7 @@ public class StorageNotificationManagerTest {
         String path = "/";
         long size = 4048L;
         BoxFile file = new BoxFile(TestConstants.PREFIX, "block", "testfile", size,
-                System.currentTimeMillis(), new byte[]{0x01, 0x02});
+                System.currentTimeMillis(), new byte[]{0x01, 0x02}, null, null);
         StorageNotificationInfo expectedInfo = new StorageNotificationInfo("testfile", path, ownerKey, 0L, size);
         BoxTransferListener listener = storageNotificationManager.
                 addDownloadNotification(ownerKey, path, file);
@@ -142,7 +142,7 @@ public class StorageNotificationManagerTest {
         Map<BoxFile, BoxTransferListener> fileMap = new HashMap<>();
 
         BoxFile fileA = new BoxFile(TestConstants.PREFIX, "block", "testfile",
-                sizeA, System.currentTimeMillis(), new byte[]{0x01, 0x02});
+                sizeA, System.currentTimeMillis(), new byte[]{0x01, 0x02}, null, null);
         StorageNotificationInfo expectedInfoA = new StorageNotificationInfo(
                 "testfile", path, ownerKey, 0L, sizeA);
 
@@ -152,7 +152,7 @@ public class StorageNotificationManagerTest {
 
         StorageNotificationInfo expectedInfoB = new StorageNotificationInfo(
                 "testfile2", path, ownerKey, 0L, sizeB);
-        BoxFile fileB = new BoxFile(TestConstants.PREFIX, "block2", "testfile2", sizeB, System.currentTimeMillis(), new byte[]{0x01, 0x02});
+        BoxFile fileB = new BoxFile(TestConstants.PREFIX, "block2", "testfile2", sizeB, System.currentTimeMillis(), new byte[]{0x01, 0x02}, null, null);
         BoxTransferListener listenerB = storageNotificationManager.addDownloadNotification(ownerKey, path, fileB);
         listenerB.onProgressChanged(0L, sizeB);
         verify(fakePresenter).updateDownloadNotification(expectedInfoB);

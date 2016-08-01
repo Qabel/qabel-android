@@ -20,10 +20,7 @@ import de.qabel.core.config.Identity;
 import de.qabel.qabelbox.BuildConfig;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.SimpleApplication;
-import de.qabel.qabelbox.chat.persistence.model.ChatMessageInfo;
-import de.qabel.qabelbox.chat.notifications.ChatNotification;
-import de.qabel.qabelbox.chat.notifications.ChatNotificationPresenter;
-import de.qabel.qabelbox.chat.notifications.SyncAdapterChatNotificationManager;
+import de.qabel.qabelbox.chat.dto.ChatMessageInfo;
 import de.qabel.qabelbox.util.IdentityHelper;
 
 import static org.hamcrest.Matchers.equalTo;

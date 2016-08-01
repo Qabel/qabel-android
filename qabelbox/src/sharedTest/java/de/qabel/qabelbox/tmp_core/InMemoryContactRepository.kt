@@ -1,22 +1,21 @@
-package de.qabel.qabelbox.repositories
+package de.qabel.qabelbox.tmp_core
 
 import de.qabel.core.config.Contact
 import de.qabel.core.config.Contacts
 import de.qabel.core.config.Identity
 import de.qabel.core.repository.ContactRepository
 import de.qabel.core.repository.exception.EntityNotFoundException
+import de.qabel.core.repository.exception.PersistenceException
 import de.qabel.core.util.DefaultHashMap
 import java.util.*
 
-class MockContactRepository(val contacts: MutableMap<String, Contact> = mutableMapOf(),
-                            val identityMapping: DefaultHashMap<Identity, MutableSet<String>> = DefaultHashMap({ key -> HashSet() })) : ContactRepository {
+@Deprecated("Replace with core")
+class InMemoryContactRepository : ContactRepository {
 
-    override fun find(id: Int): Contact = contacts.values.find { it.id == id }
-            ?: throw EntityNotFoundException("Contact not found")
+    val contacts: MutableMap<String, Contact> = mutableMapOf()
+    val identityMapping: DefaultHashMap<Identity, MutableSet<String>> = DefaultHashMap({ key -> HashSet() })
 
-    constructor(contact: Contact, identity: Identity) : this() {
-        save(contact, identity)
-    }
+    override fun find(id: Int): Contact = contacts.values.find({ it.id == id }) ?: throw EntityNotFoundException("Contact not found")
 
     override fun find(identity: Identity): Contacts {
         val identityContacts = identityMapping.getOrDefault(identity);
@@ -28,7 +27,7 @@ class MockContactRepository(val contacts: MutableMap<String, Contact> = mutableM
     }
 
     override fun save(contact: Contact, identity: Identity) {
-        contact.id = contacts.size + 1;
+        contact.id = contacts.size + 1
         contacts.put(contact.keyIdentifier, contact)
         identityMapping.getOrDefault(identity).add(contact.keyIdentifier);
     }
@@ -62,8 +61,8 @@ class MockContactRepository(val contacts: MutableMap<String, Contact> = mutableM
 
     override fun findWithIdentities(searchString: String): Collection<Pair<Contact, List<Identity>>> {
         return contacts.values
-                .filter { contact -> contact.alias.toLowerCase().startsWith(searchString.toLowerCase()) }
-                .map { contact -> Pair(contact, findContactIdentities(contact.keyIdentifier)) }
+            .filter { contact -> contact.alias.toLowerCase().startsWith(searchString.toLowerCase()) }
+            .map { contact -> Pair(contact, findContactIdentities(contact.keyIdentifier)) }
     }
 
     private fun findContactIdentities(key: String): List<Identity> {
@@ -75,5 +74,4 @@ class MockContactRepository(val contacts: MutableMap<String, Contact> = mutableM
         }
         return identities;
     }
-
 }

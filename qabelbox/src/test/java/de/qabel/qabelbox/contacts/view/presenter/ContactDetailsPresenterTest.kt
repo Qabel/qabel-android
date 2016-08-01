@@ -3,7 +3,7 @@ package de.qabel.qabelbox.contacts.view.presenter
 import com.nhaarman.mockito_kotlin.mock
 import com.nhaarman.mockito_kotlin.spy
 import com.nhaarman.mockito_kotlin.verify
-import de.qabel.desktop.repository.ContactRepository
+import de.qabel.core.repository.ContactRepository
 import de.qabel.qabelbox.BuildConfig
 import de.qabel.qabelbox.SimpleApplication
 import de.qabel.qabelbox.contacts.dto.ContactDto

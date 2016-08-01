@@ -2,10 +2,10 @@ package de.qabel.qabelbox.chat.interactor
 
 import de.qabel.core.config.Contact
 import de.qabel.core.config.Identity
-import de.qabel.qabelbox.chat.persistence.model.ChatMessageItem
-import de.qabel.qabelbox.chat.ChatServer
+import de.qabel.core.repository.ChatDropMessageRepository
+import de.qabel.core.repository.entities.ChatDropMessage
+import de.qabel.core.service.ChatService
 import de.qabel.qabelbox.chat.dto.ChatMessage
-import de.qabel.qabelbox.services.DropConnector
 import de.qabel.qabelbox.chat.transformers.ChatMessageTransformer
 import rx.Observable
 import rx.lang.kotlin.observable
@@ -14,33 +14,28 @@ import kotlin.concurrent.thread
 
 class TransformingChatUseCase @Inject constructor(val identity: Identity, override val contact: Contact,
                                                   private val chatMessageTransformer: ChatMessageTransformer,
-                                                  private val chatServer: ChatServer,
-                                                  private val connector: DropConnector) : ChatUseCase{
+                                                  private val chatService: ChatService,
+                                                  private val chatDropMessageRepository: ChatDropMessageRepository) : ChatUseCase {
+
     override fun send(text: String): Observable<ChatMessage> = observable { subscriber ->
         thread {
-            val message = ChatServer.createTextDropMessage(identity, text)
-            val item = ChatMessageItem(identity, contact.keyIdentifier,
-                    message.dropPayload, message.dropPayloadType)
+            val item = ChatDropMessage(contact.id, identity.id,
+                    ChatDropMessage.Direction.OUTGOING, ChatDropMessage.Status.PENDING,
+                    ChatDropMessage.MessageType.BOX_MESSAGE, ChatDropMessage.MessagePayload.TextMessage(text),
+                    System.currentTimeMillis())
 
             subscriber.onNext(chatMessageTransformer.transform(item))
-            connector.sendDropMessage(message, contact, identity, { results ->
-                if (results.all { it.value }) {
-                    chatServer.storeIntoDB(identity, item)
-                    subscriber.onCompleted()
-                } else {
-                    subscriber.onError(Exception("Could not send message"))
-                }
-            })
+            chatService.sendMessage(item)
+            subscriber.onCompleted()
         }
     }
 
     override fun retrieve() = observable<ChatMessage> { subscriber ->
         thread {
-            val messages = chatServer.getAllMessages(identity, contact)?.map { msg ->
-                chatMessageTransformer.transform(msg)
-            } ?: listOf()
-            chatServer.setAllMessagesRead(identity, contact)
-            messages.map {  subscriber.onNext(it) }
+            chatDropMessageRepository.markAsRead(contact, identity)
+            chatDropMessageRepository.findByContact(contact.id, identity.id).forEach { msg ->
+                subscriber.onNext(chatMessageTransformer.transform(msg))
+            }
             subscriber.onCompleted()
         }
     }

@@ -4,10 +4,11 @@ import com.nhaarman.mockito_kotlin.any
 import com.nhaarman.mockito_kotlin.never
 import com.nhaarman.mockito_kotlin.spy
 import com.nhaarman.mockito_kotlin.stub
+import de.qabel.core.repository.entities.ChatDropMessage
 import de.qabel.qabelbox.BuildConfig
 import de.qabel.qabelbox.SimpleApplication
 import de.qabel.qabelbox.chat.dto.ChatMessage
-import de.qabel.qabelbox.chat.dto.MessagePayload
+import de.qabel.qabelbox.chat.dto.MessagePayloadDto
 import de.qabel.qabelbox.chat.interactor.MockChatUseCase
 import de.qabel.qabelbox.chat.view.views.ChatView
 import de.qabel.qabelbox.util.IdentityHelper
@@ -27,8 +28,8 @@ class MainChatPresenterTest {
     val contact = IdentityHelper.createContact("contact_name")
     val view = mock(ChatView::class.java)
     val now = Date()
-    val textPayload = MessagePayload.TextMessage("Text")
-    val sampleMessage = ChatMessage(identity, contact, ChatMessage.Direction.INCOMING, now, textPayload)
+    val textPayload = MessagePayloadDto.TextMessage("Text")
+    val sampleMessage = ChatMessage(identity, contact, ChatDropMessage.Direction.INCOMING, now, textPayload)
     val useCase = spy(MockChatUseCase(sampleMessage, contact, listOf()))
 
     @Test fun testEmptyStartup() {
@@ -38,7 +39,7 @@ class MainChatPresenterTest {
 
     @Test fun testStartupWithMessages() {
         useCase.messages = listOf(sampleMessage,
-                sampleMessage.copy(messagePayload = MessagePayload.TextMessage("test2")))
+                sampleMessage.copy(messagePayload = MessagePayloadDto.TextMessage("test2")))
         MainChatPresenter(view, useCase)
         verify(view).showMessages(useCase.messages)
     }

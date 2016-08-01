@@ -4,9 +4,10 @@ import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.LinearLayout
+import de.qabel.core.repository.entities.ChatDropMessage
 import de.qabel.qabelbox.R
 import de.qabel.qabelbox.chat.dto.ChatMessage
-import de.qabel.qabelbox.chat.dto.MessagePayload
+import de.qabel.qabelbox.chat.dto.MessagePayloadDto
 
 open class ChatMessageAdapter(var messages: List<ChatMessage>) : RecyclerView.Adapter<ChatMessageViewHolderBase<*>>() {
 
@@ -35,14 +36,14 @@ open class ChatMessageAdapter(var messages: List<ChatMessage>) : RecyclerView.Ad
 
     override fun getItemViewType(position: Int): Int {
         val message = messages.getOrNull(position) ?: return -1;
-        if (message.direction == ChatMessage.Direction.INCOMING) {
+        if (message.direction == ChatDropMessage.Direction.INCOMING) {
             return when (message.messagePayload) {
-                is MessagePayload.ShareMessage -> MessageType.SHARE_IN.ordinal
+                is MessagePayloadDto.ShareMessage -> MessageType.SHARE_IN.ordinal
                 else -> MessageType.TEXT_IN.ordinal
             }
         } else {
             return when (message.messagePayload) {
-                is MessagePayload.ShareMessage -> MessageType.SHARE_OUT.ordinal
+                is MessagePayloadDto.ShareMessage -> MessageType.SHARE_OUT.ordinal
                 else -> MessageType.TEXT_OUT.ordinal
             }
         }

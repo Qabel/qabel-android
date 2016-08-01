@@ -4,12 +4,12 @@ import de.qabel.core.config.Contact
 import de.qabel.core.config.ContactExportImport
 import de.qabel.core.config.Identity
 import de.qabel.core.contacts.ContactExchangeFormats
-import de.qabel.desktop.repository.ContactRepository
+import de.qabel.core.extensions.contains
+import de.qabel.core.repository.ContactRepository
 import de.qabel.qabelbox.config.QabelSchema
 import de.qabel.qabelbox.contacts.dto.ContactDto
 import de.qabel.qabelbox.contacts.dto.ContactParseResult
 import de.qabel.qabelbox.contacts.dto.ContactsParseResult
-import de.qabel.qabelbox.contacts.extensions.contains
 import org.apache.commons.io.FileUtils
 import rx.Subscriber
 import rx.lang.kotlin.observable

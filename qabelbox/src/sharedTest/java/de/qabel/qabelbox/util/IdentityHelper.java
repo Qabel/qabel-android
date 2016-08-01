@@ -6,8 +6,8 @@ import java.net.URISyntaxException;
 
 import de.qabel.core.config.Contact;
 import de.qabel.core.config.Identity;
-import de.qabel.desktop.config.factory.DropUrlGenerator;
-import de.qabel.desktop.config.factory.IdentityBuilder;
+import de.qabel.core.config.factory.DropUrlGenerator;
+import de.qabel.core.config.factory.IdentityBuilder;
 import de.qabel.qabelbox.QabelBoxApplication;
 
 public class IdentityHelper {

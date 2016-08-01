@@ -115,4 +115,5 @@ class BoxFileBrowser @Inject constructor(keyAndPrefix: KeyAndPrefix,
             nav.listFolders().find { it.name == p.name } ?: nav.createFolder(p.name)
             nav.commitIfChanged()
         }
+
 }

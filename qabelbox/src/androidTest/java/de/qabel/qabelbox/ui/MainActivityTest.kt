@@ -43,7 +43,7 @@ class MainActivityTest : AbstractUITest() {
     fun testStartWithIdentity() {
         val second = mBoxHelper.addIdentity("second")
         startWithIdentity(second)
-        assertThat(mActivity.activeIdentity!!.keyIdentifier,
+        assertThat(mActivity.activeIdentity.keyIdentifier,
                 equalTo(second.keyIdentifier))
     }
 

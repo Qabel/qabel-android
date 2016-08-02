@@ -6,7 +6,7 @@ import de.qabel.core.config.Identity
 import de.qabel.qabelbox.R
 import de.qabel.qabelbox.contacts.dto.ContactDto
 
-fun ContactDto.initials() = contact.alias.split(" ".toRegex()).map {
+fun ContactDto.initials() = contact.nickName.split(" ".toRegex()).map {
     it.first().toUpperCase()
 }.joinToString("")
 

@@ -23,9 +23,17 @@ class ContactDetailsAdapter(private val onSendMessageClick: (identity: Identity)
     fun loadContact(contact: ContactDto) {
         currentContact = contact
         view?.apply {
+            val nickname = contact.contact.nickName;
             contact_icon_border.background = ContactIconDrawable(contact.contactColors(context))
             tv_initial.text = contact.initials()
-            editTextContactName.text = contact.contact.alias
+            if (!nickname.equals(contact.contact.alias)) {
+                editTextContactNick.text = nickname
+                editTextContactName.text = contact.contact.alias
+                editTextContactName.visibility = View.VISIBLE
+            } else {
+                editTextContactNick.setText(contact.contact.nickName)
+                editTextContactName.visibility = View.GONE
+            }
             editTextContactDropURL.text = contact.readableUrl()
             editTextContactPublicKey.text = contact.readableKey()
 

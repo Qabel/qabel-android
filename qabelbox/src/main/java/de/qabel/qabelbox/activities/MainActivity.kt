@@ -396,7 +396,7 @@ class MainActivity : CrashReportingActivity(), IdentitiesFragment.IdentityListLi
             changeIntent.putExtra(TEST_RUN, TEST)
             finish()
             overridePendingTransition(R.anim.fade_in, R.anim.fade_out)
-            startActivity(intent)
+            startActivity(changeIntent)
         }
     }
 

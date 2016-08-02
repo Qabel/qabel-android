@@ -27,7 +27,8 @@ class AndroidClientDatabase(connection: Connection) : AbstractClientDatabase(con
                 Migration1460367035Entity(connection),
                 Migration1460987825PreventDuplicateContacts(connection),
                 Migration1460997040ChatDropMessage(connection),
-                Migration1460997041RenameDropState(connection))
+                Migration1460997041RenameDropState(connection),
+                Migration1460997042ExtendContact(connection))
     }
 
     @Throws(SQLException::class)

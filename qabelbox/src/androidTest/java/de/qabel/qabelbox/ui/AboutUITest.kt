@@ -23,5 +23,7 @@ class AboutUITest : AbstractUITest(){
 
         onView(withText(R.string.about_header_qabel_show_btn)).perform(click());
         onView(withText(R.string.qapl)).inRoot(isDialog()).check(matches(isDisplayed()));
+        onView(withText(R.string.ok)).perform(click())
+        onView(withText(R.string.qapl)).check(doesNotExist())
     }
 }

@@ -21,9 +21,9 @@ import butterknife.BindView
 import butterknife.ButterKnife
 import butterknife.OnClick
 import de.qabel.core.config.Identity
-import de.qabel.desktop.repository.ContactRepository
-import de.qabel.desktop.repository.IdentityRepository
-import de.qabel.desktop.repository.exception.PersistenceException
+import de.qabel.core.repository.ContactRepository
+import de.qabel.core.repository.IdentityRepository
+import de.qabel.core.repository.exception.PersistenceException
 import de.qabel.qabelbox.QblBroadcastConstants
 import de.qabel.qabelbox.R
 import de.qabel.qabelbox.account.AccountManager

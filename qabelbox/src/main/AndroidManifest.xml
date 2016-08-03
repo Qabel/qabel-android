@@ -50,9 +50,7 @@
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme"
-
-        >
+        android:theme="@style/AppTheme">
         <!--only for internal test feedback-->
         <activity android:name="net.hockeyapp.android.UpdateActivity"/>
         <activity android:name="net.hockeyapp.android.FeedbackActivity"/>
@@ -106,26 +104,6 @@
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar"
             android:windowSoftInputMode="stateHidden|adjustResize">
-
-            <intent-filter>
-                <action android:name="android.intent.action.SEND"/>
-                <action android:name="android.intent.action.SEND_MULTIPLE"/>
-
-                <category android:name="android.intent.category.DEFAULT"/>
-                <data android:mimeType="*/*"/>
-            </intent-filter>
-            <intent-filter>
-                <category android:name="android.intent.category.BROWSABLE"/>
-                <action android:name="android.intent.action.VIEW"/>
-                <category android:name="android.intent.category.DEFAULT"/>
-
-                <data android:host="*"/>
-                <data android:mimeType="application/json"/>
-                <data android:scheme="content"/>
-                <data android:scheme="file"/>
-
-            </intent-filter>
-
         </activity>
 
         <activity

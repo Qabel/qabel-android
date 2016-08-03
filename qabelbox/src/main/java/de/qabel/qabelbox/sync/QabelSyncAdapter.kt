@@ -9,13 +9,15 @@ import de.qabel.core.repository.ContactRepository
 import de.qabel.core.repository.entities.ChatDropMessage
 import de.qabel.core.service.ChatService
 import de.qabel.qabelbox.QabelBoxApplication
-import de.qabel.qabelbox.chat.notifications.ChatNotificationManager
 import de.qabel.qabelbox.chat.dto.ChatMessageInfo
+import de.qabel.qabelbox.chat.notifications.ChatNotificationManager
 import de.qabel.qabelbox.helper.Helper
+import org.jetbrains.anko.AnkoLogger
+import org.jetbrains.anko.warn
 import java.util.*
 import javax.inject.Inject
 
-open class QabelSyncAdapter : AbstractThreadedSyncAdapter {
+open class QabelSyncAdapter : AbstractThreadedSyncAdapter, AnkoLogger {
 
     companion object {
         private val TAG = "QabelSyncAdapter"
@@ -67,8 +69,13 @@ open class QabelSyncAdapter : AbstractThreadedSyncAdapter {
             syncResult: SyncResult) {
         Log.w(TAG, "Starting drop message sync")
 
-        val newMessageList = chatService.refreshMessages().
-                flatMap { toChatMessageInfo(it.key, it.value) }
+        val newMessageList = try {
+            chatService.refreshMessages().
+                    flatMap { toChatMessageInfo(it.key, it.value) }
+        } catch (e: NullPointerException) {
+            warn("Error in syncing", e)
+            emptyList<ChatMessageInfo>()
+        }
 
         notifyForNewMessages(newMessageList)
     }

@@ -1,0 +1,73 @@
+{
+  "project_info": {
+    "project_number": "109262740085",
+    "firebase_url": "https://qabel-652fc.firebaseio.com",
+    "project_id": "qabel-652fc",
+    "storage_bucket": "qabel-652fc.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:109262740085:android:c5dfb133f63916f4",
+        "android_client_info": {
+          "package_name": "de.qabel.qabel"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "109262740085-sfpdk1g9t0o8v9evfm9fq38lau3v9ofs.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBlWEMI6Tjq1XqQ-dpgCi5u_IAOdlI0pZ8"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 0
+        },
+        "appinvite_service": {
+          "status": 0,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 0
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:109262740085:android:c5dfb133f63916f4",
+        "android_client_info": {
+          "package_name": "de.qabel.qabel.debug"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "109262740085-sfpdk1g9t0o8v9evfm9fq38lau3v9ofs.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBlWEMI6Tjq1XqQ-dpgCi5u_IAOdlI0pZ8"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 0
+        },
+        "appinvite_service": {
+          "status": 0,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 0
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

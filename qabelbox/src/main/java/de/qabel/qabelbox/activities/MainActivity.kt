@@ -4,7 +4,6 @@ import android.app.Activity
 import android.app.AlertDialog
 import android.content.*
 import android.graphics.LightingColorFilter
-import android.net.Uri
 import android.os.Bundle
 import android.support.design.widget.FloatingActionButton
 import android.support.design.widget.NavigationView
@@ -30,22 +29,22 @@ import de.qabel.qabelbox.account.AccountManager
 import de.qabel.qabelbox.account.AccountStatusCodes
 import de.qabel.qabelbox.communication.connection.ConnectivityManager
 import de.qabel.qabelbox.config.AppPreference
-import de.qabel.qabelbox.config.QabelSchema
 import de.qabel.qabelbox.dagger.HasComponent
 import de.qabel.qabelbox.dagger.components.MainActivityComponent
 import de.qabel.qabelbox.dagger.modules.ActivityModule
 import de.qabel.qabelbox.dagger.modules.MainActivityModule
 import de.qabel.qabelbox.fragments.BaseFragment
-import de.qabel.qabelbox.fragments.CreateIdentityMainFragment
 import de.qabel.qabelbox.fragments.IdentitiesFragment
 import de.qabel.qabelbox.fragments.QRcodeFragment
-import de.qabel.qabelbox.helper.*
+import de.qabel.qabelbox.helper.AccountHelper
+import de.qabel.qabelbox.helper.CacheFileHelper
+import de.qabel.qabelbox.helper.Sanity
+import de.qabel.qabelbox.helper.UIHelper
 import de.qabel.qabelbox.navigation.MainNavigator
 import de.qabel.qabelbox.settings.SettingsActivity
 import de.qabel.qabelbox.ui.views.DrawerNavigationView
 import de.qabel.qabelbox.ui.views.DrawerNavigationViewHolder
 import de.qabel.qabelbox.util.ShareHelper
-import org.apache.commons.io.FilenameUtils
 import org.jetbrains.anko.ctx
 import java.util.*
 import javax.inject.Inject
@@ -227,8 +226,9 @@ class MainActivity : CrashReportingActivity(), IdentitiesFragment.IdentityListLi
     }
 
     private fun addBackStackListener() {
-
-        fragmentManager.addOnBackStackChangedListener { this@MainActivity.handleMainFragmentChange() }
+        fragmentManager.addOnBackStackChangedListener {
+            this@MainActivity.handleMainFragmentChange()
+        }
     }
 
     override fun onNewIntent(intent: Intent) {
@@ -237,85 +237,17 @@ class MainActivity : CrashReportingActivity(), IdentitiesFragment.IdentityListLi
     }
 
     private fun handleIntent(intent: Intent) {
-        val action = intent.action
-        val type = intent.type
-
-        Log.i(TAG, "Intent action: " + action)
-
         TEST = intent.getBooleanExtra(TEST_RUN, false)
 
         // Checks if a fragment should be launched
         val startFilesFragment = intent.getBooleanExtra(START_FILES_FRAGMENT, true)
         val startContactsFragment = intent.getBooleanExtra(START_CONTACTS_FRAGMENT, false)
         val activeContact = intent.getStringExtra(ACTIVE_CONTACT)
-        if (type != null && intent.action != null) {
-            val scheme = intent.scheme
-
-            when (intent.action) {
-                Intent.ACTION_VIEW -> if (scheme.compareTo(ContentResolver.SCHEME_FILE) == 0 || scheme.compareTo(ContentResolver.SCHEME_CONTENT) == 0) {
-                    handleActionViewResolver(intent)
-
-                }
-                Intent.ACTION_SEND -> {
-                    Log.i(TAG, "Action send in main activity")
-                    val imageUri = intent.getParcelableExtra<Uri>(Intent.EXTRA_STREAM)
-                    if (imageUri != null) {
-                        val data = ArrayList<Uri>()
-                        data.add(imageUri)
-                        //shareIntoApp(data, intent);
-                    }
-                }
-                else -> if (startContactsFragment) {
-                    navigator.selectContactsFragment()
-                    navigator.selectChatFragment(activeContact)
-                } else if (startFilesFragment) {
-                    navigator.selectFilesFragment()
-                }
-            }
-        } else {
-            if (startContactsFragment) {
-                navigator.selectContactsFragment()
-                navigator.selectChatFragment(activeContact)
-            } else if (startFilesFragment) {
-                navigator.selectFilesFragment()
-            }
-        }
-    }
-
-    /**
-     * handle open view resolver to open the correct import tool
-
-     * @param intent
-     */
-    private fun handleActionViewResolver(intent: Intent) {
-        val uri = intent.data
-        var realPath: String?
-        //check if schema content, then get real path and filename
-        if (ContentResolver.SCHEME_CONTENT.compareTo(intent.scheme) == 0) {
-            realPath = FileHelper.getRealPathFromURI(self, uri)
-            if (realPath == null) {
-                realPath = uri.toString()
-                Log.d(TAG, "can't get real path. try to use uri " + realPath)
-            }
-        } else {
-            //schema is file
-            realPath = intent.dataString
-        }
-        var extension: String? = FilenameUtils.getExtension(realPath)
-
-        //grep spaces from extension like test.qco (1)
-        if (extension != null && extension.length > 0) {
-            extension = extension.split(" ".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()[0]
-            if (QabelSchema.FILE_SUFFIX_CONTACT == extension) {
-                //TODO
-                throw NotImplementedError()
-            } else if (QabelSchema.FILE_SUFFIX_IDENTITY == extension) {
-                if (CreateIdentityMainFragment().importIdentity(self, intent)) {
-                    UIHelper.showDialogMessage(self, R.string.infos, R.string.idenity_imported)
-                }
-            } else {
-                UIHelper.showDialogMessage(this, R.string.infos, R.string.cant_import_file_type_is_unknown)
-            }
+        if (startContactsFragment) {
+            navigator.selectContactsFragment()
+            navigator.selectChatFragment(activeContact)
+        } else if (startFilesFragment) {
+            navigator.selectFilesFragment()
         }
     }
 
@@ -324,7 +256,7 @@ class MainActivity : CrashReportingActivity(), IdentitiesFragment.IdentityListLi
         val activeFragment = fragmentManager.findFragmentById(R.id.fragment_container)
         val activeFragmentTag = activeFragment.tag
         if (activeFragment is BaseFragment) {
-//call fab action in basefragment. if fragment handled this, we are done
+        //call fab action in basefragment. if fragment handled this, we are done
             if (activeFragment.handleFABAction()) {
                 return
             }

@@ -11,6 +11,12 @@ import java.util.*
 class MockContactRepository(val contacts: MutableMap<String, Contact> = mutableMapOf(),
                             val identityMapping: DefaultHashMap<Identity, MutableSet<String>> = DefaultHashMap({ key -> HashSet() })) : ContactRepository {
 
+    override fun update(contact: Contact, activeIdentities: List<Identity>) {
+        contacts.put(contact.keyIdentifier, contact)
+        identityMapping.values.forEach { it.remove(contact.keyIdentifier) }
+        activeIdentities.forEach { identityMapping.getOrDefault(it).add(contact.keyIdentifier) }
+    }
+
     override fun find(id: Int): Contact = contacts.values.find { it.id == id }
             ?: throw EntityNotFoundException("Contact not found")
 

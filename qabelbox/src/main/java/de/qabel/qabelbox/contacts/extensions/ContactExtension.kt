@@ -6,7 +6,13 @@ import de.qabel.core.config.Identity
 import de.qabel.qabelbox.R
 import de.qabel.qabelbox.contacts.dto.ContactDto
 
-fun ContactDto.initials() = contact.nickName.split(" ".toRegex()).map {
+fun ContactDto.displayName() : String {
+    if(contact.nickName != null && contact.nickName.isEmpty()){
+        return contact.nickName
+    }
+    return contact.alias
+}
+fun ContactDto.initials() = displayName().split(" ".toRegex()).map {
     it.first().toUpperCase()
 }.joinToString("")
 
@@ -52,4 +58,22 @@ fun ContactDto.contactColors(ctx: Context): List<Int> {
         allColors.recycle()
     }
 }
+
+fun Identity.color(ctx: Context): Int {
+    val allColors = ctx.resources.obtainTypedArray(R.array.contact_colors);
+    try {
+        val allLength = allColors.length();
+        val centerIndex = allLength / 2;
+        var colorIndex = id.mod(allLength)
+        if (colorIndex > 1) colorIndex /= 2;
+
+        return allColors.getColor(centerIndex + if (id % 2 == 0) colorIndex else -colorIndex, 0)
+    } finally {
+        allColors.recycle()
+    }
+}
+fun Identity.initials() = alias.split(" ".toRegex()).map {
+    it.first().toUpperCase()
+}.joinToString("")
+
 

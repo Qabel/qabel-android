@@ -125,7 +125,7 @@
     <string name="login">Login</string>
     <string name="loggedInAs">Angemeldet als %s</string>
     <string name="manage_identities">Identitäten verwalten</string>
-    <string name="messsage_enter_contact_manual">Bitte geben Sie die Details Ihres Kontaktes ein. Sie können dies auch abbrechen und den Kontakt über den QR Code importieren</string>
+    <string name="enter_name_message">Geben Sie bitte einen Name ein</string>
     <string name="navigation_drawer_close">Navigation schließen</string>
     <string name="navigation_drawer_open">Navigation öffnen</string>
     <string name="new_identity_name">Identitätsalias</string>
@@ -319,4 +319,8 @@ Den Unterstützern der Indigogo Kampagne
     <string name="filebrowser_up">Übergeordnerter Ordner</string>
     <string name="export_complete">Export abgeschlossen</string>
     <string name="export_aborted">Export fehlgeschlagen</string>
+    <string name="contact_edit">Kontakt bearbeiten</string>
+    <string name="contact_new">Neuer Kontakt</string>
+    <string name="changes_saved">Änderungen gespeichert</string>
+    <string name="error_saving_changed">Änderungen konnten nicht gespeichert werden</string>
 </resources>

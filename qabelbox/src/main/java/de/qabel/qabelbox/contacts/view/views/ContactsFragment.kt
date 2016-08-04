@@ -63,6 +63,7 @@ class ContactsFragment() : ContactsView, BaseFragment(), AnkoLogger, SearchView.
                 listener({ dialog, which ->
                     when (which) {
                         R.id.contact_list_item_details -> navigator.selectContactDetailsFragment(contact)
+                        R.id.contact_list_item_edit -> navigator.selectContactEdit(contact)
                         R.id.contact_list_item_delete -> showDeleteContactConfirmation(contact)
                         R.id.contact_list_item_export -> presenter.startContactExport(contact)
                         R.id.contact_list_item_qrcode -> navigator.selectQrCodeFragment(contact.contact)

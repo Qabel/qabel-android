@@ -20,6 +20,7 @@ import de.qabel.qabelbox.fragments.HelpMainFragment
 import de.qabel.qabelbox.fragments.IdentitiesFragment
 import de.qabel.qabelbox.fragments.QRcodeFragment
 import de.qabel.qabelbox.chat.view.views.ChatFragment
+import de.qabel.qabelbox.contacts.view.views.ContactEditFragment
 import org.jetbrains.anko.AnkoLogger
 import org.jetbrains.anko.warn
 import javax.inject.Inject
@@ -35,6 +36,7 @@ constructor(var activity: MainActivity,
         const val TAG_CONTACT_LIST_FRAGMENT = "TAG_CONTACT_LIST_FRAGMENT"
         const val TAG_CONTACT_CHAT_FRAGMENT = "TAG_CONTACT_CHAT_FRAGMENT"
         const val TAG_CONTACT_DETAILS_FRAGMENT = "TAG_CONTACT_DETAILS_FRAGMENT";
+        const val TAG_CONTACT_EDIT_FRAGMENT = "TAG_CONTACT_EDIT_FRAGMENT";
         const val TAG_QR_CODE_FRAGMENT = "TAG_CONTACT_QR_CODE_FRAGMENT";
 
         const val TAG_FILES_FRAGMENT = "TAG_FILES_FRAGMENT"
@@ -117,6 +119,14 @@ constructor(var activity: MainActivity,
             activity.overridePendingTransition(R.anim.fade_in, R.anim.fade_out)
             activity.startActivity(intent)
         }
+    }
+
+    override fun selectContactEdit(contactDto: ContactDto) {
+        showFragment(activity, ContactEditFragment.withContact(contactDto), TAG_CONTACT_EDIT_FRAGMENT, true, false);
+    }
+
+    override fun popBackStack(){
+        activity.fragmentManager.popBackStack()
     }
 
 }

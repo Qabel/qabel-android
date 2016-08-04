@@ -44,23 +44,40 @@
             android:orientation="vertical"
             android:paddingLeft="5sp">
 
-            <de.qabel.qabelbox.ui.views.TextViewFont
-                android:id="@+id/textViewItemName"
-                style="@style/ListFirstTextLine"
-                android:layout_width="wrap_content"
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_gravity="left|center_vertical"
-                android:lines="1" />
+                android:orientation="horizontal">
+                <de.qabel.qabelbox.ui.views.TextViewFont
+                    android:id="@+id/textViewItemName"
+                    style="@style/ListFirstTextLine"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:lines="1" />
+                <de.qabel.qabelbox.ui.views.TextViewFont
+                    android:id="@+id/textViewItemAlias"
+                    style="@style/ListFirstTextLine"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:lines="1" />
+            </LinearLayout>
 
             <de.qabel.qabelbox.ui.views.TextViewFont
-                android:id="@+id/textViewItemDetail"
+                android:id="@+id/textViewItemPhone"
                 style="@style/ListSecondTextLine"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:ellipsize="end"
                 android:lines="1"
                 android:visibility="gone" />
-
+            <de.qabel.qabelbox.ui.views.TextViewFont
+                android:id="@+id/textViewItemMail"
+                style="@style/ListSecondTextLine"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:lines="1"
+                android:visibility="gone" />
         </LinearLayout>
     </LinearLayout>
 </LinearLayout>

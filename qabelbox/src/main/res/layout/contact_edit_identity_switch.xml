@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:paddingBottom="5dp">
+
+    <de.qabel.qabelbox.ui.views.SquareFrameLayout
+        android:id="@+id/identity_icon"
+        android:layout_width="wrap_content"
+        android:layout_height="30dp"
+        android:layout_gravity="center_vertical">
+            <de.qabel.qabelbox.ui.views.TextViewFont
+                android:id="@+id/identity_initial"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:textColor="@color/white"
+                android:textSize="@dimen/textsize_normal" />
+    </de.qabel.qabelbox.ui.views.SquareFrameLayout>
+
+    <Switch
+        android:id="@+id/identity_switch_control"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:background="@android:color/transparent"
+        android:layout_marginStart="5dp"
+        android:showText="true"
+        android:textOff=""
+        android:textOn=""
+        android:textSize="@dimen/textsize_list_first_line" />
+</LinearLayout>
+
+

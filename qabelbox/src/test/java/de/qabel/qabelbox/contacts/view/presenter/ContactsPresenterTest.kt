@@ -6,6 +6,7 @@ import com.nhaarman.mockito_kotlin.spy
 import com.nhaarman.mockito_kotlin.verify
 import de.qabel.core.contacts.ContactExchangeFormats
 import de.qabel.core.repository.ContactRepository
+import de.qabel.core.repository.IdentityRepository
 import de.qabel.qabelbox.BuildConfig
 import de.qabel.qabelbox.SimpleApplication
 import de.qabel.qabelbox.config.QabelSchema
@@ -21,6 +22,7 @@ import de.qabel.qabelbox.external.ExternalFileAction
 import de.qabel.qabelbox.repositories.MockContactRepository
 import de.qabel.qabelbox.test.TestConstants
 import de.qabel.qabelbox.test.files.FileHelper
+import de.qabel.qabelbox.tmp_core.InMemoryIdentityRepository
 import de.qabel.qabelbox.util.IdentityHelper
 import org.apache.commons.io.FileUtils
 import org.hamcrest.Matchers
@@ -48,8 +50,10 @@ class ContactsPresenterTest {
     val contactBDto = ContactDto(contactB, listOf(identity));
 
     var contactRepo: ContactRepository = MockContactRepository();
+    val identityRepo: IdentityRepository = InMemoryIdentityRepository()
 
     init {
+        identityRepo.save(identity)
         contactRepo.save(contactA, identity);
         contactRepo.save(contactB, identity);
     }
@@ -60,7 +64,7 @@ class ContactsPresenterTest {
 
     @Before
     fun setUp() {
-        contactUseCase = spy(MainContactsUseCase(identity, contactRepo));
+        contactUseCase = spy(MainContactsUseCase(identity, contactRepo, identityRepo));
         contactsView = mock();
         presenter = MainContactsPresenter(contactsView, contactUseCase);
     }

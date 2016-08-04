@@ -7,6 +7,7 @@ import de.qabel.qabelbox.contacts.view.presenters.ContactDetailsPresenter;
 import de.qabel.qabelbox.contacts.view.presenters.MainContactDetailsPresenter;
 import de.qabel.qabelbox.contacts.view.views.ContactDetailsView;
 import de.qabel.qabelbox.dagger.scopes.ActivityScope;
+import de.qabel.qabelbox.navigation.Navigator;
 
 @ActivityScope
 @Module
@@ -24,8 +25,8 @@ public class ContactDetailsModule extends ContactBaseModule {
     }
 
     @Provides
-    public ContactDetailsPresenter provideContactDetailsPresenter(ContactsUseCase useCase){
-        return new MainContactDetailsPresenter(view, useCase);
+    public ContactDetailsPresenter provideContactDetailsPresenter(ContactsUseCase useCase, Navigator navigator){
+        return new MainContactDetailsPresenter(view, useCase, navigator);
     }
 
 }

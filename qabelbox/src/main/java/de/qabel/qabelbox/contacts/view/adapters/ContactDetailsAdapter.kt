@@ -18,7 +18,7 @@ class ContactDetailsAdapter(private val onSendMessageClick: (identity: Identity)
 
     var view: View? = null
 
-    private var currentContact: ContactDto? = null
+    var currentContact: ContactDto? = null
 
     fun loadContact(contact: ContactDto) {
         currentContact = contact
@@ -31,7 +31,7 @@ class ContactDetailsAdapter(private val onSendMessageClick: (identity: Identity)
                 editTextContactName.text = contact.contact.alias
                 editTextContactName.visibility = View.VISIBLE
             } else {
-                editTextContactNick.setText(contact.contact.nickName)
+                editTextContactNick.text = contact.contact.nickName
                 editTextContactName.visibility = View.GONE
             }
             editTextContactDropURL.text = contact.readableUrl()
@@ -50,7 +50,7 @@ class ContactDetailsAdapter(private val onSendMessageClick: (identity: Identity)
         }
     }
 
-    private fun addMessageButton(text: String?) {
+    private fun addMessageButton(text: String) {
         currentContact?.apply {
             view?.apply {
                 val button = context.layoutInflater.inflate(R.layout.contact_details_message_button, null) as Button

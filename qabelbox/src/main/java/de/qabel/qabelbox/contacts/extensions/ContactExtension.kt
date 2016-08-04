@@ -7,7 +7,7 @@ import de.qabel.qabelbox.R
 import de.qabel.qabelbox.contacts.dto.ContactDto
 
 fun ContactDto.displayName() : String {
-    if(contact.nickName != null && contact.nickName.isEmpty()){
+    if(contact.nickName != null && !contact.nickName.isEmpty()){
         return contact.nickName
     }
     return contact.alias

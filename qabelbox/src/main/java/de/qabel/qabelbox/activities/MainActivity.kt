@@ -19,6 +19,7 @@ import android.view.View
 import butterknife.BindView
 import butterknife.ButterKnife
 import butterknife.OnClick
+import com.google.firebase.messaging.FirebaseMessaging
 import de.qabel.core.config.Identity
 import de.qabel.core.repository.ContactRepository
 import de.qabel.core.repository.IdentityRepository
@@ -45,11 +46,17 @@ import de.qabel.qabelbox.settings.SettingsActivity
 import de.qabel.qabelbox.ui.views.DrawerNavigationView
 import de.qabel.qabelbox.ui.views.DrawerNavigationViewHolder
 import de.qabel.qabelbox.util.ShareHelper
+import org.jetbrains.anko.AnkoLogger
 import org.jetbrains.anko.ctx
+import org.jetbrains.anko.info
 import java.util.*
 import javax.inject.Inject
 
-class MainActivity : CrashReportingActivity(), IdentitiesFragment.IdentityListListener, HasComponent<MainActivityComponent>, NavigationView.OnNavigationItemSelectedListener {
+class MainActivity : CrashReportingActivity(),
+        IdentitiesFragment.IdentityListListener,
+        HasComponent<MainActivityComponent>,
+        NavigationView.OnNavigationItemSelectedListener,
+        AnkoLogger {
 
 
     var TEST = false
@@ -153,6 +160,12 @@ class MainActivity : CrashReportingActivity(), IdentitiesFragment.IdentityListLi
 
         setupAccount()
         initDrawer()
+        val firebaseMessaging = FirebaseMessaging.getInstance()
+        identityRepository.findAll().identities.flatMap { it.dropUrls }.forEach {
+            val dropId = it.uri.toString().split("/").last()
+            info("Subscribing to drop id $dropId")
+            firebaseMessaging.subscribeToTopic(dropId)
+        }
         handleIntent(intent)
     }
 

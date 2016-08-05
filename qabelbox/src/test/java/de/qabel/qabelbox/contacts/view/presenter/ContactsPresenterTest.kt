@@ -144,7 +144,7 @@ class ContactsPresenterTest {
             presenter.handleExternalFileAction(action, stream.fd);
             verify(contactUseCase).importContacts(stream.fd);
         }
-        verify(contactsView).showImportSuccess(1, 2)
+        verify(contactsView).showImportSuccessMessage(1, 2)
     }
 
     @Test
@@ -155,7 +155,7 @@ class ContactsPresenterTest {
             presenter.handleExternalFileAction(action, stream.fd);
             verify(contactUseCase).exportContact(contactB.keyIdentifier, stream.fd)
         }
-        verify(contactsView).showExportSuccess(1);
+        verify(contactsView).showExportSuccessMessage(1);
     }
 
     @Test
@@ -164,12 +164,14 @@ class ContactsPresenterTest {
         val contactString = ContactExchangeFormats().exportToContactString(contactA);
         presenter.handleScanResult(action, contactString);
         verify(contactUseCase).importContactString(contactString);
-        verify(contactsView).showImportSuccess(1, 1);
+        verify(contactsView).showImportSuccessMessage(1, 1);
     }
 
     @Test
     fun testStartImportContactScan(){
         presenter.startContactImportScan(0);
+        assertThat(presenter.externalAction!!.actionType,
+                equalTo(ContactsRequestCodes.REQUEST_QR_IMPORT_CONTACT))
         verify(contactsView).startQRScan();
     }
 

@@ -115,7 +115,7 @@ class MainContactsPresenter @Inject constructor(private val view: ContactsView,
     }
 
     override fun startContactImportScan(requestCode : Int){
-        externalAction = ExternalAction(requestCode, ContactsRequestCodes.REQUEST_IMPORT_CONTACT);
+        externalAction = ExternalAction(requestCode, ContactsRequestCodes.REQUEST_QR_IMPORT_CONTACT);
         view.startQRScan();
     }
 

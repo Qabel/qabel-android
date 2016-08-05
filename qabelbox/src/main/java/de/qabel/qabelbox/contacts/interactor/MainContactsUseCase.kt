@@ -126,9 +126,7 @@ open class MainContactsUseCase @Inject constructor(private val activeIdentity: I
     override fun importContactString(contactString: String) = observable<ContactParseResult> {
         subscriber ->
         val contact = contactExchangeFormats.importFromContactString(contactString);
-        if (!contactRepository.exists(contact)) {
-            contactRepository.save(contact, activeIdentity)
-        }
+        contactRepository.save(contact, activeIdentity)
         subscriber.onNext(ContactParseResult(contact, true));
         subscriber.onCompleted();
     }

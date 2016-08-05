@@ -32,10 +32,7 @@ import de.qabel.qabelbox.ui.extensions.showMessage
 import de.qabel.qabelbox.ui.extensions.showQuantityMessage
 import kotlinx.android.synthetic.main.fragment_contacts.*
 import kotlinx.android.synthetic.main.fragment_contacts.view.*
-import org.jetbrains.anko.AnkoLogger
-import org.jetbrains.anko.ctx
-import org.jetbrains.anko.debug
-import org.jetbrains.anko.onUiThread
+import org.jetbrains.anko.*
 import java.io.File
 import javax.inject.Inject
 
@@ -171,7 +168,7 @@ class ContactsFragment() : ContactsView, BaseFragment(), AnkoLogger, SearchView.
         }
     }
 
-    override val title: String by lazy { ctx.getString(R.string.Contacts)}
+    override val title: String by lazy { ctx.getString(R.string.Contacts) }
     override val isFabNeeded = true
 
     override fun handleFABAction(): Boolean {
@@ -225,16 +222,16 @@ class ContactsFragment() : ContactsView, BaseFragment(), AnkoLogger, SearchView.
                 }
             }
         } else {
-            //TODO Display action canceled
+            debug("External Action failed!")
             presenter.externalAction = null;
         }
     }
 
-    override fun showImportFailed() {
+    override fun showImportFailedMessage() {
         showMessage(R.string.dialog_headline_warning, R.string.contact_import_failed);
     }
 
-    override fun showImportSuccess(imported: Int, size: Int) {
+    override fun showImportSuccessMessage(imported: Int, size: Int) {
         if (imported > 0) {
             if (imported == 1 && imported == size) {
                 showMessage(R.string.dialog_headline_info,
@@ -251,12 +248,12 @@ class ContactsFragment() : ContactsView, BaseFragment(), AnkoLogger, SearchView.
         }
     }
 
-    override fun showExportFailed() {
+    override fun showExportFailedMessage() {
         showMessage(R.string.dialog_headline_warning,
                 R.string.contact_export_failed);
     }
 
-    override fun showExportSuccess(size: Int) {
+    override fun showExportSuccessMessage(size: Int) {
         showQuantityMessage(R.string.dialog_headline_info,
                 R.plurals.contact_export_successfully, size, size)
     }
@@ -268,10 +265,14 @@ class ContactsFragment() : ContactsView, BaseFragment(), AnkoLogger, SearchView.
         });
     }
 
-    override fun showContactDeletedMessage(contact : ContactDto){
+    override fun showContactDeletedMessage(contact: ContactDto) {
         showMessage(R.string.dialog_headline_info,
                 R.string.contact_deleted,
                 contact.contact.alias);
+    }
+
+    override fun showContactExistsMessage() {
+        showMessage(R.string.dialog_headline_info, R.string.contact_exists)
     }
 
 }

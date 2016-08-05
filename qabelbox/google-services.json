@@ -15,6 +15,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "109262740085-lgm9br5fu8a7snt8qo2dak3dopjrrpjv.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "de.qabel.qabel",
+            "certificate_hash": "98965F4D63E67F093DF273440C488DB0A9202E93"
+          }
+        },
+        {
           "client_id": "109262740085-sfpdk1g9t0o8v9evfm9fq38lau3v9ofs.apps.googleusercontent.com",
           "client_type": 3
         }
@@ -26,20 +34,20 @@
       ],
       "services": {
         "analytics_service": {
-          "status": 0
+          "status": 1
         },
         "appinvite_service": {
-          "status": 0,
+          "status": 1,
           "other_platform_oauth_client": []
         },
         "ads_service": {
-          "status": 0
+          "status": 2
         }
       }
     },
     {
       "client_info": {
-        "mobilesdk_app_id": "1:109262740085:android:c5dfb133f63916f4",
+        "mobilesdk_app_id": "1:109262740085:android:5f79fa6988d68efd",
         "android_client_info": {
           "package_name": "de.qabel.qabel.debug"
         }
@@ -57,14 +65,14 @@
       ],
       "services": {
         "analytics_service": {
-          "status": 0
+          "status": 1
         },
         "appinvite_service": {
-          "status": 0,
+          "status": 1,
           "other_platform_oauth_client": []
         },
         "ads_service": {
-          "status": 0
+          "status": 2
         }
       }
     }

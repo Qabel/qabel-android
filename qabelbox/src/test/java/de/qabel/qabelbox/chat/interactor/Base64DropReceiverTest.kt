@@ -3,6 +3,7 @@ package de.qabel.qabelbox.chat.interactor
 import com.natpryce.hamkrest.equalTo
 import com.natpryce.hamkrest.hasSize
 import com.natpryce.hamkrest.should.shouldMatch
+import com.nhaarman.mockito_kotlin.mock
 import de.qabel.core.crypto.BinaryDropMessageV0
 import de.qabel.core.drop.DropMessage
 import de.qabel.core.repository.ChatDropMessageRepository
@@ -35,7 +36,8 @@ class Base64DropReceiverTest {
         val receiver = Base64DropReceiver(
                 repository = repository,
                 identityRepository = identityRepository,
-                contactRepository = contactRepository)
+                contactRepository = contactRepository,
+                notificationManager = mock())
         val msg = Base64.encode(binaryMessage).map { it.toChar() }.joinToString("")
         receiver.receive("foo", msg)
         val new = repository.findNew(receiverEntity.id)

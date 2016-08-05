@@ -2,6 +2,8 @@ package de.qabel.qabelbox.dagger.components;
 
 import android.content.Context;
 
+import org.jetbrains.annotations.NotNull;
+
 import javax.inject.Singleton;
 
 import dagger.Component;
@@ -10,6 +12,7 @@ import de.qabel.core.repository.IdentityRepository;
 import de.qabel.qabelbox.activities.CreateAccountActivity;
 import de.qabel.qabelbox.activities.CreateIdentityActivity;
 import de.qabel.qabelbox.activities.SplashActivity;
+import de.qabel.qabelbox.chat.services.QabelFirebaseMessagingService;
 import de.qabel.qabelbox.sync.QabelSyncAdapter;
 import de.qabel.qabelbox.dagger.modules.AccountModule;
 import de.qabel.qabelbox.dagger.modules.ActivityModule;
@@ -42,4 +45,5 @@ public interface ApplicationComponent {
 
     void inject(CreateIdentityMainFragment createIdentityMainFragment);
 
+    void inject(@NotNull QabelFirebaseMessagingService qabelFirebaseMessagingService);
 }

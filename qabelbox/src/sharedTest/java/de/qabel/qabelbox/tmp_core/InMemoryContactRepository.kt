@@ -12,6 +12,12 @@ import java.util.*
 @Deprecated("Replace with core")
 class InMemoryContactRepository : ContactRepository {
 
+    override fun update(contact: Contact, activeIdentities: List<Identity>) {
+        activeIdentities.forEach {
+            save(contact, it)
+        }
+    }
+
     val contacts: MutableMap<String, Contact> = mutableMapOf()
     val identityMapping: DefaultHashMap<Identity, MutableSet<String>> = DefaultHashMap({ key -> HashSet() })
 

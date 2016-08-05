@@ -100,11 +100,7 @@ open class QabelSyncAdapter : AbstractThreadedSyncAdapter, AnkoLogger {
     private fun toChatMessageInfo(identity: Identity, newMessages: List<ChatDropMessage>): List<ChatMessageInfo> {
         return newMessages.map {
             val contact = contactRepository.find(it.contactId)
-            val typesValues = when (it.payload) {
-                is ChatDropMessage.MessagePayload.ShareMessage -> Pair((it.payload as ChatDropMessage.MessagePayload.ShareMessage).msg, ChatMessageInfo.MessageType.SHARE)
-                else -> Pair((it.payload as ChatDropMessage.MessagePayload.TextMessage).msg, ChatMessageInfo.MessageType.MESSAGE)
-            }
-            ChatMessageInfo(contact, identity, typesValues.first, Date(it.createdOn), typesValues.second)
+            ChatMessageInfo.fromChatDropMessage(identity, contact, it)
         }
     }
 

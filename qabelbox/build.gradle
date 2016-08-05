@@ -215,6 +215,8 @@ dependencies {
     //for more used sources, see license.txt
 
     compile 'com.wada811:android-material-design-colors:3.0.0'
+    compile 'com.google.android.gms:play-services:9.4.0'
+
     compile 'com.google.firebase:firebase-core:9.4.0'
     compile 'com.google.firebase:firebase-messaging:9.4.0'
 

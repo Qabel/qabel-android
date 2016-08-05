@@ -8,6 +8,7 @@ import de.qabel.core.config.Identity
 import de.qabel.core.repository.ContactRepository
 import de.qabel.core.repository.entities.ChatDropMessage
 import de.qabel.core.service.ChatService
+import de.qabel.core.util.DefaultHashMap
 import de.qabel.qabelbox.QabelBoxApplication
 import de.qabel.qabelbox.chat.notifications.ChatNotificationManager
 import de.qabel.qabelbox.chat.dto.ChatMessageInfo
@@ -27,7 +28,7 @@ open class QabelSyncAdapter : AbstractThreadedSyncAdapter {
     @Inject lateinit internal var chatService: ChatService
     @Inject lateinit internal var notificationManager: ChatNotificationManager
 
-    private var currentMessages: List<ChatMessageInfo> = ArrayList()
+    private var currentMessages: Map<Identity, List<ChatMessageInfo>>? = null
 
     constructor(context: Context, autoInitialize: Boolean) : super(context, autoInitialize) {
         init(context)
@@ -52,7 +53,9 @@ open class QabelSyncAdapter : AbstractThreadedSyncAdapter {
         filter.priority = 0
         val receiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context, intent: Intent) {
-                notificationManager.updateNotifications(currentMessages)
+                currentMessages?.let {
+                    //notificationManager.updateNotifications(currentMessages)
+                }
             }
         }
         context.registerReceiver(receiver, filter)
@@ -67,21 +70,29 @@ open class QabelSyncAdapter : AbstractThreadedSyncAdapter {
             syncResult: SyncResult) {
         Log.w(TAG, "Starting drop message sync")
 
-        val newMessageList = chatService.refreshMessages().
-                flatMap { toChatMessageInfo(it.key, it.value) }
+        val newMessageMap = mutableMapOf<Identity, List<ChatMessageInfo>>()
+        chatService.refreshMessages().forEach {
+            newMessageMap.put(it.key, toChatMessageInfo(it.key, it.value))
+        }
 
-        notifyForNewMessages(newMessageList)
+        if (newMessageMap.size > 0) {
+            notifyForNewMessages(newMessageMap)
+        }
     }
 
-    open fun notifyForNewMessages(retrievedMessages: List<ChatMessageInfo>) {
-        if (retrievedMessages.size == 0) {
-            return
-        }
+    open fun notifyForNewMessages(retrievedMessages: Map<Identity, List<ChatMessageInfo>>) {
         currentMessages = retrievedMessages
 
         val notificationIntent = Intent(Helper.INTENT_SHOW_NOTIFICATION)
-        val pairs = retrievedMessages.flatMap { listOf(it.identity.keyIdentifier, it.contact.keyIdentifier) }.filterNotNull()
-        notificationIntent.putStringArrayListExtra(Helper.AFFECTED_IDENTITIES_AND_CONTACTS, ArrayList(pairs))
+        val keys = HashSet<String>()
+        retrievedMessages.values.forEach {
+            it.forEach {
+                keys.add(it.identity.keyIdentifier)
+                keys.add(it.contact.keyIdentifier)
+            }
+        }
+
+        notificationIntent.putStringArrayListExtra(Helper.AFFECTED_IDENTITIES_AND_CONTACTS, ArrayList(keys))
 
         context.sendOrderedBroadcast(notificationIntent, null)
         val refreshList = Intent(Helper.INTENT_REFRESH_CONTACTLIST)

@@ -59,6 +59,7 @@ public class AndroidChatNotificationPresenter implements ChatNotificationPresent
                .setSmallIcon(R.drawable.qabel_logo)
                .setPriority(Notification.PRIORITY_HIGH)
                .setAutoCancel(true);
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             notificationBuilder.setCategory(Notification.CATEGORY_MESSAGE);
         }

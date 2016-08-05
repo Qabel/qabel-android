@@ -155,7 +155,7 @@
     <string name="contact_import_successfull">Contact imported</string>
     <string name="contact_import_successfull_many">%1$d / %2$d Contacts imported</string>
     <string name="contact_import_zero_additions">No new Contacts found</string>
-    <string name="cant_import_contact_already_exisits">Can\'t import contact. Contact already in contact list</string>
+    <string name="contact_exists">Contact already in contact list</string>
     <string name="enter_name_message">Please enter a name</string>
     <string name="details">Details</string>
     <string name="share_into_app_select_identity">Please select the identity you want to use for the upload</string>
@@ -173,7 +173,7 @@
     <string name="debug_send_feedback">Send feedback</string>
     <string name="debug_send_feedback_to_pm">Tell us what you think about Qabel and any suggestions you have</string>
     <string name="dialog_message_delete_contact_question">Do you really delete the contact %1?</string>
-    <string name="contact_deleted">Contact with name %1 deleted</string>
+    <string name="contact_deleted">Contact with name %s deleted</string>
     <string name="infos">Infos</string>
     <string name="dummy_infos_text">This is the alpha version of Qabel</string>
     <string name="contact_count">%d Contacts</string>

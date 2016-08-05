@@ -28,7 +28,7 @@
     <string name="btn_create_identity">Identität erstellen</string>
     <string name="btn_reset_password">Passwort zurücksetzen</string>
     <string name="cancel">Abbrechen</string>
-    <string name="cant_import_contact_already_exisits">Importieren fehlgeschlagen. Kontakt bereits vorhanden</string>
+    <string name="contact_exists">Importieren fehlgeschlagen. Kontakt bereits vorhanden</string>
     <string name="cant_read_identity">Konnte Identität nicht aus der Datei lesen</string>
     <string name="change">Ändern</string>
     <string name="change_account_password_newpassword1_hint">Passwort</string>
@@ -43,7 +43,7 @@
     <string name="message_step_is_needed_or_close_app">%s wird benötigt um Qabel zu benutzen. Möchten Sie Qabel jetzt schließen?</string>
     <string name="contact_count">%d Kontakte</string>
     <string name="contact">Kontakt</string>
-    <string name="contact_deleted">Kontakt mit dem Namen %1 gelöscht</string>
+    <string name="contact_deleted">Kontakt mit dem Namen %s gelöscht</string>
     <string name="identity_as_contact_export_successfully">Kontakt exportiert. Sie können diesen Kontakt nun weitergeben.</string>
     <string name="contact_import_failed">Importieren des Kontaktes fehlgeschlagen</string>
     <string name="contact_import_manual_failed">Importieren des Kontaktes fehlgeschlagen. Bitte überprüfen Sie die eingegebenen Daten</string>

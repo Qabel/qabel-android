@@ -62,15 +62,15 @@ class ChatFragment : ChatView, BaseFragment(), AnkoLogger {
         contactKeyId = arguments.getString(ARG_CONTACT)?: throw IllegalArgumentException(
                 "Starting ChatFragment without contactKeyId")
         val component = getComponent(MainActivityComponent::class.java).plus(ChatModule(this))
-        component.inject(this);
+        component.inject(this)
         injectCompleted = true
         bt_send.setOnClickListener { presenter.sendMessage() }
 
-        configureAsSubFragment();
+        configureAsSubFragment()
 
-        val layoutManager = LinearLayoutManager(view.context);
+        val layoutManager = LinearLayoutManager(view.context)
         layoutManager.stackFromEnd = true;
-        contact_chat_list.layoutManager = layoutManager;
+        contact_chat_list.layoutManager = layoutManager
         contact_chat_list.adapter = adapter
     }
 
@@ -92,7 +92,7 @@ class ChatFragment : ChatView, BaseFragment(), AnkoLogger {
                 val ids = intent?.getStringArrayListExtra(Helper.AFFECTED_IDENTITIES_AND_CONTACTS)
                         ?.filterNotNull() ?: return
                 if (ids.all({(it == contactKeyId) or (it == identity.keyIdentifier)})) {
-                    abortBroadcast();
+                    abortBroadcast()
                 }
             }
         }
@@ -129,7 +129,7 @@ class ChatFragment : ChatView, BaseFragment(), AnkoLogger {
         debug("Showing ${messages.size} messages")
         busy()
         onUiThread {
-            fillAdapter(messages);
+            fillAdapter(messages)
             idle()
         }
     }
@@ -138,7 +138,7 @@ class ChatFragment : ChatView, BaseFragment(), AnkoLogger {
         busy()
         onUiThread {
             adapter.messages = adapter.messages + message
-            adapter.notifyDataSetChanged();
+            adapter.notifyDataSetChanged()
             contact_chat_list.scrollToPosition(adapter.itemCount - 1)
             idle()
         }

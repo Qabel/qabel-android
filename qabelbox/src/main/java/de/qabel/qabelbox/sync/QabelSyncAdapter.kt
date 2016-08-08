@@ -3,7 +3,6 @@ package de.qabel.qabelbox.sync
 import android.accounts.Account
 import android.content.*
 import android.os.Bundle
-import android.util.Log
 import de.qabel.core.config.Identity
 import de.qabel.core.repository.ContactRepository
 import de.qabel.core.repository.entities.ChatDropMessage
@@ -13,6 +12,7 @@ import de.qabel.qabelbox.chat.dto.ChatMessageInfo
 import de.qabel.qabelbox.chat.notifications.ChatNotificationManager
 import de.qabel.qabelbox.helper.Helper
 import org.jetbrains.anko.AnkoLogger
+import org.jetbrains.anko.info
 import org.jetbrains.anko.warn
 import java.util.*
 import javax.inject.Inject
@@ -67,7 +67,7 @@ open class QabelSyncAdapter : AbstractThreadedSyncAdapter, AnkoLogger {
             authority: String,
             provider: ContentProviderClient,
             syncResult: SyncResult) {
-        Log.w(TAG, "Starting drop message sync")
+        info("Starting drop message sync")
 
         val newMessageList = try {
             chatService.refreshMessages().

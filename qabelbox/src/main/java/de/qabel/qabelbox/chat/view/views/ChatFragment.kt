@@ -12,13 +12,14 @@ import android.view.ViewGroup
 import de.qabel.core.config.Contact
 import de.qabel.core.config.Identity
 import de.qabel.qabelbox.R
-import de.qabel.qabelbox.chat.view.adapters.ChatMessageAdapter
-import de.qabel.qabelbox.dagger.components.MainActivityComponent
 import de.qabel.qabelbox.chat.dagger.ChatModule
 import de.qabel.qabelbox.chat.dto.ChatMessage
-import de.qabel.qabelbox.fragments.BaseFragment
-import de.qabel.qabelbox.helper.Helper
+import de.qabel.qabelbox.chat.view.adapters.ChatMessageAdapter
 import de.qabel.qabelbox.chat.view.presenters.ChatPresenter
+import de.qabel.qabelbox.dagger.components.MainActivityComponent
+import de.qabel.qabelbox.fragments.BaseFragment
+import de.qabel.qabelbox.helper.AccountHelper
+import de.qabel.qabelbox.helper.Helper
 import kotlinx.android.synthetic.main.fragment_contact_chat.*
 import kotlinx.android.synthetic.main.fragment_contact_chat.view.*
 import org.jetbrains.anko.AnkoLogger
@@ -126,8 +127,7 @@ class ChatFragment : ChatView, BaseFragment(), AnkoLogger {
     }
 
     override fun refresh() {
-        val intent = Intent(Helper.INTENT_REFRESH_CONTACTLIST);
-        activity?.sendBroadcast(intent, null);
+        AccountHelper.startOnDemandSyncAdapter()
     }
 
     override fun showMessages(messages: List<ChatMessage>) {

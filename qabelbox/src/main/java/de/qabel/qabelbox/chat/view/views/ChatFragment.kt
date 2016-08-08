@@ -18,7 +18,6 @@ import de.qabel.qabelbox.chat.view.adapters.ChatMessageAdapter
 import de.qabel.qabelbox.chat.view.presenters.ChatPresenter
 import de.qabel.qabelbox.dagger.components.MainActivityComponent
 import de.qabel.qabelbox.fragments.BaseFragment
-import de.qabel.qabelbox.helper.AccountHelper
 import de.qabel.qabelbox.helper.Helper
 import kotlinx.android.synthetic.main.fragment_contact_chat.*
 import kotlinx.android.synthetic.main.fragment_contact_chat.view.*
@@ -124,10 +123,6 @@ class ChatFragment : ChatView, BaseFragment(), AnkoLogger {
             adapter.notifyDataSetChanged()
             idle()
         }
-    }
-
-    override fun refresh() {
-        AccountHelper.startOnDemandSyncAdapter()
     }
 
     override fun showMessages(messages: List<ChatMessage>) {

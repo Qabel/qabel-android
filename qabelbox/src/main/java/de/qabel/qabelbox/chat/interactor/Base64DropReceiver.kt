@@ -14,6 +14,7 @@ import de.qabel.core.repository.exception.EntityNotFoundException
 import de.qabel.qabelbox.chat.dto.ChatMessageInfo
 import de.qabel.qabelbox.chat.notifications.ChatNotificationManager
 import org.jetbrains.anko.AnkoLogger
+import org.jetbrains.anko.info
 import org.jetbrains.anko.warn
 import org.spongycastle.util.encoders.Base64
 import javax.inject.Inject
@@ -42,6 +43,7 @@ class Base64DropReceiver @Inject constructor (private val repository: ChatDropMe
         }
         val chatMessage = createChatMessage(identity, contact, message)
         repository.persist(chatMessage)
+        info("persisting message $chatMessage")
         notificationManager.updateNotifications(
                 listOf(ChatMessageInfo.fromChatDropMessage(identity, contact, chatMessage)))
     }

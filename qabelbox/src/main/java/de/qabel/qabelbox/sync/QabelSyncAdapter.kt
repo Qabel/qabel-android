@@ -72,7 +72,7 @@ open class QabelSyncAdapter : AbstractThreadedSyncAdapter, AnkoLogger {
         val newMessageList = try {
             chatService.refreshMessages().
                     flatMap { toChatMessageInfo(it.key, it.value) }
-        } catch (e: NullPointerException) {
+        } catch (e: Throwable) {
             warn("Error in syncing", e)
             emptyList<ChatMessageInfo>()
         }

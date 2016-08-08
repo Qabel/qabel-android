@@ -8,15 +8,22 @@ import de.qabel.core.crypto.BinaryDropMessageV0
 import de.qabel.core.drop.DropMessage
 import de.qabel.core.repository.ChatDropMessageRepository
 import de.qabel.core.repository.entities.ChatDropMessage
+import de.qabel.qabelbox.BuildConfig
+import de.qabel.qabelbox.SimpleApplication
 import de.qabel.qabelbox.eq
 import de.qabel.qabelbox.tmp_core.InMemoryChatDropMessageRepository
 import de.qabel.qabelbox.tmp_core.InMemoryContactRepository
 import de.qabel.qabelbox.tmp_core.InMemoryIdentityRepository
 import de.qabel.qabelbox.util.IdentityHelper
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricGradleTestRunner
+import org.robolectric.annotation.Config
 import org.spongycastle.util.encoders.Base64
 
 
+@RunWith(RobolectricGradleTestRunner::class)
+@Config(application = SimpleApplication::class, constants = BuildConfig::class)
 class Base64DropReceiverTest {
     @Test
     fun receive() {

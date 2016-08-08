@@ -44,7 +44,7 @@ class RepositoryFactory(private val context: Context) {
 
     }
 
-    internal val databasePath: File
+    val databasePath: File
         get() = context.getFileStreamPath(DB_REPOSITORIES)
 
     fun deleteDatabase() {

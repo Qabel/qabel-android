@@ -1,6 +1,7 @@
 package de.qabel.qabelbox.contacts.view.presenter
 
 import com.google.zxing.integration.android.IntentIntegrator
+import com.natpryce.hamkrest.present
 import com.nhaarman.mockito_kotlin.mock
 import com.nhaarman.mockito_kotlin.spy
 import com.nhaarman.mockito_kotlin.verify

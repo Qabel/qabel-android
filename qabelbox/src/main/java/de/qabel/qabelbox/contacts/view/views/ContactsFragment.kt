@@ -259,7 +259,7 @@ class ContactsFragment() : ContactsView, BaseFragment(), AnkoLogger, SearchView.
     }
 
     fun showDeleteContactConfirmation(contact: ContactDto) {
-        showConfirmation(R.string.confirm_delete_title, R.string.dialog_message_delete_contact_question,
+        showConfirmation(R.string.confirm_delete_title, R.string.confirm_delete_message,
                 contact.contact.alias, {
             presenter.deleteContact(contact)
         });

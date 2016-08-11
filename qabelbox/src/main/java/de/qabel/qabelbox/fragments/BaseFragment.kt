@@ -74,13 +74,10 @@ abstract class BaseFragment : Fragment() {
 
     protected fun configureAsMainFragment() {
         actionBar?.setDisplayHomeAsUpEnabled(false)
-        //mActivity?.toggle?.isDrawerIndicatorEnabled = true
+        mActivity?.toggle?.isDrawerIndicatorEnabled = true
     }
-    /**
-     * set own back listener in actionbar
-     */
     protected fun setActionBarBackListener() {
-        //mActivity?.toggle?.setToolbarNavigationClickListener { mActivity?.onBackPressed() }
+        mActivity?.toggle?.setToolbarNavigationClickListener { mActivity?.onBackPressed()}
     }
 
     /**

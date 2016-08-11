@@ -511,6 +511,14 @@ class MainActivity : CrashReportingActivity(),
                 override fun onDrawerClosed(drawerView: View?) { }
                 override fun onDrawerOpened(drawerView: View?) { }
             })
+            withOnDrawerNavigationListener {
+                if (drawer.isDrawerOpen) {
+                    drawer.closeDrawer()
+                } else {
+                    onBackPressed()
+                }
+                true
+            }
             build()
         }
         toggle = drawer.actionBarDrawerToggle

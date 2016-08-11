@@ -515,7 +515,11 @@ class MainActivity : CrashReportingActivity(),
                 if (drawer.isDrawerOpen) {
                     drawer.closeDrawer()
                 } else {
-                    onBackPressed()
+                    if (toggle.isDrawerIndicatorEnabled) {
+                        drawer.openDrawer()
+                    } else {
+                        onBackPressed()
+                    }
                 }
                 true
             }

@@ -16,7 +16,19 @@ public class QblBroadcastConstants {
     }
 
     public static class Contacts {
-        public static final String CONTACTS_CHANGED = PREFIX + "accountChanged";
+        public static final String CONTACTS_CHANGED = PREFIX + "contacts.updated";
+    }
 
+    public static class Chat {
+        public static final String INTENT_SHOW_NOTIFICATION = PREFIX + "chat.notification";
+        public static final String REFRESH = PREFIX + "chat.refresh";
+
+        public static class Service {
+            public static final String MESSAGES_UPDATED = PREFIX + "chat.service.updated";
+            public static final String NOTIFY = PREFIX + "chat.service.notify";
+            public static final String MARK_READ = PREFIX + "chat.service.markRead";
+            public static final String ADD_CONTACT = PREFIX + "chat.service.addContact";
+            public static final String IGNORE_CONTACT = PREFIX + "chat.service.ignoreContact";
+        }
     }
 }

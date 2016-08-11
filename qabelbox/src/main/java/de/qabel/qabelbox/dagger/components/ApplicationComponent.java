@@ -10,6 +10,7 @@ import de.qabel.core.repository.IdentityRepository;
 import de.qabel.qabelbox.activities.CreateAccountActivity;
 import de.qabel.qabelbox.activities.CreateIdentityActivity;
 import de.qabel.qabelbox.activities.SplashActivity;
+import de.qabel.qabelbox.chat.service.AndroidChatService;
 import de.qabel.qabelbox.sync.QabelSyncAdapter;
 import de.qabel.qabelbox.dagger.modules.AccountModule;
 import de.qabel.qabelbox.dagger.modules.ActivityModule;
@@ -31,6 +32,8 @@ public interface ApplicationComponent {
     ActivityComponent plus(ActivityModule activityModule);
 
     void inject(QabelSyncAdapter syncAdapter);
+
+    void inject(AndroidChatService chatService);
 
     void inject(CreateAccountActivity createAccountActivity);
 

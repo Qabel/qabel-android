@@ -17,10 +17,13 @@ import de.qabel.core.repository.IdentityRepository;
 import de.qabel.core.service.ChatService;
 import de.qabel.core.service.MainChatService;
 import de.qabel.qabelbox.QabelBoxApplication;
-import de.qabel.qabelbox.chat.notifications.AndroidChatNotificationPresenter;
+import de.qabel.qabelbox.chat.notifications.presenter.AndroidChatNotificationPresenter;
 import de.qabel.qabelbox.chat.notifications.ChatNotificationManager;
-import de.qabel.qabelbox.chat.notifications.ChatNotificationPresenter;
-import de.qabel.qabelbox.chat.notifications.SyncAdapterChatNotificationManager;
+import de.qabel.qabelbox.chat.notifications.presenter.ChatNotificationPresenter;
+import de.qabel.qabelbox.chat.notifications.MainChatNotificationManager;
+import de.qabel.qabelbox.chat.interactor.ChatServiceUseCase;
+import de.qabel.qabelbox.chat.interactor.MainChatServiceUseCase;
+import de.qabel.qabelbox.chat.transformers.ChatMessageTransformer;
 
 @Module
 public class ApplicationModule extends ContextModule {
@@ -30,7 +33,7 @@ public class ApplicationModule extends ContextModule {
     }
 
     @Singleton @Provides ChatNotificationManager providesChatNotificationManager(
-            SyncAdapterChatNotificationManager manager) {
+            MainChatNotificationManager manager) {
         return manager;
     }
 
@@ -46,6 +49,13 @@ public class ApplicationModule extends ContextModule {
                                     ChatDropMessageRepository chatDropMessageRepository) {
         return new MainChatService(new MainDropConnector(new MainDropServer()), identityRepository,
                 contactRepository, chatDropMessageRepository, dropStateRepository);
+    }
+
+    @Singleton
+    @Provides
+    ChatServiceUseCase providesChatManager(ContactRepository contactRepo, ChatDropMessageRepository chatDropMessageRepository,
+                                           IdentityRepository identityRepo, ChatMessageTransformer msgTransformer){
+        return new MainChatServiceUseCase(chatDropMessageRepository, contactRepo, identityRepo, msgTransformer);
     }
 
     @Provides

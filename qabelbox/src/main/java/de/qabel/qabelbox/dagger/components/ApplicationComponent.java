@@ -11,11 +11,11 @@ import de.qabel.qabelbox.activities.CreateAccountActivity;
 import de.qabel.qabelbox.activities.CreateIdentityActivity;
 import de.qabel.qabelbox.activities.SplashActivity;
 import de.qabel.qabelbox.chat.service.AndroidChatService;
+import de.qabel.qabelbox.chat.services.QabelFirebaseMessagingService;
 import de.qabel.qabelbox.sync.QabelSyncAdapter;
 import de.qabel.qabelbox.dagger.modules.AccountModule;
 import de.qabel.qabelbox.dagger.modules.ActivityModule;
 import de.qabel.qabelbox.dagger.modules.ApplicationModule;
-import de.qabel.qabelbox.dagger.modules.BoxModule;
 import de.qabel.qabelbox.dagger.modules.RepositoryModule;
 import de.qabel.qabelbox.dagger.modules.StorageModule;
 import de.qabel.qabelbox.fragments.CreateAccountFinalFragment;
@@ -45,4 +45,5 @@ public interface ApplicationComponent {
 
     void inject(CreateIdentityMainFragment createIdentityMainFragment);
 
+    void inject(QabelFirebaseMessagingService qabelFirebaseMessagingService);
 }

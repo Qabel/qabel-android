@@ -11,13 +11,13 @@ import de.qabel.core.config.Contact
 import de.qabel.core.config.Identity
 import de.qabel.qabelbox.QblBroadcastConstants
 import de.qabel.qabelbox.R
-import de.qabel.qabelbox.chat.view.adapters.ChatMessageAdapter
-import de.qabel.qabelbox.dagger.components.MainActivityComponent
 import de.qabel.qabelbox.chat.dagger.ChatModule
 import de.qabel.qabelbox.chat.dto.ChatMessage
+import de.qabel.qabelbox.chat.view.adapters.ChatMessageAdapter
+import de.qabel.qabelbox.chat.view.presenters.ChatPresenter
+import de.qabel.qabelbox.dagger.components.MainActivityComponent
 import de.qabel.qabelbox.fragments.BaseFragment
 import de.qabel.qabelbox.helper.Helper
-import de.qabel.qabelbox.chat.view.presenters.ChatPresenter
 import kotlinx.android.synthetic.main.fragment_contact_chat.*
 import kotlinx.android.synthetic.main.fragment_contact_chat.view.*
 import org.jetbrains.anko.AnkoLogger
@@ -68,7 +68,7 @@ class ChatFragment : ChatView, BaseFragment(), AnkoLogger {
         configureAsSubFragment()
 
         val layoutManager = LinearLayoutManager(view.context)
-        layoutManager.stackFromEnd = true
+        layoutManager.stackFromEnd = true;
         contact_chat_list.layoutManager = layoutManager
         contact_chat_list.adapter = adapter
     }

@@ -10,6 +10,11 @@ import java.util.*
 
 class MockContactRepository(val contacts: MutableMap<String, Contact> = mutableMapOf(),
                             val identityMapping: DefaultHashMap<Identity, MutableSet<String>> = DefaultHashMap({ key -> HashSet() })) : ContactRepository {
+    override fun update(contact: Contact, activeIdentities: List<Identity>) {
+        activeIdentities.map {
+            save(contact, it)
+        }
+    }
 
     override fun update(contact: Contact, activeIdentities: List<Identity>) {
         contacts.put(contact.keyIdentifier, contact)

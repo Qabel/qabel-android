@@ -98,28 +98,25 @@ class RepositoryFactory(private val context: Context) {
 
     @Throws(QblPersistenceException::class)
     fun getAndroidClientDatabase(): AndroidClientDatabase {
-        if (connection == null) {
+        val conn = connection ?:
             try {
-                connection = DriverManager.getConnection("jdbc:sqlite:" + databasePath)
+                val c = DriverManager.getConnection("jdbc:sqlite:" + databasePath)
+                connection = c
+                c
             } catch (e: SQLException) {
                 throw QblPersistenceException(e)
             }
-
-            androidClientDatabase = AndroidClientDatabase(connection!!)
-            try {
-                androidClientDatabase!!.migrate()
-            } catch (e: MigrationException) {
-                throw RuntimeException(e)
-            }
-
+        val database = androidClientDatabase ?: AndroidClientDatabase(conn).apply {
+            migrate()
+            androidClientDatabase = this
         }
-        return androidClientDatabase!!
+        return database
     }
 
     fun close() {
-        if (connection != null) {
+        connection?.let {
             try {
-                connection!!.close()
+                it.close()
                 connection = null
             } catch (e: SQLException) {
                 Log.e(TAG, "Could not close connection for AndroidClientDatabase")

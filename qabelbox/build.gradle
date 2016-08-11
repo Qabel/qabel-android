@@ -217,6 +217,12 @@ dependencies {
     //for more used sources, see license.txt
 
     compile 'com.wada811:android-material-design-colors:3.0.0'
+    compile 'com.google.android.gms:play-services:9.4.0'
+
+    compile 'com.google.firebase:firebase-core:9.4.0'
+    compile 'com.google.firebase:firebase-messaging:9.4.0'
+
+
 }
 
 
@@ -240,5 +246,8 @@ buildscript {
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath "org.jetbrains.kotlin:kotlin-android-extensions:$kotlin_version"
+        classpath 'com.google.gms:google-services:3.0.0'
     }
 }
+apply plugin: 'com.google.gms.google-services'
+

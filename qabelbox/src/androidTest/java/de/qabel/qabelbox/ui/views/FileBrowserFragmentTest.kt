@@ -14,6 +14,7 @@ import de.qabel.qabelbox.box.views.FileBrowserFragment
 import de.qabel.qabelbox.navigation.MainNavigator
 import de.qabel.qabelbox.ui.AbstractUITest
 import de.qabel.qabelbox.ui.idling.InjectedIdlingResource
+import org.junit.After
 import org.junit.Test
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.verify
@@ -24,6 +25,7 @@ class FileBrowserFragmentTest: AbstractUITest() {
 
     lateinit var fragment: FileBrowserFragment
     lateinit var presenter: FileBrowserPresenter
+    lateinit var injectedIdlingResource: InjectedIdlingResource
     val file = BrowserEntry.File("Name.txt", 42000, Date())
 
     override fun getDefaultIntent(): Intent {
@@ -33,17 +35,24 @@ class FileBrowserFragmentTest: AbstractUITest() {
         }
     }
 
+
     fun launch() {
+        injectedIdlingResource = InjectedIdlingResource()
         launchActivity(defaultIntent)
         fragment = mActivity.fragmentManager.findFragmentByTag(
                 MainNavigator.TAG_FILES_FRAGMENT) as FileBrowserFragment
         presenter = mock(FileBrowserPresenter::class.java)
         fragment.presenter = presenter
 
-        with(InjectedIdlingResource()) {
+        with(injectedIdlingResource) {
             Espresso.registerIdlingResources(this)
             fragment.setIdleCallback(this)
         }
+    }
+
+    @After
+    fun tearDown() {
+        Espresso.unregisterIdlingResources(injectedIdlingResource)
     }
 
 

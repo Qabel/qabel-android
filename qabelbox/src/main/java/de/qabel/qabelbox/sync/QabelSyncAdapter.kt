@@ -3,7 +3,6 @@ package de.qabel.qabelbox.sync
 import android.accounts.Account
 import android.content.*
 import android.os.Bundle
-import android.util.Log
 import de.qabel.core.config.Identity
 import de.qabel.core.repository.ContactRepository
 import de.qabel.core.repository.entities.ChatDropMessage
@@ -41,11 +40,10 @@ open class QabelSyncAdapter : AbstractThreadedSyncAdapter, AnkoLogger {
     }
 
     private fun init(context: Context) {
-        println("SyncAdapter initialize")
         this.context = context
         mContentResolver = context.contentResolver
         QabelBoxApplication.getApplicationComponent(context).inject(this)
-         println("SyncAdapter initialized")
+        info("SyncAdapter initialized")
     }
 
     override fun onPerformSync(

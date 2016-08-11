@@ -127,6 +127,13 @@
                 android:resource="@xml/syncadapter"/>
         </service>
 
+        <service
+            android:name=".chat.services.QabelFirebaseMessagingService">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT"/>
+            </intent-filter>
+        </service>
+
         <service android:name=".services.QabelAuthenticatorService">
             <intent-filter>
                 <action android:name="android.accounts.AccountAuthenticator"/>

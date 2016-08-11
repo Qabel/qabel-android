@@ -6,6 +6,7 @@ import android.content.*
 import android.os.Bundle
 import android.support.design.widget.FloatingActionButton
 import android.support.design.widget.Snackbar
+import android.support.v7.app.ActionBarDrawerToggle
 import android.support.v7.widget.Toolbar
 import android.util.Log
 import android.view.Menu
@@ -90,6 +91,8 @@ class MainActivity : CrashReportingActivity(),
     lateinit private var drawer: Drawer
     lateinit private var contacts: PrimaryDrawerItem
     lateinit private var files: PrimaryDrawerItem
+    lateinit var toggle: ActionBarDrawerToggle
+
 
 
     private val accountBroadCastReceiver = object : BroadcastReceiver() {
@@ -413,7 +416,7 @@ class MainActivity : CrashReportingActivity(),
         }.toMap()
         val activeIdentityItem = ProfileDrawerItem().apply {
             withName(activeIdentity.alias)
-            withIcon(R.drawable.qabel_logo)
+            withIcon(R.drawable.qrcode)
             withEmail(appPreferences.accountEMail)
         }
         val addIdentity = ProfileSettingDrawerItem().apply {
@@ -429,12 +432,14 @@ class MainActivity : CrashReportingActivity(),
         val profiles: List<ProfileDrawerItem> = profileMap.keys.toList()
         val accountHeader = with(AccountHeaderBuilder()) {
             withActivity(this@MainActivity)
-            withHeaderBackground(R.drawable.btn_background)
+            withHeaderBackground(R.drawable.bg_sidemenu_header)
             addProfiles(activeIdentityItem)
             addProfiles(*profiles.toTypedArray())
-            addProfiles(addIdentity, manageIdentities)
+            addProfiles(addIdentity)
+            addProfiles(manageIdentities)
             withOnAccountHeaderListener { view, iProfile, current ->
                 when (iProfile) {
+                    activeIdentityItem -> showQRCode(this@MainActivity, activeIdentity)
                     addIdentity -> selectAddIdentityFragment()
                     manageIdentities -> navigator.selectManageIdentitiesFragment()
                     else -> {
@@ -481,6 +486,7 @@ class MainActivity : CrashReportingActivity(),
             withAccountHeader(accountHeader)
             build()
         }
+        toggle = drawer.actionBarDrawerToggle
     }
 
     /*

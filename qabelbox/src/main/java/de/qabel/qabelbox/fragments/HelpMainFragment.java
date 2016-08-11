@@ -53,7 +53,7 @@ public class HelpMainFragment extends PreferenceFragment {
 
         mActivity.getSupportActionBar().setTitle(R.string.headline_main_help);
         mActivity.getSupportActionBar().setDisplayHomeAsUpEnabled(false);
-        //mActivity.toggle.setDrawerIndicatorEnabled(true);
+        mActivity.toggle.setDrawerIndicatorEnabled(true);
         mActivity.fab.hide();
     }
 

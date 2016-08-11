@@ -67,7 +67,7 @@ abstract class BaseFragment : Fragment() {
     }
 
     protected fun configureAsSubFragment() {
-        //mActivity?.toggle?.isDrawerIndicatorEnabled = false
+        mActivity?.toggle?.isDrawerIndicatorEnabled = false
         actionBar?.setDisplayHomeAsUpEnabled(true)
         setActionBarBackListener()
     }

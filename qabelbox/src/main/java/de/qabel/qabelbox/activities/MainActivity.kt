@@ -431,8 +431,12 @@ class MainActivity : CrashReportingActivity(),
         }
         val profileMap = identityRepository.findAll().identities.filterNot {
             it.keyIdentifier == activeIdentity.keyIdentifier
-        }.sortedBy { it.alias }.map {
-            Pair(ProfileDrawerItem().withName(it.alias).withIcon(R.drawable.account), it)
+        }.mapIndexed { i, identity ->
+            Pair(ProfileDrawerItem().apply {
+                withName(identity.alias)
+                withIcon(R.drawable.account)
+                withIdentifier(i.toLong())
+            } , identity)
         }.toMap()
         val activeIdentityItem = ProfileDrawerItem().apply {
             withName(activeIdentity.alias)
@@ -450,12 +454,11 @@ class MainActivity : CrashReportingActivity(),
             withIcon(R.drawable.settings)
             withSelectable(false)
         }
-        val profiles: List<ProfileDrawerItem> = profileMap.keys.toList()
         val accountHeader = with(AccountHeaderBuilder()) {
             withActivity(this@MainActivity)
             withHeaderBackground(R.drawable.bg_sidemenu_header)
             addProfiles(activeIdentityItem)
-            addProfiles(*profiles.toTypedArray())
+            addProfiles(*profileMap.keys.sortedBy { it.name.toString() }.toTypedArray())
             addProfiles(addIdentity)
             addProfiles(manageIdentities)
             withOnAccountHeaderListener { view, iProfile, current ->

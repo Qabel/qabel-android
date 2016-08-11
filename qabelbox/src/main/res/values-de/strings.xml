@@ -289,7 +289,7 @@ Den Unterstützern der Indigogo Kampagne
     <string name="close_app">App schließen</string>
     <string name="retry_action">Wiederholen</string>
     <string name="logout">Abmelden</string>
-    <string name="new_messages">%d new messages</string>
+    <string name="new_messages">%d neue Nachrichten</string>
     <string name="downloading">Herunterladen %s ...</string>
     <string name="download_complete">Herunterladen abgeschlossen</string>
     <string name="download_complete_msg">%s wurde heruntergeladen</string>
@@ -323,4 +323,6 @@ Den Unterstützern der Indigogo Kampagne
     <string name="contact_new">Neuer Kontakt</string>
     <string name="changes_saved">Änderungen gespeichert</string>
     <string name="error_saving_changed">Änderungen konnten nicht gespeichert werden</string>
+    <string name="action_read">Gelesen</string>
+    <string name="action_ignore">Ignorieren</string>
 </resources>

@@ -90,12 +90,15 @@ class FileBrowserFragment: FileBrowserView, BaseFragment(), AnkoLogger {
     }
 
 
+    private var bottomSheet: BottomSheet? = null
+
     fun openBottomSheet(entry: BrowserEntry) {
         val (icon, sheet) = when(entry) {
             is BrowserEntry.File -> Pair(R.drawable.file, R.menu.bottom_sheet_files)
             is BrowserEntry.Folder -> Pair(R.drawable.folder, R.menu.bottom_sheet_folder)
         }
-        BottomSheet.Builder(activity).title(entry.name).icon(icon).sheet(sheet).listener {
+        bottomSheet?.dismiss()
+        bottomSheet = BottomSheet.Builder(activity).title(entry.name).icon(icon).sheet(sheet).listener {
             dialogInterface, menu_id ->
             when(entry) {
                 is BrowserEntry.File -> when (menu_id) {
@@ -281,9 +284,9 @@ class FileBrowserFragment: FileBrowserView, BaseFragment(), AnkoLogger {
         }
     }
 
-
     override fun handleFABAction(): Boolean {
-        BottomSheet.Builder(activity).sheet(R.menu.bottom_sheet_files_add).listener { dialog, which ->
+        bottomSheet?.dismiss()
+        bottomSheet = BottomSheet.Builder(activity).sheet(R.menu.bottom_sheet_files_add).listener { dialog, which ->
             when (which) {
                 R.id.upload_file -> {
                     val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
@@ -319,6 +322,10 @@ class FileBrowserFragment: FileBrowserView, BaseFragment(), AnkoLogger {
         }
     }
 
+    override fun onPause() {
+        bottomSheet?.dismiss()
+        super.onPause()
+    }
 
 }
 

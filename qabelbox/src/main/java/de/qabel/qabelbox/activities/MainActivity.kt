@@ -445,7 +445,7 @@ class MainActivity : CrashReportingActivity(),
             withIcon(R.drawable.plus_circle)
             withSelectable(false)
         }
-        val manageIdentities = ProfileDrawerItem().apply {
+        val manageIdentities = ProfileSettingDrawerItem().apply {
             withName(ctx.getString(R.string.manage_identities))
             withIcon(R.drawable.settings)
             withSelectable(false)

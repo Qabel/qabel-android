@@ -114,7 +114,9 @@ android {
 }
 
 configurations.all {
-    resolutionStrategy.force 'com.android.support:support-annotations:23.2.1'
+    resolutionStrategy.force 'com.android.support:support-annotations:23.2.1',
+            "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version",
+            "org.jetbrains.kotlin:kotlin-runtime:$kotlin_version"
 }
 repositories {
     maven { url "https://oss.sonatype.org/content/repositories/snapshots" }
@@ -130,7 +132,7 @@ dependencies {
     sourceCompatibility = JavaVersion.VERSION_1_7
     targetCompatibility = JavaVersion.VERSION_1_7
     compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile ('com.github.Qabel:qabel-core:0.15') {
+    compile ('com.github.Qabel:qabel-core:-SNAPSHOT') {
         exclude group: 'org.json', module: 'json'
         exclude group: 'org.apache.logging.log4j'
         exclude group: 'commons-logging', module: 'commons-logging'

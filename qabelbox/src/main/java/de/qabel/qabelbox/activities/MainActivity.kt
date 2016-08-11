@@ -5,16 +5,18 @@ import android.app.AlertDialog
 import android.content.*
 import android.os.Bundle
 import android.support.design.widget.FloatingActionButton
-import android.support.design.widget.NavigationView
 import android.support.design.widget.Snackbar
 import android.support.v7.widget.Toolbar
 import android.util.Log
 import android.view.Menu
-import android.view.MenuItem
 import android.view.View
 import butterknife.BindView
 import butterknife.ButterKnife
 import butterknife.OnClick
+import com.mikepenz.materialdrawer.AccountHeaderBuilder
+import com.mikepenz.materialdrawer.Drawer
+import com.mikepenz.materialdrawer.DrawerBuilder
+import com.mikepenz.materialdrawer.model.*
 import de.qabel.core.config.Identity
 import de.qabel.core.repository.ContactRepository
 import de.qabel.core.repository.IdentityRepository
@@ -49,7 +51,6 @@ import javax.inject.Inject
 class MainActivity : CrashReportingActivity(),
         IdentitiesFragment.IdentityListListener,
         HasComponent<MainActivityComponent>,
-        NavigationView.OnNavigationItemSelectedListener,
         TopicManager by FirebaseTopicManager(),
         AnkoLogger {
 
@@ -85,6 +86,11 @@ class MainActivity : CrashReportingActivity(),
     lateinit internal var accountManager: AccountManager
 
     lateinit private var component: MainActivityComponent
+
+    lateinit private var drawer: Drawer
+    lateinit private var contacts: PrimaryDrawerItem
+    lateinit private var files: PrimaryDrawerItem
+
 
     private val accountBroadCastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
@@ -136,7 +142,7 @@ class MainActivity : CrashReportingActivity(),
         addBackStackListener()
 
         setupAccount()
-        //initDrawer()
+        initDrawer()
         identityRepository.findAll().identities.flatMap { it.dropUrls }.forEach {
             info("Subscribing to drop id $it")
             subscribe(it)
@@ -234,10 +240,14 @@ class MainActivity : CrashReportingActivity(),
         val startContactsFragment = intent.getBooleanExtra(START_CONTACTS_FRAGMENT, false)
         val activeContact = intent.getStringExtra(ACTIVE_CONTACT)
         if (startContactsFragment) {
+            drawer.setSelection(contacts)
             navigator.selectContactsFragment()
             navigator.selectChatFragment(activeContact)
         } else if (startFilesFragment) {
+            drawer.setSelection(files)
             navigator.selectFilesFragment()
+        } else {
+            drawer.setSelection(-1L)
         }
     }
 
@@ -365,6 +375,114 @@ class MainActivity : CrashReportingActivity(),
         super.onDestroy()
     }
 
+    private fun initDrawer() {
+        contacts = PrimaryDrawerItem().apply {
+            withIdentifier(R.id.nav_contacts.toLong())
+            withName(R.string.Contacts)
+            withIcon(R.drawable.account_multiple)
+        }
+        files = PrimaryDrawerItem().apply {
+            withIdentifier(R.id.nav_browse.toLong())
+            withName(R.string.filebrowser)
+            withIcon(R.drawable.folder)
+        }
+        val settings = SecondaryDrawerItem().apply {
+            withIdentifier(R.id.nav_settings.toLong())
+            withName(R.string.action_settings)
+            withIcon(R.drawable.settings)
+        }
+        val tellAFriend = SecondaryDrawerItem().apply {
+            withIdentifier(R.id.nav_tellafriend.toLong())
+            withName(R.string.action_tellafriend)
+            withIcon(R.drawable.heart)
+        }
+        val about = SecondaryDrawerItem().apply {
+            withIdentifier(R.id.nav_about.toLong())
+            withName(R.string.action_about)
+            withIcon(R.drawable.information)
+        }
+        val help = SecondaryDrawerItem().apply {
+            withIdentifier(R.id.nav_help.toLong())
+            withName(R.string.help)
+            withIcon(R.drawable.help_circle)
+        }
+        val profileMap = identityRepository.findAll().identities.filterNot {
+            it.keyIdentifier == activeIdentity.keyIdentifier
+        }.sortedBy { it.alias }.map {
+            Pair(ProfileDrawerItem().withName(it.alias).withIcon(R.drawable.account), it)
+        }.toMap()
+        val activeIdentityItem = ProfileDrawerItem().apply {
+            withName(activeIdentity.alias)
+            withIcon(R.drawable.qabel_logo)
+            withEmail(appPreferences.accountEMail)
+        }
+        val addIdentity = ProfileSettingDrawerItem().apply {
+            withName(ctx.getString(R.string.add_identity))
+            withIcon(R.drawable.plus_circle)
+            withSelectable(false)
+        }
+        val manageIdentities = ProfileDrawerItem().apply {
+            withName(ctx.getString(R.string.manage_identities))
+            withIcon(R.drawable.settings)
+            withSelectable(false)
+        }
+        val profiles: List<ProfileDrawerItem> = profileMap.keys.toList()
+        val accountHeader = with(AccountHeaderBuilder()) {
+            withActivity(this@MainActivity)
+            withHeaderBackground(R.drawable.btn_background)
+            addProfiles(activeIdentityItem)
+            addProfiles(*profiles.toTypedArray())
+            addProfiles(addIdentity, manageIdentities)
+            withOnAccountHeaderListener { view, iProfile, current ->
+                when (iProfile) {
+                    addIdentity -> selectAddIdentityFragment()
+                    manageIdentities -> navigator.selectManageIdentitiesFragment()
+                    else -> {
+                        if (!current) {
+                            profileMap[iProfile]?.let {
+                                changeActiveIdentity(it)
+                            }
+                        }
+                    }
+                }
+                drawer.closeDrawer()
+                true
+            }
+            build()
+        }
+        drawer = with(DrawerBuilder()) {
+            withActivity(this@MainActivity)
+            withToolbar(toolbar)
+            addDrawerItems(
+                    contacts,
+                    files,
+                    DividerDrawerItem(),
+                    settings,
+                    tellAFriend,
+                    about,
+                    help
+            )
+            withOnDrawerItemClickListener { view, i, iDrawerItem ->
+                when (iDrawerItem) {
+                    contacts -> navigator.selectContactsFragment()
+                    files -> navigator.selectFilesFragment()
+                    settings -> {
+                        val intent = Intent(this@MainActivity, SettingsActivity::class.java)
+                        startActivityForResult(intent, REQUEST_SETTINGS)
+                    }
+                    tellAFriend -> ShareHelper.tellAFriend(this@MainActivity)
+                    about -> navigator.selectAboutFragment()
+                    help -> navigator.selectHelpFragment()
+                    else -> { return@withOnDrawerItemClickListener false }
+                }
+                drawer.closeDrawer()
+                true
+            }
+            withAccountHeader(accountHeader)
+            build()
+        }
+    }
+
     /*
     fun selectIdentityLayoutClick() {
 
@@ -484,27 +602,6 @@ class MainActivity : CrashReportingActivity(),
 
     override fun getComponent(): MainActivityComponent {
         return component
-    }
-
-    override fun onNavigationItemSelected(item: MenuItem): Boolean {
-        val id = item.itemId
-        if (id == R.id.nav_tellafriend) {
-            ShareHelper.tellAFriend(this)
-        }
-        if (id == R.id.nav_contacts) {
-            navigator.selectContactsFragment()
-        } else if (id == R.id.nav_browse) {
-            navigator.selectFilesFragment()
-        } else if (id == R.id.nav_settings) {
-            val intent = Intent(this, SettingsActivity::class.java)
-            startActivityForResult(intent, REQUEST_SETTINGS)
-        } else if (id == R.id.nav_about) {
-            navigator.selectAboutFragment()
-        } else if (id == R.id.nav_help) {
-            navigator.selectHelpFragment()
-        }
-        //drawer.closeDrawer(GravityCompat.START)
-        return true
     }
 
     companion object {

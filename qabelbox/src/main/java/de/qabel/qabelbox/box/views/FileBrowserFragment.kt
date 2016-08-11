@@ -84,9 +84,11 @@ class FileBrowserFragment: FileBrowserView, BaseFragment(), AnkoLogger {
 
 
     override fun showError(throwable: Throwable) {
-        longToast(throwable.message ?: "Error")
-        error("Error", throwable)
-        refreshDone()
+        onUiThread {
+            longToast(throwable.message ?: "Error")
+            error("Error", throwable)
+            refreshDone()
+        }
     }
 
 

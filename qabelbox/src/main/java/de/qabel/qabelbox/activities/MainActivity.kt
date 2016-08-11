@@ -94,7 +94,6 @@ class MainActivity : CrashReportingActivity(),
     lateinit var toggle: ActionBarDrawerToggle
 
 
-
     private val accountBroadCastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
             val statusCode = intent.getIntExtra(QblBroadcastConstants.STATUS_CODE_PARAM, -1)
@@ -274,11 +273,9 @@ class MainActivity : CrashReportingActivity(),
 
     override fun onBackPressed() {
 
-        /*
-        if (drawer.isDrawerOpen(GravityCompat.START)) {
-            drawer.closeDrawer(GravityCompat.START)
+        if (drawer.isDrawerOpen) {
+            drawer.closeDrawer()
         } else {
-        */
             val activeFragment = fragmentManager.findFragmentById(R.id.fragment_container)
             if (activeFragment == null) {
                 super.onBackPressed()
@@ -296,7 +293,7 @@ class MainActivity : CrashReportingActivity(),
                     }
                 }
             }
-        //}
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -307,13 +304,7 @@ class MainActivity : CrashReportingActivity(),
     }
 
     fun addIdentity(identity: Identity) {
-
-        try {
-            identityRepository.save(identity)
-        } catch (e: PersistenceException) {
-            throw RuntimeException(e)
-        }
-
+        identityRepository.save(identity)
         changeActiveIdentity(identity, null)
         Snackbar.make(appBarMain, "Added identity: " + identity.alias, Snackbar.LENGTH_LONG).show()
         navigator.selectFilesFragment()
@@ -377,6 +368,7 @@ class MainActivity : CrashReportingActivity(),
 
         super.onDestroy()
     }
+
 
     private fun initDrawer() {
         contacts = PrimaryDrawerItem().apply {
@@ -488,113 +480,10 @@ class MainActivity : CrashReportingActivity(),
         }
         toggle = drawer.actionBarDrawerToggle
     }
-
-    /*
-    fun selectIdentityLayoutClick() {
-
-        if (identityMenuExpanded) {
-            drawerHolder.imageViewExpandIdentity.setImageResource(R.drawable.menu_down)
-            drawerHolder.imageViewExpandIdentity.colorFilter = mDrawerIndicatorTintFilter
-            navigationView.menu.clear()
-            navigationView.inflateMenu(R.menu.activity_main_drawer)
-            identityMenuExpanded = false
-        } else {
-            drawerHolder.imageViewExpandIdentity.setImageResource(R.drawable.menu_up)
-            drawerHolder.imageViewExpandIdentity.colorFilter = mDrawerIndicatorTintFilter
-            navigationView.menu.clear()
-            val identityList: List<Identity>
-            try {
-                identityList = ArrayList(
-                        identityRepository.findAll().identities)
-            } catch (e: PersistenceException) {
-                Log.e(TAG, "Could not list identities", e)
-                identityList = ArrayList<Identity>()
-            }
-
-            Collections.sort(identityList) { lhs, rhs -> lhs.alias.compareTo(rhs.alias) }
-            for (identity in identityList) {
-                navigationView.menu.add(NAV_GROUP_IDENTITIES, Menu.NONE, Menu.NONE, identity.alias).setIcon(R.drawable.account).setOnMenuItemClickListener {
-                    drawer.closeDrawer(GravityCompat.START)
-                    this@MainActivity.selectIdentity(identity)
-                    true
-                }
-            }
-            navigationView.menu.add(NAV_GROUP_IDENTITY_ACTIONS, Menu.NONE, Menu.NONE, R.string.add_identity).setIcon(R.drawable.plus_circle).setOnMenuItemClickListener {
-                drawer.closeDrawer(GravityCompat.START)
-                this@MainActivity.selectAddIdentityFragment()
-                true
-            }
-            navigationView.menu.add(NAV_GROUP_IDENTITY_ACTIONS, Menu.NONE, Menu.NONE, R.string.manage_identities).setIcon(R.drawable.settings).setOnMenuItemClickListener {
-                drawer.closeDrawer(GravityCompat.START)
-                navigator.selectManageIdentitiesFragment()
-                true
-            }
-            navigationView.menu.add(NAV_GROUP_IDENTITY_ACTIONS, Menu.NONE, Menu.NONE, R.string.logout).setIcon(R.drawable.account_off).setOnMenuItemClickListener {
-                UIHelper.showConfirmationDialog(self, R.string.logout,
-                        R.string.logout_confirmation, R.drawable.account_off
-                ) { dialog, which -> accountManager.logout() }
-                true
-            }
-            identityMenuExpanded = true
-        }
-    }
-
-    private fun initDrawer() {
-        toggle = ActionBarDrawerToggle(
-                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close)
-        drawer.addDrawerListener(toggle)
-        toggle.syncState()
-
-        drawerHolder.qabelLogo.setOnClickListener {
-            drawer.closeDrawer(GravityCompat.START)
-            showQRCode(self, this@MainActivity.activeIdentity)
-        }
-
-        drawerHolder.selectIdentityLayout.setOnClickListener { this@MainActivity.selectIdentityLayoutClick() }
-
-        drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
-        toggle.isDrawerIndicatorEnabled = true
-        navigationView.setNavigationItemSelectedListener(this)
-
-        // Map QR-Code indent to alias textview in nav_header_main
-        val boxName = AppPreference(self).accountName
-        drawerHolder.textViewBoxAccountName.text = boxName ?: getString(R.string.app_name)
-
-        drawerHolder.imageViewExpandIdentity.colorFilter = mDrawerIndicatorTintFilter
-
-        drawerHolder.textViewSelectedIdentity.text = activeIdentity.alias
-        drawer.addDrawerListener(object : DrawerLayout.DrawerListener {
-            override fun onDrawerSlide(drawerView: View, slideOffset: Float) {
-
-            }
-
-            override fun onDrawerOpened(drawerView: View) {
-
-            }
-
-            override fun onDrawerClosed(drawerView: View) {
-                navigationView.menu.clear()
-                navigationView.inflateMenu(R.menu.activity_main_drawer)
-                drawerHolder.imageViewExpandIdentity.setImageResource(R.drawable.menu_down)
-                identityMenuExpanded = false
-            }
-
-            override fun onDrawerStateChanged(newState: Int) {
-
-            }
-        })
-    }
-    */
-
     private fun selectAddIdentityFragment() {
 
         val i = Intent(this, CreateIdentityActivity::class.java)
-        val identitiesCount: Int
-        try {
-            identitiesCount = identityRepository.findAll().identities.size
-        } catch (e: PersistenceException) {
-            throw RuntimeException(e)
-        }
+        val identitiesCount = identityRepository.findAll().identities.size
 
         i.putExtra(CreateIdentityActivity.FIRST_RUN, identitiesCount == 0)
 

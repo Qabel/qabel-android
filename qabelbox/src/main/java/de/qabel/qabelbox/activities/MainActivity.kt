@@ -504,6 +504,13 @@ class MainActivity : CrashReportingActivity(),
                 true
             }
             withAccountHeader(accountHeader)
+            withOnDrawerListener(object: Drawer.OnDrawerListener {
+                override fun onDrawerSlide(drawerView: View?, slideOffset: Float) {
+                    updateNewMessageBadge()
+                }
+                override fun onDrawerClosed(drawerView: View?) { }
+                override fun onDrawerOpened(drawerView: View?) { }
+            })
             build()
         }
         toggle = drawer.actionBarDrawerToggle

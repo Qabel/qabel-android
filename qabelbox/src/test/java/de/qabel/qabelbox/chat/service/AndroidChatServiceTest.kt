@@ -24,7 +24,7 @@ import org.robolectric.annotation.Config
 @Config(application = SimpleApplication::class, constants = BuildConfig::class)
 class AndroidChatServiceTest() {
 
-    lateinit var androidService: AndroidChatService
+    lateinit var androidService: TestChatService
 
     class TestChatService : AndroidChatService() {
         override fun onHandleIntent(intent: Intent) {

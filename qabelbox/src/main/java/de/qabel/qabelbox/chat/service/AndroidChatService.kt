@@ -25,9 +25,9 @@ open class AndroidChatService() : IntentService(AndroidChatService::class.java.s
     private fun Intent.contactKey(): String = getStringExtra(PARAM_CONTACT_KEY)
     private fun Intent.identityKey(): String = getStringExtra(PARAM_IDENTITY_KEY)
 
-    @Inject internal lateinit var chatService: ChatServiceUseCase
-    @Inject internal lateinit var chatMessageTransformer: ChatMessageTransformer
-    @Inject internal lateinit var chatNotificationManager: ChatNotificationManager
+    @Inject lateinit var chatService: ChatServiceUseCase
+    @Inject lateinit var chatMessageTransformer: ChatMessageTransformer
+    @Inject lateinit var chatNotificationManager: ChatNotificationManager
 
     override fun onCreate() {
         super.onCreate()

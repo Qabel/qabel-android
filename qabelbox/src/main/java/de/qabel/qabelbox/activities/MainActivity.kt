@@ -438,6 +438,7 @@ class MainActivity : CrashReportingActivity(),
             withName(activeIdentity.alias)
             withIcon(R.drawable.qrcode)
             withEmail(appPreferences.accountEMail)
+            withNameShown(true)
         }
         val addIdentity = ProfileSettingDrawerItem().apply {
             withName(ctx.getString(R.string.add_identity))

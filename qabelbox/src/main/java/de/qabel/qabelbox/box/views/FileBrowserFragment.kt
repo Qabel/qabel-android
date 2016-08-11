@@ -126,6 +126,11 @@ class FileBrowserFragment: FileBrowserView, BaseFragment(), AnkoLogger {
     override fun showEntries(entries: List<BrowserEntry>) {
         onUiThread {
             adapter.entries.clear()
+            if (entries.size > 0) {
+                empty_view.visibility = View.INVISIBLE
+            } else {
+                empty_view.visibility = View.VISIBLE
+            }
             adapter.entries.addAll(entries)
             adapter.notifyDataSetChanged()
         }

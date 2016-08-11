@@ -16,9 +16,6 @@ import de.qabel.core.config.Identity;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.helper.QRCodeHelper;
 
-/**
- * Created by danny on 04.02.16.
- */
 public class QRcodeFragment extends BaseFragment {
 
     private static final String ARG_IDENTITY = "Identity";
@@ -55,7 +52,7 @@ public class QRcodeFragment extends BaseFragment {
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        getMActivity().toggle.setDrawerIndicatorEnabled(false);
+        //getMActivity().toggle.setDrawerIndicatorEnabled(false);
         getActionBar().setDisplayHomeAsUpEnabled(true);
         setActionBarBackListener();
     }

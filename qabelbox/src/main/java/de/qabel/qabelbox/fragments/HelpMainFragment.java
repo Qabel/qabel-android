@@ -18,9 +18,6 @@ import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.activities.MainActivity;
 import de.qabel.qabelbox.helper.Formatter;
 
-/**
- * Created by danny on 25.01.2016.
- */
 public class HelpMainFragment extends PreferenceFragment {
 
     final public static String APP_PREF_NAME = "appsettings";
@@ -34,7 +31,7 @@ public class HelpMainFragment extends PreferenceFragment {
         if (activity instanceof MainActivity) {
             mActivity = (MainActivity) activity;
         } else {
-            new Throwable("Can't attach to activity. Need mainactivty");
+            throw new RuntimeException("Can't attach to activity. Need mainactivty");
         }
     }
 
@@ -56,7 +53,7 @@ public class HelpMainFragment extends PreferenceFragment {
 
         mActivity.getSupportActionBar().setTitle(R.string.headline_main_help);
         mActivity.getSupportActionBar().setDisplayHomeAsUpEnabled(false);
-        mActivity.toggle.setDrawerIndicatorEnabled(true);
+        //mActivity.toggle.setDrawerIndicatorEnabled(true);
         mActivity.fab.hide();
     }
 

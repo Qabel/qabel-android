@@ -3,14 +3,10 @@ package de.qabel.qabelbox.activities
 import android.app.Activity
 import android.app.AlertDialog
 import android.content.*
-import android.graphics.LightingColorFilter
 import android.os.Bundle
 import android.support.design.widget.FloatingActionButton
 import android.support.design.widget.NavigationView
 import android.support.design.widget.Snackbar
-import android.support.v4.view.GravityCompat
-import android.support.v4.widget.DrawerLayout
-import android.support.v7.app.ActionBarDrawerToggle
 import android.support.v7.widget.Toolbar
 import android.util.Log
 import android.view.Menu
@@ -44,13 +40,10 @@ import de.qabel.qabelbox.navigation.MainNavigator
 import de.qabel.qabelbox.settings.SettingsActivity
 import de.qabel.qabelbox.sync.FirebaseTopicManager
 import de.qabel.qabelbox.sync.TopicManager
-import de.qabel.qabelbox.ui.views.DrawerNavigationView
-import de.qabel.qabelbox.ui.views.DrawerNavigationViewHolder
 import de.qabel.qabelbox.util.ShareHelper
 import org.jetbrains.anko.AnkoLogger
 import org.jetbrains.anko.ctx
 import org.jetbrains.anko.info
-import java.util.*
 import javax.inject.Inject
 
 class MainActivity : CrashReportingActivity(),
@@ -63,12 +56,6 @@ class MainActivity : CrashReportingActivity(),
 
     var TEST = false
 
-    lateinit var toggle: ActionBarDrawerToggle
-
-    @BindView(R.id.drawer_layout)
-    lateinit internal var drawer: DrawerLayout
-    @BindView(R.id.nav_view)
-    lateinit internal var navigationView: DrawerNavigationView
     @BindView(R.id.fab)
     lateinit var fab: FloatingActionButton
     @BindView(R.id.toolbar)
@@ -76,15 +63,8 @@ class MainActivity : CrashReportingActivity(),
     @BindView(R.id.app_bap_main)
     lateinit var appBarMain: View
 
-    lateinit private var self: MainActivity
-    private var identityMenuExpanded: Boolean = false
-
-    lateinit private var mDrawerIndicatorTintFilter: LightingColorFilter
-
     @Inject
     lateinit internal var connectivityManager: ConnectivityManager
-
-    lateinit private var drawerHolder: DrawerNavigationViewHolder
 
     @Inject
     lateinit var activeIdentity: Identity
@@ -134,7 +114,6 @@ class MainActivity : CrashReportingActivity(),
         super.onCreate(savedInstanceState)
         component = applicationComponent.plus(ActivityModule(this)).plus(MainActivityModule(this))
         component.inject(this)
-        self = this
         Log.d(TAG, "onCreate " + this.hashCode())
         registerReceiver(accountBroadCastReceiver,
                 IntentFilter(QblBroadcastConstants.Account.ACCOUNT_CHANGED))
@@ -150,18 +129,14 @@ class MainActivity : CrashReportingActivity(),
 
         setContentView(R.layout.activity_main)
         ButterKnife.bind(this)
-        val header = navigationView.getHeaderView(0)
-        drawerHolder = DrawerNavigationViewHolder(header)
 
         setSupportActionBar(toolbar)
-        mDrawerIndicatorTintFilter = LightingColorFilter(0, resources.getColor(R.color.tintDrawerIndicator))
-
 
         installConnectivityManager()
         addBackStackListener()
 
         setupAccount()
-        initDrawer()
+        //initDrawer()
         identityRepository.findAll().identities.flatMap { it.dropUrls }.forEach {
             info("Subscribing to drop id $it")
             subscribe(it)
@@ -186,8 +161,10 @@ class MainActivity : CrashReportingActivity(),
 
             override fun handleConnectionLost(): Unit {
                 if (offlineIndicator == null) {
-                    val builder = AlertDialog.Builder(self)
-                    builder.setTitle(R.string.no_connection).setIcon(R.drawable.information).setNegativeButton(R.string.close_app) { dialog, id -> self.finishAffinity() }.setPositiveButton(R.string.retry_action, null)
+                    val builder = AlertDialog.Builder(this@MainActivity)
+                    builder.setTitle(R.string.no_connection).setIcon(R.drawable.information).setNegativeButton(R.string.close_app) {
+                        dialog, id -> finishAffinity()
+                    }.setPositiveButton(R.string.retry_action, null)
                     offlineIndicator = builder.create()
                     offlineIndicator?.let {
                         it.setCancelable(false)
@@ -281,11 +258,14 @@ class MainActivity : CrashReportingActivity(),
         }
     }
 
+
     override fun onBackPressed() {
 
+        /*
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START)
         } else {
+        */
             val activeFragment = fragmentManager.findFragmentById(R.id.fragment_container)
             if (activeFragment == null) {
                 super.onBackPressed()
@@ -303,7 +283,7 @@ class MainActivity : CrashReportingActivity(),
                     }
                 }
             }
-        }
+        //}
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -311,10 +291,6 @@ class MainActivity : CrashReportingActivity(),
         // Inflate the menu; this adds items to the action bar if it is present.
         //  getMenuInflater().inflate(R.menu.ab_main, menu);
         return true
-    }
-
-    fun selectIdentity(identity: Identity) {
-        changeActiveIdentity(identity)
     }
 
     fun addIdentity(identity: Identity) {
@@ -329,6 +305,7 @@ class MainActivity : CrashReportingActivity(),
         Snackbar.make(appBarMain, "Added identity: " + identity.alias, Snackbar.LENGTH_LONG).show()
         navigator.selectFilesFragment()
     }
+
 
     private fun changeActiveIdentity(identity: Identity, intent: Intent? = null) {
         var changeIntent: Intent? = intent
@@ -367,15 +344,12 @@ class MainActivity : CrashReportingActivity(),
         }
 
     }
-
     override fun modifyIdentity(identity: Identity) {
         try {
             identityRepository.save(identity)
         } catch (e: PersistenceException) {
             throw RuntimeException(e)
         }
-
-        drawerHolder.textViewSelectedIdentity.text = activeIdentity.alias
     }
 
     override fun onDestroy() {
@@ -391,6 +365,7 @@ class MainActivity : CrashReportingActivity(),
         super.onDestroy()
     }
 
+    /*
     fun selectIdentityLayoutClick() {
 
         if (identityMenuExpanded) {
@@ -485,10 +460,11 @@ class MainActivity : CrashReportingActivity(),
             }
         })
     }
+    */
 
     private fun selectAddIdentityFragment() {
 
-        val i = Intent(self, CreateIdentityActivity::class.java)
+        val i = Intent(this, CreateIdentityActivity::class.java)
         val identitiesCount: Int
         try {
             identitiesCount = identityRepository.findAll().identities.size
@@ -500,9 +476,9 @@ class MainActivity : CrashReportingActivity(),
 
         if (identitiesCount == 0) {
             finish()
-            self.startActivity(i)
+            startActivity(i)
         } else {
-            self.startActivityForResult(i, REQUEST_CREATE_IDENTITY)
+            startActivityForResult(i, REQUEST_CREATE_IDENTITY)
         }
     }
 
@@ -527,7 +503,7 @@ class MainActivity : CrashReportingActivity(),
         } else if (id == R.id.nav_help) {
             navigator.selectHelpFragment()
         }
-        drawer.closeDrawer(GravityCompat.START)
+        //drawer.closeDrawer(GravityCompat.START)
         return true
     }
 
@@ -542,9 +518,6 @@ class MainActivity : CrashReportingActivity(),
         private val TAG = "BoxMainActivity"
 
         const val REQUEST_EXPORT_IDENTITY_AS_CONTACT = 19
-
-        private val NAV_GROUP_IDENTITIES = 1
-        private val NAV_GROUP_IDENTITY_ACTIONS = 2
 
         // Intent extra to specify if the files fragment should be started
         // Defaults to true and is used in tests to shortcut the activity creation

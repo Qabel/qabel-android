@@ -47,7 +47,7 @@ public class WebViewHelpFragment extends BaseFragment {
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         setHasOptionsMenu(true);
-        getMActivity().toggle.setDrawerIndicatorEnabled(false);
+        //getMActivity().toggle.setDrawerIndicatorEnabled(false);
         getActionBar().setDisplayHomeAsUpEnabled(true);
         setActionBarBackListener();
     }

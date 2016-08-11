@@ -10,6 +10,11 @@ import java.util.*
 
 class MockContactRepository(val contacts: MutableMap<String, Contact> = mutableMapOf(),
                             val identityMapping: DefaultHashMap<Identity, MutableSet<String>> = DefaultHashMap({ key -> HashSet() })) : ContactRepository {
+    override fun update(contact: Contact, activeIdentities: List<Identity>) {
+        activeIdentities.map {
+            save(contact, it)
+        }
+    }
 
     override fun find(id: Int): Contact = contacts.values.find { it.id == id }
             ?: throw EntityNotFoundException("Contact not found")
@@ -54,9 +59,9 @@ class MockContactRepository(val contacts: MutableMap<String, Contact> = mutableM
         return contacts.contains(contact.keyIdentifier)
     }
 
-    override fun findContactWithIdentities(key: String): Pair<Contact, List<Identity>> {
-        if (contacts.contains(key)) {
-            return contacts[key].let { contact -> Pair(contact!!, findContactIdentities(contact.keyIdentifier)) }
+    override fun findContactWithIdentities(keyId: String): Pair<Contact, List<Identity>> {
+        if (contacts.contains(keyId)) {
+            return contacts[keyId].let { contact -> Pair(contact!!, findContactIdentities(contact.keyIdentifier)) }
         } else throw EntityNotFoundException("Contact is not one of the injected")
     }
 

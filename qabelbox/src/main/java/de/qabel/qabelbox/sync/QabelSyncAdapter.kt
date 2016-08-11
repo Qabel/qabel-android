@@ -3,19 +3,21 @@ package de.qabel.qabelbox.sync
 import android.accounts.Account
 import android.content.*
 import android.os.Bundle
-import android.util.Log
 import de.qabel.core.config.Identity
 import de.qabel.core.repository.ContactRepository
 import de.qabel.core.repository.entities.ChatDropMessage
 import de.qabel.core.service.ChatService
 import de.qabel.qabelbox.QabelBoxApplication
-import de.qabel.qabelbox.chat.notifications.ChatNotificationManager
 import de.qabel.qabelbox.chat.dto.ChatMessageInfo
+import de.qabel.qabelbox.chat.notifications.ChatNotificationManager
 import de.qabel.qabelbox.helper.Helper
+import org.jetbrains.anko.AnkoLogger
+import org.jetbrains.anko.info
+import org.jetbrains.anko.warn
 import java.util.*
 import javax.inject.Inject
 
-open class QabelSyncAdapter : AbstractThreadedSyncAdapter {
+open class QabelSyncAdapter : AbstractThreadedSyncAdapter, AnkoLogger {
 
     companion object {
         private val TAG = "QabelSyncAdapter"
@@ -65,10 +67,15 @@ open class QabelSyncAdapter : AbstractThreadedSyncAdapter {
             authority: String,
             provider: ContentProviderClient,
             syncResult: SyncResult) {
-        Log.w(TAG, "Starting drop message sync")
+        info("Starting drop message sync")
 
-        val newMessageList = chatService.refreshMessages().
-                flatMap { toChatMessageInfo(it.key, it.value) }
+        val newMessageList = try {
+            chatService.refreshMessages().
+                    flatMap { toChatMessageInfo(it.key, it.value) }
+        } catch (e: Throwable) {
+            warn("Error in syncing", e)
+            emptyList<ChatMessageInfo>()
+        }
 
         notifyForNewMessages(newMessageList)
     }
@@ -93,11 +100,7 @@ open class QabelSyncAdapter : AbstractThreadedSyncAdapter {
     private fun toChatMessageInfo(identity: Identity, newMessages: List<ChatDropMessage>): List<ChatMessageInfo> {
         return newMessages.map {
             val contact = contactRepository.find(it.contactId)
-            val typesValues = when (it.payload) {
-                is ChatDropMessage.MessagePayload.ShareMessage -> Pair((it.payload as ChatDropMessage.MessagePayload.ShareMessage).msg, ChatMessageInfo.MessageType.SHARE)
-                else -> Pair((it.payload as ChatDropMessage.MessagePayload.TextMessage).msg, ChatMessageInfo.MessageType.MESSAGE)
-            }
-            ChatMessageInfo(contact, identity, typesValues.first, Date(it.createdOn), typesValues.second)
+            ChatMessageInfo.fromChatDropMessage(identity, contact, it)
         }
     }
 

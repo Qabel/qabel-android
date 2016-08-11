@@ -114,7 +114,9 @@ android {
 }
 
 configurations.all {
-    resolutionStrategy.force 'com.android.support:support-annotations:23.2.1'
+    resolutionStrategy.force 'com.android.support:support-annotations:23.2.1',
+            "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version",
+            "org.jetbrains.kotlin:kotlin-runtime:$kotlin_version"
 }
 repositories {
     maven { url "https://oss.sonatype.org/content/repositories/snapshots" }
@@ -130,7 +132,7 @@ dependencies {
     sourceCompatibility = JavaVersion.VERSION_1_7
     targetCompatibility = JavaVersion.VERSION_1_7
     compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile ('com.github.Qabel:qabel-core:0.14') {
+    compile ('com.github.Qabel:qabel-core:-SNAPSHOT') {
         exclude group: 'org.json', module: 'json'
         exclude group: 'org.apache.logging.log4j'
         exclude group: 'commons-logging', module: 'commons-logging'
@@ -215,6 +217,12 @@ dependencies {
     //for more used sources, see license.txt
 
     compile 'com.wada811:android-material-design-colors:3.0.0'
+    compile 'com.google.android.gms:play-services:9.4.0'
+
+    compile 'com.google.firebase:firebase-core:9.4.0'
+    compile 'com.google.firebase:firebase-messaging:9.4.0'
+
+
 }
 
 
@@ -238,5 +246,8 @@ buildscript {
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath "org.jetbrains.kotlin:kotlin-android-extensions:$kotlin_version"
+        classpath 'com.google.gms:google-services:3.0.0'
     }
 }
+apply plugin: 'com.google.gms.google-services'
+

@@ -12,6 +12,12 @@ import java.util.*
 @Deprecated("Replace with core")
 class InMemoryContactRepository : ContactRepository {
 
+    override fun update(contact: Contact, activeIdentities: List<Identity>) {
+        activeIdentities.forEach {
+            save(contact, it)
+        }
+    }
+
     val contacts: MutableMap<String, Contact> = mutableMapOf()
     val identityMapping: DefaultHashMap<Identity, MutableSet<String>> = DefaultHashMap({ key -> HashSet() })
 
@@ -53,9 +59,9 @@ class InMemoryContactRepository : ContactRepository {
         return contacts.contains(contact.keyIdentifier)
     }
 
-    override fun findContactWithIdentities(key: String): Pair<Contact, List<Identity>> {
-        if (contacts.contains(key)) {
-            return contacts[key].let { contact -> Pair(contact!!, findContactIdentities(contact.keyIdentifier)) }
+    override fun findContactWithIdentities(keyId: String): Pair<Contact, List<Identity>> {
+        if (contacts.contains(keyId)) {
+            return contacts[keyId].let { contact -> Pair(contact!!, findContactIdentities(contact.keyIdentifier)) }
         } else throw EntityNotFoundException("Contact is not one of the injected")
     }
 

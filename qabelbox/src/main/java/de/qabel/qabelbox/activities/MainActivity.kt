@@ -42,14 +42,23 @@ import de.qabel.qabelbox.helper.Sanity
 import de.qabel.qabelbox.helper.UIHelper
 import de.qabel.qabelbox.navigation.MainNavigator
 import de.qabel.qabelbox.settings.SettingsActivity
+import de.qabel.qabelbox.sync.FirebaseTopicManager
+import de.qabel.qabelbox.sync.TopicManager
 import de.qabel.qabelbox.ui.views.DrawerNavigationView
 import de.qabel.qabelbox.ui.views.DrawerNavigationViewHolder
 import de.qabel.qabelbox.util.ShareHelper
+import org.jetbrains.anko.AnkoLogger
 import org.jetbrains.anko.ctx
+import org.jetbrains.anko.info
 import java.util.*
 import javax.inject.Inject
 
-class MainActivity : CrashReportingActivity(), IdentitiesFragment.IdentityListListener, HasComponent<MainActivityComponent>, NavigationView.OnNavigationItemSelectedListener {
+class MainActivity : CrashReportingActivity(),
+        IdentitiesFragment.IdentityListListener,
+        HasComponent<MainActivityComponent>,
+        NavigationView.OnNavigationItemSelectedListener,
+        TopicManager by FirebaseTopicManager(),
+        AnkoLogger {
 
 
     var TEST = false
@@ -153,6 +162,10 @@ class MainActivity : CrashReportingActivity(), IdentitiesFragment.IdentityListLi
 
         setupAccount()
         initDrawer()
+        identityRepository.findAll().identities.flatMap { it.dropUrls }.forEach {
+            info("Subscribing to drop id $it")
+            subscribe(it)
+        }
         handleIntent(intent)
     }
 
@@ -335,6 +348,9 @@ class MainActivity : CrashReportingActivity(), IdentitiesFragment.IdentityListLi
     override fun deleteIdentity(identity: Identity) {
         try {
             identityRepository.delete(identity)
+            identity.dropUrls.forEach {
+                unSubscribe(it)
+            }
             if (identityRepository.findAll().identities.size == 0) {
                 UIHelper.showDialogMessage(this, R.string.dialog_headline_info,
                         R.string.last_identity_delete_create_new) { dialog, which -> this@MainActivity.selectAddIdentityFragment() }

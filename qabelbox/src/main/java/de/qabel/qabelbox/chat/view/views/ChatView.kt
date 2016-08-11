@@ -8,7 +8,6 @@ interface ChatView {
     var messageText: String
 
     fun showMessages(messages: List<ChatMessage>)
-    open fun refresh()
 
     fun appendMessage(message: ChatMessage)
 }

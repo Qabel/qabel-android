@@ -146,7 +146,7 @@ class ContactsUseCaseTest {
 
         val resultDto = contactsUseCase.loadContact(contactB.keyIdentifier).toBlocking().first()
 
-        assertThat(Contact.ContactStatus.UNKNOWN, equalTo(resultDto.contact.status))
+        assertThat(Contact.ContactStatus.NORMAL, equalTo(resultDto.contact.status))
         assertThat(resultDto.identities, hasSize(1))
     }
 

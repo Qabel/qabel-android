@@ -18,7 +18,7 @@ class ContactsViewHolder(itemView: View, val clickListener: (ContactDto) -> Unit
         itemView?.apply {
             alpha = if (contact.active && contact.identities.size > 0) 1f else 0.35f
 
-            val displayName = contact.displayName()
+            val displayName = contact.contact.displayName()
             textViewItemName.text = displayName
             if (!displayName.equals(contact.contact.alias)) {
                 textViewItemAlias.text = contact.contact.alias

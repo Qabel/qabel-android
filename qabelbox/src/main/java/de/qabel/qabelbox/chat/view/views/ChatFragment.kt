@@ -6,11 +6,10 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.os.Bundle
 import android.support.v7.widget.LinearLayoutManager
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import de.qabel.core.config.Contact
 import de.qabel.core.config.Identity
+import de.qabel.qabelbox.QblBroadcastConstants
 import de.qabel.qabelbox.R
 import de.qabel.qabelbox.chat.view.adapters.ChatMessageAdapter
 import de.qabel.qabelbox.dagger.components.MainActivityComponent
@@ -62,15 +61,15 @@ class ChatFragment : ChatView, BaseFragment(), AnkoLogger {
         contactKeyId = arguments.getString(ARG_CONTACT)?: throw IllegalArgumentException(
                 "Starting ChatFragment without contactKeyId")
         val component = getComponent(MainActivityComponent::class.java).plus(ChatModule(this))
-        component.inject(this);
+        component.inject(this)
         injectCompleted = true
         bt_send.setOnClickListener { presenter.sendMessage() }
 
-        configureAsSubFragment();
+        configureAsSubFragment()
 
-        val layoutManager = LinearLayoutManager(view.context);
-        layoutManager.stackFromEnd = true;
-        contact_chat_list.layoutManager = layoutManager;
+        val layoutManager = LinearLayoutManager(view.context)
+        layoutManager.stackFromEnd = true
+        contact_chat_list.layoutManager = layoutManager
         contact_chat_list.adapter = adapter
     }
 
@@ -91,8 +90,11 @@ class ChatFragment : ChatView, BaseFragment(), AnkoLogger {
             if (isOrderedBroadcast) {
                 val ids = intent?.getStringArrayListExtra(Helper.AFFECTED_IDENTITIES_AND_CONTACTS)
                         ?.filterNotNull() ?: return
-                if (ids.all({(it == contactKeyId) or (it == identity.keyIdentifier)})) {
-                    abortBroadcast();
+                if (ids.any({(it == contactKeyId) or (it == identity.keyIdentifier)})) {
+                    abortBroadcast()
+                    if(injectCompleted){
+                        presenter.refreshMessages()
+                    }
                 }
             }
         }
@@ -100,8 +102,8 @@ class ChatFragment : ChatView, BaseFragment(), AnkoLogger {
 
     override fun onResume() {
         super.onResume()
-        ctx.registerReceiver(broadcastReceiver, IntentFilter(Helper.INTENT_REFRESH_CHAT))
-        ctx.registerReceiver(notificationBlockReceiver, IntentFilter(Helper.INTENT_SHOW_NOTIFICATION))
+        ctx.registerReceiver(broadcastReceiver, IntentFilter(QblBroadcastConstants.Chat.REFRESH))
+        ctx.registerReceiver(notificationBlockReceiver, IntentFilter(QblBroadcastConstants.Chat.INTENT_SHOW_NOTIFICATION))
     }
 
     override fun onPause() {
@@ -125,16 +127,11 @@ class ChatFragment : ChatView, BaseFragment(), AnkoLogger {
         }
     }
 
-    override fun refresh() {
-        val intent = Intent(Helper.INTENT_REFRESH_CONTACTLIST);
-        activity?.sendBroadcast(intent, null);
-    }
-
     override fun showMessages(messages: List<ChatMessage>) {
         debug("Showing ${messages.size} messages")
         busy()
         onUiThread {
-            fillAdapter(messages);
+            fillAdapter(messages)
             idle()
         }
     }
@@ -143,7 +140,7 @@ class ChatFragment : ChatView, BaseFragment(), AnkoLogger {
         busy()
         onUiThread {
             adapter.messages = adapter.messages + message
-            adapter.notifyDataSetChanged();
+            adapter.notifyDataSetChanged()
             contact_chat_list.scrollToPosition(adapter.itemCount - 1)
             idle()
         }

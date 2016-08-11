@@ -18,7 +18,6 @@ class MainChatPresenter @Inject constructor(private val view: ChatView,
         useCase.retrieve().toList().onError {
             view.showEmpty()
         }.subscribe({ messages ->
-            view.refresh()
             if (messages.size > 0) {
                 view.showMessages(messages)
             } else (view.showEmpty())

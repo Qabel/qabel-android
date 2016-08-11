@@ -17,8 +17,10 @@ import butterknife.OnClick
 import com.mikepenz.materialdrawer.AccountHeaderBuilder
 import com.mikepenz.materialdrawer.Drawer
 import com.mikepenz.materialdrawer.DrawerBuilder
+import com.mikepenz.materialdrawer.holder.BadgeStyle
 import com.mikepenz.materialdrawer.model.*
 import de.qabel.core.config.Identity
+import de.qabel.core.repository.ChatDropMessageRepository
 import de.qabel.core.repository.ContactRepository
 import de.qabel.core.repository.IdentityRepository
 import de.qabel.core.repository.exception.PersistenceException
@@ -35,10 +37,7 @@ import de.qabel.qabelbox.dagger.modules.MainActivityModule
 import de.qabel.qabelbox.fragments.BaseFragment
 import de.qabel.qabelbox.fragments.IdentitiesFragment
 import de.qabel.qabelbox.fragments.QRcodeFragment
-import de.qabel.qabelbox.helper.AccountHelper
-import de.qabel.qabelbox.helper.CacheFileHelper
-import de.qabel.qabelbox.helper.Sanity
-import de.qabel.qabelbox.helper.UIHelper
+import de.qabel.qabelbox.helper.*
 import de.qabel.qabelbox.navigation.MainNavigator
 import de.qabel.qabelbox.settings.SettingsActivity
 import de.qabel.qabelbox.sync.FirebaseTopicManager
@@ -78,6 +77,9 @@ class MainActivity : CrashReportingActivity(),
     lateinit var contactRepository: ContactRepository
 
     @Inject
+    lateinit var messageRepository: ChatDropMessageRepository
+
+    @Inject
     lateinit internal var appPreferences: AppPreference
 
     @Inject
@@ -103,6 +105,23 @@ class MainActivity : CrashReportingActivity(),
         }
     }
 
+    private val chatBroadCastReceiver = object: BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            updateNewMessageBadge()
+        }
+
+    }
+
+    private fun updateNewMessageBadge() {
+        val size = messageRepository.findNew(activeIdentity.id).size
+        if (size == 0) {
+            drawer.updateBadge(contacts.identifier, null)
+        } else {
+            contacts.withBadge(size.toString())
+            drawer.updateItem(contacts)
+        }
+    }
+
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         Log.d(TAG, "On Activity result")
         if (resultCode == Activity.RESULT_OK) {
@@ -125,6 +144,8 @@ class MainActivity : CrashReportingActivity(),
         Log.d(TAG, "onCreate " + this.hashCode())
         registerReceiver(accountBroadCastReceiver,
                 IntentFilter(QblBroadcastConstants.Account.ACCOUNT_CHANGED))
+        registerReceiver(chatBroadCastReceiver,
+                IntentFilter(Helper.INTENT_REFRESH_CONTACTLIST))
 
         try {
             if (Sanity.startWizardActivities(this, identityRepository.findAll())) {
@@ -150,6 +171,11 @@ class MainActivity : CrashReportingActivity(),
             subscribe(it)
         }
         handleIntent(intent)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        updateNewMessageBadge()
     }
 
     private fun setupAccount() {
@@ -365,6 +391,7 @@ class MainActivity : CrashReportingActivity(),
         connectivityManager.onDestroy()
 
         unregisterReceiver(accountBroadCastReceiver)
+        unregisterReceiver(chatBroadCastReceiver)
 
         super.onDestroy()
     }
@@ -375,6 +402,7 @@ class MainActivity : CrashReportingActivity(),
             withIdentifier(R.id.nav_contacts.toLong())
             withName(R.string.Contacts)
             withIcon(R.drawable.account_multiple)
+            withBadgeStyle(BadgeStyle().withTextColorRes(R.color.colorAccent).withColorRes(R.color.md_dark_background))
         }
         files = PrimaryDrawerItem().apply {
             withIdentifier(R.id.nav_browse.toLong())

@@ -1,18 +1,19 @@
 package de.qabel.qabelbox.contacts.extensions
 
 import android.content.Context
+import de.qabel.core.config.Contact
 import de.qabel.core.config.Entity
 import de.qabel.core.config.Identity
 import de.qabel.qabelbox.R
 import de.qabel.qabelbox.contacts.dto.ContactDto
 
-fun ContactDto.displayName() : String {
-    if(contact.nickName != null && !contact.nickName.isEmpty()){
-        return contact.nickName
+fun Contact.displayName() : String {
+    if(nickName != null && !nickName.isEmpty()){
+        return nickName
     }
-    return contact.alias
+    return alias
 }
-fun ContactDto.initials() = displayName().split(" ".toRegex()).map {
+fun ContactDto.initials() = contact.displayName().split(" ".toRegex()).map {
     it.first().toUpperCase()
 }.joinToString("")
 

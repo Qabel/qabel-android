@@ -2,6 +2,7 @@ package de.qabel.qabelbox.contacts.view.presenter
 
 import com.nhaarman.mockito_kotlin.mock
 import com.nhaarman.mockito_kotlin.spy
+import com.nhaarman.mockito_kotlin.stub
 import com.nhaarman.mockito_kotlin.verify
 import de.qabel.core.repository.ContactRepository
 import de.qabel.core.repository.IdentityRepository
@@ -32,30 +33,30 @@ import org.robolectric.annotation.Config
 @Config(application = SimpleApplication::class, constants = BuildConfig::class)
 class ContactDetailsPresenterTest {
 
-    val identity = IdentityHelper.createIdentity("Identity", TestConstants.PREFIX);
-    val contactA = IdentityHelper.createContact("ContactA");
-    val contactADto = ContactDto(contactA, listOf(identity));
+    val identity = IdentityHelper.createIdentity("Identity", TestConstants.PREFIX)
+    val contactA = IdentityHelper.createContact("ContactA")
+    val contactADto = ContactDto(contactA, listOf(identity))
 
     val contactRepo: ContactRepository = InMemoryContactRepository()
     val identityRepo: IdentityRepository = InMemoryIdentityRepository()
 
     init {
         identityRepo.save(identity)
-        contactRepo.save(contactA, identity);
+        contactRepo.save(contactA, identity)
     }
 
     lateinit var contactUseCase: ContactsUseCase
     lateinit var detailsView: ContactDetailsView
-    lateinit var presenter: ContactDetailsPresenter
+    lateinit var presenter: MainContactDetailsPresenter
     lateinit var navigator: Navigator
 
     @Before
     fun setUp() {
         contactUseCase = spy(MainContactsUseCase(identity, contactRepo, identityRepo))
-        detailsView = mock();
+        detailsView = mock()
         navigator = mock()
         Mockito.`when`(detailsView.contactKeyId).thenAnswer { contactA.keyIdentifier }
-        presenter = MainContactDetailsPresenter(detailsView, contactUseCase, navigator);
+        presenter = MainContactDetailsPresenter(detailsView, contactUseCase, navigator)
     }
 
     @Test
@@ -68,8 +69,9 @@ class ContactDetailsPresenterTest {
 
     @Test
     fun testStartChat() {
+        presenter.contact = contactADto
         presenter.onSendMsgClick(identity)
-        verify(navigator).selectChatFragment(contactA.keyIdentifier)
+        verify(navigator).selectContactChat(contactA.keyIdentifier, identity)
     }
 
 }

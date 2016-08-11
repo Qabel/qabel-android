@@ -5,10 +5,7 @@ import android.widget.Button
 import de.qabel.core.config.Identity
 import de.qabel.qabelbox.R
 import de.qabel.qabelbox.contacts.dto.ContactDto
-import de.qabel.qabelbox.contacts.extensions.contactColors
-import de.qabel.qabelbox.contacts.extensions.initials
-import de.qabel.qabelbox.contacts.extensions.readableKey
-import de.qabel.qabelbox.contacts.extensions.readableUrl
+import de.qabel.qabelbox.contacts.extensions.*
 import de.qabel.qabelbox.contacts.view.widgets.ContactIconDrawable
 import kotlinx.android.synthetic.main.fragment_contact_details.view.*
 import org.jetbrains.anko.layoutInflater
@@ -23,7 +20,7 @@ class ContactDetailsAdapter(private val onSendMessageClick: (identity: Identity)
     fun loadContact(contact: ContactDto) {
         currentContact = contact
         view?.apply {
-            val nickname = contact.contact.nickName;
+            val nickname = contact.contact.displayName()
             contact_icon_border.background = ContactIconDrawable(contact.contactColors(context))
             tv_initial.text = contact.initials()
             if (!nickname.equals(contact.contact.alias)) {

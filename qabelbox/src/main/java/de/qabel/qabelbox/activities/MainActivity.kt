@@ -3,23 +3,25 @@ package de.qabel.qabelbox.activities
 import android.app.Activity
 import android.app.AlertDialog
 import android.content.*
-import android.graphics.LightingColorFilter
 import android.os.Bundle
 import android.support.design.widget.FloatingActionButton
-import android.support.design.widget.NavigationView
 import android.support.design.widget.Snackbar
-import android.support.v4.view.GravityCompat
-import android.support.v4.widget.DrawerLayout
 import android.support.v7.app.ActionBarDrawerToggle
 import android.support.v7.widget.Toolbar
 import android.util.Log
 import android.view.Menu
-import android.view.MenuItem
 import android.view.View
 import butterknife.BindView
 import butterknife.ButterKnife
 import butterknife.OnClick
+import com.mikepenz.materialdrawer.AccountHeader
+import com.mikepenz.materialdrawer.AccountHeaderBuilder
+import com.mikepenz.materialdrawer.Drawer
+import com.mikepenz.materialdrawer.DrawerBuilder
+import com.mikepenz.materialdrawer.holder.BadgeStyle
+import com.mikepenz.materialdrawer.model.*
 import de.qabel.core.config.Identity
+import de.qabel.core.repository.ChatDropMessageRepository
 import de.qabel.core.repository.ContactRepository
 import de.qabel.core.repository.IdentityRepository
 import de.qabel.core.repository.exception.PersistenceException
@@ -29,6 +31,9 @@ import de.qabel.qabelbox.account.AccountManager
 import de.qabel.qabelbox.account.AccountStatusCodes
 import de.qabel.qabelbox.communication.connection.ConnectivityManager
 import de.qabel.qabelbox.config.AppPreference
+import de.qabel.qabelbox.contacts.extensions.color
+import de.qabel.qabelbox.contacts.extensions.initials
+import de.qabel.qabelbox.contacts.view.widgets.IdentityIconDrawable
 import de.qabel.qabelbox.dagger.HasComponent
 import de.qabel.qabelbox.dagger.components.MainActivityComponent
 import de.qabel.qabelbox.dagger.modules.ActivityModule
@@ -36,39 +41,26 @@ import de.qabel.qabelbox.dagger.modules.MainActivityModule
 import de.qabel.qabelbox.fragments.BaseFragment
 import de.qabel.qabelbox.fragments.IdentitiesFragment
 import de.qabel.qabelbox.fragments.QRcodeFragment
-import de.qabel.qabelbox.helper.AccountHelper
-import de.qabel.qabelbox.helper.CacheFileHelper
-import de.qabel.qabelbox.helper.Sanity
-import de.qabel.qabelbox.helper.UIHelper
+import de.qabel.qabelbox.helper.*
 import de.qabel.qabelbox.navigation.MainNavigator
 import de.qabel.qabelbox.settings.SettingsActivity
 import de.qabel.qabelbox.sync.FirebaseTopicManager
 import de.qabel.qabelbox.sync.TopicManager
-import de.qabel.qabelbox.ui.views.DrawerNavigationView
-import de.qabel.qabelbox.ui.views.DrawerNavigationViewHolder
 import de.qabel.qabelbox.util.ShareHelper
 import org.jetbrains.anko.AnkoLogger
 import org.jetbrains.anko.ctx
 import org.jetbrains.anko.info
-import java.util.*
 import javax.inject.Inject
 
 class MainActivity : CrashReportingActivity(),
         IdentitiesFragment.IdentityListListener,
         HasComponent<MainActivityComponent>,
-        NavigationView.OnNavigationItemSelectedListener,
         TopicManager by FirebaseTopicManager(),
         AnkoLogger {
 
 
     var TEST = false
 
-    lateinit var toggle: ActionBarDrawerToggle
-
-    @BindView(R.id.drawer_layout)
-    lateinit internal var drawer: DrawerLayout
-    @BindView(R.id.nav_view)
-    lateinit internal var navigationView: DrawerNavigationView
     @BindView(R.id.fab)
     lateinit var fab: FloatingActionButton
     @BindView(R.id.toolbar)
@@ -76,15 +68,8 @@ class MainActivity : CrashReportingActivity(),
     @BindView(R.id.app_bap_main)
     lateinit var appBarMain: View
 
-    lateinit private var self: MainActivity
-    private var identityMenuExpanded: Boolean = false
-
-    lateinit private var mDrawerIndicatorTintFilter: LightingColorFilter
-
     @Inject
     lateinit internal var connectivityManager: ConnectivityManager
-
-    lateinit private var drawerHolder: DrawerNavigationViewHolder
 
     @Inject
     lateinit var activeIdentity: Identity
@@ -94,6 +79,9 @@ class MainActivity : CrashReportingActivity(),
     lateinit internal var identityRepository: IdentityRepository
     @Inject
     lateinit var contactRepository: ContactRepository
+
+    @Inject
+    lateinit var messageRepository: ChatDropMessageRepository
 
     @Inject
     lateinit internal var appPreferences: AppPreference
@@ -106,12 +94,35 @@ class MainActivity : CrashReportingActivity(),
 
     lateinit private var component: MainActivityComponent
 
+    lateinit private var drawer: Drawer
+    lateinit private var contacts: PrimaryDrawerItem
+    lateinit private var files: PrimaryDrawerItem
+    lateinit var toggle: ActionBarDrawerToggle
+
+
     private val accountBroadCastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
             val statusCode = intent.getIntExtra(QblBroadcastConstants.STATUS_CODE_PARAM, -1)
             when (statusCode) {
                 AccountStatusCodes.LOGOUT -> navigator.selectCreateAccountActivity()
             }
+        }
+    }
+
+    private val chatBroadCastReceiver = object: BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            updateNewMessageBadge()
+        }
+
+    }
+
+    private fun updateNewMessageBadge() {
+        val size = messageRepository.findNew(activeIdentity.id).size
+        if (size == 0) {
+            drawer.updateBadge(contacts.identifier, null)
+        } else {
+            contacts.withBadge(size.toString())
+            drawer.updateItem(contacts)
         }
     }
 
@@ -134,10 +145,11 @@ class MainActivity : CrashReportingActivity(),
         super.onCreate(savedInstanceState)
         component = applicationComponent.plus(ActivityModule(this)).plus(MainActivityModule(this))
         component.inject(this)
-        self = this
         Log.d(TAG, "onCreate " + this.hashCode())
         registerReceiver(accountBroadCastReceiver,
                 IntentFilter(QblBroadcastConstants.Account.ACCOUNT_CHANGED))
+        registerReceiver(chatBroadCastReceiver,
+                IntentFilter(Helper.INTENT_REFRESH_CONTACTLIST))
 
         try {
             if (Sanity.startWizardActivities(this, identityRepository.findAll())) {
@@ -150,12 +162,8 @@ class MainActivity : CrashReportingActivity(),
 
         setContentView(R.layout.activity_main)
         ButterKnife.bind(this)
-        val header = navigationView.getHeaderView(0)
-        drawerHolder = DrawerNavigationViewHolder(header)
 
         setSupportActionBar(toolbar)
-        mDrawerIndicatorTintFilter = LightingColorFilter(0, resources.getColor(R.color.tintDrawerIndicator))
-
 
         installConnectivityManager()
         addBackStackListener()
@@ -167,6 +175,11 @@ class MainActivity : CrashReportingActivity(),
             subscribe(it)
         }
         handleIntent(intent)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        updateNewMessageBadge()
     }
 
     private fun setupAccount() {
@@ -186,8 +199,10 @@ class MainActivity : CrashReportingActivity(),
 
             override fun handleConnectionLost(): Unit {
                 if (offlineIndicator == null) {
-                    val builder = AlertDialog.Builder(self)
-                    builder.setTitle(R.string.no_connection).setIcon(R.drawable.information).setNegativeButton(R.string.close_app) { dialog, id -> self.finishAffinity() }.setPositiveButton(R.string.retry_action, null)
+                    val builder = AlertDialog.Builder(this@MainActivity)
+                    builder.setTitle(R.string.no_connection).setIcon(R.drawable.information).setNegativeButton(R.string.close_app) {
+                        dialog, id -> finishAffinity()
+                    }.setPositiveButton(R.string.retry_action, null)
                     offlineIndicator = builder.create()
                     offlineIndicator?.let {
                         it.setCancelable(false)
@@ -257,10 +272,14 @@ class MainActivity : CrashReportingActivity(),
         val startContactsFragment = intent.getBooleanExtra(START_CONTACTS_FRAGMENT, false)
         val activeContact = intent.getStringExtra(ACTIVE_CONTACT)
         if (startContactsFragment) {
+            drawer.setSelection(contacts)
             navigator.selectContactsFragment()
             navigator.selectChatFragment(activeContact)
         } else if (startFilesFragment) {
+            drawer.setSelection(files)
             navigator.selectFilesFragment()
+        } else {
+            drawer.setSelection(-1L)
         }
     }
 
@@ -281,10 +300,11 @@ class MainActivity : CrashReportingActivity(),
         }
     }
 
+
     override fun onBackPressed() {
 
-        if (drawer.isDrawerOpen(GravityCompat.START)) {
-            drawer.closeDrawer(GravityCompat.START)
+        if (drawer.isDrawerOpen) {
+            drawer.closeDrawer()
         } else {
             val activeFragment = fragmentManager.findFragmentById(R.id.fragment_container)
             if (activeFragment == null) {
@@ -313,22 +333,13 @@ class MainActivity : CrashReportingActivity(),
         return true
     }
 
-    fun selectIdentity(identity: Identity) {
-        changeActiveIdentity(identity)
-    }
-
     fun addIdentity(identity: Identity) {
-
-        try {
-            identityRepository.save(identity)
-        } catch (e: PersistenceException) {
-            throw RuntimeException(e)
-        }
-
+        identityRepository.save(identity)
         changeActiveIdentity(identity, null)
         Snackbar.make(appBarMain, "Added identity: " + identity.alias, Snackbar.LENGTH_LONG).show()
         navigator.selectFilesFragment()
     }
+
 
     private fun changeActiveIdentity(identity: Identity, intent: Intent? = null) {
         var changeIntent: Intent? = intent
@@ -367,15 +378,12 @@ class MainActivity : CrashReportingActivity(),
         }
 
     }
-
     override fun modifyIdentity(identity: Identity) {
         try {
             identityRepository.save(identity)
         } catch (e: PersistenceException) {
             throw RuntimeException(e)
         }
-
-        drawerHolder.textViewSelectedIdentity.text = activeIdentity.alias
     }
 
     override fun onDestroy() {
@@ -387,148 +395,177 @@ class MainActivity : CrashReportingActivity(),
         connectivityManager.onDestroy()
 
         unregisterReceiver(accountBroadCastReceiver)
+        unregisterReceiver(chatBroadCastReceiver)
 
         super.onDestroy()
     }
 
-    fun selectIdentityLayoutClick() {
-
-        if (identityMenuExpanded) {
-            drawerHolder.imageViewExpandIdentity.setImageResource(R.drawable.menu_down)
-            drawerHolder.imageViewExpandIdentity.colorFilter = mDrawerIndicatorTintFilter
-            navigationView.menu.clear()
-            navigationView.inflateMenu(R.menu.activity_main_drawer)
-            identityMenuExpanded = false
-        } else {
-            drawerHolder.imageViewExpandIdentity.setImageResource(R.drawable.menu_up)
-            drawerHolder.imageViewExpandIdentity.colorFilter = mDrawerIndicatorTintFilter
-            navigationView.menu.clear()
-            val identityList: List<Identity>
-            try {
-                identityList = ArrayList(
-                        identityRepository.findAll().identities)
-            } catch (e: PersistenceException) {
-                Log.e(TAG, "Could not list identities", e)
-                identityList = ArrayList<Identity>()
-            }
-
-            Collections.sort(identityList) { lhs, rhs -> lhs.alias.compareTo(rhs.alias) }
-            for (identity in identityList) {
-                navigationView.menu.add(NAV_GROUP_IDENTITIES, Menu.NONE, Menu.NONE, identity.alias).setIcon(R.drawable.account).setOnMenuItemClickListener {
-                    drawer.closeDrawer(GravityCompat.START)
-                    this@MainActivity.selectIdentity(identity)
-                    true
-                }
-            }
-            navigationView.menu.add(NAV_GROUP_IDENTITY_ACTIONS, Menu.NONE, Menu.NONE, R.string.add_identity).setIcon(R.drawable.plus_circle).setOnMenuItemClickListener {
-                drawer.closeDrawer(GravityCompat.START)
-                this@MainActivity.selectAddIdentityFragment()
-                true
-            }
-            navigationView.menu.add(NAV_GROUP_IDENTITY_ACTIONS, Menu.NONE, Menu.NONE, R.string.manage_identities).setIcon(R.drawable.settings).setOnMenuItemClickListener {
-                drawer.closeDrawer(GravityCompat.START)
-                navigator.selectManageIdentitiesFragment()
-                true
-            }
-            navigationView.menu.add(NAV_GROUP_IDENTITY_ACTIONS, Menu.NONE, Menu.NONE, R.string.logout).setIcon(R.drawable.account_off).setOnMenuItemClickListener {
-                UIHelper.showConfirmationDialog(self, R.string.logout,
-                        R.string.logout_confirmation, R.drawable.account_off
-                ) { dialog, which -> accountManager.logout() }
-                true
-            }
-            identityMenuExpanded = true
-        }
-    }
 
     private fun initDrawer() {
-        toggle = ActionBarDrawerToggle(
-                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close)
-        drawer.addDrawerListener(toggle)
-        toggle.syncState()
-
-        drawerHolder.qabelLogo.setOnClickListener {
-            drawer.closeDrawer(GravityCompat.START)
-            showQRCode(self, this@MainActivity.activeIdentity)
+        contacts = PrimaryDrawerItem().apply {
+            withIdentifier(R.id.nav_contacts.toLong())
+            withName(R.string.Contacts)
+            withIcon(R.drawable.account_multiple)
+            withBadgeStyle(BadgeStyle().withTextColorRes(R.color.colorAccent).withColorRes(R.color.md_dark_background))
         }
-
-        drawerHolder.selectIdentityLayout.setOnClickListener { this@MainActivity.selectIdentityLayoutClick() }
-
-        drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
-        toggle.isDrawerIndicatorEnabled = true
-        navigationView.setNavigationItemSelectedListener(this)
-
-        // Map QR-Code indent to alias textview in nav_header_main
-        val boxName = AppPreference(self).accountName
-        drawerHolder.textViewBoxAccountName.text = boxName ?: getString(R.string.app_name)
-
-        drawerHolder.imageViewExpandIdentity.colorFilter = mDrawerIndicatorTintFilter
-
-        drawerHolder.textViewSelectedIdentity.text = activeIdentity.alias
-        drawer.addDrawerListener(object : DrawerLayout.DrawerListener {
-            override fun onDrawerSlide(drawerView: View, slideOffset: Float) {
-
+        files = PrimaryDrawerItem().apply {
+            withIdentifier(R.id.nav_browse.toLong())
+            withName(R.string.filebrowser)
+            withIcon(R.drawable.folder)
+        }
+        val settings = SecondaryDrawerItem().apply {
+            withIdentifier(R.id.nav_settings.toLong())
+            withName(R.string.action_settings)
+            withIcon(R.drawable.settings)
+        }
+        val tellAFriend = SecondaryDrawerItem().apply {
+            withIdentifier(R.id.nav_tellafriend.toLong())
+            withName(R.string.action_tellafriend)
+            withIcon(R.drawable.heart)
+        }
+        val about = SecondaryDrawerItem().apply {
+            withIdentifier(R.id.nav_about.toLong())
+            withName(R.string.action_about)
+            withIcon(R.drawable.information)
+        }
+        val help = SecondaryDrawerItem().apply {
+            withIdentifier(R.id.nav_help.toLong())
+            withName(R.string.help)
+            withIcon(R.drawable.help_circle)
+        }
+        drawer = with(DrawerBuilder()) {
+            withActivity(this@MainActivity)
+            withToolbar(toolbar)
+            addDrawerItems(
+                    contacts,
+                    files,
+                    DividerDrawerItem(),
+                    settings,
+                    tellAFriend,
+                    about,
+                    help
+            )
+            withOnDrawerItemClickListener { view, i, iDrawerItem ->
+                when (iDrawerItem) {
+                    contacts -> navigator.selectContactsFragment()
+                    files -> navigator.selectFilesFragment()
+                    settings -> {
+                        val intent = Intent(this@MainActivity, SettingsActivity::class.java)
+                        startActivityForResult(intent, REQUEST_SETTINGS)
+                    }
+                    tellAFriend -> ShareHelper.tellAFriend(this@MainActivity)
+                    about -> navigator.selectAboutFragment()
+                    help -> navigator.selectHelpFragment()
+                    else -> { return@withOnDrawerItemClickListener false }
+                }
+                drawer.closeDrawer()
+                true
             }
-
-            override fun onDrawerOpened(drawerView: View) {
-
+            withAccountHeader(buildAccountHeader())
+            withOnDrawerListener(object: Drawer.OnDrawerListener {
+                override fun onDrawerSlide(drawerView: View?, slideOffset: Float) {
+                    updateNewMessageBadge()
+                }
+                override fun onDrawerClosed(drawerView: View?) { }
+                override fun onDrawerOpened(drawerView: View?) { }
+            })
+            withOnDrawerNavigationListener {
+                if (drawer.isDrawerOpen) {
+                    drawer.closeDrawer()
+                } else {
+                    if (toggle.isDrawerIndicatorEnabled) {
+                        drawer.openDrawer()
+                    } else {
+                        onBackPressed()
+                    }
+                }
+                true
             }
+            build()
+        }
+        toggle = drawer.actionBarDrawerToggle
+    }
 
-            override fun onDrawerClosed(drawerView: View) {
-                navigationView.menu.clear()
-                navigationView.inflateMenu(R.menu.activity_main_drawer)
-                drawerHolder.imageViewExpandIdentity.setImageResource(R.drawable.menu_down)
-                identityMenuExpanded = false
+    private fun buildAccountHeader(): AccountHeader {
+        val size = ctx.resources.getDimension(
+                R.dimen.material_drawer_item_profile_icon_width).toInt()
+        val identityIcon = { identity: Identity ->
+            IdentityIconDrawable(
+                    width = size,
+                    height = size,
+                    text = identity.initials(),
+                    color = identity.color(ctx))
+        }
+        val profileMap = identityRepository.findAll().identities.filterNot {
+            it.keyIdentifier == activeIdentity.keyIdentifier
+        }.mapIndexed { i, identity ->
+            Pair(ProfileDrawerItem().apply {
+                withName(identity.alias)
+                withIcon(identityIcon(identity))
+                withIdentifier(i.toLong())
+            }, identity)
+        }.toMap()
+        val activeIdentityItem = ProfileDrawerItem().apply {
+            withName(activeIdentity.alias)
+            withIcon(identityIcon(activeIdentity))
+            withEmail(appPreferences.accountEMail)
+            withNameShown(true)
+        }
+        val addIdentity = ProfileSettingDrawerItem().apply {
+            withName(ctx.getString(R.string.add_identity))
+            withIcon(R.drawable.plus_circle)
+            withSelectable(false)
+        }
+        val manageIdentities = ProfileSettingDrawerItem().apply {
+            withName(ctx.getString(R.string.manage_identities))
+            withIcon(R.drawable.settings)
+            withSelectable(false)
+        }
+        val accountHeader = with(AccountHeaderBuilder()) {
+            withActivity(this@MainActivity)
+            withHeaderBackground(R.drawable.bg_sidemenu_header)
+            addProfiles(activeIdentityItem)
+            addProfiles(*profileMap.keys.sortedBy { it.name.toString() }.toTypedArray())
+            addProfiles(addIdentity)
+            addProfiles(manageIdentities)
+            withOnAccountHeaderListener { view, iProfile, current ->
+                when (iProfile) {
+                    activeIdentityItem -> showQRCode(this@MainActivity, activeIdentity)
+                    addIdentity -> selectAddIdentityFragment()
+                    manageIdentities -> navigator.selectManageIdentitiesFragment()
+                    else -> {
+                        if (!current) {
+                            profileMap[iProfile]?.let {
+                                changeActiveIdentity(it)
+                            }
+                        }
+                    }
+                }
+                drawer.closeDrawer()
+                true
             }
-
-            override fun onDrawerStateChanged(newState: Int) {
-
-            }
-        })
+            build()
+        }
+        return accountHeader
     }
 
     private fun selectAddIdentityFragment() {
 
-        val i = Intent(self, CreateIdentityActivity::class.java)
-        val identitiesCount: Int
-        try {
-            identitiesCount = identityRepository.findAll().identities.size
-        } catch (e: PersistenceException) {
-            throw RuntimeException(e)
-        }
+        val i = Intent(this, CreateIdentityActivity::class.java)
+        val identitiesCount = identityRepository.findAll().identities.size
 
         i.putExtra(CreateIdentityActivity.FIRST_RUN, identitiesCount == 0)
 
         if (identitiesCount == 0) {
             finish()
-            self.startActivity(i)
+            startActivity(i)
         } else {
-            self.startActivityForResult(i, REQUEST_CREATE_IDENTITY)
+            startActivityForResult(i, REQUEST_CREATE_IDENTITY)
         }
     }
 
     override fun getComponent(): MainActivityComponent {
         return component
-    }
-
-    override fun onNavigationItemSelected(item: MenuItem): Boolean {
-        val id = item.itemId
-        if (id == R.id.nav_tellafriend) {
-            ShareHelper.tellAFriend(this)
-        }
-        if (id == R.id.nav_contacts) {
-            navigator.selectContactsFragment()
-        } else if (id == R.id.nav_browse) {
-            navigator.selectFilesFragment()
-        } else if (id == R.id.nav_settings) {
-            val intent = Intent(this, SettingsActivity::class.java)
-            startActivityForResult(intent, REQUEST_SETTINGS)
-        } else if (id == R.id.nav_about) {
-            navigator.selectAboutFragment()
-        } else if (id == R.id.nav_help) {
-            navigator.selectHelpFragment()
-        }
-        drawer.closeDrawer(GravityCompat.START)
-        return true
     }
 
     companion object {
@@ -542,9 +579,6 @@ class MainActivity : CrashReportingActivity(),
         private val TAG = "BoxMainActivity"
 
         const val REQUEST_EXPORT_IDENTITY_AS_CONTACT = 19
-
-        private val NAV_GROUP_IDENTITIES = 1
-        private val NAV_GROUP_IDENTITY_ACTIONS = 2
 
         // Intent extra to specify if the files fragment should be started
         // Defaults to true and is used in tests to shortcut the activity creation

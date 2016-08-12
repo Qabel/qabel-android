@@ -10,6 +10,7 @@ import android.text.InputType;
 import org.json.JSONObject;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -52,6 +53,7 @@ import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.endsWith;
 import static org.hamcrest.Matchers.is;
 
+@Ignore("The Wizzard leaks the activity")
 public class CreateBoxAccountUITest {
 
     @Rule

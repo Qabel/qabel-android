@@ -3,14 +3,12 @@ package de.qabel.qabelbox.fragments
 import android.app.Fragment
 import android.os.Bundle
 import android.support.v7.app.ActionBar
-
-import java.util.concurrent.Executor
-import java.util.concurrent.Executors
-
 import de.qabel.qabelbox.R
 import de.qabel.qabelbox.activities.MainActivity
 import de.qabel.qabelbox.dagger.HasComponent
 import de.qabel.qabelbox.listeners.IdleCallback
+import java.util.concurrent.Executor
+import java.util.concurrent.Executors
 
 abstract class BaseFragment : Fragment() {
     protected var actionBar: ActionBar? = null
@@ -78,12 +76,8 @@ abstract class BaseFragment : Fragment() {
         actionBar?.setDisplayHomeAsUpEnabled(false)
         mActivity?.toggle?.isDrawerIndicatorEnabled = true
     }
-    /**
-     * set own back listener in actionbar
-     */
     protected fun setActionBarBackListener() {
-
-        mActivity?.toggle?.setToolbarNavigationClickListener { mActivity?.onBackPressed() }
+        mActivity?.toggle?.setToolbarNavigationClickListener { mActivity?.onBackPressed()}
     }
 
     /**

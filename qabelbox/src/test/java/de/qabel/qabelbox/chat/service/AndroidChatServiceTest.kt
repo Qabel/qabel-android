@@ -10,6 +10,7 @@ import de.qabel.qabelbox.BuildConfig
 import de.qabel.qabelbox.QblBroadcastConstants
 import de.qabel.qabelbox.SimpleApplication
 import de.qabel.qabelbox.chat.dto.ChatMessage
+import de.qabel.qabelbox.chat.services.AndroidChatService
 import de.qabel.qabelbox.util.IdentityHelper
 import org.hamcrest.Matchers.notNullValue
 import org.junit.Assert.assertThat

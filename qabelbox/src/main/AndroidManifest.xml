@@ -142,7 +142,7 @@
                 android:name="android.accounts.AccountAuthenticator"
                 android:resource="@xml/authenticator"/>
         </service>
-        <service android:name=".chat.service.AndroidChatService" />
+        <service android:name=".chat.services.AndroidChatService" />
 
         <provider
             android:name=".box.provider.BoxProvider"

@@ -16,7 +16,7 @@ import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
 
 @RunWith(AndroidJUnit4.class)
-public class RepositoryFactoryTest{
+public class RepositoryFactoryTest {
 
     Context mMockContext;
     private RepositoryFactory repositoryFactory;
@@ -26,19 +26,16 @@ public class RepositoryFactoryTest{
         mMockContext = new RenamingDelegatingContext(
                 InstrumentationRegistry.getInstrumentation().getTargetContext(), "factorytest_");
         repositoryFactory = new RepositoryFactory(mMockContext);
-        repositoryFactory.close();
         repositoryFactory.deleteDatabase();
     }
 
     @After
     public void tearDown() {
-        repositoryFactory.close();
         repositoryFactory.deleteDatabase();
     }
 
     @Test
     public void testCanDeleteDatabase() throws Exception {
-        repositoryFactory.getAndroidClientDatabase().setVersion(1);
         // raises an exception on error.
         repositoryFactory.deleteDatabase();
     }
@@ -56,6 +53,16 @@ public class RepositoryFactoryTest{
         database.setVersion(version);
         assertThat("Could not set database version",
                 database.getVersion(), is(version));
+    }
+
+    @Test
+    public void testGetRepositories() {
+        assertThat(repositoryFactory.getChatDropMessageRepository(), notNullValue());
+        assertThat(repositoryFactory.getContactRepository(), notNullValue());
+        assertThat(repositoryFactory.getDropStateRepository(), notNullValue());
+        assertThat(repositoryFactory.getDropUrlRepository(), notNullValue());
+        assertThat(repositoryFactory.getIdentityRepository(), notNullValue());
+        assertThat(repositoryFactory.getSqlitePrefixRepository(), notNullValue());
     }
 
 }

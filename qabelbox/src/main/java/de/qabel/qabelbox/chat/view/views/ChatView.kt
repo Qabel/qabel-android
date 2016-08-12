@@ -10,4 +10,5 @@ interface ChatView {
     fun showMessages(messages: List<ChatMessage>)
 
     fun appendMessage(message: ChatMessage)
+    open fun sendMessageStateChange()
 }

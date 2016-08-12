@@ -28,8 +28,8 @@ public class ContactEditModule extends ContactBaseModule {
     }
 
     @Provides
-    public ContactEditPresenter provideContactEditPresenter(ContactsUseCase useCase, Navigator navigator){
-        return new MainContactEditPresenter(view, useCase, navigator);
+    public ContactEditPresenter provideContactEditPresenter(MainContactEditPresenter presenter){
+        return presenter;
     }
 
 }

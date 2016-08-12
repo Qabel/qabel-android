@@ -40,33 +40,15 @@ fun ContactDto.readableUrl(): String {
             dropUrlString.substring(split.inc())
 }
 
-fun ContactDto.contactColors(ctx: Context): List<Int> {
-    val allColors = ctx.resources.obtainTypedArray(R.array.contact_colors);
+fun ContactDto.contactColors(ctx: Context): List<Int> = identities.map { it.color(ctx)  }
+
+fun Entity.color(ctx: Context): Int {
+    val allColors = ctx.resources.obtainTypedArray(R.array.contact_colors)
     try {
-        val colors = mutableListOf<Int>();
-        val allLength = allColors.length();
-        if (allLength == 0) return colors;
-
-        val centerIndex = allLength / 2;
-
-        identities.map { identity ->
-            var colorIndex = identity.id.mod(allLength)
-            if (colorIndex > 1) colorIndex /= 2;
-            colors.add(allColors.getColor(centerIndex + if (identity.id % 2 == 0) colorIndex else -colorIndex, 0))
-        }
-        return colors.toList();
-    } finally {
-        allColors.recycle()
-    }
-}
-
-fun Identity.color(ctx: Context): Int {
-    val allColors = ctx.resources.obtainTypedArray(R.array.contact_colors);
-    try {
-        val allLength = allColors.length();
-        val centerIndex = allLength / 2;
-        var colorIndex = id.mod(allLength)
-        if (colorIndex > 1) colorIndex /= 2;
+        val allLength = allColors.length()
+        val centerIndex = allLength / 2
+        var colorIndex = Math.abs(keyIdentifier.hashCode()).mod(allLength)
+        if (colorIndex > 1) colorIndex /= 2
 
         return allColors.getColor(centerIndex + if (id % 2 == 0) colorIndex else -colorIndex, 0)
     } finally {

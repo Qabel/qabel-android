@@ -30,6 +30,9 @@ import de.qabel.qabelbox.account.AccountManager
 import de.qabel.qabelbox.account.AccountStatusCodes
 import de.qabel.qabelbox.communication.connection.ConnectivityManager
 import de.qabel.qabelbox.config.AppPreference
+import de.qabel.qabelbox.contacts.extensions.color
+import de.qabel.qabelbox.contacts.extensions.initials
+import de.qabel.qabelbox.contacts.view.widgets.IdentityIconDrawable
 import de.qabel.qabelbox.dagger.HasComponent
 import de.qabel.qabelbox.dagger.components.MainActivityComponent
 import de.qabel.qabelbox.dagger.modules.ActivityModule
@@ -429,18 +432,27 @@ class MainActivity : CrashReportingActivity(),
             withName(R.string.help)
             withIcon(R.drawable.help_circle)
         }
+        val size = ctx.resources.getDimension(
+                R.dimen.material_drawer_item_profile_icon_width).toInt()
+        val identityIcon = {identity: Identity ->
+            IdentityIconDrawable(
+                    width = size,
+                    height = size,
+                    text = identity.initials(),
+                    color = identity.color(ctx))
+        }
         val profileMap = identityRepository.findAll().identities.filterNot {
             it.keyIdentifier == activeIdentity.keyIdentifier
         }.mapIndexed { i, identity ->
             Pair(ProfileDrawerItem().apply {
                 withName(identity.alias)
-                withIcon(R.drawable.account)
+                withIcon(identityIcon(identity))
                 withIdentifier(i.toLong())
             } , identity)
         }.toMap()
         val activeIdentityItem = ProfileDrawerItem().apply {
             withName(activeIdentity.alias)
-            withIcon(R.drawable.qrcode)
+            withIcon(identityIcon(activeIdentity))
             withEmail(appPreferences.accountEMail)
             withNameShown(true)
         }

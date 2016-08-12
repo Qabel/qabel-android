@@ -55,7 +55,7 @@ class RepositoryFactory(private val context: Context) {
     }
 
     @Throws(QblPersistenceException::class)
-    private fun getAndroidClientDatabase(): AndroidClientDatabase {
+    fun getAndroidClientDatabase(): AndroidClientDatabase {
         val conn = connection ?:
                 try {
                     val c = DriverManager.getConnection("jdbc:sqlite:" + databasePath)

@@ -22,8 +22,8 @@ open class AndroidChatService() : IntentService(AndroidChatService::class.java.s
         const val PARAM_IDENTITY_KEY = "identity_key"
     }
 
-    private fun Intent.contactKey(): String = getStringExtra(PARAM_CONTACT_KEY)
-    private fun Intent.identityKey(): String = getStringExtra(PARAM_IDENTITY_KEY)
+    private fun Intent.contactKey(): String = getStringExtra(PARAM_CONTACT_KEY)!!
+    private fun Intent.identityKey(): String = getStringExtra(PARAM_IDENTITY_KEY)!!
 
     @Inject lateinit var chatService: ChatServiceUseCase
     @Inject lateinit var chatMessageTransformer: ChatMessageTransformer

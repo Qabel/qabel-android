@@ -8,7 +8,7 @@ import de.qabel.core.service.ChatService
 import de.qabel.qabelbox.QabelBoxApplication
 import de.qabel.qabelbox.QblBroadcastConstants
 import de.qabel.qabelbox.chat.notifications.ChatNotificationManager
-import de.qabel.qabelbox.chat.service.AndroidChatService
+import de.qabel.qabelbox.chat.services.AndroidChatService
 import org.jetbrains.anko.AnkoLogger
 import org.jetbrains.anko.info
 import org.jetbrains.anko.warn

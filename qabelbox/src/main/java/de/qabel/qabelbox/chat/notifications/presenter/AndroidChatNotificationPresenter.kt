@@ -8,14 +8,13 @@ import android.content.Intent
 import android.support.v7.app.NotificationCompat
 import dagger.internal.Factory
 import de.qabel.core.config.Contact
-import de.qabel.core.config.Identity
 import de.qabel.core.util.DefaultHashMap
 import de.qabel.qabelbox.QblBroadcastConstants.Chat.Service
 import de.qabel.qabelbox.R
 import de.qabel.qabelbox.activities.MainActivity
 import de.qabel.qabelbox.chat.notifications.ChatNotification
 import de.qabel.qabelbox.chat.notifications.ContactChatNotification
-import de.qabel.qabelbox.chat.service.AndroidChatService
+import de.qabel.qabelbox.chat.services.AndroidChatService
 import javax.inject.Inject
 
 open class AndroidChatNotificationPresenter : ChatNotificationPresenter {

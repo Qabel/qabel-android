@@ -1,4 +1,4 @@
-package de.qabel.qabelbox.chat.service
+package de.qabel.qabelbox.chat.services
 
 import android.app.IntentService
 import android.content.Intent
@@ -40,7 +40,6 @@ open class AndroidChatService() : IntentService(AndroidChatService::class.java.s
         when (intent.action) {
             Service.MESSAGES_UPDATED -> {
                 val affectedKeys = chatService.getNewMessageAffectedKeyIds()
-
                 Intent(QblBroadcastConstants.Chat.INTENT_SHOW_NOTIFICATION).let {
                     it.putStringArrayListExtra(Helper.AFFECTED_IDENTITIES_AND_CONTACTS, ArrayList(affectedKeys))
                     applicationContext.sendOrderedBroadcast(it, null)
@@ -48,37 +47,43 @@ open class AndroidChatService() : IntentService(AndroidChatService::class.java.s
                 info("NewMessages broadcast sent (" + affectedKeys.size + ")")
             }
             Service.NOTIFY -> updateNotification()
-            Service.MARK_READ -> {
-                val identityKey = intent.identityKey()
-                if (intent.hasExtra(PARAM_CONTACT_KEY)) {
-                    val contactKey = intent.contactKey()
-                    chatService.markContactMessagesRead(identityKey, contactKey)
-                    chatNotificationManager.hideNotification(identityKey, contactKey)
-                } else {
-                    chatService.markIdentityMessagesRead(identityKey)
-                    chatNotificationManager.hideNotification(identityKey, null)
-                }
-            }
-            Service.ADD_CONTACT -> {
-                val identityKey = intent.identityKey()
-                val contactKey = intent.contactKey()
-                chatService.addContact(identityKey, contactKey)
-                chatNotificationManager.hideNotification(identityKey, contactKey)
-                sendContactsUpdated()
-                applicationContext.startActivity(MainNavigator.createChatIntent(applicationContext,
-                        intent.identityKey(), intent.contactKey()).apply {
-                    flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                })
-            }
-            Service.IGNORE_CONTACT -> {
-                val identityKey = intent.identityKey()
-                val contactKey = intent.contactKey()
-                chatService.ignoreContact(identityKey, contactKey)
-                chatService.markContactMessagesRead(identityKey, contactKey)
-                chatNotificationManager.hideNotification(identityKey, contactKey)
-                sendContactsUpdated()
-            }
+            Service.MARK_READ -> handleMarkReadIntent(intent)
+            Service.ADD_CONTACT -> handleAddContactIntent(intent)
+            Service.IGNORE_CONTACT -> handleIgnoreContactIntent(intent)
         }
+    }
+
+    private fun handleIgnoreContactIntent(intent: Intent) {
+        val identityKey = intent.identityKey()
+        val contactKey = intent.contactKey()
+        chatService.ignoreContact(identityKey, contactKey)
+        chatService.markContactMessagesRead(identityKey, contactKey)
+        chatNotificationManager.hideNotification(identityKey, contactKey)
+        sendContactsUpdated()
+    }
+
+    private fun handleMarkReadIntent(intent: Intent) {
+        val identityKey = intent.identityKey()
+        if (intent.hasExtra(PARAM_CONTACT_KEY)) {
+            val contactKey = intent.contactKey()
+            chatService.markContactMessagesRead(identityKey, contactKey)
+            chatNotificationManager.hideNotification(identityKey, contactKey)
+        } else {
+            chatService.markIdentityMessagesRead(identityKey)
+            chatNotificationManager.hideNotification(identityKey, null)
+        }
+    }
+
+    private fun handleAddContactIntent(intent: Intent) {
+        val identityKey = intent.identityKey()
+        val contactKey = intent.contactKey()
+        chatService.addContact(identityKey, contactKey)
+        chatNotificationManager.hideNotification(identityKey, contactKey)
+        sendContactsUpdated()
+        applicationContext.startActivity(MainNavigator.createChatIntent(applicationContext,
+                intent.identityKey(), intent.contactKey()).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK
+        })
     }
 
     private fun sendChatRefresh() =

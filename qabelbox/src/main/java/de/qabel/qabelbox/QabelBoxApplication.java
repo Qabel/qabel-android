@@ -11,7 +11,7 @@ import org.spongycastle.jce.provider.BouncyCastleProvider;
 
 import java.security.Security;
 
-import de.qabel.qabelbox.chat.service.ChatServiceStarter;
+import de.qabel.qabelbox.chat.services.AndroidChatServiceResponder;
 import de.qabel.qabelbox.dagger.components.ApplicationComponent;
 import de.qabel.qabelbox.dagger.components.DaggerApplicationComponent;
 import de.qabel.qabelbox.dagger.modules.ApplicationModule;
@@ -21,7 +21,7 @@ public class QabelBoxApplication extends Application {
     private static final String TAG = "QabelBoxApplication";
     public static final String DEFAULT_DROP_SERVER = "https://test-drop.qabel.de";
 
-    private BroadcastReceiver broadcastReceiver = new ChatServiceStarter();
+    private BroadcastReceiver chatServiceResponder = new AndroidChatServiceResponder();
 
     static QabelBoxApplication mInstance = null;
 
@@ -66,7 +66,7 @@ public class QabelBoxApplication extends Application {
         mInstance = this;
         IntentFilter filter = new IntentFilter(QblBroadcastConstants.Chat.INTENT_SHOW_NOTIFICATION);
         filter.setPriority(0);
-        registerReceiver(broadcastReceiver, filter);
+        registerReceiver(chatServiceResponder, filter);
     }
 
     protected ApplicationComponent initialiseInjector() {
@@ -77,7 +77,7 @@ public class QabelBoxApplication extends Application {
 
     @Override
     public void onTerminate() {
-        unregisterReceiver(broadcastReceiver);
+        unregisterReceiver(chatServiceResponder);
         super.onTerminate();
     }
 

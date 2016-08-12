@@ -1,6 +1,7 @@
 package de.qabel.qabelbox.contacts.extensions
 
 import android.content.Context
+import android.graphics.Color
 import de.qabel.core.config.Contact
 import de.qabel.core.config.Entity
 import de.qabel.core.config.Identity
@@ -46,6 +47,9 @@ fun Entity.color(ctx: Context): Int {
     val allColors = ctx.resources.obtainTypedArray(R.array.contact_colors)
     try {
         val allLength = allColors.length()
+        if (allLength == 0) {
+            return Color.GRAY
+        }
         val centerIndex = allLength / 2
         var colorIndex = Math.abs(keyIdentifier.hashCode()).mod(allLength)
         if (colorIndex > 1) colorIndex /= 2

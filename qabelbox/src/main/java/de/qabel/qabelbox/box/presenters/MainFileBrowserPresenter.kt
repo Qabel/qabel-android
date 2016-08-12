@@ -102,7 +102,6 @@ class MainFileBrowserPresenter @Inject constructor(
     override fun shareToContact(entry: File, contact: Contact) {
         view.refreshStart()
         sharer.sendFileShare(contact, path / entry.name).subscribe({
-            view.refreshDone()
             navigator.selectContactChat(contact.keyIdentifier, identity)
         },{ view.showError(it)})
     }

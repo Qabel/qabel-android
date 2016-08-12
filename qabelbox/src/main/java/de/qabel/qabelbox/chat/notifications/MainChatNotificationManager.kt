@@ -84,7 +84,6 @@ class MainChatNotificationManager : ChatNotificationManager {
 
         val first = messages.first()
         val byContact = countMessagesByContact(messages)
-        byContact.forEach { println(it.key.alias + "(" + it.value + ")" + it.key.hashCode()) }
         notifications.add(
                 if (byContact.size > 1) {
                     val header = createContactsHeader(byContact)

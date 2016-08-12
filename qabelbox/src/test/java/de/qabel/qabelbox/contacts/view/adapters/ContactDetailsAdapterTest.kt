@@ -28,8 +28,6 @@ class ContactDetailsAdapterTest {
 
     @Test
     fun testLoadContact() {
-        println(contact)
-        println(contact.nickName)
         testView(ContactDto(contact, listOf(identity)))
     }
 

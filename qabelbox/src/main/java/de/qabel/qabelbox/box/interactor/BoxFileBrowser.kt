@@ -20,7 +20,7 @@ import javax.inject.Inject
 
 class BoxFileBrowser @Inject constructor(keyAndPrefix: KeyAndPrefix,
                                          private val volume: BoxVolume
-                                         ) : FileBrowser, Navigator by BoxNavigator(keyAndPrefix, volume) {
+                                         ) : FileBrowser, VolumeNavigator by BoxVolumeNavigator(keyAndPrefix, volume) {
 
     data class KeyAndPrefix(val publicKey: String, val prefix: String)
 

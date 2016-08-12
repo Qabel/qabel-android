@@ -8,9 +8,9 @@ import de.qabel.qabelbox.box.dto.BoxPath
 import java.io.FileNotFoundException
 import javax.inject.Inject
 
-class BoxNavigator @Inject constructor(
+class BoxVolumeNavigator @Inject constructor(
         keyAndPrefix: BoxFileBrowser.KeyAndPrefix,
-        private val volume: BoxVolume): Navigator {
+        private val volume: BoxVolume): VolumeNavigator {
 
     override val key = keyAndPrefix.publicKey
     override val prefix = keyAndPrefix.prefix

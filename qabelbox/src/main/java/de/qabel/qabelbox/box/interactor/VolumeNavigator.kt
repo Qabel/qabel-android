@@ -4,7 +4,7 @@ import de.qabel.box.storage.BoxNavigation
 import de.qabel.box.storage.BoxObject
 import de.qabel.qabelbox.box.dto.BoxPath
 
-interface Navigator {
+interface VolumeNavigator {
     val root: BoxNavigation
     val key: String
     val prefix: String

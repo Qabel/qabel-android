@@ -96,11 +96,11 @@ class ChatFragment : ChatView, BaseFragment(), AnkoLogger {
 
                 val currentKeys = listOf(contactKeyId, identity.keyIdentifier)
                 if (ids.containsAll(currentKeys)) {
-                    if (ids.all { currentKeys.contains(it) }) {
-                        abortBroadcast()
-                    }
                     if (injectCompleted) {
                         presenter.refreshMessages()
+                    }
+                    if (ids.all { currentKeys.contains(it) }) {
+                        abortBroadcast()
                     }
                 }
             }
@@ -110,7 +110,9 @@ class ChatFragment : ChatView, BaseFragment(), AnkoLogger {
     override fun onResume() {
         super.onResume()
         ctx.registerReceiver(broadcastReceiver, IntentFilter(QblBroadcastConstants.Chat.REFRESH))
-        ctx.registerReceiver(notificationBlockReceiver, IntentFilter(QblBroadcastConstants.Chat.INTENT_SHOW_NOTIFICATION))
+        ctx.registerReceiver(notificationBlockReceiver, IntentFilter(QblBroadcastConstants.Chat.INTENT_SHOW_NOTIFICATION).apply {
+            priority = 1
+        })
     }
 
     override fun onPause() {
@@ -153,7 +155,7 @@ class ChatFragment : ChatView, BaseFragment(), AnkoLogger {
         }
     }
 
-    private fun scrollToBottom(){
+    private fun scrollToBottom() {
         contact_chat_list.scrollToPosition(adapter.itemCount - 1)
     }
 

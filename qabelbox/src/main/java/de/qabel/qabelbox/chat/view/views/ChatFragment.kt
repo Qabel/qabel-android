@@ -148,9 +148,13 @@ class ChatFragment : ChatView, BaseFragment(), AnkoLogger {
         onUiThread {
             adapter.messages = adapter.messages + message
             adapter.notifyDataSetChanged()
-            contact_chat_list.scrollToPosition(adapter.itemCount - 1)
+            scrollToBottom()
             idle()
         }
+    }
+
+    private fun scrollToBottom(){
+        contact_chat_list.scrollToPosition(adapter.itemCount - 1)
     }
 
 
@@ -158,6 +162,7 @@ class ChatFragment : ChatView, BaseFragment(), AnkoLogger {
         debug("Filling adapter with ${messages.size} messages")
         adapter.messages = messages
         adapter.notifyDataSetChanged()
+        scrollToBottom()
     }
 
     override val title: String by lazy {

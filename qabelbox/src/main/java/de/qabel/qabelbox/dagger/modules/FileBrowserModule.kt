@@ -7,14 +7,14 @@ import de.qabel.box.storage.jdbc.DirectoryMetadataDatabase
 import de.qabel.box.storage.jdbc.JdbcDirectoryMetadataFactory
 import de.qabel.core.config.Identity
 import de.qabel.core.repositories.AndroidVersionAdapter
+import de.qabel.core.service.ChatService
 import de.qabel.qabelbox.box.backends.BoxHttpStorageBackend
-import de.qabel.qabelbox.box.interactor.BoxFileBrowser
-import de.qabel.qabelbox.box.interactor.FileBrowser
+import de.qabel.qabelbox.box.interactor.*
 import de.qabel.qabelbox.box.presenters.FileBrowserPresenter
-import de.qabel.qabelbox.dagger.scopes.ActivityScope
 import de.qabel.qabelbox.box.presenters.MainFileBrowserPresenter
 import de.qabel.qabelbox.box.views.FileBrowserView
 import de.qabel.qabelbox.config.AppPreference
+import de.qabel.qabelbox.dagger.scopes.ActivityScope
 import de.qabel.qabelbox.storage.server.BlockServer
 import java.io.File
 import java.sql.Connection
@@ -25,8 +25,18 @@ class FileBrowserModule(private val view: FileBrowserView) {
 
     @ActivityScope
     @Provides
-    fun providerFileBrowserPresenter(useCase: FileBrowser): FileBrowserPresenter {
-        return MainFileBrowserPresenter(view, useCase)
+    fun providerFileBrowserPresenter(useCase: FileBrowser,
+                                     sharer: Sharer): FileBrowserPresenter {
+        return MainFileBrowserPresenter(view, useCase, sharer)
+    }
+
+    @ActivityScope
+    @Provides
+    fun provideSharer(useCase: FileBrowser,
+                      volumeNavigator: VolumeNavigator,
+                      chatService: ChatService,
+                      identity: Identity): Sharer {
+       return BoxSharer(volumeNavigator, chatService, identity)
     }
 
     @ActivityScope
@@ -55,6 +65,11 @@ class FileBrowserModule(private val view: FileBrowserView) {
     }
 
 
+    @ActivityScope
+    @Provides
+    fun provideNavigator(navigator: BoxFileBrowser): VolumeNavigator {
+        return navigator
+    }
 
     @ActivityScope
     @Provides

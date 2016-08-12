@@ -4,12 +4,10 @@ import com.nhaarman.mockito_kotlin.*
 import de.qabel.qabelbox.box.dto.BoxPath
 import de.qabel.qabelbox.box.dto.BrowserEntry
 import de.qabel.qabelbox.box.dto.BrowserEntry.File
-import de.qabel.qabelbox.box.dto.DownloadSource
 import de.qabel.qabelbox.box.dto.UploadSource
 import de.qabel.qabelbox.box.interactor.FileBrowser
 import de.qabel.qabelbox.box.provider.DocumentId
 import de.qabel.qabelbox.box.views.FileBrowserView
-import de.qabel.qabelbox.util.toDownloadSource
 import org.junit.Before
 import org.junit.Test
 import rx.Observable
@@ -28,7 +26,7 @@ class MainFileBrowserPresenterTest {
 
     @Before
     fun setUp() {
-         presenter = MainFileBrowserPresenter(view, useCase)
+         presenter = MainFileBrowserPresenter(view, useCase, mock())
     }
 
     fun stubWith(sample: List<BrowserEntry>, path: BoxPath.FolderLike = BoxPath.Root) {

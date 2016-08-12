@@ -8,6 +8,8 @@ import android.support.v7.widget.LinearLayoutManager
 import android.view.*
 import com.cocosw.bottomsheet.BottomSheet
 import de.qabel.box.storage.exceptions.QblStorageException
+import de.qabel.core.config.Identity
+import de.qabel.core.repository.ContactRepository
 import de.qabel.qabelbox.BuildConfig
 import de.qabel.qabelbox.R
 import de.qabel.qabelbox.activities.ImageViewerActivity
@@ -18,6 +20,7 @@ import de.qabel.qabelbox.box.provider.BoxProvider
 import de.qabel.qabelbox.box.provider.DocumentId
 import de.qabel.qabelbox.box.provider.toDocumentId
 import de.qabel.qabelbox.box.queryNameAndSize
+import de.qabel.qabelbox.contacts.extensions.displayName
 import de.qabel.qabelbox.dagger.components.MainActivityComponent
 import de.qabel.qabelbox.dagger.modules.FileBrowserModule
 import de.qabel.qabelbox.fragments.BaseFragment
@@ -45,6 +48,12 @@ class FileBrowserFragment: FileBrowserView, BaseFragment(), AnkoLogger {
 
     @Inject
     lateinit var presenter: FileBrowserPresenter
+
+    @Inject
+    lateinit var contactRepository: ContactRepository
+
+    @Inject
+    lateinit var identity: Identity
 
     lateinit var adapter: FileAdapter
 
@@ -107,6 +116,7 @@ class FileBrowserFragment: FileBrowserView, BaseFragment(), AnkoLogger {
                     R.id.share -> presenter.share(entry)
                     R.id.delete -> presenter.delete(entry)
                     R.id.export -> presenter.export(entry)
+                    R.id.forward -> chooseContact(entry)
                 }
                 is BrowserEntry.Folder -> when (menu_id) {
                     R.id.delete -> presenter.deleteFolder(entry)
@@ -308,6 +318,18 @@ class FileBrowserFragment: FileBrowserView, BaseFragment(), AnkoLogger {
             }
         }.show()
         return true
+    }
+
+    private fun chooseContact(entry: BrowserEntry.File) {
+        UI {
+            val contacts = contactRepository.find(identity).contacts.map {
+                Pair(it, it.displayName())
+            }
+            selector(ctx.getString(R.string.contact), contacts.map { it.second }) { i ->
+                val contact = contacts[i].first
+                presenter.shareToContact(entry, contact)
+            }
+        }
     }
 
     private fun createFolderDialog() {

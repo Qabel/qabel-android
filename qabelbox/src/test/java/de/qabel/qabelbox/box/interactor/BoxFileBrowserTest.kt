@@ -1,12 +1,14 @@
 package de.qabel.qabelbox.box.interactor
 
-import com.natpryce.hamkrest.assertion.assertThat
 import com.natpryce.hamkrest.equalTo
 import com.natpryce.hamkrest.should.shouldMatch
 import com.nhaarman.mockito_kotlin.any
 import com.nhaarman.mockito_kotlin.mock
 import com.nhaarman.mockito_kotlin.whenever
-import de.qabel.box.storage.*
+import de.qabel.box.storage.AndroidBoxVolume
+import de.qabel.box.storage.BoxVolume
+import de.qabel.box.storage.BoxVolumeConfig
+import de.qabel.box.storage.IndexNavigation
 import de.qabel.box.storage.exceptions.QblStorageException
 import de.qabel.qabelbox.*
 import de.qabel.qabelbox.box.backends.MockStorageBackend
@@ -14,7 +16,6 @@ import de.qabel.qabelbox.box.dto.BoxPath
 import de.qabel.qabelbox.box.dto.BrowserEntry
 import de.qabel.qabelbox.box.dto.UploadSource
 import de.qabel.qabelbox.box.provider.DocumentId
-import de.qabel.qabelbox.storage.server.AndroidBlockServer
 import de.qabel.qabelbox.util.IdentityHelper
 import de.qabel.qabelbox.util.asString
 import de.qabel.qabelbox.util.toUploadSource
@@ -24,7 +25,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricGradleTestRunner
 import org.robolectric.annotation.Config
-import rx.Observable
 import java.io.InputStream
 import java.util.*
 

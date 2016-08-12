@@ -1,43 +1,28 @@
 package de.qabel.qabelbox.box.interactor
 
-import de.qabel.box.storage.*
+import de.qabel.box.storage.BoxNavigation
+import de.qabel.box.storage.BoxObject
+import de.qabel.box.storage.BoxVolume
 import de.qabel.box.storage.exceptions.QblStorageException
 import de.qabel.box.storage.exceptions.QblStorageNotFound
-import de.qabel.box.storage.jdbc.DirectoryMetadataDatabase
-import de.qabel.box.storage.jdbc.JdbcDirectoryMetadataFactory
-import de.qabel.core.config.Identity
-import de.qabel.core.repositories.AndroidVersionAdapter
-import de.qabel.qabelbox.box.dto.*
+import de.qabel.qabelbox.box.dto.BoxPath
+import de.qabel.qabelbox.box.dto.BrowserEntry
+import de.qabel.qabelbox.box.dto.DownloadSource
+import de.qabel.qabelbox.box.dto.UploadSource
 import de.qabel.qabelbox.box.provider.DocumentId
 import de.qabel.qabelbox.box.toEntry
 import rx.Observable
 import rx.lang.kotlin.observable
 import rx.lang.kotlin.toSingletonObservable
-import java.io.File
 import java.io.FileNotFoundException
-import java.sql.Connection
 import javax.inject.Inject
-import javax.inject.Named
 import kotlin.concurrent.thread
 
 class BoxFileBrowser @Inject constructor(keyAndPrefix: KeyAndPrefix,
                                          private val volume: BoxVolume
-                                         ) : FileBrowser {
+                                         ) : FileBrowser, Navigator by BoxNavigator(keyAndPrefix, volume) {
 
     data class KeyAndPrefix(val publicKey: String, val prefix: String)
-
-    private val key = keyAndPrefix.publicKey
-    private val prefix = keyAndPrefix.prefix
-
-    private val root: BoxNavigation by lazy {
-        try {
-            volume.navigate()
-        } catch (e: QblStorageNotFound) {
-            volume.createIndex("qabel", prefix)
-            volume.navigate()
-        }
-    }
-
 
     override fun asDocumentId(path: BoxPath) = DocumentId(key, prefix, path).toSingletonObservable()
 
@@ -144,16 +129,6 @@ class BoxFileBrowser @Inject constructor(keyAndPrefix: KeyAndPrefix,
                 }
             }
     }
-
-    private fun navigateTo(path: BoxPath, action: (BoxPath, BoxNavigation) -> (Unit) = {a,b -> }):
-            BoxNavigation =
-        if (path is BoxPath.Root || path.name == "") {
-            root
-        } else {
-            val parent = navigateTo(path.parent, action)
-            action(path, parent)
-            parent.navigate(path.name)
-        }
 
     private fun recursiveCreateFolder(path: BoxPath.FolderLike): BoxNavigation =
         navigateTo(path) { p, nav ->

@@ -7,6 +7,7 @@ import android.support.test.rule.ActivityTestRule;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -20,6 +21,7 @@ import static android.support.test.espresso.intent.matcher.IntentMatchers.hasCom
 import static org.hamcrest.Matchers.endsWith;
 
 
+@Ignore
 public class SplashUITest {
 
     @Rule

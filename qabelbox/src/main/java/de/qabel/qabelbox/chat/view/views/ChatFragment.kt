@@ -81,6 +81,9 @@ class ChatFragment : ChatView, BaseFragment(), AnkoLogger {
         }
     }
 
+    override val isFabNeeded: Boolean
+        get() = false
+
     /**
      * Block notifications in which only the currently active contact
      * and identity are involved.

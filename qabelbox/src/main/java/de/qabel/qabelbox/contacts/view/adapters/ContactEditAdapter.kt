@@ -22,7 +22,7 @@ class ContactEditAdapter() {
         view?.apply {
             contact_icon_border.background = ContactIconDrawable(contact.contactColors(context))
             tv_initial.text = contact.initials()
-            editTextContactNick.setText(contact.contact.nickName)
+            editTextContactNick.setText(contact.contact.displayName())
             editTextContactName.text = contact.contact.alias
             contact_identities.removeAllViews()
             identities.entities.forEach {

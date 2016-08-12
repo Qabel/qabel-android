@@ -112,7 +112,7 @@ open class AndroidChatNotificationPresenter : ChatNotificationPresenter {
             Intent(context, AndroidChatService::class.java).apply {
                 setAction(action)
                 putExtra(AndroidChatService.PARAM_IDENTITY_KEY, notification.identity.keyIdentifier)
-                if (notification is ContactChatNotification) {
+                if (notification is ContactChatNotification && notification.extraNotification) {
                     putExtra(AndroidChatService.PARAM_CONTACT_KEY, notification.contact.keyIdentifier)
                 }
             }

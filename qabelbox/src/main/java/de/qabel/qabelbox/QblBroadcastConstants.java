@@ -20,8 +20,8 @@ public class QblBroadcastConstants {
     }
 
     public static class Chat {
-        public static final String INTENT_SHOW_NOTIFICATION = PREFIX + "chat.notification";
-        public static final String REFRESH = PREFIX + "chat.refresh";
+        public static final String NOTIFY_NEW_MESSAGES = PREFIX + "chat.notification";
+        public static final String MESSAGE_STATE_CHANGED = PREFIX + "chat.state_change";
 
         public static class Service {
             public static final String MESSAGES_UPDATED = PREFIX + "chat.service.updated";

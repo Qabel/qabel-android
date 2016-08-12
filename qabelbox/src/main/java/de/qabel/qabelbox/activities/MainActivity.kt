@@ -109,7 +109,7 @@ class MainActivity : CrashReportingActivity(),
         }
     }
 
-    private val chatBroadCastReceiver = object: BroadcastReceiver() {
+    private val chatBroadCastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             updateNewMessageBadge()
         }
@@ -149,7 +149,7 @@ class MainActivity : CrashReportingActivity(),
         registerReceiver(accountBroadCastReceiver,
                 IntentFilter(QblBroadcastConstants.Account.ACCOUNT_CHANGED))
         registerReceiver(chatBroadCastReceiver,
-                IntentFilter(Helper.INTENT_REFRESH_CONTACTLIST))
+                IntentFilter(QblBroadcastConstants.Chat.MESSAGE_STATE_CHANGED))
 
         try {
             if (Sanity.startWizardActivities(this, identityRepository.findAll())) {
@@ -288,7 +288,7 @@ class MainActivity : CrashReportingActivity(),
         val activeFragment = fragmentManager.findFragmentById(R.id.fragment_container)
         val activeFragmentTag = activeFragment.tag
         if (activeFragment is BaseFragment) {
-        //call fab action in basefragment. if fragment handled this, we are done
+            //call fab action in basefragment. if fragment handled this, we are done
             if (activeFragment.handleFABAction()) {
                 return
             }
@@ -378,6 +378,7 @@ class MainActivity : CrashReportingActivity(),
         }
 
     }
+
     override fun modifyIdentity(identity: Identity) {
         try {
             identityRepository.save(identity)

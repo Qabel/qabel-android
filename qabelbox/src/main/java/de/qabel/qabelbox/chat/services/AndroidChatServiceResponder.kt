@@ -8,7 +8,7 @@ import org.jetbrains.anko.AnkoLogger
 import org.jetbrains.anko.info
 
 /**
- * Starts the Service on receiving QblBroadcastConstants.Chat.INTENT_SHOW_NOTIFICATION
+ * Starts the Service on receiving QblBroadcastConstants.Chat.NOTIFY_NEW_MESSAGES
  * to show Notifications.
  */
 class AndroidChatServiceResponder : BroadcastReceiver(), AnkoLogger {

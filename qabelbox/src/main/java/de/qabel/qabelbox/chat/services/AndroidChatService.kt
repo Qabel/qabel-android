@@ -40,13 +40,16 @@ open class AndroidChatService() : IntentService(AndroidChatService::class.java.s
         when (intent.action) {
             Service.MESSAGES_UPDATED -> {
                 val affectedKeys = chatService.getNewMessageAffectedKeyIds()
-                Intent(QblBroadcastConstants.Chat.INTENT_SHOW_NOTIFICATION).let {
+                Intent(QblBroadcastConstants.Chat.NOTIFY_NEW_MESSAGES).let {
                     it.putStringArrayListExtra(Helper.AFFECTED_IDENTITIES_AND_CONTACTS, ArrayList(affectedKeys))
                     applicationContext.sendOrderedBroadcast(it, null)
                 }
                 info("NewMessages broadcast sent (" + affectedKeys.size + ")")
             }
-            Service.NOTIFY -> updateNotification()
+            Service.NOTIFY -> {
+                updateNotification()
+                sendChatStateChanged()
+            }
             Service.MARK_READ -> handleMarkReadIntent(intent)
             Service.ADD_CONTACT -> handleAddContactIntent(intent)
             Service.IGNORE_CONTACT -> handleIgnoreContactIntent(intent)
@@ -59,6 +62,7 @@ open class AndroidChatService() : IntentService(AndroidChatService::class.java.s
         chatService.ignoreContact(identityKey, contactKey)
         chatService.markContactMessagesRead(identityKey, contactKey)
         chatNotificationManager.hideNotification(identityKey, contactKey)
+        sendChatStateChanged()
         sendContactsUpdated()
     }
 
@@ -72,6 +76,7 @@ open class AndroidChatService() : IntentService(AndroidChatService::class.java.s
             chatService.markIdentityMessagesRead(identityKey)
             chatNotificationManager.hideNotification(identityKey, null)
         }
+        sendChatStateChanged()
     }
 
     private fun handleAddContactIntent(intent: Intent) {
@@ -86,12 +91,11 @@ open class AndroidChatService() : IntentService(AndroidChatService::class.java.s
         })
     }
 
-    private fun sendChatRefresh() =
-            applicationContext.sendBroadcast(Intent(QblBroadcastConstants.Chat.REFRESH))
+    private fun sendChatStateChanged() =
+            applicationContext.sendBroadcast(Intent(QblBroadcastConstants.Chat.MESSAGE_STATE_CHANGED))
 
     private fun sendContactsUpdated() =
             applicationContext.sendBroadcast(Intent(QblBroadcastConstants.Contacts.CONTACTS_CHANGED))
-
 
     private fun updateNotification() {
         info("NewMessages broadcast received")

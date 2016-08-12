@@ -20,6 +20,7 @@ class MainChatPresenter @Inject constructor(private val view: ChatView,
         }.subscribe({ messages ->
             if (messages.size > 0) {
                 view.showMessages(messages)
+                view.sendMessageStateChange()
             } else (view.showEmpty())
         })
     }

@@ -64,7 +64,7 @@ public class QabelBoxApplication extends Application {
         Log.d(TAG, "onCreate");
         this.ApplicationComponent = initialiseInjector();
         mInstance = this;
-        IntentFilter filter = new IntentFilter(QblBroadcastConstants.Chat.INTENT_SHOW_NOTIFICATION);
+        IntentFilter filter = new IntentFilter(QblBroadcastConstants.Chat.NOTIFY_NEW_MESSAGES);
         filter.setPriority(0);
         registerReceiver(chatServiceResponder, filter);
     }

@@ -68,17 +68,9 @@ class ChatFragment : ChatView, BaseFragment(), AnkoLogger {
         configureAsSubFragment()
 
         val layoutManager = LinearLayoutManager(view.context)
-        layoutManager.stackFromEnd = true;
+        layoutManager.stackFromEnd = true
         contact_chat_list.layoutManager = layoutManager
         contact_chat_list.adapter = adapter
-    }
-
-    private val broadcastReceiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context?, intent: Intent?) {
-            if (injectCompleted) {
-                presenter.refreshMessages()
-            }
-        }
     }
 
     override val isFabNeeded: Boolean
@@ -109,15 +101,13 @@ class ChatFragment : ChatView, BaseFragment(), AnkoLogger {
 
     override fun onResume() {
         super.onResume()
-        ctx.registerReceiver(broadcastReceiver, IntentFilter(QblBroadcastConstants.Chat.REFRESH))
-        ctx.registerReceiver(notificationBlockReceiver, IntentFilter(QblBroadcastConstants.Chat.INTENT_SHOW_NOTIFICATION).apply {
+        ctx.registerReceiver(notificationBlockReceiver, IntentFilter(QblBroadcastConstants.Chat.NOTIFY_NEW_MESSAGES).apply {
             priority = 1
         })
     }
 
     override fun onPause() {
         super.onPause()
-        ctx.unregisterReceiver(broadcastReceiver)
         ctx.unregisterReceiver(notificationBlockReceiver)
     }
 
@@ -159,7 +149,6 @@ class ChatFragment : ChatView, BaseFragment(), AnkoLogger {
         contact_chat_list.scrollToPosition(adapter.itemCount - 1)
     }
 
-
     private fun fillAdapter(messages: List<ChatMessage>) {
         debug("Filling adapter with ${messages.size} messages")
         adapter.messages = messages
@@ -168,11 +157,13 @@ class ChatFragment : ChatView, BaseFragment(), AnkoLogger {
     }
 
     override val title: String by lazy {
-        if (injectCompleted) presenter.title else {
-            ""
-        }
+        if (injectCompleted) presenter.title else ""
     }
 
     override fun supportBackButton(): Boolean = true
+
+    override fun sendMessageStateChange(){
+        ctx.sendBroadcast(Intent(QblBroadcastConstants.Chat.MESSAGE_STATE_CHANGED))
+    }
 
 }

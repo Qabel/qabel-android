@@ -14,6 +14,7 @@ import android.view.View
 import butterknife.BindView
 import butterknife.ButterKnife
 import butterknife.OnClick
+import com.mikepenz.materialdrawer.AccountHeader
 import com.mikepenz.materialdrawer.AccountHeaderBuilder
 import com.mikepenz.materialdrawer.Drawer
 import com.mikepenz.materialdrawer.DrawerBuilder
@@ -432,9 +433,63 @@ class MainActivity : CrashReportingActivity(),
             withName(R.string.help)
             withIcon(R.drawable.help_circle)
         }
+        drawer = with(DrawerBuilder()) {
+            withActivity(this@MainActivity)
+            withToolbar(toolbar)
+            addDrawerItems(
+                    contacts,
+                    files,
+                    DividerDrawerItem(),
+                    settings,
+                    tellAFriend,
+                    about,
+                    help
+            )
+            withOnDrawerItemClickListener { view, i, iDrawerItem ->
+                when (iDrawerItem) {
+                    contacts -> navigator.selectContactsFragment()
+                    files -> navigator.selectFilesFragment()
+                    settings -> {
+                        val intent = Intent(this@MainActivity, SettingsActivity::class.java)
+                        startActivityForResult(intent, REQUEST_SETTINGS)
+                    }
+                    tellAFriend -> ShareHelper.tellAFriend(this@MainActivity)
+                    about -> navigator.selectAboutFragment()
+                    help -> navigator.selectHelpFragment()
+                    else -> { return@withOnDrawerItemClickListener false }
+                }
+                drawer.closeDrawer()
+                true
+            }
+            withAccountHeader(buildAccountHeader())
+            withOnDrawerListener(object: Drawer.OnDrawerListener {
+                override fun onDrawerSlide(drawerView: View?, slideOffset: Float) {
+                    updateNewMessageBadge()
+                }
+                override fun onDrawerClosed(drawerView: View?) { }
+                override fun onDrawerOpened(drawerView: View?) { }
+            })
+            withOnDrawerNavigationListener {
+                if (drawer.isDrawerOpen) {
+                    drawer.closeDrawer()
+                } else {
+                    if (toggle.isDrawerIndicatorEnabled) {
+                        drawer.openDrawer()
+                    } else {
+                        onBackPressed()
+                    }
+                }
+                true
+            }
+            build()
+        }
+        toggle = drawer.actionBarDrawerToggle
+    }
+
+    private fun buildAccountHeader(): AccountHeader {
         val size = ctx.resources.getDimension(
                 R.dimen.material_drawer_item_profile_icon_width).toInt()
-        val identityIcon = {identity: Identity ->
+        val identityIcon = { identity: Identity ->
             IdentityIconDrawable(
                     width = size,
                     height = size,
@@ -448,7 +503,7 @@ class MainActivity : CrashReportingActivity(),
                 withName(identity.alias)
                 withIcon(identityIcon(identity))
                 withIdentifier(i.toLong())
-            } , identity)
+            }, identity)
         }.toMap()
         val activeIdentityItem = ProfileDrawerItem().apply {
             withName(activeIdentity.alias)
@@ -491,58 +546,9 @@ class MainActivity : CrashReportingActivity(),
             }
             build()
         }
-        drawer = with(DrawerBuilder()) {
-            withActivity(this@MainActivity)
-            withToolbar(toolbar)
-            addDrawerItems(
-                    contacts,
-                    files,
-                    DividerDrawerItem(),
-                    settings,
-                    tellAFriend,
-                    about,
-                    help
-            )
-            withOnDrawerItemClickListener { view, i, iDrawerItem ->
-                when (iDrawerItem) {
-                    contacts -> navigator.selectContactsFragment()
-                    files -> navigator.selectFilesFragment()
-                    settings -> {
-                        val intent = Intent(this@MainActivity, SettingsActivity::class.java)
-                        startActivityForResult(intent, REQUEST_SETTINGS)
-                    }
-                    tellAFriend -> ShareHelper.tellAFriend(this@MainActivity)
-                    about -> navigator.selectAboutFragment()
-                    help -> navigator.selectHelpFragment()
-                    else -> { return@withOnDrawerItemClickListener false }
-                }
-                drawer.closeDrawer()
-                true
-            }
-            withAccountHeader(accountHeader)
-            withOnDrawerListener(object: Drawer.OnDrawerListener {
-                override fun onDrawerSlide(drawerView: View?, slideOffset: Float) {
-                    updateNewMessageBadge()
-                }
-                override fun onDrawerClosed(drawerView: View?) { }
-                override fun onDrawerOpened(drawerView: View?) { }
-            })
-            withOnDrawerNavigationListener {
-                if (drawer.isDrawerOpen) {
-                    drawer.closeDrawer()
-                } else {
-                    if (toggle.isDrawerIndicatorEnabled) {
-                        drawer.openDrawer()
-                    } else {
-                        onBackPressed()
-                    }
-                }
-                true
-            }
-            build()
-        }
-        toggle = drawer.actionBarDrawerToggle
+        return accountHeader
     }
+
     private fun selectAddIdentityFragment() {
 
         val i = Intent(this, CreateIdentityActivity::class.java)

@@ -3,21 +3,15 @@ package de.qabel.qabelbox.sync
 import android.accounts.Account
 import android.content.*
 import android.os.Bundle
-import de.qabel.core.config.Identity
 import de.qabel.core.repository.ContactRepository
-import de.qabel.core.repository.entities.ChatDropMessage
 import de.qabel.core.service.ChatService
-import de.qabel.core.util.DefaultHashMap
 import de.qabel.qabelbox.QabelBoxApplication
 import de.qabel.qabelbox.QblBroadcastConstants
 import de.qabel.qabelbox.chat.notifications.ChatNotificationManager
-import de.qabel.qabelbox.chat.dto.ChatMessageInfo
-import de.qabel.qabelbox.chat.service.AndroidChatService
-import de.qabel.qabelbox.helper.Helper
+import de.qabel.qabelbox.chat.services.AndroidChatService
 import org.jetbrains.anko.AnkoLogger
 import org.jetbrains.anko.info
 import org.jetbrains.anko.warn
-import java.util.*
 import javax.inject.Inject
 
 open class QabelSyncAdapter : AbstractThreadedSyncAdapter, AnkoLogger {

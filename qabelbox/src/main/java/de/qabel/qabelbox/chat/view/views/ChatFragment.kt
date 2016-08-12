@@ -58,7 +58,7 @@ class ChatFragment : ChatView, BaseFragment(), AnkoLogger {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        contactKeyId = arguments.getString(ARG_CONTACT)?: throw IllegalArgumentException(
+        contactKeyId = arguments.getString(ARG_CONTACT) ?: throw IllegalArgumentException(
                 "Starting ChatFragment without contactKeyId")
         val component = getComponent(MainActivityComponent::class.java).plus(ChatModule(this))
         component.inject(this)
@@ -68,17 +68,9 @@ class ChatFragment : ChatView, BaseFragment(), AnkoLogger {
         configureAsSubFragment()
 
         val layoutManager = LinearLayoutManager(view.context)
-        layoutManager.stackFromEnd = true;
+        layoutManager.stackFromEnd = true
         contact_chat_list.layoutManager = layoutManager
         contact_chat_list.adapter = adapter
-    }
-
-    private val broadcastReceiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context?, intent: Intent?) {
-            if (injectCompleted) {
-                presenter.refreshMessages()
-            }
-        }
     }
 
     override val isFabNeeded: Boolean
@@ -88,15 +80,19 @@ class ChatFragment : ChatView, BaseFragment(), AnkoLogger {
      * Block notifications in which only the currently active contact
      * and identity are involved.
      */
-    private val notificationBlockReceiver = object: BroadcastReceiver() {
-        override fun onReceive(context: Context?, intent: Intent?) {
+    private val notificationBlockReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent) {
             if (isOrderedBroadcast) {
-                val ids = intent?.getStringArrayListExtra(Helper.AFFECTED_IDENTITIES_AND_CONTACTS)
+                val ids = intent.getStringArrayListExtra(Helper.AFFECTED_IDENTITIES_AND_CONTACTS)
                         ?.filterNotNull() ?: return
-                if (ids.any({(it == contactKeyId) or (it == identity.keyIdentifier)})) {
-                    abortBroadcast()
-                    if(injectCompleted){
+
+                val currentKeys = listOf(contactKeyId, identity.keyIdentifier)
+                if (ids.containsAll(currentKeys)) {
+                    if (injectCompleted) {
                         presenter.refreshMessages()
+                    }
+                    if (ids.all { currentKeys.contains(it) }) {
+                        abortBroadcast()
                     }
                 }
             }
@@ -105,13 +101,13 @@ class ChatFragment : ChatView, BaseFragment(), AnkoLogger {
 
     override fun onResume() {
         super.onResume()
-        ctx.registerReceiver(broadcastReceiver, IntentFilter(QblBroadcastConstants.Chat.REFRESH))
-        ctx.registerReceiver(notificationBlockReceiver, IntentFilter(QblBroadcastConstants.Chat.INTENT_SHOW_NOTIFICATION))
+        ctx.registerReceiver(notificationBlockReceiver, IntentFilter(QblBroadcastConstants.Chat.NOTIFY_NEW_MESSAGES).apply {
+            priority = 1
+        })
     }
 
     override fun onPause() {
         super.onPause()
-        ctx.unregisterReceiver(broadcastReceiver)
         ctx.unregisterReceiver(notificationBlockReceiver)
     }
 
@@ -144,20 +140,30 @@ class ChatFragment : ChatView, BaseFragment(), AnkoLogger {
         onUiThread {
             adapter.messages = adapter.messages + message
             adapter.notifyDataSetChanged()
-            contact_chat_list.scrollToPosition(adapter.itemCount - 1)
+            scrollToBottom()
             idle()
         }
     }
 
+    private fun scrollToBottom() {
+        contact_chat_list.scrollToPosition(adapter.itemCount - 1)
+    }
 
     private fun fillAdapter(messages: List<ChatMessage>) {
         debug("Filling adapter with ${messages.size} messages")
         adapter.messages = messages
         adapter.notifyDataSetChanged()
+        scrollToBottom()
     }
 
-    override val title: String by lazy {if (injectCompleted) presenter.title else { "" } }
+    override val title: String by lazy {
+        if (injectCompleted) presenter.title else ""
+    }
 
     override fun supportBackButton(): Boolean = true
+
+    override fun sendMessageStateChange(){
+        ctx.sendBroadcast(Intent(QblBroadcastConstants.Chat.MESSAGE_STATE_CHANGED))
+    }
 
 }

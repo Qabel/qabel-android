@@ -25,8 +25,8 @@ public class ContactDetailsModule extends ContactBaseModule {
     }
 
     @Provides
-    public ContactDetailsPresenter provideContactDetailsPresenter(ContactsUseCase useCase, Navigator navigator){
-        return new MainContactDetailsPresenter(view, useCase, navigator);
+    public ContactDetailsPresenter provideContactDetailsPresenter(MainContactDetailsPresenter presenter){
+        return presenter;
     }
 
 }

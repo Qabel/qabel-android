@@ -66,42 +66,46 @@ class MainChatNotificationManager : ChatNotificationManager {
         val unknownMessages = messages.filter { it.contact.status == Contact.ContactStatus.UNKNOWN }
         messages.removeAll(unknownMessages)
         if (unknownMessages.size > 0) {
-            val byUnknownContact = countMessagesByContact(unknownMessages)
-            for ((contact, msgCount) in byUnknownContact) {
-                val contactMessage = unknownMessages.first { it.contact == contact }
-                val message = if (msgCount > 1) getMultiMsgLabel(msgCount)
-                else contactMessage.messagePayload.toMessage()
-
-                notifications.add(ContactChatNotification(unknownMessages.first().identity,
-                        contact, message, contactMessage.time).apply {
-                    extraNotification = true
-                })
-            }
+            notifications.addAll(createNewContactNotifications(unknownMessages))
         }
         if (messages.size == 0) {
             return notifications
         }
+        notifications.add(createCombinedNotification(messages))
+        return notifications
+    }
 
-        val first = messages.first()
-        val byContact = countMessagesByContact(messages)
-        byContact.forEach { println(it.key.alias + "(" + it.value + ")" + it.key.hashCode()) }
-        notifications.add(
+    private fun createCombinedNotification(messages: List<ChatMessage>): ChatNotification =
+            countMessagesByContact(messages).let { byContact ->
+                val firstMessage = messages.first()
                 if (byContact.size > 1) {
                     val header = createContactsHeader(byContact)
                     val body = getMultiMsgLabel(messages.size)
-                    MessageChatNotification(first.identity, header, body, first.time)
+                    MessageChatNotification(firstMessage.identity, header, body, firstMessage.time)
                 } else {
                     if (messages.size > 1) {
                         val body = context.getString(R.string.new_messages, messages.size)
-                        ContactChatNotification(first.identity, first.contact,
-                                body, first.time)
+                        ContactChatNotification(firstMessage.identity, firstMessage.contact,
+                                body, firstMessage.time)
                     } else {
-                        ContactChatNotification(first.identity, first.contact,
-                                first.messagePayload.toMessage(), first.time)
+                        ContactChatNotification(firstMessage.identity, firstMessage.contact,
+                                firstMessage.messagePayload.toMessage(), firstMessage.time)
                     }
-                })
-        return notifications
-    }
+                }
+            }
+
+    private fun createNewContactNotifications(unknownMessages: List<ChatMessage>): List<ChatNotification> =
+            countMessagesByContact(unknownMessages).map {
+                val (contact, msgCount) = it
+                val contactMessage = unknownMessages.first { it.contact == contact }
+                val message = if (msgCount > 1) getMultiMsgLabel(msgCount)
+                else contactMessage.messagePayload.toMessage()
+
+                ContactChatNotification(unknownMessages.first().identity,
+                        contact, message, contactMessage.time).apply {
+                    extraNotification = true
+                }
+            }
 
     private fun getMultiMsgLabel(count: Int) = context.getString(R.string.new_messages, count)
 

@@ -24,9 +24,6 @@ class ContactEditAdapter() {
             tv_initial.text = contact.initials()
             editTextContactNick.setText(contact.contact.nickName)
             editTextContactName.text = contact.contact.alias
-      /*      editTextContactDropURL.text = contact.readableUrl()
-            editTextContactPublicKey.text = contact.readableKey()
-*/
             contact_identities.removeAllViews()
             identities.entities.forEach {
                 addIdentityToggle(it, contact.identities.contains(it.keyIdentifier))

@@ -41,10 +41,8 @@ class BoxSharer @Inject constructor(private val volumeNavigator: VolumeNavigator
                 ChatDropMessage.Direction.OUTGOING, ChatDropMessage.Status.PENDING,
                 ChatDropMessage.MessageType.SHARE_NOTIFICATION,
                 ChatDropMessage.MessagePayload.ShareMessage("", it.url, it.key),
-                System.currentTimeMillis())
-    }.map {
-        it?.let {
+                System.currentTimeMillis()).let {
             chatService.sendMessage(it)
-        } ?: Unit
+        }
     }.subscribeOn(Schedulers.io())
 }

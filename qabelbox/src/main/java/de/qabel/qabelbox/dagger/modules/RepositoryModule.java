@@ -10,40 +10,39 @@ import de.qabel.core.repository.ChatDropMessageRepository;
 import de.qabel.core.repository.ContactRepository;
 import de.qabel.core.repository.DropStateRepository;
 import de.qabel.core.repository.IdentityRepository;
-import de.qabel.core.repository.sqlite.SqliteChatDropMessageRepository;
-import de.qabel.core.repository.sqlite.SqliteDropStateRepository;
-import de.qabel.core.repositories.AndroidClientDatabase;
 import de.qabel.qabelbox.persistence.RepositoryFactory;
 
 @Module
 public class RepositoryModule {
 
-    @Provides AndroidClientDatabase provideAndroidClientDatabase(RepositoryFactory factory) {
-        return factory.getAndroidClientDatabase();
-    }
-
-    @Singleton @Provides RepositoryFactory provideRepositoryFactory(Context context) {
+    @Singleton
+    @Provides
+    RepositoryFactory provideRepositoryFactory(Context context) {
         return new RepositoryFactory(context);
     }
 
-    @Provides IdentityRepository provideIdentityRepository(
-            RepositoryFactory factory, AndroidClientDatabase database) {
-        return factory.getIdentityRepository(database);
+    @Provides
+    IdentityRepository provideIdentityRepository(
+            RepositoryFactory factory) {
+        return factory.getIdentityRepository();
     }
 
-    @Provides ContactRepository provideContactRepository(
-            RepositoryFactory factory, AndroidClientDatabase database) {
-        return factory.getContactRepository(database);
+    @Provides
+    ContactRepository provideContactRepository(
+            RepositoryFactory factory) {
+        return factory.getContactRepository();
     }
 
-    @Provides DropStateRepository provideDropStateRepository(
-            RepositoryFactory factory, AndroidClientDatabase database) {
-        return new SqliteDropStateRepository(database, factory.getEntityManager());
+    @Provides
+    DropStateRepository provideDropStateRepository(
+            RepositoryFactory factory) {
+        return factory.getDropStateRepository();
     }
 
-    @Provides ChatDropMessageRepository provideChatDropMessageRepository(
-            RepositoryFactory factory, AndroidClientDatabase database) {
-        return new SqliteChatDropMessageRepository(database, factory.getEntityManager());
+    @Provides
+    ChatDropMessageRepository provideChatDropMessageRepository(
+            RepositoryFactory factory) {
+        return factory.getChatDropMessageRepository();
     }
 
 }

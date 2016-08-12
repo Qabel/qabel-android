@@ -4,8 +4,7 @@ import android.content.Context
 import android.util.Log
 import de.qabel.core.config.factory.DefaultIdentityFactory
 import de.qabel.core.repositories.AndroidClientDatabase
-import de.qabel.core.repository.EntityManager
-import de.qabel.core.repository.IdentityRepository
+import de.qabel.core.repository.*
 import de.qabel.core.repository.sqlite.*
 import de.qabel.core.repository.sqlite.hydrator.DropURLHydrator
 import de.qabel.core.repository.sqlite.hydrator.IdentityHydrator
@@ -19,7 +18,9 @@ class RepositoryFactory(private val context: Context) {
 
     private var connection: Connection? = null
     private var androidClientDatabase: AndroidClientDatabase? = null
-    private var entityManager: EntityManager? = null
+    private val entityManager: EntityManager by lazy { EntityManager() }
+
+    val databasePath: File get() = context.getFileStreamPath(DB_REPOSITORIES)
 
     companion object {
         private const val DB_REPOSITORIES = "client-database"
@@ -39,8 +40,6 @@ class RepositoryFactory(private val context: Context) {
 
     }
 
-    val databasePath: File get() = context.getFileStreamPath(DB_REPOSITORIES)
-
     fun deleteDatabase() {
         close()
         try {
@@ -55,57 +54,16 @@ class RepositoryFactory(private val context: Context) {
         }
     }
 
-
-    fun getIdentityRepository(clientDatabase: AndroidClientDatabase): IdentityRepository {
-        val dropUrlRepository = getSqliteDropUrlRepository(clientDatabase)
-        val prefixRepository = getSqlitePrefixRepository(clientDatabase)
-        val hydrator = getIdentityHydrator(getEntityManager(), dropUrlRepository, prefixRepository)
-        return SqliteIdentityRepository(
-                clientDatabase, hydrator, dropUrlRepository, prefixRepository)
-    }
-
-    fun getEntityManager(): EntityManager {
-        if (entityManager == null) {
-            entityManager = EntityManager()
-        }
-        return entityManager!!
-    }
-
-    private fun getIdentityHydrator(em: EntityManager,
-                                    dropUrlRepository: SqliteDropUrlRepository,
-                                    prefixRepository: SqlitePrefixRepository): IdentityHydrator {
-        return IdentityHydrator(
-                DefaultIdentityFactory(),
-                em,
-                dropUrlRepository,
-                prefixRepository)
-    }
-
-    fun getContactRepository(clientDatabase: AndroidClientDatabase): SqliteContactRepository {
-        return SqliteContactRepository(clientDatabase,
-                getEntityManager(),
-                SqliteDropUrlRepository(clientDatabase),
-                getIdentityRepository(clientDatabase))
-    }
-
-    fun getSqlitePrefixRepository(clientDatabase: AndroidClientDatabase): SqlitePrefixRepository {
-        return SqlitePrefixRepository(clientDatabase)
-    }
-
-    fun getSqliteDropUrlRepository(clientDatabase: AndroidClientDatabase): SqliteDropUrlRepository {
-        return SqliteDropUrlRepository(clientDatabase, DropURLHydrator())
-    }
-
     @Throws(QblPersistenceException::class)
-    fun getAndroidClientDatabase(): AndroidClientDatabase {
+    private fun getAndroidClientDatabase(): AndroidClientDatabase {
         val conn = connection ?:
-            try {
-                val c = DriverManager.getConnection("jdbc:sqlite:" + databasePath)
-                connection = c
-                c
-            } catch (e: SQLException) {
-                throw QblPersistenceException(e)
-            }
+                try {
+                    val c = DriverManager.getConnection("jdbc:sqlite:" + databasePath)
+                    connection = c
+                    c
+                } catch (e: SQLException) {
+                    throw QblPersistenceException(e)
+                }
         val database = androidClientDatabase ?: AndroidClientDatabase(conn).apply {
             migrate()
             androidClientDatabase = this
@@ -113,7 +71,7 @@ class RepositoryFactory(private val context: Context) {
         return database
     }
 
-    fun close() {
+    private fun close() {
         connection?.let {
             try {
                 it.close()
@@ -125,5 +83,33 @@ class RepositoryFactory(private val context: Context) {
             androidClientDatabase = null
         }
     }
+
+    fun getIdentityRepository(): IdentityRepository {
+        val dropUrlRepository = getDropUrlRepository()
+        val prefixRepository = getSqlitePrefixRepository()
+        val hydrator = IdentityHydrator(DefaultIdentityFactory(), entityManager,
+                dropUrlRepository as SqliteDropUrlRepository, prefixRepository)
+        return SqliteIdentityRepository(getAndroidClientDatabase(), hydrator,
+                dropUrlRepository, prefixRepository)
+    }
+
+    fun getContactRepository(): ContactRepository =
+            SqliteContactRepository(getAndroidClientDatabase(),
+                    entityManager,
+                    getDropUrlRepository(),
+                    getIdentityRepository())
+
+    fun getSqlitePrefixRepository(): SqlitePrefixRepository =
+            SqlitePrefixRepository(getAndroidClientDatabase())
+
+
+    fun getDropUrlRepository(): DropUrlRepository =
+            SqliteDropUrlRepository(getAndroidClientDatabase(), DropURLHydrator())
+
+    fun getChatDropMessageRepository(): ChatDropMessageRepository =
+            SqliteChatDropMessageRepository(getAndroidClientDatabase(), entityManager)
+
+    fun getDropStateRepository(): DropStateRepository =
+            SqliteDropStateRepository(getAndroidClientDatabase(), entityManager)
 
 }

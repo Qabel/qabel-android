@@ -26,7 +26,7 @@ class MainFileBrowserPresenterTest {
 
     @Before
     fun setUp() {
-         presenter = MainFileBrowserPresenter(view, useCase, mock())
+         presenter = MainFileBrowserPresenter(view, useCase, mock(), mock(), mock())
     }
 
     fun stubWith(sample: List<BrowserEntry>, path: BoxPath.FolderLike = BoxPath.Root) {

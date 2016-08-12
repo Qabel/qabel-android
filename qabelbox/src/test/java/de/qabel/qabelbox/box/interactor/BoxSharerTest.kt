@@ -3,10 +3,7 @@ package de.qabel.qabelbox.box.interactor
 import com.natpryce.hamkrest.equalTo
 import com.natpryce.hamkrest.hasSize
 import com.natpryce.hamkrest.should.shouldMatch
-import com.nhaarman.mockito_kotlin.MockitoKotlin
-import com.nhaarman.mockito_kotlin.capture
-import com.nhaarman.mockito_kotlin.mock
-import com.nhaarman.mockito_kotlin.verify
+import com.nhaarman.mockito_kotlin.*
 import de.qabel.box.storage.AndroidBoxVolume
 import de.qabel.box.storage.BoxVolumeConfig
 import de.qabel.core.repository.entities.ChatDropMessage
@@ -41,6 +38,7 @@ class BoxSharerTest {
     val samplePayload = "payload"
     val sampleName = "sampleName"
     val sample = BrowserEntry.File(sampleName, 42, Date())
+    val path = BoxPath.Root * sampleName
     lateinit var chatService: ChatService
 
     init {
@@ -67,21 +65,38 @@ class BoxSharerTest {
                 BoxFileBrowser.KeyAndPrefix(identity.keyIdentifier, prefix),
                 volume)
         chatService = mock()
-        sharer = BoxSharer(useCase, chatService, identity)
+        sharer = BoxSharer(useCase, chatService, identity, storage)
     }
 
     @Test
     fun testSendFileShare() {
-        val path = BoxPath.Root * sampleName
-        useCase.upload(path, samplePayload.toUploadSource(sample)).waitFor()
-        sharer.sendFileShare(contact, path).waitFor()
+        share()
+        shareMessageWasSent()
+        val (obj, nav) = useCase.queryObjectAndNav(path)
+        nav.getSharesOf(obj) shouldMatch hasSize(equalTo(1))
+    }
+
+    private fun shareMessageWasSent() {
         verify(chatService).sendMessage(capture {
             it.contactId eq contact.id
             it.identityId eq identity.id
             it.direction eq ChatDropMessage.Direction.OUTGOING
             it.messageType eq ChatDropMessage.MessageType.SHARE_NOTIFICATION
         })
+    }
+
+    @Test
+    fun testDuplicateShare() {
+        share()
+        reset(chatService)
+        share()
+        shareMessageWasSent()
         val (obj, nav) = useCase.queryObjectAndNav(path)
         nav.getSharesOf(obj) shouldMatch hasSize(equalTo(1))
+    }
+
+    private fun share() {
+        useCase.upload(path, samplePayload.toUploadSource(sample)).waitFor()
+        sharer.sendFileShare(contact, path).waitFor()
     }
 }

@@ -1,6 +1,7 @@
 package de.qabel.qabelbox.box.presenters
 
 import de.qabel.core.config.Contact
+import de.qabel.core.config.Identity
 import de.qabel.qabelbox.box.dto.BoxPath
 import de.qabel.qabelbox.box.dto.BrowserEntry
 import de.qabel.qabelbox.box.dto.BrowserEntry.File
@@ -10,13 +11,16 @@ import de.qabel.qabelbox.box.interactor.FileBrowser
 import de.qabel.qabelbox.box.interactor.Sharer
 import de.qabel.qabelbox.box.provider.DocumentId
 import de.qabel.qabelbox.box.views.FileBrowserView
+import de.qabel.qabelbox.navigation.Navigator
 import java.io.InputStream
 import javax.inject.Inject
 
 class MainFileBrowserPresenter @Inject constructor(
         private val view: FileBrowserView,
         private val useCase: FileBrowser,
-        private val sharer: Sharer):
+        private val sharer: Sharer,
+        private val identity: Identity,
+        private val navigator: Navigator):
         FileBrowserPresenter {
     override fun navigateUp() {
         path = path.parent
@@ -99,6 +103,7 @@ class MainFileBrowserPresenter @Inject constructor(
         view.refreshStart()
         sharer.sendFileShare(contact, path / entry.name).subscribe({
             view.refreshDone()
+            navigator.selectContactChat(contact.keyIdentifier, identity)
         },{ view.showError(it)})
     }
 

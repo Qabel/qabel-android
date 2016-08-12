@@ -5,6 +5,8 @@ import de.qabel.qabelbox.activities.MainActivity;
 import de.qabel.qabelbox.chat.dagger.ChatComponent;
 import de.qabel.qabelbox.contacts.dagger.ContactDetailsComponent;
 import de.qabel.qabelbox.contacts.dagger.ContactDetailsModule;
+import de.qabel.qabelbox.contacts.dagger.ContactEditComponent;
+import de.qabel.qabelbox.contacts.dagger.ContactEditModule;
 import de.qabel.qabelbox.contacts.dagger.ContactsComponent;
 import de.qabel.qabelbox.contacts.dagger.ContactsModule;
 import de.qabel.qabelbox.chat.dagger.ChatModule;
@@ -25,6 +27,7 @@ public interface MainActivityComponent {
 
     ContactsComponent plus(ContactsModule contactsModule);
     ContactDetailsComponent plus(ContactDetailsModule contactDetailsModule);
+    ContactEditComponent plus(ContactEditModule contactEditModule);
 
 }
 

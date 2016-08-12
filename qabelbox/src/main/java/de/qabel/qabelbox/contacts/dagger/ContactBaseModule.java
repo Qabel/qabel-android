@@ -4,6 +4,7 @@ import dagger.Module;
 import dagger.Provides;
 import de.qabel.core.config.Identity;
 import de.qabel.core.repository.ContactRepository;
+import de.qabel.core.repository.IdentityRepository;
 import de.qabel.qabelbox.contacts.interactor.ContactsUseCase;
 import de.qabel.qabelbox.contacts.interactor.MainContactsUseCase;
 
@@ -12,8 +13,9 @@ public abstract class ContactBaseModule {
 
     @Provides
     public ContactsUseCase provideContactsUseCase(Identity identity,
-                                                  ContactRepository contactRepository) {
-        return new MainContactsUseCase(identity, contactRepository);
+                                                  ContactRepository contactRepository,
+                                                  IdentityRepository identityRepository) {
+        return new MainContactsUseCase(identity, contactRepository, identityRepository);
     }
 
 }

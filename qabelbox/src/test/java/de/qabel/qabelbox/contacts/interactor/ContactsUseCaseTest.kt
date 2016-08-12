@@ -1,5 +1,6 @@
 package de.qabel.qabelbox.contacts.interactor
 
+import de.qabel.core.config.Contact
 import de.qabel.core.contacts.ContactExchangeFormats
 import de.qabel.core.repository.ContactRepository
 import de.qabel.qabelbox.BuildConfig
@@ -9,6 +10,7 @@ import de.qabel.qabelbox.contacts.ContactMatcher
 import de.qabel.qabelbox.contacts.dto.ContactDto
 import de.qabel.qabelbox.repositories.MockContactRepository
 import de.qabel.qabelbox.test.files.FileHelper
+import de.qabel.qabelbox.tmp_core.InMemoryIdentityRepository
 import de.qabel.qabelbox.util.IdentityHelper
 import org.apache.commons.io.FileUtils
 import org.hamcrest.Matchers.*
@@ -33,15 +35,16 @@ class ContactsUseCaseTest {
 
 
     lateinit var contactRepo: ContactRepository;
+    lateinit var contactsUseCase: ContactsUseCase
 
     @Before
     fun setUp() {
         contactRepo = MockContactRepository()
+        contactsUseCase = MainContactsUseCase(identityA, contactRepo, InMemoryIdentityRepository());
     }
 
     @Test
     fun testLoad() {
-        val contactsUseCase = MainContactsUseCase(identityA, contactRepo);
         var contacts: List<ContactDto>? = null;
         contactsUseCase.load().toList().toBlocking().subscribe {
             data ->
@@ -53,7 +56,6 @@ class ContactsUseCaseTest {
     @Test
     fun testLoad1() {
         contactRepo.save(contactA, identityA);
-        val contactsUseCase = MainContactsUseCase(identityA, contactRepo);
         var contacts: List<ContactDto>? = null;
         contactsUseCase.load().toList().toBlocking().subscribe {
             data ->
@@ -71,7 +73,6 @@ class ContactsUseCaseTest {
         contactRepo.save(contactA, identityA);
         contactRepo.save(contactA, identityB);
         contactRepo.save(contactB, identityB);
-        val contactsUseCase = MainContactsUseCase(identityA, contactRepo);
         var contacts: List<ContactDto>? = null;
         contactsUseCase.load().toList().toBlocking().subscribe {
             data ->
@@ -98,8 +99,6 @@ class ContactsUseCaseTest {
         contactRepo.save(contactA, identityB);
         contactRepo.save(identityContact, identityB);
 
-        val contactsUseCase = MainContactsUseCase(identityA, contactRepo);
-
         var contacts: List<ContactDto>? = null;
         contactsUseCase.search("identity").toList().toBlocking().subscribe {
             data ->
@@ -117,8 +116,6 @@ class ContactsUseCaseTest {
         contactRepo.save(contactA, identityA);
         contactRepo.save(contactA, identityB);
 
-        val contactsUseCase = MainContactsUseCase(identityA, contactRepo);
-
         var contact: ContactDto? = null;
         contactsUseCase.loadContact(contactA.keyIdentifier).toBlocking().subscribe {
             data ->
@@ -134,28 +131,37 @@ class ContactsUseCaseTest {
     @Test
     fun testSaveContact() {
         contactRepo.save(contactA, identityA);
-        val contactsUseCase = MainContactsUseCase(identityA, contactRepo);
-        contactsUseCase.saveContact(contactB).toBlocking().subscribe {
-        }
+        val contactBDto = ContactDto(contactB, listOf(identityB))
+        contactsUseCase.saveContact(contactBDto).toBlocking().subscribe {}
 
-        val resultContact = contactRepo.findByKeyId(identityA, contactB.keyIdentifier);
-        assertThat(resultContact, equalTo(contactB));
+        val resultContact = contactRepo.find(identityB);
+        assertThat(resultContact.getByKeyIdentifier(contactB.keyIdentifier), equalTo(contactB));
+    }
+
+    @Test
+    fun testSaveUnknownContact() {
+        contactB.status = Contact.ContactStatus.UNKNOWN
+        val contactBDto = ContactDto(contactB, listOf(identityB))
+        contactsUseCase.saveContact(contactBDto).toBlocking().subscribe {}
+
+        val resultDto = contactsUseCase.loadContact(contactB.keyIdentifier).toBlocking().first()
+
+        assertThat(Contact.ContactStatus.NORMAL, equalTo(resultDto.contact.status))
+        assertThat(resultDto.identities, hasSize(1))
     }
 
     @Test
     fun testDeleteContact() {
         contactRepo.save(contactA, identityA);
         contactRepo.save(contactB, identityA);
-        val contactsUseCase = MainContactsUseCase(identityA, contactRepo);
-        contactsUseCase.deleteContact(contactB).toBlocking().subscribe {
-        }
+        contactsUseCase.deleteContact(contactB).toBlocking().subscribe {}
         assertThat(contactRepo.exists(contactB), `is`(false));
     }
 
     @Test
     fun testExportContactToDirectory() {
         contactRepo.save(contactA, identityA);
-        val contactsUseCase = MainContactsUseCase(identityA, contactRepo);
+
         val contactExchangeFormats = ContactExchangeFormats();
         val tmpFolder = FileHelper.createTmpDir();
 
@@ -180,7 +186,7 @@ class ContactsUseCaseTest {
     fun testExportContactToFile() {
         contactRepo.save(contactA, identityA);
         contactRepo.save(contactB, identityA);
-        val contactsUseCase = MainContactsUseCase(identityA, contactRepo);
+
         val contactExchangeFormats = ContactExchangeFormats();
         val tmpFile = FileHelper.createEmptyTargetFile();
 
@@ -204,7 +210,7 @@ class ContactsUseCaseTest {
         contactRepo.save(contactA, identityA);
         contactRepo.save(contactB, identityA);
         contactRepo.save(identityContact, identityA);
-        val contactsUseCase = MainContactsUseCase(identityA, contactRepo);
+
         val contactExchangeFormats = ContactExchangeFormats();
         val tmpFile = FileHelper.createEmptyTargetFile();
 

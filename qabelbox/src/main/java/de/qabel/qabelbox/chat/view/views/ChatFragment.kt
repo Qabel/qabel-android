@@ -6,11 +6,10 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.os.Bundle
 import android.support.v7.widget.LinearLayoutManager
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import de.qabel.core.config.Contact
 import de.qabel.core.config.Identity
+import de.qabel.qabelbox.QblBroadcastConstants
 import de.qabel.qabelbox.R
 import de.qabel.qabelbox.chat.dagger.ChatModule
 import de.qabel.qabelbox.chat.dto.ChatMessage
@@ -94,8 +93,11 @@ class ChatFragment : ChatView, BaseFragment(), AnkoLogger {
             if (isOrderedBroadcast) {
                 val ids = intent?.getStringArrayListExtra(Helper.AFFECTED_IDENTITIES_AND_CONTACTS)
                         ?.filterNotNull() ?: return
-                if (ids.all({(it == contactKeyId) or (it == identity.keyIdentifier)})) {
+                if (ids.any({(it == contactKeyId) or (it == identity.keyIdentifier)})) {
                     abortBroadcast()
+                    if(injectCompleted){
+                        presenter.refreshMessages()
+                    }
                 }
             }
         }
@@ -103,8 +105,8 @@ class ChatFragment : ChatView, BaseFragment(), AnkoLogger {
 
     override fun onResume() {
         super.onResume()
-        ctx.registerReceiver(broadcastReceiver, IntentFilter(Helper.INTENT_REFRESH_CHAT))
-        ctx.registerReceiver(notificationBlockReceiver, IntentFilter(Helper.INTENT_SHOW_NOTIFICATION))
+        ctx.registerReceiver(broadcastReceiver, IntentFilter(QblBroadcastConstants.Chat.REFRESH))
+        ctx.registerReceiver(notificationBlockReceiver, IntentFilter(QblBroadcastConstants.Chat.INTENT_SHOW_NOTIFICATION))
     }
 
     override fun onPause() {

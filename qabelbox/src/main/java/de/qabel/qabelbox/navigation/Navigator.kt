@@ -21,4 +21,7 @@ interface Navigator {
     fun selectContactChat(contactKey: String, withIdentity: Identity)
 
     fun selectQrCodeFragment(contact: Contact)
+
+    fun selectContactEdit(contactDto: ContactDto)
+    open fun popBackStack()
 }

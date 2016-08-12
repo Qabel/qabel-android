@@ -29,6 +29,7 @@ import java.util.*
 @RunWith(RobolectricGradleTestRunner::class)
 @Config(application = SimpleApplication::class, constants = BuildConfig::class)
 class ChatUseCaseTest {
+
     val identity = IdentityHelper.createIdentity("identity", null)
     val contact = IdentityHelper.createContact("contact_name")
     lateinit var transformer: ChatMessageTransformer

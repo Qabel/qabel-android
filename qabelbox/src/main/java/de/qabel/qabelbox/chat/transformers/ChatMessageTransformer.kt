@@ -8,7 +8,7 @@ import de.qabel.qabelbox.chat.dto.MessagePayloadDto
 import java.util.*
 import javax.inject.Inject
 
-class ChatMessageTransformer @Inject constructor(
+open class ChatMessageTransformer @Inject constructor(
         private val identityRepository: IdentityRepository,
         private val contactRepository: ContactRepository) {
 

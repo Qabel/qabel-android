@@ -1,5 +1,6 @@
 package de.qabel.qabelbox.contacts.view.presenters
 
+import de.qabel.core.repository.exception.EntityExistsException
 import de.qabel.qabelbox.config.QabelSchema
 import de.qabel.qabelbox.contacts.ContactsRequestCodes
 import de.qabel.qabelbox.contacts.dto.ContactDto
@@ -47,7 +48,7 @@ class MainContactsPresenter @Inject constructor(private val view: ContactsView,
                 .subscribe({ exportedContactFile ->
                     view.startShareDialog(exportedContactFile);
                 }, {
-                    view.showExportFailed()
+                    view.showExportFailedMessage()
                 });
     }
 
@@ -66,20 +67,20 @@ class MainContactsPresenter @Inject constructor(private val view: ContactsView,
             else -> useCase.exportAllContacts(target)
         };
         exportAction.subscribe({ exportedCount ->
-            view.showExportSuccess(exportedCount)
+            view.showExportSuccessMessage(exportedCount)
         }, { throwable ->
-            view.showExportFailed()
+            view.showExportFailedMessage()
         })
     }
 
     private fun handleContactImport(target: FileDescriptor) {
         useCase.importContacts(target)
                 .subscribe({ result ->
-                    view.showImportSuccess(result.successCount,
+                    view.showImportSuccessMessage(result.successCount,
                             result.successCount + result.failedCount)
                     refresh()
                 }, { throwable ->
-                    view.showExportFailed();
+                    view.showExportFailedMessage();
                 })
     }
 
@@ -87,10 +88,13 @@ class MainContactsPresenter @Inject constructor(private val view: ContactsView,
         when (externalAction.actionType) {
             ContactsRequestCodes.REQUEST_QR_IMPORT_CONTACT -> {
                 useCase.importContactString(result).subscribe({
-                    view.showImportSuccess(1, 1);
+                    view.showImportSuccessMessage(1, 1);
                     refresh()
                 }, { throwable ->
-                    view.showImportFailed()
+                    when(throwable){
+                        is EntityExistsException -> view.showContactExistsMessage()
+                        else -> view.showImportFailedMessage()
+                    }
                 });
             }
             ContactsRequestCodes.REQUEST_QR_VERIFY_CONTACT -> {

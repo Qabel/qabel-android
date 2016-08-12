@@ -35,7 +35,9 @@ public class IdentityHelper {
             identity = new IdentityBuilder(new DropUrlGenerator(QabelBoxApplication.DEFAULT_DROP_SERVER))
                     .withAlias(contactName).build();
 
-            return new Contact(contactName, identity.getDropUrls(), identity.getEcPublicKey());
+            Contact contact = new Contact(contactName, identity.getDropUrls(), identity.getEcPublicKey());
+            contact.setNickName(contactName);
+            return contact;
         } catch (URISyntaxException e) {
             throw new RuntimeException(e);
         }

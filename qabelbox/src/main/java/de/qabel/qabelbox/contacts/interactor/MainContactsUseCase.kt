@@ -2,17 +2,22 @@ package de.qabel.qabelbox.contacts.interactor
 
 import de.qabel.core.config.Contact
 import de.qabel.core.config.ContactExportImport
+import de.qabel.core.config.Identities
 import de.qabel.core.config.Identity
 import de.qabel.core.contacts.ContactExchangeFormats
 import de.qabel.core.extensions.contains
 import de.qabel.core.repository.ContactRepository
+import de.qabel.core.repository.IdentityRepository
+import de.qabel.core.repository.exception.EntityExistsException
 import de.qabel.qabelbox.config.QabelSchema
 import de.qabel.qabelbox.contacts.dto.ContactDto
 import de.qabel.qabelbox.contacts.dto.ContactParseResult
 import de.qabel.qabelbox.contacts.dto.ContactsParseResult
 import org.apache.commons.io.FileUtils
+import rx.Observable
 import rx.Subscriber
 import rx.lang.kotlin.observable
+import rx.lang.kotlin.subscriber
 import java.io.File
 import java.io.FileDescriptor
 import java.io.FileInputStream
@@ -21,7 +26,15 @@ import javax.inject.Inject
 
 
 open class MainContactsUseCase @Inject constructor(private val activeIdentity: Identity,
-                                                   private val contactRepository: ContactRepository) : ContactsUseCase {
+                                                   private val contactRepository: ContactRepository,
+                                                   private val identityRepository: IdentityRepository) : ContactsUseCase {
+
+    override fun loadContactAndIdentities(keyIdentifier: String) = observable<Pair<ContactDto, Identities>> {
+        val identities = identityRepository.findAll()
+        val contact = contactRepository.findContactWithIdentities(keyIdentifier)
+        it.onNext(Pair(transformContact(contact), identities))
+        it.onCompleted()
+    }
 
     private val contactExchangeFormats = ContactExchangeFormats();
 
@@ -47,12 +60,6 @@ open class MainContactsUseCase @Inject constructor(private val activeIdentity: I
     override fun loadContact(keyIdentifier: String) = observable<ContactDto> { subscriber ->
         val contact = contactRepository.findContactWithIdentities(keyIdentifier);
         subscriber.onNext(transformContact(contact))
-        subscriber.onCompleted();
-    }
-
-    override fun saveContact(contact: Contact) = observable<Unit> { subscriber ->
-        contactRepository.save(contact, activeIdentity)
-        subscriber.onNext(Unit);
         subscriber.onCompleted();
     }
 
@@ -106,9 +113,10 @@ open class MainContactsUseCase @Inject constructor(private val activeIdentity: I
         val contacts = contactExchangeFormats.importFromContactsJSON(inputString);
         var importedContacts = 0;
         contacts.forEach { contact ->
-            if (!contactRepository.exists(contact)) {
+            try {
                 contactRepository.save(contact, activeIdentity);
                 importedContacts++;
+            } catch(ex: EntityExistsException) {
             }
         }
         subscriber.onNext(ContactsParseResult(importedContacts, contacts.size - importedContacts));
@@ -118,11 +126,17 @@ open class MainContactsUseCase @Inject constructor(private val activeIdentity: I
     override fun importContactString(contactString: String) = observable<ContactParseResult> {
         subscriber ->
         val contact = contactExchangeFormats.importFromContactString(contactString);
-        if (!contactRepository.exists(contact)) {
-            contactRepository.save(contact, activeIdentity)
-        }
+        contactRepository.save(contact, activeIdentity)
         subscriber.onNext(ContactParseResult(contact, true));
         subscriber.onCompleted();
     }
 
+    override fun saveContact(contact: ContactDto) = observable<Unit> {
+        if (contact.contact.status == Contact.ContactStatus.UNKNOWN) {
+            contact.contact.status = Contact.ContactStatus.NORMAL;
+        }
+        contactRepository.update(contact.contact, contact.identities)
+        it.onNext(Unit)
+        it.onCompleted()
+    }
 }

@@ -4,6 +4,7 @@ import de.qabel.core.config.Contact
 import de.qabel.core.config.Contacts
 import de.qabel.core.config.Identity
 import de.qabel.core.repository.ContactRepository
+import de.qabel.core.repository.exception.EntityExistsException
 import de.qabel.core.repository.exception.EntityNotFoundException
 import de.qabel.core.repository.exception.PersistenceException
 import de.qabel.core.util.DefaultHashMap
@@ -11,12 +12,6 @@ import java.util.*
 
 @Deprecated("Replace with core")
 class InMemoryContactRepository : ContactRepository {
-
-    override fun update(contact: Contact, activeIdentities: List<Identity>) {
-        activeIdentities.forEach {
-            save(contact, it)
-        }
-    }
 
     val contacts: MutableMap<String, Contact> = mutableMapOf()
     val identityMapping: DefaultHashMap<Identity, MutableSet<String>> = DefaultHashMap({ key -> HashSet() })
@@ -33,26 +28,30 @@ class InMemoryContactRepository : ContactRepository {
     }
 
     override fun save(contact: Contact, identity: Identity) {
-        contact.id = contacts.size + 1
+        if(contact.id == 0 && exists(contact)){
+            throw EntityExistsException()
+        }else if(contact.id == 0){
+            contact.id = contacts.size + 1
+        }
         contacts.put(contact.keyIdentifier, contact)
-        identityMapping.getOrDefault(identity).add(contact.keyIdentifier);
+        identityMapping.getOrDefault(identity).add(contact.keyIdentifier)
     }
 
     override fun delete(contact: Contact, identity: Identity) {
         contacts.remove(contact.keyIdentifier)
-        identityMapping.getOrDefault(identity).remove(contact.keyIdentifier);
+        identityMapping.getOrDefault(identity).remove(contact.keyIdentifier)
     }
 
     override fun findByKeyId(identity: Identity, keyId: String): Contact {
         if (identityMapping.getOrDefault(identity).contains(keyId)) {
             return findByKeyId(keyId)
-        } else throw EntityNotFoundException("Contact not found for Identity!");
+        } else throw EntityNotFoundException("Contact not found for Identity!")
     }
 
     override fun findByKeyId(keyId: String): Contact {
         if (contacts.contains(keyId)) {
             return contacts[keyId]!!
-        } else throw EntityNotFoundException("Contact not found!");
+        } else throw EntityNotFoundException("Contact not found!")
     }
 
     override fun exists(contact: Contact): Boolean {
@@ -72,12 +71,18 @@ class InMemoryContactRepository : ContactRepository {
     }
 
     private fun findContactIdentities(key: String): List<Identity> {
-        val identities = mutableListOf<Identity>();
+        val identities = mutableListOf<Identity>()
         for ((identity, contactKeys) in identityMapping) {
             if (contactKeys.contains(key)) {
-                identities.add(identity);
+                identities.add(identity)
             }
         }
-        return identities;
+        return identities
+    }
+
+    override fun update(contact: Contact, activeIdentities: List<Identity>) {
+        contacts.put(contact.keyIdentifier, contact)
+        identityMapping.values.forEach { it.remove(contact.keyIdentifier) }
+        activeIdentities.forEach { identityMapping.getOrDefault(it).add(contact.keyIdentifier) }
     }
 }

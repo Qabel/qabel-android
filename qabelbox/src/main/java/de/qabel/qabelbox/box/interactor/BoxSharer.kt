@@ -23,18 +23,14 @@ class BoxSharer @Inject constructor(private val volumeNavigator: VolumeNavigator
         if (boxObject !is BoxFile) {
             throw FileNotFoundException("Not a file")
         } else {
-            val share = nav.getSharesOf(boxObject).find { it.recipient == contact.keyIdentifier }
-            if (share == null) {
-                val ext = nav.share(owner.ecPublicKey, boxObject, contact.keyIdentifier)
-                ext
-            } else {
+            nav.getSharesOf(boxObject).find { it.recipient == contact.keyIdentifier }?.let {
                 BoxExternalReference(
                         false,
                         readBackend.getUrl(boxObject.meta),
                         boxObject.name,
                         owner.ecPublicKey,
                         boxObject.metakey)
-            }
+            } ?: nav.share(owner.ecPublicKey, boxObject, contact.keyIdentifier)
         }
     }.map {
         ChatDropMessage(contact.id, owner.id,

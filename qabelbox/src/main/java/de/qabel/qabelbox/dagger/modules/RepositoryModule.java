@@ -22,7 +22,7 @@ public class RepositoryModule {
         return factory.getAndroidClientDatabase();
     }
 
-    @Provides RepositoryFactory provideRepositoryFactory(Context context) {
+    @Singleton @Provides RepositoryFactory provideRepositoryFactory(Context context) {
         return new RepositoryFactory(context);
     }
 
@@ -36,12 +36,12 @@ public class RepositoryModule {
         return factory.getContactRepository(database);
     }
 
-    @Singleton @Provides DropStateRepository provideDropStateRepository(
+    @Provides DropStateRepository provideDropStateRepository(
             RepositoryFactory factory, AndroidClientDatabase database) {
         return new SqliteDropStateRepository(database, factory.getEntityManager());
     }
 
-    @Singleton @Provides ChatDropMessageRepository provideChatDropMessageRepository(
+    @Provides ChatDropMessageRepository provideChatDropMessageRepository(
             RepositoryFactory factory, AndroidClientDatabase database) {
         return new SqliteChatDropMessageRepository(database, factory.getEntityManager());
     }

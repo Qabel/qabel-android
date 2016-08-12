@@ -5,6 +5,10 @@
         android:title="@string/contact"
         android:icon="@drawable/account"/>
     <item
+        android:id="@+id/contact_list_item_edit"
+        android:title="@string/edit"
+        android:icon="@drawable/pencil"/>
+    <item
         android:id="@+id/contact_list_item_export"
         android:title="@string/Export"
         android:icon="@drawable/export"/>

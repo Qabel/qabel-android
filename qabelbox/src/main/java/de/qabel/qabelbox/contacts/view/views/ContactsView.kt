@@ -17,15 +17,17 @@ interface ContactsView {
 
     fun startShareDialog(targetFile: File)
 
-    fun showExportFailed()
-    fun showExportSuccess(size: Int)
+    fun showExportFailedMessage()
+    fun showExportSuccessMessage(size: Int)
 
-    fun showImportFailed()
-    fun showImportSuccess(imported: Int, size: Int)
+    fun showImportFailedMessage()
+    fun showImportSuccessMessage(imported: Int, size: Int)
 
     fun showContactDeletedMessage(contact: ContactDto)
+    fun showContactExistsMessage()
 
     fun startQRScan()
+
 
 }
 

@@ -2,6 +2,7 @@ package de.qabel.qabelbox.contacts.view.adapters
 
 import android.support.v7.widget.RecyclerView
 import android.view.View
+import android.widget.TextView
 import de.qabel.qabelbox.contacts.dto.ContactDto
 import de.qabel.qabelbox.contacts.extensions.*
 import de.qabel.qabelbox.contacts.view.widgets.ContactIconDrawable
@@ -17,9 +18,17 @@ class ContactsViewHolder(itemView: View, val clickListener: (ContactDto) -> Unit
         itemView?.apply {
             alpha = if (contact.active && contact.identities.size > 0) 1f else 0.35f
 
-            textViewItemName.text = contact.contact.alias
-            //TODO Field for Mail/Phone
-            //itemView?.textViewItemDetail?.text = contact.contact.email
+            val displayName = contact.contact.displayName()
+            textViewItemName.text = displayName
+            if (!displayName.equals(contact.contact.alias)) {
+                textViewItemAlias.text = contact.contact.alias
+                textViewItemAlias.visibility = View.VISIBLE
+            } else {
+                textViewItemAlias.visibility = View.GONE
+            }
+
+            setOrGone(textViewItemMail, contact.contact.email)
+            setOrGone(textViewItemPhone, contact.contact.phone)
 
             tv_initial.text = contact.initials();
             contact_icon_border.background = ContactIconDrawable(
@@ -27,6 +36,15 @@ class ContactsViewHolder(itemView: View, val clickListener: (ContactDto) -> Unit
 
             setOnClickListener({ clickListener.invoke(contact) });
             setOnLongClickListener({ longClickListener.invoke(contact); });
+        }
+    }
+
+    private fun setOrGone(view: TextView, text: String?) {
+        if (text != null && !text.isEmpty()) {
+            view.text = text
+            view.visibility = View.VISIBLE
+        } else {
+            view.visibility = View.GONE
         }
     }
 

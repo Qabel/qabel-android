@@ -4,14 +4,13 @@ import android.os.Bundle
 import android.view.*
 import butterknife.ButterKnife
 import de.qabel.qabelbox.R
+import de.qabel.qabelbox.chat.view.views.ChatFragment
 import de.qabel.qabelbox.contacts.dagger.ContactDetailsModule
 import de.qabel.qabelbox.contacts.dto.ContactDto
 import de.qabel.qabelbox.contacts.view.adapters.ContactDetailsAdapter
 import de.qabel.qabelbox.contacts.view.presenters.ContactDetailsPresenter
 import de.qabel.qabelbox.dagger.components.MainActivityComponent
 import de.qabel.qabelbox.fragments.BaseFragment
-import de.qabel.qabelbox.navigation.Navigator
-import de.qabel.qabelbox.chat.view.views.ChatFragment
 import org.jetbrains.anko.AnkoLogger
 import javax.inject.Inject
 
@@ -31,16 +30,15 @@ class ContactDetailsFragment() : ContactDetailsView, BaseFragment(), AnkoLogger 
         }
     }
 
-    val adapter = ContactDetailsAdapter({ identity -> navigator.selectContactChat(contactKeyId, identity) })
+    val adapter = ContactDetailsAdapter({ presenter.onSendMsgClick(it) })
     lateinit override var contactKeyId: String
     @Inject lateinit var presenter: ContactDetailsPresenter
-    @Inject lateinit var navigator: Navigator
 
     var injectCompleted = false
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        contactKeyId = arguments.getString(ChatFragment.ARG_CONTACT) ?: throw IllegalArgumentException(
+        contactKeyId = arguments.getString(ARG_CONTACT) ?: throw IllegalArgumentException(
                 "Starting ContactDetailsFragment without contactKeyId")
 
         val component = getComponent(MainActivityComponent::class.java).plus(ContactDetailsModule(this))
@@ -50,6 +48,10 @@ class ContactDetailsFragment() : ContactDetailsView, BaseFragment(), AnkoLogger 
         setHasOptionsMenu(true);
         configureAsSubFragment();
 
+    }
+
+    override fun onResume() {
+        super.onResume()
         presenter.refreshContact();
     }
 
@@ -72,12 +74,14 @@ class ContactDetailsFragment() : ContactDetailsView, BaseFragment(), AnkoLogger 
     }
 
     override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater?) {
-        //TODO
+        inflater?.inflate(R.menu.ab_contact_details, menu)
     }
 
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
-        //TODO
-        return true;
+        when (item?.itemId) {
+            R.id.action_contact_edit -> presenter.handleEditClick()
+        }
+        return true
     }
 
     override val title: String
@@ -85,8 +89,8 @@ class ContactDetailsFragment() : ContactDetailsView, BaseFragment(), AnkoLogger 
 
     override fun supportBackButton(): Boolean = true
 
-    override fun loadContact(contact: ContactDto) {
-        adapter.loadContact(contact);
-    }
+    override fun loadContact(contact: ContactDto) =
+            adapter.loadContact(contact);
+
 }
 

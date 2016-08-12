@@ -1,83 +1,95 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/contact_details_view"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:id="@+id/contact_details_view"
+    android:orientation="vertical"
     android:padding="@dimen/activity_horizontal_margin">
+
+    <de.qabel.qabelbox.ui.views.SquareFrameLayout
+        android:id="@+id/contact_icon_border"
+        android:layout_width="wrap_content"
+        android:layout_height="100sp"
+        android:layout_gravity="center_horizontal"
+        android:padding="5sp">
+
+        <de.qabel.qabelbox.ui.views.SquareFrameLayout
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:background="@drawable/identity_circle">
+
+            <de.qabel.qabelbox.ui.views.TextViewFont
+                android:id="@+id/tv_initial"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:textColor="@color/white"
+                android:textSize="@dimen/textsize_welcome_header" />
+        </de.qabel.qabelbox.ui.views.SquareFrameLayout>
+    </de.qabel.qabelbox.ui.views.SquareFrameLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:layout_height="wrap_content"
+        android:background="@drawable/separator_gray">
 
-        <de.qabel.qabelbox.ui.views.SquareFrameLayout
-            android:id="@+id/contact_icon_border"
+        <de.qabel.qabelbox.ui.views.TextViewFont
+            android:id="@+id/editTextContactNick"
             android:layout_width="wrap_content"
-            android:layout_height="100sp"
-            android:layout_gravity="center_horizontal"
-            android:padding="5sp">
-            <de.qabel.qabelbox.ui.views.SquareFrameLayout
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:layout_gravity="center"
-                android:background="@drawable/identity_circle">
-                <de.qabel.qabelbox.ui.views.TextViewFont
-                    android:id="@+id/tv_initial"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_centerInParent="true"
-                    android:layout_gravity="center"
-                    android:gravity="center"
-                    android:textColor="@color/white"
-                    android:textSize="@dimen/textsize_welcome_header" />
-            </de.qabel.qabelbox.ui.views.SquareFrameLayout>
-        </de.qabel.qabelbox.ui.views.SquareFrameLayout>
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:textSize="@dimen/textsize_qabel_logo" />
 
         <de.qabel.qabelbox.ui.views.TextViewFont
             android:id="@+id/editTextContactName"
-            android:textSize="@dimen/textsize_qabel_logo"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
-
-        <LinearLayout
-            android:id="@+id/contact_details_actions"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
-        </LinearLayout>
-
-        <de.qabel.qabelbox.ui.views.TextViewFont
-            android:id="@+id/textView"
-            android:textSize="@dimen/textsize_welcome_screen"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10sp"
-            android:text="@string/contact" />
-
-
-        <TextView
-            android:id="@+id/editTextContactDropURL"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="5sp"
-            android:drawableStart="@drawable/earth"
-            android:typeface="monospace"
-            android:drawablePadding="10sp"
-            android:textSize="@dimen/textsize_list_first_line"
-            android:singleLine="false"
-            android:lines="3" />
-
-        <TextView
-            android:id="@+id/editTextContactPublicKey"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="5sp"
-            android:drawableStart="@drawable/key_variant"
-            android:drawablePadding="10sp"
-            android:textSize="@dimen/textsize_list_first_line"
-            android:typeface="monospace"
-            android:singleLine="false"
-            android:lines="4"/>
+            android:layout_gravity="bottom"
+            android:layout_marginStart="5dp"
+            android:textSize="@dimen/textsize_normal" />
     </LinearLayout>
-</FrameLayout>
 
+    <LinearLayout
+        android:id="@+id/contact_details_actions"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical" />
+
+    <de.qabel.qabelbox.ui.views.TextViewFont
+        android:id="@+id/textView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10sp"
+        android:background="@drawable/separator_gray"
+        android:text="@string/contact"
+        android:textSize="@dimen/textsize_welcome_screen" />
+
+
+    <TextView
+        android:id="@+id/editTextContactDropURL"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5sp"
+        android:drawablePadding="10sp"
+        android:drawableStart="@drawable/earth"
+        android:lines="3"
+        android:singleLine="false"
+        android:textSize="@dimen/textsize_list_first_line"
+        android:typeface="monospace" />
+
+    <TextView
+        android:id="@+id/editTextContactPublicKey"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5sp"
+        android:drawablePadding="10sp"
+        android:drawableStart="@drawable/key_variant"
+        android:lines="4"
+        android:singleLine="false"
+        android:textSize="@dimen/textsize_list_first_line"
+        android:typeface="monospace" />
+</LinearLayout>

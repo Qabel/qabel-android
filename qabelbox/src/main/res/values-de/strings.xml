@@ -28,7 +28,7 @@
     <string name="btn_create_identity">Identität erstellen</string>
     <string name="btn_reset_password">Passwort zurücksetzen</string>
     <string name="cancel">Abbrechen</string>
-    <string name="cant_import_contact_already_exisits">Importieren fehlgeschlagen. Kontakt bereits vorhanden</string>
+    <string name="contact_exists">Importieren fehlgeschlagen. Kontakt bereits vorhanden</string>
     <string name="cant_read_identity">Konnte Identität nicht aus der Datei lesen</string>
     <string name="change">Ändern</string>
     <string name="change_account_password_newpassword1_hint">Passwort</string>
@@ -125,7 +125,7 @@
     <string name="login">Login</string>
     <string name="loggedInAs">Angemeldet als %s</string>
     <string name="manage_identities">Identitäten verwalten</string>
-    <string name="messsage_enter_contact_manual">Bitte geben Sie die Details Ihres Kontaktes ein. Sie können dies auch abbrechen und den Kontakt über den QR Code importieren</string>
+    <string name="enter_name_message">Geben Sie bitte einen Name ein</string>
     <string name="navigation_drawer_close">Navigation schließen</string>
     <string name="navigation_drawer_open">Navigation öffnen</string>
     <string name="new_identity_name">Identitätsalias</string>
@@ -289,7 +289,7 @@ Den Unterstützern der Indigogo Kampagne
     <string name="close_app">App schließen</string>
     <string name="retry_action">Wiederholen</string>
     <string name="logout">Abmelden</string>
-    <string name="new_messages">%d new messages</string>
+    <string name="new_messages">%d neue Nachrichten</string>
     <string name="downloading">Herunterladen %s ...</string>
     <string name="download_complete">Herunterladen abgeschlossen</string>
     <string name="download_complete_msg">%s wurde heruntergeladen</string>
@@ -319,4 +319,10 @@ Den Unterstützern der Indigogo Kampagne
     <string name="filebrowser_up">Übergeordnerter Ordner</string>
     <string name="export_complete">Export abgeschlossen</string>
     <string name="export_aborted">Export fehlgeschlagen</string>
+    <string name="contact_edit">Kontakt bearbeiten</string>
+    <string name="contact_new">Neuer Kontakt</string>
+    <string name="changes_saved">Änderungen gespeichert</string>
+    <string name="error_saving_changed">Änderungen konnten nicht gespeichert werden</string>
+    <string name="action_read">Gelesen</string>
+    <string name="action_ignore">Ignorieren</string>
 </resources>

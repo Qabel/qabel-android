@@ -1,6 +1,7 @@
 package de.qabel.qabelbox.contacts.interactor
 
 import de.qabel.core.config.Contact
+import de.qabel.core.config.Identities
 import de.qabel.qabelbox.contacts.dto.ContactDto
 import de.qabel.qabelbox.contacts.dto.ContactParseResult
 import de.qabel.qabelbox.contacts.dto.ContactsParseResult
@@ -15,7 +16,7 @@ interface ContactsUseCase {
     fun search(filter : String): Observable<ContactDto>
     fun loadContact(keyIdentifier : String): Observable<ContactDto>
 
-    fun saveContact(contact : Contact): Observable<Unit>
+    fun saveContact(contact : ContactDto): Observable<Unit>
     fun deleteContact(contact : Contact): Observable<Unit>
 
     /**
@@ -31,5 +32,7 @@ interface ContactsUseCase {
 
     fun importContacts(file : FileDescriptor) : Observable<ContactsParseResult>
     fun importContactString(contactString : String) : Observable<ContactParseResult>
+
+    fun loadContactAndIdentities(keyIdentifier: String) : Observable<Pair<ContactDto, Identities>>
 
 }

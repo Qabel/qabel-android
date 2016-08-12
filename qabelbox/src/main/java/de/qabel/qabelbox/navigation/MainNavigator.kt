@@ -1,6 +1,7 @@
 package de.qabel.qabelbox.navigation
 
 import android.app.Fragment
+import android.content.Context
 import android.content.Intent
 import de.qabel.core.config.Contact
 import de.qabel.core.config.Identity
@@ -20,6 +21,7 @@ import de.qabel.qabelbox.fragments.HelpMainFragment
 import de.qabel.qabelbox.fragments.IdentitiesFragment
 import de.qabel.qabelbox.fragments.QRcodeFragment
 import de.qabel.qabelbox.chat.view.views.ChatFragment
+import de.qabel.qabelbox.contacts.view.views.ContactEditFragment
 import org.jetbrains.anko.AnkoLogger
 import org.jetbrains.anko.warn
 import javax.inject.Inject
@@ -35,6 +37,7 @@ constructor(var activity: MainActivity,
         const val TAG_CONTACT_LIST_FRAGMENT = "TAG_CONTACT_LIST_FRAGMENT"
         const val TAG_CONTACT_CHAT_FRAGMENT = "TAG_CONTACT_CHAT_FRAGMENT"
         const val TAG_CONTACT_DETAILS_FRAGMENT = "TAG_CONTACT_DETAILS_FRAGMENT";
+        const val TAG_CONTACT_EDIT_FRAGMENT = "TAG_CONTACT_EDIT_FRAGMENT";
         const val TAG_QR_CODE_FRAGMENT = "TAG_CONTACT_QR_CODE_FRAGMENT";
 
         const val TAG_FILES_FRAGMENT = "TAG_FILES_FRAGMENT"
@@ -42,6 +45,13 @@ constructor(var activity: MainActivity,
         const val TAG_HELP_FRAGMENT = "TAG_HELP_FRAGMENT"
         const val TAG_MANAGE_IDENTITIES_FRAGMENT = "TAG_MANAGE_IDENTITIES_FRAGMENT"
         const val TAG_FILES_SHARE_INTO_APP_FRAGMENT = "TAG_FILES_SHARE_INTO_APP_FRAGMENT"
+
+        fun createChatIntent(context: Context, identityKey: String, contactKey: String) =
+                Intent(context, MainActivity::class.java).apply {
+                    putExtra(MainActivity.START_CONTACTS_FRAGMENT, true);
+                    putExtra(MainActivity.ACTIVE_IDENTITY, identityKey)
+                    putExtra(MainActivity.ACTIVE_CONTACT, contactKey)
+                }
 
     }
 
@@ -86,18 +96,18 @@ constructor(var activity: MainActivity,
     }
 
     override fun selectQrCodeFragment(contact: Contact) {
-        showFragment(activity, QRcodeFragment.newInstance(contact), TAG_QR_CODE_FRAGMENT, true, false);
+        showFragment(activity, QRcodeFragment.newInstance(contact), TAG_QR_CODE_FRAGMENT, true, false)
     }
 
     override fun selectContactDetailsFragment(contactDto: ContactDto) {
-        showFragment(activity, ContactDetailsFragment.withContact(contactDto), TAG_CONTACT_DETAILS_FRAGMENT, true, false);
+        showFragment(activity, ContactDetailsFragment.withContact(contactDto), TAG_CONTACT_DETAILS_FRAGMENT, true, false)
     }
 
     override fun selectChatFragment(activeContact: String?) {
         if (activeContact == null) {
             return
         }
-        selectContactChat(activeContact, activeIdentity);
+        selectContactChat(activeContact, activeIdentity)
     }
 
     override fun selectContactChat(contactKey: String, withIdentity: Identity) {
@@ -109,14 +119,19 @@ constructor(var activity: MainActivity,
                 warn("Could not find contact " + contactKey, entityNotFoundException)
             }
         } else {
-            val intent = Intent(activity, MainActivity::class.java)
-            intent.putExtra(MainActivity.START_CONTACTS_FRAGMENT, true);
-            intent.putExtra(MainActivity.ACTIVE_IDENTITY, withIdentity.keyIdentifier)
-            intent.putExtra(MainActivity.ACTIVE_CONTACT, contactKey)
+            val intent = createChatIntent(activity, withIdentity.keyIdentifier, contactKey)
             activity.finish()
             activity.overridePendingTransition(R.anim.fade_in, R.anim.fade_out)
             activity.startActivity(intent)
         }
+    }
+
+    override fun selectContactEdit(contactDto: ContactDto) {
+        showFragment(activity, ContactEditFragment.withContact(contactDto), TAG_CONTACT_EDIT_FRAGMENT, true, false)
+    }
+
+    override fun popBackStack() {
+        activity.fragmentManager.popBackStack()
     }
 
 }

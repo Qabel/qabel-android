@@ -1,10 +1,12 @@
 package de.qabel.qabelbox.contacts.view.adapters
 
+import android.view.View
 import android.widget.LinearLayout
 import com.nhaarman.mockito_kotlin.*
 import de.qabel.qabelbox.BuildConfig
 import de.qabel.qabelbox.SimpleApplication
 import de.qabel.qabelbox.contacts.dto.ContactDto
+import de.qabel.qabelbox.contacts.extensions.displayName
 import de.qabel.qabelbox.contacts.view.widgets.ContactIconDrawable
 import de.qabel.qabelbox.test.shadows.TextViewFontShadow
 import de.qabel.qabelbox.ui.views.SquareFrameLayout
@@ -26,6 +28,8 @@ class ContactDetailsAdapterTest {
 
     @Test
     fun testLoadContact() {
+        println(contact)
+        println(contact.nickName)
         testView(ContactDto(contact, listOf(identity)))
     }
 
@@ -44,7 +48,8 @@ class ContactDetailsAdapterTest {
         val ctx = RuntimeEnvironment.application;
 
         val initialsField: TextViewFont = mock()
-        val nameField: TextViewFont = mock();
+        val nameField: TextViewFont = mock()
+        val nickField: TextViewFont = mock()
         val dropField: TextViewFont = mock()
         val keyField: TextViewFont = mock()
         val actionContainer: LinearLayout = mock()
@@ -56,6 +61,7 @@ class ContactDetailsAdapterTest {
         stub(adapter.view!!.tv_initial).toReturn(initialsField)
         stub(adapter.view!!.contact_icon_border).toReturn(imageView)
         stub(adapter.view!!.editTextContactName).toReturn(nameField)
+        stub(adapter.view!!.editTextContactNick).toReturn(nickField)
         stub(adapter.view!!.editTextContactDropURL).toReturn(dropField)
         stub(adapter.view!!.editTextContactPublicKey).toReturn(keyField)
         stub(adapter.view!!.contact_details_actions).toReturn(actionContainer)
@@ -63,7 +69,12 @@ class ContactDetailsAdapterTest {
         adapter.loadContact(contactDto)
 
         verify(initialsField).text = any()
-        verify(nameField).text = contactDto.contact.alias
+        if(contactDto.contact.displayName() == contactDto.contact.alias){
+            verify(nameField).visibility = View.GONE
+        }else {
+            verify(nameField).text = contactDto.contact.alias
+        }
+        verify(nickField).text = contactDto.contact.nickName
         verify(dropField).text = any()
         verify(imageView).background = ContactIconDrawable(emptyList())
         verify(keyField).text = any()

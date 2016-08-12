@@ -5,10 +5,7 @@ import android.widget.Button
 import de.qabel.core.config.Identity
 import de.qabel.qabelbox.R
 import de.qabel.qabelbox.contacts.dto.ContactDto
-import de.qabel.qabelbox.contacts.extensions.contactColors
-import de.qabel.qabelbox.contacts.extensions.initials
-import de.qabel.qabelbox.contacts.extensions.readableKey
-import de.qabel.qabelbox.contacts.extensions.readableUrl
+import de.qabel.qabelbox.contacts.extensions.*
 import de.qabel.qabelbox.contacts.view.widgets.ContactIconDrawable
 import kotlinx.android.synthetic.main.fragment_contact_details.view.*
 import org.jetbrains.anko.layoutInflater
@@ -18,14 +15,22 @@ class ContactDetailsAdapter(private val onSendMessageClick: (identity: Identity)
 
     var view: View? = null
 
-    private var currentContact: ContactDto? = null
+    var currentContact: ContactDto? = null
 
     fun loadContact(contact: ContactDto) {
         currentContact = contact
         view?.apply {
+            val nickname = contact.contact.displayName()
             contact_icon_border.background = ContactIconDrawable(contact.contactColors(context))
             tv_initial.text = contact.initials()
-            editTextContactName.text = contact.contact.alias
+            if (!nickname.equals(contact.contact.alias)) {
+                editTextContactNick.text = nickname
+                editTextContactName.text = contact.contact.alias
+                editTextContactName.visibility = View.VISIBLE
+            } else {
+                editTextContactNick.text = contact.contact.nickName
+                editTextContactName.visibility = View.GONE
+            }
             editTextContactDropURL.text = contact.readableUrl()
             editTextContactPublicKey.text = contact.readableKey()
 
@@ -42,7 +47,7 @@ class ContactDetailsAdapter(private val onSendMessageClick: (identity: Identity)
         }
     }
 
-    private fun addMessageButton(text: String?) {
+    private fun addMessageButton(text: String) {
         currentContact?.apply {
             view?.apply {
                 val button = context.layoutInflater.inflate(R.layout.contact_details_message_button, null) as Button

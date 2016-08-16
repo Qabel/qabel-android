@@ -53,8 +53,9 @@ class ContactsFragment() : ContactsView, BaseFragment(), AnkoLogger, SearchView.
     @BindView(R.id.contact_search)
     lateinit var contactSearch: SearchView
 
-    val adapter = ContactsAdapter({ contact -> presenter.handleClick(contact)
-    }, { contact -> presenter.handleLongClick(contact)
+    val adapter = ContactsAdapter({
+        contact -> presenter.handleClick(contact) }, {
+        contact -> presenter.handleLongClick(contact)
     })
 
     override fun showBottomSheet(contact: ContactDto) {

@@ -103,7 +103,6 @@ class MainChatNotificationManager : ChatNotificationManager {
 
                 ContactChatNotification(unknownMessages.first().identity,
                         contact, message, contactMessage.time).apply {
-                    extraNotification = true
                 }
             }
 

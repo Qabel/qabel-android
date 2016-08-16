@@ -20,18 +20,19 @@ import de.qabel.qabelbox.fragments.BaseFragment
 import de.qabel.qabelbox.helper.Helper
 import kotlinx.android.synthetic.main.fragment_contact_chat.*
 import kotlinx.android.synthetic.main.fragment_contact_chat.view.*
-import org.jetbrains.anko.AnkoLogger
-import org.jetbrains.anko.ctx
-import org.jetbrains.anko.debug
-import org.jetbrains.anko.onUiThread
+import org.jetbrains.anko.*
 import javax.inject.Inject
 
 class ChatFragment : ChatView, BaseFragment(), AnkoLogger {
+
     override var messageText: String
         get() = view?.etText?.text.toString()
         set(value) {
             view?.etText?.setText(value)
         }
+
+
+    override val isFabNeeded: Boolean = false
 
     var injectCompleted = false
 
@@ -71,10 +72,8 @@ class ChatFragment : ChatView, BaseFragment(), AnkoLogger {
         layoutManager.stackFromEnd = true
         contact_chat_list.layoutManager = layoutManager
         contact_chat_list.adapter = adapter
-    }
 
-    override val isFabNeeded: Boolean
-        get() = false
+    }
 
     /**
      * Block notifications in which only the currently active contact
@@ -101,20 +100,35 @@ class ChatFragment : ChatView, BaseFragment(), AnkoLogger {
 
     override fun onResume() {
         super.onResume()
+        presenter.refreshMessages()
         ctx.registerReceiver(notificationBlockReceiver, IntentFilter(QblBroadcastConstants.Chat.NOTIFY_NEW_MESSAGES).apply {
             priority = 1
         })
+        refreshContactOverlay()
+        mActivity?.toolbar?.setOnClickListener { presenter.handleHeaderClick() }
+    }
+
+    override fun refreshContactOverlay() {
+        chat_contact_toolbar?.visibility = if (presenter.showContactMenu) View.VISIBLE else View.GONE
     }
 
     override fun onPause() {
         super.onPause()
         ctx.unregisterReceiver(notificationBlockReceiver)
+
+        mActivity?.toolbar?.isClickable = false
     }
 
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
         return inflater?.inflate(R.layout.fragment_contact_chat, container, false)
                 ?: throw IllegalStateException("Could not create view")
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        action_add_contact.setOnClickListener { presenter.handleContactAddClick() }
+        action_ignore_contact.setOnClickListener { presenter.handleContactIgnoreClick() }
     }
 
     override fun showEmpty() {
@@ -160,10 +174,22 @@ class ChatFragment : ChatView, BaseFragment(), AnkoLogger {
         if (injectCompleted) presenter.title else ""
     }
 
+    override val subtitle: String? by lazy {
+        if (injectCompleted && !presenter.subtitle.isEmpty()) presenter.subtitle else null
+    }
+
     override fun supportBackButton(): Boolean = true
 
-    override fun sendMessageStateChange(){
+    override fun sendMessageStateChange() {
         ctx.sendBroadcast(Intent(QblBroadcastConstants.Chat.MESSAGE_STATE_CHANGED))
+    }
+
+    override fun showError(error: Throwable) {
+        onUiThread {
+            longToast(getString(R.string.error_saving_changed))
+            error("Error in ChatFragment", error)
+            refreshContactOverlay()
+        }
     }
 
 }

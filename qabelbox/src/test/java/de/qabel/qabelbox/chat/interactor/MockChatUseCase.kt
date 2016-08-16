@@ -9,6 +9,7 @@ import rx.lang.kotlin.toSingletonObservable
 open class MockChatUseCase(val chatMessage: ChatMessage,
                       override val contact: Contact,
                       var messages: List<ChatMessage>): ChatUseCase {
+
     override fun send(text: String): Observable<ChatMessage> {
         messages = listOf(chatMessage)
         return chatMessage.toSingletonObservable()
@@ -20,4 +21,14 @@ open class MockChatUseCase(val chatMessage: ChatMessage,
         }
         it.onCompleted()
     }
+    override fun ignoreContact(): Observable<Unit> {
+        contact.isIgnored = true
+        return Unit.toSingletonObservable()
+    }
+
+    override fun addContact(): Observable<Unit> {
+        contact.status == Contact.ContactStatus.NORMAL
+        return Unit.toSingletonObservable()
+    }
+
 }

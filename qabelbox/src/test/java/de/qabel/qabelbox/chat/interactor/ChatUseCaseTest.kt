@@ -1,6 +1,9 @@
 package de.qabel.qabelbox.chat.interactor
 
-import com.nhaarman.mockito_kotlin.*
+import com.nhaarman.mockito_kotlin.any
+import com.nhaarman.mockito_kotlin.mock
+import com.nhaarman.mockito_kotlin.spy
+import com.nhaarman.mockito_kotlin.verify
 import de.qabel.core.http.DropConnector
 import de.qabel.core.http.MainDropConnector
 import de.qabel.core.repository.ChatDropMessageRepository
@@ -11,8 +14,6 @@ import de.qabel.qabelbox.BuildConfig
 import de.qabel.qabelbox.SimpleApplication
 import de.qabel.qabelbox.chat.dto.ChatMessage
 import de.qabel.qabelbox.chat.transformers.ChatMessageTransformer
-import de.qabel.qabelbox.repositories.MockContactRepository
-import de.qabel.qabelbox.repositories.MockIdentityRepository
 import de.qabel.qabelbox.tmp_core.*
 import de.qabel.qabelbox.util.IdentityHelper
 import org.hamcrest.Matchers.hasSize
@@ -32,10 +33,15 @@ class ChatUseCaseTest {
 
     val identity = IdentityHelper.createIdentity("identity", null)
     val contact = IdentityHelper.createContact("contact_name")
+
+    val chatServiceUseCase: ChatServiceUseCase = mock()
+    var dropConnector: DropConnector = MainDropConnector(MockDropServer())
+
     lateinit var transformer: ChatMessageTransformer
     lateinit var chatService: ChatService
     lateinit var chatDropRepository: ChatDropMessageRepository
-    lateinit var dropConnector: DropConnector
+
+    lateinit var chatUseCase: ChatUseCase
 
     @Before
     fun setUp() {
@@ -43,20 +49,15 @@ class ChatUseCaseTest {
         identityRepo.save(identity)
         val contactRepo = InMemoryContactRepository()
         contactRepo.save(contact, identity)
-        dropConnector = MainDropConnector(MockDropServer())
         chatDropRepository = spy(InMemoryChatDropMessageRepository())
         transformer = ChatMessageTransformer(identityRepo, contactRepo)
         chatService = spy(MainChatService(dropConnector, identityRepo, contactRepo, chatDropRepository, InMemoryDropStateRepository()))
+        chatUseCase = TransformingChatUseCase(identity, contact, transformer, chatService, chatDropRepository, chatServiceUseCase)
     }
 
     @Test
     fun testNoMessages() {
-        val useCase = TransformingChatUseCase(identity, contact, transformer, chatService, chatDropRepository)
-        var list: List<ChatMessage>? = null
-        useCase.retrieve().toList().toBlocking().subscribe({
-            messages ->
-            list = messages
-        })
+        val list: List<ChatMessage> = chatUseCase.retrieve().toList().toBlocking().first()
         assertThat(list, hasSize(0))
     }
 
@@ -66,8 +67,7 @@ class ChatUseCaseTest {
                 ChatDropMessage.Direction.OUTGOING, ChatDropMessage.Status.NEW,
                 ChatDropMessage.MessageType.BOX_MESSAGE, ChatDropMessage.MessagePayload.TextMessage("test123"), Date().time))
 
-        val useCase = TransformingChatUseCase(identity, contact, transformer, chatService, chatDropRepository)
-        val list: List<ChatMessage> = useCase.retrieve().toList().toBlocking().first()
+        val list: List<ChatMessage> = chatUseCase.retrieve().toList().toBlocking().first()
         assertThat(list, hasSize(1))
         verify(chatDropRepository).markAsRead(contact, identity)
         verify(chatDropRepository).findByContact(contact.id, identity.id)
@@ -76,9 +76,8 @@ class ChatUseCaseTest {
     @Test
     @Ignore("Needs fix for gson")
     fun sendMessage() {
-        val useCase = TransformingChatUseCase(identity, contact, transformer, chatService, chatDropRepository)
         var result: ChatMessage? = null
-        useCase.send("Text").subscribe({
+        chatUseCase.send("Text").subscribe({
             result = it
         })
         verify(chatService).sendMessage(any<ChatDropMessage>())

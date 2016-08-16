@@ -5,8 +5,12 @@ import de.qabel.qabelbox.chat.dto.ChatMessage
 import rx.Observable
 
 interface ChatUseCase {
+
+    val contact: Contact
+
     fun retrieve(): Observable<ChatMessage>
     fun send(text: String): Observable<ChatMessage>
 
-    val contact: Contact
+    fun ignoreContact(): Observable<Unit>
+    fun addContact(): Observable<Unit>
 }

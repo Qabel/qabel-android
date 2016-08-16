@@ -57,7 +57,6 @@ constructor(var activity: MainActivity,
 
     private fun showMainFragment(fragment: Fragment, tag: String) {
         showFragment(activity, fragment, tag, false, true)
-        activity.handleMainFragmentChange()
     }
 
     override fun selectCreateAccountActivity() {
@@ -99,8 +98,12 @@ constructor(var activity: MainActivity,
         showFragment(activity, QRcodeFragment.newInstance(contact), TAG_QR_CODE_FRAGMENT, true, false)
     }
 
+    override fun selectContactDetailsFragment(contact: Contact) {
+        showFragment(activity, ContactDetailsFragment.withContactKey(contact.keyIdentifier), TAG_CONTACT_DETAILS_FRAGMENT, true, false)
+    }
+
     override fun selectContactDetailsFragment(contactDto: ContactDto) {
-        showFragment(activity, ContactDetailsFragment.withContact(contactDto), TAG_CONTACT_DETAILS_FRAGMENT, true, false)
+        showFragment(activity, ContactDetailsFragment.withContactKey(contactDto.contact.keyIdentifier), TAG_CONTACT_DETAILS_FRAGMENT, true, false)
     }
 
     override fun selectChatFragment(activeContact: String?) {

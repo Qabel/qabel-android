@@ -181,7 +181,7 @@ class ChatFragment : ChatView, BaseFragment(), AnkoLogger {
     override fun supportBackButton(): Boolean = true
 
     override fun sendMessageStateChange() {
-        ctx.sendBroadcast(Intent(QblBroadcastConstants.Chat.MESSAGE_STATE_CHANGED))
+        mActivity?.ctx?.sendBroadcast(Intent(QblBroadcastConstants.Chat.MESSAGE_STATE_CHANGED))
     }
 
     override fun showError(error: Throwable) {

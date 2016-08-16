@@ -66,9 +66,14 @@ class MockContactRepository(val contacts: MutableMap<String, Contact> = mutableM
         } else throw EntityNotFoundException("Contact is not one of the injected")
     }
 
-    override fun findWithIdentities(searchString: String): Collection<Pair<Contact, List<Identity>>> {
+    override fun findWithIdentities(searchString: String, status: List<Contact.ContactStatus>, excludeIgnored: Boolean):
+            Collection<Pair<Contact, List<Identity>>> {
         return contacts.values
-                .filter { contact -> contact.alias.toLowerCase().startsWith(searchString.toLowerCase()) }
+                .filter { contact ->
+                    contact.alias.toLowerCase().startsWith(searchString.toLowerCase()) &&
+                            status.contains(contact.status) &&
+                            if (excludeIgnored) !contact.isIgnored else true
+                }
                 .map { contact -> Pair(contact, findContactIdentities(contact.keyIdentifier)) }
     }
 

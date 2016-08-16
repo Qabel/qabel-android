@@ -5,6 +5,7 @@ import de.qabel.core.config.Identity
 import de.qabel.core.repository.ChatDropMessageRepository
 import de.qabel.core.repository.entities.ChatDropMessage
 import de.qabel.core.repository.exception.EntityNotFoundException
+import de.qabel.core.repository.framework.PagingResult
 
 @Deprecated("Replace with core")
 open class InMemoryChatDropMessageRepository : ChatDropMessageRepository {
@@ -34,10 +35,10 @@ open class InMemoryChatDropMessageRepository : ChatDropMessageRepository {
     }
 
     override fun findByContact(contactId: Int, identityId: Int): List<ChatDropMessage> =
-        messages.filter { chatDropMessage -> chatDropMessage.contactId == contactId && chatDropMessage.identityId == identityId }
+            messages.filter { chatDropMessage -> chatDropMessage.contactId == contactId && chatDropMessage.identityId == identityId }
 
     override fun findNew(identityId: Int): List<ChatDropMessage> =
-        messages.filter { it.identityId == identityId && it.status == ChatDropMessage.Status.NEW }
+            messages.filter { it.identityId == identityId && it.status == ChatDropMessage.Status.NEW }
 
     override fun findLatest(identityId: Int): List<ChatDropMessage> {
         val latest = mutableMapOf<Int, ChatDropMessage>()
@@ -55,11 +56,15 @@ open class InMemoryChatDropMessageRepository : ChatDropMessageRepository {
     override fun exists(chatDropMessage: ChatDropMessage): Boolean {
         return messages.any {
             chatDropMessage.direction == it.direction &&
-                chatDropMessage.contactId == it.contactId &&
-                chatDropMessage.identityId == it.identityId &&
-                chatDropMessage.messageType == it.messageType &&
-                chatDropMessage.payload.toString() == it.payload.toString()
+                    chatDropMessage.contactId == it.contactId &&
+                    chatDropMessage.identityId == it.identityId &&
+                    chatDropMessage.messageType == it.messageType &&
+                    chatDropMessage.payload.toString() == it.payload.toString()
         }
+    }
+
+    override fun findByContact(contactId: Int, identityId: Int, offset: Int, pageSize: Int): PagingResult<ChatDropMessage> {
+        throw UnsupportedOperationException("not implemented in mock")
     }
 
 }

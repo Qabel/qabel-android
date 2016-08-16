@@ -1,7 +1,6 @@
 package de.qabel.qabelbox.box.views
 
 import de.qabel.qabelbox.box.dto.BrowserEntry
-import de.qabel.qabelbox.box.dto.DownloadSource
 import de.qabel.qabelbox.box.provider.DocumentId
 
 interface FileBrowserView {
@@ -9,9 +8,8 @@ interface FileBrowserView {
     fun open(documentId: DocumentId)
     fun share(documentId: DocumentId)
     fun export(documentId: DocumentId)
-
     fun showError(throwable: Throwable)
-    open fun refreshDone()
-    open fun refreshStart()
+    fun refreshDone()
+    fun refreshStart()
 }
 

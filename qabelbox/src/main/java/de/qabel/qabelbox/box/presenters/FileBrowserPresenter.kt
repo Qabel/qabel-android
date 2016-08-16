@@ -1,5 +1,6 @@
 package de.qabel.qabelbox.box.presenters
 
+import de.qabel.core.config.Contact
 import de.qabel.qabelbox.box.dto.BrowserEntry
 import java.io.InputStream
 
@@ -21,5 +22,7 @@ interface FileBrowserPresenter {
     fun upload(file: BrowserEntry.File, stream: InputStream)
 
     fun navigateUp()
+
+    fun shareToContact(entry: BrowserEntry.File, contact: Contact)
 }
 

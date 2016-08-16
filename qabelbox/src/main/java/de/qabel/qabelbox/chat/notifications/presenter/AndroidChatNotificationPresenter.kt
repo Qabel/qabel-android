@@ -49,7 +49,7 @@ open class AndroidChatNotificationPresenter : ChatNotificationPresenter {
     override fun showNotification(notification: ChatNotification) {
         val intent = getChatIntent(notification)
         val pendingChatIntent = PendingIntent.getActivity(
-                context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
+                context, getId(notification), intent, PendingIntent.FLAG_UPDATE_CURRENT)
 
         val notificationBuilder = builder.get().apply {
             setDefaults(Notification.DEFAULT_ALL)

@@ -39,12 +39,12 @@ open class AndroidChatNotificationPresenter : ChatNotificationPresenter {
     }
 
     override fun hideNotification(identityKey: String) =
-        notificationManager.cancel(KEY, identityToNotificationId.getOrDefault(identityKey))
+            notificationManager.cancel(KEY, identityToNotificationId.getOrDefault(identityKey))
 
 
-    override fun hideNotification(identityKey : String, contactKey: String) =
-        notificationManager.cancel(KEY, identityToNotificationId.getOrDefault(
-                identityKey + "_" + contactKey))
+    override fun hideNotification(identityKey: String, contactKey: String) =
+            notificationManager.cancel(KEY, identityToNotificationId.getOrDefault(
+                    identityKey + "_" + contactKey))
 
     override fun showNotification(notification: ChatNotification) {
         val intent = getChatIntent(notification)
@@ -58,16 +58,18 @@ open class AndroidChatNotificationPresenter : ChatNotificationPresenter {
             setContentTitle(notification.header)
             setContentText(notification.message)
             setSmallIcon(R.mipmap.ic_launcher)
-            setPriority(Notification.PRIORITY_HIGH)
             setAutoCancel(true)
             setVisibility(Notification.VISIBILITY_PRIVATE)
             setCategory(Notification.CATEGORY_MESSAGE)
 
+            //NewContact Notifications have higher priority
+            setPriority(Notification.PRIORITY_DEFAULT)
             when (notification) {
                 is ContactChatNotification -> {
                     if (notification.contact.status == Contact.ContactStatus.UNKNOWN) {
                         addAddContactAction(notification)
                         addIgnoreContactAction(notification)
+                        setPriority(Notification.PRIORITY_HIGH)
                     } else {
                         addMarkReadAction(notification)
                     }
@@ -75,13 +77,12 @@ open class AndroidChatNotificationPresenter : ChatNotificationPresenter {
                 else -> addMarkReadAction(notification)
             }
         }
-        notificationManager.notify(KEY, getId(notification),
-                notificationBuilder.build())
+        notificationManager.notify(KEY, getId(notification), notificationBuilder.build())
     }
 
     private fun getId(notification: ChatNotification): Int {
         var id = notification.identity.keyIdentifier
-        if (notification is ContactChatNotification && notification.extraNotification) {
+        if (notification is ContactChatNotification) {
             id += "_" + notification.contact.keyIdentifier
         }
         return identityToNotificationId.getOrDefault(id)
@@ -89,21 +90,21 @@ open class AndroidChatNotificationPresenter : ChatNotificationPresenter {
 
     private fun NotificationCompat.Builder.addAddContactAction(notification: ContactChatNotification) {
         addAction(R.drawable.account_multiple_plus, context.getString(R.string.add),
-                PendingIntent.getService(context, 0,
+                PendingIntent.getService(context, getId(notification),
                         createServiceIntent(Service.ADD_CONTACT, notification),
                         PendingIntent.FLAG_UPDATE_CURRENT))
     }
 
     private fun NotificationCompat.Builder.addIgnoreContactAction(notification: ContactChatNotification) {
         addAction(R.drawable.close, context.getString(R.string.action_ignore),
-                PendingIntent.getService(context, 0,
+                PendingIntent.getService(context, getId(notification),
                         createServiceIntent(Service.IGNORE_CONTACT, notification),
                         PendingIntent.FLAG_UPDATE_CURRENT))
     }
 
     private fun NotificationCompat.Builder.addMarkReadAction(notification: ChatNotification) {
         addAction(R.drawable.check, context.getString(R.string.action_read),
-                PendingIntent.getService(context, 0,
+                PendingIntent.getService(context, getId(notification),
                         createServiceIntent(Service.MARK_READ, notification),
                         PendingIntent.FLAG_UPDATE_CURRENT))
     }
@@ -112,7 +113,7 @@ open class AndroidChatNotificationPresenter : ChatNotificationPresenter {
             Intent(context, AndroidChatService::class.java).apply {
                 setAction(action)
                 putExtra(AndroidChatService.PARAM_IDENTITY_KEY, notification.identity.keyIdentifier)
-                if (notification is ContactChatNotification && notification.extraNotification) {
+                if (notification is ContactChatNotification) {
                     putExtra(AndroidChatService.PARAM_CONTACT_KEY, notification.contact.keyIdentifier)
                 }
             }

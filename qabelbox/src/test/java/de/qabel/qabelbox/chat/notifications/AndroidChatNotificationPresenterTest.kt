@@ -43,7 +43,6 @@ class AndroidChatNotificationPresenterTest : UITest {
     private lateinit var builder: NotificationCompat.Builder
 
     @Before
-    @Throws(Exception::class)
     fun setUp() {
         identity = IdentityHelper.createIdentity("identity", null)
         notificationManager = RuntimeEnvironment.application.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
@@ -135,7 +134,6 @@ class AndroidChatNotificationPresenterTest : UITest {
 
         val contactNotification = ContactChatNotification(identity,
                 contact, "message", Date())
-        contactNotification.extraNotification = true
 
         presenter.showNotification(notification)
         presenter.showNotification(contactNotification)

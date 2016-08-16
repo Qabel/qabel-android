@@ -12,8 +12,7 @@ import java.io.FileDescriptor
 
 interface ContactsUseCase {
 
-    fun load(): Observable<ContactDto>
-    fun search(filter : String): Observable<ContactDto>
+    fun search(filter : String, showIgnored : Boolean): Observable<ContactDto>
     fun loadContact(keyIdentifier : String): Observable<ContactDto>
 
     fun saveContact(contact : ContactDto): Observable<Unit>

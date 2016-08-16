@@ -1,10 +1,10 @@
 package de.qabel.qabelbox.contacts.view.presenter
 
 import com.google.zxing.integration.android.IntentIntegrator
-import com.natpryce.hamkrest.present
 import com.nhaarman.mockito_kotlin.mock
 import com.nhaarman.mockito_kotlin.spy
 import com.nhaarman.mockito_kotlin.verify
+import com.nhaarman.mockito_kotlin.whenever
 import de.qabel.core.contacts.ContactExchangeFormats
 import de.qabel.core.repository.ContactRepository
 import de.qabel.core.repository.IdentityRepository
@@ -20,7 +20,7 @@ import de.qabel.qabelbox.contacts.view.presenters.MainContactsPresenter
 import de.qabel.qabelbox.contacts.view.views.ContactsView
 import de.qabel.qabelbox.external.ExternalAction
 import de.qabel.qabelbox.external.ExternalFileAction
-import de.qabel.qabelbox.repositories.MockContactRepository
+import de.qabel.qabelbox.navigation.Navigator
 import de.qabel.qabelbox.test.TestConstants
 import de.qabel.qabelbox.test.files.FileHelper
 import de.qabel.qabelbox.tmp_core.InMemoryContactRepository
@@ -49,7 +49,7 @@ class ContactsPresenterTest {
     val contactB = IdentityHelper.createContact("ContactB")
 
     val contactADto = ContactDto(contactA, listOf(identity))
-    val contactBDto = ContactDto(contactB, listOf(identity))
+    val contactBDto = ContactDto(contactB, listOf(), false)
 
     var contactRepo: ContactRepository = InMemoryContactRepository()
     val identityRepo: IdentityRepository = InMemoryIdentityRepository()
@@ -58,23 +58,26 @@ class ContactsPresenterTest {
         identityRepo.save(identity)
         contactRepo.save(contactA, identity)
         contactRepo.save(contactB, identity)
+        contactRepo.update(contactB, emptyList())
     }
 
     lateinit var contactUseCase: ContactsUseCase
-    lateinit var contactsView: ContactsView
     lateinit var presenter: ContactsPresenter
+
+    val contactsView: ContactsView = mock()
+    val navigator : Navigator = mock()
 
     @Before
     fun setUp() {
+        whenever(contactsView.showIgnored).thenReturn(false)
         contactUseCase = spy(MainContactsUseCase(identity, contactRepo, identityRepo))
-        contactsView = mock()
-        presenter = MainContactsPresenter(contactsView, contactUseCase)
+        presenter = MainContactsPresenter(contactsView, contactUseCase,navigator)
     }
 
     @Test
     fun testRefresh() {
         presenter.refresh()
-        verify(contactUseCase).load()
+        verify(contactUseCase).search("", false)
         verify(contactsView).loadData(listOf(contactADto, contactBDto))
     }
 
@@ -83,8 +86,31 @@ class ContactsPresenterTest {
         val searchString = "ContactA"
         Mockito.`when`(contactsView.searchString).thenAnswer { searchString }
         presenter.refresh()
-        verify(contactUseCase).search(searchString)
+        verify(contactUseCase).search(searchString, false)
         verify(contactsView).loadData(listOf(contactADto))
+    }
+
+    @Test
+    fun testShowIgnored() {
+        Mockito.`when`(contactsView.searchString).thenAnswer { "" }
+        Mockito.`when`(contactsView.showIgnored).thenAnswer { true }
+        presenter.refresh()
+        verify(contactUseCase).search("", true)
+    }
+
+    @Test
+    fun testHandleClick(){
+        presenter.handleClick(contactADto)
+        verify(navigator).selectChatFragment(contactADto.contact.keyIdentifier)
+
+        presenter.handleClick(contactBDto)
+        verify(navigator).selectContactDetailsFragment(contactBDto)
+    }
+
+    @Test
+    fun testHandleLongClick(){
+        presenter.handleLongClick(contactBDto)
+        verify(contactsView).showBottomSheet(contactBDto)
     }
 
     @Test
@@ -122,7 +148,7 @@ class ContactsPresenterTest {
         assertThat(presenter.externalAction, Matchers.notNullValue())
         assertThat(presenter.externalAction!!.requestCode, equalTo(ContactsRequestCodes.REQUEST_EXPORT_CONTACT))
         assertThat(presenter.externalAction!!.actionType, equalTo(QabelSchema.TYPE_EXPORT_ALL))
-        verify(contactsView).startExportFileChooser(QabelSchema.createExportContactsFileName(), ContactsRequestCodes.REQUEST_EXPORT_CONTACT);
+        verify(contactsView).startExportFileChooser(QabelSchema.createExportContactsFileName(), ContactsRequestCodes.REQUEST_EXPORT_CONTACT)
     }
 
     @Test
@@ -175,7 +201,7 @@ class ContactsPresenterTest {
         presenter.startContactImportScan(0)
         assertThat(presenter.externalAction!!.actionType,
                 equalTo(ContactsRequestCodes.REQUEST_QR_IMPORT_CONTACT))
-        verify(contactsView).startQRScan();
+        verify(contactsView).startQRScan()
     }
 
 }

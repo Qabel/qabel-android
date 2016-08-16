@@ -2,7 +2,6 @@ package de.qabel.qabelbox.contacts.dagger;
 
 import dagger.Module;
 import dagger.Provides;
-import de.qabel.qabelbox.contacts.interactor.ContactsUseCase;
 import de.qabel.qabelbox.contacts.view.presenters.ContactsPresenter;
 import de.qabel.qabelbox.contacts.view.presenters.MainContactsPresenter;
 import de.qabel.qabelbox.contacts.view.views.ContactsView;
@@ -24,7 +23,7 @@ public class ContactsModule extends ContactBaseModule {
     }
 
     @Provides
-    public ContactsPresenter provideContactsPresenter(ContactsUseCase contactsUseCase) {
-        return new MainContactsPresenter(view, contactsUseCase);
+    public ContactsPresenter provideContactsPresenter(MainContactsPresenter presenter) {
+        return presenter;
     }
 }

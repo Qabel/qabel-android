@@ -156,10 +156,10 @@ class ContactsFragment() : ContactsView, BaseFragment(), AnkoLogger, SearchView.
 
     private fun updateView(itemCount: Int) {
         if (itemCount == 0) {
-            contact_list?.empty_view?.visibility = View.VISIBLE
+            empty_view?.visibility = View.VISIBLE
             contactCount?.visibility = View.GONE
         } else {
-            contact_list?.empty_view?.visibility = View.GONE
+            empty_view?.visibility = View.GONE
             contactCount?.visibility = View.VISIBLE
             contactCount?.text = getString(R.string.contact_count, itemCount)
         }

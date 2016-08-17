@@ -39,21 +39,21 @@ class ChatMessageAdapterTest {
     fun setUp() {
         message = ChatMessage(mock(), mock(), ChatDropMessage.Direction.INCOMING,
                 Date(), MessagePayloadDto.TextMessage("Text"))
-        adapter = ChatMessageAdapter(listOf())
-        FontHelper.disable = true;
+        adapter = ChatMessageAdapter()
+        FontHelper.disable = true
     }
 
     @Test
     fun testGetItemCount() {
-        adapter.itemCount shouldMatch  equalTo(0)
-        adapter.messages = listOf(message, message)
+        adapter.itemCount shouldMatch equalTo(0)
+        adapter.init(listOf(message, message))
         adapter.itemCount shouldMatch equalTo(2)
     }
 
     @Test
     fun itemAt() {
         val second = message.copy(direction = ChatDropMessage.Direction.OUTGOING)
-        adapter.messages = listOf(message, second)
+        adapter.init(listOf(message, second))
         adapter.getItemAtPosition(0)!! shouldMatch equalTo(message)
         adapter.getItemAtPosition(1)!! shouldMatch equalTo(second)
         adapter.getItemAtPosition(2) shouldMatch equalTo(null as ChatMessage?)
@@ -63,9 +63,9 @@ class ChatMessageAdapterTest {
     fun differentViewsForShareAndTextMessage() {
         val shareMessage = message.copy(messagePayload =
         MessagePayloadDto.ShareMessage("share message", URL("http://foo"), SymmetricKey(listOf())))
-        adapter.messages = listOf(message, shareMessage,
+        adapter.init(listOf(message, shareMessage,
                 message.copy(direction = ChatDropMessage.Direction.OUTGOING),
-                shareMessage.copy(direction = ChatDropMessage.Direction.OUTGOING))
+                shareMessage.copy(direction = ChatDropMessage.Direction.OUTGOING)))
         assertThat(adapter.getItemViewType(0), equalTo(ChatMessageAdapter.MessageType.TEXT_IN.ordinal))
         assertThat(adapter.getItemViewType(1), equalTo(ChatMessageAdapter.MessageType.SHARE_IN.ordinal))
         assertThat(adapter.getItemViewType(2), equalTo(ChatMessageAdapter.MessageType.TEXT_OUT.ordinal))
@@ -99,7 +99,7 @@ class ChatMessageAdapterTest {
     @Test
     @Ignore("TODO method is calling baseClass")
     fun bindViewHolder() {
-        adapter.messages = listOf(message)
+        adapter.init(listOf(message))
         val holder = mock<TextChatMessageViewHolder>()
         adapter.onBindViewHolder(holder, 0)
         verify(holder).bindTo(message, false)

@@ -36,21 +36,21 @@ class MainChatPresenterTest {
 
     @Test fun testEmptyStartup() {
         presenter.refreshMessages()
-        verify(view).showEmpty()
+        verify(view).reset()
     }
 
     @Test fun testStartupWithMessages() {
         useCase.messages = listOf(sampleMessage,
                 sampleMessage.copy(messagePayload = MessagePayloadDto.TextMessage("test2")))
         presenter.refreshMessages()
-        verify(view).showMessages(useCase.messages)
+        verify(view).prependData(useCase.messages)
     }
 
     @Test fun messageIsSent() {
         stub(view.messageText).toReturn("Text")
         presenter.sendMessage()
         verify(useCase).send(view.messageText)
-        verify(view).showMessages(listOf(sampleMessage))
+        verify(view).appendData(listOf(sampleMessage))
         verify(view).messageText = ""
     }
 
@@ -58,7 +58,7 @@ class MainChatPresenterTest {
         stub(view.messageText).toReturn("")
         presenter.sendMessage()
         verify(useCase, never()).send(any())
-        verify(view, never()).showMessages(any())
+        verify(view, never()).prependData(any())
     }
 
     @Test

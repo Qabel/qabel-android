@@ -264,7 +264,6 @@ class MainActivity : CrashReportingActivity(),
         } else {
             drawer.setSelection(chats)
             navigator.selectChatOverviewFragment()
-            drawer.setSelection(-1L)
         }
     }
 

@@ -5,12 +5,15 @@ import de.qabel.qabelbox.chat.interactor.ChatUseCase
 import de.qabel.qabelbox.chat.view.views.ChatView
 import de.qabel.qabelbox.contacts.extensions.displayName
 import de.qabel.qabelbox.navigation.Navigator
-import rx.lang.kotlin.onError
+import de.qabel.qabelbox.ui.DataViewProxy
 import javax.inject.Inject
 
 class MainChatPresenter @Inject constructor(private val view: ChatView,
                                             private val useCase: ChatUseCase,
                                             private val navigator: Navigator) : ChatPresenter {
+
+    override val proxy = DataViewProxy({ offset, pageSize -> useCase.load(offset, pageSize) }, view)
+
     override val title: String
         get() = useCase.contact.displayName()
 
@@ -21,24 +24,13 @@ class MainChatPresenter @Inject constructor(private val view: ChatView,
         get() = if (!useCase.contact.displayName().equals(useCase.contact.alias))
             useCase.contact.alias else ""
 
-    override fun refreshMessages() {
-        useCase.retrieve().toList().onError {
-            view.showEmpty()
-        }.subscribe({ messages ->
-            if (messages.size > 0) {
-                view.showMessages(messages)
-                view.sendMessageStateChange()
-            } else (view.showEmpty())
-        })
-    }
+    override fun refreshMessages() = proxy.load()
 
     override fun sendMessage() {
         if (view.messageText.isNotEmpty()) {
-            useCase.send(view.messageText).doOnCompleted {
-                refreshMessages()
-            }.subscribe { message ->
-                view.appendMessage(message)
-            }
+            useCase.send(view.messageText).subscribe({ message ->
+                view.appendData(listOf(message))
+            }, { proxy.load() })
             view.messageText = ""
         }
     }

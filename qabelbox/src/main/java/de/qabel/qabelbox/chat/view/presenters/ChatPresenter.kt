@@ -1,14 +1,19 @@
 package de.qabel.qabelbox.chat.view.presenters
 
-interface ChatPresenter {
+import de.qabel.qabelbox.chat.dto.ChatMessage
+import de.qabel.qabelbox.ui.DataViewProxy
 
-    fun refreshMessages()
+interface ChatPresenter {
 
     val title: String
 
     val subtitle: String
 
-    val showContactMenu : Boolean
+    val showContactMenu: Boolean
+
+    val proxy: DataViewProxy<ChatMessage>
+
+    fun refreshMessages()
 
     fun sendMessage()
 

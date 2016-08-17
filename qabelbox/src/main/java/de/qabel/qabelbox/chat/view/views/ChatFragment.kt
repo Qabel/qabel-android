@@ -6,7 +6,9 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.os.Bundle
 import android.support.v7.widget.LinearLayoutManager
-import android.view.*
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import de.qabel.core.config.Contact
 import de.qabel.core.config.Identity
 import de.qabel.qabelbox.QblBroadcastConstants
@@ -18,6 +20,7 @@ import de.qabel.qabelbox.chat.view.presenters.ChatPresenter
 import de.qabel.qabelbox.dagger.components.MainActivityComponent
 import de.qabel.qabelbox.fragments.BaseFragment
 import de.qabel.qabelbox.helper.Helper
+import de.qabel.qabelbox.ui.HeaderDecoration
 import kotlinx.android.synthetic.main.fragment_contact_chat.*
 import kotlinx.android.synthetic.main.fragment_contact_chat.view.*
 import org.jetbrains.anko.*
@@ -49,8 +52,8 @@ class ChatFragment : ChatView, BaseFragment(), AnkoLogger {
         }
     }
 
-    val adapter = ChatMessageAdapter(listOf())
-
+    val adapter: ChatMessageAdapter = ChatMessageAdapter()
+    var headerDecor: HeaderDecoration? = null
     lateinit override var contactKeyId: String
     @Inject
     lateinit var presenter: ChatPresenter
@@ -64,14 +67,9 @@ class ChatFragment : ChatView, BaseFragment(), AnkoLogger {
         val component = getComponent(MainActivityComponent::class.java).plus(ChatModule(this))
         component.inject(this)
         injectCompleted = true
-        bt_send.setOnClickListener { presenter.sendMessage() }
+
 
         configureAsSubFragment()
-
-        val layoutManager = LinearLayoutManager(view.context)
-        layoutManager.stackFromEnd = true
-        contact_chat_list.layoutManager = layoutManager
-        contact_chat_list.adapter = adapter
 
     }
 
@@ -127,47 +125,60 @@ class ChatFragment : ChatView, BaseFragment(), AnkoLogger {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        val layoutManager = LinearLayoutManager(view.context)
+        layoutManager.stackFromEnd = true
+        contact_chat_list.layoutManager = layoutManager
+        contact_chat_list.adapter = adapter
+        headerDecor = HeaderDecoration.with(contact_chat_list)
+                .inflate(R.layout.load_header)
+                .parallax(0.4f)
+                .dropShadowDp(1)
+                .build()
+        swipeRefresh.setOnRefreshListener {
+            presenter.proxy.loadMore()
+        }
+
+        bt_send.setOnClickListener { presenter.sendMessage() }
         action_add_contact.setOnClickListener { presenter.handleContactAddClick() }
         action_ignore_contact.setOnClickListener { presenter.handleContactIgnoreClick() }
     }
 
-    override fun showEmpty() {
+    override fun reset() {
         busy()
         onUiThread {
-            adapter.messages = listOf()
-            adapter.notifyDataSetChanged()
+            adapter.reset()
+            swipeRefresh.isEnabled = true
             idle()
         }
     }
 
-    override fun showMessages(messages: List<ChatMessage>) {
-        debug("Showing ${messages.size} messages")
+    override fun appendData(model: List<ChatMessage>) {
         busy()
         onUiThread {
-            fillAdapter(messages)
-            idle()
-        }
-    }
-
-    override fun appendMessage(message: ChatMessage) {
-        busy()
-        onUiThread {
-            adapter.messages = adapter.messages + message
-            adapter.notifyDataSetChanged()
+            adapter.append(model)
             scrollToBottom()
+            idle()
+        }
+    }
+
+    override fun prependData(models: List<ChatMessage>) {
+        debug("Showing ${models.size} messages")
+        busy()
+        onUiThread {
+            adapter.prepend(models)
+            swipeRefresh.isRefreshing = false
+            swipeRefresh.isEnabled = presenter.proxy.canLoadMore()
+            contact_chat_list.removeItemDecoration(headerDecor)
+            if (swipeRefresh.isEnabled) {
+                contact_chat_list.addItemDecoration(headerDecor)
+            }
             idle()
         }
     }
 
     private fun scrollToBottom() {
         contact_chat_list.scrollToPosition(adapter.itemCount - 1)
-    }
-
-    private fun fillAdapter(messages: List<ChatMessage>) {
-        debug("Filling adapter with ${messages.size} messages")
-        adapter.messages = messages
-        adapter.notifyDataSetChanged()
-        scrollToBottom()
     }
 
     override val title: String by lazy {

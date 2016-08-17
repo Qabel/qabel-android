@@ -1,20 +1,15 @@
 package de.qabel.qabelbox.chat.view.views
 
 import de.qabel.qabelbox.chat.dto.ChatMessage
+import de.qabel.qabelbox.ui.DataFragment
 
-interface ChatView {
+interface ChatView : DataFragment<ChatMessage> {
 
-    fun showEmpty()
     var contactKeyId: String
     var messageText: String
 
-    fun showMessages(messages: List<ChatMessage>)
-
-    fun appendMessage(message: ChatMessage)
     fun refreshContactOverlay()
-
     fun sendMessageStateChange()
-
     fun showError(error : Throwable)
 
 }

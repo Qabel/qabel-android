@@ -1,0 +1,15 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="#9e9e9e"
+    android:orientation="vertical">
+    <TextView
+        android:id="@+id/header_decor_text"
+        android:background="@android:color/transparent"
+        android:textSize="@dimen/textsize_normal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:padding="16dp"
+        android:text="@string/load_more"/>
+</LinearLayout>

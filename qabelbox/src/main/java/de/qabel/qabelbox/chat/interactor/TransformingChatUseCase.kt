@@ -41,7 +41,6 @@ class TransformingChatUseCase @Inject constructor(val identity: Identity, overri
     }
 
     override fun load(offset: Int, pageSize: Int) = observable<PagingResult<ChatMessage>> { subscriber ->
-        println("LOAD $offset $pageSize")
         if(offset == 0){
             chatDropMessageRepository.markAsRead(contact, identity)
         }

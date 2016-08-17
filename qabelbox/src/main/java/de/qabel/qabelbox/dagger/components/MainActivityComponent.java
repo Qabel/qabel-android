@@ -3,6 +3,9 @@ package de.qabel.qabelbox.dagger.components;
 import dagger.Subcomponent;
 import de.qabel.qabelbox.activities.MainActivity;
 import de.qabel.qabelbox.chat.dagger.ChatComponent;
+import de.qabel.qabelbox.chat.dagger.ChatOverviewComponent;
+import de.qabel.qabelbox.chat.dagger.ChatOverviewModule;
+import de.qabel.qabelbox.chat.view.views.ChatOverview;
 import de.qabel.qabelbox.contacts.dagger.ContactDetailsComponent;
 import de.qabel.qabelbox.contacts.dagger.ContactDetailsModule;
 import de.qabel.qabelbox.contacts.dagger.ContactEditComponent;
@@ -23,6 +26,7 @@ public interface MainActivityComponent {
     void inject(MainActivity activity);
 
     ChatComponent plus(ChatModule chatModule);
+    ChatOverviewComponent plus(ChatOverviewModule chatOverviewModule);
     FileBrowserComponent plus(FileBrowserModule fileBrowserModule);
 
     ContactsComponent plus(ContactsModule contactsModule);

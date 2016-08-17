@@ -20,6 +20,7 @@ interface Navigator {
 
     fun selectContactEdit(contactDto: ContactDto)
 
+    fun selectChatOverviewFragment()
     fun selectChatFragment(activeContact: String?)
     fun selectContactChat(contactKey: String, withIdentity: Identity)
 

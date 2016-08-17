@@ -21,6 +21,7 @@ import de.qabel.qabelbox.fragments.HelpMainFragment
 import de.qabel.qabelbox.fragments.IdentitiesFragment
 import de.qabel.qabelbox.fragments.QRcodeFragment
 import de.qabel.qabelbox.chat.view.views.ChatFragment
+import de.qabel.qabelbox.chat.view.views.ChatOverviewFragment
 import de.qabel.qabelbox.contacts.view.views.ContactEditFragment
 import org.jetbrains.anko.AnkoLogger
 import org.jetbrains.anko.warn
@@ -36,6 +37,7 @@ constructor(var activity: MainActivity,
     companion object {
         const val TAG_CONTACT_LIST_FRAGMENT = "TAG_CONTACT_LIST_FRAGMENT"
         const val TAG_CONTACT_CHAT_FRAGMENT = "TAG_CONTACT_CHAT_FRAGMENT"
+        const val TAG_CHAT_OVERVIEW_FRAGMENT = "TAG_CHAT_OVERVIEW_FRAGMENT"
         const val TAG_CONTACT_DETAILS_FRAGMENT = "TAG_CONTACT_DETAILS_FRAGMENT";
         const val TAG_CONTACT_EDIT_FRAGMENT = "TAG_CONTACT_EDIT_FRAGMENT";
         const val TAG_QR_CODE_FRAGMENT = "TAG_CONTACT_QR_CODE_FRAGMENT";
@@ -92,6 +94,10 @@ constructor(var activity: MainActivity,
 
     override fun selectContactsFragment() {
         showMainFragment(ContactsFragment(), TAG_CONTACT_LIST_FRAGMENT)
+    }
+
+    override fun selectChatOverviewFragment() {
+        showMainFragment(ChatOverviewFragment(), TAG_CHAT_OVERVIEW_FRAGMENT)
     }
 
     override fun selectQrCodeFragment(contact: Contact) {

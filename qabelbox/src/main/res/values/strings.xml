@@ -369,4 +369,5 @@ To all people who have supported our Indigogo Campaign
     <string name="action_read">Ignore</string>
     <string name="show_ignored">Show ignored</string>
     <string name="load_more">Load more</string>
+    <string name="conversations">Conversations</string>
 </resources>

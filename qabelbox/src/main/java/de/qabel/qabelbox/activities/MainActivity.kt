@@ -97,6 +97,7 @@ class MainActivity : CrashReportingActivity(),
     lateinit private var drawer: Drawer
     lateinit private var contacts: PrimaryDrawerItem
     lateinit private var files: PrimaryDrawerItem
+    lateinit private var chats : PrimaryDrawerItem
     lateinit var toggle: ActionBarDrawerToggle
 
 
@@ -119,10 +120,10 @@ class MainActivity : CrashReportingActivity(),
     private fun updateNewMessageBadge() {
         val size = messageRepository.findNew(activeIdentity.id).size
         if (size == 0) {
-            drawer.updateBadge(contacts.identifier, null)
+            drawer.updateBadge(chats.identifier, null)
         } else {
             contacts.withBadge(size.toString())
-            drawer.updateItem(contacts)
+            drawer.updateItem(chats)
         }
     }
 
@@ -250,7 +251,7 @@ class MainActivity : CrashReportingActivity(),
         TEST = intent.getBooleanExtra(TEST_RUN, false)
 
         // Checks if a fragment should be launched
-        val startFilesFragment = intent.getBooleanExtra(START_FILES_FRAGMENT, true)
+        val startFilesFragment = intent.getBooleanExtra(START_FILES_FRAGMENT, false)
         val startContactsFragment = intent.getBooleanExtra(START_CONTACTS_FRAGMENT, false)
         val activeContact = intent.getStringExtra(ACTIVE_CONTACT)
         if (startContactsFragment) {
@@ -261,6 +262,8 @@ class MainActivity : CrashReportingActivity(),
             drawer.setSelection(files)
             navigator.selectFilesFragment()
         } else {
+            drawer.setSelection(chats)
+            navigator.selectChatOverviewFragment()
             drawer.setSelection(-1L)
         }
     }
@@ -396,6 +399,11 @@ class MainActivity : CrashReportingActivity(),
             withName(R.string.filebrowser)
             withIcon(R.drawable.folder)
         }
+        chats = PrimaryDrawerItem().apply {
+            withIdentifier(R.id.nav_chats.toLong())
+            withName(R.string.conversations)
+            withIcon(R.drawable.message_text)
+        }
         val settings = SecondaryDrawerItem().apply {
             withIdentifier(R.id.nav_settings.toLong())
             withName(R.string.action_settings)
@@ -421,6 +429,7 @@ class MainActivity : CrashReportingActivity(),
             withToolbar(toolbar)
             addDrawerItems(
                     contacts,
+                    chats,
                     files,
                     DividerDrawerItem(),
                     settings,
@@ -432,6 +441,7 @@ class MainActivity : CrashReportingActivity(),
                 when (iDrawerItem) {
                     contacts -> navigator.selectContactsFragment()
                     files -> navigator.selectFilesFragment()
+                    chats -> navigator.selectChatOverviewFragment()
                     settings -> {
                         val intent = Intent(this@MainActivity, SettingsActivity::class.java)
                         startActivityForResult(intent, REQUEST_SETTINGS)

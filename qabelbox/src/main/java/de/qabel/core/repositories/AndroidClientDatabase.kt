@@ -3,6 +3,7 @@ package de.qabel.core.repositories
 import de.qabel.core.repository.sqlite.AbstractClientDatabase
 import de.qabel.core.repository.sqlite.ClientDatabase
 import de.qabel.core.repository.sqlite.migration.*
+import de.qabel.qabelbox.BuildConfig
 import org.slf4j.LoggerFactory
 import org.sqldroid.SQLDroidConnection
 import java.sql.Connection
@@ -33,8 +34,10 @@ class AndroidClientDatabase(connection: Connection) : AbstractClientDatabase(con
 
     @Throws(SQLException::class)
     override fun prepare(sql: String): PreparedStatement {
-        logger.trace(sql)
         if (connection is SQLDroidConnection) {
+            if(BuildConfig.DEBUG){
+                logger.info(sql)
+            }
             return GeneratedKeysPreparedStatement(sql, connection)
         } else {
             return super.prepare(sql)

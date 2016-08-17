@@ -39,6 +39,7 @@ import javax.inject.Inject
 class ContactsFragment() : ContactsView, BaseFragment(), AnkoLogger, SearchView.OnQueryTextListener {
 
     override var searchString: String? = null
+    override var showIgnored: Boolean = false
 
     var injectCompleted = false
 
@@ -52,10 +53,12 @@ class ContactsFragment() : ContactsView, BaseFragment(), AnkoLogger, SearchView.
     @BindView(R.id.contact_search)
     lateinit var contactSearch: SearchView
 
-    val adapter = ContactsAdapter({ contact ->
-        if (contact.active) navigator.selectChatFragment(contact.contact.keyIdentifier)
-        else navigator.selectContactDetailsFragment(contact);
-    }, { contact ->
+    val adapter = ContactsAdapter({
+        contact -> presenter.handleClick(contact) }, {
+        contact -> presenter.handleLongClick(contact)
+    })
+
+    override fun showBottomSheet(contact: ContactDto) {
         BottomSheet.Builder(activity).title(contact.contact.alias).sheet(R.menu.bottom_sheet_contactlist).
                 listener({ dialog, which ->
                     when (which) {
@@ -66,45 +69,42 @@ class ContactsFragment() : ContactsView, BaseFragment(), AnkoLogger, SearchView.
                         R.id.contact_list_item_qrcode -> navigator.selectQrCodeFragment(contact.contact)
                         R.id.contact_list_item_send -> presenter.sendContact(contact, activity.externalCacheDir)
                     }
-                }).show();
-        true;
-    });
+                }).show()
+    }
 
     override fun startShareDialog(targetFile: File) {
-        ExternalApps.share(activity, Uri.fromFile(targetFile), "application/json");
+        ExternalApps.share(activity, Uri.fromFile(targetFile), "application/json")
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         val component = getComponent(MainActivityComponent::class.java).plus(ContactsModule(this))
-        component.inject(this);
+        component.inject(this)
         injectCompleted = true
-        presenter.refresh();
 
-        setHasOptionsMenu(true);
-        configureAsMainFragment();
+        setHasOptionsMenu(true)
+        configureAsMainFragment()
 
-        contact_list.layoutManager = LinearLayoutManager(view.context);
-        contact_list.adapter = adapter;
-        updateView(adapter.getContactCount());
+        contact_list.layoutManager = LinearLayoutManager(view.context)
+        contact_list.adapter = adapter
     }
 
     override fun onViewCreated(view: View?, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        ButterKnife.bind(this, view as  View);
+        ButterKnife.bind(this, view as View)
         contactSearch.setOnQueryTextListener(this)
-        contactSearch.queryHint = getString(R.string.search);
+        contactSearch.queryHint = getString(R.string.search)
     }
 
     override fun onQueryTextSubmit(query: String?): Boolean {
-        UIHelper.hideKeyboard(activity, view);
-        return false;
+        UIHelper.hideKeyboard(activity, view)
+        return false
     }
 
     override fun onQueryTextChange(newText: String?): Boolean {
-        searchString = newText;
-        presenter.refresh();
-        return true;
+        searchString = newText
+        presenter.refresh()
+        return true
     }
 
     private val broadcastReceiver = object : BroadcastReceiver() {
@@ -117,6 +117,8 @@ class ContactsFragment() : ContactsView, BaseFragment(), AnkoLogger, SearchView.
 
     override fun onResume() {
         super.onResume()
+        updateView(adapter.getContactCount())
+        presenter.refresh()
         ctx.registerReceiver(broadcastReceiver, IntentFilter(QblBroadcastConstants.Contacts.CONTACTS_CHANGED))
     }
 
@@ -131,29 +133,35 @@ class ContactsFragment() : ContactsView, BaseFragment(), AnkoLogger, SearchView.
                 ?: throw IllegalStateException("Could not create view")
     }
 
-    override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater?) {
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater?) {
         inflater?.inflate(R.menu.ab_contacts, menu)
+        menu.findItem(R.id.action_show_ignored).isChecked = showIgnored
     }
 
-    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
-        when (item?.itemId) {
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
             R.id.action_contact_export_all -> presenter.startContactsExport()
+            R.id.action_show_ignored -> {
+                item.isChecked = !item.isChecked
+                showIgnored = item.isChecked
+                presenter.refresh()
+            }
         }
-        return true;
+        return true
     }
 
     override fun showEmpty() {
-        loadData(listOf());
+        loadData(listOf())
     }
 
     private fun updateView(itemCount: Int) {
         if (itemCount == 0) {
-            contact_list?.empty_view?.visibility = View.VISIBLE
-            contactCount?.visibility = View.GONE;
+            empty_view?.visibility = View.VISIBLE
+            contactCount?.visibility = View.GONE
         } else {
-            contact_list?.empty_view?.visibility = View.GONE
-            contactCount?.visibility = View.VISIBLE;
-            contactCount?.text = getString(R.string.contact_count, itemCount);
+            empty_view?.visibility = View.GONE
+            contactCount?.visibility = View.VISIBLE
+            contactCount?.text = getString(R.string.contact_count, itemCount)
         }
     }
 
@@ -163,8 +171,8 @@ class ContactsFragment() : ContactsView, BaseFragment(), AnkoLogger, SearchView.
         onUiThread {
             adapter.refresh(data)
             adapter.notifyDataSetChanged()
-            updateView(data.size);
-            idle();
+            updateView(data.size)
+            idle()
         }
     }
 
@@ -178,7 +186,7 @@ class ContactsFragment() : ContactsView, BaseFragment(), AnkoLogger, SearchView.
                 R.id.add_contact_via_qr -> presenter.startContactImportScan(IntentIntegrator.REQUEST_CODE)
             }
         }.show()
-        return true;
+        return true
     }
 
     override fun startQRScan() {
@@ -198,37 +206,37 @@ class ContactsFragment() : ContactsView, BaseFragment(), AnkoLogger, SearchView.
         val intent = Intent(Intent.ACTION_OPEN_DOCUMENT)
         intent.addCategory(Intent.CATEGORY_OPENABLE)
         intent.type = "*/*"
-        startActivityForResult(intent, requestCode);
+        startActivityForResult(intent, requestCode)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int,
                                   resultData: Intent?) {
         if (resultCode == Activity.RESULT_OK) {
-            val action = presenter.externalAction;
+            val action = presenter.externalAction
             if (action == null || action.requestCode != requestCode) {
-                debug("Dismatching  activity result. Cancel handling.");
-                return;
+                debug("Dismatching  activity result. Cancel handling.")
+                return
             }
             when (action) {
                 is ExternalFileAction -> {
                     val uri = resultData?.data
-                    debug("Open file " + uri.toString() + " WITH MODE " + action.accessMode);
-                    val file = activity.contentResolver.openFileDescriptor(uri, action.accessMode);
-                    presenter.handleExternalFileAction(action, file.fileDescriptor);
+                    debug("Open file " + uri.toString() + " WITH MODE " + action.accessMode)
+                    val file = activity.contentResolver.openFileDescriptor(uri, action.accessMode)
+                    presenter.handleExternalFileAction(action, file.fileDescriptor)
                 }
                 else -> {
                     val scanResult = IntentIntegrator.parseActivityResult(requestCode, Activity.RESULT_OK, resultData)
-                    presenter.handleScanResult(action, scanResult.contents);
+                    presenter.handleScanResult(action, scanResult.contents)
                 }
             }
         } else {
             debug("External Action failed!")
-            presenter.externalAction = null;
+            presenter.externalAction = null
         }
     }
 
     override fun showImportFailedMessage() {
-        showMessage(R.string.dialog_headline_warning, R.string.contact_import_failed);
+        showMessage(R.string.dialog_headline_warning, R.string.contact_import_failed)
     }
 
     override fun showImportSuccessMessage(imported: Int, size: Int) {
@@ -250,7 +258,7 @@ class ContactsFragment() : ContactsView, BaseFragment(), AnkoLogger, SearchView.
 
     override fun showExportFailedMessage() {
         showMessage(R.string.dialog_headline_warning,
-                R.string.contact_export_failed);
+                R.string.contact_export_failed)
     }
 
     override fun showExportSuccessMessage(size: Int) {
@@ -262,13 +270,13 @@ class ContactsFragment() : ContactsView, BaseFragment(), AnkoLogger, SearchView.
         showConfirmation(R.string.confirm_delete_title, R.string.confirm_delete_message,
                 contact.contact.alias, {
             presenter.deleteContact(contact)
-        });
+        })
     }
 
     override fun showContactDeletedMessage(contact: ContactDto) {
         showMessage(R.string.dialog_headline_info,
                 R.string.contact_deleted,
-                contact.contact.alias);
+                contact.contact.alias)
     }
 
     override fun showContactExistsMessage() {

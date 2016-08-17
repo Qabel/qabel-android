@@ -22,7 +22,7 @@ import org.junit.Test
 import java.util.*
 
 
-class ChatFragmentTest: AbstractUITest() {
+class ChatFragmentTest : AbstractUITest() {
 
 
     val contact = IdentityHelper.createContact("contact")
@@ -43,14 +43,14 @@ class ChatFragmentTest: AbstractUITest() {
                 MainNavigator.TAG_CONTACT_CHAT_FRAGMENT) as ChatFragment
 
         val resource = InjectedIdlingResource()
-        Espresso.registerIdlingResources(resource);
+        Espresso.registerIdlingResources(resource)
         fragment.setIdleCallback(resource)
     }
 
     @Test
     fun testShowEmpty() {
         launch()
-        fragment.adapter.messages shouldMatch hasSize(equalTo(0))
+        fragment.adapter.data shouldMatch hasSize(equalTo(0))
     }
 
     @Test
@@ -58,7 +58,7 @@ class ChatFragmentTest: AbstractUITest() {
         launch()
         onView(withId(R.id.etText)).perform(setText("My Message"))
         onView(withId(R.id.bt_send)).perform(click())
-        fragment.adapter.messages  shouldMatch hasSize(equalTo(1))
+        fragment.adapter.data shouldMatch hasSize(equalTo(1))
     }
 
     @Test
@@ -66,7 +66,7 @@ class ChatFragmentTest: AbstractUITest() {
         val message = ChatMessage(identity, contact, ChatDropMessage.Direction.INCOMING, Date(),
                 MessagePayloadDto.TextMessage("MESSAGE"))
         launch()
-        fragment.showMessages(listOf(message))
+        fragment.prependData(listOf(message))
         onView(withText("MESSAGE")).check(ViewAssertions.matches(isDisplayed()))
     }
 }

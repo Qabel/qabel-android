@@ -50,15 +50,13 @@ public class ChatModule {
 
 
     @Provides
-    public ChatUseCase provideChatUseCase(Identity identity, Contact contact,
-                                          ChatMessageTransformer transformer, ChatService chatService,
-                                          ChatDropMessageRepository chatDropMessageRepository) {
-        return new TransformingChatUseCase(identity, contact, transformer, chatService, chatDropMessageRepository);
+    public ChatUseCase provideChatUseCase(TransformingChatUseCase useCase) {
+        return useCase;
     }
 
     @Provides
-    public ChatPresenter provideChatPresenter(ChatUseCase chatUseCase) {
-        return new MainChatPresenter(view, chatUseCase);
+    public ChatPresenter provideChatPresenter(MainChatPresenter presenter) {
+        return presenter;
     }
 
 }

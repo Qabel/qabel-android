@@ -1,24 +1,23 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/background_white"
-    android:orientation="vertical"
-    tools:context="de.qabel.qabelbox.fragments.ContactFragment">
+    android:orientation="vertical">
 
     <android.support.v7.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingLeft="@dimen/border_middle"
         android:paddingRight="@dimen/border_middle">
+
         <android.support.v7.widget.SearchView
             android:id="@+id/contact_search"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:elegantTextHeight="true"
-            android:queryHint="@string/search"
             android:hint="@string/search"
-            android:label="@string/search"/>
+            android:label="@string/search"
+            android:queryHint="@string/search" />
     </android.support.v7.widget.CardView>
 
     <de.qabel.qabelbox.ui.views.TextViewFont
@@ -26,7 +25,7 @@
         style="@style/SmallGreyMessageText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="right"
+        android:layout_gravity="end"
         android:paddingLeft="@dimen/border_middle"
         android:paddingRight="@dimen/border_middle"
         android:paddingTop="5sp" />
@@ -42,31 +41,38 @@
             android:layout_gravity="center_horizontal|top"
             android:scrollbars="vertical" />
 
-        <LinearLayout
-            android:id="@+id/empty_view"
+        <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:layout_gravity="center"
-            android:orientation="vertical"
-            android:padding="@dimen/activity_vertical_margin"
-            android:visibility="gone">
+            android:padding="@dimen/activity_vertical_margin">
 
-            <ImageView
+            <LinearLayout
+                android:id="@+id/empty_view"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:src="@drawable/contacts_empty" />
+                android:layout_gravity="center"
+                android:orientation="vertical"
+                android:padding="@dimen/activity_vertical_margin"
+                android:visibility="invisible">
 
-            <de.qabel.qabelbox.ui.views.TextViewFont
-                style="@style/ListViewLoadingText"
-                android:layout_height="wrap_content"
-                android:gravity="center_horizontal"
-                android:text="@string/contact_list_empty" />
+                <ImageView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/contacts_empty" />
 
-            <ImageView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:src="@drawable/empty_folder_arrow" />
-        </LinearLayout>
+                <de.qabel.qabelbox.ui.views.TextViewFont
+                    style="@style/ListViewLoadingText"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_horizontal"
+                    android:text="@string/contact_list_empty" />
+
+                <ImageView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/empty_folder_arrow" />
+            </LinearLayout>
+        </FrameLayout>
     </FrameLayout>
 
 </LinearLayout>

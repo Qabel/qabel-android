@@ -17,5 +17,4 @@ data class ContactChatNotification(override val identity: Identity,
                                    override val message: String,
                                    override val date: Date) : ChatNotification {
     override val header: String = contact.displayName()
-    var extraNotification = false
 }

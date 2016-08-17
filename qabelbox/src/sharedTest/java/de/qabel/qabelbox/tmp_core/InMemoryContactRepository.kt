@@ -6,12 +6,12 @@ import de.qabel.core.config.Identity
 import de.qabel.core.repository.ContactRepository
 import de.qabel.core.repository.exception.EntityExistsException
 import de.qabel.core.repository.exception.EntityNotFoundException
-import de.qabel.core.repository.exception.PersistenceException
 import de.qabel.core.util.DefaultHashMap
 import java.util.*
 
 @Deprecated("Replace with core")
 class InMemoryContactRepository : ContactRepository {
+
 
     val contacts: MutableMap<String, Contact> = mutableMapOf()
     val identityMapping: DefaultHashMap<Identity, MutableSet<String>> = DefaultHashMap({ key -> HashSet() })
@@ -19,12 +19,12 @@ class InMemoryContactRepository : ContactRepository {
     override fun find(id: Int): Contact = contacts.values.find({ it.id == id }) ?: throw EntityNotFoundException("Contact not found")
 
     override fun find(identity: Identity): Contacts {
-        val identityContacts = identityMapping.getOrDefault(identity);
-        val resultContacts = Contacts(identity);
+        val identityContacts = identityMapping.getOrDefault(identity)
+        val resultContacts = Contacts(identity)
         for (contactKey in identityContacts) {
             resultContacts.put(this.contacts[contactKey])
         }
-        return resultContacts;
+        return resultContacts
     }
 
     override fun save(contact: Contact, identity: Identity) {
@@ -64,10 +64,14 @@ class InMemoryContactRepository : ContactRepository {
         } else throw EntityNotFoundException("Contact is not one of the injected")
     }
 
-    override fun findWithIdentities(searchString: String): Collection<Pair<Contact, List<Identity>>> {
+    override fun findWithIdentities(searchString: String, status: List<Contact.ContactStatus>, excludeIgnored: Boolean): Collection<Pair<Contact, List<Identity>>> {
         return contacts.values
-            .filter { contact -> contact.alias.toLowerCase().startsWith(searchString.toLowerCase()) }
-            .map { contact -> Pair(contact, findContactIdentities(contact.keyIdentifier)) }
+                .filter { contact ->
+                    contact.alias.toLowerCase().startsWith(searchString.toLowerCase()) &&
+                            status.contains(contact.status) &&
+                            if (excludeIgnored) !contact.isIgnored else true
+                }
+                .map { contact -> Pair(contact, findContactIdentities(contact.keyIdentifier)) }
     }
 
     private fun findContactIdentities(key: String): List<Identity> {

@@ -42,6 +42,8 @@ abstract class BaseFragment : Fragment() {
     open val title: String
         get() = getString(R.string.app_name)
 
+    open val subtitle: String? = null
+
     /**
      * true if floating action button used
      */
@@ -54,10 +56,10 @@ abstract class BaseFragment : Fragment() {
     }
 
     override fun onResume() {
-
         super.onResume()
         actionBar?.apply {
-            this.title = BaseFragment@title
+            this.title = this@BaseFragment.title
+            this.subtitle = this@BaseFragment.subtitle
         }
         if (isFabNeeded) {
             mActivity?.fab?.show()
@@ -76,8 +78,9 @@ abstract class BaseFragment : Fragment() {
         actionBar?.setDisplayHomeAsUpEnabled(false)
         mActivity?.toggle?.isDrawerIndicatorEnabled = true
     }
+
     protected fun setActionBarBackListener() {
-        mActivity?.toggle?.setToolbarNavigationClickListener { mActivity?.onBackPressed()}
+        mActivity?.toggle?.setToolbarNavigationClickListener { mActivity?.onBackPressed() }
     }
 
     /**
@@ -88,31 +91,13 @@ abstract class BaseFragment : Fragment() {
     }
 
     /**
-     * @return true if fragment handle back button. otherwise return false to display sideMenu icon
-     */
-    fun supportSubtitle(): Boolean {
-
-        return false
-    }
-
-    /**
      * handle hardware back button
      */
-    fun onBackPressed() {
-
-    }
-
-    fun updateSubtitle() {
+    open fun onBackPressed() {
 
     }
 
     open fun handleFABAction(): Boolean {
-
         return false
-    }
-
-    companion object {
-
-        protected var serialExecutor: Executor = Executors.newSingleThreadExecutor()
     }
 }

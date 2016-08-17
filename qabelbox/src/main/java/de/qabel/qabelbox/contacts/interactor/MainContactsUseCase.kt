@@ -14,10 +14,7 @@ import de.qabel.qabelbox.contacts.dto.ContactDto
 import de.qabel.qabelbox.contacts.dto.ContactParseResult
 import de.qabel.qabelbox.contacts.dto.ContactsParseResult
 import org.apache.commons.io.FileUtils
-import rx.Observable
-import rx.Subscriber
 import rx.lang.kotlin.observable
-import rx.lang.kotlin.subscriber
 import java.io.File
 import java.io.FileDescriptor
 import java.io.FileInputStream
@@ -29,28 +26,14 @@ open class MainContactsUseCase @Inject constructor(private val activeIdentity: I
                                                    private val contactRepository: ContactRepository,
                                                    private val identityRepository: IdentityRepository) : ContactsUseCase {
 
-    override fun loadContactAndIdentities(keyIdentifier: String) = observable<Pair<ContactDto, Identities>> {
-        val identities = identityRepository.findAll()
-        val contact = contactRepository.findContactWithIdentities(keyIdentifier)
-        it.onNext(Pair(transformContact(contact), identities))
-        it.onCompleted()
-    }
+    private val contactExchangeFormats = ContactExchangeFormats()
 
-    private val contactExchangeFormats = ContactExchangeFormats();
-
-    override fun search(filter: String) = observable<ContactDto> { subscriber ->
-        load(subscriber, filter)
-    }
-
-    override fun load() = observable<ContactDto> { subscriber ->
-        load(subscriber, "")
-    }
-
-    private fun load(subscriber: Subscriber<in ContactDto>, filter: String) {
-        contactRepository.findWithIdentities(filter).map {
-            pair ->
+    override fun search(filter: String, showIgnored: Boolean) = observable<ContactDto> { subscriber ->
+        contactRepository.findWithIdentities(filter,
+                listOf(Contact.ContactStatus.NORMAL, Contact.ContactStatus.VERIFIED),
+                !showIgnored).map { pair ->
             subscriber.onNext(transformContact(pair))
-        };
+        }
         subscriber.onCompleted()
     }
 
@@ -58,48 +41,55 @@ open class MainContactsUseCase @Inject constructor(private val activeIdentity: I
             = ContactDto(data.first, data.second, data.second.contains(activeIdentity.keyIdentifier))
 
     override fun loadContact(keyIdentifier: String) = observable<ContactDto> { subscriber ->
-        val contact = contactRepository.findContactWithIdentities(keyIdentifier);
+        val contact = contactRepository.findContactWithIdentities(keyIdentifier)
         subscriber.onNext(transformContact(contact))
-        subscriber.onCompleted();
+        subscriber.onCompleted()
+    }
+
+    override fun loadContactAndIdentities(keyIdentifier: String) = observable<Pair<ContactDto, Identities>> {
+        val identities = identityRepository.findAll()
+        val contact = contactRepository.findContactWithIdentities(keyIdentifier)
+        it.onNext(Pair(transformContact(contact), identities))
+        it.onCompleted()
     }
 
     override fun deleteContact(contact: Contact) = observable<Unit> { subscriber ->
         contactRepository.delete(contact, activeIdentity)
-        subscriber.onNext(Unit);
-        subscriber.onCompleted();
+        subscriber.onNext(Unit)
+        subscriber.onCompleted()
     }
 
     override fun exportContact(contactKey: String, targetDirectory: File) = observable<File> { subscriber ->
-        val contact = contactRepository.findByKeyId(contactKey);
+        val contact = contactRepository.findByKeyId(contactKey)
         File(targetDirectory, QabelSchema.createContactFilename(contact.alias)).let {
             file ->
             FileUtils.writeStringToFile(file,
                     contactExchangeFormats.exportToContactsJSON(setOf(contact)))
-            subscriber.onNext(file);
-            subscriber.onCompleted();
+            subscriber.onNext(file)
+            subscriber.onCompleted()
         }
     }
 
     override fun exportContact(contactKey: String, targetFile: FileDescriptor) = observable<Int> { subscriber ->
-        val contact = contactRepository.findByKeyId(contactKey);
+        val contact = contactRepository.findByKeyId(contactKey)
         FileOutputStream(targetFile).use({ stream ->
             stream.bufferedWriter().use { writer ->
                 writer.write(ContactExportImport.exportContact(contact))
             }
-            subscriber.onNext(1);
-            subscriber.onCompleted();
-        });
+            subscriber.onNext(1)
+            subscriber.onCompleted()
+        })
     }
 
     override fun exportAllContacts(targetFile: FileDescriptor) = observable<Int> { subscriber ->
-        val contacts = contactRepository.findWithIdentities().map { pair -> pair.first };
+        val contacts = contactRepository.findWithIdentities().map { pair -> pair.first }
         FileOutputStream(targetFile).use({ stream ->
             stream.bufferedWriter().use { writer ->
                 writer.write(contactExchangeFormats.exportToContactsJSON(contacts.toSet()))
             }
-            subscriber.onNext(contacts.size);
-            subscriber.onCompleted();
-        });
+            subscriber.onNext(contacts.size)
+            subscriber.onCompleted()
+        })
     }
 
     override fun importContacts(file: FileDescriptor) = observable<ContactsParseResult> { subscriber ->
@@ -110,30 +100,30 @@ open class MainContactsUseCase @Inject constructor(private val activeIdentity: I
             }
         }
 
-        val contacts = contactExchangeFormats.importFromContactsJSON(inputString);
-        var importedContacts = 0;
+        val contacts = contactExchangeFormats.importFromContactsJSON(inputString)
+        var importedContacts = 0
         contacts.forEach { contact ->
             try {
-                contactRepository.save(contact, activeIdentity);
-                importedContacts++;
+                contactRepository.save(contact, activeIdentity)
+                importedContacts++
             } catch(ex: EntityExistsException) {
             }
         }
-        subscriber.onNext(ContactsParseResult(importedContacts, contacts.size - importedContacts));
-        subscriber.onCompleted();
+        subscriber.onNext(ContactsParseResult(importedContacts, contacts.size - importedContacts))
+        subscriber.onCompleted()
     }
 
     override fun importContactString(contactString: String) = observable<ContactParseResult> {
         subscriber ->
-        val contact = contactExchangeFormats.importFromContactString(contactString);
+        val contact = contactExchangeFormats.importFromContactString(contactString)
         contactRepository.save(contact, activeIdentity)
-        subscriber.onNext(ContactParseResult(contact, true));
-        subscriber.onCompleted();
+        subscriber.onNext(ContactParseResult(contact, true))
+        subscriber.onCompleted()
     }
 
     override fun saveContact(contact: ContactDto) = observable<Unit> {
         if (contact.contact.status == Contact.ContactStatus.UNKNOWN) {
-            contact.contact.status = Contact.ContactStatus.NORMAL;
+            contact.contact.status = Contact.ContactStatus.NORMAL
         }
         contactRepository.update(contact.contact, contact.identities)
         it.onNext(Unit)

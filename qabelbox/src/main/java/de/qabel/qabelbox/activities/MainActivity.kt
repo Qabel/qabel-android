@@ -166,7 +166,6 @@ class MainActivity : CrashReportingActivity(),
         setSupportActionBar(toolbar)
 
         installConnectivityManager()
-        addBackStackListener()
 
         setupAccount()
         initDrawer()
@@ -234,37 +233,20 @@ class MainActivity : CrashReportingActivity(),
         })
     }
 
-    fun handleMainFragmentChange() {
-        // Set FAB visibility according to currently visible fragment
-        val activeFragment = fragmentManager.findFragmentById(R.id.fragment_container)
-
-        if (activeFragment is BaseFragment) {
-            toolbar.title = activeFragment.title
-            if (activeFragment.isFabNeeded) {
-                fab.show()
-            } else {
-                fab.hide()
-            }
-            if (!activeFragment.supportSubtitle()) {
-                toolbar.subtitle = null
-            } else {
-                activeFragment.updateSubtitle()
-            }
-        }
-    }
-
-    private fun addBackStackListener() {
-        fragmentManager.addOnBackStackChangedListener {
-            this@MainActivity.handleMainFragmentChange()
-        }
-    }
-
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         handleIntent(intent)
     }
 
     private fun handleIntent(intent: Intent) {
+        if(intent.hasExtra(ACTIVE_IDENTITY)){
+            val identityKey = intent.getStringExtra(ACTIVE_IDENTITY)
+            if(identityKey != activeIdentity.keyIdentifier){
+                val identity = identityRepository.find(identityKey)
+                changeActiveIdentity(identity, intent)
+            }
+        }
+
         TEST = intent.getBooleanExtra(TEST_RUN, false)
 
         // Checks if a fragment should be launched

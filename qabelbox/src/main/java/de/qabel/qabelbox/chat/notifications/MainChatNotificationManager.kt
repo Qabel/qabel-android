@@ -97,13 +97,12 @@ class MainChatNotificationManager : ChatNotificationManager {
     private fun createNewContactNotifications(unknownMessages: List<ChatMessage>): List<ChatNotification> =
             countMessagesByContact(unknownMessages).map {
                 val (contact, msgCount) = it
-                val contactMessage = unknownMessages.first { it.contact == contact }
+                val contactMessage = unknownMessages.first { it.contact.keyIdentifier == contact.keyIdentifier }
                 val message = if (msgCount > 1) getMultiMsgLabel(msgCount)
                 else contactMessage.messagePayload.toMessage()
 
                 ContactChatNotification(unknownMessages.first().identity,
                         contact, message, contactMessage.time).apply {
-                    extraNotification = true
                 }
             }
 

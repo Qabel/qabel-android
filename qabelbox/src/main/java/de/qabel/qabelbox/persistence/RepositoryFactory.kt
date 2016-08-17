@@ -18,7 +18,7 @@ class RepositoryFactory(private val context: Context) {
 
     private var connection: Connection? = null
     private var androidClientDatabase: AndroidClientDatabase? = null
-    private val entityManager: EntityManager by lazy { EntityManager() }
+    val entityManager: EntityManager by lazy { EntityManager() }
 
     val databasePath: File get() = context.getFileStreamPath(DB_REPOSITORIES)
 

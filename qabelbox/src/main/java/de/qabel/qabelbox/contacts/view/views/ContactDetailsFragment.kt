@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.view.*
 import butterknife.ButterKnife
 import de.qabel.qabelbox.R
-import de.qabel.qabelbox.chat.view.views.ChatFragment
 import de.qabel.qabelbox.contacts.dagger.ContactDetailsModule
 import de.qabel.qabelbox.contacts.dto.ContactDto
 import de.qabel.qabelbox.contacts.view.adapters.ContactDetailsAdapter
@@ -20,10 +19,10 @@ class ContactDetailsFragment() : ContactDetailsView, BaseFragment(), AnkoLogger 
     companion object {
         val ARG_CONTACT = "CONTACT"
 
-        fun withContact(contact: ContactDto): ContactDetailsFragment {
+        fun withContactKey(contactKey: String): ContactDetailsFragment {
             val fragment = ContactDetailsFragment()
             fragment.arguments = with(Bundle()) {
-                putString(ARG_CONTACT, contact.contact.keyIdentifier)
+                putString(ARG_CONTACT, contactKey)
                 this
             }
             return fragment
@@ -58,7 +57,7 @@ class ContactDetailsFragment() : ContactDetailsView, BaseFragment(), AnkoLogger 
 
     override fun onViewCreated(view: View?, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        ButterKnife.bind(this, view as  View);
+        ButterKnife.bind(this, view as View);
         adapter.view = view;
     }
 

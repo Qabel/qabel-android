@@ -30,6 +30,7 @@ class MainChatPresenter @Inject constructor(private val view: ChatView,
         if (view.messageText.isNotEmpty()) {
             useCase.send(view.messageText).subscribe({ message ->
                 view.appendData(listOf(message))
+                proxy.incRange(1)
             }, { proxy.load() })
             view.messageText = ""
         }

@@ -10,6 +10,7 @@ import de.qabel.qabelbox.chat.dto.ChatMessage
 import de.qabel.qabelbox.chat.transformers.ChatMessageTransformer
 import rx.Observable
 import rx.lang.kotlin.observable
+import rx.schedulers.Schedulers
 import javax.inject.Inject
 import kotlin.concurrent.thread
 
@@ -19,8 +20,7 @@ class TransformingChatUseCase @Inject constructor(val identity: Identity, overri
                                                   private val chatDropMessageRepository: ChatDropMessageRepository,
                                                   private val chatServiceUseCase: ChatServiceUseCase) : ChatUseCase {
 
-    override fun send(text: String): Observable<ChatMessage> = observable { subscriber ->
-        thread {
+    override fun send(text: String): Observable<ChatMessage> = observable<ChatMessage> { subscriber ->
             val item = ChatDropMessage(contact.id, identity.id,
                     ChatDropMessage.Direction.OUTGOING, ChatDropMessage.Status.PENDING,
                     ChatDropMessage.MessageType.BOX_MESSAGE, ChatDropMessage.MessagePayload.TextMessage(text),
@@ -29,8 +29,7 @@ class TransformingChatUseCase @Inject constructor(val identity: Identity, overri
             subscriber.onNext(chatMessageTransformer.transform(item))
             chatService.sendMessage(item)
             subscriber.onCompleted()
-        }
-    }
+    }.subscribeOn(Schedulers.io())
 
     override fun retrieve() = observable<ChatMessage> { subscriber ->
         chatDropMessageRepository.markAsRead(contact, identity)

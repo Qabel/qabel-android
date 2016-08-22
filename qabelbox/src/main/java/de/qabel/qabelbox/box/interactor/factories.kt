@@ -37,7 +37,8 @@ fun makeFileBrowserFactory(identityRepository: IdentityRepository,
                     JdbcDirectoryMetadataFactory(tempDir, deviceId, dataBaseFactory)
                 }),
                 identity.primaryKeyPair)
-        return BoxFileBrowser(BoxFileBrowser.KeyAndPrefix(key, identity.prefixes.first()),  volume)
+        val keyAndPrefix = BoxFileBrowser.KeyAndPrefix(key, identity.prefixes.first())
+        return BoxFileBrowser(keyAndPrefix, volume)
     }
 }
 

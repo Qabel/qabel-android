@@ -51,9 +51,9 @@ class BoxFileBrowserTest {
                 storage,
                 "Blake2b",
                 createTempDir()), identity.primaryKeyPair)
-         useCase = BoxFileBrowser(
-                 BoxFileBrowser.KeyAndPrefix(identity.keyIdentifier, identity.prefixes.first()),
-                 volume)
+        val keyAndPrefix = BoxFileBrowser.KeyAndPrefix(identity.keyIdentifier, identity.prefixes.first())
+        useCase = BoxFileBrowser(
+                keyAndPrefix, volume)
     }
 
     @Test
@@ -193,7 +193,8 @@ class BoxFileBrowserTest {
         val volume: BoxVolume = mock()
         val nav: IndexNavigation = mock()
         stubMethod(volume.navigate(), nav)
-        useCase = BoxFileBrowser(BoxFileBrowser.KeyAndPrefix("key", "prefix"), volume)
+        val keyAndPrefix = BoxFileBrowser.KeyAndPrefix("key", "prefix")
+        useCase = BoxFileBrowser(keyAndPrefix, volume)
         return nav
     }
 

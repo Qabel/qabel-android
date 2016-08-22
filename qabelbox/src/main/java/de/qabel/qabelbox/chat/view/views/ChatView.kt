@@ -1,9 +1,9 @@
 package de.qabel.qabelbox.chat.view.views
 
+import de.qabel.core.ui.DataView
 import de.qabel.qabelbox.chat.dto.ChatMessage
-import de.qabel.qabelbox.ui.DataFragment
 
-interface ChatView : DataFragment<ChatMessage> {
+interface ChatView : DataView<ChatMessage> {
 
     var contactKeyId: String
     var messageText: String

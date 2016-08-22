@@ -3,6 +3,7 @@ package de.qabel.qabelbox.ui
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.support.v7.widget.RecyclerView.OnScrollListener
+import de.qabel.core.ui.DataViewProxy
 
 /**
  * TODO In development

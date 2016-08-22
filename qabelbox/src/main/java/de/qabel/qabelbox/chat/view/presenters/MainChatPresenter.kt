@@ -1,11 +1,11 @@
 package de.qabel.qabelbox.chat.view.presenters
 
 import de.qabel.core.config.Contact
+import de.qabel.core.ui.DataViewProxy
 import de.qabel.qabelbox.chat.interactor.ChatUseCase
 import de.qabel.qabelbox.chat.view.views.ChatView
 import de.qabel.qabelbox.contacts.extensions.displayName
 import de.qabel.qabelbox.navigation.Navigator
-import de.qabel.qabelbox.ui.DataViewProxy
 import javax.inject.Inject
 
 class MainChatPresenter @Inject constructor(private val view: ChatView,

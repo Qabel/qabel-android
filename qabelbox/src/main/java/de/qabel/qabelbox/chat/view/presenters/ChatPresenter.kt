@@ -1,7 +1,7 @@
 package de.qabel.qabelbox.chat.view.presenters
 
+import de.qabel.core.ui.DataViewProxy
 import de.qabel.qabelbox.chat.dto.ChatMessage
-import de.qabel.qabelbox.ui.DataViewProxy
 
 interface ChatPresenter {
 

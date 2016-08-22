@@ -47,7 +47,7 @@ android {
         on base of timestamp or change it manual*/
 
         versionCode System.getenv("BUILD_NUMBER") as Integer ?: 8
-        versionName "0.7." + (System.getenv("BUILD_NUMBER") as Integer ?: 1)
+        versionName "0.8." + (System.getenv("BUILD_NUMBER") as Integer ?: 0)
         testInstrumentationRunner "de.qabel.qabelbox.QblJUnitRunner"
 
         testApplicationId "de.qabel.test"

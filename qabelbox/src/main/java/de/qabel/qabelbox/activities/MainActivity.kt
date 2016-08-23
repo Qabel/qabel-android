@@ -391,7 +391,6 @@ class MainActivity : CrashReportingActivity(),
             withIdentifier(R.id.nav_contacts.toLong())
             withName(R.string.Contacts)
             withIcon(R.drawable.account_multiple)
-            withBadgeStyle(BadgeStyle().withTextColorRes(R.color.colorAccent).withColorRes(R.color.md_dark_background))
         }
         files = PrimaryDrawerItem().apply {
             withIdentifier(R.id.nav_browse.toLong())
@@ -402,6 +401,7 @@ class MainActivity : CrashReportingActivity(),
             withIdentifier(R.id.nav_chats.toLong())
             withName(R.string.conversations)
             withIcon(R.drawable.message_text)
+            withBadgeStyle(BadgeStyle().withTextColorRes(R.color.colorAccent).withColorRes(R.color.md_dark_background))
         }
         val settings = SecondaryDrawerItem().apply {
             withIdentifier(R.id.nav_settings.toLong())

@@ -3,6 +3,7 @@ package de.qabel.qabelbox.repositories
 import de.qabel.core.config.Contact
 import de.qabel.core.config.Contacts
 import de.qabel.core.config.Identity
+import de.qabel.core.contacts.ContactData
 import de.qabel.core.repository.ContactRepository
 import de.qabel.core.repository.exception.EntityNotFoundException
 import de.qabel.core.util.DefaultHashMap
@@ -60,21 +61,21 @@ class MockContactRepository(val contacts: MutableMap<String, Contact> = mutableM
         return contacts.contains(contact.keyIdentifier)
     }
 
-    override fun findContactWithIdentities(keyId: String): Pair<Contact, List<Identity>> {
+    override fun findContactWithIdentities(keyId: String): ContactData {
         if (contacts.contains(keyId)) {
-            return contacts[keyId].let { contact -> Pair(contact!!, findContactIdentities(contact.keyIdentifier)) }
+            return contacts[keyId].let { contact -> ContactData(contact!!, findContactIdentities(contact.keyIdentifier)) }
         } else throw EntityNotFoundException("Contact is not one of the injected")
     }
 
     override fun findWithIdentities(searchString: String, status: List<Contact.ContactStatus>, excludeIgnored: Boolean):
-            Collection<Pair<Contact, List<Identity>>> {
+            Collection<ContactData> {
         return contacts.values
                 .filter { contact ->
                     contact.alias.toLowerCase().startsWith(searchString.toLowerCase()) &&
                             status.contains(contact.status) &&
                             if (excludeIgnored) !contact.isIgnored else true
                 }
-                .map { contact -> Pair(contact, findContactIdentities(contact.keyIdentifier)) }
+                .map { contact -> ContactData(contact, findContactIdentities(contact.keyIdentifier)) }
     }
 
     private fun findContactIdentities(key: String): List<Identity> {

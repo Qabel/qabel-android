@@ -4,6 +4,7 @@ import de.qabel.core.config.Contact
 import de.qabel.core.config.ContactExportImport
 import de.qabel.core.config.Identities
 import de.qabel.core.config.Identity
+import de.qabel.core.contacts.ContactData
 import de.qabel.core.contacts.ContactExchangeFormats
 import de.qabel.core.extensions.contains
 import de.qabel.core.repository.ContactRepository
@@ -37,8 +38,8 @@ open class MainContactsUseCase @Inject constructor(private val activeIdentity: I
         subscriber.onCompleted()
     }
 
-    private fun transformContact(data: Pair<Contact, List<Identity>>)
-            = ContactDto(data.first, data.second, data.second.contains(activeIdentity.keyIdentifier))
+    private fun transformContact(data: ContactData)
+            = ContactDto(data.contact, data.identities, data.identities.contains(activeIdentity.keyIdentifier))
 
     override fun loadContact(keyIdentifier: String) = observable<ContactDto> { subscriber ->
         val contact = contactRepository.findContactWithIdentities(keyIdentifier)
@@ -82,7 +83,7 @@ open class MainContactsUseCase @Inject constructor(private val activeIdentity: I
     }
 
     override fun exportAllContacts(targetFile: FileDescriptor) = observable<Int> { subscriber ->
-        val contacts = contactRepository.findWithIdentities().map { pair -> pair.first }
+        val contacts = contactRepository.findWithIdentities().map { contactData -> contactData.contact }
         FileOutputStream(targetFile).use({ stream ->
             stream.bufferedWriter().use { writer ->
                 writer.write(contactExchangeFormats.exportToContactsJSON(contacts.toSet()))

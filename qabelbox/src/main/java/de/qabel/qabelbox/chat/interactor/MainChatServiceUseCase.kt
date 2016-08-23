@@ -45,7 +45,7 @@ class MainChatServiceUseCase(private val chatDropMessageRepository: ChatDropMess
         val contact = contactRepository.findByKeyId(identity, contactKey)
         contact.isIgnored = true
         if(contact.status == Contact.ContactStatus.UNKNOWN){
-            contact.status == Contact.ContactStatus.NORMAL
+            contact.status = Contact.ContactStatus.NORMAL
         }
         contactRepository.save(contact, identity)
         info("Contact ignored " + contact.alias)

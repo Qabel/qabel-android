@@ -122,7 +122,7 @@ class MainActivity : CrashReportingActivity(),
         if (size == 0) {
             drawer.updateBadge(chats.identifier, null)
         } else {
-            contacts.withBadge(size.toString())
+            chats.withBadge(size.toString())
             drawer.updateItem(chats)
         }
     }
@@ -264,7 +264,6 @@ class MainActivity : CrashReportingActivity(),
         } else {
             drawer.setSelection(chats)
             navigator.selectChatOverviewFragment()
-            drawer.setSelection(-1L)
         }
     }
 

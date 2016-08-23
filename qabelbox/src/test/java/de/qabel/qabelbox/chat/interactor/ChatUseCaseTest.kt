@@ -8,6 +8,7 @@ import de.qabel.core.http.DropConnector
 import de.qabel.core.http.MainDropConnector
 import de.qabel.core.repository.ChatDropMessageRepository
 import de.qabel.core.repository.entities.ChatDropMessage
+import de.qabel.core.repository.framework.PagingResult
 import de.qabel.core.service.ChatService
 import de.qabel.core.service.MainChatService
 import de.qabel.qabelbox.BuildConfig
@@ -16,8 +17,7 @@ import de.qabel.qabelbox.chat.dto.ChatMessage
 import de.qabel.qabelbox.chat.transformers.ChatMessageTransformer
 import de.qabel.qabelbox.tmp_core.*
 import de.qabel.qabelbox.util.IdentityHelper
-import org.hamcrest.Matchers.hasSize
-import org.hamcrest.Matchers.notNullValue
+import org.hamcrest.Matchers.*
 import org.junit.Assert.assertThat
 import org.junit.Before
 import org.junit.Ignore
@@ -34,12 +34,13 @@ class ChatUseCaseTest {
     val identity = IdentityHelper.createIdentity("identity", null)
     val contact = IdentityHelper.createContact("contact_name")
 
+    val dropServer = MockDropServer()
     val chatServiceUseCase: ChatServiceUseCase = mock()
-    var dropConnector: DropConnector = MainDropConnector(MockDropServer())
+    var dropConnector: DropConnector = MainDropConnector(dropServer)
 
     lateinit var transformer: ChatMessageTransformer
     lateinit var chatService: ChatService
-    lateinit var chatDropRepository: ChatDropMessageRepository
+    lateinit var chatDropRepository: InMemoryChatDropMessageRepository
 
     lateinit var chatUseCase: ChatUseCase
 
@@ -57,8 +58,9 @@ class ChatUseCaseTest {
 
     @Test
     fun testNoMessages() {
-        val list: List<ChatMessage> = chatUseCase.retrieve().toList().toBlocking().first()
-        assertThat(list, hasSize(0))
+        val result: PagingResult<ChatMessage> = chatUseCase.load(0, 50).toBlocking().first()
+        assertThat(result.availableRange, equalTo(0))
+        assertThat(result.result, hasSize(0))
     }
 
     @Test
@@ -67,21 +69,23 @@ class ChatUseCaseTest {
                 ChatDropMessage.Direction.OUTGOING, ChatDropMessage.Status.NEW,
                 ChatDropMessage.MessageType.BOX_MESSAGE, ChatDropMessage.MessagePayload.TextMessage("test123"), Date().time))
 
-        val list: List<ChatMessage> = chatUseCase.retrieve().toList().toBlocking().first()
-        assertThat(list, hasSize(1))
+        val result: PagingResult<ChatMessage> = chatUseCase.load(0, 50).toBlocking().first()
+        assertThat(result.availableRange, equalTo(1))
+        assertThat(result.result, hasSize(1))
         verify(chatDropRepository).markAsRead(contact, identity)
         verify(chatDropRepository).findByContact(contact.id, identity.id)
     }
 
     @Test
-    @Ignore("Needs fix for gson")
     fun sendMessage() {
-        var result: ChatMessage? = null
-        chatUseCase.send("Text").subscribe({
-            result = it
-        })
-        verify(chatService).sendMessage(any<ChatDropMessage>())
-        verify(chatDropRepository).persist(any<ChatDropMessage>())
-        assertThat(result, notNullValue())
+        val result: ChatMessage = chatUseCase.send("Text").toBlocking().value()
+
+        assertThat(chatDropRepository.findByContact(contact.id, identity.id), hasSize(1))
+        assertThat(dropServer.receiveMessageBytes(contact.dropUrls.first().uri, "").third, hasSize(1))
+
+        assertThat(result.identity, equalTo(identity))
+        assertThat(result.contact, equalTo(contact))
+        assertThat(result.direction, equalTo(ChatDropMessage.Direction.OUTGOING))
+        assertThat(result.messagePayload.toMessage(), equalTo("Text"))
     }
 }

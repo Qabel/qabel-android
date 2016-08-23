@@ -33,9 +33,9 @@ import rx.lang.kotlin.toSingletonObservable
 @Config(application = SimpleApplication::class, constants = BuildConfig::class)
 class ContactEditPresenterTest {
 
-    val identity = IdentityHelper.createIdentity("Identity", TestConstants.PREFIX);
-    val contactA = IdentityHelper.createContact("ContactA");
-    val contactADto = ContactDto(contactA, listOf(identity));
+    val identity = IdentityHelper.createIdentity("Identity", TestConstants.PREFIX)
+    val contactA = IdentityHelper.createContact("ContactA")
+    val contactADto = ContactDto(contactA, listOf(identity))
 
     val identityB = IdentityHelper.createIdentity("IdentityB", TestConstants.PREFIX)
 
@@ -50,7 +50,7 @@ class ContactEditPresenterTest {
     init {
         identityRepo.save(identity)
         identityRepo.save(identityB)
-        contactRepo.save(contactA, identity);
+        contactRepo.save(contactA, identity)
     }
 
     lateinit var contactUseCase: ContactsUseCase
@@ -79,9 +79,9 @@ class ContactEditPresenterTest {
     @Test
     fun testRefresh() {
         presenter.loadContact()
-        verify(contactUseCase).loadContactAndIdentities(contactA.keyIdentifier);
-        assertThat(presenter.title, equalTo("EDIT LABEL"));
-        verify(detailsView).loadContact(contactADto, identities);
+        verify(contactUseCase).loadContactAndIdentities(contactA.keyIdentifier)
+        assertThat(presenter.title, equalTo("EDIT LABEL"))
+        verify(detailsView).loadContact(contactADto, identities)
 
         contactA.status = Contact.ContactStatus.UNKNOWN
         presenter.loadContact()
@@ -107,10 +107,10 @@ class ContactEditPresenterTest {
         verify(contactUseCase).saveContact(contactADto)
         verify(navigator).popBackStack()
 
-        val contactPair = contactRepo.findContactWithIdentities(contactA.keyIdentifier)
-        assertThat(contactPair.first.nickName, equalTo("TestNick"))
-        assertThat(contactPair.second, hasSize(1))
-        assertThat(contactPair.second.first(), equalTo(identityB))
+        val contactData = contactRepo.findContactWithIdentities(contactA.keyIdentifier)
+        assertThat(contactData.contact.nickName, equalTo("TestNick"))
+        assertThat(contactData.identities, hasSize(1))
+        assertThat(contactData.identities.first(), equalTo(identityB))
     }
 
 }

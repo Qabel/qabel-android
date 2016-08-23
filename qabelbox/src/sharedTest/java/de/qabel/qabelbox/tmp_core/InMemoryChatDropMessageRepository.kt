@@ -15,6 +15,7 @@ open class InMemoryChatDropMessageRepository : ChatDropMessageRepository {
     override fun findById(id: Int): ChatDropMessage = messages.find { it.id == id } ?: throw EntityNotFoundException("ChatDropMessage not found")
 
     override fun persist(model: ChatDropMessage) {
+        println("persist")
         model.id = messages.size + 1
         messages.add(model)
     }
@@ -63,8 +64,9 @@ open class InMemoryChatDropMessageRepository : ChatDropMessageRepository {
         }
     }
 
-    override fun findByContact(contactId: Int, identityId: Int, offset: Int, pageSize: Int): PagingResult<ChatDropMessage> {
-        throw UnsupportedOperationException("not implemented in mock")
-    }
+    override fun findByContact(contactId: Int, identityId: Int, offset: Int, pageSize: Int): PagingResult<ChatDropMessage> =
+            findByContact(contactId, identityId).let {
+                PagingResult(it.size, it.filterIndexed { i, chatDropMessage -> i >= offset && i < (offset + pageSize) })
+            }
 
 }

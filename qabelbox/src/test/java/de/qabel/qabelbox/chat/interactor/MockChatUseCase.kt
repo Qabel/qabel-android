@@ -4,7 +4,7 @@ import de.qabel.core.config.Contact
 import de.qabel.core.repository.framework.PagingResult
 import de.qabel.qabelbox.chat.dto.ChatMessage
 import rx.Observable
-import rx.lang.kotlin.observable
+import rx.Single
 import rx.lang.kotlin.toSingletonObservable
 
 open class MockChatUseCase(val chatMessage: ChatMessage,
@@ -17,16 +17,9 @@ open class MockChatUseCase(val chatMessage: ChatMessage,
         }).toSingletonObservable()
     }
 
-    override fun send(text: String): Observable<ChatMessage> {
+    override fun send(text: String): Single<ChatMessage> {
         messages = listOf(chatMessage)
-        return chatMessage.toSingletonObservable()
-    }
-
-    override fun retrieve() = observable<ChatMessage> {
-        messages.forEach { msg ->
-            it.onNext(msg)
-        }
-        it.onCompleted()
+        return chatMessage.toSingletonObservable().toSingle()
     }
 
     override fun ignoreContact(): Observable<Unit> {

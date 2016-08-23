@@ -67,10 +67,6 @@ class ChatFragment : ChatView, BaseFragment(), AnkoLogger {
         val component = getComponent(MainActivityComponent::class.java).plus(ChatModule(this))
         component.inject(this)
         injectCompleted = true
-
-
-        configureAsSubFragment()
-
     }
 
     /**
@@ -98,10 +94,11 @@ class ChatFragment : ChatView, BaseFragment(), AnkoLogger {
 
     override fun onResume() {
         super.onResume()
-        presenter.refreshMessages()
+        configureAsSubFragment()
         ctx.registerReceiver(notificationBlockReceiver, IntentFilter(QblBroadcastConstants.Chat.NOTIFY_NEW_MESSAGES).apply {
             priority = 1
         })
+        presenter.refreshMessages()
         refreshContactOverlay()
         mActivity?.toolbar?.setOnClickListener { presenter.handleHeaderClick() }
     }
@@ -153,10 +150,10 @@ class ChatFragment : ChatView, BaseFragment(), AnkoLogger {
         }
     }
 
-    override fun appendData(model: List<ChatMessage>) {
+    override fun appendData(models: List<ChatMessage>) {
         busy()
         onUiThread {
-            adapter.append(model)
+            adapter.append(models)
             scrollToBottom()
             idle()
         }
@@ -176,6 +173,10 @@ class ChatFragment : ChatView, BaseFragment(), AnkoLogger {
             idle()
         }
     }
+
+    override fun handleLoadError(throwable: Throwable) = showError(throwable)
+
+    override fun getCount(): Int = adapter.itemCount
 
     private fun scrollToBottom() {
         contact_chat_list.scrollToPosition(adapter.itemCount - 1)

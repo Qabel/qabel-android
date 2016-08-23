@@ -1,12 +1,10 @@
 package de.qabel.qabelbox.chat.interactor
 
-import com.nhaarman.mockito_kotlin.any
 import com.nhaarman.mockito_kotlin.mock
 import com.nhaarman.mockito_kotlin.spy
 import com.nhaarman.mockito_kotlin.verify
 import de.qabel.core.http.DropConnector
 import de.qabel.core.http.MainDropConnector
-import de.qabel.core.repository.ChatDropMessageRepository
 import de.qabel.core.repository.entities.ChatDropMessage
 import de.qabel.core.repository.framework.PagingResult
 import de.qabel.core.service.ChatService
@@ -17,10 +15,10 @@ import de.qabel.qabelbox.chat.dto.ChatMessage
 import de.qabel.qabelbox.chat.transformers.ChatMessageTransformer
 import de.qabel.qabelbox.tmp_core.*
 import de.qabel.qabelbox.util.IdentityHelper
-import org.hamcrest.Matchers.*
+import org.hamcrest.Matchers.equalTo
+import org.hamcrest.Matchers.hasSize
 import org.junit.Assert.assertThat
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricGradleTestRunner
@@ -78,7 +76,7 @@ class ChatUseCaseTest {
 
     @Test
     fun sendMessage() {
-        val result: ChatMessage = chatUseCase.send("Text").toBlocking().value()
+        val result: ChatMessage = chatUseCase.send("Text").toBlocking().single()
 
         assertThat(chatDropRepository.findByContact(contact.id, identity.id), hasSize(1))
         assertThat(dropServer.receiveMessageBytes(contact.dropUrls.first().uri, "").third, hasSize(1))

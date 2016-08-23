@@ -12,7 +12,7 @@ interface ChatUseCase {
 
     fun load(offset: Int, pageSize: Int) : Observable<PagingResult<ChatMessage>>
 
-    fun send(text: String): Single<ChatMessage>
+    fun send(text: String): Observable<ChatMessage>
 
     fun ignoreContact(): Observable<Unit>
     fun addContact(): Observable<Unit>

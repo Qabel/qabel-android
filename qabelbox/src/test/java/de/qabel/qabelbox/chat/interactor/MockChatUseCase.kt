@@ -17,9 +17,9 @@ open class MockChatUseCase(val chatMessage: ChatMessage,
         }).toSingletonObservable()
     }
 
-    override fun send(text: String): Single<ChatMessage> {
+    override fun send(text: String): Observable<ChatMessage> {
         messages = listOf(chatMessage)
-        return chatMessage.toSingletonObservable().toSingle()
+        return chatMessage.toSingletonObservable()
     }
 
     override fun ignoreContact(): Observable<Unit> {

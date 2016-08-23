@@ -38,6 +38,7 @@ class MainContactEditPresenter @Inject constructor(private val view: ContactEdit
         }
 
         contact.contact.nickName = nickName
+        contact.contact.isIgnored = view.isContactIgnored()
         contact.identities = identities.entities.filter { identityIds.contains(it.id) }
         useCase.saveContact(contact).subscribe({
             view.showContactSavedToast()

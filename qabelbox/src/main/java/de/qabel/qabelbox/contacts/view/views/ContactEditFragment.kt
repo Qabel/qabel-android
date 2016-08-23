@@ -96,6 +96,7 @@ class ContactEditFragment() : ContactEditView, BaseFragment(), AnkoLogger {
 
     override fun getCurrentNick(): String = adapter.getNickname()
     override fun getCurrentIdentityIds(): List<Int> = adapter.getIdentityIds()
+    override fun isContactIgnored() : Boolean = adapter.isContactIgnored()
 
     override fun showEnterNameToast() =
             toast(R.string.enter_name_message)

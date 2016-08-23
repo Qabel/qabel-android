@@ -14,6 +14,8 @@ interface ContactEditView {
 
     fun getCurrentNick(): String
     fun getCurrentIdentityIds(): List<Int>
+    fun isContactIgnored(): Boolean
+
     fun showEnterNameToast()
 
     fun showContactSavedToast()

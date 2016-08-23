@@ -8,9 +8,8 @@ import de.qabel.core.repository.framework.PagingResult
 import de.qabel.core.service.ChatService
 import de.qabel.qabelbox.chat.dto.ChatMessage
 import de.qabel.qabelbox.chat.transformers.ChatMessageTransformer
-import rx.Single
+import rx.Observable
 import rx.lang.kotlin.observable
-import rx.lang.kotlin.single
 import rx.schedulers.Schedulers
 import javax.inject.Inject
 
@@ -20,14 +19,15 @@ class TransformingChatUseCase @Inject constructor(val identity: Identity, overri
                                                   private val chatDropMessageRepository: ChatDropMessageRepository,
                                                   private val chatServiceUseCase: ChatServiceUseCase) : ChatUseCase {
 
-    override fun send(text: String): Single<ChatMessage> = single<ChatMessage> { subscriber ->
+    override fun send(text: String): Observable<ChatMessage> = observable<ChatMessage> { subscriber ->
         val item = ChatDropMessage(contact.id, identity.id,
                 ChatDropMessage.Direction.OUTGOING, ChatDropMessage.Status.PENDING,
                 ChatDropMessage.MessageType.BOX_MESSAGE, ChatDropMessage.MessagePayload.TextMessage(text),
                 System.currentTimeMillis())
 
-        subscriber.onSuccess(chatMessageTransformer.transform(item))
+        subscriber.onNext(chatMessageTransformer.transform(item))
         chatService.sendMessage(item)
+        subscriber.onCompleted()
     }.subscribeOn(Schedulers.io())
 
     override fun load(offset: Int, pageSize: Int) = observable<PagingResult<ChatMessage>> { subscriber ->

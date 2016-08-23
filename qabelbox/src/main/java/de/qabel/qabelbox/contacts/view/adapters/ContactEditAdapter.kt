@@ -25,6 +25,8 @@ class ContactEditAdapter() {
             tv_initial.text = contact.initials()
             editTextContactNick.setText(contact.contact.displayName())
             editTextContactName.text = contact.contact.alias
+            contact_ignored_switch.isChecked = contact.contact.isIgnored
+
             contact_identities.removeAllViews()
             identities.entities.forEach {
                 addIdentityToggle(it, contact.identities.contains(it.keyIdentifier))
@@ -63,5 +65,7 @@ class ContactEditAdapter() {
         }
         return ids
     }
+
+    fun isContactIgnored() : Boolean = view?.contact_ignored_switch?.isChecked ?: false
 
 }

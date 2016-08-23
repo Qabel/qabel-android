@@ -10,8 +10,6 @@ import android.os.Bundle
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.SearchView
 import android.view.*
-import butterknife.BindView
-import butterknife.ButterKnife
 import com.cocosw.bottomsheet.BottomSheet
 import com.google.zxing.integration.android.IntentIntegrator
 import de.qabel.core.config.Identity
@@ -31,8 +29,10 @@ import de.qabel.qabelbox.ui.extensions.showConfirmation
 import de.qabel.qabelbox.ui.extensions.showMessage
 import de.qabel.qabelbox.ui.extensions.showQuantityMessage
 import kotlinx.android.synthetic.main.fragment_contacts.*
-import kotlinx.android.synthetic.main.fragment_contacts.view.*
-import org.jetbrains.anko.*
+import org.jetbrains.anko.AnkoLogger
+import org.jetbrains.anko.ctx
+import org.jetbrains.anko.debug
+import org.jetbrains.anko.onUiThread
 import java.io.File
 import javax.inject.Inject
 
@@ -49,9 +49,6 @@ class ContactsFragment() : ContactsView, BaseFragment(), AnkoLogger, SearchView.
     lateinit var navigator: Navigator
     @Inject
     lateinit var identity: Identity
-
-    @BindView(R.id.contact_search)
-    lateinit var contactSearch: SearchView
 
     val adapter = ContactsAdapter({
         contact -> presenter.handleClick(contact) }, {
@@ -91,9 +88,8 @@ class ContactsFragment() : ContactsView, BaseFragment(), AnkoLogger, SearchView.
 
     override fun onViewCreated(view: View?, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        ButterKnife.bind(this, view as View)
-        contactSearch.setOnQueryTextListener(this)
-        contactSearch.queryHint = getString(R.string.search)
+        contact_search.setOnQueryTextListener(this)
+        contact_search.queryHint = getString(R.string.search)
     }
 
     override fun onQueryTextSubmit(query: String?): Boolean {

@@ -101,6 +101,7 @@ class ContactEditPresenterTest {
         verify(contactUseCase).loadContactAndIdentities(contactA.keyIdentifier)
         whenever(detailsView.getCurrentNick()).thenReturn("TestNick")
         whenever(detailsView.getCurrentIdentityIds()).thenReturn(listOf(identityB.id))
+        whenever(detailsView.isContactIgnored()).thenReturn(true)
 
         presenter.onSaveClick()
 
@@ -111,6 +112,7 @@ class ContactEditPresenterTest {
         assertThat(contactData.contact.nickName, equalTo("TestNick"))
         assertThat(contactData.identities, hasSize(1))
         assertThat(contactData.identities.first(), equalTo(identityB))
+        assertThat(contactData.contact.isIgnored, equalTo(true))
     }
 
 }

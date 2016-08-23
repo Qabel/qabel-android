@@ -36,9 +36,7 @@ class MainContactsPresenter @Inject constructor(private val view: ContactsView,
     }
 
     override fun handleClick(contact: ContactDto) =
-            if (contact.contact.isIgnored) {
-                //TODO
-            } else if (contact.active)
+            if (!contact.contact.isIgnored && contact.active)
                 navigator.selectChatFragment(contact.contact.keyIdentifier)
             else navigator.selectContactDetailsFragment(contact)
 

@@ -132,7 +132,7 @@ dependencies {
     sourceCompatibility = JavaVersion.VERSION_1_7
     targetCompatibility = JavaVersion.VERSION_1_7
     compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile('com.github.JoGir:qabel-core:49d22ceeac5b88eb265540ed4835a8de311f9346') {
+    compile('com.github.JoGir:qabel-core:dc20c8ec28ca38d928f9502c79e3ef72149a1eef') {
         exclude group: 'org.json', module: 'json'
         exclude group: 'org.apache.logging.log4j'
         exclude group: 'commons-logging', module: 'commons-logging'

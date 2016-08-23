@@ -8,11 +8,11 @@ import de.qabel.core.repository.framework.PagingResult
 import de.qabel.core.service.ChatService
 import de.qabel.qabelbox.chat.dto.ChatMessage
 import de.qabel.qabelbox.chat.transformers.ChatMessageTransformer
-import rx.Observable
+import rx.Single
 import rx.lang.kotlin.observable
+import rx.lang.kotlin.single
 import rx.schedulers.Schedulers
 import javax.inject.Inject
-import kotlin.concurrent.thread
 
 class TransformingChatUseCase @Inject constructor(val identity: Identity, override val contact: Contact,
                                                   private val chatMessageTransformer: ChatMessageTransformer,
@@ -20,27 +20,18 @@ class TransformingChatUseCase @Inject constructor(val identity: Identity, overri
                                                   private val chatDropMessageRepository: ChatDropMessageRepository,
                                                   private val chatServiceUseCase: ChatServiceUseCase) : ChatUseCase {
 
-    override fun send(text: String): Observable<ChatMessage> = observable<ChatMessage> { subscriber ->
-            val item = ChatDropMessage(contact.id, identity.id,
-                    ChatDropMessage.Direction.OUTGOING, ChatDropMessage.Status.PENDING,
-                    ChatDropMessage.MessageType.BOX_MESSAGE, ChatDropMessage.MessagePayload.TextMessage(text),
-                    System.currentTimeMillis())
+    override fun send(text: String): Single<ChatMessage> = single<ChatMessage> { subscriber ->
+        val item = ChatDropMessage(contact.id, identity.id,
+                ChatDropMessage.Direction.OUTGOING, ChatDropMessage.Status.PENDING,
+                ChatDropMessage.MessageType.BOX_MESSAGE, ChatDropMessage.MessagePayload.TextMessage(text),
+                System.currentTimeMillis())
 
-            subscriber.onNext(chatMessageTransformer.transform(item))
-            chatService.sendMessage(item)
-            subscriber.onCompleted()
+        subscriber.onSuccess(chatMessageTransformer.transform(item))
+        chatService.sendMessage(item)
     }.subscribeOn(Schedulers.io())
 
-    override fun retrieve() = observable<ChatMessage> { subscriber ->
-        chatDropMessageRepository.markAsRead(contact, identity)
-        chatDropMessageRepository.findByContact(contact.id, identity.id).forEach { msg ->
-            subscriber.onNext(chatMessageTransformer.transform(msg))
-        }
-        subscriber.onCompleted()
-    }
-
     override fun load(offset: Int, pageSize: Int) = observable<PagingResult<ChatMessage>> { subscriber ->
-        if(offset == 0){
+        if (offset == 0) {
             chatDropMessageRepository.markAsRead(contact, identity)
         }
         chatDropMessageRepository.findByContact(contact.id, identity.id, offset, pageSize).let { pagingResult ->

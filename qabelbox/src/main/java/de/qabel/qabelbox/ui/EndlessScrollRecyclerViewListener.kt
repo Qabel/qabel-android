@@ -7,6 +7,10 @@ import de.qabel.core.ui.DataViewProxy
 
 /**
  * TODO In development
+ * Based on https://guides.codepath.com/android/Endless-Scrolling-with-AdapterViews-and-RecyclerView#implementing-with-recyclerview
+ *
+ * Buggy with loading and scrolling
+ *
  */
 class EndlessScrollRecyclerViewListener(private val loader: DataViewProxy<*>) : OnScrollListener() {
 

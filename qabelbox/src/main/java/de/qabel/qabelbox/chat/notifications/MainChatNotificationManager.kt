@@ -49,9 +49,9 @@ class MainChatNotificationManager : ChatNotificationManager {
                 !notifiedMap.getOrDefault(identity).any {
                     it.contact == msg.contact &&
                             it.identity == msg.identity &&
-                            it.time == it.time &&
-                            it.direction == it.direction &&
-                            it.messagePayload.toMessage() == it.messagePayload.toMessage()
+                            it.time == msg.time &&
+                            it.direction == msg.direction &&
+                            it.messagePayload.toMessage() == msg.messagePayload.toMessage()
                 }
             }.toMutableList()
 

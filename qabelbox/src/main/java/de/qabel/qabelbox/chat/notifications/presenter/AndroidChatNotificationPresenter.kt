@@ -121,7 +121,7 @@ open class AndroidChatNotificationPresenter : ChatNotificationPresenter {
     fun getChatIntent(notification: ChatNotification): Intent =
             Intent(context, MainActivity::class.java).apply {
                 putExtra(MainActivity.ACTIVE_IDENTITY, notification.identity.keyIdentifier)
-                putExtra(MainActivity.START_CONTACTS_FRAGMENT, true)
+                putExtra(MainActivity.START_CHAT_FRAGMENT, true)
                 when (notification) {
                     is ContactChatNotification ->
                         putExtra(MainActivity.ACTIVE_CONTACT, notification.contact.keyIdentifier)

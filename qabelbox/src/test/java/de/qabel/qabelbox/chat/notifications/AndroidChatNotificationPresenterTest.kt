@@ -100,7 +100,7 @@ class AndroidChatNotificationPresenterTest : UITest {
         val intent = presenter.getChatIntent(notification)
         assertThat(intent.getStringExtra(MainActivity.ACTIVE_IDENTITY),
                 equalTo(notification.identity.keyIdentifier))
-        assertThat(intent.getBooleanExtra(MainActivity.START_CONTACTS_FRAGMENT, false), `is`(true))
+        assertThat(intent.getBooleanExtra(MainActivity.START_CHAT_FRAGMENT, false), `is`(true))
         assertThat(intent.getStringExtra(MainActivity.ACTIVE_CONTACT), nullValue())
     }
 
@@ -113,7 +113,7 @@ class AndroidChatNotificationPresenterTest : UITest {
         val intent = presenter.getChatIntent(notification)
         assertThat(intent.getStringExtra(MainActivity.ACTIVE_IDENTITY),
                 equalTo(notification.identity.keyIdentifier))
-        assertThat(intent.getBooleanExtra(MainActivity.START_CONTACTS_FRAGMENT, false), `is`(true))
+        assertThat(intent.getBooleanExtra(MainActivity.START_CHAT_FRAGMENT, false), `is`(true))
         assertThat(intent.getStringExtra(MainActivity.ACTIVE_CONTACT),
                 equalTo(notification.contact.keyIdentifier))
     }

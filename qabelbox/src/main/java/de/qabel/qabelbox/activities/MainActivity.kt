@@ -97,7 +97,7 @@ class MainActivity : CrashReportingActivity(),
     lateinit private var drawer: Drawer
     lateinit private var contacts: PrimaryDrawerItem
     lateinit private var files: PrimaryDrawerItem
-    lateinit private var chats : PrimaryDrawerItem
+    lateinit private var chats: PrimaryDrawerItem
     lateinit var toggle: ActionBarDrawerToggle
 
 
@@ -240,9 +240,9 @@ class MainActivity : CrashReportingActivity(),
     }
 
     private fun handleIntent(intent: Intent) {
-        if(intent.hasExtra(ACTIVE_IDENTITY)){
+        if (intent.hasExtra(ACTIVE_IDENTITY)) {
             val identityKey = intent.getStringExtra(ACTIVE_IDENTITY)
-            if(identityKey != activeIdentity.keyIdentifier){
+            if (identityKey != activeIdentity.keyIdentifier) {
                 val identity = identityRepository.find(identityKey)
                 changeActiveIdentity(identity, intent)
             }
@@ -252,12 +252,13 @@ class MainActivity : CrashReportingActivity(),
 
         // Checks if a fragment should be launched
         val startFilesFragment = intent.getBooleanExtra(START_FILES_FRAGMENT, false)
-        val startContactsFragment = intent.getBooleanExtra(START_CONTACTS_FRAGMENT, false)
+        val startChatFragment = intent.getBooleanExtra(START_CHAT_FRAGMENT, false)
         val activeContact = intent.getStringExtra(ACTIVE_CONTACT)
-        if (startContactsFragment) {
-            drawer.setSelection(contacts)
-            navigator.selectContactsFragment()
-            navigator.selectChatFragment(activeContact)
+
+        if (startChatFragment) {
+            drawer.setSelection(chats)
+            navigator.selectChatOverviewFragment()
+            activeContact?.apply { navigator.selectChatFragment(this) }
         } else if (startFilesFragment) {
             drawer.setSelection(files)
             navigator.selectFilesFragment()
@@ -576,7 +577,7 @@ class MainActivity : CrashReportingActivity(),
         // Defaults to true and is used in tests to shortcut the activity creation
 
         const val START_FILES_FRAGMENT = "START_FILES_FRAGMENT"
-        const val START_CONTACTS_FRAGMENT = "START_CONTACTS_FRAGMENT"
+        const val START_CHAT_FRAGMENT = "START_CHAT_FRAGMENT"
         const val ACTIVE_IDENTITY = "ACTIVE_IDENTITY"
         const val ACTIVE_CONTACT = "ACTIVE_CONTACT"
         const val START_FILES_FRAGMENT_PATH = "START_FILES_FRAGMENT_PATH"

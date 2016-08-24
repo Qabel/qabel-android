@@ -36,7 +36,7 @@ class ChatFragmentTest : AbstractUITest() {
     fun launch() {
         with(defaultIntent) {
             putExtra(MainActivity.ACTIVE_CONTACT, contact.keyIdentifier)
-            putExtra(MainActivity.START_CONTACTS_FRAGMENT, true)
+            putExtra(MainActivity.START_CHAT_FRAGMENT, true)
             launchActivity(this)
         }
         fragment = mActivity.fragmentManager.findFragmentByTag(

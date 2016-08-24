@@ -50,7 +50,7 @@ constructor(var activity: MainActivity,
 
         fun createChatIntent(context: Context, identityKey: String, contactKey: String) =
                 Intent(context, MainActivity::class.java).apply {
-                    putExtra(MainActivity.START_CONTACTS_FRAGMENT, true);
+                    putExtra(MainActivity.START_CHAT_FRAGMENT, true)
                     putExtra(MainActivity.ACTIVE_IDENTITY, identityKey)
                     putExtra(MainActivity.ACTIVE_CONTACT, contactKey)
                 }

@@ -63,7 +63,7 @@ class MockContactRepository(val contacts: MutableMap<String, Contact> = mutableM
 
     override fun findContactWithIdentities(keyId: String): ContactData {
         if (contacts.contains(keyId)) {
-            return contacts[keyId].let { contact -> ContactData(contact!!, findContactIdentities(contact.keyIdentifier)) }
+            return contacts[keyId].let { contact -> ContactData(contact!!, findContactIdentities(contact.keyIdentifier), identityMapping.keys.any { it.keyIdentifier == contact.keyIdentifier }) }
         } else throw EntityNotFoundException("Contact is not one of the injected")
     }
 
@@ -75,7 +75,7 @@ class MockContactRepository(val contacts: MutableMap<String, Contact> = mutableM
                             status.contains(contact.status) &&
                             if (excludeIgnored) !contact.isIgnored else true
                 }
-                .map { contact -> ContactData(contact, findContactIdentities(contact.keyIdentifier)) }
+                .map { contact -> ContactData(contact, findContactIdentities(contact.keyIdentifier), identityMapping.keys.any { it.keyIdentifier == contact.keyIdentifier }) }
     }
 
     private fun findContactIdentities(key: String): List<Identity> {

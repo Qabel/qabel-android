@@ -45,12 +45,15 @@ class TransformingChatUseCase @Inject constructor(val identity: Identity, overri
 
     override fun addContact() = observable<Unit> { subscriber ->
         chatServiceUseCase.addContact(identity.keyIdentifier, contact.keyIdentifier)
+        contact.status = Contact.ContactStatus.NORMAL
         subscriber.onNext(Unit)
         subscriber.onCompleted()
     }
 
     override fun ignoreContact() = observable<Unit> { subscriber ->
         chatServiceUseCase.ignoreContact(identity.keyIdentifier, contact.keyIdentifier)
+        contact.status = Contact.ContactStatus.NORMAL
+        contact.isIgnored = true
         subscriber.onNext(Unit)
         subscriber.onCompleted()
     }

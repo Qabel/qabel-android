@@ -3,6 +3,7 @@ package de.qabel.qabelbox.chat.interactor
 import com.nhaarman.mockito_kotlin.mock
 import com.nhaarman.mockito_kotlin.spy
 import com.nhaarman.mockito_kotlin.verify
+import de.qabel.core.config.Contact
 import de.qabel.core.http.DropConnector
 import de.qabel.core.http.MainDropConnector
 import de.qabel.core.repository.entities.ChatDropMessage
@@ -85,5 +86,21 @@ class ChatUseCaseTest {
         assertThat(result.contact, equalTo(contact))
         assertThat(result.direction, equalTo(ChatDropMessage.Direction.OUTGOING))
         assertThat(result.messagePayload.toMessage(), equalTo("Text"))
+    }
+
+    @Test
+    fun testIgnoreContact() {
+        chatUseCase.ignoreContact().toBlocking().subscribe()
+        verify(chatServiceUseCase).ignoreContact(identity.keyIdentifier, contact.keyIdentifier)
+        assertThat(contact.isIgnored, equalTo(true))
+        assertThat(contact.status, equalTo(Contact.ContactStatus.NORMAL))
+    }
+
+    @Test
+    fun testAddContact() {
+        chatUseCase.addContact().toBlocking().subscribe()
+        verify(chatServiceUseCase).addContact(identity.keyIdentifier, contact.keyIdentifier)
+        assertThat(contact.isIgnored, equalTo(false))
+        assertThat(contact.status, equalTo(Contact.ContactStatus.NORMAL))
     }
 }

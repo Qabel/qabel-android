@@ -14,6 +14,7 @@ import de.qabel.core.config.Identity
 import de.qabel.qabelbox.QblBroadcastConstants
 import de.qabel.qabelbox.R
 import de.qabel.qabelbox.chat.dagger.ChatOverviewModule
+import de.qabel.qabelbox.chat.dto.ChatConversationDto
 import de.qabel.qabelbox.chat.dto.ChatMessage
 import de.qabel.qabelbox.chat.view.adapters.ChatOverviewAdapter
 import de.qabel.qabelbox.chat.view.presenters.ChatOverviewPresenter
@@ -97,7 +98,7 @@ class ChatOverviewFragment() : ChatOverview, BaseFragment(), AnkoLogger {
                 ?: throw IllegalStateException("Could not create view")
     }
 
-    override fun loadData(data: List<ChatMessage>) {
+    override fun loadData(data: List<ChatConversationDto>) {
         debug("Filling adapter with ${data.size} messages")
         busy()
         onUiThread {

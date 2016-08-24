@@ -4,15 +4,16 @@ import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import de.qabel.qabelbox.R
+import de.qabel.qabelbox.chat.dto.ChatConversationDto
 import de.qabel.qabelbox.chat.dto.ChatMessage
 import de.qabel.qabelbox.ui.DataViewAdapter
 
 
 open class ChatOverviewAdapter(val clickListener: (ChatMessage) -> Unit,
                                val longClickListener: (ChatMessage) -> Boolean) :
-        RecyclerView.Adapter<ConversationViewHolder>(), DataViewAdapter<ChatMessage> {
+        RecyclerView.Adapter<ConversationViewHolder>(), DataViewAdapter<ChatConversationDto> {
 
-    override var data: List<ChatMessage> = emptyList()
+    override var data: MutableList<ChatConversationDto> = mutableListOf()
 
     override fun onBindViewHolder(holder: ConversationViewHolder, position: Int) =
             holder.bindTo(data[position])

@@ -13,7 +13,7 @@ import de.qabel.qabelbox.ui.DataViewAdapter
 open class ChatMessageAdapter() :
         RecyclerView.Adapter<ChatMessageViewHolderBase<*>>(), DataViewAdapter<ChatMessage> {
 
-    override var data: List<ChatMessage> = emptyList()
+    override var data: MutableList<ChatMessage> = mutableListOf()
 
     override fun notifyView() = notifyDataSetChanged()
     override fun notifyViewRange(start: Int, count: Int) = notifyItemRangeChanged(start, count)

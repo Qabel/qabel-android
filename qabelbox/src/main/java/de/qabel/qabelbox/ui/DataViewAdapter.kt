@@ -3,25 +3,25 @@ package de.qabel.qabelbox.ui
 
 interface DataViewAdapter<T> {
 
-    var data: List<T>
+    var data: MutableList<T>
 
     fun init(data: List<T>) {
-        this.data = data
+        this.data = data.toMutableList()
         notifyView()
     }
 
     fun reset() {
-        data = emptyList()
+        data = mutableListOf()
         notifyView()
     }
 
     fun append(model: List<T>) {
-        data = data.plus(model)
+        data.addAll(model)
         notifyView()
     }
 
     fun prepend(models: List<T>) {
-        data = models.plus(data)
+        data.addAll(0, models)
         notifyView()
     }
 

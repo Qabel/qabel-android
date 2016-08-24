@@ -128,16 +128,30 @@ tasks.withType(Test) {
     systemProperty 'java.library.path', 'libs/'
 }
 
+def coreVersion = '039301423619ce86e6308ba07f5083d3a860054f'
+def repo = 'JoGir'
 dependencies {
     sourceCompatibility = JavaVersion.VERSION_1_7
     targetCompatibility = JavaVersion.VERSION_1_7
     compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile('com.github.JoGir:qabel-core:039301423619ce86e6308ba07f5083d3a860054f') {
+
+    compile('com.github.'+repo+'.qabel-core:box:'+coreVersion) {
         exclude group: 'org.json', module: 'json'
         exclude group: 'org.apache.logging.log4j'
         exclude group: 'commons-logging', module: 'commons-logging'
         exclude group: 'org.apache.httpcomponents', module: 'httpclient'
     }
+    compile('com.github.'+repo+'.qabel-core:core:'+coreVersion) {
+        exclude group: 'org.json', module: 'json'
+        exclude group: 'org.apache.logging.log4j'
+        exclude group: 'commons-logging', module: 'commons-logging'
+        exclude group: 'org.apache.httpcomponents', module: 'httpclient'
+    }
+    testCompile 'com.github.'+repo+'.qabel-core:box:'+coreVersion+':tests'
+    testCompile 'com.github.'+repo+'.qabel-core:box:'+coreVersion+':sources'
+    testCompile 'com.github.'+repo+'.qabel-core:core:'+coreVersion+':tests'
+    testCompile 'com.github.'+repo+'.qabel-core:core:'+coreVersion+':sources'
+
     compile group: 'org.apache.httpcomponents', name: 'httpclient-android', version: '4.3.5.1'
 
     kapt 'com.jakewharton:butterknife-compiler:8.0.1'

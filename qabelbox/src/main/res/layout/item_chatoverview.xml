@@ -52,6 +52,12 @@
                 android:layout_alignParentStart="true"
                 android:lines="1" />
 
+            <include layout="@layout/badge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/default_space"
+                android:layout_toRightOf="@id/textViewItemName"/>
+
             <de.qabel.qabelbox.ui.views.TextViewFont
                 android:id="@+id/tvDate"
                 android:layout_width="wrap_content"

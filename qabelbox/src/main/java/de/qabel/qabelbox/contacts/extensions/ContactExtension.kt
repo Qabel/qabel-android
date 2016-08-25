@@ -14,6 +14,11 @@ fun Contact.displayName() : String {
     }
     return alias
 }
+
+fun Contact.initials() : String = displayName().split(" ".toRegex()).map {
+    it.first().toUpperCase()
+}.joinToString("")
+
 fun ContactDto.initials() = contact.displayName().split(" ".toRegex()).map {
     it.first().toUpperCase()
 }.joinToString("")

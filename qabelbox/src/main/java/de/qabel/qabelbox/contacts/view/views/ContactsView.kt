@@ -7,10 +7,13 @@ import java.io.File
 interface ContactsView {
 
     var searchString : String?
+    var showIgnored : Boolean
 
     fun showEmpty()
 
     fun loadData(data : List<ContactDto>)
+
+    fun showBottomSheet(contact: ContactDto)
 
     fun startExportFileChooser(filename: String, requestCode: Int)
     fun startImportFileChooser(requestCode: Int)
@@ -27,7 +30,5 @@ interface ContactsView {
     fun showContactExistsMessage()
 
     fun startQRScan()
-
-
 }
 

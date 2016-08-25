@@ -325,4 +325,7 @@ Den Unterstützern der Indigogo Kampagne
     <string name="error_saving_changed">Änderungen konnten nicht gespeichert werden</string>
     <string name="action_read">Gelesen</string>
     <string name="action_ignore">Ignorieren</string>
+    <string name="show_ignored">Ignorierte anzeigen</string>
+    <string name="load_more">Mehr laden</string>
+    <string name="conversations">Unterhaltungen</string>
 </resources>

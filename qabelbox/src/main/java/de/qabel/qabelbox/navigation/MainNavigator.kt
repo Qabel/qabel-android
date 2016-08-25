@@ -21,6 +21,7 @@ import de.qabel.qabelbox.fragments.HelpMainFragment
 import de.qabel.qabelbox.fragments.IdentitiesFragment
 import de.qabel.qabelbox.fragments.QRcodeFragment
 import de.qabel.qabelbox.chat.view.views.ChatFragment
+import de.qabel.qabelbox.chat.view.views.ChatOverviewFragment
 import de.qabel.qabelbox.contacts.view.views.ContactEditFragment
 import org.jetbrains.anko.AnkoLogger
 import org.jetbrains.anko.warn
@@ -36,6 +37,7 @@ constructor(var activity: MainActivity,
     companion object {
         const val TAG_CONTACT_LIST_FRAGMENT = "TAG_CONTACT_LIST_FRAGMENT"
         const val TAG_CONTACT_CHAT_FRAGMENT = "TAG_CONTACT_CHAT_FRAGMENT"
+        const val TAG_CHAT_OVERVIEW_FRAGMENT = "TAG_CHAT_OVERVIEW_FRAGMENT"
         const val TAG_CONTACT_DETAILS_FRAGMENT = "TAG_CONTACT_DETAILS_FRAGMENT";
         const val TAG_CONTACT_EDIT_FRAGMENT = "TAG_CONTACT_EDIT_FRAGMENT";
         const val TAG_QR_CODE_FRAGMENT = "TAG_CONTACT_QR_CODE_FRAGMENT";
@@ -48,7 +50,7 @@ constructor(var activity: MainActivity,
 
         fun createChatIntent(context: Context, identityKey: String, contactKey: String) =
                 Intent(context, MainActivity::class.java).apply {
-                    putExtra(MainActivity.START_CONTACTS_FRAGMENT, true);
+                    putExtra(MainActivity.START_CHAT_FRAGMENT, true)
                     putExtra(MainActivity.ACTIVE_IDENTITY, identityKey)
                     putExtra(MainActivity.ACTIVE_CONTACT, contactKey)
                 }
@@ -57,7 +59,6 @@ constructor(var activity: MainActivity,
 
     private fun showMainFragment(fragment: Fragment, tag: String) {
         showFragment(activity, fragment, tag, false, true)
-        activity.handleMainFragmentChange()
     }
 
     override fun selectCreateAccountActivity() {
@@ -95,12 +96,20 @@ constructor(var activity: MainActivity,
         showMainFragment(ContactsFragment(), TAG_CONTACT_LIST_FRAGMENT)
     }
 
+    override fun selectChatOverviewFragment() {
+        showMainFragment(ChatOverviewFragment(), TAG_CHAT_OVERVIEW_FRAGMENT)
+    }
+
     override fun selectQrCodeFragment(contact: Contact) {
         showFragment(activity, QRcodeFragment.newInstance(contact), TAG_QR_CODE_FRAGMENT, true, false)
     }
 
+    override fun selectContactDetailsFragment(contact: Contact) {
+        showFragment(activity, ContactDetailsFragment.withContactKey(contact.keyIdentifier), TAG_CONTACT_DETAILS_FRAGMENT, true, false)
+    }
+
     override fun selectContactDetailsFragment(contactDto: ContactDto) {
-        showFragment(activity, ContactDetailsFragment.withContact(contactDto), TAG_CONTACT_DETAILS_FRAGMENT, true, false)
+        showFragment(activity, ContactDetailsFragment.withContactKey(contactDto.contact.keyIdentifier), TAG_CONTACT_DETAILS_FRAGMENT, true, false)
     }
 
     override fun selectChatFragment(activeContact: String?) {

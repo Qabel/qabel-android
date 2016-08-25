@@ -1,51 +1,99 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/background_white"
-    android:paddingStart="@dimen/default_space"
-    android:paddingEnd="@dimen/default_space">
+    android:orientation="vertical">
 
     <RelativeLayout
-        android:id="@+id/etLayout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true">
-
-        <de.qabel.qabelbox.ui.views.ButtonFont
-            android:id="@+id/bt_send"
-            style="@style/TextViewButton"
-            android:textColor="@color/white"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentEnd="true"
-            android:layout_centerInParent="true"
-            android:clickable="true"
-            android:gravity="center"
-            android:text="@string/btn_chat_send"/>
-
-        <de.qabel.qabelbox.ui.views.EditTextFont
-            android:id="@+id/etText"
-            style="@style/EditText"
-            android:background="@android:color/transparent"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_toStartOf="@id/bt_send"
-            android:layout_centerVertical="true"
-            android:hint="@string/chat_message_hint" />
-    </RelativeLayout>
-
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/contact_chat_list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@drawable/separator_gray"
-        android:layout_above="@id/etLayout"
-        android:paddingStart="@dimen/default_space"
-        android:paddingEnd="@dimen/default_space"
-        android:paddingBottom="@dimen/default_space"
-        android:scrollbars="vertical"
-        android:stackFromBottom="true"
-        android:transcriptMode="normal"/>
+        android:background="@color/background_white">
 
-</RelativeLayout>
+        <RelativeLayout
+            android:id="@+id/etLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:paddingEnd="@dimen/default_space"
+            android:paddingStart="@dimen/default_space">
+
+            <de.qabel.qabelbox.ui.views.ButtonFont
+                android:id="@+id/bt_send"
+                style="@style/TextViewButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_centerInParent="true"
+                android:clickable="true"
+                android:gravity="center"
+                android:text="@string/btn_chat_send"
+                android:textColor="@color/white" />
+
+            <de.qabel.qabelbox.ui.views.EditTextFont
+                android:id="@+id/etText"
+                style="@style/EditText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_toStartOf="@id/bt_send"
+                android:background="@android:color/transparent"
+                android:hint="@string/chat_message_hint"
+                android:inputType="textMultiLine"
+                android:isScrollContainer="true"
+                android:lines="2"
+                android:scrollHorizontally="false"
+                android:scrollbars="vertical"/>
+        </RelativeLayout>
+
+        <android.support.v4.widget.SwipeRefreshLayout
+            android:id="@+id/swipeRefresh"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_above="@id/etLayout"
+            android:layout_alignEnd="@dimen/default_space">
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <android.support.v7.widget.RecyclerView
+                    android:id="@+id/contact_chat_list"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/separator_gray"
+                    android:scrollbars="vertical"
+                    android:stackFromBottom="true"
+                    android:transcriptMode="normal" />
+            </FrameLayout>
+        </android.support.v4.widget.SwipeRefreshLayout>
+    </RelativeLayout>
+
+    <LinearLayout
+        android:id="@+id/chat_contact_toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:alpha="0.8"
+        android:background="@color/light_gray"
+        android:visibility="gone">
+
+        <Button
+            android:id="@+id/action_add_contact"
+            style="?android:attr/buttonBarButtonStyle"
+            android:layout_width="0px"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:alpha="1"
+            android:drawableStart="@drawable/plus"
+            android:text="@string/add" />
+
+        <Button
+            android:id="@+id/action_ignore_contact"
+            style="?android:attr/buttonBarButtonStyle"
+            android:layout_width="0px"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:alpha="1"
+            android:drawableStart="@drawable/close"
+            android:text="@string/action_ignore" />
+    </LinearLayout>
+</FrameLayout>

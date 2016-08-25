@@ -16,7 +16,8 @@ class ContactsViewHolder(itemView: View, val clickListener: (ContactDto) -> Unit
     fun bindTo(contact: ContactDto) {
         //set grey if no identity or assciated identities not active associated
         itemView?.apply {
-            alpha = if (contact.active && contact.identities.size > 0) 1f else 0.35f
+            alpha = if (contact.active && !contact.contact.isIgnored && contact.identities.size > 0)
+                1f else 0.5f
 
             val displayName = contact.contact.displayName()
             textViewItemName.text = displayName

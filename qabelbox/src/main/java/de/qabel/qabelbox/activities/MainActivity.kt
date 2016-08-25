@@ -97,6 +97,7 @@ class MainActivity : CrashReportingActivity(),
     lateinit private var drawer: Drawer
     lateinit private var contacts: PrimaryDrawerItem
     lateinit private var files: PrimaryDrawerItem
+    lateinit private var chats: PrimaryDrawerItem
     lateinit var toggle: ActionBarDrawerToggle
 
 
@@ -119,10 +120,10 @@ class MainActivity : CrashReportingActivity(),
     private fun updateNewMessageBadge() {
         val size = messageRepository.findNew(activeIdentity.id).size
         if (size == 0) {
-            drawer.updateBadge(contacts.identifier, null)
+            drawer.updateBadge(chats.identifier, null)
         } else {
-            contacts.withBadge(size.toString())
-            drawer.updateItem(contacts)
+            chats.withBadge(size.toString())
+            drawer.updateItem(chats)
         }
     }
 
@@ -166,7 +167,6 @@ class MainActivity : CrashReportingActivity(),
         setSupportActionBar(toolbar)
 
         installConnectivityManager()
-        addBackStackListener()
 
         setupAccount()
         initDrawer()
@@ -234,52 +234,37 @@ class MainActivity : CrashReportingActivity(),
         })
     }
 
-    fun handleMainFragmentChange() {
-        // Set FAB visibility according to currently visible fragment
-        val activeFragment = fragmentManager.findFragmentById(R.id.fragment_container)
-
-        if (activeFragment is BaseFragment) {
-            toolbar.title = activeFragment.title
-            if (activeFragment.isFabNeeded) {
-                fab.show()
-            } else {
-                fab.hide()
-            }
-            if (!activeFragment.supportSubtitle()) {
-                toolbar.subtitle = null
-            } else {
-                activeFragment.updateSubtitle()
-            }
-        }
-    }
-
-    private fun addBackStackListener() {
-        fragmentManager.addOnBackStackChangedListener {
-            this@MainActivity.handleMainFragmentChange()
-        }
-    }
-
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         handleIntent(intent)
     }
 
     private fun handleIntent(intent: Intent) {
+        if (intent.hasExtra(ACTIVE_IDENTITY)) {
+            val identityKey = intent.getStringExtra(ACTIVE_IDENTITY)
+            if (identityKey != activeIdentity.keyIdentifier) {
+                val identity = identityRepository.find(identityKey)
+                changeActiveIdentity(identity, intent)
+            }
+        }
+
         TEST = intent.getBooleanExtra(TEST_RUN, false)
 
         // Checks if a fragment should be launched
-        val startFilesFragment = intent.getBooleanExtra(START_FILES_FRAGMENT, true)
-        val startContactsFragment = intent.getBooleanExtra(START_CONTACTS_FRAGMENT, false)
+        val startFilesFragment = intent.getBooleanExtra(START_FILES_FRAGMENT, false)
+        val startChatFragment = intent.getBooleanExtra(START_CHAT_FRAGMENT, false)
         val activeContact = intent.getStringExtra(ACTIVE_CONTACT)
-        if (startContactsFragment) {
-            drawer.setSelection(contacts)
-            navigator.selectContactsFragment()
-            navigator.selectChatFragment(activeContact)
+
+        if (startChatFragment) {
+            drawer.setSelection(chats)
+            navigator.selectChatOverviewFragment()
+            activeContact?.apply { navigator.selectChatFragment(this) }
         } else if (startFilesFragment) {
             drawer.setSelection(files)
             navigator.selectFilesFragment()
         } else {
-            drawer.setSelection(-1L)
+            drawer.setSelection(chats)
+            navigator.selectChatOverviewFragment()
         }
     }
 
@@ -407,12 +392,17 @@ class MainActivity : CrashReportingActivity(),
             withIdentifier(R.id.nav_contacts.toLong())
             withName(R.string.Contacts)
             withIcon(R.drawable.account_multiple)
-            withBadgeStyle(BadgeStyle().withTextColorRes(R.color.colorAccent).withColorRes(R.color.md_dark_background))
         }
         files = PrimaryDrawerItem().apply {
             withIdentifier(R.id.nav_browse.toLong())
             withName(R.string.filebrowser)
             withIcon(R.drawable.folder)
+        }
+        chats = PrimaryDrawerItem().apply {
+            withIdentifier(R.id.nav_chats.toLong())
+            withName(R.string.conversations)
+            withIcon(R.drawable.message_text)
+            withBadgeStyle(BadgeStyle().withTextColorRes(R.color.colorAccent).withColorRes(R.color.md_dark_background))
         }
         val settings = SecondaryDrawerItem().apply {
             withIdentifier(R.id.nav_settings.toLong())
@@ -439,6 +429,7 @@ class MainActivity : CrashReportingActivity(),
             withToolbar(toolbar)
             addDrawerItems(
                     contacts,
+                    chats,
                     files,
                     DividerDrawerItem(),
                     settings,
@@ -450,6 +441,7 @@ class MainActivity : CrashReportingActivity(),
                 when (iDrawerItem) {
                     contacts -> navigator.selectContactsFragment()
                     files -> navigator.selectFilesFragment()
+                    chats -> navigator.selectChatOverviewFragment()
                     settings -> {
                         val intent = Intent(this@MainActivity, SettingsActivity::class.java)
                         startActivityForResult(intent, REQUEST_SETTINGS)
@@ -585,7 +577,7 @@ class MainActivity : CrashReportingActivity(),
         // Defaults to true and is used in tests to shortcut the activity creation
 
         const val START_FILES_FRAGMENT = "START_FILES_FRAGMENT"
-        const val START_CONTACTS_FRAGMENT = "START_CONTACTS_FRAGMENT"
+        const val START_CHAT_FRAGMENT = "START_CHAT_FRAGMENT"
         const val ACTIVE_IDENTITY = "ACTIVE_IDENTITY"
         const val ACTIVE_CONTACT = "ACTIVE_CONTACT"
         const val START_FILES_FRAGMENT_PATH = "START_FILES_FRAGMENT_PATH"

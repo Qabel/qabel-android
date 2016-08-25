@@ -365,6 +365,9 @@ To all people who have supported our Indigogo Campaign
     <string name="export_aborted">Export failed</string>
     <string name="changes_saved">Änderungen gespeichert</string>
     <string name="error_saving_changed">Änderungen konnten nicht gespeichert werden</string>
-    <string name="action_ignore">Read</string>
-    <string name="action_read">Ignore</string>
+    <string name="action_ignore">Ignore</string>
+    <string name="action_read">Read</string>
+    <string name="show_ignored">Show ignored</string>
+    <string name="load_more">Load more</string>
+    <string name="conversations">Conversations</string>
 </resources>

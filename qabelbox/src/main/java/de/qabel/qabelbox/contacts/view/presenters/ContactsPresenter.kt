@@ -11,6 +11,9 @@ interface ContactsPresenter {
 
     fun refresh()
 
+    fun handleClick(contact: ContactDto)
+    fun handleLongClick(contact: ContactDto) : Boolean
+
     fun deleteContact(contact: ContactDto)
     fun sendContact(contact: ContactDto, cacheDir: File)
 

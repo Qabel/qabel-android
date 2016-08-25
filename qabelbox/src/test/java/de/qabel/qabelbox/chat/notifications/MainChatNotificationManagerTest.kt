@@ -56,15 +56,19 @@ class MainChatNotificationManagerTest {
 
     @Test
     fun testDuplicateNotificationsPrevented() {
+        val msg = createExampleMessage(now)
         val notification = ContactChatNotification(identity, contact, "message", now)
-        doUpdateNotifications()
-        doUpdateNotifications()
+        doUpdateNotifications(listOf(msg))
+        doUpdateNotifications(listOf(msg))
         verify<ChatNotificationPresenter>(presenter).showNotification(notification)
+        doUpdateNotifications(listOf(msg,
+                msg.copy(messagePayload = MessagePayloadDto.TextMessage("noch eine nachricht"))))
+        verify(presenter).showNotification(notification.copy(message = "noch eine nachricht"))
     }
 
 
-    fun doUpdateNotifications(): Map<Identity, List<ChatMessage>> =
-            mapOf(Pair(identity, listOf(createExampleMessage(now)))).apply {
+    fun doUpdateNotifications(messages : List<ChatMessage> = listOf(createExampleMessage(now))): Map<Identity, List<ChatMessage>> =
+            mapOf(Pair(identity, messages)).apply {
                 manager.updateNotifications(this)
             }
 

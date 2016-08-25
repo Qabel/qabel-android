@@ -7,6 +7,10 @@
             android:icon="@drawable/account_multiple"
             android:title="@string/Contacts"/>
         <item
+            android:id="@+id/nav_chats"
+            android:icon="@drawable/message_text"
+            android:title="@string/conversations"/>
+        <item
             android:id="@+id/nav_browse"
             android:icon="@drawable/folder"
             android:title="@string/filebrowser"/>

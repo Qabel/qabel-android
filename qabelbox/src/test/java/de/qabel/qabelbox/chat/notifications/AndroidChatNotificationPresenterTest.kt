@@ -43,7 +43,6 @@ class AndroidChatNotificationPresenterTest : UITest {
     private lateinit var builder: NotificationCompat.Builder
 
     @Before
-    @Throws(Exception::class)
     fun setUp() {
         identity = IdentityHelper.createIdentity("identity", null)
         notificationManager = RuntimeEnvironment.application.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
@@ -101,7 +100,7 @@ class AndroidChatNotificationPresenterTest : UITest {
         val intent = presenter.getChatIntent(notification)
         assertThat(intent.getStringExtra(MainActivity.ACTIVE_IDENTITY),
                 equalTo(notification.identity.keyIdentifier))
-        assertThat(intent.getBooleanExtra(MainActivity.START_CONTACTS_FRAGMENT, false), `is`(true))
+        assertThat(intent.getBooleanExtra(MainActivity.START_CHAT_FRAGMENT, false), `is`(true))
         assertThat(intent.getStringExtra(MainActivity.ACTIVE_CONTACT), nullValue())
     }
 
@@ -114,7 +113,7 @@ class AndroidChatNotificationPresenterTest : UITest {
         val intent = presenter.getChatIntent(notification)
         assertThat(intent.getStringExtra(MainActivity.ACTIVE_IDENTITY),
                 equalTo(notification.identity.keyIdentifier))
-        assertThat(intent.getBooleanExtra(MainActivity.START_CONTACTS_FRAGMENT, false), `is`(true))
+        assertThat(intent.getBooleanExtra(MainActivity.START_CHAT_FRAGMENT, false), `is`(true))
         assertThat(intent.getStringExtra(MainActivity.ACTIVE_CONTACT),
                 equalTo(notification.contact.keyIdentifier))
     }
@@ -135,7 +134,6 @@ class AndroidChatNotificationPresenterTest : UITest {
 
         val contactNotification = ContactChatNotification(identity,
                 contact, "message", Date())
-        contactNotification.extraNotification = true
 
         presenter.showNotification(notification)
         presenter.showNotification(contactNotification)

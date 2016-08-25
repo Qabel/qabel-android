@@ -49,9 +49,9 @@ class MainChatNotificationManager : ChatNotificationManager {
                 !notifiedMap.getOrDefault(identity).any {
                     it.contact == msg.contact &&
                             it.identity == msg.identity &&
-                            it.time == it.time &&
-                            it.direction == it.direction &&
-                            it.messagePayload.toMessage() == it.messagePayload.toMessage()
+                            it.time == msg.time &&
+                            it.direction == msg.direction &&
+                            it.messagePayload.toMessage() == msg.messagePayload.toMessage()
                 }
             }.toMutableList()
 
@@ -97,13 +97,12 @@ class MainChatNotificationManager : ChatNotificationManager {
     private fun createNewContactNotifications(unknownMessages: List<ChatMessage>): List<ChatNotification> =
             countMessagesByContact(unknownMessages).map {
                 val (contact, msgCount) = it
-                val contactMessage = unknownMessages.first { it.contact == contact }
+                val contactMessage = unknownMessages.first { it.contact.keyIdentifier == contact.keyIdentifier }
                 val message = if (msgCount > 1) getMultiMsgLabel(msgCount)
                 else contactMessage.messagePayload.toMessage()
 
                 ContactChatNotification(unknownMessages.first().identity,
                         contact, message, contactMessage.time).apply {
-                    extraNotification = true
                 }
             }
 

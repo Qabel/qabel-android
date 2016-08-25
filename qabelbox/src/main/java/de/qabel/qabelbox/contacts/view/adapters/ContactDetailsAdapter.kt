@@ -28,7 +28,7 @@ class ContactDetailsAdapter(private val onSendMessageClick: (identity: Identity)
                 editTextContactName.text = contact.contact.alias
                 editTextContactName.visibility = View.VISIBLE
             } else {
-                editTextContactNick.text = contact.contact.nickName
+                editTextContactNick.text = nickname
                 editTextContactName.visibility = View.GONE
             }
             editTextContactDropURL.text = contact.readableUrl()

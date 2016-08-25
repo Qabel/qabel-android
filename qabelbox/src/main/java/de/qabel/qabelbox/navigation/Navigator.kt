@@ -15,13 +15,16 @@ interface Navigator {
     fun selectAboutFragment()
 
     fun selectContactsFragment()
+    fun selectContactDetailsFragment(contact: Contact)
     fun selectContactDetailsFragment(contactDto: ContactDto)
 
+    fun selectContactEdit(contactDto: ContactDto)
+
+    fun selectChatOverviewFragment()
     fun selectChatFragment(activeContact: String?)
     fun selectContactChat(contactKey: String, withIdentity: Identity)
 
     fun selectQrCodeFragment(contact: Contact)
 
-    fun selectContactEdit(contactDto: ContactDto)
-    open fun popBackStack()
+    fun popBackStack()
 }

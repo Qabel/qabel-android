@@ -3,17 +3,14 @@ package de.qabel.core.repositories
 import de.qabel.core.repository.sqlite.AbstractClientDatabase
 import de.qabel.core.repository.sqlite.ClientDatabase
 import de.qabel.core.repository.sqlite.migration.*
-import org.slf4j.LoggerFactory
+import de.qabel.core.util.QblLogger
+import de.qabel.core.util.trace
 import org.sqldroid.SQLDroidConnection
 import java.sql.Connection
 import java.sql.PreparedStatement
 import java.sql.SQLException
 
-class AndroidClientDatabase(connection: Connection) : AbstractClientDatabase(connection), ClientDatabase {
-
-    companion object {
-        private val logger = LoggerFactory.getLogger(AndroidClientDatabase::class.java)
-    }
+class AndroidClientDatabase(connection: Connection) : AbstractClientDatabase(connection), ClientDatabase, QblLogger {
 
     private val versionAdapter = AndroidVersionAdapter(connection)
 
@@ -28,13 +25,14 @@ class AndroidClientDatabase(connection: Connection) : AbstractClientDatabase(con
                 Migration1460987825PreventDuplicateContacts(connection),
                 Migration1460997040ChatDropMessage(connection),
                 Migration1460997041RenameDropState(connection),
-                Migration1460997042ExtendContact(connection))
+                Migration1460997042ExtendContact(connection),
+                Migration1460997043ContactDefaults(connection))
     }
 
     @Throws(SQLException::class)
     override fun prepare(sql: String): PreparedStatement {
-        logger.trace(sql)
         if (connection is SQLDroidConnection) {
+            trace(sql)
             return GeneratedKeysPreparedStatement(sql, connection)
         } else {
             return super.prepare(sql)

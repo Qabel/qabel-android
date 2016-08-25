@@ -35,7 +35,7 @@ class MainActivityTest : AbstractUITest() {
         val intent = defaultIntent
         intent.putExtra(MainActivity.ACTIVE_IDENTITY, identity.keyIdentifier)
         intent.putExtra(MainActivity.ACTIVE_CONTACT, contact.keyIdentifier)
-        intent.putExtra(MainActivity.START_CONTACTS_FRAGMENT, true)
+        intent.putExtra(MainActivity.START_CHAT_FRAGMENT, true)
         launchActivity(intent)
         val fragment = mActivity.fragmentManager.findFragmentByTag(
                 MainNavigator.TAG_CONTACT_CHAT_FRAGMENT) as ChatFragment

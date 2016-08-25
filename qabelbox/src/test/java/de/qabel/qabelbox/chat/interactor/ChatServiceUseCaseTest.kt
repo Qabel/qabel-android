@@ -5,23 +5,22 @@ import de.qabel.core.config.Identity
 import de.qabel.core.repository.ChatDropMessageRepository
 import de.qabel.core.repository.ContactRepository
 import de.qabel.core.repository.entities.ChatDropMessage
+import de.qabel.core.repository.inmemory.InMemoryChatDropMessageRepository
+import de.qabel.core.repository.inmemory.InMemoryContactRepository
+import de.qabel.core.repository.inmemory.InMemoryIdentityRepository
 import de.qabel.qabelbox.BuildConfig
 import de.qabel.qabelbox.SimpleApplication
 import de.qabel.qabelbox.chat.transformers.ChatMessageTransformer
-import de.qabel.qabelbox.tmp_core.InMemoryChatDropMessageRepository
-import de.qabel.qabelbox.tmp_core.InMemoryContactRepository
-import de.qabel.qabelbox.tmp_core.InMemoryIdentityRepository
 import de.qabel.qabelbox.util.IdentityHelper
+import org.hamcrest.Matchers.*
+import org.junit.Assert.assertThat
+import org.junit.Assert.assertTrue
 import org.junit.Before
+import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricGradleTestRunner
 import org.robolectric.annotation.Config
 import java.util.*
-
-import org.hamcrest.Matchers.*
-import org.junit.Assert.assertThat
-import org.junit.Assert.assertTrue
-import org.junit.Test
 
 @RunWith(RobolectricGradleTestRunner::class)
 @Config(application = SimpleApplication::class, constants = BuildConfig::class)

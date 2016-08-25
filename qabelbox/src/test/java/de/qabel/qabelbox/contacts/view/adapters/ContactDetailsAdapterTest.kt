@@ -3,12 +3,11 @@ package de.qabel.qabelbox.contacts.view.adapters
 import android.view.View
 import android.widget.LinearLayout
 import com.nhaarman.mockito_kotlin.*
+import de.qabel.core.ui.displayName
 import de.qabel.qabelbox.BuildConfig
 import de.qabel.qabelbox.SimpleApplication
 import de.qabel.qabelbox.contacts.dto.ContactDto
-import de.qabel.qabelbox.contacts.extensions.displayName
 import de.qabel.qabelbox.contacts.view.widgets.ContactIconDrawable
-import de.qabel.qabelbox.test.shadows.TextViewFontShadow
 import de.qabel.qabelbox.ui.views.SquareFrameLayout
 import de.qabel.qabelbox.ui.views.TextViewFont
 import de.qabel.qabelbox.util.IdentityHelper

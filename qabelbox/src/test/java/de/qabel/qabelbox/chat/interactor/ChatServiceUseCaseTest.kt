@@ -2,10 +2,10 @@ package de.qabel.qabelbox.chat.interactor
 
 import de.qabel.core.config.Contact
 import de.qabel.core.config.Identity
-import de.qabel.core.repository.ChatDropMessageRepository
+import de.qabel.chat.repository.ChatDropMessageRepository
 import de.qabel.core.repository.ContactRepository
-import de.qabel.core.repository.entities.ChatDropMessage
-import de.qabel.core.repository.inmemory.InMemoryChatDropMessageRepository
+import de.qabel.chat.repository.entities.ChatDropMessage
+import de.qabel.chat.repository.inmemory.InMemoryChatDropMessageRepository
 import de.qabel.core.repository.inmemory.InMemoryContactRepository
 import de.qabel.core.repository.inmemory.InMemoryIdentityRepository
 import de.qabel.qabelbox.BuildConfig

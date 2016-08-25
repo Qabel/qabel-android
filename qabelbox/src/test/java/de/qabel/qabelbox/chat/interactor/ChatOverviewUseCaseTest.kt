@@ -3,8 +3,8 @@ package de.qabel.qabelbox.chat.interactor
 import de.qabel.core.extensions.CoreTestCase
 import de.qabel.core.extensions.createContact
 import de.qabel.core.extensions.createIdentity
-import de.qabel.core.repository.entities.ChatDropMessage
-import de.qabel.core.repository.inmemory.InMemoryChatDropMessageRepository
+import de.qabel.chat.repository.entities.ChatDropMessage
+import de.qabel.chat.repository.inmemory.InMemoryChatDropMessageRepository
 import de.qabel.core.repository.inmemory.InMemoryContactRepository
 import de.qabel.core.repository.inmemory.InMemoryIdentityRepository
 import de.qabel.qabelbox.BuildConfig

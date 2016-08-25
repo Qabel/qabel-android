@@ -6,13 +6,13 @@ import com.natpryce.hamkrest.equalTo
 import com.natpryce.hamkrest.should.shouldMatch
 import com.nhaarman.mockito_kotlin.mock
 import com.nhaarman.mockito_kotlin.verify
-import de.qabel.core.repository.entities.ChatDropMessage
+import de.qabel.chat.repository.entities.ChatDropMessage
+import de.qabel.core.config.SymmetricKey
 import de.qabel.qabelbox.BuildConfig
 import de.qabel.qabelbox.R
 import de.qabel.qabelbox.SimpleApplication
 import de.qabel.qabelbox.chat.dto.ChatMessage
 import de.qabel.qabelbox.chat.dto.MessagePayloadDto
-import de.qabel.qabelbox.chat.dto.SymmetricKey
 import de.qabel.qabelbox.checkNull
 import de.qabel.qabelbox.helper.FontHelper
 import de.qabel.qabelbox.test.shadows.TextViewFontShadow
@@ -24,7 +24,7 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricGradleTestRunner
 import org.robolectric.RuntimeEnvironment
 import org.robolectric.annotation.Config
-import java.net.URL
+import java.net.URI
 import java.util.*
 
 @RunWith(RobolectricGradleTestRunner::class)
@@ -62,7 +62,7 @@ class ChatMessageAdapterTest {
     @Test
     fun differentViewsForShareAndTextMessage() {
         val shareMessage = message.copy(messagePayload =
-        MessagePayloadDto.ShareMessage("share message", URL("http://foo"), SymmetricKey(listOf())))
+        MessagePayloadDto.ShareMessage("share message", URI("http://foo"), SymmetricKey(listOf())))
         adapter.init(listOf(message, shareMessage,
                 message.copy(direction = ChatDropMessage.Direction.OUTGOING),
                 shareMessage.copy(direction = ChatDropMessage.Direction.OUTGOING)))

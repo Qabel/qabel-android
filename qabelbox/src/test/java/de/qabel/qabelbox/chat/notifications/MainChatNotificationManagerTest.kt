@@ -3,7 +3,7 @@ package de.qabel.qabelbox.chat.notifications
 import android.content.Context
 import de.qabel.core.config.Contact
 import de.qabel.core.config.Identity
-import de.qabel.core.repository.entities.ChatDropMessage
+import de.qabel.chat.repository.entities.ChatDropMessage
 import de.qabel.qabelbox.BuildConfig
 import de.qabel.qabelbox.R
 import de.qabel.qabelbox.SimpleApplication

@@ -1,6 +1,6 @@
 package de.qabel.qabelbox.chat.transformers
 
-import de.qabel.core.repository.entities.ChatDropMessage
+import de.qabel.chat.repository.entities.ChatDropMessage
 import de.qabel.core.repository.inmemory.InMemoryContactRepository
 import de.qabel.core.repository.inmemory.InMemoryIdentityRepository
 import de.qabel.qabelbox.BuildConfig

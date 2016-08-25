@@ -8,6 +8,8 @@ import com.nhaarman.mockito_kotlin.whenever
 import de.qabel.core.contacts.ContactExchangeFormats
 import de.qabel.core.repository.ContactRepository
 import de.qabel.core.repository.IdentityRepository
+import de.qabel.core.repository.inmemory.InMemoryContactRepository
+import de.qabel.core.repository.inmemory.InMemoryIdentityRepository
 import de.qabel.qabelbox.BuildConfig
 import de.qabel.qabelbox.SimpleApplication
 import de.qabel.qabelbox.config.QabelSchema
@@ -23,8 +25,6 @@ import de.qabel.qabelbox.external.ExternalFileAction
 import de.qabel.qabelbox.navigation.Navigator
 import de.qabel.qabelbox.test.TestConstants
 import de.qabel.qabelbox.test.files.FileHelper
-import de.qabel.qabelbox.tmp_core.InMemoryContactRepository
-import de.qabel.qabelbox.tmp_core.InMemoryIdentityRepository
 import de.qabel.qabelbox.util.IdentityHelper
 import org.apache.commons.io.FileUtils
 import org.hamcrest.Matchers

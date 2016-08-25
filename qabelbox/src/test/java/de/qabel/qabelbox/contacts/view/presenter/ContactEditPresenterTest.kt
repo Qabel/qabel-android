@@ -7,6 +7,8 @@ import de.qabel.core.config.Contact
 import de.qabel.core.config.Identities
 import de.qabel.core.repository.ContactRepository
 import de.qabel.core.repository.IdentityRepository
+import de.qabel.core.repository.inmemory.InMemoryContactRepository
+import de.qabel.core.repository.inmemory.InMemoryIdentityRepository
 import de.qabel.qabelbox.BuildConfig
 import de.qabel.qabelbox.SimpleApplication
 import de.qabel.qabelbox.contacts.dto.ContactDto
@@ -16,8 +18,6 @@ import de.qabel.qabelbox.contacts.view.presenters.MainContactEditPresenter
 import de.qabel.qabelbox.contacts.view.views.ContactEditView
 import de.qabel.qabelbox.navigation.Navigator
 import de.qabel.qabelbox.test.TestConstants
-import de.qabel.qabelbox.tmp_core.InMemoryContactRepository
-import de.qabel.qabelbox.tmp_core.InMemoryIdentityRepository
 import de.qabel.qabelbox.util.IdentityHelper
 import org.hamcrest.Matchers.equalTo
 import org.hamcrest.Matchers.hasSize

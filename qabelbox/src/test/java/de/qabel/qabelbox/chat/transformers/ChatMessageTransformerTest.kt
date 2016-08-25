@@ -1,11 +1,11 @@
 package de.qabel.qabelbox.chat.transformers
 
 import de.qabel.core.repository.entities.ChatDropMessage
+import de.qabel.core.repository.inmemory.InMemoryContactRepository
+import de.qabel.core.repository.inmemory.InMemoryIdentityRepository
 import de.qabel.qabelbox.BuildConfig
 import de.qabel.qabelbox.SimpleApplication
 import de.qabel.qabelbox.chat.dto.MessagePayloadDto
-import de.qabel.qabelbox.repositories.MockContactRepository
-import de.qabel.qabelbox.repositories.MockIdentityRepository
 import de.qabel.qabelbox.util.IdentityHelper
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -19,8 +19,10 @@ class ChatMessageTransformerTest {
 
     val identity = IdentityHelper.createIdentity("identity", null)
     val contact = IdentityHelper.createContact("contact_name")
-    val identityRepository = MockIdentityRepository(identity)
-    val contactRepository = MockContactRepository(contact, identity)
+    val identityRepository = InMemoryIdentityRepository().apply { save(identity) }
+    val contactRepository = InMemoryContactRepository().apply {
+        save(contact, identity)
+    }
     val chatMessageTransformer = ChatMessageTransformer(identityRepository, contactRepository)
     val now = Date()
 

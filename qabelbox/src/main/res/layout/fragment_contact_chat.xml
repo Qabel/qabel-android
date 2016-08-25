@@ -37,7 +37,12 @@
                 android:layout_centerVertical="true"
                 android:layout_toStartOf="@id/bt_send"
                 android:background="@android:color/transparent"
-                android:hint="@string/chat_message_hint" />
+                android:hint="@string/chat_message_hint"
+                android:inputType="textMultiLine"
+                android:isScrollContainer="true"
+                android:lines="2"
+                android:scrollHorizontally="false"
+                android:scrollbars="vertical"/>
         </RelativeLayout>
 
         <android.support.v4.widget.SwipeRefreshLayout

@@ -3,6 +3,8 @@ package de.qabel.qabelbox.contacts.view.adapters
 import android.support.v7.widget.RecyclerView
 import android.view.View
 import android.widget.TextView
+import de.qabel.core.ui.displayName
+import de.qabel.core.ui.initials
 import de.qabel.qabelbox.contacts.dto.ContactDto
 import de.qabel.qabelbox.contacts.extensions.*
 import de.qabel.qabelbox.contacts.view.widgets.ContactIconDrawable
@@ -31,7 +33,7 @@ class ContactsViewHolder(itemView: View, val clickListener: (ContactDto) -> Unit
             setOrGone(textViewItemMail, contact.contact.email)
             setOrGone(textViewItemPhone, contact.contact.phone)
 
-            tv_initial.text = contact.initials();
+            tv_initial.text = contact.contact.initials();
             contact_icon_border.background = ContactIconDrawable(
                     contact.contactColors(itemView.context));
 

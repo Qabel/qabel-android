@@ -10,6 +10,7 @@ import com.cocosw.bottomsheet.BottomSheet
 import de.qabel.box.storage.exceptions.QblStorageException
 import de.qabel.core.config.Identity
 import de.qabel.core.repository.ContactRepository
+import de.qabel.core.ui.displayName
 import de.qabel.qabelbox.BuildConfig
 import de.qabel.qabelbox.R
 import de.qabel.qabelbox.activities.ImageViewerActivity
@@ -20,7 +21,6 @@ import de.qabel.qabelbox.box.provider.BoxProvider
 import de.qabel.qabelbox.box.provider.DocumentId
 import de.qabel.qabelbox.box.provider.toDocumentId
 import de.qabel.qabelbox.box.queryNameAndSize
-import de.qabel.qabelbox.contacts.extensions.displayName
 import de.qabel.qabelbox.dagger.components.MainActivityComponent
 import de.qabel.qabelbox.dagger.modules.FileBrowserModule
 import de.qabel.qabelbox.fragments.BaseFragment

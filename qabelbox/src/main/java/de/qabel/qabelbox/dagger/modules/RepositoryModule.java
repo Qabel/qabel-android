@@ -6,7 +6,7 @@ import javax.inject.Singleton;
 
 import dagger.Module;
 import dagger.Provides;
-import de.qabel.core.repository.ChatDropMessageRepository;
+import de.qabel.chat.repository.ChatDropMessageRepository;
 import de.qabel.core.repository.ContactRepository;
 import de.qabel.core.repository.DropStateRepository;
 import de.qabel.core.repository.IdentityRepository;
@@ -21,25 +21,25 @@ public class RepositoryModule {
         return new RepositoryFactory(context);
     }
 
-    @Provides
+    @Singleton @Provides
     IdentityRepository provideIdentityRepository(
             RepositoryFactory factory) {
         return factory.getIdentityRepository();
     }
 
-    @Provides
+    @Singleton @Provides
     ContactRepository provideContactRepository(
             RepositoryFactory factory) {
         return factory.getContactRepository();
     }
 
-    @Provides
+    @Singleton @Provides
     DropStateRepository provideDropStateRepository(
             RepositoryFactory factory) {
         return factory.getDropStateRepository();
     }
 
-    @Provides
+    @Singleton @Provides
     ChatDropMessageRepository provideChatDropMessageRepository(
             RepositoryFactory factory) {
         return factory.getChatDropMessageRepository();

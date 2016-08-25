@@ -2,9 +2,9 @@ package de.qabel.qabelbox.chat.view.presenters
 
 import de.qabel.core.config.Contact
 import de.qabel.core.ui.DataViewProxy
+import de.qabel.core.ui.displayName
 import de.qabel.qabelbox.chat.interactor.ChatUseCase
 import de.qabel.qabelbox.chat.view.views.ChatView
-import de.qabel.qabelbox.contacts.extensions.displayName
 import de.qabel.qabelbox.navigation.Navigator
 import javax.inject.Inject
 

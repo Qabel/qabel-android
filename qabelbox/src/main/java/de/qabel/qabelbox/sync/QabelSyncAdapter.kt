@@ -4,7 +4,7 @@ import android.accounts.Account
 import android.content.*
 import android.os.Bundle
 import de.qabel.core.repository.ContactRepository
-import de.qabel.core.service.ChatService
+import de.qabel.chat.service.ChatService
 import de.qabel.qabelbox.QabelBoxApplication
 import de.qabel.qabelbox.QblBroadcastConstants
 import de.qabel.qabelbox.chat.notifications.ChatNotificationManager
@@ -20,7 +20,6 @@ open class QabelSyncAdapter : AbstractThreadedSyncAdapter, AnkoLogger {
     @Inject lateinit internal var context: Context
     @Inject lateinit internal var contactRepository: ContactRepository
     @Inject lateinit internal var chatService: ChatService
-    @Inject lateinit internal var notificationManager: ChatNotificationManager
 
     constructor(context: Context, autoInitialize: Boolean) : super(context, autoInitialize) {
         init(context)

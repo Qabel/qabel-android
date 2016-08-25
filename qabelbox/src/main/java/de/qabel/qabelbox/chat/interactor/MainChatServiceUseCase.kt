@@ -1,8 +1,8 @@
 package de.qabel.qabelbox.chat.interactor
 
+import de.qabel.chat.repository.ChatDropMessageRepository
 import de.qabel.core.config.Contact
 import de.qabel.core.config.Identity
-import de.qabel.core.repository.ChatDropMessageRepository
 import de.qabel.core.repository.ContactRepository
 import de.qabel.core.repository.IdentityRepository
 import de.qabel.qabelbox.chat.dto.ChatMessage

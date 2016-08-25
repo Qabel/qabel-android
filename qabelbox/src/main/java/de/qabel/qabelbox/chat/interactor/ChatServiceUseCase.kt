@@ -1,7 +1,6 @@
 package de.qabel.qabelbox.chat.interactor
 
 import de.qabel.core.config.Identity
-import de.qabel.core.repository.entities.ChatDropMessage
 import de.qabel.qabelbox.chat.dto.ChatMessage
 
 interface ChatServiceUseCase {

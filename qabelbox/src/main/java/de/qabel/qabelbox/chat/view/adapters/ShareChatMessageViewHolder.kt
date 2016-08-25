@@ -1,7 +1,7 @@
 package de.qabel.qabelbox.chat.view.adapters
 
 import android.view.View
-import de.qabel.core.repository.entities.ChatDropMessage
+import de.qabel.chat.repository.entities.ChatDropMessage
 import de.qabel.qabelbox.R
 import de.qabel.qabelbox.chat.dto.ChatMessage
 import de.qabel.qabelbox.chat.dto.MessagePayloadDto

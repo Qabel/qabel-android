@@ -1,7 +1,7 @@
 package de.qabel.qabelbox.chat.interactor
 
+import de.qabel.chat.repository.ChatDropMessageRepository
 import de.qabel.core.config.Identity
-import de.qabel.core.repository.ChatDropMessageRepository
 import de.qabel.qabelbox.chat.dto.ChatConversationDto
 import de.qabel.qabelbox.chat.transformers.ChatMessageTransformer
 import rx.lang.kotlin.observable

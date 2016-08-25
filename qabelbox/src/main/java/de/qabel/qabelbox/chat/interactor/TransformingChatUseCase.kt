@@ -1,11 +1,11 @@
 package de.qabel.qabelbox.chat.interactor
 
+import de.qabel.chat.repository.ChatDropMessageRepository
+import de.qabel.chat.repository.entities.ChatDropMessage
+import de.qabel.chat.service.ChatService
 import de.qabel.core.config.Contact
 import de.qabel.core.config.Identity
-import de.qabel.core.repository.ChatDropMessageRepository
-import de.qabel.core.repository.entities.ChatDropMessage
 import de.qabel.core.repository.framework.PagingResult
-import de.qabel.core.service.ChatService
 import de.qabel.qabelbox.chat.dto.ChatMessage
 import de.qabel.qabelbox.chat.transformers.ChatMessageTransformer
 import rx.Observable

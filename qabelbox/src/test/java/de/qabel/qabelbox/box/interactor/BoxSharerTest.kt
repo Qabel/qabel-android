@@ -6,8 +6,8 @@ import com.natpryce.hamkrest.should.shouldMatch
 import com.nhaarman.mockito_kotlin.*
 import de.qabel.box.storage.AndroidBoxVolume
 import de.qabel.box.storage.BoxVolumeConfig
-import de.qabel.core.repository.entities.ChatDropMessage
-import de.qabel.core.service.ChatService
+import de.qabel.chat.repository.entities.ChatDropMessage
+import de.qabel.chat.service.ChatService
 import de.qabel.qabelbox.BuildConfig
 import de.qabel.qabelbox.SimpleApplication
 import de.qabel.qabelbox.box.backends.MockStorageBackend

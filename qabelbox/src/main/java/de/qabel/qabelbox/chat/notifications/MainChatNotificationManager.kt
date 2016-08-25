@@ -4,11 +4,11 @@ import android.content.Context
 import de.qabel.core.config.Contact
 import de.qabel.core.config.Identity
 import de.qabel.core.extensions.findById
+import de.qabel.core.ui.displayName
 import de.qabel.core.util.DefaultHashMap
 import de.qabel.qabelbox.R
 import de.qabel.qabelbox.chat.dto.ChatMessage
 import de.qabel.qabelbox.chat.notifications.presenter.ChatNotificationPresenter
-import de.qabel.qabelbox.contacts.extensions.displayName
 import javax.inject.Inject
 
 class MainChatNotificationManager : ChatNotificationManager {

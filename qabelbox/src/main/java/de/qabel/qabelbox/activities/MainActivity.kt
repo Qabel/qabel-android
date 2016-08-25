@@ -20,11 +20,12 @@ import com.mikepenz.materialdrawer.Drawer
 import com.mikepenz.materialdrawer.DrawerBuilder
 import com.mikepenz.materialdrawer.holder.BadgeStyle
 import com.mikepenz.materialdrawer.model.*
+import de.qabel.chat.repository.ChatDropMessageRepository
 import de.qabel.core.config.Identity
-import de.qabel.core.repository.ChatDropMessageRepository
 import de.qabel.core.repository.ContactRepository
 import de.qabel.core.repository.IdentityRepository
 import de.qabel.core.repository.exception.PersistenceException
+import de.qabel.core.ui.initials
 import de.qabel.qabelbox.QblBroadcastConstants
 import de.qabel.qabelbox.R
 import de.qabel.qabelbox.account.AccountManager
@@ -32,7 +33,6 @@ import de.qabel.qabelbox.account.AccountStatusCodes
 import de.qabel.qabelbox.communication.connection.ConnectivityManager
 import de.qabel.qabelbox.config.AppPreference
 import de.qabel.qabelbox.contacts.extensions.color
-import de.qabel.qabelbox.contacts.extensions.initials
 import de.qabel.qabelbox.contacts.view.widgets.IdentityIconDrawable
 import de.qabel.qabelbox.dagger.HasComponent
 import de.qabel.qabelbox.dagger.components.MainActivityComponent
@@ -41,7 +41,10 @@ import de.qabel.qabelbox.dagger.modules.MainActivityModule
 import de.qabel.qabelbox.fragments.BaseFragment
 import de.qabel.qabelbox.fragments.IdentitiesFragment
 import de.qabel.qabelbox.fragments.QRcodeFragment
-import de.qabel.qabelbox.helper.*
+import de.qabel.qabelbox.helper.AccountHelper
+import de.qabel.qabelbox.helper.CacheFileHelper
+import de.qabel.qabelbox.helper.Sanity
+import de.qabel.qabelbox.helper.UIHelper
 import de.qabel.qabelbox.navigation.MainNavigator
 import de.qabel.qabelbox.settings.SettingsActivity
 import de.qabel.qabelbox.sync.FirebaseTopicManager

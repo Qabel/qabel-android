@@ -7,14 +7,21 @@ import de.qabel.core.repository.entities.ChatDropMessage
 import de.qabel.core.repository.inmemory.InMemoryChatDropMessageRepository
 import de.qabel.core.repository.inmemory.InMemoryContactRepository
 import de.qabel.core.repository.inmemory.InMemoryIdentityRepository
+import de.qabel.qabelbox.BuildConfig
+import de.qabel.qabelbox.SimpleApplication
 import de.qabel.qabelbox.chat.transformers.ChatMessageTransformer
 import org.hamcrest.Matchers.equalTo
 import org.hamcrest.Matchers.hasSize
 import org.junit.Assert.assertThat
 import org.junit.Before
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricGradleTestRunner
+import org.robolectric.annotation.Config
 import java.util.*
 
+@RunWith(RobolectricGradleTestRunner::class)
+@Config(application = SimpleApplication::class, constants = BuildConfig::class)
 class ChatOverviewUseCaseTest : CoreTestCase {
 
     val identity = createIdentity("Alice")

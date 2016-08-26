@@ -41,7 +41,10 @@ import de.qabel.qabelbox.dagger.modules.MainActivityModule
 import de.qabel.qabelbox.fragments.BaseFragment
 import de.qabel.qabelbox.fragments.IdentitiesFragment
 import de.qabel.qabelbox.fragments.QRcodeFragment
-import de.qabel.qabelbox.helper.*
+import de.qabel.qabelbox.helper.AccountHelper
+import de.qabel.qabelbox.helper.CacheFileHelper
+import de.qabel.qabelbox.helper.Sanity
+import de.qabel.qabelbox.helper.UIHelper
 import de.qabel.qabelbox.navigation.MainNavigator
 import de.qabel.qabelbox.settings.SettingsActivity
 import de.qabel.qabelbox.sync.FirebaseTopicManager
@@ -408,6 +411,7 @@ class MainActivity : CrashReportingActivity(),
             withIdentifier(R.id.nav_settings.toLong())
             withName(R.string.action_settings)
             withIcon(R.drawable.settings)
+            withSelectable(false)
         }
         val tellAFriend = SecondaryDrawerItem().apply {
             withIdentifier(R.id.nav_tellafriend.toLong())

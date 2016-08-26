@@ -328,4 +328,7 @@ Den Unterstützern der Indigogo Kampagne
     <string name="show_ignored">Ignorierte anzeigen</string>
     <string name="load_more">Mehr laden</string>
     <string name="conversations">Unterhaltungen</string>
+    <string name="feedback">Feedback</string>
+    <string name="action_tellafriend">Einladung senden</string>
+
 </resources>

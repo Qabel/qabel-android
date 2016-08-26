@@ -505,7 +505,7 @@ class MainActivity : CrashReportingActivity(),
         val activeIdentityItem = ProfileDrawerItem().apply {
             withName(activeIdentity.alias)
             withIcon(identityIcon(activeIdentity))
-            withEmail(appPreferences.accountEMail)
+            withEmail(activeIdentity.email)
             withNameShown(true)
         }
         val addIdentity = ProfileSettingDrawerItem().apply {

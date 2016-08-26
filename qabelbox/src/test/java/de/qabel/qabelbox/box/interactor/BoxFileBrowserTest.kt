@@ -127,6 +127,23 @@ class BoxFileBrowserTest {
     }
 
     @Test
+    fun listIsSorted() {
+        val root = BoxPath.Root
+        val file = root * "aaa"
+        val file2 = root * "zzz"
+        val folder1 = root / "AAA"
+        val folder2 = root / "BBB"
+        useCase.upload(file2 , samplePayload.toUploadSource(sample)).waitFor()
+        useCase.upload(file, samplePayload.toUploadSource(sample)).waitFor()
+        useCase.createFolder(folder2).waitFor()
+        useCase.createFolder(folder1).waitFor()
+
+        val listing = useCase.list(BoxPath.Root).toBlocking().first().map { it.name }
+
+        listing eq listOf("AAA", "BBB", "aaa", "zzz")
+    }
+
+    @Test
     fun queryRoot() {
         val entry = useCase.query(BoxPath.Root).toBlocking().first()
         entry.name shouldMatch equalTo("")

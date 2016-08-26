@@ -96,7 +96,7 @@ class BoxFileBrowser @Inject constructor(keyAndPrefix: KeyAndPrefix,
             subscriber.onError(e)
             return@observable
         }
-        val entries =  nav.listFolders().sortedBy { it.name } + nav.listFiles().sortedBy { it.name }
+        val entries = nav.listFolders().sortedBy { it.name } + nav.listFiles().sortedBy { it.name }
         subscriber.onNext(entries.map { it.toEntry() }.filterNotNull())
     }.subscribeOn(Schedulers.io())
 

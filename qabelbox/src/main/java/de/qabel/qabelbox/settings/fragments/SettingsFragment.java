@@ -87,16 +87,16 @@ public class SettingsFragment extends PreferenceFragment {
     }
 
     @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
+    public void onResume() {
+        super.onResume();
         getActivity().registerReceiver(accountBroadcastReceiver,
                 new IntentFilter(QblBroadcastConstants.Account.ACCOUNT_CHANGED));
     }
 
     @Override
-    public void onDetach() {
+    public void onPause() {
+        super.onPause();
         getActivity().unregisterReceiver(accountBroadcastReceiver);
-        super.onDetach();
     }
 
     private void refreshAccountData() {

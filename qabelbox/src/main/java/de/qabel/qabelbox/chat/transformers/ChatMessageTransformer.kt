@@ -1,8 +1,8 @@
 package de.qabel.qabelbox.chat.transformers
 
+import de.qabel.chat.repository.entities.ChatDropMessage
 import de.qabel.core.repository.ContactRepository
 import de.qabel.core.repository.IdentityRepository
-import de.qabel.core.repository.entities.ChatDropMessage
 import de.qabel.qabelbox.chat.dto.ChatMessage
 import de.qabel.qabelbox.chat.dto.MessagePayloadDto
 import java.util.*
@@ -24,7 +24,7 @@ open class ChatMessageTransformer @Inject constructor(
         })
     }
 
-    fun ChatDropMessage.MessagePayload.ShareMessage.toPayloadDto() = MessagePayloadDto.ShareMessage(msg, getUrl(), getKey())
+    fun ChatDropMessage.MessagePayload.ShareMessage.toPayloadDto() = MessagePayloadDto.ShareMessage(msg, url, key)
     fun ChatDropMessage.MessagePayload.TextMessage.toPayloadDto() = MessagePayloadDto.TextMessage(msg)
 
 }

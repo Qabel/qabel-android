@@ -15,7 +15,6 @@ import de.qabel.qabelbox.QblBroadcastConstants
 import de.qabel.qabelbox.R
 import de.qabel.qabelbox.chat.dagger.ChatOverviewModule
 import de.qabel.qabelbox.chat.dto.ChatConversationDto
-import de.qabel.qabelbox.chat.dto.ChatMessage
 import de.qabel.qabelbox.chat.view.adapters.ChatOverviewAdapter
 import de.qabel.qabelbox.chat.view.presenters.ChatOverviewPresenter
 import de.qabel.qabelbox.dagger.components.MainActivityComponent

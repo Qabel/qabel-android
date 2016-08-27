@@ -1,7 +1,7 @@
 package de.qabel.qabelbox.chat.view.presenters
 
 import com.nhaarman.mockito_kotlin.*
-import de.qabel.core.repository.entities.ChatDropMessage
+import de.qabel.chat.repository.entities.ChatDropMessage
 import de.qabel.qabelbox.BuildConfig
 import de.qabel.qabelbox.SimpleApplication
 import de.qabel.qabelbox.chat.dto.ChatMessage

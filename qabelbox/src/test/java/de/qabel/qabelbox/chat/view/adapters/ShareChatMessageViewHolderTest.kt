@@ -5,15 +5,15 @@ import com.nhaarman.mockito_kotlin.any
 import com.nhaarman.mockito_kotlin.mock
 import com.nhaarman.mockito_kotlin.stub
 import com.nhaarman.mockito_kotlin.verify
+import de.qabel.chat.repository.entities.ChatDropMessage.Direction
 import de.qabel.core.config.Contact
 import de.qabel.core.config.Identity
-import de.qabel.core.repository.entities.ChatDropMessage.Direction
+import de.qabel.core.config.SymmetricKey
 import de.qabel.qabelbox.BuildConfig
 import de.qabel.qabelbox.R
 import de.qabel.qabelbox.SimpleApplication
 import de.qabel.qabelbox.chat.dto.ChatMessage
 import de.qabel.qabelbox.chat.dto.MessagePayloadDto
-import de.qabel.qabelbox.chat.dto.SymmetricKey
 import de.qabel.qabelbox.test.shadows.TextViewFontShadow
 import de.qabel.qabelbox.ui.views.TextViewFont
 import kotlinx.android.synthetic.main.chat_message_in.view.*
@@ -24,7 +24,7 @@ import org.robolectric.RobolectricGradleTestRunner
 import org.robolectric.RuntimeEnvironment
 import org.robolectric.annotation.Config
 import org.robolectric.shadows.ShadowDateFormat
-import java.net.URL
+import java.net.URI
 import java.util.*
 
 @RunWith(RobolectricGradleTestRunner::class)
@@ -74,7 +74,7 @@ class ShareChatMessageViewHolderTest {
         val holder = ShareChatMessageViewHolder(view)
         val msg = ChatMessage(mock<Identity>(), contact,
                 direction, Date(),
-                MessagePayloadDto.ShareMessage("text", URL("http://foo"), SymmetricKey(listOf()),
+                MessagePayloadDto.ShareMessage("text", URI("http://foo"), SymmetricKey(listOf()),
                         status))
 
         holder.bindTo(msg, false)

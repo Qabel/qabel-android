@@ -20,11 +20,12 @@ import com.mikepenz.materialdrawer.Drawer
 import com.mikepenz.materialdrawer.DrawerBuilder
 import com.mikepenz.materialdrawer.holder.BadgeStyle
 import com.mikepenz.materialdrawer.model.*
+import de.qabel.chat.repository.ChatDropMessageRepository
 import de.qabel.core.config.Identity
-import de.qabel.core.repository.ChatDropMessageRepository
 import de.qabel.core.repository.ContactRepository
 import de.qabel.core.repository.IdentityRepository
 import de.qabel.core.repository.exception.PersistenceException
+import de.qabel.core.ui.initials
 import de.qabel.qabelbox.QblBroadcastConstants
 import de.qabel.qabelbox.R
 import de.qabel.qabelbox.account.AccountManager
@@ -32,7 +33,6 @@ import de.qabel.qabelbox.account.AccountStatusCodes
 import de.qabel.qabelbox.communication.connection.ConnectivityManager
 import de.qabel.qabelbox.config.AppPreference
 import de.qabel.qabelbox.contacts.extensions.color
-import de.qabel.qabelbox.contacts.extensions.initials
 import de.qabel.qabelbox.contacts.view.widgets.IdentityIconDrawable
 import de.qabel.qabelbox.dagger.HasComponent
 import de.qabel.qabelbox.dagger.components.MainActivityComponent

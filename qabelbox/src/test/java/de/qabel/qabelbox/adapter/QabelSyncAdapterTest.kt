@@ -6,7 +6,7 @@ import com.nhaarman.mockito_kotlin.any
 import com.nhaarman.mockito_kotlin.mock
 import de.qabel.core.config.Contact
 import de.qabel.core.config.Identity
-import de.qabel.core.service.ChatService
+import de.qabel.chat.service.ChatService
 import de.qabel.qabelbox.BuildConfig
 import de.qabel.qabelbox.SimpleApplication
 import de.qabel.qabelbox.persistence.RepositoryFactory

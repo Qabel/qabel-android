@@ -411,6 +411,7 @@ class MainActivity : CrashReportingActivity(),
             withIdentifier(R.id.nav_settings.toLong())
             withName(R.string.action_settings)
             withIcon(R.drawable.settings)
+            withSelectable(false)
         }
         val tellAFriend = SecondaryDrawerItem().apply {
             withIdentifier(R.id.nav_tellafriend.toLong())
@@ -504,7 +505,7 @@ class MainActivity : CrashReportingActivity(),
         val activeIdentityItem = ProfileDrawerItem().apply {
             withName(activeIdentity.alias)
             withIcon(identityIcon(activeIdentity))
-            withEmail(appPreferences.accountEMail)
+            withEmail(activeIdentity.email)
             withNameShown(true)
         }
         val addIdentity = ProfileSettingDrawerItem().apply {

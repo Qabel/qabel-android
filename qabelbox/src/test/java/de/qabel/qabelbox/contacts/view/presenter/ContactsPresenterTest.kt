@@ -1,10 +1,7 @@
 package de.qabel.qabelbox.contacts.view.presenter
 
 import com.google.zxing.integration.android.IntentIntegrator
-import com.nhaarman.mockito_kotlin.mock
-import com.nhaarman.mockito_kotlin.spy
-import com.nhaarman.mockito_kotlin.verify
-import com.nhaarman.mockito_kotlin.whenever
+import com.nhaarman.mockito_kotlin.*
 import de.qabel.core.contacts.ContactExchangeFormats
 import de.qabel.core.repository.ContactRepository
 import de.qabel.core.repository.IdentityRepository
@@ -118,7 +115,7 @@ class ContactsPresenterTest {
         presenter.deleteContact(contactBDto)
         verify(contactUseCase).deleteContact(contactBDto.contact)
         verify(contactsView).showContactDeletedMessage(contactBDto)
-        verify(contactsView).loadData(listOf(contactADto))
+        verify(contactsView).loadData(any())
     }
 
     @Test

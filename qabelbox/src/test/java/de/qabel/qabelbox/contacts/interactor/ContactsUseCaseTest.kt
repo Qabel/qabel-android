@@ -10,8 +10,11 @@ import de.qabel.qabelbox.SimpleApplication
 import de.qabel.qabelbox.config.QabelSchema
 import de.qabel.qabelbox.contacts.ContactMatcher
 import de.qabel.qabelbox.contacts.dto.ContactDto
+import de.qabel.qabelbox.eq
+import de.qabel.qabelbox.persistence.RepositoryFactory
 import de.qabel.qabelbox.test.files.FileHelper
 import de.qabel.qabelbox.util.IdentityHelper
+import de.qabel.qabelbox.util.waitFor
 import org.apache.commons.io.FileUtils
 import org.hamcrest.Matchers.*
 import org.junit.Assert.assertThat
@@ -19,6 +22,7 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricGradleTestRunner
+import org.robolectric.RuntimeEnvironment
 import org.robolectric.annotation.Config
 import java.io.File
 import java.io.FileOutputStream
@@ -145,7 +149,24 @@ class ContactsUseCaseTest {
         contactRepo.save(contactA, identityA)
         contactRepo.save(contactB, identityA)
         contactsUseCase.deleteContact(contactB).toBlocking().subscribe {}
-        assertThat(contactRepo.exists(contactB), `is`(false))
+        contactRepo.exists(contactB) eq false
+    }
+
+    @Test
+    fun testDeleteContactFromMultipleIdentities() {
+        // The in memory repository always deletes the contact and not just the connection
+        // https://github.com/Qabel/qabel-core/issues/580
+        val repositoryFactory = RepositoryFactory(RuntimeEnvironment.application)
+        contactRepo = repositoryFactory.getContactRepository()
+        val identityRepository = repositoryFactory.getIdentityRepository()
+        identityRepository.save(identityA)
+        identityRepository.save(identityB)
+        contactsUseCase = MainContactsUseCase(identityA, contactRepo,
+                identityRepository)
+        contactRepo.save(contactA, identityA)
+        contactRepo.save(contactA, identityB)
+        contactsUseCase.deleteContact(contactA).waitFor()
+        contactRepo.exists(contactA) eq false
     }
 
     @Test

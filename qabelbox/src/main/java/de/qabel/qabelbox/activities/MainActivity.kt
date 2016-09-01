@@ -2,7 +2,8 @@ package de.qabel.qabelbox.activities
 
 import android.app.Activity
 import android.app.AlertDialog
-import android.content.*
+import android.content.DialogInterface
+import android.content.Intent
 import android.os.Bundle
 import android.support.design.widget.FloatingActionButton
 import android.support.design.widget.Snackbar
@@ -19,7 +20,10 @@ import com.mikepenz.materialdrawer.AccountHeaderBuilder
 import com.mikepenz.materialdrawer.Drawer
 import com.mikepenz.materialdrawer.DrawerBuilder
 import com.mikepenz.materialdrawer.holder.BadgeStyle
-import com.mikepenz.materialdrawer.model.*
+import com.mikepenz.materialdrawer.model.PrimaryDrawerItem
+import com.mikepenz.materialdrawer.model.ProfileDrawerItem
+import com.mikepenz.materialdrawer.model.ProfileSettingDrawerItem
+import com.mikepenz.materialdrawer.model.SecondaryDrawerItem
 import de.qabel.chat.repository.ChatDropMessageRepository
 import de.qabel.core.config.Identity
 import de.qabel.core.repository.ContactRepository
@@ -40,11 +44,11 @@ import de.qabel.qabelbox.dagger.modules.ActivityModule
 import de.qabel.qabelbox.dagger.modules.MainActivityModule
 import de.qabel.qabelbox.fragments.BaseFragment
 import de.qabel.qabelbox.fragments.IdentitiesFragment
-import de.qabel.qabelbox.fragments.QRcodeFragment
 import de.qabel.qabelbox.helper.AccountHelper
 import de.qabel.qabelbox.helper.CacheFileHelper
 import de.qabel.qabelbox.helper.Sanity
 import de.qabel.qabelbox.helper.UIHelper
+import de.qabel.qabelbox.listeners.intentListener
 import de.qabel.qabelbox.navigation.MainNavigator
 import de.qabel.qabelbox.settings.SettingsActivity
 import de.qabel.qabelbox.sync.FirebaseTopicManager
@@ -98,27 +102,38 @@ class MainActivity : CrashReportingActivity(),
     lateinit private var component: MainActivityComponent
 
     lateinit private var drawer: Drawer
+    lateinit private var drawerAccountHeader: AccountHeader
     lateinit private var contacts: PrimaryDrawerItem
     lateinit private var files: PrimaryDrawerItem
     lateinit private var chats: PrimaryDrawerItem
     lateinit var toggle: ActionBarDrawerToggle
 
 
-    private val accountBroadCastReceiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context, intent: Intent) {
-            val statusCode = intent.getIntExtra(QblBroadcastConstants.STATUS_CODE_PARAM, -1)
-            when (statusCode) {
-                AccountStatusCodes.LOGOUT -> navigator.selectCreateAccountActivity()
-            }
-        }
-    }
-
-    private val chatBroadCastReceiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context?, intent: Intent?) {
-            updateNewMessageBadge()
-        }
-
-    }
+    override val intentListeners = listOf(
+            intentListener(QblBroadcastConstants.Account.ACCOUNT_CHANGED, {
+                val statusCode = it.getIntExtra(QblBroadcastConstants.STATUS_CODE_PARAM, -1)
+                when (statusCode) {
+                    AccountStatusCodes.LOGOUT -> navigator.selectCreateAccountActivity()
+                }
+            }),
+            intentListener(QblBroadcastConstants.Chat.MESSAGE_STATE_CHANGED, {
+                updateNewMessageBadge()
+            }),
+            intentListener(QblBroadcastConstants.Identities.IDENTITY_CHANGED, {
+                val identityKey = it.getStringExtra(QblBroadcastConstants.Identities.KEY_IDENTITY)
+                if (identityKey.equals(activeIdentity.keyIdentifier)) {
+                    activeIdentity = identityRepository.find(identityKey)
+                    drawerAccountHeader.activeProfile.email.text = activeIdentity.email
+                    drawerAccountHeader.activeProfile.name.text = activeIdentity.alias
+                    drawerAccountHeader.updateProfile(drawerAccountHeader.activeProfile)
+                } else {
+                    val changedIdentity = identityRepository.find(identityKey)
+                    drawerAccountHeader.profiles.find { it.identifier == changedIdentity.id.toLong() }?.apply {
+                        withName(changedIdentity.alias)
+                        drawerAccountHeader.updateProfile(this)
+                    }
+                }
+            }))
 
     private fun updateNewMessageBadge() {
         val size = messageRepository.findNew(activeIdentity.id).size
@@ -150,10 +165,6 @@ class MainActivity : CrashReportingActivity(),
         component = applicationComponent.plus(ActivityModule(this)).plus(MainActivityModule(this))
         component.inject(this)
         Log.d(TAG, "onCreate " + this.hashCode())
-        registerReceiver(accountBroadCastReceiver,
-                IntentFilter(QblBroadcastConstants.Account.ACCOUNT_CHANGED))
-        registerReceiver(chatBroadCastReceiver,
-                IntentFilter(QblBroadcastConstants.Chat.MESSAGE_STATE_CHANGED))
 
         try {
             if (Sanity.startWizardActivities(this, identityRepository.findAll())) {
@@ -204,7 +215,8 @@ class MainActivity : CrashReportingActivity(),
                 if (offlineIndicator == null) {
                     val builder = AlertDialog.Builder(this@MainActivity)
                     builder.setTitle(R.string.no_connection).setIcon(R.drawable.information).setNegativeButton(R.string.close_app) {
-                        dialog, id -> finishAffinity()
+                        dialog, id ->
+                        finishAffinity()
                     }.setPositiveButton(R.string.retry_action, null)
                     offlineIndicator = builder.create()
                     offlineIndicator?.let {
@@ -382,10 +394,6 @@ class MainActivity : CrashReportingActivity(),
         }
 
         connectivityManager.onDestroy()
-
-        unregisterReceiver(accountBroadCastReceiver)
-        unregisterReceiver(chatBroadCastReceiver)
-
         super.onDestroy()
     }
 
@@ -434,13 +442,13 @@ class MainActivity : CrashReportingActivity(),
             addDrawerItems(
                     contacts,
                     chats,
-                    files,
-                    DividerDrawerItem(),
+                    files
+            )
+            addStickyDrawerItems(
                     settings,
                     tellAFriend,
                     about,
-                    help
-            )
+                    help)
             withOnDrawerItemClickListener { view, i, iDrawerItem ->
                 when (iDrawerItem) {
                     contacts -> navigator.selectContactsFragment()
@@ -453,18 +461,25 @@ class MainActivity : CrashReportingActivity(),
                     tellAFriend -> ShareHelper.tellAFriend(this@MainActivity)
                     about -> navigator.selectAboutFragment()
                     help -> navigator.selectHelpFragment()
-                    else -> { return@withOnDrawerItemClickListener false }
+                    else -> {
+                        return@withOnDrawerItemClickListener false
+                    }
                 }
                 drawer.closeDrawer()
                 true
             }
-            withAccountHeader(buildAccountHeader())
-            withOnDrawerListener(object: Drawer.OnDrawerListener {
+            drawerAccountHeader = buildAccountHeader()
+            withAccountHeader(drawerAccountHeader)
+            withOnDrawerListener(object : Drawer.OnDrawerListener {
                 override fun onDrawerSlide(drawerView: View?, slideOffset: Float) {
                     updateNewMessageBadge()
                 }
-                override fun onDrawerClosed(drawerView: View?) { }
-                override fun onDrawerOpened(drawerView: View?) { }
+
+                override fun onDrawerClosed(drawerView: View?) {
+                }
+
+                override fun onDrawerOpened(drawerView: View?) {
+                }
             })
             withOnDrawerNavigationListener {
                 if (drawer.isDrawerOpen) {
@@ -497,12 +512,14 @@ class MainActivity : CrashReportingActivity(),
             it.keyIdentifier == activeIdentity.keyIdentifier
         }.mapIndexed { i, identity ->
             Pair(ProfileDrawerItem().apply {
+                withIdentifier(identity.id.toLong())
                 withName(identity.alias)
                 withIcon(identityIcon(identity))
                 withIdentifier(i.toLong())
             }, identity)
         }.toMap()
         val activeIdentityItem = ProfileDrawerItem().apply {
+            withIdentifier(activeIdentity.id.toLong())
             withName(activeIdentity.alias)
             withIcon(identityIcon(activeIdentity))
             withEmail(activeIdentity.email)
@@ -527,7 +544,7 @@ class MainActivity : CrashReportingActivity(),
             addProfiles(manageIdentities)
             withOnAccountHeaderListener { view, iProfile, current ->
                 when (iProfile) {
-                    activeIdentityItem -> showQRCode(this@MainActivity, activeIdentity)
+                    activeIdentityItem -> navigator.selectQrCodeFragment(activeIdentity.toContact())
                     addIdentity -> selectAddIdentityFragment()
                     manageIdentities -> navigator.selectManageIdentitiesFragment()
                     else -> {
@@ -588,9 +605,5 @@ class MainActivity : CrashReportingActivity(),
         // Intent extra to specify that the activity is in test mode which disables auto-refresh
         const val TEST_RUN = "TEST_RUN"
 
-        @JvmStatic
-        fun showQRCode(activity: MainActivity, identity: Identity) {
-            activity.fragmentManager.beginTransaction().replace(R.id.fragment_container, QRcodeFragment.newInstance(identity), null).addToBackStack(null).commit()
-        }
     }
 }

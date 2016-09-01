@@ -33,7 +33,7 @@
     <string name="manage_identities">Manage Identities</string>
     <string name="Rename">Rename</string>
     <string name="alias_cannot_be_empty">Alias cannot be empty</string>
-    <string name="identity">An Identity</string>
+    <string name="identity">Identity</string>
     <string name="boxaccount">A Qabelaccount</string>
     <string name="rename_identity">Rename %s</string>
     <string name="new_identity_name">Identity alias</string>
@@ -371,4 +371,8 @@
     <string name="load_more">Load more</string>
     <string name="conversations">Conversations</string>
     <string name="feedback">Feedback</string>
+    <string name="qabel_index" translatable="false">Qabel-Index</string>
+    <string name="qabel_index_text">Add a phone number and e-mail to your identity to be found by other qabel users</string>
+    <string name="edit_identity">Edit identity</string>
+    <string name="phone_number">Your phone number</string>
 </resources>

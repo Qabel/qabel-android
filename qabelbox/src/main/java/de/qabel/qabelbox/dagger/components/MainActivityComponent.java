@@ -5,7 +5,6 @@ import de.qabel.qabelbox.activities.MainActivity;
 import de.qabel.qabelbox.chat.dagger.ChatComponent;
 import de.qabel.qabelbox.chat.dagger.ChatOverviewComponent;
 import de.qabel.qabelbox.chat.dagger.ChatOverviewModule;
-import de.qabel.qabelbox.chat.view.views.ChatOverview;
 import de.qabel.qabelbox.contacts.dagger.ContactDetailsComponent;
 import de.qabel.qabelbox.contacts.dagger.ContactDetailsModule;
 import de.qabel.qabelbox.contacts.dagger.ContactEditComponent;
@@ -16,6 +15,9 @@ import de.qabel.qabelbox.chat.dagger.ChatModule;
 import de.qabel.qabelbox.dagger.modules.FileBrowserModule;
 import de.qabel.qabelbox.dagger.modules.MainActivityModule;
 import de.qabel.qabelbox.dagger.scopes.ActivityScope;
+import de.qabel.qabelbox.fragments.IdentitiesFragment;
+import de.qabel.qabelbox.identity.dagger.IdentityDetailsComponent;
+import de.qabel.qabelbox.identity.dagger.IdentityDetailsModule;
 
 @ActivityScope
 @Subcomponent(
@@ -32,6 +34,10 @@ public interface MainActivityComponent {
     ContactsComponent plus(ContactsModule contactsModule);
     ContactDetailsComponent plus(ContactDetailsModule contactDetailsModule);
     ContactEditComponent plus(ContactEditModule contactEditModule);
+
+    IdentityDetailsComponent plus(IdentityDetailsModule identityDetailsModule);
+
+    void inject(IdentitiesFragment identitiesFragment);
 
 }
 

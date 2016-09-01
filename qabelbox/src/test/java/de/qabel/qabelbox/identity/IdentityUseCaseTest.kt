@@ -5,12 +5,19 @@ import com.nhaarman.mockito_kotlin.verify
 import de.qabel.core.extensions.CoreTestCase
 import de.qabel.core.extensions.createIdentity
 import de.qabel.core.repository.inmemory.InMemoryIdentityRepository
+import de.qabel.qabelbox.BuildConfig
 import de.qabel.qabelbox.QblBroadcastConstants.Identities.*
+import de.qabel.qabelbox.SimpleApplication
 import de.qabel.qabelbox.eq
 import de.qabel.qabelbox.identity.interactor.MainIdentityUseCase
 import de.qabel.qabelbox.listeners.ActionIntentSender
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricGradleTestRunner
+import org.robolectric.annotation.Config
 
+@RunWith(RobolectricGradleTestRunner::class)
+@Config(application = SimpleApplication::class, constants = BuildConfig::class)
 class IdentityUseCaseTest() : CoreTestCase {
 
     val identity = createIdentity("Alice")

@@ -5,6 +5,8 @@ import com.nhaarman.mockito_kotlin.stub
 import com.nhaarman.mockito_kotlin.verify
 import de.qabel.core.extensions.CoreTestCase
 import de.qabel.core.extensions.createIdentity
+import de.qabel.qabelbox.BuildConfig
+import de.qabel.qabelbox.SimpleApplication
 import de.qabel.qabelbox.eq
 import de.qabel.qabelbox.identity.interactor.IdentityUseCase
 import de.qabel.qabelbox.identity.view.IdentityDetailsView
@@ -12,9 +14,14 @@ import de.qabel.qabelbox.identity.view.presenter.IdentityDetailsPresenter
 import de.qabel.qabelbox.identity.view.presenter.MainIdentityDetailsPresenter
 import de.qabel.qabelbox.navigation.Navigator
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricGradleTestRunner
+import org.robolectric.annotation.Config
 import rx.lang.kotlin.singleOf
 import rx.lang.kotlin.toSingletonObservable
 
+@RunWith(RobolectricGradleTestRunner::class)
+@Config(application = SimpleApplication::class, constants = BuildConfig::class)
 class IdentityDetailsPresenterTest() : CoreTestCase {
 
     val identity = createIdentity("Bob")

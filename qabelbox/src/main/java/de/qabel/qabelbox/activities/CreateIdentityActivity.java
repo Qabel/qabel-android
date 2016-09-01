@@ -41,7 +41,7 @@ public class CreateIdentityActivity extends BaseWizardActivity {
     public static final int REQUEST_CODE_IMPORT_IDENTITY = 1;
     /**
      * Fake the prefix request
-     *
+     * <p>
      * This is set by the QblJUnitTestRunner to prevent network requests to the block server
      * in test runs.
      */
@@ -74,13 +74,11 @@ public class CreateIdentityActivity extends BaseWizardActivity {
 
     @Override
     protected String getHeaderFragmentText() {
-
         return mIdentityName;
     }
 
     @Override
     protected int getActionBarTitle() {
-
         return R.string.headline_add_identity;
     }
 
@@ -91,7 +89,6 @@ public class CreateIdentityActivity extends BaseWizardActivity {
 
     @Override
     public void handleNextClick() {
-
         super.handleNextClick();
         if (step > 0 && tryCount != 3 && prefix == null) {
             loadPrefixInBackground();
@@ -103,13 +100,11 @@ public class CreateIdentityActivity extends BaseWizardActivity {
      */
     @Override
     protected BaseIdentityFragment[] getFragmentList() {
-
         BaseIdentityFragment fragments[] = new BaseIdentityFragment[3];
         fragments[0] = new CreateIdentityMainFragment();
         fragments[1] = CreateIdentityEditTextFragment.newInstance(R.string.create_identity_enter_name, R.string.create_identity_enter_name_hint, new NextChecker() {
             @Override
             public String check(View view) {
-
                 String editText = ((EditText) view).getText().toString().trim();
                 boolean error = editText.length() < 1;
                 if (error) {
@@ -188,17 +183,14 @@ public class CreateIdentityActivity extends BaseWizardActivity {
     }
 
     public void setIdentityName(String text) {
-
         mIdentityName = text;
     }
 
     public String getIdentityName() {
-
         return mIdentityName;
     }
 
     public void setCreatedIdentity(Identity identity) {
-
         mNewIdentity = identity;
     }
 

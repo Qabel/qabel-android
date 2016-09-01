@@ -30,7 +30,7 @@
                     android:layout_gravity="center"
                     android:gravity="center"
                     android:textColor="@color/white"
-                    android:textSize="@dimen/textsize_welcome_header" />
+                    android:textSize="@dimen/textsize_identity_circle_initial" />
             </de.qabel.qabelbox.ui.views.SquareFrameLayout>
 
             <ImageView
@@ -47,7 +47,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="-5dp"
-            android:drawableEnd="@drawable/pencil"
+            android:layout_marginTop="@dimen/default_space_double"
+            android:background="@drawable/separator_gray"
+            android:drawableEnd="@drawable/pencil_grey"
             android:drawablePadding="10sp"
             android:drawableStart="@drawable/account"
             android:gravity="start|center_vertical"
@@ -58,8 +60,8 @@
         <de.qabel.qabelbox.ui.views.TextViewFont
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/default_space"
-            android:background="@drawable/separator_gray"
+            android:layout_marginTop="@dimen/default_space_double"
+            android:background="@drawable/separator_slim"
             android:drawablePadding="10sp"
             android:drawableStart="@drawable/account_multiple"
             android:text="@string/qabel_index"
@@ -80,7 +82,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="@dimen/default_space"
-            android:drawableEnd="@drawable/pencil"
+            android:background="@drawable/separator_gray"
+            android:drawableEnd="@drawable/pencil_grey"
             android:drawablePadding="10sp"
             android:drawableStart="@drawable/phone"
             android:gravity="start|center_vertical"
@@ -93,7 +96,8 @@
             android:id="@+id/editIdentityEmail"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:drawableEnd="@drawable/pencil"
+            android:background="@drawable/separator_gray"
+            android:drawableEnd="@drawable/pencil_grey"
             android:drawablePadding="10sp"
             android:drawableStart="@drawable/email"
             android:gravity="start|center_vertical"
@@ -106,8 +110,8 @@
             android:id="@+id/textView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10sp"
-            android:background="@drawable/separator_gray"
+            android:layout_marginTop="@dimen/default_space_double"
+            android:background="@drawable/separator_slim"
             android:text="@string/details"
             android:textSize="@dimen/textsize_splash" />
 
@@ -115,7 +119,7 @@
             android:id="@+id/detailsIdentityDropURLs"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="5sp"
+            android:layout_marginTop="@dimen/default_space"
             android:drawablePadding="10sp"
             android:drawableStart="@drawable/earth"
             android:singleLine="false"

@@ -29,7 +29,7 @@
                 android:layout_gravity="center"
                 android:gravity="center"
                 android:textColor="@color/white"
-                android:textSize="@dimen/textsize_welcome_header" />
+                android:textSize="@dimen/textsize_identity_circle_initial" />
         </de.qabel.qabelbox.ui.views.SquareFrameLayout>
     </de.qabel.qabelbox.ui.views.SquareFrameLayout>
 

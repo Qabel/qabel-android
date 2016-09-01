@@ -1,13 +1,10 @@
 package de.qabel.qabelbox.ui.extensions
 
-import android.content.Intent
 import android.text.InputType
 import de.qabel.qabelbox.R
 import de.qabel.qabelbox.fragments.BaseFragment
 import de.qabel.qabelbox.helper.UIHelper
 import org.jetbrains.anko.*
-import java.util.*
-
 
 internal fun BaseFragment.showMessage(title: Int, message: Int) {
     UIHelper.showDialogMessage(activity, title, message);
@@ -40,13 +37,13 @@ internal fun BaseFragment.showEnterTextDialog(headerText: Int, hintText: Int,
                         hint = ctx.getString(hintText)
                         setText(currentValue)
                     }.lparams {
-                        horizontalMargin = 60
+                        horizontalMargin = dip(20)
                     }
                     helpText?.let {
                         textView {
                             text = getString(helpText)
                         }.lparams {
-                            horizontalMargin = 65
+                            horizontalMargin = dip(25)
                         }
                     }
                     positiveButton(R.string.ok) {

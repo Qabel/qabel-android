@@ -1,21 +1,30 @@
 package de.qabel.qabelbox.fragments
 
 import android.app.Fragment
+import android.content.IntentFilter
 import android.os.Bundle
 import android.support.v7.app.ActionBar
+import de.qabel.core.util.error
 import de.qabel.qabelbox.R
 import de.qabel.qabelbox.activities.MainActivity
 import de.qabel.qabelbox.dagger.HasComponent
 import de.qabel.qabelbox.listeners.IdleCallback
-import java.util.concurrent.Executor
-import java.util.concurrent.Executors
+import de.qabel.qabelbox.listeners.IntentListener
+import de.qabel.qabelbox.listeners.toIntentFilter
+import de.qabel.qabelbox.ui.QblView
+import org.jetbrains.anko.ctx
+import org.jetbrains.anko.longToast
+import org.jetbrains.anko.onUiThread
 
-abstract class BaseFragment : Fragment() {
+
+abstract class BaseFragment : Fragment(), QblView {
     protected var actionBar: ActionBar? = null
 
     protected var mActivity: MainActivity? = null
 
     protected var idle: IdleCallback? = null
+
+    protected val intentListeners = emptyList<IntentListener>()
 
     fun setIdleCallback(idle: IdleCallback?) {
         this.idle = idle
@@ -57,14 +66,28 @@ abstract class BaseFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        actionBar?.apply {
-            this.title = this@BaseFragment.title
-            this.subtitle = this@BaseFragment.subtitle
-        }
+        refreshTitles()
         if (isFabNeeded) {
             mActivity?.fab?.show()
         } else {
             mActivity?.fab?.hide()
+        }
+        intentListeners.forEach {
+            ctx.registerReceiver(it.receiver, it.toIntentFilter())
+        }
+    }
+
+    override fun onPause() {
+        intentListeners.forEach {
+            ctx.unregisterReceiver(it.receiver)
+        }
+        super.onPause()
+    }
+
+    protected fun refreshTitles() {
+        actionBar?.apply {
+            this.title = this@BaseFragment.title
+            this.subtitle = this@BaseFragment.subtitle
         }
     }
 
@@ -99,5 +122,12 @@ abstract class BaseFragment : Fragment() {
 
     open fun handleFABAction(): Boolean {
         return false
+    }
+
+    override fun showDefaultError(throwable: Throwable) {
+        onUiThread {
+            longToast(throwable.message ?: "Error")
+            error("Error", throwable)
+        }
     }
 }

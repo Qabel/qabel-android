@@ -24,12 +24,19 @@ import de.qabel.qabelbox.chat.notifications.MainChatNotificationManager;
 import de.qabel.qabelbox.chat.interactor.ChatServiceUseCase;
 import de.qabel.qabelbox.chat.interactor.MainChatServiceUseCase;
 import de.qabel.qabelbox.chat.transformers.ChatMessageTransformer;
+import de.qabel.qabelbox.listeners.ActionIntentSender;
+import de.qabel.qabelbox.listeners.AndroidActionIntentCastSender;
 
 @Module
 public class ApplicationModule extends ContextModule {
 
     public ApplicationModule(QabelBoxApplication application) {
         super(application);
+    }
+
+    @Provides
+    ActionIntentSender providesActionIntentSender(Context context){
+        return new AndroidActionIntentCastSender(context);
     }
 
     @Singleton @Provides ChatNotificationManager providesChatNotificationManager(

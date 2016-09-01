@@ -16,10 +16,10 @@ abstract class BaseActivity : AppCompatActivity() {
         get() = QabelBoxApplication.getApplicationComponent(applicationContext)
 
     override fun onCreate(savedInstanceState: Bundle?, persistentState: PersistableBundle?) {
-        super.onCreate(savedInstanceState, persistentState)
         intentListeners.forEach {
             registerReceiver(it.receiver, it.toIntentFilter())
         }
+        super.onCreate(savedInstanceState, persistentState)
     }
 
     override fun onDestroy() {

@@ -57,6 +57,7 @@ import de.qabel.qabelbox.util.ShareHelper
 import org.jetbrains.anko.AnkoLogger
 import org.jetbrains.anko.ctx
 import org.jetbrains.anko.info
+import org.jetbrains.anko.toast
 import javax.inject.Inject
 
 class MainActivity : CrashReportingActivity(),
@@ -107,6 +108,9 @@ class MainActivity : CrashReportingActivity(),
     lateinit private var files: PrimaryDrawerItem
     lateinit private var chats: PrimaryDrawerItem
     lateinit var toggle: ActionBarDrawerToggle
+
+    private var lastBackPressTime = 0L
+    private val backPressConfirmInterval = 2000L
 
 
     override val intentListeners = listOf(
@@ -302,27 +306,35 @@ class MainActivity : CrashReportingActivity(),
 
 
     override fun onBackPressed() {
-
         if (drawer.isDrawerOpen) {
             drawer.closeDrawer()
-        } else {
-            val activeFragment = fragmentManager.findFragmentById(R.id.fragment_container)
-            if (activeFragment == null) {
-                super.onBackPressed()
-                return
-            }
-            if (activeFragment.tag == null) {
-                fragmentManager.popBackStack()
-            } else {
-                when (activeFragment.tag) {
-                    MainNavigator.TAG_CONTACT_LIST_FRAGMENT -> super.onBackPressed()
-                    else -> if (fragmentManager.backStackEntryCount > 0) {
-                        fragmentManager.popBackStack()
-                    } else {
-                        finishAffinity()
-                    }
-                }
-            }
+            return
+        }
+        val activeFragment = fragmentManager.findFragmentById(R.id.fragment_container)
+        if (activeFragment == null) {
+            super.onBackPressed()
+            return
+        }
+        if (activeFragment.tag == null) {
+            fragmentManager.popBackStack()
+            return
+        }
+        if (fragmentManager.backStackEntryCount > 0) {
+            fragmentManager.popBackStack()
+            return
+        }
+        if (backPressConfirmed()) {
+            finishAffinity()
+            return
+        }
+        toast(R.string.confirm_exit)
+    }
+
+    private fun backPressConfirmed(): Boolean {
+        val now = System.currentTimeMillis()
+        lastBackPressTime.let {
+            lastBackPressTime = now
+            return it + backPressConfirmInterval > now
         }
     }
 

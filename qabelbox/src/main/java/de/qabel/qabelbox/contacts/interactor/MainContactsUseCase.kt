@@ -55,7 +55,9 @@ open class MainContactsUseCase @Inject constructor(private val activeIdentity: I
     }
 
     override fun deleteContact(contact: Contact) = observable<Unit> { subscriber ->
-        contactRepository.delete(contact, activeIdentity)
+        contactRepository.findContactWithIdentities(contact.keyIdentifier).identities.forEach {
+            contactRepository.delete(contact, it)
+        }
         subscriber.onNext(Unit)
         subscriber.onCompleted()
     }

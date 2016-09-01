@@ -363,14 +363,15 @@
     <string name="filebrowser_up">Navigate up</string>
     <string name="export_complete">Export complete</string>
     <string name="export_aborted">Export failed</string>
-    <string name="changes_saved">Änderungen gespeichert</string>
-    <string name="error_saving_changed">Änderungen konnten nicht gespeichert werden</string>
+    <string name="changes_saved">Changes saved</string>
+    <string name="error_saving_changed">Changes could not be saved</string>
     <string name="action_ignore">Ignore</string>
     <string name="action_read">Read</string>
     <string name="show_ignored">Show ignored</string>
     <string name="load_more">Load more</string>
     <string name="conversations">Conversations</string>
     <string name="feedback">Feedback</string>
+    <string name="confirm_exit">Press back once more to exit</string>
     <string name="qabel_index" translatable="false">Qabel-Index</string>
     <string name="qabel_index_text">Add a phone number and e-mail to your identity to be found by other qabel users</string>
     <string name="edit_identity">Edit identity</string>

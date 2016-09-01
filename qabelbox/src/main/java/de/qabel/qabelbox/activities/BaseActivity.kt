@@ -15,18 +15,18 @@ abstract class BaseActivity : AppCompatActivity() {
     val applicationComponent: ApplicationComponent
         get() = QabelBoxApplication.getApplicationComponent(applicationContext)
 
-    override fun onCreate(savedInstanceState: Bundle?, persistentState: PersistableBundle?) {
+    override fun onResume() {
         intentListeners.forEach {
             registerReceiver(it.receiver, it.toIntentFilter())
         }
-        super.onCreate(savedInstanceState, persistentState)
+        super.onResume()
     }
 
-    override fun onDestroy() {
+    override fun onPause() {
         intentListeners.forEach {
             unregisterReceiver(it.receiver)
         }
-        super.onDestroy()
+        super.onPause()
     }
 
 }

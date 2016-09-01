@@ -330,7 +330,7 @@
     <string name="feedback">Feedback</string>
     <string name="action_tellafriend">Einladung senden</string>
     <string name="edit_identity">Identität bearbeiten</string>
-    <string name="qabel_index_text">Füge deiner Identität eine Telefonnummer und Emailadresse hinzu, um von anderen Qabel Nutzern gefunden zu werden.</string>
-    <string name="phone_number">Deine Telefonnummer</string>
+    <string name="qabel_index_text">Fügen Sie ihrer Identität eine Telefonnummer und Emailadresse hinzu, um von anderen Qabel Nutzern gefunden zu werden.</string>
+    <string name="phone_number">Ihre Telefonnummer</string>
     <string name="confirm_exit">Drücken sie noch einmal zurück um die Anwendung zu beenden</string>
 </resources>

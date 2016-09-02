@@ -58,16 +58,7 @@
             android:textSize="@dimen/textsize_splash" />
 
         <de.qabel.qabelbox.ui.views.TextViewFont
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/default_space_double"
-            android:background="@drawable/separator_slim"
-            android:drawablePadding="10sp"
-            android:drawableStart="@drawable/account_multiple"
-            android:text="@string/qabel_index"
-            android:textSize="@dimen/textsize_splash" />
-
-        <de.qabel.qabelbox.ui.views.TextViewFont
+            android:id="@+id/details_index_text"
             style="@style/ListSecondTextLine"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -101,7 +92,7 @@
             android:drawablePadding="10sp"
             android:drawableStart="@drawable/email"
             android:gravity="start|center_vertical"
-            android:hint="@string/create_account_email_hint"
+            android:hint="@string/email_hint"
             android:inputType="textEmailAddress"
             android:singleLine="true"
             android:textSize="@dimen/textsize_normal" />

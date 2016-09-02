@@ -60,19 +60,19 @@ class IdentityDetailsFragment() : IdentityDetailsView, BaseFragment(), AnkoLogge
         ButterKnife.bind(this, view as View)
         adapter.view = view
         editIdentityAlias.setOnClickListener({
-            showEnterTextDialog(R.string.create_identity_enter_name, R.string.enter_name_message, InputType.TYPE_CLASS_TEXT, {
+            showEnterTextDialog(R.string.create_identity_enter_name, R.string.create_identity_enter_name_hint, InputType.TYPE_CLASS_TEXT, {
                 alias ->
                 presenter.onSaveAlias(alias)
             }, editIdentityAlias.text)
         })
         editIdentityEmail.setOnClickListener({
-            showEnterTextDialog(R.string.create_identity_enter_name, R.string.enter_name_message, InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS, {
+            showEnterTextDialog(R.string.create_identity_enter_phone, R.string.phone_number, InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS, {
                 email ->
                 presenter.onSaveEmail(email)
             }, editIdentityEmail.text, R.string.qabel_index_text)
         })
         editIdentityPhone.setOnClickListener({
-            showEnterTextDialog(R.string.create_identity_enter_name, R.string.enter_name_message, InputType.TYPE_CLASS_PHONE, {
+            showEnterTextDialog(R.string.create_identity_enter_email, R.string.email_hint, InputType.TYPE_CLASS_PHONE, {
                 phone ->
                 presenter.onSavePhoneNumber(phone)
             }, editIdentityPhone.text, R.string.qabel_index_text)

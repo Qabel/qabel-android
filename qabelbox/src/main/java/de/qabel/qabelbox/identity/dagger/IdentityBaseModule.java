@@ -8,9 +8,5 @@ import de.qabel.qabelbox.identity.interactor.MainIdentityUseCase;
 @Module
 public abstract class IdentityBaseModule {
 
-    @Provides
-    public IdentityUseCase providesIdentityUseCase(MainIdentityUseCase useCase) {
-        return useCase;
-    }
 
 }

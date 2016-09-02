@@ -22,7 +22,7 @@ class MainIdentityDetailsPresenter @Inject constructor(private val view: Identit
     }
 
     private fun saveIdentity(identity: Identity) {
-        identityUseCase.updateIdentity(identity).subscribe({
+        identityUseCase.saveIdentity(identity).subscribe({
             view.showIdentitySavedToast()
             view.loadIdentity(identity)
         }, {

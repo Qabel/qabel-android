@@ -149,21 +149,6 @@ class MainActivity : CrashReportingActivity(),
         }
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        Log.d(TAG, "On Activity result")
-        if (resultCode == Activity.RESULT_OK) {
-            if (requestCode == REQUEST_CREATE_IDENTITY) {
-                if (data != null && data.hasExtra(CreateIdentityActivity.P_IDENTITY)) {
-                    val identity = data.getSerializableExtra(CreateIdentityActivity.P_IDENTITY) as Identity
-                    addIdentity(identity)
-                    return
-                }
-            }
-        }
-        Log.d(TAG, "super.onActivityResult")
-        super.onActivityResult(requestCode, resultCode, data)
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         component = applicationComponent.plus(ActivityModule(this)).plus(MainActivityModule(this))
@@ -576,18 +561,9 @@ class MainActivity : CrashReportingActivity(),
     }
 
     private fun selectAddIdentityFragment() {
-
         val i = Intent(this, CreateIdentityActivity::class.java)
-        val identitiesCount = identityRepository.findAll().identities.size
-
-        i.putExtra(CreateIdentityActivity.FIRST_RUN, identitiesCount == 0)
-
-        if (identitiesCount == 0) {
-            finish()
-            startActivity(i)
-        } else {
-            startActivityForResult(i, REQUEST_CREATE_IDENTITY)
-        }
+        finish()
+        startActivity(i)
     }
 
     override fun getComponent(): MainActivityComponent {

@@ -54,7 +54,10 @@
     <string name="headline_identities">Identities</string>
     <string name="headline_select_upload_folder">Select upload folder</string>
     <string name="create_identity_enter_name">Enter a name for your identity, for example \'Jane\' or \'Forumtroll\'</string>
+    <string name="create_identity_enter_phone">Enter a phone number to be found by other qabel users</string>
+    <string name="create_identity_enter_email">Enter a email-address to be found by other qabel users</string>
     <string name="next">Next</string>
+    <string name="skip">Skip</string>
     <string name="create_identity_final">You can now start using your identity for communicating and uploading files</string>
     <string name="create_identity_successfull">Success</string>
     <string name="dialog_headline_info">Information</string>
@@ -88,10 +91,10 @@
     <string name="create_account_enter_all_data">Please fill out all data to continue</string>
     <string name="create_account_maximum_32_chars">The maximum length of account name is 32 characters</string>
     <string name="create_account_email">Please enter your E-Mail. With this address can you reset your account</string>
-    <string name="create_account_email_hint">Your E-Mail</string>
+    <string name="email_hint">Your E-Mail</string>
     <string name="create_account_passwords_dont_match">Your entered passwords don\'t match. Please enter the same password in both fields</string>
-    <string name="create_account_final">Your Qabel account is now available</string>
-    <string name="create_identity_final_create_identity">Your identity is now available</string>
+    <string name="create_account_final">Your Qabel account is now available.</string>
+    <string name="create_identity_final_create_identity">Please keep in mind that your identity is only available on this device and we don\'t have any copies on our servers.</string>
     <string name="filebrowser">Files</string>
     <string name="settings_headline_boxaccount">Qabel account</string>
     <string name="headline_settings">Settings</string>
@@ -376,4 +379,5 @@
     <string name="qabel_index_text">Add a phone number and e-mail to your identity to be found by other qabel users</string>
     <string name="edit_identity">Edit identity</string>
     <string name="phone_number">Your phone number</string>
+    <string name="optional">optional</string>
 </resources>

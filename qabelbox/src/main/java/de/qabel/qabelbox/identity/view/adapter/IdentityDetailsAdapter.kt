@@ -25,6 +25,8 @@ class IdentityDetailsAdapter() {
             editIdentityPhone.text = identity.phone
             detailsIdentityDropURLs.text = identity.readableUrl()
             detailsIdentityPublicKey.text = identity.readableKey()
+            details_index_text.visibility =
+                    if (!identity.email.isEmpty() && !identity.phone.isEmpty()) View.GONE else View.VISIBLE
         }
     }
 }

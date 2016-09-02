@@ -45,7 +45,7 @@ class IdentityUseCaseTest() : CoreTestCase {
         identity.alias = "Forentroll"
         identity.email = "forentroll@banane.de"
         identity.phone = "12345678910"
-        useCase.updateIdentity(identity).toBlocking().value()
+        useCase.saveIdentity(identity).toBlocking().value()
         verify(actionSender).sendActionIntentBroadCast(IDENTITY_CHANGED, Pair(KEY_IDENTITY, identity.keyIdentifier))
         val updated = identityRepo.find(identity.keyIdentifier)
         updated eq identity

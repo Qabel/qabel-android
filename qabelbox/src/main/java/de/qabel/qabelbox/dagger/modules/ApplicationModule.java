@@ -24,6 +24,8 @@ import de.qabel.qabelbox.chat.notifications.MainChatNotificationManager;
 import de.qabel.qabelbox.chat.interactor.ChatServiceUseCase;
 import de.qabel.qabelbox.chat.interactor.MainChatServiceUseCase;
 import de.qabel.qabelbox.chat.transformers.ChatMessageTransformer;
+import de.qabel.qabelbox.identity.interactor.IdentityUseCase;
+import de.qabel.qabelbox.identity.interactor.MainIdentityUseCase;
 import de.qabel.qabelbox.listeners.ActionIntentSender;
 import de.qabel.qabelbox.listeners.AndroidActionIntentCastSender;
 
@@ -74,6 +76,12 @@ public class ApplicationModule extends ContextModule {
                 return new NotificationCompat.Builder(context);
             }
         };
+    }
+
+
+    @Provides
+    public IdentityUseCase providesIdentityUseCase(MainIdentityUseCase useCase) {
+        return useCase;
     }
 
 }

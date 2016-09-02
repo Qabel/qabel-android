@@ -245,6 +245,7 @@ dependencies {
     compile 'com.google.firebase:firebase-messaging:9.4.0'
 
     compile 'com.mikepenz:materialdrawer:5.4.0'
+    compile group: 'com.googlecode.libphonenumber', name: 'libphonenumber', version: '7.6.0'
 
 }
 

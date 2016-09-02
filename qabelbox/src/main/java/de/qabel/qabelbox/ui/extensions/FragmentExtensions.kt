@@ -37,12 +37,14 @@ internal fun BaseFragment.showEnterTextDialog(headerText: Int, hintText: Int,
                         hint = ctx.getString(hintText)
                         setText(currentValue)
                     }.lparams {
+                        width = matchParent
                         horizontalMargin = dip(20)
                     }
                     helpText?.let {
                         textView {
                             text = getString(helpText)
                         }.lparams {
+                            width = matchParent
                             horizontalMargin = dip(25)
                         }
                     }

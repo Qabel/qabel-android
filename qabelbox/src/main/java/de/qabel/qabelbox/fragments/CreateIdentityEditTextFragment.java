@@ -22,17 +22,23 @@ public class CreateIdentityEditTextFragment extends BaseIdentityFragment {
     private int mEditTextHintId;
     private Integer inputType;
     private BaseWizardActivity.NextChecker mChecker;
+    private boolean optionalValue;
 
     public static CreateIdentityEditTextFragment newInstance(int messageId, int editTextHintId, BaseWizardActivity.NextChecker checker) {
         return newInstance(messageId, editTextHintId, checker, null);
     }
 
     public static CreateIdentityEditTextFragment newInstance(int messageId, int editTextHintId, BaseWizardActivity.NextChecker checker, Integer textInputType) {
+        return newInstance(messageId, editTextHintId, checker, textInputType, false);
+    }
+
+    public static CreateIdentityEditTextFragment newInstance(int messageId, int editTextHintId, BaseWizardActivity.NextChecker checker, Integer textInputType, boolean optinal) {
 
         CreateIdentityEditTextFragment fragment = new CreateIdentityEditTextFragment();
         fragment.mMessageId = messageId;
         fragment.mEditTextHintId = editTextHintId;
         fragment.mChecker = checker;
+        fragment.optionalValue = optinal;
         if (textInputType != null) {
             fragment.inputType = textInputType;
         }
@@ -49,7 +55,11 @@ public class CreateIdentityEditTextFragment extends BaseIdentityFragment {
         TextView tvMessage = ((TextView) view.findViewById(R.id.tv_message));
         editText = (EditText) view.findViewById(R.id.et_name);
         tvMessage.setText(mMessageId);
-        editText.setHint(mEditTextHintId);
+        if (!optionalValue) {
+            editText.setHint(mEditTextHintId);
+        } else {
+            editText.setHint(getString(mEditTextHintId) + " (" + getString(R.string.optional) + ")");
+        }
         if (inputType != null) {
             editText.setInputType(InputType.TYPE_CLASS_TEXT | inputType);
         }
@@ -58,7 +68,6 @@ public class CreateIdentityEditTextFragment extends BaseIdentityFragment {
 
     @Override
     public String check() {
-
         return mChecker.check(editText);
     }
 }

@@ -16,17 +16,18 @@ class IdentityDetailsAdapter() {
 
     fun loadIdentity(identity: Identity) {
         view?.apply {
+            val mail = identity.email ?: ""
+            val phone = identity.phone ?: ""
+
             identity_icon.background = IdentityIconDrawable(
                     text = identity.initials(),
                     color = identity.color(context))
             identity_initial.text = identity.initials()
             editIdentityAlias.text = identity.alias
-            editIdentityEmail.text = identity.email
-            editIdentityPhone.text = identity.phone
+            editIdentityEmail.text = mail
+            editIdentityPhone.text = phone
             detailsIdentityDropURLs.text = identity.readableUrl()
             detailsIdentityPublicKey.text = identity.readableKey()
-            details_index_text.visibility =
-                    if (!identity.email.isEmpty() && !identity.phone.isEmpty()) View.GONE else View.VISIBLE
         }
     }
 }

@@ -8,6 +8,7 @@ import de.qabel.core.config.Identity
 import de.qabel.qabelbox.R
 import de.qabel.qabelbox.dagger.components.MainActivityComponent
 import de.qabel.qabelbox.fragments.BaseFragment
+import de.qabel.qabelbox.helper.UIHelper
 import de.qabel.qabelbox.identity.dagger.IdentityDetailsModule
 import de.qabel.qabelbox.identity.view.adapter.IdentityDetailsAdapter
 import de.qabel.qabelbox.identity.view.presenter.IdentityDetailsPresenter
@@ -57,25 +58,16 @@ class IdentityDetailsFragment() : IdentityDetailsView, BaseFragment(), AnkoLogge
 
     override fun onViewCreated(view: View?, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        ButterKnife.bind(this, view as View)
+
         adapter.view = view
         editIdentityAlias.setOnClickListener({
-            showEnterTextDialog(R.string.create_identity_enter_name, R.string.create_identity_enter_name_hint, InputType.TYPE_CLASS_TEXT, {
-                alias ->
-                presenter.onSaveAlias(alias)
-            }, editIdentityAlias.text)
+            showEnterAliasDialog(editIdentityAlias.text.toString())
         })
         editIdentityEmail.setOnClickListener({
-            showEnterTextDialog(R.string.create_identity_enter_phone, R.string.phone_number, InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS, {
-                email ->
-                presenter.onSaveEmail(email)
-            }, editIdentityEmail.text, R.string.qabel_index_text)
+            showEnterEmailDialog(editIdentityEmail.text.toString())
         })
         editIdentityPhone.setOnClickListener({
-            showEnterTextDialog(R.string.create_identity_enter_email, R.string.email_hint, InputType.TYPE_CLASS_PHONE, {
-                phone ->
-                presenter.onSavePhoneNumber(phone)
-            }, editIdentityPhone.text, R.string.qabel_index_text)
+            showEnterPhoneDialog(editIdentityPhone.text.toString())
         })
 
         action_show_qr.setOnClickListener({
@@ -99,7 +91,30 @@ class IdentityDetailsFragment() : IdentityDetailsView, BaseFragment(), AnkoLogge
 
     override fun supportBackButton(): Boolean = true
 
-    override fun showEnterNameToast() = toast(R.string.enter_name_message)
+    override fun showEnterAliasDialog(current: String) =
+            showEnterTextDialog(R.string.create_identity_enter_name,
+                    R.string.create_identity_enter_name_hint, InputType.TYPE_CLASS_TEXT, {
+                alias ->
+                presenter.onSaveAlias(alias)
+            }, current)
+
+    override fun showEnterEmailDialog(current: String) =
+            showEnterTextDialog(R.string.create_identity_enter_email,
+                    R.string.email_hint, InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS, {
+                email ->
+                presenter.onSaveEmail(email)
+            }, current, R.string.qabel_index_text)
+
+    override fun showEnterPhoneDialog(current: String) =
+            showEnterTextDialog(R.string.create_identity_enter_phone, R.string.phone_number,
+                    InputType.TYPE_CLASS_PHONE, {
+                phone ->
+                presenter.onSavePhoneNumber(phone)
+            }, current, R.string.qabel_index_text)
+
+    override fun showAliasEmptyInvalid() = toast(R.string.enter_name_message)
+    override fun showEmailInvalid() = toast(R.string.email_address_invalid)
+    override fun showPhoneInvalid() = toast(R.string.phone_number_invalid)
 
     override fun showIdentitySavedToast() = toast(R.string.changes_saved)
     override fun showSaveFailed() = toast(R.string.error_saving_changed)

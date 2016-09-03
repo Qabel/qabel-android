@@ -9,7 +9,14 @@ interface IdentityDetailsView : QblView {
 
     fun loadIdentity(identity: Identity)
 
-    fun showEnterNameToast()
+    fun showEnterAliasDialog(current: String)
+    fun showEnterPhoneDialog(current: String)
+    fun showEnterEmailDialog(current: String)
+
+    fun showAliasEmptyInvalid()
+    fun showEmailInvalid()
+    fun showPhoneInvalid()
+
     fun showIdentitySavedToast()
     fun showSaveFailed()
 

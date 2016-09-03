@@ -1,6 +1,10 @@
 package de.qabel.qabelbox.identity.view.presenter
 
+import com.google.i18n.phonenumbers.NumberParseException
 import de.qabel.core.config.Identity
+import de.qabel.qabelbox.R
+import de.qabel.qabelbox.helper.Formatter
+import de.qabel.qabelbox.helper.formatPhoneNumber
 import de.qabel.qabelbox.identity.interactor.IdentityUseCase
 import de.qabel.qabelbox.identity.view.IdentityDetailsView
 import de.qabel.qabelbox.navigation.Navigator
@@ -26,6 +30,7 @@ class MainIdentityDetailsPresenter @Inject constructor(private val view: Identit
             view.showIdentitySavedToast()
             view.loadIdentity(identity)
         }, {
+            it.printStackTrace()
             view.showSaveFailed()
         })
     }
@@ -33,7 +38,8 @@ class MainIdentityDetailsPresenter @Inject constructor(private val view: Identit
     override fun onSaveAlias(newAlias: String) {
         identity?.let {
             if (newAlias.isEmpty()) {
-                view.showEnterNameToast()
+                view.showAliasEmptyInvalid()
+                view.showEnterAliasDialog("")
             } else {
                 it.alias = newAlias
                 saveIdentity(it)
@@ -41,18 +47,33 @@ class MainIdentityDetailsPresenter @Inject constructor(private val view: Identit
         }
     }
 
-
     override fun onSavePhoneNumber(phoneNumber: String) {
         identity?.let {
-            it.phone = phoneNumber
+            if (!phoneNumber.isEmpty()) {
+                try {
+                    val formatted = formatPhoneNumber(phoneNumber)
+                    it.phone = formatted
+                } catch (ex: NumberParseException) {
+                    view.showPhoneInvalid()
+                    view.showEnterPhoneDialog(phoneNumber)
+                }
+            } else {
+                it.phone = phoneNumber
+            }
             saveIdentity(it)
         }
     }
 
     override fun onSaveEmail(email: String) {
         identity?.let {
-            it.email = email
-            saveIdentity(it)
+            if (!email.isEmpty() && !Formatter.isEMailValid(email)) {
+                view.showEmailInvalid()
+                view.showEnterEmailDialog(email)
+                return
+            } else {
+                it.email = email
+                saveIdentity(it)
+            }
         }
     }
 

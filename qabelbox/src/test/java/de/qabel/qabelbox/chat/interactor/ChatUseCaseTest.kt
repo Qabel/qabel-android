@@ -16,9 +16,11 @@ import de.qabel.core.repository.inmemory.InMemoryIdentityRepository
 import de.qabel.chat.service.ChatService
 import de.qabel.chat.service.MainChatService
 import de.qabel.qabelbox.BuildConfig
+import de.qabel.qabelbox.QblBroadcastConstants
 import de.qabel.qabelbox.SimpleApplication
 import de.qabel.qabelbox.chat.dto.ChatMessage
 import de.qabel.qabelbox.chat.transformers.ChatMessageTransformer
+import de.qabel.qabelbox.listeners.ActionIntentSender
 import de.qabel.qabelbox.util.IdentityHelper
 import org.hamcrest.Matchers.equalTo
 import org.hamcrest.Matchers.hasSize
@@ -43,12 +45,14 @@ class ChatUseCaseTest {
 
     lateinit var transformer: ChatMessageTransformer
     lateinit var chatService: ChatService
+    lateinit var actionIntentSender: ActionIntentSender
     lateinit var chatDropRepository: InMemoryChatDropMessageRepository
 
     lateinit var chatUseCase: ChatUseCase
 
     @Before
     fun setUp() {
+        actionIntentSender = mock()
         val identityRepo = InMemoryIdentityRepository()
         identityRepo.save(identity)
         val contactRepo = InMemoryContactRepository()
@@ -56,7 +60,7 @@ class ChatUseCaseTest {
         chatDropRepository = spy(InMemoryChatDropMessageRepository())
         transformer = ChatMessageTransformer(identityRepo, contactRepo)
         chatService = spy(MainChatService(dropConnector, identityRepo, contactRepo, chatDropRepository, InMemoryDropStateRepository(), mock()))
-        chatUseCase = TransformingChatUseCase(identity, contact, transformer, chatService, chatDropRepository, chatServiceUseCase)
+        chatUseCase = TransformingChatUseCase(identity, contact, transformer, chatService, chatDropRepository, chatServiceUseCase, actionIntentSender)
     }
 
     @Test
@@ -77,6 +81,7 @@ class ChatUseCaseTest {
         assertThat(result.result, hasSize(1))
         verify(chatDropRepository).markAsRead(contact, identity)
         verify(chatDropRepository).findByContact(contact.id, identity.id)
+        verify(actionIntentSender.sendActionIntentBroadCast(QblBroadcastConstants.Chat.MESSAGE_STATE_CHANGED))
     }
 
     @Test
@@ -97,6 +102,7 @@ class ChatUseCaseTest {
         chatUseCase.ignoreContact().toBlocking().subscribe()
         verify(chatServiceUseCase).ignoreContact(identity.keyIdentifier, contact.keyIdentifier)
         assertThat(contact.isIgnored, equalTo(true))
+        verify(actionIntentSender.sendActionIntentBroadCast(QblBroadcastConstants.Chat.MESSAGE_STATE_CHANGED))
         assertThat(contact.status, equalTo(Contact.ContactStatus.NORMAL))
     }
 
@@ -104,6 +110,7 @@ class ChatUseCaseTest {
     fun testAddContact() {
         chatUseCase.addContact().toBlocking().subscribe()
         verify(chatServiceUseCase).addContact(identity.keyIdentifier, contact.keyIdentifier)
+        verify(actionIntentSender.sendActionIntentBroadCast(QblBroadcastConstants.Chat.MESSAGE_STATE_CHANGED))
         assertThat(contact.isIgnored, equalTo(false))
         assertThat(contact.status, equalTo(Contact.ContactStatus.NORMAL))
     }

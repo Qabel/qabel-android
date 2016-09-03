@@ -117,7 +117,7 @@ class MainActivity : CrashReportingActivity(),
             intentListener(QblBroadcastConstants.Account.ACCOUNT_CHANGED, {
                 val statusCode = it.getIntExtra(QblBroadcastConstants.STATUS_CODE_PARAM, -1)
                 when (statusCode) {
-                    AccountStatusCodes.LOGOUT -> navigator.selectCreateAccountActivity()
+                    AccountStatusCodes.LOGOUT -> finish()
                 }
             }),
             intentListener(QblBroadcastConstants.Chat.MESSAGE_STATE_CHANGED, {

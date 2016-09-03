@@ -36,11 +36,11 @@ class TransformingChatUseCase @Inject constructor(val identity: Identity, overri
     override fun load(offset: Int, pageSize: Int) = observable<PagingResult<ChatMessage>> { subscriber ->
         if (offset == 0) {
             chatDropMessageRepository.markAsRead(contact, identity)
+            notifyApplication()
         }
         chatDropMessageRepository.findByContact(contact.id, identity.id, offset, pageSize).let { pagingResult ->
             subscriber.onNext(pagingResult.transform { chatMessageTransformer.transform(it) })
         }
-        notifyApplication()
         subscriber.onCompleted()
     }
 

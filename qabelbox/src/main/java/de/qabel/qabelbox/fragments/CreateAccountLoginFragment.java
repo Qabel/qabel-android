@@ -5,6 +5,7 @@ import android.app.AlertDialog;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v7.app.ActionBar;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -20,6 +21,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 
 import de.qabel.qabelbox.R;
+import de.qabel.qabelbox.activities.BaseWizardActivity;
 import de.qabel.qabelbox.activities.CreateAccountActivity;
 import de.qabel.qabelbox.communication.BoxAccountRegisterServer;
 import de.qabel.qabelbox.communication.callbacks.JsonRequestCallback;
@@ -74,9 +76,25 @@ public class CreateAccountLoginFragment extends BaseIdentityFragment {
     }
 
     @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        mBoxAccountServer = new BoxAccountRegisterServer(getActivity());
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (getActivity() != null && getActivity() instanceof BaseWizardActivity) {
+            ActionBar toolbar = ((BaseWizardActivity) getActivity()).getSupportActionBar();
+            if (toolbar != null) {
+                toolbar.setTitle(R.string.login);
+            }
+        }
+    }
+
+    @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
-        mBoxAccountServer = new BoxAccountRegisterServer(activity.getApplicationContext());
     }
 
     @Override

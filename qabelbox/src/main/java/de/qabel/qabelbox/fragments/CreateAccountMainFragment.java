@@ -34,7 +34,6 @@ public class CreateAccountMainFragment extends BaseIdentityFragment implements V
         if (skipToLogin) {
             startLogin();
         } else {
-
             mCreateAccount = (Button) view.findViewById(R.id.bt_create_box_account);
             mLogin = (Button) view.findViewById(R.id.bt_login);
             mCreateAccount.setOnClickListener(this);
@@ -61,15 +60,12 @@ public class CreateAccountMainFragment extends BaseIdentityFragment implements V
     }
 
     public void startLogin() {
-        mActivity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        mActivity.getSupportActionBar().setDisplayUseLogoEnabled(false);
-
         CreateAccountLoginFragment fragment = new CreateAccountLoginFragment();
         Bundle bundle = new Bundle();
         bundle.putString(ACCOUNT_NAME, accountName);
         bundle.putString(ACCOUNT_EMAIL, accountEmail);
         fragment.setArguments(bundle);
-        getFragmentManager().beginTransaction().replace(R.id.fragment_container_content, fragment).addToBackStack(null).commit();
+        getFragmentManager().beginTransaction().replace(R.id.fragment_container_content, fragment).commit();
     }
 
 }

@@ -73,10 +73,6 @@ class CreateAccountActivity : BaseWizardActivity() {
         })
     }
 
-    private fun skipRegister(): Boolean {
-        return mBoxAccountName != null && mBoxAccountEMail != null
-    }
-
     override val actionBarTitle: Int
         get() = R.string.headline_create_box_account
 
@@ -86,7 +82,7 @@ class CreateAccountActivity : BaseWizardActivity() {
     override val fragments: Array<BaseIdentityFragment>
         get() = arrayOf(CreateAccountMainFragment().apply {
             val bundle = Bundle()
-            bundle.putBoolean(CreateAccountMainFragment.SKIP_TO_LOGIN, skipRegister())
+            bundle.putBoolean(CreateAccountMainFragment.SKIP_TO_LOGIN, mBoxAccountName?.let { !it.isEmpty() } ?: false)
             bundle.putString(BaseIdentityFragment.ACCOUNT_NAME, mBoxAccountName)
             bundle.putString(BaseIdentityFragment.ACCOUNT_EMAIL, mBoxAccountEMail)
             arguments = bundle

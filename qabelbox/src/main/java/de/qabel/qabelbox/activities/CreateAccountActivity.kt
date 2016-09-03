@@ -57,15 +57,17 @@ class CreateAccountActivity : BaseWizardActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         QabelBoxApplication.getApplicationComponent(applicationContext).inject(this)
         val appPreference = AppPreference(applicationContext)
-        mBoxAccountName = appPreference.accountName
+
+        setAccountName(appPreference.accountName ?: "")
         mBoxAccountEMail = appPreference.accountEMail
+
+        canExit = appPreference.token?.let { !it.isEmpty() } ?: false
 
         super.onCreate(savedInstanceState)
         mBoxAccountServer = BoxAccountRegisterServer(applicationContext, appPreference)
 
         identityUseCase.getIdentities().subscribe({
             existingIdentities = it
-            canExit = it.identities.size > 0
         }, {
             existingIdentities = Identities()
         })
@@ -81,42 +83,42 @@ class CreateAccountActivity : BaseWizardActivity() {
     override val wizardEntityLabel: String
         get() = getString(R.string.boxaccount)
 
-    override val fragments: Array<BaseIdentityFragment> =
-            arrayOf(CreateAccountMainFragment().apply {
-                val bundle = Bundle()
-                bundle.putBoolean(CreateAccountMainFragment.SKIP_TO_LOGIN, skipRegister())
-                bundle.putString(BaseIdentityFragment.ACCOUNT_NAME, headerFragmentText)
-                bundle.putString(BaseIdentityFragment.ACCOUNT_EMAIL, mBoxAccountEMail)
-                arguments = bundle
-            }, CreateIdentityEditTextFragment.newInstance(R.string.create_account_enter_name_infos, R.string.create_account_name_hint, object : BaseWizardActivity.NextChecker {
-                override fun check(view: View): String? {
-                    val editText = (view as EditText).text.toString().trim { it <= ' ' }
-                    val result = checkBoxAccountName(editText)
-                    if (result != null) {
-                        return result
-                    }
-                    setAccountName(editText)
-                    return null
+    override val fragments: Array<BaseIdentityFragment>
+        get() = arrayOf(CreateAccountMainFragment().apply {
+            val bundle = Bundle()
+            bundle.putBoolean(CreateAccountMainFragment.SKIP_TO_LOGIN, skipRegister())
+            bundle.putString(BaseIdentityFragment.ACCOUNT_NAME, mBoxAccountName)
+            bundle.putString(BaseIdentityFragment.ACCOUNT_EMAIL, mBoxAccountEMail)
+            arguments = bundle
+        }, CreateIdentityEditTextFragment.newInstance(R.string.create_account_enter_name_infos, R.string.create_account_name_hint, object : BaseWizardActivity.NextChecker {
+            override fun check(view: View): String? {
+                val editText = (view as EditText).text.toString().trim { it <= ' ' }
+                val result = checkBoxAccountName(editText)
+                if (result != null) {
+                    return result
                 }
-            }), CreateIdentityEditTextFragment.newInstance(R.string.create_account_email, R.string.email_hint, object : BaseWizardActivity.NextChecker {
-                override fun check(view: View): String? {
-                    val editText = (view as EditText).text.toString().trim { it <= ' ' }
-                    val inValid = checkEMailAddress(editText)
-                    if (inValid != null) {
-                        return inValid
-                    }
-                    mBoxAccountEMail = editText
-                    return null
+                setAccountName(editText)
+                return null
+            }
+        }), CreateIdentityEditTextFragment.newInstance(R.string.create_account_email, R.string.email_hint, object : BaseWizardActivity.NextChecker {
+            override fun check(view: View): String? {
+                val editText = (view as EditText).text.toString().trim { it <= ' ' }
+                val inValid = checkEMailAddress(editText)
+                if (inValid != null) {
+                    return inValid
                 }
-            }, InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS),
-                    CreateAccountPasswordFragment.newInstance(object : BaseWizardActivity.NextChecker {
-                        override fun check(view: View): String? {
-                            val editText = (view as EditText).text.toString().trim { it <= ' ' }
-                            setPassword(editText, editText)
-                            return null
-                        }
-                    }),
-                    CreateAccountFinalFragment())
+                mBoxAccountEMail = editText
+                return null
+            }
+        }, InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS),
+                CreateAccountPasswordFragment.newInstance(object : BaseWizardActivity.NextChecker {
+                    override fun check(view: View): String? {
+                        val editText = (view as EditText).text.toString().trim { it <= ' ' }
+                        setPassword(editText, editText)
+                        return null
+                    }
+                }),
+                CreateAccountFinalFragment())
 
     private fun checkBoxAccountName(accountName: String): String? {
         if (accountName.length < 1) {

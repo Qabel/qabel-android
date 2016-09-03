@@ -1,19 +1,24 @@
 package de.qabel.qabelbox.activities
 
+import android.Manifest
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Bundle
-import android.telephony.PhoneNumberUtils
+import android.support.v4.app.ActivityCompat
+import android.support.v4.content.ContextCompat
 import android.telephony.TelephonyManager
 import android.text.InputType
 import android.util.Log
 import android.view.View
 import android.widget.EditText
+import com.google.i18n.phonenumbers.NumberParseException
 import de.qabel.core.config.Identities
 import de.qabel.core.config.Identity
 import de.qabel.core.config.factory.DropUrlGenerator
 import de.qabel.core.util.QblLogger
 import de.qabel.core.util.error
+import de.qabel.core.util.info
 import de.qabel.qabelbox.QabelBoxApplication
 import de.qabel.qabelbox.R
 import de.qabel.qabelbox.TestConstants
@@ -23,8 +28,10 @@ import de.qabel.qabelbox.fragments.BaseIdentityFragment
 import de.qabel.qabelbox.fragments.CreateIdentityEditTextFragment
 import de.qabel.qabelbox.fragments.CreateIdentityFinalFragment
 import de.qabel.qabelbox.fragments.CreateIdentityMainFragment
+import de.qabel.qabelbox.helper.formatPhoneNumber
 import de.qabel.qabelbox.identity.interactor.IdentityUseCase
 import okhttp3.Response
+import org.jetbrains.anko.alert
 import org.jetbrains.anko.ctx
 import org.jetbrains.anko.toast
 import org.json.JSONException
@@ -34,12 +41,14 @@ import javax.inject.Inject
 class CreateIdentityActivity : BaseWizardActivity(), QblLogger {
 
     private val TAG = this.javaClass.simpleName
+    private val REQUEST_READ_PHONE_STATE = 1
+    private var READ_PHONE_STATE_DENIED = false
 
     private var identityName: String = ""
     private var phoneNumber: String = ""
     private var email: String = ""
 
-    private var createdIdentity: Identity? = null
+    var createdIdentity: Identity? = null
     private var prefix: String? = null
     internal var tryCount = 0
 
@@ -50,6 +59,11 @@ class CreateIdentityActivity : BaseWizardActivity(), QblLogger {
     private var existingIdentities: Identities? = null
 
     override val headerFragmentText: String get() = identityName
+
+    override val headerSecondLine: String
+        get() = email
+    override val headerThirdLine: String
+        get() = phoneNumber
 
     override val actionBarTitle: Int = R.string.headline_add_identity
 
@@ -65,29 +79,53 @@ class CreateIdentityActivity : BaseWizardActivity(), QblLogger {
         }, {
             existingIdentities = Identities()
         })
-        println("CReate")
-        tryReadPhoneNumber()
     }
 
     private fun tryReadPhoneNumber() {
-        try {
-            println("GET PHONE")
-            val phoneManager = ctx.getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
-            val phone = phoneManager.line1Number
-            if (phone != null && !phone.isEmpty()) {
-                phoneNumber = phone
+        val permissionCheck = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE)
+        if (permissionCheck != PackageManager.PERMISSION_GRANTED) {
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.READ_PHONE_STATE)) {
+                alert(R.string.dialog_headline_info, R.string.phone_number_request_info, {
+
+                })
+            } else {
+                ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.READ_PHONE_STATE), REQUEST_READ_PHONE_STATE)
             }
-            println("PHONE: " + phoneNumber)
-        } catch(ex: Throwable) {
-            ex.printStackTrace()
+        } else {
+            val phoneManager = ctx.getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
+            var phone = phoneManager.line1Number
+            if (phone != null && !phone.isEmpty()) {
+                try {
+                    phone = formatPhoneNumber(phone)
+                    (fragments[3] as CreateIdentityEditTextFragment).setValue(phone)
+                    info("Phone number detected $phoneNumber")
+                } catch (ex: NumberFormatException) {
+                    error("Error parsing received system phone number $phone", ex)
+                }
+            }
         }
     }
 
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == REQUEST_READ_PHONE_STATE) {
+            if (permissions.contains(Manifest.permission.READ_PHONE_STATE)) {
+                if (grantResults.contains(PackageManager.PERMISSION_GRANTED)) {
+                    tryReadPhoneNumber()
+                } else if (grantResults.contains(PackageManager.PERMISSION_DENIED)) {
+                    READ_PHONE_STATE_DENIED = true
+                }
+            }
+        }
+    }
 
     override fun handleNextClick() {
         super.handleNextClick()
         if (step > 0 && tryCount != 3 && prefix == null) {
             loadPrefixInBackground()
+        }
+        if (step == 2 && !READ_PHONE_STATE_DENIED) {
+            tryReadPhoneNumber()
         }
     }
 
@@ -130,16 +168,16 @@ class CreateIdentityActivity : BaseWizardActivity(), QblLogger {
                             R.string.phone_number,
                             object : NextChecker {
                                 override fun check(view: View): String? {
-                                    var phone = (view as EditText).text.toString().trim()
+                                    val phone = (view as EditText).text.toString().trim()
                                     if (!phone.isEmpty()) {
-                                        if (!PhoneNumberUtils.isGlobalPhoneNumber(phone)) {
-                                            /**
-                                             * TODO deprecated or API 21...
-                                             */
-                                            phone = PhoneNumberUtils.formatNumber(phone)
+                                        try {
+                                            phoneNumber = formatPhoneNumber(phone)
+                                        } catch (ex: NumberParseException) {
+                                            return getString(R.string.phone_number_invalid)
                                         }
                                     }
-                                    phoneNumber = phone
+
+                                    //Last input
                                     createIdentity()
                                     return null
                                 }
@@ -147,15 +185,13 @@ class CreateIdentityActivity : BaseWizardActivity(), QblLogger {
                     CreateIdentityFinalFragment())
 
     private fun createIdentity() {
-        println("create")
         if (prefix != null) {
             identityUseCase.createIdentity(identityName, dropUrlGenerator.generateUrl(),
                     prefix!!, email, phoneNumber)
                     .subscribe({
-                        println("Identity created ${it.alias} (${it.keyIdentifier})")
+                        info("Identity created ${it.alias} (${it.keyIdentifier})")
                         createdIdentity = it
                     }, {
-                        println("Error create")
                         error("Failed to create identity", it)
                     })
         } else {
@@ -172,10 +208,6 @@ class CreateIdentityActivity : BaseWizardActivity(), QblLogger {
             intent.flags = Intent.FLAG_ACTIVITY_TASK_ON_HOME or Intent.FLAG_ACTIVITY_NEW_TASK
             startActivity(intent)
         } ?: createIdentity()
-    }
-
-    fun setCreatedIdentity(identity: Identity) {
-        createdIdentity = identity
     }
 
     private fun loadPrefixInBackground() {

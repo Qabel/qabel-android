@@ -1,28 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:style="http://schemas.android.com/apk/res-auto"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
 
     <LinearLayout
         android:id="@+id/logo_layout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:orientation="vertical"
         android:padding="20dp"
         android:visibility="invisible">
 
         <ImageView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
             android:src="@drawable/splash_logo" />
     </LinearLayout>
 
     <LinearLayout
         android:id="@+id/initial_layout"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
         android:orientation="vertical"
         android:visibility="visible">
 
@@ -46,41 +46,38 @@
                 android:textSize="@dimen/textsize_identity_circle_initial" />
         </de.qabel.qabelbox.ui.views.SquareFrameLayout>
 
-        <LinearLayout
-            android:id="@+id/layout_top_textlines"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:layout_marginTop="30dp"
-            android:orientation="vertical">
-
-            <de.qabel.qabelbox.ui.views.TextViewFont
-                android:id="@+id/tv_name"
-                style="@style/MessageText"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:lines="1"
-                android:text="walter warum"
-                android:textColor="@color/default_text_color" />
-
-            <de.qabel.qabelbox.ui.views.TextViewFont
-                android:id="@+id/tv_email"
-                style="@style/ListSecondTextLine"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:lines="1"
-                android:textColor="@color/default_text_color" />
-
-            <de.qabel.qabelbox.ui.views.TextViewFont
-                android:id="@+id/tv_phone"
-                style="@style/ListSecondTextLine"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:lines="1"
-                android:textColor="@color/default_text_color" />
-        </LinearLayout>
     </LinearLayout>
-</FrameLayout>
+
+    <LinearLayout
+        android:id="@+id/layout_top_textlines"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:orientation="vertical">
+
+        <de.qabel.qabelbox.ui.views.TextViewFont
+            android:id="@+id/tv_name"
+            style="@style/MessageText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:lines="1"
+            android:textColor="@color/default_text_color" />
+
+        <de.qabel.qabelbox.ui.views.TextViewFont
+            android:id="@+id/tv_email"
+            style="@style/ListSecondTextLine"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:lines="1" />
+
+        <de.qabel.qabelbox.ui.views.TextViewFont
+            android:id="@+id/tv_phone"
+            style="@style/ListSecondTextLine"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:lines="1" />
+    </LinearLayout>
+</LinearLayout>

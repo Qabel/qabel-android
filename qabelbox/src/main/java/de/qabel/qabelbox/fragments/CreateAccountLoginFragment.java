@@ -50,7 +50,7 @@ public class CreateAccountLoginFragment extends BaseIdentityFragment {
 
         View view = inflater.inflate(R.layout.fragment_create_account_login, container, false);
         etUserName = ((TextView) view.findViewById(R.id.et_username));
-        if (accountName != null) {
+        if (accountName != null && !accountName.isEmpty()) {
             etUserName.setText(accountName);
             etUserName.setEnabled(false);
         }
@@ -60,7 +60,6 @@ public class CreateAccountLoginFragment extends BaseIdentityFragment {
         resetPassword.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
                 CreateAccountLoginFragment.this.getFragmentManager().popBackStack();
                 CreateAccountResetPasswordFragment fragment = new CreateAccountResetPasswordFragment();
                 Bundle bundle = new Bundle();

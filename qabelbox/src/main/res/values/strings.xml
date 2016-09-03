@@ -58,8 +58,7 @@
     <string name="create_identity_enter_email">Enter a email-address to be found by other qabel users</string>
     <string name="next">Next</string>
     <string name="skip">Skip</string>
-    <string name="create_identity_final">You can now start using your identity for communicating and uploading files</string>
-    <string name="create_identity_successfull">Success</string>
+    <string name="create_identity_successful">Identity created</string>
     <string name="dialog_headline_info">Information</string>
     <string name="create_identity_enter_all_data">Please fill in all fields</string>
     <string name="finish">Finish</string>
@@ -94,7 +93,7 @@
     <string name="email_hint">Your E-Mail</string>
     <string name="create_account_passwords_dont_match">Your entered passwords don\'t match. Please enter the same password in both fields</string>
     <string name="create_account_final">Your Qabel account is now available.</string>
-    <string name="create_identity_final_create_identity">Please keep in mind that your identity is only available on this device and we don\'t have any copies on our servers.</string>
+    <string name="create_identity_final_text">Please keep in mind that your identity is only available on this device and we don\'t have any copies on our servers. Export your Identity and keep it save. With it you can get access to your data on other devices.</string>
     <string name="filebrowser">Files</string>
     <string name="settings_headline_boxaccount">Qabel account</string>
     <string name="headline_settings">Settings</string>
@@ -115,7 +114,8 @@
     <string name="password_to_short">This password is to short. It must contain at least 8 characters.</string>
     <string name="password_contains_user">The password is too similar to the username</string>
     <string name="password_digits_only">Numeric only passwords are not allowed.</string>
-    <string name="email_adress_invalid">Your email address is invalid. Please check your email address and try it again.</string>
+    <string name="email_address_invalid">Your email address is invalid. Please check it and try it again.</string>
+    <string name="phone_number_invalid">Your phone number is invalid. Please check it and try again.</string>
     <string name="btn_create_identity">Create identity</string>
     <string name="create_account_final_headline">Qabel account registered</string>
     <string name="change_account_password_oldpassword_hint">Current password</string>
@@ -176,7 +176,7 @@
     <string name="debug_send_feedback">Send feedback</string>
     <string name="debug_send_feedback_to_pm">Tell us what you think about Qabel and any suggestions you have</string>
     <string name="dialog_message_delete_contact_question">Do you really delete the contact %1?</string>
-    <string name="contact_deleted">Contact with name %s deleted</string>
+    <string name="entry_deleted">%s deleted</string>
     <string name="infos">Infos</string>
     <string name="dummy_infos_text">This is the alpha version of Qabel</string>
     <string name="contact_count">%d Contacts</string>
@@ -380,4 +380,5 @@
     <string name="edit_identity">Edit identity</string>
     <string name="phone_number">Your phone number</string>
     <string name="optional">optional</string>
+    <string name="phone_number_request_info">If you grant us access to your phone, we can read your phone number. You can also enter it manually or use Qabel without a phone number.</string>
 </resources>

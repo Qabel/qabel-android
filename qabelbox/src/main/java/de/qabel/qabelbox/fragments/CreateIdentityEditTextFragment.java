@@ -1,12 +1,16 @@
 package de.qabel.qabelbox.fragments;
 
+import android.app.Activity;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.text.InputType;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
 import de.qabel.qabelbox.R;
@@ -23,6 +27,8 @@ public class CreateIdentityEditTextFragment extends BaseIdentityFragment {
     private Integer inputType;
     private BaseWizardActivity.NextChecker mChecker;
     private boolean optionalValue;
+
+    private String value;
 
     public static CreateIdentityEditTextFragment newInstance(int messageId, int editTextHintId, BaseWizardActivity.NextChecker checker) {
         return newInstance(messageId, editTextHintId, checker, null);
@@ -50,11 +56,15 @@ public class CreateIdentityEditTextFragment extends BaseIdentityFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle
             savedInstanceState) {
 
-        View view = inflater.inflate(R.layout.fragment_create_identity_edittext, container, false);
+        final View view = inflater.inflate(R.layout.fragment_create_identity_edittext, container, false);
 
         TextView tvMessage = ((TextView) view.findViewById(R.id.tv_message));
-        editText = (EditText) view.findViewById(R.id.et_name);
         tvMessage.setText(mMessageId);
+
+        editText = (EditText) view.findViewById(R.id.et_name);
+        if (value != null) {
+            editText.setText(value);
+        }
         if (!optionalValue) {
             editText.setHint(mEditTextHintId);
         } else {
@@ -63,7 +73,28 @@ public class CreateIdentityEditTextFragment extends BaseIdentityFragment {
         if (inputType != null) {
             editText.setInputType(InputType.TYPE_CLASS_TEXT | inputType);
         }
+        editText.setImeOptions(EditorInfo.IME_ACTION_NEXT);
+        editText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if (actionId == EditorInfo.IME_ACTION_NEXT) {
+                    Activity activity = getActivity();
+                    if (activity != null && activity instanceof BaseWizardActivity) {
+                        ((BaseWizardActivity) activity).handleNextClick();
+                        return true;
+                    }
+                }
+                return false;
+            }
+        });
         return view;
+    }
+
+    public void setValue(String value) {
+        this.value = value;
+        if (editText != null) {
+            editText.setText(value);
+        }
     }
 
     @Override

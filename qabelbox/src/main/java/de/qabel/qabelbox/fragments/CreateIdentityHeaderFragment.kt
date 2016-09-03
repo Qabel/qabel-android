@@ -11,7 +11,7 @@ import kotlinx.android.synthetic.main.fragment_create_identity_header.*
 
 class CreateIdentityHeaderFragment : Fragment() {
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_create_identity_header, container, false)
     }
 
@@ -20,16 +20,18 @@ class CreateIdentityHeaderFragment : Fragment() {
         updateUI(null)
     }
 
-    fun updateUI(name: String?, email: String = "", phone: String = "") {
+    fun updateUI(name: String?, secondLine: String = "", thirdLine: String = "") {
         if (name == null || name.isEmpty()) {
             logo_layout.visibility = View.VISIBLE
-            initial_layout.visibility = View.INVISIBLE
+            initial_layout.visibility = View.GONE
+            layout_top_textlines.visibility = View.GONE
         } else {
-            logo_layout.visibility = View.INVISIBLE
+            logo_layout.visibility = View.GONE
+            layout_top_textlines.visibility = View.VISIBLE
             initial_layout.visibility = View.VISIBLE
 
-            tv_email.setOrGone(email)
-            tv_phone.setOrGone(phone)
+            tv_email.setOrGone(secondLine)
+            tv_phone.setOrGone(thirdLine)
 
             tv_name.text = name
             tv_initial.text = getInitials(name)

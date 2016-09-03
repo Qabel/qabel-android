@@ -89,7 +89,8 @@ public class CreateIdentityUITest {
     }
 
     private void createIdentityPerformConfirm() {
-        onView(withText(R.string.create_identity_final)).check(matches(isDisplayed()));
+        onView(withText(R.string.create_identity_successful)).check(matches(isDisplayed()));
+        onView(withText(R.string.create_identity_final_text)).check(matches(isDisplayed()));
         onView(withText(R.string.finish)).perform(click());
     }
 }

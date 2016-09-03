@@ -21,6 +21,7 @@ import de.qabel.qabelbox.listeners.IdleCallback
 import okhttp3.Response
 import org.jetbrains.anko.ctx
 import org.jetbrains.anko.longToast
+import org.jetbrains.anko.onUiThread
 import org.json.JSONObject
 import java.util.*
 import javax.inject.Inject
@@ -175,8 +176,10 @@ class CreateAccountActivity : BaseWizardActivity() {
         return object : JsonRequestCallback(intArrayOf(200, 201, 400)) {
 
             override fun onError(e: Exception, response: Response?) {
-                dialog.dismiss()
-                runOnUiThread { Toast.makeText(applicationContext, R.string.server_access_failed_or_invalid_check_internet_connection, Toast.LENGTH_LONG).show() }
+                runOnUiThread {
+                    dialog.dismiss()
+                    Toast.makeText(applicationContext, R.string.server_access_failed_or_invalid_check_internet_connection, Toast.LENGTH_LONG).show()
+                }
                 runIdleCallback(true)
             }
 
@@ -200,8 +203,10 @@ class CreateAccountActivity : BaseWizardActivity() {
                     showNextUIThread(dialog)
                 } else {
                     val errorText = generateErrorMessage(result)
-                    dialog.dismiss()
-                    longToast(errorText)
+                    onUiThread {
+                        dialog.dismiss()
+                        longToast(errorText)
+                    }
                 }
                 runIdleCallback(true)
             }

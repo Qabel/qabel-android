@@ -43,14 +43,14 @@
     <string name="message_step_is_needed_or_close_app">%s wird benötigt um Qabel zu benutzen. Möchten Sie Qabel jetzt schließen?</string>
     <string name="contact_count">%d Kontakte</string>
     <string name="contact">Kontakt</string>
-    <string name="contact_deleted">Kontakt mit dem Namen %s gelöscht</string>
+    <string name="entry_deleted">Kontakt mit dem Namen %s gelöscht</string>
     <string name="identity_as_contact_export_successfully">Kontakt exportiert. Sie können diesen Kontakt nun weitergeben.</string>
     <string name="contact_import_failed">Importieren des Kontaktes fehlgeschlagen</string>
     <string name="contact_import_manual_failed">Importieren des Kontaktes fehlgeschlagen. Bitte überprüfen Sie die eingegebenen Daten</string>
     <string name="contact_import_successfull_many">%1$d / %2$d Kontakte importiert</string>
     <string name="contact_import_successfull">Kontakt importiert</string>
     <string name="contact_import_zero_additions">Keine neuen Kontakte gefunden</string>
-   <string name="contact_list_empty">Sie haben noch keine Kontakte.\nBenutzen Sie den Knopf in der Ecke unten rechts, um Kontakte zu importieren</string>
+    <string name="contact_list_empty">Sie haben noch keine Kontakte.\nBenutzen Sie den Knopf in der Ecke unten rechts, um Kontakte zu importieren</string>
     <string name="contact_name">Name des Kontakts</string>
     <string name="contact_public_key">Öffentlicher Schlüssel</string>
     <string name="create_account_email">Bitte geben Sie Ihre E-Mail an. Mit dieser Adresse können Sie Ihren Account zurücksetzen</string>
@@ -76,10 +76,8 @@
     <string name="create_identity_enter_all_data">Bitte füllen Sie alle Felder aus</string>
     <string name="create_identity_enter_name">Bitte geben Sie einen Namen für die Identität ein, zum Beispiel \'Jana\' oder \'Forentroll\'</string>
     <string name="create_identity_enter_name_hint">Alias der Identität</string>
-    <string name="create_identity_final">Sie können diese Identität nun zum Kommunizieren und Hochladen von Dateien verwenden</string>
-    <string name="create_identity_final_create_identity">Ihre Identität ist nun verfügbar</string>
+    <string name="create_identity_final_text">Bitte beachten Sie, dass Ihre Identität aktuell nur auf diesem Gerät zur Verfügung steht und wir keine Kopien auf unseren Servern haben. Exportiere deine Identität und bewahre Sie gut auf. Mit Ihr kannst du auf anderen Geräten Zugriff auf deine Daten zu erhalten.</string>
     <string name="create_identity_import">Importieren einer Identität</string>
-    <string name="create_identity_successfull">Erfolgreich</string>
     <string name="debug_send_feedback">Feedback schreiben</string>
     <string name="debug_send_feedback_to_pm">Sagen Sie uns wie Ihnen Qabel gefällt und welche Vorschläge Sie haben</string>
     <string name="dialog_headline_info">Informationen</string>
@@ -90,7 +88,7 @@
     <string name="direct_input">Manuelle Eingabe</string>
     <string name="dummy_infos_text">Dies ist die Alphaversion von Qabel</string>
     <string name="edit">Bearbeiten</string>
-    <string name="email_adress_invalid">Ihre E-Mail-Adresse ist ungültig. Bitte prüfen Sie die E-Mail-Adresse und versuchen Sie es erneut.</string>
+    <string name="email_address_invalid">Ihre E-Mail-Adresse ist ungültig. Bitte prüfen Sie die E-Mail-Adresse und versuchen Sie es erneut.</string>
     <string name="error_reason_io">Problem beim Lesen oder Schreiben</string>
     <string name="file_list_empty">Der Ordner ist leer. Benutzen Sie den Knopf unten rechts, um Dateien hochzuladen.</string>
     <string name="filebrowser">Dateien</string>
@@ -337,4 +335,7 @@
     <string name="create_identity_enter_phone">Gib eine Telefonnummer ein um von anderen Qabelnutzern gefunden zu werden.</string>
     <string name="skip">Überspringen</string>
     <string name="optional">optional</string>
+    <string name="create_identity_successful">Identität erstellt</string>
+    <string name="phone_number_invalid">Ihre Telefonnummer ist ungültig. Bitte prüfen Sie sie und versuchen Sie es erneut.</string>
+    <string name="phone_number_request_info">Wenn du Qabel Zugriff auf dein Telefon gibst, können wir deine Telefonnummer lesen. Du kannst deine Telefonnummer auch manuell eingeben oder Qabel ohne Telefonnummer verwenden.</string>
 </resources>

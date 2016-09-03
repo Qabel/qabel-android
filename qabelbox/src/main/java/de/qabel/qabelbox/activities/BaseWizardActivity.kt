@@ -42,23 +42,23 @@ abstract class BaseWizardActivity : CrashReportingActivity() {
         super.onCreate(savedInstanceState)
         overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
         setContentView(R.layout.activity_create_identity)
-        setupToolbar()
         createFragments()
     }
 
     override fun onResume() {
         super.onResume()
+        setupToolbar()
         toolbar.setTitle(actionBarTitle)
         if (!canExit) {
-            actionBar.setDisplayHomeAsUpEnabled(false)
+            supportActionBar?.setDisplayHomeAsUpEnabled(false)
         }
     }
 
     private fun setupToolbar() {
         setSupportActionBar(toolbar)
-        actionBar.setDisplayShowHomeEnabled(true)
-        actionBar.setDisplayHomeAsUpEnabled(true)
-        actionBar.setHomeButtonEnabled(true)
+        supportActionBar?.setDisplayShowHomeEnabled(true)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        supportActionBar?.setHomeButtonEnabled(true)
 
         toolbar.setNavigationOnClickListener { onBackPressed() }
     }
@@ -77,7 +77,7 @@ abstract class BaseWizardActivity : CrashReportingActivity() {
             return getString(R.string.create_identity_enter_all_data)
         }
         if (!Formatter.isEMailValid(editText)) {
-            return getString(R.string.email_adress_invalid)
+            return getString(R.string.email_address_invalid)
         }
         return null
     }
@@ -101,8 +101,8 @@ abstract class BaseWizardActivity : CrashReportingActivity() {
                 step--
             }
             if (step == 0 && !canExit) {
-                actionBar!!.setDisplayHomeAsUpEnabled(false)
-                actionBar!!.setDisplayUseLogoEnabled(true)
+                supportActionBar?.setDisplayHomeAsUpEnabled(false)
+                supportActionBar?.setDisplayUseLogoEnabled(true)
             }
             fragmentManager.popBackStack()
             headerFragment.updateUI(headerFragmentText)
@@ -173,8 +173,8 @@ abstract class BaseWizardActivity : CrashReportingActivity() {
         if (step == fragments.size - 1) {
             canExit = true
         }
-        actionBar.setDisplayHomeAsUpEnabled(true)
-        actionBar.setDisplayUseLogoEnabled(false)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        supportActionBar?.setDisplayUseLogoEnabled(false)
 
         headerFragment.updateUI(headerFragmentText, headerSecondLine, headerThirdLine)
         fragmentManager.beginTransaction().replace(R.id.fragment_container_content, fragments[step]).addToBackStack(null).commit()
@@ -193,19 +193,19 @@ abstract class BaseWizardActivity : CrashReportingActivity() {
             nextAction?.isVisible = false
         } else if (step < fragments.size - 1) {
             nextAction?.isVisible = true
-            actionBar?.setDisplayShowHomeEnabled(true)
-            actionBar?.setHomeButtonEnabled(true)
+            supportActionBar?.setDisplayShowHomeEnabled(true)
+            supportActionBar?.setHomeButtonEnabled(true)
             nextAction?.setTitle(R.string.next)
         } else {
             nextAction?.isVisible = true
-            actionBar?.setDisplayHomeAsUpEnabled(false)
-            actionBar?.setDisplayShowTitleEnabled(false)
+            supportActionBar?.setDisplayHomeAsUpEnabled(false)
+            supportActionBar?.setDisplayShowTitleEnabled(false)
             nextAction?.setTitle(R.string.finish)
         }
 
         //update subtitle
         if (step == 0) {
-            actionBar?.subtitle = null
+            supportActionBar?.subtitle = null
         } else if (step < fragments.size - 1) {
             actionBar?.subtitle = getString(R.string.step_x_from_y).
                     replace("$1", step.toString()).

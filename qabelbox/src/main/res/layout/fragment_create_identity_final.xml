@@ -2,38 +2,30 @@
 
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:layout_width="match_parent"
-              android:layout_height="wrap_content"
-              android:layout_alignParentBottom="true"
-              android:layout_marginTop="@dimen/activity_vertical_margin"
-              android:orientation="vertical">
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_alignParentBottom="true"
+    android:layout_marginTop="@dimen/activity_vertical_margin"
+    android:orientation="vertical">
 
     <de.qabel.qabelbox.ui.views.TextViewFont
         android:id="@+id/tv_success"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
         style="@style/MessageText"
-        android:text="@string/create_identity_successfull"
-        android:textStyle="bold"/>
-
-    <Space
         android:layout_width="wrap_content"
-        android:layout_height="20dp"
-        android:layout_weight="1"/>
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:text="@string/create_identity_successful"
+        android:textStyle="bold" />
 
     <de.qabel.qabelbox.ui.views.TextViewFont
         android:id="@+id/tv_message"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-
-        android:minLines="5"
-        android:text="@string/create_identity_final"
-        style="@style/MessageText"/>
-
-    <Space
+        style="@style/ListSecondTextLine"
         android:layout_width="wrap_content"
-        android:layout_height="20dp"
-        android:layout_weight="1"/>
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:gravity="center_horizontal"
+        android:minLines="3"
+        android:text="@string/create_identity_final_text" />
 
 </LinearLayout>
 

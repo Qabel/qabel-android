@@ -19,23 +19,10 @@ public class CreateAccountFinalFragment extends BaseIdentityFragment {
 
     private TextView tvSuccess, tvMessage;
 
-    @Inject
-    IdentityRepository identityRepository;
-
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         QabelBoxApplication.getApplicationComponent(getActivity().getApplicationContext()).inject(this);
-        Identities identities = null;
-        try {
-            identities = identityRepository.findAll();
-        } catch (PersistenceException e) {
-            throw new RuntimeException(e);
-        }
-        if (identities == null || identities.getIdentities().size() == 0) {
-            //no identities available.
-            tvMessage.setText(R.string.create_identity_final_create_identity);
-        }
     }
 
     @Nullable

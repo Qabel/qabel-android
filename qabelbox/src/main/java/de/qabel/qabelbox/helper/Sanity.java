@@ -14,7 +14,7 @@ public class Sanity {
     /**
      * start wizard activities if app not ready to go. If other activity need to start, the current activity finished
      *
-     * @param activity current activity
+     * @param activity   current activity
      * @param identities
      * @return false if no wizard start needed
      */
@@ -24,7 +24,6 @@ public class Sanity {
 
         if (prefs.getToken() == null || prefs.getAccountName() == null) {
             Intent intent = new Intent(activity, CreateAccountActivity.class);
-            intent.putExtra(BaseWizardActivity.FIRST_RUN, true);
             activity.startActivity(intent);
             activity.overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
             activity.finish();
@@ -32,7 +31,6 @@ public class Sanity {
         } else {
             if (identities.getIdentities().size() == 0) {
                 Intent intent = new Intent(activity, CreateIdentityActivity.class);
-                intent.putExtra(BaseWizardActivity.FIRST_RUN, true);
                 activity.startActivity(intent);
                 activity.overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
                 activity.finish();

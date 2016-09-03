@@ -3,7 +3,9 @@ package de.qabel.qabelbox.persistence
 import android.content.Context
 import android.util.Log
 import de.qabel.chat.repository.ChatDropMessageRepository
+import de.qabel.chat.repository.ChatShareRepository
 import de.qabel.chat.repository.sqlite.SqliteChatDropMessageRepository
+import de.qabel.chat.repository.sqlite.SqliteChatShareRepository
 import de.qabel.core.config.factory.DefaultIdentityFactory
 import de.qabel.core.repositories.AndroidClientDatabase
 import de.qabel.core.repository.*
@@ -113,5 +115,8 @@ class RepositoryFactory(private val context: Context) {
 
     fun getDropStateRepository(): DropStateRepository =
             SqliteDropStateRepository(getAndroidClientDatabase(), entityManager)
+
+    fun getChatShareRepository() : ChatShareRepository =
+            SqliteChatShareRepository(getAndroidClientDatabase(), entityManager)
 
 }

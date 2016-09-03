@@ -42,8 +42,6 @@ public class LoginUITest {
                 withText(AccountUITest.ACCOUNT_NAME), not(isEnabled()))));
         onView(withId(R.id.et_password)).check(matches(withText("")));
 
-        // No idea why 2 clicks are needed.
-        onView(withId(R.id.reset_password)).perform(click());
         onView(withId(R.id.reset_password)).perform(click());
 
         onView(withId(R.id.et_email)).check(matches(allOf(

@@ -68,8 +68,8 @@ class IdentitiesFragment : BaseFragment() {
     private fun showBottomSheet(identity: Identity) {
         BottomSheet.Builder(activity).title(identity.alias).sheet(R.menu.bottom_sheet_identities)
                 .listener { dialog, which ->
-                    println(which)
                     when (which) {
+                        R.id.identity_edit -> navigator.selectIdentityDetails(identity)
                         R.id.identities_delete -> {
                             alert({
                                 title(R.string.confirm_delete_identity_header)

@@ -46,7 +46,7 @@ class IdentityUseCaseTest() : CoreTestCase {
         identity.email = "forentroll@banane.de"
         identity.phone = "12345678910"
         useCase.saveIdentity(identity).toBlocking().value()
-        verify(actionSender).sendActionIntentBroadCast(IDENTITY_CHANGED, Pair(KEY_IDENTITY, identity.keyIdentifier))
+        verify(actionSender).sendActionIntentBroadCast(IDENTITY_CHANGED, Pair(KEY_IDENTITY, identity))
         val updated = identityRepo.find(identity.keyIdentifier)
         updated eq identity
     }
@@ -54,7 +54,7 @@ class IdentityUseCaseTest() : CoreTestCase {
     @Test
     fun testDeleteIdentity() {
         useCase.deleteIdentity(identity).toBlocking().value()
-        verify(actionSender).sendActionIntentBroadCast(IDENTITY_REMOVED, Pair(KEY_IDENTITY, identity.keyIdentifier))
+        verify(actionSender).sendActionIntentBroadCast(IDENTITY_REMOVED, Pair(KEY_IDENTITY, identity))
         identityRepo.findAll().contains(identity) eq false
     }
 

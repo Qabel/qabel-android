@@ -1,12 +1,10 @@
 package de.qabel.qabelbox.activities
 
-import android.app.Activity
 import android.app.AlertDialog
 import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
 import android.support.design.widget.FloatingActionButton
-import android.support.design.widget.Snackbar
 import android.support.v7.app.ActionBarDrawerToggle
 import android.support.v7.widget.Toolbar
 import android.util.Log
@@ -43,7 +41,6 @@ import de.qabel.qabelbox.dagger.components.MainActivityComponent
 import de.qabel.qabelbox.dagger.modules.ActivityModule
 import de.qabel.qabelbox.dagger.modules.MainActivityModule
 import de.qabel.qabelbox.fragments.BaseFragment
-import de.qabel.qabelbox.fragments.IdentitiesFragment
 import de.qabel.qabelbox.helper.AccountHelper
 import de.qabel.qabelbox.helper.CacheFileHelper
 import de.qabel.qabelbox.helper.Sanity
@@ -61,7 +58,6 @@ import org.jetbrains.anko.toast
 import javax.inject.Inject
 
 class MainActivity : CrashReportingActivity(),
-        IdentitiesFragment.IdentityListListener,
         HasComponent<MainActivityComponent>,
         TopicManager by FirebaseTopicManager(),
         AnkoLogger {
@@ -112,6 +108,10 @@ class MainActivity : CrashReportingActivity(),
     private var lastBackPressTime = 0L
     private val backPressConfirmInterval = 2000L
 
+    private val profileIconSize: Int
+        get() = ctx.resources.getDimension(
+                R.dimen.material_drawer_item_profile_icon_width).toInt()
+
 
     override val intentListeners = listOf(
             intentListener(QblBroadcastConstants.Account.ACCOUNT_CHANGED, {
@@ -123,21 +123,48 @@ class MainActivity : CrashReportingActivity(),
             intentListener(QblBroadcastConstants.Chat.MESSAGE_STATE_CHANGED, {
                 updateNewMessageBadge()
             }),
-            intentListener(QblBroadcastConstants.Identities.IDENTITY_CHANGED, {
-                val identityKey = it.getStringExtra(QblBroadcastConstants.Identities.KEY_IDENTITY)
-                if (identityKey.equals(activeIdentity.keyIdentifier)) {
-                    activeIdentity = identityRepository.find(identityKey)
+            intentListener(QblBroadcastConstants.Identities.IDENTITY_CHANGED) {
+                val changedIdentity = it.getSerializableExtra(QblBroadcastConstants.Identities.KEY_IDENTITY) as Identity
+                if (changedIdentity.equals(activeIdentity)) {
+                    activeIdentity = changedIdentity
                     drawerAccountHeader.activeProfile.email.text = activeIdentity.email
                     drawerAccountHeader.activeProfile.name.text = activeIdentity.alias
                     drawerAccountHeader.updateProfile(drawerAccountHeader.activeProfile)
                 } else {
-                    val changedIdentity = identityRepository.find(identityKey)
-                    drawerAccountHeader.profiles.find { it.identifier == changedIdentity.id.toLong() }?.apply {
+                    drawerAccountHeader.profiles.find {
+                        it.identifier == changedIdentity.id.toLong()
+                    }?.apply {
+                        val size = profileIconSize
                         withName(changedIdentity.alias)
+                        withIcon(IdentityIconDrawable(
+                                width = size,
+                                height = size,
+                                text = changedIdentity.initials(),
+                                color = changedIdentity.color(ctx)))
                         drawerAccountHeader.updateProfile(this)
                     }
                 }
-            }))
+            },
+            intentListener(QblBroadcastConstants.Identities.IDENTITY_REMOVED) {
+                val deletedIdentity = it.getSerializableExtra(QblBroadcastConstants.Identities.KEY_IDENTITY) as Identity
+                val identities = identityRepository.findAll()
+                deletedIdentity.dropUrls.forEach {
+                    unSubscribe(it)
+                }
+                if (identities.identities.size == 0) {
+                    UIHelper.showDialogMessage(this, R.string.dialog_headline_info,
+                            R.string.last_identity_delete_create_new) { dialog, which ->
+                        this@MainActivity.selectAddIdentityFragment()
+                        this@MainActivity.finish()
+                    }
+                } else if (activeIdentity == deletedIdentity) {
+                    changeActiveIdentity(identities.identities.first())
+                } else {
+                    drawerAccountHeader.profiles.find { it.identifier == deletedIdentity.id.toLong() }?.let {
+                        drawerAccountHeader.removeProfile(it)
+                    }
+                }
+            })
 
     private fun updateNewMessageBadge() {
         val size = messageRepository.findNew(activeIdentity.id).size
@@ -330,14 +357,6 @@ class MainActivity : CrashReportingActivity(),
         return true
     }
 
-    fun addIdentity(identity: Identity) {
-        identityRepository.save(identity)
-        changeActiveIdentity(identity, null)
-        Snackbar.make(appBarMain, "Added identity: " + identity.alias, Snackbar.LENGTH_LONG).show()
-        navigator.selectFilesFragment()
-    }
-
-
     private fun changeActiveIdentity(identity: Identity, intent: Intent? = null) {
         var changeIntent: Intent? = intent
         if (identity != activeIdentity) {
@@ -350,37 +369,6 @@ class MainActivity : CrashReportingActivity(),
             finish()
             overridePendingTransition(R.anim.fade_in, R.anim.fade_out)
             startActivity(changeIntent)
-        }
-    }
-
-    override fun deleteIdentity(identity: Identity) {
-        try {
-            identityRepository.delete(identity)
-            identity.dropUrls.forEach {
-                unSubscribe(it)
-            }
-            if (identityRepository.findAll().identities.size == 0) {
-                UIHelper.showDialogMessage(this, R.string.dialog_headline_info,
-                        R.string.last_identity_delete_create_new) { dialog, which -> this@MainActivity.selectAddIdentityFragment() }
-            } else {
-                try {
-                    changeActiveIdentity(identityRepository.findAll().identities.iterator().next())
-                } catch (e: PersistenceException) {
-                    throw RuntimeException(e)
-                }
-
-            }
-        } catch (e: PersistenceException) {
-            throw RuntimeException(e)
-        }
-
-    }
-
-    override fun modifyIdentity(identity: Identity) {
-        try {
-            identityRepository.save(identity)
-        } catch (e: PersistenceException) {
-            throw RuntimeException(e)
         }
     }
 
@@ -467,17 +455,6 @@ class MainActivity : CrashReportingActivity(),
             }
             drawerAccountHeader = buildAccountHeader()
             withAccountHeader(drawerAccountHeader)
-            withOnDrawerListener(object : Drawer.OnDrawerListener {
-                override fun onDrawerSlide(drawerView: View?, slideOffset: Float) {
-                    updateNewMessageBadge()
-                }
-
-                override fun onDrawerClosed(drawerView: View?) {
-                }
-
-                override fun onDrawerOpened(drawerView: View?) {
-                }
-            })
             withOnDrawerNavigationListener {
                 if (drawer.isDrawerOpen) {
                     drawer.closeDrawer()
@@ -496,8 +473,7 @@ class MainActivity : CrashReportingActivity(),
     }
 
     private fun buildAccountHeader(): AccountHeader {
-        val size = ctx.resources.getDimension(
-                R.dimen.material_drawer_item_profile_icon_width).toInt()
+        val size = profileIconSize
         val identityIcon = { identity: Identity ->
             IdentityIconDrawable(
                     width = size,
@@ -512,7 +488,6 @@ class MainActivity : CrashReportingActivity(),
                 withIdentifier(identity.id.toLong())
                 withName(identity.alias)
                 withIcon(identityIcon(identity))
-                withIdentifier(i.toLong())
             }, identity)
         }.toMap()
         val activeIdentityItem = ProfileDrawerItem().apply {
@@ -557,12 +532,11 @@ class MainActivity : CrashReportingActivity(),
             }
             build()
         }
-        return accountHeader
+        return accountHeader.apply { isSelectionListShown }
     }
 
     private fun selectAddIdentityFragment() {
         val i = Intent(this, CreateIdentityActivity::class.java)
-        finish()
         startActivity(i)
     }
 
@@ -573,7 +547,6 @@ class MainActivity : CrashReportingActivity(),
     companion object {
 
         private val REQUEST_SETTINGS = 17
-        private val REQUEST_CREATE_IDENTITY = 16
         const val REQUEST_EXPORT_IDENTITY = 18
         const val REQUEST_EXTERN_VIEWER_APP = 19
         const val REQUEST_EXTERN_SHARE_APP = 20

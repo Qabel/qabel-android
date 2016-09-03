@@ -15,7 +15,7 @@ import de.qabel.qabelbox.chat.dagger.ChatModule;
 import de.qabel.qabelbox.dagger.modules.FileBrowserModule;
 import de.qabel.qabelbox.dagger.modules.MainActivityModule;
 import de.qabel.qabelbox.dagger.scopes.ActivityScope;
-import de.qabel.qabelbox.fragments.IdentitiesFragment;
+import de.qabel.qabelbox.identity.view.IdentitiesFragment;
 import de.qabel.qabelbox.identity.dagger.IdentityDetailsComponent;
 import de.qabel.qabelbox.identity.dagger.IdentityDetailsModule;
 

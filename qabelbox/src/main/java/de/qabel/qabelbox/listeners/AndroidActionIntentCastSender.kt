@@ -2,6 +2,7 @@ package de.qabel.qabelbox.listeners
 
 import android.content.Context
 import android.content.Intent
+import java.io.Serializable
 
 class AndroidActionIntentCastSender(private val ctx: Context) : ActionIntentSender {
 
@@ -14,6 +15,7 @@ class AndroidActionIntentCastSender(private val ctx: Context) : ActionIntentSend
                     is Long -> putExtra(it.first, it.second as Long)
                     is Boolean -> putExtra(it.first, it.second as Boolean)
                     is IntArray -> putExtra(it.first, it.second as IntArray)
+                    is Serializable -> putExtra(it.first, it.second as Serializable)
                     else -> throw RuntimeException("Invalid broadcast param type ${it.second.javaClass.simpleName}")
                 }
             }

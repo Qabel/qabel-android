@@ -271,7 +271,7 @@ class ContactsFragment() : ContactsView, BaseFragment(), AnkoLogger, SearchView.
 
     override fun showContactDeletedMessage(contact: ContactDto) {
         showMessage(R.string.dialog_headline_info,
-                R.string.contact_deleted,
+                R.string.entry_deleted,
                 contact.contact.alias)
     }
 

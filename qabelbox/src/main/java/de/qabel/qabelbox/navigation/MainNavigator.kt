@@ -8,21 +8,20 @@ import de.qabel.core.config.Identity
 import de.qabel.core.repository.ContactRepository
 import de.qabel.core.repository.IdentityRepository
 import de.qabel.core.repository.exception.EntityNotFoundException
-import de.qabel.core.repository.exception.PersistenceException
 import de.qabel.qabelbox.R
 import de.qabel.qabelbox.activities.CreateAccountActivity
 import de.qabel.qabelbox.activities.MainActivity
 import de.qabel.qabelbox.box.views.FileBrowserFragment
+import de.qabel.qabelbox.chat.view.views.ChatFragment
+import de.qabel.qabelbox.chat.view.views.ChatOverviewFragment
 import de.qabel.qabelbox.contacts.dto.ContactDto
 import de.qabel.qabelbox.contacts.view.views.ContactDetailsFragment
+import de.qabel.qabelbox.contacts.view.views.ContactEditFragment
 import de.qabel.qabelbox.contacts.view.views.ContactsFragment
 import de.qabel.qabelbox.fragments.AboutLicencesFragment
 import de.qabel.qabelbox.fragments.HelpMainFragment
-import de.qabel.qabelbox.fragments.IdentitiesFragment
 import de.qabel.qabelbox.fragments.QRCodeFragment
-import de.qabel.qabelbox.chat.view.views.ChatFragment
-import de.qabel.qabelbox.chat.view.views.ChatOverviewFragment
-import de.qabel.qabelbox.contacts.view.views.ContactEditFragment
+import de.qabel.qabelbox.identity.view.IdentitiesFragment
 import de.qabel.qabelbox.identity.view.IdentityDetailsFragment
 import org.jetbrains.anko.AnkoLogger
 import org.jetbrains.anko.warn
@@ -75,12 +74,8 @@ constructor(var activity: MainActivity,
         FRAGMENT SELECTION METHODS
     */
     override fun selectManageIdentitiesFragment() {
-        try {
-            showFragment(activity, IdentitiesFragment.newInstance(identityRepository.findAll()),
-                    TAG_MANAGE_IDENTITIES_FRAGMENT, true, false)
-        } catch (e: PersistenceException) {
-            throw RuntimeException(e)
-        }
+        showFragment(activity, IdentitiesFragment(),
+                TAG_MANAGE_IDENTITIES_FRAGMENT, true, false)
     }
 
     override fun selectHelpFragment() {

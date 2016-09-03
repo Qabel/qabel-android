@@ -1,6 +1,7 @@
 package de.qabel.qabelbox.dagger.modules;
 
 import android.content.Context;
+import android.support.annotation.Nullable;
 import android.support.v7.app.NotificationCompat;
 
 import javax.inject.Singleton;
@@ -8,15 +9,23 @@ import javax.inject.Singleton;
 import dagger.Module;
 import dagger.Provides;
 import dagger.internal.Factory;
+import de.qabel.box.storage.StorageReadBackend;
 import de.qabel.chat.repository.ChatDropMessageRepository;
+import de.qabel.chat.repository.ChatShareRepository;
 import de.qabel.chat.service.ChatService;
 import de.qabel.chat.service.MainChatService;
+import de.qabel.chat.service.MainSharingService;
+import de.qabel.chat.service.SharingService;
+import de.qabel.core.config.Identities;
+import de.qabel.core.crypto.CryptoUtils;
 import de.qabel.core.http.MainDropConnector;
 import de.qabel.core.http.MainDropServer;
 import de.qabel.core.repository.ContactRepository;
 import de.qabel.core.repository.DropStateRepository;
 import de.qabel.core.repository.IdentityRepository;
+import de.qabel.core.repository.exception.PersistenceException;
 import de.qabel.qabelbox.QabelBoxApplication;
+import de.qabel.qabelbox.box.backends.BoxHttpStorageBackend;
 import de.qabel.qabelbox.chat.notifications.presenter.AndroidChatNotificationPresenter;
 import de.qabel.qabelbox.chat.notifications.ChatNotificationManager;
 import de.qabel.qabelbox.chat.notifications.presenter.ChatNotificationPresenter;
@@ -28,6 +37,7 @@ import de.qabel.qabelbox.identity.interactor.IdentityUseCase;
 import de.qabel.qabelbox.identity.interactor.MainIdentityUseCase;
 import de.qabel.qabelbox.listeners.ActionIntentSender;
 import de.qabel.qabelbox.listeners.AndroidActionIntentCastSender;
+import de.qabel.qabelbox.storage.server.BlockServer;
 
 @Module
 public class ApplicationModule extends ContextModule {
@@ -37,16 +47,20 @@ public class ApplicationModule extends ContextModule {
     }
 
     @Provides
-    ActionIntentSender providesActionIntentSender(Context context){
+    ActionIntentSender providesActionIntentSender(Context context) {
         return new AndroidActionIntentCastSender(context);
     }
 
-    @Singleton @Provides ChatNotificationManager providesChatNotificationManager(
+    @Singleton
+    @Provides
+    ChatNotificationManager providesChatNotificationManager(
             MainChatNotificationManager manager) {
         return manager;
     }
 
-    @Singleton @Provides ChatNotificationPresenter providesChatNotificationPresenter(
+    @Singleton
+    @Provides
+    ChatNotificationPresenter providesChatNotificationPresenter(
             AndroidChatNotificationPresenter presenter) {
         return presenter;
     }
@@ -54,16 +68,33 @@ public class ApplicationModule extends ContextModule {
     @Singleton
     @Provides
     ChatService providesChatService(IdentityRepository identityRepository, ContactRepository contactRepository,
-                                    DropStateRepository dropStateRepository,
+                                    DropStateRepository dropStateRepository, SharingService sharingService,
                                     ChatDropMessageRepository chatDropMessageRepository) {
         return new MainChatService(new MainDropConnector(new MainDropServer()), identityRepository,
-                contactRepository, chatDropMessageRepository, dropStateRepository);
+                contactRepository, chatDropMessageRepository, dropStateRepository, sharingService);
+    }
+
+    @Singleton
+    @Provides
+    SharingService providesSharingService(ChatShareRepository shareRepository, ContactRepository contactRepository,
+                                          IdentityRepository identityRepository,
+                                          BlockServer blockServer) {
+        //TODO ULTRA UGLY HACK
+        String prefix = "";
+        try {
+            Identities identities = identityRepository.findAll();
+            prefix = identities.getIdentities().iterator().next().getPrefixes().get(0);
+        } catch (PersistenceException | NullPointerException e) {
+            e.printStackTrace();
+        }
+        return new MainSharingService(shareRepository, contactRepository, new BoxHttpStorageBackend(blockServer, prefix),
+                new CryptoUtils());
     }
 
     @Singleton
     @Provides
     ChatServiceUseCase providesChatManager(ContactRepository contactRepo, ChatDropMessageRepository chatDropMessageRepository,
-                                           IdentityRepository identityRepo, ChatMessageTransformer msgTransformer){
+                                           IdentityRepository identityRepo, ChatMessageTransformer msgTransformer) {
         return new MainChatServiceUseCase(chatDropMessageRepository, contactRepo, identityRepo, msgTransformer);
     }
 

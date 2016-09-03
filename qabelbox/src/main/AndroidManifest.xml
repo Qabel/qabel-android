@@ -12,6 +12,7 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.AUTHENTICATE_ACCOUNTS"/>
 
+    <!-- Required to read phone number -->
     <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
 
     <permission
@@ -64,7 +65,6 @@
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar"
             android:windowSoftInputMode="stateHidden|adjustResize">>
-
         </activity>
         <activity
             android:name=".activities.CreateAccountActivity"
@@ -105,7 +105,7 @@
             android:launchMode="singleTask"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar"
-            android:windowSoftInputMode="stateHidden|adjustResize">
+            android:windowSoftInputMode="stateAlwaysHidden|adjustResize">
         </activity>
 
         <activity

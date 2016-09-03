@@ -1,7 +1,6 @@
 package de.qabel.qabelbox.fragments
 
 import android.app.Fragment
-import android.content.IntentFilter
 import android.os.Bundle
 import android.support.v7.app.ActionBar
 import de.qabel.core.util.error

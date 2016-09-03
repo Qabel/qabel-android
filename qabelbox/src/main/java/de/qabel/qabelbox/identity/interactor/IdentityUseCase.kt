@@ -4,6 +4,7 @@ import de.qabel.core.config.Identities
 import de.qabel.core.config.Identity
 import de.qabel.core.drop.DropURL
 import rx.Single
+import java.io.FileDescriptor
 
 interface IdentityUseCase {
 
@@ -15,5 +16,7 @@ interface IdentityUseCase {
 
     fun saveIdentity(identity: Identity): Single<Unit>
     fun deleteIdentity(identity: Identity): Single<Unit>
+
+    fun importIdentity(file: FileDescriptor): Single<Identity>
 
 }

@@ -1,5 +1,6 @@
 package de.qabel.qabelbox.ui;
 
+import android.os.Build;
 import android.os.PowerManager;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.rule.ActivityTestRule;
@@ -74,6 +75,13 @@ public class CreateIdentityUITest {
         wakeLock = UIActionHelper.wakeupDevice(mActivity);
         mSystemAnimations = new SystemAnimations(mActivity);
         mSystemAnimations.disableAll();
+
+        //TODO TMP Fix option
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            InstrumentationRegistry.getInstrumentation().getUiAutomation().executeShellCommand(
+                    "pm grant " + InstrumentationRegistry.getTargetContext().getPackageName()
+                            + " android.permission.READ_PHONE_STATE");
+        }
     }
 
 

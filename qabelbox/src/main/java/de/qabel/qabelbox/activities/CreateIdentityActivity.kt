@@ -86,7 +86,8 @@ class CreateIdentityActivity : BaseWizardActivity(), QblLogger {
         if (permissionCheck != PackageManager.PERMISSION_GRANTED) {
             if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.READ_PHONE_STATE)) {
                 alert(R.string.dialog_headline_info, R.string.phone_number_request_info, {
-
+                    positiveButton(R.string.yes) { tryReadPhoneNumber() }
+                    negativeButton(R.string.no) { READ_PHONE_STATE_DENIED = true }
                 })
             } else {
                 ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.READ_PHONE_STATE), REQUEST_READ_PHONE_STATE)

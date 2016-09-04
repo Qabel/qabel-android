@@ -203,6 +203,8 @@ abstract class BaseWizardActivity : CrashReportingActivity() {
             nextAction?.setTitle(R.string.finish)
         }
 
+        supportActionBar?.title = getString(actionBarTitle)
+
         //update subtitle
         if (step == 0) {
             supportActionBar?.subtitle = null

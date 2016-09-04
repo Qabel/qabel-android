@@ -84,10 +84,15 @@ public class CreateAccountLoginFragment extends BaseIdentityFragment {
     @Override
     public void onResume() {
         super.onResume();
+        setCustomTitle();
+    }
+
+    private void setCustomTitle(){
         if (getActivity() != null && getActivity() instanceof BaseWizardActivity) {
             ActionBar toolbar = ((BaseWizardActivity) getActivity()).getSupportActionBar();
             if (toolbar != null) {
                 toolbar.setTitle(R.string.login);
+                toolbar.setDisplayHomeAsUpEnabled(accountName == null || accountName.isEmpty());
             }
         }
     }
@@ -99,14 +104,13 @@ public class CreateAccountLoginFragment extends BaseIdentityFragment {
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-
         menu.clear();
         inflater.inflate(R.menu.ab_next, menu);
+        setCustomTitle();
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-
         int id = item.getItemId();
         if (id == R.id.action_ok) {
             String check = checkData();

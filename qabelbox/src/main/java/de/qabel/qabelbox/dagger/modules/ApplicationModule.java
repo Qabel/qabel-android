@@ -79,7 +79,9 @@ public class ApplicationModule extends ContextModule {
     SharingService providesSharingService(ChatShareRepository shareRepository, ContactRepository contactRepository,
                                           IdentityRepository identityRepository,
                                           BlockServer blockServer) {
-        //TODO ULTRA UGLY HACK
+        /*
+        * TODO ULTRA UGLY HACK fix in incoming sharing pr
+        */
         String prefix = "";
         try {
             Identities identities = identityRepository.findAll();

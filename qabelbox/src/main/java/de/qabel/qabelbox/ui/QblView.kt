@@ -1,6 +1,6 @@
 package de.qabel.qabelbox.ui
 
-import de.qabel.core.util.QblLogger
+import de.qabel.core.logging.QblLogger
 
 interface QblView : QblLogger {
 

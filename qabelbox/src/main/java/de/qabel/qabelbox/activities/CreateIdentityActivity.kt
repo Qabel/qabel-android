@@ -16,9 +16,9 @@ import com.google.i18n.phonenumbers.NumberParseException
 import de.qabel.core.config.Identities
 import de.qabel.core.config.Identity
 import de.qabel.core.config.factory.DropUrlGenerator
-import de.qabel.core.util.QblLogger
-import de.qabel.core.util.error
-import de.qabel.core.util.info
+import de.qabel.core.logging.QblLogger
+import de.qabel.core.logging.error
+import de.qabel.core.logging.info
 import de.qabel.qabelbox.QabelBoxApplication
 import de.qabel.qabelbox.R
 import de.qabel.qabelbox.TestConstants

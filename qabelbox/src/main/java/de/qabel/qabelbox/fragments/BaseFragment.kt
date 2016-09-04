@@ -3,7 +3,7 @@ package de.qabel.qabelbox.fragments
 import android.app.Fragment
 import android.os.Bundle
 import android.support.v7.app.ActionBar
-import de.qabel.core.util.error
+import de.qabel.core.logging.error
 import de.qabel.qabelbox.R
 import de.qabel.qabelbox.activities.MainActivity
 import de.qabel.qabelbox.dagger.HasComponent

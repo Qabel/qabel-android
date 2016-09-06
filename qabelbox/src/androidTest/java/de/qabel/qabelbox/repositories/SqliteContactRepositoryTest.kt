@@ -207,7 +207,7 @@ class SqliteContactRepositoryTest {
         assertSame(contact, loaded)
     }
 
-    @Test(expected = EntityExistsException::class)
+    @Test
     fun addsRelationshipIfContactIsAlreadyPresent() {
         contactRepo.save(contact, identity)
 

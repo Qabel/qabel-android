@@ -77,20 +77,8 @@ public class ApplicationModule extends ContextModule {
     @Singleton
     @Provides
     SharingService providesSharingService(ChatShareRepository shareRepository, ContactRepository contactRepository,
-                                          IdentityRepository identityRepository,
-                                          BlockServer blockServer) {
-        /*
-        * TODO ULTRA UGLY HACK fix in incoming sharing pr
-        */
-        String prefix = "";
-        try {
-            Identities identities = identityRepository.findAll();
-            prefix = identities.getIdentities().iterator().next().getPrefixes().get(0);
-        } catch (PersistenceException | NullPointerException e) {
-            e.printStackTrace();
-        }
-        return new MainSharingService(shareRepository, contactRepository, new BoxHttpStorageBackend(blockServer, prefix),
-                new CryptoUtils());
+                                          Context context) {
+        return new MainSharingService(shareRepository, contactRepository, context.getCacheDir(), new CryptoUtils());
     }
 
     @Singleton

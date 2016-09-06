@@ -16,7 +16,7 @@ import com.google.i18n.phonenumbers.NumberParseException
 import de.qabel.core.config.Identities
 import de.qabel.core.config.Identity
 import de.qabel.core.config.factory.DropUrlGenerator
-import de.qabel.core.logging.QblLogger
+import de.qabel.core.logging.QabelLog
 import de.qabel.core.logging.error
 import de.qabel.core.logging.info
 import de.qabel.qabelbox.QabelBoxApplication
@@ -38,7 +38,7 @@ import org.json.JSONException
 import org.json.JSONObject
 import javax.inject.Inject
 
-class CreateIdentityActivity : BaseWizardActivity(), QblLogger {
+class CreateIdentityActivity : BaseWizardActivity(), QabelLog {
 
     private val TAG = this.javaClass.simpleName
     private val REQUEST_READ_PHONE_STATE = 1

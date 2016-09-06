@@ -12,7 +12,7 @@ import org.spongycastle.jce.provider.BouncyCastleProvider;
 import java.security.Security;
 
 import de.qabel.core.logging.AndroidLoggerWrapper;
-import de.qabel.core.logging.QblLoggerManager;
+import de.qabel.core.logging.QabelLoggerManager;
 import de.qabel.qabelbox.chat.services.AndroidChatServiceResponder;
 import de.qabel.qabelbox.dagger.components.ApplicationComponent;
 import de.qabel.qabelbox.dagger.components.DaggerApplicationComponent;
@@ -31,7 +31,7 @@ public class QabelBoxApplication extends Application {
         // Enforce SpongyCastle as JCE provider
         Security.insertProviderAt(new BouncyCastleProvider(), 1);
         //Set android logging adapter
-        QblLoggerManager.INSTANCE.setFactory(AndroidLoggerWrapper.Factory.INSTANCE);
+        QabelLoggerManager.INSTANCE.setFactory(AndroidLoggerWrapper.Factory.INSTANCE);
     }
 
     @Override

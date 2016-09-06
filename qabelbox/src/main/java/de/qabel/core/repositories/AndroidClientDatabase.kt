@@ -2,7 +2,7 @@ package de.qabel.core.repositories
 
 import de.qabel.chat.repository.sqlite.migration.Migration1460997040ChatDropMessage
 import de.qabel.chat.repository.sqlite.migration.Migration1460997041ChatShares
-import de.qabel.core.logging.QblLogger
+import de.qabel.core.logging.QabelLog
 import de.qabel.core.logging.trace
 import de.qabel.core.repository.sqlite.AbstractClientDatabase
 import de.qabel.core.repository.sqlite.ClientDatabase
@@ -12,7 +12,7 @@ import java.sql.Connection
 import java.sql.PreparedStatement
 import java.sql.SQLException
 
-class AndroidClientDatabase(connection: Connection) : AbstractClientDatabase(connection), ClientDatabase, QblLogger {
+class AndroidClientDatabase(connection: Connection) : AbstractClientDatabase(connection), ClientDatabase, QabelLog {
 
     private val versionAdapter = AndroidVersionAdapter(connection)
 

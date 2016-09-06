@@ -1,8 +1,8 @@
 package de.qabel.qabelbox.ui
 
-import de.qabel.core.logging.QblLogger
+import de.qabel.core.logging.QabelLog
 
-interface QblView : QblLogger {
+interface QblView : QabelLog {
 
     fun showDefaultError(throwable: Throwable)
 

@@ -1,11 +1,12 @@
 package de.qabel.core.logging
 
 import android.util.Log
+import de.qabel.core.logging.QabelLoggerManager.QabelLoggerFactory
 
-class AndroidLoggerWrapper(clazz: Class<*>) : QblLoggerWrapper {
+class AndroidLoggerWrapper(clazz: Class<*>) : QabelLoggerWrapper {
 
-    object Factory : QblLoggerFactory {
-        override fun <T> createLogger(clazz: Class<T>): QblLoggerWrapper =
+    object Factory : QabelLoggerFactory {
+        override fun <T> createLogger(clazz: Class<T>): QabelLoggerWrapper =
                 AndroidLoggerWrapper(clazz)
     }
 

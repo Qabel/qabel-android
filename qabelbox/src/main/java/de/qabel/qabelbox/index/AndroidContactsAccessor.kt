@@ -1,9 +1,12 @@
 package de.qabel.qabelbox.index
 
 import android.content.Context
-import android.provider.ContactsContract
+import android.provider.ContactsContract.CommonDataKinds.Email
+import android.provider.ContactsContract.CommonDataKinds.Phone
 import android.provider.ContactsContract.Contacts
-import java.util.*
+import com.google.i18n.phonenumbers.NumberParseException
+import de.qabel.qabelbox.helper.Formatter
+import de.qabel.qabelbox.helper.formatPhoneNumber
 
 class AndroidContactsAccessor(private val context: Context) : ExternalContactsAccessor {
 
@@ -24,37 +27,41 @@ class AndroidContactsAccessor(private val context: Context) : ExternalContactsAc
 
                     val contactName = if (primaryName?.isEmpty() ?: false) primaryName else name
 
-                    val phones = LinkedList<String>()
-
+                    val phones = mutableListOf<String>()
                     if (contactCursor.getInt(contactCursor.getColumnIndex(Contacts.HAS_PHONE_NUMBER)) > 0) {
-                        contentResolver.query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
-                                null, ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = ?",
+                        contentResolver.query(Phone.CONTENT_URI, null, Phone.CONTACT_ID + " = ?",
                                 arrayOf<String>(id), null).use {
                             while (it.moveToNext()) {
-                                val phoneNo = it.getString(it.getColumnIndex(
-                                        ContactsContract.CommonDataKinds.Phone.NUMBER))
-                                //TODO normalize with formatter
-                                phones.add(phoneNo)
+                                val phoneNo = it.getString(it.getColumnIndex(Phone.NUMBER))
+                                if (!phoneNo.isEmpty()) {
+                                    try {
+                                        val normalized = formatPhoneNumber(phoneNo)
+                                        if (!phones.contains(normalized)) {
+                                            phones.add(normalized)
+                                        }
+                                    } catch (ex: NumberParseException) {
+                                        //Ignore invalid numbers
+                                    }
+                                }
                             }
                         }
                     }
 
-                    val emails = LinkedList<String>()
-                    contentResolver.query(ContactsContract.CommonDataKinds.Email.CONTENT_URI,
-                            null, ContactsContract.CommonDataKinds.Email.CONTACT_ID + " = ?",
+                    val emails = mutableListOf<String>()
+                    contentResolver.query(Email.CONTENT_URI, null, Email.CONTACT_ID + " = ?",
                             arrayOf<String>(id), null).use {
                         while (it.moveToNext()) {
-                            val mail = it.getString(it.getColumnIndex(
-                                    ContactsContract.CommonDataKinds.Email.ADDRESS))
-                            //TODO check/validate
-                            emails.add(mail)
+                            val mail = it.getString(it.getColumnIndex(Email.ADDRESS))
+                            if (Formatter.isEMailValid(mail) && !emails.contains(mail)) {
+                                emails.add(mail)
+                            }
                         }
                     }
                     if (!emails.isEmpty() || !phones.isEmpty()) {
                         if (rawContacts.containsKey(contactName)) {
-                            rawContacts[contactName].let {
-                                emails.addAll(emails)
-                                phones.addAll(phones)
+                            rawContacts[contactName]?.let {
+                                it.emailAddresses.addAll(emails)
+                                it.mobilePhoneNumbers.addAll(phones)
                             }
                         } else {
                             rawContacts.put(contactName, RawContact(contactName, phones, emails, id))

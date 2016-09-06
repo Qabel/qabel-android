@@ -8,5 +8,5 @@ import java.util.*
 fun formatPhoneNumber(phone: String): String {
     val phoneUtil = PhoneNumberUtil.getInstance()
     val parsedPhone = phoneUtil.parse(phone, Locale.getDefault().country)
-    return PhoneNumberUtil.getInstance().format(parsedPhone, PhoneNumberUtil.PhoneNumberFormat.INTERNATIONAL)
+    return phoneUtil.format(parsedPhone, PhoneNumberUtil.PhoneNumberFormat.INTERNATIONAL)
 }

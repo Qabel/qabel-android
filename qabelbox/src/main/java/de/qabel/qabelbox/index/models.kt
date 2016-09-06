@@ -4,9 +4,9 @@ import de.qabel.core.index.FieldType
 
 //TODO coreable
 data class RawContact(val displayName: String,
-                      val mobilePhoneNumbers: List<String>,
-                      val emailAddresses: List<String>,
-                      val identifier: String? = null //external identifier
+                      val mobilePhoneNumbers: MutableList<String>,
+                      val emailAddresses: MutableList<String>,
+                      val identifier: String //external identifier
 )
 
 enum class EntryStatus {

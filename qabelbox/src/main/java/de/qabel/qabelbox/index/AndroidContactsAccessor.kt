@@ -3,22 +3,29 @@ package de.qabel.qabelbox.index
 import android.content.Context
 import android.provider.ContactsContract
 import android.provider.ContactsContract.Contacts
+import java.util.*
 
-class AndroidContactsConnector(private val context: Context) : ExternalContactsAccessor {
+class AndroidContactsAccessor(private val context: Context) : ExternalContactsAccessor {
 
     override fun getContacts(): List<RawContact> {
-        val rawContacts = mutableListOf<RawContact>()
+        val rawContacts: MutableMap<String, RawContact> = mutableMapOf()
         val contentResolver = context.contentResolver
         contentResolver.query(Contacts.CONTENT_URI,
                 null, null, null, null).use { contactCursor ->
+            println("COUNT: " + contactCursor.count)
             if (contactCursor.count > 0) {
                 while (contactCursor.moveToNext()) {
                     val id = contactCursor.getString(
                             contactCursor.getColumnIndex(Contacts._ID))
                     val name = contactCursor.getString(contactCursor.getColumnIndex(
                             Contacts.DISPLAY_NAME))
+                    val primaryName = contactCursor.getString(contactCursor.getColumnIndex(
+                            Contacts.DISPLAY_NAME_PRIMARY))
 
-                    val phones = mutableListOf<String>()
+                    val contactName = if (primaryName?.isEmpty() ?: false) primaryName else name
+
+                    val phones = LinkedList<String>()
+
                     if (contactCursor.getInt(contactCursor.getColumnIndex(Contacts.HAS_PHONE_NUMBER)) > 0) {
                         contentResolver.query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
                                 null, ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = ?",
@@ -32,7 +39,7 @@ class AndroidContactsConnector(private val context: Context) : ExternalContactsA
                         }
                     }
 
-                    val emails = mutableListOf<String>()
+                    val emails = LinkedList<String>()
                     contentResolver.query(ContactsContract.CommonDataKinds.Email.CONTENT_URI,
                             null, ContactsContract.CommonDataKinds.Email.CONTACT_ID + " = ?",
                             arrayOf<String>(id), null).use {
@@ -44,12 +51,22 @@ class AndroidContactsConnector(private val context: Context) : ExternalContactsA
                         }
                     }
                     if (!emails.isEmpty() || !phones.isEmpty()) {
-                        rawContacts.add(RawContact(name, phones, emails, id))
+                        if (rawContacts.containsKey(contactName)) {
+                            rawContacts[contactName].let {
+                                emails.addAll(emails)
+                                phones.addAll(phones)
+                            }
+                        } else {
+                            rawContacts.put(contactName, RawContact(contactName, phones, emails, id))
+                        }
+                    } else {
+                        println("ignoring contact $contactName")
                     }
                 }
             }
         }
-        return rawContacts
+        println("RESULT COUNT ${rawContacts.size}")
+        return rawContacts.values.sortedBy { it.displayName }
     }
 
 }

@@ -1,35 +1,36 @@
 package de.qabel.qabelbox.index
 
 import android.content.Context
+import android.database.Cursor
 import android.provider.ContactsContract.CommonDataKinds.Email
 import android.provider.ContactsContract.CommonDataKinds.Phone
 import android.provider.ContactsContract.Contacts
+import android.provider.ContactsContract.Contacts.*
 import com.google.i18n.phonenumbers.NumberParseException
 import de.qabel.qabelbox.helper.Formatter
 import de.qabel.qabelbox.helper.formatPhoneNumber
 
 class AndroidContactsAccessor(private val context: Context) : ExternalContactsAccessor {
 
+    private fun Cursor.getString(columnName: String): String = getString(getColumnIndex(columnName))
+    private fun Cursor.getInt(columnName: String): Int = getInt(getColumnIndex(columnName))
+
     override fun getContacts(): List<RawContact> {
         val rawContacts: MutableMap<String, RawContact> = mutableMapOf()
         val contentResolver = context.contentResolver
-        contentResolver.query(Contacts.CONTENT_URI,
+        contentResolver.query(CONTENT_URI,
                 null, null, null, null).use { contactCursor ->
             if (contactCursor.count > 0) {
                 while (contactCursor.moveToNext()) {
-                    val id = contactCursor.getString(
-                            contactCursor.getColumnIndex(Contacts._ID))
-                    val name = contactCursor.getString(contactCursor.getColumnIndex(
-                            Contacts.DISPLAY_NAME))
-                    val primaryName = contactCursor.getString(contactCursor.getColumnIndex(
-                            Contacts.DISPLAY_NAME_PRIMARY))
+                    val id = contactCursor.getString(_ID)
+                    val name = contactCursor.getString(DISPLAY_NAME)
+                    val primaryName = contactCursor.getString(DISPLAY_NAME_PRIMARY)
 
-                    val contactName = if (primaryName?.isEmpty() ?: false) primaryName else name
-
-                    val hasPhoneNumber = contactCursor.getInt(contactCursor.getColumnIndex(Contacts.HAS_PHONE_NUMBER)) > 0
+                    val contactName = if (!primaryName.isEmpty()) primaryName else name
+                    val hasPhoneNumber = contactCursor.getInt(HAS_PHONE_NUMBER) > 0
 
                     val phones: MutableList<String> = if (hasPhoneNumber) queryContactPhones(id) else mutableListOf()
-                    val emails = queryContactEmails(id)
+                    val emails: MutableList<String> = queryContactEmails(id)
 
                     if (!emails.isEmpty() || !phones.isEmpty()) {
                         if (rawContacts.containsKey(contactName)) {
@@ -46,7 +47,13 @@ class AndroidContactsAccessor(private val context: Context) : ExternalContactsAc
                 }
             }
         }
-        println("RESULT COUNT ${rawContacts.size}")
+        val allValues = rawContacts.values.flatMap {
+            mutableListOf<String>().apply {
+                addAll(it.emailAddresses)
+                addAll(it.mobilePhoneNumbers)
+            }
+        }
+        println("RESULT COUNT ${rawContacts.size} ${allValues.size}")
         return rawContacts.values.sortedBy { it.displayName }
     }
 

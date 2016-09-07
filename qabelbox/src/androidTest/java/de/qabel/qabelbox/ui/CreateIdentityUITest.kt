@@ -26,33 +26,26 @@ import org.junit.Test
 class CreateIdentityUITest : UITest {
 
     @Rule
+    @JvmField
     var mActivityTestRule = ActivityTestRule(CreateIdentityActivity::class.java, false, false)
 
+    private lateinit var helper: UIBoxHelper
     private var mActivity: CreateIdentityActivity? = null
-    private var helper: UIBoxHelper? = null
     private var wakeLock: PowerManager.WakeLock? = null
     private var mSystemAnimations: SystemAnimations? = null
 
     @After
     fun cleanUp() {
-
-        if (wakeLock != null) {
-            wakeLock!!.release()
-        }
-        if (mSystemAnimations != null) {
-            mSystemAnimations!!.enableAll()
-        }
+        wakeLock?.release()
+        mSystemAnimations?.enableAll()
     }
-
 
     @Before
     @Throws(Exception::class)
     fun setUp() {
-
         helper = UIBoxHelper(InstrumentationRegistry.getTargetContext())
-        helper!!.setTestAccount()
-        helper!!.removeAllIdentities()
-
+        helper.setTestAccount()
+        helper.removeAllIdentities()
 
         URLs.setBaseBlockURL(TestConstants.BLOCK_URL)
         URLs.setBaseAccountingURL(TestConstants.ACCOUNTING_URL)
@@ -60,7 +53,7 @@ class CreateIdentityUITest : UITest {
         mActivity = mActivityTestRule.launchActivity(null)
         wakeLock = UIActionHelper.wakeupDevice(mActivity)
         mSystemAnimations = SystemAnimations(mActivity)
-        mSystemAnimations!!.disableAll()
+        mSystemAnimations?.disableAll()
 
         //TODO TMP Fix option
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -69,7 +62,6 @@ class CreateIdentityUITest : UITest {
                             + " android.permission.READ_PHONE_STATE")
         }
     }
-
 
     @Test
     fun testCreateIdentity() {
@@ -127,7 +119,7 @@ class CreateIdentityUITest : UITest {
     private fun createIdentityEnterPhone(phone: String) {
         onViewVisibleText(string.create_identity_enter_phone)
         UITestHelper.screenShot(UITestHelper.getCurrentActivity(mActivity), "input")
-        enterText(R.string.edit, phone)
+        enterText(R.id.edit_text, phone)
         performClickText(string.next)
     }
 

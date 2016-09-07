@@ -137,7 +137,7 @@ class CreateIdentityActivity : BaseWizardActivity(), QabelLog {
     }
 
     private fun tryReadPhoneNumber() {
-        if (isPermissionGranted(this, READ_PHONE_STATE)) {
+        if (!isPermissionGranted(this, READ_PHONE_STATE)) {
             if (shouldShowRequestPermissionRationale(READ_PHONE_STATE)) {
                 alert(R.string.dialog_headline_info, R.string.phone_number_request_info, {
                     positiveButton(R.string.yes) { tryReadPhoneNumber() }

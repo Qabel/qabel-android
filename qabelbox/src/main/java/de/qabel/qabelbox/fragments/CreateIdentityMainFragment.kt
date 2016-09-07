@@ -11,7 +11,7 @@ import de.qabel.qabelbox.QabelBoxApplication
 import de.qabel.qabelbox.R
 import de.qabel.qabelbox.activities.CreateIdentityActivity
 import de.qabel.qabelbox.identity.interactor.IdentityUseCase
-import kotlinx.android.synthetic.main.fragment_create_identity_main.*
+import kotlinx.android.synthetic.main.fragment_create_identity_main.view.*
 import org.jetbrains.anko.longToast
 import org.jetbrains.anko.toast
 import javax.inject.Inject
@@ -28,10 +28,10 @@ class CreateIdentityMainFragment : BaseIdentityFragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.fragment_create_identity_main, container, false)
-        bt_create_identity.setOnClickListener {
+        view.bt_create_identity.setOnClickListener {
             mActivity.handleNextClick()
         }
-        bt_import_identity.setOnClickListener {
+        view.bt_import_identity.setOnClickListener {
             val intent = Intent(Intent.ACTION_OPEN_DOCUMENT)
             intent.addCategory(Intent.CATEGORY_OPENABLE)
             intent.type = "*/*"

@@ -1,6 +1,8 @@
 package de.qabel.qabelbox.identity.view.presenter
 
+import android.telephony.PhoneNumberUtils
 import com.google.i18n.phonenumbers.NumberParseException
+import com.google.i18n.phonenumbers.PhoneNumberUtil
 import de.qabel.core.config.Identity
 import de.qabel.core.logging.QabelLog
 import de.qabel.core.logging.error
@@ -52,7 +54,7 @@ class MainIdentityDetailsPresenter @Inject constructor(private val view: Identit
 
     override fun onSavePhoneNumber(phoneNumber: String) {
         identity?.let {
-            if (!phoneNumber.isEmpty()) {
+            if (!phoneNumber.isEmpty() && !PhoneNumberUtils.isGlobalPhoneNumber(phoneNumber)) {
                 try {
                     val formatted = formatPhoneNumber(phoneNumber)
                     it.phone = formatted

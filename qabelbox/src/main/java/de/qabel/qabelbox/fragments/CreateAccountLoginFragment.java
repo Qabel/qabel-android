@@ -6,12 +6,14 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.ActionBar;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -57,6 +59,15 @@ public class CreateAccountLoginFragment extends BaseIdentityFragment {
             etUserName.setEnabled(false);
         }
         etPassword = (EditText) view.findViewById(R.id.et_password);
+        etPassword.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if (actionId == EditorInfo.IME_ACTION_GO) {
+                    return doLogin();
+                }
+                return false;
+            }
+        });
         resetPassword = view.findViewById(R.id.reset_password);
 
         resetPassword.setOnClickListener(new View.OnClickListener() {
@@ -82,12 +93,19 @@ public class CreateAccountLoginFragment extends BaseIdentityFragment {
     }
 
     @Override
+    public void onDestroy() {
+        mBoxAccountServer.onDestroy();
+        mBoxAccountServer = null;
+        super.onDestroy();
+    }
+
+    @Override
     public void onResume() {
         super.onResume();
         setCustomTitle();
     }
 
-    private void setCustomTitle(){
+    private void setCustomTitle() {
         if (getActivity() != null && getActivity() instanceof BaseWizardActivity) {
             ActionBar toolbar = ((BaseWizardActivity) getActivity()).getSupportActionBar();
             if (toolbar != null) {
@@ -113,16 +131,20 @@ public class CreateAccountLoginFragment extends BaseIdentityFragment {
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         if (id == R.id.action_ok) {
-            String check = checkData();
-            if (check != null) {
-                UIHelper.showDialogMessage(getActivity(), R.string.dialog_headline_info, check);
-                return true;
-            }
-            login(etUserName.getText().toString(), etPassword.getText().toString());
-            return true;
+            return doLogin();
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    private boolean doLogin() {
+        String check = checkData();
+        if (check != null) {
+            UIHelper.showDialogMessage(getActivity(), R.string.dialog_headline_info, check);
+            return false;
+        }
+        login(etUserName.getText().toString(), etPassword.getText().toString());
+        return true;
     }
 
     private String checkData() {

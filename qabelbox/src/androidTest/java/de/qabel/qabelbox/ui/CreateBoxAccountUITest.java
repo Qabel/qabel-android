@@ -53,7 +53,7 @@ import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.endsWith;
 import static org.hamcrest.Matchers.is;
 
-@Ignore("The Wizzard leaks the activity")
+@Ignore("TODO Replace communication with mock, convert and improve uitest code")
 public class CreateBoxAccountUITest {
 
     @Rule

@@ -74,18 +74,22 @@ class CreateIdentityMainFragment : BaseIdentityFragment(), View.OnClickListener 
                             completeWizard()
                         }
                     }, {
-                        throw it
+                        showImportError(it)
                     })
                 }
             } catch (e: Throwable) {
-                when (e) {
-                    is EntityExistsException ->
-                        longToast(R.string.create_identity_already_exists)
-                    else ->
-                        longToast(R.string.cant_read_identity)
-                }
+                showImportError(e)
             }
         }
+    }
+
+    private fun showImportError(ex: Throwable) {
+        longToast(when (ex) {
+            is EntityExistsException ->
+                R.string.create_identity_already_exists
+            else ->
+                R.string.cant_read_identity
+        })
     }
 }
 

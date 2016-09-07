@@ -2,6 +2,8 @@ package de.qabel.qabelbox.identity.view.presenter
 
 import com.google.i18n.phonenumbers.NumberParseException
 import de.qabel.core.config.Identity
+import de.qabel.core.logging.QabelLog
+import de.qabel.core.logging.error
 import de.qabel.qabelbox.R
 import de.qabel.qabelbox.helper.Formatter
 import de.qabel.qabelbox.helper.formatPhoneNumber
@@ -12,7 +14,7 @@ import javax.inject.Inject
 
 class MainIdentityDetailsPresenter @Inject constructor(private val view: IdentityDetailsView,
                                                        private val identityUseCase: IdentityUseCase,
-                                                       private val navigator: Navigator) : IdentityDetailsPresenter {
+                                                       private val navigator: Navigator) : IdentityDetailsPresenter, QabelLog {
 
     override var identity: Identity? = null
 
@@ -21,6 +23,7 @@ class MainIdentityDetailsPresenter @Inject constructor(private val view: Identit
             identity = it
             view.loadIdentity(it)
         }, {
+            error("Error loading identity ${view.identityKeyId} ", it)
             view.showDefaultError(it)
         })
     }
@@ -30,7 +33,7 @@ class MainIdentityDetailsPresenter @Inject constructor(private val view: Identit
             view.showIdentitySavedToast()
             view.loadIdentity(identity)
         }, {
-            it.printStackTrace()
+            error("Saving identity failed!", it)
             view.showSaveFailed()
         })
     }

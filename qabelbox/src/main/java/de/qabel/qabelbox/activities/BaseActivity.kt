@@ -10,7 +10,7 @@ import de.qabel.qabelbox.listeners.toIntentFilter
 
 abstract class BaseActivity : AppCompatActivity() {
 
-    protected open val intentListeners = emptyList <IntentListener>()
+    protected open val intentListeners = emptyList<IntentListener>()
 
     val applicationComponent: ApplicationComponent
         get() = QabelBoxApplication.getApplicationComponent(applicationContext)

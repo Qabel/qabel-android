@@ -21,7 +21,7 @@ import de.qabel.qabelbox.ui.helper.SystemAnimations;
 import de.qabel.qabelbox.ui.helper.UIActionHelper;
 import de.qabel.qabelbox.ui.helper.UIBoxHelper;
 
-public class AbstractUITest {
+public class AbstractUITest implements UITest {
     @Rule
     public IntentsTestRule<MainActivity> mActivityTestRule =
             new MainActivityWithoutFilesFragmentTestRule(false);

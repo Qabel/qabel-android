@@ -1,11 +1,11 @@
 package de.qabel.qabelbox.activities
 
 import android.Manifest
+import android.Manifest.permission.READ_PHONE_STATE
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
-import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
 import android.telephony.TelephonyManager
 import android.text.InputType
@@ -30,6 +30,8 @@ import de.qabel.qabelbox.fragments.CreateIdentityFinalFragment
 import de.qabel.qabelbox.fragments.CreateIdentityMainFragment
 import de.qabel.qabelbox.helper.formatPhoneNumber
 import de.qabel.qabelbox.identity.interactor.IdentityUseCase
+import de.qabel.qabelbox.ui.extensions.isPermissionGranted
+import de.qabel.qabelbox.ui.extensions.requestPermission
 import okhttp3.Response
 import org.jetbrains.anko.alert
 import org.jetbrains.anko.ctx
@@ -69,6 +71,59 @@ class CreateIdentityActivity : BaseWizardActivity(), QabelLog {
 
     override val wizardEntityLabel: String get() = getString(R.string.identity)
 
+    val enterPhoneFragment: CreateIdentityEditTextFragment = CreateIdentityEditTextFragment.newInstance(
+            R.string.create_identity_enter_phone,
+            R.string.phone_number,
+            object : NextChecker {
+                override fun check(view: View): String? {
+                    val phone = (view as EditText).text.toString().trim()
+                    if (!phone.isEmpty()) {
+                        try {
+                            phoneNumber = formatPhoneNumber(phone)
+                        } catch (ex: NumberParseException) {
+                            return getString(R.string.phone_number_invalid)
+                        }
+                    }
+
+                    //Last input
+                    createIdentity()
+                    return null
+                }
+            }, InputType.TYPE_CLASS_PHONE, true)
+
+    val enterAliasFragment: CreateIdentityEditTextFragment = CreateIdentityEditTextFragment.newInstance(
+            R.string.create_identity_enter_name,
+            R.string.create_identity_enter_name_hint,
+            object : NextChecker {
+                override fun check(view: View): String? {
+                    val alias = (view as EditText).text.toString().trim()
+                    if (alias.isEmpty()) {
+                        return getString(R.string.create_identity_enter_all_data)
+                    }
+                    existingIdentities?.let {
+                        if (it.entities.any { it.alias == alias }) {
+                            return getString(R.string.create_identity_already_exists)
+                        }
+                    }
+                    identityName = alias
+                    return null
+                }
+            })
+    val enterMailFragment: CreateIdentityEditTextFragment = CreateIdentityEditTextFragment.newInstance(
+            R.string.create_identity_enter_email,
+            R.string.email_hint,
+            object : NextChecker {
+                override fun check(view: View): String? {
+                    val inputEmail = (view as EditText).text.toString().trim()
+                    val emailCheck = checkEMailAddress(inputEmail)
+                    if (!inputEmail.isEmpty() && emailCheck != null) {
+                        return emailCheck
+                    }
+                    email = inputEmail
+                    return null
+                }
+            }, InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS, true)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         QabelBoxApplication.getApplicationComponent(applicationContext).inject(this)
         super.onCreate(savedInstanceState)
@@ -82,23 +137,22 @@ class CreateIdentityActivity : BaseWizardActivity(), QabelLog {
     }
 
     private fun tryReadPhoneNumber() {
-        val permissionCheck = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE)
-        if (permissionCheck != PackageManager.PERMISSION_GRANTED) {
-            if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.READ_PHONE_STATE)) {
+        if (isPermissionGranted(this, READ_PHONE_STATE)) {
+            if (shouldShowRequestPermissionRationale(READ_PHONE_STATE)) {
                 alert(R.string.dialog_headline_info, R.string.phone_number_request_info, {
                     positiveButton(R.string.yes) { tryReadPhoneNumber() }
                     negativeButton(R.string.no) { READ_PHONE_STATE_DENIED = true }
                 })
             } else {
-                ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.READ_PHONE_STATE), REQUEST_READ_PHONE_STATE)
+                requestPermission(this, READ_PHONE_STATE, REQUEST_READ_PHONE_STATE)
             }
         } else {
             val phoneManager = ctx.getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
             var phone = phoneManager.line1Number
-            if (phone != null && !phone.isEmpty()) {
+            if (!phone.isNullOrBlank()) {
                 try {
                     phone = formatPhoneNumber(phone)
-                    (fragments[3] as CreateIdentityEditTextFragment).setValue(phone)
+                    enterPhoneFragment.setValue(phone)
                     info("Phone number detected $phoneNumber")
                 } catch (ex: NumberFormatException) {
                     error("Error parsing received system phone number $phone", ex)
@@ -110,12 +164,10 @@ class CreateIdentityActivity : BaseWizardActivity(), QabelLog {
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == REQUEST_READ_PHONE_STATE) {
-            if (permissions.contains(Manifest.permission.READ_PHONE_STATE)) {
-                if (grantResults.contains(PackageManager.PERMISSION_GRANTED)) {
-                    tryReadPhoneNumber()
-                } else if (grantResults.contains(PackageManager.PERMISSION_DENIED)) {
-                    READ_PHONE_STATE_DENIED = true
-                }
+            if (isPermissionGranted(READ_PHONE_STATE, permissions, grantResults)) {
+                tryReadPhoneNumber()
+            } else {
+                READ_PHONE_STATE_DENIED = true
             }
         }
     }
@@ -132,57 +184,9 @@ class CreateIdentityActivity : BaseWizardActivity(), QabelLog {
 
     override val fragments: Array<BaseIdentityFragment> =
             arrayOf(CreateIdentityMainFragment(),
-                    CreateIdentityEditTextFragment.newInstance(
-                            R.string.create_identity_enter_name,
-                            R.string.create_identity_enter_name_hint,
-                            object : NextChecker {
-                                override fun check(view: View): String? {
-                                    val alias = (view as EditText).text.toString().trim()
-                                    if (alias.isEmpty()) {
-                                        return getString(R.string.create_identity_enter_all_data)
-                                    }
-                                    existingIdentities?.let {
-                                        if (it.entities.any { it.alias == alias }) {
-                                            return getString(R.string.create_identity_already_exists)
-                                        }
-                                    }
-                                    identityName = alias
-                                    return null
-                                }
-                            }),
-                    CreateIdentityEditTextFragment.newInstance(
-                            R.string.create_identity_enter_email,
-                            R.string.email_hint,
-                            object : NextChecker {
-                                override fun check(view: View): String? {
-                                    val inputEmail = (view as EditText).text.toString().trim()
-                                    val emailCheck = checkEMailAddress(inputEmail)
-                                    if (!inputEmail.isEmpty() && emailCheck != null) {
-                                        return emailCheck
-                                    }
-                                    email = inputEmail
-                                    return null
-                                }
-                            }, InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS, true),
-                    CreateIdentityEditTextFragment.newInstance(
-                            R.string.create_identity_enter_phone,
-                            R.string.phone_number,
-                            object : NextChecker {
-                                override fun check(view: View): String? {
-                                    val phone = (view as EditText).text.toString().trim()
-                                    if (!phone.isEmpty()) {
-                                        try {
-                                            phoneNumber = formatPhoneNumber(phone)
-                                        } catch (ex: NumberParseException) {
-                                            return getString(R.string.phone_number_invalid)
-                                        }
-                                    }
-
-                                    //Last input
-                                    createIdentity()
-                                    return null
-                                }
-                            }, InputType.TYPE_CLASS_PHONE, true),
+                    enterAliasFragment,
+                    enterMailFragment,
+                    enterPhoneFragment,
                     CreateIdentityFinalFragment())
 
     private fun createIdentity() {

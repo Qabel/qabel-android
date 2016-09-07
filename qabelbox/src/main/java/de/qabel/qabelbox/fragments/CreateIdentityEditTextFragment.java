@@ -10,7 +10,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
-import android.widget.ScrollView;
 import android.widget.TextView;
 
 import de.qabel.qabelbox.R;
@@ -38,13 +37,13 @@ public class CreateIdentityEditTextFragment extends BaseIdentityFragment {
         return newInstance(messageId, editTextHintId, checker, textInputType, false);
     }
 
-    public static CreateIdentityEditTextFragment newInstance(int messageId, int editTextHintId, BaseWizardActivity.NextChecker checker, Integer textInputType, boolean optinal) {
+    public static CreateIdentityEditTextFragment newInstance(int messageId, int editTextHintId, BaseWizardActivity.NextChecker checker, Integer textInputType, boolean optional) {
 
         CreateIdentityEditTextFragment fragment = new CreateIdentityEditTextFragment();
         fragment.mMessageId = messageId;
         fragment.mEditTextHintId = editTextHintId;
         fragment.mChecker = checker;
-        fragment.optionalValue = optinal;
+        fragment.optionalValue = optional;
         if (textInputType != null) {
             fragment.inputType = textInputType;
         }
@@ -61,7 +60,7 @@ public class CreateIdentityEditTextFragment extends BaseIdentityFragment {
         TextView tvMessage = ((TextView) view.findViewById(R.id.tv_message));
         tvMessage.setText(mMessageId);
 
-        editText = (EditText) view.findViewById(R.id.et_name);
+        editText = (EditText) view.findViewById(R.id.edit_text);
         if (value != null) {
             editText.setText(value);
         }

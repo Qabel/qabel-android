@@ -15,7 +15,6 @@ class AndroidContactsAccessor(private val context: Context) : ExternalContactsAc
         val contentResolver = context.contentResolver
         contentResolver.query(Contacts.CONTENT_URI,
                 null, null, null, null).use { contactCursor ->
-            println("COUNT: " + contactCursor.count)
             if (contactCursor.count > 0) {
                 while (contactCursor.moveToNext()) {
                     val id = contactCursor.getString(
@@ -27,41 +26,16 @@ class AndroidContactsAccessor(private val context: Context) : ExternalContactsAc
 
                     val contactName = if (primaryName?.isEmpty() ?: false) primaryName else name
 
-                    val phones = mutableListOf<String>()
-                    if (contactCursor.getInt(contactCursor.getColumnIndex(Contacts.HAS_PHONE_NUMBER)) > 0) {
-                        contentResolver.query(Phone.CONTENT_URI, null, Phone.CONTACT_ID + " = ?",
-                                arrayOf<String>(id), null).use {
-                            while (it.moveToNext()) {
-                                val phoneNo = it.getString(it.getColumnIndex(Phone.NUMBER))
-                                if (!phoneNo.isEmpty()) {
-                                    try {
-                                        val normalized = formatPhoneNumber(phoneNo)
-                                        if (!phones.contains(normalized)) {
-                                            phones.add(normalized)
-                                        }
-                                    } catch (ex: NumberParseException) {
-                                        //Ignore invalid numbers
-                                    }
-                                }
-                            }
-                        }
-                    }
+                    val hasPhoneNumber = contactCursor.getInt(contactCursor.getColumnIndex(Contacts.HAS_PHONE_NUMBER)) > 0
 
-                    val emails = mutableListOf<String>()
-                    contentResolver.query(Email.CONTENT_URI, null, Email.CONTACT_ID + " = ?",
-                            arrayOf<String>(id), null).use {
-                        while (it.moveToNext()) {
-                            val mail = it.getString(it.getColumnIndex(Email.ADDRESS))
-                            if (Formatter.isEMailValid(mail) && !emails.contains(mail)) {
-                                emails.add(mail)
-                            }
-                        }
-                    }
+                    val phones: MutableList<String> = if (hasPhoneNumber) queryContactPhones(id) else mutableListOf()
+                    val emails = queryContactEmails(id)
+
                     if (!emails.isEmpty() || !phones.isEmpty()) {
                         if (rawContacts.containsKey(contactName)) {
-                            rawContacts[contactName]?.let {
-                                it.emailAddresses.addAll(emails)
-                                it.mobilePhoneNumbers.addAll(phones)
+                            rawContacts[contactName]?.let { rawContact ->
+                                rawContact.emailAddresses.addAll(emails.filter { rawContact.emailAddresses.contains(it) })
+                                rawContact.mobilePhoneNumbers.addAll(phones.filter { rawContact.mobilePhoneNumbers.contains(it) })
                             }
                         } else {
                             rawContacts.put(contactName, RawContact(contactName, phones, emails, id))
@@ -74,6 +48,41 @@ class AndroidContactsAccessor(private val context: Context) : ExternalContactsAc
         }
         println("RESULT COUNT ${rawContacts.size}")
         return rawContacts.values.sortedBy { it.displayName }
+    }
+
+    private fun queryContactEmails(identifier: String): MutableList<String> {
+        val resultList = mutableListOf<String>()
+        context.contentResolver.query(Email.CONTENT_URI, null, Email.CONTACT_ID + " = ?",
+                arrayOf(identifier), null).use {
+            while (it.moveToNext()) {
+                val mail = it.getString(it.getColumnIndex(Email.ADDRESS))
+                if (Formatter.isEMailValid(mail) && !resultList.contains(mail)) {
+                    resultList.add(mail)
+                }
+            }
+        }
+        return resultList
+    }
+
+    private fun queryContactPhones(identifier: String): MutableList<String> {
+        val phones = mutableListOf<String>()
+        context.contentResolver.query(Phone.CONTENT_URI, null, Phone.CONTACT_ID + " = ?",
+                arrayOf(identifier), null).use {
+            while (it.moveToNext()) {
+                val phoneNo = it.getString(it.getColumnIndex(Phone.NUMBER))
+                if (!phoneNo.isEmpty()) {
+                    try {
+                        val normalized = formatPhoneNumber(phoneNo)
+                        if (!phones.contains(normalized)) {
+                            phones.add(normalized)
+                        }
+                    } catch (ex: NumberParseException) {
+                        //Ignore invalid numbers
+                    }
+                }
+            }
+        }
+        return phones
     }
 
 }

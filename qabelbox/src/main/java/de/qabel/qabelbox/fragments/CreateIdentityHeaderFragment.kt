@@ -21,24 +21,25 @@ class CreateIdentityHeaderFragment : Fragment() {
     }
 
     fun updateUI(name: String?, secondLine: String = "", thirdLine: String = "") {
-        if (name == null || name.isEmpty()) {
+        if (name.isNullOrBlank()) {
             logo_layout.visibility = View.VISIBLE
             initial_layout.visibility = View.GONE
             layout_top_textlines.visibility = View.GONE
-        } else {
-            logo_layout.visibility = View.GONE
-            layout_top_textlines.visibility = View.VISIBLE
-            initial_layout.visibility = View.VISIBLE
-
-            tv_email.setOrGone(secondLine)
-            tv_phone.setOrGone(thirdLine)
-
-            tv_name.text = name
-            tv_initial.text = getInitials(name)
-
-            tv_initial.forceLayout()
-            initial_layout.forceLayout()
+            return
         }
+
+        logo_layout.visibility = View.GONE
+        layout_top_textlines.visibility = View.VISIBLE
+        initial_layout.visibility = View.VISIBLE
+
+        tv_email.setOrGone(secondLine)
+        tv_phone.setOrGone(thirdLine)
+
+        tv_name.text = name
+        tv_initial.text = getInitials(name)
+
+        tv_initial.forceLayout()
+        initial_layout.forceLayout()
     }
 
     private fun getInitials(name: String): String =

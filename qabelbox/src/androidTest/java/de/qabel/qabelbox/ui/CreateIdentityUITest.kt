@@ -90,10 +90,11 @@ class CreateIdentityUITest : UITest {
     fun testCreateIdentityPreSetOptionals() {
         val name = "spoon2"
         val phone = "+49 234 567890"
+        createIdentityPerformEnterName(name)
+        //Inject value
         mActivity!!.apply {
             enterPhoneFragment.setValue(phone)
         }
-        createIdentityPerformEnterName(name)
         //Ignore email
         performClickText(string.next)
         onViewVisibleText(phone)

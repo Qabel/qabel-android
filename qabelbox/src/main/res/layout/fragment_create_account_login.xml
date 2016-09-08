@@ -20,6 +20,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="@string/create_account_password1_hint"
+        android:imeOptions="actionGo"
         android:inputType="textPassword"/>
 
 

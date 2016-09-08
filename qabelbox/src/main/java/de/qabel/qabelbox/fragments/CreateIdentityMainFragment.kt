@@ -6,20 +6,17 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
 import de.qabel.core.repository.exception.EntityExistsException
 import de.qabel.qabelbox.QabelBoxApplication
 import de.qabel.qabelbox.R
 import de.qabel.qabelbox.activities.CreateIdentityActivity
 import de.qabel.qabelbox.identity.interactor.IdentityUseCase
+import kotlinx.android.synthetic.main.fragment_create_identity_main.view.*
 import org.jetbrains.anko.longToast
 import org.jetbrains.anko.toast
 import javax.inject.Inject
 
-class CreateIdentityMainFragment : BaseIdentityFragment(), View.OnClickListener {
-
-    private var mCreateIdentity: Button? = null
-    private var mImportIdentity: Button? = null
+class CreateIdentityMainFragment : BaseIdentityFragment() {
 
     @Inject
     internal lateinit var identityUseCase: IdentityUseCase
@@ -31,10 +28,15 @@ class CreateIdentityMainFragment : BaseIdentityFragment(), View.OnClickListener 
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.fragment_create_identity_main, container, false)
-        mCreateIdentity = view.findViewById(R.id.bt_create_identity) as Button
-        mImportIdentity = view.findViewById(R.id.bt_import_identity) as Button
-        mCreateIdentity!!.setOnClickListener(this)
-        mImportIdentity!!.setOnClickListener(this)
+        view.bt_create_identity.setOnClickListener {
+            mActivity.handleNextClick()
+        }
+        view.bt_import_identity.setOnClickListener {
+            val intent = Intent(Intent.ACTION_OPEN_DOCUMENT)
+            intent.addCategory(Intent.CATEGORY_OPENABLE)
+            intent.type = "*/*"
+            startActivityForResult(intent, CreateIdentityActivity.REQUEST_CODE_IMPORT_IDENTITY)
+        }
         return view
     }
 
@@ -42,21 +44,8 @@ class CreateIdentityMainFragment : BaseIdentityFragment(), View.OnClickListener 
         return null
     }
 
-    override fun onClick(v: View) {
-        if (v === mCreateIdentity) {
-            mActivity.handleNextClick()
-        }
-        if (v === mImportIdentity) {
-            val intent = Intent(Intent.ACTION_OPEN_DOCUMENT)
-            intent.addCategory(Intent.CATEGORY_OPENABLE)
-            intent.type = "*/*"
-            startActivityForResult(intent, CreateIdentityActivity.REQUEST_CODE_IMPORT_IDENTITY)
-        }
-    }
-
     override fun onActivityResult(requestCode: Int, resultCode: Int,
                                   resultData: Intent?) {
-
         if (requestCode == CreateIdentityActivity.REQUEST_CODE_IMPORT_IDENTITY && resultCode == Activity.RESULT_OK) {
             importIdentity(mActivity, resultData)
         }
@@ -74,18 +63,22 @@ class CreateIdentityMainFragment : BaseIdentityFragment(), View.OnClickListener 
                             completeWizard()
                         }
                     }, {
-                        throw it
+                        showImportError(it)
                     })
                 }
             } catch (e: Throwable) {
-                when (e) {
-                    is EntityExistsException ->
-                        longToast(R.string.create_identity_already_exists)
-                    else ->
-                        longToast(R.string.cant_read_identity)
-                }
+                showImportError(e)
             }
         }
+    }
+
+    private fun showImportError(ex: Throwable) {
+        longToast(when (ex) {
+            is EntityExistsException ->
+                R.string.create_identity_already_exists
+            else ->
+                R.string.cant_read_identity
+        })
     }
 }
 

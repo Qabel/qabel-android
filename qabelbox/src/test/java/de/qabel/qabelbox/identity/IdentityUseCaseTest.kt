@@ -45,10 +45,13 @@ class IdentityUseCaseTest() : CoreTestCase {
         identity.alias = "Forentroll"
         identity.email = "forentroll@banane.de"
         identity.phone = "12345678910"
+
         useCase.saveIdentity(identity).toBlocking().value()
         verify(actionSender).sendActionIntentBroadCast(IDENTITY_CHANGED, Pair(KEY_IDENTITY, identity))
         val updated = identityRepo.find(identity.keyIdentifier)
-        updated eq identity
+        updated.alias eq "Forentroll"
+        updated.email eq "forentroll@banane.de"
+        updated.phone eq "12345678910"
     }
 
     @Test

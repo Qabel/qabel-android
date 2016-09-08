@@ -60,14 +60,14 @@ class IdentityDetailsFragment() : IdentityDetailsView, BaseFragment(), AnkoLogge
         super.onViewCreated(view, savedInstanceState)
 
         adapter.view = view
-        editIdentityAlias.setOnClickListener({
-            showEnterAliasDialog(editIdentityAlias.text.toString())
+        edit_alias.setOnClickListener({
+            showEnterAliasDialog(edit_alias.text.toString())
         })
-        editIdentityEmail.setOnClickListener({
-            showEnterEmailDialog(editIdentityEmail.text.toString())
+        edit_email.setOnClickListener({
+            showEnterEmailDialog(edit_email.text.toString())
         })
-        editIdentityPhone.setOnClickListener({
-            showEnterPhoneDialog(editIdentityPhone.text.toString())
+        edit_phone.setOnClickListener({
+            showEnterPhoneDialog(edit_phone.text.toString())
         })
 
         action_show_qr.setOnClickListener({

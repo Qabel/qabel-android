@@ -53,7 +53,7 @@ import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.endsWith;
 import static org.hamcrest.Matchers.is;
 
-@Ignore("The Wizzard leaks the activity")
+@Ignore("TODO Replace communication with mock, convert and improve uitest code")
 public class CreateBoxAccountUITest {
 
     @Rule
@@ -309,7 +309,7 @@ public class CreateBoxAccountUITest {
         UITestHelper.waitForView(R.string.ok, TestConstraints.SIMPLE_SERVER_ACTION_TIMEOUT);
         onView(withText(R.string.dialog_headline_info)).check(matches(isDisplayed()));
         onView(withText(R.string.ok)).check(matches(isDisplayed())).perform(click());
-        onView(withId(R.id.et_name)).perform(clearText());
+        onView(withId(R.id.edit_text)).perform(clearText());
     }
 
     private void testEMailExists(String failEMail) throws Throwable {
@@ -317,7 +317,7 @@ public class CreateBoxAccountUITest {
         UITestHelper.waitForView(R.string.ok, TestConstraints.SIMPLE_SERVER_ACTION_TIMEOUT);
         onView(withText(R.string.dialog_headline_info)).check(matches(isDisplayed()));
         onView(withText(R.string.ok)).check(matches(isDisplayed())).perform(click());
-        onView(withId(R.id.et_name)).perform(clearText());
+        onView(withId(R.id.edit_text)).perform(clearText());
     }
 
     private void testNameExists(String failName) throws Throwable {
@@ -325,16 +325,16 @@ public class CreateBoxAccountUITest {
         UITestHelper.waitForView(R.string.ok, TestConstraints.SIMPLE_SERVER_ACTION_TIMEOUT);
         onView(withText(R.string.dialog_headline_info)).check(matches(isDisplayed()));
         onView(withText(R.string.ok)).check(matches(isDisplayed())).perform(click());
-        onView(withId(R.id.et_name)).perform(clearText());
+        onView(withId(R.id.edit_text)).perform(clearText());
     }
 
 
     private void enterSingleLine(String accountName, String screenName, boolean checkFieldsIsEmail) throws Throwable {
-        onView(withId(R.id.et_name)).check(matches(isDisplayed())).perform(click());
+        onView(withId(R.id.edit_text)).check(matches(isDisplayed())).perform(click());
         if (checkFieldsIsEmail) {
-            onView(withId(R.id.et_name)).check(matches(withInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS)));
+            onView(withId(R.id.edit_text)).check(matches(withInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS)));
         } else {
-            onView(withId(R.id.et_name)).check(matches(withInputType(InputType.TYPE_CLASS_TEXT)));
+            onView(withId(R.id.edit_text)).check(matches(withInputType(InputType.TYPE_CLASS_TEXT)));
         }
         onView(allOf(withClassName(endsWith("EditTextFont")))).perform(setText(accountName));
         closeKeyboard();

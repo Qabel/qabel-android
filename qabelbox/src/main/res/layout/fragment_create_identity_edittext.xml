@@ -7,7 +7,7 @@
     android:orientation="vertical">
 
     <de.qabel.qabelbox.ui.views.EditTextFont
-        android:id="@+id/et_name"
+        android:id="@+id/edit_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="@string/create_identity_enter_name_hint"

@@ -23,11 +23,11 @@ class IdentityDetailsAdapter() {
                     text = identity.initials(),
                     color = identity.color(context))
             identity_initial.text = identity.initials()
-            editIdentityAlias.text = identity.alias
-            editIdentityEmail.text = mail
-            editIdentityPhone.text = phone
-            detailsIdentityDropURLs.text = identity.readableUrl()
-            detailsIdentityPublicKey.text = identity.readableKey()
+            edit_alias.text = identity.alias
+            edit_email.text = mail
+            edit_phone.text = phone
+            details_drop_urls.text = identity.readableUrl()
+            details_pub_key.text = identity.readableKey()
         }
     }
 }

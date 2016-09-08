@@ -55,12 +55,11 @@ class IdentityDetailsPresenterTest() : CoreTestCase {
     }
 
     @Test
-    @Ignore("TODO Not working in roboelectic")
     fun testSavePhone() {
         presenter.identity = identity
-        presenter.onSavePhoneNumber("012345678910")
+        presenter.onSavePhoneNumber("+49123456789")
         verify(view).loadIdentity(identity)
-        identity.phone eq "012345678910"
+        identity.phone eq "+49123456789"
     }
 
     @Test

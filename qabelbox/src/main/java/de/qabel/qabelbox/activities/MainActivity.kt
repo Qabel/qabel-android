@@ -113,6 +113,49 @@ class MainActivity : CrashReportingActivity(),
                 R.dimen.material_drawer_item_profile_icon_width).toInt()
 
 
+    private val identityChangedListener = intentListener(QblBroadcastConstants.Identities.IDENTITY_CHANGED) {
+        val changedIdentity = it.getSerializableExtra(QblBroadcastConstants.Identities.KEY_IDENTITY) as Identity
+        if (changedIdentity.id == activeIdentity.id) {
+            activeIdentity = changedIdentity
+            drawerAccountHeader.activeProfile.email.text = activeIdentity.email
+            drawerAccountHeader.activeProfile.name.text = activeIdentity.alias
+            drawerAccountHeader.updateProfile(drawerAccountHeader.activeProfile)
+        } else {
+            drawerAccountHeader.profiles.find {
+                it.identifier == changedIdentity.id.toLong()
+            }?.apply {
+                val size = profileIconSize
+                withName(changedIdentity.alias)
+                withIcon(IdentityIconDrawable(
+                        width = size,
+                        height = size,
+                        text = changedIdentity.initials(),
+                        color = changedIdentity.color(ctx)))
+                drawerAccountHeader.updateProfile(this)
+            }
+        }
+    }
+    private val identityRemovedListener = intentListener(QblBroadcastConstants.Identities.IDENTITY_REMOVED) {
+        val deletedIdentity = it.getSerializableExtra(QblBroadcastConstants.Identities.KEY_IDENTITY) as Identity
+        val identities = identityRepository.findAll()
+        deletedIdentity.dropUrls.forEach {
+            unSubscribe(it)
+        }
+        if (identities.identities.size == 0) {
+            UIHelper.showDialogMessage(this, R.string.dialog_headline_info,
+                    R.string.last_identity_delete_create_new) { dialog, which ->
+                this@MainActivity.selectAddIdentityFragment()
+                this@MainActivity.finish()
+            }
+        } else if (activeIdentity == deletedIdentity) {
+            changeActiveIdentity(identities.identities.first())
+        } else {
+            drawerAccountHeader.profiles.find { it.identifier == deletedIdentity.id.toLong() }?.let {
+                drawerAccountHeader.removeProfile(it)
+            }
+        }
+    }
+
     override val intentListeners = listOf(
             intentListener(QblBroadcastConstants.Account.ACCOUNT_CHANGED, {
                 val statusCode = it.getIntExtra(QblBroadcastConstants.STATUS_CODE_PARAM, -1)
@@ -123,48 +166,8 @@ class MainActivity : CrashReportingActivity(),
             intentListener(QblBroadcastConstants.Chat.MESSAGE_STATE_CHANGED, {
                 updateNewMessageBadge()
             }),
-            intentListener(QblBroadcastConstants.Identities.IDENTITY_CHANGED) {
-                val changedIdentity = it.getSerializableExtra(QblBroadcastConstants.Identities.KEY_IDENTITY) as Identity
-                if (changedIdentity.equals(activeIdentity)) {
-                    activeIdentity = changedIdentity
-                    drawerAccountHeader.activeProfile.email.text = activeIdentity.email
-                    drawerAccountHeader.activeProfile.name.text = activeIdentity.alias
-                    drawerAccountHeader.updateProfile(drawerAccountHeader.activeProfile)
-                } else {
-                    drawerAccountHeader.profiles.find {
-                        it.identifier == changedIdentity.id.toLong()
-                    }?.apply {
-                        val size = profileIconSize
-                        withName(changedIdentity.alias)
-                        withIcon(IdentityIconDrawable(
-                                width = size,
-                                height = size,
-                                text = changedIdentity.initials(),
-                                color = changedIdentity.color(ctx)))
-                        drawerAccountHeader.updateProfile(this)
-                    }
-                }
-            },
-            intentListener(QblBroadcastConstants.Identities.IDENTITY_REMOVED) {
-                val deletedIdentity = it.getSerializableExtra(QblBroadcastConstants.Identities.KEY_IDENTITY) as Identity
-                val identities = identityRepository.findAll()
-                deletedIdentity.dropUrls.forEach {
-                    unSubscribe(it)
-                }
-                if (identities.identities.size == 0) {
-                    UIHelper.showDialogMessage(this, R.string.dialog_headline_info,
-                            R.string.last_identity_delete_create_new) { dialog, which ->
-                        this@MainActivity.selectAddIdentityFragment()
-                        this@MainActivity.finish()
-                    }
-                } else if (activeIdentity == deletedIdentity) {
-                    changeActiveIdentity(identities.identities.first())
-                } else {
-                    drawerAccountHeader.profiles.find { it.identifier == deletedIdentity.id.toLong() }?.let {
-                        drawerAccountHeader.removeProfile(it)
-                    }
-                }
-            })
+            identityChangedListener,
+            identityRemovedListener)
 
     private fun updateNewMessageBadge() {
         val size = messageRepository.findNew(activeIdentity.id).size

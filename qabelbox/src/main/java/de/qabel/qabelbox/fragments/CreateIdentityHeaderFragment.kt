@@ -27,6 +27,7 @@ class CreateIdentityHeaderFragment : Fragment() {
             layout_top_textlines.visibility = View.GONE
             return
         }
+        name!!
 
         logo_layout.visibility = View.GONE
         layout_top_textlines.visibility = View.VISIBLE

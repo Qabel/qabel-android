@@ -153,7 +153,7 @@ class CreateIdentityActivity : BaseWizardActivity(), QabelLog {
                 try {
                     phone = formatPhoneNumber(phone)
                     enterPhoneFragment.setValue(phone)
-                    info("Phone number detected $phoneNumber")
+                    info("Phone number detected $phone")
                 } catch (ex: NumberFormatException) {
                     error("Error parsing received system phone number $phone", ex)
                 }

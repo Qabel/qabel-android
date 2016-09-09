@@ -512,7 +512,7 @@ class MainActivity : CrashReportingActivity(),
         }
         val accountHeader = with(AccountHeaderBuilder()) {
             withActivity(this@MainActivity)
-            withHeaderBackground(R.drawable.bg_sidemenu_header)
+            withHeaderBackground(R.drawable.drawer_v7)
             addProfiles(activeIdentityItem)
             addProfiles(*profileMap.keys.sortedBy { it.name.toString() }.toTypedArray())
             addProfiles(addIdentity)

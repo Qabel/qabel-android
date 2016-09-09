@@ -27,6 +27,11 @@ public class QblBroadcastConstants {
         public static final String IDENTITY_REMOVED = PREFIX + "identity.removed";
     }
 
+    public static class Index {
+        public static final String REQUEST_VERIFICATION = "index.request_verification";
+        public static final String SYNC_CONTACTS = "index.sync_contacts";
+    }
+
     public static class Chat {
         public static final String NOTIFY_NEW_MESSAGES = PREFIX + "chat.notification";
         public static final String MESSAGE_STATE_CHANGED = PREFIX + "chat.state_change";

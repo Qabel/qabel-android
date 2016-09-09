@@ -12,6 +12,8 @@ import de.qabel.qabelbox.activities.CreateIdentityActivity;
 import de.qabel.qabelbox.activities.SplashActivity;
 import de.qabel.qabelbox.chat.services.AndroidChatService;
 import de.qabel.qabelbox.chat.services.QabelFirebaseMessagingService;
+import de.qabel.qabelbox.index.dagger.IndexComponent;
+import de.qabel.qabelbox.index.dagger.IndexModule;
 import de.qabel.qabelbox.sync.QabelSyncAdapter;
 import de.qabel.qabelbox.dagger.modules.AccountModule;
 import de.qabel.qabelbox.dagger.modules.ActivityModule;
@@ -30,6 +32,8 @@ public interface ApplicationComponent {
     ContactRepository contactRepository();
 
     ActivityComponent plus(ActivityModule activityModule);
+
+    IndexComponent plus(IndexModule indexModule);
 
     void inject(QabelSyncAdapter syncAdapter);
 

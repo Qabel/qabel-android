@@ -138,26 +138,32 @@ class CreateIdentityActivity : BaseWizardActivity(), QabelLog {
 
     private fun tryReadPhoneNumber() {
         if (!isPermissionGranted(this, READ_PHONE_STATE)) {
-            if (shouldShowRequestPermissionRationale(READ_PHONE_STATE)) {
-                alert(R.string.dialog_headline_info, R.string.phone_number_request_info, {
-                    positiveButton(R.string.yes) { tryReadPhoneNumber() }
-                    negativeButton(R.string.no) { READ_PHONE_STATE_DENIED = true }
-                })
-            } else {
-                requestPermission(this, READ_PHONE_STATE, REQUEST_READ_PHONE_STATE)
+            requestPhonePermission()
+            return
+        }
+        val phoneManager = ctx.getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
+        var phone = phoneManager.line1Number
+        if (phoneNumber.isNullOrBlank() && !phone.isNullOrBlank()) {
+            try {
+                phone = formatPhoneNumber(phone)
+                enterPhoneFragment.setValue(phone)
+                info("Phone number detected $phone")
+            } catch (ex: NumberFormatException) {
+                error("Error parsing received system phone number $phone", ex)
             }
-        } else {
-            val phoneManager = ctx.getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
-            var phone = phoneManager.line1Number
-            if (!phone.isNullOrBlank()) {
-                try {
-                    phone = formatPhoneNumber(phone)
-                    enterPhoneFragment.setValue(phone)
-                    info("Phone number detected $phone")
-                } catch (ex: NumberFormatException) {
-                    error("Error parsing received system phone number $phone", ex)
+        }
+    }
+
+    private fun requestPhonePermission() {
+        if (shouldShowRequestPermissionRationale(READ_PHONE_STATE)) {
+            alert(R.string.dialog_headline_info, R.string.phone_number_request_info, {
+                positiveButton(R.string.yes) {
+                    requestPermission(this@CreateIdentityActivity, READ_PHONE_STATE, REQUEST_READ_PHONE_STATE)
                 }
-            }
+                negativeButton(R.string.no) { READ_PHONE_STATE_DENIED = true }
+            })
+        } else {
+            requestPermission(this, READ_PHONE_STATE, REQUEST_READ_PHONE_STATE)
         }
     }
 

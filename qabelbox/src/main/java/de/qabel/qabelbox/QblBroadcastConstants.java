@@ -20,7 +20,9 @@ public class QblBroadcastConstants {
     }
 
     public static class Identities {
-        public static final String KEY_IDENTITY = "identity_key_id";
+        public static final String KEY_IDENTITY = "identity";
+        public static final String OLD_IDENTITY = "old_identity";
+        public static final String IDENTITY_CREATED = PREFIX + "identity.created";
         public static final String IDENTITY_CHANGED = PREFIX + "identity.changed";
         public static final String IDENTITY_REMOVED = PREFIX + "identity.removed";
     }

@@ -24,6 +24,7 @@ import de.qabel.qabelbox.external.ExternalFileAction
 import de.qabel.qabelbox.fragments.BaseFragment
 import de.qabel.qabelbox.helper.ExternalApps
 import de.qabel.qabelbox.helper.UIHelper
+import de.qabel.qabelbox.index.AndroidIndexSyncService
 import de.qabel.qabelbox.navigation.Navigator
 import de.qabel.qabelbox.ui.extensions.showConfirmation
 import de.qabel.qabelbox.ui.extensions.showMessage
@@ -142,6 +143,7 @@ class ContactsFragment() : ContactsView, BaseFragment(), AnkoLogger, SearchView.
                 showIgnored = item.isChecked
                 presenter.refresh()
             }
+            R.id.refresh -> AndroidIndexSyncService.startSyncContacts(ctx)
         }
         return true
     }

@@ -6,6 +6,7 @@ import org.apache.http.impl.client.HttpClients;
 
 import dagger.Module;
 import dagger.Provides;
+import de.qabel.core.index.ExternalContactsAccessor;
 import de.qabel.core.index.IndexHTTP;
 import de.qabel.core.index.IndexHTTPLocation;
 import de.qabel.core.index.IndexInteractor;
@@ -14,6 +15,7 @@ import de.qabel.core.index.MainIndexInteractor;
 import de.qabel.core.repository.ContactRepository;
 import de.qabel.core.repository.IdentityRepository;
 import de.qabel.qabelbox.R;
+import de.qabel.qabelbox.index.AndroidContactsAccessor;
 
 @Module
 public class IndexModule {
@@ -29,5 +31,10 @@ public class IndexModule {
                                             ContactRepository contactRepository,
                                             IdentityRepository identityRepository) {
         return new MainIndexInteractor(indexServer, contactRepository, identityRepository);
+    }
+
+    @Provides
+    ExternalContactsAccessor providesContactsAccessor(Context context) {
+        return new AndroidContactsAccessor(context);
     }
 }

@@ -17,6 +17,8 @@ import de.qabel.qabelbox.chat.services.AndroidChatServiceResponder;
 import de.qabel.qabelbox.dagger.components.ApplicationComponent;
 import de.qabel.qabelbox.dagger.components.DaggerApplicationComponent;
 import de.qabel.qabelbox.dagger.modules.ApplicationModule;
+import de.qabel.qabelbox.index.AndroidIndexSyncService;
+import de.qabel.qabelbox.index.IndexIdentityListener;
 
 public class QabelBoxApplication extends Application {
 
@@ -24,6 +26,7 @@ public class QabelBoxApplication extends Application {
     public static final String DEFAULT_DROP_SERVER = "https://test-drop.qabel.de";
 
     private BroadcastReceiver chatServiceResponder = new AndroidChatServiceResponder();
+    private IndexIdentityListener identityListener = new IndexIdentityListener();
 
     static QabelBoxApplication mInstance = null;
 
@@ -71,6 +74,7 @@ public class QabelBoxApplication extends Application {
         IntentFilter filter = new IntentFilter(QblBroadcastConstants.Chat.NOTIFY_NEW_MESSAGES);
         filter.setPriority(0);
         registerReceiver(chatServiceResponder, filter);
+        registerReceiver(identityListener, identityListener.createIntentFilter());
     }
 
     protected ApplicationComponent initialiseInjector() {
@@ -82,6 +86,7 @@ public class QabelBoxApplication extends Application {
     @Override
     public void onTerminate() {
         unregisterReceiver(chatServiceResponder);
+        unregisterReceiver(identityListener);
         super.onTerminate();
     }
 

@@ -30,6 +30,7 @@ public class QblBroadcastConstants {
     public static class Index {
         public static final String REQUEST_VERIFICATION = "index.request_verification";
         public static final String SYNC_CONTACTS = "index.sync_contacts";
+        public static final String SYNC_VERIFICATIONS = "index.sync_verifications";
     }
 
     public static class Chat {

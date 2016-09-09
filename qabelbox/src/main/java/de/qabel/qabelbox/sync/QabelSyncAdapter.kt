@@ -9,9 +9,14 @@ import de.qabel.qabelbox.QabelBoxApplication
 import de.qabel.qabelbox.QblBroadcastConstants
 import de.qabel.qabelbox.chat.notifications.ChatNotificationManager
 import de.qabel.qabelbox.chat.services.AndroidChatService
+import de.qabel.qabelbox.config.AppPreference
+import de.qabel.qabelbox.index.AndroidIndexSyncService
+import org.apache.commons.lang3.time.DateUtils.MILLIS_PER_DAY
+import org.apache.http.client.utils.DateUtils
 import org.jetbrains.anko.AnkoLogger
 import org.jetbrains.anko.info
 import org.jetbrains.anko.warn
+import java.util.*
 import javax.inject.Inject
 
 open class QabelSyncAdapter : AbstractThreadedSyncAdapter, AnkoLogger {
@@ -20,6 +25,7 @@ open class QabelSyncAdapter : AbstractThreadedSyncAdapter, AnkoLogger {
     @Inject lateinit internal var context: Context
     @Inject lateinit internal var contactRepository: ContactRepository
     @Inject lateinit internal var chatService: ChatService
+    @Inject lateinit internal var preferences: AppPreference
 
     constructor(context: Context, autoInitialize: Boolean) : super(context, autoInitialize) {
         init(context)
@@ -57,6 +63,11 @@ open class QabelSyncAdapter : AbstractThreadedSyncAdapter, AnkoLogger {
             }
         } catch(ex: Throwable) {
             warn("Error on syncing dropMessages", ex)
+        }
+
+        if (preferences.isContactSyncEnabled &&
+                preferences.lastContactSync < (System.currentTimeMillis() - MILLIS_PER_DAY)) {
+            AndroidIndexSyncService.startSyncContacts(context.applicationContext)
         }
     }
 }

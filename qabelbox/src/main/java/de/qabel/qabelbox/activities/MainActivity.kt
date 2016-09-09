@@ -45,6 +45,7 @@ import de.qabel.qabelbox.helper.AccountHelper
 import de.qabel.qabelbox.helper.CacheFileHelper
 import de.qabel.qabelbox.helper.Sanity
 import de.qabel.qabelbox.helper.UIHelper
+import de.qabel.qabelbox.index.AndroidIndexSyncService
 import de.qabel.qabelbox.listeners.intentListener
 import de.qabel.qabelbox.navigation.MainNavigator
 import de.qabel.qabelbox.settings.SettingsActivity
@@ -208,6 +209,8 @@ class MainActivity : CrashReportingActivity(),
             subscribe(it)
         }
         handleIntent(intent)
+
+        AndroidIndexSyncService.startSyncVerifications(this)
     }
 
     override fun onResume() {

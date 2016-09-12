@@ -1,21 +1,19 @@
 package de.qabel.qabelbox.activities
 
-import android.Manifest
 import android.Manifest.permission.READ_PHONE_STATE
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.os.Bundle
-import android.support.v4.content.ContextCompat
 import android.telephony.TelephonyManager
 import android.text.InputType
 import android.util.Log
 import android.view.View
 import android.widget.EditText
-import com.google.i18n.phonenumbers.NumberParseException
 import de.qabel.core.config.Identities
 import de.qabel.core.config.Identity
 import de.qabel.core.config.factory.DropUrlGenerator
+import de.qabel.core.index.formatPhoneNumber
+import de.qabel.core.index.isValidPhoneNumber
 import de.qabel.core.logging.QabelLog
 import de.qabel.core.logging.error
 import de.qabel.core.logging.info
@@ -28,7 +26,6 @@ import de.qabel.qabelbox.fragments.BaseIdentityFragment
 import de.qabel.qabelbox.fragments.CreateIdentityEditTextFragment
 import de.qabel.qabelbox.fragments.CreateIdentityFinalFragment
 import de.qabel.qabelbox.fragments.CreateIdentityMainFragment
-import de.qabel.qabelbox.helper.formatPhoneNumber
 import de.qabel.qabelbox.identity.interactor.IdentityUseCase
 import de.qabel.qabelbox.ui.extensions.isPermissionGranted
 import de.qabel.qabelbox.ui.extensions.requestPermission
@@ -78,9 +75,9 @@ class CreateIdentityActivity : BaseWizardActivity(), QabelLog {
                 override fun check(view: View): String? {
                     val phone = (view as EditText).text.toString().trim()
                     if (!phone.isEmpty()) {
-                        try {
+                        if (isValidPhoneNumber(phone)) {
                             phoneNumber = formatPhoneNumber(phone)
-                        } catch (ex: NumberParseException) {
+                        } else {
                             return getString(R.string.phone_number_invalid)
                         }
                     }

@@ -1,14 +1,11 @@
 package de.qabel.qabelbox.identity.view.presenter
 
-import android.telephony.PhoneNumberUtils
-import com.google.i18n.phonenumbers.NumberParseException
-import com.google.i18n.phonenumbers.PhoneNumberUtil
 import de.qabel.core.config.Identity
+import de.qabel.core.index.formatPhoneNumber
+import de.qabel.core.index.isValidPhoneNumber
 import de.qabel.core.logging.QabelLog
 import de.qabel.core.logging.error
-import de.qabel.qabelbox.R
 import de.qabel.qabelbox.helper.Formatter
-import de.qabel.qabelbox.helper.formatPhoneNumber
 import de.qabel.qabelbox.identity.interactor.IdentityUseCase
 import de.qabel.qabelbox.identity.view.IdentityDetailsView
 import de.qabel.qabelbox.navigation.Navigator
@@ -54,11 +51,10 @@ class MainIdentityDetailsPresenter @Inject constructor(private val view: Identit
 
     override fun onSavePhoneNumber(phoneNumber: String) {
         identity?.let {
-            if (!phoneNumber.isEmpty() && !PhoneNumberUtils.isGlobalPhoneNumber(phoneNumber)) {
-                try {
-                    val formatted = formatPhoneNumber(phoneNumber)
-                    it.phone = formatted
-                } catch (ex: NumberParseException) {
+            if (!phoneNumber.isEmpty()) {
+                if (isValidPhoneNumber(phoneNumber)) {
+                    it.phone = formatPhoneNumber(phoneNumber)
+                } else {
                     view.showPhoneInvalid()
                     view.showEnterPhoneDialog(phoneNumber)
                 }

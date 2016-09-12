@@ -6,8 +6,8 @@ import org.apache.http.impl.client.HttpClients;
 
 import dagger.Module;
 import dagger.Provides;
-import de.qabel.core.index.IndexInteractor;
-import de.qabel.core.index.MainIndexInteractor;
+import de.qabel.core.index.IndexService;
+import de.qabel.core.index.MainIndexService;
 import de.qabel.core.index.server.ExternalContactsAccessor;
 import de.qabel.core.index.server.IndexHTTP;
 import de.qabel.core.index.server.IndexHTTPLocation;
@@ -27,10 +27,10 @@ public class IndexModule {
     }
 
     @Provides
-    IndexInteractor providesIndexInteractor(IndexServer indexServer,
-                                            ContactRepository contactRepository,
-                                            IdentityRepository identityRepository) {
-        return new MainIndexInteractor(indexServer, contactRepository, identityRepository);
+    IndexService providesIndexInteractor(IndexServer indexServer,
+                                         ContactRepository contactRepository,
+                                         IdentityRepository identityRepository) {
+        return new MainIndexService(indexServer, contactRepository, identityRepository);
     }
 
     @Provides

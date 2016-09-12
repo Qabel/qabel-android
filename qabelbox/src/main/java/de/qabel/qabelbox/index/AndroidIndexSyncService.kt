@@ -5,7 +5,7 @@ import android.content.Context
 import android.content.Intent
 import de.qabel.core.config.Identity
 import de.qabel.core.config.VerificationStatus
-import de.qabel.core.index.IndexInteractor
+import de.qabel.core.index.IndexService
 import de.qabel.core.index.IndexSyncAction
 import de.qabel.core.index.server.ExternalContactsAccessor
 import de.qabel.core.logging.QabelLog
@@ -22,7 +22,7 @@ import javax.inject.Inject
 
 class AndroidIndexSyncService() : IntentService(AndroidIndexSyncService::class.java.simpleName), QabelLog {
 
-    @Inject lateinit var indexInteractor: IndexInteractor
+    @Inject lateinit var indexService: IndexService
     @Inject lateinit var contactsAccessor: ExternalContactsAccessor
 
     companion object {
@@ -53,25 +53,17 @@ class AndroidIndexSyncService() : IntentService(AndroidIndexSyncService::class.j
                 IDENTITY_CHANGED -> {
                     val identity = intent.affectedIdentity()
                     val oldIdentity = intent.outdatedIdentity()
-                    if (identity.email != oldIdentity.email) {
-                        indexInteractor.updateIdentityEmail(identity, oldIdentity.email)
-                    }
-                    if (identity.phone != oldIdentity.phone) {
-                        indexInteractor.updateIdentityPhone(identity, oldIdentity.phone)
-                    }
-                    if (identity.alias != oldIdentity.alias) {
-                        indexInteractor.updateIdentity(identity)
-                    }
+                    indexService.updateIdentity(identity, oldIdentity)
                     sendRequestIntentIfRequiresPhoneVerification(identity)
                 }
                 IDENTITY_CREATED -> {
                     val identity = intent.affectedIdentity()
-                    indexInteractor.updateIdentity(identity)
+                    indexService.updateIdentity(identity)
                     sendRequestIntentIfRequiresPhoneVerification(identity)
                 }
-                IDENTITY_REMOVED -> indexInteractor.deleteIdentity(intent.affectedIdentity())
+                IDENTITY_REMOVED -> indexService.deleteIdentity(intent.affectedIdentity())
                 SYNC_CONTACTS -> {
-                    val syncResults = indexInteractor.syncContacts(contactsAccessor)
+                    val syncResults = indexService.syncContacts(contactsAccessor)
                     if (syncResults.isNotEmpty()) {
                         applicationContext.sendBroadcast(Intent(QblBroadcastConstants.Contacts.CONTACTS_CHANGED))
                         val grouped = syncResults.groupBy { it.action }

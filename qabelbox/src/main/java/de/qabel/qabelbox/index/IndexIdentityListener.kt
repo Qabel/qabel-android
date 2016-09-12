@@ -11,7 +11,6 @@ import de.qabel.qabelbox.chat.services.AndroidChatService
 class IndexIdentityListener() : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
-        println("RECEIVE INTENT ${intent.action}")
         context.applicationContext.startService(createServiceIntent(context, intent))
     }
 

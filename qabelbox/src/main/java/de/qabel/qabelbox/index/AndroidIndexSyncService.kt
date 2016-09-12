@@ -5,9 +5,9 @@ import android.content.Context
 import android.content.Intent
 import de.qabel.core.config.Identity
 import de.qabel.core.config.VerificationStatus
-import de.qabel.core.index.ExternalContactsAccessor
 import de.qabel.core.index.IndexInteractor
 import de.qabel.core.index.IndexSyncAction
+import de.qabel.core.index.server.ExternalContactsAccessor
 import de.qabel.core.logging.QabelLog
 import de.qabel.core.logging.debug
 import de.qabel.core.logging.error
@@ -17,7 +17,6 @@ import de.qabel.qabelbox.QblBroadcastConstants
 import de.qabel.qabelbox.QblBroadcastConstants.Identities.*
 import de.qabel.qabelbox.QblBroadcastConstants.Index.REQUEST_VERIFICATION
 import de.qabel.qabelbox.QblBroadcastConstants.Index.SYNC_CONTACTS
-import de.qabel.qabelbox.chat.services.AndroidChatService
 import de.qabel.qabelbox.index.dagger.IndexModule
 import javax.inject.Inject
 
@@ -44,8 +43,8 @@ class AndroidIndexSyncService() : IntentService(AndroidIndexSyncService::class.j
         info("Service initialized!")
     }
 
-    private fun Intent.affectedIdentity(): Identity = getSerializableExtra(QblBroadcastConstants.Identities.KEY_IDENTITY) as Identity
-    private fun Intent.outdatedIdentity(): Identity = getSerializableExtra(QblBroadcastConstants.Identities.OLD_IDENTITY) as Identity
+    private fun Intent.affectedIdentity(): Identity = getSerializableExtra(KEY_IDENTITY) as Identity
+    private fun Intent.outdatedIdentity(): Identity = getSerializableExtra(OLD_IDENTITY) as Identity
 
     override fun onHandleIntent(intent: Intent) {
         debug("IndexSync received intent with action ${intent.action}")
@@ -59,6 +58,9 @@ class AndroidIndexSyncService() : IntentService(AndroidIndexSyncService::class.j
                     }
                     if (identity.phone != oldIdentity.phone) {
                         indexInteractor.updateIdentityPhone(identity, oldIdentity.phone)
+                    }
+                    if (identity.alias != oldIdentity.alias) {
+                        indexInteractor.updateIdentity(identity)
                     }
                     sendRequestIntentIfRequiresPhoneVerification(identity)
                 }

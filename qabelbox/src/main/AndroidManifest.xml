@@ -12,8 +12,10 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.AUTHENTICATE_ACCOUNTS"/>
 
-    <!-- Required to read phone number -->
+    <!-- Phone number -->
     <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
+    <!-- Contact sync -->
+    <uses-permission android:name="android.permission.READ_CONTACTS"/>
 
     <permission
         android:name=".QABELSERVICE"

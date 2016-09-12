@@ -54,13 +54,16 @@ class CreateAccountActivity : BaseWizardActivity() {
     private lateinit var mBoxAccountServer: BoxAccountRegisterServer
     private var afterRequest: IdleCallback? = null
 
-    private val mainFragment = CreateAccountMainFragment().apply {
-        val bundle = Bundle()
-        bundle.putBoolean(CreateAccountMainFragment.SKIP_TO_LOGIN, mBoxAccountName?.let { !it.isEmpty() } ?: false)
-        bundle.putString(BaseIdentityFragment.ACCOUNT_NAME, mBoxAccountName)
-        bundle.putString(BaseIdentityFragment.ACCOUNT_EMAIL, mBoxAccountEMail)
-        arguments = bundle
+    private val mainFragment by lazy {
+        CreateAccountMainFragment().apply {
+            val bundle = Bundle()
+            bundle.putBoolean(CreateAccountMainFragment.SKIP_TO_LOGIN, mBoxAccountName?.let { !it.isEmpty() } ?: false)
+            bundle.putString(BaseIdentityFragment.ACCOUNT_NAME, mBoxAccountName)
+            bundle.putString(BaseIdentityFragment.ACCOUNT_EMAIL, mBoxAccountEMail)
+            arguments = bundle
+        }
     }
+
     private val nameFragment: CreateIdentityEditTextFragment = CreateIdentityEditTextFragment.newInstance(R.string.create_account_enter_name_infos,
             R.string.create_account_name_hint, object : BaseWizardActivity.NextChecker {
         override fun check(view: View): String? {

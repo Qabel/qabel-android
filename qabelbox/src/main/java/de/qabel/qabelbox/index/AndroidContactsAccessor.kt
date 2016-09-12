@@ -4,8 +4,8 @@ import android.content.Context
 import android.database.Cursor
 import android.provider.ContactsContract
 import com.google.i18n.phonenumbers.NumberParseException
-import de.qabel.core.index.ExternalContactsAccessor
 import de.qabel.core.index.RawContact
+import de.qabel.core.index.server.ExternalContactsAccessor
 import de.qabel.core.logging.QabelLog
 import de.qabel.core.logging.debug
 import de.qabel.core.logging.info

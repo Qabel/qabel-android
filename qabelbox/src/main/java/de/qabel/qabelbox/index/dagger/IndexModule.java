@@ -6,12 +6,12 @@ import org.apache.http.impl.client.HttpClients;
 
 import dagger.Module;
 import dagger.Provides;
-import de.qabel.core.index.ExternalContactsAccessor;
-import de.qabel.core.index.IndexHTTP;
-import de.qabel.core.index.IndexHTTPLocation;
 import de.qabel.core.index.IndexInteractor;
-import de.qabel.core.index.IndexServer;
 import de.qabel.core.index.MainIndexInteractor;
+import de.qabel.core.index.server.ExternalContactsAccessor;
+import de.qabel.core.index.server.IndexHTTP;
+import de.qabel.core.index.server.IndexHTTPLocation;
+import de.qabel.core.index.server.IndexServer;
 import de.qabel.core.repository.ContactRepository;
 import de.qabel.core.repository.IdentityRepository;
 import de.qabel.qabelbox.R;

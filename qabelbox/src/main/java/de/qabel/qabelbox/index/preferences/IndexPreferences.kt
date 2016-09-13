@@ -9,4 +9,7 @@ interface IndexPreferences {
     val indexUploadAsked : Boolean
     var indexUploadEnabled : Boolean
 
+    var phoneStatePermission : Boolean
+    var contactsReadPermission : Boolean
+
 }

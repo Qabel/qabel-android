@@ -40,7 +40,7 @@ class AndroidIndexSyncService() : IntentService(AndroidIndexSyncService::class.j
 
     override fun onCreate() {
         super.onCreate()
-        QabelBoxApplication.getApplicationComponent(applicationContext).plus(IndexModule()).inject(this)
+        QabelBoxApplication.getApplicationComponent(applicationContext).indexComponent().inject(this)
         info("Service initialized!")
     }
 

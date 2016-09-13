@@ -23,7 +23,7 @@ import de.qabel.qabelbox.dagger.modules.StorageModule;
 import de.qabel.qabelbox.fragments.CreateAccountFinalFragment;
 import de.qabel.qabelbox.fragments.CreateIdentityMainFragment;
 
-@Component(modules = {ApplicationModule.class, RepositoryModule.class, AccountModule.class, StorageModule.class})
+@Component(modules = {ApplicationModule.class, RepositoryModule.class, AccountModule.class, StorageModule.class, IndexModule.class})
 @Singleton
 public interface ApplicationComponent {
     Context context();
@@ -33,7 +33,7 @@ public interface ApplicationComponent {
 
     ActivityComponent plus(ActivityModule activityModule);
 
-    IndexComponent plus(IndexModule indexModule);
+    IndexComponent indexComponent();
 
     void inject(QabelSyncAdapter syncAdapter);
 

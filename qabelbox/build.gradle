@@ -160,6 +160,13 @@ dependencies {
     testCompile 'com.github.'+repo+'.qabel-core:chat:'+coreVersion+':tests'
     testCompile 'com.github.'+repo+'.qabel-core:chat:'+coreVersion+':sources'
 
+    androidTestCompile 'com.github.'+repo+'.qabel-core:box:'+coreVersion+':tests'
+    androidTestCompile 'com.github.'+repo+'.qabel-core:box:'+coreVersion+':sources'
+    androidTestCompile 'com.github.'+repo+'.qabel-core:core:'+coreVersion+':tests'
+    androidTestCompile 'com.github.'+repo+'.qabel-core:core:'+coreVersion+':sources'
+    androidTestCompile 'com.github.'+repo+'.qabel-core:chat:'+coreVersion+':tests'
+    androidTestCompile 'com.github.'+repo+'.qabel-core:chat:'+coreVersion+':sources'
+
     compile group: 'org.apache.httpcomponents', name: 'httpclient-android', version: '4.3.5.1'
 
     kapt 'com.jakewharton:butterknife-compiler:8.0.1'

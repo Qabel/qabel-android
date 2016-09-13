@@ -42,8 +42,4 @@ public class IndexModule {
         return new AndroidIndexPreferences(context);
     }
 
-    @Provides
-    ExternalContactsAccessor providesContactsAccessor(Context context) {
-        return new AndroidContactsAccessor(context);
-    }
 }

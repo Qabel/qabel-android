@@ -19,6 +19,12 @@ public class QblBroadcastConstants {
         public static final String CONTACTS_CHANGED = PREFIX + "contacts.updated";
     }
 
+    public static class Identities {
+        public static final String KEY_IDENTITY = "identity_key_id";
+        public static final String IDENTITY_CHANGED = PREFIX + "identity.changed";
+        public static final String IDENTITY_REMOVED = PREFIX + "identity.removed";
+    }
+
     public static class Chat {
         public static final String NOTIFY_NEW_MESSAGES = PREFIX + "chat.notification";
         public static final String MESSAGE_STATE_CHANGED = PREFIX + "chat.state_change";

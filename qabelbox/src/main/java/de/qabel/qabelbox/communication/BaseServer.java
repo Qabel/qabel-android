@@ -24,9 +24,9 @@ import okhttp3.RequestBody;
 
 public class BaseServer {
 
-    protected final OkHttpClient client;
-    protected final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
     private static final String TAG = "BaseServer";
+    protected final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
+    protected OkHttpClient client;
     private URLs urls;
     private AppPreference preferences;
 
@@ -86,6 +86,12 @@ public class BaseServer {
         builder.readTimeout(15, TimeUnit.SECONDS);    // socket timeout
         builder.writeTimeout(10, TimeUnit.SECONDS);
         client = builder.build();
+    }
+
+    public void onDestroy(){
+        connectivityManager.onDestroy();
+        connectivityManager = null;
+        client = null;
     }
 
     protected String getToken(){

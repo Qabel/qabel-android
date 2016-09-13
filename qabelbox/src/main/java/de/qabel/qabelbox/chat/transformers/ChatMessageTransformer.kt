@@ -24,7 +24,7 @@ open class ChatMessageTransformer @Inject constructor(
         })
     }
 
-    fun ChatDropMessage.MessagePayload.ShareMessage.toPayloadDto() = MessagePayloadDto.ShareMessage(msg, url, key)
+    fun ChatDropMessage.MessagePayload.ShareMessage.toPayloadDto() = MessagePayloadDto.ShareMessage(msg, shareData)
     fun ChatDropMessage.MessagePayload.TextMessage.toPayloadDto() = MessagePayloadDto.TextMessage(msg)
 
 }

@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/identity_edit_view"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:scrollbars="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="@dimen/activity_horizontal_margin">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <de.qabel.qabelbox.ui.views.SquareFrameLayout
+                android:id="@+id/identity_icon"
+                android:layout_width="wrap_content"
+                android:layout_height="100dp"
+                android:layout_centerInParent="true"
+                android:layout_gravity="center">
+
+                <de.qabel.qabelbox.ui.views.TextViewFont
+                    android:id="@+id/identity_initial"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerInParent="true"
+                    android:layout_gravity="center"
+                    android:gravity="center"
+                    android:textColor="@color/white"
+                    android:textSize="@dimen/textsize_identity_circle_initial" />
+            </de.qabel.qabelbox.ui.views.SquareFrameLayout>
+
+            <ImageView
+                android:id="@+id/action_show_qr"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentTop="true"
+                android:src="@drawable/qrcode" />
+        </RelativeLayout>
+
+        <de.qabel.qabelbox.ui.views.TextViewFont
+            android:id="@+id/edit_alias"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="-5dp"
+            android:layout_marginTop="@dimen/default_space_double"
+            android:background="@drawable/separator_gray"
+            android:drawableEnd="@drawable/pencil_grey"
+            android:drawablePadding="10sp"
+            android:drawableStart="@drawable/account"
+            android:gravity="start|center_vertical"
+            android:hint="@string/contact_name"
+            android:singleLine="true"
+            android:textSize="@dimen/textsize_splash" />
+
+        <de.qabel.qabelbox.ui.views.TextViewFont
+            android:id="@+id/details_index_text"
+            style="@style/ListSecondTextLine"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/default_space"
+            android:layout_marginEnd="@dimen/default_space"
+            android:layout_marginStart="@dimen/default_space"
+            android:background="@android:color/transparent"
+            android:text="@string/qabel_index_text" />
+
+        <de.qabel.qabelbox.ui.views.TextViewFont
+            android:id="@+id/edit_phone"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/default_space"
+            android:background="@drawable/separator_gray"
+            android:drawableEnd="@drawable/pencil_grey"
+            android:drawablePadding="10sp"
+            android:drawableStart="@drawable/phone"
+            android:gravity="start|center_vertical"
+            android:hint="@string/phone_number"
+            android:inputType="phone"
+            android:singleLine="true"
+            android:textSize="@dimen/textsize_normal" />
+
+        <de.qabel.qabelbox.ui.views.TextViewFont
+            android:id="@+id/edit_email"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/separator_gray"
+            android:drawableEnd="@drawable/pencil_grey"
+            android:drawablePadding="10sp"
+            android:drawableStart="@drawable/email"
+            android:gravity="start|center_vertical"
+            android:hint="@string/email_hint"
+            android:inputType="textEmailAddress"
+            android:singleLine="true"
+            android:textSize="@dimen/textsize_normal" />
+
+        <de.qabel.qabelbox.ui.views.TextViewFont
+            android:id="@+id/textView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/default_space_double"
+            android:background="@drawable/separator_slim"
+            android:text="@string/details"
+            android:textSize="@dimen/textsize_splash" />
+
+        <TextView
+            android:id="@+id/details_drop_urls"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/default_space"
+            android:drawablePadding="10sp"
+            android:drawableStart="@drawable/earth"
+            android:singleLine="false"
+            android:textSize="@dimen/textsize_list_first_line"
+            android:typeface="monospace" />
+
+        <TextView
+            android:id="@+id/details_pub_key"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5sp"
+            android:drawablePadding="10sp"
+            android:drawableStart="@drawable/key_variant"
+            android:lines="4"
+            android:singleLine="false"
+            android:textSize="@dimen/textsize_list_first_line"
+            android:typeface="monospace" />
+
+    </LinearLayout>
+</ScrollView>
+

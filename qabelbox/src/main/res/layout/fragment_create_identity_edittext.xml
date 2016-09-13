@@ -1,8 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-
-
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_alignParentBottom="true"
@@ -10,30 +7,25 @@
     android:orientation="vertical">
 
     <de.qabel.qabelbox.ui.views.EditTextFont
-        android:id="@+id/et_name"
+        android:id="@+id/edit_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="@string/create_identity_enter_name_hint"
-        style="@style/EditText"/>
-
-    <Space
-        android:layout_width="wrap_content"
-        android:layout_height="20dp"
-        android:layout_weight="1"/>
+        android:lines="1"
+        android:singleLine="true"
+        android:textSize="@dimen/textsize_normal" />
 
     <de.qabel.qabelbox.ui.views.TextViewFont
         android:id="@+id/tv_message"
+        style="@style/ListSecondTextLine"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="left"
-        android:minLines="5"
-        android:text="@string/create_identity_enter_name"
-        style="@style/MessageText"/>
-
-    <Space
-        android:layout_width="wrap_content"
-        android:layout_height="20dp"
-        android:layout_weight="1"/>
+        android:layout_marginTop="@dimen/default_space"
+        android:gravity="center"
+        android:maxLength="100"
+        android:minLines="2"
+        android:layout_marginBottom="@dimen/activity_vertical_margin"
+        android:text="@string/create_identity_enter_name" />
 
 </LinearLayout>
 

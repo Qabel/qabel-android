@@ -27,4 +27,6 @@ interface Navigator {
     fun selectQrCodeFragment(contact: Contact)
 
     fun popBackStack()
+
+    fun selectIdentityDetails(identity: Identity)
 }

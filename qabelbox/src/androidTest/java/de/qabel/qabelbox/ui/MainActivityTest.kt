@@ -1,6 +1,11 @@
 package de.qabel.qabelbox.ui
 
+import android.content.Intent
+import android.support.test.espresso.contrib.DrawerActions
+import android.view.MenuItem
 import de.qabel.core.config.Identity
+import de.qabel.qabelbox.QblBroadcastConstants
+import de.qabel.qabelbox.R
 import de.qabel.qabelbox.activities.MainActivity
 import de.qabel.qabelbox.chat.view.views.ChatFragment
 import de.qabel.qabelbox.navigation.MainNavigator
@@ -8,6 +13,7 @@ import de.qabel.qabelbox.util.IdentityHelper
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.equalTo
 import org.hamcrest.Matchers.notNullValue
+import org.jetbrains.anko.slidingDrawer
 import org.junit.Test
 
 class MainActivityTest : AbstractUITest() {
@@ -42,4 +48,31 @@ class MainActivityTest : AbstractUITest() {
         assertThat(fragment, notNullValue())
         assertThat(fragment.contactKeyId, equalTo(contact.keyIdentifier))
     }
+
+    @Test
+    fun testIdentityUpdated() {
+        startWithIdentity(identity)
+        identity.alias = "Banane"
+        identity.email = "nutella@banane.de"
+        mActivity.sendBroadcast(Intent(QblBroadcastConstants.Identities.IDENTITY_CHANGED).apply {
+            putExtra(QblBroadcastConstants.Identities.KEY_IDENTITY, identity)
+        })
+        //Open drawer
+        mActivity.runOnUiThread {
+            mActivity.toggle.toolbarNavigationClickListener.onClick(null)
+        }
+        onViewVisibleText("Banane")
+        onViewVisibleText("nutella@banane.de")
+    }
+
+    @Test
+    fun testDeleteIdentity() {
+        startWithIdentity(identity)
+        identityRepository.delete(identity)
+        mActivity.sendBroadcast(Intent(QblBroadcastConstants.Identities.IDENTITY_REMOVED).apply {
+            putExtra(QblBroadcastConstants.Identities.KEY_IDENTITY, identity)
+        })
+        assert(mActivity.isFinishing)
+    }
+
 }

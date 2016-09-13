@@ -4,6 +4,7 @@
     android:id="@+id/contact_details_view"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/background_white"
     android:orientation="vertical"
     android:padding="@dimen/activity_horizontal_margin">
 
@@ -28,7 +29,7 @@
                 android:layout_gravity="center"
                 android:gravity="center"
                 android:textColor="@color/white"
-                android:textSize="@dimen/textsize_welcome_header" />
+                android:textSize="@dimen/textsize_identity_circle_initial" />
         </de.qabel.qabelbox.ui.views.SquareFrameLayout>
     </de.qabel.qabelbox.ui.views.SquareFrameLayout>
 

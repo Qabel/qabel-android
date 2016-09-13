@@ -4,9 +4,8 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import de.qabel.qabelbox.QblBroadcastConstants
 import de.qabel.qabelbox.QblBroadcastConstants.Identities.*
-import de.qabel.qabelbox.chat.services.AndroidChatService
+import de.qabel.qabelbox.QblBroadcastConstants.Index.*
 
 class IndexIdentityListener() : BroadcastReceiver() {
 
@@ -24,5 +23,7 @@ class IndexIdentityListener() : BroadcastReceiver() {
                 addAction(IDENTITY_CHANGED)
                 addAction(IDENTITY_CREATED)
                 addAction(IDENTITY_REMOVED)
+                addAction(IDENTITY_UPLOAD_ENABLED)
+                addAction(IDENTITY_UPLOAD_DISABLED)
             }
 }

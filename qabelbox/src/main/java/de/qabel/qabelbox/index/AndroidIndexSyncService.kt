@@ -15,15 +15,16 @@ import de.qabel.core.logging.info
 import de.qabel.qabelbox.QabelBoxApplication
 import de.qabel.qabelbox.QblBroadcastConstants
 import de.qabel.qabelbox.QblBroadcastConstants.Identities.*
-import de.qabel.qabelbox.QblBroadcastConstants.Index.REQUEST_VERIFICATION
-import de.qabel.qabelbox.QblBroadcastConstants.Index.SYNC_CONTACTS
+import de.qabel.qabelbox.QblBroadcastConstants.Index.*
 import de.qabel.qabelbox.index.dagger.IndexModule
+import de.qabel.qabelbox.index.preferences.IndexPreferences
 import javax.inject.Inject
 
 class AndroidIndexSyncService() : IntentService(AndroidIndexSyncService::class.java.simpleName), QabelLog {
 
     @Inject lateinit var indexService: IndexService
     @Inject lateinit var contactsAccessor: ExternalContactsAccessor
+    @Inject lateinit var indexPreferences: IndexPreferences
 
     companion object {
         private fun start(context: Context, action: String) {
@@ -51,15 +52,19 @@ class AndroidIndexSyncService() : IntentService(AndroidIndexSyncService::class.j
         try {
             when (intent.action) {
                 IDENTITY_CHANGED -> {
-                    val identity = intent.affectedIdentity()
-                    val oldIdentity = intent.outdatedIdentity()
-                    indexService.updateIdentity(identity, oldIdentity)
-                    sendRequestIntentIfRequiresPhoneVerification(identity)
+                    if (indexPreferences.indexUploadEnabled) {
+                        val identity = intent.affectedIdentity()
+                        val oldIdentity = intent.outdatedIdentity()
+                        indexService.updateIdentity(identity, oldIdentity)
+                        sendRequestIntentIfRequiresPhoneVerification(identity)
+                    }
                 }
                 IDENTITY_CREATED -> {
-                    val identity = intent.affectedIdentity()
-                    indexService.updateIdentity(identity)
-                    sendRequestIntentIfRequiresPhoneVerification(identity)
+                    if (indexPreferences.indexUploadEnabled) {
+                        val identity = intent.affectedIdentity()
+                        indexService.updateIdentity(identity)
+                        sendRequestIntentIfRequiresPhoneVerification(identity)
+                    }
                 }
                 IDENTITY_REMOVED -> indexService.deleteIdentity(intent.affectedIdentity())
                 SYNC_CONTACTS -> {
@@ -71,6 +76,12 @@ class AndroidIndexSyncService() : IntentService(AndroidIndexSyncService::class.j
                         val updatedCount = grouped[IndexSyncAction.UPDATE]?.size ?: 0
                         info("ContactSync completed! Created: $createdCount, Updated: $updatedCount")
                     }
+                }
+                IDENTITY_UPLOAD_ENABLED -> {
+
+                }
+                IDENTITY_UPLOAD_DISABLED -> {
+
                 }
             }
         } catch (ex: Throwable) {

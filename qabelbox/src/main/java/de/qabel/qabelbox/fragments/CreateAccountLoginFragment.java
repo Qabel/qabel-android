@@ -5,6 +5,7 @@ import android.app.AlertDialog;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v7.app.ActionBar;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -20,6 +21,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 
 import de.qabel.qabelbox.R;
+import de.qabel.qabelbox.activities.BaseWizardActivity;
 import de.qabel.qabelbox.activities.CreateAccountActivity;
 import de.qabel.qabelbox.communication.BoxAccountRegisterServer;
 import de.qabel.qabelbox.communication.callbacks.JsonRequestCallback;
@@ -50,7 +52,7 @@ public class CreateAccountLoginFragment extends BaseIdentityFragment {
 
         View view = inflater.inflate(R.layout.fragment_create_account_login, container, false);
         etUserName = ((TextView) view.findViewById(R.id.et_username));
-        if (accountName != null) {
+        if (accountName != null && !accountName.isEmpty()) {
             etUserName.setText(accountName);
             etUserName.setEnabled(false);
         }
@@ -60,7 +62,6 @@ public class CreateAccountLoginFragment extends BaseIdentityFragment {
         resetPassword.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
                 CreateAccountLoginFragment.this.getFragmentManager().popBackStack();
                 CreateAccountResetPasswordFragment fragment = new CreateAccountResetPasswordFragment();
                 Bundle bundle = new Bundle();
@@ -75,21 +76,41 @@ public class CreateAccountLoginFragment extends BaseIdentityFragment {
     }
 
     @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        mBoxAccountServer = new BoxAccountRegisterServer(getActivity());
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        setCustomTitle();
+    }
+
+    private void setCustomTitle(){
+        if (getActivity() != null && getActivity() instanceof BaseWizardActivity) {
+            ActionBar toolbar = ((BaseWizardActivity) getActivity()).getSupportActionBar();
+            if (toolbar != null) {
+                toolbar.setTitle(R.string.login);
+                toolbar.setDisplayHomeAsUpEnabled(accountName == null || accountName.isEmpty());
+            }
+        }
+    }
+
+    @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
-        mBoxAccountServer = new BoxAccountRegisterServer(activity.getApplicationContext());
     }
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-
         menu.clear();
         inflater.inflate(R.menu.ab_next, menu);
+        setCustomTitle();
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-
         int id = item.getItemId();
         if (id == R.id.action_ok) {
             String check = checkData();

@@ -5,7 +5,9 @@ import com.nhaarman.mockito_kotlin.any
 import com.nhaarman.mockito_kotlin.mock
 import com.nhaarman.mockito_kotlin.stub
 import com.nhaarman.mockito_kotlin.verify
+import de.qabel.chat.repository.entities.BoxFileChatShare
 import de.qabel.chat.repository.entities.ChatDropMessage.Direction
+import de.qabel.chat.repository.entities.ShareStatus
 import de.qabel.core.config.Contact
 import de.qabel.core.config.Identity
 import de.qabel.core.config.SymmetricKey
@@ -34,30 +36,30 @@ class ShareChatMessageViewHolderTest {
 
     @Test
     fun testOutgoing() {
-        testViewHolder(Direction.OUTGOING, MessagePayloadDto.ShareMessage.ShareStatus.ACCEPTED, R.string.open)
+        testViewHolder(Direction.OUTGOING, ShareStatus.ACCEPTED, R.string.open)
     }
 
     @Test
     fun testAcceptedShare() {
-        testViewHolder(Direction.INCOMING, MessagePayloadDto.ShareMessage.ShareStatus.ACCEPTED, R.string.open);
+        testViewHolder(Direction.INCOMING, ShareStatus.ACCEPTED, R.string.open);
     }
 
     @Test
     fun testNewShare() {
-        testViewHolder(Direction.INCOMING, MessagePayloadDto.ShareMessage.ShareStatus.NEW, R.string.accept_share);
+        testViewHolder(Direction.INCOMING, ShareStatus.NEW, R.string.accept_share);
     }
 
     @Test
     fun testUnreachableShare() {
-        testViewHolder(Direction.INCOMING, MessagePayloadDto.ShareMessage.ShareStatus.NOT_REACHABLE, R.string.currently_not_available);
+        testViewHolder(Direction.INCOMING, ShareStatus.UNREACHABLE, R.string.currently_not_available);
     }
 
     @Test
     fun testDeletedShare() {
-        testViewHolder(Direction.INCOMING, MessagePayloadDto.ShareMessage.ShareStatus.DELETED, R.string.permanently_unavailable);
+        testViewHolder(Direction.INCOMING, ShareStatus.DELETED, R.string.permanently_unavailable);
     }
 
-    fun testViewHolder(direction: Direction, status: MessagePayloadDto.ShareMessage.ShareStatus, expectedLabel: Int) {
+    fun testViewHolder(direction: Direction, status: ShareStatus, expectedLabel: Int) {
         val contact = mock<Contact>()
         stub(contact.alias).toReturn("contact")
 
@@ -74,9 +76,8 @@ class ShareChatMessageViewHolderTest {
         val holder = ShareChatMessageViewHolder(view)
         val msg = ChatMessage(mock<Identity>(), contact,
                 direction, Date(),
-                MessagePayloadDto.ShareMessage("text", URI("http://foo"), SymmetricKey(listOf()),
-                        status))
-
+                MessagePayloadDto.ShareMessage("text", BoxFileChatShare(status, "", 0L,
+                        SymmetricKey(listOf()), "http://foo")))
         holder.bindTo(msg, false)
 
         verify(messageField).text = "text"

@@ -1,11 +1,12 @@
 package de.qabel.core.repositories
 
 import de.qabel.chat.repository.sqlite.migration.Migration1460997040ChatDropMessage
+import de.qabel.chat.repository.sqlite.migration.Migration1460997041ChatShares
+import de.qabel.core.logging.QblLogger
+import de.qabel.core.logging.trace
 import de.qabel.core.repository.sqlite.AbstractClientDatabase
 import de.qabel.core.repository.sqlite.ClientDatabase
 import de.qabel.core.repository.sqlite.migration.*
-import de.qabel.core.util.QblLogger
-import de.qabel.core.util.trace
 import org.sqldroid.SQLDroidConnection
 import java.sql.Connection
 import java.sql.PreparedStatement
@@ -26,6 +27,7 @@ class AndroidClientDatabase(connection: Connection) : AbstractClientDatabase(con
                 Migration1460987825PreventDuplicateContacts(connection),
                 Migration1460997040ChatDropMessage(connection),
                 Migration1460997041RenameDropState(connection),
+                Migration1460997041ChatShares(connection),
                 Migration1460997042ExtendContact(connection),
                 Migration1460997043ContactDefaults(connection))
     }

@@ -128,8 +128,8 @@ tasks.withType(Test) {
     systemProperty 'java.library.path', 'libs/'
 }
 
-def coreVersion = '0.19.0'
-def repo = 'Qabel'
+def coreVersion = '55dd577a5e065acc0e70ee6c2bada34a0f57a904'
+def repo = 'JoGir'
 dependencies {
     sourceCompatibility = JavaVersion.VERSION_1_7
     targetCompatibility = JavaVersion.VERSION_1_7
@@ -245,6 +245,7 @@ dependencies {
     compile 'com.google.firebase:firebase-messaging:9.4.0'
 
     compile 'com.mikepenz:materialdrawer:5.4.0'
+    compile group: 'com.googlecode.libphonenumber', name: 'libphonenumber', version: '7.6.0'
 
 }
 

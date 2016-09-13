@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
-        android:id="@+id/identities_rename"
+        android:id="@+id/identity_edit"
         android:icon="@drawable/pencil"
-        android:title="@string/Rename"/>
+        android:title="@string/edit"/>
     <item
         android:id="@+id/identities_delete"
         android:icon="@drawable/delete"

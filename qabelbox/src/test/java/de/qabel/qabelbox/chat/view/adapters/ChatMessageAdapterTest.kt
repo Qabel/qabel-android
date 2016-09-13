@@ -6,7 +6,9 @@ import com.natpryce.hamkrest.equalTo
 import com.natpryce.hamkrest.should.shouldMatch
 import com.nhaarman.mockito_kotlin.mock
 import com.nhaarman.mockito_kotlin.verify
+import de.qabel.chat.repository.entities.BoxFileChatShare
 import de.qabel.chat.repository.entities.ChatDropMessage
+import de.qabel.chat.repository.entities.ShareStatus
 import de.qabel.core.config.SymmetricKey
 import de.qabel.qabelbox.BuildConfig
 import de.qabel.qabelbox.R
@@ -62,7 +64,7 @@ class ChatMessageAdapterTest {
     @Test
     fun differentViewsForShareAndTextMessage() {
         val shareMessage = message.copy(messagePayload =
-        MessagePayloadDto.ShareMessage("share message", URI("http://foo"), SymmetricKey(listOf())))
+        MessagePayloadDto.ShareMessage("share message", BoxFileChatShare(ShareStatus.NEW, "", 1L, SymmetricKey(listOf()), "http://foo")))
         adapter.init(listOf(message, shareMessage,
                 message.copy(direction = ChatDropMessage.Direction.OUTGOING),
                 shareMessage.copy(direction = ChatDropMessage.Direction.OUTGOING)))

@@ -76,7 +76,7 @@ class QabelSyncAdapterTest {
          assertThat(db1.all.size, `is`(0))
          val message = ChatServer.createTextDropMessage(identity, "foobar")
          dropConnector.sendDropMessage(message, contact2, identity, null)
-         val syncResult = SyncResult()
+         val syncResult = IndexResult()
          syncAdapter.onPerformSync(mock(), mock(), "", mock(), syncResult)
          assertThat(db1.all.size, `is`(1))
          verify<QabelSyncAdapter>(syncAdapter).notifyForNewMessages(any())

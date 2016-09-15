@@ -27,17 +27,20 @@ import de.qabel.qabelbox.fragments.CreateIdentityFinalFragment
 import de.qabel.qabelbox.fragments.CreateIdentityMainFragment
 import de.qabel.qabelbox.identity.interactor.IdentityUseCase
 import de.qabel.qabelbox.index.preferences.IndexPreferences
-import de.qabel.qabelbox.ui.extensions.isPermissionGranted
-import de.qabel.qabelbox.ui.extensions.requestPermission
+import de.qabel.qabelbox.permissions.DataPermissionsAdapter
+import de.qabel.qabelbox.permissions.hasPhonePermission
+import de.qabel.qabelbox.permissions.requestPhonePermission
+import de.qabel.qabelbox.permissions.isPermissionGranted
 import okhttp3.Response
-import org.jetbrains.anko.alert
 import org.jetbrains.anko.ctx
 import org.jetbrains.anko.toast
 import org.json.JSONException
 import org.json.JSONObject
 import javax.inject.Inject
 
-class CreateIdentityActivity : BaseWizardActivity(), QabelLog {
+class CreateIdentityActivity : BaseWizardActivity(), QabelLog, DataPermissionsAdapter {
+
+    override val permissionContext: Context by lazy { ctx }
 
     private val TAG = this.javaClass.simpleName
     private val REQUEST_READ_PHONE_STATE = 1
@@ -130,14 +133,15 @@ class CreateIdentityActivity : BaseWizardActivity(), QabelLog {
     }
 
     private fun tryReadPhoneNumber() {
-        if (indexPreferences.contactsReadPermission && !isPermissionGranted(this, READ_PHONE_STATE)) {
-            requestPhonePermission()
+        if (!phoneNumber.isNullOrBlank()) return
+        else if (indexPreferences.phoneStatePermission && !hasPhonePermission()) {
+            requestPhonePermission(this, REQUEST_READ_PHONE_STATE, { indexPreferences.phoneStatePermission = false })
             return
-        } else if (!indexPreferences.contactsReadPermission) return
+        } else if (!indexPreferences.phoneStatePermission) return
 
         val phoneManager = ctx.getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
         var phone = phoneManager.line1Number
-        if (phoneNumber.isNullOrBlank() && !phone.isNullOrBlank()) {
+        if (!phone.isNullOrBlank()) {
             try {
                 phone = formatPhoneNumber(phone)
                 enterPhoneFragment.setValue(phone)
@@ -148,26 +152,15 @@ class CreateIdentityActivity : BaseWizardActivity(), QabelLog {
         }
     }
 
-    private fun requestPhonePermission() {
-        alert(R.string.dialog_headline_info, R.string.phone_number_request_info, {
-            positiveButton(R.string.yes) {
-                requestPermission(this@CreateIdentityActivity, READ_PHONE_STATE, REQUEST_READ_PHONE_STATE)
-            }
-            negativeButton(R.string.no) { indexPreferences.contactsReadPermission = false }
-        })
-    }
-
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == REQUEST_READ_PHONE_STATE) {
-            isPermissionGranted(READ_PHONE_STATE, permissions, grantResults)?.let {
-                if (it) {
-                    indexPreferences.contactsReadPermission = true
-                    tryReadPhoneNumber()
-                } else {
-                    indexPreferences.contactsReadPermission = false
-                }
-            }
+            isPermissionGranted(READ_PHONE_STATE, permissions, grantResults, {
+                indexPreferences.contactsReadPermission = true
+                tryReadPhoneNumber()
+            }, {
+                indexPreferences.contactsReadPermission = false
+            })
         }
     }
 

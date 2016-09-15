@@ -1,16 +1,16 @@
-package de.qabel.qabelbox.ui.extensions
+package de.qabel.qabelbox.permissions
 
 import android.app.Activity
+import android.content.Context
 import android.content.pm.PackageManager
 import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
-import org.spongycastle.util.Pack
 
 fun requestPermission(activity: Activity, permission: String, requestCode: Int) =
         ActivityCompat.requestPermissions(activity, arrayOf(permission), requestCode)
 
-fun isPermissionGranted(activity: Activity, permission: String): Boolean =
-        ContextCompat.checkSelfPermission(activity, permission) == PackageManager.PERMISSION_GRANTED
+fun isPermissionGranted(ctx: Context, permission: String): Boolean =
+        ContextCompat.checkSelfPermission(ctx, permission) == PackageManager.PERMISSION_GRANTED
 
 fun isPermissionGranted(permission: String, permissions: Array<out String>, results: IntArray): Boolean? {
     val index = permissions.indexOf(permission)
@@ -22,4 +22,15 @@ fun isPermissionGranted(permission: String, permissions: Array<out String>, resu
         }
     }
     return null
+}
+
+fun isPermissionGranted(permission: String, permissions: Array<out String>, results: IntArray,
+                        onGranted: () -> Unit, onDeny: () -> Unit = {}) {
+    isPermissionGranted(permission, permissions, results)?.let {
+        if (it) {
+            onGranted()
+        } else {
+            onDeny()
+        }
+    }
 }

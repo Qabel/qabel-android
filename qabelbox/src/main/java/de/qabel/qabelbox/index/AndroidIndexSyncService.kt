@@ -14,10 +14,14 @@ import de.qabel.qabelbox.QblBroadcastConstants.Identities.*
 import de.qabel.qabelbox.QblBroadcastConstants.Index
 import de.qabel.qabelbox.QblBroadcastConstants.Index.*
 import de.qabel.qabelbox.index.preferences.IndexPreferences
+import de.qabel.qabelbox.permissions.DataPermissionsAdapter
+import de.qabel.qabelbox.permissions.hasContactsReadPermission
 import javax.inject.Inject
 
-class AndroidIndexSyncService() : IntentService(AndroidIndexSyncService::class.java.simpleName), QabelLog {
+class AndroidIndexSyncService() : IntentService(AndroidIndexSyncService::class.java.simpleName),
+        QabelLog, DataPermissionsAdapter {
 
+    override val permissionContext: Context by lazy { applicationContext }
     @Inject lateinit var indexService: IndexService
     @Inject lateinit var indexPrefs: IndexPreferences
 
@@ -90,7 +94,7 @@ class AndroidIndexSyncService() : IntentService(AndroidIndexSyncService::class.j
     }
 
     private fun handleSyncContacts() {
-        if (!indexPrefs.contactSyncEnabled)
+        if (!indexPrefs.contactSyncEnabled || !hasContactsReadPermission())
             return
 
         val syncResults = indexService.syncContacts(AndroidContactsAccessor(applicationContext))

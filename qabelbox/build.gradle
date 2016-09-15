@@ -128,8 +128,8 @@ tasks.withType(Test) {
     systemProperty 'java.library.path', 'libs/'
 }
 
-def coreVersion = '8ff3bc0fe89a527f25c1c33e698c5e8158281174'
-def repo = 'JoGir'
+def coreVersion = '0.23.0'
+def repo = 'Qabel'
 dependencies {
     sourceCompatibility = JavaVersion.VERSION_1_7
     targetCompatibility = JavaVersion.VERSION_1_7

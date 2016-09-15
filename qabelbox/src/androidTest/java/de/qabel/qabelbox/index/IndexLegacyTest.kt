@@ -9,8 +9,10 @@ import de.qabel.core.index.server.IndexHTTPLocation
 import de.qabel.core.logging.QabelLog
 import org.apache.http.impl.client.HttpClients
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.runner.RunWith
 
+@Ignore("Enviroment not available.")
 @RunWith(AndroidJUnit4::class)
 class IndexLegacyTest : IndexServiceTest(), QabelLog {
 
@@ -23,7 +25,7 @@ class IndexLegacyTest : IndexServiceTest(), QabelLog {
         manager.activeNetworkInfo?.apply {
             assert(isAvailable)
             assert(isConnectedOrConnecting)
-            debug()
+            debug("Running IndexLegacyTest in Network $extraInfo ${state.name}")
         } ?: throw RuntimeException("No network available!")
     }
 

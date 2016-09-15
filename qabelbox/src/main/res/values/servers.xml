@@ -3,5 +3,5 @@
     <string name="blockServer" translatable="false">https://block.qabel.org</string>
     <string name="accountingServer" translatable="false">https://accounting.qabel.org</string>
     <string name="dropServer" translatable="false">https://drop.qabel.org</string>
-    <string name="indexServer" translatable="false">https://index.qabel.org</string>
+    <string name="indexServer" translatable="false">https://index.qabel.org</string><!--http://192.168.1.11:9698</string> -->
 </resources>

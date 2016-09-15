@@ -32,7 +32,7 @@ public class MockBlockServer implements BlockServer {
     }
 
     @Override
-    public void uploadFile(String prefix, String name, File file, UploadRequestCallback callback) {
+    public void uploadFile(String prefix, String name, File file, String eTag, UploadRequestCallback callback) {
         throw new UnsupportedOperationException();
     }
 

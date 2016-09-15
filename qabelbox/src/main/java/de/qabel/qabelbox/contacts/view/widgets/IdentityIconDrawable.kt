@@ -5,7 +5,7 @@ import android.graphics.drawable.ShapeDrawable
 import android.graphics.drawable.shapes.OvalShape
 import android.graphics.drawable.shapes.Shape
 
-class IdentityIconDrawable (
+class IdentityIconDrawable(
         private val textPaint: Paint = Paint(),
         private val text: String = "",
         color: Int = Color.GRAY,
@@ -19,6 +19,7 @@ class IdentityIconDrawable (
 )
 : ShapeDrawable(shape) {
 
+    private val textBound = Rect()
 
     init {
         textPaint.color = textColor
@@ -41,7 +42,8 @@ class IdentityIconDrawable (
 
         val fontSize = if (this.fontSize < 0) Math.min(width, height) / 2 else this.fontSize
         textPaint.textSize = fontSize.toFloat()
-        canvas.drawText(text, (width / 2).toFloat(), height / 2 - (textPaint.descent() + textPaint.ascent()) / 2, textPaint)
+        textPaint.getTextBounds(text, 0, text.length, textBound)
+        canvas.drawText(text, (width / 2).toFloat(), (height / 2) - textBound.exactCenterY(), textPaint)
 
         canvas.restoreToCount(count)
 

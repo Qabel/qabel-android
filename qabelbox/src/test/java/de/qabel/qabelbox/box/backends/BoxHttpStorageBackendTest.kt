@@ -21,7 +21,7 @@ class BoxHttpStorageBackendTest {
     val prefix = "prefix"
     lateinit var backend: BoxHttpStorageBackend
     lateinit var server: AndroidBlockServer
-    val response = BoxHttpStorageBackend.Response(null, 0, null)
+    val response = BoxHttpStorageBackend.Response(null, 0, null, null)
 
     @Before
     fun mockedServer() {

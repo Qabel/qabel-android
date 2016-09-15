@@ -22,11 +22,15 @@ class AndroidIndexPreferences(context: Context) : IndexPreferences, AndroidPrefe
 
     }
 
+    /**
+     * TODO currently default enabled
+     */
+
     override val contactSyncAsked: Boolean
         get() = getInt(CONTACT_SYNC, -1) >= 0
 
     override var contactSyncEnabled: Boolean
-        get() = getInt(CONTACT_SYNC, -1) > 0
+        get() = getInt(CONTACT_SYNC, 1) > 0
         set(value) = putInt(CONTACT_SYNC, if (value) 1 else 0)
 
     override var contactSyncTime: Long
@@ -37,7 +41,7 @@ class AndroidIndexPreferences(context: Context) : IndexPreferences, AndroidPrefe
         get() = getInt(INDEX_UPLOAD_ENABLED, -1) >= 0
 
     override var indexUploadEnabled: Boolean
-        get() = getInt(INDEX_UPLOAD_ENABLED, -1) > 0
+        get() = getInt(INDEX_UPLOAD_ENABLED, 1) > 0
         set(value) = putInt(INDEX_UPLOAD_ENABLED, if (value) 1 else 0)
 
     override var phoneStatePermission: Boolean

@@ -4,8 +4,6 @@ import android.view.View
 import android.widget.LinearLayout
 import com.nhaarman.mockito_kotlin.*
 import de.qabel.core.ui.displayName
-import de.qabel.qabelbox.BuildConfig
-import de.qabel.qabelbox.SimpleApplication
 import de.qabel.qabelbox.contacts.dto.ContactDto
 import de.qabel.qabelbox.contacts.view.widgets.ContactIconDrawable
 import de.qabel.qabelbox.ui.views.SquareFrameLayout
@@ -14,12 +12,10 @@ import de.qabel.qabelbox.util.IdentityHelper
 import kotlinx.android.synthetic.main.fragment_contact_details.view.*
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.robolectric.RobolectricGradleTestRunner
-import org.robolectric.RuntimeEnvironment
-import org.robolectric.annotation.Config
+import android.support.test.InstrumentationRegistry
+import android.support.test.runner.AndroidJUnit4
 
-@RunWith(RobolectricGradleTestRunner::class)
-@Config(application = SimpleApplication::class, constants = BuildConfig::class)
+@RunWith(AndroidJUnit4::class)
 class ContactDetailsAdapterTest {
 
     val identity = IdentityHelper.createIdentity("Identity B", "prefix");
@@ -42,7 +38,7 @@ class ContactDetailsAdapterTest {
     }
 
     fun testView(contactDto: ContactDto) {
-        val ctx = RuntimeEnvironment.application;
+        val ctx = InstrumentationRegistry.getInstrumentation().targetContext
 
         val initialsField: TextViewFont = mock()
         val nameField: TextViewFont = mock()
@@ -53,15 +49,16 @@ class ContactDetailsAdapterTest {
         val imageView: SquareFrameLayout = mock()
 
         val adapter = ContactDetailsAdapter({ identity -> Unit })
-        adapter.view = mock()
-        stub(adapter.view!!.context).toReturn(ctx)
-        stub(adapter.view!!.tv_initial).toReturn(initialsField)
-        stub(adapter.view!!.contact_icon_border).toReturn(imageView)
-        stub(adapter.view!!.editTextContactName).toReturn(nameField)
-        stub(adapter.view!!.editTextContactNick).toReturn(nickField)
-        stub(adapter.view!!.editTextContactDropURL).toReturn(dropField)
-        stub(adapter.view!!.editTextContactPublicKey).toReturn(keyField)
-        stub(adapter.view!!.contact_details_actions).toReturn(actionContainer)
+
+        val view = mock<View>()
+        adapter.view = view
+        stub(view.context).toReturn(ctx)
+        stub(view.contact_icon_border).toReturn(imageView)
+        stub(view.text_alias).toReturn(nameField)
+        stub(view.text_nick).toReturn(nickField)
+        stub(view.text_drop).toReturn(dropField)
+        stub(view.text_public_key).toReturn(keyField)
+        stub(view.contact_details_actions).toReturn(actionContainer)
 
         adapter.loadContact(contactDto)
 

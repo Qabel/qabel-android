@@ -59,6 +59,7 @@ class AndroidIndexSyncService() : IntentService(AndroidIndexSyncService::class.j
                 IDENTITY_UPLOAD_DISABLED -> indexService.removeIdentities()
             }
         } catch (ex: Throwable) {
+            ex.printStackTrace()
             error("Error syncing with index. Action: ${intent.action}", ex)
         }
     }

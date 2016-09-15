@@ -109,6 +109,7 @@ android {
         exclude 'META-INF/NOTICE.txt'
         exclude 'META-INF/DEPENDENCIES'
         exclude 'LICENSE.txt'
+        exclude 'log4j2.xml'
     }
 }
 

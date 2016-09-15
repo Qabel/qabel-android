@@ -17,8 +17,6 @@ import de.qabel.core.config.Identities
 import de.qabel.core.config.Identity
 import de.qabel.core.config.factory.DropUrlGenerator
 import de.qabel.core.logging.QabelLog
-import de.qabel.core.logging.error
-import de.qabel.core.logging.info
 import de.qabel.qabelbox.QabelBoxApplication
 import de.qabel.qabelbox.R
 import de.qabel.qabelbox.TestConstants

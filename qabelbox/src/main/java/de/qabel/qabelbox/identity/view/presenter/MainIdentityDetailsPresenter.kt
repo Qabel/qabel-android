@@ -2,11 +2,8 @@ package de.qabel.qabelbox.identity.view.presenter
 
 import android.telephony.PhoneNumberUtils
 import com.google.i18n.phonenumbers.NumberParseException
-import com.google.i18n.phonenumbers.PhoneNumberUtil
 import de.qabel.core.config.Identity
 import de.qabel.core.logging.QabelLog
-import de.qabel.core.logging.error
-import de.qabel.qabelbox.R
 import de.qabel.qabelbox.helper.Formatter
 import de.qabel.qabelbox.helper.formatPhoneNumber
 import de.qabel.qabelbox.identity.interactor.IdentityUseCase

@@ -28,8 +28,8 @@ class AndroidLoggerWrapper(clazz: Class<*>) : QabelLoggerWrapper {
         Log.v(TAG, msg.toString().format(args))
     }
 
-    override fun error(msg: Any, exception: Throwable?) {
-        Log.e(TAG, msg.toString(), exception)
+    override fun error(msg: Any?, exception: Throwable?) {
+        Log.e(TAG, msg?.toString(), exception)
     }
 
 }

@@ -13,6 +13,7 @@ import de.qabel.core.config.Identities
 import de.qabel.core.config.Identity
 import de.qabel.core.config.factory.DropUrlGenerator
 import de.qabel.core.index.formatPhoneNumber
+import de.qabel.core.index.formatPhoneNumberReadable
 import de.qabel.core.index.isValidPhoneNumber
 import de.qabel.core.logging.QabelLog
 import de.qabel.qabelbox.QabelBoxApplication
@@ -64,7 +65,8 @@ class CreateIdentityActivity : BaseWizardActivity(), QabelLog, DataPermissionsAd
 
     override val headerFragmentText: String get() = identityName
     override val headerSecondLine: String get() = email
-    override val headerThirdLine: String get() = phoneNumber
+    override val headerThirdLine: String
+        get() = if (phoneNumber.isNotBlank()) formatPhoneNumberReadable(phoneNumber) else phoneNumber
 
     override val actionBarTitle: Int = R.string.headline_add_identity
     override val wizardEntityLabel: String by lazy { getString(R.string.identity) }
@@ -141,9 +143,9 @@ class CreateIdentityActivity : BaseWizardActivity(), QabelLog, DataPermissionsAd
 
         val phoneManager = ctx.getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
         var phone = phoneManager.line1Number
-        if (!phone.isNullOrBlank()) {
+        if (!phone.isNullOrBlank() && isValidPhoneNumber(phone)) {
             try {
-                phone = formatPhoneNumber(phone)
+                phone = formatPhoneNumberReadable(phone)
                 enterPhoneFragment.setValue(phone)
                 info("Phone number detected $phone")
             } catch (ex: NumberFormatException) {

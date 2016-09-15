@@ -7,17 +7,12 @@ import de.qabel.core.config.Identity
 import de.qabel.core.config.VerificationStatus
 import de.qabel.core.index.IndexService
 import de.qabel.core.index.IndexSyncAction
-import de.qabel.core.index.server.ExternalContactsAccessor
 import de.qabel.core.logging.QabelLog
-import de.qabel.core.logging.debug
-import de.qabel.core.logging.error
-import de.qabel.core.logging.info
 import de.qabel.qabelbox.QabelBoxApplication
-import de.qabel.qabelbox.QblBroadcastConstants
-import de.qabel.qabelbox.QblBroadcastConstants.*
+import de.qabel.qabelbox.QblBroadcastConstants.Contacts
 import de.qabel.qabelbox.QblBroadcastConstants.Identities.*
+import de.qabel.qabelbox.QblBroadcastConstants.Index
 import de.qabel.qabelbox.QblBroadcastConstants.Index.*
-import de.qabel.qabelbox.index.dagger.IndexModule
 import de.qabel.qabelbox.index.preferences.IndexPreferences
 import javax.inject.Inject
 

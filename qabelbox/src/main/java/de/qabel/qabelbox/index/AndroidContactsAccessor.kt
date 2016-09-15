@@ -8,8 +8,6 @@ import de.qabel.core.index.RawContact
 import de.qabel.core.index.formatPhoneNumber
 import de.qabel.core.index.server.ExternalContactsAccessor
 import de.qabel.core.logging.QabelLog
-import de.qabel.core.logging.debug
-import de.qabel.core.logging.info
 import de.qabel.qabelbox.helper.Formatter
 
 class AndroidContactsAccessor(private val context: Context) : ExternalContactsAccessor, QabelLog {

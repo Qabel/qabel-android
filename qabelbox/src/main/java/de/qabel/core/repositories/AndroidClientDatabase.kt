@@ -3,7 +3,6 @@ package de.qabel.core.repositories
 import de.qabel.chat.repository.sqlite.migration.Migration1460997040ChatDropMessage
 import de.qabel.chat.repository.sqlite.migration.Migration1460997041ChatShares
 import de.qabel.core.logging.QabelLog
-import de.qabel.core.logging.trace
 import de.qabel.core.repository.sqlite.AbstractClientDatabase
 import de.qabel.core.repository.sqlite.ClientDatabase
 import de.qabel.core.repository.sqlite.migration.*

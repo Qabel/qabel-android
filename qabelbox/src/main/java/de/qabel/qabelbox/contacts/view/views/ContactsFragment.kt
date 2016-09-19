@@ -25,6 +25,7 @@ import de.qabel.qabelbox.fragments.BaseFragment
 import de.qabel.qabelbox.helper.ExternalApps
 import de.qabel.qabelbox.helper.UIHelper
 import de.qabel.qabelbox.index.AndroidIndexSyncService
+import de.qabel.qabelbox.index.ContactSyncAdapter
 import de.qabel.qabelbox.navigation.Navigator
 import de.qabel.qabelbox.permissions.DataPermissionsAdapter
 import de.qabel.qabelbox.permissions.hasContactsReadPermission
@@ -154,7 +155,7 @@ class ContactsFragment() : ContactsView, BaseFragment(), AnkoLogger, DataPermiss
                 if (!hasContactsReadPermission())
                     mActivity?.let { it.requestContactsPermission() }
                 else
-                    AndroidIndexSyncService.startSyncContacts(ctx)
+                    ContactSyncAdapter.Manager.startOnDemandSyncAdapter()
             }
         }
         return true

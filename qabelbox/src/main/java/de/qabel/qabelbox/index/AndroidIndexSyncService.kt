@@ -3,6 +3,7 @@ package de.qabel.qabelbox.index
 import android.app.IntentService
 import android.content.Context
 import android.content.Intent
+import android.os.IBinder
 import de.qabel.core.config.Identity
 import de.qabel.core.config.VerificationStatus
 import de.qabel.core.index.IndexService
@@ -22,6 +23,7 @@ class AndroidIndexSyncService() : IntentService(AndroidIndexSyncService::class.j
         QabelLog, DataPermissionsAdapter {
 
     override val permissionContext: Context by lazy { applicationContext }
+    private val contactSyncAdapter: ContactSyncAdapter by lazy { ContactSyncAdapter(applicationContext, true) }
     @Inject lateinit var indexService: IndexService
     @Inject lateinit var indexPrefs: IndexPreferences
 
@@ -32,9 +34,6 @@ class AndroidIndexSyncService() : IntentService(AndroidIndexSyncService::class.j
 
         fun startSyncVerifications(context: Context) =
                 start(context, Index.SYNC_VERIFICATIONS)
-
-        fun startSyncContacts(context: Context) =
-                start(context, Index.SYNC_CONTACTS)
     }
 
     override fun onCreate() {
@@ -42,6 +41,9 @@ class AndroidIndexSyncService() : IntentService(AndroidIndexSyncService::class.j
         QabelBoxApplication.getApplicationComponent(applicationContext).indexComponent().inject(this)
         info("Service initialized!")
     }
+
+    override fun onBind(intent: Intent?): IBinder =
+            contactSyncAdapter.syncAdapterBinder
 
     private fun Intent.affectedIdentity(): Identity = getSerializableExtra(KEY_IDENTITY) as Identity
     private fun Intent.outdatedIdentity(): Identity = getSerializableExtra(OLD_IDENTITY) as Identity
@@ -53,7 +55,6 @@ class AndroidIndexSyncService() : IntentService(AndroidIndexSyncService::class.j
                 IDENTITY_CHANGED -> handleIdentityChanged(intent)
                 IDENTITY_CREATED -> handleIdentityCreated(intent)
                 IDENTITY_REMOVED -> handleRemoveIdentity(intent)
-                SYNC_CONTACTS -> handleSyncContacts()
                 SYNC_VERIFICATIONS -> indexService.updateIdentityVerifications()
                 IDENTITY_UPLOAD_ENABLED -> indexService.updateIdentities()
                 IDENTITY_UPLOAD_DISABLED -> indexService.removeIdentities()
@@ -86,20 +87,6 @@ class AndroidIndexSyncService() : IntentService(AndroidIndexSyncService::class.j
             sendBroadcast(Intent(REQUEST_VERIFICATION).apply {
                 putExtra(KEY_IDENTITY, identity)
             })
-        }
-    }
-
-    private fun handleSyncContacts() {
-        if (!indexPrefs.contactSyncEnabled || !hasContactsReadPermission())
-            return
-
-        val syncResults = indexService.syncContacts(AndroidContactsAccessor(applicationContext))
-        if (syncResults.isNotEmpty()) {
-            applicationContext.sendBroadcast(Intent(Contacts.CONTACTS_CHANGED))
-            val grouped = syncResults.groupBy { it.action }
-            val createdCount = grouped[IndexSyncAction.CREATE]?.size ?: 0
-            val updatedCount = grouped[IndexSyncAction.UPDATE]?.size ?: 0
-            info("ContactSync completed! Created: $createdCount, Updated: $updatedCount")
         }
     }
 

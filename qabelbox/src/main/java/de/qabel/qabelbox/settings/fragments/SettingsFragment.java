@@ -19,6 +19,7 @@ import de.qabel.qabelbox.account.AccountManager;
 import de.qabel.qabelbox.config.AppPreference;
 import de.qabel.qabelbox.helper.UIHelper;
 import de.qabel.qabelbox.index.AndroidIndexSyncService;
+import de.qabel.qabelbox.index.ContactSyncAdapter;
 import de.qabel.qabelbox.index.preferences.IndexPreferences;
 import de.qabel.qabelbox.settings.SettingsActivity;
 import de.qabel.qabelbox.settings.navigation.SettingsNavigator;
@@ -90,8 +91,9 @@ public class SettingsFragment extends PreferenceFragment {
             public boolean onPreferenceChange(Preference preference, Object newValue) {
                 boolean enabled = (newValue instanceof Boolean) && ((Boolean)newValue) == true;
                 indexPreferences.setContactSyncEnabled(enabled);
+                ContactSyncAdapter.Manager.INSTANCE.configureSync(getActivity());
                 if(enabled){
-                    AndroidIndexSyncService.Companion.startSyncContacts(getActivity());
+                    ContactSyncAdapter.Manager.INSTANCE.startOnDemandSyncAdapter();
                 }
                 return true;
             }

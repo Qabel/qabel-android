@@ -47,6 +47,7 @@ import de.qabel.qabelbox.helper.CacheFileHelper
 import de.qabel.qabelbox.helper.Sanity
 import de.qabel.qabelbox.helper.UIHelper
 import de.qabel.qabelbox.index.AndroidIndexSyncService
+import de.qabel.qabelbox.index.ContactSyncAdapter
 import de.qabel.qabelbox.index.preferences.IndexPreferences
 import de.qabel.qabelbox.listeners.intentListener
 import de.qabel.qabelbox.navigation.MainNavigator
@@ -235,7 +236,8 @@ class MainActivity : CrashReportingActivity(),
         if (requestCode == REQUEST_CONTACTS_READ_PERMISSION) {
             isPermissionGranted(Manifest.permission.READ_CONTACTS, permissions, grantResults, {
                 indexPreferences.contactSyncEnabled = true
-                AndroidIndexSyncService.startSyncContacts(this)
+                ContactSyncAdapter.Manager.configureSync(applicationContext)
+                ContactSyncAdapter.Manager.startOnDemandSyncAdapter()
             }, {
                 indexPreferences.contactSyncEnabled = false
             })
@@ -245,6 +247,7 @@ class MainActivity : CrashReportingActivity(),
     private fun setupAccount() {
         AccountHelper.createSyncAccount(applicationContext)
         AccountHelper.configurePeriodicPolling()
+        ContactSyncAdapter.Manager.configureSync(applicationContext)
     }
 
     fun installConnectivityManager(connectivityManager: ConnectivityManager) {

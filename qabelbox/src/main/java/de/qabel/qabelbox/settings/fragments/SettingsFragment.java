@@ -18,6 +18,8 @@ import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.account.AccountManager;
 import de.qabel.qabelbox.config.AppPreference;
 import de.qabel.qabelbox.helper.UIHelper;
+import de.qabel.qabelbox.index.AndroidIndexSyncService;
+import de.qabel.qabelbox.index.preferences.IndexPreferences;
 import de.qabel.qabelbox.settings.SettingsActivity;
 import de.qabel.qabelbox.settings.navigation.SettingsNavigator;
 import de.qabel.qabelbox.storage.model.BoxQuota;
@@ -26,10 +28,14 @@ public class SettingsFragment extends PreferenceFragment {
 
     final public static String APP_PREF_NAME = "settings";
 
+    private static final String KEY_CONTACT_SYNC = "contact_sync_enabled";
+
     @Inject
     AccountManager accountManager;
     @Inject
     AppPreference appPreferences;
+    @Inject
+    IndexPreferences indexPreferences;
     @Inject
     SettingsNavigator settingsNavigator;
 
@@ -77,12 +83,25 @@ public class SettingsFragment extends PreferenceFragment {
                 return true;
             }
         });
+
+        Preference contactSync = findPreference(KEY_CONTACT_SYNC);
+        contactSync.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+            @Override
+            public boolean onPreferenceChange(Preference preference, Object newValue) {
+                boolean enabled = (newValue instanceof Boolean) && ((Boolean)newValue) == true;
+                indexPreferences.setContactSyncEnabled(enabled);
+                if(enabled){
+                    AndroidIndexSyncService.Companion.startSyncContacts(getActivity());
+                }
+                return true;
+            }
+        });
     }
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        ((SettingsActivity)getActivity()).getComponent().inject(this);
+        ((SettingsActivity) getActivity()).getComponent().inject(this);
         refreshAccountData();
     }
 
@@ -111,9 +130,9 @@ public class SettingsFragment extends PreferenceFragment {
         BoxQuota quota = accountManager.getBoxQuota();
         String summaryLabel;
         String usedStorage = FileUtils.byteCountToDisplaySize(quota.getSize());
-        if(quota.getQuota() < 0){
+        if (quota.getQuota() < 0) {
             summaryLabel = getString(R.string.currently_not_available);
-        }else if (quota.getQuota() > 0) {
+        } else if (quota.getQuota() > 0) {
             summaryLabel = getString(R.string.used_storage, usedStorage,
                     FileUtils.byteCountToDisplaySize(quota.getQuota()));
         } else {

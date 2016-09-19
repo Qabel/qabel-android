@@ -383,4 +383,6 @@
     <string name="phone_number_request_info">If you grant us access to your phone, we can try to read your phone number. You can also enter it manually or use Qabel without a phone number.</string>
     <string name="contacts_read_request_info">Qabel requires read access to your contacts to show you which one of them also is Qabel user.</string>
     <string name="cannot_read_phone_number">Failed to read phone number</string>
+    <string name="android_contact_sync">Automatic contact search</string>
+    <string name="android_contact_sync_text">The Qabel client is searching periodically by known phone numbers and emails to find Qabel contacts.</string>
 </resources>

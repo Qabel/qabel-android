@@ -340,4 +340,6 @@
     <string name="phone_number_request_info">Wenn du Qabel Zugriff auf dein Telefon gibst, können wir deine Telefonnummer lesen. Du kannst deine Telefonnummer auch manuell eingeben oder Qabel ohne Telefonnummer verwenden.</string>
     <string name="contacts_read_request_info">Qabel benötigt Zugriff auf deine Kontakte um dir zu zeigen, wer von ihnen auch bei Qabel ist.</string>
     <string name="cannot_read_phone_number">Telefonnummer konnte nicht ausgelesen werden</string>
+    <string name="android_contact_sync">Automatische Kontaktsuche</string>
+    <string name="android_contact_sync_text">Der Qabel Client sucht regelmäßig nach bekannten Telefonnummer und Email Adressen um Qabelkontakte zu finden.</string>
 </resources>

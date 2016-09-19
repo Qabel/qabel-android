@@ -10,25 +10,15 @@
         android:id="@+id/contact_icon_border"
         style="@style/ListIcon"
         android:layout_width="wrap_content"
-        android:layout_height="45sp"
+        android:layout_height="@dimen/contact_initials"
         android:layout_gravity="center_vertical"
-        android:padding="5sp">
+        android:padding="5dp">
 
         <de.qabel.qabelbox.ui.views.SquareFrameLayout
+            android:id="@+id/contact_inititals"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:layout_gravity="center_vertical"
-            android:background="@drawable/identity_circle">
-
-            <de.qabel.qabelbox.ui.views.TextViewFont
-                android:id="@+id/tv_initial"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerInParent="true"
-                android:layout_gravity="center"
-                android:gravity="center"
-                android:textColor="@color/white"
-                android:textSize="@dimen/textsize_welcome_header" />
+            android:layout_gravity="center_vertical">
         </de.qabel.qabelbox.ui.views.SquareFrameLayout>
     </de.qabel.qabelbox.ui.views.SquareFrameLayout>
 
@@ -77,5 +67,13 @@
             android:ellipsize="end"
             android:lines="1"
             android:visibility="gone" />
+        <TextView
+            android:id="@+id/text_public_key"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:lines="2"
+            android:singleLine="false"
+            android:typeface="monospace"
+            android:visibility="gone"/>
     </LinearLayout>
 </LinearLayout>

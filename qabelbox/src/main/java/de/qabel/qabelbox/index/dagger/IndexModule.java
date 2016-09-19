@@ -24,26 +24,21 @@ import de.qabel.qabelbox.index.preferences.IndexPreferences;
 @Module
 public class IndexModule {
 
-    @Provides
-    IndexServer providesIndexServer(Context context) {
+    private IndexServer providesIndexServer(Context context) {
         //TODO JAVAAAAA
         return new IndexHTTP(new IndexHTTPLocation(context.getString(R.string.indexServer)), HttpClients.createMinimal());
     }
 
     @Provides
-    IndexService providesIndexInteractor(IndexServer indexServer,
+    IndexService providesIndexInteractor(Context context,
                                          ContactRepository contactRepository,
                                          IdentityRepository identityRepository) {
-        return new MainIndexService(indexServer, contactRepository, identityRepository);
+        return new MainIndexService(providesIndexServer(context), contactRepository, identityRepository);
     }
 
     @Provides
-    IndexPreferences providesIndexPreferences(Context context){
+    IndexPreferences providesIndexPreferences(Context context) {
         return new AndroidIndexPreferences(context);
     }
 
-    @Provides
-    ExternalContactsAccessor providesContactsAccessor(Context context) {
-        return new AndroidContactsAccessor(context);
-    }
 }

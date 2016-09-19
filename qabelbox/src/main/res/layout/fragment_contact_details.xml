@@ -11,25 +11,15 @@
     <de.qabel.qabelbox.ui.views.SquareFrameLayout
         android:id="@+id/contact_icon_border"
         android:layout_width="wrap_content"
-        android:layout_height="100sp"
+        android:layout_height="100dp"
         android:layout_gravity="center_horizontal"
-        android:padding="5sp">
+        android:padding="5dp">
 
         <de.qabel.qabelbox.ui.views.SquareFrameLayout
+            android:id="@+id/contact_initials"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:layout_gravity="center"
-            android:background="@drawable/identity_circle">
-
-            <de.qabel.qabelbox.ui.views.TextViewFont
-                android:id="@+id/tv_initial"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerInParent="true"
-                android:layout_gravity="center"
-                android:gravity="center"
-                android:textColor="@color/white"
-                android:textSize="@dimen/textsize_identity_circle_initial" />
+            android:layout_gravity="center">
         </de.qabel.qabelbox.ui.views.SquareFrameLayout>
     </de.qabel.qabelbox.ui.views.SquareFrameLayout>
 
@@ -39,14 +29,14 @@
         android:background="@drawable/separator_gray">
 
         <de.qabel.qabelbox.ui.views.TextViewFont
-            android:id="@+id/editTextContactNick"
+            android:id="@+id/text_nick"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom"
             android:textSize="@dimen/textsize_qabel_logo" />
 
         <de.qabel.qabelbox.ui.views.TextViewFont
-            android:id="@+id/editTextContactName"
+            android:id="@+id/text_alias"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom"
@@ -69,13 +59,32 @@
         android:text="@string/contact"
         android:textSize="@dimen/textsize_welcome_screen" />
 
-
-    <TextView
-        android:id="@+id/editTextContactDropURL"
+    <de.qabel.qabelbox.ui.views.TextViewFont
+        android:id="@+id/text_phone"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="5sp"
-        android:drawablePadding="10sp"
+        android:layout_marginTop="@dimen/default_space"
+        android:drawablePadding="@dimen/default_drawable_padding"
+        android:drawableStart="@drawable/phone"
+        android:gravity="start|center_vertical"
+        android:textSize="@dimen/textsize_normal" />
+
+    <de.qabel.qabelbox.ui.views.TextViewFont
+        android:id="@+id/text_email"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/default_space"
+        android:drawablePadding="@dimen/default_drawable_padding"
+        android:drawableStart="@drawable/email"
+        android:gravity="start|center_vertical"
+        android:textSize="@dimen/textsize_normal" />
+
+    <TextView
+        android:id="@+id/text_drop"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/default_space"
+        android:drawablePadding="@dimen/default_drawable_padding"
         android:drawableStart="@drawable/earth"
         android:lines="3"
         android:singleLine="false"
@@ -83,11 +92,11 @@
         android:typeface="monospace" />
 
     <TextView
-        android:id="@+id/editTextContactPublicKey"
+        android:id="@+id/text_public_key"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="5sp"
-        android:drawablePadding="10sp"
+        android:layout_marginTop="@dimen/default_space"
+        android:drawablePadding="@dimen/default_drawable_padding"
         android:drawableStart="@drawable/key_variant"
         android:lines="4"
         android:singleLine="false"

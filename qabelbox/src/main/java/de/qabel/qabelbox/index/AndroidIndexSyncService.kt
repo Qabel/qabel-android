@@ -7,24 +7,23 @@ import de.qabel.core.config.Identity
 import de.qabel.core.config.VerificationStatus
 import de.qabel.core.index.IndexService
 import de.qabel.core.index.IndexSyncAction
-import de.qabel.core.index.server.ExternalContactsAccessor
 import de.qabel.core.logging.QabelLog
-import de.qabel.core.logging.debug
-import de.qabel.core.logging.error
-import de.qabel.core.logging.info
 import de.qabel.qabelbox.QabelBoxApplication
-import de.qabel.qabelbox.QblBroadcastConstants
+import de.qabel.qabelbox.QblBroadcastConstants.Contacts
 import de.qabel.qabelbox.QblBroadcastConstants.Identities.*
+import de.qabel.qabelbox.QblBroadcastConstants.Index
 import de.qabel.qabelbox.QblBroadcastConstants.Index.*
-import de.qabel.qabelbox.index.dagger.IndexModule
 import de.qabel.qabelbox.index.preferences.IndexPreferences
+import de.qabel.qabelbox.permissions.DataPermissionsAdapter
+import de.qabel.qabelbox.permissions.hasContactsReadPermission
 import javax.inject.Inject
 
-class AndroidIndexSyncService() : IntentService(AndroidIndexSyncService::class.java.simpleName), QabelLog {
+class AndroidIndexSyncService() : IntentService(AndroidIndexSyncService::class.java.simpleName),
+        QabelLog, DataPermissionsAdapter {
 
+    override val permissionContext: Context by lazy { applicationContext }
     @Inject lateinit var indexService: IndexService
-    @Inject lateinit var contactsAccessor: ExternalContactsAccessor
-    @Inject lateinit var indexPreferences: IndexPreferences
+    @Inject lateinit var indexPrefs: IndexPreferences
 
     companion object {
         private fun start(context: Context, action: String) {
@@ -32,15 +31,15 @@ class AndroidIndexSyncService() : IntentService(AndroidIndexSyncService::class.j
         }
 
         fun startSyncVerifications(context: Context) =
-                start(context, QblBroadcastConstants.Index.SYNC_VERIFICATIONS)
+                start(context, Index.SYNC_VERIFICATIONS)
 
         fun startSyncContacts(context: Context) =
-                start(context, QblBroadcastConstants.Index.SYNC_CONTACTS)
+                start(context, Index.SYNC_CONTACTS)
     }
 
     override fun onCreate() {
         super.onCreate()
-        QabelBoxApplication.getApplicationComponent(applicationContext).plus(IndexModule()).inject(this)
+        QabelBoxApplication.getApplicationComponent(applicationContext).indexComponent().inject(this)
         info("Service initialized!")
     }
 
@@ -51,42 +50,39 @@ class AndroidIndexSyncService() : IntentService(AndroidIndexSyncService::class.j
         debug("IndexSync received intent with action ${intent.action}")
         try {
             when (intent.action) {
-                IDENTITY_CHANGED -> {
-                    if (indexPreferences.indexUploadEnabled) {
-                        val identity = intent.affectedIdentity()
-                        val oldIdentity = intent.outdatedIdentity()
-                        indexService.updateIdentity(identity, oldIdentity)
-                        sendRequestIntentIfRequiresPhoneVerification(identity)
-                    }
-                }
-                IDENTITY_CREATED -> {
-                    if (indexPreferences.indexUploadEnabled) {
-                        val identity = intent.affectedIdentity()
-                        indexService.updateIdentity(identity)
-                        sendRequestIntentIfRequiresPhoneVerification(identity)
-                    }
-                }
-                IDENTITY_REMOVED -> indexService.deleteIdentity(intent.affectedIdentity())
-                SYNC_CONTACTS -> {
-                    val syncResults = indexService.syncContacts(contactsAccessor)
-                    if (syncResults.isNotEmpty()) {
-                        applicationContext.sendBroadcast(Intent(QblBroadcastConstants.Contacts.CONTACTS_CHANGED))
-                        val grouped = syncResults.groupBy { it.action }
-                        val createdCount = grouped[IndexSyncAction.CREATE]?.size ?: 0
-                        val updatedCount = grouped[IndexSyncAction.UPDATE]?.size ?: 0
-                        info("ContactSync completed! Created: $createdCount, Updated: $updatedCount")
-                    }
-                }
-                IDENTITY_UPLOAD_ENABLED -> {
-
-                }
-                IDENTITY_UPLOAD_DISABLED -> {
-
-                }
+                IDENTITY_CHANGED -> handleIdentityChanged(intent)
+                IDENTITY_CREATED -> handleIdentityCreated(intent)
+                IDENTITY_REMOVED -> handleRemoveIdentity(intent)
+                SYNC_CONTACTS -> handleSyncContacts()
+                IDENTITY_UPLOAD_ENABLED -> indexService.updateIdentities()
+                IDENTITY_UPLOAD_DISABLED -> indexService.removeIdentities()
             }
         } catch (ex: Throwable) {
+            ex.printStackTrace()
             error("Error syncing with index. Action: ${intent.action}", ex)
         }
+    }
+
+    private fun handleIdentityCreated(intent: Intent) {
+        if (indexPrefs.indexUploadEnabled) {
+            val identity = intent.affectedIdentity()
+            indexService.updateIdentity(identity)
+            sendRequestIntentIfRequiresPhoneVerification(identity)
+        }
+    }
+
+    private fun handleIdentityChanged(intent: Intent) {
+        if (indexPrefs.indexUploadEnabled) {
+            val identity = intent.affectedIdentity()
+            val oldIdentity = intent.outdatedIdentity()
+            indexService.updateIdentity(identity, oldIdentity)
+            sendRequestIntentIfRequiresPhoneVerification(identity)
+        }
+    }
+
+    private fun handleRemoveIdentity(intent: Intent) {
+        if (indexPrefs.indexUploadEnabled)
+            indexService.removeIdentity(intent.affectedIdentity())
     }
 
     private fun sendRequestIntentIfRequiresPhoneVerification(identity: Identity) {
@@ -94,6 +90,20 @@ class AndroidIndexSyncService() : IntentService(AndroidIndexSyncService::class.j
             sendBroadcast(Intent(REQUEST_VERIFICATION).apply {
                 putExtra(KEY_IDENTITY, identity)
             })
+        }
+    }
+
+    private fun handleSyncContacts() {
+        if (!indexPrefs.contactSyncEnabled || !hasContactsReadPermission())
+            return
+
+        val syncResults = indexService.syncContacts(AndroidContactsAccessor(applicationContext))
+        if (syncResults.isNotEmpty()) {
+            applicationContext.sendBroadcast(Intent(Contacts.CONTACTS_CHANGED))
+            val grouped = syncResults.groupBy { it.action }
+            val createdCount = grouped[IndexSyncAction.CREATE]?.size ?: 0
+            val updatedCount = grouped[IndexSyncAction.UPDATE]?.size ?: 0
+            info("ContactSync completed! Created: $createdCount, Updated: $updatedCount")
         }
     }
 

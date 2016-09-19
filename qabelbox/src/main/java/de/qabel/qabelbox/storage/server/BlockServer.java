@@ -14,7 +14,7 @@ public interface BlockServer {
 
     void downloadFile(String prefix, String path, String ifModified, DownloadRequestCallback callback);
 
-    void uploadFile(String prefix, String name, File file, UploadRequestCallback callback);
+    void uploadFile(String prefix, String name, File file, String etag, UploadRequestCallback callback);
 
     void deleteFile(String prefix, String path, RequestCallback callback);
 

@@ -2,6 +2,8 @@ package de.qabel.qabelbox.identity.view.adapter
 
 import android.view.View
 import de.qabel.core.config.Identity
+import de.qabel.core.index.formatPhoneNumberReadable
+import de.qabel.core.index.isValidPhoneNumber
 import de.qabel.core.ui.initials
 import de.qabel.core.ui.readableKey
 import de.qabel.core.ui.readableUrl
@@ -17,7 +19,8 @@ class IdentityDetailsAdapter() {
     fun loadIdentity(identity: Identity) {
         view?.apply {
             val mail = identity.email ?: ""
-            val phone = identity.phone ?: ""
+            val phone = if (isValidPhoneNumber(identity.phone))
+                formatPhoneNumberReadable(identity.phone) else ""
 
             identity_icon.background = IdentityIconDrawable(
                     text = identity.initials(),

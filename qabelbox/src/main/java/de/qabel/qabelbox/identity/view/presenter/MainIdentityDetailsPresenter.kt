@@ -4,7 +4,6 @@ import de.qabel.core.config.Identity
 import de.qabel.core.index.formatPhoneNumber
 import de.qabel.core.index.isValidPhoneNumber
 import de.qabel.core.logging.QabelLog
-import de.qabel.core.logging.error
 import de.qabel.qabelbox.helper.Formatter
 import de.qabel.qabelbox.identity.interactor.IdentityUseCase
 import de.qabel.qabelbox.identity.view.IdentityDetailsView

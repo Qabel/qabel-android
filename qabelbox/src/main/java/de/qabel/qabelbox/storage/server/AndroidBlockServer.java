@@ -34,7 +34,7 @@ public class AndroidBlockServer extends BaseServer implements BlockServer {
 
     private void doFileServerAction(String prefix, String path, String method,
                                     RequestBody body, RequestCallback callback,
-                                    String ifModified) {
+                                    String ifModified, String eTag) {
         Request.Builder builder = new Request.Builder()
                 .url(urlForFile(prefix, path));
 
@@ -44,6 +44,9 @@ public class AndroidBlockServer extends BaseServer implements BlockServer {
         if (ifModified != null) {
             builder.addHeader("If-None-Match", ifModified);
         }
+        if (eTag != null) {
+            builder.addHeader("If-Match", eTag);
+        }
         Request request = builder.build();
         Log.v(TAG, "blockserver request " + request.toString());
 
@@ -52,17 +55,17 @@ public class AndroidBlockServer extends BaseServer implements BlockServer {
 
     @Override
     public void downloadFile(String prefix, String path, String ifModified, DownloadRequestCallback callback) {
-        doFileServerAction(prefix, path, "GET", null, callback, ifModified);
+        doFileServerAction(prefix, path, "GET", null, callback, ifModified, null);
     }
 
     @Override
-    public void uploadFile(String prefix, String name, File file, UploadRequestCallback callback) {
-        doFileServerAction(prefix, name, "POST", new UploadRequestBody(file, JSON, callback), callback, null);
+    public void uploadFile(String prefix, String name, File file, String eTag, UploadRequestCallback callback) {
+        doFileServerAction(prefix, name, "POST", new UploadRequestBody(file, JSON, callback), callback, null, eTag);
     }
 
     @Override
     public void deleteFile(String prefix, String path, RequestCallback callback) {
-        doFileServerAction(prefix, path, "DELETE", null, callback, null);
+        doFileServerAction(prefix, path, "DELETE", null, callback, null, null);
     }
 
     @Override

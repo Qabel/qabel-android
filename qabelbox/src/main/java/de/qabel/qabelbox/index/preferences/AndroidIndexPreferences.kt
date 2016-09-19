@@ -15,7 +15,6 @@ class AndroidIndexPreferences(context: Context) : IndexPreferences, AndroidPrefe
         private val CONTACT_SYNC = "contact_sync_enabled"
         private val CONTACT_SYNC_TIME = "contact_sync_time"
 
-        private val INDEX_UPLOAD_ENABLED = "index_upload_enabled"
         private val PHONE_STATE_PERMISSION = "phone_state_permission"
     }
 
@@ -29,10 +28,6 @@ class AndroidIndexPreferences(context: Context) : IndexPreferences, AndroidPrefe
     override var contactSyncTime: Long
         get() = getLong(CONTACT_SYNC_TIME, 0)
         set(value) = putLong(CONTACT_SYNC_TIME, value)
-
-    override var indexUploadEnabled: Boolean
-        get() = getInt(INDEX_UPLOAD_ENABLED, 1) > 0
-        set(value) = putInt(INDEX_UPLOAD_ENABLED, if (value) 1 else 0)
 
     override var phoneStatePermission: Boolean
         get() = getBoolean(PHONE_STATE_PERMISSION, true)

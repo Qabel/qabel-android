@@ -6,8 +6,6 @@ interface IndexPreferences {
     var contactSyncEnabled : Boolean
     var contactSyncTime : Long
 
-    var indexUploadEnabled : Boolean
-
     var phoneStatePermission : Boolean
 
 }

@@ -54,6 +54,7 @@ class AndroidIndexSyncService() : IntentService(AndroidIndexSyncService::class.j
                 IDENTITY_CREATED -> handleIdentityCreated(intent)
                 IDENTITY_REMOVED -> handleRemoveIdentity(intent)
                 SYNC_CONTACTS -> handleSyncContacts()
+                SYNC_VERIFICATIONS -> indexService.updateIdentityVerifications()
                 IDENTITY_UPLOAD_ENABLED -> indexService.updateIdentities()
                 IDENTITY_UPLOAD_DISABLED -> indexService.removeIdentities()
             }
@@ -64,25 +65,20 @@ class AndroidIndexSyncService() : IntentService(AndroidIndexSyncService::class.j
     }
 
     private fun handleIdentityCreated(intent: Intent) {
-        if (indexPrefs.indexUploadEnabled) {
-            val identity = intent.affectedIdentity()
-            indexService.updateIdentity(identity)
-            sendRequestIntentIfRequiresPhoneVerification(identity)
-        }
+        val identity = intent.affectedIdentity()
+        indexService.updateIdentity(identity)
+        sendRequestIntentIfRequiresPhoneVerification(identity)
     }
 
     private fun handleIdentityChanged(intent: Intent) {
-        if (indexPrefs.indexUploadEnabled) {
-            val identity = intent.affectedIdentity()
-            val oldIdentity = intent.outdatedIdentity()
-            indexService.updateIdentity(identity, oldIdentity)
-            sendRequestIntentIfRequiresPhoneVerification(identity)
-        }
+        val identity = intent.affectedIdentity()
+        val oldIdentity = intent.outdatedIdentity()
+        indexService.updateIdentity(identity, oldIdentity)
+        sendRequestIntentIfRequiresPhoneVerification(identity)
     }
 
     private fun handleRemoveIdentity(intent: Intent) {
-        if (indexPrefs.indexUploadEnabled)
-            indexService.removeIdentity(intent.affectedIdentity())
+        indexService.removeIdentity(intent.affectedIdentity())
     }
 
     private fun sendRequestIntentIfRequiresPhoneVerification(identity: Identity) {

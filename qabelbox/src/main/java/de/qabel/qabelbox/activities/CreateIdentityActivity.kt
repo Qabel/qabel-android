@@ -148,10 +148,12 @@ class CreateIdentityActivity : BaseWizardActivity(), QabelLog, DataPermissionsAd
                 phone = formatPhoneNumberReadable(phone)
                 enterPhoneFragment.setValue(phone)
                 info("Phone number detected $phone")
+                return
             } catch (ex: NumberFormatException) {
                 error("Error parsing received system phone number $phone", ex)
             }
         }
+        toast(R.string.cannot_read_phone_number)
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {

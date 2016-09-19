@@ -339,4 +339,5 @@
     <string name="phone_number_invalid">Ihre Telefonnummer ist ungültig. Bitte prüfen Sie sie und versuchen Sie es erneut.</string>
     <string name="phone_number_request_info">Wenn du Qabel Zugriff auf dein Telefon gibst, können wir deine Telefonnummer lesen. Du kannst deine Telefonnummer auch manuell eingeben oder Qabel ohne Telefonnummer verwenden.</string>
     <string name="contacts_read_request_info">Qabel benötigt Zugriff auf deine Kontakte um dir zu zeigen, wer von ihnen auch bei Qabel ist.</string>
+    <string name="cannot_read_phone_number">Telefonnummer konnte nicht ausgelesen werden</string>
 </resources>

@@ -19,7 +19,7 @@ interface DataPermissionsAdapter {
 private fun DataPermissionsAdapter.showRequestPermissionDialog(activity: Activity,
                                                                requestCode: Int, permission: String,
                                                                textRes: Int, onDeny: () -> Unit) {
-    permissionContext.alert(R.string.dialog_headline_info, textRes, {
+    permissionContext.alert(textRes, R.string.dialog_headline_info, {
         positiveButton(R.string.yes) {
             requestPermission(activity, permission, requestCode)
         }
@@ -39,5 +39,5 @@ fun DataPermissionsAdapter.hasContactsReadPermission() =
 
 fun DataPermissionsAdapter.requestContactsReadPermission(activity: Activity, requestCode: Int, onDeny: () -> Unit) =
         showRequestPermissionDialog(activity, requestCode, Manifest.permission.READ_CONTACTS,
-                R.string.phone_number_request_info, onDeny)
+                R.string.contacts_read_request_info, onDeny)
 

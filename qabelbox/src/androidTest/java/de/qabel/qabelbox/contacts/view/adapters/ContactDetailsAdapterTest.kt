@@ -1,5 +1,6 @@
 package de.qabel.qabelbox.contacts.view.adapters
 
+/**
 import android.support.test.InstrumentationRegistry
 import android.view.View
 import android.widget.LinearLayout
@@ -12,7 +13,7 @@ import de.qabel.qabelbox.ui.views.TextViewFont
 import de.qabel.qabelbox.util.IdentityHelper
 import kotlinx.android.synthetic.main.fragment_contact_details.view.*
 import org.junit.Test
-
+**/
 /**
  * Mockito 2 not running on android, not running in roboelectic with phoneUtils
  */

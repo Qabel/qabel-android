@@ -1,6 +1,8 @@
 package de.qabel.qabelbox.activities
 
+import android.Manifest
 import android.app.AlertDialog
+import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
@@ -26,7 +28,6 @@ import de.qabel.chat.repository.ChatDropMessageRepository
 import de.qabel.core.config.Identity
 import de.qabel.core.repository.ContactRepository
 import de.qabel.core.repository.IdentityRepository
-import de.qabel.core.repository.exception.PersistenceException
 import de.qabel.core.ui.initials
 import de.qabel.qabelbox.QblBroadcastConstants
 import de.qabel.qabelbox.R
@@ -46,8 +47,13 @@ import de.qabel.qabelbox.helper.CacheFileHelper
 import de.qabel.qabelbox.helper.Sanity
 import de.qabel.qabelbox.helper.UIHelper
 import de.qabel.qabelbox.index.AndroidIndexSyncService
+import de.qabel.qabelbox.index.preferences.IndexPreferences
 import de.qabel.qabelbox.listeners.intentListener
 import de.qabel.qabelbox.navigation.MainNavigator
+import de.qabel.qabelbox.permissions.DataPermissionsAdapter
+import de.qabel.qabelbox.permissions.hasContactsReadPermission
+import de.qabel.qabelbox.permissions.isPermissionGranted
+import de.qabel.qabelbox.permissions.requestContactsReadPermission
 import de.qabel.qabelbox.settings.SettingsActivity
 import de.qabel.qabelbox.sync.FirebaseTopicManager
 import de.qabel.qabelbox.sync.TopicManager
@@ -61,8 +67,9 @@ import javax.inject.Inject
 class MainActivity : CrashReportingActivity(),
         HasComponent<MainActivityComponent>,
         TopicManager by FirebaseTopicManager(),
-        AnkoLogger {
+        AnkoLogger, DataPermissionsAdapter {
 
+    override val permissionContext: Context = this
 
     var TEST = false
 
@@ -90,6 +97,8 @@ class MainActivity : CrashReportingActivity(),
 
     @Inject
     lateinit internal var appPreferences: AppPreference
+    @Inject
+    lateinit internal var indexPreferences: IndexPreferences
 
     @Inject
     lateinit internal var navigator: MainNavigator
@@ -186,13 +195,14 @@ class MainActivity : CrashReportingActivity(),
         component.inject(this)
         Log.d(TAG, "onCreate " + this.hashCode())
 
-        try {
-            if (Sanity.startWizardActivities(this, identityRepository.findAll())) {
-                Log.d(TAG, "started wizard dialog")
-                return
+        if (!Sanity.isQabelReady(this, identityRepository)) {
+            Log.d(TAG, "started wizard dialog")
+            return
+        } else if (!indexPreferences.contactSyncAsked || (indexPreferences.contactSyncAsked
+                && !hasContactsReadPermission())) {
+            requestContactsReadPermission(this, REQUEST_CONTACTS_READ_PERMISSION) {
+                indexPreferences.contactSyncEnabled = false
             }
-        } catch (e: PersistenceException) {
-            throw RuntimeException(e)
         }
 
         setContentView(R.layout.activity_main)
@@ -216,6 +226,17 @@ class MainActivity : CrashReportingActivity(),
     override fun onResume() {
         super.onResume()
         updateNewMessageBadge()
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        if (requestCode == REQUEST_CONTACTS_READ_PERMISSION) {
+            isPermissionGranted(Manifest.permission.READ_CONTACTS, permissions, grantResults, {
+                indexPreferences.contactsReadPermission = true
+                AndroidIndexSyncService.startSyncContacts(this)
+            }, {
+                indexPreferences.contactsReadPermission = false
+            })
+        }
     }
 
     private fun setupAccount() {
@@ -559,7 +580,10 @@ class MainActivity : CrashReportingActivity(),
 
         private val TAG = "BoxMainActivity"
 
-        const val REQUEST_EXPORT_IDENTITY_AS_CONTACT = 19
+        const val REQUEST_EXPORT_IDENTITY_AS_CONTACT = 21
+
+        const val REQUEST_CONTACTS_READ_PERMISSION = 22
+
 
         // Intent extra to specify if the files fragment should be started
         // Defaults to true and is used in tests to shortcut the activity creation

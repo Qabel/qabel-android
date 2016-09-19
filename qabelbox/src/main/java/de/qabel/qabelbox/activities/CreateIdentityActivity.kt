@@ -158,10 +158,10 @@ class CreateIdentityActivity : BaseWizardActivity(), QabelLog, DataPermissionsAd
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == REQUEST_READ_PHONE_STATE) {
             isPermissionGranted(READ_PHONE_STATE, permissions, grantResults, {
-                indexPreferences.contactsReadPermission = true
+                indexPreferences.phoneStatePermission = true
                 tryReadPhoneNumber()
             }, {
-                indexPreferences.contactsReadPermission = false
+                indexPreferences.phoneStatePermission = false
             })
         }
     }

@@ -8,8 +8,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.spongycastle.util.encoders.Hex;
 
-import java.util.Date;
-
 import de.qabel.core.crypto.CryptoUtils;
 import de.qabel.qabelbox.persistence.SimpleJSONAdapter;
 import de.qabel.qabelbox.storage.data.BoxQuotaJSONAdapter;
@@ -29,9 +27,6 @@ public class AppPreference {
     private static final String P_LAST_APP_START_VERSION = "lastappstartversion";
     private static final String P_WELCOME_SCREEN_SHOWN_AT = "welcomescreenshownat";
     private static final String P_LAST_ACTIVE_IDENTITY = "P_LAST_ACTIVE_IDENTITY";
-
-    private static final String P_CONTACT_SYNC_ENABLED = "contact_sync_enabled";
-    private static final String P_CONTACT_SYNC_LAST = "contact_sync_LAST";
 
     private final Context context;
     private final SharedPreferences settings;
@@ -148,19 +143,4 @@ public class AppPreference {
         return null;
     }
 
-    public boolean isContactSyncEnabled() {
-        return settings.getBoolean(P_CONTACT_SYNC_ENABLED, true);
-    }
-
-    public void setContactSyncEnabled(boolean contactSyncEnabled) {
-        settings.edit().putBoolean(P_CONTACT_SYNC_ENABLED, contactSyncEnabled).commit();
-    }
-
-    public long getLastContactSync() {
-        return settings.getLong(P_CONTACT_SYNC_LAST, 0);
-    }
-
-    public void setLastContactSync(long lastContactSync) {
-        settings.edit().putLong(P_CONTACT_SYNC_LAST, lastContactSync).commit();
-    }
 }

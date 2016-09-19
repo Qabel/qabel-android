@@ -26,6 +26,8 @@ import de.qabel.qabelbox.helper.ExternalApps
 import de.qabel.qabelbox.helper.UIHelper
 import de.qabel.qabelbox.index.AndroidIndexSyncService
 import de.qabel.qabelbox.navigation.Navigator
+import de.qabel.qabelbox.permissions.DataPermissionsAdapter
+import de.qabel.qabelbox.permissions.hasContactsReadPermission
 import de.qabel.qabelbox.ui.extensions.showConfirmation
 import de.qabel.qabelbox.ui.extensions.showMessage
 import de.qabel.qabelbox.ui.extensions.showQuantityMessage
@@ -37,8 +39,10 @@ import org.jetbrains.anko.onUiThread
 import java.io.File
 import javax.inject.Inject
 
-class ContactsFragment() : ContactsView, BaseFragment(), AnkoLogger, SearchView.OnQueryTextListener {
+class ContactsFragment() : ContactsView, BaseFragment(), AnkoLogger, DataPermissionsAdapter,
+        SearchView.OnQueryTextListener {
 
+    override val permissionContext: Context get() = ctx
     override var searchString: String? = null
     override var showIgnored: Boolean = false
 
@@ -52,8 +56,11 @@ class ContactsFragment() : ContactsView, BaseFragment(), AnkoLogger, SearchView.
     lateinit var identity: Identity
 
     val adapter = ContactsAdapter({
-        contact -> presenter.handleClick(contact) }, {
-        contact -> presenter.handleLongClick(contact)
+        contact ->
+        presenter.handleClick(contact)
+    }, {
+        contact ->
+        presenter.handleLongClick(contact)
     })
 
     override fun showBottomSheet(contact: ContactDto) {
@@ -143,7 +150,12 @@ class ContactsFragment() : ContactsView, BaseFragment(), AnkoLogger, SearchView.
                 showIgnored = item.isChecked
                 presenter.refresh()
             }
-            R.id.refresh -> AndroidIndexSyncService.startSyncContacts(ctx)
+            R.id.refresh -> {
+                if (!hasContactsReadPermission())
+                    mActivity?.let { it.requestContactsPermission() }
+                else
+                    AndroidIndexSyncService.startSyncContacts(ctx)
+            }
         }
         return true
     }

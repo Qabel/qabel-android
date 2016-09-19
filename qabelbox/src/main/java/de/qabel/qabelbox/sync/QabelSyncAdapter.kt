@@ -64,10 +64,5 @@ open class QabelSyncAdapter : AbstractThreadedSyncAdapter, AnkoLogger {
         } catch(ex: Throwable) {
             warn("Error on syncing dropMessages", ex)
         }
-
-        if (preferences.isContactSyncEnabled &&
-                preferences.lastContactSync < (System.currentTimeMillis() - MILLIS_PER_DAY)) {
-            AndroidIndexSyncService.startSyncContacts(context.applicationContext)
-        }
     }
 }

@@ -198,11 +198,8 @@ class MainActivity : CrashReportingActivity(),
         if (!Sanity.isQabelReady(this, identityRepository)) {
             Log.d(TAG, "started wizard dialog")
             return
-        } else if (!indexPreferences.contactSyncAsked || (indexPreferences.contactSyncAsked
-                && !hasContactsReadPermission())) {
-            requestContactsReadPermission(this, REQUEST_CONTACTS_READ_PERMISSION) {
-                indexPreferences.contactSyncEnabled = false
-            }
+        } else if (!indexPreferences.contactSyncAsked || (indexPreferences.contactSyncEnabled && !hasContactsReadPermission())) {
+            requestContactsPermission()
         }
 
         setContentView(R.layout.activity_main)
@@ -223,6 +220,12 @@ class MainActivity : CrashReportingActivity(),
         AndroidIndexSyncService.startSyncVerifications(this)
     }
 
+    fun requestContactsPermission() {
+        requestContactsReadPermission(this, REQUEST_CONTACTS_READ_PERMISSION) {
+            indexPreferences.contactSyncEnabled = false
+        }
+    }
+
     override fun onResume() {
         super.onResume()
         updateNewMessageBadge()
@@ -231,10 +234,10 @@ class MainActivity : CrashReportingActivity(),
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         if (requestCode == REQUEST_CONTACTS_READ_PERMISSION) {
             isPermissionGranted(Manifest.permission.READ_CONTACTS, permissions, grantResults, {
-                indexPreferences.contactsReadPermission = true
+                indexPreferences.contactSyncEnabled = true
                 AndroidIndexSyncService.startSyncContacts(this)
             }, {
-                indexPreferences.contactsReadPermission = false
+                indexPreferences.contactSyncEnabled = false
             })
         }
     }

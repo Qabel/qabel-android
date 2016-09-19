@@ -27,6 +27,7 @@ import de.qabel.qabelbox.fragments.CreateIdentityEditTextFragment
 import de.qabel.qabelbox.fragments.CreateIdentityFinalFragment
 import de.qabel.qabelbox.fragments.CreateIdentityMainFragment
 import de.qabel.qabelbox.identity.interactor.IdentityUseCase
+import de.qabel.qabelbox.index.IndexIdentityListener
 import de.qabel.qabelbox.index.preferences.IndexPreferences
 import de.qabel.qabelbox.permissions.DataPermissionsAdapter
 import de.qabel.qabelbox.permissions.hasPhonePermission
@@ -58,6 +59,8 @@ class CreateIdentityActivity : BaseWizardActivity(), QabelLog, DataPermissionsAd
     lateinit internal var identityUseCase: IdentityUseCase
     @Inject
     lateinit internal var indexPreferences: IndexPreferences
+
+    val indexIdentityListener = IndexIdentityListener()
 
     internal val dropUrlGenerator: DropUrlGenerator by lazy { DropUrlGenerator(getString(R.string.dropServer)) }
 
@@ -126,12 +129,18 @@ class CreateIdentityActivity : BaseWizardActivity(), QabelLog, DataPermissionsAd
     override fun onCreate(savedInstanceState: Bundle?) {
         QabelBoxApplication.getApplicationComponent(applicationContext).inject(this)
         super.onCreate(savedInstanceState)
+        registerReceiver(indexIdentityListener, indexIdentityListener.createIntentFilter())
         identityUseCase.getIdentities().subscribe({
             existingIdentities = it
             canExit = it.identities.size > 0
         }, {
             existingIdentities = Identities()
         })
+    }
+
+    override fun onDestroy() {
+        unregisterReceiver(indexIdentityListener)
+        super.onDestroy()
     }
 
     private fun tryReadPhoneNumber() {

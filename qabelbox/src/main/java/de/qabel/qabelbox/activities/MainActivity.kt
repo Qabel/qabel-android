@@ -29,10 +29,11 @@ import de.qabel.core.config.Identity
 import de.qabel.core.repository.ContactRepository
 import de.qabel.core.repository.IdentityRepository
 import de.qabel.core.ui.initials
-import de.qabel.qabelbox.QblBroadcastConstants
+import de.qabel.qabelbox.QblBroadcastConstants.*
 import de.qabel.qabelbox.R
 import de.qabel.qabelbox.account.AccountManager
 import de.qabel.qabelbox.account.AccountStatusCodes
+import de.qabel.qabelbox.chat.services.AndroidChatServiceResponder
 import de.qabel.qabelbox.communication.connection.ConnectivityManager
 import de.qabel.qabelbox.config.AppPreference
 import de.qabel.qabelbox.contacts.extensions.color
@@ -48,7 +49,9 @@ import de.qabel.qabelbox.helper.Sanity
 import de.qabel.qabelbox.helper.UIHelper
 import de.qabel.qabelbox.index.AndroidIndexSyncService
 import de.qabel.qabelbox.index.ContactSyncAdapter
+import de.qabel.qabelbox.index.IndexIdentityListener
 import de.qabel.qabelbox.index.preferences.IndexPreferences
+import de.qabel.qabelbox.listeners.IntentListener
 import de.qabel.qabelbox.listeners.intentListener
 import de.qabel.qabelbox.navigation.MainNavigator
 import de.qabel.qabelbox.permissions.DataPermissionsAdapter
@@ -124,8 +127,8 @@ class MainActivity : CrashReportingActivity(),
                 R.dimen.material_drawer_item_profile_icon_width).toInt()
 
 
-    private val identityChangedListener = intentListener(QblBroadcastConstants.Identities.IDENTITY_CHANGED) {
-        val changedIdentity = it.getSerializableExtra(QblBroadcastConstants.Identities.KEY_IDENTITY) as Identity
+    private val identityChangedListener = intentListener(Identities.IDENTITY_CHANGED) {
+        val changedIdentity = it.getSerializableExtra(Identities.KEY_IDENTITY) as Identity
         if (changedIdentity.id == activeIdentity.id) {
             activeIdentity = changedIdentity
             drawerAccountHeader.activeProfile.email.text = activeIdentity.email
@@ -146,8 +149,8 @@ class MainActivity : CrashReportingActivity(),
             }
         }
     }
-    private val identityRemovedListener = intentListener(QblBroadcastConstants.Identities.IDENTITY_REMOVED) {
-        val deletedIdentity = it.getSerializableExtra(QblBroadcastConstants.Identities.KEY_IDENTITY) as Identity
+    private val identityRemovedListener = intentListener(Identities.IDENTITY_REMOVED) {
+        val deletedIdentity = it.getSerializableExtra(Identities.KEY_IDENTITY) as Identity
         val identities = identityRepository.findAll()
         deletedIdentity.dropUrls.forEach {
             unSubscribe(it)
@@ -168,17 +171,20 @@ class MainActivity : CrashReportingActivity(),
     }
 
     override val intentListeners = listOf(
-            intentListener(QblBroadcastConstants.Account.ACCOUNT_CHANGED, {
-                val statusCode = it.getIntExtra(QblBroadcastConstants.STATUS_CODE_PARAM, -1)
+            intentListener(Account.ACCOUNT_CHANGED, {
+                val statusCode = it.getIntExtra(STATUS_CODE_PARAM, -1)
                 when (statusCode) {
                     AccountStatusCodes.LOGOUT -> finish()
                 }
             }),
-            intentListener(QblBroadcastConstants.Chat.MESSAGE_STATE_CHANGED, {
+            intentListener(Chat.MESSAGE_STATE_CHANGED, {
                 updateNewMessageBadge()
             }),
             identityChangedListener,
-            identityRemovedListener)
+            identityRemovedListener,
+            IntentListener(Chat.NOTIFY_NEW_MESSAGES, AndroidChatServiceResponder()))
+
+    val indexIdentityListener = IndexIdentityListener()
 
     private fun updateNewMessageBadge() {
         val size = messageRepository.findNew(activeIdentity.id).size
@@ -202,6 +208,8 @@ class MainActivity : CrashReportingActivity(),
         } else if (!indexPreferences.contactSyncAsked || (indexPreferences.contactSyncEnabled && !hasContactsReadPermission())) {
             requestContactsPermission()
         }
+
+        registerReceiver(indexIdentityListener, indexIdentityListener.createIntentFilter())
 
         setContentView(R.layout.activity_main)
         ButterKnife.bind(this)
@@ -412,6 +420,7 @@ class MainActivity : CrashReportingActivity(),
         }
 
         connectivityManager.onDestroy()
+        unregisterReceiver(indexIdentityListener)
         super.onDestroy()
     }
 

@@ -23,7 +23,5 @@ class IndexIdentityListener() : BroadcastReceiver() {
                 addAction(IDENTITY_CHANGED)
                 addAction(IDENTITY_CREATED)
                 addAction(IDENTITY_REMOVED)
-                addAction(IDENTITY_UPLOAD_ENABLED)
-                addAction(IDENTITY_UPLOAD_DISABLED)
             }
 }

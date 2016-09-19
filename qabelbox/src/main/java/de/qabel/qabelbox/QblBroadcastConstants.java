@@ -30,9 +30,6 @@ public class QblBroadcastConstants {
     public static class Index {
         public static final String REQUEST_VERIFICATION = "index.request_verification";
         public static final String SYNC_VERIFICATIONS = "index.sync_verifications";
-
-        public static final String IDENTITY_UPLOAD_ENABLED = "index.identity_upload_enabled";
-        public static final String IDENTITY_UPLOAD_DISABLED = "index.identity_upload_disabled";
     }
 
     public static class Chat {

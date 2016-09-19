@@ -7,16 +7,13 @@ import android.os.IBinder
 import de.qabel.core.config.Identity
 import de.qabel.core.config.VerificationStatus
 import de.qabel.core.index.IndexService
-import de.qabel.core.index.IndexSyncAction
 import de.qabel.core.logging.QabelLog
 import de.qabel.qabelbox.QabelBoxApplication
-import de.qabel.qabelbox.QblBroadcastConstants.Contacts
 import de.qabel.qabelbox.QblBroadcastConstants.Identities.*
 import de.qabel.qabelbox.QblBroadcastConstants.Index
 import de.qabel.qabelbox.QblBroadcastConstants.Index.*
 import de.qabel.qabelbox.index.preferences.IndexPreferences
 import de.qabel.qabelbox.permissions.DataPermissionsAdapter
-import de.qabel.qabelbox.permissions.hasContactsReadPermission
 import javax.inject.Inject
 
 class AndroidIndexSyncService() : IntentService(AndroidIndexSyncService::class.java.simpleName),
@@ -56,8 +53,6 @@ class AndroidIndexSyncService() : IntentService(AndroidIndexSyncService::class.j
                 IDENTITY_CREATED -> handleIdentityCreated(intent)
                 IDENTITY_REMOVED -> handleRemoveIdentity(intent)
                 SYNC_VERIFICATIONS -> indexService.updateIdentityVerifications()
-                IDENTITY_UPLOAD_ENABLED -> indexService.updateIdentities()
-                IDENTITY_UPLOAD_DISABLED -> indexService.removeIdentities()
             }
         } catch (ex: Throwable) {
             ex.printStackTrace()
@@ -67,14 +62,20 @@ class AndroidIndexSyncService() : IntentService(AndroidIndexSyncService::class.j
 
     private fun handleIdentityCreated(intent: Intent) {
         val identity = intent.affectedIdentity()
-        indexService.updateIdentity(identity)
-        sendRequestIntentIfRequiresPhoneVerification(identity)
+        if (identity.isUploadEnabled) {
+            indexService.updateIdentity(identity)
+            sendRequestIntentIfRequiresPhoneVerification(identity)
+        }
     }
 
     private fun handleIdentityChanged(intent: Intent) {
         val identity = intent.affectedIdentity()
         val oldIdentity = intent.outdatedIdentity()
-        indexService.updateIdentity(identity, oldIdentity)
+        if (identity.isUploadEnabled) {
+            indexService.updateIdentity(identity, oldIdentity)
+        } else {
+            indexService.removeIdentity(identity)
+        }
         sendRequestIntentIfRequiresPhoneVerification(identity)
     }
 

@@ -342,4 +342,6 @@
     <string name="cannot_read_phone_number">Telefonnummer konnte nicht ausgelesen werden</string>
     <string name="android_contact_sync">Automatische Kontaktsuche</string>
     <string name="android_contact_sync_text">Der Qabel Client sucht regelmäßig nach bekannten Telefonnummer und Email Adressen um Qabelkontakte zu finden.</string>
+    <string name="private_identity">Privat</string>
+    <string name="private_identity_text">Markieren Sie eine Identität als privat zu verhindern, dass öffentliche Informationen hochgeladen werden. Hinweis: Andere qabel Benutzer können Ihre Identität nicht per Telefon oder E-Mail finden, wenn die Identität als privat markiert ist.</string>
 </resources>

@@ -48,6 +48,13 @@ class MainIdentityDetailsPresenter @Inject constructor(private val view: Identit
         }
     }
 
+    override fun onPrivateControlChanged(checked: Boolean) {
+        identity?.let {
+            it.isUploadEnabled = !checked
+            saveIdentity(it)
+        }
+    }
+
     override fun onSavePhoneNumber(phoneNumber: String) {
         identity?.let {
             if (!phoneNumber.isEmpty()) {

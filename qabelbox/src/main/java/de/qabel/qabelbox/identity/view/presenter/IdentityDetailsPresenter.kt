@@ -17,4 +17,6 @@ interface IdentityDetailsPresenter {
 
     fun onShowQRClick()
 
+    fun onPrivateControlChanged(checked: Boolean)
+
 }

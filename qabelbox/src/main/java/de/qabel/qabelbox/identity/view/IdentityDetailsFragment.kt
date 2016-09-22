@@ -3,6 +3,7 @@ package de.qabel.qabelbox.identity.view
 import android.os.Bundle
 import android.text.InputType
 import android.view.*
+import android.widget.CompoundButton
 import butterknife.ButterKnife
 import de.qabel.core.config.Identity
 import de.qabel.qabelbox.R
@@ -72,6 +73,10 @@ class IdentityDetailsFragment() : IdentityDetailsView, BaseFragment(), AnkoLogge
 
         action_show_qr.setOnClickListener({
             presenter.onShowQRClick()
+        })
+
+        identity_private_control.setOnCheckedChangeListener({ button, checked ->
+            presenter.onPrivateControlChanged(checked)
         })
     }
 

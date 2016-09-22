@@ -22,7 +22,6 @@ class AndroidIndexSyncService() : IntentService(AndroidIndexSyncService::class.j
     override val permissionContext: Context by lazy { applicationContext }
     private val contactSyncAdapter: ContactSyncAdapter by lazy { ContactSyncAdapter(applicationContext, true) }
     @Inject lateinit var indexService: IndexService
-    @Inject lateinit var indexPrefs: IndexPreferences
 
     companion object {
         private fun start(context: Context, action: String) {

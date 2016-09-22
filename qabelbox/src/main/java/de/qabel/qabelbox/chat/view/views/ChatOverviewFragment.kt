@@ -97,12 +97,17 @@ class ChatOverviewFragment() : ChatOverview, BaseFragment(), AnkoLogger {
                 ?: throw IllegalStateException("Could not create view")
     }
 
+    private fun updateView(itemCount: Int) {
+        empty_view?.visibility = if (itemCount == 0) View.VISIBLE else View.GONE
+    }
+
     override fun loadData(data: List<ChatConversationDto>) {
         debug("Filling adapter with ${data.size} messages")
         busy()
         onUiThread {
             adapter.init(data)
             adapter.notifyDataSetChanged()
+            updateView(data.size)
             idle()
         }
     }

@@ -387,4 +387,5 @@
     <string name="android_contact_sync_text">The Qabel client is searching periodically by known phone numbers and emails to find Qabel contacts.</string>
     <string name="private_identity">Private</string>
     <string name="private_identity_text">Mark an identity as private to prevent uploading public informations. Note: Other qabel users cant find your identity by phone or mail if the identity is private!</string>
+    <string name="conversations_empty">no recent conversations</string>
 </resources>

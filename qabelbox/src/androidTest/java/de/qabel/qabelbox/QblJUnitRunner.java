@@ -34,7 +34,7 @@ public class QblJUnitRunner extends AndroidJUnitRunner {
 
         IndexPreferences indexPreferences = new AndroidIndexPreferences(getContext());
         indexPreferences.setContactSyncEnabled(false);
-        indexPreferences.setPhoneStatePermission(true);
+        indexPreferences.setPhoneStatePermission(false);
 
         AccountHelper.SYNC_INTERVAL = 0;
         super.onCreate(arguments);

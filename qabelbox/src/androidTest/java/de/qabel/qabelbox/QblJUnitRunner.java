@@ -32,10 +32,6 @@ public class QblJUnitRunner extends AndroidJUnitRunner {
         arguments.putString("disableAnalytics", "true");
         arguments.putString("package", "de.qabel.qabelbox");
 
-        IndexPreferences indexPreferences = new AndroidIndexPreferences(getContext());
-        indexPreferences.setContactSyncEnabled(false);
-        indexPreferences.setPhoneStatePermission(false);
-
         AccountHelper.SYNC_INTERVAL = 0;
         super.onCreate(arguments);
     }
@@ -45,6 +41,10 @@ public class QblJUnitRunner extends AndroidJUnitRunner {
     @Override public void onStart() {
         String name = QblJUnitRunner.class.getName();
         Context app = getTargetContext().getApplicationContext();
+
+        IndexPreferences indexPreferences = new AndroidIndexPreferences(app);
+        indexPreferences.setContactSyncEnabled(false);
+        indexPreferences.setPhoneStatePermission(false);
 
         // Unlock the device so that the tests can input keystrokes.
         KeyguardManager keyguard = (KeyguardManager) app.getSystemService(KEYGUARD_SERVICE);

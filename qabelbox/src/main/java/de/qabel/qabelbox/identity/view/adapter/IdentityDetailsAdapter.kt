@@ -35,6 +35,7 @@ class IdentityDetailsAdapter() {
             setVerifiedDrawables(edit_email, R.drawable.email, identity, identity.emailStatus)
             edit_phone.text = phone
             setVerifiedDrawables(edit_phone, R.drawable.phone, identity, identity.phoneStatus)
+            identity_private_control.isChecked = !identity.isUploadEnabled
             details_drop_urls.text = identity.readableUrl()
             details_pub_key.text = identity.readableKey()
         }

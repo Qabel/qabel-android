@@ -113,6 +113,40 @@ android {
     }
 }
 
+def permissions = [
+    "android.permission.INTERNET",
+    "android.permission.ACCESS_NETWORK_STATE",
+    "android.permission.VIBRATE",
+    "android.permission.READ_SYNC_SETTINGS",
+    "android.permission.WRITE_SYNC_SETTINGS",
+    "android.permission.WRITE_EXTERNAL_STORAGE",
+    "android.permission.READ_EXTERNAL_STORAGE",
+    "android.permission.AUTHENTICATE_ACCOUNTS",
+]
+
+android.applicationVariants.all { variant ->
+    def applicationId = [variant.mergedFlavor.applicationId,
+                         variant.buildType.applicationIdSuffix].join("")
+    def adb = android.getAdbExe().toString()
+    def variantName = variant.name.capitalize()
+    if (variantName.contains("Release")) {
+        return
+    }
+    def grantPermissionTask = tasks.create("grant${variantName}Permissions") << {
+        "${adb} devices".execute().text.eachLine {
+            if (it.endsWith("device")) {
+                def device = it.split()[0]
+                println "Granting permissions on devices ${device}"
+                permissions.each { permission ->
+                    "${adb} -s ${device} shell pm grant ${applicationId} ${permission}".execute()
+                }
+            }
+        }
+    }
+    grantPermissionTask.description = "Grants permissions for ${variant.name.capitalize()}."
+    grantPermissionTask.dependsOn "install${variantName}"
+}
+
 configurations.all {
     resolutionStrategy.force 'com.android.support:support-annotations:23.2.1',
             "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version",

@@ -4,8 +4,15 @@
     tools:context=".MainActivity">
 
     <item
+        android:id="@+id/refresh"
+        android:title="@string/refresh"
+        android:icon="@drawable/sync"
+        app:showAsAction="never" />
+
+    <item
         android:id="@+id/action_contact_export_all"
         android:title="@string/contact_export_all"
+        android:icon="@drawable/export"
         app:showAsAction="never" />
     <item
         android:id="@+id/action_show_ignored"

@@ -14,10 +14,10 @@
         android:padding="5dp">
 
         <ImageView
-            android:id="@+id/itemIcon"
+            android:id="@+id/item_icon"
             style="@style/ListIcon"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
+            android:layout_width="@dimen/contact_initials"
+            android:layout_height="@dimen/contact_initials"
             android:layout_gravity="center_vertical" />
 
         <LinearLayout

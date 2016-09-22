@@ -29,7 +29,7 @@ class AndroidLoggerWrapper(clazz: Class<*>) : QabelLoggerWrapper {
     }
 
     override fun error(msg: Any?, exception: Throwable?) {
-        Log.e(TAG, msg?.toString(), exception)
+        Log.e(TAG, msg?.toString() ?: "No error msg", exception)
     }
 
 }

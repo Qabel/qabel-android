@@ -8,13 +8,10 @@ import de.qabel.core.drop.DropURL
 import de.qabel.core.extensions.letApply
 import de.qabel.core.repository.IdentityRepository
 import de.qabel.core.repository.exception.EntityExistsException
-import de.qabel.core.repository.sqlite.SqliteIdentityRepository
-import de.qabel.qabelbox.QblBroadcastConstants
 import de.qabel.qabelbox.QblBroadcastConstants.Identities.*
-import de.qabel.qabelbox.contacts.dto.ContactsParseResult
 import de.qabel.qabelbox.listeners.ActionIntentSender
 import rx.Single
-import rx.lang.kotlin.*
+import rx.lang.kotlin.single
 import java.io.FileDescriptor
 import java.io.FileInputStream
 import javax.inject.Inject
@@ -34,10 +31,24 @@ class MainIdentityUseCase @Inject constructor(private val identityRepository: Id
         it.onSuccess(identity)
     }
 
-    override fun saveIdentity(identity: Identity) = single<Unit> {
+    override fun saveIdentity(identity: Identity): Single<Identity> =
+            if (identity.id == 0)
+                createIdentity({ identity })
+            else
+                updateIdentity(identity)
+
+    private fun updateIdentity(identity: Identity) = single<Identity> {
+        val oldIdentity = identityRepository.find(identity.keyIdentifier, true)
         identityRepository.save(identity)
-        actionEventSender.sendActionIntentBroadCast(IDENTITY_CHANGED, Pair(KEY_IDENTITY, identity))
-        it.onSuccess(Unit)
+        actionEventSender.sendActionIntentBroadCast(IDENTITY_CHANGED, Pair(KEY_IDENTITY, identity), Pair(OLD_IDENTITY, oldIdentity))
+        it.onSuccess(identity)
+    }
+
+    private fun createIdentity(createIdentity: () -> Identity) = single<Identity> {
+        val identity = createIdentity()
+        identityRepository.save(identity)
+        actionEventSender.sendActionIntentBroadCast(IDENTITY_CREATED, Pair(KEY_IDENTITY, identity))
+        it.onSuccess(identity)
     }
 
     override fun deleteIdentity(identity: Identity) = single<Unit> {
@@ -53,10 +64,11 @@ class MainIdentityUseCase @Inject constructor(private val identityRepository: Id
             it.phone = phone
         }
         identityRepository.save(identity)
+        actionEventSender.sendActionIntentBroadCast(IDENTITY_CREATED, Pair(KEY_IDENTITY, identity))
         it.onSuccess(identity)
     }
 
-    override fun importIdentity(file: FileDescriptor) = single<Identity> {
+    override fun importIdentity(file: FileDescriptor) = createIdentity {
         val inputString = FileInputStream(file).use { stream ->
             stream.reader().readText()
         }
@@ -64,8 +76,7 @@ class MainIdentityUseCase @Inject constructor(private val identityRepository: Id
         if (identityRepository.findAll().contains(importedIdentity.keyIdentifier))
             throw EntityExistsException("Identity already exists")
 
-        identityRepository.save(importedIdentity)
-        it.onSuccess(importedIdentity)
+        importedIdentity
     }
 
 }

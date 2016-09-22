@@ -179,6 +179,11 @@ abstract class BaseWizardActivity : CrashReportingActivity() {
         headerFragment.updateUI(headerFragmentText, headerSecondLine, headerThirdLine)
         fragmentManager.beginTransaction().replace(R.id.fragment_container_content, fragments[step]).addToBackStack(null).commit()
         updateActionBar(step)
+        onShowNext(fragments[step])
+    }
+
+    protected open fun onShowNext(fragment : BaseIdentityFragment){
+
     }
 
     /**

@@ -91,10 +91,7 @@ class RepositoryFactory(private val context: Context) {
     fun getIdentityRepository(): IdentityRepository {
         val dropUrlRepository = getDropUrlRepository()
         val prefixRepository = getSqlitePrefixRepository()
-        val hydrator = IdentityHydrator(DefaultIdentityFactory(), entityManager,
-                dropUrlRepository as SqliteDropUrlRepository, prefixRepository)
-        return SqliteIdentityRepository(getAndroidClientDatabase(), hydrator,
-                dropUrlRepository, prefixRepository)
+        return SqliteIdentityRepository(getAndroidClientDatabase(), entityManager, prefixRepository, dropUrlRepository)
     }
 
     fun getContactRepository(): ContactRepository =

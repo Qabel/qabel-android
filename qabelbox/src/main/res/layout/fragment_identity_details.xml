@@ -56,7 +56,17 @@
             android:hint="@string/contact_name"
             android:singleLine="true"
             android:textSize="@dimen/textsize_splash" />
-
+        <Switch
+            android:id="@+id/identity_private_control"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@android:color/transparent"
+            android:layout_marginStart="5dp"
+            android:showText="true"
+            android:text="@string/private_identity"
+            android:textOff=""
+            android:textOn=""
+            android:textSize="@dimen/textsize_list_first_line" />
         <de.qabel.qabelbox.ui.views.TextViewFont
             android:id="@+id/details_index_text"
             style="@style/ListSecondTextLine"
@@ -66,7 +76,7 @@
             android:layout_marginEnd="@dimen/default_space"
             android:layout_marginStart="@dimen/default_space"
             android:background="@android:color/transparent"
-            android:text="@string/qabel_index_text" />
+            android:text="@string/private_identity_text" />
 
         <de.qabel.qabelbox.ui.views.TextViewFont
             android:id="@+id/edit_phone"

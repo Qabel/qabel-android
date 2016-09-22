@@ -3,6 +3,8 @@ package de.qabel.qabelbox.contacts.view.adapters
 import android.view.View
 import android.widget.Button
 import de.qabel.core.config.Identity
+import de.qabel.core.index.formatPhoneNumberReadable
+import de.qabel.core.index.isValidPhoneNumber
 import de.qabel.core.ui.displayName
 import de.qabel.core.ui.initials
 import de.qabel.core.ui.readableKey
@@ -11,7 +13,10 @@ import de.qabel.qabelbox.R
 import de.qabel.qabelbox.contacts.dto.ContactDto
 import de.qabel.qabelbox.contacts.extensions.*
 import de.qabel.qabelbox.contacts.view.widgets.ContactIconDrawable
+import de.qabel.qabelbox.contacts.view.widgets.IdentityIconDrawable
+import de.qabel.qabelbox.ui.extensions.setOrGone
 import kotlinx.android.synthetic.main.fragment_contact_details.view.*
+import org.jetbrains.anko.dip
 import org.jetbrains.anko.layoutInflater
 
 class ContactDetailsAdapter(private val onSendMessageClick: (identity: Identity) -> Unit) {
@@ -26,17 +31,27 @@ class ContactDetailsAdapter(private val onSendMessageClick: (identity: Identity)
             val contact = contactDto.contact
             val nickname = contact.displayName()
             contact_icon_border.background = ContactIconDrawable(contactDto.contactColors(context))
-            tv_initial.text = contact.initials()
+            val size = dip(95)
+            contact_initials.background = IdentityIconDrawable(text = contact.initials(),
+                    width = size, height = size,
+                    color = contact.color(context))
+
             if (!nickname.equals(contact.alias)) {
-                editTextContactNick.text = nickname
-                editTextContactName.text = contact.alias
-                editTextContactName.visibility = View.VISIBLE
+                text_nick.text = nickname
+                text_alias.text = contact.alias
+                text_alias.visibility = View.VISIBLE
             } else {
-                editTextContactNick.text = nickname
-                editTextContactName.visibility = View.GONE
+                text_nick.text = nickname
+                text_alias.visibility = View.GONE
             }
-            editTextContactDropURL.text = contact.readableUrl()
-            editTextContactPublicKey.text = contact.readableKey()
+            text_drop.text = contact.readableUrl()
+            text_public_key.text = contact.readableKey()
+            val mail = contact.email ?: ""
+            val phone = if (isValidPhoneNumber(contact.phone))
+                formatPhoneNumberReadable(contact.phone) else ""
+
+            text_phone.setOrGone(phone)
+            text_email.setOrGone(mail)
 
             contact_details_actions.removeAllViews()
             with(contactDto.identities) {

@@ -22,7 +22,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import java.util.*
 
-@Ignore("Not running with fake entity manager")
 @RunWith(AndroidJUnit4::class)
 class SqliteContactRepositoryTest {
 
@@ -76,7 +75,7 @@ class SqliteContactRepositoryTest {
     fun findsSavedContact() {
         contactRepo.save(contact, identity)
         val loaded = contactRepo.findByKeyId(identity, contact.keyIdentifier)
-        assertSame(loaded, contact)
+        assertEquals(loaded, contact)
     }
 
     @Test

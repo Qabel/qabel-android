@@ -54,7 +54,6 @@ class AndroidIndexSyncService() : IntentService(AndroidIndexSyncService::class.j
                 SYNC_VERIFICATIONS -> indexService.updateIdentityVerifications()
             }
         } catch (ex: Throwable) {
-            ex.printStackTrace()
             error("Error syncing with index. Action: ${intent.action}", ex)
         }
     }
@@ -73,7 +72,7 @@ class AndroidIndexSyncService() : IntentService(AndroidIndexSyncService::class.j
         if (identity.isUploadEnabled) {
             indexService.updateIdentity(identity, oldIdentity)
         } else {
-            indexService.removeIdentity(identity)
+            indexService.removeIdentity(oldIdentity)
         }
         sendRequestIntentIfRequiresPhoneVerification(identity)
     }

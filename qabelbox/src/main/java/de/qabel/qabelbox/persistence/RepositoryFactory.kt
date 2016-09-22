@@ -8,6 +8,7 @@ import de.qabel.chat.repository.sqlite.SqliteChatDropMessageRepository
 import de.qabel.chat.repository.sqlite.SqliteChatShareRepository
 import de.qabel.core.config.factory.DefaultIdentityFactory
 import de.qabel.core.repositories.AndroidClientDatabase
+import de.qabel.core.repositories.AndroidFakeEntityManager
 import de.qabel.core.repository.*
 import de.qabel.core.repository.sqlite.*
 import de.qabel.core.repository.sqlite.hydrator.DropURLHydrator
@@ -22,7 +23,7 @@ class RepositoryFactory(private val context: Context) {
 
     private var connection: Connection? = null
     private var androidClientDatabase: AndroidClientDatabase? = null
-    val entityManager: EntityManager by lazy { EntityManager() }
+    val entityManager: EntityManager by lazy { AndroidFakeEntityManager() }
 
     val databasePath: File get() = context.getFileStreamPath(DB_REPOSITORIES)
 

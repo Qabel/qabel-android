@@ -122,6 +122,8 @@ def permissions = [
     "android.permission.WRITE_EXTERNAL_STORAGE",
     "android.permission.READ_EXTERNAL_STORAGE",
     "android.permission.AUTHENTICATE_ACCOUNTS",
+    "android.permission.READ_PHONE_STATE",
+    "android.permission.READ_CONTACTS",
 ]
 
 android.applicationVariants.all { variant ->

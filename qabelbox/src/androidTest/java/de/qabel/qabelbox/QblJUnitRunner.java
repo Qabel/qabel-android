@@ -10,6 +10,8 @@ import android.support.test.runner.AndroidJUnitRunner;
 
 import de.qabel.qabelbox.activities.CreateIdentityActivity;
 import de.qabel.qabelbox.helper.AccountHelper;
+import de.qabel.qabelbox.index.preferences.AndroidIndexPreferences;
+import de.qabel.qabelbox.index.preferences.IndexPreferences;
 
 import static android.content.Context.KEYGUARD_SERVICE;
 import static android.content.Context.POWER_SERVICE;
@@ -29,6 +31,11 @@ public class QblJUnitRunner extends AndroidJUnitRunner {
         CreateIdentityActivity.Companion.setFAKE_COMMUNICATION(true);
         arguments.putString("disableAnalytics", "true");
         arguments.putString("package", "de.qabel.qabelbox");
+
+        IndexPreferences indexPreferences = new AndroidIndexPreferences(getContext());
+        indexPreferences.setContactSyncEnabled(false);
+        indexPreferences.setPhoneStatePermission(true);
+
         AccountHelper.SYNC_INTERVAL = 0;
         super.onCreate(arguments);
     }

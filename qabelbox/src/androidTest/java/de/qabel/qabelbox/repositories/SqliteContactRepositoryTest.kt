@@ -17,6 +17,7 @@ import de.qabel.qabelbox.persistence.RepositoryFactory
 import org.hamcrest.Matchers.*
 import org.junit.Assert.*
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import java.util.*
@@ -74,7 +75,7 @@ class SqliteContactRepositoryTest {
     fun findsSavedContact() {
         contactRepo.save(contact, identity)
         val loaded = contactRepo.findByKeyId(identity, contact.keyIdentifier)
-        assertSame(loaded, contact)
+        assertEquals(loaded, contact)
     }
 
     @Test
@@ -97,7 +98,7 @@ class SqliteContactRepositoryTest {
         contactRepo.save(contact, identity)
         val instance1 = contactRepo.findByKeyId(identity, contact.keyIdentifier)
         val instance2 = contactRepo.findByKeyId(identity, contact.keyIdentifier)
-        assertSame(instance1, instance2)
+        assertEquals(instance1, instance2)
     }
 
     @Test
@@ -148,7 +149,7 @@ class SqliteContactRepositoryTest {
     fun providesEmptyContactListByDefault() {
         val contacts = contactRepo.find(identity)
         assertEquals(0, contacts.contacts.size.toLong())
-        assertSame(identity, contacts.identity)
+        assertEquals(identity, contacts.identity)
     }
 
     @Test
@@ -156,7 +157,7 @@ class SqliteContactRepositoryTest {
         contactRepo.save(contact, identity)
         val contacts = contactRepo.find(identity)
         assertEquals(1, contacts.contacts.size.toLong())
-        assertSame(contact, contacts.contacts.toTypedArray()[0])
+        assertEquals(contact, contacts.contacts.toTypedArray()[0])
     }
 
     @Test
@@ -165,7 +166,7 @@ class SqliteContactRepositoryTest {
         contactRepo.save(otherContact, otherIdentity)
         val contacts = contactRepo.find(otherIdentity)
         assertEquals(1, contacts.contacts.size.toLong())
-        assertSame(otherContact, contacts.contacts.toTypedArray()[0])
+        assertEquals(otherContact, contacts.contacts.toTypedArray()[0])
     }
 
     @Test
@@ -194,7 +195,7 @@ class SqliteContactRepositoryTest {
         }
 
         val loaded = contactRepo.findByKeyId(otherIdentity, contact.keyIdentifier)
-        assertSame(contact, loaded)
+        assertEquals(contact, loaded)
     }
 
     @Test
@@ -204,7 +205,7 @@ class SqliteContactRepositoryTest {
         contactRepo.save(contact, identity)
 
         val loaded = contactRepo.findByKeyId(identity, contact.keyIdentifier)
-        assertSame(contact, loaded)
+        assertEquals(contact, loaded)
     }
 
     @Test

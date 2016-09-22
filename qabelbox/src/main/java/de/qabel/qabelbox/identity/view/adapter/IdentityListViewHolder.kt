@@ -3,6 +3,8 @@ package de.qabel.qabelbox.identity.view.adapter
 import android.support.v7.widget.RecyclerView
 import android.view.View
 import de.qabel.core.config.Identity
+import de.qabel.core.index.formatPhoneNumberReadable
+import de.qabel.core.index.isValidPhoneNumber
 import de.qabel.core.ui.initials
 import de.qabel.qabelbox.R
 import de.qabel.qabelbox.contacts.extensions.color
@@ -19,10 +21,14 @@ class IdentityListViewHolder(view: View,
         itemView?.apply {
             val iconSize = context.resources.
                     getDimension(R.dimen.material_drawer_item_profile_icon_width).toInt()
+            val mail = identity.email ?: ""
+            val phone = if (!identity.phone.isNullOrEmpty() && isValidPhoneNumber(identity.phone))
+                formatPhoneNumberReadable(identity.phone) else ""
+
             item_name.text = identity.alias
-            item_details_1.setOrGone(identity.email ?: "")
-            item_details_2.setOrGone(identity.phone ?: "")
-            itemIcon.background = IdentityIconDrawable(
+            item_details_1.setOrGone(mail)
+            item_details_2.setOrGone(phone)
+            item_icon.background = IdentityIconDrawable(
                     width = iconSize,
                     height = iconSize,
                     text = identity.initials(),

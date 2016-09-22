@@ -1,48 +1,51 @@
 package de.qabel.qabelbox.activities
 
-import android.Manifest
 import android.Manifest.permission.READ_PHONE_STATE
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.os.Bundle
-import android.support.v4.content.ContextCompat
 import android.telephony.TelephonyManager
 import android.text.InputType
 import android.util.Log
 import android.view.View
 import android.widget.EditText
-import com.google.i18n.phonenumbers.NumberParseException
 import de.qabel.core.config.Identities
 import de.qabel.core.config.Identity
 import de.qabel.core.config.factory.DropUrlGenerator
+import de.qabel.core.index.formatPhoneNumber
+import de.qabel.core.index.formatPhoneNumberReadable
+import de.qabel.core.index.isValidPhoneNumber
 import de.qabel.core.logging.QabelLog
 import de.qabel.qabelbox.QabelBoxApplication
 import de.qabel.qabelbox.R
 import de.qabel.qabelbox.TestConstants
 import de.qabel.qabelbox.communication.PrefixServer
 import de.qabel.qabelbox.communication.callbacks.JsonRequestCallback
+import de.qabel.qabelbox.config.AppPreference
 import de.qabel.qabelbox.fragments.BaseIdentityFragment
 import de.qabel.qabelbox.fragments.CreateIdentityEditTextFragment
 import de.qabel.qabelbox.fragments.CreateIdentityFinalFragment
 import de.qabel.qabelbox.fragments.CreateIdentityMainFragment
-import de.qabel.qabelbox.helper.formatPhoneNumber
 import de.qabel.qabelbox.identity.interactor.IdentityUseCase
-import de.qabel.qabelbox.ui.extensions.isPermissionGranted
-import de.qabel.qabelbox.ui.extensions.requestPermission
+import de.qabel.qabelbox.index.IndexIdentityListener
+import de.qabel.qabelbox.index.preferences.IndexPreferences
+import de.qabel.qabelbox.permissions.DataPermissionsAdapter
+import de.qabel.qabelbox.permissions.hasPhonePermission
+import de.qabel.qabelbox.permissions.requestPhonePermission
+import de.qabel.qabelbox.permissions.isPermissionGranted
 import okhttp3.Response
-import org.jetbrains.anko.alert
 import org.jetbrains.anko.ctx
 import org.jetbrains.anko.toast
 import org.json.JSONException
 import org.json.JSONObject
 import javax.inject.Inject
 
-class CreateIdentityActivity : BaseWizardActivity(), QabelLog {
+class CreateIdentityActivity : BaseWizardActivity(), QabelLog, DataPermissionsAdapter {
+
+    override val permissionContext: Context by lazy { ctx }
 
     private val TAG = this.javaClass.simpleName
     private val REQUEST_READ_PHONE_STATE = 1
-    private var READ_PHONE_STATE_DENIED = false
 
     private var identityName: String = ""
     private var phoneNumber: String = ""
@@ -54,20 +57,22 @@ class CreateIdentityActivity : BaseWizardActivity(), QabelLog {
 
     @Inject
     lateinit internal var identityUseCase: IdentityUseCase
-    lateinit internal var dropUrlGenerator: DropUrlGenerator
+    @Inject
+    lateinit internal var indexPreferences: IndexPreferences
+
+    val indexIdentityListener = IndexIdentityListener()
+
+    internal val dropUrlGenerator: DropUrlGenerator by lazy { DropUrlGenerator(getString(R.string.dropServer)) }
 
     private var existingIdentities: Identities? = null
 
     override val headerFragmentText: String get() = identityName
-
-    override val headerSecondLine: String
-        get() = email
+    override val headerSecondLine: String get() = email
     override val headerThirdLine: String
-        get() = phoneNumber
+        get() = if (phoneNumber.isNotBlank()) formatPhoneNumberReadable(phoneNumber) else phoneNumber
 
     override val actionBarTitle: Int = R.string.headline_add_identity
-
-    override val wizardEntityLabel: String get() = getString(R.string.identity)
+    override val wizardEntityLabel: String by lazy { getString(R.string.identity) }
 
     val enterPhoneFragment: CreateIdentityEditTextFragment = CreateIdentityEditTextFragment.newInstance(
             R.string.create_identity_enter_phone,
@@ -76,13 +81,12 @@ class CreateIdentityActivity : BaseWizardActivity(), QabelLog {
                 override fun check(view: View): String? {
                     val phone = (view as EditText).text.toString().trim()
                     if (!phone.isEmpty()) {
-                        try {
+                        if (isValidPhoneNumber(phone)) {
                             phoneNumber = formatPhoneNumber(phone)
-                        } catch (ex: NumberParseException) {
+                        } else {
                             return getString(R.string.phone_number_invalid)
                         }
                     }
-
                     //Last input
                     createIdentity()
                     return null
@@ -125,7 +129,7 @@ class CreateIdentityActivity : BaseWizardActivity(), QabelLog {
     override fun onCreate(savedInstanceState: Bundle?) {
         QabelBoxApplication.getApplicationComponent(applicationContext).inject(this)
         super.onCreate(savedInstanceState)
-        dropUrlGenerator = DropUrlGenerator(getString(R.string.dropServer))
+        registerReceiver(indexIdentityListener, indexIdentityListener.createIntentFilter())
         identityUseCase.getIdentities().subscribe({
             existingIdentities = it
             canExit = it.identities.size > 0
@@ -134,45 +138,42 @@ class CreateIdentityActivity : BaseWizardActivity(), QabelLog {
         })
     }
 
+    override fun onDestroy() {
+        unregisterReceiver(indexIdentityListener)
+        super.onDestroy()
+    }
+
     private fun tryReadPhoneNumber() {
-        if (!isPermissionGranted(this, READ_PHONE_STATE)) {
-            requestPhonePermission()
+        if (!phoneNumber.isNullOrBlank()) return
+        else if (indexPreferences.phoneStatePermission && !hasPhonePermission()) {
+            requestPhonePermission(this, REQUEST_READ_PHONE_STATE, { indexPreferences.phoneStatePermission = false })
             return
-        }
+        } else if (!indexPreferences.phoneStatePermission) return
+
         val phoneManager = ctx.getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
         var phone = phoneManager.line1Number
-        if (phoneNumber.isNullOrBlank() && !phone.isNullOrBlank()) {
+        if (!phone.isNullOrBlank() && isValidPhoneNumber(phone)) {
             try {
-                phone = formatPhoneNumber(phone)
+                phone = formatPhoneNumberReadable(phone)
                 enterPhoneFragment.setValue(phone)
                 info("Phone number detected $phone")
+                return
             } catch (ex: NumberFormatException) {
                 error("Error parsing received system phone number $phone", ex)
             }
         }
-    }
-
-    private fun requestPhonePermission() {
-        if (shouldShowRequestPermissionRationale(READ_PHONE_STATE)) {
-            alert(R.string.dialog_headline_info, R.string.phone_number_request_info, {
-                positiveButton(R.string.yes) {
-                    requestPermission(this@CreateIdentityActivity, READ_PHONE_STATE, REQUEST_READ_PHONE_STATE)
-                }
-                negativeButton(R.string.no) { READ_PHONE_STATE_DENIED = true }
-            })
-        } else {
-            requestPermission(this, READ_PHONE_STATE, REQUEST_READ_PHONE_STATE)
-        }
+        toast(R.string.cannot_read_phone_number)
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == REQUEST_READ_PHONE_STATE) {
-            if (isPermissionGranted(READ_PHONE_STATE, permissions, grantResults)) {
+            isPermissionGranted(READ_PHONE_STATE, permissions, grantResults, {
+                indexPreferences.phoneStatePermission = true
                 tryReadPhoneNumber()
-            } else {
-                READ_PHONE_STATE_DENIED = true
-            }
+            }, {
+                indexPreferences.phoneStatePermission = false
+            })
         }
     }
 
@@ -181,8 +182,17 @@ class CreateIdentityActivity : BaseWizardActivity(), QabelLog {
         if (step > 0 && tryCount != 3 && prefix == null) {
             loadPrefixInBackground()
         }
-        if (step == 2 && !READ_PHONE_STATE_DENIED) {
-            tryReadPhoneNumber()
+    }
+
+    override fun onShowNext(fragment: BaseIdentityFragment) {
+        when (fragment) {
+            enterPhoneFragment -> tryReadPhoneNumber()
+            enterMailFragment -> {
+                //Account email as default for first identity
+                if (email.isNullOrBlank() && existingIdentities?.identities?.size == 0) {
+                    enterMailFragment.setValue(AppPreference(ctx).accountEMail)
+                }
+            }
         }
     }
 
@@ -244,7 +254,6 @@ class CreateIdentityActivity : BaseWizardActivity(), QabelLog {
                         tryCount++
                         loadPrefixInBackground()
                     }
-
                 }
             })
         }

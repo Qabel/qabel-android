@@ -79,17 +79,13 @@ public class SplashActivity extends CrashReportingActivity {
                                       public void run() {
                                           if (!welcomeScreenShown) {
                                               SplashActivity.this.launch(WelcomeScreenActivity.class);
-                                          } else try {
-                                              if (!Sanity.startWizardActivities(SplashActivity.this,
-                                                      identityRepository.findAll())) {
-                                                  SplashActivity.this.launch(MainActivity.class);
-                                              }
-                                          } catch (PersistenceException e) {
-                                              throw new RuntimeException(e);
+                                          } else if (Sanity.INSTANCE.isQabelReady(SplashActivity.this,
+                                                  identityRepository)) {
+                                              SplashActivity.this.launch(MainActivity.class);
                                           }
                                       }
                                   }
-                ,skipSplash ? 0 : waitTime);
+                , skipSplash ? 0 : waitTime);
     }
 
     private void launch(Class activity) {

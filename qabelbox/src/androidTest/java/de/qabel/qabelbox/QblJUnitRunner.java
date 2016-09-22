@@ -10,6 +10,8 @@ import android.support.test.runner.AndroidJUnitRunner;
 
 import de.qabel.qabelbox.activities.CreateIdentityActivity;
 import de.qabel.qabelbox.helper.AccountHelper;
+import de.qabel.qabelbox.index.preferences.AndroidIndexPreferences;
+import de.qabel.qabelbox.index.preferences.IndexPreferences;
 
 import static android.content.Context.KEYGUARD_SERVICE;
 import static android.content.Context.POWER_SERVICE;
@@ -28,6 +30,8 @@ public class QblJUnitRunner extends AndroidJUnitRunner {
     public void onCreate(Bundle arguments) {
         CreateIdentityActivity.Companion.setFAKE_COMMUNICATION(true);
         arguments.putString("disableAnalytics", "true");
+        arguments.putString("package", "de.qabel.qabelbox");
+
         AccountHelper.SYNC_INTERVAL = 0;
         super.onCreate(arguments);
     }
@@ -37,6 +41,10 @@ public class QblJUnitRunner extends AndroidJUnitRunner {
     @Override public void onStart() {
         String name = QblJUnitRunner.class.getName();
         Context app = getTargetContext().getApplicationContext();
+
+        IndexPreferences indexPreferences = new AndroidIndexPreferences(app);
+        indexPreferences.setContactSyncEnabled(false);
+        indexPreferences.setPhoneStatePermission(false);
 
         // Unlock the device so that the tests can input keystrokes.
         KeyguardManager keyguard = (KeyguardManager) app.getSystemService(KEYGUARD_SERVICE);

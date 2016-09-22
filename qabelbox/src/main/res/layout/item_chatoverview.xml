@@ -7,29 +7,11 @@
     android:orientation="horizontal">
 
     <de.qabel.qabelbox.ui.views.SquareFrameLayout
-        android:id="@+id/contact_icon_border"
+        android:id="@+id/contact_icon"
         style="@style/ListIcon"
         android:layout_width="wrap_content"
-        android:layout_height="55sp"
-        android:layout_gravity="center_vertical"
-        android:padding="5sp">
-
-        <de.qabel.qabelbox.ui.views.SquareFrameLayout
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_gravity="center_vertical"
-            android:background="@drawable/identity_circle">
-
-            <de.qabel.qabelbox.ui.views.TextViewFont
-                android:id="@+id/tv_initial"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerInParent="true"
-                android:layout_gravity="center"
-                android:gravity="center"
-                android:textColor="@color/white"
-                android:textSize="@dimen/textsize_welcome_header" />
-        </de.qabel.qabelbox.ui.views.SquareFrameLayout>
+        android:layout_height="@dimen/contact_initials"
+        android:layout_gravity="center_vertical">
     </de.qabel.qabelbox.ui.views.SquareFrameLayout>
 
     <LinearLayout

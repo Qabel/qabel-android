@@ -9,6 +9,7 @@ import de.qabel.core.repository.exception.EntityExistsException
 import de.qabel.qabelbox.contacts.dto.ContactDto
 import de.qabel.qabelbox.index.interactor.IndexSearchUseCase
 import de.qabel.qabelbox.index.view.views.IndexSearchView
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 class MainIndexSearchPresenter @Inject constructor(
@@ -17,24 +18,26 @@ class MainIndexSearchPresenter @Inject constructor(
         val contactRepository: ContactRepository)
 : IndexSearchPresenter, QabelLog {
 
-    override fun search() {
-        view.searchString?.let {
-            val term = it.trim()
-            if (term.isNotBlank()) {
-                val phone = try { formatPhoneNumber(term) } catch (e: NumberParseException) { "" }
-                if (phone.isNotBlank()) {
-                    view.searchString = phone
-                }
-                useCase.search(term, phone).subscribe({
-                    info("Index search result length: ${it.size}")
-                    if (it.size > 0) {
-                        view.loadData(it)
-                    } else {
-                        view.showEmpty()
-                    }
-                }, { view.showError(it) })
+    init {
+        view.searchString.subscribe({search(it)})
+    }
 
+    fun search(query: String) {
+        val term = query.trim()
+        if (term.isNotBlank()) {
+            val phone = try { formatPhoneNumber(term) } catch (e: NumberParseException) { "" }
+            if (phone.isNotBlank()) {
+                view.updateQuery(phone)
             }
+            useCase.search(term, phone).subscribe({
+                info("Index search result length: ${it.size}")
+                if (it.size > 0) {
+                    view.loadData(it)
+                } else {
+                    view.showEmpty()
+                }
+            }, { view.showError(it) })
+
         }
     }
 

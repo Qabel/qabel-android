@@ -1,14 +1,16 @@
 package de.qabel.qabelbox.index.view.views
 
 import de.qabel.qabelbox.contacts.dto.ContactDto
+import rx.Observable
 
 interface IndexSearchView {
 
-    var searchString : String?
+    var searchString : Observable<String>
 
     fun loadData(data: List<ContactDto>)
     fun showEmpty()
     fun showError(error: Throwable)
     fun showDetails(contactDto: ContactDto)
+    fun updateQuery(query: String)
 }
 

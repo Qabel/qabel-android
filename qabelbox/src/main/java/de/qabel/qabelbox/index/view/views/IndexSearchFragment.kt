@@ -20,16 +20,19 @@ import kotlinx.android.synthetic.main.fragment_contacts.*
 import org.jetbrains.anko.ctx
 import org.jetbrains.anko.longToast
 import org.jetbrains.anko.onUiThread
+import rx.Observable
+import rx.subjects.BehaviorSubject
+import rx.subjects.Subject
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 class IndexSearchFragment(): IndexSearchView, BaseFragment(),
         AnkoLogger, SearchView.OnQueryTextListener {
 
-    override var searchString: String?
-        get() = contact_search.query?.toString()
-        set(value) {
-            onUiThread { contact_search.setQuery(value, false) }
-        }
+    private val searchSubject: BehaviorSubject<String> = BehaviorSubject.create<String>()
+
+    override var searchString: Observable<String> = searchSubject.debounce(400, TimeUnit.MILLISECONDS)
+
 
     override val title: String by lazy { ctx.getString(R.string.index_search) }
     override val isFabNeeded = false
@@ -46,6 +49,12 @@ class IndexSearchFragment(): IndexSearchView, BaseFragment(),
         true
     })
 
+    override fun updateQuery(query: String) {
+        onUiThread {
+            contact_search.setQuery(query, false)
+        }
+    }
+
     override fun loadData(data: List<ContactDto>) {
         onUiThread {
             adapter.refresh(data)
@@ -61,11 +70,11 @@ class IndexSearchFragment(): IndexSearchView, BaseFragment(),
 
     override fun onQueryTextSubmit(query: String?): Boolean {
         UIHelper.hideKeyboard(activity, view)
-        presenter.search()
         return true
     }
 
     override fun onQueryTextChange(newText: String?): Boolean {
+        newText?.let { searchSubject.onNext(it) }
         return true
     }
 

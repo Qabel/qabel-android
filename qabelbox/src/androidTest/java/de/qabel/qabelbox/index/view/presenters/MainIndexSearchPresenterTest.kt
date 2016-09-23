@@ -9,12 +9,24 @@ import de.qabel.qabelbox.index.view.views.IndexSearchView
 import de.qabel.qabelbox.util.IdentityHelper
 import org.junit.Test
 import org.mockito.Mockito
+import rx.Observable
 import rx.lang.kotlin.toSingletonObservable
+import rx.subjects.BehaviorSubject
+
 
 class MainIndexSearchPresenterTest {
 
     open class StubIndexSearchView: IndexSearchView {
-        override var searchString: String? = null
+
+        var updated: String = ""
+
+        override fun updateQuery(query: String) {
+            updated = query
+        }
+
+        val searchSubject: BehaviorSubject<String> = BehaviorSubject.create()
+
+        override var searchString: Observable<String> = searchSubject
 
         override fun loadData(data: List<ContactDto>) { }
 
@@ -27,7 +39,7 @@ class MainIndexSearchPresenterTest {
     }
 
     val useCase: IndexSearchUseCase = Mockito.mock(IndexSearchUseCase::class.java)
-    val view: IndexSearchView = StubIndexSearchView()
+    val view = StubIndexSearchView()
     val presenter = MainIndexSearchPresenter(view, useCase, InMemoryContactRepository())
     val email = "test@example.com"
     val phone = "+ 49 199 12345678"
@@ -40,17 +52,15 @@ class MainIndexSearchPresenterTest {
     fun formatPhoneNumber() {
         Mockito.stub(useCase.search(Mockito.anyString(), Mockito.anyString())).toReturn(
                 emptyList<ContactDto>().toSingletonObservable())
-        view.searchString = phone
-        presenter.search()
-        assertThat(view.searchString, equalTo("+4919912345678" as String?))
+        view.searchSubject.onNext(phone)
+        assertThat(view.updated, equalTo("+4919912345678"))
     }
 
     @Test
     fun onlySendValidPhoneNumber() {
         Mockito.stub(useCase.search(Mockito.anyString(), Mockito.anyString())).toReturn(
                 list.toSingletonObservable())
-        view.searchString = "asrdf"
-        presenter.search()
+        view.searchSubject.onNext("asrdf")
         Mockito.verify(useCase).search("asrdf", "")
     }
 }

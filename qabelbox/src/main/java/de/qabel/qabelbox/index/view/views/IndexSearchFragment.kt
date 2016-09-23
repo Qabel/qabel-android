@@ -101,7 +101,7 @@ class IndexSearchFragment(): IndexSearchView, BaseFragment(),
     }
 
     override fun showDetails(contactDto: ContactDto) {
-        navigator.selectContactDetailsFragment(contactDto)
+        navigator.selectContactEdit(contactDto)
     }
 }
 

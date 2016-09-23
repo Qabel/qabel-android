@@ -202,6 +202,8 @@ class MainActivity : CrashReportingActivity(),
         component.inject(this)
         Log.d(TAG, "onCreate " + this.hashCode())
 
+        registerReceiver(indexIdentityListener, indexIdentityListener.createIntentFilter())
+
         if (!Sanity.isQabelReady(this, identityRepository)) {
             Log.d(TAG, "started wizard dialog")
             return
@@ -209,7 +211,6 @@ class MainActivity : CrashReportingActivity(),
             requestContactsPermission()
         }
 
-        registerReceiver(indexIdentityListener, indexIdentityListener.createIntentFilter())
 
         setContentView(R.layout.activity_main)
         ButterKnife.bind(this)

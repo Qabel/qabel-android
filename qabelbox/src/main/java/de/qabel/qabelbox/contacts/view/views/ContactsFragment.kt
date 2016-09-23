@@ -24,7 +24,6 @@ import de.qabel.qabelbox.external.ExternalFileAction
 import de.qabel.qabelbox.fragments.BaseFragment
 import de.qabel.qabelbox.helper.ExternalApps
 import de.qabel.qabelbox.helper.UIHelper
-import de.qabel.qabelbox.index.AndroidIndexSyncService
 import de.qabel.qabelbox.index.ContactSyncAdapter
 import de.qabel.qabelbox.navigation.Navigator
 import de.qabel.qabelbox.permissions.DataPermissionsAdapter
@@ -35,7 +34,6 @@ import de.qabel.qabelbox.ui.extensions.showQuantityMessage
 import kotlinx.android.synthetic.main.fragment_contacts.*
 import org.jetbrains.anko.AnkoLogger
 import org.jetbrains.anko.ctx
-import org.jetbrains.anko.debug
 import org.jetbrains.anko.onUiThread
 import java.io.File
 import javax.inject.Inject
@@ -195,6 +193,7 @@ class ContactsFragment() : ContactsView, BaseFragment(), AnkoLogger, DataPermiss
             when (which) {
                 R.id.add_contact_from_file -> presenter.startContactsImport()
                 R.id.add_contact_via_qr -> presenter.startContactImportScan(IntentIntegrator.REQUEST_CODE)
+                R.id.index_search -> navigator.selectIndexSearchFragment()
             }
         }.show()
         return true

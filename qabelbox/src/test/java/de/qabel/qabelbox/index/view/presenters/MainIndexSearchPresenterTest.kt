@@ -1,7 +1,9 @@
 package de.qabel.qabelbox.index.view.presenters
 
 import com.nhaarman.mockito_kotlin.mock
+import com.nhaarman.mockito_kotlin.spy
 import com.nhaarman.mockito_kotlin.stub
+import de.qabel.core.repository.inmemory.InMemoryContactRepository
 import de.qabel.qabelbox.BuildConfig
 import de.qabel.qabelbox.SimpleApplication
 import de.qabel.qabelbox.contacts.dto.ContactDto
@@ -20,8 +22,21 @@ import rx.lang.kotlin.toSingletonObservable
 class MainIndexSearchPresenterTest {
 
     val useCase: IndexSearchUseCase = mock()
-    val view: IndexSearchView = mock()
-    val presenter = MainIndexSearchPresenter(view, useCase)
+    val view: IndexSearchView = object: IndexSearchView {
+
+        override var searchString: String? = null
+
+        override fun loadData(data: List<ContactDto>) { }
+
+        override fun showEmpty() { }
+
+        override fun showDetails(contact: ContactDto) { }
+
+        override fun showError(error: Throwable) { }
+
+    }
+    val viewSpy: IndexSearchView = spy(view)
+    val presenter = MainIndexSearchPresenter(viewSpy, useCase, InMemoryContactRepository())
     val email = "test@example.com"
     val phone = "+ 49 199 12345678"
     val contact = IdentityHelper.createContact("test").apply {
@@ -31,17 +46,19 @@ class MainIndexSearchPresenterTest {
 
     @Test
     fun emptyResults() {
-        stub(useCase.search(email, phone)).toReturn(
+        stub(useCase.search(email, email)).toReturn(
                 emptyList<ContactDto>().toSingletonObservable())
-        presenter.search(email, phone)
+        view.searchString = email
+        presenter.search()
         verify(view).showEmpty()
     }
 
     @Test
     fun showResults() {
-        stub(useCase.search(email, phone)).toReturn(
+        stub(useCase.search(email, email)).toReturn(
                 list.toSingletonObservable())
-        presenter.search(email, phone)
+        view.searchString = email
+        presenter.search()
         verify(view).loadData(list)
     }
 }

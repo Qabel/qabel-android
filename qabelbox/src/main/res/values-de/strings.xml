@@ -358,4 +358,5 @@ Mehr Infos finden Sie unter https://qabel.de
     <string name="private_identity">Privat</string>
     <string name="private_identity_text">Markieren Sie eine Identität als privat zu verhindern, dass öffentliche Informationen hochgeladen werden. Hinweis: Andere qabel Benutzer können Ihre Identität nicht per Telefon oder E-Mail finden, wenn die Identität als privat markiert ist.</string>
     <string name="conversations_empty">Keine laufenden Unterhaltungen veefgübar</string>
+    <string name="index_search">Suche nach Kontakten</string>
 </resources>

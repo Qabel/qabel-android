@@ -16,20 +16,23 @@ import android.provider.DocumentsProvider
 import android.provider.MediaStore.Video.Media
 import android.util.Log
 import de.qabel.box.storage.exceptions.QblStorageException
+import de.qabel.chat.repository.ChatShareRepository
+import de.qabel.chat.service.SharingService
 import de.qabel.qabelbox.BuildConfig
-import de.qabel.qabelbox.QabelBoxApplication
 import de.qabel.qabelbox.QblBroadcastConstants
 import de.qabel.qabelbox.R
-import de.qabel.qabelbox.box.dto.BoxPath
-import de.qabel.qabelbox.dagger.modules.BoxModule
+import de.qabel.qabelbox.box.backends.BoxHttpStorageBackend
 import de.qabel.qabelbox.box.dto.BrowserEntry
 import de.qabel.qabelbox.box.dto.ProviderUpload
 import de.qabel.qabelbox.box.dto.UploadSource
 import de.qabel.qabelbox.box.interactor.DocumentIdAdapter
 import de.qabel.qabelbox.dagger.components.DaggerBoxComponent
 import de.qabel.qabelbox.dagger.modules.ContextModule
+import de.qabel.qabelbox.storage.server.BlockServer
 import org.jetbrains.anko.AnkoLogger
+import org.jetbrains.anko.debug
 import org.jetbrains.anko.info
+import org.jetbrains.anko.error
 import org.jetbrains.anko.warn
 import rx.lang.kotlin.firstOrNull
 import java.io.File
@@ -42,6 +45,13 @@ open class BoxProvider : DocumentsProvider(), AnkoLogger {
 
     @Inject
     lateinit var useCase: DocumentIdAdapter
+    @Inject
+    lateinit var sharingService: SharingService
+    @Inject
+    lateinit var sharingRepo: ChatShareRepository
+    @Inject
+    lateinit var blockServer: BlockServer
+
     open val handler by lazy { Handler(context.mainLooper) }
 
     private val volumesChangedBroadcastReceiver = object : BroadcastReceiver() {
@@ -175,41 +185,58 @@ open class BoxProvider : DocumentsProvider(), AnkoLogger {
     @Throws(FileNotFoundException::class)
     override fun openDocument(documentId: String,
                               mode: String, signal: CancellationSignal?): ParcelFileDescriptor {
-        info("Open document $documentId in mode $mode")
-        val isWrite = mode.indexOf('w') != -1
-        val isRead = mode.indexOf('r') != -1
-        val id = documentId.toDocumentId()
-        val file = File.createTempFile("boxOpen", "tmp", context.externalCacheDir)
-        if (isRead) {
-            val download = try {
-                useCase.download(id).toBlocking().firstOrNull()
-            } catch (e: QblStorageException) {
-                throw FileNotFoundException("Download failed")
-            }
-            file.outputStream().run {
-                download.source.source.copyTo(file.outputStream())
-            }
-        }
-        val parsedMode = ParcelFileDescriptor.parseMode(mode)
-        if (isWrite) {
-            return ParcelFileDescriptor.open(file, parsedMode, handler,
-                    ParcelFileDescriptor.OnCloseListener { e ->
-                if (e != null) {
-                    Log.e(TAG, "IOException in onClose", e)
-                    return@OnCloseListener
-                }
-                Log.i(TAG, "Uploading saved file")
-                val entry = BrowserEntry.File(id.path.name, file.length(), Date())
-                file.inputStream().use {
-                    try {
-                        useCase.upload(ProviderUpload(id, UploadSource(it, entry))).toBlocking()
+        try {
+            info("Open document $documentId in mode $mode")
+            val isWrite = mode.indexOf('w') != -1
+            val isRead = mode.indexOf('r') != -1
+            val isShare = documentId.startsWith(ShareId.PREFIX)
+            val file = File.createTempFile("boxOpen", "tmp", context.externalCacheDir)
+            val parsedMode = ParcelFileDescriptor.parseMode(mode)
+
+            if (isShare) {
+                val shareId = ShareId.parse(documentId)
+                debug("Open share $shareId")
+                val share = sharingRepo.findById(shareId.boxShareId)
+                sharingService.downloadShare(share, file, BoxHttpStorageBackend(blockServer, ""))
+                println(file.exists())
+                println(file.length())
+                debug("downloaded file ${file.absolutePath}")
+            } else {
+                val id = documentId.toDocumentId()
+                if (isRead) {
+                    val download = try {
+                        useCase.download(id).toBlocking().firstOrNull()
                     } catch (e: QblStorageException) {
-                        throw FileNotFoundException("Upload failed")
+                        throw FileNotFoundException("Download failed")
+                    }
+                    file.outputStream().run {
+                        download.source.source.copyTo(file.outputStream())
                     }
                 }
-            })
-        } else {
+                if (isWrite) {
+                    return ParcelFileDescriptor.open(file, parsedMode, handler,
+                            ParcelFileDescriptor.OnCloseListener { e ->
+                                if (e != null) {
+                                    Log.e(TAG, "IOException in onClose", e)
+                                    return@OnCloseListener
+                                }
+                                Log.i(TAG, "Uploading saved file")
+                                val entry = BrowserEntry.File(id.path.name, file.length(), Date())
+                                file.inputStream().use {
+                                    try {
+                                        useCase.upload(ProviderUpload(id, UploadSource(it, entry))).toBlocking()
+                                    } catch (e: QblStorageException) {
+                                        throw FileNotFoundException("Upload failed")
+                                    }
+                                }
+                            })
+                }
+            }
             return ParcelFileDescriptor.open(file, parsedMode)
+        } catch (ex: Throwable) {
+            ex.printStackTrace()
+            error("Error open document $documentId")
+            throw ex
         }
     }
 

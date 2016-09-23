@@ -10,7 +10,7 @@ import de.qabel.qabelbox.chat.dto.ChatMessage
 import de.qabel.qabelbox.chat.dto.MessagePayloadDto
 import de.qabel.qabelbox.ui.DataViewAdapter
 
-open class ChatMessageAdapter() :
+open class ChatMessageAdapter(val onMsgClick : (msg : ChatMessage) -> Unit) :
         RecyclerView.Adapter<ChatMessageViewHolderBase<*>>(), DataViewAdapter<ChatMessage> {
 
     override var data: MutableList<ChatMessage> = mutableListOf()
@@ -40,7 +40,7 @@ open class ChatMessageAdapter() :
 
         (layout.findViewById(R.id.chatContent) as LinearLayout).addView(contentLayout)
         return when (viewTypeObj.contentLayout) {
-            R.layout.chat_message_share -> ShareChatMessageViewHolder(layout)
+            R.layout.chat_message_share -> ShareChatMessageViewHolder(layout, onMsgClick)
             else -> TextChatMessageViewHolder(layout)
         }
     }

@@ -1,8 +1,12 @@
 package de.qabel.qabelbox.chat.view.presenters
 
+import de.qabel.chat.repository.entities.ShareStatus
 import de.qabel.core.config.Contact
 import de.qabel.core.ui.DataViewProxy
 import de.qabel.core.ui.displayName
+import de.qabel.qabelbox.box.provider.ShareId
+import de.qabel.qabelbox.chat.dto.ChatMessage
+import de.qabel.qabelbox.chat.dto.MessagePayloadDto
 import de.qabel.qabelbox.chat.interactor.ChatUseCase
 import de.qabel.qabelbox.chat.view.views.ChatView
 import de.qabel.qabelbox.navigation.Navigator
@@ -53,6 +57,23 @@ class MainChatPresenter @Inject constructor(private val view: ChatView,
         }, {
             view.showError(it)
         })
+    }
+
+    override fun handleMsgClick(msg: ChatMessage) {
+        if (msg.messagePayload is MessagePayloadDto.ShareMessage) {
+            val share = msg.messagePayload.share
+            when (share.status) {
+                ShareStatus.NEW -> {
+                    useCase.acceptShare(msg).subscribe({
+                        view.openShare(ShareId.create(share))
+                    }, {
+                        view.showError(it)
+                    })
+                }
+                ShareStatus.CREATED, ShareStatus.ACCEPTED ->
+                    view.openShare(ShareId.create(share))
+            }
+        }
     }
 
 }

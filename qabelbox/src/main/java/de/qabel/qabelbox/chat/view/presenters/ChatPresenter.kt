@@ -17,6 +17,8 @@ interface ChatPresenter {
 
     fun sendMessage()
 
+    fun handleMsgClick(msg : ChatMessage)
+
     fun handleHeaderClick()
 
     fun handleContactAddClick()

@@ -231,7 +231,6 @@ class ContactsFragment() : ContactsView, BaseFragment(), AnkoLogger, DataPermiss
             when (action) {
                 is ExternalFileAction -> {
                     val uri = resultData?.data
-                    debug("Open file " + uri.toString() + " WITH MODE " + action.accessMode)
                     val file = activity.contentResolver.openFileDescriptor(uri, action.accessMode)
                     presenter.handleExternalFileAction(action, file.fileDescriptor)
                 }

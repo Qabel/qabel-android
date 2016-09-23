@@ -8,6 +8,11 @@ import javax.inject.Singleton;
 
 import dagger.Module;
 import dagger.Provides;
+import de.qabel.chat.repository.ChatShareRepository;
+import de.qabel.chat.service.MainSharingService;
+import de.qabel.chat.service.SharingService;
+import de.qabel.core.crypto.CryptoUtils;
+import de.qabel.core.repository.ContactRepository;
 import de.qabel.qabelbox.box.provider.DocumentIdParser;
 import de.qabel.qabelbox.config.AppPreference;
 import de.qabel.qabelbox.storage.notifications.AndroidStorageNotificationManager;
@@ -44,6 +49,13 @@ public class StorageModule {
 
     protected BlockServer createBlockServer(AppPreference preference, Context context){
         return new AndroidBlockServer(preference, context);
+    }
+
+    @Singleton
+    @Provides
+    SharingService providesSharingService(ChatShareRepository shareRepository, ContactRepository contactRepository,
+                                          Context context) {
+        return new MainSharingService(shareRepository, contactRepository, context.getCacheDir(), new CryptoUtils());
     }
 
 }

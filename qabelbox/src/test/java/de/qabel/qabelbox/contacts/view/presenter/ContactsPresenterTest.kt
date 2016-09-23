@@ -33,6 +33,7 @@ import org.junit.runner.RunWith
 import org.mockito.Mockito
 import org.robolectric.RobolectricGradleTestRunner
 import org.robolectric.annotation.Config
+import rx.lang.kotlin.BehaviorSubject
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
@@ -63,10 +64,12 @@ class ContactsPresenterTest {
 
     val contactsView: ContactsView = mock()
     val navigator : Navigator = mock()
+    val searchSubject = BehaviorSubject<String>()
 
     @Before
     fun setUp() {
         whenever(contactsView.showIgnored).thenReturn(false)
+        whenever(contactsView.searchString).thenReturn(searchSubject)
         contactUseCase = spy(MainContactsUseCase(identity, contactRepo, identityRepo))
         presenter = MainContactsPresenter(contactsView, contactUseCase,navigator)
     }
@@ -81,8 +84,7 @@ class ContactsPresenterTest {
     @Test
     fun testSearch() {
         val searchString = "ContactA"
-        Mockito.`when`(contactsView.searchString).thenAnswer { searchString }
-        presenter.refresh()
+        searchSubject.onNext(searchString)
         verify(contactUseCase).search(searchString, false)
         verify(contactsView).loadData(listOf(contactADto))
     }

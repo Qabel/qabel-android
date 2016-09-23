@@ -1,12 +1,13 @@
 package de.qabel.qabelbox.contacts.view.views
 
 import de.qabel.qabelbox.contacts.dto.ContactDto
+import rx.Observable
 import java.io.File
 
 
 interface ContactsView {
 
-    var searchString : String?
+    var searchString : Observable<String>
     var showIgnored : Boolean
 
     fun showEmpty()

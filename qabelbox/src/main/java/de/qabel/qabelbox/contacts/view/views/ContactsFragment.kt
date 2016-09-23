@@ -35,14 +35,21 @@ import kotlinx.android.synthetic.main.fragment_contacts.*
 import org.jetbrains.anko.AnkoLogger
 import org.jetbrains.anko.ctx
 import org.jetbrains.anko.onUiThread
+import rx.Observable
+import rx.subjects.BehaviorSubject
 import java.io.File
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 class ContactsFragment() : ContactsView, BaseFragment(), AnkoLogger, DataPermissionsAdapter,
         SearchView.OnQueryTextListener {
 
     override val permissionContext: Context get() = ctx
-    override var searchString: String? = null
+
+    private val searchSubject: BehaviorSubject<String> = BehaviorSubject.create()
+
+    override var searchString: Observable<String> = searchSubject.debounce(100, TimeUnit.MILLISECONDS)
+
     override var showIgnored: Boolean = false
 
     var injectCompleted = false
@@ -102,8 +109,7 @@ class ContactsFragment() : ContactsView, BaseFragment(), AnkoLogger, DataPermiss
     }
 
     override fun onQueryTextChange(newText: String?): Boolean {
-        searchString = newText
-        presenter.refresh()
+        searchSubject.onNext(newText ?: "")
         return true
     }
 

@@ -31,7 +31,7 @@ class IndexSearchFragment(): IndexSearchView, BaseFragment(),
 
     private val searchSubject: BehaviorSubject<String> = BehaviorSubject.create<String>()
 
-    override var searchString: Observable<String> = searchSubject.debounce(400, TimeUnit.MILLISECONDS)
+    override var searchString: Observable<String> = searchSubject.debounce(500, TimeUnit.MILLISECONDS)
 
 
     override val title: String by lazy { ctx.getString(R.string.index_search) }

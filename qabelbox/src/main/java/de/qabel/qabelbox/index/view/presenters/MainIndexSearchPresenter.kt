@@ -26,11 +26,11 @@ class MainIndexSearchPresenter @Inject constructor(
         val term = query.trim()
         if (term.isNotBlank()) {
             val phone = try { formatPhoneNumber(term) } catch (e: NumberParseException) { "" }
-            if (phone.isNotBlank()) {
-                view.updateQuery(phone)
-            }
             useCase.search(term, phone).subscribe({
                 info("Index search result length: ${it.size}")
+                if (phone.isNotBlank()) {
+                    view.updateQuery(phone)
+                }
                 if (it.size > 0) {
                     view.loadData(it)
                 } else {

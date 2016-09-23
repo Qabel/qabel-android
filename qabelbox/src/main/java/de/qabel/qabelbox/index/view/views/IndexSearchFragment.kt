@@ -57,6 +57,7 @@ class IndexSearchFragment(): IndexSearchView, BaseFragment(),
 
     override fun loadData(data: List<ContactDto>) {
         onUiThread {
+            contactCount.text = data.size.toString()
             adapter.refresh(data)
             adapter.notifyDataSetChanged()
         }
@@ -103,7 +104,7 @@ class IndexSearchFragment(): IndexSearchView, BaseFragment(),
     override fun onViewCreated(view: View?, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         contact_search.setOnQueryTextListener(this)
-        contact_search.queryHint = getString(R.string.search)
+        contact_search.queryHint = getString(R.string.index_search_hint)
     }
 
     override fun showError(error: Throwable) {

@@ -19,12 +19,13 @@ class MainIndexSearchPresenter @Inject constructor(
 
     override fun search() {
         view.searchString?.let {
-            if (it.isNotBlank()) {
-                val phone = try { formatPhoneNumber(it) } catch (e: NumberParseException) { "" }
+            val term = it.trim()
+            if (term.isNotBlank()) {
+                val phone = try { formatPhoneNumber(term) } catch (e: NumberParseException) { "" }
                 if (phone.isNotBlank()) {
                     view.searchString = phone
                 }
-                useCase.search(it, phone).subscribe({
+                useCase.search(term, phone).subscribe({
                     info("Index search result length: ${it.size}")
                     if (it.size > 0) {
                         view.loadData(it)

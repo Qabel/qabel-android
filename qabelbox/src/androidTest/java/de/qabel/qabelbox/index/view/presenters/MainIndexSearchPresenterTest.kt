@@ -1,42 +1,36 @@
 package de.qabel.qabelbox.index.view.presenters
 
+import com.nhaarman.mockito_kotlin.any
 import com.nhaarman.mockito_kotlin.mock
-import com.nhaarman.mockito_kotlin.spy
 import com.nhaarman.mockito_kotlin.stub
+import com.nhaarman.mockito_kotlin.verify
 import de.qabel.core.repository.inmemory.InMemoryContactRepository
-import de.qabel.qabelbox.BuildConfig
-import de.qabel.qabelbox.SimpleApplication
 import de.qabel.qabelbox.contacts.dto.ContactDto
+import de.qabel.qabelbox.eq
 import de.qabel.qabelbox.index.interactor.IndexSearchUseCase
 import de.qabel.qabelbox.index.view.views.IndexSearchView
 import de.qabel.qabelbox.util.IdentityHelper
 import org.junit.Test
-import org.junit.runner.RunWith
-import org.mockito.Mockito.verify
-import org.robolectric.RobolectricGradleTestRunner
-import org.robolectric.annotation.Config
 import rx.lang.kotlin.toSingletonObservable
 
-@RunWith(RobolectricGradleTestRunner::class)
-@Config(application = SimpleApplication::class, constants = BuildConfig::class)
 class MainIndexSearchPresenterTest {
 
-    val useCase: IndexSearchUseCase = mock()
-    val view: IndexSearchView = object: IndexSearchView {
-
+    open class StubIndexSearchView: IndexSearchView {
         override var searchString: String? = null
 
         override fun loadData(data: List<ContactDto>) { }
 
         override fun showEmpty() { }
 
-        override fun showDetails(contact: ContactDto) { }
-
         override fun showError(error: Throwable) { }
 
+        override fun showDetails(contactDto: ContactDto) { }
+
     }
-    val viewSpy: IndexSearchView = spy(view)
-    val presenter = MainIndexSearchPresenter(viewSpy, useCase, InMemoryContactRepository())
+
+    val useCase: IndexSearchUseCase = mock()
+    val view: IndexSearchView = StubIndexSearchView()
+    val presenter = MainIndexSearchPresenter(view, useCase, InMemoryContactRepository())
     val email = "test@example.com"
     val phone = "+ 49 199 12345678"
     val contact = IdentityHelper.createContact("test").apply {
@@ -45,20 +39,21 @@ class MainIndexSearchPresenterTest {
     val list = listOf(ContactDto(contact, emptyList(), true))
 
     @Test
-    fun emptyResults() {
-        stub(useCase.search(email, email)).toReturn(
+    fun formatPhoneNumber() {
+        stub(useCase.search(any(), any())).toReturn(
                 emptyList<ContactDto>().toSingletonObservable())
-        view.searchString = email
+        view.searchString = phone + " "
         presenter.search()
-        verify(view).showEmpty()
+        verify(useCase).search(phone, phone)
+        view.searchString eq phone
     }
 
     @Test
-    fun showResults() {
-        stub(useCase.search(email, email)).toReturn(
+    fun onlySendValidPhoneNumber() {
+        stub(useCase.search(any(), "")).toReturn(
                 list.toSingletonObservable())
-        view.searchString = email
+        view.searchString = "12345"
         presenter.search()
-        verify(view).loadData(list)
+        verify(useCase).search("12345", "")
     }
 }

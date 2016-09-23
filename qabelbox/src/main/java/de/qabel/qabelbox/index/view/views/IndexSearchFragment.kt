@@ -81,7 +81,7 @@ class IndexSearchFragment(): IndexSearchView, BaseFragment(),
         component.inject(this)
 
         setHasOptionsMenu(false)
-        configureAsMainFragment()
+        configureAsSubFragment()
 
         contact_list.layoutManager = LinearLayoutManager(view.context)
         contact_list.adapter = adapter

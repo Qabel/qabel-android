@@ -33,11 +33,6 @@ object Sanity {
             val identities = identityRepository.findAll().entities
             if (identities.size == 0) {
                 return startActivity(activity, CreateIdentityActivity::class.java)
-            } else if (identities.any {
-                it.phoneStatus == VerificationStatus.NOT_VERIFIED
-            }) {
-                //TODO Replace with verify phone actitivity
-                return startActivity(activity, CreateIdentityActivity::class.java)
             }
         }
         return true

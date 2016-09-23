@@ -38,16 +38,6 @@ class MainIndexSearchPresenter @Inject constructor(
     }
 
     override fun showDetails(contact: ContactDto) {
-        try {
-            contactRepository.persist(contact.contact, contact.identities)
-        } catch (ignored: EntityExistsException) {
-            val contactData = contactRepository.findContactWithIdentities(contact.contact.keyIdentifier)
-            if (contactData.identities.size == 0) {
-                contactData.contact.status = Contact.ContactStatus.UNKNOWN
-                contactData.contact.isIgnored = false
-            }
-            contactRepository.update(contactData.contact, emptyList())
-        }
         view.showDetails(contact)
     }
 

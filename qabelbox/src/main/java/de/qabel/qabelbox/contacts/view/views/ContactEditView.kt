@@ -5,7 +5,7 @@ import de.qabel.qabelbox.contacts.dto.ContactDto
 
 interface ContactEditView {
 
-    var contactKeyId: String
+    var contactDto: ContactDto
 
     fun getEditLabel() : String
     fun getNewLabel() : String

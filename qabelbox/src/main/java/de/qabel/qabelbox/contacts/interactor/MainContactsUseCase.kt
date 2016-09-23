@@ -128,7 +128,11 @@ open class MainContactsUseCase @Inject constructor(private val activeIdentity: I
         if (contact.contact.status == Contact.ContactStatus.UNKNOWN) {
             contact.contact.status = Contact.ContactStatus.NORMAL
         }
-        contactRepository.update(contact.contact, contact.identities)
+        try {
+            contactRepository.persist(contact.contact, contact.identities)
+        } catch (e: EntityExistsException) {
+            contactRepository.update(contact.contact, contact.identities)
+        }
         it.onNext(Unit)
         it.onCompleted()
     }

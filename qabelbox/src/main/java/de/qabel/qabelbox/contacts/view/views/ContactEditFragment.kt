@@ -26,7 +26,7 @@ class ContactEditFragment() : ContactEditView, BaseFragment(), AnkoLogger {
         fun withContact(contact: ContactDto): ContactEditFragment {
             val fragment = ContactEditFragment()
             fragment.arguments = with(Bundle()) {
-                putString(ARG_CONTACT, contact.contact.keyIdentifier)
+                putSerializable(ARG_CONTACT, contact)
                 this
             }
             return fragment
@@ -34,15 +34,16 @@ class ContactEditFragment() : ContactEditView, BaseFragment(), AnkoLogger {
     }
 
     val adapter = ContactEditAdapter()
-    lateinit override var contactKeyId: String
+    lateinit override var contactDto: ContactDto
     @Inject lateinit var presenter: ContactEditPresenter
 
     var injectCompleted = false
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        contactKeyId = arguments.getString(ARG_CONTACT) ?: throw IllegalArgumentException(
-                "Starting ContactEditFragment without contactKeyId")
+        contactDto = arguments.getSerializable(ARG_CONTACT) as ContactDto? ?: throw IllegalArgumentException(
+                "Starting ContactEditFragment without contact"
+        )
 
         val component = getComponent(MainActivityComponent::class.java).plus(ContactEditModule(this))
         component.inject(this);

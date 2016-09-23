@@ -16,24 +16,16 @@ import android.provider.DocumentsProvider
 import android.provider.MediaStore.Video.Media
 import android.util.Log
 import de.qabel.box.storage.exceptions.QblStorageException
-import de.qabel.chat.repository.ChatShareRepository
-import de.qabel.chat.service.SharingService
 import de.qabel.qabelbox.BuildConfig
 import de.qabel.qabelbox.QblBroadcastConstants
 import de.qabel.qabelbox.R
-import de.qabel.qabelbox.box.backends.BoxHttpStorageBackend
 import de.qabel.qabelbox.box.dto.BrowserEntry
 import de.qabel.qabelbox.box.dto.ProviderUpload
 import de.qabel.qabelbox.box.dto.UploadSource
 import de.qabel.qabelbox.box.interactor.DocumentIdAdapter
 import de.qabel.qabelbox.dagger.components.DaggerBoxComponent
 import de.qabel.qabelbox.dagger.modules.ContextModule
-import de.qabel.qabelbox.storage.server.BlockServer
-import org.jetbrains.anko.AnkoLogger
-import org.jetbrains.anko.debug
-import org.jetbrains.anko.info
-import org.jetbrains.anko.error
-import org.jetbrains.anko.warn
+import org.jetbrains.anko.*
 import rx.lang.kotlin.firstOrNull
 import java.io.File
 import java.io.FileNotFoundException
@@ -45,12 +37,6 @@ open class BoxProvider : DocumentsProvider(), AnkoLogger {
 
     @Inject
     lateinit var useCase: DocumentIdAdapter
-    @Inject
-    lateinit var sharingService: SharingService
-    @Inject
-    lateinit var sharingRepo: ChatShareRepository
-    @Inject
-    lateinit var blockServer: BlockServer
 
     open val handler by lazy { Handler(context.mainLooper) }
 
@@ -196,11 +182,10 @@ open class BoxProvider : DocumentsProvider(), AnkoLogger {
             if (isShare) {
                 val shareId = ShareId.parse(documentId)
                 debug("Open share $shareId")
-                val share = sharingRepo.findById(shareId.boxShareId)
-                sharingService.downloadShare(share, file, BoxHttpStorageBackend(blockServer, ""))
-                println(file.exists())
-                println(file.length())
-                debug("downloaded file ${file.absolutePath}")
+                useCase.download(shareId, file).doOnError {
+                    error("Error loading share", it)
+                }.toBlocking().value()
+                debug("downloaded share ${file.absolutePath}")
             } else {
                 val id = documentId.toDocumentId()
                 if (isRead) {

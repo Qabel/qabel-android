@@ -86,9 +86,6 @@ class ContactsFragment() : ContactsView, BaseFragment(), AnkoLogger, DataPermiss
         component.inject(this)
         injectCompleted = true
 
-        setHasOptionsMenu(true)
-        configureAsMainFragment()
-
         contact_list.layoutManager = LinearLayoutManager(view.context)
         contact_list.adapter = adapter
     }
@@ -121,6 +118,10 @@ class ContactsFragment() : ContactsView, BaseFragment(), AnkoLogger, DataPermiss
     override fun onResume() {
         super.onResume()
         updateView(adapter.getContactCount())
+
+        setHasOptionsMenu(true)
+        configureAsMainFragment()
+
         presenter.refresh()
         ctx.registerReceiver(broadcastReceiver, IntentFilter(QblBroadcastConstants.Contacts.CONTACTS_CHANGED))
     }

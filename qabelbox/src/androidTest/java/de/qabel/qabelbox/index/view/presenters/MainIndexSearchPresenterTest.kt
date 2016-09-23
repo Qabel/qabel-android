@@ -1,16 +1,14 @@
 package de.qabel.qabelbox.index.view.presenters
 
-import com.nhaarman.mockito_kotlin.any
-import com.nhaarman.mockito_kotlin.mock
-import com.nhaarman.mockito_kotlin.stub
-import com.nhaarman.mockito_kotlin.verify
+import com.natpryce.hamkrest.assertion.assertThat
+import com.natpryce.hamkrest.equalTo
 import de.qabel.core.repository.inmemory.InMemoryContactRepository
 import de.qabel.qabelbox.contacts.dto.ContactDto
-import de.qabel.qabelbox.eq
 import de.qabel.qabelbox.index.interactor.IndexSearchUseCase
 import de.qabel.qabelbox.index.view.views.IndexSearchView
 import de.qabel.qabelbox.util.IdentityHelper
 import org.junit.Test
+import org.mockito.Mockito
 import rx.lang.kotlin.toSingletonObservable
 
 class MainIndexSearchPresenterTest {
@@ -28,7 +26,7 @@ class MainIndexSearchPresenterTest {
 
     }
 
-    val useCase: IndexSearchUseCase = mock()
+    val useCase: IndexSearchUseCase = Mockito.mock(IndexSearchUseCase::class.java)
     val view: IndexSearchView = StubIndexSearchView()
     val presenter = MainIndexSearchPresenter(view, useCase, InMemoryContactRepository())
     val email = "test@example.com"
@@ -40,20 +38,19 @@ class MainIndexSearchPresenterTest {
 
     @Test
     fun formatPhoneNumber() {
-        stub(useCase.search(any(), any())).toReturn(
+        Mockito.stub(useCase.search(Mockito.anyString(), Mockito.anyString())).toReturn(
                 emptyList<ContactDto>().toSingletonObservable())
-        view.searchString = phone + " "
+        view.searchString = phone
         presenter.search()
-        verify(useCase).search(phone, phone)
-        view.searchString eq phone
+        assertThat(view.searchString, equalTo("+4919912345678" as String?))
     }
 
     @Test
     fun onlySendValidPhoneNumber() {
-        stub(useCase.search(any(), "")).toReturn(
+        Mockito.stub(useCase.search(Mockito.anyString(), Mockito.anyString())).toReturn(
                 list.toSingletonObservable())
-        view.searchString = "12345"
+        view.searchString = "asrdf"
         presenter.search()
-        verify(useCase).search("12345", "")
+        Mockito.verify(useCase).search("asrdf", "")
     }
 }

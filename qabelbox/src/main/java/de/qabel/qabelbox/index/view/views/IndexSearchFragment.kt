@@ -80,11 +80,15 @@ class IndexSearchFragment(): IndexSearchView, BaseFragment(),
         val component = getComponent(MainActivityComponent::class.java).plus(IndexSearchModule(this))
         component.inject(this)
 
-        setHasOptionsMenu(false)
-        configureAsSubFragment()
-
         contact_list.layoutManager = LinearLayoutManager(view.context)
         contact_list.adapter = adapter
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+        setHasOptionsMenu(false)
+        configureAsSubFragment()
     }
 
     override fun onViewCreated(view: View?, savedInstanceState: Bundle?) {

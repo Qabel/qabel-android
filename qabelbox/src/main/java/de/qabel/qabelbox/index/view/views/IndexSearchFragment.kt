@@ -31,7 +31,7 @@ class IndexSearchFragment(): IndexSearchView, BaseFragment(),
 
     private val searchSubject: BehaviorSubject<String> = BehaviorSubject.create<String>()
 
-    override var searchString: Observable<String> = searchSubject.debounce(500, TimeUnit.MILLISECONDS)
+    override var searchString: Observable<String> = searchSubject.debounce(200, TimeUnit.MILLISECONDS)
 
 
     override val title: String by lazy { ctx.getString(R.string.index_search) }
@@ -57,7 +57,7 @@ class IndexSearchFragment(): IndexSearchView, BaseFragment(),
 
     override fun loadData(data: List<ContactDto>) {
         onUiThread {
-            contactCount.text = data.size.toString()
+            contactCount?.text = getString(R.string.contact_count, data.size)
             adapter.refresh(data)
             adapter.notifyDataSetChanged()
         }

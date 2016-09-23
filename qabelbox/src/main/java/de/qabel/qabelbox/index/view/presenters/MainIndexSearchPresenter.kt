@@ -32,7 +32,7 @@ class MainIndexSearchPresenter @Inject constructor(
                     view.updateQuery(phone)
                 }
                 if (it.size > 0) {
-                    view.loadData(it)
+                    view.loadData(it.map { ContactDto(it.contact, it.identities, true) })
                 } else {
                     view.showEmpty()
                 }

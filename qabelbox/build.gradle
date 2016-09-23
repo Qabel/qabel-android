@@ -56,10 +56,12 @@ android {
         }
         buildConfigField "String", "ACCOUNT_TYPE", "\"${applicationId}.account\""
         buildConfigField "String", "AUTHORITY", "\"${applicationId}.providers.internal\""
+        buildConfigField "String", "INDEX_AUTHORITY", "\"${applicationId}.providers.index\""
 
         //Reference them in .xml files.
         resValue "string", "account_type", "${applicationId}.account"
         resValue "string", "authority", "${applicationId}.provider"
+        resValue "string", "index_authority", "${applicationId}.index"
     }
 
     lintOptions {
@@ -164,8 +166,8 @@ tasks.withType(Test) {
     systemProperty 'java.library.path', 'libs/'
 }
 
-def coreVersion = '0.24.2'
-def repo = 'Qabel'
+def coreVersion = 'c9087a2a889205b6690a9dfa23900191ef893550'
+def repo = 'JoGir'
 dependencies {
     sourceCompatibility = JavaVersion.VERSION_1_7
     targetCompatibility = JavaVersion.VERSION_1_7

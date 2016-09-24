@@ -31,7 +31,7 @@ open class ShareChatMessageViewHolder(itemView: View, val onClick: (msg: ChatMes
 
                 val shareUri = ShareId.create(payload.share).toUri()
                 val mimeType = URLConnection.guessContentTypeFromName(shareUri.toString())
-                if (mimeType.startsWith("image")) {
+                if (mimeType?.startsWith("image") ?: false) {
                     Picasso.with(context).load(shareUri).resize(700, 700).onlyScaleDown().centerInside().into(messageFilePreview)
                     isPreviewed = true
                 }

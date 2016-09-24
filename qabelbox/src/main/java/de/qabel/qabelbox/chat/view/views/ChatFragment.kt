@@ -214,7 +214,7 @@ class ChatFragment : ChatView, BaseFragment(), AnkoLogger {
             info("Open With via started for share id $shareId")
             val uri = shareId.toUri()
             val mimeType = URLConnection.guessContentTypeFromName(uri.toString())
-            if (mimeType.startsWith("image")) {
+            if (mimeType?.startsWith("image") ?: false) {
                 val intent = Intent(ctx, ImageViewerActivity::class.java)
                 intent.putExtra(ImageViewerActivity.P_URI, uri)
                 intent.putExtra(ImageViewerActivity.P_TYPE, mimeType)

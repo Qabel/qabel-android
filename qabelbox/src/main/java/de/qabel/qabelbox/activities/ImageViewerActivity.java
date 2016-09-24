@@ -50,7 +50,7 @@ public class ImageViewerActivity extends CrashReportingActivity {
         if (viewerFragment == null) {
             Uri uri = getIntent().getParcelableExtra(P_URI);
             String type = getIntent().getStringExtra(P_TYPE);
-            viewerFragment = ImageViewerFragment.newInstance(uri, type);
+            viewerFragment = ImageViewerFragment.Companion.newInstance(uri, type);
             getFragmentManager().beginTransaction()
                     .replace(R.id.fragment_container, viewerFragment, TAG_IMAGEVIEWER).addToBackStack(null)
                     .commit();

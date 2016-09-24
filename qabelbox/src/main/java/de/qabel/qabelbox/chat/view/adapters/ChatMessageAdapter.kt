@@ -10,7 +10,7 @@ import de.qabel.qabelbox.chat.dto.ChatMessage
 import de.qabel.qabelbox.chat.dto.MessagePayloadDto
 import de.qabel.qabelbox.ui.DataViewAdapter
 
-open class ChatMessageAdapter(val onMsgClick : (msg : ChatMessage) -> Unit) :
+open class ChatMessageAdapter(val onMsgClick: (msg: ChatMessage) -> Unit) :
         RecyclerView.Adapter<ChatMessageViewHolderBase<*>>(), DataViewAdapter<ChatMessage> {
 
     override var data: MutableList<ChatMessage> = mutableListOf()

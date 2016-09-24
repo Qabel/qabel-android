@@ -73,7 +73,7 @@ class ShareChatMessageViewHolderTest {
         stub(view.tvDate).toReturn(dateField)
         stub(view.tvLink).toReturn(actionField)
 
-        val holder = ShareChatMessageViewHolder(view)
+        val holder = ShareChatMessageViewHolder(view, {})
         val msg = ChatMessage(mock<Identity>(), contact,
                 direction, Date(),
                 MessagePayloadDto.ShareMessage("text", BoxFileChatShare(status, "", 0L,

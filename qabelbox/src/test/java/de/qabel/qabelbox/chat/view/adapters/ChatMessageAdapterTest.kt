@@ -41,7 +41,7 @@ class ChatMessageAdapterTest {
     fun setUp() {
         message = ChatMessage(mock(), mock(), ChatDropMessage.Direction.INCOMING,
                 Date(), MessagePayloadDto.TextMessage("Text"))
-        adapter = ChatMessageAdapter()
+        adapter = ChatMessageAdapter({})
         FontHelper.disable = true
     }
 

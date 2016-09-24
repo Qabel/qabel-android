@@ -5,6 +5,7 @@ import de.qabel.box.storage.BoxVolumeConfig
 import de.qabel.box.storage.jdbc.DirectoryMetadataDatabase
 import de.qabel.box.storage.jdbc.JdbcDirectoryMetadataFactory
 import de.qabel.core.repositories.AndroidVersionAdapter
+import de.qabel.core.repository.ContactRepository
 import de.qabel.core.repository.IdentityRepository
 import de.qabel.qabelbox.box.backends.BoxHttpStorageBackend
 import de.qabel.qabelbox.box.dto.VolumeRoot
@@ -14,6 +15,7 @@ import java.io.File
 import java.sql.Connection
 
 fun makeFileBrowserFactory(identityRepository: IdentityRepository,
+                           contactRepository: ContactRepository,
                            deviceId: ByteArray,
                            tempDir: File,
                            androidBlockServer: BlockServer):
@@ -37,7 +39,7 @@ fun makeFileBrowserFactory(identityRepository: IdentityRepository,
                     JdbcDirectoryMetadataFactory(tempDir, deviceId, dataBaseFactory)
                 }),
                 identity.primaryKeyPair)
-        return BoxFileBrowser(BoxFileBrowser.KeyAndPrefix(key, identity.prefixes.first()),  volume)
+        return BoxFileBrowser(BoxFileBrowser.KeyAndPrefix(key, identity.prefixes.first()), volume, contactRepository)
     }
 }
 

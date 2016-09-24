@@ -4,6 +4,7 @@ import de.qabel.qabelbox.box.dto.*
 import de.qabel.qabelbox.box.provider.DocumentId
 import de.qabel.qabelbox.box.toDownloadSource
 import rx.Observable
+import rx.Single
 import rx.lang.kotlin.toSingletonObservable
 import java.io.FileNotFoundException
 import java.util.*
@@ -25,17 +26,17 @@ class MockFileBrowser @Inject constructor(): FileBrowser {
         return Unit.toSingletonObservable()
     }
 
-    override fun query(path: BoxPath): Observable<BrowserEntry> {
+    override fun query(path: BoxPath): Single<BrowserEntry> {
         val res = storage.find { it.first == path } ?: throw IllegalArgumentException("File not found")
         val content = res.second
         if (content == null) {
-            return BrowserEntry.Folder(path.name).toSingletonObservable()
+            return BrowserEntry.Folder(path.name).toSingletonObservable<BrowserEntry>().toSingle()
         } else {
             return BrowserEntry.File(res.first.name, content.size.toLong(), Date())
-                    .toSingletonObservable()
+                    .toSingletonObservable<BrowserEntry>().toSingle()
         }
     }
-    override fun download(path: BoxPath.File): Observable<DownloadSource> {
+    override fun download(path: BoxPath.File): Single<DownloadSource> {
         for ((filepath, content) in storage) {
             if (filepath == path) {
                 content ?: throw IllegalArgumentException("Not a file")
@@ -45,10 +46,10 @@ class MockFileBrowser @Inject constructor(): FileBrowser {
                                 storage.find { it.first == path }?.second?.size?.toLong()
                                     ?: throw IllegalArgumentException("File not found"),
                                 Date())
-                ).toSingletonObservable()
+                ).toSingletonObservable().toSingle()
             }
         }
-        return Observable.error<DownloadSource>(FileNotFoundException("File not found"))
+        return Single.error<DownloadSource>(FileNotFoundException("File not found"))
     }
 
     override fun delete(path: BoxPath): Observable<Unit> {

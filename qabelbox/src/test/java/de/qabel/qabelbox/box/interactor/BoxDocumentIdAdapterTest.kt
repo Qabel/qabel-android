@@ -12,6 +12,7 @@ import de.qabel.qabelbox.box.provider.DocumentId
 import de.qabel.qabelbox.box.provider.toDocumentId
 import org.junit.Before
 import org.junit.Test
+import rx.Single
 import rx.lang.kotlin.toSingletonObservable
 import java.util.*
 
@@ -54,7 +55,7 @@ class BoxDocumentIdAdapterTest {
 
     @Test
     fun testQuery( ){
-        whenever(fileBrowser.query(file)).thenReturn(sample.toSingletonObservable())
+        whenever(fileBrowser.query(file)).thenReturn(Single.just(sample))
 
         val result = useCase.query(docId.copy(path = file)).toBlocking().first()
                 as BrowserEntry.File
@@ -72,7 +73,7 @@ class BoxDocumentIdAdapterTest {
     @Test
     fun testDownload() {
         val source = DownloadSource(sample, mock())
-        whenever(fileBrowser.download(file)).thenReturn(source.toSingletonObservable())
+        whenever(fileBrowser.download(file)).thenReturn(Single.just(source))
         val download = useCase.download(docId.copy(path = file)).toBlocking().first()
         download.documentId shouldMatch equalTo(docId.copy(path = file))
         download.source.entry shouldMatch equalTo(sample)

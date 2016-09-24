@@ -145,7 +145,7 @@ class BoxFileBrowserTest {
 
     @Test
     fun queryRoot() {
-        val entry = useCase.query(BoxPath.Root).toBlocking().first()
+        val entry = useCase.query(BoxPath.Root).toBlocking().value()
         entry.name shouldMatch equalTo("")
     }
 

@@ -309,8 +309,21 @@
     <string name="about.licences.item.show.btn">Lizenz anzeigen</string>
     <string name="accept_share">Freigabe annehmen</string>
     <string name="about.header.qabel.show.btn">Zeige QaPL</string>
-    <string name="tellAFriendSubject">Du wurdest zu Qabel eingeladen</string>
-    <string name="tellAFriendMessage">Du wurdest zu Qabel eingeladen.\nDamit hast du zunächst die Möglichkeit, Qabel Box zu nutzen. Qabel Box ist ein Ende-zu-Ende verschlüsselter Onlinespeicher, der dir nicht nur die Möglichkeit bietet, Daten verschlüsselt online zu speichern, sondern diese auch nach Belieben mit anderen zu teilen — und das ebenfalls Ende-zu-Ende verschlüsselt. Darüber hinaus verschleiert Qabel auch einen großen Teil der anfallenden Metadaten. Qabel wird ständig erweitert. So wird es dir künftig möglich sein, deine gesamte digitale Kommunikation über die Qabel-Plattform anwendungsübergreifend und vor allem einfach und immer Ende-zu-Ende zu verschlüsseln. Werde Teil des Qabel-Ökosystems und lege gleich los: https://qabel.de/de/qabelnow Mehr Infos finden Sie unter https://qabel.de</string>
+    <string name="tellAFriendSubject">Sie wurden zu Qabel eingeladen!</string>
+    <string name="tellAFriendMessage"> Sie wurden zu Qabel eingeladen!\n
+\n
+Mit Qabel können Sie Ende-zu-Ende verschlüsselt Daten aufbewahren,\n
+teilen und Kurznachrichten versenden. Außerdem verschleiert Qabel einen\n
+großen Teil der anfallenden Metadaten. Nutzen Sie Qabel, um Ihre\n
+Privatsphäre und die Ihrer Mitmenschen zu bewahren, das Internet ein\n
+Stück zensurfreier zu machen, Daten vor dem Zugriff Unbefugter effektiv\n
+zu schützen und Betriebsgeheimnisse zu hüten.
+\n
+Legen Sie gleich los:\n
+https://qabel.de/de/qabelnow\n
+\n
+Mehr Infos finden Sie unter https://qabel.de
+    </string>
     <string name="upload_failed">Konnte die Datei nicht lesen</string>
     <string name="permanently_unavailable">nicht mehr verfügbar</string>
     <string name="filebrowser_up">Übergeordnerter Ordner</string>

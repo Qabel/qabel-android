@@ -11,7 +11,7 @@ class BoxDocumentIdAdapter @Inject constructor(private val volumeManager: Volume
         DocumentIdAdapter {
 
     override fun query(documentId: DocumentId): Observable<BrowserEntry> {
-        return browserByDocumentId(documentId).query(documentId.path)
+        return browserByDocumentId(documentId).query(documentId.path).toObservable()
     }
 
     override fun availableRoots(): List<VolumeRoot> = volumeManager.roots
@@ -47,7 +47,7 @@ class BoxDocumentIdAdapter @Inject constructor(private val volumeManager: Volume
                 val browserUseCase = browserByDocumentId(documentId)
                 return browserUseCase.download(documentId.path).map {
                     ProviderDownload(documentId, it)
-                }
+                }.toObservable()
             }
         }
     }

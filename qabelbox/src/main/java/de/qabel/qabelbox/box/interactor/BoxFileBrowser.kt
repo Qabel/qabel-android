@@ -12,8 +12,8 @@ import de.qabel.qabelbox.box.dto.UploadSource
 import de.qabel.qabelbox.box.provider.DocumentId
 import de.qabel.qabelbox.box.toEntry
 import rx.Observable
-import rx.lang.kotlin.observable
-import rx.lang.kotlin.toSingletonObservable
+import rx.Single
+import rx.lang.kotlin.*
 import rx.schedulers.Schedulers
 import java.io.FileNotFoundException
 import javax.inject.Inject
@@ -27,24 +27,24 @@ class BoxFileBrowser @Inject constructor(keyAndPrefix: KeyAndPrefix,
     override fun asDocumentId(path: BoxPath) = DocumentId(key, prefix, path).toSingletonObservable()
 
 
-    override fun query(path: BoxPath): Observable<BrowserEntry> = observable<BrowserEntry> {
+    override fun query(path: BoxPath): Single<BrowserEntry> = single<BrowserEntry> {
         subscriber ->
         if (path is BoxPath.Root) {
-            subscriber.onNext(BrowserEntry.Folder(""))
-            return@observable
+            subscriber.onSuccess(BrowserEntry.Folder(""))
+            return@single
         }
         val boxObject = try {
             queryObject(path)
         } catch (e: Throwable) {
             subscriber.onError(e)
-            return@observable
+            return@single
         }
         val entry = boxObject.toEntry()
         if (entry  == null) {
             subscriber.onError(FileNotFoundException("File or Folder ${path.name} not found"))
-            return@observable
+            return@single
         }
-        subscriber.onNext(entry)
+        subscriber.onSuccess(entry)
     }.subscribeOn(Schedulers.io())
 
     private fun queryObject(path: BoxPath): BoxObject =
@@ -60,15 +60,12 @@ class BoxFileBrowser @Inject constructor(keyAndPrefix: KeyAndPrefix,
         it.onCompleted()
     }.subscribeOn(Schedulers.io())
 
-    override fun download(path: BoxPath.File): Observable<DownloadSource> =
-        observable<DownloadSource> { subscriber ->
-            query(path).subscribe({ entry ->
-                if (entry is BrowserEntry.File) {
-                    subscriber.onNext(DownloadSource(entry, navigateTo(path.parent).download(path.name)))
-                } else {
-                    subscriber.onError(FileNotFoundException("Not a file"))
-                }
-            }, { subscriber.onError(it) })
+    override fun download(path: BoxPath.File): Single<DownloadSource> = query(path).flatMap {
+        if (it is BrowserEntry.File) {
+            Single.just(DownloadSource(it, navigateTo(path.parent).download(path.name)))
+        } else {
+            Single.error<DownloadSource>(FileNotFoundException("Not a file"))
+        }
     }.subscribeOn(Schedulers.io())
 
     override fun delete(path: BoxPath): Observable<Unit> = observable<Unit> {

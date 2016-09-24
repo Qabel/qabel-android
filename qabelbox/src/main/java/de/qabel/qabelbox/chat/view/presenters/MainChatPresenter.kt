@@ -25,7 +25,7 @@ class MainChatPresenter @Inject constructor(private val view: ChatView,
         get() = useCase.contact.status == Contact.ContactStatus.UNKNOWN
 
     override val subtitle: String
-        get() = if (!useCase.contact.displayName().equals(useCase.contact.alias))
+        get() = if (useCase.contact.displayName() != useCase.contact.alias)
             useCase.contact.alias else ""
 
     override fun refreshMessages() = proxy.load()
@@ -70,7 +70,7 @@ class MainChatPresenter @Inject constructor(private val view: ChatView,
                         view.showError(it)
                     })
                 }
-                ShareStatus.CREATED, ShareStatus.ACCEPTED ->
+                ShareStatus.CREATED, ShareStatus.ACCEPTED, ShareStatus.UNREACHABLE ->
                     view.openShare(ShareId.create(share))
             }
         }

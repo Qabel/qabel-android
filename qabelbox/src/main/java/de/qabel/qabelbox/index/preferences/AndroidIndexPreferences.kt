@@ -9,9 +9,10 @@ import de.qabel.qabelbox.util.AndroidPreferences
  */
 class AndroidIndexPreferences(context: Context) : IndexPreferences, AndroidPreferences(context) {
 
-    override val SETTINGS_KEY: String = "index_preferences"
+    override val SETTINGS_KEY: String = KEY
 
     companion object {
+        val KEY = "index_preferences"
         private val CONTACT_SYNC = "contact_sync_enabled"
         private val CONTACT_SYNC_TIME = "contact_sync_time"
 

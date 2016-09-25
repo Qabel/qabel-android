@@ -23,9 +23,17 @@ class MainContactsPresenter @Inject constructor(private val view: ContactsView,
     //TODO Store external action in Bundle
     override var externalAction: ExternalAction? = null
 
+    private var searchString: String = ""
+
+    init {
+        view.searchString.subscribe {
+            searchString = it
+            refresh()
+        }
+    }
+
     override fun refresh() {
-        val search = view.searchString ?: ""
-        useCase.search(search, view.showIgnored).toList().subscribe({ contacts ->
+        useCase.search(searchString, view.showIgnored).toList().subscribe({ contacts ->
             if (contacts.size > 0) {
                 view.loadData(contacts)
             } else (view.showEmpty())

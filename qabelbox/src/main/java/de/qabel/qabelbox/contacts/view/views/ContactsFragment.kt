@@ -24,7 +24,6 @@ import de.qabel.qabelbox.external.ExternalFileAction
 import de.qabel.qabelbox.fragments.BaseFragment
 import de.qabel.qabelbox.helper.ExternalApps
 import de.qabel.qabelbox.helper.UIHelper
-import de.qabel.qabelbox.index.AndroidIndexSyncService
 import de.qabel.qabelbox.index.ContactSyncAdapter
 import de.qabel.qabelbox.navigation.Navigator
 import de.qabel.qabelbox.permissions.DataPermissionsAdapter
@@ -35,16 +34,22 @@ import de.qabel.qabelbox.ui.extensions.showQuantityMessage
 import kotlinx.android.synthetic.main.fragment_contacts.*
 import org.jetbrains.anko.AnkoLogger
 import org.jetbrains.anko.ctx
-import org.jetbrains.anko.debug
 import org.jetbrains.anko.onUiThread
+import rx.Observable
+import rx.subjects.BehaviorSubject
 import java.io.File
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 class ContactsFragment() : ContactsView, BaseFragment(), AnkoLogger, DataPermissionsAdapter,
         SearchView.OnQueryTextListener {
 
     override val permissionContext: Context get() = ctx
-    override var searchString: String? = null
+
+    private val searchSubject: BehaviorSubject<String> = BehaviorSubject.create()
+
+    override var searchString: Observable<String> = searchSubject.debounce(100, TimeUnit.MILLISECONDS)
+
     override var showIgnored: Boolean = false
 
     var injectCompleted = false
@@ -88,9 +93,6 @@ class ContactsFragment() : ContactsView, BaseFragment(), AnkoLogger, DataPermiss
         component.inject(this)
         injectCompleted = true
 
-        setHasOptionsMenu(true)
-        configureAsMainFragment()
-
         contact_list.layoutManager = LinearLayoutManager(view.context)
         contact_list.adapter = adapter
     }
@@ -107,8 +109,7 @@ class ContactsFragment() : ContactsView, BaseFragment(), AnkoLogger, DataPermiss
     }
 
     override fun onQueryTextChange(newText: String?): Boolean {
-        searchString = newText
-        presenter.refresh()
+        searchSubject.onNext(newText ?: "")
         return true
     }
 
@@ -123,6 +124,10 @@ class ContactsFragment() : ContactsView, BaseFragment(), AnkoLogger, DataPermiss
     override fun onResume() {
         super.onResume()
         updateView(adapter.getContactCount())
+
+        setHasOptionsMenu(true)
+        configureAsMainFragment()
+
         presenter.refresh()
         ctx.registerReceiver(broadcastReceiver, IntentFilter(QblBroadcastConstants.Contacts.CONTACTS_CHANGED))
     }
@@ -195,6 +200,7 @@ class ContactsFragment() : ContactsView, BaseFragment(), AnkoLogger, DataPermiss
             when (which) {
                 R.id.add_contact_from_file -> presenter.startContactsImport()
                 R.id.add_contact_via_qr -> presenter.startContactImportScan(IntentIntegrator.REQUEST_CODE)
+                R.id.index_search -> navigator.selectIndexSearchFragment()
             }
         }.show()
         return true

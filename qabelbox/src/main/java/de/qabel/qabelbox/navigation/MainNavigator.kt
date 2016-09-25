@@ -23,6 +23,7 @@ import de.qabel.qabelbox.fragments.HelpMainFragment
 import de.qabel.qabelbox.fragments.QRCodeFragment
 import de.qabel.qabelbox.identity.view.IdentitiesFragment
 import de.qabel.qabelbox.identity.view.IdentityDetailsFragment
+import de.qabel.qabelbox.index.view.views.IndexSearchFragment
 import org.jetbrains.anko.AnkoLogger
 import org.jetbrains.anko.warn
 import javax.inject.Inject
@@ -41,6 +42,7 @@ constructor(var activity: MainActivity,
         const val TAG_CONTACT_DETAILS_FRAGMENT = "TAG_CONTACT_DETAILS_FRAGMENT";
         const val TAG_CONTACT_EDIT_FRAGMENT = "TAG_CONTACT_EDIT_FRAGMENT";
         const val TAG_QR_CODE_FRAGMENT = "TAG_CONTACT_QR_CODE_FRAGMENT";
+        const val TAG_INDEX_SEARCH_FRAGMENT = "TAG_INDEX_SEARCH_FRAGMENT"
 
         const val TAG_FILES_FRAGMENT = "TAG_FILES_FRAGMENT"
         const val TAG_ABOUT_FRAGMENT = "TAG_ABOUT_FRAGMENT"
@@ -108,6 +110,11 @@ constructor(var activity: MainActivity,
     override fun selectContactDetailsFragment(contactDto: ContactDto) {
         showFragment(activity, ContactDetailsFragment.withContactKey(contactDto.contact.keyIdentifier), TAG_CONTACT_DETAILS_FRAGMENT, true, false)
     }
+
+    override fun selectIndexSearchFragment() {
+        showFragment(activity, IndexSearchFragment() ,TAG_INDEX_SEARCH_FRAGMENT, true, false)
+    }
+
 
     override fun selectChatFragment(activeContact: String?) {
         if (activeContact == null) {

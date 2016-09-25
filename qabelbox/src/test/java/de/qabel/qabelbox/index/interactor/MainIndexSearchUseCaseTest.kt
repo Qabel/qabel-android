@@ -19,7 +19,7 @@ import org.robolectric.annotation.Config
 class MainIndexSearchUseCaseTest {
 
     val service: IndexService = mock()
-    val useCase = MainIndexSearchUseCase(service)
+    val useCase = MainIndexSearchUseCase(service, mock())
 
     val phone = "+ 49 199 12345678"
     val email = "test@example.com"

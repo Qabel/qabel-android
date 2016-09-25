@@ -20,6 +20,7 @@ open class FileViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
             val fileEntry = entry as BrowserEntry.File
             modificationTime.text = Formatter.formatDateTimeString(fileEntry.mTime.time)
             extraDetails.setOrGone(createShareLabel(entry))
+            entrySize.text = android.text.format.Formatter.formatShortFileSize(context, entry.size)
         }
         details.setVisibleOrGone(detailsVisible || extraDetails.visibility == View.VISIBLE)
         fileEntryIcon.setImageResource(

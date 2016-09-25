@@ -40,12 +40,28 @@
             android:layout_gravity="center_vertical"
             android:orientation="vertical">
 
-            <de.qabel.qabelbox.ui.views.TextViewFont
-                android:id="@+id/entryName"
-                style="@style/ListFirstTextLine"
+            <RelativeLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center_vertical" />
+                android:layout_height="wrap_content">
+
+                <de.qabel.qabelbox.ui.views.TextViewFont
+                    android:id="@+id/entryName"
+                    style="@style/ListFirstTextLine"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentStart="true"
+                    android:gravity="center_vertical" />
+
+                <de.qabel.qabelbox.ui.views.TextViewFont
+                    android:id="@+id/entrySize"
+                    style="@style/ListSecondTextLine"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:gravity="center_vertical"
+                    android:paddingRight="16dp"
+                    android:textSize="@dimen/textsize_very_small" />
+            </RelativeLayout>
 
             <RelativeLayout
                 android:id="@+id/details"
@@ -61,7 +77,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_alignParentLeft="true"
-                    android:textSize="12sp" />
+                    android:textSize="@dimen/textsize_very_small" />
 
 
                 <de.qabel.qabelbox.ui.views.TextViewFont
@@ -73,7 +89,7 @@
                     android:layout_alignParentRight="true"
                     android:gravity="right"
                     android:textAlignment="gravity"
-                    android:textSize="12sp" />
+                    android:textSize="@dimen/textsize_very_small" />
 
             </RelativeLayout>
         </LinearLayout>

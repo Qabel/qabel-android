@@ -68,6 +68,7 @@ class MainChatPresenter @Inject constructor(private val view: ChatView,
                         view.refreshItem(msg)
                         view.openShare(ShareId.create(share))
                     }, {
+                        refreshMessages()
                         view.showError(it)
                     })
                 }

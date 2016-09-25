@@ -11,9 +11,9 @@ import de.qabel.core.ui.readableUrl
 import de.qabel.qabelbox.R
 import de.qabel.qabelbox.contacts.extensions.color
 import de.qabel.qabelbox.contacts.view.widgets.IdentityIconDrawable
-import de.qabel.qabelbox.ui.views.EditTextFont
 import de.qabel.qabelbox.ui.views.TextViewFont
 import kotlinx.android.synthetic.main.fragment_identity_details.view.*
+import org.jetbrains.anko.dip
 
 
 class IdentityDetailsAdapter() {
@@ -28,8 +28,9 @@ class IdentityDetailsAdapter() {
 
             identity_icon.background = IdentityIconDrawable(
                     text = identity.initials(),
-                    color = identity.color(context))
-            identity_initial.text = identity.initials()
+                    color = identity.color(context),
+                    width = dip(100),
+                    height = dip(100))
             edit_alias.text = identity.alias
             edit_email.text = mail
             setVerifiedDrawables(edit_email, R.drawable.email, identity, identity.emailStatus)

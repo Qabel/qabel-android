@@ -65,6 +65,7 @@ class MainChatPresenter @Inject constructor(private val view: ChatView,
             when (share.status) {
                 ShareStatus.NEW -> {
                     useCase.acceptShare(msg).subscribe({
+                        view.refreshItem(msg)
                         view.openShare(ShareId.create(share))
                     }, {
                         view.showError(it)

@@ -13,5 +13,8 @@ interface ChatView : DataView<ChatMessage> {
     fun sendMessageStateChange()
     fun showError(error : Throwable)
 
-    open fun openShare(shareId: ShareId)
+    fun openShare(shareId: ShareId)
+
+    fun refreshItem(msg: ChatMessage)
+
 }

@@ -17,6 +17,7 @@ open class ChatMessageAdapter(val onMsgClick: (msg: ChatMessage) -> Unit) :
 
     override fun notifyView() = notifyDataSetChanged()
     override fun notifyViewRange(start: Int, count: Int) = notifyItemRangeChanged(start, count)
+    fun notifyViewItem(item : ChatMessage) = notifyViewRange(data.indexOf(item), 1)
 
     enum class MessageType(val layout: Int, val contentLayout: Int) {
         TEXT_IN(R.layout.chat_message_in, R.layout.chat_message_text),

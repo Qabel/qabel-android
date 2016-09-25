@@ -15,7 +15,6 @@ import de.qabel.core.config.Identity
 import de.qabel.qabelbox.QblBroadcastConstants
 import de.qabel.qabelbox.R
 import de.qabel.qabelbox.activities.ImageViewerActivity
-import de.qabel.qabelbox.box.provider.DocumentId
 import de.qabel.qabelbox.box.provider.ShareId
 import de.qabel.qabelbox.chat.dagger.ChatModule
 import de.qabel.qabelbox.chat.dto.ChatMessage
@@ -179,6 +178,9 @@ class ChatFragment : ChatView, BaseFragment(), AnkoLogger {
         }
     }
 
+    override fun refreshItem(msg: ChatMessage) =
+            adapter.notifyViewItem(msg)
+
     override fun handleLoadError(throwable: Throwable) = showError(throwable)
 
     override fun getCount(): Int = adapter.itemCount
@@ -215,9 +217,10 @@ class ChatFragment : ChatView, BaseFragment(), AnkoLogger {
             val uri = shareId.toUri()
             val mimeType = URLConnection.guessContentTypeFromName(uri.toString()) ?: ""
             if (mimeType.startsWith("image")) {
-                val intent = Intent(ctx, ImageViewerActivity::class.java)
-                intent.putExtra(ImageViewerActivity.P_URI, uri)
-                intent.putExtra(ImageViewerActivity.P_TYPE, mimeType)
+                val intent = Intent(ctx, ImageViewerActivity::class.java).apply {
+                    putExtra(ImageViewerActivity.P_URI, uri)
+                    putExtra(ImageViewerActivity.P_TYPE, mimeType)
+                }
                 startActivity(intent)
             } else {
                 startViewIntent(mimeType, uri)

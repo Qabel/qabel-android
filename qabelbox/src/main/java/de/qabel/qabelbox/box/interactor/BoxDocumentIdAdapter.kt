@@ -86,4 +86,13 @@ class BoxDocumentIdAdapter @Inject constructor(private val volumeManager: Volume
         sharingService.downloadShare(share, target, BoxHttpStorageBackend(blockServer, share.prefix!!))
         single.onSuccess(Unit)
     }
+
+    override fun refreshShare(shareId: ShareId) = single<Unit> { single ->
+        val share = shareRepo.findById(shareId.boxShareId)
+        if (!listOf(ShareStatus.ACCEPTED, ShareStatus.CREATED, ShareStatus.UNREACHABLE).contains(share.status)) {
+            single.onSuccess(Unit)
+        }
+        sharingService.updateShare(share, BoxHttpStorageBackend(blockServer, share.prefix!!))
+        single.onSuccess(Unit)
+    }
 }

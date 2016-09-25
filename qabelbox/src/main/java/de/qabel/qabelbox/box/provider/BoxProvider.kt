@@ -16,6 +16,7 @@ import android.provider.DocumentsProvider
 import android.provider.MediaStore.Video.Media
 import android.util.Log
 import de.qabel.box.storage.exceptions.QblStorageException
+import de.qabel.box.storage.exceptions.QblStorageNotFound
 import de.qabel.qabelbox.BuildConfig
 import de.qabel.qabelbox.QblBroadcastConstants
 import de.qabel.qabelbox.R
@@ -182,9 +183,17 @@ open class BoxProvider : DocumentsProvider(), AnkoLogger {
             if (isShare) {
                 val shareId = ShareId.parse(documentId)
                 debug("Open share $shareId")
-                useCase.download(shareId, file).doOnError {
-                    error("Error loading share", it)
-                }.toBlocking().value()
+                try {
+                    useCase.download(shareId, file).toBlocking().value()
+                } catch (ex: RuntimeException) {
+                    error("Error loading share", ex)
+                    ex.cause?.let {
+                        if(it is QblStorageNotFound){
+                            useCase.refreshShare(shareId).subscribe()
+                        }
+                    }
+                    throw ex
+                }
                 debug("downloaded share ${file.absolutePath}")
             } else {
                 val id = documentId.toDocumentId()

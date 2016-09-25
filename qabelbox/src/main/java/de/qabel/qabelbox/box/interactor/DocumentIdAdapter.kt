@@ -14,5 +14,7 @@ interface DocumentIdAdapter {
     fun upload(providerUpload: ProviderUpload): Observable<Unit>
     fun query(documentId: DocumentId): Observable<BrowserEntry>
     fun download(shareId : ShareId, target : File) : Single<Unit>
+    fun  refreshShare(shareId: ShareId) : Single<Unit>
+
 }
 

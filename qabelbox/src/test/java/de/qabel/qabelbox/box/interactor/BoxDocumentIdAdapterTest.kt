@@ -116,4 +116,13 @@ class BoxDocumentIdAdapterTest {
         verify(sharingService).downloadShare(eq(share), any(), any())
     }
 
+    @Test
+    fun testRefreshShare() {
+        val share = BoxFileChatShare(ShareStatus.ACCEPTED, "", 0L, SymmetricKey(emptyList()), "")
+        share.prefix = "prefix"
+        shareRepo.persist(share)
+        useCase.refreshShare(ShareId.create(share)).toBlocking().value()
+        verify(sharingService).updateShare(eq(share), any())
+    }
+
 }

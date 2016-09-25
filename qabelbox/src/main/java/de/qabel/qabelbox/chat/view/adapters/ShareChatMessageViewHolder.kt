@@ -1,5 +1,6 @@
 package de.qabel.qabelbox.chat.view.adapters
 
+import android.text.format.Formatter
 import android.view.View
 import com.squareup.picasso.Picasso
 import de.qabel.chat.repository.entities.BoxFileChatShare
@@ -38,7 +39,7 @@ open class ShareChatMessageViewHolder(itemView: View, val onClick: (msg: ChatMes
             }
             messageFileIcon.visibility = if (isPreviewed) View.GONE else View.VISIBLE
             messageFilePreview.visibility = if (isPreviewed) View.VISIBLE else View.GONE
-            file_name.text = payload.share.name
+            file_name.text = "${payload.share.name} ${Formatter.formatShortFileSize(context, payload.share.size)}"
             message.setOrGone(if (payload.message != payload.share.name) payload.message else "")
             setOnClickListener { onClick(chatMsg) }
         }

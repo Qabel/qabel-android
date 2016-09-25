@@ -84,12 +84,12 @@ class ShareChatMessageViewHolderTest {
         val holder = ShareChatMessageViewHolder(view, {})
         val msg = ChatMessage(mock<Identity>(), contact,
                 direction, Date(),
-                MessagePayloadDto.ShareMessage("text", BoxFileChatShare(status, "test.txt", 0L,
+                MessagePayloadDto.ShareMessage("text", BoxFileChatShare(status, "test.txt", 2048L,
                         SymmetricKey(listOf()), "http://foo")))
         holder.bindTo(msg, false)
 
         verify(messageField).text = "text"
-        verify(fileField).text = "test.txt"
+        verify(fileField).text = "test.txt 2.0KB"
         expectedLabel?.
                 let { verify(overlay).text = RuntimeEnvironment.application.getString(expectedLabel) }
         verify(dateField).text = any()

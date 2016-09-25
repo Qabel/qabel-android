@@ -6,6 +6,7 @@ import de.qabel.core.repository.inmemory.InMemoryContactRepository
 import de.qabel.qabelbox.contacts.dto.ContactDto
 import de.qabel.qabelbox.index.interactor.IndexSearchUseCase
 import de.qabel.qabelbox.index.view.views.IndexSearchView
+import de.qabel.qabelbox.navigation.Navigator
 import de.qabel.qabelbox.util.IdentityHelper
 import org.junit.Test
 import org.mockito.Mockito
@@ -34,13 +35,11 @@ class MainIndexSearchPresenterTest {
 
         override fun showError(error: Throwable) { }
 
-        override fun showDetails(contactDto: ContactDto) { }
-
     }
 
     val useCase: IndexSearchUseCase = Mockito.mock(IndexSearchUseCase::class.java)
     val view = StubIndexSearchView()
-    val presenter = MainIndexSearchPresenter(view, useCase, InMemoryContactRepository())
+    val presenter = MainIndexSearchPresenter(view, useCase, Mockito.mock(Navigator::class.java), InMemoryContactRepository())
     val email = "test@example.com"
     val phone = "+ 49 199 12345678"
     val contact = IdentityHelper.createContact("test").apply {

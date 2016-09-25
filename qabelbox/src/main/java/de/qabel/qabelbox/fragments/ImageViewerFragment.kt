@@ -77,6 +77,7 @@ class ImageViewerFragment : Fragment() {
 
     companion object {
 
+        @JvmStatic
         fun newInstance(uri: Uri, type: String): ImageViewerFragment {
             val fragment = ImageViewerFragment()
             fragment.uri = uri

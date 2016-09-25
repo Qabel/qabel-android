@@ -1,5 +1,6 @@
 package de.qabel.qabelbox
 
+import com.natpryce.hamkrest.Matcher
 import com.natpryce.hamkrest.assertion.assertThat
 import com.natpryce.hamkrest.equalTo
 import com.natpryce.hamkrest.should.shouldMatch
@@ -17,6 +18,10 @@ infix fun <T> T.eq(thing: T) {
 
 infix fun <T> Observable<T>.evalsTo(thing: T) {
     assertThat(this.toBlocking().first(), equalTo(thing))
+}
+
+infix fun <T> Observable<T>.matches(matcher: Matcher<T>) {
+    assertThat(this.toBlocking().first(), matcher)
 }
 
 infix fun <T> Observable<T>.errorsWith(error: Throwable) {

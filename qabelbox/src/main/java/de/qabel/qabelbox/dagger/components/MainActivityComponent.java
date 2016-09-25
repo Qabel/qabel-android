@@ -18,6 +18,9 @@ import de.qabel.qabelbox.dagger.scopes.ActivityScope;
 import de.qabel.qabelbox.identity.view.IdentitiesFragment;
 import de.qabel.qabelbox.identity.dagger.IdentityDetailsComponent;
 import de.qabel.qabelbox.identity.dagger.IdentityDetailsModule;
+import de.qabel.qabelbox.index.dagger.IndexSearchComponent;
+import de.qabel.qabelbox.index.dagger.IndexSearchModule;
+import de.qabel.qabelbox.index.view.views.IndexSearchFragment;
 
 @ActivityScope
 @Subcomponent(
@@ -36,6 +39,8 @@ public interface MainActivityComponent {
     ContactEditComponent plus(ContactEditModule contactEditModule);
 
     IdentityDetailsComponent plus(IdentityDetailsModule identityDetailsModule);
+
+    IndexSearchComponent plus(IndexSearchModule indexSearchModule);
 
     void inject(IdentitiesFragment identitiesFragment);
 

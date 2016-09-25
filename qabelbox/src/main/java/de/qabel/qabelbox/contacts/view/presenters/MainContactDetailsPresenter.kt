@@ -17,7 +17,9 @@ class MainContactDetailsPresenter @Inject constructor(private val view: ContactD
     var contact: ContactDto? = null
 
     override fun refreshContact() {
-        useCase.loadContact(view.contactKeyId).subscribe { contact -> this.contact = contact; view.loadContact(contact); }
+        useCase.loadContact(view.contactKeyId).subscribe(
+                { contact -> this.contact = contact; view.loadContact(contact) },
+                { })
     }
 
     override fun handleEditClick() {

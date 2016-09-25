@@ -401,4 +401,6 @@ You can find more information on https://qabel.de/en
     <string name="private_identity_text">Mark an identity as private to prevent uploading public informations. Note: Other qabel users cant find your identity by phone or mail if the identity is private!</string>
     <string name="conversations_empty">no recent conversations</string>
     <string name="unknown">unkown</string>
+    <string name="index_search">Search for contacts</string>
+    <string name="index_search_hint">Enter a phone number or email address</string>
 </resources>

@@ -76,7 +76,7 @@
     <string name="create_identity_enter_all_data">Bitte füllen Sie alle Felder aus</string>
     <string name="create_identity_enter_name">Bitte geben Sie einen Namen für die Identität ein, zum Beispiel \'Jana\' oder \'Forentroll\'</string>
     <string name="create_identity_enter_name_hint">Alias der Identität</string>
-    <string name="create_identity_final_text">Bitte beachten Sie, dass Ihre Identität aktuell nur auf diesem Gerät zur Verfügung steht und wir keine Kopien auf unseren Servern haben. Exportiere deine Identität und bewahre Sie gut auf. Mit Ihr kannst du auf anderen Geräten Zugriff auf deine Daten zu erhalten.</string>
+    <string name="create_identity_final_text">Bitte beachten Sie, dass Ihre Identität aktuell nur auf diesem Gerät zur Verfügung steht und wir keine Kopien auf unseren Servern haben. Exportiere deine Identität und bewahre Sie gut auf. Mit Ihr können sie auf anderen Geräten Zugriff auf ihre Daten zu erhalten.</string>
     <string name="create_identity_import">Importieren einer Identität</string>
     <string name="debug_send_feedback">Feedback schreiben</string>
     <string name="debug_send_feedback_to_pm">Sagen Sie uns wie Ihnen Qabel gefällt und welche Vorschläge Sie haben</string>
@@ -350,13 +350,15 @@ Mehr Infos finden Sie unter https://qabel.de
     <string name="optional">optional</string>
     <string name="create_identity_successful">Identität erstellt</string>
     <string name="phone_number_invalid">Ihre Telefonnummer ist ungültig. Bitte prüfen Sie sie und versuchen Sie es erneut.</string>
-    <string name="phone_number_request_info">Wenn du Qabel Zugriff auf dein Telefon gibst, können wir deine Telefonnummer lesen. Du kannst deine Telefonnummer auch manuell eingeben oder Qabel ohne Telefonnummer verwenden.</string>
+    <string name="phone_number_request_info">Wenn Sie Qabel Zugriff auf ihr Telefon geben, können wir ihre Telefonnummer lesen. Sie können ihre Telefonnummer auch manuell eingeben oder Qabel ohne Telefonnummer verwenden.</string>
     <string name="contacts_read_request_info">Qabel benötigt Zugriff auf deine Kontakte um dir zu zeigen, wer von ihnen auch bei Qabel ist.</string>
     <string name="cannot_read_phone_number">Telefonnummer konnte nicht ausgelesen werden</string>
     <string name="android_contact_sync">Automatische Kontaktsuche</string>
     <string name="android_contact_sync_text">Der Qabel Client sucht regelmäßig nach bekannten Telefonnummer und Email Adressen um Qabelkontakte zu finden.</string>
     <string name="private_identity">Privat</string>
     <string name="private_identity_text">Markieren Sie eine Identität als privat zu verhindern, dass öffentliche Informationen hochgeladen werden. Hinweis: Andere qabel Benutzer können Ihre Identität nicht per Telefon oder E-Mail finden, wenn die Identität als privat markiert ist.</string>
-    <string name="conversations_empty">Keine laufenden Unterhaltungen veefgübar</string>
+    <string name="index_search">Suche nach Kontakten</string>
+    <string name="index_search_hint">Geben Sie eine Telefonnummer oder Email-Adresse ein</string>
+    <string name="conversations_empty">Aktuell keine laufenden Unterhaltungen. Zu den Kontakten</string>
     <string name="unknown">unbekannt</string>
 </resources>

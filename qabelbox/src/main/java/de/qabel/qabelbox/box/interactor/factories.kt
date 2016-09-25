@@ -4,6 +4,7 @@ import de.qabel.box.storage.AndroidBoxVolume
 import de.qabel.box.storage.BoxVolumeConfig
 import de.qabel.box.storage.jdbc.DirectoryMetadataDatabase
 import de.qabel.box.storage.jdbc.JdbcDirectoryMetadataFactory
+import de.qabel.box.storage.jdbc.JdbcFileMetadataFactory
 import de.qabel.core.repositories.AndroidVersionAdapter
 import de.qabel.core.repository.ContactRepository
 import de.qabel.core.repository.IdentityRepository
@@ -37,6 +38,10 @@ fun makeFileBrowserFactory(identityRepository: IdentityRepository,
                 tempDir,
                 directoryMetadataFactoryFactory = { tempDir, deviceId ->
                     JdbcDirectoryMetadataFactory(tempDir, deviceId, dataBaseFactory)
+                },
+                fileMetadataFactoryFactory = { tempDir ->
+                    JdbcFileMetadataFactory(tempDir, versionAdapterFactory = { connection ->
+                        AndroidVersionAdapter(connection)})
                 }),
                 identity.primaryKeyPair)
         return BoxFileBrowser(BoxFileBrowser.KeyAndPrefix(key, identity.prefixes.first()), volume, contactRepository)

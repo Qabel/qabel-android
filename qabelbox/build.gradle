@@ -166,7 +166,7 @@ tasks.withType(Test) {
     systemProperty 'java.library.path', 'libs/'
 }
 
-def coreVersion = '5b5e994182d02d04435566f713ed8ec8d2e8fab1'
+def coreVersion = '1e55cedeb590d7b05a36c9253dce4b41befdf722'
 def repo = 'JoGir'
 dependencies {
     sourceCompatibility = JavaVersion.VERSION_1_7

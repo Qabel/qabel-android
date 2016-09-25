@@ -219,9 +219,8 @@ open class BoxProvider : DocumentsProvider(), AnkoLogger {
             }
             return ParcelFileDescriptor.open(file, parsedMode)
         } catch (ex: Throwable) {
-            ex.printStackTrace()
-            error("Error open document $documentId")
-            throw ex
+            error("Error open document $documentId", ex)
+            throw FileNotFoundException("Cannot load file $documentId")
         }
     }
 

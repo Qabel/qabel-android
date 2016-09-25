@@ -87,10 +87,12 @@ android {
             resValue 'string', 'app_name', '"Qabel (Debug)"'
             buildConfigField "String", "ACCOUNT_TYPE", "\"de.qabel.qabel.debug.account\""
             buildConfigField "String", "AUTHORITY", "\"de.qabel.qabel.debug.providers.internal\""
+            buildConfigField "String", "INDEX_AUTHORITY", "\"de.qabel.qabel.debug.providers.index\""
 
             //Reference them in .xml files.
             resValue "string", "account_type", "de.qabel.qabel.debug.account"
             resValue "string", "authority", "de.qabel.qabel.debug.providers.internal"
+            resValue "string", "index_authority", "de.qabel.qabel.debug.providers.index"
         }
 
     }

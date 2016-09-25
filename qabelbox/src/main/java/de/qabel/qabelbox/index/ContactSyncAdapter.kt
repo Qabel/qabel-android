@@ -1,7 +1,6 @@
 package de.qabel.qabelbox.index
 
 import android.accounts.Account
-import android.accounts.AccountManager
 import android.content.*
 import android.os.Bundle
 import de.qabel.core.index.IndexService
@@ -34,11 +33,8 @@ open class ContactSyncAdapter : AbstractThreadedSyncAdapter, QabelLog, DataPermi
         // every day
         var SYNC_INTERVAL = 60 * 60 * 24.toLong()
 
-        fun configureSync(context: Context) {
-            val accountManager = AccountManager.get(context)
-            accountManager.addAccountExplicitly(AccountHelper.DEFAULT_ACCOUNT, null, null)
+        fun configureSync(context: Context) =
             configurePeriodicPolling(context)
-        }
 
         fun startOnDemandSyncAdapter() {
             val settingsBundle = Bundle()
@@ -107,7 +103,7 @@ open class ContactSyncAdapter : AbstractThreadedSyncAdapter, QabelLog, DataPermi
                     info("ContactSync completed! Created: $createdCount, Updated: $updatedCount")
                 }
             } catch(ex: Throwable) {
-                warn("Error on syncing contacts", ex)
+                error("Error on syncing contacts", ex)
             }
         } else {
             info("Ignoring contact sync. Is disabled or permissions missing.")

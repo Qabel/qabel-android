@@ -171,7 +171,6 @@ class FileBrowserFragment: FileBrowserView, BaseFragment(), AnkoLogger {
 
     private fun exportFile(uri: Uri?): Boolean {
         val exportId = exportDocumentId ?: return true
-        info("Export of $exportId to $uri")
         async() {
             val input = ctx.contentResolver.openInputStream(uriFromDocumentId(exportId))
             val output = ctx.contentResolver.openOutputStream(uri)
@@ -182,7 +181,6 @@ class FileBrowserFragment: FileBrowserView, BaseFragment(), AnkoLogger {
             try {
                 input.copyTo(output)
             } catch (e: IOException) {
-                warn("Export of $exportId to $uri failed", e)
                 toast(R.string.export_aborted)
                 return@async
             }

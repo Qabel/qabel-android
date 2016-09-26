@@ -2,8 +2,6 @@ package de.qabel.qabelbox.index.view.views
 
 import android.os.Bundle
 import android.support.v7.widget.LinearLayoutManager
-import de.qabel.qabelbox.fragments.BaseFragment
-import org.jetbrains.anko.AnkoLogger
 import android.support.v7.widget.SearchView
 import android.view.LayoutInflater
 import android.view.View
@@ -12,17 +10,17 @@ import de.qabel.qabelbox.R
 import de.qabel.qabelbox.contacts.dto.ContactDto
 import de.qabel.qabelbox.contacts.view.adapters.ContactsAdapter
 import de.qabel.qabelbox.dagger.components.MainActivityComponent
+import de.qabel.qabelbox.fragments.BaseFragment
 import de.qabel.qabelbox.helper.UIHelper
 import de.qabel.qabelbox.index.dagger.IndexSearchModule
 import de.qabel.qabelbox.index.view.presenters.IndexSearchPresenter
-import de.qabel.qabelbox.navigation.Navigator
 import kotlinx.android.synthetic.main.fragment_contacts.*
+import org.jetbrains.anko.AnkoLogger
 import org.jetbrains.anko.ctx
 import org.jetbrains.anko.longToast
 import org.jetbrains.anko.onUiThread
 import rx.Observable
 import rx.subjects.BehaviorSubject
-import rx.subjects.Subject
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
@@ -39,8 +37,6 @@ class IndexSearchFragment(): IndexSearchView, BaseFragment(),
 
     @Inject
     lateinit var presenter: IndexSearchPresenter
-    @Inject
-    lateinit var navigator: Navigator
 
     val adapter = ContactsAdapter({ contact ->
         presenter.showDetails(contact)
@@ -114,8 +110,5 @@ class IndexSearchFragment(): IndexSearchView, BaseFragment(),
         }
     }
 
-    override fun showDetails(contactDto: ContactDto) {
-        navigator.selectContactEdit(contactDto)
-    }
 }
 

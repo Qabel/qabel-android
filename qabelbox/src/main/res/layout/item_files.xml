@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:layout_width="match_parent"
-              android:layout_height="wrap_content"
-              android:layout_gravity="center_horizontal"
-              android:orientation="vertical">
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_gravity="center_horizontal"
+    android:orientation="vertical">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -22,7 +22,7 @@
                 style="@style/ListIcon"
                 android:layout_alignParentLeft="true"
                 android:layout_alignParentStart="true"
-                android:layout_alignParentTop="true"/>
+                android:layout_alignParentTop="true" />
 
             <ProgressBar
                 android:id="@+id/entryProgress"
@@ -30,7 +30,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerInParent="true"
-                android:visibility="invisible"/>
+                android:visibility="invisible" />
 
         </RelativeLayout>
 
@@ -40,14 +40,31 @@
             android:layout_gravity="center_vertical"
             android:orientation="vertical">
 
-            <de.qabel.qabelbox.ui.views.TextViewFont
-                android:id="@+id/entryName"
-                style="@style/ListFirstTextLine"
-                android:gravity="center_vertical"
+            <RelativeLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"/>
+                android:layout_height="wrap_content">
+
+                <de.qabel.qabelbox.ui.views.TextViewFont
+                    android:id="@+id/entryName"
+                    style="@style/ListFirstTextLine"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentStart="true"
+                    android:gravity="center_vertical" />
+
+                <de.qabel.qabelbox.ui.views.TextViewFont
+                    android:id="@+id/entrySize"
+                    style="@style/ListSecondTextLine"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:gravity="center_vertical"
+                    android:paddingRight="16dp"
+                    android:textSize="@dimen/textsize_very_small" />
+            </RelativeLayout>
 
             <RelativeLayout
+                android:id="@+id/details"
                 style="@style/ListSecondTextLine"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -59,18 +76,20 @@
                     style="@style/ListSecondTextLine"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_alignParentLeft="true"/>
+                    android:layout_alignParentLeft="true"
+                    android:textSize="@dimen/textsize_very_small" />
 
 
                 <de.qabel.qabelbox.ui.views.TextViewFont
                     android:id="@+id/modificationTime"
                     style="@style/ListSecondTextLine"
                     android:layout_width="wrap_content"
-
                     android:layout_height="wrap_content"
+
                     android:layout_alignParentRight="true"
                     android:gravity="right"
-                    android:textAlignment="gravity"/>
+                    android:textAlignment="gravity"
+                    android:textSize="@dimen/textsize_very_small" />
 
             </RelativeLayout>
         </LinearLayout>
@@ -81,6 +100,5 @@
         android:layout_width="match_parent"
         android:layout_height="2dp"
         android:layout_alignParentBottom="true"
-        android:background="@color/light_gray">
-    </RelativeLayout>
+        android:background="@color/light_gray"></RelativeLayout>
 </LinearLayout>

@@ -10,13 +10,14 @@ import de.qabel.qabelbox.chat.dto.ChatMessage
 import de.qabel.qabelbox.chat.dto.MessagePayloadDto
 import de.qabel.qabelbox.ui.DataViewAdapter
 
-open class ChatMessageAdapter() :
+open class ChatMessageAdapter(val onMsgClick: (msg: ChatMessage) -> Unit) :
         RecyclerView.Adapter<ChatMessageViewHolderBase<*>>(), DataViewAdapter<ChatMessage> {
 
     override var data: MutableList<ChatMessage> = mutableListOf()
 
     override fun notifyView() = notifyDataSetChanged()
     override fun notifyViewRange(start: Int, count: Int) = notifyItemRangeChanged(start, count)
+    fun notifyViewItem(item : ChatMessage) = notifyViewRange(data.indexOf(item), 1)
 
     enum class MessageType(val layout: Int, val contentLayout: Int) {
         TEXT_IN(R.layout.chat_message_in, R.layout.chat_message_text),
@@ -40,7 +41,7 @@ open class ChatMessageAdapter() :
 
         (layout.findViewById(R.id.chatContent) as LinearLayout).addView(contentLayout)
         return when (viewTypeObj.contentLayout) {
-            R.layout.chat_message_share -> ShareChatMessageViewHolder(layout)
+            R.layout.chat_message_share -> ShareChatMessageViewHolder(layout, onMsgClick)
             else -> TextChatMessageViewHolder(layout)
         }
     }

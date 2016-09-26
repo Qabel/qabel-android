@@ -11,6 +11,10 @@ open class MockChatUseCase(val chatMessage: ChatMessage,
                            override val contact: Contact,
                            var messages: List<ChatMessage>) : ChatUseCase {
 
+    override fun acceptShare(chatMsg: ChatMessage): Single<ChatMessage> {
+       TODO()
+    }
+
     override fun load(offset: Int, pageSize: Int): Observable<PagingResult<ChatMessage>> {
         return PagingResult(messages.size, messages.filterIndexed { i, chatMessage ->
             i >= offset && i <= (offset + pageSize)

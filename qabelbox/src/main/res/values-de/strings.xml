@@ -161,7 +161,7 @@
     <string name="btn_chat_send">Senden</string>
     <string name="chat_message_hint">Text eingeben</string>
     <string name="filebrowser_file_is_shared_from">Geteilt von %1</string>
-    <string name="filebrowser_file_is_shared_to_other">Geteilt an andere</string>
+    <string name="filebrowser_file_is_shared_to">Geteilt an </string>
     <string name="fileshare_label_in_chatmessage">Geteilte Datei %1</string>
     <string name="headline_contact_chat">Chat</string>
     <string name="headline_share_select_upload_identity">Identität für Upload auswählen</string>
@@ -357,7 +357,8 @@ Mehr Infos finden Sie unter https://qabel.de
     <string name="android_contact_sync_text">Der Qabel Client sucht regelmäßig nach bekannten Telefonnummer und Email Adressen um Qabelkontakte zu finden.</string>
     <string name="private_identity">Privat</string>
     <string name="private_identity_text">Markieren Sie eine Identität als privat zu verhindern, dass öffentliche Informationen hochgeladen werden. Hinweis: Andere qabel Benutzer können Ihre Identität nicht per Telefon oder E-Mail finden, wenn die Identität als privat markiert ist.</string>
-    <string name="conversations_empty">Keine laufenden Unterhaltungen verfügbar</string>
     <string name="index_search">Suche nach Kontakten</string>
-    <string name="index_search_hint">Geben Sie eine Telefonnummer oder Email-Adresse ein</string>
+    <string name="index_search_hint">Telefon oder Email</string>
+    <string name="conversations_empty">Aktuell keine laufenden Unterhaltungen. Zu den Kontakten</string>
+    <string name="unknown">unbekannt</string>
 </resources>

@@ -1,35 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/contact_edit_view"
-    android:background="@color/background_white"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/background_white"
     android:orientation="vertical"
     android:padding="@dimen/activity_horizontal_margin">
 
     <de.qabel.qabelbox.ui.views.SquareFrameLayout
         android:id="@+id/contact_icon_border"
         android:layout_width="wrap_content"
-        android:layout_height="100sp"
+        android:layout_height="100dp"
         android:layout_gravity="center_horizontal"
-        android:padding="5sp">
+        android:padding="5dp">
 
         <de.qabel.qabelbox.ui.views.SquareFrameLayout
+            android:id="@+id/contact_initials"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:layout_gravity="center"
-            android:background="@drawable/identity_circle">
-
-            <de.qabel.qabelbox.ui.views.TextViewFont
-                android:id="@+id/tv_initial"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerInParent="true"
-                android:layout_gravity="center"
-                android:gravity="center"
-                android:textColor="@color/white"
-                android:textSize="@dimen/textsize_identity_circle_initial" />
-        </de.qabel.qabelbox.ui.views.SquareFrameLayout>
+            android:layout_gravity="center"/>
     </de.qabel.qabelbox.ui.views.SquareFrameLayout>
 
     <de.qabel.qabelbox.ui.views.EditTextFont
@@ -38,7 +27,6 @@
         android:layout_height="wrap_content"
         android:layout_gravity="start|bottom"
         android:hint="@string/contact_name"
-        android:singleLine="true"
         android:textSize="@dimen/textsize_qabel_logo" />
 
     <de.qabel.qabelbox.ui.views.TextViewFont
@@ -46,7 +34,29 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
-        android:layout_marginStart="5dp"
+        android:layout_marginStart="7dp"
+        android:textSize="@dimen/textsize_normal" />
+
+    <de.qabel.qabelbox.ui.views.TextViewFont
+        android:id="@+id/text_phone"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/default_space"
+        android:layout_marginTop="@dimen/default_space"
+        android:drawablePadding="@dimen/default_drawable_padding"
+        android:drawableStart="@drawable/phone"
+        android:gravity="start|center_vertical"
+        android:textSize="@dimen/textsize_normal" />
+
+    <de.qabel.qabelbox.ui.views.TextViewFont
+        android:id="@+id/text_email"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/default_space"
+        android:layout_marginTop="@dimen/default_space"
+        android:drawablePadding="@dimen/default_drawable_padding"
+        android:drawableStart="@drawable/email"
+        android:gravity="start|center_vertical"
         android:textSize="@dimen/textsize_normal" />
 
     <RelativeLayout
@@ -62,15 +72,16 @@
             android:layout_alignParentStart="true"
             android:text="@string/headline_identities"
             android:textSize="@dimen/textsize_welcome_screen" />
+
         <Switch
             android:id="@+id/contact_ignored_switch"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
             android:background="@android:color/transparent"
+            android:showText="true"
             android:text="@string/action_ignore"
             android:textColor="@color/grey_text_color"
-            android:showText="true"
             android:textOff=""
             android:textOn="" />
     </RelativeLayout>

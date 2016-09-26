@@ -18,8 +18,8 @@ import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.account.AccountManager;
 import de.qabel.qabelbox.config.AppPreference;
 import de.qabel.qabelbox.helper.UIHelper;
-import de.qabel.qabelbox.index.AndroidIndexSyncService;
 import de.qabel.qabelbox.index.ContactSyncAdapter;
+import de.qabel.qabelbox.index.preferences.AndroidIndexPreferences;
 import de.qabel.qabelbox.index.preferences.IndexPreferences;
 import de.qabel.qabelbox.settings.SettingsActivity;
 import de.qabel.qabelbox.settings.navigation.SettingsNavigator;
@@ -51,7 +51,7 @@ public class SettingsFragment extends PreferenceFragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         // Define the settings file to use by this settings fragment
-        getPreferenceManager().setSharedPreferencesName(APP_PREF_NAME);
+        getPreferenceManager().setSharedPreferencesName(AndroidIndexPreferences.Companion.getKEY());
 
         // Load the preferences from an XML resource
         addPreferencesFromResource(R.xml.app_settings);

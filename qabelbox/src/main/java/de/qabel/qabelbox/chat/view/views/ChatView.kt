@@ -1,6 +1,7 @@
 package de.qabel.qabelbox.chat.view.views
 
 import de.qabel.core.ui.DataView
+import de.qabel.qabelbox.box.provider.ShareId
 import de.qabel.qabelbox.chat.dto.ChatMessage
 
 interface ChatView : DataView<ChatMessage> {
@@ -11,5 +12,9 @@ interface ChatView : DataView<ChatMessage> {
     fun refreshContactOverlay()
     fun sendMessageStateChange()
     fun showError(error : Throwable)
+
+    fun openShare(shareId: ShareId)
+
+    fun refreshItem(msg: ChatMessage)
 
 }

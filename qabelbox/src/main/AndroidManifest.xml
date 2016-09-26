@@ -173,6 +173,12 @@
             android:enabled="true"
             android:exported="false"
             android:syncable="true" />
+        <provider
+            android:name=".providers.IndexContentProvider"
+            android:authorities="${applicationId}.providers.index"
+            android:enabled="true"
+            android:exported="false"
+            android:syncable="true" />
     </application>
 
 

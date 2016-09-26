@@ -11,3 +11,7 @@ fun TextView.setOrGone(valueText: String) {
         visibility = View.VISIBLE
     }
 }
+
+fun View.setVisibleOrGone(visible : Boolean) {
+    visibility = if(visible) View.VISIBLE else View.GONE
+}

@@ -41,7 +41,7 @@ class ChatMessageAdapterTest {
     fun setUp() {
         message = ChatMessage(mock(), mock(), ChatDropMessage.Direction.INCOMING,
                 Date(), MessagePayloadDto.TextMessage("Text"))
-        adapter = ChatMessageAdapter()
+        adapter = ChatMessageAdapter({})
         FontHelper.disable = true
     }
 
@@ -92,7 +92,7 @@ class ChatMessageAdapterTest {
             val holder = adapter.onCreateViewHolder(
                     LinearLayout(RuntimeEnvironment.application), type)
             check(holder is ShareChatMessageViewHolder)
-            checkNotNull(holder.itemView?.findViewById(R.id.shareText) as? TextViewFont)
+            checkNotNull(holder.itemView?.findViewById(R.id.file_name) as? TextViewFont)
             checkNotNull(holder.itemView?.findViewById(R.id.tvDate) as? TextViewFont)
             checkNotNull(holder.itemView?.findViewById(R.id.messageFileContainer))
         }

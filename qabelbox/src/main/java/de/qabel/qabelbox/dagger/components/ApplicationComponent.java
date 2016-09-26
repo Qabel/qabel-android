@@ -12,6 +12,7 @@ import de.qabel.qabelbox.activities.CreateIdentityActivity;
 import de.qabel.qabelbox.activities.SplashActivity;
 import de.qabel.qabelbox.chat.services.AndroidChatService;
 import de.qabel.qabelbox.chat.services.QabelFirebaseMessagingService;
+import de.qabel.qabelbox.dagger.modules.StorageModule;
 import de.qabel.qabelbox.index.dagger.IndexComponent;
 import de.qabel.qabelbox.index.dagger.IndexModule;
 import de.qabel.qabelbox.sync.QabelSyncAdapter;
@@ -19,7 +20,6 @@ import de.qabel.qabelbox.dagger.modules.AccountModule;
 import de.qabel.qabelbox.dagger.modules.ActivityModule;
 import de.qabel.qabelbox.dagger.modules.ApplicationModule;
 import de.qabel.qabelbox.dagger.modules.RepositoryModule;
-import de.qabel.qabelbox.dagger.modules.StorageModule;
 import de.qabel.qabelbox.fragments.CreateAccountFinalFragment;
 import de.qabel.qabelbox.fragments.CreateIdentityMainFragment;
 

@@ -65,7 +65,7 @@ class BoxSharerTest {
                 createTempDir()), identity.primaryKeyPair)
         useCase = BoxFileBrowser(
                 BoxFileBrowser.KeyAndPrefix(identity.keyIdentifier, prefix),
-                volume)
+                volume, mock())
         chatService = mock()
         sharer = BoxSharer(useCase, chatService, identity, storage)
     }

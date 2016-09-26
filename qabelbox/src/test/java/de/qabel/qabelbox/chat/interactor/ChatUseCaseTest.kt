@@ -21,6 +21,7 @@ import de.qabel.qabelbox.SimpleApplication
 import de.qabel.qabelbox.chat.dto.ChatMessage
 import de.qabel.qabelbox.chat.transformers.ChatMessageTransformer
 import de.qabel.qabelbox.listeners.ActionIntentSender
+import de.qabel.qabelbox.storage.server.MockBlockServer
 import de.qabel.qabelbox.util.IdentityHelper
 import org.hamcrest.Matchers.equalTo
 import org.hamcrest.Matchers.hasSize
@@ -60,7 +61,7 @@ class ChatUseCaseTest {
         chatDropRepository = spy(InMemoryChatDropMessageRepository())
         transformer = ChatMessageTransformer(identityRepo, contactRepo)
         chatService = spy(MainChatService(dropConnector, identityRepo, contactRepo, chatDropRepository, InMemoryDropStateRepository(), mock()))
-        chatUseCase = TransformingChatUseCase(identity, contact, transformer, chatService, chatDropRepository, chatServiceUseCase, actionIntentSender)
+        chatUseCase = TransformingChatUseCase(identity, contact, transformer, chatService, mock(), MockBlockServer(), chatDropRepository, chatServiceUseCase, actionIntentSender)
     }
 
     @Test

@@ -3,8 +3,10 @@ package de.qabel.qabelbox.storage.server;
 import android.content.Context;
 import android.net.Uri;
 import android.util.Log;
+import android.webkit.URLUtil;
 
 import java.io.File;
+import java.net.URL;
 
 import javax.inject.Inject;
 
@@ -76,6 +78,9 @@ public class AndroidBlockServer extends BaseServer implements BlockServer {
 
     @Override
     public String urlForFile(String prefix, String path) {
+        if(URLUtil.isValidUrl(path)){
+            return path;
+        }
         String apiURL = getUrls().getFiles();
         Uri.Builder uriBuilder = Uri.parse(apiURL).buildUpon()
                 .appendPath(prefix);

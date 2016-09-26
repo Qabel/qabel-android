@@ -206,7 +206,7 @@
     <string name="upload_in_progress_notification_content">Upload %s completed</string>
     <string name="message_file_cant_upload">File could not be uploaded</string>
     <string name="share_error_on_sending">Share not sent</string>
-    <string name="filebrowser_file_is_shared_to_other">Shared to other</string>
+    <string name="filebrowser_file_is_shared_to">Shared to</string>
     <string name="filebrowser_file_is_shared_from">Shared from %1</string>
     <string name="Unshare">Revoke share</string>
     <string name="message_cant_attach_external_file_exists">Can\'t attach shared file. A file with this name exists already. Maybe you have attached the file times before</string>
@@ -400,6 +400,7 @@ You can find more information on https://qabel.de/en
     <string name="private_identity">Private</string>
     <string name="private_identity_text">Mark an identity as private to prevent uploading public informations. Note: Other qabel users cant find your identity by phone or mail if the identity is private!</string>
     <string name="conversations_empty">no recent conversations</string>
+    <string name="unknown">unkown</string>
     <string name="index_search">Search for contacts</string>
-    <string name="index_search_hint">Enter a phone number or email address</string>
+    <string name="index_search_hint">phone or email</string>
 </resources>

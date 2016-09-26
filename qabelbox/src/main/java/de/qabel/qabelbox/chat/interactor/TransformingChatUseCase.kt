@@ -3,21 +3,27 @@ package de.qabel.qabelbox.chat.interactor
 import de.qabel.chat.repository.ChatDropMessageRepository
 import de.qabel.chat.repository.entities.ChatDropMessage
 import de.qabel.chat.service.ChatService
+import de.qabel.chat.service.SharingService
 import de.qabel.core.config.Contact
 import de.qabel.core.config.Identity
 import de.qabel.core.repository.framework.PagingResult
 import de.qabel.qabelbox.QblBroadcastConstants
+import de.qabel.qabelbox.box.backends.BoxHttpStorageBackend
 import de.qabel.qabelbox.chat.dto.ChatMessage
 import de.qabel.qabelbox.chat.transformers.ChatMessageTransformer
 import de.qabel.qabelbox.listeners.ActionIntentSender
+import de.qabel.qabelbox.storage.server.BlockServer
 import rx.Observable
 import rx.lang.kotlin.observable
+import rx.lang.kotlin.single
 import rx.schedulers.Schedulers
 import javax.inject.Inject
 
 class TransformingChatUseCase @Inject constructor(val identity: Identity, override val contact: Contact,
                                                   private val chatMessageTransformer: ChatMessageTransformer,
                                                   private val chatService: ChatService,
+                                                  private val sharingService: SharingService,
+                                                  private val blockServer : BlockServer,
                                                   private val chatDropMessageRepository: ChatDropMessageRepository,
                                                   private val chatServiceUseCase: ChatServiceUseCase,
                                                   private val actionIntentSender: ActionIntentSender) : ChatUseCase {
@@ -62,6 +68,12 @@ class TransformingChatUseCase @Inject constructor(val identity: Identity, overri
         subscriber.onNext(Unit)
         notifyApplication()
         subscriber.onCompleted()
+    }
+
+    override fun acceptShare(chatMsg: ChatMessage) = single<ChatMessage> {
+        val msg = chatDropMessageRepository.findById(chatMsg.id)
+        sharingService.acceptShare(msg, BoxHttpStorageBackend(blockServer, ""))
+        it.onSuccess(chatMessageTransformer.transform(msg))
     }
 
     private fun notifyApplication() =

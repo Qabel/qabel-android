@@ -21,16 +21,6 @@
                 android:layout_height="100dp"
                 android:layout_centerInParent="true"
                 android:layout_gravity="center">
-
-                <de.qabel.qabelbox.ui.views.TextViewFont
-                    android:id="@+id/identity_initial"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_centerInParent="true"
-                    android:layout_gravity="center"
-                    android:gravity="center"
-                    android:textColor="@color/white"
-                    android:textSize="@dimen/textsize_identity_circle_initial" />
             </de.qabel.qabelbox.ui.views.SquareFrameLayout>
 
             <ImageView

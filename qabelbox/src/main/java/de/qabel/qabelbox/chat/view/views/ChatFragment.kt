@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.net.Uri
 import android.os.Bundle
 import android.support.v7.widget.LinearLayoutManager
 import android.view.LayoutInflater
@@ -13,6 +14,8 @@ import de.qabel.core.config.Contact
 import de.qabel.core.config.Identity
 import de.qabel.qabelbox.QblBroadcastConstants
 import de.qabel.qabelbox.R
+import de.qabel.qabelbox.activities.ImageViewerActivity
+import de.qabel.qabelbox.box.provider.ShareId
 import de.qabel.qabelbox.chat.dagger.ChatModule
 import de.qabel.qabelbox.chat.dto.ChatMessage
 import de.qabel.qabelbox.chat.view.adapters.ChatMessageAdapter
@@ -24,6 +27,7 @@ import de.qabel.qabelbox.ui.HeaderDecoration
 import kotlinx.android.synthetic.main.fragment_contact_chat.*
 import kotlinx.android.synthetic.main.fragment_contact_chat.view.*
 import org.jetbrains.anko.*
+import java.net.URLConnection
 import javax.inject.Inject
 
 class ChatFragment : ChatView, BaseFragment(), AnkoLogger {
@@ -52,7 +56,7 @@ class ChatFragment : ChatView, BaseFragment(), AnkoLogger {
         }
     }
 
-    val adapter: ChatMessageAdapter = ChatMessageAdapter()
+    val adapter: ChatMessageAdapter = ChatMessageAdapter({ presenter.handleMsgClick(it) })
     var headerDecor: HeaderDecoration? = null
     lateinit override var contactKeyId: String
     @Inject
@@ -174,6 +178,9 @@ class ChatFragment : ChatView, BaseFragment(), AnkoLogger {
         }
     }
 
+    override fun refreshItem(msg: ChatMessage) =
+            adapter.notifyViewItem(msg)
+
     override fun handleLoadError(throwable: Throwable) = showError(throwable)
 
     override fun getCount(): Int = adapter.itemCount
@@ -202,6 +209,32 @@ class ChatFragment : ChatView, BaseFragment(), AnkoLogger {
             error("Error in ChatFragment", error)
             refreshContactOverlay()
         }
+    }
+
+    override fun openShare(shareId: ShareId) {
+        onUiThread {
+            info("Open With via started for share id $shareId")
+            val uri = shareId.toUri()
+            val mimeType = URLConnection.guessContentTypeFromName(uri.toString()) ?: ""
+            if (mimeType.startsWith("image")) {
+                val intent = Intent(ctx, ImageViewerActivity::class.java).apply {
+                    putExtra(ImageViewerActivity.P_URI, uri)
+                    putExtra(ImageViewerActivity.P_TYPE, mimeType)
+                }
+                startActivity(intent)
+            } else {
+                startViewIntent(mimeType, uri)
+            }
+        }
+    }
+
+    private fun startViewIntent(mimeType: String, uri: Uri?) {
+        val intent = Intent(Intent.ACTION_VIEW).apply {
+            data = uri
+            type = mimeType
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        }
+        startActivity(Intent.createChooser(intent, ctx.getString(R.string.chooser_open_with)).singleTop())
     }
 
 }

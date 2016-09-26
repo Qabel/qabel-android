@@ -1,6 +1,10 @@
 package de.qabel.qabelbox.chat.view.adapters
 
 import android.view.View
+import android.widget.ImageView
+import android.widget.TextView
+import com.natpryce.hamkrest.assertion.assertThat
+import com.natpryce.hamkrest.equalTo
 import com.nhaarman.mockito_kotlin.any
 import com.nhaarman.mockito_kotlin.mock
 import com.nhaarman.mockito_kotlin.stub
@@ -16,10 +20,12 @@ import de.qabel.qabelbox.R
 import de.qabel.qabelbox.SimpleApplication
 import de.qabel.qabelbox.chat.dto.ChatMessage
 import de.qabel.qabelbox.chat.dto.MessagePayloadDto
+import de.qabel.qabelbox.eq
 import de.qabel.qabelbox.test.shadows.TextViewFontShadow
 import de.qabel.qabelbox.ui.views.TextViewFont
 import kotlinx.android.synthetic.main.chat_message_in.view.*
 import kotlinx.android.synthetic.main.chat_message_share.view.*
+import kotlinx.android.synthetic.main.fragment_imageviewer.view.*
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricGradleTestRunner
@@ -36,18 +42,14 @@ class ShareChatMessageViewHolderTest {
 
     @Test
     fun testOutgoing() {
-        testViewHolder(Direction.OUTGOING, ShareStatus.ACCEPTED, R.string.open)
+        testViewHolder(Direction.OUTGOING, ShareStatus.ACCEPTED, null)
     }
 
     @Test
-    fun testAcceptedShare() {
-        testViewHolder(Direction.INCOMING, ShareStatus.ACCEPTED, R.string.open);
+    fun testInComingShare() {
+        testViewHolder(Direction.INCOMING, ShareStatus.ACCEPTED, null);
     }
 
-    @Test
-    fun testNewShare() {
-        testViewHolder(Direction.INCOMING, ShareStatus.NEW, R.string.accept_share);
-    }
 
     @Test
     fun testUnreachableShare() {
@@ -59,30 +61,39 @@ class ShareChatMessageViewHolderTest {
         testViewHolder(Direction.INCOMING, ShareStatus.DELETED, R.string.permanently_unavailable);
     }
 
-    fun testViewHolder(direction: Direction, status: ShareStatus, expectedLabel: Int) {
+    fun testViewHolder(direction: Direction, status: ShareStatus, expectedLabel: Int?) {
         val contact = mock<Contact>()
         stub(contact.alias).toReturn("contact")
 
         val view = mock<View>()
         stub(view.context).toReturn(RuntimeEnvironment.application)
         val messageField: TextViewFont = mock()
-        val actionField: TextViewFont = mock();
+        val fileField: TextViewFont = mock()
         val dateField: TextViewFont = mock()
+        val overlay : TextViewFont = mock()
+        val image : ImageView = mock()
+        val preview : ImageView = mock()
 
-        stub(view.shareText).toReturn(messageField)
+        stub(view.message).toReturn(messageField)
         stub(view.tvDate).toReturn(dateField)
-        stub(view.tvLink).toReturn(actionField)
+        stub(view.file_name).toReturn(fileField)
+        stub(view.msg_overlay).toReturn(overlay)
+        stub(view.messageFileIcon).toReturn(image)
+        stub(view.messageFilePreview).toReturn(preview)
 
-        val holder = ShareChatMessageViewHolder(view)
+        val holder = ShareChatMessageViewHolder(view, {})
         val msg = ChatMessage(mock<Identity>(), contact,
                 direction, Date(),
-                MessagePayloadDto.ShareMessage("text", BoxFileChatShare(status, "", 0L,
+                MessagePayloadDto.ShareMessage("text", BoxFileChatShare(status, "test.txt", 2048L,
                         SymmetricKey(listOf()), "http://foo")))
         holder.bindTo(msg, false)
 
         verify(messageField).text = "text"
-        verify(actionField).text = RuntimeEnvironment.application.getString(expectedLabel);
+        verify(fileField).text = "test.txt 2.0KB"
+        expectedLabel?.
+                let { verify(overlay).text = RuntimeEnvironment.application.getString(expectedLabel) }
         verify(dateField).text = any()
+        verify(preview).visibility = View.GONE
     }
 
 }

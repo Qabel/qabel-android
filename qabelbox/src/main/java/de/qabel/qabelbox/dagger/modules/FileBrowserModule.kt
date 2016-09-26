@@ -5,6 +5,7 @@ import dagger.Provides
 import de.qabel.box.storage.*
 import de.qabel.box.storage.jdbc.DirectoryMetadataDatabase
 import de.qabel.box.storage.jdbc.JdbcDirectoryMetadataFactory
+import de.qabel.box.storage.jdbc.JdbcFileMetadataFactory
 import de.qabel.core.config.Identity
 import de.qabel.core.repositories.AndroidVersionAdapter
 import de.qabel.qabelbox.box.backends.BoxHttpStorageBackend
@@ -106,7 +107,12 @@ class FileBrowserModule(private val view: FileBrowserView) {
                 tempDir,
                 directoryMetadataFactoryFactory = { tempDir, deviceId ->
                     JdbcDirectoryMetadataFactory(tempDir, deviceId, dataBaseFactory)
-                }), identity.primaryKeyPair)
+                },
+                fileMetadataFactoryFactory = { tempDir ->
+                    JdbcFileMetadataFactory(tempDir, versionAdapterFactory = { connection ->
+                        AndroidVersionAdapter(connection)})
+                }),
+                identity.primaryKeyPair)
 
     }
 

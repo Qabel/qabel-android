@@ -360,6 +360,6 @@ Mehr Infos finden Sie unter https://qabel.de
     <string name="index_search">Suche nach Kontakten</string>
     <string name="conversations_empty">Aktuell keine laufenden Unterhaltungen. Zu den Kontakten</string>
     <string name="unknown">unbekannt</string>
-    <string name="index_search_hint">Geben Sie eine Telefonnummer oder Email-Adresse ein</string>
+    <string name="index_search_hint">Telefon oder Email</string>
     <string name="upgrade">Mehr Speicher</string>
 </resources>

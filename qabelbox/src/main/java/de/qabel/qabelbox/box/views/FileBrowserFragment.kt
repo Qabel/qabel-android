@@ -70,7 +70,6 @@ class FileBrowserFragment: FileBrowserView, BaseFragment(), AnkoLogger {
             }
         }
 
-        setHasOptionsMenu(true)
         adapter = FileAdapter(mutableListOf(),
                 click = { presenter.onClick(it) }, longClick = { openBottomSheet(it)}
         )
@@ -82,6 +81,12 @@ class FileBrowserFragment: FileBrowserView, BaseFragment(), AnkoLogger {
         if (! (mActivity?.TEST ?: false)) {
             presenter.onRefresh()
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        setHasOptionsMenu(true)
+        configureAsMainFragment()
     }
 
     override fun onSaveInstanceState(outState: Bundle?) {

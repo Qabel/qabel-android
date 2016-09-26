@@ -9,12 +9,14 @@ import de.qabel.core.repository.exception.EntityExistsException
 import de.qabel.qabelbox.contacts.dto.ContactDto
 import de.qabel.qabelbox.index.interactor.IndexSearchUseCase
 import de.qabel.qabelbox.index.view.views.IndexSearchView
+import de.qabel.qabelbox.navigation.Navigator
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 class MainIndexSearchPresenter @Inject constructor(
         val view: IndexSearchView,
         val useCase: IndexSearchUseCase,
+        val navigator : Navigator,
         val contactRepository: ContactRepository)
 : IndexSearchPresenter, QabelLog {
 
@@ -32,7 +34,7 @@ class MainIndexSearchPresenter @Inject constructor(
                     view.updateQuery(phone)
                 }
                 if (it.size > 0) {
-                    view.loadData(it.map { ContactDto(it.contact, it.identities, true) })
+                    view.loadData(it)
                 } else {
                     view.showEmpty()
                 }
@@ -42,7 +44,9 @@ class MainIndexSearchPresenter @Inject constructor(
     }
 
     override fun showDetails(contact: ContactDto) {
-        view.showDetails(contact)
+        if(contact.active){
+            navigator.selectContactEdit(contact)
+        }
     }
 
 }

@@ -5,6 +5,8 @@ import de.qabel.box.storage.BoxObject
 import de.qabel.box.storage.BoxVolume
 import de.qabel.box.storage.exceptions.QblStorageException
 import de.qabel.box.storage.exceptions.QblStorageNotFound
+import de.qabel.core.repository.ContactRepository
+import de.qabel.core.repository.exception.EntityNotFoundException
 import de.qabel.qabelbox.box.dto.BoxPath
 import de.qabel.qabelbox.box.dto.BrowserEntry
 import de.qabel.qabelbox.box.dto.DownloadSource
@@ -19,8 +21,9 @@ import java.io.FileNotFoundException
 import javax.inject.Inject
 
 class BoxFileBrowser @Inject constructor(keyAndPrefix: KeyAndPrefix,
-                                         private val volume: BoxVolume
-                                         ) : FileBrowser, VolumeNavigator by BoxVolumeNavigator(keyAndPrefix, volume) {
+                                         private val volume: BoxVolume,
+                                         private val contactRepo: ContactRepository
+) : FileBrowser, VolumeNavigator by BoxVolumeNavigator(keyAndPrefix, volume) {
 
     data class KeyAndPrefix(val publicKey: String, val prefix: String)
 
@@ -33,22 +36,35 @@ class BoxFileBrowser @Inject constructor(keyAndPrefix: KeyAndPrefix,
             subscriber.onNext(BrowserEntry.Folder(""))
             return@observable
         }
-        val boxObject = try {
-            queryObject(path)
+        val (boxObject, navigation) = try {
+            queryObjectAndNav(path)
         } catch (e: Throwable) {
             subscriber.onError(e)
             return@observable
         }
-        val entry = boxObject.toEntry()
-        if (entry  == null) {
+        val entry = toEntry(boxObject, navigation)
+        if (entry == null) {
             subscriber.onError(FileNotFoundException("File or Folder ${path.name} not found"))
             return@observable
         }
+
         subscriber.onNext(entry)
     }.subscribeOn(Schedulers.io())
 
-    private fun queryObject(path: BoxPath): BoxObject =
-           queryObjectAndNav(path).first
+    private fun toEntry(boxObject: BoxObject, navigation: BoxNavigation): BrowserEntry? {
+        val entry = boxObject.toEntry()
+        entry?.let {
+            val shares = navigation.getSharesOf(boxObject)
+            shares.forEach {
+                try {
+                    entry.sharedTo.add(contactRepo.findByKeyId(it.recipient))
+                } catch (ex: EntityNotFoundException) {
+                    entry.sharedTo.add(null)
+                }
+            }
+        }
+        return entry
+    }
 
     override fun upload(path: BoxPath.File, source: UploadSource): Observable<Unit> = observable<Unit> {
         try {
@@ -61,15 +77,15 @@ class BoxFileBrowser @Inject constructor(keyAndPrefix: KeyAndPrefix,
     }.subscribeOn(Schedulers.io())
 
     override fun download(path: BoxPath.File): Observable<DownloadSource> =
-        observable<DownloadSource> { subscriber ->
-            query(path).subscribe({ entry ->
-                if (entry is BrowserEntry.File) {
-                    subscriber.onNext(DownloadSource(entry, navigateTo(path.parent).download(path.name)))
-                } else {
-                    subscriber.onError(FileNotFoundException("Not a file"))
-                }
-            }, { subscriber.onError(it) })
-    }.subscribeOn(Schedulers.io())
+            observable<DownloadSource> { subscriber ->
+                query(path).subscribe({ entry ->
+                    if (entry is BrowserEntry.File) {
+                        subscriber.onNext(DownloadSource(entry, navigateTo(path.parent).download(path.name)))
+                    } else {
+                        subscriber.onError(FileNotFoundException("Not a file"))
+                    }
+                }, { subscriber.onError(it) })
+            }.subscribeOn(Schedulers.io())
 
     override fun delete(path: BoxPath): Observable<Unit> = observable<Unit> {
         subscriber ->
@@ -89,30 +105,30 @@ class BoxFileBrowser @Inject constructor(keyAndPrefix: KeyAndPrefix,
 
     override fun list(path: BoxPath.FolderLike): Observable<List<BrowserEntry>> =
             observable<List<BrowserEntry>> {
-        subscriber ->
-        val nav = try {
-            navigateTo(path).apply { reloadMetadata() }
-        } catch (e: QblStorageException) {
-            subscriber.onError(e)
-            return@observable
-        }
-        val entries = nav.listFolders().sortedBy { it.name } + nav.listFiles().sortedBy { it.name }
-        subscriber.onNext(entries.map { it.toEntry() }.filterNotNull())
-    }.subscribeOn(Schedulers.io())
+                subscriber ->
+                val nav = try {
+                    navigateTo(path).apply { reloadMetadata() }
+                } catch (e: QblStorageException) {
+                    subscriber.onError(e)
+                    return@observable
+                }
+                val entries = nav.listFolders().sortedBy { it.name } + nav.listFiles().sortedBy { it.name }
+                subscriber.onNext(entries.map { toEntry(it, nav) }.filterNotNull())
+            }.subscribeOn(Schedulers.io())
 
     override fun createFolder(path: BoxPath.FolderLike): Observable<Unit> =
-        observable<Unit> { subscriber ->
-            try {
-                recursiveCreateFolder(path)
-                subscriber.onNext(Unit)
-            } catch (e: Throwable) {
-                subscriber.onError(e)
-            }
-    }.subscribeOn(Schedulers.io())
+            observable<Unit> { subscriber ->
+                try {
+                    recursiveCreateFolder(path)
+                    subscriber.onNext(Unit)
+                } catch (e: Throwable) {
+                    subscriber.onError(e)
+                }
+            }.subscribeOn(Schedulers.io())
 
     private fun recursiveCreateFolder(path: BoxPath.FolderLike): BoxNavigation =
-        navigateTo(path) { p, nav ->
-            nav.listFolders().find { it.name == p.name } ?: nav.createFolder(p.name)
-            nav.commitIfChanged()
-        }
+            navigateTo(path) { p, nav ->
+                nav.listFolders().find { it.name == p.name } ?: nav.createFolder(p.name)
+                nav.commitIfChanged()
+            }
 }

@@ -253,6 +253,7 @@ class MainActivity : CrashReportingActivity(),
     private fun setupAccount() {
         AccountHelper.createSyncAccount(applicationContext)
         AccountHelper.configurePeriodicPolling()
+        AccountHelper.startOnDemandSyncAdapter()
         ContactSyncAdapter.Manager.configureSync(applicationContext)
     }
 

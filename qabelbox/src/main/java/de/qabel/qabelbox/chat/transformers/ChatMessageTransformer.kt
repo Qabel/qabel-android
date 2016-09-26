@@ -21,7 +21,7 @@ open class ChatMessageTransformer @Inject constructor(
             is ChatDropMessage.MessagePayload.ShareMessage -> payload.toPayloadDto()
             is ChatDropMessage.MessagePayload.TextMessage -> payload.toPayloadDto()
             else -> MessagePayloadDto.NoMessageDto
-        })
+        }, chatMessageItem.id)
     }
 
     fun ChatDropMessage.MessagePayload.ShareMessage.toPayloadDto() = MessagePayloadDto.ShareMessage(msg, shareData)

@@ -53,7 +53,7 @@ class BoxFileBrowserTest {
                 createTempDir()), identity.primaryKeyPair)
          useCase = BoxFileBrowser(
                  BoxFileBrowser.KeyAndPrefix(identity.keyIdentifier, identity.prefixes.first()),
-                 volume)
+                 volume, mock())
     }
 
     @Test
@@ -210,7 +210,7 @@ class BoxFileBrowserTest {
         val volume: BoxVolume = mock()
         val nav: IndexNavigation = mock()
         stubMethod(volume.navigate(), nav)
-        useCase = BoxFileBrowser(BoxFileBrowser.KeyAndPrefix("key", "prefix"), volume)
+        useCase = BoxFileBrowser(BoxFileBrowser.KeyAndPrefix("key", "prefix"), volume, mock())
         return nav
     }
 

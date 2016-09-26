@@ -1,7 +1,6 @@
 package de.qabel.qabelbox.index
 
 import android.accounts.Account
-import android.accounts.AccountManager
 import android.content.*
 import android.os.Bundle
 import de.qabel.core.index.IndexService
@@ -11,6 +10,7 @@ import de.qabel.core.logging.QabelLog
 import de.qabel.qabelbox.BuildConfig
 import de.qabel.qabelbox.QabelBoxApplication
 import de.qabel.qabelbox.QblBroadcastConstants
+import de.qabel.qabelbox.helper.AccountHelper
 import de.qabel.qabelbox.index.preferences.AndroidIndexPreferences
 import de.qabel.qabelbox.index.preferences.IndexPreferences
 import de.qabel.qabelbox.permissions.DataPermissionsAdapter
@@ -29,18 +29,12 @@ open class ContactSyncAdapter : AbstractThreadedSyncAdapter, QabelLog, DataPermi
     lateinit internal var contactsAccessor: ExternalContactsAccessor
 
     object Manager : QabelLog {
-        private val ACCOUNT = "contact_sync"
-        private val ACCOUNT_TYPE = BuildConfig.ACCOUNT_TYPE
-        private val DEFAULT_ACCOUNT = Account(ACCOUNT, ACCOUNT_TYPE)
-        val AUTHORITY = BuildConfig.AUTHORITY
+        val AUTHORITY = BuildConfig.INDEX_AUTHORITY
         // every day
         var SYNC_INTERVAL = 60 * 60 * 24.toLong()
 
-        fun configureSync(context: Context) {
-            val accountManager = AccountManager.get(context)
-            accountManager.addAccountExplicitly(DEFAULT_ACCOUNT, null, null)
+        fun configureSync(context: Context) =
             configurePeriodicPolling(context)
-        }
 
         fun startOnDemandSyncAdapter() {
             val settingsBundle = Bundle()
@@ -48,18 +42,18 @@ open class ContactSyncAdapter : AbstractThreadedSyncAdapter, QabelLog, DataPermi
                     ContentResolver.SYNC_EXTRAS_MANUAL, true)
             settingsBundle.putBoolean(
                     ContentResolver.SYNC_EXTRAS_EXPEDITED, true)
-            ContentResolver.requestSync(DEFAULT_ACCOUNT, AUTHORITY, settingsBundle)
+            ContentResolver.requestSync(AccountHelper.DEFAULT_ACCOUNT, AUTHORITY, settingsBundle)
         }
 
         private fun configurePeriodicPolling(context: Context) {
             info("Configure contact sync. interval $SYNC_INTERVAL")
-            ContentResolver.setSyncAutomatically(DEFAULT_ACCOUNT, AUTHORITY, true)
+            ContentResolver.setSyncAutomatically(AccountHelper.DEFAULT_ACCOUNT, AUTHORITY, true)
             for (sync in getPeriodicSync()) {
                 ContentResolver.removePeriodicSync(sync.account, sync.authority, sync.extras)
             }
             if (SYNC_INTERVAL > 0 && AndroidIndexPreferences(context).contactSyncEnabled) {
                 ContentResolver.addPeriodicSync(
-                        DEFAULT_ACCOUNT,
+                        AccountHelper.DEFAULT_ACCOUNT,
                         AUTHORITY,
                         Bundle.EMPTY,
                         SYNC_INTERVAL)
@@ -68,7 +62,7 @@ open class ContactSyncAdapter : AbstractThreadedSyncAdapter, QabelLog, DataPermi
         }
 
         fun getPeriodicSync(): List<PeriodicSync> {
-            return ContentResolver.getPeriodicSyncs(DEFAULT_ACCOUNT, AUTHORITY)
+            return ContentResolver.getPeriodicSyncs(AccountHelper.DEFAULT_ACCOUNT, AUTHORITY)
         }
     }
 
@@ -109,7 +103,7 @@ open class ContactSyncAdapter : AbstractThreadedSyncAdapter, QabelLog, DataPermi
                     info("ContactSync completed! Created: $createdCount, Updated: $updatedCount")
                 }
             } catch(ex: Throwable) {
-                warn("Error on syncing contacts", ex)
+                error("Error on syncing contacts", ex)
             }
         } else {
             info("Ignoring contact sync. Is disabled or permissions missing.")

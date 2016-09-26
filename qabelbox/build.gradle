@@ -56,10 +56,12 @@ android {
         }
         buildConfigField "String", "ACCOUNT_TYPE", "\"${applicationId}.account\""
         buildConfigField "String", "AUTHORITY", "\"${applicationId}.providers.internal\""
+        buildConfigField "String", "INDEX_AUTHORITY", "\"${applicationId}.providers.index\""
 
         //Reference them in .xml files.
         resValue "string", "account_type", "${applicationId}.account"
         resValue "string", "authority", "${applicationId}.provider"
+        resValue "string", "index_authority", "${applicationId}.index"
     }
 
     lintOptions {
@@ -85,10 +87,12 @@ android {
             resValue 'string', 'app_name', '"Qabel (Debug)"'
             buildConfigField "String", "ACCOUNT_TYPE", "\"de.qabel.qabel.debug.account\""
             buildConfigField "String", "AUTHORITY", "\"de.qabel.qabel.debug.providers.internal\""
+            buildConfigField "String", "INDEX_AUTHORITY", "\"de.qabel.qabel.debug.providers.index\""
 
             //Reference them in .xml files.
             resValue "string", "account_type", "de.qabel.qabel.debug.account"
             resValue "string", "authority", "de.qabel.qabel.debug.providers.internal"
+            resValue "string", "index_authority", "de.qabel.qabel.debug.providers.index"
         }
 
     }
@@ -164,7 +168,7 @@ tasks.withType(Test) {
     systemProperty 'java.library.path', 'libs/'
 }
 
-def coreVersion = '0.24.2'
+def coreVersion = '0.25.0'
 def repo = 'Qabel'
 dependencies {
     sourceCompatibility = JavaVersion.VERSION_1_7

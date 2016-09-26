@@ -5,15 +5,20 @@ import android.widget.LinearLayout
 import de.qabel.core.config.Identities
 import de.qabel.core.config.Identity
 import de.qabel.core.extensions.contains
+import de.qabel.core.index.formatPhoneNumberReadable
+import de.qabel.core.index.isValidPhoneNumber
 import de.qabel.core.ui.displayName
 import de.qabel.core.ui.initials
 import de.qabel.qabelbox.R
 import de.qabel.qabelbox.contacts.dto.ContactDto
-import de.qabel.qabelbox.contacts.extensions.*
+import de.qabel.qabelbox.contacts.extensions.color
+import de.qabel.qabelbox.contacts.extensions.contactColors
 import de.qabel.qabelbox.contacts.view.widgets.ContactIconDrawable
 import de.qabel.qabelbox.contacts.view.widgets.IdentityIconDrawable
+import de.qabel.qabelbox.ui.extensions.setOrGone
 import kotlinx.android.synthetic.main.contact_edit_identity_switch.view.*
 import kotlinx.android.synthetic.main.fragment_contact_edit.view.*
+import org.jetbrains.anko.dip
 import org.jetbrains.anko.layoutInflater
 
 
@@ -24,10 +29,20 @@ class ContactEditAdapter() {
     fun loadContact(contact: ContactDto, identities: Identities) {
         view?.apply {
             contact_icon_border.background = ContactIconDrawable(contact.contactColors(context))
-            tv_initial.text = contact.contact.initials()
+            val size = dip(95)
+            contact_initials.background = IdentityIconDrawable(text = contact.contact.initials(),
+                    width = size, height = size,
+                    color = contact.contact.color(context))
+
             editTextContactNick.setText(contact.contact.displayName())
             editTextContactName.text = contact.contact.alias
             contact_ignored_switch.isChecked = contact.contact.isIgnored
+            val mail = contact.contact.email ?: ""
+            val phone = if (isValidPhoneNumber(contact.contact.phone))
+                formatPhoneNumberReadable(contact.contact.phone) else ""
+
+            text_phone.setOrGone(phone)
+            text_email.setOrGone(mail)
 
             contact_identities.removeAllViews()
             identities.entities.forEach {

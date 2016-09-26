@@ -1,9 +1,13 @@
 package de.qabel.qabelbox.box.dto
 
+import de.qabel.core.config.Contact
 import org.apache.commons.lang3.builder.HashCodeBuilder
 import java.util.*
 
 sealed class BrowserEntry(val name: String) {
+
+    val sharedTo : MutableList<Contact?> = mutableListOf()
+
     class File(name: String, val size: Long, val mTime: Date) : BrowserEntry(name) {
         override fun toString(): String {
             return "File($name, $size, $mTime)"

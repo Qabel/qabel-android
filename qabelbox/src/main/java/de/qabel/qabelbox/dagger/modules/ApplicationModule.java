@@ -74,12 +74,6 @@ public class ApplicationModule extends ContextModule {
                 contactRepository, chatDropMessageRepository, dropStateRepository, sharingService);
     }
 
-    @Singleton
-    @Provides
-    SharingService providesSharingService(ChatShareRepository shareRepository, ContactRepository contactRepository,
-                                          Context context) {
-        return new MainSharingService(shareRepository, contactRepository, context.getCacheDir(), new CryptoUtils());
-    }
 
     @Singleton
     @Provides

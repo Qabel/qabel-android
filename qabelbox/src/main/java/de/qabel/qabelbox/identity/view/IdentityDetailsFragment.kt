@@ -50,7 +50,10 @@ class IdentityDetailsFragment() : IdentityDetailsView, BaseFragment(), AnkoLogge
         val component = getComponent(MainActivityComponent::class.java).plus(IdentityDetailsModule(this))
         component.inject(this)
         injectCompleted = true
+    }
 
+    override fun onResume() {
+        super.onResume()
         setHasOptionsMenu(false)
         configureAsSubFragment()
 

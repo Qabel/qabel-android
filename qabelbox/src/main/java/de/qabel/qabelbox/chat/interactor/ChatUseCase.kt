@@ -16,4 +16,7 @@ interface ChatUseCase {
 
     fun ignoreContact(): Observable<Unit>
     fun addContact(): Observable<Unit>
+
+    fun acceptShare(chatMsg : ChatMessage) : Single<ChatMessage>
+
 }

@@ -27,9 +27,10 @@ class BoxVolumeNavigator @Inject constructor(
 
     override fun navigateTo(path: BoxPath, action: (BoxPath, BoxNavigation) -> Unit): BoxNavigation =
         if (path is BoxPath.Root || path.name == "") {
-            root
+            root.apply { refresh() }
         } else {
             val parent = navigateTo(path.parent, action)
+            if (parent !== root) { parent.refresh() }
             action(path, parent)
             parent.navigate(path.name)
         }

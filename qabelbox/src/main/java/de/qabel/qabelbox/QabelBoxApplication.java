@@ -7,6 +7,8 @@ import android.content.IntentFilter;
 import android.support.multidex.MultiDex;
 import android.util.Log;
 
+import com.google.firebase.analytics.FirebaseAnalytics;
+
 import org.spongycastle.jce.provider.BouncyCastleProvider;
 
 import java.security.Security;
@@ -68,6 +70,11 @@ public class QabelBoxApplication extends Application {
         Log.d(TAG, "onCreate");
         this.ApplicationComponent = initialiseInjector();
         mInstance = this;
+        try{
+            FirebaseAnalytics.getInstance(this).setAnalyticsCollectionEnabled(false);
+        }
+        catch(Exception ignored){
+        }
     }
 
     protected ApplicationComponent initialiseInjector() {

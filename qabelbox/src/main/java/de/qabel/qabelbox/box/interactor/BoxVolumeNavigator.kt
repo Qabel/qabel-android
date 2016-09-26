@@ -30,6 +30,7 @@ class BoxVolumeNavigator @Inject constructor(
             root
         } else {
             val parent = navigateTo(path.parent, action)
+            parent.refresh()
             action(path, parent)
             parent.navigate(path.name)
         }

@@ -402,4 +402,5 @@ You can find more information on https://qabel.de/en
     <string name="conversations_empty">no recent conversations</string>
     <string name="index_search">Search for contacts</string>
     <string name="index_search_hint">Enter a phone number or email address</string>
+    <string name="upgrade">Get more space</string>
 </resources>

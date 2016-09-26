@@ -24,6 +24,10 @@
             android:icon="@drawable/heart"
             android:title="@string/action_tellafriend"/>
         <item
+            android:id="@+id/nav_upgrade"
+            android:icon="@drawable/heart"
+            android:title="@string/upgrade"/>
+        <item
             android:id="@+id/nav_about"
             android:icon="@drawable/information"
             android:title="@string/action_about"/>

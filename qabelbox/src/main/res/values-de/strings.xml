@@ -360,4 +360,5 @@ Mehr Infos finden Sie unter https://qabel.de
     <string name="conversations_empty">Keine laufenden Unterhaltungen verfügbar</string>
     <string name="index_search">Suche nach Kontakten</string>
     <string name="index_search_hint">Geben Sie eine Telefonnummer oder Email-Adresse ein</string>
+    <string name="upgrade">Mehr Speicher</string>
 </resources>

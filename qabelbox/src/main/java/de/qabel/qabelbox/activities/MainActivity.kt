@@ -62,10 +62,7 @@ import de.qabel.qabelbox.settings.SettingsActivity
 import de.qabel.qabelbox.sync.FirebaseTopicManager
 import de.qabel.qabelbox.sync.TopicManager
 import de.qabel.qabelbox.util.ShareHelper
-import org.jetbrains.anko.AnkoLogger
-import org.jetbrains.anko.ctx
-import org.jetbrains.anko.info
-import org.jetbrains.anko.toast
+import org.jetbrains.anko.*
 import javax.inject.Inject
 
 class MainActivity : CrashReportingActivity(),
@@ -450,10 +447,17 @@ class MainActivity : CrashReportingActivity(),
             withIcon(R.drawable.settings)
             withSelectable(false)
         }
+        val upgrade = SecondaryDrawerItem().apply {
+            withIdentifier(R.id.nav_upgrade.toLong())
+            withName(R.string.upgrade)
+            withIcon(R.drawable.plus_circle)
+            withSelectable(false)
+        }
         val tellAFriend = SecondaryDrawerItem().apply {
             withIdentifier(R.id.nav_tellafriend.toLong())
             withName(R.string.action_tellafriend)
             withIcon(R.drawable.heart)
+            withSelectable(false)
         }
         val about = SecondaryDrawerItem().apply {
             withIdentifier(R.id.nav_about.toLong())
@@ -475,6 +479,7 @@ class MainActivity : CrashReportingActivity(),
             )
             addStickyDrawerItems(
                     settings,
+                    upgrade,
                     tellAFriend,
                     about,
                     help)
@@ -487,6 +492,7 @@ class MainActivity : CrashReportingActivity(),
                         val intent = Intent(this@MainActivity, SettingsActivity::class.java)
                         startActivityForResult(intent, REQUEST_SETTINGS)
                     }
+                    upgrade -> browse(getString(R.string.upgradeHomepage))
                     tellAFriend -> ShareHelper.tellAFriend(this@MainActivity)
                     about -> navigator.selectAboutFragment()
                     help -> navigator.selectHelpFragment()

@@ -5,6 +5,7 @@ import android.net.Uri
 import android.os.Bundle
 import android.provider.DocumentsContract
 import android.support.v7.widget.LinearLayoutManager
+import android.text.InputType
 import android.view.*
 import com.cocosw.bottomsheet.BottomSheet
 import de.qabel.box.storage.exceptions.QblStorageException
@@ -24,6 +25,7 @@ import de.qabel.qabelbox.box.queryNameAndSize
 import de.qabel.qabelbox.dagger.components.MainActivityComponent
 import de.qabel.qabelbox.dagger.modules.FileBrowserModule
 import de.qabel.qabelbox.fragments.BaseFragment
+import de.qabel.qabelbox.ui.extensions.showEnterTextDialog
 import kotlinx.android.synthetic.main.fragment_files.*
 import org.jetbrains.anko.*
 import java.io.FileNotFoundException
@@ -342,24 +344,11 @@ class FileBrowserFragment : FileBrowserView, BaseFragment(), AnkoLogger {
         }
     }
 
-    private fun createFolderDialog() {
-        UI {
-            alert(R.string.create_folder) {
-                customView {
-                    verticalLayout {
-                        val folderName = editText {
-                            hint = ctx.getString(R.string.add_folder_name)
-                        }
-                        positiveButton(R.string.ok) {
-                            presenter.createFolder(
-                                    BrowserEntry.Folder(folderName.text.toString()))
-                        }
-                        negativeButton(R.string.cancel) { }
-                    }
-                }
-            }.show()
-        }
-    }
+    private fun createFolderDialog() =
+            showEnterTextDialog(R.string.create_folder,
+                    R.string.add_folder_name, InputType.TYPE_CLASS_TEXT, {
+                presenter.createFolder(BrowserEntry.Folder(it))
+            })
 
     override fun onPause() {
         bottomSheet?.dismiss()

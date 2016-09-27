@@ -9,7 +9,7 @@
 
     <!--please don't change the order or count, it is references from WebViewHelperFragment with int-->
     <string-array name="help_headlines">
-        <item>Datensckutzerklärung</item>
+        <item>Datenschutzerklärung</item>
         <item>AGB</item>
         <item>Impressum</item>
     </string-array>

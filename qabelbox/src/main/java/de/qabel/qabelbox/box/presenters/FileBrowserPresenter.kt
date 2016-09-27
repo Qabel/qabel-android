@@ -24,5 +24,8 @@ interface FileBrowserPresenter {
     fun navigateUp()
 
     fun shareToContact(entry: BrowserEntry.File, contact: Contact)
+
+    fun unShareFile(entry: BrowserEntry.File)
+
 }
 

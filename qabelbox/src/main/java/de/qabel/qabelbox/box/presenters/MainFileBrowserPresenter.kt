@@ -109,6 +109,7 @@ class MainFileBrowserPresenter @Inject constructor(
 
 
     override fun unShareFile(entry: File) {
+        view.refreshStart()
         sharer.revokeFileShare(path / entry.name).subscribe({
             onRefresh()
         }, {

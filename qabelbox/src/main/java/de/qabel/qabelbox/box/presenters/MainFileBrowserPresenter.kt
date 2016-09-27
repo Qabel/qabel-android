@@ -20,8 +20,9 @@ class MainFileBrowserPresenter @Inject constructor(
         private val useCase: FileBrowser,
         private val sharer: Sharer,
         private val identity: Identity,
-        private val navigator: Navigator):
+        private val navigator: Navigator) :
         FileBrowserPresenter {
+
     override fun navigateUp() {
         path = path.parent
         onRefresh()
@@ -50,7 +51,7 @@ class MainFileBrowserPresenter @Inject constructor(
     }
 
 
-    private fun withDocumentId(file: File, callback: (DocumentId)  -> Unit) {
+    private fun withDocumentId(file: File, callback: (DocumentId) -> Unit) {
         useCase.asDocumentId(path * file.name).subscribe {
             callback(it)
         }
@@ -85,7 +86,7 @@ class MainFileBrowserPresenter @Inject constructor(
     }
 
     override fun onClick(entry: BrowserEntry) {
-        when(entry) {
+        when (entry) {
             is Folder -> {
                 path /= entry.name
                 onRefresh()
@@ -103,7 +104,17 @@ class MainFileBrowserPresenter @Inject constructor(
         view.refreshStart()
         sharer.sendFileShare(contact, path / entry.name).subscribe({
             navigator.selectContactChat(contact.keyIdentifier, identity)
-        },{ view.showError(it)})
+        }, { view.showError(it) })
+    }
+
+
+    override fun unShareFile(entry: File) {
+        sharer.revokeFileShare(path / entry.name).subscribe({
+            onRefresh()
+        }, {
+            view.showError(it)
+            onRefresh()
+        })
     }
 
 }

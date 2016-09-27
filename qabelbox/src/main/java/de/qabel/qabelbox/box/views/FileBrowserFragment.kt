@@ -32,7 +32,7 @@ import java.net.URLConnection
 import java.util.*
 import javax.inject.Inject
 
-class FileBrowserFragment: FileBrowserView, BaseFragment(), AnkoLogger {
+class FileBrowserFragment : FileBrowserView, BaseFragment(), AnkoLogger {
     companion object {
         fun newInstance() = FileBrowserFragment()
         val REQUEST_OPEN_FILE = 0
@@ -66,19 +66,20 @@ class FileBrowserFragment: FileBrowserView, BaseFragment(), AnkoLogger {
             savedInstanceState.getString(KEY_EXPORT_DOCUMENT_ID, null)?.let {
                 try {
                     exportDocumentId = it.toDocumentId()
-                } catch (ignored: QblStorageException) {}
+                } catch (ignored: QblStorageException) {
+                }
             }
         }
 
         adapter = FileAdapter(mutableListOf(),
-                click = { presenter.onClick(it) }, longClick = { openBottomSheet(it)}
+                click = { presenter.onClick(it) }, longClick = { openBottomSheet(it) }
         )
 
         files_list.layoutManager = LinearLayoutManager(ctx)
         files_list.adapter = adapter
         swipeRefresh.isEnabled = false
 
-        if (! (mActivity?.TEST ?: false)) {
+        if (!(mActivity?.TEST ?: false)) {
             presenter.onRefresh()
         }
     }
@@ -109,22 +110,29 @@ class FileBrowserFragment: FileBrowserView, BaseFragment(), AnkoLogger {
     private var bottomSheet: BottomSheet? = null
 
     fun openBottomSheet(entry: BrowserEntry) {
-        val (icon, sheet) = when(entry) {
+        val (icon, sheet) = when (entry) {
             is BrowserEntry.File -> Pair(R.drawable.file, R.menu.bottom_sheet_files)
             is BrowserEntry.Folder -> Pair(R.drawable.folder, R.menu.bottom_sheet_folder)
         }
         bottomSheet?.dismiss()
         bottomSheet = BottomSheet.Builder(activity).title(entry.name).icon(icon).sheet(sheet).listener {
             dialogInterface, menu_id ->
-            when(entry) {
+            when (entry) {
                 is BrowserEntry.File -> when (menu_id) {
                     R.id.share -> presenter.share(entry)
+                    R.id.unshare -> presenter.unShareFile(entry)
                     R.id.delete -> presenter.delete(entry)
                     R.id.export -> presenter.export(entry)
                     R.id.forward -> chooseContact(entry)
                 }
                 is BrowserEntry.Folder -> when (menu_id) {
                     R.id.delete -> presenter.deleteFolder(entry)
+                }
+            }
+        }.apply {
+            if (entry is BrowserEntry.File) {
+                if (!entry.sharedTo.isNotEmpty()) {
+                    this.remove(R.id.unshare)
                 }
             }
         }.show()
@@ -135,7 +143,6 @@ class FileBrowserFragment: FileBrowserView, BaseFragment(), AnkoLogger {
         return inflater?.inflate(R.layout.fragment_files, container, false)
                 ?: throw IllegalStateException("Could not create view")
     }
-
 
 
     override fun showEntries(entries: List<BrowserEntry>) {
@@ -193,11 +200,11 @@ class FileBrowserFragment: FileBrowserView, BaseFragment(), AnkoLogger {
 
     private fun upload(fileUri: Uri) {
         try {
-            with (ctx.contentResolver) {
+            with(ctx.contentResolver) {
                 val (filename, size) = queryNameAndSize(fileUri)
                 toast("Uploading $filename with size $size")
                 presenter.upload(BrowserEntry.File(filename, size, Date()),
-                                 openInputStream(fileUri))
+                        openInputStream(fileUri))
             }
         } catch (e: FileNotFoundException) {
             toast(R.string.upload_failed)
@@ -225,7 +232,7 @@ class FileBrowserFragment: FileBrowserView, BaseFragment(), AnkoLogger {
     }
 
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
-        when(item?.itemId) {
+        when (item?.itemId) {
             R.id.menu_refresh -> presenter.onRefresh()
             R.id.menu_up -> presenter.navigateUp()
             else -> return false

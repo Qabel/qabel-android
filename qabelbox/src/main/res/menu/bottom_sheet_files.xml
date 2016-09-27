@@ -5,6 +5,10 @@
         android:title="@string/ShareToQabelUser"
         android:icon="@drawable/account_multiple"/>
     <item
+        android:id="@+id/unshare"
+        android:title="@string/Unshare"
+        android:icon="@drawable/account_multiple_minus"/>
+    <item
         android:id="@+id/share"
         android:title="@string/Send"
         android:icon="@drawable/share_variant"/>

@@ -388,7 +388,7 @@ You can find more information on https://qabel.de/en
     <string name="feedback">Feedback</string>
     <string name="confirm_exit">Press back once more to exit</string>
     <string name="qabel_index" translatable="false">Qabel-Index</string>
-    <string name="qabel_index_text">Please enter a phonenumber or e-mail address if you want to be found by others Qabel users.</string>
+    <string name="qabel_index_text">Extend your identity with a phonenumber or e-mail address if you want to be found by others Qabel users.</string>
     <string name="edit_identity">Edit identity</string>
     <string name="phone_number">Your phone number</string>
     <string name="optional">optional</string>

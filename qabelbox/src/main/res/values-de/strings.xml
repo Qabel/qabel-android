@@ -341,7 +341,7 @@ Mehr Infos finden Sie unter https://qabel.de
     <string name="feedback">Feedback</string>
     <string name="action_tellafriend">Einladung senden</string>
     <string name="edit_identity">Identität bearbeiten</string>
-    <string name="qabel_index_text">Bitte geben Sie hier eine Telefonnummer oder E-Mail-Adresse ein, wenn Sie von anderen Qabelusern gefunden werden möchten. \"</string>
+    <string name="qabel_index_text">Ergänzen Sie Ihre Identität mit einer Telefonnummer oder E-Mail-Adresse, wenn Sie von anderen Qabelusern gefunden werden möchten. \"</string>
     <string name="phone_number">Ihre Telefonnummer</string>
     <string name="confirm_exit">Drücken sie noch einmal zurück um die Anwendung zu beenden</string>
     <string name="create_identity_enter_email">Bitte geben Sie hier eine gültige E-Mail-Adresse ein, wenn Sie von anderen Qabelusern gefunden werden möchten. Diese E-Mail-Adresse wird im Qabel Index, dem öffentlichen Kontaktverzeichnis für Qabeluser, veröffentlicht. So können Sie gefunden werden. Wünschen Sie dies nicht, überspringen Sie diesen Punkt einfach mit \"Weiter\". Sie können Ihre E-Mail-Adresse auch nachträglich der Identität hinzufügen.  Zur Bestätigung Ihrer E-Mail-Adresse senden wir Ihnen eine E-Mail an die genannte Adresse.</string>

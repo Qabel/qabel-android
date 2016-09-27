@@ -45,8 +45,8 @@ android {
         add code to automatically generate version name and code,
         on base of timestamp or change it manual*/
 
-        versionCode System.getenv("BUILD_NUMBER") as Integer ?: 9
-        versionName "0.9." + (System.getenv("BUILD_NUMBER") as Integer ?: 0)
+        versionCode System.getenv("BUILD_NUMBER") as Integer ?: 10
+        versionName "0.9." + (System.getenv("BUILD_NUMBER") as Integer ?: 1)
         testInstrumentationRunner "de.qabel.qabelbox.QblJUnitRunner"
 
         testApplicationId "de.qabel.test"
@@ -170,7 +170,7 @@ tasks.withType(Test) {
     systemProperty 'java.library.path', 'libs/'
 }
 
-def coreVersion = '0.25.1'
+def coreVersion = '0.25.3'
 def repo = 'Qabel'
 dependencies {
     sourceCompatibility = JavaVersion.VERSION_1_7

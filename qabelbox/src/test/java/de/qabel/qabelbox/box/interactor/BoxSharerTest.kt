@@ -67,7 +67,7 @@ class BoxSharerTest {
                 BoxFileBrowser.KeyAndPrefix(identity.keyIdentifier, prefix),
                 volume, mock())
         chatService = mock()
-        sharer = BoxSharer(useCase, chatService, identity, storage)
+        sharer = BoxSharer(useCase, chatService, identity, mock(), mock())
     }
 
     @Test
@@ -99,6 +99,6 @@ class BoxSharerTest {
 
     private fun share() {
         useCase.upload(path, samplePayload.toUploadSource(sample)).waitFor()
-        sharer.sendFileShare(contact, path)
+        sharer.sendFileShare(contact, path).waitFor()
     }
 }

@@ -45,8 +45,8 @@ android {
         add code to automatically generate version name and code,
         on base of timestamp or change it manual*/
 
-        versionCode System.getenv("BUILD_NUMBER") as Integer ?: 8
-        versionName "0.7." + (System.getenv("BUILD_NUMBER") as Integer ?: 1)
+        versionCode System.getenv("BUILD_NUMBER") as Integer ?: 9
+        versionName "0.7." + (System.getenv("BUILD_NUMBER") as Integer ?: 0)
         testInstrumentationRunner "de.qabel.qabelbox.QblJUnitRunner"
 
         testApplicationId "de.qabel.test"
@@ -77,10 +77,12 @@ android {
             resValue 'string', 'app_name', '"Qabel"'
             buildConfigField "String", "ACCOUNT_TYPE", "\"de.qabel.qabel.account\""
             buildConfigField "String", "AUTHORITY", "\"de.qabel.qabel.providers.internal\""
+            buildConfigField "String", "INDEX_AUTHORITY", "\"de.qabel.qabel.providers.index\""
 
             //Reference them in .xml files.
             resValue "string", "account_type", "de.qabel.qabel.account"
             resValue "string", "authority", "de.qabel.qabel.providers.internal"
+            resValue "string", "index_authority", "de.qabel.qabel.providers.index"
         }
         debug {
             applicationIdSuffix ".debug"

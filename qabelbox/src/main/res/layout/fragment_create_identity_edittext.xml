@@ -20,10 +20,9 @@
         style="@style/ListSecondTextLine"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/default_space"
-        android:gravity="center"
-        android:maxLength="100"
-        android:minLines="2"
+        android:layout_margin="@dimen/default_space"
+        android:gravity="top"
+        android:maxLines="12"
         android:layout_marginBottom="@dimen/activity_vertical_margin"
         android:text="@string/create_identity_enter_name" />
 

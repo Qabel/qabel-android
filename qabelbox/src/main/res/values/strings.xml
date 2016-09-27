@@ -53,9 +53,9 @@
     <string name="headline_contacts">Contacts</string>
     <string name="headline_identities">Identities</string>
     <string name="headline_select_upload_folder">Select upload folder</string>
-    <string name="create_identity_enter_name">Enter a name for your identity, for example \'Jane\' or \'Forumtroll\'</string>
-    <string name="create_identity_enter_phone">Enter a phone number to be found by other qabel users</string>
-    <string name="create_identity_enter_email">Enter a email-address to be found by other qabel users</string>
+    <string name="create_identity_enter_name">Please enter a name for your identity. For example, \"Jana\" or \"Forum Troll\".</string>
+    <string name="create_identity_enter_phone">Please enter a valid phone number, if you want to be found by other Qabel users. This phone number will be published on Qabel Index, the public contact directory for Qabel users. This is how you can be found. If you do not wish to be found, simply skip this step by clicking \"Next\". You can still add your phone number to your identity later.  We will send you a text message to confirm your phone number.</string>
+    <string name="create_identity_enter_email">Please enter a valid e-mail address if you want to be found by others Qabel users. This e-mail address will be published on Qabel Index, the public contact directory for Qabel users. This is how you can be found. If you do not wish to be found, simply skip this step by clicking \"Next\". You can still add your e-mail address to your identity later.  We will send you an e-mail to confirm your e-mail address.</string>
     <string name="next">Next</string>
     <string name="skip">Skip</string>
     <string name="create_identity_successful">Identity created</string>
@@ -93,7 +93,7 @@
     <string name="email_hint">Your E-Mail</string>
     <string name="create_account_passwords_dont_match">Your entered passwords don\'t match. Please enter the same password in both fields</string>
     <string name="create_account_final">Your Qabel account is now available.</string>
-    <string name="create_identity_final_text">Please keep in mind that your identity is only available on this device and we don\'t have any copies on our servers. Export your Identity and keep it save. With it you can get access to your data on other devices.</string>
+    <string name="create_identity_final_text">Please note that your identity is only stored to this device. Qabel or third parties do not have copies on their servers.  Please backup your identity as .qid and store it safely. The identity with the ending .qid contains the private key of your identity and should not be disclosed.</string>
     <string name="filebrowser">Files</string>
     <string name="settings_headline_boxaccount">Qabel account</string>
     <string name="headline_settings">Settings</string>
@@ -388,17 +388,17 @@ You can find more information on https://qabel.de/en
     <string name="feedback">Feedback</string>
     <string name="confirm_exit">Press back once more to exit</string>
     <string name="qabel_index" translatable="false">Qabel-Index</string>
-    <string name="qabel_index_text">Add a phone number and e-mail to your identity to be found by other qabel users</string>
+    <string name="qabel_index_text">Please enter a phonenumber or e-mail address if you want to be found by others Qabel users.</string>
     <string name="edit_identity">Edit identity</string>
     <string name="phone_number">Your phone number</string>
     <string name="optional">optional</string>
-    <string name="phone_number_request_info">If you grant us access to your phone, we can try to read your phone number. You can also enter it manually or use Qabel without a phone number.</string>
-    <string name="contacts_read_request_info">Qabel requires read access to your contacts to show you which one of them also is Qabel user.</string>
+    <string name="phone_number_request_info">If you click \"Yes\", you grant Qabel automatic access to your phone number. You can also enter your phone number manually or use Qabel without your phone number. In this case, please click \"No\".</string>
+    <string name="contacts_read_request_info">Qabel is asking for access to your contacts to show you which of your contacts are also using Qabe. This step is optional. You can also search for phone numbers and e-mail addresses manually.</string>
     <string name="cannot_read_phone_number">Failed to read phone number</string>
     <string name="android_contact_sync">Automatic contact search</string>
     <string name="android_contact_sync_text">The Qabel client is searching periodically by known phone numbers and emails to find Qabel contacts.</string>
     <string name="private_identity">Private</string>
-    <string name="private_identity_text">Mark an identity as private to prevent uploading public informations. Note: Other qabel users cant find your identity by phone or mail if the identity is private!</string>
+    <string name="private_identity_text">Tag an identity as private to prevent that any information about your identity is published on the Qabel Index. Qabel Index is the public contact directory for Qabel users. Note: If you tag your identity as private, other Qabel users cannot find your contact details via your phone number or your e-mail address.  To confirm your e-mail address/telephone number, we will send you an e-mail/text message to the respective address/number.</string>
     <string name="conversations_empty">no recent conversations</string>
     <string name="unknown">unkown</string>
     <string name="index_search">Search for contacts</string>

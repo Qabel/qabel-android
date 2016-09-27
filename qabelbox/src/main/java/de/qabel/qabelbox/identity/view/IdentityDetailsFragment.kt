@@ -107,14 +107,14 @@ class IdentityDetailsFragment() : IdentityDetailsView, BaseFragment(), AnkoLogge
             }, current)
 
     override fun showEnterEmailDialog(current: String) =
-            showEnterTextDialog(R.string.create_identity_enter_email,
+            showEnterTextDialog(R.string.email_hint,
                     R.string.email_hint, InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS, {
                 email ->
                 presenter.onSaveEmail(email)
             }, current, R.string.qabel_index_text)
 
     override fun showEnterPhoneDialog(current: String) =
-            showEnterTextDialog(R.string.create_identity_enter_phone, R.string.phone_number,
+            showEnterTextDialog(R.string.phone_number, R.string.phone_number,
                     InputType.TYPE_CLASS_PHONE, {
                 phone ->
                 presenter.onSavePhoneNumber(phone)

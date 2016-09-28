@@ -19,11 +19,9 @@ import de.qabel.qabelbox.chat.view.adapters.ChatOverviewAdapter
 import de.qabel.qabelbox.chat.view.presenters.ChatOverviewPresenter
 import de.qabel.qabelbox.dagger.components.MainActivityComponent
 import de.qabel.qabelbox.fragments.BaseFragment
-import de.qabel.qabelbox.helper.Helper
 import kotlinx.android.synthetic.main.fragment_contacts.*
 import org.jetbrains.anko.AnkoLogger
 import org.jetbrains.anko.ctx
-import org.jetbrains.anko.debug
 import org.jetbrains.anko.onUiThread
 import javax.inject.Inject
 

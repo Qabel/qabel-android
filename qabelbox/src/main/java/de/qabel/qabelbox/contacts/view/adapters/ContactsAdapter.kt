@@ -3,6 +3,7 @@ package de.qabel.qabelbox.contacts.view.adapters
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import de.qabel.core.ui.displayName
 import de.qabel.qabelbox.R
 import de.qabel.qabelbox.contacts.dto.ContactDto
 import de.qabel.qabelbox.contacts.view.adapters.ContactsViewHolder
@@ -30,19 +31,20 @@ class ContactsAdapter(val clickListener: (ContactDto) -> Unit,
     private var sectionCount = 0;
 
     fun refresh(data: List<ContactDto>) {
-        var sectionName: Char? = null;
-        sectionCount = 0;
-        listItems.clear();
-        var sorted = data.toSortedSet(
-                Comparator { t, t2 -> t.contact.alias.compareTo(t2.contact.alias, true) });
+        var sectionName: Char? = null
+        sectionCount = 0
+        listItems.clear()
+        val sorted = data.toSortedSet(Comparator { t, t2 ->
+            t.contact.displayName().compareTo(t2.contact.displayName(), true) })
+
         sorted.forEach { contact ->
-            val section = contact.contact.alias.first().toUpperCase();
-            if (sectionName == null || !section.equals(sectionName)) {
+            val section = contact.contact.displayName().first().toUpperCase()
+            if (sectionName == null || section != sectionName) {
                 listItems.add(HeaderListItem(section))
-                sectionName = section;
-                sectionCount.inc();
+                sectionName = section
+                sectionCount.inc()
             }
-            listItems.add(ContactListItem(contact));
+            listItems.add(ContactListItem(contact))
         }
     }
 

@@ -18,11 +18,9 @@ import de.qabel.qabelbox.ui.helper.SystemAnimations
 import de.qabel.qabelbox.ui.helper.UIActionHelper
 import de.qabel.qabelbox.ui.helper.UIBoxHelper
 import de.qabel.qabelbox.ui.helper.UITestHelper
-import org.junit.After
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
+import org.junit.*
 
+@Ignore("Pushes identities to the index server")
 class CreateIdentityUITest : UITest {
 
     @Rule

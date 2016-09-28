@@ -136,7 +136,8 @@ class CreateIdentityUITest : UITest {
             onViewVisibleText(phone)
         }
 
-        performClickText(string.finish)
+        // this sends the identity to the index server
+        //performClickText(string.finish)
     }
 }
 

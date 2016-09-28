@@ -45,12 +45,6 @@ class IndexSearchFragment(): IndexSearchView, BaseFragment(),
         true
     })
 
-    override fun updateQuery(query: String) {
-        onUiThread {
-            contact_search.setQuery(query, false)
-        }
-    }
-
     override fun loadData(data: List<ContactDto>) {
         onUiThread {
             contactCount?.text = getString(R.string.contact_count, data.size)

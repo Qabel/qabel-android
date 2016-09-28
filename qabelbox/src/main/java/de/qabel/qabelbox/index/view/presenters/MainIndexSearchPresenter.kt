@@ -30,9 +30,6 @@ class MainIndexSearchPresenter @Inject constructor(
             val phone = try { formatPhoneNumber(term) } catch (e: NumberParseException) { "" }
             useCase.search(term, phone).subscribe({
                 info("Index search result length: ${it.size}")
-                if (phone.isNotBlank()) {
-                    view.updateQuery(phone)
-                }
                 if (it.size > 0) {
                     view.loadData(it)
                 } else {

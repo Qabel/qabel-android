@@ -107,7 +107,7 @@ class BoxFileBrowser @Inject constructor(keyAndPrefix: KeyAndPrefix,
             observable<List<BrowserEntry>> {
                 subscriber ->
                 val nav = try {
-                    navigateTo(path).apply { reloadMetadata() }
+                    navigateTo(path).apply { refresh() }
                 } catch (e: QblStorageException) {
                     subscriber.onError(e)
                     return@observable

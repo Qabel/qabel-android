@@ -22,7 +22,6 @@ import de.qabel.qabelbox.fragments.BaseFragment
 import kotlinx.android.synthetic.main.fragment_contacts.*
 import org.jetbrains.anko.AnkoLogger
 import org.jetbrains.anko.ctx
-import org.jetbrains.anko.debug
 import org.jetbrains.anko.onUiThread
 import javax.inject.Inject
 
@@ -61,12 +60,9 @@ class ChatOverviewFragment() : ChatOverview, BaseFragment(), AnkoLogger {
     }
 
     private val broadcastReceiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context?, intent: Intent?) {
+        override fun onReceive(context: Context?, intent: Intent) {
             if (injectCompleted) {
                 presenter.refresh()
-                if (isOrderedBroadcast) {
-                    abortBroadcast()
-                }
             }
         }
     }

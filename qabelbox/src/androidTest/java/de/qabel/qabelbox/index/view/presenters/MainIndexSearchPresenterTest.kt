@@ -21,10 +21,6 @@ class MainIndexSearchPresenterTest {
 
         var updated: String = ""
 
-        override fun updateQuery(query: String) {
-            updated = query
-        }
-
         val searchSubject: BehaviorSubject<String> = BehaviorSubject.create()
 
         override var searchString: Observable<String> = searchSubject
@@ -52,7 +48,6 @@ class MainIndexSearchPresenterTest {
         Mockito.stub(useCase.search(Mockito.anyString(), Mockito.anyString())).toReturn(
                 emptyList<ContactDto>().toSingletonObservable())
         view.searchSubject.onNext(phone)
-        assertThat(view.updated, equalTo("+4919912345678"))
     }
 
     @Test

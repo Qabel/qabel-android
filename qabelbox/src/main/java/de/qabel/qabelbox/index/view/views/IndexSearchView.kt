@@ -10,7 +10,6 @@ interface IndexSearchView {
     fun loadData(data: List<ContactDto>)
     fun showEmpty()
     fun showError(error: Throwable)
-    fun updateQuery(query: String)
 
 }
 

@@ -18,11 +18,9 @@ import de.qabel.qabelbox.ui.helper.SystemAnimations
 import de.qabel.qabelbox.ui.helper.UIActionHelper
 import de.qabel.qabelbox.ui.helper.UIBoxHelper
 import de.qabel.qabelbox.ui.helper.UITestHelper
-import org.junit.After
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
+import org.junit.*
 
+@Ignore("Pushes identities to the index server")
 class CreateIdentityUITest : UITest {
 
     @Rule
@@ -68,7 +66,7 @@ class CreateIdentityUITest : UITest {
         val name = "spoon2"
         val phone = "+49 234567890"
         val phoneFormatted = "+49 234 567890"
-        val mail = "mail@test.de"
+        val mail = "mail@example.com"
         createIdentityPerformEnterName(name)
         createIdentityEnterEmail(mail)
         createIdentityEnterPhone(phone)
@@ -78,7 +76,7 @@ class CreateIdentityUITest : UITest {
     @Test
     fun testCreateIdentityOptionals() {
         val name = "spoon2"
-        val mail = "mail@test.de"
+        val mail = "mail@example.com"
         createIdentityPerformEnterName(name)
         createIdentityEnterEmail(mail)
         //Ignore phone number
@@ -136,7 +134,8 @@ class CreateIdentityUITest : UITest {
             onViewVisibleText(phone)
         }
 
-        performClickText(string.finish)
+        // this sends the identity to the index server
+        //performClickText(string.finish)
     }
 }
 

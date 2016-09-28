@@ -68,7 +68,7 @@ class CreateIdentityUITest : UITest {
         val name = "spoon2"
         val phone = "+49 234567890"
         val phoneFormatted = "+49 234 567890"
-        val mail = "mail@test.de"
+        val mail = "mail@example.com"
         createIdentityPerformEnterName(name)
         createIdentityEnterEmail(mail)
         createIdentityEnterPhone(phone)
@@ -78,7 +78,7 @@ class CreateIdentityUITest : UITest {
     @Test
     fun testCreateIdentityOptionals() {
         val name = "spoon2"
-        val mail = "mail@test.de"
+        val mail = "mail@example.com"
         createIdentityPerformEnterName(name)
         createIdentityEnterEmail(mail)
         //Ignore phone number

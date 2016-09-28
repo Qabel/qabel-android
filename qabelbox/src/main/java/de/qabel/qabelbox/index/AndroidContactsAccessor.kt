@@ -18,8 +18,10 @@ class AndroidContactsAccessor(private val context: Context) : ExternalContactsAc
     override fun getContacts(): List<RawContact> {
         val rawContacts: MutableMap<String, RawContact> = mutableMapOf()
         val contentResolver = context.contentResolver
+        val selection =  "${ContactsContract.Contacts.IN_VISIBLE_GROUP} = ?"
+        val selectionArgs = arrayOf("1")
         contentResolver.query(ContactsContract.Contacts.CONTENT_URI,
-                null, null, null, null).use { contactCursor ->
+                null, selection, selectionArgs, null).use { contactCursor ->
             if (contactCursor.count > 0) {
                 while (contactCursor.moveToNext()) {
                     val id = contactCursor.getString(ContactsContract.Contacts._ID)

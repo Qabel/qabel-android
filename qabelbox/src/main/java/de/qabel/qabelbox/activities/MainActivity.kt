@@ -546,6 +546,7 @@ class MainActivity : CrashReportingActivity(),
                 withName(identity.alias)
                 withEmail(identity.email)
                 withIcon(identityIcon(identity))
+                withNameShown(true)
             }, identity)
         }.toMap()
         val activeIdentityItem = ProfileDrawerItem().apply {

@@ -5,9 +5,7 @@ import com.natpryce.hamkrest.assertion.assertThat
 import com.natpryce.hamkrest.equalTo
 import com.natpryce.hamkrest.should.shouldMatch
 import com.nhaarman.mockito_kotlin.whenever
-import de.qabel.qabelbox.util.waitFor
 import rx.Observable
-import rx.lang.kotlin.onError
 import java.util.concurrent.TimeUnit
 
 
@@ -17,17 +15,20 @@ infix fun <T> T.eq(thing: T) {
     assertThat(this, equalTo(thing))
 }
 
+
+fun <T> Observable<T>.defaultTimeout() = timeout(100, TimeUnit.MILLISECONDS)
+
 infix fun <T> Observable<T>.evalsTo(thing: T) {
-    assertThat(this.toBlocking().first(), equalTo(thing))
+    assertThat(this.defaultTimeout().toBlocking().first(), equalTo(thing))
 }
 
 infix fun <T> Observable<T>.matches(matcher: Matcher<T>) {
-    assertThat(this.toBlocking().first(), matcher)
+    assertThat(this.defaultTimeout().toBlocking().first(), matcher)
 }
 
 infix fun <T> Observable<T>.errorsWith(error: Throwable) {
     var e : Throwable? = null
-    this.timeout(100, TimeUnit.MILLISECONDS).toBlocking().subscribe({}, { e = it})
+    this.defaultTimeout().toBlocking().subscribe({}, { e = it})
     e eq error
 }
 

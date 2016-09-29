@@ -111,7 +111,12 @@ public class ChangeBoxAccountPasswordFragment extends Fragment {
             @Override
             protected void onError(Exception e, @Nullable Response response) {
                 dialog.dismiss();
-                Toast.makeText(getActivity(), R.string.server_access_failed_or_invalid_check_internet_connection, Toast.LENGTH_LONG).show();
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(getActivity(), R.string.server_access_failed_or_invalid_check_internet_connection, Toast.LENGTH_LONG).show();
+                    }
+                });
             }
 
             @Override

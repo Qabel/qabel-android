@@ -393,7 +393,7 @@ You can find more information on https://qabel.de/en
     <string name="phone_number">Your phone number</string>
     <string name="optional">optional</string>
     <string name="phone_number_request_info">If you click \"Yes\", you grant Qabel automatic access to your phone number. You can also enter your phone number manually or use Qabel without your phone number. In this case, please click \"No\".</string>
-    <string name="contacts_read_request_info">Qabel is asking for access to your contacts to show you which of your contacts are also using Qabe. This step is optional. You can also search for phone numbers and e-mail addresses manually.</string>
+    <string name="contacts_read_request_info">Qabel is asking for access to your contacts to show you which of your contacts are also using Qabel. This step is optional. You can also search for phone numbers and e-mail addresses manually.</string>
     <string name="cannot_read_phone_number">Failed to read phone number</string>
     <string name="android_contact_sync">Automatic contact search</string>
     <string name="android_contact_sync_text">The Qabel client is searching periodically by known phone numbers and emails to find Qabel contacts.</string>

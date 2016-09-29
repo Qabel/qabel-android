@@ -5,6 +5,6 @@
     android:layout_height="wrap_content"
     android:layout_gravity="start|top"
     android:textIsSelectable="true"
-    android:autoLink="web"
+    android:autoLink="all"
     android:linksClickable="true"
     android:textColor="@color/white" />

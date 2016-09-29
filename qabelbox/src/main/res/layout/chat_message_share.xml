@@ -21,6 +21,7 @@
                 android:layout_gravity="center_horizontal"
                 android:background="@drawable/file"
                 tools:ignore="ContentDescription" />
+
             <ImageView
                 android:id="@+id/messageFilePreview"
                 android:layout_width="match_parent"
@@ -49,11 +50,14 @@
             android:visibility="gone" />
     </FrameLayout>
 
-    <de.qabel.qabelbox.ui.views.TextViewFont xmlns:android="http://schemas.android.com/apk/res/android"
+    <de.qabel.qabelbox.ui.views.TextViewFont
         android:id="@+id/message"
         style="@style/ListSecondTextLine"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="start"
-        android:textColor="@color/white" />
+        android:autoLink="all"
+        android:linksClickable="true"
+        android:textColor="@color/white"
+        android:textIsSelectable="true" />
 </LinearLayout>

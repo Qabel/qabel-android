@@ -28,6 +28,7 @@ import de.qabel.chat.repository.ChatDropMessageRepository
 import de.qabel.core.config.Identity
 import de.qabel.core.repository.ContactRepository
 import de.qabel.core.repository.IdentityRepository
+import de.qabel.core.repository.exception.PersistenceException
 import de.qabel.core.ui.initials
 import de.qabel.qabelbox.QblBroadcastConstants.*
 import de.qabel.qabelbox.R
@@ -263,7 +264,7 @@ class MainActivity : CrashReportingActivity(),
     }
 
     fun installConnectivityManager() {
-        connectivityManager.setListener(object : ConnectivityManager.ConnectivityListener {
+        connectivityManager.listener = (object : ConnectivityManager.ConnectivityListener {
 
             private var offlineIndicator: AlertDialog? = null
 

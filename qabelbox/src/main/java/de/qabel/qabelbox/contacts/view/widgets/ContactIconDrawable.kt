@@ -2,6 +2,7 @@ package de.qabel.qabelbox.contacts.view.widgets
 
 import android.graphics.*
 import android.graphics.drawable.Drawable
+import android.os.Build
 
 
 class ContactIconDrawable(var colors: List<Int>) : Drawable() {
@@ -17,8 +18,10 @@ class ContactIconDrawable(var colors: List<Int>) : Drawable() {
         var current = space / 2f;
         for (i in 0 until colors.size) {
             backgroundPaint.color = colors[i];
-            canvas?.drawArc(bounds.left.toFloat(), bounds.top.toFloat(), bounds.right.toFloat(),
-                    bounds.bottom.toFloat(), current, eachDegrees, true, backgroundPaint);
+            if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                canvas?.drawArc(bounds.left.toFloat(), bounds.top.toFloat(), bounds.right.toFloat(),
+                        bounds.bottom.toFloat(), current, eachDegrees, true, backgroundPaint);
+            }
             current = current.plus(eachDegrees).plus(if (i < colors.size.dec()) space.toFloat() else (space / 2).toFloat());
         }
     }

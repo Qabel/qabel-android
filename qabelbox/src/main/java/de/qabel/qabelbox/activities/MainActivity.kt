@@ -540,6 +540,7 @@ class MainActivity : CrashReportingActivity(),
             Pair(ProfileDrawerItem().apply {
                 withIdentifier(identity.id.toLong())
                 withName(identity.alias)
+                withEmail(identity.email)
                 withIcon(identityIcon(identity))
             }, identity)
         }.toMap()

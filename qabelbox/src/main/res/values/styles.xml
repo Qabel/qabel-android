@@ -106,6 +106,8 @@
     <style name="ListSecondTextLine">
         <item name="android:textSize">@dimen/textsize_list_second_line</item>
         <item name="android:textColor">@color/grey_text_color</item>
+        <item name="android:textColorLink">@color/welcome_button_activated</item>
+        <item name="android:textColorLinkInverse">@color/welcome_button_deactivated</item>
     </style>
 
     <style name="LicenceListSecondTextLine" parent="ListSecondTextLine">

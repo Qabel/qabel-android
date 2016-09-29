@@ -45,8 +45,8 @@ android {
         add code to automatically generate version name and code,
         on base of timestamp or change it manual*/
 
-        versionCode 12
-        versionName "0.10.1"
+        versionCode 13
+        versionName "0.10.2"
         testInstrumentationRunner "de.qabel.qabelbox.QblJUnitRunner"
 
         testApplicationId "de.qabel.test"

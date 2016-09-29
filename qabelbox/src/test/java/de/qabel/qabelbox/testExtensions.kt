@@ -8,6 +8,7 @@ import com.nhaarman.mockito_kotlin.whenever
 import de.qabel.qabelbox.util.waitFor
 import rx.Observable
 import rx.lang.kotlin.onError
+import java.util.concurrent.TimeUnit
 
 
 infix fun <T:Any> T.isEqual(expected: T) = this shouldMatch equalTo(expected)
@@ -26,7 +27,7 @@ infix fun <T> Observable<T>.matches(matcher: Matcher<T>) {
 
 infix fun <T> Observable<T>.errorsWith(error: Throwable) {
     var e : Throwable? = null
-    this.toBlocking().subscribe({}, { e = it})
+    this.timeout(100, TimeUnit.MILLISECONDS).toBlocking().subscribe({}, { e = it})
     e eq error
 }
 

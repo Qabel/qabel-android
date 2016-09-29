@@ -185,7 +185,10 @@ class MainActivity : CrashReportingActivity(),
     val indexIdentityListener = IndexIdentityListener()
 
     private fun updateNewMessageBadge() {
-        val size = messageRepository.findNew(activeIdentity.id).size
+        val size = try {
+            messageRepository.findNew(activeIdentity.id).size
+        } catch (e: PersistenceException) { 0 }
+
         if (size == 0) {
             drawer.updateBadge(chats.identifier, null)
         } else {

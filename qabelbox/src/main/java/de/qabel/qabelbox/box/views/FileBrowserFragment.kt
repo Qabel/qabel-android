@@ -355,5 +355,9 @@ class FileBrowserFragment : FileBrowserView, BaseFragment(), AnkoLogger {
         super.onPause()
     }
 
+    override fun onBackPressed(): Boolean {
+        return presenter.navigateUp()
+    }
+
 }
 

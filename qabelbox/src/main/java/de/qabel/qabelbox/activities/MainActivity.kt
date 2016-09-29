@@ -375,6 +375,9 @@ class MainActivity : CrashReportingActivity(),
             fragmentManager.popBackStack()
             return
         }
+        if (activeFragment is BaseFragment && activeFragment.onBackPressed()) {
+            return
+        }
         if (backPressConfirmed()) {
             finishAffinity()
             return

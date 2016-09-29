@@ -113,9 +113,11 @@ abstract class BaseFragment : Fragment(), QblView {
 
     /**
      * handle hardware back button
+     *
+     * @return true if the event was handled
      */
-    open fun onBackPressed() {
-
+    open fun onBackPressed(): Boolean {
+        return false
     }
 
     open fun handleFABAction(): Boolean {

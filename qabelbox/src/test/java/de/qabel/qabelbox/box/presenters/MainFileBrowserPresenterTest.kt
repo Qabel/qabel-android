@@ -1,5 +1,7 @@
 package de.qabel.qabelbox.box.presenters
 
+import com.natpryce.hamkrest.equalTo
+import com.natpryce.hamkrest.should.shouldMatch
 import com.nhaarman.mockito_kotlin.*
 import de.qabel.qabelbox.box.dto.BoxPath
 import de.qabel.qabelbox.box.dto.BrowserEntry
@@ -158,8 +160,10 @@ class MainFileBrowserPresenterTest {
         stubWith(sampleFiles)
         presenter.path = BoxPath.Root / "folder"
 
-        presenter.navigateUp()
+        presenter.navigateUp() shouldMatch equalTo(true)
         verify(view).showEntries(sampleFiles)
+
+        presenter.navigateUp() shouldMatch equalTo(false)
     }
 
 }

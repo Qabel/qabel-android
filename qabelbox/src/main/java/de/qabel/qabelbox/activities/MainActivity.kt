@@ -28,6 +28,7 @@ import de.qabel.chat.repository.ChatDropMessageRepository
 import de.qabel.core.config.Identity
 import de.qabel.core.repository.ContactRepository
 import de.qabel.core.repository.IdentityRepository
+import de.qabel.core.repository.exception.PersistenceException
 import de.qabel.core.ui.initials
 import de.qabel.qabelbox.QblBroadcastConstants.*
 import de.qabel.qabelbox.R
@@ -184,7 +185,10 @@ class MainActivity : CrashReportingActivity(),
     val indexIdentityListener = IndexIdentityListener()
 
     private fun updateNewMessageBadge() {
-        val size = messageRepository.findNew(activeIdentity.id).size
+        val size = try {
+            messageRepository.findNew(activeIdentity.id).size
+        } catch (e: PersistenceException) { 0 }
+
         if (size == 0) {
             drawer.updateBadge(chats.identifier, null)
         } else {
@@ -263,7 +267,7 @@ class MainActivity : CrashReportingActivity(),
     }
 
     fun installConnectivityManager() {
-        connectivityManager.setListener(object : ConnectivityManager.ConnectivityListener {
+        connectivityManager.listener = (object : ConnectivityManager.ConnectivityListener {
 
             private var offlineIndicator: AlertDialog? = null
 
@@ -373,6 +377,9 @@ class MainActivity : CrashReportingActivity(),
         }
         if (fragmentManager.backStackEntryCount > 0) {
             fragmentManager.popBackStack()
+            return
+        }
+        if (activeFragment is BaseFragment && activeFragment.onBackPressed()) {
             return
         }
         if (backPressConfirmed()) {
@@ -537,7 +544,9 @@ class MainActivity : CrashReportingActivity(),
             Pair(ProfileDrawerItem().apply {
                 withIdentifier(identity.id.toLong())
                 withName(identity.alias)
+                withEmail(identity.email)
                 withIcon(identityIcon(identity))
+                withNameShown(true)
             }, identity)
         }.toMap()
         val activeIdentityItem = ProfileDrawerItem().apply {

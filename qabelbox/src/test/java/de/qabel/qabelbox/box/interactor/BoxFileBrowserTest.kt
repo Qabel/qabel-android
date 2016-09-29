@@ -192,7 +192,7 @@ class BoxFileBrowserTest {
     fun failedList() {
         val nav: IndexNavigation = mockedIndexNavigation()
         val e = QblStorageException("test")
-        whenever(nav.reloadMetadata()).thenThrow(e)
+        whenever(nav.refresh()).thenThrow(e)
 
         useCase.list(BoxPath.Root) errorsWith e
     }

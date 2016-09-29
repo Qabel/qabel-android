@@ -47,7 +47,7 @@ public class OfflineUITest extends AbstractUITest{
 
         public void setConnected(final boolean connected) {
             this.connected = connected;
-            final ConnectivityListener listener = this.listener;
+            final ConnectivityListener listener = this.getListener();
             context.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {

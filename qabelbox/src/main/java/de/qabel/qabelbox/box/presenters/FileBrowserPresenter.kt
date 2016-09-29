@@ -21,7 +21,7 @@ interface FileBrowserPresenter {
 
     fun upload(file: BrowserEntry.File, stream: InputStream)
 
-    fun navigateUp()
+    fun navigateUp(): Boolean
 
     fun shareToContact(entry: BrowserEntry.File, contact: Contact)
 

@@ -19,7 +19,7 @@
             android:id="@+id/contact_initials"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:layout_gravity="center"></de.qabel.qabelbox.ui.views.SquareFrameLayout>
+            android:layout_gravity="center" />
     </de.qabel.qabelbox.ui.views.SquareFrameLayout>
 
     <LinearLayout
@@ -56,7 +56,7 @@
         android:layout_marginTop="10sp"
         android:background="@drawable/separator_gray"
         android:text="@string/contact"
-        android:textSize="@dimen/textsize_welcome_screen" />
+        android:textSize="@dimen/textsize_splash" />
 
     <de.qabel.qabelbox.ui.views.TextViewFont
         android:id="@+id/text_phone"
@@ -88,7 +88,6 @@
         android:drawablePadding="@dimen/default_drawable_padding"
         android:drawableStart="@drawable/earth"
         android:lines="3"
-        android:singleLine="false"
         android:textSize="@dimen/textsize_list_first_line"
         android:typeface="monospace" />
 
@@ -100,7 +99,6 @@
         android:drawablePadding="@dimen/default_drawable_padding"
         android:drawableStart="@drawable/key_variant"
         android:lines="4"
-        android:singleLine="false"
         android:textSize="@dimen/textsize_list_first_line"
         android:typeface="monospace" />
 </LinearLayout>

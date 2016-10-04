@@ -48,7 +48,7 @@ class MainFileBrowserPresenter @Inject constructor(
 
     override fun delete(file: File) {
         view.refreshStart()
-        useCase.delete(BoxPath.Root * file.name).subscribe({
+        useCase.delete(path * file.name).subscribe({
             onRefresh()
         }, { view.showError(it) })
     }

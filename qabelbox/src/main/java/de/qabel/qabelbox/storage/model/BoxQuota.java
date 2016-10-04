@@ -21,4 +21,14 @@ public class BoxQuota {
         this.quota = quota;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (o instanceof BoxQuota) {
+            BoxQuota other = (BoxQuota) o;
+            if (other.quota == this.quota && other.size == this.size) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

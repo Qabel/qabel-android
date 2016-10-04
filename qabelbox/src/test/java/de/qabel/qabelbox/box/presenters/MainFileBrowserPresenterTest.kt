@@ -59,6 +59,10 @@ class MainFileBrowserPresenterTest {
         presenter.delete(sample)
         verify(view).showEntries(emptyList())
         verify(useCase).delete(eq(BoxPath.Root * sample.name))
+
+        presenter.path = BoxPath.Root / "folder"
+        presenter.delete(sample)
+        verify(useCase).delete(eq(BoxPath.Root /"folder"/sample.name))
     }
 
     @Test

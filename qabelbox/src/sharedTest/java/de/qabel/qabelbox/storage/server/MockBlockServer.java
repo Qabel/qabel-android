@@ -23,8 +23,8 @@ import okhttp3.ResponseBody;
 
 public class MockBlockServer implements BlockServer {
 
-    public static final long SIZE = 2000;
-    public static final long QUOTA = 22000;
+    public static long SIZE = 2000;
+    public static long QUOTA = 22000;
 
     @Override
     public void downloadFile(String prefix, String path, String ifModified, DownloadRequestCallback callback) {

@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 
+import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -20,6 +21,7 @@ import de.qabel.qabelbox.QblBroadcastConstants;
 import de.qabel.qabelbox.SimpleApplication;
 import de.qabel.qabelbox.TestConstants;
 import de.qabel.qabelbox.config.AppPreference;
+import de.qabel.qabelbox.helper.Formatter;
 import de.qabel.qabelbox.storage.model.BoxQuota;
 import de.qabel.qabelbox.storage.server.MockBlockServer;
 import de.qabel.qabelbox.util.BoxTestHelper;
@@ -85,5 +87,32 @@ public class AccountManagerTest {
 
         assertEquals(MockBlockServer.SIZE, quota.getSize());
         assertEquals(MockBlockServer.QUOTA, quota.getQuota());
+
+        //100Gb
+        long oldQuota = MockBlockServer.QUOTA;
+        long oldSize = MockBlockServer.SIZE;
+        MockBlockServer.QUOTA = 107374182400L;
+        MockBlockServer.SIZE = 1024L;
+        statusCodes[0] = 0;
+
+        quota = accountManager.getBoxQuota();
+
+        assertEquals(oldSize, quota.getSize());
+        assertEquals(oldQuota, quota.getQuota());
+        TestHelper.waitUntil(new Callable<Boolean>() {
+            @Override
+            public Boolean call() throws Exception {
+                return statusCodes[0] > 0;
+            }
+        }, "Error waiting for changed quota");
+        assertEquals(AccountStatusCodes.QUOTA_UPDATED, statusCodes[0]);
+        quota = accountManager.getBoxQuota();
+
+        assertEquals(MockBlockServer.SIZE, quota.getSize());
+        assertEquals(MockBlockServer.QUOTA, quota.getQuota());
+
+        assertEquals(FileUtils.byteCountToDisplaySize(quota.getQuota()), "100 GB");
+        assertEquals(FileUtils.byteCountToDisplaySize(quota.getSize()), "1 KB");
+
     }
 }

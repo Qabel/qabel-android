@@ -1,8 +1,10 @@
 package de.qabel.qabelbox.fragments
 
 import android.app.Fragment
+import android.content.Context
 import android.os.Bundle
 import android.support.v7.app.ActionBar
+import android.view.inputmethod.InputMethodManager
 import de.qabel.qabelbox.R
 import de.qabel.qabelbox.activities.MainActivity
 import de.qabel.qabelbox.dagger.HasComponent
@@ -84,6 +86,12 @@ abstract class BaseFragment(protected val mainFragment: Boolean = false,
     override fun onPause() {
         intentListeners.forEach {
             ctx.unregisterReceiver(it.receiver)
+        }
+        try {
+            val imm = ctx.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+            imm.hideSoftInputFromWindow(view.windowToken, 0)
+        } catch (ex: Throwable) {
+            error("Error closing keyboard!", ex)
         }
         super.onPause()
     }

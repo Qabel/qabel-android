@@ -49,8 +49,8 @@ class FileBrowserFragment : FileBrowserView,
 
     override val title: String by lazy { ctx.getString(R.string.filebrowser) }
 
-    override val subtitle: String
-        get() = presenter.path.toReadable()
+    override val subtitle: String?
+        get() = if(presenter.path !is BoxPath.Root) presenter.path.toReadable() else null
 
     @Inject
     lateinit var presenter: FileBrowserPresenter
@@ -84,7 +84,10 @@ class FileBrowserFragment : FileBrowserView,
         files_list.layoutManager = LinearLayoutManager(ctx)
         files_list.adapter = adapter
         swipeRefresh.isEnabled = false
+    }
 
+    override fun onResume() {
+        super.onResume()
         if (!(mActivity?.TEST ?: false)) {
             presenter.onRefresh()
         }
@@ -142,7 +145,6 @@ class FileBrowserFragment : FileBrowserView,
         return inflater?.inflate(R.layout.fragment_files, container, false)
                 ?: throw IllegalStateException("Could not create view")
     }
-
 
     override fun showEntries(entries: List<BrowserEntry>) {
         onUiThread {

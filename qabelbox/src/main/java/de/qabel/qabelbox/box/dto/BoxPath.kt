@@ -1,7 +1,6 @@
 package de.qabel.qabelbox.box.dto
 
 import org.apache.commons.lang3.builder.HashCodeBuilder
-import java.io.File
 
 sealed class BoxPath() {
 
@@ -10,7 +9,6 @@ sealed class BoxPath() {
     abstract val parent: FolderLike
 
     class File(override val name: String, override val parent: FolderLike) : BoxPath()
-
 
     abstract class FolderLike() : BoxPath() {
         operator fun div(name: String) = Folder(name, this)
@@ -44,7 +42,7 @@ sealed class BoxPath() {
 
     fun toList(): List<String> = if (this is Root) emptyList() else parent.toList() + name
 
-    fun toReadable(): String = "/" + if (this is Root) "" else toList().joinToString("/")
+    fun toReadable(): String = "/" + toList().joinToString("/")
 
 }
 

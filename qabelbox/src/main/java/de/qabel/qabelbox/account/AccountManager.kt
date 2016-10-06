@@ -4,11 +4,10 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.util.Log
 import de.qabel.core.logging.QabelLog
-
 import de.qabel.qabelbox.QblBroadcastConstants
-import de.qabel.qabelbox.communication.BoxAccountRegisterServer
+import de.qabel.qabelbox.QblBroadcastConstants.Account.ACCOUNT_CHANGED
+import de.qabel.qabelbox.QblBroadcastConstants.Storage.BOX_CHANGED
 import de.qabel.qabelbox.communication.callbacks.JSONModelCallback
 import de.qabel.qabelbox.config.AppPreference
 import de.qabel.qabelbox.storage.data.BoxQuotaJSONAdapter
@@ -28,10 +27,26 @@ class AccountManager(private val context: Context,
 
     init {
         context.registerReceiver(broadcastReceiver,
-                IntentFilter(QblBroadcastConstants.Storage.BOX_CHANGED))
+                IntentFilter(BOX_CHANGED))
     }
 
-    fun refreshQuota() {
+    val boxQuota: BoxQuota
+        get() {
+            val quota = preferences.boxQuota
+            try {
+                refreshQuota()
+            } catch (ex: Throwable) {
+                error("Error refreshing quota!", ex)
+            }
+            return quota
+        }
+
+    fun logout() {
+        preferences.token = null
+        broadcastAccountChanged(AccountStatusCodes.LOGOUT)
+    }
+
+    private fun refreshQuota() {
         debug("Refreshing quota")
         blockServer.getQuota(object : JSONModelCallback<BoxQuota>(
                 BoxQuotaJSONAdapter()) {
@@ -50,26 +65,9 @@ class AccountManager(private val context: Context,
         })
     }
 
-    private fun broadcastAccountChanged(statusCode: Int) {
-        val intent = Intent(QblBroadcastConstants.Account.ACCOUNT_CHANGED)
-        intent.putExtra(QblBroadcastConstants.STATUS_CODE_PARAM, statusCode)
-        context.sendBroadcast(intent)
-    }
-
-    val boxQuota: BoxQuota
-        get() {
-            val quota = preferences.boxQuota
-            try {
-                refreshQuota()
-            } catch (ex: Throwable) {
-                error("Error refreshing quota!", ex)
-            }
-            return quota
-        }
-
-    fun logout() {
-        preferences.token = null
-        broadcastAccountChanged(AccountStatusCodes.LOGOUT)
+    private fun broadcastAccountChanged(statusCode: Int) = Intent(ACCOUNT_CHANGED).let {
+        it.putExtra(QblBroadcastConstants.STATUS_CODE_PARAM, statusCode)
+        context.sendBroadcast(it)
     }
 
 }

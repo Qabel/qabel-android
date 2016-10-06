@@ -16,6 +16,7 @@ import de.qabel.qabelbox.BuildConfig
 import de.qabel.qabelbox.R
 import de.qabel.qabelbox.activities.ImageViewerActivity
 import de.qabel.qabelbox.box.adapters.FileAdapter
+import de.qabel.qabelbox.box.dto.BoxPath
 import de.qabel.qabelbox.box.dto.BrowserEntry
 import de.qabel.qabelbox.box.presenters.FileBrowserPresenter
 import de.qabel.qabelbox.box.provider.BoxProvider
@@ -47,6 +48,9 @@ class FileBrowserFragment : FileBrowserView,
     var exportDocumentId: DocumentId? = null
 
     override val title: String by lazy { ctx.getString(R.string.filebrowser) }
+
+    override val subtitle: String
+        get() = presenter.path.toReadable()
 
     @Inject
     lateinit var presenter: FileBrowserPresenter
@@ -150,6 +154,7 @@ class FileBrowserFragment : FileBrowserView,
             }
             adapter.entries.addAll(entries)
             adapter.notifyDataSetChanged()
+            refreshToolbarTitle()
         }
     }
 

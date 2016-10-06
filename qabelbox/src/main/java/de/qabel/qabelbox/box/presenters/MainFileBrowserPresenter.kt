@@ -23,15 +23,14 @@ class MainFileBrowserPresenter @Inject constructor(
         private val navigator: Navigator) :
         FileBrowserPresenter {
 
+    override var path: BoxPath.FolderLike = BoxPath.Root
+
     override fun navigateUp(): Boolean {
         val isRoot = path is BoxPath.Root
         path = path.parent
         onRefresh()
         return !isRoot
     }
-
-    var path: BoxPath.FolderLike = BoxPath.Root
-
 
     override fun share(file: File) {
         withDocumentId(file) {

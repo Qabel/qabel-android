@@ -14,8 +14,7 @@
             android:summary="@string/settings_bugreporting_enable_summary"
             android:title="@string/settings_bugreporting" />
         <CheckBoxPreference
-            android:checked="true"
-            android:defaultValue="true"
+            android:persistent="false"
             android:key="contact_sync_enabled"
             android:summary="@string/android_contact_sync_text"
             android:title="@string/android_contact_sync"/>

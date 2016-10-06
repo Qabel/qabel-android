@@ -97,7 +97,7 @@ public class UITestHelper {
     public static void disableBugReporting(Context context) {
 
         SharedPreferences preferences = context.getSharedPreferences(
-                SettingsFragment.APP_PREF_NAME,
+                SettingsFragment.Companion.getAPP_PREF_NAME(),
                 Context.MODE_PRIVATE);
         preferences.edit().putBoolean(context.getString(R.string.settings_key_bugreporting_enabled), false).commit();
     }

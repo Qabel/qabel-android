@@ -4,6 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_gravity="center_horizontal"
+    android:background="@drawable/separator_slim"
     android:orientation="vertical">
 
     <LinearLayout
@@ -20,7 +21,6 @@
             <ImageView
                 android:id="@+id/fileEntryIcon"
                 style="@style/ListIcon"
-                android:layout_alignParentLeft="true"
                 android:layout_alignParentStart="true"
                 android:layout_alignParentTop="true" />
 
@@ -40,65 +40,62 @@
             android:layout_gravity="center_vertical"
             android:orientation="vertical">
 
-            <RelativeLayout
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingEnd="@dimen/default_space_double">
 
                 <de.qabel.qabelbox.ui.views.TextViewFont
                     android:id="@+id/entryName"
                     style="@style/ListFirstTextLine"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_alignParentStart="true"
-                    android:gravity="center_vertical" />
+                    android:layout_weight="0.85"
+                    android:ellipsize="marquee"
+                    android:gravity="start" />
 
                 <de.qabel.qabelbox.ui.views.TextViewFont
                     android:id="@+id/entrySize"
                     style="@style/ListSecondTextLine"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_alignParentEnd="true"
-                    android:gravity="center_vertical"
-                    android:paddingRight="16dp"
+                    android:layout_gravity="top|end"
+                    android:layout_weight="0.15"
+                    android:gravity="end|top"
+                    android:textAlignment="gravity"
                     android:textSize="@dimen/textsize_very_small" />
-            </RelativeLayout>
+            </LinearLayout>
 
-            <RelativeLayout
+            <LinearLayout
                 android:id="@+id/details"
                 style="@style/ListSecondTextLine"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingRight="16dp"
+                android:paddingBottom="@dimen/default_space"
+                android:paddingEnd="@dimen/default_space_double"
                 android:visibility="invisible">
 
                 <de.qabel.qabelbox.ui.views.TextViewFont
                     android:id="@+id/extraDetails"
                     style="@style/ListSecondTextLine"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_alignParentLeft="true"
+                    android:layout_weight="0.75"
                     android:textSize="@dimen/textsize_very_small" />
 
 
                 <de.qabel.qabelbox.ui.views.TextViewFont
                     android:id="@+id/modificationTime"
                     style="@style/ListSecondTextLine"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-
-                    android:layout_alignParentRight="true"
-                    android:gravity="right"
+                    android:layout_gravity="bottom"
+                    android:layout_weight="0.25"
+                    android:gravity="end|bottom"
                     android:textAlignment="gravity"
                     android:textSize="@dimen/textsize_very_small" />
-
-            </RelativeLayout>
+            </LinearLayout>
         </LinearLayout>
     </LinearLayout>
-
-    <RelativeLayout
-        android:id="@+id/separator"
-        android:layout_width="match_parent"
-        android:layout_height="2dp"
-        android:layout_alignParentBottom="true"
-        android:background="@color/light_gray"></RelativeLayout>
 </LinearLayout>

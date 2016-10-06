@@ -6,7 +6,6 @@ import de.qabel.core.ui.displayName
 import de.qabel.qabelbox.R
 import de.qabel.qabelbox.box.dto.BrowserEntry
 import de.qabel.qabelbox.helper.Formatter
-import de.qabel.qabelbox.storage.FileCacheContract
 import de.qabel.qabelbox.ui.extensions.setOrGone
 import de.qabel.qabelbox.ui.extensions.setVisibleOrGone
 import kotlinx.android.synthetic.main.item_files.view.*
@@ -22,7 +21,7 @@ open class FileViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
             extraDetails.setOrGone(createShareLabel(entry))
             entrySize.text = android.text.format.Formatter.formatShortFileSize(context, entry.size)
         }
-        details.setVisibleOrGone(detailsVisible || extraDetails.visibility == View.VISIBLE)
+        details.setVisibleOrGone(detailsVisible)
         fileEntryIcon.setImageResource(
                 when (entry) {
                     is BrowserEntry.File -> R.drawable.file

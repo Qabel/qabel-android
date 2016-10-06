@@ -25,7 +25,7 @@ import org.jetbrains.anko.ctx
 import org.jetbrains.anko.onUiThread
 import javax.inject.Inject
 
-class ChatOverviewFragment() : ChatOverview, BaseFragment(), AnkoLogger {
+class ChatOverviewFragment() : ChatOverview, BaseFragment(true, false, true), AnkoLogger {
 
     var injectCompleted = false
 
@@ -36,12 +36,13 @@ class ChatOverviewFragment() : ChatOverview, BaseFragment(), AnkoLogger {
     override lateinit var identity: Identity
 
     override val title: String by lazy { ctx.getString(R.string.conversations) }
-    override val isFabNeeded = true
 
     val adapter = ChatOverviewAdapter({
-        contact -> presenter.handleClick(contact)
+        contact ->
+        presenter.handleClick(contact)
     }, {
-        contact -> presenter.handleLongClick(contact)
+        contact ->
+        presenter.handleLongClick(contact)
     })
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
@@ -69,8 +70,6 @@ class ChatOverviewFragment() : ChatOverview, BaseFragment(), AnkoLogger {
 
     override fun onResume() {
         super.onResume()
-        setHasOptionsMenu(false)
-        configureAsMainFragment()
         presenter.refresh()
         ctx.registerReceiver(broadcastReceiver, IntentFilter(QblBroadcastConstants.Chat.NOTIFY_NEW_MESSAGES).apply {
             priority = 1

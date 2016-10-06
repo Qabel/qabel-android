@@ -5,7 +5,6 @@ import android.view.*
 import butterknife.ButterKnife
 import de.qabel.core.config.Identities
 import de.qabel.qabelbox.R
-import de.qabel.qabelbox.chat.view.views.ChatFragment
 import de.qabel.qabelbox.contacts.dagger.ContactEditModule
 import de.qabel.qabelbox.contacts.dto.ContactDto
 import de.qabel.qabelbox.contacts.view.adapters.ContactEditAdapter
@@ -18,7 +17,7 @@ import org.jetbrains.anko.toast
 import javax.inject.Inject
 
 
-class ContactEditFragment() : ContactEditView, BaseFragment(), AnkoLogger {
+class ContactEditFragment() : ContactEditView, BaseFragment(showOptionsMenu = true), AnkoLogger {
 
     companion object {
         private val ARG_CONTACT = "CONTACT"
@@ -46,23 +45,20 @@ class ContactEditFragment() : ContactEditView, BaseFragment(), AnkoLogger {
         )
 
         val component = getComponent(MainActivityComponent::class.java).plus(ContactEditModule(this))
-        component.inject(this);
+        component.inject(this)
         injectCompleted = true
 
-        setHasOptionsMenu(true);
-        configureAsSubFragment();
-
-        presenter.loadContact();
+        presenter.loadContact()
     }
 
     override fun onViewCreated(view: View?, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        ButterKnife.bind(this, view as  View);
-        adapter.view = view;
+        ButterKnife.bind(this, view as View)
+        adapter.view = view
     }
 
     override fun onDestroyView() {
-        adapter.view = null;
+        adapter.view = null
         super.onDestroyView()
     }
 
@@ -86,10 +82,8 @@ class ContactEditFragment() : ContactEditView, BaseFragment(), AnkoLogger {
     override val title: String
         get() = (if (injectCompleted) presenter.title else "")
 
-    override fun supportBackButton(): Boolean = true
-
     override fun loadContact(contact: ContactDto, identities: Identities) {
-        adapter.loadContact(contact, identities);
+        adapter.loadContact(contact, identities)
     }
 
     override fun getEditLabel(): String = ctx.getString(R.string.contact_edit)
@@ -97,7 +91,7 @@ class ContactEditFragment() : ContactEditView, BaseFragment(), AnkoLogger {
 
     override fun getCurrentNick(): String = adapter.getNickname()
     override fun getCurrentIdentityIds(): List<Int> = adapter.getIdentityIds()
-    override fun isContactIgnored() : Boolean = adapter.isContactIgnored()
+    override fun isContactIgnored(): Boolean = adapter.isContactIgnored()
 
     override fun showEnterNameToast() =
             toast(R.string.enter_name_message)

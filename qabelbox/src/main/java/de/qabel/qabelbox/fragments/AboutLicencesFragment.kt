@@ -13,7 +13,7 @@ import org.json.JSONException
 import org.json.JSONObject
 import java.io.IOException
 
-class AboutLicencesFragment : BaseFragment() {
+class AboutLicencesFragment : BaseFragment(mainFragment = true) {
 
     companion object {
         private val TAG = "AboutLicencesFragment"

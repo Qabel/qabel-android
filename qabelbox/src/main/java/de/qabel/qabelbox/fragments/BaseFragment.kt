@@ -15,7 +15,10 @@ import org.jetbrains.anko.longToast
 import org.jetbrains.anko.onUiThread
 
 
-abstract class BaseFragment : Fragment(), QblView {
+abstract class BaseFragment(protected val mainFragment: Boolean = false,
+                            protected val showOptionsMenu: Boolean = false,
+                            protected val showFABButton: Boolean = false) : Fragment(), QblView {
+
     protected var actionBar: ActionBar? = null
 
     protected var mActivity: MainActivity? = null
@@ -32,7 +35,7 @@ abstract class BaseFragment : Fragment(), QblView {
 
     fun idle() = idle?.let { it.idle() }
 
-    @SuppressWarnings("unchecked")
+    @Suppress("UNCHECKED_CAST")
     protected fun <C> getComponent(componentType: Class<C>): C {
         return componentType.cast((activity as HasComponent<C>).component)
     }
@@ -51,11 +54,6 @@ abstract class BaseFragment : Fragment(), QblView {
 
     open val subtitle: String? = null
 
-    /**
-     * true if floating action button used
-     */
-    open val isFabNeeded = false
-
     override fun onDetach() {
         super.onDetach()
         mActivity = null
@@ -64,12 +62,20 @@ abstract class BaseFragment : Fragment(), QblView {
 
     override fun onResume() {
         super.onResume()
-        refreshTitles()
-        if (isFabNeeded) {
+        refreshToolbarTitle()
+        if (mainFragment) {
+            configureAsMainFragment()
+        } else {
+            configureAsSubFragment()
+        }
+
+        if (showFABButton) {
             mActivity?.fab?.show()
         } else {
             mActivity?.fab?.hide()
         }
+        setHasOptionsMenu(showOptionsMenu)
+
         intentListeners.forEach {
             ctx.registerReceiver(it.receiver, it.toIntentFilter())
         }
@@ -82,7 +88,7 @@ abstract class BaseFragment : Fragment(), QblView {
         super.onPause()
     }
 
-    protected fun refreshTitles() {
+    protected fun refreshToolbarTitle() {
         actionBar?.apply {
             this.title = this@BaseFragment.title
             this.subtitle = this@BaseFragment.subtitle
@@ -102,13 +108,6 @@ abstract class BaseFragment : Fragment(), QblView {
 
     protected fun setActionBarBackListener() {
         mActivity?.toggle?.setToolbarNavigationClickListener { mActivity?.onBackPressed() }
-    }
-
-    /**
-     * @return true if fragment handle back button. otherwise return false to display sideMenu icon
-     */
-    open fun supportBackButton(): Boolean {
-        return false
     }
 
     /**

@@ -1,9 +1,8 @@
 package de.qabel.qabelbox.fragments;
 
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebView;
@@ -19,6 +18,11 @@ public class WebViewHelpFragment extends BaseFragment {
     private static final String PARAM_MODE = "mode";
     private int mode;
 
+    public WebViewHelpFragment() {
+        super(false, true, false);
+    }
+
+    @NonNull
     @Override
     public String getTitle() {
         return getResources().getStringArray(R.array.help_headlines)[mode];
@@ -44,20 +48,6 @@ public class WebViewHelpFragment extends BaseFragment {
     }
 
     @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        setHasOptionsMenu(true);
-        getMActivity().toggle.setDrawerIndicatorEnabled(false);
-        getActionBar().setDisplayHomeAsUpEnabled(true);
-        setActionBarBackListener();
-    }
-
-    @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        menu.clear();
-    }
-
-    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         final View view = inflater.inflate(R.layout.fragment_webview, container, false);
@@ -70,13 +60,4 @@ public class WebViewHelpFragment extends BaseFragment {
         return view;
     }
 
-    @Override
-    public boolean supportBackButton() {
-        return true;
-    }
-
-    @Override
-    public boolean isFabNeeded() {
-        return false;
-    }
 }

@@ -2,21 +2,19 @@ package de.qabel.qabelbox.identity.view
 
 import android.os.Bundle
 import android.text.InputType
-import android.view.*
-import android.widget.CompoundButton
-import butterknife.ButterKnife
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import de.qabel.core.config.Identity
 import de.qabel.qabelbox.R
 import de.qabel.qabelbox.dagger.components.MainActivityComponent
 import de.qabel.qabelbox.fragments.BaseFragment
-import de.qabel.qabelbox.helper.UIHelper
 import de.qabel.qabelbox.identity.dagger.IdentityDetailsModule
 import de.qabel.qabelbox.identity.view.adapter.IdentityDetailsAdapter
 import de.qabel.qabelbox.identity.view.presenter.IdentityDetailsPresenter
 import de.qabel.qabelbox.ui.extensions.showEnterTextDialog
 import kotlinx.android.synthetic.main.fragment_identity_details.*
 import org.jetbrains.anko.AnkoLogger
-import org.jetbrains.anko.ctx
 import org.jetbrains.anko.toast
 import javax.inject.Inject
 
@@ -42,6 +40,9 @@ class IdentityDetailsFragment() : IdentityDetailsView, BaseFragment(), AnkoLogge
 
     var injectCompleted = false
 
+    override val title: String
+        get() = getString(R.string.identity)
+
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         identityKeyId = arguments.getString(ARG_IDENTITY) ?: throw IllegalArgumentException(
@@ -54,9 +55,6 @@ class IdentityDetailsFragment() : IdentityDetailsView, BaseFragment(), AnkoLogge
 
     override fun onResume() {
         super.onResume()
-        setHasOptionsMenu(false)
-        configureAsSubFragment()
-
         presenter.loadIdentity()
     }
 
@@ -94,11 +92,6 @@ class IdentityDetailsFragment() : IdentityDetailsView, BaseFragment(), AnkoLogge
                 ?: throw IllegalStateException("Could not create view")
     }
 
-    override val title: String
-        get() = (if (injectCompleted) ctx.getString(R.string.identity) else "")
-
-    override fun supportBackButton(): Boolean = true
-
     override fun showEnterAliasDialog(current: String) =
             showEnterTextDialog(R.string.create_identity_enter_name,
                     R.string.create_identity_enter_name_hint, InputType.TYPE_CLASS_TEXT, {
@@ -129,7 +122,7 @@ class IdentityDetailsFragment() : IdentityDetailsView, BaseFragment(), AnkoLogge
 
     override fun loadIdentity(identity: Identity) {
         adapter.loadIdentity(identity)
-        refreshTitles()
+        refreshToolbarTitle()
     }
 
 }

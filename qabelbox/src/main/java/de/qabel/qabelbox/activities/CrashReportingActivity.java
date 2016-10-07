@@ -43,7 +43,7 @@ public class CrashReportingActivity extends BaseActivity {
 
         if (shouldHandleCrashes()) {
             SharedPreferences preferences = getSharedPreferences(
-                    SettingsFragment.Companion.getAPP_PREF_NAME(),
+                    SettingsFragment.APP_PREF_NAME,
                     Context.MODE_PRIVATE);
             if (preferences.getBoolean(getString(R.string.settings_key_bugreporting_enabled), true)) {
                 Log.v(TAG, "install crash reporting handler");

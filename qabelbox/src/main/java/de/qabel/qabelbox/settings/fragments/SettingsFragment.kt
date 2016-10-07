@@ -29,6 +29,7 @@ import de.qabel.qabelbox.storage.model.BoxQuota
 class SettingsFragment : PreferenceFragment() {
 
     companion object {
+        @JvmField
         val APP_PREF_NAME = AndroidIndexPreferences.KEY
     }
 

@@ -22,7 +22,7 @@ public class AccountModule {
 
     @Singleton
     @Provides
-    AccountManager providesAccountManager(Context context, AppPreference preference, BlockServer blockServer, BoxAccountRegisterServer boxAccountRegisterServer) {
-        return new AccountManager(context, preference, blockServer, boxAccountRegisterServer);
+    AccountManager providesAccountManager(Context context, AppPreference preference, BlockServer blockServer) {
+        return new AccountManager(context, preference, blockServer);
     }
 }

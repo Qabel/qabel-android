@@ -8,7 +8,7 @@ import okhttp3.Response;
 
 public abstract class JSONModelCallback<T> extends JsonRequestCallback {
 
-    private SimpleJSONAdapter<T> jsonAdapter;
+    protected SimpleJSONAdapter<T> jsonAdapter;
 
     public JSONModelCallback(SimpleJSONAdapter<T> adapter){
         this.jsonAdapter = adapter;

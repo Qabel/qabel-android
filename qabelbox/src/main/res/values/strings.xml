@@ -404,4 +404,5 @@ You can find more information on https://qabel.de/en
     <string name="index_search">Search for contacts</string>
     <string name="index_search_hint">Phone or email</string>
     <string name="upgrade">Get more space</string>
+    <string name="moments_ago">moments ago</string>
 </resources>

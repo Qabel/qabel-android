@@ -18,7 +18,7 @@ open class FileViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val detailsVisible = entry is BrowserEntry.File
         if (detailsVisible) {
             val fileEntry = entry as BrowserEntry.File
-            modificationTime.text = Formatter.formatDateTimeString(fileEntry.mTime.time)
+            modificationTime.text = Formatter.formatDateTimeString(fileEntry.mTime.time, context)
             extraDetails.setOrGone(createShareLabel(entry))
             entrySize.text = android.text.format.Formatter.formatShortFileSize(context, entry.size)
         }

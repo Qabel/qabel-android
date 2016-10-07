@@ -36,7 +36,7 @@ import java.util.*
 import javax.inject.Inject
 
 class FileBrowserFragment : FileBrowserView,
-        BaseFragment(mainFragment = true, showOptionsMenu = true, showFABButton = true), AnkoLogger {
+        BaseFragment(mainFragment = true, showOptionsMenu = true, showFAButton = true), AnkoLogger {
 
     companion object {
         fun newInstance() = FileBrowserFragment()

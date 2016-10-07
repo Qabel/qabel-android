@@ -37,13 +37,7 @@ class ChatOverviewFragment() : ChatOverview, BaseFragment(true, false, true), An
 
     override val title: String by lazy { ctx.getString(R.string.conversations) }
 
-    val adapter = ChatOverviewAdapter({
-        contact ->
-        presenter.handleClick(contact)
-    }, {
-        contact ->
-        presenter.handleLongClick(contact)
-    })
+    val adapter = ChatOverviewAdapter({ presenter.handleClick(it) }, { presenter.handleLongClick(it) })
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)

@@ -34,7 +34,9 @@ import java.net.URLConnection
 import java.util.*
 import javax.inject.Inject
 
-class FileBrowserFragment : FileBrowserView, BaseFragment(), AnkoLogger {
+class FileBrowserFragment : FileBrowserView,
+        BaseFragment(mainFragment = true, showOptionsMenu = true, showFAButton = true), AnkoLogger {
+
     companion object {
         fun newInstance() = FileBrowserFragment()
         val REQUEST_OPEN_FILE = 0
@@ -43,8 +45,6 @@ class FileBrowserFragment : FileBrowserView, BaseFragment(), AnkoLogger {
     }
 
     var exportDocumentId: DocumentId? = null
-
-    override val isFabNeeded = true
 
     override val title: String by lazy { ctx.getString(R.string.filebrowser) }
 
@@ -86,12 +86,6 @@ class FileBrowserFragment : FileBrowserView, BaseFragment(), AnkoLogger {
         }
     }
 
-    override fun onResume() {
-        super.onResume()
-        setHasOptionsMenu(true)
-        configureAsMainFragment()
-    }
-
     override fun onSaveInstanceState(outState: Bundle?) {
         if (exportDocumentId != null) {
             outState?.putString(KEY_EXPORT_DOCUMENT_ID, exportDocumentId.toString())
@@ -107,7 +101,6 @@ class FileBrowserFragment : FileBrowserView, BaseFragment(), AnkoLogger {
             refreshDone()
         }
     }
-
 
     private var bottomSheet: BottomSheet? = null
 

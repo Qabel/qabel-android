@@ -1,8 +1,10 @@
 package de.qabel.qabelbox.fragments
 
 import android.app.Fragment
+import android.content.Context
 import android.os.Bundle
 import android.support.v7.app.ActionBar
+import android.view.inputmethod.InputMethodManager
 import de.qabel.qabelbox.R
 import de.qabel.qabelbox.activities.MainActivity
 import de.qabel.qabelbox.dagger.HasComponent
@@ -15,7 +17,10 @@ import org.jetbrains.anko.longToast
 import org.jetbrains.anko.onUiThread
 
 
-abstract class BaseFragment : Fragment(), QblView {
+abstract class BaseFragment(protected val mainFragment: Boolean = false,
+                            protected val showOptionsMenu: Boolean = false,
+                            protected val showFAButton: Boolean = false) : Fragment(), QblView {
+
     protected var actionBar: ActionBar? = null
 
     protected var mActivity: MainActivity? = null
@@ -32,7 +37,7 @@ abstract class BaseFragment : Fragment(), QblView {
 
     fun idle() = idle?.let { it.idle() }
 
-    @SuppressWarnings("unchecked")
+    @Suppress("UNCHECKED_CAST")
     protected fun <C> getComponent(componentType: Class<C>): C {
         return componentType.cast((activity as HasComponent<C>).component)
     }
@@ -51,11 +56,6 @@ abstract class BaseFragment : Fragment(), QblView {
 
     open val subtitle: String? = null
 
-    /**
-     * true if floating action button used
-     */
-    open val isFabNeeded = false
-
     override fun onDetach() {
         super.onDetach()
         mActivity = null
@@ -64,12 +64,20 @@ abstract class BaseFragment : Fragment(), QblView {
 
     override fun onResume() {
         super.onResume()
-        refreshTitles()
-        if (isFabNeeded) {
+        refreshToolbarTitle()
+        if (mainFragment) {
+            configureAsMainFragment()
+        } else {
+            configureAsSubFragment()
+        }
+
+        if (showFAButton) {
             mActivity?.fab?.show()
         } else {
             mActivity?.fab?.hide()
         }
+        setHasOptionsMenu(showOptionsMenu)
+
         intentListeners.forEach {
             ctx.registerReceiver(it.receiver, it.toIntentFilter())
         }
@@ -79,10 +87,16 @@ abstract class BaseFragment : Fragment(), QblView {
         intentListeners.forEach {
             ctx.unregisterReceiver(it.receiver)
         }
+        try {
+            val imm = ctx.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+            imm.hideSoftInputFromWindow(view.windowToken, 0)
+        } catch (ex: Throwable) {
+            error("Error closing keyboard!", ex)
+        }
         super.onPause()
     }
 
-    protected fun refreshTitles() {
+    protected fun refreshToolbarTitle() {
         actionBar?.apply {
             this.title = this@BaseFragment.title
             this.subtitle = this@BaseFragment.subtitle
@@ -102,13 +116,6 @@ abstract class BaseFragment : Fragment(), QblView {
 
     protected fun setActionBarBackListener() {
         mActivity?.toggle?.setToolbarNavigationClickListener { mActivity?.onBackPressed() }
-    }
-
-    /**
-     * @return true if fragment handle back button. otherwise return false to display sideMenu icon
-     */
-    open fun supportBackButton(): Boolean {
-        return false
     }
 
     /**

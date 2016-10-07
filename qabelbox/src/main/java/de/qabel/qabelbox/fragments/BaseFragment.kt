@@ -19,7 +19,7 @@ import org.jetbrains.anko.onUiThread
 
 abstract class BaseFragment(protected val mainFragment: Boolean = false,
                             protected val showOptionsMenu: Boolean = false,
-                            protected val showFABButton: Boolean = false) : Fragment(), QblView {
+                            protected val showFAButton: Boolean = false) : Fragment(), QblView {
 
     protected var actionBar: ActionBar? = null
 
@@ -71,7 +71,7 @@ abstract class BaseFragment(protected val mainFragment: Boolean = false,
             configureAsSubFragment()
         }
 
-        if (showFABButton) {
+        if (showFAButton) {
             mActivity?.fab?.show()
         } else {
             mActivity?.fab?.hide()

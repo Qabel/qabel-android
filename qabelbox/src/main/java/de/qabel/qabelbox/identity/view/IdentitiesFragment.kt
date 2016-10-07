@@ -32,7 +32,7 @@ import javax.inject.Inject
 /**
  * TODO extract functionality, create presenter
  */
-class IdentitiesFragment : BaseFragment(showFABButton = true) {
+class IdentitiesFragment : BaseFragment(showFAButton = true) {
 
     private val identityListAdapter: IdentitiesAdapter = IdentitiesAdapter({
         navigator.selectIdentityDetails(it)

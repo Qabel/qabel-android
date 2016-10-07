@@ -81,7 +81,7 @@
                     style="@style/ListSecondTextLine"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_weight="0.75"
+                    android:layout_weight="0.70"
                     android:textSize="@dimen/textsize_very_small" />
 
 
@@ -91,7 +91,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_gravity="bottom"
-                    android:layout_weight="0.25"
+                    android:layout_weight="0.3"
                     android:gravity="end|bottom"
                     android:textAlignment="gravity"
                     android:textSize="@dimen/textsize_very_small" />

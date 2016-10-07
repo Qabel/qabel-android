@@ -15,12 +15,14 @@ open class FileViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
     open fun bindTo(entry: BrowserEntry): Unit = with(itemView) {
         entryName.text = entry.name
         val detailsVisible = entry is BrowserEntry.File
+        var sizeText = ""
         if (detailsVisible) {
             val fileEntry = entry as BrowserEntry.File
             modificationTime.text = Formatter.formatDateTimeString(fileEntry.mTime.time)
             extraDetails.setOrGone(createShareLabel(entry))
-            entrySize.text = android.text.format.Formatter.formatShortFileSize(context, entry.size)
+            sizeText = android.text.format.Formatter.formatShortFileSize(context, entry.size)
         }
+        entrySize.setOrGone(sizeText)
         details.setVisibleOrGone(detailsVisible)
         fileEntryIcon.setImageResource(
                 when (entry) {

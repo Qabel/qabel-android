@@ -13,23 +13,17 @@ import de.qabel.qabelbox.R
 
 object Formatter {
 
-    private val dateTimeFormat by lazy { DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT) }
     private val dateFormat by lazy { DateFormat.getDateInstance(DateFormat.MEDIUM) }
     private val EMAIL_PATTERN by lazy { Pattern.compile("^.+@.+$") }
 
+    @JvmStatic
     fun formatDateShort(date: Date): String =
             dateFormat.format(date)
-
-    fun formatDateTimeShort(date: Date): String =
-            dateTimeFormat.format(date)
 
     /**
      * Formats a Date[time] to a String like "moments ago" if [time] is less than a mintes in the past or
      * "Fr. 20:35" or "15.02.15 20:35"
      * if the [time] is more than a week in the past.
-
-     * @param time
-     * @return
      */
     fun formatDateTimeString(time: Long, ctx: Context): String {
         val diffMinutes = (System.currentTimeMillis() - time) / DateUtils.MINUTE_IN_MILLIS

@@ -112,8 +112,7 @@ public class HelpMainFragment extends PreferenceFragment {
     }
 
     String getBuildDate() {
-
-        return Formatter.INSTANCE.formatDateShort(new Date(BuildConfig.TIMESTAMP));
+        return Formatter.formatDateShort(new Date(BuildConfig.TIMESTAMP));
     }
 
     FragmentManager.OnBackStackChangedListener backstackListener = new FragmentManager.OnBackStackChangedListener() {

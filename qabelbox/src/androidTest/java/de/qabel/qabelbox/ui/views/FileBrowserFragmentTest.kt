@@ -8,6 +8,7 @@ import android.support.test.espresso.assertion.ViewAssertions
 import android.support.test.espresso.matcher.ViewMatchers.*
 import de.qabel.qabelbox.R
 import de.qabel.qabelbox.activities.MainActivity
+import de.qabel.qabelbox.box.dto.BoxPath
 import de.qabel.qabelbox.box.dto.BrowserEntry
 import de.qabel.qabelbox.box.presenters.FileBrowserPresenter
 import de.qabel.qabelbox.box.views.FileBrowserFragment
@@ -15,12 +16,12 @@ import de.qabel.qabelbox.navigation.MainNavigator
 import de.qabel.qabelbox.ui.AbstractUITest
 import de.qabel.qabelbox.ui.idling.InjectedIdlingResource
 import org.junit.After
+import org.junit.Assert.assertEquals
 import org.junit.Test
-import org.mockito.Mockito.mock
-import org.mockito.Mockito.verify
+import org.mockito.Mockito.*
 import java.util.*
 
-class FileBrowserFragmentTest: AbstractUITest() {
+class FileBrowserFragmentTest : AbstractUITest() {
 
 
     lateinit var fragment: FileBrowserFragment
@@ -42,6 +43,7 @@ class FileBrowserFragmentTest: AbstractUITest() {
         fragment = mActivity.fragmentManager.findFragmentByTag(
                 MainNavigator.TAG_FILES_FRAGMENT) as FileBrowserFragment
         presenter = mock(FileBrowserPresenter::class.java)
+        stub(presenter.path).toReturn(BoxPath.Root / "Test")
         fragment.presenter = presenter
 
         with(injectedIdlingResource) {
@@ -118,6 +120,12 @@ class FileBrowserFragmentTest: AbstractUITest() {
         launch()
         onView(withId(R.id.menu_refresh)).perform(click())
         verify(presenter).onRefresh()
+    }
+
+    @Test
+    fun testShowPath() {
+        launch()
+        assertEquals(fragment.subtitle, "/Test")
     }
 
 

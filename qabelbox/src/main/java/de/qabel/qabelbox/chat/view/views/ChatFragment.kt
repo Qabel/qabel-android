@@ -38,9 +38,6 @@ class ChatFragment : ChatView, BaseFragment(), AnkoLogger {
             view?.etText?.setText(value)
         }
 
-
-    override val isFabNeeded: Boolean = false
-
     var injectCompleted = false
 
     companion object {
@@ -98,7 +95,6 @@ class ChatFragment : ChatView, BaseFragment(), AnkoLogger {
 
     override fun onResume() {
         super.onResume()
-        configureAsSubFragment()
         ctx.registerReceiver(notificationBlockReceiver, IntentFilter(QblBroadcastConstants.Chat.NOTIFY_NEW_MESSAGES).apply {
             priority = 1
         })
@@ -196,8 +192,6 @@ class ChatFragment : ChatView, BaseFragment(), AnkoLogger {
     override val subtitle: String? by lazy {
         if (injectCompleted && !presenter.subtitle.isEmpty()) presenter.subtitle else null
     }
-
-    override fun supportBackButton(): Boolean = true
 
     override fun sendMessageStateChange() {
         mActivity?.ctx?.sendBroadcast(Intent(QblBroadcastConstants.Chat.MESSAGE_STATE_CHANGED))

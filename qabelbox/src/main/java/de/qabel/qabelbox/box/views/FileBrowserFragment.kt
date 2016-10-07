@@ -16,6 +16,7 @@ import de.qabel.qabelbox.BuildConfig
 import de.qabel.qabelbox.R
 import de.qabel.qabelbox.activities.ImageViewerActivity
 import de.qabel.qabelbox.box.adapters.FileAdapter
+import de.qabel.qabelbox.box.dto.BoxPath
 import de.qabel.qabelbox.box.dto.BrowserEntry
 import de.qabel.qabelbox.box.presenters.FileBrowserPresenter
 import de.qabel.qabelbox.box.provider.BoxProvider
@@ -34,7 +35,9 @@ import java.net.URLConnection
 import java.util.*
 import javax.inject.Inject
 
-class FileBrowserFragment : FileBrowserView, BaseFragment(), AnkoLogger {
+class FileBrowserFragment : FileBrowserView,
+        BaseFragment(mainFragment = true, showOptionsMenu = true, showFAButton = true), AnkoLogger {
+
     companion object {
         fun newInstance() = FileBrowserFragment()
         val REQUEST_OPEN_FILE = 0
@@ -44,9 +47,10 @@ class FileBrowserFragment : FileBrowserView, BaseFragment(), AnkoLogger {
 
     var exportDocumentId: DocumentId? = null
 
-    override val isFabNeeded = true
-
     override val title: String by lazy { ctx.getString(R.string.filebrowser) }
+
+    override val subtitle: String?
+        get() = if(presenter.path !is BoxPath.Root) presenter.path.toReadable() else null
 
     @Inject
     lateinit var presenter: FileBrowserPresenter
@@ -80,16 +84,13 @@ class FileBrowserFragment : FileBrowserView, BaseFragment(), AnkoLogger {
         files_list.layoutManager = LinearLayoutManager(ctx)
         files_list.adapter = adapter
         swipeRefresh.isEnabled = false
-
-        if (!(mActivity?.TEST ?: false)) {
-            presenter.onRefresh()
-        }
     }
 
     override fun onResume() {
         super.onResume()
-        setHasOptionsMenu(true)
-        configureAsMainFragment()
+        if (!(mActivity?.TEST ?: false)) {
+            presenter.onRefresh()
+        }
     }
 
     override fun onSaveInstanceState(outState: Bundle?) {
@@ -107,7 +108,6 @@ class FileBrowserFragment : FileBrowserView, BaseFragment(), AnkoLogger {
             refreshDone()
         }
     }
-
 
     private var bottomSheet: BottomSheet? = null
 
@@ -146,7 +146,6 @@ class FileBrowserFragment : FileBrowserView, BaseFragment(), AnkoLogger {
                 ?: throw IllegalStateException("Could not create view")
     }
 
-
     override fun showEntries(entries: List<BrowserEntry>) {
         onUiThread {
             adapter.entries.clear()
@@ -157,6 +156,7 @@ class FileBrowserFragment : FileBrowserView, BaseFragment(), AnkoLogger {
             }
             adapter.entries.addAll(entries)
             adapter.notifyDataSetChanged()
+            refreshToolbarTitle()
         }
     }
 

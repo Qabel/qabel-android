@@ -32,7 +32,7 @@ import javax.inject.Inject
 /**
  * TODO extract functionality, create presenter
  */
-class IdentitiesFragment : BaseFragment() {
+class IdentitiesFragment : BaseFragment(showFAButton = true) {
 
     private val identityListAdapter: IdentitiesAdapter = IdentitiesAdapter({
         navigator.selectIdentityDetails(it)
@@ -46,6 +46,9 @@ class IdentitiesFragment : BaseFragment() {
     internal lateinit var navigator: Navigator
     @Inject
     internal lateinit var identityUseCase: IdentityUseCase
+
+    override val title: String
+        get() = getString(R.string.headline_identities)
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
@@ -155,13 +158,4 @@ class IdentitiesFragment : BaseFragment() {
         }
     }
 
-    override val title: String
-        get() = getString(R.string.headline_identities)
-
-    override val isFabNeeded: Boolean
-        get() = true
-
-    override fun supportBackButton(): Boolean {
-        return false
-    }
 }

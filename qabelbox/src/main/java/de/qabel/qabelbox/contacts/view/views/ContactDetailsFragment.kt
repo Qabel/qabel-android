@@ -14,7 +14,7 @@ import org.jetbrains.anko.AnkoLogger
 import javax.inject.Inject
 
 
-class ContactDetailsFragment() : ContactDetailsView, BaseFragment(), AnkoLogger {
+class ContactDetailsFragment() : ContactDetailsView, BaseFragment(showOptionsMenu = true), AnkoLogger {
 
     companion object {
         val ARG_CONTACT = "CONTACT"
@@ -41,28 +41,24 @@ class ContactDetailsFragment() : ContactDetailsView, BaseFragment(), AnkoLogger 
                 "Starting ContactDetailsFragment without contactKeyId")
 
         val component = getComponent(MainActivityComponent::class.java).plus(ContactDetailsModule(this))
-        component.inject(this);
+        component.inject(this)
         injectCompleted = true
-
-        setHasOptionsMenu(true);
-        configureAsSubFragment();
-
     }
 
     override fun onResume() {
         super.onResume()
-        presenter.refreshContact();
+        presenter.refreshContact()
     }
 
 
     override fun onViewCreated(view: View?, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        ButterKnife.bind(this, view as View);
-        adapter.view = view;
+        ButterKnife.bind(this, view as View)
+        adapter.view = view
     }
 
     override fun onDestroyView() {
-        adapter.view = null;
+        adapter.view = null
         super.onDestroyView()
     }
 
@@ -86,10 +82,7 @@ class ContactDetailsFragment() : ContactDetailsView, BaseFragment(), AnkoLogger 
     override val title: String
         get() = (if (injectCompleted) presenter.title else "")
 
-    override fun supportBackButton(): Boolean = true
-
-    override fun loadContact(contact: ContactDto) =
-            adapter.loadContact(contact);
+    override fun loadContact(contact: ContactDto) = adapter.loadContact(contact)
 
 }
 

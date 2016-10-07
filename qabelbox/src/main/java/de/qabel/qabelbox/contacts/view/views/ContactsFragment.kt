@@ -41,7 +41,7 @@ import java.io.File
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
-class ContactsFragment() : ContactsView, BaseFragment(), AnkoLogger, DataPermissionsAdapter,
+class ContactsFragment() : ContactsView, BaseFragment(true, true, true), AnkoLogger, DataPermissionsAdapter,
         SearchView.OnQueryTextListener {
 
     override val permissionContext: Context get() = ctx
@@ -60,6 +60,8 @@ class ContactsFragment() : ContactsView, BaseFragment(), AnkoLogger, DataPermiss
     lateinit var navigator: Navigator
     @Inject
     lateinit var identity: Identity
+
+    override val title: String by lazy { ctx.getString(R.string.Contacts) }
 
     val adapter = ContactsAdapter({
         contact ->
@@ -125,9 +127,6 @@ class ContactsFragment() : ContactsView, BaseFragment(), AnkoLogger, DataPermiss
         super.onResume()
         updateView(adapter.getContactCount())
 
-        setHasOptionsMenu(true)
-        configureAsMainFragment()
-
         presenter.refresh()
         ctx.registerReceiver(broadcastReceiver, IntentFilter(QblBroadcastConstants.Contacts.CONTACTS_CHANGED))
     }
@@ -192,8 +191,6 @@ class ContactsFragment() : ContactsView, BaseFragment(), AnkoLogger, DataPermiss
         }
     }
 
-    override val title: String by lazy { ctx.getString(R.string.Contacts) }
-    override val isFabNeeded = true
 
     override fun handleFABAction(): Boolean {
         BottomSheet.Builder(activity).title(R.string.add_new_contact).sheet(R.menu.bottom_sheet_add_contact).listener { dialog, which ->

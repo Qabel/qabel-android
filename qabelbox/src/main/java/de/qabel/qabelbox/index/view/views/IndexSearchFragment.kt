@@ -24,7 +24,7 @@ import rx.subjects.BehaviorSubject
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
-class IndexSearchFragment(): IndexSearchView, BaseFragment(),
+class IndexSearchFragment() : IndexSearchView, BaseFragment(),
         AnkoLogger, SearchView.OnQueryTextListener {
 
     private val searchSubject: BehaviorSubject<String> = BehaviorSubject.create<String>()
@@ -33,7 +33,6 @@ class IndexSearchFragment(): IndexSearchView, BaseFragment(),
 
 
     override val title: String by lazy { ctx.getString(R.string.index_search) }
-    override val isFabNeeded = false
 
     @Inject
     lateinit var presenter: IndexSearchPresenter
@@ -82,13 +81,6 @@ class IndexSearchFragment(): IndexSearchView, BaseFragment(),
 
         contact_list.layoutManager = LinearLayoutManager(view.context)
         contact_list.adapter = adapter
-    }
-
-    override fun onResume() {
-        super.onResume()
-
-        setHasOptionsMenu(false)
-        configureAsSubFragment()
     }
 
     override fun onViewCreated(view: View?, savedInstanceState: Bundle?) {

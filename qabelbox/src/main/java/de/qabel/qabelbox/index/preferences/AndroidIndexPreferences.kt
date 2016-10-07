@@ -13,7 +13,7 @@ class AndroidIndexPreferences(context: Context) : IndexPreferences, AndroidPrefe
 
     companion object {
         val KEY = "index_preferences"
-        private val CONTACT_SYNC = "contact_sync_enabled"
+        val CONTACT_SYNC = "contact_sync_enabled"
         private val CONTACT_SYNC_TIME = "contact_sync_time"
 
         private val PHONE_STATE_PERMISSION = "phone_state_permission"

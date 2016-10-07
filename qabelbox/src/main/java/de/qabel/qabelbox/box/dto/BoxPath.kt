@@ -8,10 +8,9 @@ sealed class BoxPath() {
 
     abstract val parent: FolderLike
 
-    class File(override val name: String, override val parent: FolderLike): BoxPath()
+    class File(override val name: String, override val parent: FolderLike) : BoxPath()
 
-
-    abstract class FolderLike(): BoxPath() {
+    abstract class FolderLike() : BoxPath() {
         operator fun div(name: String) = Folder(name, this)
         operator fun div(path: File) = File(path.name, this)
         operator fun div(path: Folder) = Folder(path.name, this)
@@ -19,7 +18,7 @@ sealed class BoxPath() {
         operator fun times(name: String) = File(name, this)
     }
 
-    class Folder(override val name: String, override val parent: FolderLike): FolderLike()
+    class Folder(override val name: String, override val parent: FolderLike) : FolderLike()
 
     object Root : FolderLike() {
         override val name: String
@@ -31,7 +30,7 @@ sealed class BoxPath() {
 
     }
 
-    override fun equals(other: Any?): Boolean = when(other) {
+    override fun equals(other: Any?): Boolean = when (other) {
         is Root -> (this is Root)
         is BoxPath -> (name == other.name) && parent.equals(other.parent)
         else -> false
@@ -42,5 +41,8 @@ sealed class BoxPath() {
 
 
     fun toList(): List<String> = if (this is Root) emptyList() else parent.toList() + name
+
+    fun toReadable(): String = "/" + toList().joinToString("/")
+
 }
 

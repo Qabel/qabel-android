@@ -16,6 +16,7 @@ import de.qabel.qabelbox.BuildConfig
 import de.qabel.qabelbox.R
 import de.qabel.qabelbox.activities.ImageViewerActivity
 import de.qabel.qabelbox.box.adapters.FileAdapter
+import de.qabel.qabelbox.box.dto.BoxPath
 import de.qabel.qabelbox.box.dto.BrowserEntry
 import de.qabel.qabelbox.box.presenters.FileBrowserPresenter
 import de.qabel.qabelbox.box.provider.BoxProvider
@@ -47,6 +48,9 @@ class FileBrowserFragment : FileBrowserView,
     var exportDocumentId: DocumentId? = null
 
     override val title: String by lazy { ctx.getString(R.string.filebrowser) }
+
+    override val subtitle: String?
+        get() = if(presenter.path !is BoxPath.Root) presenter.path.toReadable() else null
 
     @Inject
     lateinit var presenter: FileBrowserPresenter
@@ -80,7 +84,10 @@ class FileBrowserFragment : FileBrowserView,
         files_list.layoutManager = LinearLayoutManager(ctx)
         files_list.adapter = adapter
         swipeRefresh.isEnabled = false
+    }
 
+    override fun onResume() {
+        super.onResume()
         if (!(mActivity?.TEST ?: false)) {
             presenter.onRefresh()
         }
@@ -139,7 +146,6 @@ class FileBrowserFragment : FileBrowserView,
                 ?: throw IllegalStateException("Could not create view")
     }
 
-
     override fun showEntries(entries: List<BrowserEntry>) {
         onUiThread {
             adapter.entries.clear()
@@ -150,6 +156,7 @@ class FileBrowserFragment : FileBrowserView,
             }
             adapter.entries.addAll(entries)
             adapter.notifyDataSetChanged()
+            refreshToolbarTitle()
         }
     }
 

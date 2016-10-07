@@ -36,7 +36,7 @@ class ConversationViewHolder(val view: View?, val clickListener: (ChatMessage) -
             badge_text.visibility = if (conversation.newMsgCount > 0) View.VISIBLE else View.INVISIBLE
             badge_text.text = conversation.newMsgCount.toString()
 
-            tvDate.text = Formatter.formatDateTimeString(conversation.message.time.time)
+            tvDate.text = Formatter.formatDateTimeString(conversation.message.time.time, context)
             setOnClickListener({ clickListener.invoke(conversation.message) })
             setOnLongClickListener({ longClickListener.invoke(conversation.message); })
         }

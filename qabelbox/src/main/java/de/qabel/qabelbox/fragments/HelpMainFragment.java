@@ -112,7 +112,6 @@ public class HelpMainFragment extends PreferenceFragment {
     }
 
     String getBuildDate() {
-
         return Formatter.formatDateShort(new Date(BuildConfig.TIMESTAMP));
     }
 

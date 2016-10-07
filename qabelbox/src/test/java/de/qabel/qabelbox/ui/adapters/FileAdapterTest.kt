@@ -32,6 +32,7 @@ import org.robolectric.Robolectric
 import org.robolectric.RobolectricGradleTestRunner
 import org.robolectric.RuntimeEnvironment
 import org.robolectric.annotation.Config
+import org.robolectric.shadows.ShadowSystemClock
 import java.util.*
 
 @RunWith(RobolectricGradleTestRunner::class)
@@ -53,6 +54,7 @@ class FileAdapterTest {
     @Before
     fun setUp() {
         FontHelper.disable = true
+        ShadowSystemClock.setCurrentTimeMillis(Date().time)
     }
 
     @Test
@@ -82,7 +84,7 @@ class FileAdapterTest {
         FileViewHolder(view).bindTo(sampleFile)
         view.entryName reads sampleFile.name
         checkNotNull(view.fileEntryIcon.drawable)
-        assert("1970" in view.modificationTime.text.toString())
+        assert("Jan 1, 1970" in view.modificationTime.text.toString())
     }
 
     @Test

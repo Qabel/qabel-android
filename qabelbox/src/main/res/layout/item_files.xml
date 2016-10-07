@@ -3,8 +3,11 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_gravity="center_horizontal"
-    android:background="@drawable/separator_slim"
+    android:layout_marginEnd="@dimen/default_space"
+    android:layout_marginStart="@dimen/default_space"
+    android:background="@drawable/separator_gray"
     android:orientation="vertical">
 
     <LinearLayout
@@ -21,6 +24,7 @@
             <ImageView
                 android:id="@+id/fileEntryIcon"
                 style="@style/ListIcon"
+                android:paddingStart="0dp"
                 android:layout_alignParentStart="true"
                 android:layout_alignParentTop="true" />
 
@@ -43,8 +47,7 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:paddingEnd="@dimen/default_space_double">
+                android:orientation="horizontal">
 
                 <de.qabel.qabelbox.ui.views.TextViewFont
                     android:id="@+id/entryName"
@@ -73,7 +76,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:paddingBottom="@dimen/default_space"
-                android:paddingEnd="@dimen/default_space_double"
                 android:visibility="invisible">
 
                 <de.qabel.qabelbox.ui.views.TextViewFont

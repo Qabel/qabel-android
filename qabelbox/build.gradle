@@ -39,7 +39,6 @@ android {
         buildConfigField "long", "TIMESTAMP", System.currentTimeMillis() + "L"
         applicationId "de.qabel.qabel"
         minSdkVersion 19
-        maxSdkVersion 23
         targetSdkVersion 23
         multiDexEnabled true
         /*

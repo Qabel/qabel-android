@@ -15,7 +15,9 @@ import de.qabel.qabelbox.storage.server.BlockServer
 import java.io.File
 import java.sql.Connection
 
-val jdbcPrefix = "jdbc:sqldroid:"
+object JdbcPrefix {
+    var jdbcPrefix = "jdbc:sqldroid:"
+}
 
 fun makeFileBrowserFactory(identityRepository: IdentityRepository,
                            contactRepository: ContactRepository,
@@ -40,12 +42,12 @@ fun makeFileBrowserFactory(identityRepository: IdentityRepository,
                 tempDir,
                 directoryMetadataFactoryFactory = { tempDir, deviceId ->
                     JdbcDirectoryMetadataFactory(tempDir, deviceId, dataBaseFactory,
-                            jdbcPrefix = jdbcPrefix)
+                            jdbcPrefix = JdbcPrefix.jdbcPrefix)
                 },
                 fileMetadataFactoryFactory = { tempDir ->
                     JdbcFileMetadataFactory(tempDir, versionAdapterFactory = { connection ->
                         AndroidVersionAdapter(connection)},
-                            jdbcPrefix = jdbcPrefix)
+                            jdbcPrefix = JdbcPrefix.jdbcPrefix)
                 }),
                 identity.primaryKeyPair)
         return BoxFileBrowser(BoxFileBrowser.KeyAndPrefix(key, identity.prefixes.first()), volume, contactRepository)

@@ -7,7 +7,7 @@ import de.qabel.box.storage.jdbc.JdbcDirectoryMetadataFactory
 import de.qabel.box.storage.jdbc.JdbcFileMetadataFactory
 import de.qabel.core.repositories.AndroidVersionAdapter
 import de.qabel.qabelbox.box.backends.MockStorageBackend
-import de.qabel.qabelbox.box.interactor.jdbcPrefix
+import de.qabel.qabelbox.box.interactor.JdbcPrefix
 import de.qabel.qabelbox.util.IdentityHelper
 import org.junit.Before
 import org.junit.Test
@@ -41,7 +41,7 @@ class AndroidBoxVolumeTest {
                 directoryMetadataFactoryFactory = { tempDir, deviceId ->
                     JdbcDirectoryMetadataFactory(tempDir, deviceId, { connection ->
                         DirectoryMetadataDatabase(connection, AndroidVersionAdapter(connection))
-                    }, jdbcPrefix = jdbcPrefix)
+                    }, jdbcPrefix = JdbcPrefix.jdbcPrefix)
                 },
                 fileMetadataFactoryFactory = { tempDir ->
                     JdbcFileMetadataFactory(tempDir, versionAdapterFactory = { connection ->
@@ -56,7 +56,7 @@ class AndroidBoxVolumeTest {
     @Test
     fun testMigrationRespectsDatabaseVersion() {
         val connection = DriverManager.getConnection(
-                jdbcPrefix + createTempFile().absolutePath)
+                JdbcPrefix.jdbcPrefix + createTempFile().absolutePath)
         connection.autoCommit = true
         val db = DirectoryMetadataDatabase(connection,
                 versionAdapter = AndroidVersionAdapter(connection))

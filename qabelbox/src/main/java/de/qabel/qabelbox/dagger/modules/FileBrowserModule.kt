@@ -107,12 +107,12 @@ class FileBrowserModule(private val view: FileBrowserView) {
                 tempDir,
                 directoryMetadataFactoryFactory = { tempDir, deviceId ->
                     JdbcDirectoryMetadataFactory(tempDir, deviceId, dataBaseFactory,
-                            jdbcPrefix = jdbcPrefix)
+                            jdbcPrefix = JdbcPrefix.jdbcPrefix)
                 },
                 fileMetadataFactoryFactory = { tempDir ->
                     JdbcFileMetadataFactory(tempDir, versionAdapterFactory = { connection ->
                         AndroidVersionAdapter(connection)},
-                            jdbcPrefix = jdbcPrefix)
+                            jdbcPrefix = JdbcPrefix.jdbcPrefix)
                 }),
                 identity.primaryKeyPair)
 

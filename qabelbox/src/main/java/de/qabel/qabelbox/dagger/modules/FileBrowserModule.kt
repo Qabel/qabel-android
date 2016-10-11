@@ -106,11 +106,13 @@ class FileBrowserModule(private val view: FileBrowserView) {
                 "Blake2b",
                 tempDir,
                 directoryMetadataFactoryFactory = { tempDir, deviceId ->
-                    JdbcDirectoryMetadataFactory(tempDir, deviceId, dataBaseFactory)
+                    JdbcDirectoryMetadataFactory(tempDir, deviceId, dataBaseFactory,
+                            jdbcPrefix = JdbcPrefix.jdbcPrefix)
                 },
                 fileMetadataFactoryFactory = { tempDir ->
                     JdbcFileMetadataFactory(tempDir, versionAdapterFactory = { connection ->
-                        AndroidVersionAdapter(connection)})
+                        AndroidVersionAdapter(connection)},
+                            jdbcPrefix = JdbcPrefix.jdbcPrefix)
                 }),
                 identity.primaryKeyPair)
 

@@ -6,16 +6,16 @@ import de.qabel.chat.repository.ChatDropMessageRepository
 import de.qabel.chat.repository.ChatShareRepository
 import de.qabel.chat.repository.sqlite.SqliteChatDropMessageRepository
 import de.qabel.chat.repository.sqlite.SqliteChatShareRepository
-import de.qabel.core.config.factory.DefaultIdentityFactory
 import de.qabel.core.repositories.AndroidClientDatabase
 import de.qabel.core.repositories.AndroidFakeEntityManager
 import de.qabel.core.repository.*
 import de.qabel.core.repository.sqlite.*
 import de.qabel.core.repository.sqlite.hydrator.DropURLHydrator
-import de.qabel.core.repository.sqlite.hydrator.IdentityHydrator
+import de.qabel.qabelbox.box.interactor.JdbcPrefix
 import de.qabel.qabelbox.exceptions.QblPersistenceException
 import java.io.File
 import java.sql.Connection
+import java.sql.Driver
 import java.sql.DriverManager
 import java.sql.SQLException
 
@@ -38,7 +38,8 @@ class RepositoryFactory(private val context: Context) {
 
     private fun loadDriver() {
         try {
-            Class.forName("org.sqldroid.SQLDroidDriver")
+            DriverManager.registerDriver(
+                    Class.forName("org.sqldroid.SQLDroidDriver").newInstance() as Driver)
         } catch (e: ClassNotFoundException) {
             throw RuntimeException(e)
         }
@@ -63,7 +64,7 @@ class RepositoryFactory(private val context: Context) {
     fun getAndroidClientDatabase(): AndroidClientDatabase {
         val conn = connection ?:
                 try {
-                    val c = DriverManager.getConnection("jdbc:sqlite:" + databasePath)
+                    val c = DriverManager.getConnection(JdbcPrefix.jdbcPrefix + databasePath)
                     connection = c
                     c
                 } catch (e: SQLException) {

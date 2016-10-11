@@ -1,6 +1,5 @@
 package de.qabel.qabelbox.box
 
-import de.qabel.box.storage.AbstractMetadata
 import de.qabel.box.storage.AndroidBoxVolume
 import de.qabel.box.storage.BoxVolumeConfig
 import de.qabel.box.storage.jdbc.DirectoryMetadataDatabase
@@ -8,13 +7,26 @@ import de.qabel.box.storage.jdbc.JdbcDirectoryMetadataFactory
 import de.qabel.box.storage.jdbc.JdbcFileMetadataFactory
 import de.qabel.core.repositories.AndroidVersionAdapter
 import de.qabel.qabelbox.box.backends.MockStorageBackend
+import de.qabel.qabelbox.box.interactor.jdbcPrefix
 import de.qabel.qabelbox.util.IdentityHelper
+import org.junit.Before
 import org.junit.Test
+import java.sql.Driver
 import java.sql.DriverManager
 
 class AndroidBoxVolumeTest {
 
     val identity = IdentityHelper.createIdentity("identity", "prefix")
+
+    @Before
+    fun loadDriver() {
+        try {
+            DriverManager.registerDriver(
+                    Class.forName("org.sqldroid.SQLDroidDriver").newInstance() as Driver)
+        } catch (e: ClassNotFoundException) {
+            throw RuntimeException(e)
+        }
+    }
 
     @Test
     fun testNavigate() {
@@ -27,9 +39,9 @@ class AndroidBoxVolumeTest {
                 "Blacke2b",
                 createTempDir(),
                 directoryMetadataFactoryFactory = { tempDir, deviceId ->
-                    JdbcDirectoryMetadataFactory(tempDir, deviceId) { connection ->
+                    JdbcDirectoryMetadataFactory(tempDir, deviceId, { connection ->
                         DirectoryMetadataDatabase(connection, AndroidVersionAdapter(connection))
-                    }
+                    }, jdbcPrefix = jdbcPrefix)
                 },
                 fileMetadataFactoryFactory = { tempDir ->
                     JdbcFileMetadataFactory(tempDir, versionAdapterFactory = { connection ->
@@ -44,7 +56,7 @@ class AndroidBoxVolumeTest {
     @Test
     fun testMigrationRespectsDatabaseVersion() {
         val connection = DriverManager.getConnection(
-                AbstractMetadata.JDBC_PREFIX + createTempFile().absolutePath)
+                jdbcPrefix + createTempFile().absolutePath)
         connection.autoCommit = true
         val db = DirectoryMetadataDatabase(connection,
                 versionAdapter = AndroidVersionAdapter(connection))

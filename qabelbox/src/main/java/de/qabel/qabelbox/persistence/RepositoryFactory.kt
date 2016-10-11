@@ -16,6 +16,7 @@ import de.qabel.core.repository.sqlite.hydrator.IdentityHydrator
 import de.qabel.qabelbox.exceptions.QblPersistenceException
 import java.io.File
 import java.sql.Connection
+import java.sql.Driver
 import java.sql.DriverManager
 import java.sql.SQLException
 
@@ -38,7 +39,8 @@ class RepositoryFactory(private val context: Context) {
 
     private fun loadDriver() {
         try {
-            Class.forName("org.sqldroid.SQLDroidDriver")
+            DriverManager.registerDriver(
+                    Class.forName("org.sqldroid.SQLDroidDriver").newInstance() as Driver)
         } catch (e: ClassNotFoundException) {
             throw RuntimeException(e)
         }
@@ -63,7 +65,7 @@ class RepositoryFactory(private val context: Context) {
     fun getAndroidClientDatabase(): AndroidClientDatabase {
         val conn = connection ?:
                 try {
-                    val c = DriverManager.getConnection("jdbc:sqlite:" + databasePath)
+                    val c = DriverManager.getConnection("jdbc:sqldroid:" + databasePath)
                     connection = c
                     c
                 } catch (e: SQLException) {

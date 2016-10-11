@@ -19,7 +19,7 @@ public class RoboApplication extends TestApplication {
         new AppPreference(this).setToken(TestConstants.TOKEN);
         super.onCreate();
         ShadowLog.stream = System.out;
-        JdbcPrefix.INSTANCE.setJdbcPrefix("jdbc:sqlite:");
+        JdbcPrefix.jdbcPrefix = "jdbc:sqlite:";
     }
 
     @Override

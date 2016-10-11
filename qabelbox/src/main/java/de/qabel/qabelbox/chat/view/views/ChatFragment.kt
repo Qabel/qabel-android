@@ -163,12 +163,16 @@ class ChatFragment : ChatView, BaseFragment(), AnkoLogger {
         debug("Showing ${models.size} messages")
         busy()
         onUiThread {
+            val loadMore = adapter.itemCount > 0
             adapter.prepend(models)
             swipeRefresh.isRefreshing = false
             swipeRefresh.isEnabled = presenter.proxy.canLoadMore()
             contact_chat_list.removeItemDecoration(headerDecor)
             if (swipeRefresh.isEnabled) {
                 contact_chat_list.addItemDecoration(headerDecor)
+            }
+            if(!loadMore){
+                scrollToBottom()
             }
             idle()
         }

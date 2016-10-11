@@ -44,12 +44,14 @@ open class AndroidChatService() : IntentService(AndroidChatService::class.java.s
                     it.putStringArrayListExtra(Helper.AFFECTED_IDENTITIES_AND_CONTACTS, ArrayList(affectedKeys))
                     applicationContext.sendOrderedBroadcast(it, null)
                 }
+                sendChatStateChanged()
                 info("NewMessages broadcast sent (" + affectedKeys.size + ")")
             }
             Service.NOTIFY -> {
                 updateNotification()
-                sendChatStateChanged()
             }
+            Service.MESSAGES_READ -> chatNotificationManager.hideNotification(intent.identityKey(),
+                    intent.contactKey())
             Service.MARK_READ -> handleMarkReadIntent(intent)
             Service.ADD_CONTACT -> handleAddContactIntent(intent)
             Service.IGNORE_CONTACT -> handleIgnoreContactIntent(intent)

@@ -15,8 +15,15 @@ class AndroidChatServiceResponder : BroadcastReceiver(), AnkoLogger {
 
     override fun onReceive(context: Context, intent: Intent?) {
         info("Receive notify broadcast. Start service")
-        context.applicationContext.startService(Intent(QblBroadcastConstants.Chat.Service.NOTIFY,
-                null, context.applicationContext, AndroidChatService::class.java))
+        var action = QblBroadcastConstants.Chat.Service.MESSAGES_READ
+        if (intent?.action == QblBroadcastConstants.Chat.NOTIFY_NEW_MESSAGES) {
+            action = QblBroadcastConstants.Chat.Service.NOTIFY
+            abortBroadcast()
+        }
+        context.applicationContext.startService(Intent(action,
+                null, context.applicationContext, AndroidChatService::class.java).apply {
+            putExtras(intent?.extras)
+        })
     }
 
 }

@@ -19,13 +19,13 @@ import de.qabel.qabelbox.chat.services.AndroidChatServiceResponder;
 import de.qabel.qabelbox.dagger.components.ApplicationComponent;
 import de.qabel.qabelbox.dagger.components.DaggerApplicationComponent;
 import de.qabel.qabelbox.dagger.modules.ApplicationModule;
-import de.qabel.qabelbox.index.AndroidIndexSyncService;
-import de.qabel.qabelbox.index.IndexIdentityListener;
 
 public class QabelBoxApplication extends Application {
 
     private static final String TAG = "QabelBoxApplication";
     public static final String DEFAULT_DROP_SERVER = "https://test-drop.qabel.de";
+
+    private final BroadcastReceiver chatReceiver = new AndroidChatServiceResponder();
 
     static QabelBoxApplication mInstance = null;
 
@@ -70,11 +70,21 @@ public class QabelBoxApplication extends Application {
         Log.d(TAG, "onCreate");
         this.ApplicationComponent = initialiseInjector();
         mInstance = this;
-        try{
+        try {
             FirebaseAnalytics.getInstance(this).setAnalyticsCollectionEnabled(false);
+        } catch (Exception ignored) {
         }
-        catch(Exception ignored){
-        }
+
+        IntentFilter chatFilter = new IntentFilter();
+        chatFilter.addAction(QblBroadcastConstants.Chat.Service.MESSAGES_READ);
+        chatFilter.addAction(QblBroadcastConstants.Chat.NOTIFY_NEW_MESSAGES);
+        registerReceiver(chatReceiver, chatFilter);
+    }
+
+    @Override
+    public void onTerminate() {
+        unregisterReceiver(chatReceiver);
+        super.onTerminate();
     }
 
     protected ApplicationComponent initialiseInjector() {

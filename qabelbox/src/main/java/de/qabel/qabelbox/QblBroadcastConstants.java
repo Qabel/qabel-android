@@ -42,6 +42,7 @@ public class QblBroadcastConstants {
             public static final String MARK_READ = PREFIX + "chat.service.markRead";
             public static final String ADD_CONTACT = PREFIX + "chat.service.addContact";
             public static final String IGNORE_CONTACT = PREFIX + "chat.service.ignoreContact";
+            public static final String MESSAGES_READ = PREFIX + "chat.read";
         }
     }
 }

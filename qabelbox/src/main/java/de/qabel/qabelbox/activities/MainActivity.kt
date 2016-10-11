@@ -179,8 +179,7 @@ class MainActivity : CrashReportingActivity(),
                 updateNewMessageBadge()
             }),
             identityChangedListener,
-            identityRemovedListener,
-            IntentListener(Chat.NOTIFY_NEW_MESSAGES, AndroidChatServiceResponder()))
+            identityRemovedListener)
 
     val indexIdentityListener = IndexIdentityListener()
 

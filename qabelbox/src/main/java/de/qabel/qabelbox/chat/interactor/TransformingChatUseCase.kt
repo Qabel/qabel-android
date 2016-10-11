@@ -10,6 +10,7 @@ import de.qabel.core.repository.framework.PagingResult
 import de.qabel.qabelbox.QblBroadcastConstants
 import de.qabel.qabelbox.box.backends.BoxHttpStorageBackend
 import de.qabel.qabelbox.chat.dto.ChatMessage
+import de.qabel.qabelbox.chat.services.AndroidChatService
 import de.qabel.qabelbox.chat.transformers.ChatMessageTransformer
 import de.qabel.qabelbox.listeners.ActionIntentSender
 import de.qabel.qabelbox.storage.server.BlockServer
@@ -23,7 +24,7 @@ class TransformingChatUseCase @Inject constructor(val identity: Identity, overri
                                                   private val chatMessageTransformer: ChatMessageTransformer,
                                                   private val chatService: ChatService,
                                                   private val sharingService: SharingService,
-                                                  private val blockServer : BlockServer,
+                                                  private val blockServer: BlockServer,
                                                   private val chatDropMessageRepository: ChatDropMessageRepository,
                                                   private val chatServiceUseCase: ChatServiceUseCase,
                                                   private val actionIntentSender: ActionIntentSender) : ChatUseCase {
@@ -43,6 +44,7 @@ class TransformingChatUseCase @Inject constructor(val identity: Identity, overri
         if (offset == 0) {
             chatDropMessageRepository.markAsRead(contact, identity)
             notifyApplication()
+            notifyServices()
         }
         chatDropMessageRepository.findByContact(contact.id, identity.id, offset, pageSize).let { pagingResult ->
             subscriber.onNext(pagingResult.transform { chatMessageTransformer.transform(it) })
@@ -76,8 +78,15 @@ class TransformingChatUseCase @Inject constructor(val identity: Identity, overri
         it.onSuccess(chatMessageTransformer.transform(msg))
     }
 
-    private fun notifyApplication() =
-            actionIntentSender.sendActionIntentBroadCast(QblBroadcastConstants.Chat.MESSAGE_STATE_CHANGED)
+    private fun notifyApplication() {
+        actionIntentSender.sendActionIntentBroadCast(QblBroadcastConstants.Chat.MESSAGE_STATE_CHANGED)
+    }
+
+    private fun notifyServices() {
+        actionIntentSender.sendActionIntentBroadCast(QblBroadcastConstants.Chat.Service.MESSAGES_READ,
+                Pair(AndroidChatService.PARAM_IDENTITY_KEY, identity.keyIdentifier),
+                Pair(AndroidChatService.PARAM_CONTACT_KEY, contact.keyIdentifier))
+    }
 
 }
 

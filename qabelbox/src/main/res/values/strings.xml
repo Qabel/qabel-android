@@ -298,7 +298,7 @@
     <string name="help_key_main_app_licenses" translatable="false">key_licenses</string>
     <string name="help_key_main_app_about_us" translatable="false">key_about_us</string>
     <string name="app_info_version_and_build">You use app version $1 from $2</string>
-    <string name="headline_main_help">Help</string>
+    <string name="headline_main_help">Legal Stuff</string>
     <string name="message_welcome_screen1">\nQabel is a free,\npublished-source\ncryptography platform.\n\nBecome a part\nof the Qabel ecosystem.\n\nEnjoy!</string>
     <string name="message_welcome_screen2">End-to-end encrypted uploads,\ndownloads and data storage.\nMetadata obfuscation.\n2GB free storage.\nSynchronisation over any\nnumber of devices\nSharing with other Qabel users.\nManagement of multiple\nidentities with only one Qabel\naccount within\none application.\nIntegrated short message\nservice.</string>
     <string name="message_welcome_screen3">Qabel allows you to depict\nmany identities with\nonly one account.\n\nYou can sync different\nidentities on different\ndevices and choose which\nidentities you want to\nshare with other people.\n\nBe Bob for your boss and\nAlice for your friends!</string>
@@ -329,7 +329,7 @@
     <string name="headline_welcome_screen4">\u0020Account\n</string>
     <string name="github_url" translatable="false">https://github.com/Qabel</string>
     <string name="asset_qabel_font" translatable="false">fonts/Art Post.ttf</string>
-    <string name="help">Help</string>
+    <string name="help">Legal Stuff</string>
     <string name="contact_export_all">Export all contacts</string>
     <string name="cant_export_contacts">Can\'t export contacts</string>
     <string name="contact_export_failed">Could not export the identity</string>

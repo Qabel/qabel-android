@@ -35,15 +35,16 @@
                 style="@style/EditText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_centerVertical="true"
                 android:layout_toStartOf="@id/bt_send"
                 android:background="@android:color/transparent"
                 android:hint="@string/chat_message_hint"
-                android:inputType="textMultiLine"
+                android:inputType="textMultiLine|textCapSentences"
                 android:isScrollContainer="true"
-                android:lines="2"
-                android:scrollHorizontally="false"
-                android:scrollbars="vertical"/>
+                android:scrollbars="vertical"
+                android:maxLength="1536"
+                android:minLines="2"
+                android:lines="8"
+                android:maxLines="10" />
         </RelativeLayout>
 
         <android.support.v4.widget.SwipeRefreshLayout

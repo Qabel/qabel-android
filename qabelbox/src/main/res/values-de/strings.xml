@@ -4,7 +4,7 @@
     <string name="btn_welcome_back">Zurück</string>
     <string name="btn_welcome_skip">Überspringen</string>
     <string name="btn_welcome_accept">Akzeptieren</string>
-    <string name="headline_main_help">Hilfe</string>
+    <string name="headline_main_help">Rechtliches</string>
     <string name="Contacts">Kontakte</string>
     <string name="Delete">Löschen</string>
     <string name="Export">Exportieren</string>
@@ -204,7 +204,7 @@
     <string name="headline_welcome_screen2">\u0020Funktionen\n</string>
     <string name="headline_welcome_screen3">\u0020Identitäten\n</string>
     <string name="headline_welcome_screen4">\u0020Account\n</string>
-    <string name="help">Hilfe</string>
+    <string name="help">Rechtliches</string>
     <string name="message_welcome_qabel_big">QABEL</string>
     <string name="message_welcome_screen1">Qabel ist eine kostenlose,\nquelloffene\nKryptographieplattform.\n\nWerden Sie Teil\ndes Qabel-Ökosystems.\n\nViel Spaß!</string>
     <string name="message_welcome_screen2">Ende-zu-Ende verschlüsselter\nUpload, Download und\nSpeicherung.\nMetadatenverschleierung.\n2 GB kostenloser Speicher.\nSynchronisation über beliebig\nviele Endgeräte.\nSharing mit anderen\nQabelnutzern.\nVerwaltung mehrerer Identitäten\nmit nur einem Qabel-Account\nund in nur einer Anmeldung.\nIntegrierter\nKurznachrichtendienst.</string>

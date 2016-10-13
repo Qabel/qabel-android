@@ -2,6 +2,7 @@ apply plugin: 'com.android.application'
 apply plugin: 'spoon'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
+apply plugin: 'kotlin-kapt'
 
 // This section is optional
 spoon {
@@ -10,10 +11,6 @@ spoon {
     noAnimations = true
     adbTimeout = 180
     failIfNoDeviceConnected = true
-}
-
-kapt {
-    generateStubs = true
 }
 
 android {

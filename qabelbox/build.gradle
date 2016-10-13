@@ -12,10 +12,6 @@ spoon {
     failIfNoDeviceConnected = true
 }
 
-kapt {
-    generateStubs = true
-}
-
 android {
     compileSdkVersion 24
     buildToolsVersion '24.0.3'
@@ -287,10 +283,10 @@ dependencies {
      * https://github.com/robolectric/robolectric/issues/1932
      */
     testCompile 'org.khronos:opengl-api:gl1.1-android-2.1_r1'
-    compile 'com.android.support:recyclerview-v7:23.2.1'
-    compile 'com.android.support:appcompat-v7:23.2.1'
-    compile 'com.android.support:design:23.2.1'
-    compile 'com.android.support:cardview-v7:23.2.1'
+    compile 'com.android.support:recyclerview-v7:24.2.1'
+    compile 'com.android.support:appcompat-v7:24.2.1'
+    compile 'com.android.support:design:24.2.1'
+    compile 'com.android.support:cardview-v7:24.2.1'
     compile 'org.slf4j:slf4j-android:1.7.12'
     compile 'com.google.code.gson:gson:2.4'
     compile 'org.apache.commons:commons-lang3:3.4'

@@ -17,8 +17,8 @@ kapt {
 }
 
 android {
-    compileSdkVersion 23
-    buildToolsVersion '23.0.3'
+    compileSdkVersion 24
+    buildToolsVersion '24.0.3'
 
     sourceSets {
         androidTest.java.srcDirs = ['src/androidTest/java', 'src/sharedTest/java']
@@ -39,7 +39,7 @@ android {
         buildConfigField "long", "TIMESTAMP", System.currentTimeMillis() + "L"
         applicationId "de.qabel.qabel"
         minSdkVersion 19
-        targetSdkVersion 23
+        targetSdkVersion 24
         multiDexEnabled true
         /*
         add code to automatically generate version name and code,

@@ -21,7 +21,6 @@ import de.qabel.qabelbox.listeners.IdleCallback
 import okhttp3.Response
 import org.jetbrains.anko.ctx
 import org.jetbrains.anko.longToast
-import org.jetbrains.anko.onUiThread
 import org.json.JSONObject
 import java.util.*
 import javax.inject.Inject
@@ -214,7 +213,7 @@ class CreateAccountActivity : BaseWizardActivity() {
                     showNextUIThread(dialog)
                 } else {
                     val errorText = generateErrorMessage(result)
-                    onUiThread {
+                    runOnUiThread {
                         dialog.dismiss()
                         longToast(errorText)
                     }

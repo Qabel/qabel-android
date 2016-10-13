@@ -15,10 +15,7 @@ import de.qabel.qabelbox.helper.UIHelper
 import de.qabel.qabelbox.index.dagger.IndexSearchModule
 import de.qabel.qabelbox.index.view.presenters.IndexSearchPresenter
 import kotlinx.android.synthetic.main.fragment_contacts.*
-import org.jetbrains.anko.AnkoLogger
-import org.jetbrains.anko.ctx
-import org.jetbrains.anko.longToast
-import org.jetbrains.anko.onUiThread
+import org.jetbrains.anko.*
 import rx.Observable
 import rx.subjects.BehaviorSubject
 import java.util.concurrent.TimeUnit
@@ -45,7 +42,7 @@ class IndexSearchFragment() : IndexSearchView, BaseFragment(),
     })
 
     override fun loadData(data: List<ContactDto>) {
-        onUiThread {
+        runOnUiThread {
             contactCount?.text = getString(R.string.contact_count, data.size)
             adapter.refresh(data)
             adapter.notifyDataSetChanged()
@@ -53,7 +50,7 @@ class IndexSearchFragment() : IndexSearchView, BaseFragment(),
     }
 
     override fun showEmpty() {
-        onUiThread {
+        runOnUiThread {
             adapter.refresh(emptyList())
         }
     }
@@ -90,7 +87,7 @@ class IndexSearchFragment() : IndexSearchView, BaseFragment(),
     }
 
     override fun showError(error: Throwable) {
-        onUiThread {
+        runOnUiThread {
             longToast(error.message ?: "error")
             error("Error in IndexSearch", error)
         }

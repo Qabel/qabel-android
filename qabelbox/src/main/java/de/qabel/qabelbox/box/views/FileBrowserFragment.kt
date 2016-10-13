@@ -29,6 +29,7 @@ import de.qabel.qabelbox.fragments.BaseFragment
 import de.qabel.qabelbox.ui.extensions.showEnterTextDialog
 import kotlinx.android.synthetic.main.fragment_files.*
 import org.jetbrains.anko.*
+import org.jetbrains.anko.custom.async
 import java.io.FileNotFoundException
 import java.io.IOException
 import java.net.URLConnection
@@ -102,7 +103,7 @@ class FileBrowserFragment : FileBrowserView,
 
 
     override fun showError(throwable: Throwable) {
-        onUiThread {
+        runOnUiThread {
             longToast(throwable.message ?: "Error")
             error("Error", throwable)
             refreshDone()
@@ -147,7 +148,7 @@ class FileBrowserFragment : FileBrowserView,
     }
 
     override fun showEntries(entries: List<BrowserEntry>) {
-        onUiThread {
+        runOnUiThread {
             adapter.entries.clear()
             if (entries.size > 0) {
                 empty_view.visibility = View.INVISIBLE
@@ -180,20 +181,20 @@ class FileBrowserFragment : FileBrowserView,
 
     private fun exportFile(uri: Uri?): Boolean {
         val exportId = exportDocumentId ?: return true
-        async() {
+        doAsync() {
             val input = ctx.contentResolver.openInputStream(uriFromDocumentId(exportId))
             val output = ctx.contentResolver.openOutputStream(uri)
             if (input == null || output == null) {
                 toast(R.string.export_aborted)
-                return@async
+                return@doAsync
             }
             try {
                 input.copyTo(output)
             } catch (e: IOException) {
                 toast(R.string.export_aborted)
-                return@async
+                return@doAsync
             }
-            onUiThread {
+            runOnUiThread {
                 toast(R.string.export_complete)
             }
         }
@@ -215,7 +216,7 @@ class FileBrowserFragment : FileBrowserView,
     }
 
     override fun refreshStart() {
-        onUiThread {
+        runOnUiThread {
             if (!swipeRefresh.isRefreshing) {
                 swipeRefresh.isRefreshing = true
             }
@@ -223,7 +224,7 @@ class FileBrowserFragment : FileBrowserView,
     }
 
     override fun refreshDone() {
-        onUiThread {
+        runOnUiThread {
             swipeRefresh.isRefreshing = false
         }
     }
@@ -243,7 +244,7 @@ class FileBrowserFragment : FileBrowserView,
     }
 
     override fun open(documentId: DocumentId) {
-        onUiThread {
+        runOnUiThread {
             info("Open With via started for docu id $documentId")
             val uri = uriFromDocumentId(documentId)
             val mimeType = typeFromUri(uri)
@@ -269,7 +270,7 @@ class FileBrowserFragment : FileBrowserView,
     }
 
     override fun share(documentId: DocumentId) {
-        onUiThread {
+        runOnUiThread {
             info("Share via started for docu id $documentId")
             val uri = uriFromDocumentId(documentId)
             val shareIntent = Intent(Intent.ACTION_SEND).apply {
@@ -296,7 +297,7 @@ class FileBrowserFragment : FileBrowserView,
 
 
     override fun export(documentId: DocumentId) {
-        onUiThread {
+        runOnUiThread {
             exportDocumentId = documentId
 
             val uri = uriFromDocumentId(documentId)

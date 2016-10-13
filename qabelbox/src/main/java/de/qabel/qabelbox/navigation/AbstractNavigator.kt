@@ -4,7 +4,6 @@ import android.app.Activity
 import android.app.Fragment
 import android.util.Log
 import de.qabel.qabelbox.R
-import org.jetbrains.anko.onUiThread
 
 open class AbstractNavigator {
 
@@ -14,7 +13,7 @@ open class AbstractNavigator {
             fragmentTransaction.addToBackStack(tag)
         }
         fragmentTransaction.commit()
-        activity.onUiThread {
+        activity.runOnUiThread {
             if (waitForTransaction) {
                 try {
                     while (activity.fragmentManager.executePendingTransactions()) {

@@ -14,7 +14,7 @@ import de.qabel.qabelbox.listeners.toIntentFilter
 import de.qabel.qabelbox.ui.QblView
 import org.jetbrains.anko.ctx
 import org.jetbrains.anko.longToast
-import org.jetbrains.anko.onUiThread
+import org.jetbrains.anko.runOnUiThread
 
 
 abstract class BaseFragment(protected val mainFragment: Boolean = false,
@@ -137,7 +137,7 @@ abstract class BaseFragment(protected val mainFragment: Boolean = false,
     }
 
     override fun showDefaultError(throwable: Throwable) {
-        onUiThread {
+        runOnUiThread {
             longToast(throwable.message ?: "Error")
             error("Error", throwable)
         }

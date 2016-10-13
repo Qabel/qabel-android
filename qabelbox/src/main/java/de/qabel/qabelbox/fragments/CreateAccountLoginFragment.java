@@ -62,10 +62,7 @@ public class CreateAccountLoginFragment extends BaseIdentityFragment {
         etPassword.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                if (actionId == EditorInfo.IME_ACTION_GO) {
-                    return doLogin();
-                }
-                return false;
+                return actionId == EditorInfo.IME_ACTION_GO && doLogin();
             }
         });
         resetPassword = view.findViewById(R.id.reset_password);
@@ -215,7 +212,7 @@ public class CreateAccountLoginFragment extends BaseIdentityFragment {
                     message.add(result.username);
                 }
 
-                String errorText = "";
+                String errorText;
                 if (message.size() == 0) {
                     errorText = getString(R.string.server_access_failed_or_invalid_check_internet_connection);
                 } else {
@@ -229,10 +226,4 @@ public class CreateAccountLoginFragment extends BaseIdentityFragment {
         };
     }
 
-    @Override
-    public String check() {
-
-        UIHelper.showDialogMessage(getActivity(), R.string.dialog_headline_info, R.string.function_not_yet_implenented);
-        return null;
-    }
 }

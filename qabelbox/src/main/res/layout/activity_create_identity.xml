@@ -36,16 +36,15 @@
             <LinearLayout
                 android:id="@+id/fragment_container_header"
                 android:layout_width="match_parent"
-                android:layout_height="0dp"
+                android:layout_height="wrap_content"
                 android:layout_weight="2"
                 android:orientation="vertical" />
 
             <LinearLayout
                 android:id="@+id/fragment_container_content"
                 android:layout_width="match_parent"
-                android:layout_height="0dp"
+                android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:minHeight="100dp"
                 android:orientation="vertical" />
         </LinearLayout>
     </ScrollView>

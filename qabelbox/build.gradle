@@ -12,6 +12,10 @@ spoon {
     failIfNoDeviceConnected = true
 }
 
+kapt {
+    generateStubs = true
+}
+
 android {
     compileSdkVersion 24
     buildToolsVersion '24.0.3'

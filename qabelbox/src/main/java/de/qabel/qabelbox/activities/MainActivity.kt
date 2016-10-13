@@ -20,10 +20,7 @@ import com.mikepenz.materialdrawer.AccountHeaderBuilder
 import com.mikepenz.materialdrawer.Drawer
 import com.mikepenz.materialdrawer.DrawerBuilder
 import com.mikepenz.materialdrawer.holder.BadgeStyle
-import com.mikepenz.materialdrawer.model.PrimaryDrawerItem
-import com.mikepenz.materialdrawer.model.ProfileDrawerItem
-import com.mikepenz.materialdrawer.model.ProfileSettingDrawerItem
-import com.mikepenz.materialdrawer.model.SecondaryDrawerItem
+import com.mikepenz.materialdrawer.model.*
 import de.qabel.chat.repository.ChatDropMessageRepository
 import de.qabel.core.config.Identity
 import de.qabel.core.repository.ContactRepository
@@ -483,7 +480,8 @@ class MainActivity : CrashReportingActivity(),
                     chats,
                     files
             )
-            addStickyDrawerItems(
+            addDrawerItems(
+                    DividerDrawerItem(),
                     settings,
                     upgrade,
                     tellAFriend,

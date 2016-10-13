@@ -42,6 +42,11 @@ abstract class BaseFragment(protected val mainFragment: Boolean = false,
         return componentType.cast((activity as HasComponent<C>).component)
     }
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        retainInstance = true
+    }
+
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         mActivity = activity as MainActivity

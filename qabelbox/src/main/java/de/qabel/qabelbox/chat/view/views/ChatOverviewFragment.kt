@@ -22,7 +22,7 @@ import de.qabel.qabelbox.fragments.BaseFragment
 import kotlinx.android.synthetic.main.fragment_contacts.*
 import org.jetbrains.anko.AnkoLogger
 import org.jetbrains.anko.ctx
-import org.jetbrains.anko.onUiThread
+import org.jetbrains.anko.runOnUiThread
 import javax.inject.Inject
 
 class ChatOverviewFragment() : ChatOverview, BaseFragment(true, false, true), AnkoLogger {
@@ -93,7 +93,7 @@ class ChatOverviewFragment() : ChatOverview, BaseFragment(true, false, true), An
     override fun loadData(data: List<ChatConversationDto>) {
         debug("Filling adapter with ${data.size} messages")
         busy()
-        onUiThread {
+        runOnUiThread {
             adapter.init(data)
             adapter.notifyDataSetChanged()
             updateView(data.size)

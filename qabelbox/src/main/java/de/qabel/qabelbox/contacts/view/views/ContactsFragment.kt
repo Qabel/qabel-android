@@ -34,7 +34,7 @@ import de.qabel.qabelbox.ui.extensions.showQuantityMessage
 import kotlinx.android.synthetic.main.fragment_contacts.*
 import org.jetbrains.anko.AnkoLogger
 import org.jetbrains.anko.ctx
-import org.jetbrains.anko.onUiThread
+import org.jetbrains.anko.runOnUiThread
 import rx.Observable
 import rx.subjects.BehaviorSubject
 import java.io.File
@@ -183,7 +183,7 @@ class ContactsFragment() : ContactsView, BaseFragment(true, true, true), AnkoLog
     override fun loadData(data: List<ContactDto>) {
         debug("Filling adapter with ${data.size} contacts")
         busy()
-        onUiThread {
+        runOnUiThread {
             adapter.refresh(data)
             adapter.notifyDataSetChanged()
             updateView(data.size)

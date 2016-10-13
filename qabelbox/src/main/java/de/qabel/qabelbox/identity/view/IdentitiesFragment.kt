@@ -22,7 +22,7 @@ import de.qabel.qabelbox.identity.view.adapter.IdentitiesAdapter
 import de.qabel.qabelbox.navigation.Navigator
 import kotlinx.android.synthetic.main.fragment_identities.*
 import org.jetbrains.anko.alert
-import org.jetbrains.anko.onUiThread
+import org.jetbrains.anko.runOnUiThread
 import org.jetbrains.anko.toast
 import java.io.FileNotFoundException
 import java.io.FileOutputStream
@@ -80,7 +80,7 @@ class IdentitiesFragment : BaseFragment(showFAButton = true) {
                                 positiveButton(R.string.ok, {
                                     identityUseCase.deleteIdentity(identity).subscribe({
                                         reload()
-                                        onUiThread {
+                                        runOnUiThread {
                                             toast(getString(R.string.entry_deleted).format(identity.alias))
                                         }
                                     }, {

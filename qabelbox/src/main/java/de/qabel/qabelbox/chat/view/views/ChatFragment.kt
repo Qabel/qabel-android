@@ -143,7 +143,7 @@ class ChatFragment : ChatView, BaseFragment(), AnkoLogger {
 
     override fun reset() {
         busy()
-        onUiThread {
+        runOnUiThread {
             adapter.reset()
             swipeRefresh.isEnabled = true
             idle()
@@ -152,7 +152,7 @@ class ChatFragment : ChatView, BaseFragment(), AnkoLogger {
 
     override fun appendData(models: List<ChatMessage>) {
         busy()
-        onUiThread {
+        runOnUiThread {
             adapter.append(models)
             scrollToBottom()
             idle()
@@ -162,7 +162,7 @@ class ChatFragment : ChatView, BaseFragment(), AnkoLogger {
     override fun prependData(models: List<ChatMessage>) {
         debug("Showing ${models.size} messages")
         busy()
-        onUiThread {
+        runOnUiThread {
             val loadMore = adapter.itemCount > 0
             adapter.prepend(models)
             swipeRefresh.isRefreshing = false
@@ -202,7 +202,7 @@ class ChatFragment : ChatView, BaseFragment(), AnkoLogger {
     }
 
     override fun showError(error: Throwable) {
-        onUiThread {
+        runOnUiThread {
             longToast(getString(R.string.error_saving_changed))
             error("Error in ChatFragment", error)
             refreshContactOverlay()
@@ -210,7 +210,7 @@ class ChatFragment : ChatView, BaseFragment(), AnkoLogger {
     }
 
     override fun openShare(shareId: ShareId) {
-        onUiThread {
+        runOnUiThread {
             info("Open With via started for share id $shareId")
             val uri = shareId.toUri()
             val mimeType = URLConnection.guessContentTypeFromName(uri.toString()) ?: ""

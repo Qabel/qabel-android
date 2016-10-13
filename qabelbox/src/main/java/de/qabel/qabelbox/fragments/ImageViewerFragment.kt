@@ -11,7 +11,7 @@ import de.qabel.qabelbox.R
 import de.qabel.qabelbox.helper.ExternalApps
 import de.qabel.qabelbox.ui.extensions.setVisibleOrGone
 import kotlinx.android.synthetic.main.fragment_imageviewer.view.*
-import org.jetbrains.anko.onUiThread
+import org.jetbrains.anko.runOnUiThread
 
 class ImageViewerFragment : Fragment() {
 
@@ -49,7 +49,7 @@ class ImageViewerFragment : Fragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.fragment_imageviewer, container, false)
         setClickListener(view)
-        onUiThread {
+        runOnUiThread {
             loadImage(view)
         }
         return view

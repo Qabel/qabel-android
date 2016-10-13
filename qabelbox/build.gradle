@@ -2,6 +2,7 @@ apply plugin: 'com.android.application'
 apply plugin: 'spoon'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
+apply plugin: 'kotlin-kapt'
 
 // This section is optional
 spoon {
@@ -12,13 +13,9 @@ spoon {
     failIfNoDeviceConnected = true
 }
 
-kapt {
-    generateStubs = true
-}
-
 android {
-    compileSdkVersion 23
-    buildToolsVersion '23.0.3'
+    compileSdkVersion 24
+    buildToolsVersion '24.0.3'
 
     sourceSets {
         androidTest.java.srcDirs = ['src/androidTest/java', 'src/sharedTest/java']
@@ -39,7 +36,7 @@ android {
         buildConfigField "long", "TIMESTAMP", System.currentTimeMillis() + "L"
         applicationId "de.qabel.qabel"
         minSdkVersion 19
-        targetSdkVersion 23
+        targetSdkVersion 24
         multiDexEnabled true
         /*
         add code to automatically generate version name and code,
@@ -287,10 +284,10 @@ dependencies {
      * https://github.com/robolectric/robolectric/issues/1932
      */
     testCompile 'org.khronos:opengl-api:gl1.1-android-2.1_r1'
-    compile 'com.android.support:recyclerview-v7:23.2.1'
-    compile 'com.android.support:appcompat-v7:23.2.1'
-    compile 'com.android.support:design:23.2.1'
-    compile 'com.android.support:cardview-v7:23.2.1'
+    compile 'com.android.support:recyclerview-v7:24.2.1'
+    compile 'com.android.support:appcompat-v7:24.2.1'
+    compile 'com.android.support:design:24.2.1'
+    compile 'com.android.support:cardview-v7:24.2.1'
     compile 'org.slf4j:slf4j-android:1.7.12'
     compile 'com.google.code.gson:gson:2.4'
     compile 'org.apache.commons:commons-lang3:3.4'

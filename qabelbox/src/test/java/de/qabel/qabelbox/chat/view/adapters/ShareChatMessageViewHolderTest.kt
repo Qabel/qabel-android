@@ -1,7 +1,10 @@
 package de.qabel.qabelbox.chat.view.adapters
 
+import android.graphics.drawable.Drawable
+import android.graphics.drawable.GradientDrawable
 import android.view.View
 import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.TextView
 import com.natpryce.hamkrest.assertion.assertThat
 import com.natpryce.hamkrest.equalTo
@@ -73,6 +76,11 @@ class ShareChatMessageViewHolderTest {
         val overlay : TextViewFont = mock()
         val image : ImageView = mock()
         val preview : ImageView = mock()
+        val messageContainer: LinearLayout = mock()
+        val background = mock<Drawable>().apply {
+            stub(this.mutate()).toReturn(mock<GradientDrawable>())
+        }
+        stub(messageContainer.background).toReturn(background)
 
         stub(view.message).toReturn(messageField)
         stub(view.tvDate).toReturn(dateField)
@@ -80,6 +88,8 @@ class ShareChatMessageViewHolderTest {
         stub(view.msg_overlay).toReturn(overlay)
         stub(view.messageFileIcon).toReturn(image)
         stub(view.messageFilePreview).toReturn(preview)
+        stub(view.msg_container).toReturn(messageContainer)
+        stub(view.contact_avatar).toReturn(mock())
 
         val holder = ShareChatMessageViewHolder(view, {})
         val msg = ChatMessage(mock<Identity>(), contact,

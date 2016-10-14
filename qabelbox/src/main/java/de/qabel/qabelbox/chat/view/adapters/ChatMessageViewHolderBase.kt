@@ -22,7 +22,10 @@ abstract class ChatMessageViewHolderBase<in T : MessagePayloadDto>(itemView: Vie
     fun bindTo(message: ChatMessage, showBeginIndicator: Boolean) {
         with(itemView) {
             val incoming = message.direction == ChatDropMessage.Direction.INCOMING
-            chat_begin_indicator?.visibility = if (incoming) View.GONE else if (showBeginIndicator) View.VISIBLE else View.INVISIBLE
+            chat_begin_indicator?.visibility =
+                    if (incoming) View.GONE
+                    else if (showBeginIndicator) View.VISIBLE
+                    else View.INVISIBLE
 
             setPadding(0, if (showBeginIndicator) 10 else 0, 0, 0)
 
@@ -48,8 +51,8 @@ abstract class ChatMessageViewHolderBase<in T : MessagePayloadDto>(itemView: Vie
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     private fun setBackgroundColor(itemView: View, message: ChatMessage) =
             doFromSdk(Build.VERSION_CODES.LOLLIPOP) {
-                (itemView.msg_container.background.mutate() as GradientDrawable).setColor(
-                        ColorStateList.valueOf(message.contact.color(itemView.context)))
+                (itemView.msg_container.background.mutate() as GradientDrawable).color =
+                        ColorStateList.valueOf(message.contact.color(itemView.context))
             }
 
 }

@@ -13,12 +13,12 @@ import butterknife.ButterKnife
 import de.qabel.core.config.Identity
 import de.qabel.qabelbox.QblBroadcastConstants
 import de.qabel.qabelbox.R
+import de.qabel.qabelbox.base.BaseFragment
 import de.qabel.qabelbox.chat.dagger.ChatOverviewModule
 import de.qabel.qabelbox.chat.dto.ChatConversationDto
 import de.qabel.qabelbox.chat.view.adapters.ChatOverviewAdapter
 import de.qabel.qabelbox.chat.view.presenters.ChatOverviewPresenter
 import de.qabel.qabelbox.dagger.components.MainActivityComponent
-import de.qabel.qabelbox.fragments.BaseFragment
 import kotlinx.android.synthetic.main.fragment_contacts.*
 import org.jetbrains.anko.AnkoLogger
 import org.jetbrains.anko.ctx

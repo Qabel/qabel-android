@@ -5,12 +5,12 @@ import android.view.*
 import butterknife.ButterKnife
 import de.qabel.core.config.Identities
 import de.qabel.qabelbox.R
+import de.qabel.qabelbox.base.BaseFragment
 import de.qabel.qabelbox.contacts.dagger.ContactEditModule
 import de.qabel.qabelbox.contacts.dto.ContactDto
 import de.qabel.qabelbox.contacts.view.adapters.ContactEditAdapter
 import de.qabel.qabelbox.contacts.view.presenters.ContactEditPresenter
 import de.qabel.qabelbox.dagger.components.MainActivityComponent
-import de.qabel.qabelbox.fragments.BaseFragment
 import org.jetbrains.anko.AnkoLogger
 import org.jetbrains.anko.ctx
 import org.jetbrains.anko.toast

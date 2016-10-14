@@ -1,7 +1,6 @@
 package de.qabel.qabelbox.dagger.modules;
 
 import android.content.Context;
-import android.support.annotation.Nullable;
 import android.support.v7.app.NotificationCompat;
 
 import javax.inject.Singleton;
@@ -9,46 +8,49 @@ import javax.inject.Singleton;
 import dagger.Module;
 import dagger.Provides;
 import dagger.internal.Factory;
-import de.qabel.box.storage.StorageReadBackend;
 import de.qabel.chat.repository.ChatDropMessageRepository;
-import de.qabel.chat.repository.ChatShareRepository;
 import de.qabel.chat.service.ChatService;
 import de.qabel.chat.service.MainChatService;
-import de.qabel.chat.service.MainSharingService;
 import de.qabel.chat.service.SharingService;
-import de.qabel.core.config.Identities;
-import de.qabel.core.crypto.CryptoUtils;
 import de.qabel.core.http.MainDropConnector;
 import de.qabel.core.http.MainDropServer;
 import de.qabel.core.repository.ContactRepository;
 import de.qabel.core.repository.DropStateRepository;
 import de.qabel.core.repository.IdentityRepository;
-import de.qabel.core.repository.exception.PersistenceException;
 import de.qabel.qabelbox.QabelBoxApplication;
-import de.qabel.qabelbox.box.backends.BoxHttpStorageBackend;
-import de.qabel.qabelbox.chat.notifications.presenter.AndroidChatNotificationPresenter;
-import de.qabel.qabelbox.chat.notifications.ChatNotificationManager;
-import de.qabel.qabelbox.chat.notifications.presenter.ChatNotificationPresenter;
-import de.qabel.qabelbox.chat.notifications.MainChatNotificationManager;
 import de.qabel.qabelbox.chat.interactor.ChatServiceUseCase;
 import de.qabel.qabelbox.chat.interactor.MainChatServiceUseCase;
+import de.qabel.qabelbox.chat.notifications.ChatNotificationManager;
+import de.qabel.qabelbox.chat.notifications.MainChatNotificationManager;
+import de.qabel.qabelbox.chat.notifications.presenter.AndroidChatNotificationPresenter;
+import de.qabel.qabelbox.chat.notifications.presenter.ChatNotificationPresenter;
 import de.qabel.qabelbox.chat.transformers.ChatMessageTransformer;
 import de.qabel.qabelbox.identity.interactor.IdentityUseCase;
 import de.qabel.qabelbox.identity.interactor.MainIdentityUseCase;
 import de.qabel.qabelbox.listeners.ActionIntentSender;
 import de.qabel.qabelbox.listeners.AndroidActionIntentCastSender;
-import de.qabel.qabelbox.storage.server.BlockServer;
+import de.qabel.qabelbox.reporter.CrashReporter;
+import de.qabel.qabelbox.reporter.HockeyAppCrashReporter;
 
 @Module
 public class ApplicationModule extends ContextModule {
 
+    private QabelBoxApplication application;
+
     public ApplicationModule(QabelBoxApplication application) {
         super(application);
+        this.application = application;
     }
 
     @Provides
     ActionIntentSender providesActionIntentSender(Context context) {
         return new AndroidActionIntentCastSender(context);
+    }
+
+    @Provides
+    @Singleton
+    CrashReporter providesCrashReporter(Context context) {
+        return new HockeyAppCrashReporter(context);
     }
 
     @Singleton

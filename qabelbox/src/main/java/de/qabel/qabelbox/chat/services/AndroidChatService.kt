@@ -10,7 +10,10 @@ import de.qabel.qabelbox.chat.notifications.ChatNotificationManager
 import de.qabel.qabelbox.chat.transformers.ChatMessageTransformer
 import de.qabel.qabelbox.helper.Helper
 import de.qabel.qabelbox.navigation.MainNavigator
+import de.qabel.qabelbox.reporter.CrashReporter
+import de.qabel.qabelbox.reporter.HockeyAppCrashReporter
 import org.jetbrains.anko.AnkoLogger
+import org.jetbrains.anko.ctx
 import org.jetbrains.anko.info
 import java.util.*
 import javax.inject.Inject
@@ -21,6 +24,7 @@ open class AndroidChatService() : IntentService(AndroidChatService::class.java.s
         const val PARAM_CONTACT_KEY = "contact_key"
         const val PARAM_IDENTITY_KEY = "identity_key"
     }
+
 
     private fun Intent.contactKey(): String = getStringExtra(PARAM_CONTACT_KEY)!!
     private fun Intent.identityKey(): String = getStringExtra(PARAM_IDENTITY_KEY)!!

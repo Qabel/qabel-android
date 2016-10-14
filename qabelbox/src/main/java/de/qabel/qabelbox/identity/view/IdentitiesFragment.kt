@@ -11,11 +11,11 @@ import com.cocosw.bottomsheet.BottomSheet
 import de.qabel.core.config.ContactExportImport
 import de.qabel.core.config.Identity
 import de.qabel.qabelbox.R
-import de.qabel.qabelbox.activities.MainActivity
+import de.qabel.qabelbox.base.BaseFragment
+import de.qabel.qabelbox.base.MainActivity
 import de.qabel.qabelbox.config.IdentityExportImport
 import de.qabel.qabelbox.config.QabelSchema
 import de.qabel.qabelbox.dagger.components.MainActivityComponent
-import de.qabel.qabelbox.fragments.BaseFragment
 import de.qabel.qabelbox.helper.UIHelper
 import de.qabel.qabelbox.identity.interactor.IdentityUseCase
 import de.qabel.qabelbox.identity.view.adapter.IdentitiesAdapter

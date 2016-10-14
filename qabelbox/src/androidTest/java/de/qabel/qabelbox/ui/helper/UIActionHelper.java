@@ -7,7 +7,7 @@ import android.content.Intent;
 import android.os.PowerManager;
 import android.view.WindowManager;
 
-import de.qabel.qabelbox.activities.MainActivity;
+import de.qabel.qabelbox.base.MainActivity;
 
 /**
  * Created by danny on 17.01.16.

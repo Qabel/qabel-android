@@ -8,6 +8,14 @@
     android:baselineAligned="false"
     android:orientation="horizontal">
 
+    <de.qabel.qabelbox.ui.views.SquareFrameLayout
+        android:id="@+id/contact_avatar"
+        style="@style/ListIcon"
+        android:layout_width="wrap_content"
+        android:layout_marginStart="@dimen/default_space"
+        android:layout_marginEnd="@dimen/default_space"
+        android:layout_height="@dimen/contact_initials" />
+
     <ImageView xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:tools="http://schemas.android.com/tools"
         android:id="@+id/chat_begin_indicator"
@@ -18,6 +26,7 @@
         tools:ignore="ContentDescription" />
 
     <LinearLayout
+        android:id="@+id/msg_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center_vertical"
@@ -32,8 +41,7 @@
             android:id="@+id/chatContent"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
-        </LinearLayout>
+            android:orientation="vertical"></LinearLayout>
 
         <de.qabel.qabelbox.ui.views.TextViewFont
             android:id="@+id/tvDate"

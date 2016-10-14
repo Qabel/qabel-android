@@ -55,7 +55,6 @@ open class BoxProvider : DocumentsProvider(), AnkoLogger {
         inject()
         context.registerReceiver(volumesChangedBroadcastReceiver,
                 IntentFilter(QblBroadcastConstants.Storage.BOX_VOLUMES_CHANGES))
-        crashReporter.installCrashReporter()
         return true
     }
 
@@ -64,6 +63,7 @@ open class BoxProvider : DocumentsProvider(), AnkoLogger {
                 .contextModule(ContextModule(context))
                 .build()
         boxComponent.inject(this)
+        crashReporter.installCrashReporter()
     }
 
     /**

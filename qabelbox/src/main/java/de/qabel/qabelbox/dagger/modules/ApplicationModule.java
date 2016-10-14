@@ -29,8 +29,6 @@ import de.qabel.qabelbox.identity.interactor.IdentityUseCase;
 import de.qabel.qabelbox.identity.interactor.MainIdentityUseCase;
 import de.qabel.qabelbox.listeners.ActionIntentSender;
 import de.qabel.qabelbox.listeners.AndroidActionIntentCastSender;
-import de.qabel.qabelbox.reporter.CrashReporter;
-import de.qabel.qabelbox.reporter.HockeyAppCrashReporter;
 
 @Module
 public class ApplicationModule extends ContextModule {
@@ -45,12 +43,6 @@ public class ApplicationModule extends ContextModule {
     @Provides
     ActionIntentSender providesActionIntentSender(Context context) {
         return new AndroidActionIntentCastSender(context);
-    }
-
-    @Provides
-    @Singleton
-    CrashReporter providesCrashReporter(Context context) {
-        return new HockeyAppCrashReporter(context);
     }
 
     @Singleton

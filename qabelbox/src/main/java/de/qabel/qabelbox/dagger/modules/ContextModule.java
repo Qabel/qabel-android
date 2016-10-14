@@ -7,6 +7,8 @@ import javax.inject.Singleton;
 import dagger.Module;
 import dagger.Provides;
 import de.qabel.qabelbox.config.AppPreference;
+import de.qabel.qabelbox.reporter.CrashReporter;
+import de.qabel.qabelbox.reporter.HockeyAppCrashReporter;
 
 @Module
 public class ContextModule {
@@ -25,4 +27,9 @@ public class ContextModule {
         return new AppPreference(context);
     }
 
+    @Provides
+    @Singleton
+    CrashReporter providesCrashReporter(Context context) {
+        return new HockeyAppCrashReporter(context);
+    }
 }

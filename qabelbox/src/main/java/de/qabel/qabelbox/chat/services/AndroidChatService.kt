@@ -11,9 +11,7 @@ import de.qabel.qabelbox.chat.transformers.ChatMessageTransformer
 import de.qabel.qabelbox.helper.Helper
 import de.qabel.qabelbox.navigation.MainNavigator
 import de.qabel.qabelbox.reporter.CrashReporter
-import de.qabel.qabelbox.reporter.HockeyAppCrashReporter
 import org.jetbrains.anko.AnkoLogger
-import org.jetbrains.anko.ctx
 import org.jetbrains.anko.info
 import java.util.*
 import javax.inject.Inject
@@ -32,10 +30,12 @@ open class AndroidChatService() : IntentService(AndroidChatService::class.java.s
     @Inject lateinit var chatService: ChatServiceUseCase
     @Inject lateinit var chatMessageTransformer: ChatMessageTransformer
     @Inject lateinit var chatNotificationManager: ChatNotificationManager
+    @Inject lateinit var crashReporter: CrashReporter
 
     override fun onCreate() {
         super.onCreate()
         QabelBoxApplication.getApplicationComponent(applicationContext).inject(this)
+        crashReporter.installCrashReporter()
         info("Service initialized!")
     }
 

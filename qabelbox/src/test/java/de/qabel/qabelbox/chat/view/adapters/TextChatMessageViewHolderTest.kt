@@ -2,12 +2,9 @@ package de.qabel.qabelbox.chat.view.adapters
 
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.GradientDrawable
-import android.os.SystemClock
 import android.view.View
 import android.widget.LinearLayout
-import com.nhaarman.mockito_kotlin.mock
-import com.nhaarman.mockito_kotlin.stub
-import com.nhaarman.mockito_kotlin.verify
+import com.nhaarman.mockito_kotlin.*
 import de.qabel.chat.repository.entities.ChatDropMessage
 import de.qabel.core.config.Contact
 import de.qabel.core.config.Identity
@@ -16,6 +13,8 @@ import de.qabel.qabelbox.R
 import de.qabel.qabelbox.SimpleApplication
 import de.qabel.qabelbox.chat.dto.ChatMessage
 import de.qabel.qabelbox.chat.dto.MessagePayloadDto
+import de.qabel.qabelbox.contacts.extensions.color
+import de.qabel.qabelbox.contacts.view.widgets.IdentityIconDrawable
 import de.qabel.qabelbox.test.shadows.TextViewFontShadow
 import de.qabel.qabelbox.ui.views.TextViewFont
 import kotlinx.android.synthetic.main.chat_message_in.view.*
@@ -38,6 +37,7 @@ class TextChatMessageViewHolderTest {
     fun viewHolderCanBindItself() {
         val contact = mock<Contact>()
         stub(contact.alias).toReturn("contact")
+        whenever(contact.keyIdentifier).thenReturn("test")
 
         val view = mock<View>()
         stub(view.context).toReturn(RuntimeEnvironment.application)
@@ -62,6 +62,8 @@ class TextChatMessageViewHolderTest {
 
         verify(textField).text = "text"
         verify(dateField).text = RuntimeEnvironment.application.getString(R.string.moments_ago)
+        verify(background).mutate()
+        verify(view.contact_avatar).background = any()
     }
 
 }

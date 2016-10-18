@@ -11,7 +11,9 @@ class HockeyAppCrashSubmitter @Inject constructor(): CrashSubmitter {
 
     override fun submit(e: Throwable) {
         if (e !is IOException) {
-            ExceptionHandler.saveException(e, null, null)
+            ExceptionHandler.saveException(e,
+                    null, // from the current thread
+                    null) // with the default crash listener from hockeyapp
         }
     }
 

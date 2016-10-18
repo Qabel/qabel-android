@@ -33,8 +33,6 @@ import de.qabel.qabelbox.identity.interactor.MainIdentityUseCase;
 import de.qabel.qabelbox.listeners.ActionIntentSender;
 import de.qabel.qabelbox.listeners.AndroidActionIntentCastSender;
 
-ormers.ChatMessageTransformer;
-
 @Module
 public class ApplicationModule extends ContextModule {
 

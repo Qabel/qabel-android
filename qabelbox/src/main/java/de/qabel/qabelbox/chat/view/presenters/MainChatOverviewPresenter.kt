@@ -2,13 +2,20 @@ package de.qabel.qabelbox.chat.view.presenters
 
 import de.qabel.qabelbox.chat.dto.ChatMessage
 import de.qabel.qabelbox.chat.interactor.FindLatestConversations
+import de.qabel.qabelbox.chat.interactor.MarkAsRead
+import de.qabel.qabelbox.chat.interactor.SendMessagesReadEvent
 import de.qabel.qabelbox.chat.view.views.ChatOverview
 import de.qabel.qabelbox.navigation.Navigator
 import javax.inject.Inject
 
 class MainChatOverviewPresenter @Inject constructor(private val view: ChatOverview,
                                                     private val useCase: FindLatestConversations,
+                                                    private val sendMessagesReadEvent: SendMessagesReadEvent,
                                                     private val navigator: Navigator) : ChatOverviewPresenter {
+    override fun markAllAsRead() {
+       sendMessagesReadEvent.messagesRead(view.identity)
+    }
+
     override fun refresh() {
         useCase.findLatest(view.identity).toList().subscribe({
             view.loadData(it)

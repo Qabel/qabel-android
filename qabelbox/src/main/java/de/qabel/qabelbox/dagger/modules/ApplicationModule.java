@@ -26,8 +26,10 @@ import de.qabel.core.repository.IdentityRepository;
 import de.qabel.core.repository.exception.PersistenceException;
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.box.backends.BoxHttpStorageBackend;
+import de.qabel.qabelbox.chat.interactor.IntentSendMessagesReadEvent;
 import de.qabel.qabelbox.chat.interactor.MainMarkAsRead;
 import de.qabel.qabelbox.chat.interactor.MarkAsRead;
+import de.qabel.qabelbox.chat.interactor.SendMessagesReadEvent;
 import de.qabel.qabelbox.chat.notifications.presenter.AndroidChatNotificationPresenter;
 import de.qabel.qabelbox.chat.notifications.ChatNotificationManager;
 import de.qabel.qabelbox.chat.notifications.presenter.ChatNotificationPresenter;
@@ -76,6 +78,11 @@ public class ApplicationModule extends ContextModule {
                 contactRepository, chatDropMessageRepository, dropStateRepository, sharingService);
     }
 
+    @Singleton
+    @Provides
+    SendMessagesReadEvent providesSendMessagesReadEvent(IntentSendMessagesReadEvent intentSendMessagesReadEvent) {
+        return intentSendMessagesReadEvent;
+    }
 
     @Singleton
     @Provides

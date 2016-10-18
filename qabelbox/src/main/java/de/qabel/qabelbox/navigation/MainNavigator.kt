@@ -124,7 +124,7 @@ constructor(var activity: MainActivity,
     }
 
     override fun selectContactChat(contactKey: String, withIdentity: Identity) {
-        if (activeIdentity.keyIdentifier.equals(withIdentity.keyIdentifier)) {
+        if (activeIdentity.keyIdentifier == withIdentity.keyIdentifier) {
             try {
                 val contact = contactRepository.findByKeyId(withIdentity, contactKey);
                 showFragment(activity, ChatFragment.withContact(contact), TAG_CONTACT_CHAT_FRAGMENT, true, true)

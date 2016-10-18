@@ -10,5 +10,6 @@ interface ChatOverviewPresenter {
     fun handleLongClick(message : ChatMessage) : Boolean
 
     fun navigateToContacts()
+    fun markAllAsRead()
 
 }

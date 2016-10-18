@@ -6,10 +6,7 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.os.Bundle
 import android.support.v7.widget.LinearLayoutManager
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import butterknife.ButterKnife
+import android.view.*
 import de.qabel.core.config.Identity
 import de.qabel.qabelbox.QblBroadcastConstants
 import de.qabel.qabelbox.R
@@ -25,7 +22,8 @@ import org.jetbrains.anko.ctx
 import org.jetbrains.anko.runOnUiThread
 import javax.inject.Inject
 
-class ChatOverviewFragment() : ChatOverview, BaseFragment(true, false, true), AnkoLogger {
+class ChatOverviewFragment() : ChatOverview, BaseFragment(
+        mainFragment = true, showOptionsMenu = true, showFAButton = true), AnkoLogger {
 
     var injectCompleted = false
 
@@ -51,7 +49,6 @@ class ChatOverviewFragment() : ChatOverview, BaseFragment(true, false, true), An
 
     override fun onViewCreated(view: View?, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        ButterKnife.bind(this, view as View)
     }
 
     private val broadcastReceiver = object : BroadcastReceiver() {
@@ -62,10 +59,24 @@ class ChatOverviewFragment() : ChatOverview, BaseFragment(true, false, true), An
         }
     }
 
+
+    override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater?) {
+        inflater?.inflate(R.menu.ab_conversations, menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        if (item.itemId == R.id.markAsRead) {
+            presenter.markAllAsRead()
+        }
+        return true
+    }
+
     override fun onResume() {
         super.onResume()
         presenter.refresh()
-        ctx.registerReceiver(broadcastReceiver, IntentFilter(QblBroadcastConstants.Chat.NOTIFY_NEW_MESSAGES).apply {
+        ctx.registerReceiver(broadcastReceiver, IntentFilter().apply {
+            addAction(QblBroadcastConstants.Chat.NOTIFY_NEW_MESSAGES)
+            addAction(QblBroadcastConstants.Chat.MESSAGE_STATE_CHANGED)
             priority = 1
         })
     }

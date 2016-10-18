@@ -4,9 +4,11 @@ import android.content.Context;
 import android.util.AttributeSet;
 import android.widget.TextView;
 
+import com.vanniktech.emoji.EmojiTextView;
+
 import de.qabel.qabelbox.helper.FontHelper;
 
-public class TextViewFont extends TextView {
+public class TextViewFont extends EmojiTextView {
 
     public TextViewFont(Context context) {
         super(context);

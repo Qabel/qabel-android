@@ -10,6 +10,7 @@ import android.support.v7.widget.LinearLayoutManager
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import com.vanniktech.emoji.EmojiPopup
 import de.qabel.core.config.Contact
 import de.qabel.core.config.Identity
 import de.qabel.qabelbox.QblBroadcastConstants
@@ -61,6 +62,8 @@ class ChatFragment : ChatView, BaseFragment(), AnkoLogger {
     @Inject
     lateinit var identity: Identity
 
+    lateinit var emojiPopup: EmojiPopup
+
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         contactKeyId = arguments.getString(ARG_CONTACT) ?: throw IllegalArgumentException(
@@ -110,6 +113,7 @@ class ChatFragment : ChatView, BaseFragment(), AnkoLogger {
     override fun onPause() {
         super.onPause()
         ctx.unregisterReceiver(notificationBlockReceiver)
+        emojiPopup.dismiss()
 
         mActivity?.toolbar?.isClickable = false
     }
@@ -136,9 +140,24 @@ class ChatFragment : ChatView, BaseFragment(), AnkoLogger {
             presenter.proxy.loadMore()
         }
 
-        bt_send.setOnClickListener { presenter.sendMessage() }
+        bt_send.onClick {
+             emojiPopup.dismiss(); presenter.sendMessage()
+        }
         action_add_contact.setOnClickListener { presenter.handleContactAddClick() }
         action_ignore_contact.setOnClickListener { presenter.handleContactIgnoreClick() }
+        emojiPopup = EmojiPopup.Builder.fromRootView(view)
+                .build(etText)
+        emoji_popup.onClick {
+            emojiPopup.toggle()
+        }
+    }
+
+    override fun onBackPressed(): Boolean {
+        if (emojiPopup.isShowing) {
+            emojiPopup.dismiss()
+            return true
+        }
+        return false
     }
 
     override fun reset() {

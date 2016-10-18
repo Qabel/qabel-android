@@ -2,6 +2,8 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:background="@color/background_white"
     android:orientation="vertical">
 
@@ -10,42 +12,51 @@
         android:layout_height="match_parent"
         android:background="@color/background_white">
 
-        <RelativeLayout
+        <LinearLayout
             android:id="@+id/etLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
-            android:paddingEnd="@dimen/default_space"
-            android:paddingStart="@dimen/default_space">
+            android:background="#FFF"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:padding="4dp">
 
-            <de.qabel.qabelbox.ui.views.ButtonFont
-                android:id="@+id/bt_send"
-                style="@style/TextViewButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentEnd="true"
-                android:layout_centerInParent="true"
-                android:clickable="true"
-                android:gravity="center"
-                android:text="@string/btn_chat_send"
-                android:textColor="@color/white" />
+            <ImageButton
+                android:id="@+id/emoji_popup"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:scaleType="center"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@drawable/emoji_people"
+                android:contentDescription="@string/emoji" />
 
-            <de.qabel.qabelbox.ui.views.EditTextFont
+            <com.vanniktech.emoji.EmojiEditText
                 android:id="@+id/etText"
                 style="@style/EditText"
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_toStartOf="@id/bt_send"
-                android:background="@android:color/transparent"
-                android:hint="@string/chat_message_hint"
-                android:inputType="textMultiLine|textCapSentences"
+                android:layout_weight="1"
+                android:inputType="textCapSentences|textMultiLine"
+                app:emojiSize="26sp"
+                android:imeOptions="actionSend"
                 android:isScrollContainer="true"
                 android:scrollbars="vertical"
                 android:maxLength="1536"
                 android:minLines="2"
                 android:lines="8"
                 android:maxLines="10" />
-        </RelativeLayout>
+
+            <ImageView
+                android:id="@+id/bt_send"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:scaleType="center"
+                android:src="@drawable/ic_media_play"
+                tools:ignore="ContentDescription"/>
+
+        </LinearLayout>
 
         <android.support.v4.widget.SwipeRefreshLayout
             android:id="@+id/swipeRefresh"

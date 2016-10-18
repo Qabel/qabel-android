@@ -46,6 +46,7 @@ class AndroidChatServiceTest() {
         RuntimeEnvironment.application.startService(Intent(RuntimeEnvironment.application, AndroidChatService::class.java))
         androidService = TestChatService()
         androidService.chatService = mock()
+        androidService.markAsRead = mock()
         androidService.chatMessageTransformer = mock()
         androidService.chatNotificationManager = mock()
     }

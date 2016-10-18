@@ -18,7 +18,7 @@ import org.junit.Test;
 
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.TestConstants;
-import de.qabel.qabelbox.activities.MainActivity;
+import de.qabel.qabelbox.base.MainActivity;
 import de.qabel.qabelbox.communication.URLs;
 import de.qabel.qabelbox.ui.helper.SystemAnimations;
 import de.qabel.qabelbox.ui.helper.UIActionHelper;

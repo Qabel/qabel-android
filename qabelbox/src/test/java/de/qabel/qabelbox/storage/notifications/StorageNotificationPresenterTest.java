@@ -24,7 +24,7 @@ import java.util.Queue;
 import de.qabel.qabelbox.BuildConfig;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.SimpleApplication;
-import de.qabel.qabelbox.activities.MainActivity;
+import de.qabel.qabelbox.base.MainActivity;
 import de.qabel.qabelbox.storage.model.BoxUploadingFile;
 
 import static org.junit.Assert.assertEquals;

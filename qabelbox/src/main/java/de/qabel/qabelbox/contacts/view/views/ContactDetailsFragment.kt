@@ -9,7 +9,7 @@ import de.qabel.qabelbox.contacts.dto.ContactDto
 import de.qabel.qabelbox.contacts.view.adapters.ContactDetailsAdapter
 import de.qabel.qabelbox.contacts.view.presenters.ContactDetailsPresenter
 import de.qabel.qabelbox.dagger.components.MainActivityComponent
-import de.qabel.qabelbox.fragments.BaseFragment
+import de.qabel.qabelbox.base.BaseFragment
 import org.jetbrains.anko.AnkoLogger
 import javax.inject.Inject
 

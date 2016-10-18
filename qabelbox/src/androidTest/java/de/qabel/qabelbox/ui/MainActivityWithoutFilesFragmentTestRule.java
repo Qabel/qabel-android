@@ -3,7 +3,7 @@ package de.qabel.qabelbox.ui;
 import android.content.Intent;
 import android.support.test.espresso.intent.rule.IntentsTestRule;
 
-import de.qabel.qabelbox.activities.MainActivity;
+import de.qabel.qabelbox.base.MainActivity;
 
 class MainActivityWithoutFilesFragmentTestRule extends IntentsTestRule<MainActivity> {
 

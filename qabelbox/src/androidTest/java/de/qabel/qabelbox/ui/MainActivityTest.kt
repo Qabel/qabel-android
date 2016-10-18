@@ -6,7 +6,7 @@ import android.view.MenuItem
 import de.qabel.core.config.Identity
 import de.qabel.qabelbox.QblBroadcastConstants
 import de.qabel.qabelbox.R
-import de.qabel.qabelbox.activities.MainActivity
+import de.qabel.qabelbox.base.MainActivity
 import de.qabel.qabelbox.chat.view.views.ChatFragment
 import de.qabel.qabelbox.navigation.MainNavigator
 import de.qabel.qabelbox.util.IdentityHelper

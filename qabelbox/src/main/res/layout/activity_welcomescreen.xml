@@ -5,7 +5,7 @@
                 android:layout_height="match_parent"
                 android:background="@color/bg_welcome_semitransparent"
                 android:orientation="vertical"
-                tools:context=".activities.WelcomeScreenActivity">
+                tools:context=".startup.activities.WelcomeScreenActivity">
 
     <LinearLayout
         android:id="@+id/bottomActionBar"

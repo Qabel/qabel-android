@@ -15,6 +15,8 @@ import de.qabel.qabelbox.index.preferences.AndroidIndexPreferences
 import de.qabel.qabelbox.index.preferences.IndexPreferences
 import de.qabel.qabelbox.permissions.DataPermissionsAdapter
 import de.qabel.qabelbox.permissions.hasContactsReadPermission
+import de.qabel.qabelbox.reporter.CrashReporter
+import de.qabel.qabelbox.reporter.CrashSubmitter
 import javax.inject.Inject
 
 open class ContactSyncAdapter : AbstractThreadedSyncAdapter, QabelLog, DataPermissionsAdapter {
@@ -26,6 +28,8 @@ open class ContactSyncAdapter : AbstractThreadedSyncAdapter, QabelLog, DataPermi
     @Inject lateinit internal var context: Context
     @Inject lateinit internal var indexService: IndexService
     @Inject lateinit internal var indexPreferences: IndexPreferences
+    @Inject lateinit internal var crashReporter: CrashReporter
+    @Inject lateinit internal var crashSubmitter: CrashSubmitter
     lateinit internal var contactsAccessor: ExternalContactsAccessor
 
     object Manager : QabelLog {
@@ -81,6 +85,7 @@ open class ContactSyncAdapter : AbstractThreadedSyncAdapter, QabelLog, DataPermi
         this.context = context
         mContentResolver = context.contentResolver
         QabelBoxApplication.getApplicationComponent(context).indexComponent().inject(this)
+        crashReporter.installCrashReporter()
         contactsAccessor = AndroidContactsAccessor(context)
         info("ContactSyncAdapter initialized")
     }
@@ -104,6 +109,7 @@ open class ContactSyncAdapter : AbstractThreadedSyncAdapter, QabelLog, DataPermi
                 }
             } catch(ex: Throwable) {
                 error("Error on syncing contacts", ex)
+                crashSubmitter.submit(ex)
             }
         } else {
             info("Ignoring contact sync. Is disabled or permissions missing.")

@@ -1,23 +1,10 @@
 package de.qabel.qabelbox.ui;
 
 import android.app.Activity;
-import android.os.PowerManager;
-import android.support.test.InstrumentationRegistry;
-import android.support.test.rule.ActivityTestRule;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
 
-import de.qabel.core.config.Identity;
 import de.qabel.qabelbox.R;
-import de.qabel.qabelbox.TestConstants;
-import de.qabel.qabelbox.activities.MainActivity;
-import de.qabel.qabelbox.communication.URLs;
-import de.qabel.qabelbox.ui.helper.SystemAnimations;
-import de.qabel.qabelbox.ui.helper.UIActionHelper;
-import de.qabel.qabelbox.ui.helper.UIBoxHelper;
 import de.qabel.qabelbox.ui.helper.UITestHelper;
 
 import static android.support.test.espresso.Espresso.onView;

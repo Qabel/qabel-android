@@ -11,9 +11,10 @@ import de.qabel.core.logging.QabelLog
 import de.qabel.qabelbox.QabelBoxApplication
 import de.qabel.qabelbox.QblBroadcastConstants.Identities.*
 import de.qabel.qabelbox.QblBroadcastConstants.Index
-import de.qabel.qabelbox.QblBroadcastConstants.Index.*
-import de.qabel.qabelbox.index.preferences.IndexPreferences
+import de.qabel.qabelbox.QblBroadcastConstants.Index.REQUEST_VERIFICATION
+import de.qabel.qabelbox.QblBroadcastConstants.Index.SYNC_VERIFICATIONS
 import de.qabel.qabelbox.permissions.DataPermissionsAdapter
+import de.qabel.qabelbox.reporter.CrashReporter
 import javax.inject.Inject
 
 class AndroidIndexSyncService() : IntentService(AndroidIndexSyncService::class.java.simpleName),
@@ -22,6 +23,7 @@ class AndroidIndexSyncService() : IntentService(AndroidIndexSyncService::class.j
     override val permissionContext: Context by lazy { applicationContext }
     private val contactSyncAdapter: ContactSyncAdapter by lazy { ContactSyncAdapter(applicationContext, true) }
     @Inject lateinit var indexService: IndexService
+    @Inject lateinit var crashReporter: CrashReporter
 
     companion object {
         private fun start(context: Context, action: String) {
@@ -35,6 +37,7 @@ class AndroidIndexSyncService() : IntentService(AndroidIndexSyncService::class.j
     override fun onCreate() {
         super.onCreate()
         QabelBoxApplication.getApplicationComponent(applicationContext).indexComponent().inject(this)
+        crashReporter.installCrashReporter()
         info("Service initialized!")
     }
 

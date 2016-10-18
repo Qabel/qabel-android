@@ -9,13 +9,13 @@ import de.qabel.core.config.Identity;
 import de.qabel.core.repository.IdentityRepository;
 import de.qabel.core.repository.exception.EntityNotFoundException;
 import de.qabel.core.repository.exception.PersistenceException;
-import de.qabel.qabelbox.activities.MainActivity;
+import de.qabel.qabelbox.base.MainActivity;
 import de.qabel.qabelbox.config.AppPreference;
 import de.qabel.qabelbox.dagger.scopes.ActivityScope;
 import de.qabel.qabelbox.navigation.MainNavigator;
 import de.qabel.qabelbox.navigation.Navigator;
 
-import static de.qabel.qabelbox.activities.MainActivity.ACTIVE_IDENTITY;
+import static de.qabel.qabelbox.base.MainActivity.ACTIVE_IDENTITY;
 
 @ActivityScope
 @Module

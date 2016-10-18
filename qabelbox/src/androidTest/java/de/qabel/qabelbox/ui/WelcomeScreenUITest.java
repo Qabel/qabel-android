@@ -14,8 +14,8 @@ import org.junit.Test;
 import java.io.IOException;
 
 import de.qabel.qabelbox.R;
-import de.qabel.qabelbox.activities.WelcomeScreenActivity;
 import de.qabel.qabelbox.config.AppPreference;
+import de.qabel.qabelbox.startup.activities.WelcomeScreenActivity;
 import de.qabel.qabelbox.ui.helper.SystemAnimations;
 import de.qabel.qabelbox.ui.helper.UIActionHelper;
 import de.qabel.qabelbox.ui.helper.UITestHelper;

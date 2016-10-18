@@ -10,6 +10,7 @@ import de.qabel.qabelbox.chat.notifications.ChatNotificationManager
 import de.qabel.qabelbox.chat.transformers.ChatMessageTransformer
 import de.qabel.qabelbox.helper.Helper
 import de.qabel.qabelbox.navigation.MainNavigator
+import de.qabel.qabelbox.reporter.CrashReporter
 import org.jetbrains.anko.AnkoLogger
 import org.jetbrains.anko.info
 import java.util.*
@@ -22,16 +23,19 @@ open class AndroidChatService() : IntentService(AndroidChatService::class.java.s
         const val PARAM_IDENTITY_KEY = "identity_key"
     }
 
+
     private fun Intent.contactKey(): String = getStringExtra(PARAM_CONTACT_KEY)!!
     private fun Intent.identityKey(): String = getStringExtra(PARAM_IDENTITY_KEY)!!
 
     @Inject lateinit var chatService: ChatServiceUseCase
     @Inject lateinit var chatMessageTransformer: ChatMessageTransformer
     @Inject lateinit var chatNotificationManager: ChatNotificationManager
+    @Inject lateinit var crashReporter: CrashReporter
 
     override fun onCreate() {
         super.onCreate()
         QabelBoxApplication.getApplicationComponent(applicationContext).inject(this)
+        crashReporter.installCrashReporter()
         info("Service initialized!")
     }
 

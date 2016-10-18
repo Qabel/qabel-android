@@ -55,11 +55,6 @@ class FindLatestConversationsTest : CoreTestCase {
         assertThat(conversationDto.message.messagePayload.toMessage(), equalTo("4"))
     }
 
-    @Test
-    fun testMarkAsRead() {
-        useCase
-    }
-
     private fun createMsg(text: String, status: ChatDropMessage.Status = ChatDropMessage.Status.READ) =
             ChatDropMessage(contact.id, identity.id,
                     ChatDropMessage.Direction.OUTGOING, status,

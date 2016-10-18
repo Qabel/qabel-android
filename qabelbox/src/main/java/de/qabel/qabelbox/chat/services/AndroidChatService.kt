@@ -6,6 +6,7 @@ import de.qabel.qabelbox.QabelBoxApplication
 import de.qabel.qabelbox.QblBroadcastConstants
 import de.qabel.qabelbox.QblBroadcastConstants.Chat.Service
 import de.qabel.qabelbox.chat.interactor.ChatServiceUseCase
+import de.qabel.qabelbox.chat.interactor.MarkAsRead
 import de.qabel.qabelbox.chat.notifications.ChatNotificationManager
 import de.qabel.qabelbox.chat.transformers.ChatMessageTransformer
 import de.qabel.qabelbox.helper.Helper
@@ -26,6 +27,7 @@ open class AndroidChatService() : IntentService(AndroidChatService::class.java.s
     private fun Intent.identityKey(): String = getStringExtra(PARAM_IDENTITY_KEY)!!
 
     @Inject lateinit var chatService: ChatServiceUseCase
+    @Inject lateinit var markAsRead: MarkAsRead
     @Inject lateinit var chatMessageTransformer: ChatMessageTransformer
     @Inject lateinit var chatNotificationManager: ChatNotificationManager
 
@@ -62,7 +64,7 @@ open class AndroidChatService() : IntentService(AndroidChatService::class.java.s
         val identityKey = intent.identityKey()
         val contactKey = intent.contactKey()
         chatService.ignoreContact(identityKey, contactKey)
-        chatService.markContactMessagesRead(identityKey, contactKey)
+        markAsRead.markContactMessagesRead(identityKey, contactKey)
         chatNotificationManager.hideNotification(identityKey, contactKey)
         sendChatStateChanged()
         sendContactsUpdated()
@@ -72,10 +74,10 @@ open class AndroidChatService() : IntentService(AndroidChatService::class.java.s
         val identityKey = intent.identityKey()
         if (intent.hasExtra(PARAM_CONTACT_KEY)) {
             val contactKey = intent.contactKey()
-            chatService.markContactMessagesRead(identityKey, contactKey)
+            markAsRead.markContactMessagesRead(identityKey, contactKey)
             chatNotificationManager.hideNotification(identityKey, contactKey)
         } else {
-            chatService.markIdentityMessagesRead(identityKey)
+            markAsRead.markIdentityMessagesRead(identityKey)
             chatNotificationManager.hideNotification(identityKey, null)
         }
         sendChatStateChanged()

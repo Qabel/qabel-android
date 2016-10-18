@@ -34,6 +34,7 @@ class ChatServiceUseCaseTest {
     lateinit var contactRepo: ContactRepository
     lateinit var messageRepo: ChatDropMessageRepository
     lateinit var contactsUseCase: ChatServiceUseCase
+    lateinit var markAsRead: MarkAsRead
 
     lateinit var message: ChatDropMessage
 
@@ -45,6 +46,7 @@ class ChatServiceUseCaseTest {
         contactRepo = InMemoryContactRepository()
         messageRepo = InMemoryChatDropMessageRepository()
         contactsUseCase = MainChatServiceUseCase(messageRepo, contactRepo, identityRepo, ChatMessageTransformer(identityRepo, contactRepo))
+        markAsRead = MainMarkAsRead(messageRepo, contactRepo, identityRepo)
     }
 
     private fun createMsg(contact: Contact, identity: Identity, status: ChatDropMessage.Status) =
@@ -59,7 +61,7 @@ class ChatServiceUseCaseTest {
         messageRepo.persist(createMsg(contactA, identityB, ChatDropMessage.Status.NEW))
         messageRepo.persist(createMsg(contactB, identityB, ChatDropMessage.Status.NEW))
         messageRepo.persist(createMsg(contactB, identityA, ChatDropMessage.Status.NEW))
-        contactsUseCase.markIdentityMessagesRead(identityB.keyIdentifier)
+        markAsRead.markIdentityMessagesRead(identityB.keyIdentifier)
         assertThat(messageRepo.findNew(identityA.id), hasSize(1))
         assertThat(messageRepo.findNew(identityB.id), hasSize(0))
     }
@@ -71,7 +73,7 @@ class ChatServiceUseCaseTest {
         messageRepo.persist(createMsg(contactA, identityB, ChatDropMessage.Status.NEW))
         messageRepo.persist(createMsg(contactB, identityB, ChatDropMessage.Status.NEW))
         messageRepo.persist(createMsg(contactB, identityB, ChatDropMessage.Status.NEW))
-        contactsUseCase.markContactMessagesRead(identityB.keyIdentifier, contactA.keyIdentifier)
+        markAsRead.markContactMessagesRead(identityB.keyIdentifier, contactA.keyIdentifier)
         val result = messageRepo.findNew(identityB.id)
         assertThat(result, hasSize(2))
     }

@@ -26,6 +26,8 @@ import de.qabel.core.repository.IdentityRepository;
 import de.qabel.core.repository.exception.PersistenceException;
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.box.backends.BoxHttpStorageBackend;
+import de.qabel.qabelbox.chat.interactor.MainMarkAsRead;
+import de.qabel.qabelbox.chat.interactor.MarkAsRead;
 import de.qabel.qabelbox.chat.notifications.presenter.AndroidChatNotificationPresenter;
 import de.qabel.qabelbox.chat.notifications.ChatNotificationManager;
 import de.qabel.qabelbox.chat.notifications.presenter.ChatNotificationPresenter;
@@ -77,9 +79,14 @@ public class ApplicationModule extends ContextModule {
 
     @Singleton
     @Provides
-    ChatServiceUseCase providesChatManager(ContactRepository contactRepo, ChatDropMessageRepository chatDropMessageRepository,
-                                           IdentityRepository identityRepo, ChatMessageTransformer msgTransformer) {
-        return new MainChatServiceUseCase(chatDropMessageRepository, contactRepo, identityRepo, msgTransformer);
+    ChatServiceUseCase providesChatManager(MainChatServiceUseCase mainChatServiceUseCase) {
+        return mainChatServiceUseCase;
+    }
+
+    @Singleton
+    @Provides
+    MarkAsRead provideMarkAsRead(MainMarkAsRead mainMarkAsRead) {
+        return mainMarkAsRead;
     }
 
     @Provides

@@ -10,6 +10,7 @@ import de.qabel.qabelbox.QblBroadcastConstants
 import de.qabel.qabelbox.chat.services.AndroidChatService
 import de.qabel.qabelbox.config.AppPreference
 import de.qabel.qabelbox.reporter.CrashReporter
+import de.qabel.qabelbox.reporter.CrashSubmitter
 import org.jetbrains.anko.AnkoLogger
 import org.jetbrains.anko.info
 import org.jetbrains.anko.warn
@@ -23,6 +24,7 @@ open class QabelSyncAdapter : AbstractThreadedSyncAdapter, AnkoLogger {
     @Inject lateinit internal var chatService: ChatService
     @Inject lateinit internal var preferences: AppPreference
     @Inject lateinit internal var crashReporter: CrashReporter
+    @Inject lateinit internal var crashSubmitter: CrashSubmitter
 
     constructor(context: Context, autoInitialize: Boolean) : super(context, autoInitialize) {
         init(context)
@@ -61,6 +63,7 @@ open class QabelSyncAdapter : AbstractThreadedSyncAdapter, AnkoLogger {
             }
         } catch(ex: Throwable) {
             warn("Error on syncing dropMessages", ex)
+            crashSubmitter.submit(ex)
         }
     }
 }

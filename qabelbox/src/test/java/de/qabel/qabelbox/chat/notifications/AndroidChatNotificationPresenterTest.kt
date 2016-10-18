@@ -11,7 +11,7 @@ import de.qabel.qabelbox.BuildConfig
 import de.qabel.qabelbox.R
 import de.qabel.qabelbox.SimpleApplication
 import de.qabel.qabelbox.UITest
-import de.qabel.qabelbox.activities.MainActivity
+import de.qabel.qabelbox.base.MainActivity
 import de.qabel.qabelbox.chat.notifications.presenter.AndroidChatNotificationPresenter
 import de.qabel.qabelbox.util.IdentityHelper
 import org.hamcrest.Matchers.*

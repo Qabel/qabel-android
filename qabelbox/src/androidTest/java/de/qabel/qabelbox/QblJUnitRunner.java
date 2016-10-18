@@ -8,10 +8,10 @@ import android.os.Bundle;
 import android.os.PowerManager;
 import android.support.test.runner.AndroidJUnitRunner;
 
-import de.qabel.qabelbox.activities.CreateIdentityActivity;
 import de.qabel.qabelbox.helper.AccountHelper;
 import de.qabel.qabelbox.index.preferences.AndroidIndexPreferences;
 import de.qabel.qabelbox.index.preferences.IndexPreferences;
+import de.qabel.qabelbox.startup.activities.CreateIdentityActivity;
 
 import static android.content.Context.KEYGUARD_SERVICE;
 import static android.content.Context.POWER_SERVICE;

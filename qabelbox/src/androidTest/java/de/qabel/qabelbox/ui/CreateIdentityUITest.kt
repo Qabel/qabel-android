@@ -11,8 +11,8 @@ import android.support.test.rule.ActivityTestRule
 import de.qabel.qabelbox.R
 import de.qabel.qabelbox.R.string
 import de.qabel.qabelbox.TestConstants
-import de.qabel.qabelbox.activities.CreateIdentityActivity
 import de.qabel.qabelbox.communication.URLs
+import de.qabel.qabelbox.startup.activities.CreateIdentityActivity
 import de.qabel.qabelbox.ui.action.QabelViewAction.setText
 import de.qabel.qabelbox.ui.helper.SystemAnimations
 import de.qabel.qabelbox.ui.helper.UIActionHelper

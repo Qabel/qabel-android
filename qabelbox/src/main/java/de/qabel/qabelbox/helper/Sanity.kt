@@ -1,22 +1,11 @@
 package de.qabel.qabelbox.helper
 
 import android.app.Activity
-import android.content.Context
 import android.content.Intent
-
-import de.qabel.core.config.Identities
-import de.qabel.core.config.Persistable
-import de.qabel.core.config.VerificationStatus
 import de.qabel.core.repository.IdentityRepository
-import de.qabel.core.repository.exception.PersistenceException
-import de.qabel.qabelbox.activities.BaseWizardActivity
-import de.qabel.qabelbox.activities.CreateAccountActivity
-import de.qabel.qabelbox.activities.CreateIdentityActivity
-import de.qabel.qabelbox.activities.MainActivity
 import de.qabel.qabelbox.config.AppPreference
-import de.qabel.qabelbox.index.preferences.AndroidIndexPreferences
-import de.qabel.qabelbox.permissions.DataPermissionsAdapter
-import de.qabel.qabelbox.permissions.requestContactsReadPermission
+import de.qabel.qabelbox.startup.activities.CreateAccountActivity
+import de.qabel.qabelbox.startup.activities.CreateIdentityActivity
 
 object Sanity {
 

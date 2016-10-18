@@ -9,7 +9,7 @@ import android.support.v7.app.NotificationCompat;
 import org.apache.commons.io.FileUtils;
 
 import de.qabel.qabelbox.R;
-import de.qabel.qabelbox.activities.MainActivity;
+import de.qabel.qabelbox.base.MainActivity;
 import de.qabel.qabelbox.notifications.QblNotificationPresenter;
 
 public class AndroidStorageNotificationPresenter extends QblNotificationPresenter

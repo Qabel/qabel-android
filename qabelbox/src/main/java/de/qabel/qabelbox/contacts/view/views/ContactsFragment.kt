@@ -15,13 +15,13 @@ import com.google.zxing.integration.android.IntentIntegrator
 import de.qabel.core.config.Identity
 import de.qabel.qabelbox.QblBroadcastConstants
 import de.qabel.qabelbox.R
+import de.qabel.qabelbox.base.BaseFragment
 import de.qabel.qabelbox.contacts.dagger.ContactsModule
 import de.qabel.qabelbox.contacts.dto.ContactDto
 import de.qabel.qabelbox.contacts.view.adapters.ContactsAdapter
 import de.qabel.qabelbox.contacts.view.presenters.ContactsPresenter
 import de.qabel.qabelbox.dagger.components.MainActivityComponent
 import de.qabel.qabelbox.external.ExternalFileAction
-import de.qabel.qabelbox.fragments.BaseFragment
 import de.qabel.qabelbox.helper.ExternalApps
 import de.qabel.qabelbox.helper.UIHelper
 import de.qabel.qabelbox.index.ContactSyncAdapter

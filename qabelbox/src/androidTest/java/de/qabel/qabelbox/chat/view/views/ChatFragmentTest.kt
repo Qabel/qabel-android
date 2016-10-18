@@ -10,7 +10,7 @@ import com.natpryce.hamkrest.hasSize
 import com.natpryce.hamkrest.should.shouldMatch
 import de.qabel.chat.repository.entities.ChatDropMessage
 import de.qabel.qabelbox.R
-import de.qabel.qabelbox.activities.MainActivity
+import de.qabel.qabelbox.base.MainActivity
 import de.qabel.qabelbox.chat.dto.ChatMessage
 import de.qabel.qabelbox.chat.dto.MessagePayloadDto
 import de.qabel.qabelbox.navigation.MainNavigator

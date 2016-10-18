@@ -10,7 +10,7 @@ import javax.inject.Inject;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import de.qabel.qabelbox.R;
-import de.qabel.qabelbox.activities.CrashReportingActivity;
+import de.qabel.qabelbox.base.CrashReportingActivity;
 import de.qabel.qabelbox.dagger.HasComponent;
 import de.qabel.qabelbox.dagger.modules.ActivityModule;
 import de.qabel.qabelbox.settings.dagger.SettingsActivityComponent;

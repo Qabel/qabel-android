@@ -75,6 +75,7 @@ class AndroidChatServiceTest() {
         }
         androidService.onHandleIntent(intent)
         verify(androidService.chatService).ignoreContact(identityKey, contactKey)
+        verify(androidService.markAsRead).markContactMessagesRead(identityKey, contactKey)
         verify(androidService.chatNotificationManager).hideNotification(identityKey, contactKey)
     }
 

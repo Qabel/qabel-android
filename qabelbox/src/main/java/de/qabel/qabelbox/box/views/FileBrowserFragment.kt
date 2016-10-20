@@ -23,7 +23,6 @@ import de.qabel.qabelbox.box.provider.BoxProvider
 import de.qabel.qabelbox.box.provider.DocumentId
 import de.qabel.qabelbox.box.provider.toDocumentId
 import de.qabel.qabelbox.box.queryNameAndSize
-import de.qabel.qabelbox.box.toReadable
 import de.qabel.qabelbox.dagger.components.MainActivityComponent
 import de.qabel.qabelbox.dagger.modules.FileBrowserModule
 import de.qabel.qabelbox.ui.extensions.showEnterTextDialog
@@ -51,7 +50,7 @@ class FileBrowserFragment : FileBrowserView,
     override val title: String by lazy { ctx.getString(R.string.filebrowser) }
 
     override val subtitle: String?
-        get() = if(presenter.path !is BoxPath.Root) presenter.path.toReadable() else null
+        get() = if(presenter.path !is BoxPath.Root) presenter.path.toString() else null
 
     @Inject
     lateinit var presenter: FileBrowserPresenter

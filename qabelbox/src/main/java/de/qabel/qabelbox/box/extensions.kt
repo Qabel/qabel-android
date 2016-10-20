@@ -29,4 +29,3 @@ fun BoxObject.toEntry() = when (this) {
     is BoxFolder -> BrowserEntry.Folder(this.name)
     else -> null
 }
-fun BoxPath.toReadable(): String = "/" + toList().joinToString("/")

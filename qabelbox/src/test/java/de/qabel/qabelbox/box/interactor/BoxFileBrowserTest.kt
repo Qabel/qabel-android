@@ -12,7 +12,7 @@ import de.qabel.box.storage.IndexNavigation
 import de.qabel.box.storage.exceptions.QblStorageException
 import de.qabel.qabelbox.*
 import de.qabel.qabelbox.box.backends.MockStorageBackend
-import de.qabel.qabelbox.box.dto.BoxPath
+import de.qabel.box.storage.dto.BoxPath
 import de.qabel.qabelbox.box.dto.BrowserEntry
 import de.qabel.qabelbox.box.dto.UploadSource
 import de.qabel.qabelbox.box.provider.DocumentId

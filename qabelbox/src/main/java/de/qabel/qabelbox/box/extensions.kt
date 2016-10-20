@@ -6,6 +6,7 @@ import android.provider.OpenableColumns
 import de.qabel.box.storage.BoxFile
 import de.qabel.box.storage.BoxFolder
 import de.qabel.box.storage.BoxObject
+import de.qabel.box.storage.dto.BoxPath
 import de.qabel.qabelbox.box.dto.BrowserEntry
 import de.qabel.qabelbox.box.dto.DownloadSource
 import java.io.ByteArrayInputStream

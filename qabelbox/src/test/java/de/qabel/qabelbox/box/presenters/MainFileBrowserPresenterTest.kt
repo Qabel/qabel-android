@@ -3,7 +3,7 @@ package de.qabel.qabelbox.box.presenters
 import com.natpryce.hamkrest.equalTo
 import com.natpryce.hamkrest.should.shouldMatch
 import com.nhaarman.mockito_kotlin.*
-import de.qabel.qabelbox.box.dto.BoxPath
+import de.qabel.box.storage.dto.BoxPath
 import de.qabel.qabelbox.box.dto.BrowserEntry
 import de.qabel.qabelbox.box.dto.BrowserEntry.File
 import de.qabel.qabelbox.box.dto.UploadSource

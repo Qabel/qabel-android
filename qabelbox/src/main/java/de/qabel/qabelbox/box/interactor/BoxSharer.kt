@@ -8,7 +8,7 @@ import de.qabel.chat.service.ChatService
 import de.qabel.chat.service.SharingService
 import de.qabel.core.config.Contact
 import de.qabel.core.config.Identity
-import de.qabel.qabelbox.box.dto.BoxPath
+import de.qabel.box.storage.dto.BoxPath
 import rx.Observable
 import rx.lang.kotlin.single
 import rx.schedulers.Schedulers

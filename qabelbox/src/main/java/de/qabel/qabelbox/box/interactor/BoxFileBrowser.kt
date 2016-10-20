@@ -7,7 +7,7 @@ import de.qabel.box.storage.exceptions.QblStorageException
 import de.qabel.box.storage.exceptions.QblStorageNotFound
 import de.qabel.core.repository.ContactRepository
 import de.qabel.core.repository.exception.EntityNotFoundException
-import de.qabel.qabelbox.box.dto.BoxPath
+import de.qabel.box.storage.dto.BoxPath
 import de.qabel.qabelbox.box.dto.BrowserEntry
 import de.qabel.qabelbox.box.dto.DownloadSource
 import de.qabel.qabelbox.box.dto.UploadSource

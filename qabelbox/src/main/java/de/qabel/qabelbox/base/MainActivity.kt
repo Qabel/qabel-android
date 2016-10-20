@@ -368,15 +368,15 @@ class MainActivity : CrashReportingActivity(),
             super.onBackPressed()
             return
         }
+        if (activeFragment is BaseFragment && activeFragment.onBackPressed()) {
+            return
+        }
         if (activeFragment.tag == null) {
             fragmentManager.popBackStack()
             return
         }
         if (fragmentManager.backStackEntryCount > 0) {
             fragmentManager.popBackStack()
-            return
-        }
-        if (activeFragment is BaseFragment && activeFragment.onBackPressed()) {
             return
         }
         if (backPressConfirmed()) {

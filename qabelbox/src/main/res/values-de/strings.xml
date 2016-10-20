@@ -363,4 +363,5 @@ Mehr Infos finden Sie unter https://qabel.de
     <string name="index_search_hint">Telefon oder Email</string>
     <string name="upgrade">Mehr Speicher</string>
     <string name="moments_ago">gerade eben</string>
+    <string name="emoji">Emojis</string>
 </resources>

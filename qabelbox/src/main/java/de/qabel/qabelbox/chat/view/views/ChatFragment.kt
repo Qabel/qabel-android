@@ -10,20 +10,21 @@ import android.support.v7.widget.LinearLayoutManager
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import com.vanniktech.emoji.EmojiPopup
 import de.qabel.core.config.Contact
 import de.qabel.core.config.Identity
 import de.qabel.qabelbox.QblBroadcastConstants
 import de.qabel.qabelbox.R
-import de.qabel.qabelbox.activities.ImageViewerActivity
+import de.qabel.qabelbox.base.BaseFragment
 import de.qabel.qabelbox.box.provider.ShareId
 import de.qabel.qabelbox.chat.dagger.ChatModule
 import de.qabel.qabelbox.chat.dto.ChatMessage
 import de.qabel.qabelbox.chat.view.adapters.ChatMessageAdapter
 import de.qabel.qabelbox.chat.view.presenters.ChatPresenter
 import de.qabel.qabelbox.dagger.components.MainActivityComponent
-import de.qabel.qabelbox.fragments.BaseFragment
 import de.qabel.qabelbox.helper.Helper
 import de.qabel.qabelbox.ui.HeaderDecoration
+import de.qabel.qabelbox.viewer.ImageViewerActivity
 import kotlinx.android.synthetic.main.fragment_contact_chat.*
 import kotlinx.android.synthetic.main.fragment_contact_chat.view.*
 import org.jetbrains.anko.*
@@ -60,6 +61,8 @@ class ChatFragment : ChatView, BaseFragment(), AnkoLogger {
     lateinit var presenter: ChatPresenter
     @Inject
     lateinit var identity: Identity
+
+    lateinit var emojiPopup: EmojiPopup
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
@@ -110,6 +113,7 @@ class ChatFragment : ChatView, BaseFragment(), AnkoLogger {
     override fun onPause() {
         super.onPause()
         ctx.unregisterReceiver(notificationBlockReceiver)
+        emojiPopup.dismiss()
 
         mActivity?.toolbar?.isClickable = false
     }
@@ -136,9 +140,24 @@ class ChatFragment : ChatView, BaseFragment(), AnkoLogger {
             presenter.proxy.loadMore()
         }
 
-        bt_send.setOnClickListener { presenter.sendMessage() }
+        bt_send.onClick { presenter.sendMessage() }
         action_add_contact.setOnClickListener { presenter.handleContactAddClick() }
         action_ignore_contact.setOnClickListener { presenter.handleContactIgnoreClick() }
+        emojiPopup = EmojiPopup.Builder.fromRootView(chat_root)
+                .setOnEmojiPopupShownListener { emoji_popup.imageResource = R.drawable.ic_keyboard_grey_24dp }
+                .setOnEmojiPopupDismissListener { emoji_popup.imageResource = R.drawable.emoji_people }
+                .build(etText)
+        emoji_popup.onClick {
+            emojiPopup.toggle()
+        }
+    }
+
+    override fun onBackPressed(): Boolean {
+        if (emojiPopup.isShowing) {
+            emojiPopup.dismiss()
+            return true
+        }
+        return false
     }
 
     override fun reset() {

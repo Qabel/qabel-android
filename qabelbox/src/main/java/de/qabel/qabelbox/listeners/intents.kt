@@ -5,8 +5,8 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import de.qabel.core.extensions.letApply
-import de.qabel.qabelbox.activities.BaseActivity
-import de.qabel.qabelbox.fragments.BaseFragment
+import de.qabel.qabelbox.base.BaseActivity
+import de.qabel.qabelbox.base.BaseFragment
 
 data class IntentListener(val action: String, val receiver: BroadcastReceiver, var priority: Int = 0)
 

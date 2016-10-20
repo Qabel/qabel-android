@@ -9,8 +9,7 @@ import de.qabel.core.repository.ContactRepository
 import de.qabel.core.repository.IdentityRepository
 import de.qabel.core.repository.exception.EntityNotFoundException
 import de.qabel.qabelbox.R
-import de.qabel.qabelbox.activities.CreateAccountActivity
-import de.qabel.qabelbox.activities.MainActivity
+import de.qabel.qabelbox.base.MainActivity
 import de.qabel.qabelbox.box.views.FileBrowserFragment
 import de.qabel.qabelbox.chat.view.views.ChatFragment
 import de.qabel.qabelbox.chat.view.views.ChatOverviewFragment
@@ -18,12 +17,13 @@ import de.qabel.qabelbox.contacts.dto.ContactDto
 import de.qabel.qabelbox.contacts.view.views.ContactDetailsFragment
 import de.qabel.qabelbox.contacts.view.views.ContactEditFragment
 import de.qabel.qabelbox.contacts.view.views.ContactsFragment
-import de.qabel.qabelbox.fragments.AboutLicencesFragment
-import de.qabel.qabelbox.fragments.HelpMainFragment
-import de.qabel.qabelbox.fragments.QRCodeFragment
 import de.qabel.qabelbox.identity.view.IdentitiesFragment
 import de.qabel.qabelbox.identity.view.IdentityDetailsFragment
 import de.qabel.qabelbox.index.view.views.IndexSearchFragment
+import de.qabel.qabelbox.info.AboutLicencesFragment
+import de.qabel.qabelbox.info.HelpMainFragment
+import de.qabel.qabelbox.startup.activities.CreateAccountActivity
+import de.qabel.qabelbox.viewer.QRCodeFragment
 import org.jetbrains.anko.AnkoLogger
 import org.jetbrains.anko.warn
 import javax.inject.Inject
@@ -124,7 +124,7 @@ constructor(var activity: MainActivity,
     }
 
     override fun selectContactChat(contactKey: String, withIdentity: Identity) {
-        if (activeIdentity.keyIdentifier.equals(withIdentity.keyIdentifier)) {
+        if (activeIdentity.keyIdentifier == withIdentity.keyIdentifier) {
             try {
                 val contact = contactRepository.findByKeyId(withIdentity, contactKey);
                 showFragment(activity, ChatFragment.withContact(contact), TAG_CONTACT_CHAT_FRAGMENT, true, true)

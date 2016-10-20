@@ -42,8 +42,8 @@ android {
         add code to automatically generate version name and code,
         on base of timestamp or change it manual*/
 
-        versionCode 16
-        versionName "0.11.2"
+        versionCode 17
+        versionName "0.12.0"
         testInstrumentationRunner "de.qabel.qabelbox.QblJUnitRunner"
 
         testApplicationId "de.qabel.test"
@@ -354,7 +354,7 @@ dependencies {
 
     compile 'com.mikepenz:materialdrawer:5.4.0'
     compile group: 'com.googlecode.libphonenumber', name: 'libphonenumber', version: '7.6.0'
-
+    compile 'com.vanniktech:emoji:0.3.0'
 }
 
 // for integration test of this plugin

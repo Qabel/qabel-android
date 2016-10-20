@@ -7,6 +7,10 @@ import javax.inject.Singleton;
 import dagger.Module;
 import dagger.Provides;
 import de.qabel.qabelbox.config.AppPreference;
+import de.qabel.qabelbox.reporter.CrashReporter;
+import de.qabel.qabelbox.reporter.CrashSubmitter;
+import de.qabel.qabelbox.reporter.HockeyAppCrashReporter;
+import de.qabel.qabelbox.reporter.HockeyAppCrashSubmitter;
 
 @Module
 public class ContextModule {
@@ -25,4 +29,15 @@ public class ContextModule {
         return new AppPreference(context);
     }
 
+    @Provides
+    @Singleton
+    CrashReporter providesCrashReporter(Context context) {
+        return new HockeyAppCrashReporter(context);
+    }
+
+    @Provides
+    @Singleton
+    CrashSubmitter providesCrashSubmitter(HockeyAppCrashSubmitter hockeyAppCrashSubmitter) {
+        return hockeyAppCrashSubmitter;
+    }
 }

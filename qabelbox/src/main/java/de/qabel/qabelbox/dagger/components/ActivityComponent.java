@@ -18,6 +18,7 @@ public interface ActivityComponent {
     SettingsActivityComponent plus(SettingsActivityModule settingsActivityModule);
 
     AppCompatActivity activity();
+
 }
 
 

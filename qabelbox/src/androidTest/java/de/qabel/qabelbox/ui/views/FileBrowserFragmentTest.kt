@@ -7,8 +7,8 @@ import android.support.test.espresso.action.ViewActions.*
 import android.support.test.espresso.assertion.ViewAssertions
 import android.support.test.espresso.matcher.ViewMatchers.*
 import de.qabel.qabelbox.R
-import de.qabel.qabelbox.activities.MainActivity
-import de.qabel.qabelbox.box.dto.BoxPath
+import de.qabel.qabelbox.base.MainActivity
+import de.qabel.box.storage.dto.BoxPath
 import de.qabel.qabelbox.box.dto.BrowserEntry
 import de.qabel.qabelbox.box.presenters.FileBrowserPresenter
 import de.qabel.qabelbox.box.views.FileBrowserFragment

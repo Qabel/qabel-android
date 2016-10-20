@@ -26,6 +26,7 @@ import de.qabel.qabelbox.box.dto.UploadSource
 import de.qabel.qabelbox.box.interactor.DocumentIdAdapter
 import de.qabel.qabelbox.dagger.components.DaggerBoxComponent
 import de.qabel.qabelbox.dagger.modules.ContextModule
+import de.qabel.qabelbox.reporter.CrashReporter
 import org.jetbrains.anko.*
 import rx.lang.kotlin.firstOrNull
 import java.io.File
@@ -38,6 +39,9 @@ open class BoxProvider : DocumentsProvider(), AnkoLogger {
 
     @Inject
     lateinit var useCase: DocumentIdAdapter
+
+    @Inject
+    lateinit var crashReporter: CrashReporter
 
     open val handler by lazy { Handler(context.mainLooper) }
 
@@ -59,6 +63,7 @@ open class BoxProvider : DocumentsProvider(), AnkoLogger {
                 .contextModule(ContextModule(context))
                 .build()
         boxComponent.inject(this)
+        crashReporter.installCrashReporter()
     }
 
     /**

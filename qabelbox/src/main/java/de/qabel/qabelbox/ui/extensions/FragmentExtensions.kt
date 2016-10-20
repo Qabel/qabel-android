@@ -2,7 +2,7 @@ package de.qabel.qabelbox.ui.extensions
 
 import android.text.InputType
 import de.qabel.qabelbox.R
-import de.qabel.qabelbox.fragments.BaseFragment
+import de.qabel.qabelbox.base.BaseFragment
 import de.qabel.qabelbox.helper.UIHelper
 import org.jetbrains.anko.*
 

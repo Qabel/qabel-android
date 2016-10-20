@@ -1,7 +1,7 @@
 package de.qabel.qabelbox.dagger.components;
 
 import dagger.Subcomponent;
-import de.qabel.qabelbox.activities.MainActivity;
+import de.qabel.qabelbox.base.MainActivity;
 import de.qabel.qabelbox.chat.dagger.ChatComponent;
 import de.qabel.qabelbox.chat.dagger.ChatOverviewComponent;
 import de.qabel.qabelbox.chat.dagger.ChatOverviewModule;
@@ -20,7 +20,6 @@ import de.qabel.qabelbox.identity.dagger.IdentityDetailsComponent;
 import de.qabel.qabelbox.identity.dagger.IdentityDetailsModule;
 import de.qabel.qabelbox.index.dagger.IndexSearchComponent;
 import de.qabel.qabelbox.index.dagger.IndexSearchModule;
-import de.qabel.qabelbox.index.view.views.IndexSearchFragment;
 
 @ActivityScope
 @Subcomponent(

@@ -2,22 +2,14 @@ package de.qabel.qabelbox.chat.dagger;
 
 import dagger.Module;
 import dagger.Provides;
-import de.qabel.core.config.Contact;
-import de.qabel.core.config.Identity;
 import de.qabel.core.repository.ContactRepository;
 import de.qabel.core.repository.IdentityRepository;
-import de.qabel.core.repository.exception.EntityNotFoundException;
-import de.qabel.qabelbox.chat.interactor.ChatOverviewUseCase;
-import de.qabel.qabelbox.chat.interactor.ChatUseCase;
-import de.qabel.qabelbox.chat.interactor.MainChatOverviewUseCase;
-import de.qabel.qabelbox.chat.interactor.TransformingChatUseCase;
+import de.qabel.qabelbox.chat.interactor.FindLatestConversations;
+import de.qabel.qabelbox.chat.interactor.MainFindLatestConversations;
 import de.qabel.qabelbox.chat.transformers.ChatMessageTransformer;
 import de.qabel.qabelbox.chat.view.presenters.ChatOverviewPresenter;
-import de.qabel.qabelbox.chat.view.presenters.ChatPresenter;
 import de.qabel.qabelbox.chat.view.presenters.MainChatOverviewPresenter;
-import de.qabel.qabelbox.chat.view.presenters.MainChatPresenter;
 import de.qabel.qabelbox.chat.view.views.ChatOverview;
-import de.qabel.qabelbox.chat.view.views.ChatView;
 import de.qabel.qabelbox.dagger.scopes.ActivityScope;
 
 @ActivityScope
@@ -42,7 +34,7 @@ public class ChatOverviewModule {
     }
 
     @Provides
-    public ChatOverviewUseCase provideChatUseCase(MainChatOverviewUseCase useCase) {
+    public FindLatestConversations provideChatUseCase(MainFindLatestConversations useCase) {
         return useCase;
     }
 

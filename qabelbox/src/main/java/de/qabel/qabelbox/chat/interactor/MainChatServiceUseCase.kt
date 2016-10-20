@@ -10,27 +10,14 @@ import de.qabel.qabelbox.chat.transformers.ChatMessageTransformer
 import org.jetbrains.anko.AnkoLogger
 import org.jetbrains.anko.info
 import java.util.*
+import javax.inject.Inject
 
 
-class MainChatServiceUseCase(private val chatDropMessageRepository: ChatDropMessageRepository,
+class MainChatServiceUseCase @Inject constructor(private val chatDropMessageRepository: ChatDropMessageRepository,
                              private val contactRepository: ContactRepository,
                              private val identityRepo: IdentityRepository,
-                             private val msgTransformer: ChatMessageTransformer) : ChatServiceUseCase, AnkoLogger {
-
-    override fun markIdentityMessagesRead(identityKey: String) {
-        val identity = identityRepo.find(identityKey)
-        contactRepository.find(identity).entities.forEach {
-            chatDropMessageRepository.markAsRead(it, identity)
-        }
-        info("Mark messaged read for identity " + identity.alias)
-    }
-
-    override fun markContactMessagesRead(identityKey: String, contactKey: String) {
-        val identity = identityRepo.find(identityKey)
-        val contact = contactRepository.findByKeyId(contactKey)
-        chatDropMessageRepository.markAsRead(contact, identity)
-        info("Mark messaged read for contact " + contact.alias)
-    }
+                             private val msgTransformer: ChatMessageTransformer):
+        ChatServiceUseCase, AnkoLogger {
 
     override fun addContact(identityKey: String, contactKey: String) {
         val identity = identityRepo.find(identityKey)

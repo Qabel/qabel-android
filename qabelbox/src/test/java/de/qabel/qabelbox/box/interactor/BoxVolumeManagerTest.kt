@@ -7,7 +7,7 @@ import com.nhaarman.mockito_kotlin.mock
 import de.qabel.core.repository.inmemory.InMemoryIdentityRepository
 import de.qabel.qabelbox.BuildConfig
 import de.qabel.qabelbox.SimpleApplication
-import de.qabel.qabelbox.box.dto.BoxPath
+import de.qabel.box.storage.dto.BoxPath
 import de.qabel.qabelbox.box.dto.VolumeRoot
 import de.qabel.qabelbox.box.provider.DocumentId
 import de.qabel.qabelbox.util.IdentityHelper

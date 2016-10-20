@@ -7,8 +7,8 @@ import android.view.View
 import android.view.ViewGroup
 import de.qabel.core.config.Identity
 import de.qabel.qabelbox.R
+import de.qabel.qabelbox.base.BaseFragment
 import de.qabel.qabelbox.dagger.components.MainActivityComponent
-import de.qabel.qabelbox.fragments.BaseFragment
 import de.qabel.qabelbox.identity.dagger.IdentityDetailsModule
 import de.qabel.qabelbox.identity.view.adapter.IdentityDetailsAdapter
 import de.qabel.qabelbox.identity.view.presenter.IdentityDetailsPresenter

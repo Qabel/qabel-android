@@ -1,6 +1,6 @@
 package de.qabel.qabelbox.box.provider
 
-import de.qabel.qabelbox.box.dto.BoxPath
+import de.qabel.box.storage.dto.BoxPath
 
 data class DocumentId(val identityKey: String, val prefix: String, val path: BoxPath) {
 

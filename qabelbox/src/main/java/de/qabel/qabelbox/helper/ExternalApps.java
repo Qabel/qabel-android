@@ -5,7 +5,7 @@ import android.content.Intent;
 import android.net.Uri;
 
 import de.qabel.qabelbox.R;
-import de.qabel.qabelbox.activities.MainActivity;
+import de.qabel.qabelbox.base.MainActivity;
 
 /**
  * Created by danny on 03.02.16.

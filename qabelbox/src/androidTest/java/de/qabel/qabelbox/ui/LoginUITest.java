@@ -8,8 +8,8 @@ import org.junit.Before;
 import org.junit.Test;
 
 import de.qabel.qabelbox.R;
-import de.qabel.qabelbox.activities.CreateAccountActivity;
 import de.qabel.qabelbox.config.AppPreference;
+import de.qabel.qabelbox.startup.activities.CreateAccountActivity;
 
 import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.action.ViewActions.click;

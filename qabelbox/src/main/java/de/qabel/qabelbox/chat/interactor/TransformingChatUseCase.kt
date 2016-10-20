@@ -21,6 +21,7 @@ import rx.schedulers.Schedulers
 import javax.inject.Inject
 
 class TransformingChatUseCase @Inject constructor(val identity: Identity, override val contact: Contact,
+                                                  private val markAsRead: MarkAsRead,
                                                   private val chatMessageTransformer: ChatMessageTransformer,
                                                   private val chatService: ChatService,
                                                   private val sharingService: SharingService,
@@ -42,7 +43,7 @@ class TransformingChatUseCase @Inject constructor(val identity: Identity, overri
 
     override fun load(offset: Int, pageSize: Int) = observable<PagingResult<ChatMessage>> { subscriber ->
         if (offset == 0) {
-            chatDropMessageRepository.markAsRead(contact, identity)
+            markAsRead.forContact(identity.keyIdentifier, contact.keyIdentifier)
             notifyApplication()
             notifyServices()
         }

@@ -1,7 +1,7 @@
 package de.qabel.qabelbox.box.provider
 
 import de.qabel.box.storage.exceptions.QblStorageException
-import de.qabel.qabelbox.box.dto.BoxPath
+import de.qabel.box.storage.dto.BoxPath
 import java.io.FileNotFoundException
 import javax.inject.Inject
 

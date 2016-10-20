@@ -88,16 +88,20 @@ abstract class BaseFragment(protected val mainFragment: Boolean = false,
         }
     }
 
-    override fun onPause() {
-        intentListeners.forEach {
-            ctx.unregisterReceiver(it.receiver)
-        }
+    fun hideSoftKeyboard() {
         try {
             val imm = ctx.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
             imm.hideSoftInputFromWindow(view.windowToken, 0)
         } catch (ex: Throwable) {
             error("Error closing keyboard!", ex)
         }
+    }
+
+    override fun onPause() {
+        intentListeners.forEach {
+            ctx.unregisterReceiver(it.receiver)
+        }
+        hideSoftKeyboard()
         super.onPause()
     }
 

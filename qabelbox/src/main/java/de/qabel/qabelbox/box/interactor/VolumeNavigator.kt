@@ -2,7 +2,7 @@ package de.qabel.qabelbox.box.interactor
 
 import de.qabel.box.storage.BoxNavigation
 import de.qabel.box.storage.BoxObject
-import de.qabel.qabelbox.box.dto.BoxPath
+import de.qabel.box.storage.dto.BoxPath
 
 interface VolumeNavigator {
     val root: BoxNavigation

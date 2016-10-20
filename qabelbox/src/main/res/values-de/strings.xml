@@ -364,4 +364,5 @@ Mehr Infos finden Sie unter https://qabel.de
     <string name="upgrade">Mehr Speicher</string>
     <string name="moments_ago">gerade eben</string>
     <string name="markAsRead">Als gelesen markieren</string>
+    <string name="emoji">Emojis</string>
 </resources>

@@ -1,7 +1,7 @@
 package de.qabel.qabelbox.box.presenters
 
 import de.qabel.core.config.Contact
-import de.qabel.qabelbox.box.dto.BoxPath
+import de.qabel.box.storage.dto.BoxPath
 import de.qabel.qabelbox.box.dto.BrowserEntry
 import java.io.InputStream
 

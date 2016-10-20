@@ -4,7 +4,7 @@ import de.qabel.box.storage.BoxNavigation
 import de.qabel.box.storage.BoxObject
 import de.qabel.box.storage.BoxVolume
 import de.qabel.box.storage.exceptions.QblStorageNotFound
-import de.qabel.qabelbox.box.dto.BoxPath
+import de.qabel.box.storage.dto.BoxPath
 import java.io.FileNotFoundException
 import javax.inject.Inject
 

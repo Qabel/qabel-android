@@ -1,7 +1,7 @@
 package de.qabel.qabelbox.box.interactor
 
 import de.qabel.core.repository.IdentityRepository
-import de.qabel.qabelbox.box.dto.BoxPath
+import de.qabel.box.storage.dto.BoxPath
 import de.qabel.qabelbox.box.dto.VolumeRoot
 import de.qabel.qabelbox.box.provider.DocumentId
 import java.io.FileNotFoundException

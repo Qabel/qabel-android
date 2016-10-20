@@ -16,7 +16,7 @@ import de.qabel.qabelbox.BuildConfig
 import de.qabel.qabelbox.R
 import de.qabel.qabelbox.base.BaseFragment
 import de.qabel.qabelbox.box.adapters.FileAdapter
-import de.qabel.qabelbox.box.dto.BoxPath
+import de.qabel.box.storage.dto.BoxPath
 import de.qabel.qabelbox.box.dto.BrowserEntry
 import de.qabel.qabelbox.box.presenters.FileBrowserPresenter
 import de.qabel.qabelbox.box.provider.BoxProvider
@@ -50,7 +50,7 @@ class FileBrowserFragment : FileBrowserView,
     override val title: String by lazy { ctx.getString(R.string.filebrowser) }
 
     override val subtitle: String?
-        get() = if(presenter.path !is BoxPath.Root) presenter.path.toReadable() else null
+        get() = if(presenter.path !is BoxPath.Root) presenter.path.toString() else null
 
     @Inject
     lateinit var presenter: FileBrowserPresenter

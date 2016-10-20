@@ -11,7 +11,7 @@ import de.qabel.chat.service.ChatService
 import de.qabel.qabelbox.BuildConfig
 import de.qabel.qabelbox.SimpleApplication
 import de.qabel.qabelbox.box.backends.MockStorageBackend
-import de.qabel.qabelbox.box.dto.BoxPath
+import de.qabel.box.storage.dto.BoxPath
 import de.qabel.qabelbox.box.dto.BrowserEntry
 import de.qabel.qabelbox.eq
 import de.qabel.qabelbox.util.IdentityHelper

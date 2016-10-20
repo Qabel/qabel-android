@@ -7,8 +7,8 @@ import de.qabel.qabelbox.QblBroadcastConstants.Chat.Service.MARK_READ
 import de.qabel.qabelbox.chat.services.AndroidChatService
 import javax.inject.Inject
 
-class IntentSendMessagesReadEvent @Inject constructor(private val context: Context)
-: SendMessagesReadEvent {
+class IntentMessageStateBroadcaster @Inject constructor(private val context: Context)
+: MessageStateBroadcaster {
 
     override fun messagesRead(identity: Identity) {
         val intent = Intent(context, AndroidChatService::class.java).apply {

@@ -61,7 +61,7 @@ class ChatServiceUseCaseTest {
         messageRepo.persist(createMsg(contactA, identityB, ChatDropMessage.Status.NEW))
         messageRepo.persist(createMsg(contactB, identityB, ChatDropMessage.Status.NEW))
         messageRepo.persist(createMsg(contactB, identityA, ChatDropMessage.Status.NEW))
-        markAsRead.markIdentityMessagesRead(identityB.keyIdentifier)
+        markAsRead.all(identityB.keyIdentifier)
         assertThat(messageRepo.findNew(identityA.id), hasSize(1))
         assertThat(messageRepo.findNew(identityB.id), hasSize(0))
     }
@@ -73,7 +73,7 @@ class ChatServiceUseCaseTest {
         messageRepo.persist(createMsg(contactA, identityB, ChatDropMessage.Status.NEW))
         messageRepo.persist(createMsg(contactB, identityB, ChatDropMessage.Status.NEW))
         messageRepo.persist(createMsg(contactB, identityB, ChatDropMessage.Status.NEW))
-        markAsRead.markContactMessagesRead(identityB.keyIdentifier, contactA.keyIdentifier)
+        markAsRead.forContact(identityB.keyIdentifier, contactA.keyIdentifier)
         val result = messageRepo.findNew(identityB.id)
         assertThat(result, hasSize(2))
     }

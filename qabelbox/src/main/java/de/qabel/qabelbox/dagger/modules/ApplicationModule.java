@@ -19,11 +19,11 @@ import de.qabel.core.repository.DropStateRepository;
 import de.qabel.core.repository.IdentityRepository;
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.chat.interactor.ChatServiceUseCase;
-import de.qabel.qabelbox.chat.interactor.IntentSendMessagesReadEvent;
+import de.qabel.qabelbox.chat.interactor.IntentMessageStateBroadcaster;
 import de.qabel.qabelbox.chat.interactor.MainChatServiceUseCase;
 import de.qabel.qabelbox.chat.interactor.MainMarkAsRead;
 import de.qabel.qabelbox.chat.interactor.MarkAsRead;
-import de.qabel.qabelbox.chat.interactor.SendMessagesReadEvent;
+import de.qabel.qabelbox.chat.interactor.MessageStateBroadcaster;
 import de.qabel.qabelbox.chat.notifications.ChatNotificationManager;
 import de.qabel.qabelbox.chat.notifications.MainChatNotificationManager;
 import de.qabel.qabelbox.chat.notifications.presenter.AndroidChatNotificationPresenter;
@@ -73,7 +73,7 @@ public class ApplicationModule extends ContextModule {
 
     @Singleton
     @Provides
-    SendMessagesReadEvent providesSendMessagesReadEvent(IntentSendMessagesReadEvent intentSendMessagesReadEvent) {
+    MessageStateBroadcaster providesSendMessagesReadEvent(IntentMessageStateBroadcaster intentSendMessagesReadEvent) {
         return intentSendMessagesReadEvent;
     }
 

@@ -68,7 +68,7 @@ open class AndroidChatService() : IntentService(AndroidChatService::class.java.s
         val identityKey = intent.identityKey()
         val contactKey = intent.contactKey()
         chatService.ignoreContact(identityKey, contactKey)
-        markAsRead.markContactMessagesRead(identityKey, contactKey)
+        markAsRead.forContact(identityKey, contactKey)
         chatNotificationManager.hideNotification(identityKey, contactKey)
         sendChatStateChanged()
         sendContactsUpdated()
@@ -78,10 +78,10 @@ open class AndroidChatService() : IntentService(AndroidChatService::class.java.s
         val identityKey = intent.identityKey()
         if (intent.hasExtra(PARAM_CONTACT_KEY)) {
             val contactKey = intent.contactKey()
-            markAsRead.markContactMessagesRead(identityKey, contactKey)
+            markAsRead.forContact(identityKey, contactKey)
             chatNotificationManager.hideNotification(identityKey, contactKey)
         } else {
-            markAsRead.markIdentityMessagesRead(identityKey)
+            markAsRead.all(identityKey)
             chatNotificationManager.hideNotification(identityKey, null)
         }
         sendChatStateChanged()

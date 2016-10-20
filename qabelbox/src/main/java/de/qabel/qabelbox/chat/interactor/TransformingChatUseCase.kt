@@ -43,7 +43,7 @@ class TransformingChatUseCase @Inject constructor(val identity: Identity, overri
 
     override fun load(offset: Int, pageSize: Int) = observable<PagingResult<ChatMessage>> { subscriber ->
         if (offset == 0) {
-            markAsRead.markContactMessagesRead(identity.keyIdentifier, contact.keyIdentifier)
+            markAsRead.forContact(identity.keyIdentifier, contact.keyIdentifier)
             notifyApplication()
             notifyServices()
         }

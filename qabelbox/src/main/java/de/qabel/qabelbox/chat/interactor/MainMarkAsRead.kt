@@ -11,7 +11,7 @@ class MainMarkAsRead @Inject constructor(private val chatDropMessageRepository: 
                                          private val identityRepo: IdentityRepository):
         MarkAsRead, QabelLog {
 
-    override fun markIdentityMessagesRead(identityKey: String) {
+    override fun all(identityKey: String) {
         val identity = identityRepo.find(identityKey)
         contactRepository.find(identity).entities.forEach {
             chatDropMessageRepository.markAsRead(it, identity)
@@ -19,7 +19,7 @@ class MainMarkAsRead @Inject constructor(private val chatDropMessageRepository: 
         info("Mark messaged read for identity " + identity.alias)
     }
 
-    override fun markContactMessagesRead(identityKey: String, contactKey: String) {
+    override fun forContact(identityKey: String, contactKey: String) {
         val identity = identityRepo.find(identityKey)
         val contact = contactRepository.findByKeyId(contactKey)
         chatDropMessageRepository.markAsRead(contact, identity)

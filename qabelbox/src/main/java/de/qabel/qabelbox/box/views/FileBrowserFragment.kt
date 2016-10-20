@@ -16,13 +16,14 @@ import de.qabel.qabelbox.BuildConfig
 import de.qabel.qabelbox.R
 import de.qabel.qabelbox.base.BaseFragment
 import de.qabel.qabelbox.box.adapters.FileAdapter
-import de.qabel.qabelbox.box.dto.BoxPath
+import de.qabel.box.storage.dto.BoxPath
 import de.qabel.qabelbox.box.dto.BrowserEntry
 import de.qabel.qabelbox.box.presenters.FileBrowserPresenter
 import de.qabel.qabelbox.box.provider.BoxProvider
 import de.qabel.qabelbox.box.provider.DocumentId
 import de.qabel.qabelbox.box.provider.toDocumentId
 import de.qabel.qabelbox.box.queryNameAndSize
+import de.qabel.qabelbox.box.toReadable
 import de.qabel.qabelbox.dagger.components.MainActivityComponent
 import de.qabel.qabelbox.dagger.modules.FileBrowserModule
 import de.qabel.qabelbox.ui.extensions.showEnterTextDialog

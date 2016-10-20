@@ -1,5 +1,6 @@
 package de.qabel.qabelbox.box.interactor
 
+import de.qabel.box.storage.dto.BoxPath
 import de.qabel.box.storage.exceptions.QblStorageException
 import de.qabel.chat.repository.ChatShareRepository
 import de.qabel.chat.repository.entities.ShareStatus

@@ -3,6 +3,7 @@ package de.qabel.qabelbox.box.provider
 import android.provider.DocumentsContract
 import com.natpryce.hamkrest.equalTo
 import com.natpryce.hamkrest.should.shouldMatch
+import de.qabel.box.storage.dto.BoxPath
 import de.qabel.qabelbox.BuildConfig
 import de.qabel.qabelbox.box.dto.*
 import de.qabel.qabelbox.box.interactor.DocumentIdAdapter

@@ -5,6 +5,7 @@ import com.natpryce.hamkrest.equalTo
 import com.natpryce.hamkrest.hasSize
 import com.natpryce.hamkrest.should.shouldMatch
 import com.nhaarman.mockito_kotlin.*
+import de.qabel.box.storage.dto.BoxPath
 import de.qabel.box.storage.exceptions.QblStorageException
 import de.qabel.chat.repository.ChatShareRepository
 import de.qabel.chat.repository.entities.BoxFileChatShare

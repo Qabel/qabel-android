@@ -19,12 +19,15 @@ import de.qabel.core.repository.DropStateRepository;
 import de.qabel.core.repository.IdentityRepository;
 import de.qabel.qabelbox.QabelBoxApplication;
 import de.qabel.qabelbox.chat.interactor.ChatServiceUseCase;
+import de.qabel.qabelbox.chat.interactor.IntentMessageStateBroadcaster;
 import de.qabel.qabelbox.chat.interactor.MainChatServiceUseCase;
+import de.qabel.qabelbox.chat.interactor.MainMarkAsRead;
+import de.qabel.qabelbox.chat.interactor.MarkAsRead;
+import de.qabel.qabelbox.chat.interactor.MessageStateBroadcaster;
 import de.qabel.qabelbox.chat.notifications.ChatNotificationManager;
 import de.qabel.qabelbox.chat.notifications.MainChatNotificationManager;
 import de.qabel.qabelbox.chat.notifications.presenter.AndroidChatNotificationPresenter;
 import de.qabel.qabelbox.chat.notifications.presenter.ChatNotificationPresenter;
-import de.qabel.qabelbox.chat.transformers.ChatMessageTransformer;
 import de.qabel.qabelbox.identity.interactor.IdentityUseCase;
 import de.qabel.qabelbox.identity.interactor.MainIdentityUseCase;
 import de.qabel.qabelbox.listeners.ActionIntentSender;
@@ -68,12 +71,22 @@ public class ApplicationModule extends ContextModule {
                 contactRepository, chatDropMessageRepository, dropStateRepository, sharingService);
     }
 
+    @Singleton
+    @Provides
+    MessageStateBroadcaster providesSendMessagesReadEvent(IntentMessageStateBroadcaster intentSendMessagesReadEvent) {
+        return intentSendMessagesReadEvent;
+    }
 
     @Singleton
     @Provides
-    ChatServiceUseCase providesChatManager(ContactRepository contactRepo, ChatDropMessageRepository chatDropMessageRepository,
-                                           IdentityRepository identityRepo, ChatMessageTransformer msgTransformer) {
-        return new MainChatServiceUseCase(chatDropMessageRepository, contactRepo, identityRepo, msgTransformer);
+    ChatServiceUseCase providesChatManager(MainChatServiceUseCase mainChatServiceUseCase) {
+        return mainChatServiceUseCase;
+    }
+
+    @Singleton
+    @Provides
+    MarkAsRead provideMarkAsRead(MainMarkAsRead mainMarkAsRead) {
+        return mainMarkAsRead;
     }
 
     @Provides

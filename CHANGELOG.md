@@ -4,5 +4,6 @@
 * Landscape Mode
 * Multiline chat improved
 * Crash reporting from background services enabled
+* Mark all messages as read action in conversations list
 * Extra emoji button in chat
 * New Emoji font

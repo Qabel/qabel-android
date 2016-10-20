@@ -5,7 +5,7 @@ import de.qabel.qabelbox.chat.dto.ChatMessage
 import de.qabel.qabelbox.chat.dto.ChatConversationDto
 import rx.Observable
 
-interface ChatOverviewUseCase {
+interface FindLatestConversations {
 
     fun findLatest(identity: Identity): Observable<ChatConversationDto>
 

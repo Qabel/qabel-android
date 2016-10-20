@@ -22,7 +22,7 @@ import java.util.*
 
 @RunWith(RobolectricGradleTestRunner::class)
 @Config(application = SimpleApplication::class, constants = BuildConfig::class)
-class ChatOverviewUseCaseTest : CoreTestCase {
+class FindLatestConversationsTest : CoreTestCase {
 
     val identity = createIdentity("Alice")
     val contact = createContact("Bob")
@@ -34,7 +34,7 @@ class ChatOverviewUseCaseTest : CoreTestCase {
         save(identity)
     }
     val chatRepo = InMemoryChatDropMessageRepository()
-    val useCase = MainChatOverviewUseCase(chatRepo, ChatMessageTransformer(identityRepo, contactRepo))
+    val useCase = MainFindLatestConversations(chatRepo, ChatMessageTransformer(identityRepo, contactRepo))
 
     @Before
     fun setUp() {

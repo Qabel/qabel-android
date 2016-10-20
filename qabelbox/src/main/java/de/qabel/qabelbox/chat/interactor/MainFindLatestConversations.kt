@@ -8,8 +8,8 @@ import rx.lang.kotlin.observable
 import javax.inject.Inject
 
 
-class MainChatOverviewUseCase @Inject constructor(private val chatRepo: ChatDropMessageRepository,
-                                                  private val chatMessageTransformer: ChatMessageTransformer) : ChatOverviewUseCase {
+class MainFindLatestConversations @Inject constructor(private val chatRepo: ChatDropMessageRepository,
+                                                      private val chatMessageTransformer: ChatMessageTransformer) : FindLatestConversations {
 
     override fun findLatest(identity: Identity) = observable<ChatConversationDto> { subscriber ->
         val newMessages = chatRepo.findNew(identity.id)

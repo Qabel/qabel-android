@@ -46,6 +46,7 @@ class ChatUseCaseTest {
 
     lateinit var transformer: ChatMessageTransformer
     lateinit var chatService: ChatService
+    lateinit var markAsRead: MarkAsRead
     lateinit var actionIntentSender: ActionIntentSender
     lateinit var chatDropRepository: InMemoryChatDropMessageRepository
 
@@ -61,7 +62,8 @@ class ChatUseCaseTest {
         chatDropRepository = spy(InMemoryChatDropMessageRepository())
         transformer = ChatMessageTransformer(identityRepo, contactRepo)
         chatService = spy(MainChatService(dropConnector, identityRepo, contactRepo, chatDropRepository, InMemoryDropStateRepository(), mock()))
-        chatUseCase = TransformingChatUseCase(identity, contact, transformer, chatService, mock(), MockBlockServer(), chatDropRepository, chatServiceUseCase, actionIntentSender)
+        markAsRead = MainMarkAsRead(chatDropRepository, contactRepo, identityRepo)
+        chatUseCase = TransformingChatUseCase(identity, contact, markAsRead, transformer, chatService, mock(), MockBlockServer(), chatDropRepository, chatServiceUseCase, actionIntentSender)
     }
 
     @Test

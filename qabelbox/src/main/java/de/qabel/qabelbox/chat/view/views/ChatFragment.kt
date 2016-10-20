@@ -140,12 +140,12 @@ class ChatFragment : ChatView, BaseFragment(), AnkoLogger {
             presenter.proxy.loadMore()
         }
 
-        bt_send.onClick {
-             emojiPopup.dismiss(); presenter.sendMessage()
-        }
+        bt_send.onClick { presenter.sendMessage() }
         action_add_contact.setOnClickListener { presenter.handleContactAddClick() }
         action_ignore_contact.setOnClickListener { presenter.handleContactIgnoreClick() }
-        emojiPopup = EmojiPopup.Builder.fromRootView(view)
+        emojiPopup = EmojiPopup.Builder.fromRootView(chat_root)
+                .setOnEmojiPopupShownListener { emoji_popup.imageResource = R.drawable.ic_keyboard_grey_24dp }
+                .setOnEmojiPopupDismissListener { emoji_popup.imageResource = R.drawable.emoji_people }
                 .build(etText)
         emoji_popup.onClick {
             emojiPopup.toggle()

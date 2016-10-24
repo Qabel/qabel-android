@@ -47,6 +47,11 @@ class TextChatMessageViewHolderTest {
         val background = mock<Drawable>().apply {
             stub(this.mutate()).toReturn(mock<GradientDrawable>())
         }
+        val beginIndicator : LinearLayout = mock()
+        val beginIndicatorImage : GradientDrawable = mock()
+        stub(beginIndicator.background).toReturn(beginIndicatorImage)
+
+        stub(view.chat_begin_indicator).toReturn(beginIndicator)
         stub(messageContainer.background).toReturn(background)
         stub(view.tvDate).toReturn(dateField)
         stub(view.tvText).toReturn(textField)

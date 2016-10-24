@@ -77,6 +77,9 @@ class ShareChatMessageViewHolderTest {
         val image : ImageView = mock()
         val preview : ImageView = mock()
         val messageContainer: LinearLayout = mock()
+        val beginIndicator : LinearLayout = mock()
+        val beginIndicatorImage : GradientDrawable = mock()
+        stub(beginIndicator.background).toReturn(beginIndicatorImage)
         val background = mock<Drawable>().apply {
             stub(this.mutate()).toReturn(mock<GradientDrawable>())
         }
@@ -90,6 +93,7 @@ class ShareChatMessageViewHolderTest {
         stub(view.messageFilePreview).toReturn(preview)
         stub(view.msg_container).toReturn(messageContainer)
         stub(view.contact_avatar).toReturn(mock())
+        stub(view.chat_begin_indicator).toReturn(beginIndicator)
 
         val holder = ShareChatMessageViewHolder(view, {})
         val msg = ChatMessage(mock<Identity>(), contact,
@@ -99,7 +103,7 @@ class ShareChatMessageViewHolderTest {
         holder.bindTo(msg, false)
 
         verify(messageField).text = "text"
-        verify(fileField).text = "test.txt 2.0KB"
+        verify(fileField).text = "test.txt 2,0KB"
         expectedLabel?.
                 let { verify(overlay).text = RuntimeEnvironment.application.getString(expectedLabel) }
         verify(dateField).text = any()

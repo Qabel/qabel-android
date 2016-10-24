@@ -14,8 +14,8 @@ spoon {
 }
 
 android {
-    compileSdkVersion 24
-    buildToolsVersion '24.0.3'
+    compileSdkVersion 23
+    buildToolsVersion '23.0.3'
 
     sourceSets {
         androidTest.java.srcDirs = ['src/androidTest/java', 'src/sharedTest/java']
@@ -36,14 +36,14 @@ android {
         buildConfigField "long", "TIMESTAMP", System.currentTimeMillis() + "L"
         applicationId "de.qabel.qabel"
         minSdkVersion 19
-        targetSdkVersion 24
+        targetSdkVersion 23
         multiDexEnabled true
         /*
         add code to automatically generate version name and code,
         on base of timestamp or change it manual*/
 
-        versionCode 17
-        versionName "0.12.0"
+        versionCode 18
+        versionName "0.12.1"
         testInstrumentationRunner "de.qabel.qabelbox.QblJUnitRunner"
 
         testApplicationId "de.qabel.test"

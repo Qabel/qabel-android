@@ -2,12 +2,10 @@ package de.qabel.qabelbox.chat.view.adapters
 
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.GradientDrawable
+import android.text.format.Formatter
 import android.view.View
 import android.widget.ImageView
 import android.widget.LinearLayout
-import android.widget.TextView
-import com.natpryce.hamkrest.assertion.assertThat
-import com.natpryce.hamkrest.equalTo
 import com.nhaarman.mockito_kotlin.any
 import com.nhaarman.mockito_kotlin.mock
 import com.nhaarman.mockito_kotlin.stub
@@ -23,19 +21,16 @@ import de.qabel.qabelbox.R
 import de.qabel.qabelbox.SimpleApplication
 import de.qabel.qabelbox.chat.dto.ChatMessage
 import de.qabel.qabelbox.chat.dto.MessagePayloadDto
-import de.qabel.qabelbox.eq
 import de.qabel.qabelbox.test.shadows.TextViewFontShadow
 import de.qabel.qabelbox.ui.views.TextViewFont
 import kotlinx.android.synthetic.main.chat_message_in.view.*
 import kotlinx.android.synthetic.main.chat_message_share.view.*
-import kotlinx.android.synthetic.main.fragment_imageviewer.view.*
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricGradleTestRunner
 import org.robolectric.RuntimeEnvironment
 import org.robolectric.annotation.Config
 import org.robolectric.shadows.ShadowDateFormat
-import java.net.URI
 import java.util.*
 
 @RunWith(RobolectricGradleTestRunner::class)
@@ -50,18 +45,18 @@ class ShareChatMessageViewHolderTest {
 
     @Test
     fun testInComingShare() {
-        testViewHolder(Direction.INCOMING, ShareStatus.ACCEPTED, null);
+        testViewHolder(Direction.INCOMING, ShareStatus.ACCEPTED, null)
     }
 
 
     @Test
     fun testUnreachableShare() {
-        testViewHolder(Direction.INCOMING, ShareStatus.UNREACHABLE, R.string.currently_not_available);
+        testViewHolder(Direction.INCOMING, ShareStatus.UNREACHABLE, R.string.currently_not_available)
     }
 
     @Test
     fun testDeletedShare() {
-        testViewHolder(Direction.INCOMING, ShareStatus.DELETED, R.string.permanently_unavailable);
+        testViewHolder(Direction.INCOMING, ShareStatus.DELETED, R.string.permanently_unavailable)
     }
 
     fun testViewHolder(direction: Direction, status: ShareStatus, expectedLabel: Int?) {
@@ -73,12 +68,12 @@ class ShareChatMessageViewHolderTest {
         val messageField: TextViewFont = mock()
         val fileField: TextViewFont = mock()
         val dateField: TextViewFont = mock()
-        val overlay : TextViewFont = mock()
-        val image : ImageView = mock()
-        val preview : ImageView = mock()
+        val overlay: TextViewFont = mock()
+        val image: ImageView = mock()
+        val preview: ImageView = mock()
         val messageContainer: LinearLayout = mock()
-        val beginIndicator : LinearLayout = mock()
-        val beginIndicatorImage : GradientDrawable = mock()
+        val beginIndicator: LinearLayout = mock()
+        val beginIndicatorImage: GradientDrawable = mock()
         stub(beginIndicator.background).toReturn(beginIndicatorImage)
         val background = mock<Drawable>().apply {
             stub(this.mutate()).toReturn(mock<GradientDrawable>())
@@ -95,15 +90,16 @@ class ShareChatMessageViewHolderTest {
         stub(view.contact_avatar).toReturn(mock())
         stub(view.chat_begin_indicator).toReturn(beginIndicator)
 
+        val fileSize = 2048L
         val holder = ShareChatMessageViewHolder(view, {})
         val msg = ChatMessage(mock<Identity>(), contact,
                 direction, Date(),
-                MessagePayloadDto.ShareMessage("text", BoxFileChatShare(status, "test.txt", 2048L,
+                MessagePayloadDto.ShareMessage("text", BoxFileChatShare(status, "test.txt", fileSize,
                         SymmetricKey(listOf()), "http://foo")))
         holder.bindTo(msg, false)
 
         verify(messageField).text = "text"
-        verify(fileField).text = "test.txt 2,0KB"
+        verify(fileField).text = "test.txt " + Formatter.formatShortFileSize(RuntimeEnvironment.application, fileSize)
         expectedLabel?.
                 let { verify(overlay).text = RuntimeEnvironment.application.getString(expectedLabel) }
         verify(dateField).text = any()

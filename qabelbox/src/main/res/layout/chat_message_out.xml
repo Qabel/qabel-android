@@ -10,9 +10,9 @@
     <LinearLayout
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="2sp"
-        android:layout_marginStart="60dp"
-        android:layout_marginTop="2sp"
+        android:layout_marginBottom="2dp"
+        android:layout_marginStart="70dp"
+        android:layout_marginTop="2dp"
         android:layout_weight="1"
         android:background="@drawable/chat_out_round_box"
         android:orientation="vertical">
@@ -21,8 +21,7 @@
             android:id="@+id/chatContent"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
-        </LinearLayout>
+            android:orientation="vertical" />
 
         <de.qabel.qabelbox.ui.views.TextViewFont
             android:id="@+id/tvDate"
@@ -33,11 +32,13 @@
             android:textSize="12sp" />
     </LinearLayout>
 
-    <ImageView
+    <LinearLayout
         android:id="@+id/chat_begin_indicator"
-        android:layout_width="12sp"
-        android:layout_height="25sp"
-        android:layout_marginTop="3dp"
-        android:background="@drawable/chat_in_right"
+        android:layout_width="15dp"
+        android:layout_height="40dp"
+        android:layout_marginEnd="-5dp"
+        android:layout_marginTop="@dimen/default_space_double"
+        android:background="@drawable/chat_out_arrow"
+        android:orientation="horizontal"
         tools:ignore="ContentDescription" />
 </LinearLayout>

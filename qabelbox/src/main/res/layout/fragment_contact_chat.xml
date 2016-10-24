@@ -25,8 +25,8 @@
 
             <ImageButton
                 android:id="@+id/emoji_popup"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:scaleType="center"
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:src="@drawable/emoji_people"
@@ -44,14 +44,14 @@
                 android:isScrollContainer="true"
                 android:scrollbars="vertical"
                 android:maxLength="1536"
-                android:minLines="2"
+                android:minLines="1"
                 android:lines="8"
                 android:maxLines="10" />
 
             <ImageView
                 android:id="@+id/bt_send"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:scaleType="center"
                 android:src="@drawable/ic_send_grey_24dp"

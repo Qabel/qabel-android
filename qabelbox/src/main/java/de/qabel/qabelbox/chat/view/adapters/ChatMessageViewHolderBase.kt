@@ -1,13 +1,16 @@
 package de.qabel.qabelbox.chat.view.adapters
 
 import android.annotation.TargetApi
-import android.content.res.ColorStateList
+import android.graphics.drawable.Drawable
 import android.graphics.drawable.GradientDrawable
+import android.graphics.drawable.LayerDrawable
+import android.graphics.drawable.RotateDrawable
 import android.os.Build
 import android.support.v7.widget.RecyclerView
 import android.view.View
 import de.qabel.chat.repository.entities.ChatDropMessage
 import de.qabel.core.ui.initials
+import de.qabel.qabelbox.R
 import de.qabel.qabelbox.chat.dto.ChatMessage
 import de.qabel.qabelbox.chat.dto.MessagePayloadDto
 import de.qabel.qabelbox.contacts.extensions.color
@@ -22,23 +25,26 @@ abstract class ChatMessageViewHolderBase<in T : MessagePayloadDto>(itemView: Vie
     fun bindTo(message: ChatMessage, showBeginIndicator: Boolean) {
         with(itemView) {
             val incoming = message.direction == ChatDropMessage.Direction.INCOMING
-            chat_begin_indicator?.visibility =
-                    if (incoming) View.GONE
-                    else if (showBeginIndicator) View.VISIBLE
-                    else View.INVISIBLE
+
+            chat_begin_indicator.visibility =
+                    if (showBeginIndicator) View.VISIBLE else View.INVISIBLE
 
             setPadding(0, if (showBeginIndicator) 10 else 0, 0, 0)
 
-            tvDate?.text = Formatter.formatDateTimeString(message.time.time, itemView.context)
+            tvDate.text = Formatter.formatDateTimeString(message.time.time, context)
 
             if (incoming) {
-                setBackgroundColor(itemView, message)
                 val contact = message.contact
+                val contactColor = contact.color(context)
+                setBackgroundColor(msg_container.background, contactColor)
                 contact_avatar.background = if (showBeginIndicator) IdentityIconDrawable(
-                        color = contact.color(itemView.context),
+                        color = contactColor,
                         text = contact.initials(),
-                        width = dip(50),
-                        height = dip(50)) else null
+                        width = dip(40),
+                        height = dip(40)) else null
+                if (showBeginIndicator) {
+                    setBackgroundColor(chat_begin_indicator.background, contactColor)
+                }
             }
 
             @Suppress("UNCHECKED_CAST")
@@ -49,10 +55,17 @@ abstract class ChatMessageViewHolderBase<in T : MessagePayloadDto>(itemView: Vie
     abstract fun bindTo(payload: T, message: ChatMessage)
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-    private fun setBackgroundColor(itemView: View, message: ChatMessage) =
+    private fun setBackgroundColor(drawable: Drawable, color: Int) =
             doFromSdk(Build.VERSION_CODES.LOLLIPOP) {
-                (itemView.msg_container.background.mutate() as GradientDrawable).color =
-                        ColorStateList.valueOf(message.contact.color(itemView.context))
+                val mutateDrawable = drawable.mutate()
+                when (mutateDrawable) {
+                    is GradientDrawable -> mutateDrawable.setColor(color)
+                    is LayerDrawable -> {
+                        val targetDrawable = mutateDrawable.findDrawableByLayerId(R.id.target_layer) as RotateDrawable
+                        (targetDrawable.drawable as GradientDrawable).setColor(color)
+                    }
+                    else -> error("Cannot set color on drawable! ${mutateDrawable.javaClass.name}")
+                }
             }
 
 }

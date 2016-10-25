@@ -3,6 +3,7 @@ package de.qabel.qabelbox.identity.interactor
 import de.qabel.core.config.Identities
 import de.qabel.core.config.Identity
 import de.qabel.core.config.IdentityExportImport
+import de.qabel.core.config.Prefix
 import de.qabel.core.crypto.QblECKeyPair
 import de.qabel.core.drop.DropURL
 import de.qabel.core.extensions.letApply
@@ -59,7 +60,7 @@ class MainIdentityUseCase @Inject constructor(private val identityRepository: Id
 
     override fun createIdentity(alias: String, dropUrl: DropURL, prefix: String, email: String, phone: String) = single<Identity> {
         val identity = Identity(alias, mutableListOf(dropUrl), QblECKeyPair()).letApply {
-            it.prefixes = mutableListOf(prefix)
+            it.prefixes = mutableListOf(Prefix(prefix))
             it.email = email
             it.phone = phone
         }

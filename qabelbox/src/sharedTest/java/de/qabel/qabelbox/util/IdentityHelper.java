@@ -6,6 +6,7 @@ import java.net.URISyntaxException;
 
 import de.qabel.core.config.Contact;
 import de.qabel.core.config.Identity;
+import de.qabel.core.config.Prefix;
 import de.qabel.core.config.factory.DropUrlGenerator;
 import de.qabel.core.config.factory.IdentityBuilder;
 import de.qabel.qabelbox.QabelBoxApplication;
@@ -22,7 +23,7 @@ public class IdentityHelper {
             if (prefix == null) {
                 prefix = "test";
             }
-            identity.getPrefixes().add(prefix);
+            identity.getPrefixes().add(new Prefix(prefix));
             return identity;
         } catch (URISyntaxException e) {
             throw new RuntimeException(e);

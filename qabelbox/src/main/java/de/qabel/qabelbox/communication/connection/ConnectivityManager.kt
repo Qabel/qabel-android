@@ -4,18 +4,21 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import rx.Observable
+import rx.subjects.BehaviorSubject
+import java.util.concurrent.TimeUnit
 
 open class ConnectivityManager(private val context: Context) {
 
     private val connectivityManager: android.net.ConnectivityManager?
 
+    private val connectedSubject: BehaviorSubject<Boolean> = BehaviorSubject.create<Boolean>()
+
+    private val connected: Observable<Boolean> = connectedSubject.debounce(250, TimeUnit.MILLISECONDS)
+
     private val broadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
-            if (isConnected) {
-                listener?.handleConnectionEstablished()
-            } else {
-                listener?.handleConnectionLost()
-            }
+            connectedSubject.onNext(isConnected)
         }
     }
 
@@ -26,6 +29,13 @@ open class ConnectivityManager(private val context: Context) {
                 as android.net.ConnectivityManager
         context.registerReceiver(broadcastReceiver,
                 IntentFilter(android.net.ConnectivityManager.CONNECTIVITY_ACTION))
+        connected.subscribe { connected ->
+            if (connected) {
+                listener?.handleConnectionEstablished()
+            } else {
+                listener?.handleConnectionLost()
+            }
+        }
     }
 
     fun onDestroy() {

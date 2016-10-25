@@ -184,7 +184,9 @@ class MainActivity : CrashReportingActivity(),
     private fun updateNewMessageBadge() {
         val size = try {
             messageRepository.findNew(activeIdentity.id).size
-        } catch (e: PersistenceException) { 0 }
+        } catch (e: PersistenceException) {
+            0
+        }
 
         if (size == 0) {
             drawer.updateBadge(chats.identifier, null)
@@ -269,39 +271,45 @@ class MainActivity : CrashReportingActivity(),
             private var offlineIndicator: AlertDialog? = null
 
             override fun handleConnectionLost(): Unit {
-                if (offlineIndicator == null) {
-                    val builder = AlertDialog.Builder(this@MainActivity)
-                    builder.setTitle(R.string.no_connection).setIcon(R.drawable.information).setNegativeButton(R.string.close_app) {
-                        dialog, id ->
-                        finishAffinity()
-                    }.setPositiveButton(R.string.retry_action, null)
-                    offlineIndicator = builder.create()
-                    offlineIndicator?.let {
-                        it.setCancelable(false)
-                        it.show()
-                        it.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener {
-                            if (connectivityManager.isConnected) {
-                                offlineIndicator?.dismiss()
-                                offlineIndicator = null
+                runOnUiThread {
+                    if (offlineIndicator == null) {
+                        val builder = AlertDialog.Builder(this@MainActivity)
+                        builder.setTitle(R.string.no_connection).setIcon(R.drawable.information).setNegativeButton(R.string.close_app) {
+                            dialog, id ->
+                            finishAffinity()
+                        }.setPositiveButton(R.string.retry_action, null)
+                        offlineIndicator = builder.create()
+                        offlineIndicator?.let {
+                            it.setCancelable(false)
+                            it.show()
+                            it.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener {
+                                if (connectivityManager.isConnected) {
+                                    offlineIndicator?.dismiss()
+                                    offlineIndicator = null
+                                }
                             }
                         }
+                    } else {
+                        offlineIndicator?.show()
                     }
-                } else {
-                    offlineIndicator?.show()
                 }
             }
 
             override fun handleConnectionEstablished() {
-                offlineIndicator?.let {
-                    if (it.isShowing) {
-                        it.dismiss()
-                        offlineIndicator = null
+                runOnUiThread {
+                    offlineIndicator?.let {
+                        if (it.isShowing) {
+                            it.dismiss()
+                            offlineIndicator = null
+                        }
                     }
                 }
             }
 
             override fun onDestroy() {
-                offlineIndicator?.let { it.dismiss() }
+                runOnUiThread {
+                    offlineIndicator?.let { it.dismiss() }
+                }
             }
         })
     }

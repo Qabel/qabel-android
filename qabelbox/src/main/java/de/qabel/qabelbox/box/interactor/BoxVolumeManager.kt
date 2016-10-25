@@ -12,7 +12,7 @@ class BoxVolumeManager (private val identityRepository: IdentityRepository,
 
     override val roots: List<VolumeRoot>
         get() = identityRepository.findAll().identities.map {
-            val docId = DocumentId(it.keyIdentifier, it.prefixes.first(), BoxPath.Root)
+            val docId = DocumentId(it.keyIdentifier, it.prefixes.first().prefix, BoxPath.Root)
             VolumeRoot(docId.toString().dropLast(1), docId.toString(), it.alias)
         }
 

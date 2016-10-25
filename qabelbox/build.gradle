@@ -354,7 +354,7 @@ dependencies {
 
     compile 'com.mikepenz:materialdrawer:5.4.0'
     compile group: 'com.googlecode.libphonenumber', name: 'libphonenumber', version: '7.6.0'
-    compile 'com.vanniktech:emoji:0.3.0'
+    compile 'com.vanniktech:emoji:0.2.0'
 }
 
 // for integration test of this plugin

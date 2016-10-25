@@ -146,6 +146,7 @@ class ChatFragment : ChatView, BaseFragment(), AnkoLogger {
         emojiPopup = EmojiPopup.Builder.fromRootView(chat_root)
                 .setOnEmojiPopupShownListener { emoji_popup.imageResource = R.drawable.ic_keyboard_grey_24dp }
                 .setOnEmojiPopupDismissListener { emoji_popup.imageResource = R.drawable.emoji_people }
+                .setOnSoftKeyboardCloseListener { emojiPopup.dismiss() }
                 .build(etText)
         emoji_popup.onClick {
             emojiPopup.toggle()

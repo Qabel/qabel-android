@@ -23,7 +23,7 @@ class BoxVolumeManagerTest {
 
     val identity = IdentityHelper.createIdentity("name", "prefix")
     val repo = InMemoryIdentityRepository().apply { save(identity) }
-    val docId = DocumentId(identity.keyIdentifier, identity.prefixes.first(), BoxPath.Root)
+    val docId = DocumentId(identity.keyIdentifier, identity.prefixes.first().prefix, BoxPath.Root)
     val volume = VolumeRoot(docId.toString().dropLast(1), docId.toString(), identity.alias)
     lateinit var manager: VolumeManager
     lateinit var fileBrowser: FileBrowser

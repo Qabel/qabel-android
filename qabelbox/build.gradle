@@ -159,7 +159,6 @@ configurations.all {
 }
 repositories {
     maven { url "https://oss.sonatype.org/content/repositories/snapshots" }
-    maven { url 'http://github.com/wada811/Android-Material-Design-Colors/raw/master/repository/' }
     mavenCentral()
 }
 
@@ -167,7 +166,7 @@ tasks.withType(Test) {
     systemProperty 'java.library.path', 'libs/'
 }
 
-def coreVersion = '0.25.7'
+def coreVersion = '0.26.0'
 def repo = 'Qabel'
 dependencies {
     sourceCompatibility = JavaVersion.VERSION_1_7
@@ -346,7 +345,6 @@ dependencies {
     compile "org.jetbrains.anko:anko-cardview-v7:$anko_version"
     //for more used sources, see license.txt
 
-    compile 'com.wada811:android-material-design-colors:3.0.0'
     compile 'com.google.android.gms:play-services:9.4.0'
 
     compile 'com.google.firebase:firebase-core:9.4.0'

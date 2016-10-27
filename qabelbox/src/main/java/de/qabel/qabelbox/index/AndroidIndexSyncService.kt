@@ -15,6 +15,7 @@ import de.qabel.qabelbox.QblBroadcastConstants.Index.REQUEST_VERIFICATION
 import de.qabel.qabelbox.QblBroadcastConstants.Index.SYNC_VERIFICATIONS
 import de.qabel.qabelbox.permissions.DataPermissionsAdapter
 import de.qabel.qabelbox.reporter.CrashReporter
+import de.qabel.qabelbox.reporter.CrashSubmitter
 import javax.inject.Inject
 
 class AndroidIndexSyncService() : IntentService(AndroidIndexSyncService::class.java.simpleName),
@@ -24,6 +25,7 @@ class AndroidIndexSyncService() : IntentService(AndroidIndexSyncService::class.j
     private val contactSyncAdapter: ContactSyncAdapter by lazy { ContactSyncAdapter(applicationContext, true) }
     @Inject lateinit var indexService: IndexService
     @Inject lateinit var crashReporter: CrashReporter
+    @Inject lateinit internal var crashSubmitter: CrashSubmitter
 
     companion object {
         private fun start(context: Context, action: String) {
@@ -58,6 +60,7 @@ class AndroidIndexSyncService() : IntentService(AndroidIndexSyncService::class.j
             }
         } catch (ex: Throwable) {
             error("Error syncing with index. Action: ${intent.action}", ex)
+            crashSubmitter.submit(ex)
         }
     }
 

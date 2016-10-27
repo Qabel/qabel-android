@@ -2,9 +2,11 @@ package de.qabel.qabelbox.box
 
 import de.qabel.box.storage.AndroidBoxVolume
 import de.qabel.box.storage.BoxVolumeConfig
+import de.qabel.box.storage.RootRefCalculator
 import de.qabel.box.storage.jdbc.DirectoryMetadataDatabase
 import de.qabel.box.storage.jdbc.JdbcDirectoryMetadataFactory
 import de.qabel.box.storage.jdbc.JdbcFileMetadataFactory
+import de.qabel.core.config.Prefix
 import de.qabel.core.repositories.AndroidVersionAdapter
 import de.qabel.qabelbox.box.backends.MockStorageBackend
 import de.qabel.qabelbox.box.interactor.JdbcPrefix
@@ -33,6 +35,7 @@ class AndroidBoxVolumeTest {
         val backend = MockStorageBackend()
         val volume = AndroidBoxVolume(BoxVolumeConfig(
                 "prefix",
+                RootRefCalculator().rootFor(identity.primaryKeyPair.privateKey, Prefix.TYPE.USER, "prefix"),
                 byteArrayOf(1,2,3,4),
                 backend,
                 backend,
@@ -44,8 +47,7 @@ class AndroidBoxVolumeTest {
                     }, jdbcPrefix = JdbcPrefix.jdbcPrefix)
                 },
                 fileMetadataFactoryFactory = { tempDir ->
-                    JdbcFileMetadataFactory(tempDir, versionAdapterFactory = { connection ->
-                        AndroidVersionAdapter(connection)})
+                    JdbcFileMetadataFactory(tempDir, versionAdapterFactory = ::AndroidVersionAdapter)
                 }
                 ),
                 identity.primaryKeyPair )

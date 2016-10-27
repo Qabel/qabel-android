@@ -64,7 +64,7 @@ class FileBrowserModule(private val view: FileBrowserView) {
     @ActivityScope
     @Provides
     fun provideStorageBackend(blockServer: BlockServer, identity: Identity): BoxHttpStorageBackend {
-        return BoxHttpStorageBackend(blockServer, identity.prefixes.first())
+        return BoxHttpStorageBackend(blockServer, identity.prefixes.first().prefix)
     }
 
 
@@ -83,7 +83,7 @@ class FileBrowserModule(private val view: FileBrowserView) {
     @ActivityScope
     @Provides
     fun provideKeyAndPrefix(identity: Identity): BoxFileBrowser.KeyAndPrefix {
-        return BoxFileBrowser.KeyAndPrefix(identity.keyIdentifier, identity.prefixes.first())
+        return BoxFileBrowser.KeyAndPrefix(identity)
     }
 
     @ActivityScope
@@ -98,8 +98,15 @@ class FileBrowserModule(private val view: FileBrowserView) {
             DirectoryMetadataDatabase(connection, AndroidVersionAdapter(connection))
         }
         val prefix = identity.prefixes.first()
+        val prefixKey = prefix.prefix
+        val rootRef = RootRefCalculator().rootFor(
+                identity.primaryKeyPair.privateKey,
+                prefix.type,
+                prefixKey
+        )
         return AndroidBoxVolume(BoxVolumeConfig(
-                prefix,
+                prefixKey,
+                rootRef,
                 deviceId,
                 readBackend,
                 writeBackend,
@@ -110,12 +117,10 @@ class FileBrowserModule(private val view: FileBrowserView) {
                             jdbcPrefix = JdbcPrefix.jdbcPrefix)
                 },
                 fileMetadataFactoryFactory = { tempDir ->
-                    JdbcFileMetadataFactory(tempDir, versionAdapterFactory = { connection ->
-                        AndroidVersionAdapter(connection)},
+                    JdbcFileMetadataFactory(tempDir, versionAdapterFactory = ::AndroidVersionAdapter,
                             jdbcPrefix = JdbcPrefix.jdbcPrefix)
                 }),
                 identity.primaryKeyPair)
-
     }
 
 }

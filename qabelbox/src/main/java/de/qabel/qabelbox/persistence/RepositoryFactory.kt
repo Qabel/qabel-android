@@ -103,7 +103,7 @@ class RepositoryFactory(private val context: Context) {
                     getIdentityRepository())
 
     fun getSqlitePrefixRepository(): SqlitePrefixRepository =
-            SqlitePrefixRepository(getAndroidClientDatabase())
+            SqlitePrefixRepository(getAndroidClientDatabase(), entityManager)
 
 
     fun getDropUrlRepository(): DropUrlRepository =

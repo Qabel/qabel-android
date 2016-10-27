@@ -24,6 +24,7 @@ import java.util.Collection;
 
 import de.qabel.core.config.DropServer;
 import de.qabel.core.config.Identity;
+import de.qabel.core.config.Prefix;
 import de.qabel.core.crypto.QblECKeyPair;
 import de.qabel.core.drop.AdjustableDropIdGenerator;
 import de.qabel.core.drop.DropIdGenerator;
@@ -74,7 +75,7 @@ public class OfflineTest {
         dropURLs.add(dropURL);
 
         Identity identity = new Identity(identityName, dropURLs, new QblECKeyPair());
-        identity.getPrefixes().add("test");
+        identity.getPrefixes().add(new Prefix("test"));
         return identity;
     }
 

@@ -150,6 +150,7 @@ class ChatFragment : ChatView, BaseFragment(), AnkoLogger {
                 .build(etText)
         emoji_popup.onClick {
             emojiPopup.toggle()
+            chat_root.viewTreeObserver.dispatchOnGlobalLayout()
         }
     }
 

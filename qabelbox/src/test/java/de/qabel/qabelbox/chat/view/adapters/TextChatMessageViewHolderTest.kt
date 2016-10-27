@@ -1,10 +1,10 @@
 package de.qabel.qabelbox.chat.view.adapters
 
-import android.os.SystemClock
+import android.graphics.drawable.Drawable
+import android.graphics.drawable.GradientDrawable
 import android.view.View
-import com.nhaarman.mockito_kotlin.mock
-import com.nhaarman.mockito_kotlin.stub
-import com.nhaarman.mockito_kotlin.verify
+import android.widget.LinearLayout
+import com.nhaarman.mockito_kotlin.*
 import de.qabel.chat.repository.entities.ChatDropMessage
 import de.qabel.core.config.Contact
 import de.qabel.core.config.Identity
@@ -13,6 +13,8 @@ import de.qabel.qabelbox.R
 import de.qabel.qabelbox.SimpleApplication
 import de.qabel.qabelbox.chat.dto.ChatMessage
 import de.qabel.qabelbox.chat.dto.MessagePayloadDto
+import de.qabel.qabelbox.contacts.extensions.color
+import de.qabel.qabelbox.contacts.view.widgets.IdentityIconDrawable
 import de.qabel.qabelbox.test.shadows.TextViewFontShadow
 import de.qabel.qabelbox.ui.views.TextViewFont
 import kotlinx.android.synthetic.main.chat_message_in.view.*
@@ -35,13 +37,26 @@ class TextChatMessageViewHolderTest {
     fun viewHolderCanBindItself() {
         val contact = mock<Contact>()
         stub(contact.alias).toReturn("contact")
+        whenever(contact.keyIdentifier).thenReturn("test")
 
         val view = mock<View>()
         stub(view.context).toReturn(RuntimeEnvironment.application)
         val textField: TextViewFont = mock()
         val dateField: TextViewFont = mock()
+        val messageContainer: LinearLayout = mock()
+        val background = mock<Drawable>().apply {
+            stub(this.mutate()).toReturn(mock<GradientDrawable>())
+        }
+        val beginIndicator : LinearLayout = mock()
+        val beginIndicatorImage : GradientDrawable = mock()
+        stub(beginIndicator.background).toReturn(beginIndicatorImage)
+
+        stub(view.chat_begin_indicator).toReturn(beginIndicator)
+        stub(messageContainer.background).toReturn(background)
         stub(view.tvDate).toReturn(dateField)
         stub(view.tvText).toReturn(textField)
+        stub(view.msg_container).toReturn(messageContainer)
+        stub(view.contact_avatar).toReturn(mock())
 
         val date = Date()
         ShadowSystemClock.setCurrentTimeMillis(date.time)
@@ -52,6 +67,8 @@ class TextChatMessageViewHolderTest {
 
         verify(textField).text = "text"
         verify(dateField).text = RuntimeEnvironment.application.getString(R.string.moments_ago)
+        verify(background).mutate()
+        verify(view.contact_avatar).background = any()
     }
 
 }

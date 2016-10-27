@@ -11,4 +11,5 @@
 ----- 0.12.0
 * Downgrade SDK to 23 because the NDK is buggy in 24
 ----- 0.12.1
+* beautify chat with contact avatar and colored msg items
 * fix keyboard handling with emoji chooser

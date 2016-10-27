@@ -8,22 +8,30 @@
     android:baselineAligned="false"
     android:orientation="horizontal">
 
-    <ImageView xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:tools="http://schemas.android.com/tools"
+    <de.qabel.qabelbox.ui.views.SquareFrameLayout
+        android:id="@+id/contact_avatar"
+        style="@style/ListIcon"
+        android:layout_width="wrap_content"
+        android:layout_height="40dp"
+        android:layout_marginStart="@dimen/default_space" />
+
+    <LinearLayout
         android:id="@+id/chat_begin_indicator"
-        android:layout_width="12sp"
-        android:layout_height="25sp"
-        android:layout_marginTop="3dp"
-        android:background="@drawable/chat_in_left"
+        android:layout_width="15dp"
+        android:layout_height="40dp"
+        android:layout_marginStart="-4dp"
+        android:background="@drawable/chat_in_arrow"
+        android:orientation="horizontal"
         tools:ignore="ContentDescription" />
 
     <LinearLayout
+        android:id="@+id/msg_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center_vertical"
-        android:layout_marginBottom="2sp"
-        android:layout_marginEnd="40sp"
-        android:layout_marginTop="2sp"
+        android:layout_marginBottom="2dp"
+        android:layout_marginEnd="40dp"
+        android:layout_marginTop="2dp"
         android:background="@drawable/chat_in_round_box"
         android:orientation="vertical">
 
@@ -32,8 +40,7 @@
             android:id="@+id/chatContent"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
-        </LinearLayout>
+            android:orientation="vertical" />
 
         <de.qabel.qabelbox.ui.views.TextViewFont
             android:id="@+id/tvDate"

@@ -2,14 +2,10 @@ package de.qabel.qabelbox.chat.view.adapters
 
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.GradientDrawable
-import android.text.format.Formatter
 import android.view.View
 import android.widget.ImageView
 import android.widget.LinearLayout
-import com.nhaarman.mockito_kotlin.any
-import com.nhaarman.mockito_kotlin.mock
-import com.nhaarman.mockito_kotlin.stub
-import com.nhaarman.mockito_kotlin.verify
+import com.nhaarman.mockito_kotlin.*
 import de.qabel.chat.repository.entities.BoxFileChatShare
 import de.qabel.chat.repository.entities.ChatDropMessage.Direction
 import de.qabel.chat.repository.entities.ShareStatus
@@ -35,7 +31,7 @@ import java.util.*
 
 @RunWith(RobolectricGradleTestRunner::class)
 @Config(application = SimpleApplication::class, constants = BuildConfig::class,
-        shadows = arrayOf(TextViewFontShadow::class, ShadowDateFormat::class), manifest = "src/main/AndroidManifest.xml")
+        qualifiers = "en", shadows = arrayOf(TextViewFontShadow::class, ShadowDateFormat::class), manifest = "src/main/AndroidManifest.xml")
 class ShareChatMessageViewHolderTest {
 
     @Test
@@ -47,7 +43,6 @@ class ShareChatMessageViewHolderTest {
     fun testInComingShare() {
         testViewHolder(Direction.INCOMING, ShareStatus.ACCEPTED, null)
     }
-
 
     @Test
     fun testUnreachableShare() {
@@ -64,6 +59,7 @@ class ShareChatMessageViewHolderTest {
         stub(contact.alias).toReturn("contact")
 
         val view = mock<View>()
+
         stub(view.context).toReturn(RuntimeEnvironment.application)
         val messageField: TextViewFont = mock()
         val fileField: TextViewFont = mock()
@@ -99,7 +95,7 @@ class ShareChatMessageViewHolderTest {
         holder.bindTo(msg, false)
 
         verify(messageField).text = "text"
-        verify(fileField).text = "test.txt " + Formatter.formatShortFileSize(RuntimeEnvironment.application, fileSize)
+        verify(fileField).text = "test.txt 2,0KB"
         expectedLabel?.
                 let { verify(overlay).text = RuntimeEnvironment.application.getString(expectedLabel) }
         verify(dateField).text = any()

@@ -95,7 +95,7 @@ class ShareChatMessageViewHolderTest {
         holder.bindTo(msg, false)
 
         verify(messageField).text = "text"
-        verify(fileField).text = "test.txt 2,0KB"
+        verify(fileField).text = "test.txt 2.0KB"
         expectedLabel?.
                 let { verify(overlay).text = RuntimeEnvironment.application.getString(expectedLabel) }
         verify(dateField).text = any()

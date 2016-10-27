@@ -8,6 +8,7 @@ import de.qabel.box.storage.exceptions.QblStorageNotFound
 import de.qabel.core.repository.ContactRepository
 import de.qabel.core.repository.exception.EntityNotFoundException
 import de.qabel.box.storage.dto.BoxPath
+import de.qabel.core.config.Identity
 import de.qabel.qabelbox.box.dto.BrowserEntry
 import de.qabel.qabelbox.box.dto.DownloadSource
 import de.qabel.qabelbox.box.dto.UploadSource
@@ -25,7 +26,9 @@ class BoxFileBrowser @Inject constructor(keyAndPrefix: KeyAndPrefix,
                                          private val contactRepo: ContactRepository
 ) : FileBrowser, VolumeNavigator by BoxVolumeNavigator(keyAndPrefix, volume) {
 
-    data class KeyAndPrefix(val publicKey: String, val prefix: String)
+    data class KeyAndPrefix(val publicKey: String, val prefix: String) {
+        constructor(identity : Identity) : this(identity.keyIdentifier, identity.prefixes.first().prefix)
+    }
 
     override fun asDocumentId(path: BoxPath) = DocumentId(key, prefix, path).toSingletonObservable()
 

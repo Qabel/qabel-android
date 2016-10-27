@@ -5,14 +5,11 @@ import com.natpryce.hamkrest.should.shouldMatch
 import com.nhaarman.mockito_kotlin.any
 import com.nhaarman.mockito_kotlin.mock
 import com.nhaarman.mockito_kotlin.whenever
-import de.qabel.box.storage.AndroidBoxVolume
-import de.qabel.box.storage.BoxVolume
-import de.qabel.box.storage.BoxVolumeConfig
-import de.qabel.box.storage.IndexNavigation
+import de.qabel.box.storage.*
+import de.qabel.box.storage.dto.BoxPath
 import de.qabel.box.storage.exceptions.QblStorageException
 import de.qabel.qabelbox.*
 import de.qabel.qabelbox.box.backends.MockStorageBackend
-import de.qabel.box.storage.dto.BoxPath
 import de.qabel.qabelbox.box.dto.BrowserEntry
 import de.qabel.qabelbox.box.dto.UploadSource
 import de.qabel.qabelbox.box.provider.DocumentId
@@ -34,7 +31,7 @@ class BoxFileBrowserTest {
 
     val identity = IdentityHelper.createIdentity("identity", null)
     val storage = MockStorageBackend()
-    val docId = DocumentId(identity.keyIdentifier, identity.prefixes.first(), BoxPath.Root)
+    val docId = DocumentId(identity.keyIdentifier, identity.prefixes.first().prefix, BoxPath.Root)
     lateinit var useCase: FileBrowser
 
     val samplePayload = "payload"
@@ -45,14 +42,15 @@ class BoxFileBrowserTest {
     fun setUp() {
         val prefix = identity.prefixes.first()
         val volume = AndroidBoxVolume(BoxVolumeConfig(
-                prefix,
+                prefix.prefix,
+                RootRefCalculator().rootFor(identity.primaryKeyPair.privateKey, prefix.type, prefix.prefix),
                 byteArrayOf(1),
                 storage,
                 storage,
                 "Blake2b",
                 createTempDir()), identity.primaryKeyPair)
          useCase = BoxFileBrowser(
-                 BoxFileBrowser.KeyAndPrefix(identity.keyIdentifier, identity.prefixes.first()),
+                 BoxFileBrowser.KeyAndPrefix(identity),
                  volume, mock())
     }
 

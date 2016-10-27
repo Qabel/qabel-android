@@ -6,6 +6,7 @@ import com.natpryce.hamkrest.should.shouldMatch
 import com.nhaarman.mockito_kotlin.*
 import de.qabel.box.storage.AndroidBoxVolume
 import de.qabel.box.storage.BoxVolumeConfig
+import de.qabel.box.storage.RootRefCalculator
 import de.qabel.chat.repository.entities.ChatDropMessage
 import de.qabel.chat.service.ChatService
 import de.qabel.qabelbox.BuildConfig
@@ -57,14 +58,15 @@ class BoxSharerTest {
     fun setUp() {
         val prefix = identity.prefixes.first()
         val volume = AndroidBoxVolume(BoxVolumeConfig(
-                prefix,
+                prefix.prefix,
+                RootRefCalculator().rootFor(identity.primaryKeyPair.privateKey, prefix.type, prefix.prefix),
                 byteArrayOf(1),
                 storage,
                 storage,
                 "Blake2b",
                 createTempDir()), identity.primaryKeyPair)
         useCase = BoxFileBrowser(
-                BoxFileBrowser.KeyAndPrefix(identity.keyIdentifier, prefix),
+                BoxFileBrowser.KeyAndPrefix(identity),
                 volume, mock())
         chatService = mock()
         sharer = BoxSharer(useCase, chatService, identity, mock(), mock())

@@ -2,6 +2,7 @@ package de.qabel.qabelbox.box.interactor
 
 import de.qabel.box.storage.AndroidBoxVolume
 import de.qabel.box.storage.BoxVolumeConfig
+import de.qabel.box.storage.RootRefCalculator
 import de.qabel.box.storage.jdbc.DirectoryMetadataDatabase
 import de.qabel.box.storage.jdbc.JdbcDirectoryMetadataFactory
 import de.qabel.box.storage.jdbc.JdbcFileMetadataFactory
@@ -34,24 +35,29 @@ fun makeFileBrowserFactory(identityRepository: IdentityRepository,
         val dataBaseFactory: (Connection) -> DirectoryMetadataDatabase = { connection ->
             DirectoryMetadataDatabase(connection, AndroidVersionAdapter(connection))
         }
+        val prefix = identity.prefixes.first()
+        val prefixKey = prefix.prefix
+        val rootRef = RootRefCalculator().rootFor(
+                identity.primaryKeyPair.privateKey,
+                prefix.type,
+                prefixKey
+        )
         val volume = AndroidBoxVolume(BoxVolumeConfig(
-                identity.prefixes.first(),
+                prefixKey,
+                rootRef,
                 deviceId,
                 backend,
                 backend,
                 "Blake2b",
                 tempDir,
                 directoryMetadataFactoryFactory = { tempDir, deviceId ->
-                    JdbcDirectoryMetadataFactory(tempDir, deviceId, dataBaseFactory,
-                            jdbcPrefix = JdbcPrefix.jdbcPrefix)
+                    JdbcDirectoryMetadataFactory(tempDir, deviceId, dataBaseFactory, JdbcPrefix.jdbcPrefix)
                 },
                 fileMetadataFactoryFactory = { tempDir ->
-                    JdbcFileMetadataFactory(tempDir, versionAdapterFactory = { connection ->
-                        AndroidVersionAdapter(connection)},
-                            jdbcPrefix = JdbcPrefix.jdbcPrefix)
+                    JdbcFileMetadataFactory(tempDir, ::AndroidVersionAdapter, JdbcPrefix.jdbcPrefix)
                 }),
                 identity.primaryKeyPair)
-        return BoxFileBrowser(BoxFileBrowser.KeyAndPrefix(key, identity.prefixes.first()), volume, contactRepository)
+        return BoxFileBrowser(BoxFileBrowser.KeyAndPrefix(identity), volume, contactRepository)
     }
 }
 

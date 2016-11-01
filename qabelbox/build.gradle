@@ -38,14 +38,13 @@ android {
         minSdkVersion 19
         targetSdkVersion 23
         multiDexEnabled true
-        /*
-        add code to automatically generate version name and code,
-        on base of timestamp or change it manual*/
 
-        versionCode 18
-        versionName "0.12.1"
+        // VERSION
+        versionCode 19
+        versionName "0.13.0"
+        // END VERSION
+
         testInstrumentationRunner "de.qabel.qabelbox.QblJUnitRunner"
-
         testApplicationId "de.qabel.test"
 
         ndk {
@@ -71,6 +70,9 @@ android {
     buildTypes {
         release {
             minifyEnabled false
+            shrinkResources true
+            //proguardFiles getDefaultProguardFile('proguard-android.txt'),
+            //        'proguard-rules.pro'
             resValue 'string', 'app_name', '"Qabel"'
             buildConfigField "String", "ACCOUNT_TYPE", "\"de.qabel.qabel.account\""
             buildConfigField "String", "AUTHORITY", "\"de.qabel.qabel.providers.internal\""
@@ -166,7 +168,7 @@ tasks.withType(Test) {
     systemProperty 'java.library.path', 'libs/'
 }
 
-def coreVersion = '0.26.1'
+def coreVersion = '0.26.2'
 def repo = 'Qabel'
 dependencies {
     sourceCompatibility = JavaVersion.VERSION_1_7

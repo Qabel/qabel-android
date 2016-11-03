@@ -17,6 +17,8 @@ import de.qabel.qabelbox.contacts.dagger.ContactsModule;
 import de.qabel.qabelbox.chat.dagger.ChatModule;
 import de.qabel.qabelbox.dagger.modules.ActiveIdentityModule;
 import de.qabel.qabelbox.dagger.modules.FileBrowserModule;
+import de.qabel.qabelbox.dagger.modules.FileBrowserViewModule;
+import de.qabel.qabelbox.dagger.modules.FolderChooserModule;
 import de.qabel.qabelbox.dagger.scopes.ActivityScope;
 import de.qabel.qabelbox.identity.view.IdentitiesFragment;
 import de.qabel.qabelbox.identity.dagger.IdentityDetailsComponent;
@@ -34,7 +36,8 @@ public interface ActiveIdentityComponent {
 
     ChatComponent plus(ChatModule chatModule);
     ChatOverviewComponent plus(ChatOverviewModule chatOverviewModule);
-    FileBrowserComponent plus(FileBrowserModule fileBrowserModule);
+    FileBrowserComponent plus(FileBrowserViewModule fileBrowserViewModule);
+    FolderChooserComponent plus(FolderChooserModule folderChooserModule);
 
     ContactsComponent plus(ContactsModule contactsModule);
     ContactDetailsComponent plus(ContactDetailsModule contactDetailsModule);
@@ -45,7 +48,5 @@ public interface ActiveIdentityComponent {
     IndexSearchComponent plus(IndexSearchModule indexSearchModule);
 
     void inject(IdentitiesFragment identitiesFragment);
-
-    void inject(@NotNull FolderChooserActivity folderChooserActivity);
 }
 

@@ -25,6 +25,7 @@ import de.qabel.qabelbox.box.provider.toDocumentId
 import de.qabel.qabelbox.box.queryNameAndSize
 import de.qabel.qabelbox.dagger.components.ActiveIdentityComponent
 import de.qabel.qabelbox.dagger.modules.FileBrowserModule
+import de.qabel.qabelbox.dagger.modules.FileBrowserViewModule
 import de.qabel.qabelbox.ui.extensions.showEnterTextDialog
 import de.qabel.qabelbox.viewer.ImageViewerActivity
 import kotlinx.android.synthetic.main.fragment_files.*
@@ -66,7 +67,7 @@ class FileBrowserFragment : FileBrowserView, FileListingView,
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         val component = getComponent(ActiveIdentityComponent::class.java)
-                .plus(FileBrowserModule(this))
+                .plus(FileBrowserViewModule(this))
         component.inject(this)
         savedInstanceState?.let {
             savedInstanceState.getString(KEY_EXPORT_DOCUMENT_ID, null)?.let {

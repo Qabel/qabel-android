@@ -7,7 +7,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ## [Unreleased]
 
 ### Added
-- Default upload folder in settings
 - Remote folder chooser activity
 
 ### Changed

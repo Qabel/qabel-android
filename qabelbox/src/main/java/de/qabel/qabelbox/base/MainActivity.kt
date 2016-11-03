@@ -67,7 +67,8 @@ import javax.inject.Inject
 class MainActivity : CrashReportingActivity(),
         HasComponent<MainActivityComponent>,
         TopicManager by FirebaseTopicManager(),
-        AnkoLogger, DataPermissionsAdapter {
+        AnkoLogger, DataPermissionsAdapter
+{
 
     override val permissionContext: Context = this
 
@@ -105,6 +106,9 @@ class MainActivity : CrashReportingActivity(),
 
     @Inject
     lateinit internal var accountManager: AccountManager
+
+    @Inject
+    lateinit var activityStartup: ActivityStartup
 
     lateinit private var component: MainActivityComponent
 
@@ -204,10 +208,12 @@ class MainActivity : CrashReportingActivity(),
 
         registerReceiver(indexIdentityListener, indexIdentityListener.createIntentFilter())
 
-        if (!Sanity.isQabelReady(this, identityRepository)) {
-            Log.d(TAG, "started wizard dialog")
+        if (!activityStartup.onCreate()) {
             return
-        } else if (!indexPreferences.contactSyncAsked || (indexPreferences.contactSyncEnabled && !hasContactsReadPermission())) {
+        }
+
+        if (!indexPreferences.contactSyncAsked ||
+                (indexPreferences.contactSyncEnabled && !hasContactsReadPermission())) {
             requestContactsPermission()
         }
 

@@ -1,11 +1,8 @@
 package de.qabel.qabelbox.ui
 
 import android.content.Intent
-import android.support.test.espresso.contrib.DrawerActions
-import android.view.MenuItem
 import de.qabel.core.config.Identity
 import de.qabel.qabelbox.QblBroadcastConstants
-import de.qabel.qabelbox.R
 import de.qabel.qabelbox.base.MainActivity
 import de.qabel.qabelbox.chat.view.views.ChatFragment
 import de.qabel.qabelbox.navigation.MainNavigator
@@ -13,7 +10,6 @@ import de.qabel.qabelbox.util.IdentityHelper
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.equalTo
 import org.hamcrest.Matchers.notNullValue
-import org.jetbrains.anko.slidingDrawer
 import org.junit.Test
 
 class MainActivityTest : AbstractUITest() {

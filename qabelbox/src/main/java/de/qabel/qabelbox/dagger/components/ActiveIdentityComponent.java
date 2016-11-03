@@ -1,7 +1,10 @@
 package de.qabel.qabelbox.dagger.components;
 
+import org.jetbrains.annotations.NotNull;
+
 import dagger.Subcomponent;
 import de.qabel.qabelbox.base.MainActivity;
+import de.qabel.qabelbox.box.views.FolderChooserActivity;
 import de.qabel.qabelbox.chat.dagger.ChatComponent;
 import de.qabel.qabelbox.chat.dagger.ChatOverviewComponent;
 import de.qabel.qabelbox.chat.dagger.ChatOverviewModule;
@@ -43,5 +46,6 @@ public interface ActiveIdentityComponent {
 
     void inject(IdentitiesFragment identitiesFragment);
 
+    void inject(@NotNull FolderChooserActivity folderChooserActivity);
 }
 

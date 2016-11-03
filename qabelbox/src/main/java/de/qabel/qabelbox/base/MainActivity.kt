@@ -38,7 +38,7 @@ import de.qabel.qabelbox.contacts.view.widgets.IdentityIconDrawable
 import de.qabel.qabelbox.dagger.HasComponent
 import de.qabel.qabelbox.dagger.components.MainActivityComponent
 import de.qabel.qabelbox.dagger.modules.ActivityModule
-import de.qabel.qabelbox.dagger.modules.MainActivityModule
+import de.qabel.qabelbox.dagger.modules.ActiveIdentityModule
 import de.qabel.qabelbox.helper.AccountHelper
 import de.qabel.qabelbox.helper.CacheFileHelper
 import de.qabel.qabelbox.helper.Sanity
@@ -67,8 +67,11 @@ import javax.inject.Inject
 class MainActivity : CrashReportingActivity(),
         HasComponent<MainActivityComponent>,
         TopicManager by FirebaseTopicManager(),
-        AnkoLogger, DataPermissionsAdapter
+        AnkoLogger, DataPermissionsAdapter,
+        ActiveIdentityActivity
 {
+    override val activeIdentityKey: String?
+        get() = intent.getStringExtra(MainActivity.ACTIVE_IDENTITY)
 
     override val permissionContext: Context = this
 
@@ -202,7 +205,7 @@ class MainActivity : CrashReportingActivity(),
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        component = applicationComponent.plus(ActivityModule(this)).plus(MainActivityModule(this))
+        component = applicationComponent.plus(ActivityModule(this)).plus(ActiveIdentityModule(this))
         component.inject(this)
         Log.d(TAG, "onCreate " + this.hashCode())
 

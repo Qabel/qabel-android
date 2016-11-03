@@ -35,7 +35,7 @@ import java.net.URLConnection
 import java.util.*
 import javax.inject.Inject
 
-class FileBrowserFragment : FileBrowserView,
+class FileBrowserFragment : FileBrowserView, FileListingView,
         BaseFragment(mainFragment = true, showOptionsMenu = true, showFAButton = true), AnkoLogger {
 
     companion object {

@@ -1,6 +1,9 @@
 package de.qabel.qabelbox.box.views
 
-interface FolderChooserView {
+import de.qabel.qabelbox.box.provider.DocumentId
+
+interface FolderChooserView: FileListingView {
+    fun finish(documentId: DocumentId)
 
 }
 

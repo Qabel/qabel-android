@@ -12,8 +12,8 @@ import de.qabel.qabelbox.contacts.dagger.ContactEditModule;
 import de.qabel.qabelbox.contacts.dagger.ContactsComponent;
 import de.qabel.qabelbox.contacts.dagger.ContactsModule;
 import de.qabel.qabelbox.chat.dagger.ChatModule;
+import de.qabel.qabelbox.dagger.modules.ActiveIdentityModule;
 import de.qabel.qabelbox.dagger.modules.FileBrowserModule;
-import de.qabel.qabelbox.dagger.modules.MainActivityModule;
 import de.qabel.qabelbox.dagger.scopes.ActivityScope;
 import de.qabel.qabelbox.identity.view.IdentitiesFragment;
 import de.qabel.qabelbox.identity.dagger.IdentityDetailsComponent;
@@ -23,7 +23,7 @@ import de.qabel.qabelbox.index.dagger.IndexSearchModule;
 
 @ActivityScope
 @Subcomponent(
-        modules = MainActivityModule.class
+        modules = ActiveIdentityModule.class
 )
 public interface MainActivityComponent {
 

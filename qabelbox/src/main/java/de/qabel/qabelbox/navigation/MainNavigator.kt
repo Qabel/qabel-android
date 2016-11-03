@@ -3,6 +3,7 @@ package de.qabel.qabelbox.navigation
 import android.app.Fragment
 import android.content.Context
 import android.content.Intent
+import android.support.v7.app.AppCompatActivity
 import de.qabel.core.config.Contact
 import de.qabel.core.config.Identity
 import de.qabel.core.repository.ContactRepository
@@ -30,7 +31,7 @@ import javax.inject.Inject
 
 class MainNavigator
 @Inject
-constructor(var activity: MainActivity,
+constructor(var activity: AppCompatActivity,
             var identityRepository: IdentityRepository,
             var contactRepository: ContactRepository,
             var activeIdentity: Identity) : AbstractNavigator(), Navigator, AnkoLogger {

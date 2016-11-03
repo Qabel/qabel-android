@@ -3,8 +3,8 @@ package de.qabel.qabelbox.dagger.components;
 import android.support.v7.app.AppCompatActivity;
 
 import dagger.Subcomponent;
+import de.qabel.qabelbox.dagger.modules.ActiveIdentityModule;
 import de.qabel.qabelbox.dagger.modules.ActivityModule;
-import de.qabel.qabelbox.dagger.modules.MainActivityModule;
 import de.qabel.qabelbox.dagger.scopes.ActivityScope;
 import de.qabel.qabelbox.settings.dagger.SettingsActivityComponent;
 import de.qabel.qabelbox.settings.dagger.SettingsActivityModule;
@@ -14,7 +14,7 @@ import de.qabel.qabelbox.settings.dagger.SettingsActivityModule;
         modules = ActivityModule.class
 )
 public interface ActivityComponent {
-    MainActivityComponent plus(MainActivityModule mainActivityModule);
+    MainActivityComponent plus(ActiveIdentityModule activeIdentityModule);
     SettingsActivityComponent plus(SettingsActivityModule settingsActivityModule);
 
     AppCompatActivity activity();

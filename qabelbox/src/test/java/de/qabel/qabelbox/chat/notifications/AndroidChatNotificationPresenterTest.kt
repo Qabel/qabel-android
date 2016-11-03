@@ -11,6 +11,7 @@ import de.qabel.qabelbox.BuildConfig
 import de.qabel.qabelbox.R
 import de.qabel.qabelbox.SimpleApplication
 import de.qabel.qabelbox.UITest
+import de.qabel.qabelbox.base.ACTIVE_IDENTITY
 import de.qabel.qabelbox.base.MainActivity
 import de.qabel.qabelbox.chat.notifications.presenter.AndroidChatNotificationPresenter
 import de.qabel.qabelbox.util.IdentityHelper
@@ -98,7 +99,7 @@ class AndroidChatNotificationPresenterTest : UITest {
         val notification = MessageChatNotification(IdentityHelper.createIdentity("identity", null),
                 "foo, bar", "message", this.notification.date)
         val intent = presenter.getChatIntent(notification)
-        assertThat(intent.getStringExtra(MainActivity.ACTIVE_IDENTITY),
+        assertThat(intent.getStringExtra(ACTIVE_IDENTITY),
                 equalTo(notification.identity.keyIdentifier))
         assertThat(intent.getBooleanExtra(MainActivity.START_CHAT_FRAGMENT, false), `is`(true))
         assertThat(intent.getStringExtra(MainActivity.ACTIVE_CONTACT), nullValue())
@@ -111,7 +112,7 @@ class AndroidChatNotificationPresenterTest : UITest {
                 IdentityHelper.createContact("contact"),
                 "message", this.notification.date)
         val intent = presenter.getChatIntent(notification)
-        assertThat(intent.getStringExtra(MainActivity.ACTIVE_IDENTITY),
+        assertThat(intent.getStringExtra(ACTIVE_IDENTITY),
                 equalTo(notification.identity.keyIdentifier))
         assertThat(intent.getBooleanExtra(MainActivity.START_CHAT_FRAGMENT, false), `is`(true))
         assertThat(intent.getStringExtra(MainActivity.ACTIVE_CONTACT),

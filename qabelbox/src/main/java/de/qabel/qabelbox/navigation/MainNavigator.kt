@@ -10,6 +10,7 @@ import de.qabel.core.repository.ContactRepository
 import de.qabel.core.repository.IdentityRepository
 import de.qabel.core.repository.exception.EntityNotFoundException
 import de.qabel.qabelbox.R
+import de.qabel.qabelbox.base.ACTIVE_IDENTITY
 import de.qabel.qabelbox.base.MainActivity
 import de.qabel.qabelbox.box.views.FileBrowserFragment
 import de.qabel.qabelbox.chat.view.views.ChatFragment
@@ -56,7 +57,7 @@ constructor(var activity: AppCompatActivity,
         fun createChatIntent(context: Context, identityKey: String, contactKey: String) =
                 Intent(context, MainActivity::class.java).apply {
                     putExtra(MainActivity.START_CHAT_FRAGMENT, true)
-                    putExtra(MainActivity.ACTIVE_IDENTITY, identityKey)
+                    putExtra(ACTIVE_IDENTITY, identityKey)
                     putExtra(MainActivity.ACTIVE_CONTACT, contactKey)
                 }
 

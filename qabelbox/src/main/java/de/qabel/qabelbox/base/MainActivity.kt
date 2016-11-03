@@ -36,7 +36,7 @@ import de.qabel.qabelbox.config.AppPreference
 import de.qabel.qabelbox.contacts.extensions.color
 import de.qabel.qabelbox.contacts.view.widgets.IdentityIconDrawable
 import de.qabel.qabelbox.dagger.HasComponent
-import de.qabel.qabelbox.dagger.components.MainActivityComponent
+import de.qabel.qabelbox.dagger.components.ActiveIdentityComponent
 import de.qabel.qabelbox.dagger.modules.ActivityModule
 import de.qabel.qabelbox.dagger.modules.ActiveIdentityModule
 import de.qabel.qabelbox.helper.AccountHelper
@@ -65,13 +65,13 @@ import org.jetbrains.anko.toast
 import javax.inject.Inject
 
 class MainActivity : CrashReportingActivity(),
-        HasComponent<MainActivityComponent>,
+        HasComponent<ActiveIdentityComponent>,
         TopicManager by FirebaseTopicManager(),
         AnkoLogger, DataPermissionsAdapter,
         ActiveIdentityActivity
 {
     override val activeIdentityKey: String?
-        get() = intent.getStringExtra(MainActivity.ACTIVE_IDENTITY)
+        get() = intent.getStringExtra(ACTIVE_IDENTITY)
 
     override val permissionContext: Context = this
 
@@ -113,7 +113,7 @@ class MainActivity : CrashReportingActivity(),
     @Inject
     lateinit var activityStartup: ActivityStartup
 
-    lateinit private var component: MainActivityComponent
+    lateinit private var component: ActiveIdentityComponent
 
     lateinit private var drawer: Drawer
     lateinit private var drawerAccountHeader: AccountHeader
@@ -614,7 +614,7 @@ class MainActivity : CrashReportingActivity(),
         startActivity(i)
     }
 
-    override fun getComponent(): MainActivityComponent {
+    override fun getComponent(): ActiveIdentityComponent {
         return component
     }
 
@@ -637,7 +637,6 @@ class MainActivity : CrashReportingActivity(),
 
         const val START_FILES_FRAGMENT = "START_FILES_FRAGMENT"
         const val START_CHAT_FRAGMENT = "START_CHAT_FRAGMENT"
-        const val ACTIVE_IDENTITY = "ACTIVE_IDENTITY"
         const val ACTIVE_CONTACT = "ACTIVE_CONTACT"
         const val START_FILES_FRAGMENT_PATH = "START_FILES_FRAGMENT_PATH"
         // Intent extra to specify that the activity is in test mode which disables auto-refresh

@@ -15,7 +15,7 @@ import de.qabel.qabelbox.chat.dagger.ChatOverviewModule
 import de.qabel.qabelbox.chat.dto.ChatConversationDto
 import de.qabel.qabelbox.chat.view.adapters.ChatOverviewAdapter
 import de.qabel.qabelbox.chat.view.presenters.ChatOverviewPresenter
-import de.qabel.qabelbox.dagger.components.MainActivityComponent
+import de.qabel.qabelbox.dagger.components.ActiveIdentityComponent
 import kotlinx.android.synthetic.main.fragment_contacts.*
 import org.jetbrains.anko.AnkoLogger
 import org.jetbrains.anko.ctx
@@ -39,7 +39,7 @@ class ChatOverviewFragment() : ChatOverview, BaseFragment(
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        val component = getComponent(MainActivityComponent::class.java).plus(ChatOverviewModule(this))
+        val component = getComponent(ActiveIdentityComponent::class.java).plus(ChatOverviewModule(this))
         component.inject(this)
         injectCompleted = true
 

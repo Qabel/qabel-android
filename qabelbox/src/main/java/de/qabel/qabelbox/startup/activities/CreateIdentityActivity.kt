@@ -19,6 +19,7 @@ import de.qabel.core.logging.QabelLog
 import de.qabel.qabelbox.QabelBoxApplication
 import de.qabel.qabelbox.R
 import de.qabel.qabelbox.TestConstants
+import de.qabel.qabelbox.base.ACTIVE_IDENTITY
 import de.qabel.qabelbox.base.MainActivity
 import de.qabel.qabelbox.communication.PrefixServer
 import de.qabel.qabelbox.communication.callbacks.JsonRequestCallback
@@ -224,7 +225,7 @@ class CreateIdentityActivity : BaseWizardActivity(), QabelLog, DataPermissionsAd
         createdIdentity?.let {
             finish()
             val intent = Intent(ctx, MainActivity::class.java)
-            intent.putExtra(MainActivity.ACTIVE_IDENTITY, it.keyIdentifier)
+            intent.putExtra(ACTIVE_IDENTITY, it.keyIdentifier)
             intent.flags = Intent.FLAG_ACTIVITY_TASK_ON_HOME or Intent.FLAG_ACTIVITY_NEW_TASK
             startActivity(intent)
         } ?: createIdentity()

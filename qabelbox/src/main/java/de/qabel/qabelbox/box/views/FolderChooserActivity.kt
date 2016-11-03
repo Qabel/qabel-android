@@ -18,6 +18,7 @@ class FolderChooserActivity: CrashReportingActivity(), FolderChooserView, QabelL
     }
 
     override fun finish(documentId: DocumentId) {
+
     }
 
     override fun showEntries(entries: List<BrowserEntry>) {

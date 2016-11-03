@@ -23,7 +23,7 @@ import de.qabel.qabelbox.box.provider.BoxProvider
 import de.qabel.qabelbox.box.provider.DocumentId
 import de.qabel.qabelbox.box.provider.toDocumentId
 import de.qabel.qabelbox.box.queryNameAndSize
-import de.qabel.qabelbox.dagger.components.MainActivityComponent
+import de.qabel.qabelbox.dagger.components.ActiveIdentityComponent
 import de.qabel.qabelbox.dagger.modules.FileBrowserModule
 import de.qabel.qabelbox.ui.extensions.showEnterTextDialog
 import de.qabel.qabelbox.viewer.ImageViewerActivity
@@ -65,7 +65,7 @@ class FileBrowserFragment : FileBrowserView, FileListingView,
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        val component = getComponent(MainActivityComponent::class.java)
+        val component = getComponent(ActiveIdentityComponent::class.java)
                 .plus(FileBrowserModule(this))
         component.inject(this)
         savedInstanceState?.let {

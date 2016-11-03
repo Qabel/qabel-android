@@ -25,7 +25,7 @@ import de.qabel.qabelbox.index.dagger.IndexSearchModule;
 @Subcomponent(
         modules = ActiveIdentityModule.class
 )
-public interface MainActivityComponent {
+public interface ActiveIdentityComponent {
 
     void inject(MainActivity activity);
 

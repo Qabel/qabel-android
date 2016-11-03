@@ -11,6 +11,7 @@ import de.qabel.core.config.Contact
 import de.qabel.core.util.DefaultHashMap
 import de.qabel.qabelbox.QblBroadcastConstants.Chat.Service
 import de.qabel.qabelbox.R
+import de.qabel.qabelbox.base.ACTIVE_IDENTITY
 import de.qabel.qabelbox.base.MainActivity
 import de.qabel.qabelbox.chat.notifications.ChatNotification
 import de.qabel.qabelbox.chat.notifications.ContactChatNotification
@@ -120,7 +121,7 @@ open class AndroidChatNotificationPresenter : ChatNotificationPresenter {
 
     fun getChatIntent(notification: ChatNotification): Intent =
             Intent(context, MainActivity::class.java).apply {
-                putExtra(MainActivity.ACTIVE_IDENTITY, notification.identity.keyIdentifier)
+                putExtra(ACTIVE_IDENTITY, notification.identity.keyIdentifier)
                 putExtra(MainActivity.START_CHAT_FRAGMENT, true)
                 when (notification) {
                     is ContactChatNotification ->

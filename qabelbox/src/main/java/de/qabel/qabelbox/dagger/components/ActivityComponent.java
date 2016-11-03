@@ -14,7 +14,7 @@ import de.qabel.qabelbox.settings.dagger.SettingsActivityModule;
         modules = ActivityModule.class
 )
 public interface ActivityComponent {
-    MainActivityComponent plus(ActiveIdentityModule activeIdentityModule);
+    ActiveIdentityComponent plus(ActiveIdentityModule activeIdentityModule);
     SettingsActivityComponent plus(SettingsActivityModule settingsActivityModule);
 
     AppCompatActivity activity();

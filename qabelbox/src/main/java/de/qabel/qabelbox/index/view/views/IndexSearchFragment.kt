@@ -10,7 +10,7 @@ import de.qabel.qabelbox.R
 import de.qabel.qabelbox.base.BaseFragment
 import de.qabel.qabelbox.contacts.dto.ContactDto
 import de.qabel.qabelbox.contacts.view.adapters.ContactsAdapter
-import de.qabel.qabelbox.dagger.components.MainActivityComponent
+import de.qabel.qabelbox.dagger.components.ActiveIdentityComponent
 import de.qabel.qabelbox.helper.UIHelper
 import de.qabel.qabelbox.index.dagger.IndexSearchModule
 import de.qabel.qabelbox.index.view.presenters.IndexSearchPresenter
@@ -76,7 +76,7 @@ class IndexSearchFragment() : IndexSearchView, BaseFragment(),
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        val component = getComponent(MainActivityComponent::class.java).plus(IndexSearchModule(this))
+        val component = getComponent(ActiveIdentityComponent::class.java).plus(IndexSearchModule(this))
         component.inject(this)
 
         contact_list.layoutManager = LinearLayoutManager(view.context)

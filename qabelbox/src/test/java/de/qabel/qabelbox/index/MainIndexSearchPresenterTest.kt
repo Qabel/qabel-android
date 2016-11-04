@@ -65,6 +65,6 @@ class MainIndexSearchPresenterTest {
         Mockito.stub(useCase.search(Mockito.anyString(), Mockito.anyString())).toReturn(
                 list.toSingletonObservable())
         view.searchSubject.onNext("asrdf")
-        Mockito.verify(useCase).search("asrdf", "")
+        Mockito.verify(useCase).search("asrdf", "formatted")
     }
 }

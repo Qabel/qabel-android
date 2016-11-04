@@ -231,31 +231,13 @@ dependencies {
         exclude group: 'org.apache.httpcomponents', module: 'httpclient'
     }
 
-    androidTestCompile('com.github.' + repo + '.qabel-core:box:' + coreVersion + ':tests') {
-        exclude group: 'org.json', module: 'json'
-        exclude group: 'org.apache.logging.log4j'
-        exclude group: 'commons-logging', module: 'commons-logging'
-        exclude group: 'org.apache.httpcomponents', module: 'httpclient'
-    }
     androidTestCompile('com.github.' + repo + '.qabel-core:box:' + coreVersion + ':sources') {
         exclude group: 'org.json', module: 'json'
         exclude group: 'org.apache.logging.log4j'
         exclude group: 'commons-logging', module: 'commons-logging'
         exclude group: 'org.apache.httpcomponents', module: 'httpclient'
     }
-    androidTestCompile('com.github.' + repo + '.qabel-core:core:' + coreVersion + ':tests') {
-        exclude group: 'org.json', module: 'json'
-        exclude group: 'org.apache.logging.log4j'
-        exclude group: 'commons-logging', module: 'commons-logging'
-        exclude group: 'org.apache.httpcomponents', module: 'httpclient'
-    }
     androidTestCompile('com.github.' + repo + '.qabel-core:core:' + coreVersion + ':sources') {
-        exclude group: 'org.json', module: 'json'
-        exclude group: 'org.apache.logging.log4j'
-        exclude group: 'commons-logging', module: 'commons-logging'
-        exclude group: 'org.apache.httpcomponents', module: 'httpclient'
-    }
-    androidTestCompile('com.github.' + repo + '.qabel-core:chat:' + coreVersion + ':tests') {
         exclude group: 'org.json', module: 'json'
         exclude group: 'org.apache.logging.log4j'
         exclude group: 'commons-logging', module: 'commons-logging'

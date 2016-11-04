@@ -3,6 +3,7 @@ package de.qabel.qabelbox.ui
 import android.content.Intent
 import de.qabel.core.config.Identity
 import de.qabel.qabelbox.QblBroadcastConstants
+import de.qabel.qabelbox.base.ACTIVE_IDENTITY
 import de.qabel.qabelbox.base.MainActivity
 import de.qabel.qabelbox.chat.view.views.ChatFragment
 import de.qabel.qabelbox.navigation.MainNavigator
@@ -25,7 +26,7 @@ class MainActivityTest : AbstractUITest() {
 
     fun startWithIdentity(identity: Identity) {
         val intent = defaultIntent
-        intent.putExtra(MainActivity.ACTIVE_IDENTITY, identity.keyIdentifier)
+        intent.putExtra(ACTIVE_IDENTITY, identity.keyIdentifier)
         launchActivity(intent)
     }
 
@@ -35,7 +36,7 @@ class MainActivityTest : AbstractUITest() {
         val contact = IdentityHelper.createContact("chat contact")
         contactRepository.save(contact, identity)
         val intent = defaultIntent
-        intent.putExtra(MainActivity.ACTIVE_IDENTITY, identity.keyIdentifier)
+        intent.putExtra(ACTIVE_IDENTITY, identity.keyIdentifier)
         intent.putExtra(MainActivity.ACTIVE_CONTACT, contact.keyIdentifier)
         intent.putExtra(MainActivity.START_CHAT_FRAGMENT, true)
         launchActivity(intent)

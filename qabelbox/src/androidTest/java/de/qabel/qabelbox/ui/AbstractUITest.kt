@@ -14,6 +14,7 @@ import de.qabel.core.config.Identity
 import de.qabel.core.repository.ContactRepository
 import de.qabel.core.repository.IdentityRepository
 import de.qabel.qabelbox.TestConstants
+import de.qabel.qabelbox.base.ACTIVE_IDENTITY
 import de.qabel.qabelbox.base.MainActivity
 import de.qabel.qabelbox.communication.URLs
 import de.qabel.qabelbox.ui.helper.SystemAnimations
@@ -67,8 +68,8 @@ open class AbstractUITest : UITest {
         if (intent == null) {
             intent = defaultIntent
         }
-        if (!intent.hasExtra(MainActivity.ACTIVE_IDENTITY)) {
-            intent.putExtra(MainActivity.ACTIVE_IDENTITY, identity.keyIdentifier)
+        if (!intent.hasExtra(ACTIVE_IDENTITY)) {
+            intent.putExtra(ACTIVE_IDENTITY, identity.keyIdentifier)
         }
         if (!intent.hasExtra(MainActivity.TEST_RUN)) {
             intent.putExtra(MainActivity.TEST_RUN, true)

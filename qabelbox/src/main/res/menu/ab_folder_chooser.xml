@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto" >
+    <item
+        android:id="@+id/select_folder"
+        android:icon="@drawable/check_white"
+        app:showAsAction="always"
+        android:title="@string/Select" />
+    <item
+        android:id="@+id/menu_up"
+        android:icon="@drawable/menu_up_white"
+        app:showAsAction="ifRoom"
+        android:title="@string/filebrowser_up"/>
+</menu>

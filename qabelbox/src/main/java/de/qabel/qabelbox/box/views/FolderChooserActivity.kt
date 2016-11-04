@@ -1,9 +1,10 @@
 package de.qabel.qabelbox.box.views
 
-import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.support.v7.widget.LinearLayoutManager
+import android.view.Menu
+import android.view.MenuItem
 import android.view.View
 import de.qabel.core.logging.QabelLog
 import de.qabel.qabelbox.R
@@ -17,6 +18,7 @@ import de.qabel.qabelbox.box.provider.DocumentId
 import de.qabel.qabelbox.dagger.modules.ActiveIdentityModule
 import de.qabel.qabelbox.dagger.modules.ActivityModule
 import de.qabel.qabelbox.dagger.modules.FolderChooserModule
+import kotlinx.android.synthetic.main.activity_folder_chooser.*
 import kotlinx.android.synthetic.main.fragment_files.*
 import org.jetbrains.anko.ctx
 import org.jetbrains.anko.longToast
@@ -39,7 +41,8 @@ QabelLog {
                 .plus(ActiveIdentityModule(this))
                 .plus(FolderChooserModule((this)))
                 .inject(this)
-        setContentView(R.layout.fragment_files)
+        setContentView(R.layout.activity_folder_chooser)
+        setSupportActionBar(toolbar)
         adapter = FileAdapter(mutableListOf(), click = {
                     if (it is BrowserEntry.Folder) {
                         presenter.enter(it)
@@ -50,6 +53,22 @@ QabelLog {
         swipeRefresh.isEnabled = false
     }
 
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        super.onCreateOptionsMenu(menu)
+        // Inflate the menu; this adds items to the action bar if it is present.
+        //  getMenuInflater().inflate(R.menu.ab_main, menu);
+        menuInflater.inflate(R.menu.ab_folder_chooser, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            R.id.menu_up -> presenter.navigateUp()
+            R.id.select_folder -> presenter.selectFolder()
+            else -> return super.onOptionsItemSelected(item)
+        }
+        return true
+    }
 
     override fun finish(documentId: DocumentId) {
         setResult(CHOOSE_FOLDER, Intent().apply {

@@ -18,19 +18,9 @@ import java.io.FileInputStream
 import javax.inject.Inject
 
 
-class MainIdentityUseCase @Inject constructor(private val identityRepository: IdentityRepository,
-                                              private val actionEventSender: ActionIntentSender) : IdentityUseCase {
-
-    override fun getIdentities() = single<Identities> { single ->
-        identityRepository.findAll().let {
-            single.onSuccess(it)
-        }
-    }
-
-    override fun getIdentity(keyId: String) = single<Identity> {
-        val identity = identityRepository.find(keyId)
-        it.onSuccess(identity)
-    }
+class MainIdentityInteractor @Inject constructor(private val identityRepository: IdentityRepository,
+                                                 private val actionEventSender: ActionIntentSender)
+: IdentityInteractor, ReadOnlyIdentityInteractor by MainReadOnlyIdentityInteractor(identityRepository) {
 
     override fun saveIdentity(identity: Identity): Single<Identity> =
             if (identity.id == 0)

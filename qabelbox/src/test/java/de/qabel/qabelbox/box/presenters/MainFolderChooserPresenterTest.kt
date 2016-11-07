@@ -1,7 +1,6 @@
 package de.qabel.qabelbox.box.presenters
 
 import com.nhaarman.mockito_kotlin.mock
-import com.nhaarman.mockito_kotlin.spy
 import com.nhaarman.mockito_kotlin.verify
 import com.nhaarman.mockito_kotlin.whenever
 import de.qabel.box.storage.dto.BoxPath

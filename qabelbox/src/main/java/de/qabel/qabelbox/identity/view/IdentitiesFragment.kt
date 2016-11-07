@@ -17,7 +17,7 @@ import de.qabel.qabelbox.base.MainActivity
 import de.qabel.qabelbox.config.QabelSchema
 import de.qabel.qabelbox.dagger.components.ActiveIdentityComponent
 import de.qabel.qabelbox.helper.UIHelper
-import de.qabel.qabelbox.identity.interactor.IdentityUseCase
+import de.qabel.qabelbox.identity.interactor.IdentityInteractor
 import de.qabel.qabelbox.identity.view.adapter.IdentitiesAdapter
 import de.qabel.qabelbox.navigation.Navigator
 import kotlinx.android.synthetic.main.fragment_identities.*
@@ -45,7 +45,7 @@ class IdentitiesFragment : BaseFragment(showFAButton = true) {
     @Inject
     internal lateinit var navigator: Navigator
     @Inject
-    internal lateinit var identityUseCase: IdentityUseCase
+    internal lateinit var identityInteractor: IdentityInteractor
 
     override val title: String
         get() = getString(R.string.headline_identities)
@@ -78,7 +78,7 @@ class IdentitiesFragment : BaseFragment(showFAButton = true) {
                                 title(R.string.confirm_delete_identity_header)
                                 message(String.format(getString(R.string.confirm_delete_identity_message), identity.alias))
                                 positiveButton(R.string.ok, {
-                                    identityUseCase.deleteIdentity(identity).subscribe({
+                                    identityInteractor.deleteIdentity(identity).subscribe({
                                         reload()
                                         runOnUiThread {
                                             toast(getString(R.string.entry_deleted).format(identity.alias))
@@ -108,7 +108,7 @@ class IdentitiesFragment : BaseFragment(showFAButton = true) {
     }
 
     private fun reload() {
-        identityUseCase.getIdentities().subscribe({
+        identityInteractor.getIdentities().subscribe({
             identityListAdapter.init(it.identities.toList())
         })
     }

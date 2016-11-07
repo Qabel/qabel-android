@@ -28,8 +28,8 @@ import de.qabel.qabelbox.chat.notifications.ChatNotificationManager;
 import de.qabel.qabelbox.chat.notifications.MainChatNotificationManager;
 import de.qabel.qabelbox.chat.notifications.presenter.AndroidChatNotificationPresenter;
 import de.qabel.qabelbox.chat.notifications.presenter.ChatNotificationPresenter;
-import de.qabel.qabelbox.identity.interactor.IdentityUseCase;
-import de.qabel.qabelbox.identity.interactor.MainIdentityUseCase;
+import de.qabel.qabelbox.identity.interactor.IdentityInteractor;
+import de.qabel.qabelbox.identity.interactor.MainIdentityInteractor;
 import de.qabel.qabelbox.listeners.ActionIntentSender;
 import de.qabel.qabelbox.listeners.AndroidActionIntentCastSender;
 
@@ -102,7 +102,7 @@ public class ApplicationModule extends ContextModule {
 
 
     @Provides
-    public IdentityUseCase providesIdentityUseCase(MainIdentityUseCase useCase) {
+    public IdentityInteractor providesIdentityUseCase(MainIdentityInteractor useCase) {
         return useCase;
     }
 

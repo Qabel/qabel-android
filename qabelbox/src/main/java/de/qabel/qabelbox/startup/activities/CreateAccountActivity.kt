@@ -16,7 +16,7 @@ import de.qabel.qabelbox.communication.BoxAccountRegisterServer
 import de.qabel.qabelbox.communication.callbacks.JsonRequestCallback
 import de.qabel.qabelbox.config.AppPreference
 import de.qabel.qabelbox.helper.UIHelper
-import de.qabel.qabelbox.identity.interactor.IdentityUseCase
+import de.qabel.qabelbox.identity.interactor.IdentityInteractor
 import de.qabel.qabelbox.listeners.IdleCallback
 import de.qabel.qabelbox.startup.fragments.*
 import okhttp3.Response
@@ -35,7 +35,7 @@ class CreateAccountActivity : BaseWizardActivity() {
     }
 
     @Inject
-    internal lateinit var identityUseCase: IdentityUseCase
+    internal lateinit var identityInteractor: IdentityInteractor
 
     private val TAG = this.javaClass.simpleName
 
@@ -109,7 +109,7 @@ class CreateAccountActivity : BaseWizardActivity() {
         super.onCreate(savedInstanceState)
         mBoxAccountServer = BoxAccountRegisterServer(applicationContext, appPreference)
 
-        identityUseCase.getIdentities().subscribe({
+        identityInteractor.getIdentities().subscribe({
             existingIdentities = it
         }, {
             existingIdentities = Identities()

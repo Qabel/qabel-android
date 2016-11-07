@@ -16,8 +16,8 @@ import de.qabel.qabelbox.contacts.interactor.ContactsUseCase
 import de.qabel.qabelbox.contacts.view.presenters.ContactEditPresenter
 import de.qabel.qabelbox.contacts.view.presenters.MainContactEditPresenter
 import de.qabel.qabelbox.contacts.view.views.ContactEditView
-import de.qabel.qabelbox.identity.interactor.IdentityUseCase
-import de.qabel.qabelbox.identity.interactor.MainIdentityUseCase
+import de.qabel.qabelbox.identity.interactor.IdentityInteractor
+import de.qabel.qabelbox.identity.interactor.MainIdentityInteractor
 import de.qabel.qabelbox.navigation.Navigator
 import de.qabel.qabelbox.test.TestConstants
 import de.qabel.qabelbox.util.IdentityHelper
@@ -59,7 +59,7 @@ class ContactEditPresenterTest {
     lateinit var detailsView: ContactEditView
     lateinit var presenter: ContactEditPresenter
     lateinit var navigator: Navigator
-    lateinit var identityUseCase: IdentityUseCase
+    lateinit var identityInteractor: IdentityInteractor
 
     @Before
     fun setUp() {
@@ -69,7 +69,7 @@ class ContactEditPresenterTest {
         whenever(contactUseCase.saveContact(contactADto)).then {
             contactRepo.update(contactADto.contact, contactADto.identities).toSingletonObservable()
         }
-        identityUseCase = MainIdentityUseCase(identityRepo, mock())
+        identityInteractor = MainIdentityInteractor(identityRepo, mock())
 
         detailsView = mock()
         whenever(detailsView.getEditLabel()).thenReturn("EDIT LABEL")
@@ -77,7 +77,7 @@ class ContactEditPresenterTest {
 
         navigator = mock()
         whenever(detailsView.contactDto).thenAnswer { contactADto }
-        presenter = MainContactEditPresenter(detailsView, contactUseCase, identityUseCase, navigator)
+        presenter = MainContactEditPresenter(detailsView, contactUseCase, identityInteractor, navigator)
     }
 
     @Test

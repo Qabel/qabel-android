@@ -146,7 +146,6 @@
     <string name="share_text">Qabel Box</string>
     <string name="share_via">Share via</string>
     <string name="chooser_open_with">Open with</string>
-    <string name="uploading">Uploading</string>
     <string name="add_new_contact">Add new contact</string>
     <string name="qrecode_scanner">QR-Code scanner</string>
     <string name="from_file">Import</string>
@@ -217,10 +216,8 @@
     <string name="message_revoke_share">Revoking share</string>
     <string name="message_chat_message_not_sent">Message not sent</string>
     <string name="create_idenity_cant_get_prefix">Could not retrieve a prefix from the server</string>
-    <plurals name="uploadsNotificationTitle">
-        <item quantity="one">Uploading %s</item>
-        <item quantity="other">Uploads remaining: %d</item>
-    </plurals>
+    <string name="uploading">Uploading %s …</string>
+    <string name="encrypting">Encrypting %s …</string>
     <string name="hockeyapp_feedback_response_button_text"> Send a message</string>
 
     <string name="licence.header.intro">Qabel is published under the QaPL</string>
@@ -285,7 +282,6 @@
     <string name="about.licences.item.show.btn">Show Licence</string>
 
 
-
     <string name="help_main_headline_tou">Terms of use</string>
     <string name="help_main_headline_data_policy">Data policy</string>
     <string name="help_main_headline_about_us">Imprint</string>
@@ -323,7 +319,7 @@
     <string name="btn_welcome_accept">Accept</string>
     <string name="message_welcome_qabel_big">QABEL </string>
     <string name="headline_welcome_screen1">Welcome to\u0020</string>
-    <string name="empty_text" translatable="false"/>
+    <string name="empty_text" translatable="false" />
     <string name="headline_welcome_screen2">\u0020Features\n</string>
     <string name="headline_welcome_screen3">\u0020Identities\n</string>
     <string name="headline_welcome_screen4">\u0020Account\n</string>
@@ -407,4 +403,5 @@ You can find more information on https://qabel.de/en
     <string name="moments_ago">moments ago</string>
     <string name="markAsRead">Mark as read</string>
     <string name="emoji">Emojis</string>
+    <string name="decrypting">Entschlüsseln %s ...</string>
 </resources>

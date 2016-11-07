@@ -59,7 +59,6 @@
             android:name="firebase_analytics_collection_deactivated"
             android:value="true" />
         <!--only for internal test feedback-->
-        <activity android:name="net.hockeyapp.android.UpdateActivity" />
         <activity android:name="net.hockeyapp.android.FeedbackActivity" />
         <activity android:name="net.hockeyapp.android.PaintActivity" />
         <!-- end only internal test feedback-->
@@ -148,6 +147,7 @@
                 android:resource="@xml/authenticator" />
         </service>
         <service android:name=".chat.services.AndroidChatService" />
+        <service android:name=".box.AndroidBoxService" />
         <service
             android:name=".index.AndroidIndexSyncService"
             android:process=":sync">

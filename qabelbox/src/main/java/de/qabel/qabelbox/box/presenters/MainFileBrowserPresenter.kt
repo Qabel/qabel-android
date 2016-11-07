@@ -1,8 +1,12 @@
 package de.qabel.qabelbox.box.presenters
 
+import android.content.Context
+import android.net.Uri
 import de.qabel.core.config.Contact
 import de.qabel.core.config.Identity
 import de.qabel.box.storage.dto.BoxPath
+import de.qabel.qabelbox.box.AndroidBoxService
+import de.qabel.qabelbox.box.BoxServiceInteractor
 import de.qabel.qabelbox.box.dto.BrowserEntry
 import de.qabel.qabelbox.box.dto.BrowserEntry.File
 import de.qabel.qabelbox.box.dto.BrowserEntry.Folder
@@ -43,6 +47,12 @@ class MainFileBrowserPresenter @Inject constructor(
         useCase.upload(path * file.name, UploadSource(stream, file)).subscribe({
             onRefresh()
         }, { view.showError(it) })
+    }
+
+    override fun upload(context: Context, file: File, uri: Uri) {
+        withDocumentId(file) {
+            BoxServiceInteractor.startUpload(context, it, uri)
+        }
     }
 
     override fun delete(file: File) {

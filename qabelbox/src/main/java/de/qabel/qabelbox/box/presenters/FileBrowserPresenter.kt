@@ -1,5 +1,7 @@
 package de.qabel.qabelbox.box.presenters
 
+import android.content.Context
+import android.net.Uri
 import de.qabel.core.config.Contact
 import de.qabel.box.storage.dto.BoxPath
 import de.qabel.qabelbox.box.dto.BrowserEntry
@@ -31,5 +33,6 @@ interface FileBrowserPresenter {
 
     fun unShareFile(entry: BrowserEntry.File)
 
+    fun upload(context: Context, file: BrowserEntry.File, uri: Uri)
 }
 

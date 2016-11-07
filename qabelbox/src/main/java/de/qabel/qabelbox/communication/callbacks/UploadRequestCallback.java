@@ -6,5 +6,4 @@ public abstract class UploadRequestCallback extends RequestCallback {
         super(acceptedStatusCodes);
     }
 
-    public abstract void onProgress(long currentBytes, long totalBytes);
 }

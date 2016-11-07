@@ -8,7 +8,9 @@ import com.nhaarman.mockito_kotlin.whenever
 import de.qabel.box.storage.*
 import de.qabel.box.storage.dto.BoxPath
 import de.qabel.box.storage.exceptions.QblStorageException
+import de.qabel.core.crypto.CryptoUtils
 import de.qabel.qabelbox.*
+import de.qabel.qabelbox.box.BoxScheduler
 import de.qabel.qabelbox.box.backends.MockStorageBackend
 import de.qabel.qabelbox.box.dto.BrowserEntry
 import de.qabel.qabelbox.box.dto.UploadSource
@@ -22,6 +24,8 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricGradleTestRunner
 import org.robolectric.annotation.Config
+import org.spongycastle.util.encoders.Hex
+import rx.schedulers.Schedulers
 import java.io.InputStream
 import java.util.*
 
@@ -32,9 +36,10 @@ class BoxFileBrowserTest {
     val identity = IdentityHelper.createIdentity("identity", null)
     val storage = MockStorageBackend()
     val docId = DocumentId(identity.keyIdentifier, identity.prefixes.first().prefix, BoxPath.Root)
+    private val boxScheduler = BoxScheduler(Schedulers.test())
     lateinit var useCase: FileBrowser
 
-    val samplePayload = "payload"
+    val samplePayload: String = Hex.toHexString(CryptoUtils().getRandomBytes(50000))
     val sampleName = "sampleName"
     val sample = BrowserEntry.File(sampleName, 42, Date())
 
@@ -49,9 +54,9 @@ class BoxFileBrowserTest {
                 storage,
                 "Blake2b",
                 createTempDir()), identity.primaryKeyPair)
-         useCase = BoxFileBrowser(
-                 BoxFileBrowser.KeyAndPrefix(identity),
-                 volume, mock())
+        useCase = BoxFileBrowser(
+                BoxFileBrowser.KeyAndPrefix(identity),
+                volume, mock(), boxScheduler)
     }
 
     @Test
@@ -87,6 +92,16 @@ class BoxFileBrowserTest {
     }
 
     @Test
+    fun uploadWithProgress() {
+        val path = BoxPath.Root / "firstFolder" / "subFolder" * sampleName
+        useCase.uploadWithProgress(path, samplePayload.toUploadSource(sample)).second.waitFor()
+        useCase.query(path.parent) evalsTo BrowserEntry.Folder(path.parent.name)
+        useCase.download(path).waitFor().apply {
+            asString() shouldMatch equalTo(samplePayload)
+        }
+    }
+
+    @Test
     fun deleteFile() {
         val path = BoxPath.Root / "firstFolder" / "subFolder" * sampleName
         useCase.upload(path, samplePayload.toUploadSource(sample)).waitFor()
@@ -114,7 +129,7 @@ class BoxFileBrowserTest {
         val subfolderFile = folder * sampleName
         val file = BoxPath.Root * sampleName
         useCase.upload(file, samplePayload.toUploadSource(sample)).waitFor()
-        useCase.upload(subfolderFile , samplePayload.toUploadSource(sample)).waitFor()
+        useCase.upload(subfolderFile, samplePayload.toUploadSource(sample)).waitFor()
         useCase.createFolder(folder).waitFor()
 
         val listing = useCase.list(BoxPath.Root).toBlocking().first().map { it.name }.toSet()
@@ -131,7 +146,7 @@ class BoxFileBrowserTest {
         val file2 = root * "zzz"
         val folder1 = root / "AAA"
         val folder2 = root / "BBB"
-        useCase.upload(file2 , samplePayload.toUploadSource(sample)).waitFor()
+        useCase.upload(file2, samplePayload.toUploadSource(sample)).waitFor()
         useCase.upload(file, samplePayload.toUploadSource(sample)).waitFor()
         useCase.createFolder(folder2).waitFor()
         useCase.createFolder(folder1).waitFor()
@@ -146,7 +161,6 @@ class BoxFileBrowserTest {
         val entry = useCase.query(BoxPath.Root).toBlocking().first()
         entry.name shouldMatch equalTo("")
     }
-
 
 
     @Test
@@ -208,7 +222,7 @@ class BoxFileBrowserTest {
         val volume: BoxVolume = mock()
         val nav: IndexNavigation = mock()
         stubMethod(volume.navigate(), nav)
-        useCase = BoxFileBrowser(BoxFileBrowser.KeyAndPrefix("key", "prefix"), volume, mock())
+        useCase = BoxFileBrowser(BoxFileBrowser.KeyAndPrefix("key", "prefix"), volume, mock(), boxScheduler)
         return nav
     }
 

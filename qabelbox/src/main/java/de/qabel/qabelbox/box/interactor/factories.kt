@@ -9,10 +9,12 @@ import de.qabel.box.storage.jdbc.JdbcFileMetadataFactory
 import de.qabel.core.repositories.AndroidVersionAdapter
 import de.qabel.core.repository.ContactRepository
 import de.qabel.core.repository.IdentityRepository
+import de.qabel.qabelbox.box.BoxScheduler
 import de.qabel.qabelbox.box.backends.BoxHttpStorageBackend
 import de.qabel.qabelbox.box.dto.VolumeRoot
 import de.qabel.qabelbox.box.provider.toDocumentId
 import de.qabel.qabelbox.storage.server.BlockServer
+import rx.Scheduler
 import java.io.File
 import java.sql.Connection
 
@@ -25,7 +27,7 @@ fun makeFileBrowserFactory(identityRepository: IdentityRepository,
                            contactRepository: ContactRepository,
                            deviceId: ByteArray,
                            tempDir: File,
-                           androidBlockServer: BlockServer):
+                           androidBlockServer: BlockServer, scheduler: BoxScheduler):
         (VolumeRoot) -> FileBrowser {
     return fun(volumeRoot: VolumeRoot): FileBrowser {
         val docId = volumeRoot.documentID.toDocumentId()
@@ -57,7 +59,7 @@ fun makeFileBrowserFactory(identityRepository: IdentityRepository,
                     JdbcFileMetadataFactory(tempDir, ::AndroidVersionAdapter, JdbcPrefix.jdbcPrefix)
                 }),
                 identity.primaryKeyPair)
-        return BoxFileBrowser(BoxFileBrowser.KeyAndPrefix(identity), volume, contactRepository)
+        return BoxFileBrowser(BoxFileBrowser.KeyAndPrefix(identity), volume, contactRepository, scheduler)
     }
 }
 

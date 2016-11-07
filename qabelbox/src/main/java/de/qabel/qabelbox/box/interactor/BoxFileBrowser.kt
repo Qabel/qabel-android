@@ -3,14 +3,18 @@ package de.qabel.qabelbox.box.interactor
 import de.qabel.box.storage.BoxNavigation
 import de.qabel.box.storage.BoxObject
 import de.qabel.box.storage.BoxVolume
+import de.qabel.box.storage.ProgressListener
+import de.qabel.box.storage.dto.BoxPath
 import de.qabel.box.storage.exceptions.QblStorageException
 import de.qabel.box.storage.exceptions.QblStorageNotFound
+import de.qabel.core.config.Identity
+import de.qabel.core.logging.QabelLog
 import de.qabel.core.repository.ContactRepository
 import de.qabel.core.repository.exception.EntityNotFoundException
-import de.qabel.box.storage.dto.BoxPath
-import de.qabel.core.config.Identity
+import de.qabel.qabelbox.box.BoxScheduler
 import de.qabel.qabelbox.box.dto.BrowserEntry
 import de.qabel.qabelbox.box.dto.DownloadSource
+import de.qabel.qabelbox.box.dto.FileOperationState
 import de.qabel.qabelbox.box.dto.UploadSource
 import de.qabel.qabelbox.box.provider.DocumentId
 import de.qabel.qabelbox.box.toEntry
@@ -18,20 +22,21 @@ import rx.Observable
 import rx.lang.kotlin.observable
 import rx.lang.kotlin.toSingletonObservable
 import rx.schedulers.Schedulers
+import java.io.File
 import java.io.FileNotFoundException
 import javax.inject.Inject
 
-class BoxFileBrowser @Inject constructor(keyAndPrefix: KeyAndPrefix,
+class BoxFileBrowser @Inject constructor(val keyAndPrefix: KeyAndPrefix,
                                          private val volume: BoxVolume,
-                                         private val contactRepo: ContactRepository
-) : FileBrowser, VolumeNavigator by BoxVolumeNavigator(keyAndPrefix, volume) {
+                                         private val contactRepo: ContactRepository,
+                                         val scheduler: BoxScheduler
+) : FileBrowser, VolumeNavigator by BoxVolumeNavigator(keyAndPrefix, volume), QabelLog {
 
     data class KeyAndPrefix(val publicKey: String, val prefix: String) {
-        constructor(identity : Identity) : this(identity.keyIdentifier, identity.prefixes.first().prefix)
+        constructor(identity: Identity) : this(identity.keyIdentifier, identity.prefixes.first().prefix)
     }
 
     override fun asDocumentId(path: BoxPath) = DocumentId(key, prefix, path).toSingletonObservable()
-
 
     override fun query(path: BoxPath): Observable<BrowserEntry> = observable<BrowserEntry> {
         subscriber ->
@@ -79,6 +84,62 @@ class BoxFileBrowser @Inject constructor(keyAndPrefix: KeyAndPrefix,
         it.onCompleted()
     }.subscribeOn(Schedulers.io())
 
+    override fun uploadWithProgress(path: BoxPath.File, source: UploadSource): Pair<FileOperationState, Observable<FileOperationState>> {
+        val boxFile = source.entry
+        val operation = FileOperationState(keyAndPrefix, boxFile.name, path.parent, 0L, boxFile.size)
+        return Pair(operation, observable<FileOperationState> {
+            try {
+                it.onNext(operation)
+                recursiveCreateFolder(path.parent).upload(path.name, source.source, boxFile.size,
+                        object : ProgressListener() {
+                            override fun setSize(size: Long) {
+                                operation.size = size
+                                it.onNext(operation)
+                            }
+
+                            override fun setProgress(progress: Long) {
+                                operation.done = progress
+                                it.onNext(operation)
+                            }
+                        })
+                operation.completed = true
+                it.onCompleted()
+            } catch (e: Throwable) {
+                it.onError(e)
+            }
+        }.subscribeOn(scheduler.rxScheduler))
+    }
+
+    override fun downloadWithProgress(path: BoxPath.File, targetFile: File): Pair<FileOperationState, Observable<FileOperationState>> {
+        val fileEntry = query(path).toBlocking().first()
+        val operation = FileOperationState(keyAndPrefix, path.name, path.parent, 0L, 0L)
+        if (fileEntry is BrowserEntry.File) {
+            return Pair(operation, observable { subscriber ->
+                navigateTo(path.parent).apply {
+                    val boxFile = getFile(path.name)
+                    download(boxFile, object : ProgressListener() {
+
+                        override fun setProgress(progress: Long) {
+                            operation.done = progress
+                            subscriber.onNext(operation)
+                        }
+
+                        override fun setSize(size: Long) {
+                            operation.size = size
+                            subscriber.onNext(operation)
+                        }
+
+                    }).use {
+                        it.copyTo(targetFile.outputStream())
+                    }
+                }
+                subscriber.onCompleted()
+            })
+        } else {
+            throw FileNotFoundException("Not a file")
+        }
+    }
+
     override fun download(path: BoxPath.File): Observable<DownloadSource> =
             observable<DownloadSource> { subscriber ->
                 query(path).subscribe({ entry ->
@@ -88,7 +149,7 @@ class BoxFileBrowser @Inject constructor(keyAndPrefix: KeyAndPrefix,
                         subscriber.onError(FileNotFoundException("Not a file"))
                     }
                 }, { subscriber.onError(it) })
-            }.subscribeOn(Schedulers.io())
+            }.subscribeOn(scheduler.rxScheduler)
 
     override fun delete(path: BoxPath): Observable<Unit> = observable<Unit> {
         subscriber ->

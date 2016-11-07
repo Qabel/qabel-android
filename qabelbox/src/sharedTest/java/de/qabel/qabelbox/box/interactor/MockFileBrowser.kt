@@ -10,7 +10,11 @@ import java.io.FileNotFoundException
 import java.util.*
 import javax.inject.Inject
 
-class MockFileBrowser @Inject constructor(): FileBrowser {
+class MockFileBrowser @Inject constructor() : FileBrowser {
+
+    override fun uploadWithProgress(path: BoxPath.File, source: UploadSource): Pair<FileOperationState, Observable<FileOperationState>> {
+        throw UnsupportedOperationException("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
 
     private val root = DocumentId("identiy", "prefix", BoxPath.Root)
 
@@ -36,6 +40,7 @@ class MockFileBrowser @Inject constructor(): FileBrowser {
                     .toSingletonObservable()
         }
     }
+
     override fun download(path: BoxPath.File): Observable<DownloadSource> {
         for ((filepath, content) in storage) {
             if (filepath == path) {
@@ -44,7 +49,7 @@ class MockFileBrowser @Inject constructor(): FileBrowser {
                         BrowserEntry.File(
                                 path.name,
                                 storage.find { it.first == path }?.second?.size?.toLong()
-                                    ?: throw IllegalArgumentException("File not found"),
+                                        ?: throw IllegalArgumentException("File not found"),
                                 Date())
                 ).toSingletonObservable()
             }

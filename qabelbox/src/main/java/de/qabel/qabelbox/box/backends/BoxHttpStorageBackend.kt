@@ -3,23 +3,24 @@ package de.qabel.qabelbox.box.backends
 import de.qabel.box.storage.*
 import de.qabel.box.storage.exceptions.QblStorageException
 import de.qabel.box.storage.exceptions.QblStorageNotFound
+import de.qabel.core.logging.QabelLog
 import de.qabel.qabelbox.communication.callbacks.DownloadRequestCallback
 import de.qabel.qabelbox.communication.callbacks.RequestCallback
 import de.qabel.qabelbox.communication.callbacks.UploadRequestCallback
 import de.qabel.qabelbox.storage.server.BlockServer
-import okhttp3.Response
+import org.apache.http.HttpHeaders
 import org.apache.http.client.utils.DateUtils
 import java.io.File
 import java.io.InputStream
 import java.util.*
 import java.util.concurrent.CountDownLatch
 
-class BoxHttpStorageBackend (
+class BoxHttpStorageBackend(
         private val blockServer: BlockServer,
-        private val prefix: String):
-        StorageReadBackend, StorageWriteBackend {
-    override fun getUrl(name: String): String = blockServer.urlForFile(prefix, name)
+        private val prefix: String) :
+        StorageReadBackend, StorageWriteBackend, QabelLog {
 
+    override fun getUrl(name: String): String = blockServer.urlForFile(prefix, name)
 
     data class Response(val eTag: String?, val status: Int, val date: Date?, val error: Exception?)
 
@@ -36,11 +37,12 @@ class BoxHttpStorageBackend (
         blockServer.downloadFile(prefix, name, ifModified, object : DownloadRequestCallback(file) {
             override fun onSuccess(statusCode: Int, response: okhttp3.Response?) {
                 super.onSuccess(statusCode, response)
-                etag = response?.header("Etag")
-                date = DateUtils.parseDate(response?.header("Date"))
+                etag = response?.header(HttpHeaders.ETAG)
+                date = DateUtils.parseDate(response?.header(HttpHeaders.DATE))
                 status = statusCode
                 latch.countDown()
             }
+
             override fun onError(e: Exception?, response: okhttp3.Response?) {
                 error = e
                 status = response?.code() ?: 0
@@ -70,17 +72,17 @@ class BoxHttpStorageBackend (
         return handleDownloadResponse(response, file)
     }
 
-    fun uploadRequest(file: File, name: String, etag: String?): Response {
+    fun uploadRequest(inputStream: InputStream, name: String, etag: String?): Response {
         val latch = CountDownLatch(1)
         var error: Exception? = null
         var status: Int = 0
         var responseEtag: String? = null
         var date: Date? = null
-        blockServer.uploadFile(prefix, name, file, etag, object: UploadRequestCallback(200, 204, 304) {
+        blockServer.uploadFile(prefix, name, inputStream, etag, object : UploadRequestCallback(200, 204, 304) {
             override fun onSuccess(statusCode: Int, response: okhttp3.Response?) {
-                responseEtag = response?.header("ETag")
+                responseEtag = response?.header(HttpHeaders.ETAG)
                 status = statusCode
-                date = DateUtils.parseDate(response?.header("Date"))
+                date = DateUtils.parseDate(response?.header(HttpHeaders.DATE))
                 latch.countDown()
             }
 
@@ -90,10 +92,8 @@ class BoxHttpStorageBackend (
                 latch.countDown()
             }
 
-            override fun onProgress(currentBytes: Long, totalBytes: Long) {
-            }
-
         })
+
         latch.await()
         return Response(responseEtag, status, date, error)
     }
@@ -111,14 +111,11 @@ class BoxHttpStorageBackend (
     }
 
     override fun upload(name: String, content: InputStream, eTag: String?): StorageWriteBackend.UploadResult {
-        val file = createTempFile()
-        file.outputStream().use { content.copyTo(it) }
-        val response = uploadRequest(file, name, eTag)
-        return handleUploadResponse(response)
+        return handleUploadResponse(uploadRequest(content, name, eTag))
     }
 
     override fun upload(name: String, content: InputStream): StorageWriteBackend.UploadResult {
-        return upload(name, content, null);
+        return upload(name, content, null)
     }
 
 
@@ -131,6 +128,7 @@ class BoxHttpStorageBackend (
                 status = statusCode
                 latch.countDown()
             }
+
             override fun onError(e: Exception?, response: okhttp3.Response?) {
                 error = e
                 latch.countDown()

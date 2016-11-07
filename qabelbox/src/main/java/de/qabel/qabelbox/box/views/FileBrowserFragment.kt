@@ -17,7 +17,9 @@ import de.qabel.qabelbox.R
 import de.qabel.qabelbox.base.BaseFragment
 import de.qabel.qabelbox.box.adapters.FileAdapter
 import de.qabel.box.storage.dto.BoxPath
+import de.qabel.core.event.EventDispatcher
 import de.qabel.qabelbox.box.dto.BrowserEntry
+import de.qabel.qabelbox.box.events.FileUploadEvent
 import de.qabel.qabelbox.box.presenters.FileBrowserPresenter
 import de.qabel.qabelbox.box.provider.BoxProvider
 import de.qabel.qabelbox.box.provider.DocumentId
@@ -29,6 +31,7 @@ import de.qabel.qabelbox.ui.extensions.showEnterTextDialog
 import de.qabel.qabelbox.viewer.ImageViewerActivity
 import kotlinx.android.synthetic.main.fragment_files.*
 import org.jetbrains.anko.*
+import rx.Subscription
 import java.io.FileNotFoundException
 import java.io.IOException
 import java.net.URLConnection
@@ -50,10 +53,14 @@ class FileBrowserFragment : FileBrowserView,
     override val title: String by lazy { ctx.getString(R.string.filebrowser) }
 
     override val subtitle: String?
-        get() = if(presenter.path !is BoxPath.Root) presenter.path.toString() else null
+        get() = if (presenter.path !is BoxPath.Root) presenter.path.toString() else null
 
     @Inject
     lateinit var presenter: FileBrowserPresenter
+
+    @Inject
+    lateinit var eventDispatcher: EventDispatcher
+    lateinit var subscription: Subscription
 
     @Inject
     lateinit var contactRepository: ContactRepository
@@ -91,6 +98,20 @@ class FileBrowserFragment : FileBrowserView,
         if (!(mActivity?.TEST ?: false)) {
             presenter.onRefresh()
         }
+        subscription = eventDispatcher.events(FileUploadEvent::class.java).subscribe {
+            if (it.operation.completed) {
+                presenter.onRefresh()
+                backgroundRefreshDone()
+            } else {
+                backgroundRefreshStart()
+            }
+        }
+    }
+
+    override fun onPause() {
+        bottomSheet?.dismiss()
+        subscription.unsubscribe()
+        super.onPause()
     }
 
     override fun onSaveInstanceState(outState: Bundle?) {
@@ -205,8 +226,7 @@ class FileBrowserFragment : FileBrowserView,
             with(ctx.contentResolver) {
                 val (filename, size) = queryNameAndSize(fileUri)
                 toast("Uploading $filename with size $size")
-                presenter.upload(BrowserEntry.File(filename, size, Date()),
-                        openInputStream(fileUri))
+                presenter.upload(ctx, BrowserEntry.File(filename, size, Date()), fileUri)
             }
         } catch (e: FileNotFoundException) {
             toast(R.string.upload_failed)
@@ -225,6 +245,18 @@ class FileBrowserFragment : FileBrowserView,
     override fun refreshDone() {
         runOnUiThread {
             swipeRefresh.isRefreshing = false
+        }
+    }
+
+    fun backgroundRefreshStart() {
+        runOnUiThread {
+            background_progress_bar?.visibility = View.VISIBLE
+        }
+    }
+
+    fun backgroundRefreshDone() {
+        runOnUiThread {
+            background_progress_bar?.visibility = View.INVISIBLE
         }
     }
 
@@ -349,11 +381,6 @@ class FileBrowserFragment : FileBrowserView,
                     R.string.add_folder_name, InputType.TYPE_CLASS_TEXT, {
                 presenter.createFolder(BrowserEntry.Folder(it))
             })
-
-    override fun onPause() {
-        bottomSheet?.dismiss()
-        super.onPause()
-    }
 
     override fun onBackPressed(): Boolean {
         return presenter.navigateUp()

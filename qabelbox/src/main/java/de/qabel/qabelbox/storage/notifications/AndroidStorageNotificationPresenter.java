@@ -9,6 +9,7 @@ import android.support.v7.app.NotificationCompat;
 import org.apache.commons.io.FileUtils;
 
 import de.qabel.qabelbox.R;
+import de.qabel.qabelbox.base.ActiveIdentityActivity;
 import de.qabel.qabelbox.base.MainActivity;
 import de.qabel.qabelbox.notifications.QblNotificationPresenter;
 
@@ -30,7 +31,7 @@ public class AndroidStorageNotificationPresenter extends QblNotificationPresente
         Intent notificationIntent = new Intent(getContext(), MainActivity.class);
         notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP
                 | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-        notificationIntent.putExtra(MainActivity.ACTIVE_IDENTITY, info.getIdentityKeyId());
+        notificationIntent.putExtra(ActiveIdentityActivity.Constants.ACTIVE_IDENTITY, info.getIdentityKeyId());
         notificationIntent.putExtra(MainActivity.START_FILES_FRAGMENT, true);
         notificationIntent.putExtra(MainActivity.START_FILES_FRAGMENT_PATH, info.getPath());
         return notificationIntent;

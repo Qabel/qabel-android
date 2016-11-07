@@ -36,9 +36,9 @@ import de.qabel.qabelbox.config.AppPreference
 import de.qabel.qabelbox.contacts.extensions.color
 import de.qabel.qabelbox.contacts.view.widgets.IdentityIconDrawable
 import de.qabel.qabelbox.dagger.HasComponent
-import de.qabel.qabelbox.dagger.components.MainActivityComponent
+import de.qabel.qabelbox.dagger.components.ActiveIdentityComponent
 import de.qabel.qabelbox.dagger.modules.ActivityModule
-import de.qabel.qabelbox.dagger.modules.MainActivityModule
+import de.qabel.qabelbox.dagger.modules.ActiveIdentityModule
 import de.qabel.qabelbox.helper.AccountHelper
 import de.qabel.qabelbox.helper.CacheFileHelper
 import de.qabel.qabelbox.helper.Sanity
@@ -65,9 +65,13 @@ import org.jetbrains.anko.toast
 import javax.inject.Inject
 
 class MainActivity : CrashReportingActivity(),
-        HasComponent<MainActivityComponent>,
+        HasComponent<ActiveIdentityComponent>,
         TopicManager by FirebaseTopicManager(),
-        AnkoLogger, DataPermissionsAdapter {
+        AnkoLogger, DataPermissionsAdapter,
+        ActiveIdentityActivity
+{
+    override val activeIdentityKey: String?
+        get() = intent.getStringExtra(ACTIVE_IDENTITY)
 
     override val permissionContext: Context = this
 
@@ -106,7 +110,10 @@ class MainActivity : CrashReportingActivity(),
     @Inject
     lateinit internal var accountManager: AccountManager
 
-    lateinit private var component: MainActivityComponent
+    @Inject
+    lateinit var activityStartup: ActivityStartup
+
+    lateinit private var component: ActiveIdentityComponent
 
     lateinit private var drawer: Drawer
     lateinit private var drawerAccountHeader: AccountHeader
@@ -198,16 +205,18 @@ class MainActivity : CrashReportingActivity(),
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        component = applicationComponent.plus(ActivityModule(this)).plus(MainActivityModule(this))
+        component = applicationComponent.plus(ActivityModule(this)).plus(ActiveIdentityModule(this))
         component.inject(this)
         Log.d(TAG, "onCreate " + this.hashCode())
 
         registerReceiver(indexIdentityListener, indexIdentityListener.createIntentFilter())
 
-        if (!Sanity.isQabelReady(this, identityRepository)) {
-            Log.d(TAG, "started wizard dialog")
+        if (!activityStartup.onCreate()) {
             return
-        } else if (!indexPreferences.contactSyncAsked || (indexPreferences.contactSyncEnabled && !hasContactsReadPermission())) {
+        }
+
+        if (!indexPreferences.contactSyncAsked ||
+                (indexPreferences.contactSyncEnabled && !hasContactsReadPermission())) {
             requestContactsPermission()
         }
 
@@ -605,7 +614,7 @@ class MainActivity : CrashReportingActivity(),
         startActivity(i)
     }
 
-    override fun getComponent(): MainActivityComponent {
+    override fun getComponent(): ActiveIdentityComponent {
         return component
     }
 
@@ -628,7 +637,6 @@ class MainActivity : CrashReportingActivity(),
 
         const val START_FILES_FRAGMENT = "START_FILES_FRAGMENT"
         const val START_CHAT_FRAGMENT = "START_CHAT_FRAGMENT"
-        const val ACTIVE_IDENTITY = "ACTIVE_IDENTITY"
         const val ACTIVE_CONTACT = "ACTIVE_CONTACT"
         const val START_FILES_FRAGMENT_PATH = "START_FILES_FRAGMENT_PATH"
         // Intent extra to specify that the activity is in test mode which disables auto-refresh

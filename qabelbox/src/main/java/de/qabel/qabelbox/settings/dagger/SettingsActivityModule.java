@@ -2,7 +2,6 @@ package de.qabel.qabelbox.settings.dagger;
 
 import dagger.Module;
 import dagger.Provides;
-import de.qabel.qabelbox.dagger.modules.MainActivityModule;
 import de.qabel.qabelbox.dagger.scopes.ActivityScope;
 import de.qabel.qabelbox.settings.SettingsActivity;
 import de.qabel.qabelbox.settings.navigation.SettingsNavigator;

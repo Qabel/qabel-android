@@ -8,7 +8,7 @@ import de.qabel.qabelbox.contacts.dagger.ContactDetailsModule
 import de.qabel.qabelbox.contacts.dto.ContactDto
 import de.qabel.qabelbox.contacts.view.adapters.ContactDetailsAdapter
 import de.qabel.qabelbox.contacts.view.presenters.ContactDetailsPresenter
-import de.qabel.qabelbox.dagger.components.MainActivityComponent
+import de.qabel.qabelbox.dagger.components.ActiveIdentityComponent
 import de.qabel.qabelbox.base.BaseFragment
 import org.jetbrains.anko.AnkoLogger
 import javax.inject.Inject
@@ -40,7 +40,7 @@ class ContactDetailsFragment() : ContactDetailsView, BaseFragment(showOptionsMen
         contactKeyId = arguments.getString(ARG_CONTACT) ?: throw IllegalArgumentException(
                 "Starting ContactDetailsFragment without contactKeyId")
 
-        val component = getComponent(MainActivityComponent::class.java).plus(ContactDetailsModule(this))
+        val component = getComponent(ActiveIdentityComponent::class.java).plus(ContactDetailsModule(this))
         component.inject(this)
         injectCompleted = true
     }

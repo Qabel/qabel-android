@@ -24,6 +24,7 @@ import java.util.Queue;
 import de.qabel.qabelbox.BuildConfig;
 import de.qabel.qabelbox.R;
 import de.qabel.qabelbox.SimpleApplication;
+import de.qabel.qabelbox.base.ActiveIdentityActivity;
 import de.qabel.qabelbox.base.MainActivity;
 import de.qabel.qabelbox.storage.model.BoxUploadingFile;
 
@@ -69,7 +70,7 @@ public class StorageNotificationPresenterTest {
         String path = "/";
         StorageNotificationInfo info = new StorageNotificationInfo("test", path, ownerKey, 0L, 0L);
         Intent intent = presenter.createFileIntent(info);
-        assertEquals(intent.getStringExtra(MainActivity.ACTIVE_IDENTITY), ownerKey);
+        assertEquals(intent.getStringExtra(ActiveIdentityActivity.Constants.ACTIVE_IDENTITY), ownerKey);
         assertEquals(intent.getBooleanExtra(MainActivity.START_FILES_FRAGMENT, false), true);
         assertEquals(intent.getStringExtra(MainActivity.START_FILES_FRAGMENT_PATH), path);
         assertEquals(MainActivity.class.getName(), intent.getComponent().getClassName());

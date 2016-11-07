@@ -21,7 +21,7 @@ import de.qabel.qabelbox.chat.dagger.ChatModule
 import de.qabel.qabelbox.chat.dto.ChatMessage
 import de.qabel.qabelbox.chat.view.adapters.ChatMessageAdapter
 import de.qabel.qabelbox.chat.view.presenters.ChatPresenter
-import de.qabel.qabelbox.dagger.components.MainActivityComponent
+import de.qabel.qabelbox.dagger.components.ActiveIdentityComponent
 import de.qabel.qabelbox.helper.Helper
 import de.qabel.qabelbox.ui.HeaderDecoration
 import de.qabel.qabelbox.viewer.ImageViewerActivity
@@ -68,7 +68,7 @@ class ChatFragment : ChatView, BaseFragment(), AnkoLogger {
         super.onActivityCreated(savedInstanceState)
         contactKeyId = arguments.getString(ARG_CONTACT) ?: throw IllegalArgumentException(
                 "Starting ChatFragment without contactKeyId")
-        val component = getComponent(MainActivityComponent::class.java).plus(ChatModule(this))
+        val component = getComponent(ActiveIdentityComponent::class.java).plus(ChatModule(this))
         component.inject(this)
         injectCompleted = true
     }

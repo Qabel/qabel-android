@@ -2,9 +2,9 @@ package de.qabel.qabelbox.box.dto
 
 import de.qabel.box.storage.dto.BoxPath
 import de.qabel.qabelbox.box.dto.FileOperationState.Status
-import de.qabel.qabelbox.box.interactor.BoxFileBrowser
+import de.qabel.qabelbox.box.interactor.BoxReadFileBrowser
 
-data class FileOperationState(val ownerKey: BoxFileBrowser.KeyAndPrefix,
+data class FileOperationState(val ownerKey: BoxReadFileBrowser.KeyAndPrefix,
                               val entryName: String, val path: BoxPath.FolderLike,
                               val time: Long = System.currentTimeMillis(),
                               var done: Long = 0, var size: Long = 0,

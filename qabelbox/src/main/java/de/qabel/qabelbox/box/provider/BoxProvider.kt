@@ -17,13 +17,15 @@ import android.provider.MediaStore.Video.Media
 import android.util.Log
 import de.qabel.box.storage.exceptions.QblStorageException
 import de.qabel.box.storage.exceptions.QblStorageNotFound
+import de.qabel.core.event.EventSink
 import de.qabel.qabelbox.BuildConfig
 import de.qabel.qabelbox.QblBroadcastConstants
 import de.qabel.qabelbox.R
 import de.qabel.qabelbox.box.dto.BrowserEntry
-import de.qabel.qabelbox.box.dto.ProviderUpload
-import de.qabel.qabelbox.box.dto.UploadSource
+import de.qabel.qabelbox.box.events.FileDownloadEvent
+import de.qabel.qabelbox.box.events.FileUploadEvent
 import de.qabel.qabelbox.box.interactor.DocumentIdAdapter
+import de.qabel.qabelbox.box.notifications.StorageNotificationManager
 import de.qabel.qabelbox.dagger.components.DaggerBoxComponent
 import de.qabel.qabelbox.dagger.modules.ContextModule
 import de.qabel.qabelbox.reporter.CrashReporter
@@ -32,13 +34,19 @@ import rx.lang.kotlin.firstOrNull
 import java.io.File
 import java.io.FileNotFoundException
 import java.net.URLConnection
-import java.util.*
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 open class BoxProvider : DocumentsProvider(), AnkoLogger {
 
     @Inject
     lateinit var useCase: DocumentIdAdapter
+
+    @Inject
+    lateinit var notificationManager: StorageNotificationManager
+
+    @Inject
+    lateinit var eventSink: EventSink
 
     @Inject
     lateinit var crashReporter: CrashReporter
@@ -193,7 +201,7 @@ open class BoxProvider : DocumentsProvider(), AnkoLogger {
                 } catch (ex: RuntimeException) {
                     error("Error loading share", ex)
                     ex.cause?.let {
-                        if(it is QblStorageNotFound){
+                        if (it is QblStorageNotFound) {
                             useCase.refreshShare(shareId).subscribe()
                         }
                     }
@@ -203,13 +211,25 @@ open class BoxProvider : DocumentsProvider(), AnkoLogger {
             } else {
                 val id = documentId.toDocumentId()
                 if (isRead) {
-                    val download = try {
-                        useCase.download(id).toBlocking().firstOrNull()
+                    try {
+                        val (operation, observable) = useCase.downloadFile(id, file)
+                        observable.doOnCompleted {
+                            notificationManager.updateDownloadNotification(operation)
+                            context.runOnUiThread {
+                                longToast(ctx.getString(R.string.download_complete_msg, operation.entryName))
+                            }
+                            eventSink.push(FileDownloadEvent(operation))
+                        }.sample(150L, TimeUnit.MILLISECONDS)
+                                .doOnNext {
+                                    notificationManager.updateDownloadNotification(operation)
+                                    eventSink.push(FileDownloadEvent(it))
+                                }
+                                .doOnError {
+                                    error("Error downloading File ${id.path} to $file", it)
+                                    eventSink.push(FileDownloadEvent(operation))
+                                }.toBlocking().subscribe()
                     } catch (e: QblStorageException) {
                         throw FileNotFoundException("Download failed")
-                    }
-                    file.outputStream().run {
-                        download.source.source.copyTo(file.outputStream())
                     }
                 }
                 if (isWrite) {
@@ -220,13 +240,26 @@ open class BoxProvider : DocumentsProvider(), AnkoLogger {
                                     return@OnCloseListener
                                 }
                                 Log.i(TAG, "Uploading saved file")
-                                val entry = BrowserEntry.File(id.path.name, file.length(), Date())
-                                file.inputStream().use {
-                                    try {
-                                        useCase.upload(ProviderUpload(id, UploadSource(it, entry))).toBlocking()
-                                    } catch (e: QblStorageException) {
-                                        throw FileNotFoundException("Upload failed")
-                                    }
+                                try {
+                                    val (operation, observable) = useCase.uploadFile(file, id)
+                                    observable
+                                            .doOnCompleted {
+                                                notificationManager.updateUploadNotification(operation)
+                                                context.runOnUiThread {
+                                                    longToast(ctx.getString(R.string.upload_complete_msg, operation.entryName))
+                                                }
+                                                eventSink.push(FileUploadEvent(operation))
+                                            }
+                                            .sample(150L, TimeUnit.MILLISECONDS).toBlocking()
+                                            .subscribe({
+                                                notificationManager.updateUploadNotification(it)
+                                                eventSink.push(FileUploadEvent(it))
+                                            }, {
+                                                error("Error uploading File $file to ${id.path}", it)
+                                                eventSink.push(FileUploadEvent(operation))
+                                            })
+                                } catch (e: QblStorageException) {
+                                    throw FileNotFoundException("Upload failed")
                                 }
                             })
                 }

@@ -1,14 +1,11 @@
 package de.qabel.qabelbox.box.interactor
 
-import com.natpryce.hamkrest.equalTo
-import com.natpryce.hamkrest.should.shouldMatch
 import com.nhaarman.mockito_kotlin.any
 import com.nhaarman.mockito_kotlin.mock
 import com.nhaarman.mockito_kotlin.whenever
 import de.qabel.box.storage.*
 import de.qabel.box.storage.dto.BoxPath
 import de.qabel.box.storage.exceptions.QblStorageException
-import de.qabel.core.crypto.CryptoUtils
 import de.qabel.qabelbox.*
 import de.qabel.qabelbox.box.BoxScheduler
 import de.qabel.qabelbox.box.backends.MockStorageBackend
@@ -16,7 +13,6 @@ import de.qabel.qabelbox.box.dto.BrowserEntry
 import de.qabel.qabelbox.box.dto.UploadSource
 import de.qabel.qabelbox.box.provider.DocumentId
 import de.qabel.qabelbox.util.IdentityHelper
-import de.qabel.qabelbox.util.asString
 import de.qabel.qabelbox.util.toUploadSource
 import de.qabel.qabelbox.util.waitFor
 import org.junit.Before
@@ -24,28 +20,29 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricGradleTestRunner
 import org.robolectric.annotation.Config
-import org.spongycastle.util.encoders.Hex
 import rx.schedulers.Schedulers
+import java.io.File
 import java.io.InputStream
 import java.util.*
 
 @RunWith(RobolectricGradleTestRunner::class)
 @Config(application = SimpleApplication::class, constants = BuildConfig::class)
-class BoxFileBrowserTest {
+class BoxOperationFileBrowserTest() {
 
     val identity = IdentityHelper.createIdentity("identity", null)
     val storage = MockStorageBackend()
     val docId = DocumentId(identity.keyIdentifier, identity.prefixes.first().prefix, BoxPath.Root)
-    private val boxScheduler = BoxScheduler(Schedulers.test())
-    lateinit var useCase: FileBrowser
 
-    val samplePayload: String = Hex.toHexString(CryptoUtils().getRandomBytes(50000))
+    lateinit var useCase: OperationFileBrowser
+
+    val samplePayload: String = "payload"
     val sampleName = "sampleName"
     val sample = BrowserEntry.File(sampleName, 42, Date())
 
     @Before
     fun setUp() {
         val prefix = identity.prefixes.first()
+        val keys = BoxReadFileBrowser.KeyAndPrefix(identity)
         val volume = AndroidBoxVolume(BoxVolumeConfig(
                 prefix.prefix,
                 RootRefCalculator().rootFor(identity.primaryKeyPair.privateKey, prefix.type, prefix.prefix),
@@ -54,22 +51,18 @@ class BoxFileBrowserTest {
                 storage,
                 "Blake2b",
                 createTempDir()), identity.primaryKeyPair)
-        useCase = BoxFileBrowser(
-                BoxFileBrowser.KeyAndPrefix(identity),
-                volume, mock(), boxScheduler)
-    }
-
-    @Test
-    fun asDocumentId() {
-        useCase.asDocumentId(BoxPath.Root) evalsTo docId
+        val navigator = BoxVolumeNavigator(keys, volume)
+        useCase = BoxOperationFileBrowser(keys, navigator, mock(), BoxScheduler(Schedulers.immediate()))
     }
 
     @Test
     fun roundTripFile() {
         val path = BoxPath.Root * sampleName
-        useCase.upload(path, samplePayload.toUploadSource(sample)).waitFor()
-        useCase.download(path).waitFor().apply {
-            asString() shouldMatch equalTo(samplePayload)
+        val file = createTempFile()
+
+        useCase.upload(path, samplePayload.toUploadSource(sample)).second.waitFor()
+        useCase.download(path, file).second.waitFor().apply {
+            file.readText() isEqual samplePayload
         }
     }
 
@@ -84,27 +77,18 @@ class BoxFileBrowserTest {
     @Test
     fun uploadInSubfolder() {
         val path = BoxPath.Root / "firstFolder" / "subFolder" * sampleName
-        useCase.upload(path, samplePayload.toUploadSource(sample)).waitFor()
+        val file = createTempFile()
+        useCase.upload(path, samplePayload.toUploadSource(sample)).second.waitFor()
         useCase.query(path.parent) evalsTo BrowserEntry.Folder(path.parent.name)
-        useCase.download(path).waitFor().apply {
-            asString() shouldMatch equalTo(samplePayload)
-        }
-    }
-
-    @Test
-    fun uploadWithProgress() {
-        val path = BoxPath.Root / "firstFolder" / "subFolder" * sampleName
-        useCase.uploadWithProgress(path, samplePayload.toUploadSource(sample)).second.waitFor()
-        useCase.query(path.parent) evalsTo BrowserEntry.Folder(path.parent.name)
-        useCase.download(path).waitFor().apply {
-            asString() shouldMatch equalTo(samplePayload)
+        useCase.download(path, file).second.waitFor().apply {
+            file.readText() isEqual samplePayload
         }
     }
 
     @Test
     fun deleteFile() {
         val path = BoxPath.Root / "firstFolder" / "subFolder" * sampleName
-        useCase.upload(path, samplePayload.toUploadSource(sample)).waitFor()
+        useCase.upload(path, samplePayload.toUploadSource(sample)).second.waitFor()
         useCase.delete(path).waitFor()
         // folder exists
         useCase.query(path.parent) evalsTo BrowserEntry.Folder(path.parent.name)
@@ -124,71 +108,21 @@ class BoxFileBrowserTest {
     }
 
     @Test
-    fun list() {
-        val folder = BoxPath.Root / "firstFolder"
-        val subfolderFile = folder * sampleName
-        val file = BoxPath.Root * sampleName
-        useCase.upload(file, samplePayload.toUploadSource(sample)).waitFor()
-        useCase.upload(subfolderFile, samplePayload.toUploadSource(sample)).waitFor()
-        useCase.createFolder(folder).waitFor()
-
-        val listing = useCase.list(BoxPath.Root).toBlocking().first().map { it.name }.toSet()
-        val subfolderListing = useCase.list(folder).toBlocking().first().map { it.name }.toSet()
-
-        listing eq setOf(sample.name, "firstFolder")
-        subfolderListing eq setOf(sample.name)
-    }
-
-    @Test
-    fun listIsSorted() {
-        val root = BoxPath.Root
-        val file = root * "aaa"
-        val file2 = root * "zzz"
-        val folder1 = root / "AAA"
-        val folder2 = root / "BBB"
-        useCase.upload(file2, samplePayload.toUploadSource(sample)).waitFor()
-        useCase.upload(file, samplePayload.toUploadSource(sample)).waitFor()
-        useCase.createFolder(folder2).waitFor()
-        useCase.createFolder(folder1).waitFor()
-
-        val listing = useCase.list(BoxPath.Root).toBlocking().first().map { it.name }
-
-        listing eq listOf("AAA", "BBB", "aaa", "zzz")
-    }
-
-    @Test
-    fun queryRoot() {
-        val entry = useCase.query(BoxPath.Root).toBlocking().first()
-        entry.name shouldMatch equalTo("")
-    }
-
-
-    @Test
-    fun failedQuery() {
-        val nav: IndexNavigation = mockedIndexNavigation()
-
-        val e = QblStorageException("test")
-        whenever(nav.listFiles()).thenThrow(e)
-
-        useCase.query(BoxPath.Root * "test") errorsWith e
-    }
-
-    @Test
     fun failedUpload() {
         val nav: IndexNavigation = mockedIndexNavigation()
         val e = QblStorageException("test")
-        whenever(nav.upload(any<String>(), any<InputStream>(), any())).thenThrow(e)
+        whenever(nav.upload(any<String>(), any<InputStream>(), any(), any())).thenThrow(e)
 
-        useCase.upload(BoxPath.Root * "test", UploadSource(mock(), sample)) errorsWith e
+        useCase.upload(BoxPath.Root * "test", UploadSource(mock(), sample)).second errorsWith e
     }
 
     @Test
     fun failedDownload() {
         val nav: IndexNavigation = mockedIndexNavigation()
         val e = QblStorageException("test")
-        whenever(nav.listFiles()).thenThrow(e)
+        whenever(nav.getFile(any())).thenThrow(e)
 
-        useCase.download(BoxPath.Root * "test") errorsWith e
+        useCase.download(BoxPath.Root * "test", createTempFile()).second errorsWith e
     }
 
     @Test
@@ -198,15 +132,6 @@ class BoxFileBrowserTest {
         whenever(nav.getFolder(any())).thenThrow(e)
 
         useCase.delete(BoxPath.Root / "test") errorsWith e
-    }
-
-    @Test
-    fun failedList() {
-        val nav: IndexNavigation = mockedIndexNavigation()
-        val e = QblStorageException("test")
-        whenever(nav.refresh()).thenThrow(e)
-
-        useCase.list(BoxPath.Root) errorsWith e
     }
 
     @Test
@@ -222,9 +147,8 @@ class BoxFileBrowserTest {
         val volume: BoxVolume = mock()
         val nav: IndexNavigation = mock()
         stubMethod(volume.navigate(), nav)
-        useCase = BoxFileBrowser(BoxFileBrowser.KeyAndPrefix("key", "prefix"), volume, mock(), boxScheduler)
+        val keys = BoxReadFileBrowser.KeyAndPrefix("key", "prefix")
+        useCase = BoxOperationFileBrowser(keys, BoxVolumeNavigator(keys, volume), mock(), BoxScheduler(Schedulers.immediate()))
         return nav
     }
-
-
 }

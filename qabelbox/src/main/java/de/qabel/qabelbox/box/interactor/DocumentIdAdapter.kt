@@ -7,14 +7,14 @@ import rx.Observable
 import rx.Single
 import java.io.File
 
-interface DocumentIdAdapter {
+interface DocumentIdAdapter : DocumentIdInteractor {
     fun availableRoots(): List<VolumeRoot>
     fun queryChildDocuments(documentId: DocumentId): Observable<List<ProviderEntry>>
-    fun download(documentId: DocumentId): Observable<ProviderDownload>
-    fun upload(providerUpload: ProviderUpload): Observable<Unit>
+
     fun query(documentId: DocumentId): Observable<BrowserEntry>
     fun download(shareId : ShareId, target : File) : Single<Unit>
-    fun  refreshShare(shareId: ShareId) : Single<Unit>
+    fun refreshShare(shareId: ShareId) : Single<Unit>
 
+    fun uploadFile(sourceFile: File, targetDocumentId: DocumentId): Pair<FileOperationState, Observable<FileOperationState>>
 }
 

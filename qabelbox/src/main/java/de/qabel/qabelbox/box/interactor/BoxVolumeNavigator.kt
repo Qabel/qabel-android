@@ -9,7 +9,7 @@ import java.io.FileNotFoundException
 import javax.inject.Inject
 
 class BoxVolumeNavigator @Inject constructor(
-        keyAndPrefix: BoxFileBrowser.KeyAndPrefix,
+        keyAndPrefix: BoxReadFileBrowser.KeyAndPrefix,
         private val volume: BoxVolume): VolumeNavigator {
 
     override val key = keyAndPrefix.publicKey

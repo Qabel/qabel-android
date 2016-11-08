@@ -6,7 +6,7 @@ import de.qabel.box.storage.dto.BoxPath
 import de.qabel.qabelbox.BuildConfig
 import de.qabel.qabelbox.SimpleApplication
 import de.qabel.qabelbox.box.dto.FileOperationState
-import de.qabel.qabelbox.box.interactor.BoxFileBrowser
+import de.qabel.qabelbox.box.interactor.BoxReadFileBrowser
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -26,7 +26,7 @@ class StorageNotificationManagerTest {
 
     companion object {
         private val TEST_OWNER = "owner"
-        private val TEST_KEYS = BoxFileBrowser.KeyAndPrefix(TEST_OWNER, "")
+        private val TEST_KEYS = BoxReadFileBrowser.KeyAndPrefix(TEST_OWNER, "")
         private val TEST_UPLOAD_PATH = "path"
         private val TEST_FILE_NAME = "FILE"
     }

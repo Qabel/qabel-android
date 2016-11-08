@@ -63,25 +63,25 @@ class FileBrowserModule(private val view: FileBrowserView) {
         return BoxHttpStorageBackend(blockServer, identity.prefixes.first().prefix)
     }
 
-
     @ActivityScope
     @Provides
-    fun provideNavigator(navigator: FileBrowser): VolumeNavigator {
-        return navigator as VolumeNavigator
+    fun provideNavigator(browser: ReadFileBrowser): VolumeNavigator {
+        //TODO Really bad
+        return (browser as BoxReadFileBrowser).volumeNavigator
     }
 
     @ActivityScope
     @Provides
     fun provideFileBrowserUseCase(documentIdParser: DocumentIdParser,
-                                  keyAndPrefix: BoxFileBrowser.KeyAndPrefix,
-                                  volumeManager: VolumeManager): FileBrowser {
-        return volumeManager.fileBrowser(documentIdParser.buildId(keyAndPrefix.publicKey, keyAndPrefix.prefix))
+                                  keyAndPrefix: BoxReadFileBrowser.KeyAndPrefix,
+                                  volumeManager: VolumeManager): ReadFileBrowser {
+        return volumeManager.readFileBrowser(documentIdParser.buildId(keyAndPrefix.publicKey, keyAndPrefix.prefix))
     }
 
     @ActivityScope
     @Provides
-    fun provideKeyAndPrefix(identity: Identity): BoxFileBrowser.KeyAndPrefix {
-        return BoxFileBrowser.KeyAndPrefix(identity)
+    fun provideKeyAndPrefix(identity: Identity): BoxReadFileBrowser.KeyAndPrefix {
+        return BoxReadFileBrowser.KeyAndPrefix(identity)
     }
 
 }

@@ -5,13 +5,22 @@ import com.natpryce.hamkrest.equalTo
 import com.natpryce.hamkrest.should.shouldMatch
 import de.qabel.box.storage.dto.BoxPath
 import de.qabel.qabelbox.BuildConfig
-import de.qabel.qabelbox.box.dto.*
+import de.qabel.qabelbox.box.dto.BrowserEntry
+import de.qabel.qabelbox.box.dto.FileOperationState
+import de.qabel.qabelbox.box.dto.ProviderEntry
+import de.qabel.qabelbox.box.dto.VolumeRoot
+import de.qabel.qabelbox.box.interactor.BoxReadFileBrowser
 import de.qabel.qabelbox.box.interactor.DocumentIdAdapter
 import de.qabel.qabelbox.stubResult
 import de.qabel.qabelbox.util.asString
-import de.qabel.qabelbox.util.toByteArrayInputStream
-import org.mockito.Mockito
+import org.apache.commons.io.IOUtils
+import org.mockito.Matchers
+import org.mockito.Matchers.*
+import org.mockito.Mockito.`when`
+import org.mockito.Mockito.mock
+import rx.lang.kotlin.observable
 import rx.lang.kotlin.toSingletonObservable
+import java.io.File
 import java.util.*
 
 class BoxDocumentIdAdapterTest : MockedBoxDocumentIdAdapterTest() {
@@ -26,7 +35,7 @@ class BoxDocumentIdAdapterTest : MockedBoxDocumentIdAdapterTest() {
 
     override fun setUp() {
         super.setUp()
-        useCase = Mockito.mock(DocumentIdAdapter::class.java)
+        useCase = mock(DocumentIdAdapter::class.java)
         provider.injectProvider(useCase)
     }
 
@@ -56,7 +65,7 @@ class BoxDocumentIdAdapterTest : MockedBoxDocumentIdAdapterTest() {
         val sampleId = document.copy(path = BoxPath.Root * sample.name)
         val sampleFolder = document.copy(path = BoxPath.Root / "folder")
         val listing = listOf(ProviderEntry(sampleId, sample),
-                             ProviderEntry(sampleFolder, BrowserEntry.Folder("folder")))
+                ProviderEntry(sampleFolder, BrowserEntry.Folder("folder")))
         stubResult(useCase.queryChildDocuments(document), listing.toSingletonObservable())
 
         val query = provider.queryChildDocuments(document.toString(), null, null)
@@ -71,11 +80,15 @@ class BoxDocumentIdAdapterTest : MockedBoxDocumentIdAdapterTest() {
 
     fun testOpenDocument() {
         val document = docId.copy(path = BoxPath.Root * "foobar.txt")
+        val operation = FileOperationState(BoxReadFileBrowser.KeyAndPrefix("", ""), "foobar.txt", docId.path.parent)
         stubResult(useCase.query(document), sample.toSingletonObservable())
-        stubResult(useCase.download(document),
-                ProviderDownload(document,
-                    DownloadSource(sample,
-                    samplePayLoad.toByteArrayInputStream())).toSingletonObservable())
+        `when`(useCase.downloadFile(docId, any<File>())).then {
+            return@then Pair(operation, observable<FileOperationState> { subscriber ->
+                subscriber.onNext(operation)
+                IOUtils.write(samplePayLoad, (it.arguments[1] as File).outputStream())
+                subscriber.onCompleted()
+            })
+        }
         val documentUri = DocumentsContract.buildDocumentUri(
                 BuildConfig.APPLICATION_ID + BoxProvider.AUTHORITY, document.toString())
         mockContentResolver.query(documentUri, null, null, null, null).use {

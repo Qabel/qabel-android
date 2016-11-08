@@ -103,8 +103,9 @@ open class StorageModule {
                              context: Context, blockServer: BlockServer,
                              scheduler: BoxScheduler):
             VolumeManager {
-        return BoxVolumeManager(identityRepository, makeFileBrowserFactory(
-                identityRepository, contactRepository, preference.deviceId, context.cacheDir, blockServer, scheduler))
+        val (read, operation) = makeFileBrowserFactory(
+                identityRepository, contactRepository, preference.deviceId, context.cacheDir, blockServer, scheduler)
+        return BoxVolumeManager(identityRepository, read, operation)
     }
 
 }

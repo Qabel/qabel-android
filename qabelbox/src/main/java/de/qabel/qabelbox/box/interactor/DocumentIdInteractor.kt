@@ -10,5 +10,5 @@ import java.io.File
 interface DocumentIdInteractor {
 
     fun uploadFile(sourceUri: Uri, targetDocumentId: DocumentId): Pair<FileOperationState, Observable<FileOperationState>>
-    open fun downloadFile(documentId: DocumentId, targetFile: File): Pair<FileOperationState, Observable<FileOperationState>>
+    fun downloadFile(documentId: DocumentId, targetFile: File): Pair<FileOperationState, Observable<FileOperationState>>
 }

@@ -1,12 +1,16 @@
 package de.qabel.qabelbox.box.interactor
 
+import android.content.Context
 import de.qabel.box.storage.dto.BoxPath
 import de.qabel.box.storage.exceptions.QblStorageException
 import de.qabel.chat.repository.ChatShareRepository
 import de.qabel.chat.repository.entities.ShareStatus
 import de.qabel.chat.service.SharingService
 import de.qabel.qabelbox.box.backends.BoxHttpStorageBackend
-import de.qabel.qabelbox.box.dto.*
+import de.qabel.qabelbox.box.dto.BrowserEntry
+import de.qabel.qabelbox.box.dto.FileOperationState
+import de.qabel.qabelbox.box.dto.ProviderEntry
+import de.qabel.qabelbox.box.dto.VolumeRoot
 import de.qabel.qabelbox.box.provider.DocumentId
 import de.qabel.qabelbox.box.provider.ShareId
 import de.qabel.qabelbox.storage.server.BlockServer
@@ -14,14 +18,14 @@ import rx.Observable
 import rx.lang.kotlin.single
 import rx.lang.kotlin.toSingletonObservable
 import java.io.File
-import java.io.FileNotFoundException
 import javax.inject.Inject
 
-class BoxDocumentIdAdapter @Inject constructor(private val volumeManager: VolumeManager,
+class BoxDocumentIdAdapter @Inject constructor(context: Context,
+                                               volumeManager: VolumeManager,
                                                private val shareRepo: ChatShareRepository,
                                                private val blockServer: BlockServer,
-                                               private val sharingService: SharingService) :
-        DocumentIdAdapter {
+                                               private val sharingService: SharingService
+) : BoxDocumentIdInteractor(context, volumeManager), DocumentIdAdapter {
 
     override fun query(documentId: DocumentId): Observable<BrowserEntry> {
         return browserByDocumentId(documentId).query(documentId.path)
@@ -53,31 +57,11 @@ class BoxDocumentIdAdapter @Inject constructor(private val volumeManager: Volume
                 ProviderEntry(documentId.copy(path = path), it)
             }
 
-    override fun download(documentId: DocumentId): Observable<ProviderDownload> {
-        when (documentId.path) {
-            is BoxPath.FolderLike -> return Observable.error(FileNotFoundException("Not a file"))
-            is BoxPath.File -> {
-                val browserUseCase = browserByDocumentId(documentId)
-                return browserUseCase.download(documentId.path).map {
-                    ProviderDownload(documentId, it)
-                }
-            }
+    override fun uploadFile(sourceFile: File, targetDocumentId: DocumentId): Pair<FileOperationState, Observable<FileOperationState>> {
+        sourceFile.inputStream().use {
+            return uploadFile(it, targetDocumentId)
         }
     }
-
-    override fun upload(providerUpload: ProviderUpload): Observable<Unit> {
-        val path = providerUpload.documentId.path
-        when (path) {
-            is BoxPath.FolderLike -> return Observable.error(FileNotFoundException("Not a file"))
-            is BoxPath.File -> {
-                return browserByDocumentId(providerUpload.documentId).upload(path, providerUpload.source)
-            }
-        }
-    }
-
-    private fun browserByDocumentId(documentId: DocumentId)
-            = volumeManager.fileBrowser(documentId.copy(path = BoxPath.Root).toString())
-
 
     override fun download(shareId: ShareId, target: File) = single<Unit> { single ->
         val share = shareRepo.findById(shareId.boxShareId)

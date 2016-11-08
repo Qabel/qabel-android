@@ -9,18 +9,9 @@ import de.qabel.qabelbox.box.provider.DocumentId
 import rx.Observable
 import java.io.File
 
-interface FileBrowser {
-    fun upload(path: BoxPath.File, source: UploadSource): Observable<Unit>
-    fun download(path: BoxPath.File): Observable<DownloadSource>
-    fun delete(path: BoxPath): Observable<Unit>
+interface ReadFileBrowser {
     fun list(path: BoxPath.FolderLike): Observable<List<BrowserEntry>>
-    fun createFolder(path: BoxPath.FolderLike): Observable<Unit>
     fun query(path: BoxPath): Observable<BrowserEntry>
     fun asDocumentId(path: BoxPath): Observable<DocumentId>
-
-    /** XXX **/
-    fun uploadWithProgress(path: BoxPath.File, source: UploadSource): Pair<FileOperationState, Observable<FileOperationState>>
-
-    open fun downloadWithProgress(path: BoxPath.File, targetFile: File): Pair<FileOperationState, Observable<FileOperationState>>
 }
 

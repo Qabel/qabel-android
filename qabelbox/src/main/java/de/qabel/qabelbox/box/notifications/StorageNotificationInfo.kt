@@ -7,13 +7,13 @@ data class StorageNotificationInfo(val fileName: String,
                               val identityKeyId: String,
                               val time: Long,
                               var doneBytes: Long = 0,
-                              var totalBytes: Long = 0) : QblNotificationInfo {
+                              var totalBytes: Long = 1) : QblNotificationInfo {
 
     override fun getIdentifier(): String {
         return identityKeyId + path + fileName
     }
 
     val progress: Int
-        get() = (100 * doneBytes / totalBytes).toInt()
+        get() = if(totalBytes > 0) (100 * doneBytes / totalBytes).toInt() else 0
 
 }

@@ -1,22 +1,17 @@
 package de.qabel.qabelbox.box.presenters
 
-import android.content.Context
 import android.net.Uri
 import de.qabel.core.config.Contact
 import de.qabel.core.config.Identity
-import de.qabel.box.storage.dto.BoxPath
-import de.qabel.qabelbox.box.AndroidBoxService
-import de.qabel.qabelbox.box.BoxServiceInteractor
 import de.qabel.qabelbox.box.dto.BrowserEntry
 import de.qabel.qabelbox.box.dto.BrowserEntry.File
 import de.qabel.qabelbox.box.dto.BrowserEntry.Folder
-import de.qabel.qabelbox.box.dto.UploadSource
+import de.qabel.qabelbox.box.interactor.BoxServiceStarter
 import de.qabel.qabelbox.box.interactor.ReadFileBrowser
 import de.qabel.qabelbox.box.interactor.Sharer
 import de.qabel.qabelbox.box.provider.DocumentId
 import de.qabel.qabelbox.box.views.FileBrowserView
 import de.qabel.qabelbox.navigation.Navigator
-import java.io.InputStream
 import javax.inject.Inject
 
 class MainFileBrowserPresenter @Inject constructor(
@@ -25,6 +20,7 @@ class MainFileBrowserPresenter @Inject constructor(
         private val sharer: Sharer,
         private val identity: Identity,
         private val navigator: Navigator,
+        private val boxServiceStarter: BoxServiceStarter,
         navigatingPresenter: NavigatingPresenter = MainNavigatingPresenter(view, useCase)) :
         FileBrowserPresenter, NavigatingPresenter by navigatingPresenter {
 
@@ -34,16 +30,9 @@ class MainFileBrowserPresenter @Inject constructor(
         }
     }
 
-    override fun upload(file: File, stream: InputStream) {
-        view.refreshStart()
-        /*  useCase.upload(path * file.name, UploadSource(stream, file)).subscribe({
-              onRefresh()
-          }, { view.showError(it) })*/
-    }
-
-    override fun upload(context: Context, file: File, uri: Uri) {
+    override fun upload(file: File, uri: Uri) {
         withDocumentId(file) {
-            BoxServiceInteractor.startUpload(context, it, uri)
+            boxServiceStarter.startUpload(it, uri)
         }
     }
 
@@ -65,6 +54,10 @@ class MainFileBrowserPresenter @Inject constructor(
         withDocumentId(file) {
             view.export(it)
         }
+    }
+
+    override fun startExport(exportId: DocumentId, uri: Uri) {
+        boxServiceStarter.startDownload(exportId, uri)
     }
 
     override fun deleteFolder(folder: Folder) {

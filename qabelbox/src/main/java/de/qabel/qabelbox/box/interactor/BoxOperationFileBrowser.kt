@@ -11,7 +11,7 @@ import de.qabel.qabelbox.box.dto.FileOperationState
 import de.qabel.qabelbox.box.dto.UploadSource
 import rx.Observable
 import rx.lang.kotlin.observable
-import java.io.File
+import java.io.OutputStream
 import javax.inject.Inject
 
 class BoxOperationFileBrowser @Inject constructor(keyAndPrefix: BoxReadFileBrowser.KeyAndPrefix,
@@ -54,12 +54,15 @@ class BoxOperationFileBrowser @Inject constructor(keyAndPrefix: BoxReadFileBrows
         }.subscribeOn(scheduler.rxScheduler))
     }
 
-    override fun download(path: BoxPath.File, targetFile: File): Pair<FileOperationState, Observable<FileOperationState>> {
+    override fun download(path: BoxPath.File, targetStream: OutputStream): Pair<FileOperationState, Observable<FileOperationState>> {
         val operation = FileOperationState(keyAndPrefix, path.name, path.parent)
         return Pair(operation, observable<FileOperationState> { subscriber ->
             try {
+                subscriber.onNext(operation)
                 volumeNavigator.navigateTo(path.parent).apply {
                     val boxFile = getFile(path.name)
+                    operation.size = boxFile.size
+                    subscriber.onNext(operation)
                     download(boxFile, object : ProgressListener() {
 
                         override fun setProgress(progress: Long) {
@@ -78,7 +81,7 @@ class BoxOperationFileBrowser @Inject constructor(keyAndPrefix: BoxReadFileBrows
                         }
 
                     }).use {
-                        it.copyTo(targetFile.outputStream())
+                        it.copyTo(targetStream)
                     }
                 }
                 operation.status = FileOperationState.Status.COMPLETE

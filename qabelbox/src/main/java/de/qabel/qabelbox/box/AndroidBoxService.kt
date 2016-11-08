@@ -1,7 +1,6 @@
 package de.qabel.qabelbox.box
 
 import android.app.Service
-import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.IBinder
@@ -21,7 +20,6 @@ import org.jetbrains.anko.ctx
 import org.jetbrains.anko.longToast
 import org.jetbrains.anko.runOnUiThread
 import rx.Observable
-import java.io.File
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
@@ -33,7 +31,6 @@ class AndroidBoxService : Service(), QabelLog {
     lateinit var notificationManager: StorageNotificationManager
     @Inject
     lateinit var eventSink: EventSink
-
     @Inject
     lateinit var crashSubmitter: CrashSubmitter
 
@@ -57,13 +54,11 @@ class AndroidBoxService : Service(), QabelLog {
             when (intent.action) {
                 Actions.UPLOAD_FILE -> {
                     val documentId = intent.getStringExtra(KEY_DOC_ID).toDocumentId()
-                    val uri: Uri = intent.getParcelableExtra(KEY_SOURCE_URI)
-                    uploadFile(documentId, uri, startId)
+                    uploadFile(documentId, intent.data, startId)
                 }
                 Actions.DOWNLOAD_FILE -> {
                     val documentId = intent.getStringExtra(KEY_DOC_ID).toDocumentId()
-                    val targetFile: File = intent.getSerializableExtra(KEY_TARGET_FILE) as File
-                    downloadFile(documentId, targetFile, startId)
+                    downloadFile(documentId, intent.data, startId)
                 }
             }
         } catch (ex: Throwable) {
@@ -117,7 +112,7 @@ class AndroidBoxService : Service(), QabelLog {
         }
     }
 
-    private fun downloadFile(documentId: DocumentId, targetFile: File, startId: Int) {
+    private fun downloadFile(documentId: DocumentId, targetUri: Uri, startId: Int) {
         if (isPendingOperation(documentId)) {
             debug("DocumentId is in progress $documentId")
             ctx.runOnUiThread {
@@ -125,8 +120,8 @@ class AndroidBoxService : Service(), QabelLog {
             }
             return
         }
-        debug("Starting download $documentId to $targetFile")
-        useCase.downloadFile(documentId, targetFile).let {
+        debug("Starting download $documentId to $targetUri")
+        useCase.downloadFile(documentId, targetUri).let {
             val (operation, observable) = it
             observable.doOnCompleted {
                 notificationManager.updateDownloadNotification(operation)
@@ -136,10 +131,10 @@ class AndroidBoxService : Service(), QabelLog {
                 eventSink.push(FileDownloadEvent(operation))
                 handleOperationComplete(documentId, startId)
             }.sample(150L, TimeUnit.MILLISECONDS).subscribe({
-                notificationManager.updateDownloadNotification(operation)
+                notificationManager.updateDownloadNotification(it)
                 eventSink.push(FileDownloadEvent(it))
             }, {
-                error("Error downloading File ${documentId.path} to $targetFile", it)
+                error("Error downloading File ${documentId.path} to $targetUri", it)
                 eventSink.push(FileDownloadEvent(operation))
                 handleOperationComplete(documentId, startId)
             })
@@ -159,18 +154,6 @@ class AndroidBoxService : Service(), QabelLog {
 
     companion object {
         const val KEY_DOC_ID = "doc_id"
-        const val KEY_SOURCE_URI = "sourceUri"
-        const val KEY_TARGET_FILE = "targetFile"
     }
 
-}
-
-object BoxServiceInteractor {
-    fun startUpload(context: Context, documentId: DocumentId, source: Uri) {
-        context.startService(Intent(AndroidBoxService.Actions.UPLOAD_FILE, null,
-                context, AndroidBoxService::class.java).apply {
-            putExtra(AndroidBoxService.KEY_DOC_ID, documentId.toString())
-            putExtra(AndroidBoxService.KEY_SOURCE_URI, source)
-        })
-    }
 }

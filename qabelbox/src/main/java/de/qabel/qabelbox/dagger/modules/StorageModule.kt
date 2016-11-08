@@ -108,4 +108,10 @@ open class StorageModule {
         return BoxVolumeManager(identityRepository, read, operation)
     }
 
+    @Singleton
+    @Provides
+    fun providesBoxServiceStarter(serviceStarter: AndroidBoxServiceStarter): BoxServiceStarter {
+        return serviceStarter
+    }
+
 }

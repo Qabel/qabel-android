@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.Intent
 import android.support.v7.app.NotificationCompat
 import de.qabel.qabelbox.R
+import de.qabel.qabelbox.base.ACTIVE_IDENTITY
 import de.qabel.qabelbox.base.MainActivity
 import de.qabel.qabelbox.notifications.QblNotificationPresenter
 import org.apache.commons.io.FileUtils
@@ -24,7 +25,7 @@ class AndroidStorageNotificationPresenter(context: Context) :
     fun createFileBrowserIntent(info: StorageNotificationInfo): Intent =
             Intent(context, MainActivity::class.java).apply {
                 flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
-                putExtra(MainActivity.ACTIVE_IDENTITY, info.identityKeyId)
+                putExtra(ACTIVE_IDENTITY, info.identityKeyId)
                 putExtra(MainActivity.START_FILES_FRAGMENT, true)
                 putExtra(MainActivity.START_FILES_FRAGMENT_PATH, info.path)
             }
@@ -100,7 +101,7 @@ class AndroidStorageNotificationPresenter(context: Context) :
     override fun showDownloadCompletedNotification(info: StorageNotificationInfo) {
         createNotification(createFileBrowserIntent(info),
                 getString(R.string.download_complete),
-                UPLOAD_ICON,
+                DOWNLOAD_ICON,
                 getString(R.string.download_complete_msg, info.fileName)).let {
             showNotification(info, it, true)
         }

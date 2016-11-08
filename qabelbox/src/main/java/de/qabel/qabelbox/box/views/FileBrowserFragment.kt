@@ -202,26 +202,13 @@ class FileBrowserFragment : FileBrowserView, FileListingView,
         super.onActivityResult(requestCode, resultCode, data)
     }
 
-    private fun exportFile(uri: Uri?): Boolean {
-        val exportId = exportDocumentId ?: return true
-        doAsync() {
-            val input = ctx.contentResolver.openInputStream(uriFromDocumentId(exportId))
-            val output = ctx.contentResolver.openOutputStream(uri)
-            if (input == null || output == null) {
-                toast(R.string.export_aborted)
-                return@doAsync
-            }
-            try {
-                input.copyTo(output)
-            } catch (e: IOException) {
-                toast(R.string.export_aborted)
-                return@doAsync
-            }
-            runOnUiThread {
-                toast(R.string.export_complete)
-            }
+    private fun exportFile(uri: Uri?) {
+        val exportId = exportDocumentId ?: return
+        if (uri == null) {
+            toast(R.string.export_aborted)
+            return
         }
-        return false
+        presenter.startExport(exportId, uri)
     }
 
     private fun upload(fileUri: Uri) {
@@ -229,7 +216,7 @@ class FileBrowserFragment : FileBrowserView, FileListingView,
             with(ctx.contentResolver) {
                 val (filename, size) = queryNameAndSize(fileUri)
                 toast("Uploading $filename with size $size")
-                presenter.upload(ctx, BrowserEntry.File(filename, size, Date()), fileUri)
+                presenter.upload(BrowserEntry.File(filename, size, Date()), fileUri)
             }
         } catch (e: FileNotFoundException) {
             toast(R.string.upload_failed_title)

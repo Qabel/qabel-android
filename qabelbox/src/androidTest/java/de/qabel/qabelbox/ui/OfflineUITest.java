@@ -53,8 +53,8 @@ public class OfflineUITest extends AbstractUITest{
     public void setUp() throws Throwable {
         super.setUp();
         launchActivity(null);
-        connectivityManager = new MockConnectivityManager(mActivity);
-        mActivity.installConnectivityManager(connectivityManager);
+        connectivityManager = new MockConnectivityManager(getMActivity());
+        getMActivity().installConnectivityManager(connectivityManager);
         connectivityManager.setConnected(true);
     }
 
@@ -64,7 +64,7 @@ public class OfflineUITest extends AbstractUITest{
         onView(withText(R.string.no_connection)).check(doesNotExist());
         connectivityManager.setConnected(false);
         onView(withText(R.string.no_connection)).check(matches(isDisplayed()));
-        UITestHelper.screenShot(mActivity, "offlineIndicator");
+        UITestHelper.screenShot(getMActivity(), "offlineIndicator");
     }
 
     @Test

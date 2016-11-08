@@ -10,7 +10,7 @@ import de.qabel.qabelbox.contacts.dagger.ContactEditModule
 import de.qabel.qabelbox.contacts.dto.ContactDto
 import de.qabel.qabelbox.contacts.view.adapters.ContactEditAdapter
 import de.qabel.qabelbox.contacts.view.presenters.ContactEditPresenter
-import de.qabel.qabelbox.dagger.components.MainActivityComponent
+import de.qabel.qabelbox.dagger.components.ActiveIdentityComponent
 import org.jetbrains.anko.AnkoLogger
 import org.jetbrains.anko.ctx
 import org.jetbrains.anko.toast
@@ -44,7 +44,7 @@ class ContactEditFragment() : ContactEditView, BaseFragment(showOptionsMenu = tr
                 "Starting ContactEditFragment without contact"
         )
 
-        val component = getComponent(MainActivityComponent::class.java).plus(ContactEditModule(this))
+        val component = getComponent(ActiveIdentityComponent::class.java).plus(ContactEditModule(this))
         component.inject(this)
         injectCompleted = true
 

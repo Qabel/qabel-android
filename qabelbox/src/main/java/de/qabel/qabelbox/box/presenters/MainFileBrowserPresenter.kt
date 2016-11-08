@@ -24,17 +24,9 @@ class MainFileBrowserPresenter @Inject constructor(
         private val useCase: ReadFileBrowser,
         private val sharer: Sharer,
         private val identity: Identity,
-        private val navigator: Navigator) :
-        FileBrowserPresenter {
-
-    override var path: BoxPath.FolderLike = BoxPath.Root
-
-    override fun navigateUp(): Boolean {
-        val isRoot = path is BoxPath.Root
-        path = path.parent
-        onRefresh()
-        return !isRoot
-    }
+        private val navigator: Navigator,
+        navigatingPresenter: NavigatingPresenter = MainNavigatingPresenter(view, useCase)) :
+        FileBrowserPresenter, NavigatingPresenter by navigatingPresenter {
 
     override fun share(file: File) {
         withDocumentId(file) {
@@ -87,14 +79,6 @@ class MainFileBrowserPresenter @Inject constructor(
         //  useCase.createFolder(path / folder.name).subscribe({
         //       onRefresh()
         //  }, { view.showError(it) })
-    }
-
-    override fun onRefresh() {
-        view.refreshStart()
-        useCase.list(path).subscribe({
-            view.showEntries(it)
-            view.refreshDone()
-        }, { view.showError(it) })
     }
 
     override fun onClick(entry: BrowserEntry) {

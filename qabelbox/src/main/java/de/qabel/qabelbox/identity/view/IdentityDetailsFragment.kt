@@ -8,7 +8,7 @@ import android.view.ViewGroup
 import de.qabel.core.config.Identity
 import de.qabel.qabelbox.R
 import de.qabel.qabelbox.base.BaseFragment
-import de.qabel.qabelbox.dagger.components.MainActivityComponent
+import de.qabel.qabelbox.dagger.components.ActiveIdentityComponent
 import de.qabel.qabelbox.identity.dagger.IdentityDetailsModule
 import de.qabel.qabelbox.identity.view.adapter.IdentityDetailsAdapter
 import de.qabel.qabelbox.identity.view.presenter.IdentityDetailsPresenter
@@ -48,7 +48,7 @@ class IdentityDetailsFragment() : IdentityDetailsView, BaseFragment(), AnkoLogge
         identityKeyId = arguments.getString(ARG_IDENTITY) ?: throw IllegalArgumentException(
                 "Starting IdentityDetailsFragment without identityKeyId")
 
-        val component = getComponent(MainActivityComponent::class.java).plus(IdentityDetailsModule(this))
+        val component = getComponent(ActiveIdentityComponent::class.java).plus(IdentityDetailsModule(this))
         component.inject(this)
         injectCompleted = true
     }

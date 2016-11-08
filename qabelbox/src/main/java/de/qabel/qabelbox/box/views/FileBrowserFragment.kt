@@ -27,8 +27,9 @@ import de.qabel.qabelbox.box.provider.BoxProvider
 import de.qabel.qabelbox.box.provider.DocumentId
 import de.qabel.qabelbox.box.provider.toDocumentId
 import de.qabel.qabelbox.box.queryNameAndSize
-import de.qabel.qabelbox.dagger.components.MainActivityComponent
+import de.qabel.qabelbox.dagger.components.ActiveIdentityComponent
 import de.qabel.qabelbox.dagger.modules.FileBrowserModule
+import de.qabel.qabelbox.dagger.modules.FileBrowserViewModule
 import de.qabel.qabelbox.ui.extensions.showEnterTextDialog
 import de.qabel.qabelbox.viewer.ImageViewerActivity
 import kotlinx.android.synthetic.main.fragment_files.*
@@ -40,7 +41,7 @@ import java.net.URLConnection
 import java.util.*
 import javax.inject.Inject
 
-class FileBrowserFragment : FileBrowserView,
+class FileBrowserFragment : FileBrowserView, FileListingView,
         BaseFragment(mainFragment = true, showOptionsMenu = true, showFAButton = true), AnkoLogger {
 
     companion object {
@@ -74,8 +75,8 @@ class FileBrowserFragment : FileBrowserView,
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        val component = getComponent(MainActivityComponent::class.java)
-                .plus(FileBrowserModule(this))
+        val component = getComponent(ActiveIdentityComponent::class.java)
+                .plus(FileBrowserViewModule(this))
         component.inject(this)
         savedInstanceState?.let {
             savedInstanceState.getString(KEY_EXPORT_DOCUMENT_ID, null)?.let {

@@ -7,23 +7,14 @@ import de.qabel.box.storage.StorageWriteBackend
 import de.qabel.core.config.Identity
 import de.qabel.qabelbox.box.backends.BoxHttpStorageBackend
 import de.qabel.qabelbox.box.interactor.*
-import de.qabel.qabelbox.box.presenters.FileBrowserPresenter
-import de.qabel.qabelbox.box.presenters.MainFileBrowserPresenter
-import de.qabel.qabelbox.box.provider.DocumentIdParser
-import de.qabel.qabelbox.box.views.FileBrowserView
+import de.qabel.qabelbox.box.presenters.*
 import de.qabel.qabelbox.config.AppPreference
 import de.qabel.qabelbox.dagger.scopes.ActivityScope
 import de.qabel.qabelbox.storage.server.BlockServer
 
 @ActivityScope
 @Module
-class FileBrowserModule(private val view: FileBrowserView) {
-
-    @ActivityScope
-    @Provides
-    fun provideFileBrowserView(): FileBrowserView {
-        return view
-    }
+class FileBrowserModule() {
 
     @ActivityScope
     @Provides
@@ -31,6 +22,12 @@ class FileBrowserModule(private val view: FileBrowserView) {
             : FileBrowserPresenter {
         return mainFileBrowserPresenter
     }
+
+    @ActivityScope
+    @Provides
+    fun provideNavigatingPresenter(mainNavigatingPresenter: MainNavigatingPresenter):
+            NavigatingPresenter = mainNavigatingPresenter
+
 
     @ActivityScope
     @Provides

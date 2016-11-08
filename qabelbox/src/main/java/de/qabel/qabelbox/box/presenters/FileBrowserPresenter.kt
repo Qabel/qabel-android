@@ -5,14 +5,10 @@ import android.net.Uri
 import de.qabel.core.config.Contact
 import de.qabel.box.storage.dto.BoxPath
 import de.qabel.qabelbox.box.dto.BrowserEntry
+import de.qabel.qabelbox.box.views.FileListingView
 import java.io.InputStream
 
-interface FileBrowserPresenter {
-
-    var path : BoxPath.FolderLike
-
-    fun onRefresh()
-
+interface FileBrowserPresenter: NavigatingPresenter {
     fun onClick(entry: BrowserEntry)
 
     fun share(file: BrowserEntry.File)
@@ -26,8 +22,6 @@ interface FileBrowserPresenter {
     fun createFolder(folder: BrowserEntry.Folder)
 
     fun upload(file: BrowserEntry.File, stream: InputStream)
-
-    fun navigateUp(): Boolean
 
     fun shareToContact(entry: BrowserEntry.File, contact: Contact)
 

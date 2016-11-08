@@ -20,7 +20,7 @@ import de.qabel.qabelbox.contacts.dagger.ContactsModule
 import de.qabel.qabelbox.contacts.dto.ContactDto
 import de.qabel.qabelbox.contacts.view.adapters.ContactsAdapter
 import de.qabel.qabelbox.contacts.view.presenters.ContactsPresenter
-import de.qabel.qabelbox.dagger.components.MainActivityComponent
+import de.qabel.qabelbox.dagger.components.ActiveIdentityComponent
 import de.qabel.qabelbox.external.ExternalFileAction
 import de.qabel.qabelbox.helper.ExternalApps
 import de.qabel.qabelbox.helper.UIHelper
@@ -91,7 +91,7 @@ class ContactsFragment() : ContactsView, BaseFragment(true, true, true), AnkoLog
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        val component = getComponent(MainActivityComponent::class.java).plus(ContactsModule(this))
+        val component = getComponent(ActiveIdentityComponent::class.java).plus(ContactsModule(this))
         component.inject(this)
         injectCompleted = true
 

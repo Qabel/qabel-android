@@ -29,13 +29,11 @@ class ReadFileBrowserFragmentTest : AbstractUITest() {
     lateinit var injectedIdlingResource: InjectedIdlingResource
     val file = BrowserEntry.File("Name.txt", 42000, Date())
 
-    override fun getDefaultIntent(): Intent {
-        return Intent(mContext, MainActivity::class.java).apply {
+    override val defaultIntent: Intent
+        get() = Intent(mContext, MainActivity::class.java).apply {
             putExtra(MainActivity.START_FILES_FRAGMENT, true)
             putExtra(MainActivity.TEST_RUN, true)
-        }
     }
-
 
     fun launch() {
         injectedIdlingResource = InjectedIdlingResource()

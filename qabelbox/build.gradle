@@ -38,14 +38,13 @@ android {
         minSdkVersion 19
         targetSdkVersion 23
         multiDexEnabled true
-        /*
-        add code to automatically generate version name and code,
-        on base of timestamp or change it manual*/
 
-        versionCode 18
-        versionName "0.12.1"
+        // VERSION
+        versionCode 19
+        versionName "0.13.0"
+        // END VERSION
+
         testInstrumentationRunner "de.qabel.qabelbox.QblJUnitRunner"
-
         testApplicationId "de.qabel.test"
 
         ndk {
@@ -71,6 +70,9 @@ android {
     buildTypes {
         release {
             minifyEnabled false
+            shrinkResources false
+            //proguardFiles getDefaultProguardFile('proguard-android.txt'),
+            //        'proguard-rules.pro'
             resValue 'string', 'app_name', '"Qabel"'
             buildConfigField "String", "ACCOUNT_TYPE", "\"de.qabel.qabel.account\""
             buildConfigField "String", "AUTHORITY", "\"de.qabel.qabel.providers.internal\""
@@ -229,31 +231,13 @@ dependencies {
         exclude group: 'org.apache.httpcomponents', module: 'httpclient'
     }
 
-    androidTestCompile('com.github.' + repo + '.qabel-core:box:' + coreVersion + ':tests') {
-        exclude group: 'org.json', module: 'json'
-        exclude group: 'org.apache.logging.log4j'
-        exclude group: 'commons-logging', module: 'commons-logging'
-        exclude group: 'org.apache.httpcomponents', module: 'httpclient'
-    }
     androidTestCompile('com.github.' + repo + '.qabel-core:box:' + coreVersion + ':sources') {
         exclude group: 'org.json', module: 'json'
         exclude group: 'org.apache.logging.log4j'
         exclude group: 'commons-logging', module: 'commons-logging'
         exclude group: 'org.apache.httpcomponents', module: 'httpclient'
     }
-    androidTestCompile('com.github.' + repo + '.qabel-core:core:' + coreVersion + ':tests') {
-        exclude group: 'org.json', module: 'json'
-        exclude group: 'org.apache.logging.log4j'
-        exclude group: 'commons-logging', module: 'commons-logging'
-        exclude group: 'org.apache.httpcomponents', module: 'httpclient'
-    }
     androidTestCompile('com.github.' + repo + '.qabel-core:core:' + coreVersion + ':sources') {
-        exclude group: 'org.json', module: 'json'
-        exclude group: 'org.apache.logging.log4j'
-        exclude group: 'commons-logging', module: 'commons-logging'
-        exclude group: 'org.apache.httpcomponents', module: 'httpclient'
-    }
-    androidTestCompile('com.github.' + repo + '.qabel-core:chat:' + coreVersion + ':tests') {
         exclude group: 'org.json', module: 'json'
         exclude group: 'org.apache.logging.log4j'
         exclude group: 'commons-logging', module: 'commons-logging'
@@ -277,8 +261,6 @@ dependencies {
     testCompile 'junit:junit:4.12'
     testCompile 'org.xerial:sqlite-jdbc:3.8.7'
     testCompile "org.robolectric:robolectric:3.1"
-    testCompile 'org.robolectric:shadows-play-services:3.0'
-    testCompile 'org.robolectric:shadows-support-v4:3.0'
     testCompile 'org.hamcrest:hamcrest-library:1.3'
     /**
      * Quickfix for Roboelectric bug with sdk 23

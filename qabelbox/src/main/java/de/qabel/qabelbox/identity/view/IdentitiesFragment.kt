@@ -15,7 +15,7 @@ import de.qabel.qabelbox.R
 import de.qabel.qabelbox.base.BaseFragment
 import de.qabel.qabelbox.base.MainActivity
 import de.qabel.qabelbox.config.QabelSchema
-import de.qabel.qabelbox.dagger.components.MainActivityComponent
+import de.qabel.qabelbox.dagger.components.ActiveIdentityComponent
 import de.qabel.qabelbox.helper.UIHelper
 import de.qabel.qabelbox.identity.interactor.IdentityUseCase
 import de.qabel.qabelbox.identity.view.adapter.IdentitiesAdapter
@@ -52,7 +52,7 @@ class IdentitiesFragment : BaseFragment(showFAButton = true) {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        val component = getComponent(MainActivityComponent::class.java)
+        val component = getComponent(ActiveIdentityComponent::class.java)
         component.inject(this)
     }
 

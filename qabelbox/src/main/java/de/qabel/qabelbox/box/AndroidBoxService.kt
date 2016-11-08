@@ -101,21 +101,19 @@ class AndroidBoxService : Service(), QabelLog {
             observable.doOnCompleted {
                 notificationManager.updateUploadNotification(operation)
                 ctx.runOnUiThread {
-                    longToast(ctx.getString(R.string.upload_complete_notification_msg, operation.entryName))
+                    longToast(ctx.getString(R.string.upload_complete_msg, operation.entryName))
                 }
                 eventSink.push(FileUploadEvent(operation))
                 handleOperationComplete(documentId, startId)
-            }.sample(100L, TimeUnit.MILLISECONDS).subscribe({
+            }.sample(150L, TimeUnit.MILLISECONDS).subscribe({
                 notificationManager.updateUploadNotification(it)
                 eventSink.push(FileUploadEvent(it))
             }, {
                 error("Error uploading File $uri to ${documentId.path}", it)
-                operation.completed = true
                 eventSink.push(FileUploadEvent(operation))
                 handleOperationComplete(documentId, startId)
-            }).let {
-                pendingMap.put(documentId, observable)
-            }
+            })
+            pendingMap.put(documentId, observable)
         }
     }
 
@@ -131,23 +129,21 @@ class AndroidBoxService : Service(), QabelLog {
         useCase.downloadFile(documentId, targetFile).let {
             val (operation, observable) = it
             observable.doOnCompleted {
-                //TODO notificationManager
+                notificationManager.updateDownloadNotification(operation)
                 ctx.runOnUiThread {
-                    longToast(ctx.getString(R.string.upload_complete_notification_msg, operation.entryName))
+                    longToast(ctx.getString(R.string.upload_complete_msg, operation.entryName))
                 }
                 eventSink.push(FileDownloadEvent(operation))
                 handleOperationComplete(documentId, startId)
-            }.sample(100L, TimeUnit.MILLISECONDS).subscribe({
-                //TODO notificationManager
+            }.sample(150L, TimeUnit.MILLISECONDS).subscribe({
+                notificationManager.updateDownloadNotification(operation)
                 eventSink.push(FileDownloadEvent(it))
             }, {
                 error("Error downloading File ${documentId.path} to $targetFile", it)
-                operation.completed = true
                 eventSink.push(FileDownloadEvent(operation))
                 handleOperationComplete(documentId, startId)
-            }).let {
-                pendingMap.put(documentId, observable)
-            }
+            })
+            pendingMap.put(documentId, observable)
         }
     }
 

@@ -13,6 +13,7 @@ import de.qabel.qabelbox.BuildConfig
 import de.qabel.qabelbox.SimpleApplication
 import de.qabel.qabelbox.box.backends.MockStorageBackend
 import de.qabel.box.storage.dto.BoxPath
+import de.qabel.qabelbox.box.BoxScheduler
 import de.qabel.qabelbox.box.dto.BrowserEntry
 import de.qabel.qabelbox.eq
 import de.qabel.qabelbox.util.IdentityHelper
@@ -24,6 +25,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricGradleTestRunner
 import org.robolectric.annotation.Config
+import rx.schedulers.Schedulers
 import java.util.*
 
 @Ignore("needs factoring, core changed, receiving incredible nullpointers...")
@@ -67,7 +69,7 @@ class BoxSharerTest {
                 createTempDir()), identity.primaryKeyPair)
         useCase = BoxFileBrowser(
                 BoxFileBrowser.KeyAndPrefix(identity),
-                volume, mock())
+                volume, mock(), BoxScheduler(Schedulers.test()))
         chatService = mock()
         sharer = BoxSharer(useCase, chatService, identity, mock(), mock())
     }

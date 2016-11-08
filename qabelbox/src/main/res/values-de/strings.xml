@@ -200,8 +200,8 @@
     <string name="cant_import_shared_file">Konnte die geteilte Datei nicht importieren</string>
     <string name="shared_file_imported">Freigegebene Datei importiert</string>
     <string name="please_wait_attach_external_file">Bitte warten. Externe Datei wird zum Account hinzugefügt</string>
-    <string name="upload_complete_notification_title">Hochladen abgeschlossen</string>
-    <string name="upload_complete_notification_msg">%s komplett hochgeladen</string>
+    <string name="upload_complete_title">Hochladen abgeschlossen</string>
+    <string name="upload_complete_msg">%s komplett hochgeladen</string>
     <string name="upload_in_progress_notification_content">Hochladen … %s</string>
     <string name="message_file_cant_upload">Datei konnte nicht hochgeladen werden</string>
     <string name="share_error_on_sending">Freigabe wurde nicht gesendet</string>
@@ -358,18 +358,17 @@ Mehr Infos finden Sie unter https://qabel.de
 
     <string name="downloading">Herunterladen %s ...</string>
     <string name="download_complete">Herunterladen abgeschlossen</string>
-    <string name="download_complete_msg">%s wurde heruntergeladen</string>
 
     <string name="settings_title_box_quota">Speicher</string>
     <string name="used_storage">%1$s von %2$s belegt</string>
     <string name="unlimited_storage">unbegrenzter Speicher, %1$s belegt</string>
-    <string name="download_complete_notification_msg">Hochladen %s abgeschlossen</string>
+    <string name="download_complete_msg">Hochladen %s abgeschlossen</string>
     <string name="currently_not_available">currently not available</string>
     <string name="permanently_unavailable">nicht mehr verfügbar</string>
     <string name="search">Suche</string>
     <string name="inbox">Eingang</string>
     <string name="qapl" translatable="false">QaPL</string>
-    <string name="upload_failed">Konnte die Datei nicht lesen</string>
+    <string name="upload_failed_title">Konnte die Datei nicht lesen</string>
     <string name="filebrowser_up">Übergeordnerter Ordner</string>
     <string name="export_complete">Export abgeschlossen</string>
     <string name="export_aborted">Export fehlgeschlagen</string>

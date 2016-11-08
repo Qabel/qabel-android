@@ -146,7 +146,6 @@
     <string name="share_text">Qabel Box</string>
     <string name="share_via">Share via</string>
     <string name="chooser_open_with">Open with</string>
-    <string name="uploading">Uploading %s …</string>
     <string name="add_new_contact">Add new contact</string>
     <string name="qrecode_scanner">QR-Code scanner</string>
     <string name="from_file">Import</string>
@@ -201,8 +200,7 @@
     <string name="cant_import_shared_file">Can\'t import shared file</string>
     <string name="shared_file_imported">Shared file imported</string>
     <string name="please_wait_attach_external_file">Please wait. Attaching external file to account</string>
-    <string name="upload_complete_notification_title">Upload complete</string>
-    <string name="upload_complete_notification_msg">%s completely uploaded</string>
+
     <string name="message_file_cant_upload">File could not be uploaded</string>
     <string name="share_error_on_sending">Share not sent</string>
     <string name="filebrowser_file_is_shared_to">Shared to</string>
@@ -216,10 +214,6 @@
     <string name="message_revoke_share">Revoking share</string>
     <string name="message_chat_message_not_sent">Message not sent</string>
     <string name="create_idenity_cant_get_prefix">Could not retrieve a prefix from the server</string>
-    <plurals name="uploadsNotificationTitle">
-        <item quantity="one">Uploading %s</item>
-        <item quantity="other">Uploads remaining: %d</item>
-    </plurals>
     <string name="hockeyapp_feedback_response_button_text"> Send a message</string>
 
     <string name="licence.header.intro">Qabel is published under the QaPL</string>
@@ -363,18 +357,18 @@ You can find more information on https://qabel.de/en
     <string name="downloading">Downloading %s …</string>
     <string name="decrypting">Decrypting file …</string>
     <string name="download_complete">Download complete</string>
-    <string name="download_complete_msg">Download %s completed</string>
+    <string name="download_complete_msg">%s completely downloaded.</string>
+    <string name="download_failed">Download failed</string>
+    <string name="download_failed_msg">Failed to download %s</string>
 
     <string name="settings_title_box_quota">Storage</string>
     <string name="used_storage">%1$s of %2$s in use </string>
     <string name="unlimited_storage">unlimited storage, %1$s in use</string>
-    <string name="download_complete_notification_msg">Downloading %s completed</string>
     <string name="currently_not_available">aktuell nicht verfügbar</string>
     <string name="permanently_unavailable">permanently unavailable</string>
     <string name="search">Search</string>
     <string name="inbox">Inbox</string>
     <string name="qapl" translatable="false">QaPL</string>
-    <string name="upload_failed">Could not open the file</string>
     <string name="filebrowser_up">Navigate up</string>
     <string name="export_complete">Export complete</string>
     <string name="export_aborted">Export failed</string>
@@ -407,5 +401,11 @@ You can find more information on https://qabel.de/en
     <string name="moments_ago">moments ago</string>
     <string name="markAsRead">Mark as read</string>
     <string name="emoji">Emojis</string>
+
     <string name="encrypting">Encrypting file …</string>
+    <string name="uploading">Uploading %s …</string>
+    <string name="upload_complete_title">Upload complete</string>
+    <string name="upload_complete_msg">%s completely uploaded</string>
+    <string name="upload_failed_title">Upload failed</string>
+    <string name="upload_failed_msg">Failed to upload %s</string>
 </resources>

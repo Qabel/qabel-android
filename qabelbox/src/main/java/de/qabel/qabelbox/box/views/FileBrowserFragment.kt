@@ -19,6 +19,8 @@ import de.qabel.qabelbox.box.adapters.FileAdapter
 import de.qabel.box.storage.dto.BoxPath
 import de.qabel.core.event.EventDispatcher
 import de.qabel.qabelbox.box.dto.BrowserEntry
+import de.qabel.qabelbox.box.dto.FileOperationState
+import de.qabel.qabelbox.box.dto.FileOperationState.Status
 import de.qabel.qabelbox.box.events.FileUploadEvent
 import de.qabel.qabelbox.box.presenters.FileBrowserPresenter
 import de.qabel.qabelbox.box.provider.BoxProvider
@@ -99,7 +101,7 @@ class FileBrowserFragment : FileBrowserView,
             presenter.onRefresh()
         }
         subscription = eventDispatcher.events(FileUploadEvent::class.java).subscribe {
-            if (it.operation.completed) {
+            if (listOf(Status.COMPLETE, Status.ERROR).contains(it.operation.status)) {
                 presenter.onRefresh()
                 backgroundRefreshDone()
             } else {
@@ -229,7 +231,7 @@ class FileBrowserFragment : FileBrowserView,
                 presenter.upload(ctx, BrowserEntry.File(filename, size, Date()), fileUri)
             }
         } catch (e: FileNotFoundException) {
-            toast(R.string.upload_failed)
+            toast(R.string.upload_failed_title)
             return
         }
     }

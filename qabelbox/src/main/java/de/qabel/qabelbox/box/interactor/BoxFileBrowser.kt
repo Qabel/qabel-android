@@ -15,6 +15,7 @@ import de.qabel.qabelbox.box.BoxScheduler
 import de.qabel.qabelbox.box.dto.BrowserEntry
 import de.qabel.qabelbox.box.dto.DownloadSource
 import de.qabel.qabelbox.box.dto.FileOperationState
+import de.qabel.qabelbox.box.dto.FileOperationState.Status
 import de.qabel.qabelbox.box.dto.UploadSource
 import de.qabel.qabelbox.box.provider.DocumentId
 import de.qabel.qabelbox.box.toEntry
@@ -86,7 +87,9 @@ class BoxFileBrowser @Inject constructor(val keyAndPrefix: KeyAndPrefix,
 
     override fun uploadWithProgress(path: BoxPath.File, source: UploadSource): Pair<FileOperationState, Observable<FileOperationState>> {
         val boxFile = source.entry
-        val operation = FileOperationState(keyAndPrefix, boxFile.name, path.parent, 0L, boxFile.size)
+        val operation = FileOperationState(keyAndPrefix, boxFile.name, path.parent).apply {
+            size = boxFile.size
+        }
         return Pair(operation, observable<FileOperationState> {
             try {
                 it.onNext(operation)
@@ -94,6 +97,11 @@ class BoxFileBrowser @Inject constructor(val keyAndPrefix: KeyAndPrefix,
                         object : ProgressListener() {
                             override fun setSize(size: Long) {
                                 operation.size = size
+                                if (operation.loadDone) {
+                                    operation.status = Status.COMPLETING
+                                } else {
+                                    operation.status = Status.LOADING
+                                }
                                 it.onNext(operation)
                             }
 
@@ -102,9 +110,10 @@ class BoxFileBrowser @Inject constructor(val keyAndPrefix: KeyAndPrefix,
                                 it.onNext(operation)
                             }
                         })
-                operation.completed = true
+                operation.status = Status.COMPLETE
                 it.onCompleted()
             } catch (e: Throwable) {
+                operation.status = Status.ERROR
                 it.onError(e)
             }
         }.subscribeOn(scheduler.rxScheduler))
@@ -112,28 +121,39 @@ class BoxFileBrowser @Inject constructor(val keyAndPrefix: KeyAndPrefix,
 
     override fun downloadWithProgress(path: BoxPath.File, targetFile: File): Pair<FileOperationState, Observable<FileOperationState>> {
         val fileEntry = query(path).toBlocking().first()
-        val operation = FileOperationState(keyAndPrefix, path.name, path.parent, 0L, 0L)
+        val operation = FileOperationState(keyAndPrefix, path.name, path.parent)
         if (fileEntry is BrowserEntry.File) {
             return Pair(operation, observable { subscriber ->
-                navigateTo(path.parent).apply {
-                    val boxFile = getFile(path.name)
-                    download(boxFile, object : ProgressListener() {
+                try {
+                    navigateTo(path.parent).apply {
+                        val boxFile = getFile(path.name)
+                        download(boxFile, object : ProgressListener() {
 
-                        override fun setProgress(progress: Long) {
-                            operation.done = progress
-                            subscriber.onNext(operation)
+                            override fun setProgress(progress: Long) {
+                                operation.done = progress
+                                if (operation.loadDone) {
+                                    operation.status = Status.COMPLETING
+                                } else {
+                                    operation.status = Status.LOADING
+                                }
+                                subscriber.onNext(operation)
+                            }
+
+                            override fun setSize(size: Long) {
+                                operation.size = size
+                                subscriber.onNext(operation)
+                            }
+
+                        }).use {
+                            it.copyTo(targetFile.outputStream())
                         }
-
-                        override fun setSize(size: Long) {
-                            operation.size = size
-                            subscriber.onNext(operation)
-                        }
-
-                    }).use {
-                        it.copyTo(targetFile.outputStream())
                     }
+                    operation.status = Status.COMPLETE
+                    subscriber.onCompleted()
+                } catch(ex: Throwable) {
+                    operation.status = Status.ERROR
+                    subscriber.onError(ex)
                 }
-                subscriber.onCompleted()
             })
         } else {
             throw FileNotFoundException("Not a file")

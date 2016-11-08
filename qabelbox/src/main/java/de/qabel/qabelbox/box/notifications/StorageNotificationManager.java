@@ -6,4 +6,6 @@ public interface StorageNotificationManager {
 
     void updateUploadNotification(FileOperationState fileOperationState);
 
+    void updateDownloadNotification(FileOperationState fileOperationState);
+
 }

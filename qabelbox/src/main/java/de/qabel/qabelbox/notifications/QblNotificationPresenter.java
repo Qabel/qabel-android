@@ -75,6 +75,9 @@ public abstract class QblNotificationPresenter<T, V extends QblNotificationInfo>
     protected String getString(int resId) {
         return getContext().getString(resId);
     }
+    protected String getString(int resId, Object... args) {
+        return getContext().getString(resId, args);
+    }
 
 
 }

@@ -6,6 +6,7 @@ import de.qabel.qabelbox.identity.interactor.ReadOnlyIdentityInteractor
 
 class ExternalFileUploadPresenter(val view: FileUploadView,
                                   val identityInteractor: ReadOnlyIdentityInteractor): FileUploadPresenter {
+    override fun confirm() { }
 
     override val defaultPath: BoxPath = BoxPath.Root / "public"
 

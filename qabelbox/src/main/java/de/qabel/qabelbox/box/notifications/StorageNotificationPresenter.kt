@@ -12,4 +12,6 @@ interface StorageNotificationPresenter {
     fun showDownloadFailedNotification(info: StorageNotificationInfo)
     fun showDecryptingDownloadNotification(info: StorageNotificationInfo)
 
+    fun cancelNotification(info: StorageNotificationInfo)
+
 }

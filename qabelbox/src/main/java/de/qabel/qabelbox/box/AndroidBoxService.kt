@@ -20,6 +20,7 @@ import org.jetbrains.anko.ctx
 import org.jetbrains.anko.longToast
 import org.jetbrains.anko.runOnUiThread
 import rx.Observable
+import rx.Subscription
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
@@ -34,7 +35,7 @@ class AndroidBoxService : Service(), QabelLog {
     @Inject
     lateinit var crashSubmitter: CrashSubmitter
 
-    private val pendingMap: MutableMap<DocumentId, Observable<FileOperationState>> = mutableMapOf()
+    private val pendingMap: MutableMap<DocumentId, Pair<Observable<FileOperationState>, Subscription>> = mutableMapOf()
 
     override fun onCreate() {
         super.onCreate()
@@ -60,8 +61,25 @@ class AndroidBoxService : Service(), QabelLog {
                     val documentId = intent.getStringExtra(KEY_DOC_ID).toDocumentId()
                     downloadFile(documentId, intent.data, startId)
                 }
+                Actions.CANCEL_OPERATION -> {
+                    val documentId = intent.getStringExtra(KEY_DOC_ID)
+                    println(documentId)
+                    println(pendingMap.keys.map { it.toString() + "\t" + it.pathString.toString() + "\t" + it.path.toString() }.joinToString())
+                    val (observable, subscription) = pendingMap.keys.find {
+                        println(it.pathString)
+                        it.path.toString() == documentId
+                    }.let { pendingMap[it]!! }
+
+                    if (!subscription.isUnsubscribed) {
+                        ctx.runOnUiThread {
+                            longToast("Cancel $documentId")
+                        }
+                        subscription.unsubscribe()
+                    }
+                }
             }
         } catch (ex: Throwable) {
+            ex.printStackTrace()
             error("Error handling file intent", ex)
             crashSubmitter.submit(ex)
         }
@@ -107,8 +125,9 @@ class AndroidBoxService : Service(), QabelLog {
                 error("Error uploading File $uri to ${documentId.path}", it)
                 eventSink.push(FileUploadEvent(operation))
                 handleOperationComplete(documentId, startId)
-            })
-            pendingMap.put(documentId, observable)
+            }).let {
+                pendingMap.put(documentId, Pair(observable, it))
+            }
         }
     }
 
@@ -123,7 +142,10 @@ class AndroidBoxService : Service(), QabelLog {
         debug("Starting download $documentId to $targetUri")
         useCase.downloadFile(documentId, targetUri).let {
             val (operation, observable) = it
-            observable.doOnCompleted {
+            observable.doOnUnsubscribe {
+                operation.status = FileOperationState.Status.CANCELED
+                notificationManager.updateDownloadNotification(operation)
+            }.doOnCompleted {
                 notificationManager.updateDownloadNotification(operation)
                 ctx.runOnUiThread {
                     longToast(ctx.getString(R.string.upload_complete_msg, operation.entryName))
@@ -137,8 +159,9 @@ class AndroidBoxService : Service(), QabelLog {
                 error("Error downloading File ${documentId.path} to $targetUri", it)
                 eventSink.push(FileDownloadEvent(operation))
                 handleOperationComplete(documentId, startId)
-            })
-            pendingMap.put(documentId, observable)
+            }).let {
+                pendingMap.put(documentId, Pair(observable, it))
+            }
         }
     }
 
@@ -150,6 +173,7 @@ class AndroidBoxService : Service(), QabelLog {
     object Actions {
         const val UPLOAD_FILE = "upload_file"
         const val DOWNLOAD_FILE = "download_file"
+        const val CANCEL_OPERATION = "cancel_operation"
     }
 
     companion object {

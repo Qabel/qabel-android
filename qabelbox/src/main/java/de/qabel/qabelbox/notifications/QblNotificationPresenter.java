@@ -13,7 +13,7 @@ import de.qabel.qabelbox.util.DefaultHashMap;
 
 public abstract class QblNotificationPresenter<T, V extends QblNotificationInfo> {
 
-    private final NotificationManager notificationManager;
+    protected final NotificationManager notificationManager;
     private final Context context;
 
     private int idSequence = 0;

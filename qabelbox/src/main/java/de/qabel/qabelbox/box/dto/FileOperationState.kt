@@ -11,11 +11,8 @@ data class FileOperationState(val ownerKey: BoxReadFileBrowser.KeyAndPrefix,
                               var status: Status = Status.PREPARE) {
 
     enum class Status {
-        PREPARE, LOADING, COMPLETING, COMPLETE, ERROR
+        PREPARE, LOADING, COMPLETING, COMPLETE, ERROR, CANCELED
     }
-
-    val progress: Int
-        get() = (100 * done / size).toInt()
 
     val loadDone: Boolean
         get() = (done == size)

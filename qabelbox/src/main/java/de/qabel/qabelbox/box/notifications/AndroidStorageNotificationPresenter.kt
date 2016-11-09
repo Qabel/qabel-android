@@ -2,12 +2,16 @@ package de.qabel.qabelbox.box.notifications
 
 
 import android.app.Notification
+import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.support.v7.app.NotificationCompat
+import de.qabel.qabelbox.QblBroadcastConstants
 import de.qabel.qabelbox.R
 import de.qabel.qabelbox.base.ACTIVE_IDENTITY
 import de.qabel.qabelbox.base.MainActivity
+import de.qabel.qabelbox.box.AndroidBoxService
+import de.qabel.qabelbox.box.provider.DocumentId
 import de.qabel.qabelbox.notifications.QblNotificationPresenter
 import org.apache.commons.io.FileUtils
 
@@ -85,6 +89,13 @@ class AndroidStorageNotificationPresenter(context: Context) :
                 getString(R.string.downloading, info.fileName), DOWNLOAD_ICON,
                 formatProgress(info)).let {
             it.setProgress(100, info.progress, false)
+            it.addAction(R.drawable.delete, context.getString(R.string.cancel),
+                    PendingIntent.getService(context, 0,
+                            Intent(AndroidBoxService.Actions.CANCEL_OPERATION, null,
+                                    context, AndroidBoxService::class.java).apply {
+                                putExtra(AndroidBoxService.KEY_DOC_ID, info.path + "/" + info.fileName)
+                            },
+                            PendingIntent.FLAG_UPDATE_CURRENT))
             showNotification(info, it, false)
         }
     }
@@ -114,5 +125,9 @@ class AndroidStorageNotificationPresenter(context: Context) :
                 getString(R.string.download_failed_msg, info.fileName)).let {
             showNotification(info, it, true)
         }
+    }
+
+    override fun cancelNotification(info: StorageNotificationInfo) {
+        notificationManager.cancel(TAG, getIdForInfo(info))
     }
 }

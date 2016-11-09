@@ -15,6 +15,7 @@ class AndroidStorageNotificationManager
             Status.COMPLETING -> presenter.showUploadProgressNotification(info)
             Status.COMPLETE -> presenter.showUploadCompletedNotification(info)
             Status.ERROR -> presenter.showUploadFailedNotification(info)
+            Status.CANCELED -> presenter.cancelNotification(info)
         }
     }
 
@@ -26,6 +27,7 @@ class AndroidStorageNotificationManager
             Status.COMPLETING -> presenter.showDecryptingDownloadNotification(info)
             Status.COMPLETE -> presenter.showDownloadCompletedNotification(info)
             Status.ERROR -> presenter.showDownloadFailedNotification(info)
+            Status.CANCELED -> presenter.cancelNotification(info)
         }
     }
 

@@ -63,6 +63,9 @@ class BoxOperationFileBrowser @Inject constructor(keyAndPrefix: BoxReadFileBrows
                     val boxFile = getFile(path.name)
                     operation.size = boxFile.size
                     subscriber.onNext(operation)
+                    if (subscriber.isUnsubscribed) {
+                        return@observable
+                    }
                     download(boxFile, object : ProgressListener() {
 
                         override fun setProgress(progress: Long) {
@@ -81,8 +84,14 @@ class BoxOperationFileBrowser @Inject constructor(keyAndPrefix: BoxReadFileBrows
                         }
 
                     }).use {
+                        if (subscriber.isUnsubscribed) {
+                            return@observable
+                        }
                         it.copyTo(targetStream)
                     }
+                }
+                if (subscriber.isUnsubscribed) {
+                    return@observable
                 }
                 operation.status = FileOperationState.Status.COMPLETE
                 subscriber.onCompleted()
@@ -90,7 +99,8 @@ class BoxOperationFileBrowser @Inject constructor(keyAndPrefix: BoxReadFileBrows
                 operation.status = FileOperationState.Status.ERROR
                 subscriber.onError(ex)
             }
-        }.subscribeOn(scheduler.rxScheduler))
+        }.doOnUnsubscribe { operation.status = FileOperationState.Status.CANCELED }
+                .subscribeOn(scheduler.rxScheduler))
     }
 
     override fun delete(path: BoxPath): Observable<Unit> = observable<Unit> {

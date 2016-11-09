@@ -63,14 +63,13 @@ class AndroidBoxService : Service(), QabelLog {
                 }
                 Actions.CANCEL_OPERATION -> {
                     val documentId = intent.getStringExtra(KEY_DOC_ID)
-                    println(documentId)
-                    println(pendingMap.keys.map { it.toString() + "\t" + it.pathString.toString() + "\t" + it.path.toString() }.joinToString())
+                    //TODO Define schema
                     val (observable, subscription) = pendingMap.keys.find {
-                        println(it.pathString)
                         it.path.toString() == documentId
                     }.let { pendingMap[it]!! }
 
                     if (!subscription.isUnsubscribed) {
+                        debug("Cancelling operation for $documentId")
                         ctx.runOnUiThread {
                             longToast("Cancel $documentId")
                         }
@@ -112,11 +111,11 @@ class AndroidBoxService : Service(), QabelLog {
         useCase.uploadFile(uri, documentId).let {
             val (operation, observable) = it
             observable.doOnCompleted {
-                notificationManager.updateUploadNotification(operation)
                 ctx.runOnUiThread {
                     longToast(ctx.getString(R.string.upload_complete_msg, operation.entryName))
                 }
                 eventSink.push(FileUploadEvent(operation))
+                notificationManager.updateUploadNotification(operation)
                 handleOperationComplete(documentId, startId)
             }.sample(150L, TimeUnit.MILLISECONDS).subscribe({
                 notificationManager.updateUploadNotification(it)
@@ -135,6 +134,7 @@ class AndroidBoxService : Service(), QabelLog {
         if (isPendingOperation(documentId)) {
             debug("DocumentId is in progress $documentId")
             ctx.runOnUiThread {
+                //TODO Add own label
                 longToast(ctx.getString(R.string.hockeyapp_download_failed_dialog_title))
             }
             return
@@ -142,27 +142,40 @@ class AndroidBoxService : Service(), QabelLog {
         debug("Starting download $documentId to $targetUri")
         useCase.downloadFile(documentId, targetUri).let {
             val (operation, observable) = it
-            observable.doOnUnsubscribe {
-                operation.status = FileOperationState.Status.CANCELED
-                notificationManager.updateDownloadNotification(operation)
-            }.doOnCompleted {
-                notificationManager.updateDownloadNotification(operation)
+            observable.doOnCompleted {
                 ctx.runOnUiThread {
                     longToast(ctx.getString(R.string.upload_complete_msg, operation.entryName))
                 }
-                eventSink.push(FileDownloadEvent(operation))
+                notifyForDownload(operation)
                 handleOperationComplete(documentId, startId)
-            }.sample(150L, TimeUnit.MILLISECONDS).subscribe({
-                notificationManager.updateDownloadNotification(it)
-                eventSink.push(FileDownloadEvent(it))
-            }, {
-                error("Error downloading File ${documentId.path} to $targetUri", it)
-                eventSink.push(FileDownloadEvent(operation))
-                handleOperationComplete(documentId, startId)
-            }).let {
-                pendingMap.put(documentId, Pair(observable, it))
-            }
+            }.sample(250L, TimeUnit.MILLISECONDS)
+                    .doOnUnsubscribe {
+                        //TODO Called onComplete too
+                        debug("Download unsubscribed ${documentId.path} to $targetUri", it)
+                        operation.status = FileOperationState.Status.CANCELED
+                        notifyForDownload(operation)
+                        handleOperationComplete(documentId, startId)
+                    }
+                    .subscribe({ notifyForDownload(it) }, {
+                        if (it is BoxOperationInterrupt) {
+                            debug("Download canceled ${documentId.path} to $targetUri", it)
+                            operation.status = FileOperationState.Status.CANCELED
+                        } else {
+                            error("Error downloading File ${documentId.path} to $targetUri", it)
+                            operation.status = FileOperationState.Status.ERROR
+                        }
+                        notifyForDownload(operation)
+                        handleOperationComplete(documentId, startId)
+                    })
+                    .let {
+                        pendingMap.put(documentId, Pair(observable, it))
+                    }
         }
+    }
+
+    private fun notifyForDownload(operation: FileOperationState) {
+        notificationManager.updateDownloadNotification(operation)
+        eventSink.push(FileDownloadEvent(operation))
     }
 
     override fun onBind(intent: Intent?): IBinder? {

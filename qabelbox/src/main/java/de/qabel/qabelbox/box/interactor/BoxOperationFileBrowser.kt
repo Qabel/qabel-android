@@ -6,10 +6,12 @@ import de.qabel.box.storage.dto.BoxPath
 import de.qabel.box.storage.exceptions.QblStorageException
 import de.qabel.box.storage.exceptions.QblStorageNotFound
 import de.qabel.core.repository.ContactRepository
+import de.qabel.qabelbox.box.BoxOperationInterrupt
 import de.qabel.qabelbox.box.BoxScheduler
 import de.qabel.qabelbox.box.dto.FileOperationState
 import de.qabel.qabelbox.box.dto.UploadSource
 import rx.Observable
+import rx.Subscriber
 import rx.lang.kotlin.observable
 import java.io.OutputStream
 import javax.inject.Inject
@@ -19,6 +21,13 @@ class BoxOperationFileBrowser @Inject constructor(keyAndPrefix: BoxReadFileBrows
                                                   contactRepo: ContactRepository,
                                                   scheduler: BoxScheduler) :
         BoxReadFileBrowser(keyAndPrefix, volumeNavigator, contactRepo, scheduler), OperationFileBrowser {
+
+    private fun <T> Subscriber<T>.interruptIfUnsubscribed() {
+        if (isUnsubscribed) {
+            debug("Operation unsubscribed. Throw BoxOperationInterrupt.")
+            throw BoxOperationInterrupt()
+        }
+    }
 
     override fun upload(path: BoxPath.File, source: UploadSource): Pair<FileOperationState, Observable<FileOperationState>> {
         val boxFile = source.entry
@@ -58,17 +67,20 @@ class BoxOperationFileBrowser @Inject constructor(keyAndPrefix: BoxReadFileBrows
         val operation = FileOperationState(keyAndPrefix, path.name, path.parent)
         return Pair(operation, observable<FileOperationState> { subscriber ->
             try {
+                subscriber.interruptIfUnsubscribed()
                 subscriber.onNext(operation)
                 volumeNavigator.navigateTo(path.parent).apply {
                     val boxFile = getFile(path.name)
                     operation.size = boxFile.size
+
+                    subscriber.interruptIfUnsubscribed()
                     subscriber.onNext(operation)
-                    if (subscriber.isUnsubscribed) {
-                        return@observable
-                    }
+
                     download(boxFile, object : ProgressListener() {
 
                         override fun setProgress(progress: Long) {
+                            //TODO NOT WORKING THREADSSSS
+                        //    subscriber.interruptIfUnsubscribed()
                             operation.done = progress
                             if (operation.loadDone) {
                                 operation.status = FileOperationState.Status.COMPLETING
@@ -79,20 +91,17 @@ class BoxOperationFileBrowser @Inject constructor(keyAndPrefix: BoxReadFileBrows
                         }
 
                         override fun setSize(size: Long) {
+                          //  subscriber.interruptIfUnsubscribed()
                             operation.size = size
                             subscriber.onNext(operation)
                         }
 
                     }).use {
-                        if (subscriber.isUnsubscribed) {
-                            return@observable
-                        }
+                        subscriber.interruptIfUnsubscribed()
                         it.copyTo(targetStream)
                     }
                 }
-                if (subscriber.isUnsubscribed) {
-                    return@observable
-                }
+                subscriber.interruptIfUnsubscribed()
                 operation.status = FileOperationState.Status.COMPLETE
                 subscriber.onCompleted()
             } catch(ex: Throwable) {

@@ -7,5 +7,7 @@ interface BoxServiceStarter {
 
     fun startUpload(documentId: DocumentId, source: Uri)
     fun startDownload(documentId: DocumentId, target: Uri)
+    fun startCreateFolder(documentId: DocumentId)
+    fun startDeleteFolder(documentId: DocumentId)
 
 }

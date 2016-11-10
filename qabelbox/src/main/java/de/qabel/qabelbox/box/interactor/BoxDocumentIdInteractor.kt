@@ -3,6 +3,7 @@ package de.qabel.qabelbox.box.interactor
 import android.content.Context
 import android.net.Uri
 import de.qabel.box.storage.dto.BoxPath
+import de.qabel.box.storage.exceptions.QblStorageException
 import de.qabel.core.logging.QabelLog
 import de.qabel.qabelbox.box.dto.BrowserEntry
 import de.qabel.qabelbox.box.dto.FileOperationState
@@ -62,6 +63,15 @@ open class BoxDocumentIdInteractor @Inject constructor(val context: Context,
             = volumeManager.operationFileBrowser(documentId.copy(path = BoxPath.Root).toString()).apply {
         debug("Navigated to document id $documentId")
     }
+
+    override fun deletePath(documentId: DocumentId) =
+            browserByDocumentId(documentId).delete(documentId.path)
+
+    override fun createFolder(documentId: DocumentId) =
+            when (documentId.path) {
+                is BoxPath.FolderLike -> browserByDocumentId(documentId).createFolder(documentId.path)
+                else -> throw QblStorageException("Not a folder")
+            }
 
 }
 

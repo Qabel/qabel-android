@@ -36,16 +36,18 @@ class MainFileBrowserPresenter @Inject constructor(
         }
     }
 
-    override fun delete(file: File) {
-        view.refreshStart()
-/*    useCase.delete(path * file.name).subscribe({
-       onRefresh()
-   }, { view.showError(it) })*/
+    override fun delete(file: File) = deleteEntry(file)
+
+    private fun deleteEntry(entry: BrowserEntry) {
+        withDocumentId(entry) {
+            boxServiceStarter.startDeleteFolder(it)
+        }
     }
 
 
-    private fun withDocumentId(file: File, callback: (DocumentId) -> Unit) {
-        useCase.asDocumentId(path * file.name).subscribe {
+    private fun withDocumentId(entry: BrowserEntry, callback: (DocumentId) -> Unit) {
+        val target = if (entry is File) path * entry.name else path / entry.name
+        useCase.asDocumentId(target).subscribe {
             callback(it)
         }
     }
@@ -60,18 +62,12 @@ class MainFileBrowserPresenter @Inject constructor(
         boxServiceStarter.startDownload(exportId, uri)
     }
 
-    override fun deleteFolder(folder: Folder) {
-        view.refreshStart()
-        // useCase.delete(path / folder.name).subscribe({
-        //      onRefresh()
-        // }, { view.showError(it) })
-    }
+    override fun deleteFolder(folder: Folder) = deleteEntry(folder)
 
     override fun createFolder(folder: Folder) {
-        view.refreshStart()
-        //  useCase.createFolder(path / folder.name).subscribe({
-        //       onRefresh()
-        //  }, { view.showError(it) })
+        useCase.asDocumentId(path / folder.name).subscribe {
+            boxServiceStarter.startCreateFolder(it)
+        }
     }
 
     override fun onClick(entry: BrowserEntry) {

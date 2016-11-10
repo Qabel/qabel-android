@@ -8,19 +8,20 @@ import android.support.v7.widget.LinearLayoutManager
 import android.text.InputType
 import android.view.*
 import com.cocosw.bottomsheet.BottomSheet
+import de.qabel.box.storage.dto.BoxPath
 import de.qabel.box.storage.exceptions.QblStorageException
 import de.qabel.core.config.Identity
+import de.qabel.core.event.EventDispatcher
 import de.qabel.core.repository.ContactRepository
 import de.qabel.core.ui.displayName
 import de.qabel.qabelbox.BuildConfig
 import de.qabel.qabelbox.R
 import de.qabel.qabelbox.base.BaseFragment
 import de.qabel.qabelbox.box.adapters.FileAdapter
-import de.qabel.box.storage.dto.BoxPath
-import de.qabel.core.event.EventDispatcher
 import de.qabel.qabelbox.box.dto.BrowserEntry
-import de.qabel.qabelbox.box.dto.FileOperationState
 import de.qabel.qabelbox.box.dto.FileOperationState.Status
+import de.qabel.qabelbox.box.events.BoxBackgroundEvent
+import de.qabel.qabelbox.box.events.BoxPathEvent
 import de.qabel.qabelbox.box.events.FileUploadEvent
 import de.qabel.qabelbox.box.presenters.FileBrowserPresenter
 import de.qabel.qabelbox.box.provider.BoxProvider
@@ -28,7 +29,6 @@ import de.qabel.qabelbox.box.provider.DocumentId
 import de.qabel.qabelbox.box.provider.toDocumentId
 import de.qabel.qabelbox.box.queryNameAndSize
 import de.qabel.qabelbox.dagger.components.ActiveIdentityComponent
-import de.qabel.qabelbox.dagger.modules.FileBrowserModule
 import de.qabel.qabelbox.dagger.modules.FileBrowserViewModule
 import de.qabel.qabelbox.ui.extensions.showEnterTextDialog
 import de.qabel.qabelbox.viewer.ImageViewerActivity
@@ -36,7 +36,6 @@ import kotlinx.android.synthetic.main.fragment_files.*
 import org.jetbrains.anko.*
 import rx.Subscription
 import java.io.FileNotFoundException
-import java.io.IOException
 import java.net.URLConnection
 import java.util.*
 import javax.inject.Inject
@@ -101,12 +100,24 @@ class FileBrowserFragment : FileBrowserView, FileListingView,
         if (!(mActivity?.TEST ?: false)) {
             presenter.onRefresh()
         }
-        subscription = eventDispatcher.events(FileUploadEvent::class.java).subscribe {
-            if (listOf(Status.COMPLETE, Status.ERROR).contains(it.operation.status)) {
-                presenter.onRefresh()
-                backgroundRefreshDone()
-            } else {
-                backgroundRefreshStart()
+        subscription = eventDispatcher.events(BoxBackgroundEvent::class.java).subscribe {
+            when (it) {
+                is FileUploadEvent -> {
+                    if (listOf(Status.COMPLETE, Status.ERROR).contains(it.operation.status)) {
+                        presenter.onRefresh()
+                        backgroundRefreshDone()
+                    } else {
+                        backgroundRefreshStart()
+                    }
+                }
+                is BoxPathEvent -> {
+                    if (it.complete) {
+                        presenter.onRefresh()
+                        backgroundRefreshDone()
+                    } else {
+                        backgroundRefreshStart()
+                    }
+                }
             }
         }
     }

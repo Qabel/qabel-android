@@ -89,13 +89,6 @@ class AndroidStorageNotificationPresenter(context: Context) :
                 getString(R.string.downloading, info.fileName), DOWNLOAD_ICON,
                 formatProgress(info)).let {
             it.setProgress(100, info.progress, false)
-            it.addAction(R.drawable.delete, context.getString(R.string.cancel),
-                    PendingIntent.getService(context, 0,
-                            Intent(AndroidBoxService.Actions.CANCEL_OPERATION, null,
-                                    context, AndroidBoxService::class.java).apply {
-                                putExtra(AndroidBoxService.KEY_DOC_ID, info.path + "/" + info.fileName)
-                            },
-                            PendingIntent.FLAG_UPDATE_CURRENT))
             showNotification(info, it, false)
         }
     }

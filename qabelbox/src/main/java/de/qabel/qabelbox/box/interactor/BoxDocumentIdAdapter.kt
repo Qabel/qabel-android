@@ -31,14 +31,9 @@ class BoxDocumentIdAdapter @Inject constructor(context: Context,
         return browserByDocumentId(documentId).query(documentId.path)
     }
 
-    override fun downloadFile(documentId: DocumentId, targetFile: File): Pair<FileOperationState, Observable<FileOperationState>> {
-        val outputStream = targetFile.outputStream()
-        return downloadFile(documentId, targetFile.outputStream()).apply {
-            second.doOnCompleted {
-                outputStream.close()
-            }
-        }
-    }
+    override fun downloadFile(documentId: DocumentId, targetFile: File): Pair<FileOperationState, Observable<FileOperationState>> =
+            downloadFile(documentId, targetFile.outputStream())
+
 
     override fun availableRoots(): List<VolumeRoot> = volumeManager.roots
 

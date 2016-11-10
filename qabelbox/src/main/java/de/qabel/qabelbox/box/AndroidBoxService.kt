@@ -9,6 +9,7 @@ import de.qabel.core.logging.QabelLog
 import de.qabel.qabelbox.QabelBoxApplication
 import de.qabel.qabelbox.R
 import de.qabel.qabelbox.box.dto.FileOperationState
+import de.qabel.qabelbox.box.events.BoxPathEvent
 import de.qabel.qabelbox.box.events.FileDownloadEvent
 import de.qabel.qabelbox.box.events.FileUploadEvent
 import de.qabel.qabelbox.box.interactor.DocumentIdInteractor
@@ -35,7 +36,7 @@ class AndroidBoxService : Service(), QabelLog {
     @Inject
     lateinit var crashSubmitter: CrashSubmitter
 
-    private val pendingMap: MutableMap<DocumentId, Pair<Observable<FileOperationState>, Subscription>> = mutableMapOf()
+    private val pendingMap: MutableMap<DocumentId, Pair<Observable<*>, Subscription>> = mutableMapOf()
 
     override fun onCreate() {
         super.onCreate()
@@ -61,26 +62,54 @@ class AndroidBoxService : Service(), QabelLog {
                     val documentId = intent.getStringExtra(KEY_DOC_ID).toDocumentId()
                     downloadFile(documentId, intent.data, startId)
                 }
-                Actions.CANCEL_OPERATION -> {
-                    val documentId = intent.getStringExtra(KEY_DOC_ID)
-                    //TODO Define schema
-                    val (observable, subscription) = pendingMap.keys.find {
-                        it.path.toString() == documentId
-                    }.let { pendingMap[it]!! }
-
-                    if (!subscription.isUnsubscribed) {
-                        debug("Cancelling operation for $documentId")
-                        ctx.runOnUiThread {
-                            longToast("Cancel $documentId")
-                        }
-                        subscription.unsubscribe()
-                    }
+                Actions.CREATE_FOLDER -> {
+                    val documentId = intent.getStringExtra(KEY_DOC_ID).toDocumentId()
+                    createFolder(documentId, startId)
+                }
+                Actions.DELETE -> {
+                    val documentId = intent.getStringExtra(KEY_DOC_ID).toDocumentId()
+                    deletePath(documentId, startId)
                 }
             }
         } catch (ex: Throwable) {
-            ex.printStackTrace()
             error("Error handling file intent", ex)
             crashSubmitter.submit(ex)
+        }
+    }
+
+    private fun createFolder(documentId: DocumentId, startId: Int) {
+        val observable = useCase.createFolder(documentId)
+        val path = documentId.path.parent
+        observable.doOnCompleted {
+            debug("Folder $documentId created!")
+            eventSink.push(BoxPathEvent(path, true))
+            handleOperationComplete(documentId, startId)
+        }.subscribe({
+            eventSink.push(BoxPathEvent(path, false))
+        }, {
+            error("Error creating folder $documentId", it)
+            eventSink.push(BoxPathEvent(path, true))
+            handleOperationComplete(documentId, startId)
+        }).let {
+            pendingMap.put(documentId, Pair(observable, it))
+        }
+    }
+
+    private fun deletePath(documentId: DocumentId, startId: Int) {
+        val observable = useCase.deletePath(documentId)
+        val path = documentId.path.parent
+        observable.doOnCompleted {
+            debug("Path $documentId deleted")
+            eventSink.push(BoxPathEvent(path, true))
+            handleOperationComplete(documentId, startId)
+        }.subscribe({
+            eventSink.push(BoxPathEvent(path, false))
+        }, {
+            error("Error deleting path $documentId", it)
+            eventSink.push(BoxPathEvent(path, true))
+            handleOperationComplete(documentId, startId)
+        }).let {
+            pendingMap.put(documentId, Pair(observable, it))
         }
     }
 
@@ -114,15 +143,13 @@ class AndroidBoxService : Service(), QabelLog {
                 ctx.runOnUiThread {
                     longToast(ctx.getString(R.string.upload_complete_msg, operation.entryName))
                 }
-                eventSink.push(FileUploadEvent(operation))
-                notificationManager.updateUploadNotification(operation)
+                notifyForUpload(operation)
                 handleOperationComplete(documentId, startId)
-            }.sample(150L, TimeUnit.MILLISECONDS).subscribe({
-                notificationManager.updateUploadNotification(it)
-                eventSink.push(FileUploadEvent(it))
+            }.sample(200L, TimeUnit.MILLISECONDS).subscribe({
+                notifyForUpload(operation)
             }, {
                 error("Error uploading File $uri to ${documentId.path}", it)
-                eventSink.push(FileUploadEvent(operation))
+                notifyForUpload(operation)
                 handleOperationComplete(documentId, startId)
             }).let {
                 pendingMap.put(documentId, Pair(observable, it))
@@ -148,28 +175,15 @@ class AndroidBoxService : Service(), QabelLog {
                 }
                 notifyForDownload(operation)
                 handleOperationComplete(documentId, startId)
-            }.sample(250L, TimeUnit.MILLISECONDS)
-                    .doOnUnsubscribe {
-                        //TODO Called onComplete too
-                        debug("Download unsubscribed ${documentId.path} to $targetUri", it)
-                        operation.status = FileOperationState.Status.CANCELED
-                        notifyForDownload(operation)
-                        handleOperationComplete(documentId, startId)
-                    }
+            }.sample(200L, TimeUnit.MILLISECONDS)
                     .subscribe({ notifyForDownload(it) }, {
-                        if (it is BoxOperationInterrupt) {
-                            debug("Download canceled ${documentId.path} to $targetUri", it)
-                            operation.status = FileOperationState.Status.CANCELED
-                        } else {
-                            error("Error downloading File ${documentId.path} to $targetUri", it)
-                            operation.status = FileOperationState.Status.ERROR
-                        }
+                        error("Error downloading File ${documentId.path} to $targetUri", it)
+                        operation.status = FileOperationState.Status.ERROR
                         notifyForDownload(operation)
                         handleOperationComplete(documentId, startId)
-                    })
-                    .let {
-                        pendingMap.put(documentId, Pair(observable, it))
-                    }
+                    }).let {
+                pendingMap.put(documentId, Pair(observable, it))
+            }
         }
     }
 
@@ -178,15 +192,20 @@ class AndroidBoxService : Service(), QabelLog {
         eventSink.push(FileDownloadEvent(operation))
     }
 
+    private fun notifyForUpload(operation: FileOperationState) {
+        notificationManager.updateUploadNotification(operation)
+        eventSink.push(FileUploadEvent(operation))
+    }
+
     override fun onBind(intent: Intent?): IBinder? {
-        //TODO can be nice to bind the service to activities and track progress
         return null
     }
 
     object Actions {
         const val UPLOAD_FILE = "upload_file"
         const val DOWNLOAD_FILE = "download_file"
-        const val CANCEL_OPERATION = "cancel_operation"
+        const val DELETE = "delete"
+        const val CREATE_FOLDER = "create_folder"
     }
 
     companion object {

@@ -107,7 +107,7 @@ class BoxDocumentIdAdapterTest {
             }))
         }
 
-        val (resultOperation, observable) = useCase.downloadFile(docId.copy(path = file), mock<File>())
+        val (resultOperation, observable) = useCase.downloadFile(docId.copy(path = file), createTempFile())
         observable.waitFor()
 
         resultOperation.entryName isEqual (file.name)

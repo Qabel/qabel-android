@@ -22,4 +22,19 @@ class AndroidBoxServiceStarter @Inject constructor(private val context: Context)
             putExtra(AndroidBoxService.KEY_DOC_ID, documentId.toString())
         })
     }
+
+    override fun startCreateFolder(documentId: DocumentId) {
+        context.startService(Intent(AndroidBoxService.Actions.CREATE_FOLDER, null,
+                context, AndroidBoxService::class.java).apply {
+            putExtra(AndroidBoxService.KEY_DOC_ID, documentId.toString())
+        })
+    }
+
+    override fun startDeleteFolder(documentId: DocumentId) {
+        context.startService(Intent(AndroidBoxService.Actions.DELETE, null,
+                context, AndroidBoxService::class.java).apply {
+            putExtra(AndroidBoxService.KEY_DOC_ID, documentId.toString())
+        })
+    }
+
 }

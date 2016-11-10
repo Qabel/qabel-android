@@ -21,7 +21,6 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricGradleTestRunner
 import org.robolectric.annotation.Config
 import rx.schedulers.Schedulers
-import java.io.File
 import java.io.InputStream
 import java.util.*
 
@@ -61,7 +60,7 @@ class BoxOperationFileBrowserTest() {
         val file = createTempFile()
 
         useCase.upload(path, samplePayload.toUploadSource(sample)).second.waitFor()
-        useCase.download(path, file).second.waitFor().apply {
+        useCase.download(path, file.outputStream()).second.waitFor().apply {
             file.readText() isEqual samplePayload
         }
     }
@@ -80,7 +79,7 @@ class BoxOperationFileBrowserTest() {
         val file = createTempFile()
         useCase.upload(path, samplePayload.toUploadSource(sample)).second.waitFor()
         useCase.query(path.parent) evalsTo BrowserEntry.Folder(path.parent.name)
-        useCase.download(path, file).second.waitFor().apply {
+        useCase.download(path, file.outputStream()).second.waitFor().apply {
             file.readText() isEqual samplePayload
         }
     }
@@ -122,7 +121,7 @@ class BoxOperationFileBrowserTest() {
         val e = QblStorageException("test")
         whenever(nav.getFile(any())).thenThrow(e)
 
-        useCase.download(BoxPath.Root * "test", createTempFile()).second errorsWith e
+        useCase.download(BoxPath.Root * "test", createTempFile().outputStream()).second errorsWith e
     }
 
     @Test

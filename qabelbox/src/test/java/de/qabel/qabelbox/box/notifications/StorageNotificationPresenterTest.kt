@@ -6,6 +6,7 @@ import com.natpryce.hamkrest.equalTo
 import com.natpryce.hamkrest.hasSize
 import com.natpryce.hamkrest.should.shouldMatch
 import de.qabel.qabelbox.*
+import de.qabel.qabelbox.base.ACTIVE_IDENTITY
 import de.qabel.qabelbox.base.MainActivity
 import org.junit.Assert.assertEquals
 import org.junit.Before
@@ -49,7 +50,7 @@ class StorageNotificationPresenterTest : UITest {
         val path = "/"
         val info = StorageNotificationInfo("test", path, ownerKey, 0L, 0L, 0L)
         val intent = presenter.createFileBrowserIntent(info)
-        assertEquals(intent.getStringExtra(MainActivity.ACTIVE_IDENTITY), ownerKey)
+        assertEquals(intent.getStringExtra(ACTIVE_IDENTITY), ownerKey)
         assertEquals(intent.getBooleanExtra(MainActivity.START_FILES_FRAGMENT, false), true)
         assertEquals(intent.getStringExtra(MainActivity.START_FILES_FRAGMENT_PATH), path)
         assertEquals(MainActivity::class.java.name, intent.component.className)

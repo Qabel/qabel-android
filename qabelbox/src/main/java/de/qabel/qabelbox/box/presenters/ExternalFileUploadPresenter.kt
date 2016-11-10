@@ -3,9 +3,10 @@ package de.qabel.qabelbox.box.presenters
 import de.qabel.box.storage.dto.BoxPath
 import de.qabel.qabelbox.box.views.FileUploadView
 import de.qabel.qabelbox.identity.interactor.ReadOnlyIdentityInteractor
+import javax.inject.Inject
 
-class ExternalFileUploadPresenter(val view: FileUploadView,
-                                  val identityInteractor: ReadOnlyIdentityInteractor): FileUploadPresenter {
+class ExternalFileUploadPresenter @Inject constructor(val view: FileUploadView,
+                                                      val identityInteractor: ReadOnlyIdentityInteractor): FileUploadPresenter {
     override fun confirm() { }
 
     override val defaultPath: BoxPath = BoxPath.Root / "public"

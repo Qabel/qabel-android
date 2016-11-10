@@ -2,9 +2,12 @@ package de.qabel.qabelbox.dagger.components;
 
 import android.support.v7.app.AppCompatActivity;
 
+import org.jetbrains.annotations.NotNull;
+
 import dagger.Subcomponent;
 import de.qabel.qabelbox.dagger.modules.ActiveIdentityModule;
 import de.qabel.qabelbox.dagger.modules.ActivityModule;
+import de.qabel.qabelbox.dagger.modules.ExternalFileUploadModule;
 import de.qabel.qabelbox.dagger.scopes.ActivityScope;
 import de.qabel.qabelbox.settings.dagger.SettingsActivityComponent;
 import de.qabel.qabelbox.settings.dagger.SettingsActivityModule;
@@ -19,6 +22,7 @@ public interface ActivityComponent {
 
     AppCompatActivity activity();
 
+     ExternalFileUploadComponent plus(ExternalFileUploadModule externalFileUploadModule);
 }
 
 

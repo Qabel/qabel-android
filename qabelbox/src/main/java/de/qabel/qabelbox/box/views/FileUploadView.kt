@@ -6,9 +6,9 @@ import de.qabel.qabelbox.box.provider.DocumentId
 
 interface FileUploadView {
 
-    val identity: FileUploadPresenter.IdentitySelection
-    val path: BoxPath
-    val filename: String
+    var identity: FileUploadPresenter.IdentitySelection
+    var path: BoxPath
+    var filename: String
 
     fun startUpload(documentId: DocumentId)
 

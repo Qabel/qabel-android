@@ -119,7 +119,6 @@ class StorageNotificationPresenterTest : UITest {
         notifications shouldMatch hasSize(equalTo(2))
 
         assert(notifications.all {
-            println(it.contentTitle)
             it.contentTitle == getString(R.string.uploading, TEST_FILE_NAME)
                     || it.contentTitle == getString(R.string.upload_failed_title)
         })

@@ -182,6 +182,8 @@ open class BoxProvider : DocumentsProvider(), AnkoLogger {
         }
     }
 
+    protected open fun createTmpFile(): File = File.createTempFile("boxOpen", "tmp", context.externalCacheDir)
+
     @Throws(FileNotFoundException::class)
     override fun openDocument(documentId: String,
                               mode: String, signal: CancellationSignal?): ParcelFileDescriptor {
@@ -190,7 +192,7 @@ open class BoxProvider : DocumentsProvider(), AnkoLogger {
             val isWrite = mode.indexOf('w') != -1
             val isRead = mode.indexOf('r') != -1
             val isShare = documentId.startsWith(ShareId.PREFIX)
-            val file = File.createTempFile("boxOpen", "tmp", context.externalCacheDir)
+            val file = createTmpFile()
             val parsedMode = ParcelFileDescriptor.parseMode(mode)
 
             if (isShare) {
@@ -266,6 +268,7 @@ open class BoxProvider : DocumentsProvider(), AnkoLogger {
             }
             return ParcelFileDescriptor.open(file, parsedMode)
         } catch (ex: Throwable) {
+            ex.printStackTrace()
             error("Error open document $documentId", ex)
             throw FileNotFoundException("Cannot load file $documentId")
         }

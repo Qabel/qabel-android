@@ -40,7 +40,7 @@ class MainFileBrowserPresenter @Inject constructor(
 
     private fun deleteEntry(entry: BrowserEntry) {
         withDocumentId(entry) {
-            boxServiceStarter.startDeleteFolder(it)
+            boxServiceStarter.startDelete(it)
         }
     }
 

@@ -5,12 +5,13 @@ import org.junit.Test;
 
 import java.io.FileNotFoundException;
 
+import de.qabel.box.storage.dto.BoxPath;
 import de.qabel.qabelbox.box.provider.BoxProvider;
 import de.qabel.qabelbox.box.provider.DocumentId;
 import de.qabel.qabelbox.box.provider.DocumentIdParser;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.core.Is.is;
 
 
@@ -116,6 +117,13 @@ public class DocumentIdParserTest {
     @Test
     public void testDocumentId() throws Exception {
         assertThat(dottedId, is(documentIdParser.parse(dottedId).toString()));
+    }
+
+    @Test
+    public void testParsingRecognizesRoot() throws Exception {
+        String docId = "39e695c66a91b9e5e53cc04f754716cde6ad1fcd2cd3aa75f249841c15aa8f07::::test::::/folder/";
+        assertThat((BoxPath.Folder) documentIdParser.parse(docId).getPath(),
+                equalTo(BoxPath.Root.INSTANCE.div("folder")));
     }
 }
 

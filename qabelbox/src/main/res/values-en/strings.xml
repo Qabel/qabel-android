@@ -357,7 +357,7 @@ You can find more information on https://qabel.de/en
     <string name="new_messages">%d new messages</string>
 
 
-    <string name="downloading">Downloading %s ...</string>
+    <string name="downloading">Downloading %s …</string>
     <string name="download_complete">Download complete</string>
     <string name="download_complete_msg">Download %s completed</string>
 
@@ -402,5 +402,6 @@ You can find more information on https://qabel.de/en
     <string name="moments_ago">moments ago</string>
     <string name="markAsRead">Mark as read</string>
     <string name="emoji">Emojis</string>
-    <string name="decrypting">Entschlüsseln %s ...</string>
+    <string name="decrypting">Decrypting file …</string>
+    <string name="upload_failed_msg">Failed to upload %s</string>
 </resources>

@@ -1,6 +1,9 @@
 package de.qabel.qabelbox.box.backends
 
-import de.qabel.box.storage.*
+import de.qabel.box.storage.StorageDownload
+import de.qabel.box.storage.StorageReadBackend
+import de.qabel.box.storage.StorageWriteBackend
+import de.qabel.box.storage.UnmodifiedException
 import de.qabel.box.storage.exceptions.QblStorageNotFound
 import java.io.ByteArrayInputStream
 import java.io.InputStream
@@ -34,7 +37,13 @@ class MockStorageBackend : StorageReadBackend, StorageWriteBackend {
 
     override fun upload(name: String, content: InputStream, eTag: String?): StorageWriteBackend.UploadResult {
         val time = Date()
-        storage[name] = Pair(time.toString(), content.readBytes())
+        val result = mutableListOf<Byte>().apply {
+            val it = content.buffered().iterator()
+            while (it.hasNext()) {
+                add(it.next())
+            }
+        }
+        storage[name] = Pair(time.toString(), result.toByteArray())
         return StorageWriteBackend.UploadResult(time, content.toString())
     }
 

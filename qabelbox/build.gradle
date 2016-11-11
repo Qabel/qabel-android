@@ -168,7 +168,7 @@ tasks.withType(Test) {
     systemProperty 'java.library.path', 'libs/'
 }
 
-def coreVersion = '0.26.2'
+def coreVersion = '0.26.3'
 def repo = 'Qabel'
 dependencies {
     sourceCompatibility = JavaVersion.VERSION_1_7
@@ -302,7 +302,7 @@ dependencies {
     androidTestCompile 'com.android.support.test.uiautomator:uiautomator-v18:2.1.2'
     //set dep to get screenshot functons
     androidTestCompile 'com.squareup.spoon:spoon-client:1.5.3'
-    compile 'com.squareup.okhttp3:okhttp:3.2.0'
+    compile 'com.squareup.okhttp3:okhttp:3.4.2'
     //download and handle images easy
     compile 'com.squareup.picasso:picasso:2.5.2'
     compile 'com.jakewharton:butterknife:8.0.1'

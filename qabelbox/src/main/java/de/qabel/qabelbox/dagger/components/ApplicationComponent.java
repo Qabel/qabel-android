@@ -2,12 +2,15 @@ package de.qabel.qabelbox.dagger.components;
 
 import android.content.Context;
 
+import org.jetbrains.annotations.NotNull;
+
 import javax.inject.Singleton;
 
 import dagger.Component;
 import de.qabel.core.repository.ContactRepository;
 import de.qabel.core.repository.IdentityRepository;
 import de.qabel.qabelbox.base.CrashReportingActivity;
+import de.qabel.qabelbox.box.AndroidBoxService;
 import de.qabel.qabelbox.chat.services.AndroidChatService;
 import de.qabel.qabelbox.chat.services.QabelFirebaseMessagingService;
 import de.qabel.qabelbox.dagger.modules.AccountModule;
@@ -54,4 +57,7 @@ public interface ApplicationComponent {
     void inject(QabelFirebaseMessagingService qabelFirebaseMessagingService);
 
     void inject(CrashReportingActivity crashReportingActivity);
+
+    void inject(AndroidBoxService androidBoxService);
+
 }

@@ -8,30 +8,34 @@ import android.support.v7.widget.LinearLayoutManager
 import android.text.InputType
 import android.view.*
 import com.cocosw.bottomsheet.BottomSheet
+import de.qabel.box.storage.dto.BoxPath
 import de.qabel.box.storage.exceptions.QblStorageException
 import de.qabel.core.config.Identity
+import de.qabel.core.event.EventDispatcher
 import de.qabel.core.repository.ContactRepository
 import de.qabel.core.ui.displayName
 import de.qabel.qabelbox.BuildConfig
 import de.qabel.qabelbox.R
 import de.qabel.qabelbox.base.BaseFragment
 import de.qabel.qabelbox.box.adapters.FileAdapter
-import de.qabel.box.storage.dto.BoxPath
 import de.qabel.qabelbox.box.dto.BrowserEntry
+import de.qabel.qabelbox.box.dto.FileOperationState.Status
+import de.qabel.qabelbox.box.events.BoxBackgroundEvent
+import de.qabel.qabelbox.box.events.BoxPathEvent
+import de.qabel.qabelbox.box.events.FileUploadEvent
 import de.qabel.qabelbox.box.presenters.FileBrowserPresenter
 import de.qabel.qabelbox.box.provider.BoxProvider
 import de.qabel.qabelbox.box.provider.DocumentId
 import de.qabel.qabelbox.box.provider.toDocumentId
 import de.qabel.qabelbox.box.queryNameAndSize
 import de.qabel.qabelbox.dagger.components.ActiveIdentityComponent
-import de.qabel.qabelbox.dagger.modules.FileBrowserModule
 import de.qabel.qabelbox.dagger.modules.FileBrowserViewModule
 import de.qabel.qabelbox.ui.extensions.showEnterTextDialog
 import de.qabel.qabelbox.viewer.ImageViewerActivity
 import kotlinx.android.synthetic.main.fragment_files.*
 import org.jetbrains.anko.*
+import rx.Subscription
 import java.io.FileNotFoundException
-import java.io.IOException
 import java.net.URLConnection
 import java.util.*
 import javax.inject.Inject
@@ -51,10 +55,14 @@ class FileBrowserFragment : FileBrowserView, FileListingView,
     override val title: String by lazy { ctx.getString(R.string.filebrowser) }
 
     override val subtitle: String?
-        get() = if(presenter.path !is BoxPath.Root) presenter.path.toString() else null
+        get() = if (presenter.path !is BoxPath.Root) presenter.path.toString() else null
 
     @Inject
     lateinit var presenter: FileBrowserPresenter
+
+    @Inject
+    lateinit var eventDispatcher: EventDispatcher
+    lateinit var subscription: Subscription
 
     @Inject
     lateinit var contactRepository: ContactRepository
@@ -92,6 +100,32 @@ class FileBrowserFragment : FileBrowserView, FileListingView,
         if (!(mActivity?.TEST ?: false)) {
             presenter.onRefresh()
         }
+        subscription = eventDispatcher.events(BoxBackgroundEvent::class.java).subscribe {
+            when (it) {
+                is FileUploadEvent -> {
+                    if (listOf(Status.COMPLETE, Status.ERROR).contains(it.operation.status)) {
+                        presenter.onRefresh()
+                        backgroundRefreshDone()
+                    } else {
+                        backgroundRefreshStart()
+                    }
+                }
+                is BoxPathEvent -> {
+                    if (it.complete) {
+                        presenter.onRefresh()
+                        backgroundRefreshDone()
+                    } else {
+                        backgroundRefreshStart()
+                    }
+                }
+            }
+        }
+    }
+
+    override fun onPause() {
+        bottomSheet?.dismiss()
+        subscription.unsubscribe()
+        super.onPause()
     }
 
     override fun onSaveInstanceState(outState: Bundle?) {
@@ -179,26 +213,13 @@ class FileBrowserFragment : FileBrowserView, FileListingView,
         super.onActivityResult(requestCode, resultCode, data)
     }
 
-    private fun exportFile(uri: Uri?): Boolean {
-        val exportId = exportDocumentId ?: return true
-        doAsync() {
-            val input = ctx.contentResolver.openInputStream(uriFromDocumentId(exportId))
-            val output = ctx.contentResolver.openOutputStream(uri)
-            if (input == null || output == null) {
-                toast(R.string.export_aborted)
-                return@doAsync
-            }
-            try {
-                input.copyTo(output)
-            } catch (e: IOException) {
-                toast(R.string.export_aborted)
-                return@doAsync
-            }
-            runOnUiThread {
-                toast(R.string.export_complete)
-            }
+    private fun exportFile(uri: Uri?) {
+        val exportId = exportDocumentId ?: return
+        if (uri == null) {
+            toast(R.string.export_aborted)
+            return
         }
-        return false
+        presenter.startExport(exportId, uri)
     }
 
     private fun upload(fileUri: Uri) {
@@ -206,11 +227,10 @@ class FileBrowserFragment : FileBrowserView, FileListingView,
             with(ctx.contentResolver) {
                 val (filename, size) = queryNameAndSize(fileUri)
                 toast("Uploading $filename with size $size")
-                presenter.upload(BrowserEntry.File(filename, size, Date()),
-                        openInputStream(fileUri))
+                presenter.upload(BrowserEntry.File(filename, size, Date()), fileUri)
             }
         } catch (e: FileNotFoundException) {
-            toast(R.string.upload_failed)
+            toast(R.string.upload_failed_title)
             return
         }
     }
@@ -226,6 +246,18 @@ class FileBrowserFragment : FileBrowserView, FileListingView,
     override fun refreshDone() {
         runOnUiThread {
             swipeRefresh.isRefreshing = false
+        }
+    }
+
+    fun backgroundRefreshStart() {
+        runOnUiThread {
+            background_progress_bar?.visibility = View.VISIBLE
+        }
+    }
+
+    fun backgroundRefreshDone() {
+        runOnUiThread {
+            background_progress_bar?.visibility = View.INVISIBLE
         }
     }
 
@@ -350,11 +382,6 @@ class FileBrowserFragment : FileBrowserView, FileListingView,
                     R.string.add_folder_name, InputType.TYPE_CLASS_TEXT, {
                 presenter.createFolder(BrowserEntry.Folder(it))
             })
-
-    override fun onPause() {
-        bottomSheet?.dismiss()
-        super.onPause()
-    }
 
     override fun onBackPressed(): Boolean {
         return presenter.navigateUp()

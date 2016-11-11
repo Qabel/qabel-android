@@ -59,7 +59,7 @@ class DocumentIdParser @Inject constructor(){
     }
 
 
-    fun buildId(identity: String, prefix: String?, filePath: String?): String {
+    fun buildId(identity: String, prefix: String?, filePath: String? = "/"): String {
         if (prefix != null && filePath != null) {
             return identity + BoxProvider.DOCID_SEPARATOR + prefix + BoxProvider.DOCID_SEPARATOR + filePath
         } else if (prefix != null) {

@@ -1,6 +1,6 @@
 package de.qabel.qabelbox.storage.server;
 
-import java.io.File;
+import java.io.InputStream;
 
 import de.qabel.qabelbox.communication.callbacks.DownloadRequestCallback;
 import de.qabel.qabelbox.communication.callbacks.JSONModelCallback;
@@ -14,7 +14,7 @@ public interface BlockServer {
 
     void downloadFile(String prefix, String path, String ifModified, DownloadRequestCallback callback);
 
-    void uploadFile(String prefix, String name, File file, String etag, UploadRequestCallback callback);
+    void uploadFile(String prefix, String name, InputStream input, String eTag, UploadRequestCallback callback);
 
     void deleteFile(String prefix, String path, RequestCallback callback);
 

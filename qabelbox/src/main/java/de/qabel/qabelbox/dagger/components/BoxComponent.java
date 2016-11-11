@@ -3,6 +3,7 @@ package de.qabel.qabelbox.dagger.components;
 import javax.inject.Singleton;
 
 import dagger.Component;
+import de.qabel.qabelbox.box.AndroidBoxService;
 import de.qabel.qabelbox.dagger.modules.BoxModule;
 import de.qabel.qabelbox.box.provider.BoxProvider;
 import de.qabel.qabelbox.dagger.modules.ContextModule;

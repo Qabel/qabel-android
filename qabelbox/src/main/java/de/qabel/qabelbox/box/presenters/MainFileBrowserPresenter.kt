@@ -1,26 +1,26 @@
 package de.qabel.qabelbox.box.presenters
 
+import android.net.Uri
 import de.qabel.core.config.Contact
 import de.qabel.core.config.Identity
-import de.qabel.box.storage.dto.BoxPath
 import de.qabel.qabelbox.box.dto.BrowserEntry
 import de.qabel.qabelbox.box.dto.BrowserEntry.File
 import de.qabel.qabelbox.box.dto.BrowserEntry.Folder
-import de.qabel.qabelbox.box.dto.UploadSource
-import de.qabel.qabelbox.box.interactor.FileBrowser
+import de.qabel.qabelbox.box.interactor.BoxServiceStarter
+import de.qabel.qabelbox.box.interactor.ReadFileBrowser
 import de.qabel.qabelbox.box.interactor.Sharer
 import de.qabel.qabelbox.box.provider.DocumentId
 import de.qabel.qabelbox.box.views.FileBrowserView
 import de.qabel.qabelbox.navigation.Navigator
-import java.io.InputStream
 import javax.inject.Inject
 
 class MainFileBrowserPresenter @Inject constructor(
         private val view: FileBrowserView,
-        private val useCase: FileBrowser,
+        private val useCase: ReadFileBrowser,
         private val sharer: Sharer,
         private val identity: Identity,
         private val navigator: Navigator,
+        private val boxServiceStarter: BoxServiceStarter,
         navigatingPresenter: NavigatingPresenter = MainNavigatingPresenter(view, useCase)) :
         FileBrowserPresenter, NavigatingPresenter by navigatingPresenter {
 
@@ -30,23 +30,24 @@ class MainFileBrowserPresenter @Inject constructor(
         }
     }
 
-    override fun upload(file: File, stream: InputStream) {
-        view.refreshStart()
-        useCase.upload(path * file.name, UploadSource(stream, file)).subscribe({
-            onRefresh()
-        }, { view.showError(it) })
+    override fun upload(file: File, uri: Uri) {
+        withDocumentId(file) {
+            boxServiceStarter.startUpload(it, uri)
+        }
     }
 
-    override fun delete(file: File) {
-        view.refreshStart()
-        useCase.delete(path * file.name).subscribe({
-            onRefresh()
-        }, { view.showError(it) })
+    override fun delete(file: File) = deleteEntry(file)
+
+    private fun deleteEntry(entry: BrowserEntry) {
+        withDocumentId(entry) {
+            boxServiceStarter.startDelete(it)
+        }
     }
 
 
-    private fun withDocumentId(file: File, callback: (DocumentId) -> Unit) {
-        useCase.asDocumentId(path * file.name).subscribe {
+    private fun withDocumentId(entry: BrowserEntry, callback: (DocumentId) -> Unit) {
+        val target = if (entry is File) path * entry.name else path / entry.name
+        useCase.asDocumentId(target).subscribe {
             callback(it)
         }
     }
@@ -57,18 +58,16 @@ class MainFileBrowserPresenter @Inject constructor(
         }
     }
 
-    override fun deleteFolder(folder: Folder) {
-        view.refreshStart()
-        useCase.delete(path / folder.name).subscribe({
-            onRefresh()
-        }, { view.showError(it) })
+    override fun startExport(exportId: DocumentId, uri: Uri) {
+        boxServiceStarter.startDownload(exportId, uri)
     }
 
+    override fun deleteFolder(folder: Folder) = deleteEntry(folder)
+
     override fun createFolder(folder: Folder) {
-        view.refreshStart()
-        useCase.createFolder(path / folder.name).subscribe({
-            onRefresh()
-        }, { view.showError(it) })
+        useCase.asDocumentId(path / folder.name).subscribe {
+            boxServiceStarter.startCreateFolder(it)
+        }
     }
 
     override fun onClick(entry: BrowserEntry) {

@@ -2,20 +2,19 @@ package de.qabel.qabelbox.dagger.modules
 
 import dagger.Module
 import dagger.Provides
-import de.qabel.box.storage.*
-import de.qabel.box.storage.jdbc.DirectoryMetadataDatabase
-import de.qabel.box.storage.jdbc.JdbcDirectoryMetadataFactory
-import de.qabel.box.storage.jdbc.JdbcFileMetadataFactory
+import de.qabel.box.storage.StorageReadBackend
+import de.qabel.box.storage.StorageWriteBackend
 import de.qabel.core.config.Identity
-import de.qabel.core.repositories.AndroidVersionAdapter
 import de.qabel.qabelbox.box.backends.BoxHttpStorageBackend
 import de.qabel.qabelbox.box.interactor.*
-import de.qabel.qabelbox.box.presenters.*
+import de.qabel.qabelbox.box.presenters.FileBrowserPresenter
+import de.qabel.qabelbox.box.presenters.MainFileBrowserPresenter
+import de.qabel.qabelbox.box.presenters.MainNavigatingPresenter
+import de.qabel.qabelbox.box.presenters.NavigatingPresenter
+import de.qabel.qabelbox.box.provider.DocumentIdParser
 import de.qabel.qabelbox.config.AppPreference
 import de.qabel.qabelbox.dagger.scopes.ActivityScope
 import de.qabel.qabelbox.storage.server.BlockServer
-import java.io.File
-import java.sql.Connection
 
 @ActivityScope
 @Module
@@ -37,7 +36,7 @@ class FileBrowserModule() {
     @ActivityScope
     @Provides
     fun provideSharer(boxSharer: BoxSharer): Sharer {
-       return boxSharer
+        return boxSharer
     }
 
     @ActivityScope
@@ -65,60 +64,25 @@ class FileBrowserModule() {
         return BoxHttpStorageBackend(blockServer, identity.prefixes.first().prefix)
     }
 
-
     @ActivityScope
     @Provides
-    fun provideNavigator(navigator: BoxFileBrowser): VolumeNavigator {
-        return navigator
+    fun provideNavigator(browser: ReadFileBrowser): VolumeNavigator {
+        //TODO Really bad
+        return (browser as BoxReadFileBrowser).volumeNavigator
     }
 
     @ActivityScope
     @Provides
-    fun provideFileBrowserUseCase(fileBrowserUseCase: BoxFileBrowser): FileBrowser {
-        return fileBrowserUseCase
+    fun provideFileBrowserUseCase(documentIdParser: DocumentIdParser,
+                                  keyAndPrefix: BoxReadFileBrowser.KeyAndPrefix,
+                                  volumeManager: VolumeManager): ReadFileBrowser {
+        return volumeManager.readFileBrowser(documentIdParser.buildId(keyAndPrefix.publicKey, keyAndPrefix.prefix))
     }
 
     @ActivityScope
     @Provides
-    fun provideKeyAndPrefix(identity: Identity): BoxFileBrowser.KeyAndPrefix {
-        return BoxFileBrowser.KeyAndPrefix(identity)
-    }
-
-    @ActivityScope
-    @Provides
-    fun provideBoxVolume(identity: Identity,
-                         readBackend: StorageReadBackend,
-                         writeBackend: StorageWriteBackend,
-                         deviceId: ByteArray,
-                         tempDir: File
-                         ): BoxVolume {
-        val dataBaseFactory: (Connection) -> DirectoryMetadataDatabase = { connection ->
-            DirectoryMetadataDatabase(connection, AndroidVersionAdapter(connection))
-        }
-        val prefix = identity.prefixes.first()
-        val prefixKey = prefix.prefix
-        val rootRef = RootRefCalculator().rootFor(
-                identity.primaryKeyPair.privateKey,
-                prefix.type,
-                prefixKey
-        )
-        return AndroidBoxVolume(BoxVolumeConfig(
-                prefixKey,
-                rootRef,
-                deviceId,
-                readBackend,
-                writeBackend,
-                "Blake2b",
-                tempDir,
-                directoryMetadataFactoryFactory = { tempDir, deviceId ->
-                    JdbcDirectoryMetadataFactory(tempDir, deviceId, dataBaseFactory,
-                            jdbcPrefix = JdbcPrefix.jdbcPrefix)
-                },
-                fileMetadataFactoryFactory = { tempDir ->
-                    JdbcFileMetadataFactory(tempDir, versionAdapterFactory = ::AndroidVersionAdapter,
-                            jdbcPrefix = JdbcPrefix.jdbcPrefix)
-                }),
-                identity.primaryKeyPair)
+    fun provideKeyAndPrefix(identity: Identity): BoxReadFileBrowser.KeyAndPrefix {
+        return BoxReadFileBrowser.KeyAndPrefix(identity)
     }
 
 }

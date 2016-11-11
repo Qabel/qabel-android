@@ -6,9 +6,11 @@ import de.qabel.qabelbox.box.dto.VolumeRoot
 import de.qabel.qabelbox.box.provider.DocumentId
 import java.io.FileNotFoundException
 
-class BoxVolumeManager (private val identityRepository: IdentityRepository,
-                        private val fileBrowserFactory: (VolumeRoot) -> FileBrowser):
+class BoxVolumeManager(private val identityRepository: IdentityRepository,
+                       private val readFileBrowserFactory: (VolumeRoot) -> ReadFileBrowser,
+                       private val operationFileBrowserFactory: (VolumeRoot) -> OperationFileBrowser) :
         VolumeManager {
+
 
     override val roots: List<VolumeRoot>
         get() = identityRepository.findAll().identities.map {
@@ -16,9 +18,12 @@ class BoxVolumeManager (private val identityRepository: IdentityRepository,
             VolumeRoot(docId.toString().dropLast(1), docId.toString(), it.alias)
         }
 
-    override fun fileBrowser(rootID: String) =
-            fileBrowserFactory(roots.find { it.documentID == rootID }
+    override fun readFileBrowser(rootID: String) =
+            readFileBrowserFactory(roots.find { it.documentID == rootID }
                     ?: throw FileNotFoundException("No filebrowser for root id found: " + rootID))
 
+    override fun operationFileBrowser(rootID: String): OperationFileBrowser =
+            operationFileBrowserFactory(roots.find { it.documentID == rootID }
+                    ?: throw FileNotFoundException("No filebrowser for root id found: " + rootID))
 }
 

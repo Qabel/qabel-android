@@ -6,7 +6,6 @@ import com.natpryce.hamkrest.hasSize
 import com.natpryce.hamkrest.should.shouldMatch
 import com.nhaarman.mockito_kotlin.*
 import de.qabel.box.storage.dto.BoxPath
-import de.qabel.box.storage.exceptions.QblStorageException
 import de.qabel.chat.repository.ChatShareRepository
 import de.qabel.chat.repository.entities.BoxFileChatShare
 import de.qabel.chat.repository.entities.ShareStatus
@@ -14,19 +13,32 @@ import de.qabel.chat.repository.inmemory.InMemoryChatShareRepository
 import de.qabel.chat.service.SharingService
 import de.qabel.core.config.SymmetricKey
 import de.qabel.core.extensions.assertThrows
+import de.qabel.qabelbox.BuildConfig
+import de.qabel.qabelbox.SimpleApplication
 import de.qabel.qabelbox.box.dto.*
 import de.qabel.qabelbox.box.provider.DocumentId
 import de.qabel.qabelbox.box.provider.ShareId
 import de.qabel.qabelbox.box.provider.toDocumentId
+import de.qabel.qabelbox.isEqual
+import de.qabel.qabelbox.util.waitFor
 import org.junit.Before
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricGradleTestRunner
+import org.robolectric.RuntimeEnvironment
+import org.robolectric.annotation.Config
+import rx.lang.kotlin.observable
 import rx.lang.kotlin.toSingletonObservable
+import java.io.File
 import java.util.*
 
+@RunWith(RobolectricGradleTestRunner::class)
+@Config(application = SimpleApplication::class, constants = BuildConfig::class)
 class BoxDocumentIdAdapterTest {
 
-    lateinit var useCase: BoxDocumentIdAdapter
-    lateinit var fileBrowser: FileBrowser
+    lateinit var useCase: DocumentIdAdapter
+    lateinit var readFileBrowser: ReadFileBrowser
+    lateinit var operationFileBrowser: OperationFileBrowser
     val docId = DocumentId("identity", "prefix", BoxPath.Root)
     val volume = VolumeRoot("root", docId.toString(), "alias")
     val volumes = listOf(volume)
@@ -41,13 +53,16 @@ class BoxDocumentIdAdapterTest {
     fun setUp() {
         shareRepo = InMemoryChatShareRepository()
         sharingService = mock()
-        fileBrowser = mock()
-        useCase = BoxDocumentIdAdapter(object : VolumeManager {
-            override val roots: List<VolumeRoot>
-                get() = volumes
+        operationFileBrowser = mock()
+        readFileBrowser = operationFileBrowser
+        useCase = BoxDocumentIdAdapter(RuntimeEnvironment.application,
+                object : VolumeManager {
+                    override val roots: List<VolumeRoot>
+                        get() = volumes
 
-            override fun fileBrowser(rootID: String) = fileBrowser
-        }, shareRepo, mock(), sharingService)
+                    override fun readFileBrowser(rootID: String) = readFileBrowser
+                    override fun operationFileBrowser(rootID: String) = operationFileBrowser
+                }, shareRepo, mock(), sharingService)
     }
 
     @Test
@@ -57,7 +72,7 @@ class BoxDocumentIdAdapterTest {
 
     @Test
     fun testQueryChildDocuments() {
-        whenever(fileBrowser.list(BoxPath.Root)).thenReturn(sampleFiles.toSingletonObservable())
+        whenever(readFileBrowser.list(BoxPath.Root)).thenReturn(sampleFiles.toSingletonObservable())
 
         val lst = useCase.queryChildDocuments(docId).toBlocking().first()
 
@@ -67,10 +82,9 @@ class BoxDocumentIdAdapterTest {
 
     @Test
     fun testQuery() {
-        whenever(fileBrowser.query(file)).thenReturn(sample.toSingletonObservable())
+        whenever(readFileBrowser.query(file)).thenReturn(sample.toSingletonObservable())
 
-        val result = useCase.query(docId.copy(path = file)).toBlocking().first()
-                as BrowserEntry.File
+        val result = useCase.query(docId.copy(path = file)).waitFor() as BrowserEntry.File
 
         result shouldMatch equalTo(sample)
     }
@@ -84,19 +98,28 @@ class BoxDocumentIdAdapterTest {
 
     @Test
     fun testDownload() {
-        val source = DownloadSource(sample, mock())
-        whenever(fileBrowser.download(file)).thenReturn(source.toSingletonObservable())
-        val download = useCase.download(docId.copy(path = file)).toBlocking().first()
-        download.documentId shouldMatch equalTo(docId.copy(path = file))
-        download.source.entry shouldMatch equalTo(sample)
-        download.source.source shouldMatch equalTo(source.source)
+        val operation = FileOperationState(BoxReadFileBrowser.KeyAndPrefix("", ""), file.name, file.parent)
+        whenever(operationFileBrowser.download(eq(file), any())).then {
+            return@then (Pair(operation, observable<FileOperationState> {
+                it.onNext(operation)
+                operation.status = FileOperationState.Status.COMPLETE
+                it.onCompleted()
+            }))
+        }
+
+        val (resultOperation, observable) = useCase.downloadFile(docId.copy(path = file), createTempFile())
+        observable.waitFor()
+
+        resultOperation.entryName isEqual (file.name)
+        resultOperation.path isEqual file.parent
+        resultOperation.status isEqual FileOperationState.Status.COMPLETE
     }
 
     @Test
     fun testUpload() {
-        val source = UploadSource(mock(), sample)
-        useCase.upload(ProviderUpload(docId.copy(path = file), source))
-        verify(fileBrowser).upload(file, source)
+        val inputFile: File = createTempFile()
+        useCase.uploadFile(inputFile, docId.copy(path = file))
+        verify(operationFileBrowser).upload(eq(file), any<UploadSource>())
     }
 
     @Test

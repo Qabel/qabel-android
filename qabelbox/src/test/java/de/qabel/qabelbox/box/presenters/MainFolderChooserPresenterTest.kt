@@ -5,7 +5,7 @@ import com.nhaarman.mockito_kotlin.verify
 import com.nhaarman.mockito_kotlin.whenever
 import de.qabel.box.storage.dto.BoxPath
 import de.qabel.qabelbox.box.dto.BrowserEntry
-import de.qabel.qabelbox.box.interactor.FileBrowser
+import de.qabel.qabelbox.box.interactor.ReadFileBrowser
 import de.qabel.qabelbox.box.provider.DocumentId
 import de.qabel.qabelbox.box.views.FolderChooserView
 import de.qabel.qabelbox.eq
@@ -16,10 +16,12 @@ import rx.lang.kotlin.toSingletonObservable
 class MainFolderChooserPresenterTest {
 
     val view: FolderChooserView = mock()
-    val useCase: FileBrowser = mock()
+    val useCase: ReadFileBrowser = mock()
     lateinit var presenter: MainFolderChooserPresenter
-    val navigatingPresenter: NavigatingPresenter = object: MainNavigatingPresenter(view, useCase) {
-        override fun onRefresh() { }
+    val navigatingPresenter: NavigatingPresenter = object : MainNavigatingPresenter(view, useCase) {
+        override fun onRefresh() {
+        }
+
         override fun navigateUp() = true
     }
     val sample = BrowserEntry.Folder("foobar")

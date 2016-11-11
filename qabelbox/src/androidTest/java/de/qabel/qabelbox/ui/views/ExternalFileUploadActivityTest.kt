@@ -3,6 +3,7 @@ package de.qabel.qabelbox.ui.views
 import android.app.Activity
 import android.app.Instrumentation
 import android.content.Intent
+import android.net.Uri
 import android.support.test.InstrumentationRegistry
 import android.support.test.espresso.Espresso.onView
 import android.support.test.espresso.ViewInteraction
@@ -47,8 +48,14 @@ class ExternalFileUploadActivityTest {
     lateinit var identities: List<FileUploadPresenter.IdentitySelection>
     val folder = BrowserEntry.Folder("folder")
 
+    val uri: Uri = Uri.fromFile(createTempFile())
     val defaultIntent: Intent
-        get() = Intent(InstrumentationRegistry.getTargetContext(), FolderChooserActivity::class.java)
+        get() {
+            return Intent(InstrumentationRegistry.getTargetContext(), FolderChooserActivity::class.java).apply {
+                action = Intent.ACTION_SEND
+                putExtra(Intent.EXTRA_STREAM, uri)
+            }
+        }
 
     open class Presenter(override val availableIdentities: List<FileUploadPresenter.IdentitySelection>)
     : FileUploadPresenter {
@@ -126,6 +133,14 @@ class ExternalFileUploadActivityTest {
         assert(activity.path == BoxPath.Root / "folder")
         Page.folderButton.hasText("/folder")
     }
+
+    @Test
+    fun loadsFileInfos() {
+        launch()
+        assert(uri == activity.fileUri)
+        assert(activity.filename != "filename")
+    }
+
 
     fun ViewInteraction.hasText(text: String) {
         check(matches(withText(text)))

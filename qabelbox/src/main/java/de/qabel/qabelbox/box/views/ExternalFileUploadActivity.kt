@@ -2,8 +2,9 @@ package de.qabel.qabelbox.box.views
 
 import android.app.Activity
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
-import android.view.View
+import android.widget.TextView
 import de.qabel.box.storage.dto.BoxPath
 import de.qabel.core.logging.QabelLog
 import de.qabel.qabelbox.R
@@ -15,22 +16,32 @@ import de.qabel.qabelbox.box.provider.DocumentIdParser
 import de.qabel.qabelbox.dagger.modules.ActivityModule
 import de.qabel.qabelbox.dagger.modules.ExternalFileUploadModule
 import kotlinx.android.synthetic.main.activity_external_upload.*
-import org.jetbrains.anko.*
-import org.jetbrains.anko.design.appBarLayout
+import org.jetbrains.anko.onClick
+import org.jetbrains.anko.startActivityForResult
 import java.io.FileNotFoundException
 import javax.inject.Inject
+import kotlin.properties.Delegates
+import kotlin.reflect.KProperty
 
 class ExternalFileUploadActivity() : FileUploadView, CrashReportingActivity(), QabelLog {
 
     override lateinit var identity: FileUploadPresenter.IdentitySelection
-    override var path: BoxPath = BoxPath.Root / "Upload"
-    override var filename: String = ""
+    override var path: BoxPath.FolderLike = BoxPath.Root / "Upload"
+    override var filename: String by Delegates.observable("") {
+        kProperty: KProperty<*>, old: String, new: String ->
+        if (old != new) {
+            filenameField.setText(new, TextView.BufferType.EDITABLE)
+        }
+    }
+
 
     @Inject
     lateinit var documentIdParser: DocumentIdParser
 
     @Inject
     lateinit var presenter: FileUploadPresenter
+
+    var fileUri: Uri? = null
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (requestCode == FOLDER_CHOOSER_RESULT && resultCode == Activity.RESULT_OK) {
@@ -41,8 +52,10 @@ class ExternalFileUploadActivity() : FileUploadView, CrashReportingActivity(), Q
                 } catch (e: FileNotFoundException) {
                     return
                 }
-                path = id.path
-                folderSelect.text = id.path.toString()
+                if (id.path is BoxPath.FolderLike) {
+                    path = id.path
+                    folderSelect.text = id.path.toString()
+                }
             }
         }
     }
@@ -52,7 +65,7 @@ class ExternalFileUploadActivity() : FileUploadView, CrashReportingActivity(), Q
         applicationComponent.plus(ActivityModule(this))
                 .plus(ExternalFileUploadModule((this)))
                 .inject(this)
-        ExternalFileUploadUi().setContentView(this)
+        setContentView(R.layout.activity_external_upload)
         folderSelect.text = path.toString()
         if (presenter.availableIdentities.isEmpty()) {
             finish()
@@ -63,6 +76,14 @@ class ExternalFileUploadActivity() : FileUploadView, CrashReportingActivity(), Q
                     ACTIVE_IDENTITY to identity.keyId)
         }
         identity = presenter.availableIdentities.sortedBy { it.alias }.first()
+
+        if (Intent.ACTION_SEND == intent.action) {
+            fileUri = intent.getParcelableExtra(Intent.EXTRA_STREAM)
+            filename = fileUri?.lastPathSegment ?: "filename"
+        }
+        if (fileUri == null) {
+            finish()
+        }
     }
 
     override fun startUpload(documentId: DocumentId) {
@@ -73,22 +94,3 @@ class ExternalFileUploadActivity() : FileUploadView, CrashReportingActivity(), Q
     }
 }
 
-class ExternalFileUploadUi: AnkoComponent<ExternalFileUploadActivity> {
-    override fun createView(ui: AnkoContext<ExternalFileUploadActivity>): View =
-        with (ui) {
-                verticalLayout {
-                    appBarLayout {
-                        toolbar { }
-                    }
-                    spinner {
-                        id = R.id.identitySelect
-                    }
-                    editText {
-                        id = R.id.filenameField
-                    }
-                    button {
-                        id = R.id.folderSelect
-                    }
-                }
-        }
-}

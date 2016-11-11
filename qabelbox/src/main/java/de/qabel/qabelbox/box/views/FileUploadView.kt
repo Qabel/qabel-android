@@ -7,7 +7,7 @@ import de.qabel.qabelbox.box.provider.DocumentId
 interface FileUploadView {
 
     var identity: FileUploadPresenter.IdentitySelection
-    var path: BoxPath
+    var path: BoxPath.FolderLike
     var filename: String
 
     fun startUpload(documentId: DocumentId)

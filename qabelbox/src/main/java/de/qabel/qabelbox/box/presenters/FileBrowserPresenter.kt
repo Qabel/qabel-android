@@ -1,9 +1,9 @@
 package de.qabel.qabelbox.box.presenters
 
+import android.net.Uri
 import de.qabel.core.config.Contact
-import de.qabel.box.storage.dto.BoxPath
 import de.qabel.qabelbox.box.dto.BrowserEntry
-import de.qabel.qabelbox.box.views.FileListingView
+import de.qabel.qabelbox.box.provider.DocumentId
 import java.io.InputStream
 
 interface FileBrowserPresenter: NavigatingPresenter {
@@ -19,11 +19,13 @@ interface FileBrowserPresenter: NavigatingPresenter {
 
     fun createFolder(folder: BrowserEntry.Folder)
 
-    fun upload(file: BrowserEntry.File, stream: InputStream)
-
     fun shareToContact(entry: BrowserEntry.File, contact: Contact)
 
     fun unShareFile(entry: BrowserEntry.File)
+
+    fun upload(file: BrowserEntry.File, uri: Uri)
+
+    fun startExport(exportId: DocumentId, uri: Uri)
 
 }
 

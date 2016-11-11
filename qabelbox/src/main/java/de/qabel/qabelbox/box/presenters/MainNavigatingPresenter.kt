@@ -1,13 +1,13 @@
 package de.qabel.qabelbox.box.presenters
 
 import de.qabel.box.storage.dto.BoxPath
-import de.qabel.qabelbox.box.interactor.FileBrowser
+import de.qabel.qabelbox.box.interactor.ReadFileBrowser
 import de.qabel.qabelbox.box.views.FileListingView
 import javax.inject.Inject
 
 open class MainNavigatingPresenter @Inject constructor(
         private val view: FileListingView,
-        private val useCase: FileBrowser
+        private val useCase: ReadFileBrowser
 ): NavigatingPresenter {
 
     override var path: BoxPath.FolderLike = BoxPath.Root

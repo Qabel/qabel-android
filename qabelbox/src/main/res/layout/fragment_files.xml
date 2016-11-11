@@ -62,5 +62,15 @@
             </FrameLayout>
         </FrameLayout>
     </android.support.v4.widget.SwipeRefreshLayout>
-
+    <ProgressBar
+        android:id="@+id/background_progress_bar"
+        android:layout_width="match_parent"
+        android:layout_height="8dp"
+        android:padding="0dp"
+        android:layout_margin="0dp"
+        android:indeterminate="true"
+        android:indeterminateOnly="true"
+        style="@android:style/Widget.Holo.ProgressBar.Horizontal"
+        android:visibility="invisible"
+        />
 </FrameLayout>

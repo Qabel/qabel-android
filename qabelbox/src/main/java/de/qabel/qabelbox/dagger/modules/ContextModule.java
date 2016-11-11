@@ -6,6 +6,10 @@ import javax.inject.Singleton;
 
 import dagger.Module;
 import dagger.Provides;
+import de.qabel.core.event.Event;
+import de.qabel.core.event.EventDispatcher;
+import de.qabel.core.event.EventSink;
+import de.qabel.core.event.SubjectEventDispatcher;
 import de.qabel.qabelbox.config.AppPreference;
 import de.qabel.qabelbox.reporter.CrashReporter;
 import de.qabel.qabelbox.reporter.CrashSubmitter;
@@ -17,15 +21,19 @@ public class ContextModule {
 
     Context context;
 
-    public ContextModule(Context context){
+    public ContextModule(Context context) {
         this.context = context;
     }
 
-    @Singleton @Provides Context providesContext(){
+    @Singleton
+    @Provides
+    Context providesContext() {
         return context;
     }
 
-    @Singleton @Provides AppPreference providesAppPreferences(Context context){
+    @Singleton
+    @Provides
+    AppPreference providesAppPreferences(Context context) {
         return new AppPreference(context);
     }
 
@@ -40,4 +48,16 @@ public class ContextModule {
     CrashSubmitter providesCrashSubmitter(HockeyAppCrashSubmitter hockeyAppCrashSubmitter) {
         return hockeyAppCrashSubmitter;
     }
+
+    @Provides
+    @Singleton
+    EventDispatcher providesEventDispatcher() {
+        return new SubjectEventDispatcher();
+    }
+
+    @Provides
+    EventSink providesEventSink(EventDispatcher dispatcher) {
+        return dispatcher;
+    }
+
 }

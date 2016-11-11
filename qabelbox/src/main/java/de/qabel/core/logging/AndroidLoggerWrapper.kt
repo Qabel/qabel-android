@@ -13,23 +13,30 @@ class AndroidLoggerWrapper(clazz: Class<*>) : QabelLoggerWrapper {
     private val TAG = clazz.simpleName
 
     override fun trace(msg: Any, vararg args: Any) {
-        Log.v(TAG, msg.toString().format(args))
+        Log.v(TAG, format(msg, args))
     }
 
     override fun info(msg: Any, vararg args: Any) {
-        Log.i(TAG, msg.toString().format(args))
+        Log.i(TAG, format(msg, args))
     }
 
     override fun debug(msg: Any, vararg args: Any) {
-        Log.d(TAG, msg.toString().format(args))
+        Log.d(TAG, format(msg, args))
     }
 
     override fun warn(msg: Any, vararg args: Any) {
-        Log.v(TAG, msg.toString().format(args))
+        Log.v(TAG, format(msg, args))
     }
 
     override fun error(msg: Any?, exception: Throwable?) {
         Log.e(TAG, msg?.toString() ?: "No error msg", exception)
+    }
+
+    private fun format(msg: Any?, args: Array<out Any>) = msg.toString().let {
+        if (args.isNotEmpty()) {
+        //    return@let it.format(args)
+        }
+        it
     }
 
 }

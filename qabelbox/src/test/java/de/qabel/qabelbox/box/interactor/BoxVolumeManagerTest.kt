@@ -18,7 +18,7 @@ import org.robolectric.RobolectricGradleTestRunner
 import org.robolectric.annotation.Config
 
 @RunWith(RobolectricGradleTestRunner::class)
-@Config(application = SimpleApplication::class , constants = BuildConfig::class)
+@Config(application = SimpleApplication::class, constants = BuildConfig::class)
 class BoxVolumeManagerTest {
 
     val identity = IdentityHelper.createIdentity("name", "prefix")
@@ -26,25 +26,31 @@ class BoxVolumeManagerTest {
     val docId = DocumentId(identity.keyIdentifier, identity.prefixes.first().prefix, BoxPath.Root)
     val volume = VolumeRoot(docId.toString().dropLast(1), docId.toString(), identity.alias)
     lateinit var manager: VolumeManager
-    lateinit var fileBrowser: FileBrowser
+    lateinit var readFileBrowser: ReadFileBrowser
+    lateinit var operationFileBrowser: OperationFileBrowser
 
     @Before
     fun setUp() {
-        fileBrowser = mock()
+        readFileBrowser = mock()
+        operationFileBrowser = mock()
     }
 
     @Test
     fun testGetRoots() {
-        manager = BoxVolumeManager(repo) { fileBrowser }
+        manager = BoxVolumeManager(repo, { readFileBrowser }, { operationFileBrowser })
         manager.roots shouldMatch equalTo(listOf(volume))
     }
 
     @Test
     fun testFileBrowser() {
-        manager = BoxVolumeManager(repo) {
+        manager = BoxVolumeManager(repo, {
             it shouldMatch equalTo(volume)
-            fileBrowser
-        }
-        manager.fileBrowser(volume.documentID) shouldMatch sameInstance(fileBrowser)
+            readFileBrowser
+        }, {
+            it shouldMatch equalTo(volume)
+            operationFileBrowser
+        })
+        manager.readFileBrowser(volume.documentID) shouldMatch sameInstance(readFileBrowser)
+        manager.operationFileBrowser(volume.documentID) shouldMatch sameInstance(operationFileBrowser)
     }
 }

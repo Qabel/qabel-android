@@ -7,9 +7,13 @@ import de.qabel.qabelbox.BuildConfig
 import de.qabel.qabelbox.TestConstants
 import de.qabel.box.storage.dto.BoxPath
 import de.qabel.qabelbox.box.interactor.DocumentIdAdapter
+import java.io.File
 
 class MockBoxProvider : BoxProvider() {
 
+    val targetFile: File by lazy { createTempFile() }
+
+    override fun createTmpFile(): File = targetFile
 
     override fun inject() {
     }

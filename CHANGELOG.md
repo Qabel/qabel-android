@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Remote folder chooser activity
 
 ### Changed
+- Box operations running and tracked in background
 
 ### Fixed
 

@@ -21,7 +21,7 @@ import org.junit.Test
 import org.mockito.Mockito.*
 import java.util.*
 
-class ReadFileBrowserFragmentTest : AbstractUITest() {
+class FileBrowserFragmentTest : AbstractUITest() {
 
 
     lateinit var fragment: FileBrowserFragment

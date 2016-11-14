@@ -4,12 +4,15 @@ import android.app.Activity
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.view.Menu
+import android.view.MenuItem
 import android.widget.TextView
 import de.qabel.box.storage.dto.BoxPath
 import de.qabel.core.logging.QabelLog
 import de.qabel.qabelbox.R
 import de.qabel.qabelbox.base.ACTIVE_IDENTITY
 import de.qabel.qabelbox.base.CrashReportingActivity
+import de.qabel.qabelbox.box.interactor.BoxServiceStarter
 import de.qabel.qabelbox.box.presenters.FileUploadPresenter
 import de.qabel.qabelbox.box.provider.DocumentId
 import de.qabel.qabelbox.box.provider.DocumentIdParser
@@ -41,6 +44,9 @@ class ExternalFileUploadActivity() : FileUploadView, CrashReportingActivity(), Q
     @Inject
     lateinit var presenter: FileUploadPresenter
 
+    @Inject
+    lateinit var boxServiceStarter: BoxServiceStarter
+
     var fileUri: Uri? = null
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -60,12 +66,28 @@ class ExternalFileUploadActivity() : FileUploadView, CrashReportingActivity(), Q
         }
     }
 
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        super.onCreateOptionsMenu(menu)
+        menuInflater.inflate(R.menu.ab_external_upload, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        if (item.itemId == R.id.confirmUpload) {
+            presenter.confirm()
+            return true
+        } else {
+            return super.onOptionsItemSelected(item)
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         applicationComponent.plus(ActivityModule(this))
                 .plus(ExternalFileUploadModule((this)))
                 .inject(this)
         setContentView(R.layout.activity_external_upload)
+        setSupportActionBar(toolbar)
         folderSelect.text = path.toString()
         if (presenter.availableIdentities.isEmpty()) {
             finish()
@@ -87,6 +109,10 @@ class ExternalFileUploadActivity() : FileUploadView, CrashReportingActivity(), Q
     }
 
     override fun startUpload(documentId: DocumentId) {
+        fileUri?.let {
+            boxServiceStarter.startUpload(documentId, it)
+            finish()
+        }
     }
 
     companion object {

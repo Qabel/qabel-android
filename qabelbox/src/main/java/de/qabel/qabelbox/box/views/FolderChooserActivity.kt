@@ -55,8 +55,6 @@ QabelLog {
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         super.onCreateOptionsMenu(menu)
-        // Inflate the menu; this adds items to the action bar if it is present.
-        //  getMenuInflater().inflate(R.menu.ab_main, menu);
         menuInflater.inflate(R.menu.ab_folder_chooser, menu)
         return true
     }

@@ -22,6 +22,7 @@ import de.qabel.core.config.Prefix
 import de.qabel.qabelbox.R
 import de.qabel.qabelbox.base.ACTIVE_IDENTITY
 import de.qabel.qabelbox.box.dto.BrowserEntry
+import de.qabel.qabelbox.box.interactor.BoxServiceStarter
 import de.qabel.qabelbox.box.presenters.FileUploadPresenter
 import de.qabel.qabelbox.box.provider.DocumentId
 import de.qabel.qabelbox.box.views.ExternalFileUploadActivity
@@ -31,6 +32,7 @@ import org.hamcrest.Matchers
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import org.mockito.Mockito
 
 class ExternalFileUploadActivityTest {
 
@@ -59,10 +61,15 @@ class ExternalFileUploadActivityTest {
 
     open class Presenter(override val availableIdentities: List<FileUploadPresenter.IdentitySelection>)
     : FileUploadPresenter {
+        var confirmed = false
         override val defaultPath: BoxPath = BoxPath.Root * "public"
 
-        override fun confirm() { }
+        override fun confirm() { confirmed = true }
     }
+
+    lateinit var presenter: Presenter
+
+    val boxServiceStarter: BoxServiceStarter = Mockito.mock(BoxServiceStarter::class.java)
 
     val mContext = InstrumentationRegistry.getTargetContext()!!
 
@@ -82,8 +89,9 @@ class ExternalFileUploadActivityTest {
 
     fun launch(identities: List<FileUploadPresenter.IdentitySelection>? = null): Presenter {
         activityTestRule.launchActivity(defaultIntent)
-        val presenter = Presenter(identities ?: listOf())
-        activityTestRule.activity.presenter = presenter
+        presenter = Presenter(identities ?: listOf())
+        activity.presenter = presenter
+        activity.boxServiceStarter = boxServiceStarter
         return presenter
     }
 
@@ -139,6 +147,23 @@ class ExternalFileUploadActivityTest {
         launch()
         assert(uri == activity.fileUri)
         assert(activity.filename != "filename")
+    }
+
+    @Test
+    fun startsUpload() {
+        launch()
+        assert(!activity.isFinishing)
+        val documentId = DocumentId("foo", "bar", BoxPath.Root)
+        activity.startUpload(documentId)
+        Mockito.verify(boxServiceStarter).startUpload(documentId, uri)
+        assert(activity.isFinishing)
+    }
+
+    @Test
+    fun confirm() {
+        launch()
+        onView(withId(R.id.confirmUpload)).perform(click())
+        assert(presenter.confirmed)
     }
 
 

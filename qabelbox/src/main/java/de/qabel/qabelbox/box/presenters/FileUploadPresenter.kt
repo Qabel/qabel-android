@@ -9,8 +9,11 @@ interface FileUploadPresenter {
 
     fun confirm()
 
-    class IdentitySelection(val alias: String, val keyId: String) {
+    data class IdentitySelection(val alias: String, val keyId: String) {
         constructor(identity: Identity): this(identity.alias, identity.keyIdentifier)
+
+        override fun toString(): String = alias
     }
+
 }
 

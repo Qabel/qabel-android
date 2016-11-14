@@ -5,6 +5,8 @@ import android.app.Instrumentation
 import android.content.Intent
 import android.net.Uri
 import android.support.test.InstrumentationRegistry
+import android.support.test.espresso.Espresso
+import android.support.test.espresso.Espresso.onData
 import android.support.test.espresso.Espresso.onView
 import android.support.test.espresso.ViewInteraction
 import android.support.test.espresso.action.ViewActions.click
@@ -12,6 +14,7 @@ import android.support.test.espresso.assertion.ViewAssertions.matches
 import android.support.test.espresso.intent.Intents
 import android.support.test.espresso.intent.matcher.IntentMatchers
 import android.support.test.espresso.intent.rule.IntentsTestRule
+import android.support.test.espresso.matcher.ViewMatchers
 import android.support.test.espresso.matcher.ViewMatchers.withId
 import android.support.test.espresso.matcher.ViewMatchers.withText
 import com.natpryce.hamkrest.equalTo
@@ -28,6 +31,7 @@ import de.qabel.qabelbox.box.provider.DocumentId
 import de.qabel.qabelbox.box.views.ExternalFileUploadActivity
 import de.qabel.qabelbox.box.views.FolderChooserActivity
 import de.qabel.qabelbox.ui.helper.UIBoxHelper
+import org.hamcrest.CoreMatchers
 import org.hamcrest.Matchers
 import org.junit.Before
 import org.junit.Rule
@@ -106,7 +110,7 @@ class ExternalFileUploadActivityTest {
     @Test
     fun choosesAlphabeticalFirstIdentity() {
         launch()
-        activity.identity.alias shouldMatch equalTo(identities[1].alias)
+        activity.identity.alias shouldMatch equalTo(identities[0].alias)
     }
 
     @Test
@@ -119,18 +123,19 @@ class ExternalFileUploadActivityTest {
     fun startsFolderChooser() {
         launch()
         Page.startChooser()
-        Intents.intended(Page.folderSelectIntentMatcher(secondIdentity))
+        Intents.intended(Page.folderSelectIntentMatcher(activity.identity))
     }
 
     @Test
     fun reactsToFolderChooserIntent() {
         launch()
-        Intents.intending(Page.folderSelectIntentMatcher(secondIdentity)).respondWith(
+        Intents.intending(Page.folderSelectIntentMatcher(
+                activity.identity)).respondWith(
                 Instrumentation.ActivityResult(
                         Activity.RESULT_OK,
                             Intent().apply {
                                 putExtra(FolderChooserActivity.FOLDER_DOCUMENT_ID,
-                                        DocumentId(secondIdentity.keyIdentifier, secondIdentity.prefixes.first {
+                                        DocumentId(identity.keyIdentifier, identity.prefixes.first {
                                             p ->
                                             p.type == Prefix.TYPE.USER
                                         }.prefix, BoxPath.Root / "folder").toString())
@@ -162,8 +167,17 @@ class ExternalFileUploadActivityTest {
     @Test
     fun confirm() {
         launch()
-        onView(withId(R.id.confirmUpload)).perform(click())
+        Page.confirmButton.perform(click())
         assert(presenter.confirmed)
+    }
+
+    @Test
+    fun selectIdentity() {
+        launch()
+        Page.selectIdentity(identity)
+        assert(activity.identity.alias == identity.alias)
+        Page.selectIdentity(secondIdentity)
+        assert(activity.identity.alias == secondIdentity.alias)
     }
 
 
@@ -173,12 +187,25 @@ class ExternalFileUploadActivityTest {
 
     object Page {
 
+        val confirmButton: ViewInteraction
+            get() = onView(withId(R.id.identitySelect))
+
+        val identitySpinner: ViewInteraction
+            get() = onView(withId(R.id.identitySelect))
+
+        fun selectIdentity(identity: Identity) {
+            identitySpinner.perform(click())
+            onData(CoreMatchers.equalTo(FileUploadPresenter.IdentitySelection(identity))).perform(click())
+            identitySpinner.check(matches(ViewMatchers.withSpinnerText(
+                    Matchers.containsString(identity.alias))))
+        }
+
         val folderButton: ViewInteraction
             get() = onView(withId(R.id.folderSelect))
 
-        fun folderSelectIntentMatcher(identity: Identity) = Matchers.allOf(
+        fun folderSelectIntentMatcher(identity: FileUploadPresenter.IdentitySelection) = Matchers.allOf(
                     IntentMatchers.toPackage("de.qabel.qabel.debug"),
-                    IntentMatchers.hasExtra(ACTIVE_IDENTITY, identity.keyIdentifier))
+                    IntentMatchers.hasExtra(ACTIVE_IDENTITY, identity.keyId))
 
         fun startChooser() {
             folderButton.perform(click())

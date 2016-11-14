@@ -6,6 +6,9 @@ import android.net.Uri
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
 import android.widget.TextView
 import de.qabel.box.storage.dto.BoxPath
 import de.qabel.core.logging.QabelLog
@@ -93,18 +96,32 @@ class ExternalFileUploadActivity() : FileUploadView, CrashReportingActivity(), Q
             finish()
             return
         }
+        populateSpinner()
         folderSelect.onClick {
             startActivityForResult<FolderChooserActivity>(FOLDER_CHOOSER_RESULT,
                     ACTIVE_IDENTITY to identity.keyId)
         }
-        identity = presenter.availableIdentities.sortedBy { it.alias }.first()
-
         if (Intent.ACTION_SEND == intent.action) {
             fileUri = intent.getParcelableExtra(Intent.EXTRA_STREAM)
             filename = fileUri?.lastPathSegment ?: "filename"
         }
         if (fileUri == null) {
             finish()
+        }
+    }
+
+    private fun populateSpinner() {
+        val identities = presenter.availableIdentities
+        val adapter = ArrayAdapter<FileUploadPresenter.IdentitySelection>(
+                this, R.layout.identity_spinner_field, identities)
+        identitySelect.adapter = adapter
+        identitySelect.onItemSelectedListener = object: AdapterView.OnItemSelectedListener {
+            override fun onNothingSelected(parent: AdapterView<*>?) { }
+
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                identity = adapter.getItem(position)
+            }
+
         }
     }
 

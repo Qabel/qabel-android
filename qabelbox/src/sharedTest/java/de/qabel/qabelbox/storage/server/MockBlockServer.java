@@ -7,6 +7,7 @@ import org.json.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Random;
 
 import de.qabel.qabelbox.TestConstants;
@@ -32,8 +33,8 @@ public class MockBlockServer implements BlockServer {
     }
 
     @Override
-    public void uploadFile(String prefix, String name, File file, String eTag, UploadRequestCallback callback) {
-        throw new UnsupportedOperationException();
+    public void uploadFile(String prefix, String name, InputStream input, String eTag, UploadRequestCallback callback) {
+
     }
 
     @Override

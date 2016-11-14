@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Box operations running and tracked in background
 
 ### Fixed
+- Guard against unusable addressbook entries to prevent crashes
 
 ## [0.13.0] - 2016-11-1
 ### Added

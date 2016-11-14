@@ -80,7 +80,6 @@ class ExternalFileUploadActivityTest {
     val mBoxHelper = UIBoxHelper(mContext)
 
     @Before
-    @Throws(Throwable::class)
     fun setUp() {
         mBoxHelper.createTokenIfNeeded(false)
         mBoxHelper.removeAllIdentities()
@@ -129,16 +128,17 @@ class ExternalFileUploadActivityTest {
     @Test
     fun reactsToFolderChooserIntent() {
         launch()
+        val documentId = DocumentId(identity.keyIdentifier, identity.prefixes.first {
+            p ->
+            p.type == Prefix.TYPE.USER
+        }.prefix, BoxPath.Root / "folder").toString()
         Intents.intending(Page.folderSelectIntentMatcher(
                 activity.identity)).respondWith(
                 Instrumentation.ActivityResult(
                         Activity.RESULT_OK,
                             Intent().apply {
                                 putExtra(FolderChooserActivity.FOLDER_DOCUMENT_ID,
-                                        DocumentId(identity.keyIdentifier, identity.prefixes.first {
-                                            p ->
-                                            p.type == Prefix.TYPE.USER
-                                        }.prefix, BoxPath.Root / "folder").toString())
+                                        documentId)
                             }))
 
 

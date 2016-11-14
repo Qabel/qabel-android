@@ -38,7 +38,6 @@ class FolderChooserActivityTest {
         }
 
     @Before
-    @Throws(Throwable::class)
     fun setUp() {
         val mContext = InstrumentationRegistry.getTargetContext()
 

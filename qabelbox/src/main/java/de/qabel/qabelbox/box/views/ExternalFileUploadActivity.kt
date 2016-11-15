@@ -116,7 +116,11 @@ class ExternalFileUploadActivity() : FileUploadView, CrashReportingActivity(), Q
             if (it == null) {
                 finish()
             } else {
-                filename = contentResolver.queryNameAndSize(it).first
+                filename = try {
+                    contentResolver.queryNameAndSize(it).first
+                } catch (e: NullPointerException) {
+                    fileUri?.lastPathSegment ?: "filename"
+                }
             }
 
         }

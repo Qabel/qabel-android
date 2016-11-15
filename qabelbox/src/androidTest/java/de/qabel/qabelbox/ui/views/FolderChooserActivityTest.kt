@@ -35,6 +35,7 @@ class FolderChooserActivityTest {
     val defaultIntent: Intent
         get() =  Intent(InstrumentationRegistry.getTargetContext(), FolderChooserActivity::class.java).apply {
             putExtra(ACTIVE_IDENTITY, identity.keyIdentifier)
+            putExtra(FolderChooserActivity.TEST_RUN, true)
         }
 
     @Before

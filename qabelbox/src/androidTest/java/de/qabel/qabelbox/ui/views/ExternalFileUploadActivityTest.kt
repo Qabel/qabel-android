@@ -86,8 +86,8 @@ class ExternalFileUploadActivityTest {
         identity = mBoxHelper.addIdentity("spoon123")
         secondIdentity = mBoxHelper.addIdentity("second")
         identities = listOf(
-            FileUploadPresenter.IdentitySelection(identity),
-            FileUploadPresenter.IdentitySelection(secondIdentity))
+            FileUploadPresenter.IdentitySelection(secondIdentity),
+            FileUploadPresenter.IdentitySelection(identity))
     }
 
     fun launch(identities: List<FileUploadPresenter.IdentitySelection>? = null): Presenter {

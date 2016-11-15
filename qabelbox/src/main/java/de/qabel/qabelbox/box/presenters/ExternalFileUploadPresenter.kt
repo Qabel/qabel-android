@@ -23,7 +23,7 @@ class ExternalFileUploadPresenter @Inject constructor(val view: FileUploadView,
     override val availableIdentities: List<FileUploadPresenter.IdentitySelection>
         = identityInteractor.getIdentities().toBlocking().value().identities.map {
             FileUploadPresenter.IdentitySelection(it)
-        }
+        }.sortedBy { it.alias }
 
 }
 

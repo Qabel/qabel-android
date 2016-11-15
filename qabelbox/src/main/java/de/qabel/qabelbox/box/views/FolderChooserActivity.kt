@@ -56,7 +56,9 @@ QabelLog {
 
     override fun onResume() {
         super.onResume()
-        presenter.onRefresh()
+        if (!intent.getBooleanExtra(TEST_RUN, false)) {
+            presenter.onRefresh()
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -124,6 +126,7 @@ QabelLog {
 
     companion object {
         const val FOLDER_DOCUMENT_ID = "FOLDER_DOCUMENT_ID"
+        const val TEST_RUN = "TEST_RUN"
     }
 
 }

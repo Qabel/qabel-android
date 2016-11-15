@@ -115,6 +115,7 @@ class ExternalFileUploadActivity() : FileUploadView, CrashReportingActivity(), Q
         val adapter = ArrayAdapter<FileUploadPresenter.IdentitySelection>(
                 this, R.layout.identity_spinner_field, identities)
         identitySelect.adapter = adapter
+        identitySelect.setSelection(0)
         identitySelect.onItemSelectedListener = object: AdapterView.OnItemSelectedListener {
             override fun onNothingSelected(parent: AdapterView<*>?) { }
 

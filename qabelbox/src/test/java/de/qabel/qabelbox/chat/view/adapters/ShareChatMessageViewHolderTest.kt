@@ -57,6 +57,7 @@ class ShareChatMessageViewHolderTest {
     fun testViewHolder(direction: Direction, status: ShareStatus, expectedLabel: Int?) {
         val contact = mock<Contact>()
         stub(contact.alias).toReturn("contact")
+        stub(contact.keyIdentifier).toReturn("key")
 
         val view = mock<View>()
 

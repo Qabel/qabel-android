@@ -20,6 +20,7 @@ import de.qabel.qabelbox.box.interactor.BoxServiceStarter
 import de.qabel.qabelbox.box.presenters.FileUploadPresenter
 import de.qabel.qabelbox.box.provider.DocumentId
 import de.qabel.qabelbox.box.provider.DocumentIdParser
+import de.qabel.qabelbox.box.queryNameAndSize
 import de.qabel.qabelbox.contacts.extensions.colorForKeyIdentitfier
 import de.qabel.qabelbox.contacts.view.widgets.IdentityIconDrawable
 import de.qabel.qabelbox.dagger.modules.ActivityModule
@@ -110,10 +111,14 @@ class ExternalFileUploadActivity() : FileUploadView, CrashReportingActivity(), Q
         }
         if (Intent.ACTION_SEND == intent.action) {
             fileUri = intent.getParcelableExtra(Intent.EXTRA_STREAM)
-            filename = fileUri?.lastPathSegment ?: "filename"
         }
-        if (fileUri == null) {
-            finish()
+        fileUri.let {
+            if (it == null) {
+                finish()
+            } else {
+                filename = contentResolver.queryNameAndSize(it).first
+            }
+
         }
     }
     private val splitRegex: Regex by lazy { " ".toRegex() }

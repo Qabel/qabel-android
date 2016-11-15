@@ -44,7 +44,8 @@ class ExternalFileUploadPresenterTest {
 
     @Test
     fun availableIdentities() {
-        presenter.availableIdentities.map { it.alias } eq identities.identities.map { it.alias }
+        presenter.availableIdentities.map { it.alias }.toSet() eq identities
+                .identities.map { it.alias }.toSet()
     }
 
     @Test

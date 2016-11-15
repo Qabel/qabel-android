@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.TextView
@@ -19,9 +20,15 @@ import de.qabel.qabelbox.box.interactor.BoxServiceStarter
 import de.qabel.qabelbox.box.presenters.FileUploadPresenter
 import de.qabel.qabelbox.box.provider.DocumentId
 import de.qabel.qabelbox.box.provider.DocumentIdParser
+import de.qabel.qabelbox.contacts.extensions.colorForKeyIdentitfier
+import de.qabel.qabelbox.contacts.view.widgets.IdentityIconDrawable
 import de.qabel.qabelbox.dagger.modules.ActivityModule
 import de.qabel.qabelbox.dagger.modules.ExternalFileUploadModule
+import de.qabel.qabelbox.identity.view.adapter.IdentitiesAdapter
 import kotlinx.android.synthetic.main.activity_external_upload.*
+import kotlinx.android.synthetic.main.item_identities.view.*
+import org.jetbrains.anko.ctx
+import org.jetbrains.anko.layoutInflater
 import org.jetbrains.anko.onClick
 import org.jetbrains.anko.startActivityForResult
 import java.io.FileNotFoundException
@@ -109,11 +116,35 @@ class ExternalFileUploadActivity() : FileUploadView, CrashReportingActivity(), Q
             finish()
         }
     }
+    private val splitRegex: Regex by lazy { " ".toRegex() }
+    private fun String.toInitials(): String = split(splitRegex).filter {
+        it.isNotEmpty() && it.first().isLetterOrDigit()
+    }.take(2).map {
+        it.take(1).toUpperCase()
+    }.joinToString("")
 
     private fun populateSpinner() {
         val identities = presenter.availableIdentities
-        val adapter = ArrayAdapter<FileUploadPresenter.IdentitySelection>(
-                this, R.layout.identity_spinner_field, identities)
+        val iconSize = ctx.resources.
+                getDimension(R.dimen.material_drawer_item_profile_icon_width).toInt()
+
+        val adapter = object: ArrayAdapter<FileUploadPresenter.IdentitySelection>(
+                this, R.layout.item_identities,R.id.item_name , identities) {
+            override fun getDropDownView(position: Int, convertView: View?, parent: ViewGroup?): View {
+                return getView(position, convertView, parent)
+            }
+            override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
+                val view = convertView ?: ctx.layoutInflater.inflate(R.layout.item_identities, parent, false)
+                val item = getItem(position)
+                view.item_name.text = item.alias
+                view.item_icon.background = IdentityIconDrawable(
+                        width = iconSize,
+                        height = iconSize,
+                        text = item.alias.toInitials(),
+                        color = colorForKeyIdentitfier(item.keyId, 0, ctx))
+                return view
+            }
+        }
         identitySelect.adapter = adapter
         identitySelect.setSelection(0)
         identitySelect.onItemSelectedListener = object: AdapterView.OnItemSelectedListener {

@@ -408,4 +408,5 @@ You can find more information on https://qabel.de/en
     <string name="upload_complete_msg">%s completely uploaded</string>
     <string name="upload_failed_title">Upload failed</string>
     <string name="upload_failed_msg">Failed to upload %s</string>
+    <string name="external_file_save">Save to Qabel</string>
 </resources>

@@ -407,4 +407,5 @@ Mehr Infos finden Sie unter https://qabel.de
     <string name="upload_failed_msg">Hochladen fehlgeschlagen</string>
     <string name="download_failed">Herunterladen fehlgeschlagen</string>
     <string name="download_failed_msg">%s konnte nicht heruntergeladen werden</string>
+    <string name="external_file_save">In Qabel speichern</string>
 </resources>

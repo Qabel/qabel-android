@@ -9,6 +9,11 @@ import de.qabel.qabelbox.contacts.dto.ContactDto
 fun ContactDto.contactColors(ctx: Context): List<Int> = identities.map { it.color(ctx) }
 
 fun Entity.color(ctx: Context): Int {
+    return colorForKeyIdentitfier(keyIdentifier, id, ctx)
+}
+
+
+fun colorForKeyIdentitfier(keyIdentifier: String, id: Int, ctx: Context): Int {
     val allColors = ctx.resources.obtainTypedArray(R.array.contact_colors)
     try {
         val allLength = allColors.length()
@@ -24,5 +29,3 @@ fun Entity.color(ctx: Context): Int {
         allColors.recycle()
     }
 }
-
-

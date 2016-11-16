@@ -5,7 +5,6 @@ import android.app.Instrumentation
 import android.content.Intent
 import android.net.Uri
 import android.support.test.InstrumentationRegistry
-import android.support.test.espresso.Espresso
 import android.support.test.espresso.Espresso.onData
 import android.support.test.espresso.Espresso.onView
 import android.support.test.espresso.ViewInteraction
@@ -60,6 +59,7 @@ class ExternalFileUploadActivityTest {
             return Intent(InstrumentationRegistry.getTargetContext(), FolderChooserActivity::class.java).apply {
                 action = Intent.ACTION_SEND
                 putExtra(Intent.EXTRA_STREAM, uri)
+                putExtra(ExternalFileUploadActivity.TEST_RUN, true)
             }
         }
 

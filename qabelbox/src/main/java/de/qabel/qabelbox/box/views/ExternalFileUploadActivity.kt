@@ -107,7 +107,8 @@ class ExternalFileUploadActivity() : FileUploadView, CrashReportingActivity(), Q
         populateSpinner()
         folderSelect.onClick {
             startActivityForResult<FolderChooserActivity>(FOLDER_CHOOSER_RESULT,
-                    ACTIVE_IDENTITY to identity.keyId)
+                    ACTIVE_IDENTITY to identity.keyId,
+                    FolderChooserActivity.TEST_RUN to intent.getBooleanExtra(TEST_RUN, false))
         }
         if (Intent.ACTION_SEND == intent.action) {
             fileUri = intent.getParcelableExtra(Intent.EXTRA_STREAM)
@@ -175,6 +176,7 @@ class ExternalFileUploadActivity() : FileUploadView, CrashReportingActivity(), Q
 
     companion object {
         const val FOLDER_CHOOSER_RESULT = 1
+        const val TEST_RUN = "TEST_RUN"
     }
 }
 

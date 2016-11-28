@@ -40,8 +40,8 @@ android {
         multiDexEnabled true
 
         // VERSION
-        versionCode 19
-        versionName "0.13.0"
+        versionCode 20
+        versionName "0.13.1"
         // END VERSION
 
         testInstrumentationRunner "de.qabel.qabelbox.QblJUnitRunner"

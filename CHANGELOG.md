@@ -11,6 +11,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Changed
 
 ### Fixed
+
+## [0.13.1] - 2016-11-28
+
+### Added
+
+### Changed
+
+### Fixed
 - Guard against unusable addressbook entries to prevent crashes
 
 ## [0.13.0] - 2016-11-1

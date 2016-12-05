@@ -20,21 +20,37 @@
 
     </android.support.design.widget.AppBarLayout>
 
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/identity"
+        style="@style/InputLabel" />
     <Spinner
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/identitySelect"
+        android:hint="@string/identity"
         android:spinnerMode="dropdown" />
 
-    <EditText
+    <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:inputType="textShortMessage"
-        android:text=""
-        android:ems="10"
-        android:id="@+id/filenameField"
-        android:maxLines="1" />
-
+        android:text="@string/filename"
+        style="@style/InputLabel" />
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="textShortMessage"
+            android:text=""
+            android:ems="10"
+            android:id="@+id/filenameField"
+            android:hint="@string/filename"
+            android:maxLines="1" />
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/folder"
+        style="@style/InputLabel" />
     <Button
         android:text=""
         android:layout_width="match_parent"

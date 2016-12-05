@@ -394,7 +394,7 @@ You can find more information on https://qabel.de/en
     <string name="private_identity">Private</string>
     <string name="private_identity_text">Tag an identity as private to prevent that any information about your identity is published on the Qabel Index. Qabel Index is the public contact directory for Qabel users. Note: If you tag your identity as private, other Qabel users cannot find your contact details via your phone number or your e-mail address.  To confirm your e-mail address/telephone number, we will send you an e-mail/text message to the respective address/number.</string>
     <string name="conversations_empty">no recent conversations</string>
-    <string name="unknown">unkown</string>
+    <string name="unknown">unknown</string>
     <string name="index_search">Search for contacts</string>
     <string name="index_search_hint">Phone or email</string>
     <string name="upgrade">Get more space</string>
@@ -409,4 +409,6 @@ You can find more information on https://qabel.de/en
     <string name="upload_failed_title">Upload failed</string>
     <string name="upload_failed_msg">Failed to upload %s</string>
     <string name="external_file_save">Save to Qabel</string>
+    <string name="filename">Filename</string>
+    <string name="folder">Folder</string>
 </resources>

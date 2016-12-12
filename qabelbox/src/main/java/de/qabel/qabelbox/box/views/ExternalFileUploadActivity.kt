@@ -139,12 +139,12 @@ class ExternalFileUploadActivity() : FileUploadView, CrashReportingActivity(), Q
                 getDimension(R.dimen.material_drawer_item_profile_icon_width).toInt()
 
         val adapter = object: ArrayAdapter<FileUploadPresenter.IdentitySelection>(
-                this, R.layout.item_identities,R.id.item_name , identities) {
+                this, R.layout.item_identity_for_chooser,R.id.item_name , identities) {
             override fun getDropDownView(position: Int, convertView: View?, parent: ViewGroup?): View {
                 return getView(position, convertView, parent)
             }
             override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
-                val view = convertView ?: ctx.layoutInflater.inflate(R.layout.item_identities, parent, false)
+                val view = convertView ?: ctx.layoutInflater.inflate(R.layout.item_identity_for_chooser, parent, false)
                 val item = getItem(position)
                 view.item_name.text = item.alias
                 view.item_icon.background = IdentityIconDrawable(

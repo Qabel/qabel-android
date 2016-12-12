@@ -21,7 +21,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Box operations running and tracked in background
 
 ### Fixed
-- Guard against unusable addressbook entries to prevent crashes
+- Guard against unusable address book entries to prevent crashes
 - Fix crash on Android 7 when receiving or sending a file share.
 
 ## [0.13.0] - 2016-11-1

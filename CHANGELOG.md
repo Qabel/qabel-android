@@ -11,10 +11,20 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Share into Qabel from other Android apps (SEND-Intent)
 
 ### Changed
+
+### Fixed
+
+## [0.13.2] - 2016-12-12
+
+### Added
+- Remote folder chooser activity (unused currently)
+
+### Changed
 - Box operations running and tracked in background
 
 ### Fixed
-- Guard against unusable addressbook entries to prevent crashes
+- Guard against unusable address book entries to prevent crashes
+- Fix crash on Android 7 when receiving or sending a file share.
 
 ## [0.13.0] - 2016-11-1
 ### Added

@@ -66,7 +66,7 @@ open class StorageModule {
     @Singleton
     @Provides
     internal fun provideFileMetadataFactory(cacheDir: File): FileMetadataFactory {
-        return JdbcFileMetadataFactory(cacheDir, { connection -> AndroidVersionAdapter(connection) })
+        return JdbcFileMetadataFactory(cacheDir, ::AndroidVersionAdapter, JdbcPrefix.jdbcPrefix)
     }
 
     @Singleton
@@ -101,10 +101,12 @@ open class StorageModule {
                              contactRepository: ContactRepository,
                              preference: AppPreference,
                              context: Context, blockServer: BlockServer,
-                             scheduler: BoxScheduler):
+                             scheduler: BoxScheduler,
+                             fileMetadataFactory: FileMetadataFactory):
             VolumeManager {
         val (read, operation) = makeFileBrowserFactory(
-                identityRepository, contactRepository, preference.deviceId, context.cacheDir, blockServer, scheduler)
+                identityRepository, contactRepository, preference.deviceId,
+                context.cacheDir, blockServer, scheduler, fileMetadataFactory)
         return BoxVolumeManager(identityRepository, read, operation)
     }
 

@@ -2,6 +2,7 @@ package de.qabel.qabelbox.box.interactor
 
 import de.qabel.box.storage.AndroidBoxVolume
 import de.qabel.box.storage.BoxVolumeConfig
+import de.qabel.box.storage.FileMetadataFactory
 import de.qabel.box.storage.RootRefCalculator
 import de.qabel.box.storage.exceptions.QblStorageException
 import de.qabel.box.storage.jdbc.DirectoryMetadataDatabase
@@ -27,7 +28,8 @@ private fun keysAndVolume(volumeRoot: VolumeRoot,
                           identityRepository: IdentityRepository,
                           deviceId: ByteArray,
                           tempDir: File,
-                          androidBlockServer: BlockServer): Pair<BoxReadFileBrowser.KeyAndPrefix, VolumeNavigator> {
+                          androidBlockServer: BlockServer,
+                          fileMetadataFactory: FileMetadataFactory): Pair<BoxReadFileBrowser.KeyAndPrefix, VolumeNavigator> {
     val docId = volumeRoot.documentID.toDocumentId()
     val key = docId.identityKey
     val identity = identityRepository.find(key)
@@ -68,16 +70,19 @@ fun makeFileBrowserFactory(identityRepository: IdentityRepository,
                            contactRepository: ContactRepository,
                            deviceId: ByteArray,
                            tempDir: File,
-                           androidBlockServer: BlockServer, scheduler: BoxScheduler):
+                           androidBlockServer: BlockServer, scheduler: BoxScheduler,
+                           fileMetadataFactory: FileMetadataFactory):
         Pair<(VolumeRoot) -> ReadFileBrowser, (VolumeRoot) -> OperationFileBrowser> {
 
     return Pair(
             fun(volumeRoot: VolumeRoot): ReadFileBrowser {
-                val (keyAndPrefix, volumeNavigator) = keysAndVolume(volumeRoot, identityRepository, deviceId, tempDir, androidBlockServer)
+                val (keyAndPrefix, volumeNavigator) = keysAndVolume(volumeRoot, identityRepository,
+                        deviceId, tempDir, androidBlockServer, fileMetadataFactory)
                 return BoxReadFileBrowser(keyAndPrefix, volumeNavigator, contactRepository, scheduler)
             },
             fun(volumeRoot: VolumeRoot): OperationFileBrowser {
-                val (keyAndPrefix, volumeNavigator) = keysAndVolume(volumeRoot, identityRepository, deviceId, tempDir, androidBlockServer)
+                val (keyAndPrefix, volumeNavigator) = keysAndVolume(volumeRoot, identityRepository,
+                        deviceId, tempDir, androidBlockServer, fileMetadataFactory)
                 return BoxOperationFileBrowser(keyAndPrefix, volumeNavigator, contactRepository, scheduler)
             })
 }

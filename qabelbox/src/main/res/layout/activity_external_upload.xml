@@ -1,81 +1,90 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/app_bap_main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fitsSystemWindows="true"
-    android:orientation="vertical">
+    android:fitsSystemWindows="true">
 
-    <android.support.design.widget.AppBarLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:theme="@style/AppTheme.AppBarOverlay">
-
-        <android.support.v7.widget.Toolbar
-            android:id="@+id/toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            android:background="?attr/colorPrimary"
-            app:popupTheme="@style/AppTheme.PopupOverlay" />
-
-    </android.support.design.widget.AppBarLayout>
-
-    <LinearLayout
-        android:orientation="vertical"
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginEnd="@dimen/default_space"
-        android:layout_marginStart="@dimen/default_space">
+        android:fitsSystemWindows="true"
+        android:orientation="vertical">
 
-        <TextView
-            style="@style/InputLabel"
-            android:paddingTop="@dimen/activity_vertical_margin"
+        <android.support.design.widget.AppBarLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/identity" />
+            android:theme="@style/AppTheme.AppBarOverlay">
 
-        <Spinner
-            android:id="@+id/identitySelect"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="@string/identity"
-            android:dropDownSelector="@drawable/menu_down"
-            android:spinnerMode="dropdown" />
+            <android.support.v7.widget.Toolbar
+                android:id="@+id/toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                android:background="?attr/colorPrimary"
+                app:popupTheme="@style/AppTheme.PopupOverlay" />
 
-        <TextView
-            style="@style/InputLabel"
-            android:paddingTop="@dimen/activity_vertical_margin"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/filename" />
-        <EditText
-            android:id="@+id/filenameField"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="@string/filename"
-            android:inputType="textShortMessage"
-            android:maxLines="1"
-            android:text="" />
+        </android.support.design.widget.AppBarLayout>
 
-        <TextView
-            style="@style/InputLabel"
-            android:paddingTop="@dimen/default_space"
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/folder" />
-
-        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-            xmlns:app="http://schemas.android.com/apk/res-auto"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
+            android:layout_height="match_parent"
             android:layout_marginEnd="@dimen/default_space"
             android:layout_marginStart="@dimen/default_space"
-            android:background="@drawable/separator_gray"
-            android:id="@+id/folderSelect"
-            android:clickable="true"
-            android:orientation="horizontal">
+            android:orientation="vertical">
+
+            <TextView
+                style="@style/InputLabel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingTop="@dimen/activity_vertical_margin"
+                android:text="@string/identity" />
+
+            <Spinner
+                android:id="@+id/identitySelect"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:dropDownSelector="@drawable/menu_down"
+                android:hint="@string/identity"
+                android:spinnerMode="dropdown" />
+
+            <TextView
+                style="@style/InputLabel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingTop="@dimen/activity_vertical_margin"
+                android:text="@string/filename" />
+
+            <EditText
+                android:id="@+id/filenameField"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/filename"
+                android:inputType="textShortMessage"
+                android:maxLines="1"
+                android:text="" />
+
+            <TextView
+                style="@style/InputLabel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingTop="@dimen/default_space"
+                android:text="@string/folder" />
+
+            <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:app="http://schemas.android.com/apk/res-auto"
+                android:id="@+id/folderSelect"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginEnd="@dimen/default_space"
+                android:layout_marginStart="@dimen/default_space"
+                android:background="@drawable/separator_gray"
+                android:clickable="true"
+                android:orientation="horizontal">
+
                 <ImageView
                     android:id="@+id/fileEntryIcon"
                     style="@style/ListIcon"
@@ -95,21 +104,23 @@
 
                 <ImageView
                     style="@style/ListIcon"
-                    android:paddingStart="0dp"
-                    tools:ignore="RtlSymmetry"
-                    app:srcCompat="@drawable/menu_down"
-                    android:tint="@color/grey_text_color"
-                    android:layout_gravity="center"
+                    android:layout_width="34dp"
                     android:layout_height="34dp"
-                    android:layout_width="34dp" />
+                    android:layout_gravity="center"
+                    android:paddingStart="0dp"
+                    android:tint="@color/grey_text_color"
+                    app:srcCompat="@drawable/menu_down"
+                    tools:ignore="RtlSymmetry" />
+            </LinearLayout>
+
+            <ImageView
+                android:id="@+id/filePreview"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingBottom="@dimen/default_space"
+                android:paddingTop="@dimen/default_space" />
+
         </LinearLayout>
 
-        <ImageView
-            android:id="@+id/filePreview"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
-
     </LinearLayout>
-
-</LinearLayout>
-
+</android.support.design.widget.CoordinatorLayout>

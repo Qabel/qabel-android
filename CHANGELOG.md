@@ -15,6 +15,17 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+## [0.14.0] - 2016-12
+
+### Added
+- Remote folder chooser activity
+- Share into Qabel from other Android apps (SEND-Intent)
+- Open shared files from the chat
+
+### Changed
+
+### Fixed
+
 ## [0.13.2] - 2016-12-12
 
 ### Added

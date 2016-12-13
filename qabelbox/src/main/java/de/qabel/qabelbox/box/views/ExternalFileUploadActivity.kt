@@ -11,6 +11,7 @@ import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.TextView
+import com.squareup.picasso.Picasso
 import de.qabel.box.storage.dto.BoxPath
 import de.qabel.core.logging.QabelLog
 import de.qabel.qabelbox.R
@@ -25,7 +26,6 @@ import de.qabel.qabelbox.contacts.extensions.colorForKeyIdentitfier
 import de.qabel.qabelbox.contacts.view.widgets.IdentityIconDrawable
 import de.qabel.qabelbox.dagger.modules.ActivityModule
 import de.qabel.qabelbox.dagger.modules.ExternalFileUploadModule
-import de.qabel.qabelbox.identity.view.adapter.IdentitiesAdapter
 import kotlinx.android.synthetic.main.activity_external_upload.*
 import kotlinx.android.synthetic.main.item_identities.view.*
 import org.jetbrains.anko.ctx
@@ -71,7 +71,7 @@ class ExternalFileUploadActivity() : FileUploadView, CrashReportingActivity(), Q
                 }
                 if (id.path is BoxPath.FolderLike) {
                     path = id.path
-                    folderSelect.text = id.path.toString()
+                    folderName.text = id.path.toString()
                 }
             }
         }
@@ -99,7 +99,7 @@ class ExternalFileUploadActivity() : FileUploadView, CrashReportingActivity(), Q
                 .inject(this)
         setContentView(R.layout.activity_external_upload)
         setSupportActionBar(toolbar)
-        folderSelect.text = path.toString()
+        folderName.text = path.toString()
         if (presenter.availableIdentities.isEmpty()) {
             finish()
             return
@@ -122,6 +122,7 @@ class ExternalFileUploadActivity() : FileUploadView, CrashReportingActivity(), Q
                 } catch (e: NullPointerException) {
                     fileUri?.lastPathSegment ?: "filename"
                 }
+                Picasso.with(ctx).load(it).into(filePreview)
             }
 
         }

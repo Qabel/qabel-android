@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
@@ -20,43 +21,95 @@
 
     </android.support.design.widget.AppBarLayout>
 
-    <TextView
+    <LinearLayout
+        android:orientation="vertical"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/identity"
-        style="@style/InputLabel" />
-    <Spinner
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/identitySelect"
-        android:hint="@string/identity"
-        android:spinnerMode="dropdown" />
+        android:layout_height="match_parent"
+        android:layout_marginEnd="@dimen/default_space"
+        android:layout_marginStart="@dimen/default_space">
 
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/filename"
-        style="@style/InputLabel" />
-        <EditText
+        <TextView
+            style="@style/InputLabel"
+            android:paddingTop="@dimen/activity_vertical_margin"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:inputType="textShortMessage"
-            android:text=""
-            android:ems="10"
+            android:text="@string/identity" />
+
+        <Spinner
+            android:id="@+id/identitySelect"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/identity"
+            android:dropDownSelector="@drawable/menu_down"
+            android:spinnerMode="dropdown" />
+
+        <TextView
+            style="@style/InputLabel"
+            android:paddingTop="@dimen/activity_vertical_margin"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/filename" />
+        <EditText
             android:id="@+id/filenameField"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:hint="@string/filename"
-            android:maxLines="1" />
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/folder"
-        style="@style/InputLabel" />
-    <Button
-        android:text=""
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/folderSelect"
-        android:elevation="0dp" />
+            android:inputType="textShortMessage"
+            android:maxLines="1"
+            android:text="" />
+
+        <TextView
+            style="@style/InputLabel"
+            android:paddingTop="@dimen/default_space"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/folder" />
+
+        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:app="http://schemas.android.com/apk/res-auto"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginEnd="@dimen/default_space"
+            android:layout_marginStart="@dimen/default_space"
+            android:background="@drawable/separator_gray"
+            android:id="@+id/folderSelect"
+            android:clickable="true"
+            android:orientation="horizontal">
+                <ImageView
+                    android:id="@+id/fileEntryIcon"
+                    style="@style/ListIcon"
+                    android:paddingStart="0dp"
+                    app:srcCompat="@drawable/folder"
+                    tools:ignore="RtlSymmetry" />
+
+                <de.qabel.qabelbox.ui.views.TextViewFont
+                    android:id="@+id/folderName"
+                    style="@style/ListFirstTextLine"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="0.85"
+                    android:ellipsize="marquee"
+                    android:gravity="center_vertical"
+                    android:textAppearance="@style/InputLabel" />
+
+                <ImageView
+                    style="@style/ListIcon"
+                    android:paddingStart="0dp"
+                    tools:ignore="RtlSymmetry"
+                    app:srcCompat="@drawable/menu_down"
+                    android:tint="@color/grey_text_color"
+                    android:layout_gravity="center"
+                    android:layout_height="34dp"
+                    android:layout_width="34dp" />
+        </LinearLayout>
+
+        <ImageView
+            android:id="@+id/filePreview"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+    </LinearLayout>
 
 </LinearLayout>
 

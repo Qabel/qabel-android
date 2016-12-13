@@ -144,7 +144,7 @@ class ExternalFileUploadActivityTest {
 
         Page.startChooser()
         assert(activity.path == BoxPath.Root / "folder")
-        Page.folderButton.hasText("/folder")
+        Page.folderName.hasText("/folder")
     }
 
     @Test
@@ -202,6 +202,9 @@ class ExternalFileUploadActivityTest {
 
         val folderButton: ViewInteraction
             get() = onView(withId(R.id.folderSelect))
+
+        val folderName: ViewInteraction
+            get() = onView(withId(R.id.folderName))
 
         fun folderSelectIntentMatcher(identity: FileUploadPresenter.IdentitySelection) = Matchers.allOf(
                     IntentMatchers.toPackage("de.qabel.qabel.debug"),

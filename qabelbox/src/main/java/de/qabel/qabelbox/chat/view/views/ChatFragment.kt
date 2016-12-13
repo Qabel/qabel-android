@@ -16,6 +16,7 @@ import de.qabel.core.config.Identity
 import de.qabel.qabelbox.QblBroadcastConstants
 import de.qabel.qabelbox.R
 import de.qabel.qabelbox.base.BaseFragment
+import de.qabel.qabelbox.box.openIntent
 import de.qabel.qabelbox.box.provider.ShareId
 import de.qabel.qabelbox.chat.dagger.ChatModule
 import de.qabel.qabelbox.chat.dto.ChatMessage
@@ -242,18 +243,9 @@ class ChatFragment : ChatView, BaseFragment(), AnkoLogger {
                 }
                 startActivity(intent)
             } else {
-                startViewIntent(mimeType, uri)
+                uri.openIntent(ctx)
             }
         }
-    }
-
-    private fun startViewIntent(mimeType: String, uri: Uri?) {
-        val intent = Intent(Intent.ACTION_VIEW).apply {
-            data = uri
-            type = mimeType
-            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-        }
-        startActivity(Intent.createChooser(intent, ctx.getString(R.string.chooser_open_with)).singleTop())
     }
 
 }

@@ -23,6 +23,8 @@ import de.qabel.qabelbox.box.dto.FileOperationState.Status
 import de.qabel.qabelbox.box.events.BoxBackgroundEvent
 import de.qabel.qabelbox.box.events.BoxPathEvent
 import de.qabel.qabelbox.box.events.FileUploadEvent
+import de.qabel.qabelbox.box.mimeType
+import de.qabel.qabelbox.box.openIntent
 import de.qabel.qabelbox.box.presenters.FileBrowserPresenter
 import de.qabel.qabelbox.box.provider.BoxProvider
 import de.qabel.qabelbox.box.provider.DocumentId
@@ -279,7 +281,7 @@ class FileBrowserFragment : FileBrowserView, FileListingView,
         runOnUiThread {
             info("Open With via started for docu id $documentId")
             val uri = uriFromDocumentId(documentId)
-            val mimeType = typeFromUri(uri)
+            val mimeType = uri.mimeType()
             if (mimeType.startsWith("image")) {
                 val intent = Intent(ctx, ImageViewerActivity::class.java)
                 intent.putExtra(ImageViewerActivity.P_URI, uri)
@@ -305,24 +307,11 @@ class FileBrowserFragment : FileBrowserView, FileListingView,
         runOnUiThread {
             info("Share via started for docu id $documentId")
             val uri = uriFromDocumentId(documentId)
-            val shareIntent = Intent(Intent.ACTION_SEND).apply {
-                data = uri
-                type = typeFromUri(uri)
-                putExtra(Intent.EXTRA_SUBJECT, R.string.share_subject)
-                putExtra(Intent.EXTRA_TITLE, R.string.share_subject)
-                putExtra(Intent.EXTRA_TEXT, activity.getString(R.string.share_text))
-                putExtra(Intent.EXTRA_STREAM, uri)
-                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-            }
-            startActivity(Intent.createChooser(shareIntent, activity.getString(R.string.share_via)))
+            uri.openIntent(ctx)
         }
     }
 
-    private fun typeFromUri(uri: Uri?): String {
-        return URLConnection.guessContentTypeFromName(uri.toString()) ?: "application/octet-stream"
-    }
-
-    private fun uriFromDocumentId(documentId: DocumentId): Uri? =
+    private fun uriFromDocumentId(documentId: DocumentId): Uri =
             DocumentsContract.buildDocumentUri(
                     BuildConfig.APPLICATION_ID + BoxProvider.AUTHORITY,
                     documentId.toString())
@@ -333,7 +322,7 @@ class FileBrowserFragment : FileBrowserView, FileListingView,
             exportDocumentId = documentId
 
             val uri = uriFromDocumentId(documentId)
-            val mimeType = typeFromUri(uri)
+            val mimeType = uri.mimeType()
             val createDocument = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
                 data = uri
                 type = mimeType

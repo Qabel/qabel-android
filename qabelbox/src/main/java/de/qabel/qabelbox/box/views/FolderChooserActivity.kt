@@ -1,5 +1,6 @@
 package de.qabel.qabelbox.box.views
 
+import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.support.v7.widget.LinearLayoutManager
@@ -53,10 +54,15 @@ QabelLog {
         swipeRefresh.isEnabled = false
     }
 
+    override fun onResume() {
+        super.onResume()
+        if (!intent.getBooleanExtra(TEST_RUN, false)) {
+            presenter.onRefresh()
+        }
+    }
+
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         super.onCreateOptionsMenu(menu)
-        // Inflate the menu; this adds items to the action bar if it is present.
-        //  getMenuInflater().inflate(R.menu.ab_main, menu);
         menuInflater.inflate(R.menu.ab_folder_chooser, menu)
         return true
     }
@@ -71,7 +77,7 @@ QabelLog {
     }
 
     override fun finish(documentId: DocumentId) {
-        setResult(CHOOSE_FOLDER, Intent().apply {
+        setResult(Activity.RESULT_OK, Intent().apply {
             putExtra(FOLDER_DOCUMENT_ID, documentId.toString())
         })
         finish()
@@ -119,8 +125,8 @@ QabelLog {
     }
 
     companion object {
-        const val CHOOSE_FOLDER = 1
         const val FOLDER_DOCUMENT_ID = "FOLDER_DOCUMENT_ID"
+        const val TEST_RUN = "TEST_RUN"
     }
 
 }

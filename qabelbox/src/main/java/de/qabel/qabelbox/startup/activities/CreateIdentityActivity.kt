@@ -24,7 +24,7 @@ import de.qabel.qabelbox.base.MainActivity
 import de.qabel.qabelbox.communication.PrefixServer
 import de.qabel.qabelbox.communication.callbacks.JsonRequestCallback
 import de.qabel.qabelbox.config.AppPreference
-import de.qabel.qabelbox.identity.interactor.IdentityUseCase
+import de.qabel.qabelbox.identity.interactor.IdentityInteractor
 import de.qabel.qabelbox.index.IndexIdentityListener
 import de.qabel.qabelbox.index.preferences.IndexPreferences
 import de.qabel.qabelbox.permissions.DataPermissionsAdapter
@@ -58,7 +58,7 @@ class CreateIdentityActivity : BaseWizardActivity(), QabelLog, DataPermissionsAd
     internal var tryCount = 0
 
     @Inject
-    lateinit internal var identityUseCase: IdentityUseCase
+    lateinit internal var identityInteractor: IdentityInteractor
     @Inject
     lateinit internal var indexPreferences: IndexPreferences
 
@@ -132,7 +132,7 @@ class CreateIdentityActivity : BaseWizardActivity(), QabelLog, DataPermissionsAd
         QabelBoxApplication.getApplicationComponent(applicationContext).inject(this)
         super.onCreate(savedInstanceState)
         registerReceiver(indexIdentityListener, indexIdentityListener.createIntentFilter())
-        identityUseCase.getIdentities().subscribe({
+        identityInteractor.getIdentities().subscribe({
             existingIdentities = it
             canExit = it.identities.size > 0
         }, {
@@ -207,7 +207,7 @@ class CreateIdentityActivity : BaseWizardActivity(), QabelLog, DataPermissionsAd
 
     private fun createIdentity() {
         if (prefix != null) {
-            identityUseCase.createIdentity(identityName, dropUrlGenerator.generateUrl(),
+            identityInteractor.createIdentity(identityName, dropUrlGenerator.generateUrl(),
                     prefix!!, email, phoneNumber)
                     .subscribe({
                         info("Identity created ${it.alias} (${it.keyIdentifier})")

@@ -11,8 +11,8 @@ import de.qabel.qabelbox.BuildConfig
 import de.qabel.qabelbox.QblBroadcastConstants.Identities.*
 import de.qabel.qabelbox.SimpleApplication
 import de.qabel.qabelbox.eq
-import de.qabel.qabelbox.identity.interactor.IdentityUseCase
-import de.qabel.qabelbox.identity.interactor.MainIdentityUseCase
+import de.qabel.qabelbox.identity.interactor.IdentityInteractor
+import de.qabel.qabelbox.identity.interactor.MainIdentityInteractor
 import de.qabel.qabelbox.listeners.ActionIntentSender
 import de.qabel.qabelbox.persistence.RepositoryFactory
 import org.junit.Before
@@ -24,19 +24,19 @@ import org.robolectric.annotation.Config
 
 @RunWith(RobolectricGradleTestRunner::class)
 @Config(application = SimpleApplication::class, constants = BuildConfig::class)
-class IdentityUseCaseTest() : CoreTestCase {
+class MainIdentityInteractorTest() : CoreTestCase {
 
     val identity = createIdentity("Alice")
 
     val actionSender: ActionIntentSender = mock()
     lateinit var identityRepo: IdentityRepository
-    lateinit var useCase: IdentityUseCase
+    lateinit var useCase: IdentityInteractor
 
     @Before
     fun setUp() {
         val factory = RepositoryFactory(RuntimeEnvironment.application)
         identityRepo = factory.getIdentityRepository()
-        useCase = MainIdentityUseCase(identityRepo, actionSender)
+        useCase = MainIdentityInteractor(identityRepo, actionSender)
         identityRepo.save(identity)
     }
 

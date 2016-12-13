@@ -9,7 +9,7 @@ import android.view.ViewGroup
 import de.qabel.core.repository.exception.EntityExistsException
 import de.qabel.qabelbox.QabelBoxApplication
 import de.qabel.qabelbox.R
-import de.qabel.qabelbox.identity.interactor.IdentityUseCase
+import de.qabel.qabelbox.identity.interactor.IdentityInteractor
 import de.qabel.qabelbox.startup.activities.CreateIdentityActivity
 import kotlinx.android.synthetic.main.fragment_create_identity_main.view.*
 import org.jetbrains.anko.longToast
@@ -19,7 +19,7 @@ import javax.inject.Inject
 class CreateIdentityMainFragment : BaseIdentityFragment() {
 
     @Inject
-    internal lateinit var identityUseCase: IdentityUseCase
+    internal lateinit var identityInteractor: IdentityInteractor
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
@@ -56,7 +56,7 @@ class CreateIdentityMainFragment : BaseIdentityFragment() {
             val uri = resultData.data
             try {
                 activity.contentResolver.openFileDescriptor(uri, "r")!!.use {
-                    identityUseCase.importIdentity(it.fileDescriptor).subscribe({
+                    identityInteractor.importIdentity(it.fileDescriptor).subscribe({
                         toast(getString(R.string.idenity_imported))
                         (activity as CreateIdentityActivity).apply {
                             createdIdentity = it

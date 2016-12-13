@@ -6,14 +6,14 @@ import de.qabel.core.config.Identity
 import de.qabel.qabelbox.contacts.dto.ContactDto
 import de.qabel.qabelbox.contacts.interactor.ContactsUseCase
 import de.qabel.qabelbox.contacts.view.views.ContactEditView
-import de.qabel.qabelbox.identity.interactor.IdentityUseCase
+import de.qabel.qabelbox.identity.interactor.IdentityInteractor
 import de.qabel.qabelbox.navigation.Navigator
 import org.jetbrains.anko.AnkoLogger
 import javax.inject.Inject
 
 class MainContactEditPresenter @Inject constructor(private val view: ContactEditView,
                                                    private val useCase: ContactsUseCase,
-                                                   private val identityUseCase: IdentityUseCase,
+                                                   private val identityInteractor: IdentityInteractor,
                                                    private val navigator: Navigator) : ContactEditPresenter, AnkoLogger {
 
     override val title: String
@@ -26,7 +26,7 @@ class MainContactEditPresenter @Inject constructor(private val view: ContactEdit
     lateinit var identities: Identities
     override fun loadContact() {
         contact = view.contactDto
-        identityUseCase.getIdentities().subscribe {
+        identityInteractor.getIdentities().subscribe {
             identities = it
             view.loadContact(contact, identities)
         }

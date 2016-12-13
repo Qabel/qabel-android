@@ -10,7 +10,7 @@ import de.qabel.core.index.randomPhone
 import de.qabel.qabelbox.BuildConfig
 import de.qabel.qabelbox.SimpleApplication
 import de.qabel.qabelbox.eq
-import de.qabel.qabelbox.identity.interactor.IdentityUseCase
+import de.qabel.qabelbox.identity.interactor.IdentityInteractor
 import de.qabel.qabelbox.identity.view.IdentityDetailsView
 import de.qabel.qabelbox.identity.view.presenter.IdentityDetailsPresenter
 import de.qabel.qabelbox.identity.view.presenter.MainIdentityDetailsPresenter
@@ -34,7 +34,7 @@ class IdentityDetailsPresenterTest() : CoreTestCase {
         stub(identityKeyId).toReturn(identity.keyIdentifier)
     }
 
-    val useCase: IdentityUseCase = mock<IdentityUseCase>().apply {
+    val useCase: IdentityInteractor = mock<IdentityInteractor>().apply {
         stub(getIdentity(identity.keyIdentifier)).toReturn(identity.toSingletonObservable().toSingle())
         stub(saveIdentity(identity)).toReturn(singleOf(identity))
     }

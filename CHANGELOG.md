@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ## [Unreleased]
 
 ### Added
+- Remote folder chooser activity
+- Share into Qabel from other Android apps (SEND-Intent)
 
 ### Changed
 

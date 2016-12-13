@@ -1,7 +1,7 @@
 package de.qabel.qabelbox.box.provider
 
-import de.qabel.box.storage.exceptions.QblStorageException
 import de.qabel.box.storage.dto.BoxPath
+import de.qabel.box.storage.exceptions.QblStorageException
 import java.io.FileNotFoundException
 import javax.inject.Inject
 
@@ -85,7 +85,7 @@ fun String.toDocumentId(): DocumentId {
         throw QblStorageException("Invalid documentId: " + this)
     }
     val (identityKey, prefix, completePath) = parts
-    val pathParts = completePath.split("/").dropLastWhile(String::isEmpty)
+    val pathParts = completePath.split("/").filter {it.isNotEmpty()}
     if (pathParts.size == 0) {
         return DocumentId(identityKey, prefix, BoxPath.Root)
     }

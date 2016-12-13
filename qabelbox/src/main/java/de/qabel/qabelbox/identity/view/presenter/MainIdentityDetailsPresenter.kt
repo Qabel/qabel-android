@@ -5,19 +5,19 @@ import de.qabel.core.index.formatPhoneNumber
 import de.qabel.core.index.isValidPhoneNumber
 import de.qabel.core.logging.QabelLog
 import de.qabel.qabelbox.helper.Formatter
-import de.qabel.qabelbox.identity.interactor.IdentityUseCase
+import de.qabel.qabelbox.identity.interactor.IdentityInteractor
 import de.qabel.qabelbox.identity.view.IdentityDetailsView
 import de.qabel.qabelbox.navigation.Navigator
 import javax.inject.Inject
 
 class MainIdentityDetailsPresenter @Inject constructor(private val view: IdentityDetailsView,
-                                                       private val identityUseCase: IdentityUseCase,
+                                                       private val identityInteractor: IdentityInteractor,
                                                        private val navigator: Navigator) : IdentityDetailsPresenter, QabelLog {
 
     override var identity: Identity? = null
 
     override fun loadIdentity() {
-        identityUseCase.getIdentity(view.identityKeyId).subscribe({
+        identityInteractor.getIdentity(view.identityKeyId).subscribe({
             identity = it
             view.loadIdentity(it)
         }, {
@@ -27,7 +27,7 @@ class MainIdentityDetailsPresenter @Inject constructor(private val view: Identit
     }
 
     private fun saveIdentity(identity: Identity) {
-        identityUseCase.saveIdentity(identity).subscribe({
+        identityInteractor.saveIdentity(identity).subscribe({
             view.showIdentitySavedToast()
             view.loadIdentity(identity)
         }, {

@@ -115,7 +115,7 @@ class ExternalFileUploadActivityTest {
     @Test
     fun showDefaultPath() {
         launch()
-        Page.folderButton.hasText("/Upload")
+        Page.folderName.hasText("/Upload")
     }
 
     @Test

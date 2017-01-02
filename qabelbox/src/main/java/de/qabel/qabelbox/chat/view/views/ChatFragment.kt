@@ -7,6 +7,8 @@ import android.content.IntentFilter
 import android.net.Uri
 import android.os.Bundle
 import android.support.v7.widget.LinearLayoutManager
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -141,7 +143,27 @@ class ChatFragment : ChatView, BaseFragment(), AnkoLogger {
             presenter.proxy.loadMore()
         }
 
-        bt_send.onClick { presenter.sendMessage() }
+        etText.addTextChangedListener(object : TextWatcher {
+            override fun afterTextChanged(text: Editable?) {
+                if (messageText.isNotEmpty()) {
+                    bt_send.colorFilter.apply { R.color.button_active }
+                    bt_send.onClick { presenter.sendMessage() }
+                }
+            }
+
+            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+
+            }
+
+            override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+                if (messageText.isNotEmpty()) {
+                    bt_send.setColorFilter(R.color.button_active)
+                    bt_send.onClick { presenter.sendMessage() }
+                }
+                bt_send.setColorFilter(R.color.button_active)
+            }
+        })
+
         action_add_contact.setOnClickListener { presenter.handleContactAddClick() }
         action_ignore_contact.setOnClickListener { presenter.handleContactIgnoreClick() }
         emojiPopup = EmojiPopup.Builder.fromRootView(chat_root)
@@ -193,7 +215,7 @@ class ChatFragment : ChatView, BaseFragment(), AnkoLogger {
             if (swipeRefresh.isEnabled) {
                 contact_chat_list.addItemDecoration(headerDecor)
             }
-            if(!loadMore){
+            if (!loadMore) {
                 scrollToBottom()
             }
             idle()
@@ -249,3 +271,4 @@ class ChatFragment : ChatView, BaseFragment(), AnkoLogger {
     }
 
 }
+

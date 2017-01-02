@@ -1,12 +1,16 @@
 package de.qabel.qabelbox.chat.view.views
 
+import android.graphics.ColorFilter
+import android.graphics.LightingColorFilter
 import android.support.test.espresso.Espresso
 import android.support.test.espresso.Espresso.onView
+import android.support.test.espresso.ViewAssertion
 import android.support.test.espresso.action.ViewActions.click
 import android.support.test.espresso.assertion.ViewAssertions
 import android.support.test.espresso.matcher.ViewMatchers.*
 import com.natpryce.hamkrest.equalTo
 import com.natpryce.hamkrest.hasSize
+import com.natpryce.hamkrest.isEmptyString
 import com.natpryce.hamkrest.should.shouldMatch
 import de.qabel.chat.repository.entities.ChatDropMessage
 import de.qabel.qabelbox.R
@@ -18,6 +22,8 @@ import de.qabel.qabelbox.ui.AbstractUITest
 import de.qabel.qabelbox.ui.action.QabelViewAction.setText
 import de.qabel.qabelbox.ui.idling.InjectedIdlingResource
 import de.qabel.qabelbox.util.IdentityHelper
+import kotlinx.android.synthetic.main.fragment_contact_chat.*
+import org.jetbrains.anko.backgroundColor
 import org.junit.Test
 import java.util.*
 
@@ -68,5 +74,14 @@ class ChatFragmentTest : AbstractUITest() {
         launch()
         fragment.prependData(listOf(message))
         onView(withText("MESSAGE")).check(ViewAssertions.matches(isDisplayed()))
+    }
+
+    @Test
+    fun sendButtonInactiveWithoutMessage() {
+        launch()
+        fragment.messageText shouldMatch isEmptyString
+        assert(!fragment.bt_send.hasOnClickListeners())
+        assert(!fragment.bt_send.hasOnClickListeners())
+
     }
 }

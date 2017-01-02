@@ -109,11 +109,7 @@ class CreateAccountActivity : BaseWizardActivity() {
         super.onCreate(savedInstanceState)
         mBoxAccountServer = BoxAccountRegisterServer(applicationContext, appPreference)
 
-        identityInteractor.getIdentities().subscribe({
-            existingIdentities = it
-        }, {
-            existingIdentities = Identities()
-        })
+        existingIdentities = identityInteractor.getIdentities()
     }
 
     override val actionBarTitle: Int

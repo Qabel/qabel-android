@@ -1,0 +1,62 @@
+package de.qabel.qabelbox.chat.view.views
+
+import android.os.Bundle
+import android.support.v7.widget.Toolbar
+import android.view.View
+import android.widget.AdapterView
+import de.qabel.core.logging.QabelLog
+import de.qabel.qabelbox.R
+import de.qabel.qabelbox.adapter.EntitySelectionAdapter
+import de.qabel.qabelbox.base.CrashReportingActivity
+import de.qabel.qabelbox.contacts.dto.EntitySelection
+import de.qabel.qabelbox.chat.dagger.TextShareReceiverModule
+import de.qabel.qabelbox.chat.view.presenters.TextShareReceiverPresenter
+import de.qabel.qabelbox.dagger.modules.ActivityModule
+import kotlinx.android.synthetic.main.content_text_share_receiver.*
+import org.jetbrains.anko.ctx
+import javax.inject.Inject
+
+class TextShareReceiverActivity : TextShareReceiver, CrashReportingActivity(), QabelLog {
+
+    override var identity: EntitySelection? = null
+    override var contact: EntitySelection? = null
+
+    @Inject
+    lateinit var presenter: TextShareReceiverPresenter
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        applicationComponent.plus(ActivityModule(this))
+                .plus(TextShareReceiverModule((this)))
+                .inject(this)
+
+        setContentView(R.layout.activity_text_share_receiver)
+        val toolbar = findViewById(R.id.toolbar) as Toolbar
+        setSupportActionBar(toolbar)
+        val contactAdapter = EntitySelectionAdapter(ctx, presenter.contacts)
+        contactSelect.adapter = contactAdapter
+        contactSelect.onItemSelectedListener = object: AdapterView.OnItemSelectedListener {
+            override fun onNothingSelected(parent: AdapterView<*>?) { }
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                contact = contactAdapter.getItem(position)
+            }
+        }
+        val identityAdapter = EntitySelectionAdapter(ctx, presenter.availableIdentities)
+        identitySelect.adapter = identityAdapter
+        identitySelect.onItemSelectedListener = object: AdapterView.OnItemSelectedListener {
+            override fun onNothingSelected(parent: AdapterView<*>?) { }
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                identity = identityAdapter.getItem(position)
+                contactAdapter.clear()
+                contactAdapter.addAll(presenter.contacts)
+
+            }
+        }
+    }
+
+    companion object {
+        const val TEST_RUN = "TEST_RUN"
+    }
+}
+

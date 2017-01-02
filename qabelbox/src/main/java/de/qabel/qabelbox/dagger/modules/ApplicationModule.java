@@ -28,9 +28,11 @@ import de.qabel.qabelbox.chat.notifications.ChatNotificationManager;
 import de.qabel.qabelbox.chat.notifications.MainChatNotificationManager;
 import de.qabel.qabelbox.chat.notifications.presenter.AndroidChatNotificationPresenter;
 import de.qabel.qabelbox.chat.notifications.presenter.ChatNotificationPresenter;
+import de.qabel.qabelbox.contacts.interactor.ReadOnlyContactsInteractor;
+import de.qabel.qabelbox.contacts.interactor.RepositoryReadOnlyContactsInteractor;
 import de.qabel.qabelbox.identity.interactor.IdentityInteractor;
 import de.qabel.qabelbox.identity.interactor.MainIdentityInteractor;
-import de.qabel.qabelbox.identity.interactor.MainReadOnlyIdentityInteractor;
+import de.qabel.qabelbox.identity.interactor.RepositoryReadOnlyIdentityInteractor;
 import de.qabel.qabelbox.identity.interactor.ReadOnlyIdentityInteractor;
 import de.qabel.qabelbox.listeners.ActionIntentSender;
 import de.qabel.qabelbox.listeners.AndroidActionIntentCastSender;
@@ -110,7 +112,13 @@ public class ApplicationModule extends ContextModule {
 
     @Provides
     public ReadOnlyIdentityInteractor providesReadOnlyIdentityInteractor(
-            MainReadOnlyIdentityInteractor interactor) {
+            RepositoryReadOnlyIdentityInteractor interactor) {
+        return interactor;
+    }
+
+    @Provides
+    public ReadOnlyContactsInteractor providesReadOnlyContactsInteractor(
+            RepositoryReadOnlyContactsInteractor interactor) {
         return interactor;
     }
 

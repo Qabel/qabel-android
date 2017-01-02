@@ -1,19 +1,18 @@
-package de.qabel.qabelbox.box.presenters
+package de.qabel.qabelbox.chat.presenters
 
 import com.nhaarman.mockito_kotlin.mock
-import com.nhaarman.mockito_kotlin.verify
 import com.nhaarman.mockito_kotlin.whenever
-import de.qabel.box.storage.dto.BoxPath
+import de.qabel.core.config.Contacts
 import de.qabel.core.config.Identities
 import de.qabel.core.config.Identity
-import de.qabel.core.config.Prefix
 import de.qabel.core.config.factory.DropUrlGenerator
 import de.qabel.core.config.factory.IdentityBuilder
 import de.qabel.qabelbox.BuildConfig
 import de.qabel.qabelbox.SimpleApplication
-import de.qabel.qabelbox.box.provider.DocumentId
-import de.qabel.qabelbox.box.views.FileUploadView
+import de.qabel.qabelbox.chat.view.presenters.MainTextShareReceiverPresenter
+import de.qabel.qabelbox.chat.view.views.TextShareReceiver
 import de.qabel.qabelbox.contacts.dto.EntitySelection
+import de.qabel.qabelbox.contacts.interactor.ReadOnlyContactsInteractor
 import de.qabel.qabelbox.eq
 import de.qabel.qabelbox.identity.interactor.ReadOnlyIdentityInteractor
 import org.junit.Test
@@ -23,7 +22,7 @@ import org.robolectric.annotation.Config
 
 @RunWith(RobolectricGradleTestRunner::class)
 @Config(application = SimpleApplication::class, constants = BuildConfig::class)
-class ExternalFileUploadPresenterTest {
+class TextShareReceiverPresenterTest {
 
     val dropGen = DropUrlGenerator("http://example.com")
     val mainIdentity: Identity = IdentityBuilder(dropGen).withAlias("first").build()
@@ -33,13 +32,15 @@ class ExternalFileUploadPresenterTest {
     }
     val identityInteractor: ReadOnlyIdentityInteractor = object: ReadOnlyIdentityInteractor {
         override fun getIdentity(keyId: String): Identity =
-            identities.getByKeyIdentifier(keyId)
+                identities.getByKeyIdentifier(keyId)
 
         override fun getIdentities(): Identities = identities
     }
 
-    val view : FileUploadView = mock()
-    val presenter = ExternalFileUploadPresenter(view, identityInteractor)
+    val contactsInteractor: ReadOnlyContactsInteractor = mock()
+
+    val view : TextShareReceiver = mock()
+    val presenter = MainTextShareReceiverPresenter(view, identityInteractor, contactsInteractor)
 
     @Test
     fun availableIdentities() {
@@ -48,25 +49,13 @@ class ExternalFileUploadPresenterTest {
     }
 
     @Test
-    fun defaultPath() {
-        presenter.defaultPath eq BoxPath.Root / "public"
-    }
-
-    @Test
-    fun confirm() {
-        val filename = "filename"
-        val path = BoxPath.Root / "folder"
-        val prefix = "fooprefix"
-        mainIdentity.prefixes.add(Prefix(prefix))
-        whenever(view.path).thenReturn(path)
-        whenever(view.filename).thenReturn(filename)
+    fun contactsForIdentity() {
         whenever(view.identity).thenReturn(EntitySelection(mainIdentity))
-
-        presenter.confirm()
-
-        verify(view).startUpload(DocumentId(
-                mainIdentity.keyIdentifier,
-                prefix, path * filename))
+        val contacts = Contacts(mainIdentity)
+        contacts.put(mainIdentity.toContact())
+        whenever(contactsInteractor.findContacts(mainIdentity.keyIdentifier)).thenReturn(contacts)
+        presenter.contacts eq listOf(EntitySelection(mainIdentity))
     }
 
 }
+

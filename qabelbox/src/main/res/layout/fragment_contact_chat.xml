@@ -55,6 +55,7 @@
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:scaleType="center"
                 android:src="@drawable/ic_send_grey_24dp"
+                android:tint="@color/button_inactive"
                 tools:ignore="ContentDescription"/>
 
         </LinearLayout>

@@ -18,12 +18,12 @@ import de.qabel.qabelbox.chat.view.presenters.TextShareReceiverPresenter
 import de.qabel.qabelbox.dagger.modules.ActivityModule
 import kotlinx.android.synthetic.main.content_text_share_receiver.*
 import org.jetbrains.anko.ctx
+import org.jetbrains.anko.longToast
 import javax.inject.Inject
 import kotlin.properties.Delegates
 import kotlin.reflect.KProperty
 
 class TextShareReceiverActivity : TextShareReceiver, CrashReportingActivity(), QabelLog {
-
     override var identity: EntitySelection? = null
     override var contact: EntitySelection? = null
     override var text: String by Delegates.observable("") {
@@ -94,6 +94,11 @@ class TextShareReceiverActivity : TextShareReceiver, CrashReportingActivity(), Q
     override fun stop() {
         finish()
     }
+
+    override fun showError() {
+        longToast(R.string.cant_send_message)
+    }
+
 
     companion object {
         const val TEST_RUN = "TEST_RUN"

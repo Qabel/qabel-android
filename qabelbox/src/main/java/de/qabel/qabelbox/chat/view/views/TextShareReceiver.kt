@@ -9,5 +9,6 @@ interface TextShareReceiver {
     var text: String
 
     fun stop()
+    fun showError()
 
 }

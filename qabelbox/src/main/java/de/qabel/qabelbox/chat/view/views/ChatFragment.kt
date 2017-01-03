@@ -12,9 +12,11 @@ import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import com.vanniktech.emoji.EmojiPopup
 import de.qabel.core.config.Contact
 import de.qabel.core.config.Identity
+import de.qabel.core.extensions.letApply
 import de.qabel.qabelbox.QblBroadcastConstants
 import de.qabel.qabelbox.R
 import de.qabel.qabelbox.base.BaseFragment
@@ -142,27 +144,19 @@ class ChatFragment : ChatView, BaseFragment(), AnkoLogger {
         swipeRefresh.setOnRefreshListener {
             presenter.proxy.loadMore()
         }
-
-        etText.addTextChangedListener(object : TextWatcher {
-            override fun afterTextChanged(text: Editable?) {
-                if (messageText.isNotEmpty()) {
-                    bt_send.colorFilter.apply { R.color.button_active }
-                    bt_send.onClick { presenter.sendMessage() }
-                }
-            }
-
-            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-
-            }
-
-            override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-                if (messageText.isNotEmpty()) {
-                    bt_send.setColorFilter(R.color.button_active)
-                    bt_send.onClick { presenter.sendMessage() }
-                }
-                bt_send.setColorFilter(R.color.button_active)
-            }
-        })
+        bt_send.onClick { presenter.sendMessage() }
+//        deactivateSendButton()
+//        etText.addTextChangedListener(object : TextWatcher {
+//            override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+//                if (messageText.isNotEmpty()) {
+//                    activateSendButton()
+//                }
+//                deactivateSendButton()
+//            }
+//
+//            override fun afterTextChanged(text: Editable?) {}
+//            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
+//        })
 
         action_add_contact.setOnClickListener { presenter.handleContactAddClick() }
         action_ignore_contact.setOnClickListener { presenter.handleContactIgnoreClick() }
@@ -174,6 +168,28 @@ class ChatFragment : ChatView, BaseFragment(), AnkoLogger {
         emoji_popup.onClick {
             emojiPopup.toggle()
             chat_root.viewTreeObserver.dispatchOnGlobalLayout()
+        }
+    }
+
+    fun deactivateSendButton() {
+        busy()
+        runOnUiThread {
+            bt_send.apply {
+                setColorFilter(R.color.button_inactive)
+                isEnabled = false
+                idle()
+            }
+        }
+    }
+
+    fun activateSendButton() {
+        busy()
+        runOnUiThread {
+            bt_send.apply {
+                setColorFilter(R.color.button_active)
+                isEnabled = true
+                idle()
+            }
         }
     }
 

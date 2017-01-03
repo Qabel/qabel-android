@@ -5,9 +5,6 @@
     <color name="colorAccent">#FF690F</color>
     <color name="colorBottomBackground">#e0e0e0</color>
 
-    <color name="button_inactive">@color/light_gray</color>
-    <color name="button_active">@color/dark_gray</color>
-
     <color name="white">#ffffffff</color>
     <color name="grey_text_color">#ff555555</color>
     <color name="light_gray">#b3b3b3</color>

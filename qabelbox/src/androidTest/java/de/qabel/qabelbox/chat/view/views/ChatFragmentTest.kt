@@ -2,17 +2,13 @@ package de.qabel.qabelbox.chat.view.views
 
 import android.support.test.espresso.Espresso
 import android.support.test.espresso.Espresso.onView
-import android.support.test.espresso.ViewAssertion
 import android.support.test.espresso.action.ViewActions.click
 import android.support.test.espresso.assertion.ViewAssertions
-import android.support.test.espresso.core.deps.guava.base.Verify
 import android.support.test.espresso.matcher.ViewMatchers.*
 import com.natpryce.hamkrest.equalTo
 import com.natpryce.hamkrest.hasSize
-import com.natpryce.hamkrest.isEmptyString
 import com.natpryce.hamkrest.should.shouldMatch
 import de.qabel.chat.repository.entities.ChatDropMessage
-import de.qabel.core.extensions.letApply
 import de.qabel.qabelbox.R
 import de.qabel.qabelbox.base.MainActivity
 import de.qabel.qabelbox.chat.dto.ChatMessage
@@ -22,11 +18,6 @@ import de.qabel.qabelbox.ui.AbstractUITest
 import de.qabel.qabelbox.ui.action.QabelViewAction.setText
 import de.qabel.qabelbox.ui.idling.InjectedIdlingResource
 import de.qabel.qabelbox.util.IdentityHelper
-import kotlinx.android.synthetic.main.fragment_contact_chat.*
-import org.jetbrains.anko.runOnUiThread
-import org.junit.Assert
-import org.junit.Assert.assertFalse
-import org.junit.Assert.assertTrue
 import org.junit.Test
 import java.util.*
 
@@ -83,14 +74,17 @@ class ChatFragmentTest : AbstractUITest() {
     fun deactivateSendButton() {
         launch()
         fragment.deactivateSendButton()
-        assertFalse(fragment.bt_send.isEnabled)
+        onView(withId(R.id.bt_send)).perform(click())
+        fragment.adapter.data shouldMatch hasSize(equalTo(0))
+
     }
 
     @Test
     fun activateSendButton() {
         launch()
-        fragment.activateSendButton()
-        assertTrue(fragment.bt_send.isEnabled)
+        onView(withId(R.id.etText)).perform(setText("My Message"))
+        onView(withId(R.id.bt_send)).perform(click())
+        fragment.adapter.data shouldMatch hasSize(equalTo(1))
     }
 
 }

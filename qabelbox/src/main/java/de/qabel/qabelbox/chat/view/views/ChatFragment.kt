@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.graphics.PorterDuff
 import android.net.Uri
 import android.os.Bundle
 import android.support.v7.widget.LinearLayoutManager
@@ -144,20 +145,21 @@ class ChatFragment : ChatView, BaseFragment(), AnkoLogger {
         swipeRefresh.setOnRefreshListener {
             presenter.proxy.loadMore()
         }
-        bt_send.onClick { presenter.sendMessage() }
-//        deactivateSendButton()
-//        etText.addTextChangedListener(object : TextWatcher {
-//            override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-//                if (messageText.isNotEmpty()) {
-//                    activateSendButton()
-//                }
-//                deactivateSendButton()
-//            }
-//
-//            override fun afterTextChanged(text: Editable?) {}
-//            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
-//        })
 
+        bt_send.onClick { presenter.sendMessage() }
+        deactivateSendButton()
+        etText.addTextChangedListener(object : TextWatcher {
+            override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+                if (messageText.isBlank()) {
+                    deactivateSendButton()
+                } else {
+                    activateSendButton()
+                }
+            }
+
+            override fun afterTextChanged(text: Editable?) {}
+            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
+        })
         action_add_contact.setOnClickListener { presenter.handleContactAddClick() }
         action_ignore_contact.setOnClickListener { presenter.handleContactIgnoreClick() }
         emojiPopup = EmojiPopup.Builder.fromRootView(chat_root)
@@ -172,25 +174,13 @@ class ChatFragment : ChatView, BaseFragment(), AnkoLogger {
     }
 
     fun deactivateSendButton() {
-        busy()
-        runOnUiThread {
-            bt_send.apply {
-                setColorFilter(R.color.button_inactive)
-                isEnabled = false
-                idle()
-            }
-        }
+        bt_send.isEnabled = false
+        bt_send.setImageResource(R.drawable.ic_send_grey_24dp)
     }
 
     fun activateSendButton() {
-        busy()
-        runOnUiThread {
-            bt_send.apply {
-                setColorFilter(R.color.button_active)
-                isEnabled = true
-                idle()
-            }
-        }
+        bt_send.isEnabled = true
+        bt_send.setImageResource(R.drawable.ic_send_grey_active_24dp)
     }
 
     override fun onBackPressed(): Boolean {

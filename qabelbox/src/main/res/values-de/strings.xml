@@ -411,4 +411,5 @@ Mehr Infos finden Sie unter https://qabel.de
     <string name="filename">Dateiname</string>
     <string name="folder">Ordner</string>
     <string name="received_message_label">Nachricht</string>
+    <string name="title_activity_text_share_receiver">Mit Qabel versenden</string>
 </resources>

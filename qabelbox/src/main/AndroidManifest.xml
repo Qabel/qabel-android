@@ -99,6 +99,17 @@
             </intent-filter>
         </activity>
         <activity
+            android:name=".chat.view.views.TextShareReceiverActivity"
+            android:label="@string/title_activity_text_share_receiver"
+            android:theme="@style/AppTheme.NoActionBar">
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="text/plain" />
+            </intent-filter>
+        </activity>
+        <activity
             android:name=".startup.activities.WelcomeScreenActivity"
             android:label="@string/app_name"
             android:screenOrientation="portrait"
@@ -109,7 +120,7 @@
             android:label="@string/app_name"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar"
-            android:windowSoftInputMode="adjustPan"></activity>
+            android:windowSoftInputMode="adjustPan"/>
         <activity
             android:name=".startup.activities.SplashActivity"
             android:label="@string/app_name"
@@ -202,10 +213,6 @@
             android:exported="false"
             android:syncable="true" />
 
-        <activity
-            android:name=".chat.view.views.TextShareReceiverActivity"
-            android:label="@string/title_activity_text_share_receiver"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
     </application>
 
 </manifest>

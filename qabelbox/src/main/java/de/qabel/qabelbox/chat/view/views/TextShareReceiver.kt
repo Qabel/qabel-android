@@ -6,5 +6,6 @@ interface TextShareReceiver {
 
     var identity: EntitySelection?
     var contact: EntitySelection?
+    var text: String
 
 }

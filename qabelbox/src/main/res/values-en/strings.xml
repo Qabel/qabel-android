@@ -406,4 +406,5 @@ You can find more information on https://qabel.de/en
     <string name="upload_failed_msg">Failed to upload %s</string>
     <string name="external_file_save">Save to Qabel</string>
     <string name="received_message_label">Message</string>
+    <string name="title_activity_text_share_receiver">Send with Qabel</string>
 </resources>

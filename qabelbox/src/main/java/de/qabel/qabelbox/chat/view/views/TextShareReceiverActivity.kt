@@ -1,9 +1,11 @@
 package de.qabel.qabelbox.chat.view.views
 
+import android.content.Intent
 import android.os.Bundle
 import android.support.v7.widget.Toolbar
 import android.view.View
 import android.widget.AdapterView
+import android.widget.TextView
 import de.qabel.core.logging.QabelLog
 import de.qabel.qabelbox.R
 import de.qabel.qabelbox.adapter.EntitySelectionAdapter
@@ -15,11 +17,19 @@ import de.qabel.qabelbox.dagger.modules.ActivityModule
 import kotlinx.android.synthetic.main.content_text_share_receiver.*
 import org.jetbrains.anko.ctx
 import javax.inject.Inject
+import kotlin.properties.Delegates
+import kotlin.reflect.KProperty
 
 class TextShareReceiverActivity : TextShareReceiver, CrashReportingActivity(), QabelLog {
 
     override var identity: EntitySelection? = null
     override var contact: EntitySelection? = null
+    override var text: String by Delegates.observable("") {
+        kProperty: KProperty<*>, old: String, new: String ->
+        if (old != new) {
+            receivedText.setText(new, TextView.BufferType.EDITABLE)
+        }
+    }
 
     @Inject
     lateinit var presenter: TextShareReceiverPresenter
@@ -34,7 +44,7 @@ class TextShareReceiverActivity : TextShareReceiver, CrashReportingActivity(), Q
         setContentView(R.layout.activity_text_share_receiver)
         val toolbar = findViewById(R.id.toolbar) as Toolbar
         setSupportActionBar(toolbar)
-        val contactAdapter = EntitySelectionAdapter(ctx, presenter.contacts)
+        val contactAdapter = EntitySelectionAdapter(ctx, presenter.contacts.toMutableList())
         contactSelect.adapter = contactAdapter
         contactSelect.onItemSelectedListener = object: AdapterView.OnItemSelectedListener {
             override fun onNothingSelected(parent: AdapterView<*>?) { }
@@ -52,6 +62,9 @@ class TextShareReceiverActivity : TextShareReceiver, CrashReportingActivity(), Q
                 contactAdapter.addAll(presenter.contacts)
 
             }
+        }
+        if (Intent.ACTION_SEND == intent.action) {
+            text = intent.getStringExtra(Intent.EXTRA_TEXT)
         }
     }
 

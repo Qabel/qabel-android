@@ -410,6 +410,6 @@ You can find more information on https://qabel.de/en
     <string name="external_file_save">Save to Qabel</string>
     <string name="filename">Filename</string>
     <string name="folder">Folder</string>
-    <string name="title_activity_text_share_receiver">TextShareReceiver</string>
+    <string name="title_activity_text_share_receiver">Send with Qabel</string>
     <string name="received_message_label">Message</string>
 </resources>

@@ -18,6 +18,7 @@ import de.qabel.qabelbox.contacts.dto.EntitySelection
 import de.qabel.qabelbox.box.views.FolderChooserActivity
 import de.qabel.qabelbox.chat.view.presenters.TextShareReceiverPresenter
 import de.qabel.qabelbox.chat.view.views.TextShareReceiverActivity
+import de.qabel.qabelbox.hasText
 import de.qabel.qabelbox.ui.helper.UIBoxHelper
 import org.hamcrest.CoreMatchers
 import org.hamcrest.Matchers
@@ -41,11 +42,14 @@ class TextShareReceiverActivityTest {
 
     lateinit var identities: List<EntitySelection>
 
+    val text = "text"
+
     val defaultIntent: Intent
         get() {
             return Intent(InstrumentationRegistry.getTargetContext(), FolderChooserActivity::class.java).apply {
                 action = Intent.ACTION_SEND
                 putExtra(TextShareReceiverActivity.TEST_RUN, true)
+                putExtra(Intent.EXTRA_TEXT, text)
             }
         }
 
@@ -86,10 +90,15 @@ class TextShareReceiverActivityTest {
     }
 
     @Test
-    @Ignore("Presenter not ready")
     fun choosesAlphabeticalFirstIdentity() {
-        launch()
+        launch(identities)
         activity.identity!!.alias shouldMatch equalTo(identities[0].alias)
+    }
+
+    @Test
+    fun showReceivedText() {
+        launch(identities)
+        Page.textField.hasText(text)
     }
 
 
@@ -98,15 +107,8 @@ class TextShareReceiverActivityTest {
         val confirmButton: ViewInteraction
             get() = onView(withId(R.id.identitySelect))
 
-        val identitySpinner: ViewInteraction
-            get() = onView(withId(R.id.identitySelect))
-
-        fun selectIdentity(identity: Identity) {
-            identitySpinner.perform(click())
-            onData(CoreMatchers.equalTo(EntitySelection(identity))).perform(click())
-            identitySpinner.check(matches(ViewMatchers.withSpinnerText(
-                    Matchers.containsString(identity.alias))))
-        }
+        val textField: ViewInteraction
+            get() = onView(withId(R.id.receivedText))
 
     }
 }

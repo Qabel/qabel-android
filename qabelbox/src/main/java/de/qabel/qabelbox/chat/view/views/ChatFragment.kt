@@ -173,12 +173,12 @@ class ChatFragment : ChatView, BaseFragment(), AnkoLogger {
         }
     }
 
-    fun deactivateSendButton() {
+    private fun deactivateSendButton() {
         bt_send.isEnabled = false
         bt_send.setImageResource(R.drawable.ic_send_grey_24dp)
     }
 
-    fun activateSendButton() {
+    private fun activateSendButton() {
         bt_send.isEnabled = true
         bt_send.setImageResource(R.drawable.ic_send_grey_active_24dp)
     }

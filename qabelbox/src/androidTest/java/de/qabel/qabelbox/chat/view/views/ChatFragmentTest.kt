@@ -73,7 +73,6 @@ class ChatFragmentTest : AbstractUITest() {
     @Test
     fun deactivateSendButton() {
         launch()
-        fragment.deactivateSendButton()
         onView(withId(R.id.bt_send)).perform(click())
         fragment.adapter.data shouldMatch hasSize(equalTo(0))
 

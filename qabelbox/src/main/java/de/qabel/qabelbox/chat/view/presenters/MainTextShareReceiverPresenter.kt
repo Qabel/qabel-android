@@ -12,6 +12,9 @@ class MainTextShareReceiverPresenter @Inject constructor(
         val contactsInteractor: ReadOnlyContactsInteractor)
 : TextShareReceiverPresenter {
 
+    override fun confirm() {
+    }
+
     override val availableIdentities: List<EntitySelection>
             = identityInteractor.getIdentities().
             identities.map(::EntitySelection).sortedBy { it.alias }

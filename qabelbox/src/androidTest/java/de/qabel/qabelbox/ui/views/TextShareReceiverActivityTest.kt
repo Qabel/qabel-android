@@ -55,7 +55,15 @@ class TextShareReceiverActivityTest {
 
     open class Presenter(override val availableIdentities: List<EntitySelection>,
                          override val contacts: List<EntitySelection>)
-        : TextShareReceiverPresenter
+        : TextShareReceiverPresenter {
+
+        var confirmed = false
+
+        override fun confirm() {
+            confirmed = true
+        }
+
+    }
 
     lateinit var presenter: Presenter
 
@@ -86,7 +94,7 @@ class TextShareReceiverActivityTest {
         // the startup sequence doesn't use the mocked presenter
         mBoxHelper.removeAllIdentities()
         launch(listOf())
-        assert(activity.isFinishing)
+        activity.isFinishing shouldMatch equalTo(true)
     }
 
     @Test
@@ -101,11 +109,27 @@ class TextShareReceiverActivityTest {
         Page.textField.hasText(text)
     }
 
+    @Test
+    fun sendMessage() {
+        launch(identities)
+        presenter.confirmed shouldMatch equalTo(false)
+        Page.confirmButton.perform(click())
+        presenter.confirmed shouldMatch equalTo(true)
+    }
+
+    @Test
+    fun activityCanFinish() {
+        launch()
+        activity.isFinishing shouldMatch equalTo(false)
+        activity.stop()
+        activity.isFinishing shouldMatch equalTo(true)
+    }
+
 
     object Page {
 
         val confirmButton: ViewInteraction
-            get() = onView(withId(R.id.identitySelect))
+            get() = onView(withId(R.id.sendMessage))
 
         val textField: ViewInteraction
             get() = onView(withId(R.id.receivedText))

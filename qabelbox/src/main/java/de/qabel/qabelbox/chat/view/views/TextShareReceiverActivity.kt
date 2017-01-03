@@ -3,6 +3,8 @@ package de.qabel.qabelbox.chat.view.views
 import android.content.Intent
 import android.os.Bundle
 import android.support.v7.widget.Toolbar
+import android.view.Menu
+import android.view.MenuItem
 import android.view.View
 import android.widget.AdapterView
 import android.widget.TextView
@@ -44,6 +46,12 @@ class TextShareReceiverActivity : TextShareReceiver, CrashReportingActivity(), Q
         setContentView(R.layout.activity_text_share_receiver)
         val toolbar = findViewById(R.id.toolbar) as Toolbar
         setSupportActionBar(toolbar)
+
+        if (presenter.availableIdentities.isEmpty()) {
+            finish()
+            return
+        }
+
         val contactAdapter = EntitySelectionAdapter(ctx, presenter.contacts.toMutableList())
         contactSelect.adapter = contactAdapter
         contactSelect.onItemSelectedListener = object: AdapterView.OnItemSelectedListener {
@@ -66,6 +74,25 @@ class TextShareReceiverActivity : TextShareReceiver, CrashReportingActivity(), Q
         if (Intent.ACTION_SEND == intent.action) {
             text = intent.getStringExtra(Intent.EXTRA_TEXT)
         }
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        super.onCreateOptionsMenu(menu)
+        menuInflater.inflate(R.menu.ab_text_receive, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        if (item.itemId == R.id.sendMessage) {
+            presenter.confirm()
+            return true
+        } else {
+            return super.onOptionsItemSelected(item)
+        }
+    }
+
+    override fun stop() {
+        finish()
     }
 
     companion object {

@@ -8,4 +8,6 @@ interface TextShareReceiver {
     var contact: EntitySelection?
     var text: String
 
+    fun stop()
+
 }

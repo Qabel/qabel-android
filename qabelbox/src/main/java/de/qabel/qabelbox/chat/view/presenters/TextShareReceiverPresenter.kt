@@ -7,4 +7,6 @@ interface TextShareReceiverPresenter {
     val availableIdentities: List<EntitySelection>
     val contacts: List<EntitySelection>
 
+    fun confirm()
+
 }

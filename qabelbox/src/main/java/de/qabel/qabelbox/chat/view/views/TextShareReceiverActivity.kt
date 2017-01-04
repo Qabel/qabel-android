@@ -17,6 +17,7 @@ import de.qabel.qabelbox.chat.dagger.TextShareReceiverModule
 import de.qabel.qabelbox.chat.view.presenters.TextShareReceiverPresenter
 import de.qabel.qabelbox.dagger.modules.ActivityModule
 import kotlinx.android.synthetic.main.content_text_share_receiver.*
+import kotlinx.android.synthetic.main.background_progress_bar.*
 import org.jetbrains.anko.ctx
 import org.jetbrains.anko.longToast
 import javax.inject.Inject
@@ -84,6 +85,7 @@ class TextShareReceiverActivity : TextShareReceiver, CrashReportingActivity(), Q
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if (item.itemId == R.id.sendMessage) {
+            background_progress_bar.visibility = View.VISIBLE
             presenter.confirm()
             return true
         } else {
@@ -96,6 +98,7 @@ class TextShareReceiverActivity : TextShareReceiver, CrashReportingActivity(), Q
     }
 
     override fun showError() {
+        background_progress_bar.visibility = View.INVISIBLE
         longToast(R.string.cant_send_message)
     }
 

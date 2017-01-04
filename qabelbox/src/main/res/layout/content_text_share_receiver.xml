@@ -16,49 +16,51 @@
     android:layout_marginStart="@dimen/default_space"
     android:orientation="vertical">
 
-<TextView
-    style="@style/InputLabel"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:paddingTop="@dimen/activity_vertical_margin"
-    android:text="@string/identity" />
+    <include layout="@layout/background_progress_bar" />
 
-<Spinner
-    android:id="@+id/identitySelect"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:dropDownSelector="@drawable/menu_down"
-    android:hint="@string/identity"
-    android:spinnerMode="dropdown" />
+    <TextView
+        style="@style/InputLabel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="@dimen/activity_vertical_margin"
+        android:text="@string/identity" />
 
-<TextView
-    style="@style/InputLabel"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:paddingTop="@dimen/activity_vertical_margin"
-    android:text="@string/contact" />
+    <Spinner
+        android:id="@+id/identitySelect"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:dropDownSelector="@drawable/menu_down"
+        android:hint="@string/identity"
+        android:spinnerMode="dropdown" />
 
-<Spinner
-    android:id="@+id/contactSelect"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:dropDownSelector="@drawable/menu_down"
-    android:hint="@string/contact"
-    android:spinnerMode="dropdown" />
+    <TextView
+        style="@style/InputLabel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="@dimen/activity_vertical_margin"
+        android:text="@string/contact" />
 
-<TextView
-    style="@style/InputLabel"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:paddingTop="@dimen/activity_vertical_margin"
-    android:text="@string/received_message_label" />
+    <Spinner
+        android:id="@+id/contactSelect"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:dropDownSelector="@drawable/menu_down"
+        android:hint="@string/contact"
+        android:spinnerMode="dropdown" />
 
-<EditText
-    android:id="@+id/receivedText"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:inputType="textShortMessage"
-    android:maxLines="1"
-    android:text="" />
+    <TextView
+        style="@style/InputLabel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="@dimen/activity_vertical_margin"
+        android:text="@string/received_message_label" />
+
+    <EditText
+        android:id="@+id/receivedText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="textShortMessage"
+        android:maxLines="1"
+        android:text="" />
 
 </LinearLayout>

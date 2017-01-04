@@ -8,6 +8,7 @@
     <color name="white">#ffffffff</color>
     <color name="grey_text_color">#ff555555</color>
     <color name="light_gray">#b3b3b3</color>
+    <color name="dark_gray">#ff555555</color>
     <color name="default_text_color">#cc000000</color>
     <color name="button_semi_transparent">#09000000</color>
     <color name="bg_welcome_semitransparent">#6b3ca0b3</color>

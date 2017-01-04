@@ -4,9 +4,10 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.net.Uri
 import android.os.Bundle
 import android.support.v7.widget.LinearLayoutManager
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -64,6 +65,15 @@ class ChatFragment : ChatView, BaseFragment(), AnkoLogger {
     lateinit var identity: Identity
 
     lateinit var emojiPopup: EmojiPopup
+
+    val textWatcher = object : TextWatcher {
+        override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+            toggleSendButton()
+        }
+
+        override fun afterTextChanged(text: Editable?) {}
+        override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
+    }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
@@ -142,6 +152,8 @@ class ChatFragment : ChatView, BaseFragment(), AnkoLogger {
         }
 
         bt_send.onClick { presenter.sendMessage() }
+        toggleSendButton()
+        etText.addTextChangedListener(textWatcher)
         action_add_contact.setOnClickListener { presenter.handleContactAddClick() }
         action_ignore_contact.setOnClickListener { presenter.handleContactIgnoreClick() }
         emojiPopup = EmojiPopup.Builder.fromRootView(chat_root)
@@ -152,6 +164,17 @@ class ChatFragment : ChatView, BaseFragment(), AnkoLogger {
         emoji_popup.onClick {
             emojiPopup.toggle()
             chat_root.viewTreeObserver.dispatchOnGlobalLayout()
+        }
+    }
+
+
+    fun toggleSendButton() {
+        if (messageText.isBlank()) {
+            bt_send.isEnabled = false
+            bt_send.setImageResource(R.drawable.ic_send_grey_24dp)
+        } else {
+            bt_send.isEnabled = true
+            bt_send.setImageResource(R.drawable.ic_send_grey_active_24dp)
         }
     }
 
@@ -193,7 +216,7 @@ class ChatFragment : ChatView, BaseFragment(), AnkoLogger {
             if (swipeRefresh.isEnabled) {
                 contact_chat_list.addItemDecoration(headerDecor)
             }
-            if(!loadMore){
+            if (!loadMore) {
                 scrollToBottom()
             }
             idle()
@@ -249,3 +272,4 @@ class ChatFragment : ChatView, BaseFragment(), AnkoLogger {
     }
 
 }
+

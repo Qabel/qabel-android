@@ -69,4 +69,21 @@ class ChatFragmentTest : AbstractUITest() {
         fragment.prependData(listOf(message))
         onView(withText("MESSAGE")).check(ViewAssertions.matches(isDisplayed()))
     }
+
+    @Test
+    fun deactivateSendButton() {
+        launch()
+        onView(withId(R.id.bt_send)).perform(click())
+        fragment.adapter.data shouldMatch hasSize(equalTo(0))
+
+    }
+
+    @Test
+    fun activateSendButton() {
+        launch()
+        onView(withId(R.id.etText)).perform(setText("My Message"))
+        onView(withId(R.id.bt_send)).perform(click())
+        fragment.adapter.data shouldMatch hasSize(equalTo(1))
+    }
+
 }

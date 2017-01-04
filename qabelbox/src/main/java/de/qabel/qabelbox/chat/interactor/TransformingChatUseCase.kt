@@ -10,6 +10,7 @@ import de.qabel.core.repository.framework.PagingResult
 import de.qabel.qabelbox.QblBroadcastConstants
 import de.qabel.qabelbox.box.backends.BoxHttpStorageBackend
 import de.qabel.qabelbox.chat.dto.ChatMessage
+import de.qabel.qabelbox.chat.dto.MessagePayloadDto
 import de.qabel.qabelbox.chat.services.AndroidChatService
 import de.qabel.qabelbox.chat.transformers.ChatMessageTransformer
 import de.qabel.qabelbox.listeners.ActionIntentSender
@@ -77,7 +78,7 @@ class TransformingChatUseCase @Inject constructor(val identity: Identity, overri
         val msg = chatDropMessageRepository.findById(chatMsg.id)
         sharingService.acceptShare(msg, BoxHttpStorageBackend(blockServer, ""))
         it.onSuccess(chatMessageTransformer.transform(msg))
-    }
+    }.subscribeOn(Schedulers.io())
 
     private fun notifyApplication() {
         actionIntentSender.sendActionIntentBroadCast(QblBroadcastConstants.Chat.MESSAGE_STATE_CHANGED)

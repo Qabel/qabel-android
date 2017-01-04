@@ -4,8 +4,6 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.graphics.PorterDuff
-import android.net.Uri
 import android.os.Bundle
 import android.support.v7.widget.LinearLayoutManager
 import android.text.Editable
@@ -13,11 +11,9 @@ import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
 import com.vanniktech.emoji.EmojiPopup
 import de.qabel.core.config.Contact
 import de.qabel.core.config.Identity
-import de.qabel.core.extensions.letApply
 import de.qabel.qabelbox.QblBroadcastConstants
 import de.qabel.qabelbox.R
 import de.qabel.qabelbox.base.BaseFragment
@@ -147,19 +143,8 @@ class ChatFragment : ChatView, BaseFragment(), AnkoLogger {
         }
 
         bt_send.onClick { presenter.sendMessage() }
-        deactivateSendButton()
-        etText.addTextChangedListener(object : TextWatcher {
-            override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-                if (messageText.isBlank()) {
-                    deactivateSendButton()
-                } else {
-                    activateSendButton()
-                }
-            }
-
-            override fun afterTextChanged(text: Editable?) {}
-            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
-        })
+        toggleSendButton()
+        etText.addTextChangedListener(textWatcher())
         action_add_contact.setOnClickListener { presenter.handleContactAddClick() }
         action_ignore_contact.setOnClickListener { presenter.handleContactIgnoreClick() }
         emojiPopup = EmojiPopup.Builder.fromRootView(chat_root)
@@ -173,14 +158,25 @@ class ChatFragment : ChatView, BaseFragment(), AnkoLogger {
         }
     }
 
-    private fun deactivateSendButton() {
-        bt_send.isEnabled = false
-        bt_send.setImageResource(R.drawable.ic_send_grey_24dp)
+    private fun textWatcher(): TextWatcher {
+        return object : TextWatcher {
+            override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+                toggleSendButton()
+            }
+
+            override fun afterTextChanged(text: Editable?) {}
+            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
+        }
     }
 
-    private fun activateSendButton() {
-        bt_send.isEnabled = true
-        bt_send.setImageResource(R.drawable.ic_send_grey_active_24dp)
+    fun toggleSendButton() {
+        if (messageText.isBlank()) {
+            bt_send.isEnabled = false
+            bt_send.setImageResource(R.drawable.ic_send_grey_24dp)
+        } else {
+            bt_send.isEnabled = true
+            bt_send.setImageResource(R.drawable.ic_send_grey_active_24dp)
+        }
     }
 
     override fun onBackPressed(): Boolean {

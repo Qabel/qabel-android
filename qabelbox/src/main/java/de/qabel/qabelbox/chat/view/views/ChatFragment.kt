@@ -66,6 +66,15 @@ class ChatFragment : ChatView, BaseFragment(), AnkoLogger {
 
     lateinit var emojiPopup: EmojiPopup
 
+    val textWatcher = object : TextWatcher {
+        override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+            toggleSendButton()
+        }
+
+        override fun afterTextChanged(text: Editable?) {}
+        override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
+    }
+
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         contactKeyId = arguments.getString(ARG_CONTACT) ?: throw IllegalArgumentException(
@@ -144,7 +153,7 @@ class ChatFragment : ChatView, BaseFragment(), AnkoLogger {
 
         bt_send.onClick { presenter.sendMessage() }
         toggleSendButton()
-        etText.addTextChangedListener(textWatcher())
+        etText.addTextChangedListener(textWatcher)
         action_add_contact.setOnClickListener { presenter.handleContactAddClick() }
         action_ignore_contact.setOnClickListener { presenter.handleContactIgnoreClick() }
         emojiPopup = EmojiPopup.Builder.fromRootView(chat_root)
@@ -158,16 +167,6 @@ class ChatFragment : ChatView, BaseFragment(), AnkoLogger {
         }
     }
 
-    private fun textWatcher(): TextWatcher {
-        return object : TextWatcher {
-            override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-                toggleSendButton()
-            }
-
-            override fun afterTextChanged(text: Editable?) {}
-            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
-        }
-    }
 
     fun toggleSendButton() {
         if (messageText.isBlank()) {

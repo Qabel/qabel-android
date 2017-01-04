@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ## [Unreleased]
 
 ### Added
+- Sharing links and messages into Qabel to send them as a chat message
 
 ### Changed
 - chat: visual feedback on send button

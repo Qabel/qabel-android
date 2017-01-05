@@ -12,12 +12,19 @@ import dagger.Module
 import dagger.Provides
 import de.qabel.box.storage.FileMetadataFactory
 import de.qabel.box.storage.jdbc.JdbcFileMetadataFactory
+import de.qabel.box.storage.local.BoxLocalStorage
+import de.qabel.box.storage.local.LocalStorage
+import de.qabel.box.storage.local.database.LocalStorageDatabase
+import de.qabel.box.storage.local.database.LocalStorageDatabaseFactory
+import de.qabel.box.storage.local.repository.BoxLocalStorageRepository
+import de.qabel.box.storage.local.repository.LocalStorageRepository
 import de.qabel.chat.repository.ChatShareRepository
 import de.qabel.chat.service.MainSharingService
 import de.qabel.chat.service.SharingService
 import de.qabel.core.crypto.CryptoUtils
 import de.qabel.core.repositories.AndroidVersionAdapter
 import de.qabel.core.repository.ContactRepository
+import de.qabel.core.repository.EntityManager
 import de.qabel.core.repository.IdentityRepository
 import de.qabel.core.repository.sqlite.VersionAdapter
 import de.qabel.qabelbox.box.BoxScheduler
@@ -102,11 +109,12 @@ open class StorageModule {
                              preference: AppPreference,
                              context: Context, blockServer: BlockServer,
                              scheduler: BoxScheduler,
-                             fileMetadataFactory: FileMetadataFactory):
+                             fileMetadataFactory: FileMetadataFactory,
+                             localStorage: LocalStorage):
             VolumeManager {
         val (read, operation) = makeFileBrowserFactory(
                 identityRepository, contactRepository, preference.deviceId,
-                context.cacheDir, blockServer, scheduler, fileMetadataFactory)
+                context.cacheDir, blockServer, scheduler, fileMetadataFactory, localStorage)
         return BoxVolumeManager(identityRepository, read, operation)
     }
 

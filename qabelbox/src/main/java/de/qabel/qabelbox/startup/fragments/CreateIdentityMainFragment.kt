@@ -67,6 +67,7 @@ class CreateIdentityMainFragment : BaseIdentityFragment() {
                     })
                 }
             } catch (e: Throwable) {
+                e.printStackTrace()
                 showImportError(e)
             }
         }

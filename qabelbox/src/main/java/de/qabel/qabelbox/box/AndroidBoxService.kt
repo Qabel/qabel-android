@@ -185,6 +185,9 @@ class AndroidBoxService : Service(), QabelLog {
                 pendingMap.put(documentId, Pair(observable, it))
             }
         }
+
+
+
     }
 
     private fun notifyForDownload(operation: FileOperationState) {

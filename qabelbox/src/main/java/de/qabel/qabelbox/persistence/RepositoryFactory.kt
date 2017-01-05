@@ -2,6 +2,8 @@ package de.qabel.qabelbox.persistence
 
 import android.content.Context
 import android.util.Log
+import de.qabel.box.storage.local.repository.BoxLocalStorageRepository
+import de.qabel.box.storage.local.repository.LocalStorageRepository
 import de.qabel.chat.repository.ChatDropMessageRepository
 import de.qabel.chat.repository.ChatShareRepository
 import de.qabel.chat.repository.sqlite.SqliteChatDropMessageRepository
@@ -117,5 +119,8 @@ class RepositoryFactory(private val context: Context) {
 
     fun getChatShareRepository() : ChatShareRepository =
             SqliteChatShareRepository(getAndroidClientDatabase(), entityManager)
+
+    fun getLocalStorageRepository() : LocalStorageRepository =
+            BoxLocalStorageRepository(getAndroidClientDatabase(), entityManager)
 
 }

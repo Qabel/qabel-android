@@ -5,10 +5,12 @@ import de.qabel.box.storage.ProgressListener
 import de.qabel.box.storage.dto.BoxPath
 import de.qabel.box.storage.exceptions.QblStorageException
 import de.qabel.box.storage.exceptions.QblStorageNotFound
+import de.qabel.box.storage.local.LocalStorage
 import de.qabel.core.repository.ContactRepository
 import de.qabel.qabelbox.box.BoxScheduler
 import de.qabel.qabelbox.box.dto.FileOperationState
 import de.qabel.qabelbox.box.dto.UploadSource
+import org.apache.commons.io.IOUtils
 import rx.Observable
 import rx.lang.kotlin.observable
 import java.io.OutputStream
@@ -17,6 +19,7 @@ import javax.inject.Inject
 class BoxOperationFileBrowser @Inject constructor(keyAndPrefix: BoxReadFileBrowser.KeyAndPrefix,
                                                   volumeNavigator: VolumeNavigator,
                                                   contactRepo: ContactRepository,
+                                                  val localStorage: LocalStorage,
                                                   scheduler: BoxScheduler) :
         BoxReadFileBrowser(keyAndPrefix, volumeNavigator, contactRepo, scheduler), OperationFileBrowser {
 
@@ -61,29 +64,34 @@ class BoxOperationFileBrowser @Inject constructor(keyAndPrefix: BoxReadFileBrows
                 subscriber.onNext(operation)
                 volumeNavigator.navigateTo(path.parent).apply {
                     val boxFile = getFile(path.name)
-                    operation.size = boxFile.size
 
-                    subscriber.onNext(operation)
+                    val localFile = localStorage.getBoxFile(path, boxFile)
+                    if(localFile != null){
+                        IOUtils.copy(localFile.inputStream(), targetStream)
+                    }else {
+                        operation.size = boxFile.size
+                        subscriber.onNext(operation)
+                        download(boxFile, object : ProgressListener() {
 
-                    download(boxFile, object : ProgressListener() {
-
-                        override fun setProgress(progress: Long) {
-                            operation.done = progress
-                            if (operation.loadDone) {
-                                operation.status = FileOperationState.Status.COMPLETING
-                            } else {
-                                operation.status = FileOperationState.Status.LOADING
+                            override fun setProgress(progress: Long) {
+                                operation.done = progress
+                                if (operation.loadDone) {
+                                    operation.status = FileOperationState.Status.COMPLETING
+                                } else {
+                                    operation.status = FileOperationState.Status.LOADING
+                                }
+                                subscriber.onNext(operation)
                             }
-                            subscriber.onNext(operation)
-                        }
 
-                        override fun setSize(size: Long) {
-                            operation.size = size
-                            subscriber.onNext(operation)
-                        }
+                            override fun setSize(size: Long) {
+                                operation.size = size
+                                subscriber.onNext(operation)
+                            }
 
-                    }).use {
-                        it.copyTo(targetStream)
+                        }).use {
+                            localStorage.storeFile(it, boxFile, path)
+                            it.copyTo(targetStream)
+                        }
                     }
                 }
                 operation.status = FileOperationState.Status.COMPLETE

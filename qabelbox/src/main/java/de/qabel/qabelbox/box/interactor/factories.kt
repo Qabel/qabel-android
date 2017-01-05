@@ -8,6 +8,7 @@ import de.qabel.box.storage.exceptions.QblStorageException
 import de.qabel.box.storage.jdbc.DirectoryMetadataDatabase
 import de.qabel.box.storage.jdbc.JdbcDirectoryMetadataFactory
 import de.qabel.box.storage.jdbc.JdbcFileMetadataFactory
+import de.qabel.box.storage.local.LocalStorage
 import de.qabel.core.repositories.AndroidVersionAdapter
 import de.qabel.core.repository.ContactRepository
 import de.qabel.core.repository.IdentityRepository
@@ -71,7 +72,8 @@ fun makeFileBrowserFactory(identityRepository: IdentityRepository,
                            deviceId: ByteArray,
                            tempDir: File,
                            androidBlockServer: BlockServer, scheduler: BoxScheduler,
-                           fileMetadataFactory: FileMetadataFactory):
+                           fileMetadataFactory: FileMetadataFactory,
+                           localStorage: LocalStorage):
         Pair<(VolumeRoot) -> ReadFileBrowser, (VolumeRoot) -> OperationFileBrowser> {
 
     return Pair(
@@ -83,7 +85,8 @@ fun makeFileBrowserFactory(identityRepository: IdentityRepository,
             fun(volumeRoot: VolumeRoot): OperationFileBrowser {
                 val (keyAndPrefix, volumeNavigator) = keysAndVolume(volumeRoot, identityRepository,
                         deviceId, tempDir, androidBlockServer, fileMetadataFactory)
-                return BoxOperationFileBrowser(keyAndPrefix, volumeNavigator, contactRepository, scheduler)
+                return BoxOperationFileBrowser(keyAndPrefix, volumeNavigator, contactRepository,
+                        localStorage, scheduler)
             })
 }
 

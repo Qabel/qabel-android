@@ -6,6 +6,8 @@ import com.nhaarman.mockito_kotlin.whenever
 import de.qabel.box.storage.*
 import de.qabel.box.storage.dto.BoxPath
 import de.qabel.box.storage.exceptions.QblStorageException
+import de.qabel.box.storage.local.LocalStorage
+import de.qabel.box.storage.local.MockLocalStorage
 import de.qabel.qabelbox.*
 import de.qabel.qabelbox.box.BoxScheduler
 import de.qabel.qabelbox.box.backends.MockStorageBackend
@@ -30,6 +32,7 @@ class BoxOperationFileBrowserTest() {
 
     val identity = IdentityHelper.createIdentity("identity", null)
     val storage = MockStorageBackend()
+    val localStorage = MockLocalStorage()
     val docId = DocumentId(identity.keyIdentifier, identity.prefixes.first().prefix, BoxPath.Root)
 
     lateinit var useCase: OperationFileBrowser
@@ -51,7 +54,7 @@ class BoxOperationFileBrowserTest() {
                 "Blake2b",
                 createTempDir()), identity.primaryKeyPair)
         val navigator = BoxVolumeNavigator(keys, volume)
-        useCase = BoxOperationFileBrowser(keys, navigator, mock(), BoxScheduler(Schedulers.immediate()))
+        useCase = BoxOperationFileBrowser(keys, navigator, mock(), localStorage, BoxScheduler(Schedulers.immediate()))
     }
 
     @Test
@@ -147,7 +150,7 @@ class BoxOperationFileBrowserTest() {
         val nav: IndexNavigation = mock()
         stubMethod(volume.navigate(), nav)
         val keys = BoxReadFileBrowser.KeyAndPrefix("key", "prefix")
-        useCase = BoxOperationFileBrowser(keys, BoxVolumeNavigator(keys, volume), mock(), BoxScheduler(Schedulers.immediate()))
+        useCase = BoxOperationFileBrowser(keys, BoxVolumeNavigator(keys, volume), mock(), localStorage, BoxScheduler(Schedulers.immediate()))
         return nav
     }
 }

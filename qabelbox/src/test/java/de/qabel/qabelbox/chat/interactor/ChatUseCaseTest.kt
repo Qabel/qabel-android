@@ -4,8 +4,8 @@ import com.nhaarman.mockito_kotlin.mock
 import com.nhaarman.mockito_kotlin.spy
 import com.nhaarman.mockito_kotlin.verify
 import de.qabel.core.config.Contact
-import de.qabel.core.http.DropConnector
-import de.qabel.core.http.MainDropConnector
+import de.qabel.core.drop.DropConnector
+import de.qabel.core.drop.MainDropConnector
 import de.qabel.core.http.MockDropServer
 import de.qabel.chat.repository.entities.ChatDropMessage
 import de.qabel.core.repository.framework.PagingResult

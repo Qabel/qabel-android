@@ -22,6 +22,7 @@ import de.qabel.qabelbox.BuildConfig
 import de.qabel.qabelbox.QblBroadcastConstants
 import de.qabel.qabelbox.R
 import de.qabel.qabelbox.box.dto.BrowserEntry
+import de.qabel.qabelbox.box.dto.FileOperationState
 import de.qabel.qabelbox.box.events.FileDownloadEvent
 import de.qabel.qabelbox.box.events.FileUploadEvent
 import de.qabel.qabelbox.box.interactor.DocumentIdAdapter
@@ -216,10 +217,8 @@ open class BoxProvider : DocumentsProvider(), AnkoLogger {
                     try {
                         val (operation, observable) = useCase.downloadFile(id, file)
                         observable.doOnCompleted {
+                            operation.status = FileOperationState.Status.HIDDEN
                             notificationManager.updateDownloadNotification(operation)
-                            context.runOnUiThread {
-                                longToast(ctx.getString(R.string.download_complete_msg, operation.entryName))
-                            }
                             eventSink.push(FileDownloadEvent(operation))
                         }.sample(150L, TimeUnit.MILLISECONDS)
                                 .doOnNext {

@@ -90,7 +90,7 @@ class BoxOperationFileBrowser @Inject constructor(keyAndPrefix: BoxReadFileBrows
 
                         }).use {
                             localStorage.storeFile(it, boxFile, path)
-                            it.copyTo(targetStream)
+                            localStorage.getBoxFile(path, boxFile)!!.inputStream().copyTo(targetStream)
                         }
                     }
                 }

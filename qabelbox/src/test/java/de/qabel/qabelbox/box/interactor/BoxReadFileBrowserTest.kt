@@ -7,6 +7,7 @@ import com.nhaarman.mockito_kotlin.whenever
 import de.qabel.box.storage.*
 import de.qabel.box.storage.dto.BoxPath
 import de.qabel.box.storage.exceptions.QblStorageException
+import de.qabel.box.storage.local.MockLocalStorage
 import de.qabel.qabelbox.*
 import de.qabel.qabelbox.box.BoxScheduler
 import de.qabel.qabelbox.box.backends.MockStorageBackend
@@ -29,6 +30,7 @@ class BoxReadFileBrowserTest {
 
     val identity = IdentityHelper.createIdentity("identity", null)
     val storage = MockStorageBackend()
+    val localStorage = MockLocalStorage()
     val docId = DocumentId(identity.keyIdentifier, identity.prefixes.first().prefix, BoxPath.Root)
 
     lateinit var prepareUseCase: OperationFileBrowser
@@ -53,7 +55,7 @@ class BoxReadFileBrowserTest {
         val navigator = BoxVolumeNavigator(keys, volume)
         val boxScheduler = BoxScheduler(Schedulers.immediate())
         useCase = BoxReadFileBrowser(keys, navigator, mock(), boxScheduler)
-        prepareUseCase = BoxOperationFileBrowser(keys, navigator, mock(), boxScheduler)
+        prepareUseCase = BoxOperationFileBrowser(keys, navigator, mock(), localStorage, boxScheduler)
     }
 
     @Test

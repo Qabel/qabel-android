@@ -362,7 +362,7 @@ Mehr Infos finden Sie unter https://qabel.de
     <string name="settings_title_box_quota">Speicher</string>
     <string name="used_storage">%1$s von %2$s belegt</string>
     <string name="unlimited_storage">unbegrenzter Speicher, %1$s belegt</string>
-    <string name="download_complete_msg">Hochladen %s abgeschlossen</string>
+    <string name="download_complete_msg">Herunterladen %s abgeschlossen</string>
     <string name="currently_not_available">currently not available</string>
     <string name="permanently_unavailable">nicht mehr verfügbar</string>
     <string name="search">Suche</string>

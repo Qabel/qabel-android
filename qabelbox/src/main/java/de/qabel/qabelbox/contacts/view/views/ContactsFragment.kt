@@ -38,6 +38,7 @@ import org.jetbrains.anko.runOnUiThread
 import rx.Observable
 import rx.subjects.BehaviorSubject
 import java.io.File
+import java.io.FileNotFoundException
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
@@ -234,7 +235,12 @@ class ContactsFragment() : ContactsView, BaseFragment(true, true, true), AnkoLog
             when (action) {
                 is ExternalFileAction -> {
                     val uri = resultData?.data
-                    val file = activity.contentResolver.openFileDescriptor(uri, action.accessMode)
+                    val file  = try {
+                        activity.contentResolver.openFileDescriptor(uri, action.accessMode)
+                    } catch (e: FileNotFoundException) {
+                        showImportFailedMessage()
+                        return
+                    }
                     presenter.handleExternalFileAction(action, file.fileDescriptor)
                 }
                 else -> {

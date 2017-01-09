@@ -8,6 +8,7 @@ import de.qabel.box.storage.*
 import de.qabel.box.storage.dto.BoxPath
 import de.qabel.box.storage.exceptions.QblStorageException
 import de.qabel.box.storage.local.MockLocalStorage
+import de.qabel.core.config.Prefix
 import de.qabel.qabelbox.*
 import de.qabel.qabelbox.box.BoxScheduler
 import de.qabel.qabelbox.box.backends.MockStorageBackend
@@ -22,6 +23,7 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricGradleTestRunner
 import org.robolectric.annotation.Config
 import rx.schedulers.Schedulers
+import java.io.File
 import java.util.*
 
 @RunWith(RobolectricGradleTestRunner::class)
@@ -52,7 +54,7 @@ class BoxReadFileBrowserTest {
                 storage,
                 "Blake2b",
                 createTempDir()), identity.primaryKeyPair)
-        val navigator = BoxVolumeNavigator(keys, volume)
+        val navigator = BoxVolumeNavigator(keys, volume, localStorage)
         val boxScheduler = BoxScheduler(Schedulers.immediate())
         useCase = BoxReadFileBrowser(keys, navigator, mock(), boxScheduler)
         prepareUseCase = BoxOperationFileBrowser(keys, navigator, mock(), localStorage, boxScheduler)
@@ -126,10 +128,21 @@ class BoxReadFileBrowserTest {
 
     private fun mockedIndexNavigation(): IndexNavigation {
         val volume: BoxVolume = mock()
+        val keys = BoxReadFileBrowser.KeyAndPrefix("key", "prefix")
+        whenever(volume.config).thenReturn(BoxVolumeConfig(
+                keys.prefix,
+                RootRefCalculator().rootFor(identity.primaryKeyPair.privateKey, Prefix.TYPE.USER, keys.prefix),
+                byteArrayOf(1),
+                storage,
+                storage,
+                "Blake2b",
+                mock()))
+
         val nav: IndexNavigation = mock()
         stubMethod(volume.navigate(), nav)
-        val keys = BoxReadFileBrowser.KeyAndPrefix("key", "prefix")
-        useCase = BoxReadFileBrowser(keys, BoxVolumeNavigator(keys, volume), mock(), BoxScheduler(Schedulers.immediate()))
+        stubMethod(nav.metadata, mock())
+        stubMethod(nav.metadata.path, File.createTempFile("bla",""))
+        useCase = BoxReadFileBrowser(keys, BoxVolumeNavigator(keys, volume, localStorage), mock(), BoxScheduler(Schedulers.immediate()))
         return nav
     }
 

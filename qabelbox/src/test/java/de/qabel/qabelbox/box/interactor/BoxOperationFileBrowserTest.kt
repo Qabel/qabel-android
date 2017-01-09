@@ -6,8 +6,10 @@ import com.nhaarman.mockito_kotlin.whenever
 import de.qabel.box.storage.*
 import de.qabel.box.storage.dto.BoxPath
 import de.qabel.box.storage.exceptions.QblStorageException
+import de.qabel.box.storage.exceptions.QblStorageNotFound
 import de.qabel.box.storage.local.LocalStorage
 import de.qabel.box.storage.local.MockLocalStorage
+import de.qabel.core.config.Prefix
 import de.qabel.qabelbox.*
 import de.qabel.qabelbox.box.BoxScheduler
 import de.qabel.qabelbox.box.backends.MockStorageBackend
@@ -23,19 +25,21 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricGradleTestRunner
 import org.robolectric.annotation.Config
 import rx.schedulers.Schedulers
+import java.io.File
+import java.io.FileNotFoundException
 import java.io.InputStream
 import java.util.*
 
 @RunWith(RobolectricGradleTestRunner::class)
 @Config(application = SimpleApplication::class, constants = BuildConfig::class)
-class BoxOperationFileBrowserTest() {
+class BoxOperationFileBrowserTest {
 
     val identity = IdentityHelper.createIdentity("identity", null)
     val storage = MockStorageBackend()
-    val localStorage = MockLocalStorage()
     val docId = DocumentId(identity.keyIdentifier, identity.prefixes.first().prefix, BoxPath.Root)
 
     lateinit var useCase: OperationFileBrowser
+    lateinit var localStorage : MockLocalStorage
 
     val samplePayload: String = "payload"
     val sampleName = "sampleName"
@@ -45,6 +49,7 @@ class BoxOperationFileBrowserTest() {
     fun setUp() {
         val prefix = identity.prefixes.first()
         val keys = BoxReadFileBrowser.KeyAndPrefix(identity)
+        localStorage = MockLocalStorage()
         val volume = AndroidBoxVolume(BoxVolumeConfig(
                 prefix.prefix,
                 RootRefCalculator().rootFor(identity.primaryKeyPair.privateKey, prefix.type, prefix.prefix),
@@ -53,7 +58,7 @@ class BoxOperationFileBrowserTest() {
                 storage,
                 "Blake2b",
                 createTempDir()), identity.primaryKeyPair)
-        val navigator = BoxVolumeNavigator(keys, volume)
+        val navigator = BoxVolumeNavigator(keys, volume, localStorage)
         useCase = BoxOperationFileBrowser(keys, navigator, mock(), localStorage, BoxScheduler(Schedulers.immediate()))
     }
 
@@ -91,6 +96,7 @@ class BoxOperationFileBrowserTest() {
     fun deleteFile() {
         val path = BoxPath.Root / "firstFolder" / "subFolder" * sampleName
         useCase.upload(path, samplePayload.toUploadSource(sample)).second.waitFor()
+
         useCase.delete(path).waitFor()
         // folder exists
         useCase.query(path.parent) evalsTo BrowserEntry.Folder(path.parent.name)
@@ -130,27 +136,39 @@ class BoxOperationFileBrowserTest() {
     @Test
     fun failedDelete() {
         val nav: IndexNavigation = mockedIndexNavigation()
-        val e = QblStorageException("test")
-        whenever(nav.getFolder(any())).thenThrow(e)
-
-        useCase.delete(BoxPath.Root / "test") errorsWith e
+        val path = BoxPath.Root / "Folder"
+        val e = QblStorageException(FileNotFoundException("Not found: ${path.name}"))
+        com.nhaarman.mockito_kotlin.whenever(nav.listFolders()).thenThrow(e)
+        useCase.delete(path) errorsWith e
     }
 
     @Test
     fun failedCreateFolder() {
         val nav: IndexNavigation = mockedIndexNavigation()
-        val e = QblStorageException("test")
+        val path = BoxPath.Root / "Folder"
+        val e = QblStorageNotFound("Not found: $path")
         whenever(nav.createFolder(any<String>())).thenThrow(e)
 
-        useCase.createFolder(BoxPath.Root / "Folder") errorsWith e
+        useCase.createFolder(path) errorsWith e
     }
 
     private fun mockedIndexNavigation(): IndexNavigation {
+        localStorage.enabled = false
         val volume: BoxVolume = mock()
+        val keys = BoxReadFileBrowser.KeyAndPrefix("key", "prefix")
+        whenever(volume.config).thenReturn(BoxVolumeConfig(
+                keys.prefix,
+                RootRefCalculator().rootFor(identity.primaryKeyPair.privateKey, Prefix.TYPE.USER, keys.prefix),
+                byteArrayOf(1),
+                storage,
+                storage,
+                "Blake2b",
+                mock()))
         val nav: IndexNavigation = mock()
         stubMethod(volume.navigate(), nav)
-        val keys = BoxReadFileBrowser.KeyAndPrefix("key", "prefix")
-        useCase = BoxOperationFileBrowser(keys, BoxVolumeNavigator(keys, volume), mock(), localStorage, BoxScheduler(Schedulers.immediate()))
+        stubMethod(nav.metadata, mock())
+        stubMethod(nav.metadata.path, File.createTempFile("bla",""))
+        useCase = BoxOperationFileBrowser(keys, BoxVolumeNavigator(keys, volume, localStorage), mock(), localStorage, BoxScheduler(Schedulers.immediate()))
         return nav
     }
 }

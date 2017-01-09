@@ -66,17 +66,42 @@ open class BoxReadFileBrowser @Inject constructor(protected val keyAndPrefix: Ke
         return entry
     }
 
-    override fun list(path: BoxPath.FolderLike): Observable<List<BrowserEntry>> =
+    override fun list(path: BoxPath.FolderLike, fast: Boolean): Observable<List<BrowserEntry>> =
             observable<List<BrowserEntry>> {
                 subscriber ->
-                val nav = try {
-                    volumeNavigator.navigateTo(path).apply { refresh() }
+                debug("List ${path.toString()}")
+                try {
+                    var entries: List<BrowserEntry>? = null
+                    if (fast) {
+                        volumeNavigator.navigateFastTo(path)?.apply {
+                            debug("Path fast Loaded ${path.toString()}")
+                            toEntries().let {
+                                entries = it
+                                subscriber.onNext(it)
+                            }
+                        }
+                    }
+                    val refreshedNav = volumeNavigator.navigateTo(path).apply {
+                        debug("Path Loaded ${path.toString()}")
+                        refresh()
+                    }
+                    val refreshedEntries = refreshedNav.toEntries()
+                    if (refreshedEntries != entries) {
+                        debug("Entries changed. Load refreshed!")
+                        subscriber.onNext(refreshedEntries)
+                    }else {
+                        debug("Entries not changed.")
+                    }
                 } catch (e: QblStorageException) {
                     subscriber.onError(e)
                     return@observable
                 }
-                val entries = nav.listFolders().sortedBy { it.name } + nav.listFiles().sortedBy { it.name }
-                subscriber.onNext(entries.map { toEntry(it, nav) }.filterNotNull())
+                subscriber.onCompleted()
             }.subscribeOn(scheduler.rxScheduler)
+
+    private fun BoxNavigation.toEntries(): List<BrowserEntry> {
+        val entries: List<BoxObject> = listFolders().sortedBy { it.name } + listFiles().sortedBy { it.name }
+        return entries.map { this@BoxReadFileBrowser.toEntry(it, this) }.filterNotNull()
+    }
 
 }

@@ -1,11 +1,11 @@
 package de.qabel.qabelbox.box.interactor
 
-import de.qabel.box.storage.BoxNavigation
-import de.qabel.box.storage.ProgressListener
+import de.qabel.box.storage.*
 import de.qabel.box.storage.dto.BoxPath
 import de.qabel.box.storage.exceptions.QblStorageException
 import de.qabel.box.storage.exceptions.QblStorageNotFound
 import de.qabel.box.storage.local.LocalStorage
+import de.qabel.core.extensions.letApply
 import de.qabel.core.repository.ContactRepository
 import de.qabel.qabelbox.box.BoxScheduler
 import de.qabel.qabelbox.box.dto.FileOperationState
@@ -13,6 +13,7 @@ import de.qabel.qabelbox.box.dto.UploadSource
 import org.apache.commons.io.IOUtils
 import rx.Observable
 import rx.lang.kotlin.observable
+import java.io.FileNotFoundException
 import java.io.OutputStream
 import javax.inject.Inject
 
@@ -31,24 +32,32 @@ class BoxOperationFileBrowser @Inject constructor(keyAndPrefix: BoxReadFileBrows
         return Pair(operation, observable<FileOperationState> {
             try {
                 it.onNext(operation)
-                recursiveCreateFolder(path.parent).upload(path.name, source.source, boxFile.size,
-                        object : ProgressListener() {
-                            override fun setSize(size: Long) {
-                                operation.size = size
-                                if (operation.loadDone) {
-                                    operation.status = FileOperationState.Status.COMPLETING
-                                } else {
-                                    operation.status = FileOperationState.Status.LOADING
+                recursiveCreateFolder(path.parent).let { nav ->
+                    nav.upload(path.name, source.source, boxFile.size,
+                            object : ProgressListener() {
+                                override fun setSize(size: Long) {
+                                    operation.size = size
+                                    if (operation.loadDone) {
+                                        operation.status = FileOperationState.Status.COMPLETING
+                                    } else {
+                                        operation.status = FileOperationState.Status.LOADING
+                                    }
+                                    it.onNext(operation)
                                 }
-                                it.onNext(operation)
-                            }
 
-                            override fun setProgress(progress: Long) {
-                                operation.done = progress
-                                it.onNext(operation)
-                            }
-                        })
-                operation.status = FileOperationState.Status.COMPLETE
+                                override fun setProgress(progress: Long) {
+                                    operation.done = progress
+                                    it.onNext(operation)
+                                }
+                            })
+                    operation.status = FileOperationState.Status.COMPLETE
+
+                    val targetFolder = if (path.parent != BoxPath.Root)
+                        volumeNavigator.navigateFastTo(path.parent.parent)!!.getFolder(path.parent.name)
+                    else volumeNavigator.rootBoxFolder
+
+                    localStorage.storeDirectoryMetadata(nav.path, targetFolder, nav.metadata, keyAndPrefix.prefix)
+                }
                 it.onCompleted()
             } catch (e: Throwable) {
                 operation.status = FileOperationState.Status.ERROR
@@ -62,13 +71,13 @@ class BoxOperationFileBrowser @Inject constructor(keyAndPrefix: BoxReadFileBrows
         return Pair(operation, observable<FileOperationState> { subscriber ->
             try {
                 subscriber.onNext(operation)
-                volumeNavigator.navigateTo(path.parent).apply {
+                (volumeNavigator.navigateFastTo(path.parent) ?: volumeNavigator.navigateTo(path.parent)).apply {
                     val boxFile = getFile(path.name)
 
                     val localFile = localStorage.getBoxFile(path, boxFile)
-                    if(localFile != null){
+                    if (localFile != null) {
                         IOUtils.copy(localFile.inputStream(), targetStream)
-                    }else {
+                    } else {
                         operation.size = boxFile.size
                         subscriber.onNext(operation)
                         download(boxFile, object : ProgressListener() {
@@ -89,8 +98,7 @@ class BoxOperationFileBrowser @Inject constructor(keyAndPrefix: BoxReadFileBrows
                             }
 
                         }).use {
-                            localStorage.storeFile(it, boxFile, path)
-                            localStorage.getBoxFile(path, boxFile)!!.inputStream().copyTo(targetStream)
+                            localStorage.storeFile(it, boxFile, path).inputStream().copyTo(targetStream)
                         }
                     }
                 }
@@ -108,12 +116,15 @@ class BoxOperationFileBrowser @Inject constructor(keyAndPrefix: BoxReadFileBrows
         subscriber ->
         try {
             subscriber.onNext(Unit)
-            val nav = volumeNavigator.navigateTo(path.parent)
-            when (path) {
-                is BoxPath.Folder -> nav.getFolder(path.name).let { nav.delete(it) }
-                is BoxPath.File -> nav.getFile(path.name).let { nav.delete(it) }
+            val (boxObject, nav) = volumeNavigator.queryObjectAndNav(path)
+            when (boxObject) {
+                is BoxFolder -> nav.delete(boxObject)
+                is BoxFile -> nav.delete(boxObject)
+                else -> throw IllegalArgumentException("Invalid object to delete!")
             }
             subscriber.onNext(Unit)
+        } catch (e: FileNotFoundException) {
+            subscriber.onError(QblStorageException(path.name))
         } catch (e: QblStorageNotFound) {
         } catch (e: QblStorageException) {
             subscriber.onError(e)
@@ -137,6 +148,9 @@ class BoxOperationFileBrowser @Inject constructor(keyAndPrefix: BoxReadFileBrows
     private fun recursiveCreateFolder(path: BoxPath.FolderLike): BoxNavigation =
             volumeNavigator.navigateTo(path) { p, nav ->
                 nav.listFolders().find { it.name == p.name } ?: nav.createFolder(p.name)
+                if(!nav.isUnmodified){
+                    println("CREATED FOLDER: " + p.name)
+                }
                 nav.commitIfChanged()
             }
 

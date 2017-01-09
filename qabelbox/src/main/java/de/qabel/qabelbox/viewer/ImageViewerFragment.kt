@@ -56,6 +56,8 @@ class ImageViewerFragment : Fragment() {
     }
 
     private fun loadImage(view: View) {
+        //TODO invalidate for dev
+        Picasso.with(activity).invalidate(uri)
         Picasso.with(activity).load(uri).error(R.drawable.message_alert_white)
                 .resize(4096, 4096)
                 .onlyScaleDown()

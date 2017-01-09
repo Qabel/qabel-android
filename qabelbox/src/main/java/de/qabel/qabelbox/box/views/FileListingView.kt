@@ -7,5 +7,7 @@ interface FileListingView {
     fun refreshDone()
     fun refreshStart()
     fun showError(throwable: Throwable)
+    fun backgroundRefreshStart()
+    fun backgroundRefreshDone()
 }
 

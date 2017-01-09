@@ -23,6 +23,7 @@ import kotlinx.android.synthetic.main.activity_folder_chooser.*
 import kotlinx.android.synthetic.main.fragment_files.*
 import org.jetbrains.anko.ctx
 import org.jetbrains.anko.longToast
+import org.jetbrains.anko.runOnUiThread
 import javax.inject.Inject
 
 class FolderChooserActivity: CrashReportingActivity(), FolderChooserView, ActiveIdentityActivity,
@@ -101,6 +102,18 @@ QabelLog {
             if (!swipeRefresh.isRefreshing) {
                 swipeRefresh.isRefreshing = true
             }
+        }
+    }
+
+    override fun backgroundRefreshStart() {
+        runOnUiThread {
+            background_progress_bar?.visibility = View.VISIBLE
+        }
+    }
+
+    override fun backgroundRefreshDone() {
+        runOnUiThread {
+            background_progress_bar?.visibility = View.INVISIBLE
         }
     }
 

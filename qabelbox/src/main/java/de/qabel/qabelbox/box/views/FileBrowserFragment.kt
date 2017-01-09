@@ -38,7 +38,6 @@ import kotlinx.android.synthetic.main.fragment_files.*
 import org.jetbrains.anko.*
 import rx.Subscription
 import java.io.FileNotFoundException
-import java.net.URLConnection
 import java.util.*
 import javax.inject.Inject
 
@@ -95,27 +94,28 @@ class FileBrowserFragment : FileBrowserView, FileListingView,
         files_list.layoutManager = LinearLayoutManager(ctx)
         files_list.adapter = adapter
         swipeRefresh.isEnabled = false
+
+        if (!(mActivity?.TEST ?: false)) {
+            presenter.onRefresh()
+        }
     }
 
     override fun onResume() {
         super.onResume()
-        if (!(mActivity?.TEST ?: false)) {
-            presenter.onRefresh()
-        }
         subscription = eventDispatcher.events(BoxBackgroundEvent::class.java).subscribe {
             when (it) {
                 is FileUploadEvent -> {
                     if (listOf(Status.COMPLETE, Status.ERROR).contains(it.operation.status)) {
-                        presenter.onRefresh()
                         backgroundRefreshDone()
+                        presenter.onRefresh()
                     } else {
                         backgroundRefreshStart()
                     }
                 }
                 is BoxPathEvent -> {
                     if (it.complete) {
-                        presenter.onRefresh()
                         backgroundRefreshDone()
+                        presenter.onRefresh()
                     } else {
                         backgroundRefreshStart()
                     }
@@ -251,13 +251,13 @@ class FileBrowserFragment : FileBrowserView, FileListingView,
         }
     }
 
-    fun backgroundRefreshStart() {
+    override fun backgroundRefreshStart() {
         runOnUiThread {
             background_progress_bar?.visibility = View.VISIBLE
         }
     }
 
-    fun backgroundRefreshDone() {
+    override fun backgroundRefreshDone() {
         runOnUiThread {
             background_progress_bar?.visibility = View.INVISIBLE
         }

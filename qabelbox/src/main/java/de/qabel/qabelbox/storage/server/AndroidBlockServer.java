@@ -93,6 +93,7 @@ public class AndroidBlockServer extends BaseServer implements BlockServer {
         }
         return uriBuilder
                 .appendPath(path)
+                .appendQueryParameter("time", Long.toString(System.currentTimeMillis()))
                 .build().toString();
     }
 

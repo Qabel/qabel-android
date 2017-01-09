@@ -4,6 +4,7 @@ import de.qabel.box.storage.*
 import de.qabel.box.storage.exceptions.QblStorageNotFound
 import de.qabel.box.storage.dto.BoxPath
 import de.qabel.box.storage.local.LocalStorage
+import de.qabel.core.extensions.letApply
 import de.qabel.core.logging.QabelLog
 import java.io.FileNotFoundException
 import javax.inject.Inject
@@ -29,7 +30,7 @@ class BoxVolumeNavigator @Inject constructor(
             debug("Failed create Index!")
             volume.createIndex("qabel", prefix)
             volume.navigate()
-        }).apply { localStorage.storeDirectoryMetadata(BoxPath.Root, rootBoxFolder, metadata, volume.config.prefix) }
+        }).letApply { localStorage.storeDmByNavigation(it) }
     }
 
     val localRoot: IndexNavigation?
@@ -61,15 +62,16 @@ class BoxVolumeNavigator @Inject constructor(
             if (path is BoxPath.Root || path.name == "") {
                 localRoot ?: root
             } else {
-                debug("Navigate fast $path")
+                debug("Navigate mixed $path")
                 val parent = navigateFastTo(path.parent, action) ?: navigateTo(path.parent, action)
-                debug("Navigate fast to child $path")
-                println("DO ACTION NAV $path")
+                debug("Navigate mixed to child $path")
                 action(path, parent)
                 val targetFolder = parent.getFolder(path.name)
                 localStorage.getDirectoryMetadata(volume, path, targetFolder)?.let {
                     return navigationFactory.fromDirectoryMetadata(path, it, targetFolder)
-                } ?: parent.navigate(targetFolder)
+                } ?: parent.navigate(targetFolder).letApply {
+                    localStorage.storeDmByNavigation(it)
+                }
             }
 
     override fun navigateTo(path: BoxPath.FolderLike, action: (BoxPath, BoxNavigation) -> Unit): BoxNavigation =
@@ -77,7 +79,7 @@ class BoxVolumeNavigator @Inject constructor(
                 debug("Refresh Root $path")
                 root.apply {
                     refresh()
-                    localStorage.storeDirectoryMetadata(path, rootBoxFolder, metadata, volume.config.prefix)
+                    localStorage.storeDmByNavigation(root)
                 }
             } else {
                 debug("Navigate $path")
@@ -88,10 +90,8 @@ class BoxVolumeNavigator @Inject constructor(
                 }
                 action(path, parent)
                 debug("Navigate to child $path")
-                val targetChild = parent.getFolder(path.name)
-                parent.navigate(targetChild).apply {
-                    val targetPath = path as BoxPath.Folder
-                    localStorage.storeDirectoryMetadata(targetPath, targetChild, metadata, volume.config.prefix)
+                parent.navigate(path.name).letApply {
+                    localStorage.storeDmByNavigation(it)
                 }
             }
 

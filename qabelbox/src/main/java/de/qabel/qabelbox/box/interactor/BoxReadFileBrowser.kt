@@ -78,18 +78,18 @@ open class BoxReadFileBrowser @Inject constructor(protected val keyAndPrefix: Ke
                             toEntries().let {
                                 entries = it
                                 subscriber.onNext(it)
+                                debug("Fast Loaded: " + it.map { it.name + "__" })
                             }
                         }
                     }
                     val refreshedNav = volumeNavigator.navigateTo(path).apply {
                         debug("Path Loaded ${path.toString()}")
-                        refresh()
                     }
                     val refreshedEntries = refreshedNav.toEntries()
                     if (refreshedEntries != entries) {
                         debug("Entries changed. Load refreshed!")
                         subscriber.onNext(refreshedEntries)
-                    }else {
+                    } else {
                         debug("Entries not changed.")
                     }
                 } catch (e: QblStorageException) {

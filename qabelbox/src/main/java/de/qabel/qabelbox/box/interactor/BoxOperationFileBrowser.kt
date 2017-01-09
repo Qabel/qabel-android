@@ -51,12 +51,8 @@ class BoxOperationFileBrowser @Inject constructor(keyAndPrefix: BoxReadFileBrows
                                 }
                             })
                     operation.status = FileOperationState.Status.COMPLETE
-
-                    val targetFolder = if (path.parent != BoxPath.Root)
-                        volumeNavigator.navigateFastTo(path.parent.parent)!!.getFolder(path.parent.name)
-                    else volumeNavigator.rootBoxFolder
-
-                    localStorage.storeDirectoryMetadata(nav.path, targetFolder, nav.metadata, keyAndPrefix.prefix)
+                    println(nav.listFiles().map { it.name + "\n" })
+                    localStorage.storeDmByNavigation(nav)
                 }
                 it.onCompleted()
             } catch (e: Throwable) {
@@ -71,7 +67,7 @@ class BoxOperationFileBrowser @Inject constructor(keyAndPrefix: BoxReadFileBrows
         return Pair(operation, observable<FileOperationState> { subscriber ->
             try {
                 subscriber.onNext(operation)
-                (volumeNavigator.navigateFastTo(path.parent) ?: volumeNavigator.navigateTo(path.parent)).apply {
+                volumeNavigator.navigateMixedTo(path.parent).apply {
                     val boxFile = getFile(path.name)
 
                     val localFile = localStorage.getBoxFile(path, boxFile)
@@ -104,7 +100,7 @@ class BoxOperationFileBrowser @Inject constructor(keyAndPrefix: BoxReadFileBrows
                 }
                 operation.status = FileOperationState.Status.COMPLETE
                 subscriber.onCompleted()
-            } catch(ex: Throwable) {
+            } catch (ex: Throwable) {
                 operation.status = FileOperationState.Status.ERROR
                 subscriber.onError(ex)
             }
@@ -123,6 +119,7 @@ class BoxOperationFileBrowser @Inject constructor(keyAndPrefix: BoxReadFileBrows
                 else -> throw IllegalArgumentException("Invalid object to delete!")
             }
             subscriber.onNext(Unit)
+            localStorage.storeDmByNavigation(nav)
         } catch (e: FileNotFoundException) {
             subscriber.onError(QblStorageException(path.name))
         } catch (e: QblStorageNotFound) {
@@ -146,12 +143,10 @@ class BoxOperationFileBrowser @Inject constructor(keyAndPrefix: BoxReadFileBrows
             }.subscribeOn(scheduler.rxScheduler)
 
     private fun recursiveCreateFolder(path: BoxPath.FolderLike): BoxNavigation =
-            volumeNavigator.navigateTo(path) { p, nav ->
+            volumeNavigator.navigateMixedTo(path) { p, nav ->
                 nav.listFolders().find { it.name == p.name } ?: nav.createFolder(p.name)
-                if(!nav.isUnmodified){
-                    println("CREATED FOLDER: " + p.name)
-                }
                 nav.commitIfChanged()
+                localStorage.storeDmByNavigation(nav)
             }
 
 }

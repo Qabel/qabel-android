@@ -105,8 +105,15 @@ public class CreateAccountResetPasswordFragment extends BaseIdentityFragment {
 
             @Override
             protected void onError(Exception e, @Nullable Response response) {
-                dialog.dismiss();
-                Toast.makeText(getActivity(), R.string.server_access_failed_or_invalid_check_internet_connection, Toast.LENGTH_LONG).show();
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (dialog != null) {
+                            dialog.dismiss();
+                        }
+                        Toast.makeText(getActivity(), R.string.server_access_failed_or_invalid_check_internet_connection, Toast.LENGTH_LONG).show();
+                    }
+                });
             }
 
             @Override
@@ -122,9 +129,14 @@ public class CreateAccountResetPasswordFragment extends BaseIdentityFragment {
                         }
                     });
                 } else {
-                    String text = generateErrorMessage(result);
-                    dialog.dismiss();
-                    UIHelper.showDialogMessage(getActivity(), R.string.dialog_headline_info, text);
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            String text = generateErrorMessage(result);
+                            dialog.dismiss();
+                            UIHelper.showDialogMessage(getActivity(), R.string.dialog_headline_info, text);
+                        }
+                    });
                 }
             }
 

@@ -98,7 +98,9 @@ public class WelcomeScreenActivity extends FragmentActivity implements ViewPager
                 if (mCurrentPage < NUM_PAGES - 1) {
                     mPager.setCurrentItem(NUM_PAGES - 1);
                 } else {
-                    if (((WelcomeDisclaimerFragment) fragments[mCurrentPage]).getCheckedState()) {
+                    Fragment fragment = fragments[mCurrentPage];
+                    if (fragment == null ||
+                            ((WelcomeDisclaimerFragment) fragment).getCheckedState()) {
                         finish();
                         prefs.setWelcomeScreenShownAt(System.currentTimeMillis());
                         Intent intent = new Intent(self, CreateAccountActivity.class);

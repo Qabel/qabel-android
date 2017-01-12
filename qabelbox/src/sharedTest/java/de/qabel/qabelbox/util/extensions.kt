@@ -1,8 +1,8 @@
 package de.qabel.qabelbox.util
 
-import de.qabel.qabelbox.box.dto.BrowserEntry
-import de.qabel.qabelbox.box.dto.DownloadSource
-import de.qabel.qabelbox.box.dto.UploadSource
+import de.qabel.client.box.interactor.BrowserEntry
+import de.qabel.client.box.interactor.DownloadSource
+import de.qabel.client.box.interactor.UploadSource
 import rx.Observable
 import rx.lang.kotlin.firstOrNull
 import java.io.ByteArrayInputStream

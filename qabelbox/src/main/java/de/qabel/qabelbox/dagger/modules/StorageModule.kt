@@ -5,10 +5,15 @@ import dagger.Module
 import dagger.Provides
 import de.qabel.box.storage.FileMetadataFactory
 import de.qabel.box.storage.jdbc.JdbcFileMetadataFactory
-import de.qabel.box.storage.local.LocalStorage
 import de.qabel.chat.repository.ChatShareRepository
 import de.qabel.chat.service.MainSharingService
 import de.qabel.chat.service.SharingService
+import de.qabel.client.box.BoxSchedulers
+import de.qabel.client.box.MainBoxSchedulers
+import de.qabel.client.box.documentId.DocumentIdParser
+import de.qabel.client.box.interactor.BoxVolumeManager
+import de.qabel.client.box.interactor.VolumeManager
+import de.qabel.client.box.storage.LocalStorage
 import de.qabel.core.crypto.CryptoUtils
 import de.qabel.core.repositories.AndroidVersionAdapter
 import de.qabel.core.repository.ContactRepository
@@ -18,7 +23,6 @@ import de.qabel.qabelbox.box.interactor.*
 import de.qabel.qabelbox.box.notifications.AndroidStorageNotificationManager
 import de.qabel.qabelbox.box.notifications.AndroidStorageNotificationPresenter
 import de.qabel.qabelbox.box.notifications.StorageNotificationManager
-import de.qabel.qabelbox.box.provider.DocumentIdParser
 import de.qabel.qabelbox.config.AppPreference
 import de.qabel.qabelbox.storage.server.AndroidBlockServer
 import de.qabel.qabelbox.storage.server.BlockServer
@@ -79,8 +83,8 @@ open class StorageModule {
 
     @Provides
     @Singleton
-    internal fun providesScheduler(): BoxScheduler {
-        return BoxScheduler(Schedulers.from(Executors.newCachedThreadPool()))
+    internal fun providesScheduler(): BoxSchedulers {
+        return MainBoxSchedulers(Schedulers.from(Executors.newCachedThreadPool()))
     }
 
     @Singleton
@@ -95,13 +99,12 @@ open class StorageModule {
                              contactRepository: ContactRepository,
                              preference: AppPreference,
                              context: Context, blockServer: BlockServer,
-                             scheduler: BoxScheduler,
-                             fileMetadataFactory: FileMetadataFactory,
+                             scheduler: BoxSchedulers,
                              localStorage: LocalStorage):
             VolumeManager {
         val (read, operation) = makeFileBrowserFactory(
                 identityRepository, contactRepository, preference.deviceId,
-                context.cacheDir, blockServer, scheduler, fileMetadataFactory, localStorage)
+                context.cacheDir, blockServer, scheduler, localStorage)
         return BoxVolumeManager(identityRepository, read, operation)
     }
 

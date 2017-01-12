@@ -4,11 +4,9 @@ import android.content.Context
 import android.net.Uri
 import de.qabel.box.storage.dto.BoxPath
 import de.qabel.box.storage.exceptions.QblStorageException
+import de.qabel.client.box.documentId.DocumentId
+import de.qabel.client.box.interactor.*
 import de.qabel.core.logging.QabelLog
-import de.qabel.qabelbox.box.dto.BrowserEntry
-import de.qabel.qabelbox.box.dto.FileOperationState
-import de.qabel.qabelbox.box.dto.UploadSource
-import de.qabel.qabelbox.box.provider.DocumentId
 import rx.Observable
 import java.io.File
 import java.io.FileNotFoundException
@@ -69,7 +67,7 @@ open class BoxDocumentIdInteractor @Inject constructor(val context: Context,
 
     override fun createFolder(documentId: DocumentId) =
             when (documentId.path) {
-                is BoxPath.FolderLike -> browserByDocumentId(documentId).createFolder(documentId.path)
+                is BoxPath.FolderLike -> browserByDocumentId(documentId).createFolder(documentId.path as BoxPath.FolderLike)
                 else -> throw QblStorageException("Not a folder")
             }
 

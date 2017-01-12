@@ -1,10 +1,10 @@
 package de.qabel.qabelbox.box.interactor
 
-import de.qabel.qabelbox.box.dto.BrowserEntry
-import de.qabel.qabelbox.box.dto.FileOperationState
+import de.qabel.client.box.documentId.DocumentId
+import de.qabel.client.box.interactor.BrowserEntry
+import de.qabel.client.box.interactor.FileOperationState
+import de.qabel.client.box.interactor.VolumeRoot
 import de.qabel.qabelbox.box.dto.ProviderEntry
-import de.qabel.qabelbox.box.dto.VolumeRoot
-import de.qabel.qabelbox.box.provider.DocumentId
 import de.qabel.qabelbox.box.provider.ShareId
 import rx.Observable
 import rx.Single

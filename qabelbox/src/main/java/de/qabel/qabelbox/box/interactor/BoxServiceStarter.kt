@@ -1,7 +1,7 @@
 package de.qabel.qabelbox.box.interactor
 
 import android.net.Uri
-import de.qabel.qabelbox.box.provider.DocumentId
+import de.qabel.client.box.documentId.DocumentId
 
 interface BoxServiceStarter {
 

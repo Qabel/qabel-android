@@ -1,9 +1,9 @@
 package de.qabel.qabelbox.box.presenters
 
 import android.net.Uri
+import de.qabel.client.box.documentId.DocumentId
+import de.qabel.client.box.interactor.BrowserEntry
 import de.qabel.core.config.Contact
-import de.qabel.qabelbox.box.dto.BrowserEntry
-import de.qabel.qabelbox.box.provider.DocumentId
 import java.io.InputStream
 
 interface FileBrowserPresenter: NavigatingPresenter {

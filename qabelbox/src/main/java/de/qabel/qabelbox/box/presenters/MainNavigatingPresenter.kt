@@ -1,7 +1,7 @@
 package de.qabel.qabelbox.box.presenters
 
 import de.qabel.box.storage.dto.BoxPath
-import de.qabel.qabelbox.box.interactor.ReadFileBrowser
+import de.qabel.client.box.interactor.ReadFileBrowser
 import de.qabel.qabelbox.box.views.FileListingView
 import rx.Subscription
 import javax.inject.Inject

@@ -2,12 +2,12 @@ package de.qabel.qabelbox.persistence
 
 import android.content.Context
 import android.util.Log
-import de.qabel.box.storage.local.repository.BoxLocalStorageRepository
-import de.qabel.box.storage.local.repository.LocalStorageRepository
 import de.qabel.chat.repository.ChatDropMessageRepository
 import de.qabel.chat.repository.ChatShareRepository
 import de.qabel.chat.repository.sqlite.SqliteChatDropMessageRepository
 import de.qabel.chat.repository.sqlite.SqliteChatShareRepository
+import de.qabel.client.box.storage.repository.BoxLocalStorageRepository
+import de.qabel.client.box.storage.repository.LocalStorageRepository
 import de.qabel.core.repositories.AndroidClientDatabase
 import de.qabel.core.repositories.AndroidFakeEntityManager
 import de.qabel.core.repository.*

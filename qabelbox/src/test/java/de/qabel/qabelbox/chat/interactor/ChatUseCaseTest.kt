@@ -31,6 +31,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricGradleTestRunner
 import org.robolectric.annotation.Config
+import rx.schedulers.Schedulers
 import java.util.*
 
 @RunWith(RobolectricGradleTestRunner::class)
@@ -61,7 +62,7 @@ class ChatUseCaseTest {
         contactRepo.save(contact, identity)
         chatDropRepository = spy(InMemoryChatDropMessageRepository())
         transformer = ChatMessageTransformer(identityRepo, contactRepo)
-        chatService = spy(MainChatService(dropConnector, identityRepo, contactRepo, chatDropRepository, InMemoryDropStateRepository(), mock()))
+        chatService = spy(MainChatService(dropConnector, identityRepo, contactRepo, chatDropRepository, InMemoryDropStateRepository(), mock(), Schedulers.immediate()))
         markAsRead = MainMarkAsRead(chatDropRepository, contactRepo, identityRepo)
         chatUseCase = TransformingChatUseCase(identity, contact, markAsRead, transformer, chatService, mock(), MockBlockServer(), chatDropRepository, chatServiceUseCase, actionIntentSender)
     }

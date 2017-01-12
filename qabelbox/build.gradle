@@ -168,7 +168,7 @@ tasks.withType(Test) {
     systemProperty 'java.library.path', 'libs/'
 }
 
-def coreVersion = '31e638d7204525f6e0b1686b7a1a941ad17c26e1'
+def coreVersion = 'b97e7966e247d527a8919f2bbe98a89df0468da0'
 def repo = 'JoGir'
 dependencies {
     sourceCompatibility = JavaVersion.VERSION_1_7
@@ -193,7 +193,12 @@ dependencies {
         exclude group: 'commons-logging', module: 'commons-logging'
         exclude group: 'org.apache.httpcomponents', module: 'httpclient'
     }
-
+    compile('com.github.' + repo + '.qabel-core:client:' + coreVersion) {
+        exclude group: 'org.json', module: 'json'
+        exclude group: 'org.apache.logging.log4j'
+        exclude group: 'commons-logging', module: 'commons-logging'
+        exclude group: 'org.apache.httpcomponents', module: 'httpclient'
+    }
     testCompile('com.github.' + repo + '.qabel-core:box:' + coreVersion + ':tests') {
         exclude group: 'org.json', module: 'json'
         exclude group: 'org.apache.logging.log4j'
@@ -231,6 +236,13 @@ dependencies {
         exclude group: 'org.apache.httpcomponents', module: 'httpclient'
     }
 
+    testCompile('com.github.' + repo + '.qabel-core:client:' + coreVersion + ':sources') {
+        exclude group: 'org.json', module: 'json'
+        exclude group: 'org.apache.logging.log4j'
+        exclude group: 'commons-logging', module: 'commons-logging'
+        exclude group: 'org.apache.httpcomponents', module: 'httpclient'
+    }
+
     androidTestCompile('com.github.' + repo + '.qabel-core:box:' + coreVersion + ':sources') {
         exclude group: 'org.json', module: 'json'
         exclude group: 'org.apache.logging.log4j'
@@ -244,6 +256,13 @@ dependencies {
         exclude group: 'org.apache.httpcomponents', module: 'httpclient'
     }
     androidTestCompile('com.github.' + repo + '.qabel-core:chat:' + coreVersion + ':sources') {
+        exclude group: 'org.json', module: 'json'
+        exclude group: 'org.apache.logging.log4j'
+        exclude group: 'commons-logging', module: 'commons-logging'
+        exclude group: 'org.apache.httpcomponents', module: 'httpclient'
+    }
+
+    androidTestCompile('com.github.' + repo + '.qabel-core:client:' + coreVersion + ':sources') {
         exclude group: 'org.json', module: 'json'
         exclude group: 'org.apache.logging.log4j'
         exclude group: 'commons-logging', module: 'commons-logging'

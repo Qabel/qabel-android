@@ -17,12 +17,14 @@ import android.provider.MediaStore.Video.Media
 import android.util.Log
 import de.qabel.box.storage.exceptions.QblStorageException
 import de.qabel.box.storage.exceptions.QblStorageNotFound
+import de.qabel.client.box.documentId.DocumentId
+import de.qabel.client.box.documentId.toDocumentId
+import de.qabel.client.box.interactor.BrowserEntry
+import de.qabel.client.box.interactor.FileOperationState
 import de.qabel.core.event.EventSink
 import de.qabel.qabelbox.BuildConfig
 import de.qabel.qabelbox.QblBroadcastConstants
 import de.qabel.qabelbox.R
-import de.qabel.qabelbox.box.dto.BrowserEntry
-import de.qabel.qabelbox.box.dto.FileOperationState
 import de.qabel.qabelbox.box.events.FileDownloadEvent
 import de.qabel.qabelbox.box.events.FileUploadEvent
 import de.qabel.qabelbox.box.interactor.DocumentIdAdapter

@@ -9,7 +9,7 @@ import android.support.test.espresso.matcher.ViewMatchers.*
 import de.qabel.qabelbox.R
 import de.qabel.qabelbox.base.MainActivity
 import de.qabel.box.storage.dto.BoxPath
-import de.qabel.qabelbox.box.dto.BrowserEntry
+import de.qabel.client.box.interactor.BrowserEntry
 import de.qabel.qabelbox.box.presenters.FileBrowserPresenter
 import de.qabel.qabelbox.box.views.FileBrowserFragment
 import de.qabel.qabelbox.navigation.MainNavigator

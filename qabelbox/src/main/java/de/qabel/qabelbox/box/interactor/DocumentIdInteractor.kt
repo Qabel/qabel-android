@@ -1,8 +1,8 @@
 package de.qabel.qabelbox.box.interactor
 
 import android.net.Uri
-import de.qabel.qabelbox.box.dto.FileOperationState
-import de.qabel.qabelbox.box.provider.DocumentId
+import de.qabel.client.box.documentId.DocumentId
+import de.qabel.client.box.interactor.FileOperationState
 import rx.Observable
 
 interface DocumentIdInteractor {

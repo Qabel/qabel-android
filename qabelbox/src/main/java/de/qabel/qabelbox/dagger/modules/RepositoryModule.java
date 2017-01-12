@@ -8,11 +8,11 @@ import javax.inject.Singleton;
 
 import dagger.Module;
 import dagger.Provides;
-import de.qabel.box.storage.local.BoxLocalStorage;
-import de.qabel.box.storage.local.LocalStorage;
-import de.qabel.box.storage.local.repository.LocalStorageRepository;
 import de.qabel.chat.repository.ChatDropMessageRepository;
 import de.qabel.chat.repository.ChatShareRepository;
+import de.qabel.client.box.storage.BoxLocalStorage;
+import de.qabel.client.box.storage.LocalStorage;
+import de.qabel.client.box.storage.repository.LocalStorageRepository;
 import de.qabel.core.crypto.CryptoUtils;
 import de.qabel.core.repository.ContactRepository;
 import de.qabel.core.repository.DropStateRepository;

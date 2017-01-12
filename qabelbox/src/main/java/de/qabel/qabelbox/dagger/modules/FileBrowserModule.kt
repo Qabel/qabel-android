@@ -4,6 +4,8 @@ import dagger.Module
 import dagger.Provides
 import de.qabel.box.storage.StorageReadBackend
 import de.qabel.box.storage.StorageWriteBackend
+import de.qabel.client.box.documentId.DocumentIdParser
+import de.qabel.client.box.interactor.*
 import de.qabel.core.config.Identity
 import de.qabel.qabelbox.box.backends.BoxHttpStorageBackend
 import de.qabel.qabelbox.box.interactor.*
@@ -11,7 +13,6 @@ import de.qabel.qabelbox.box.presenters.FileBrowserPresenter
 import de.qabel.qabelbox.box.presenters.MainFileBrowserPresenter
 import de.qabel.qabelbox.box.presenters.MainNavigatingPresenter
 import de.qabel.qabelbox.box.presenters.NavigatingPresenter
-import de.qabel.qabelbox.box.provider.DocumentIdParser
 import de.qabel.qabelbox.config.AppPreference
 import de.qabel.qabelbox.dagger.scopes.ActivityScope
 import de.qabel.qabelbox.storage.server.BlockServer

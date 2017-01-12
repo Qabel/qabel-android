@@ -4,11 +4,6 @@ import com.natpryce.hamkrest.equalTo
 import com.natpryce.hamkrest.should.shouldMatch
 import com.nhaarman.mockito_kotlin.*
 import de.qabel.box.storage.dto.BoxPath
-import de.qabel.qabelbox.box.dto.BrowserEntry
-import de.qabel.qabelbox.box.dto.BrowserEntry.File
-import de.qabel.qabelbox.box.dto.UploadSource
-import de.qabel.qabelbox.box.interactor.ReadFileBrowser
-import de.qabel.qabelbox.box.provider.DocumentId
 import de.qabel.qabelbox.box.views.FileBrowserView
 import org.junit.Before
 import org.junit.Test

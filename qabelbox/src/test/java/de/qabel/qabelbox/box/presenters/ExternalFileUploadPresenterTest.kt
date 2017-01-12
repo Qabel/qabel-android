@@ -4,6 +4,7 @@ import com.nhaarman.mockito_kotlin.mock
 import com.nhaarman.mockito_kotlin.verify
 import com.nhaarman.mockito_kotlin.whenever
 import de.qabel.box.storage.dto.BoxPath
+import de.qabel.client.box.documentId.DocumentId
 import de.qabel.core.config.Identities
 import de.qabel.core.config.Identity
 import de.qabel.core.config.Prefix
@@ -11,7 +12,6 @@ import de.qabel.core.config.factory.DropUrlGenerator
 import de.qabel.core.config.factory.IdentityBuilder
 import de.qabel.qabelbox.BuildConfig
 import de.qabel.qabelbox.SimpleApplication
-import de.qabel.qabelbox.box.provider.DocumentId
 import de.qabel.qabelbox.box.views.FileUploadView
 import de.qabel.qabelbox.eq
 import de.qabel.qabelbox.identity.interactor.ReadOnlyIdentityInteractor

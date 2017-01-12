@@ -19,14 +19,14 @@ import android.support.test.espresso.matcher.ViewMatchers.withText
 import com.natpryce.hamkrest.equalTo
 import com.natpryce.hamkrest.should.shouldMatch
 import de.qabel.box.storage.dto.BoxPath
+import de.qabel.client.box.documentId.DocumentId
+import de.qabel.client.box.interactor.BrowserEntry
 import de.qabel.core.config.Identity
 import de.qabel.core.config.Prefix
 import de.qabel.qabelbox.R
 import de.qabel.qabelbox.base.ACTIVE_IDENTITY
-import de.qabel.qabelbox.box.dto.BrowserEntry
 import de.qabel.qabelbox.box.interactor.BoxServiceStarter
 import de.qabel.qabelbox.box.presenters.FileUploadPresenter
-import de.qabel.qabelbox.box.provider.DocumentId
 import de.qabel.qabelbox.box.views.ExternalFileUploadActivity
 import de.qabel.qabelbox.box.views.FolderChooserActivity
 import de.qabel.qabelbox.ui.helper.UIBoxHelper

@@ -1,6 +1,6 @@
 package de.qabel.qabelbox.box.notifications;
 
-import de.qabel.qabelbox.box.dto.FileOperationState;
+import de.qabel.client.box.interactor.FileOperationState;
 
 public interface StorageNotificationManager {
 

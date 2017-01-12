@@ -21,6 +21,7 @@ import de.qabel.qabelbox.test.shadows.TextViewFontShadow
 import de.qabel.qabelbox.ui.views.TextViewFont
 import kotlinx.android.synthetic.main.chat_message_in.view.*
 import kotlinx.android.synthetic.main.chat_message_share.view.*
+import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricGradleTestRunner
@@ -33,6 +34,11 @@ import java.util.*
 @Config(application = SimpleApplication::class, constants = BuildConfig::class,
         qualifiers = "en", shadows = arrayOf(TextViewFontShadow::class, ShadowDateFormat::class), manifest = "src/main/AndroidManifest.xml")
 class ShareChatMessageViewHolderTest {
+
+    @Before
+    fun setUp(){
+        Locale.setDefault(Locale.ENGLISH)
+    }
 
     @Test
     fun testOutgoing() {

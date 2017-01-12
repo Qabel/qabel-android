@@ -6,12 +6,13 @@ import de.qabel.box.storage.exceptions.QblStorageException
 import de.qabel.chat.repository.ChatShareRepository
 import de.qabel.chat.repository.entities.ShareStatus
 import de.qabel.chat.service.SharingService
+import de.qabel.client.box.documentId.DocumentId
+import de.qabel.client.box.interactor.BrowserEntry
+import de.qabel.client.box.interactor.FileOperationState
+import de.qabel.client.box.interactor.VolumeManager
+import de.qabel.client.box.interactor.VolumeRoot
 import de.qabel.qabelbox.box.backends.BoxHttpStorageBackend
-import de.qabel.qabelbox.box.dto.BrowserEntry
-import de.qabel.qabelbox.box.dto.FileOperationState
 import de.qabel.qabelbox.box.dto.ProviderEntry
-import de.qabel.qabelbox.box.dto.VolumeRoot
-import de.qabel.qabelbox.box.provider.DocumentId
 import de.qabel.qabelbox.box.provider.ShareId
 import de.qabel.qabelbox.storage.server.BlockServer
 import rx.Observable
@@ -41,10 +42,11 @@ class BoxDocumentIdAdapter @Inject constructor(context: Context,
         when (documentId.path) {
             is BoxPath.File -> return emptyList<ProviderEntry>().toSingletonObservable()
             is BoxPath.FolderLike -> {
+                val path = documentId.path as BoxPath.FolderLike
                 val listing: Observable<List<BrowserEntry>> =
-                        browserByDocumentId(documentId).list(documentId.path)
+                        browserByDocumentId(documentId).list(path)
                 return listing.map { entries ->
-                    transformToProviderEntries(entries, documentId.path, documentId)
+                    transformToProviderEntries(entries, path, documentId)
                 }
             }
         }

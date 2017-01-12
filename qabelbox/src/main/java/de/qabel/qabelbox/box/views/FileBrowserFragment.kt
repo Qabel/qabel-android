@@ -10,6 +10,11 @@ import android.view.*
 import com.cocosw.bottomsheet.BottomSheet
 import de.qabel.box.storage.dto.BoxPath
 import de.qabel.box.storage.exceptions.QblStorageException
+import de.qabel.client.box.documentId.DocumentId
+import de.qabel.client.box.documentId.toDocumentId
+import de.qabel.client.box.interactor.BrowserEntry
+import de.qabel.client.box.interactor.FileOperationState
+import de.qabel.client.box.interactor.FileOperationState.Status
 import de.qabel.core.config.Identity
 import de.qabel.core.event.EventDispatcher
 import de.qabel.core.repository.ContactRepository
@@ -18,8 +23,6 @@ import de.qabel.qabelbox.BuildConfig
 import de.qabel.qabelbox.R
 import de.qabel.qabelbox.base.BaseFragment
 import de.qabel.qabelbox.box.adapters.FileAdapter
-import de.qabel.qabelbox.box.dto.BrowserEntry
-import de.qabel.qabelbox.box.dto.FileOperationState.Status
 import de.qabel.qabelbox.box.events.BoxBackgroundEvent
 import de.qabel.qabelbox.box.events.BoxPathEvent
 import de.qabel.qabelbox.box.events.FileUploadEvent
@@ -27,8 +30,6 @@ import de.qabel.qabelbox.box.mimeType
 import de.qabel.qabelbox.box.openIntent
 import de.qabel.qabelbox.box.presenters.FileBrowserPresenter
 import de.qabel.qabelbox.box.provider.BoxProvider
-import de.qabel.qabelbox.box.provider.DocumentId
-import de.qabel.qabelbox.box.provider.toDocumentId
 import de.qabel.qabelbox.box.queryNameAndSize
 import de.qabel.qabelbox.dagger.components.ActiveIdentityComponent
 import de.qabel.qabelbox.dagger.modules.FileBrowserViewModule

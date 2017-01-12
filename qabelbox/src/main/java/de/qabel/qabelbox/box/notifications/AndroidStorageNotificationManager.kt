@@ -1,7 +1,7 @@
 package de.qabel.qabelbox.box.notifications
 
-import de.qabel.qabelbox.box.dto.FileOperationState
-import de.qabel.qabelbox.box.dto.FileOperationState.Status
+import de.qabel.client.box.interactor.FileOperationState
+import de.qabel.client.box.interactor.FileOperationState.Status
 import javax.inject.Inject
 
 class AndroidStorageNotificationManager

@@ -11,14 +11,15 @@ import de.qabel.chat.repository.entities.BoxFileChatShare
 import de.qabel.chat.repository.entities.ShareStatus
 import de.qabel.chat.repository.inmemory.InMemoryChatShareRepository
 import de.qabel.chat.service.SharingService
+import de.qabel.client.box.documentId.DocumentId
+import de.qabel.client.box.documentId.toDocumentId
+import de.qabel.client.box.interactor.*
 import de.qabel.core.config.SymmetricKey
 import de.qabel.core.extensions.assertThrows
 import de.qabel.qabelbox.BuildConfig
 import de.qabel.qabelbox.SimpleApplication
 import de.qabel.qabelbox.box.dto.*
-import de.qabel.qabelbox.box.provider.DocumentId
 import de.qabel.qabelbox.box.provider.ShareId
-import de.qabel.qabelbox.box.provider.toDocumentId
 import de.qabel.qabelbox.isEqual
 import de.qabel.qabelbox.util.waitFor
 import org.junit.Before

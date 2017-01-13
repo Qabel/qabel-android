@@ -33,9 +33,9 @@ abstract class BaseFragment(protected val mainFragment: Boolean = false,
         this.idle = idle
     }
 
-    fun busy() = idle?.let { it.busy() }
+    fun busy() = idle?.busy()
 
-    fun idle() = idle?.let { it.idle() }
+    fun idle() = idle?.idle()
 
     @Suppress("UNCHECKED_CAST")
     protected fun <C> getComponent(componentType: Class<C>): C {

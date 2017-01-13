@@ -280,6 +280,7 @@ class MainActivity : CrashReportingActivity(),
             private var offlineIndicator: AlertDialog? = null
 
             override fun handleConnectionLost(): Unit {
+                busy()
                 runOnUiThread {
                     if (offlineIndicator == null) {
                         val builder = AlertDialog.Builder(this@MainActivity)
@@ -301,10 +302,12 @@ class MainActivity : CrashReportingActivity(),
                     } else {
                         offlineIndicator?.show()
                     }
+                    idle()
                 }
             }
 
             override fun handleConnectionEstablished() {
+                busy()
                 runOnUiThread {
                     offlineIndicator?.let {
                         if (it.isShowing) {
@@ -312,6 +315,7 @@ class MainActivity : CrashReportingActivity(),
                             offlineIndicator = null
                         }
                     }
+                    idle()
                 }
             }
 
@@ -614,9 +618,7 @@ class MainActivity : CrashReportingActivity(),
         startActivity(i)
     }
 
-    override fun getComponent(): ActiveIdentityComponent {
-        return component
-    }
+    override fun getComponent() = component
 
     companion object {
 

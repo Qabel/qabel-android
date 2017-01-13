@@ -4,6 +4,7 @@ import android.app.Activity
 import android.app.Instrumentation
 import android.content.Intent
 import android.net.Uri
+import android.os.PowerManager
 import android.support.test.InstrumentationRegistry
 import android.support.test.espresso.Espresso.onData
 import android.support.test.espresso.Espresso.onView
@@ -29,9 +30,13 @@ import de.qabel.qabelbox.box.interactor.BoxServiceStarter
 import de.qabel.qabelbox.box.presenters.FileUploadPresenter
 import de.qabel.qabelbox.box.views.ExternalFileUploadActivity
 import de.qabel.qabelbox.box.views.FolderChooserActivity
+import de.qabel.qabelbox.ui.helper.SystemAnimations
+import de.qabel.qabelbox.ui.helper.UIActionHelper
 import de.qabel.qabelbox.ui.helper.UIBoxHelper
+import de.qabel.qabelbox.ui.helper.UITestHelper
 import org.hamcrest.CoreMatchers
 import org.hamcrest.Matchers
+import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -46,6 +51,9 @@ class ExternalFileUploadActivityTest {
             ExternalFileUploadActivity::class.java, false, false)
     val activity: ExternalFileUploadActivity
         get() = activityTestRule.activity
+
+    private var wakeLock: PowerManager.WakeLock? = null
+    private var mSystemAnimations: SystemAnimations? = null
 
     lateinit var identity: Identity
     lateinit var secondIdentity: Identity
@@ -95,7 +103,16 @@ class ExternalFileUploadActivityTest {
         presenter = Presenter(identities ?: listOf())
         activity.presenter = presenter
         activity.boxServiceStarter = boxServiceStarter
+        wakeLock = UIActionHelper.wakeupDevice(activity)
+        mSystemAnimations = SystemAnimations(activity)
+        mSystemAnimations?.disableAll()
         return presenter
+    }
+
+    @After
+    fun cleanUp() {
+        wakeLock?.release()
+        mSystemAnimations?.enableAll()
     }
 
     @Test
@@ -196,6 +213,8 @@ class ExternalFileUploadActivityTest {
         fun selectIdentity(identity: Identity) {
             identitySpinner.perform(click())
             onData(CoreMatchers.equalTo(FileUploadPresenter.IdentitySelection(identity))).perform(click())
+            //TODO Flaky test!
+            UITestHelper.sleep(500)
             identitySpinner.check(matches(ViewMatchers.withSpinnerText(
                     Matchers.containsString(identity.alias))))
         }

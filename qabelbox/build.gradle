@@ -235,7 +235,12 @@ dependencies {
         exclude group: 'commons-logging', module: 'commons-logging'
         exclude group: 'org.apache.httpcomponents', module: 'httpclient'
     }
-
+    testCompile('com.github.' + repo + '.qabel-core:client:' + coreVersion + ':tests') {
+        exclude group: 'org.json', module: 'json'
+        exclude group: 'org.apache.logging.log4j'
+        exclude group: 'commons-logging', module: 'commons-logging'
+        exclude group: 'org.apache.httpcomponents', module: 'httpclient'
+    }
     testCompile('com.github.' + repo + '.qabel-core:client:' + coreVersion + ':sources') {
         exclude group: 'org.json', module: 'json'
         exclude group: 'org.apache.logging.log4j'
@@ -256,13 +261,6 @@ dependencies {
         exclude group: 'org.apache.httpcomponents', module: 'httpclient'
     }
     androidTestCompile('com.github.' + repo + '.qabel-core:chat:' + coreVersion + ':sources') {
-        exclude group: 'org.json', module: 'json'
-        exclude group: 'org.apache.logging.log4j'
-        exclude group: 'commons-logging', module: 'commons-logging'
-        exclude group: 'org.apache.httpcomponents', module: 'httpclient'
-    }
-
-    androidTestCompile('com.github.' + repo + '.qabel-core:client:' + coreVersion + ':sources') {
         exclude group: 'org.json', module: 'json'
         exclude group: 'org.apache.logging.log4j'
         exclude group: 'commons-logging', module: 'commons-logging'

@@ -48,7 +48,6 @@ class ImageViewerFragment : Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.fragment_imageviewer, container, false)
-        setClickListener(view)
         runOnUiThread {
             loadImage(view)
         }
@@ -56,12 +55,13 @@ class ImageViewerFragment : Fragment() {
     }
 
     private fun loadImage(view: View) {
-        //TODO invalidate for dev
-        Picasso.with(activity).invalidate(uri)
-        Picasso.with(activity).load(uri).error(R.drawable.message_alert_white)
+        view.pb_loading.setVisibleOrGone(true)
+        Picasso.with(activity)
+                .load(uri)
                 .resize(4096, 4096)
                 .onlyScaleDown()
                 .centerInside()
+                .error(R.drawable.message_alert_white)
                 .into(view.image, object : Callback {
                     override fun onSuccess() {
                         view.pb_loading.setVisibleOrGone(false)
@@ -71,10 +71,6 @@ class ImageViewerFragment : Fragment() {
                         view.pb_loading.setVisibleOrGone(false)
                     }
                 })
-    }
-
-    private fun setClickListener(view: View) {
-        view.setOnClickListener { activity.onBackPressed() }
     }
 
     companion object {

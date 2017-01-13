@@ -23,6 +23,7 @@ import de.qabel.client.box.interactor.BrowserEntry
 import de.qabel.client.box.interactor.FileOperationState
 import de.qabel.core.event.EventSink
 import de.qabel.core.extensions.letApply
+import de.qabel.core.repository.exception.EntityNotFoundException
 import de.qabel.qabelbox.BuildConfig
 import de.qabel.qabelbox.QblBroadcastConstants
 import de.qabel.qabelbox.R
@@ -116,6 +117,23 @@ open class BoxProvider : DocumentsProvider(), AnkoLogger {
 
     @Throws(FileNotFoundException::class)
     override fun queryDocument(documentIdString: String, projection: Array<String>?): Cursor? {
+        if (documentIdString.isShareId()) {
+            try {
+                val shareId = ShareId.parse(documentIdString)
+                val shareEntry = useCase.listShare(shareId).toBlocking().value()
+                return createCursor(projection ?: DEFAULT_DOCUMENT_PROJECTION, false).letApply {
+                    when (shareEntry) {
+                        is BrowserEntry.File -> insertFile(it, documentIdString, shareEntry)
+                    }
+                }
+            } catch (ex: Exception) {
+                when (ex) {
+                    is EntityNotFoundException,
+                    is QblStorageException -> throw FileNotFoundException("Share not found")
+                    else -> throw ex
+                }
+            }
+        }
         val id = try {
             documentIdString.toDocumentId()
         } catch (e: QblStorageException) {
@@ -135,6 +153,12 @@ open class BoxProvider : DocumentsProvider(), AnkoLogger {
 
     @Throws(FileNotFoundException::class)
     override fun queryChildDocuments(parentDocumentId: String, projection: Array<String>?, sortOrder: String?): Cursor {
+
+        if (parentDocumentId.isShareId()) {
+            //No childs
+            return createCursor(projection ?: DEFAULT_DOCUMENT_PROJECTION, false)
+        }
+
         val id = try {
             parentDocumentId.toDocumentId()
         } catch (e: QblStorageException) {
@@ -161,17 +185,20 @@ open class BoxProvider : DocumentsProvider(), AnkoLogger {
         }
     }
 
-    private fun insertFile(cursor: MatrixCursor, documentId: DocumentId, file: BrowserEntry.File) {
+    private fun insertFile(cursor: MatrixCursor, documentId: DocumentId, file: BrowserEntry.File) =
+            insertFile(cursor, documentId.toString(), file)
+
+    private fun insertFile(cursor: MatrixCursor, documentId: String, file: BrowserEntry.File) {
         info("Inserting file into cursor: $documentId - $file")
         val mimeType = URLConnection.guessContentTypeFromName(file.name) ?: "application/octet-stream"
         with(cursor.newRow()) {
-            add(Document.COLUMN_DOCUMENT_ID, documentId.toString())
+            add(Document.COLUMN_DOCUMENT_ID, documentId)
             add(Document.COLUMN_DISPLAY_NAME, file.name)
             add(Document.COLUMN_SUMMARY, null)
             add(Document.COLUMN_FLAGS, Document.FLAG_SUPPORTS_WRITE)
             add(Document.COLUMN_MIME_TYPE, mimeType)
             add(Document.COLUMN_SIZE, file.size)
-            add(Media.DATA, documentId.toString())
+            add(Media.DATA, documentId)
         }
     }
 
@@ -187,7 +214,7 @@ open class BoxProvider : DocumentsProvider(), AnkoLogger {
     }
 
     protected open fun createTmpFile(): File = File.createTempFile("boxOpen", "tmp", context.externalCacheDir)
-
+    private fun String.isShareId(): Boolean = startsWith(ShareId.PREFIX)
     @Throws(FileNotFoundException::class)
     override fun openDocument(documentId: String,
                               mode: String, signal: CancellationSignal?): ParcelFileDescriptor {

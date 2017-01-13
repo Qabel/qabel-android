@@ -17,14 +17,14 @@ import de.qabel.client.box.documentId.DocumentId
 import de.qabel.client.box.documentId.toDocumentId
 import de.qabel.client.box.interactor.*
 import de.qabel.client.box.storage.LocalStorage
+import de.qabel.client.isEqual
+import de.qabel.client.stubMethod
 import de.qabel.core.config.SymmetricKey
 import de.qabel.core.extensions.assertThrows
 import de.qabel.qabelbox.BuildConfig
 import de.qabel.qabelbox.SimpleApplication
-import de.qabel.qabelbox.box.dto.*
+import de.qabel.qabelbox.box.dto.ProviderEntry
 import de.qabel.qabelbox.box.provider.ShareId
-import de.qabel.qabelbox.isEqual
-import de.qabel.qabelbox.stubMethod
 import de.qabel.qabelbox.util.waitFor
 import org.junit.Before
 import org.junit.Test
@@ -160,6 +160,18 @@ class BoxDocumentIdAdapterTest {
         shareRepo.persist(share)
         useCase.refreshShare(ShareId.create(share)).toBlocking().value()
         verify(sharingService).updateShare(eq(share), any())
+    }
+
+    @Test
+    fun listShare(){
+        val share = BoxFileChatShare(ShareStatus.ACCEPTED, "", 128L, SymmetricKey(emptyList()), "")
+        share.prefix = "prefix"
+        shareRepo.persist(share)
+        val value = useCase.listShare(ShareId.create(share)).toBlocking().value()
+        value.name isEqual  share.name
+        value.mTime.time isEqual share.modifiedOn
+        value.size isEqual share.size
+        value.sharedTo.size isEqual 0
     }
 
 }

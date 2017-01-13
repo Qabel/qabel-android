@@ -20,5 +20,6 @@ interface DocumentIdAdapter : DocumentIdInteractor {
 
     fun downloadFile(documentId: DocumentId, targetFile : File): Pair<FileOperationState, Observable<FileOperationState>>
     fun uploadFile(sourceFile: File, targetDocumentId: DocumentId): Pair<FileOperationState, Observable<FileOperationState>>
+    fun listShare(shareId: ShareId): Single<BrowserEntry.File>
 }
 

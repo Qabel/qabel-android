@@ -21,6 +21,7 @@ import rx.Observable
 import rx.lang.kotlin.single
 import rx.lang.kotlin.toSingletonObservable
 import java.io.File
+import java.util.*
 import javax.inject.Inject
 
 class BoxDocumentIdAdapter @Inject constructor(context: Context,
@@ -85,6 +86,13 @@ class BoxDocumentIdAdapter @Inject constructor(context: Context,
             localStorage.storeFile(it.inputStream(), externalBoxFile, sharePath)
         }
         single.onSuccess(resultFile)
+    }
+
+    override fun listShare(shareId : ShareId) = single<BrowserEntry.File> {
+        val entry = shareRepo.findById(shareId.boxShareId).let {
+            BrowserEntry.File(it.name, it.size, Date(it.modifiedOn))
+        }
+        it.onSuccess(entry)
     }
 
     override fun refreshShare(shareId: ShareId) = single<Unit> { single ->

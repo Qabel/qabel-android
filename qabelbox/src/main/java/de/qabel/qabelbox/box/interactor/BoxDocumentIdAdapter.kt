@@ -11,6 +11,8 @@ import de.qabel.client.box.interactor.BrowserEntry
 import de.qabel.client.box.interactor.FileOperationState
 import de.qabel.client.box.interactor.VolumeManager
 import de.qabel.client.box.interactor.VolumeRoot
+import de.qabel.client.box.storage.LocalStorage
+import de.qabel.core.extensions.letApply
 import de.qabel.qabelbox.box.backends.BoxHttpStorageBackend
 import de.qabel.qabelbox.box.dto.ProviderEntry
 import de.qabel.qabelbox.box.provider.ShareId
@@ -25,7 +27,8 @@ class BoxDocumentIdAdapter @Inject constructor(context: Context,
                                                volumeManager: VolumeManager,
                                                private val shareRepo: ChatShareRepository,
                                                private val blockServer: BlockServer,
-                                               private val sharingService: SharingService
+                                               private val sharingService: SharingService,
+                                               private val localStorage: LocalStorage
 ) : BoxDocumentIdInteractor(context, volumeManager), DocumentIdAdapter {
 
     override fun query(documentId: DocumentId): Observable<BrowserEntry> {
@@ -69,13 +72,19 @@ class BoxDocumentIdAdapter @Inject constructor(context: Context,
         }
     }
 
-    override fun download(shareId: ShareId, target: File) = single<Unit> { single ->
+    override fun download(shareId: ShareId) = single<File> { single ->
         val share = shareRepo.findById(shareId.boxShareId)
         if (!listOf(ShareStatus.ACCEPTED, ShareStatus.CREATED).contains(share.status)) {
             throw QblStorageException("Invalid ShareStatus for download")
         }
-        sharingService.downloadShare(share, target, BoxHttpStorageBackend(blockServer, share.prefix!!))
-        single.onSuccess(Unit)
+        val storageBackend = BoxHttpStorageBackend(blockServer, share.prefix!!)
+        val externalBoxFile = sharingService.getBoxExternalFile(share, storageBackend)
+        val sharePath = BoxPath.Root * (externalBoxFile.prefix + externalBoxFile.name)
+        val resultFile = localStorage.getBoxFile(sharePath, externalBoxFile) ?: createTempFile().letApply {
+            sharingService.downloadShare(share, it, storageBackend)
+            localStorage.storeFile(it.inputStream(), externalBoxFile, sharePath)
+        }
+        single.onSuccess(resultFile)
     }
 
     override fun refreshShare(shareId: ShareId) = single<Unit> { single ->

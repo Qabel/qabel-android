@@ -15,7 +15,7 @@ interface DocumentIdAdapter : DocumentIdInteractor {
     fun queryChildDocuments(documentId: DocumentId): Observable<List<ProviderEntry>>
 
     fun query(documentId: DocumentId): Observable<BrowserEntry>
-    fun download(shareId : ShareId, target : File) : Single<Unit>
+    fun download(shareId : ShareId) : Single<File>
     fun refreshShare(shareId: ShareId) : Single<Unit>
 
     fun downloadFile(documentId: DocumentId, targetFile : File): Pair<FileOperationState, Observable<FileOperationState>>

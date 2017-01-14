@@ -35,11 +35,11 @@ class ImageViewerFragment : Fragment() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.action_imageviewer_edit -> {
-                ExternalApps.openExternApp(activity, uri, type, Intent.ACTION_EDIT)
+                ExternalApps.openInExternalApp(activity, uri, type, Intent.ACTION_EDIT)
                 return true
             }
             R.id.action_imageviewer_open -> {
-                ExternalApps.openExternApp(activity, uri, type, Intent.ACTION_VIEW)
+                ExternalApps.openInExternalApp(activity, uri, type, Intent.ACTION_VIEW)
                 return true
             }
             else -> return super.onOptionsItemSelected(item)

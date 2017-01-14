@@ -23,8 +23,7 @@ fun Uri.mimeType(): String {
 fun Uri.openIntent(context: Context) {
     val uri = this
     val shareIntent = Intent(Intent.ACTION_SEND).apply {
-        data = uri
-        type = uri.mimeType()
+        setDataAndType(uri , uri.mimeType())
         putExtra(Intent.EXTRA_SUBJECT, R.string.share_subject)
         putExtra(Intent.EXTRA_TITLE, R.string.share_subject)
         putExtra(Intent.EXTRA_TEXT, context.getString(R.string.share_text))

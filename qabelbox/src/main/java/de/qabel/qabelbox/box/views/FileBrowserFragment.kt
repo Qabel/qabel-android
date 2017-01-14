@@ -13,7 +13,6 @@ import de.qabel.box.storage.exceptions.QblStorageException
 import de.qabel.client.box.documentId.DocumentId
 import de.qabel.client.box.documentId.toDocumentId
 import de.qabel.client.box.interactor.BrowserEntry
-import de.qabel.client.box.interactor.FileOperationState
 import de.qabel.client.box.interactor.FileOperationState.Status
 import de.qabel.core.config.Identity
 import de.qabel.core.event.EventDispatcher
@@ -297,8 +296,7 @@ class FileBrowserFragment : FileBrowserView, FileListingView,
 
     private fun startViewIntent(mimeType: String, uri: Uri?) {
         val intent = Intent(Intent.ACTION_VIEW).apply {
-            data = uri
-            type = mimeType
+            setDataAndType(uri, mimeType)
             addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
             addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
         }
@@ -326,8 +324,7 @@ class FileBrowserFragment : FileBrowserView, FileListingView,
             val uri = uriFromDocumentId(documentId)
             val mimeType = uri.mimeType()
             val createDocument = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
-                data = uri
-                type = mimeType
+                setDataAndType(uri, mimeType)
                 putExtra(Intent.EXTRA_TITLE, documentId.path.name)
                 addCategory(Intent.CATEGORY_OPENABLE)
                 addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)

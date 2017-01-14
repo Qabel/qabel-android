@@ -20,7 +20,6 @@
         android:name=".QABELSERVICE"
         android:label="Use QabelService"
         android:protectionLevel="dangerous" />
-
     <permission
         android:name=".QABEL_READ_RESOURCES"
         android:label="Read Qabel Resources"
@@ -29,7 +28,6 @@
         android:name=".QABEL_WRITE_RESOURCES"
         android:label="Write Qabel Resources"
         android:protectionLevel="dangerous" />
-
     <permission
         android:name=".QABEL_READ_CONTACTS"
         android:label="Read Qabel Contacts"
@@ -38,7 +36,6 @@
         android:name=".QABEL_WRITE_CONTACTS"
         android:label="Write Qabel Contacts"
         android:protectionLevel="dangerous" />
-
     <permission
         android:name=".QABEL_READ_IDENTITIES"
         android:label="Read Qabel Identities"
@@ -58,41 +55,58 @@
         <meta-data
             android:name="firebase_analytics_collection_deactivated"
             android:value="true" />
-        <!--only for internal test feedback-->
+        <!-- only for internal test feedback -->
         <activity android:name="net.hockeyapp.android.FeedbackActivity" />
         <activity android:name="net.hockeyapp.android.PaintActivity" />
-        <!-- end only internal test feedback-->
+        <!-- end only internal test feedback -->
         <activity
             android:name=".startup.activities.CreateIdentityActivity"
             android:label="@string/app_name"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar"
-            android:windowSoftInputMode="stateHidden|adjustResize">>
+            android:windowSoftInputMode="stateHidden|adjustResize">
+            >
         </activity>
         <activity
             android:name=".startup.activities.CreateAccountActivity"
             android:label="@string/app_name"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar"
-            android:windowSoftInputMode="stateHidden|adjustResize">>
+            android:windowSoftInputMode="stateHidden|adjustResize">
+            >
         </activity>
         <activity
             android:name=".box.views.FolderChooserActivity"
             android:label="@string/app_name"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar"
-            android:windowSoftInputMode="stateHidden|adjustResize">>
+            android:windowSoftInputMode="stateHidden|adjustResize">
+            >
         </activity>
         <activity
             android:name=".box.views.ExternalFileUploadActivity"
             android:label="@string/external_file_save"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar"
-            android:windowSoftInputMode="stateHidden|adjustResize">>
+            android:windowSoftInputMode="stateHidden|adjustResize">
+            >
             <intent-filter>
                 <action android:name="android.intent.action.SEND" />
+
                 <category android:name="android.intent.category.DEFAULT" />
+
                 <data android:mimeType="*/*" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".chat.view.views.TextShareReceiverActivity"
+            android:label="@string/title_activity_text_share_receiver"
+            android:theme="@style/AppTheme.NoActionBar">
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="text/plain" />
             </intent-filter>
         </activity>
         <activity
@@ -106,9 +120,7 @@
             android:label="@string/app_name"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar"
-            android:windowSoftInputMode="adjustPan">
-
-        </activity>
+            android:windowSoftInputMode="adjustPan"/>
         <activity
             android:name=".startup.activities.SplashActivity"
             android:label="@string/app_name"
@@ -116,10 +128,10 @@
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".base.MainActivity"
             android:configChanges="touchscreen|keyboard|keyboardHidden|orientation|screenLayout|screenSize"
@@ -128,7 +140,6 @@
             android:screenOrientation="sensor"
             android:theme="@style/AppTheme.NoActionBar"
             android:windowSoftInputMode="stateAlwaysHidden|adjustResize" />
-
         <activity
             android:name=".viewer.ImageViewerActivity"
             android:configChanges="screenLayout|orientation"
@@ -145,21 +156,21 @@
             <intent-filter>
                 <action android:name="android.content.SyncAdapter" />
             </intent-filter>
+
             <meta-data
                 android:name="android.content.SyncAdapter"
                 android:resource="@xml/syncadapter" />
         </service>
-
         <service android:name=".chat.services.QabelFirebaseMessagingService">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
-
         <service android:name=".services.QabelAuthenticatorService">
             <intent-filter>
                 <action android:name="android.accounts.AccountAuthenticator" />
             </intent-filter>
+
             <meta-data
                 android:name="android.accounts.AccountAuthenticator"
                 android:resource="@xml/authenticator" />
@@ -172,6 +183,7 @@
             <intent-filter>
                 <action android:name="android.content.SyncAdapter" />
             </intent-filter>
+
             <meta-data
                 android:name="android.content.SyncAdapter"
                 android:resource="@xml/contact_sync" />
@@ -187,7 +199,6 @@
             <intent-filter>
                 <action android:name="android.content.action.DOCUMENTS_PROVIDER" />
             </intent-filter>
-
         </provider>
         <provider
             android:name=".providers.InternalContentProvider"
@@ -201,7 +212,7 @@
             android:enabled="true"
             android:exported="false"
             android:syncable="true" />
-    </application>
 
+    </application>
 
 </manifest>

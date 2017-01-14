@@ -26,10 +26,8 @@ class MainContactEditPresenter @Inject constructor(private val view: ContactEdit
     lateinit var identities: Identities
     override fun loadContact() {
         contact = view.contactDto
-        identityInteractor.getIdentities().subscribe {
-            identities = it
-            view.loadContact(contact, identities)
-        }
+        identities = identityInteractor.getIdentities()
+        view.loadContact(contact, identities)
     }
 
     override fun onSaveClick() {

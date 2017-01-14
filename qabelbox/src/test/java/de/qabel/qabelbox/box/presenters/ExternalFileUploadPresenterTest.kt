@@ -13,14 +13,13 @@ import de.qabel.qabelbox.BuildConfig
 import de.qabel.qabelbox.SimpleApplication
 import de.qabel.qabelbox.box.provider.DocumentId
 import de.qabel.qabelbox.box.views.FileUploadView
+import de.qabel.qabelbox.contacts.dto.EntitySelection
 import de.qabel.qabelbox.eq
 import de.qabel.qabelbox.identity.interactor.ReadOnlyIdentityInteractor
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricGradleTestRunner
 import org.robolectric.annotation.Config
-import rx.Single
-import rx.lang.kotlin.toSingletonObservable
 
 @RunWith(RobolectricGradleTestRunner::class)
 @Config(application = SimpleApplication::class, constants = BuildConfig::class)
@@ -33,10 +32,10 @@ class ExternalFileUploadPresenterTest {
         put(IdentityBuilder(dropGen).withAlias("second").build())
     }
     val identityInteractor: ReadOnlyIdentityInteractor = object: ReadOnlyIdentityInteractor {
-        override fun getIdentity(keyId: String): Single<Identity> =
-            identities.getByKeyIdentifier(keyId).toSingletonObservable().toSingle()
+        override fun getIdentity(keyId: String): Identity =
+            identities.getByKeyIdentifier(keyId)
 
-        override fun getIdentities(): Single<Identities> = identities.toSingletonObservable().toSingle()
+        override fun getIdentities(): Identities = identities
     }
 
     val view : FileUploadView = mock()
@@ -61,7 +60,7 @@ class ExternalFileUploadPresenterTest {
         mainIdentity.prefixes.add(Prefix(prefix))
         whenever(view.path).thenReturn(path)
         whenever(view.filename).thenReturn(filename)
-        whenever(view.identity).thenReturn(FileUploadPresenter.IdentitySelection(mainIdentity))
+        whenever(view.identity).thenReturn(EntitySelection(mainIdentity))
 
         presenter.confirm()
 

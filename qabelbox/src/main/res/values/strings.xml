@@ -278,7 +278,6 @@
     <string name="about.licences.item.show.btn">Show Licence</string>
 
 
-
     <string name="help_main_headline_tou">Terms of use</string>
     <string name="help_main_headline_data_policy">Data policy</string>
     <string name="help_main_headline_about_us">Imprint</string>
@@ -316,7 +315,7 @@
     <string name="btn_welcome_accept">Accept</string>
     <string name="message_welcome_qabel_big">QABEL </string>
     <string name="headline_welcome_screen1">Welcome to\u0020</string>
-    <string name="empty_text" translatable="false"/>
+    <string name="empty_text" translatable="false" />
     <string name="headline_welcome_screen2">\u0020Features\n</string>
     <string name="headline_welcome_screen3">\u0020Identities\n</string>
     <string name="headline_welcome_screen4">\u0020Account\n</string>
@@ -411,4 +410,6 @@ You can find more information on https://qabel.de/en
     <string name="external_file_save">Save to Qabel</string>
     <string name="filename">Filename</string>
     <string name="folder">Folder</string>
+    <string name="title_activity_text_share_receiver">Send with Qabel</string>
+    <string name="received_message_label">Message</string>
 </resources>

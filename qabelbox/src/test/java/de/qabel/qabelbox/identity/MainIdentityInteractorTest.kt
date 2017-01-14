@@ -42,14 +42,14 @@ class MainIdentityInteractorTest() : CoreTestCase {
 
     @Test
     fun testLoadIdentity() {
-        val loaded = useCase.getIdentity(identity.keyIdentifier).toBlocking().value()
+        val loaded = useCase.getIdentity(identity.keyIdentifier)
         loaded eq identity
     }
 
     @Test
     fun testLoadIdentities() {
         val second = createIdentity("Bob").apply { identityRepo.save(this) }
-        val identities = useCase.getIdentities().toBlocking().value()
+        val identities = useCase.getIdentities()
         identities.identities.size eq 2
         identities.identities eq setOf(identity, second)
     }

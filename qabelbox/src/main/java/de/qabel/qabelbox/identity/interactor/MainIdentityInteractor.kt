@@ -20,7 +20,7 @@ import javax.inject.Inject
 
 class MainIdentityInteractor @Inject constructor(private val identityRepository: IdentityRepository,
                                                  private val actionEventSender: ActionIntentSender)
-: IdentityInteractor, ReadOnlyIdentityInteractor by MainReadOnlyIdentityInteractor(identityRepository) {
+: IdentityInteractor, ReadOnlyIdentityInteractor by RepositoryReadOnlyIdentityInteractor(identityRepository) {
 
     override fun saveIdentity(identity: Identity): Single<Identity> =
             if (identity.id == 0)

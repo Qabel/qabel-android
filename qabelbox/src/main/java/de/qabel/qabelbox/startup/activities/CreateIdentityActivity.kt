@@ -132,12 +132,10 @@ class CreateIdentityActivity : BaseWizardActivity(), QabelLog, DataPermissionsAd
         QabelBoxApplication.getApplicationComponent(applicationContext).inject(this)
         super.onCreate(savedInstanceState)
         registerReceiver(indexIdentityListener, indexIdentityListener.createIntentFilter())
-        identityInteractor.getIdentities().subscribe({
-            existingIdentities = it
+        existingIdentities = identityInteractor.getIdentities().let {
             canExit = it.identities.size > 0
-        }, {
-            existingIdentities = Identities()
-        })
+            it
+        }
     }
 
     override fun onDestroy() {

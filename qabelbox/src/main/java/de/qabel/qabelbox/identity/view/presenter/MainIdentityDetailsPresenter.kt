@@ -17,23 +17,27 @@ class MainIdentityDetailsPresenter @Inject constructor(private val view: Identit
     override var identity: Identity? = null
 
     override fun loadIdentity() {
-        identityInteractor.getIdentity(view.identityKeyId).subscribe({
-            identity = it
-            view.loadIdentity(it)
-        }, {
-            error("Error loading identity ${view.identityKeyId} ", it)
-            view.showDefaultError(it)
-        })
+        try {
+            identityInteractor.getIdentity(view.identityKeyId).let {
+                identity = it
+                view.loadIdentity(it)
+            }
+        } catch (e: Throwable) {
+                error("Error loading identity ${view.identityKeyId} ", e)
+                view.showDefaultError(e)
+        }
     }
 
     private fun saveIdentity(identity: Identity) {
-        identityInteractor.saveIdentity(identity).subscribe({
-            view.showIdentitySavedToast()
-            view.loadIdentity(identity)
-        }, {
-            error("Saving identity failed!", it)
+        try {
+            identityInteractor.saveIdentity(identity).let {
+                view.showIdentitySavedToast()
+                view.loadIdentity(identity)
+            }
+        } catch (e: Throwable) {
+            error("Saving identity failed!", e)
             view.showSaveFailed()
-        })
+        }
     }
 
     override fun onSaveAlias(newAlias: String) {

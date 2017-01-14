@@ -27,6 +27,7 @@ import de.qabel.core.config.Prefix
 import de.qabel.qabelbox.R
 import de.qabel.qabelbox.base.ACTIVE_IDENTITY
 import de.qabel.qabelbox.box.interactor.BoxServiceStarter
+import de.qabel.qabelbox.contacts.dto.EntitySelection
 import de.qabel.qabelbox.box.presenters.FileUploadPresenter
 import de.qabel.qabelbox.box.views.ExternalFileUploadActivity
 import de.qabel.qabelbox.box.views.FolderChooserActivity
@@ -58,7 +59,7 @@ class ExternalFileUploadActivityTest {
     lateinit var identity: Identity
     lateinit var secondIdentity: Identity
 
-    lateinit var identities: List<FileUploadPresenter.IdentitySelection>
+    lateinit var identities: List<EntitySelection>
     val folder = BrowserEntry.Folder("folder")
 
     val uri: Uri = Uri.fromFile(createTempFile())
@@ -71,7 +72,7 @@ class ExternalFileUploadActivityTest {
             }
         }
 
-    open class Presenter(override val availableIdentities: List<FileUploadPresenter.IdentitySelection>)
+    open class Presenter(override val availableIdentities: List<EntitySelection>)
     : FileUploadPresenter {
         var confirmed = false
         override val defaultPath: BoxPath = BoxPath.Root * "public"
@@ -94,11 +95,11 @@ class ExternalFileUploadActivityTest {
         identity = mBoxHelper.addIdentity("spoon123")
         secondIdentity = mBoxHelper.addIdentity("second")
         identities = listOf(
-            FileUploadPresenter.IdentitySelection(secondIdentity),
-            FileUploadPresenter.IdentitySelection(identity))
+                EntitySelection(secondIdentity),
+                EntitySelection(identity))
     }
 
-    fun launch(identities: List<FileUploadPresenter.IdentitySelection>? = null): Presenter {
+    fun launch(identities: List<EntitySelection>? = null): Presenter {
         activityTestRule.launchActivity(defaultIntent)
         presenter = Presenter(identities ?: listOf())
         activity.presenter = presenter
@@ -117,7 +118,7 @@ class ExternalFileUploadActivityTest {
 
     @Test
     fun finishesWithoutIdentities() {
-        // the startup sequenze doesn't use the mocked presenter
+        // the startup sequence doesn't use the mocked presenter
         mBoxHelper.removeAllIdentities()
         launch(listOf())
         assert(activity.isFinishing)
@@ -212,9 +213,7 @@ class ExternalFileUploadActivityTest {
 
         fun selectIdentity(identity: Identity) {
             identitySpinner.perform(click())
-            onData(CoreMatchers.equalTo(FileUploadPresenter.IdentitySelection(identity))).perform(click())
-            //TODO Flaky test!
-            UITestHelper.sleep(500)
+            onData(CoreMatchers.equalTo(EntitySelection(identity))).perform(click())
             identitySpinner.check(matches(ViewMatchers.withSpinnerText(
                     Matchers.containsString(identity.alias))))
         }
@@ -225,7 +224,7 @@ class ExternalFileUploadActivityTest {
         val folderName: ViewInteraction
             get() = onView(withId(R.id.folderName))
 
-        fun folderSelectIntentMatcher(identity: FileUploadPresenter.IdentitySelection) = Matchers.allOf(
+        fun folderSelectIntentMatcher(identity: EntitySelection) = Matchers.allOf(
                     IntentMatchers.toPackage("de.qabel.qabel.debug"),
                     IntentMatchers.hasExtra(ACTIVE_IDENTITY, identity.keyId))
 

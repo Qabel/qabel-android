@@ -6,7 +6,7 @@ import rx.Single
 
 interface ReadOnlyIdentityInteractor {
 
-    fun getIdentity(keyId: String): Single<Identity>
-    fun getIdentities(): Single<Identities>
+    fun getIdentity(keyId: String): Identity
+    fun getIdentities(): Identities
 }
 

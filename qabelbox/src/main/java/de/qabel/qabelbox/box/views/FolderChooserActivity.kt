@@ -20,6 +20,7 @@ import de.qabel.qabelbox.dagger.modules.ActiveIdentityModule
 import de.qabel.qabelbox.dagger.modules.ActivityModule
 import de.qabel.qabelbox.dagger.modules.FolderChooserModule
 import kotlinx.android.synthetic.main.activity_folder_chooser.*
+import kotlinx.android.synthetic.main.background_progress_bar.*
 import kotlinx.android.synthetic.main.fragment_files.*
 import org.jetbrains.anko.ctx
 import org.jetbrains.anko.longToast

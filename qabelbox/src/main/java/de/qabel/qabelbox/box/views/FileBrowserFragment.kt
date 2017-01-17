@@ -35,10 +35,10 @@ import de.qabel.qabelbox.dagger.modules.FileBrowserViewModule
 import de.qabel.qabelbox.ui.extensions.showEnterTextDialog
 import de.qabel.qabelbox.viewer.ImageViewerActivity
 import kotlinx.android.synthetic.main.fragment_files.*
+import kotlinx.android.synthetic.main.background_progress_bar.*
 import org.jetbrains.anko.*
 import rx.Subscription
 import java.io.FileNotFoundException
-import java.net.URLConnection
 import java.util.*
 import javax.inject.Inject
 

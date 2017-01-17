@@ -2,9 +2,8 @@ package de.qabel.qabelbox.dagger.components;
 
 import android.support.v7.app.AppCompatActivity;
 
-import org.jetbrains.annotations.NotNull;
-
 import dagger.Subcomponent;
+import de.qabel.qabelbox.chat.dagger.TextShareReceiverModule;
 import de.qabel.qabelbox.dagger.modules.ActiveIdentityModule;
 import de.qabel.qabelbox.dagger.modules.ActivityModule;
 import de.qabel.qabelbox.dagger.modules.ExternalFileUploadModule;
@@ -22,7 +21,9 @@ public interface ActivityComponent {
 
     AppCompatActivity activity();
 
-     ExternalFileUploadComponent plus(ExternalFileUploadModule externalFileUploadModule);
+    ExternalFileUploadComponent plus(ExternalFileUploadModule externalFileUploadModule);
+
+    TextShareReceiverComponent plus(TextShareReceiverModule textShareReceiverModule);
 }
 
 

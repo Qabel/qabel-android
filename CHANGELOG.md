@@ -12,6 +12,15 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+## [0.13.3] - 2017-02-01
+
+### Added
+
+### Changed
+- Update of legal texts
+
+### Fixed
+
 ## [0.13.2] - 2016-12-12
 
 ### Added

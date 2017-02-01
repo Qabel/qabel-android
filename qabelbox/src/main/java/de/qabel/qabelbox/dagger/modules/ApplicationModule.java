@@ -12,8 +12,9 @@ import de.qabel.chat.repository.ChatDropMessageRepository;
 import de.qabel.chat.service.ChatService;
 import de.qabel.chat.service.MainChatService;
 import de.qabel.chat.service.SharingService;
-import de.qabel.core.http.MainDropConnector;
-import de.qabel.core.http.MainDropServer;
+import de.qabel.client.box.BoxSchedulers;
+import de.qabel.core.drop.MainDropConnector;
+import de.qabel.core.drop.MainDropServer;
 import de.qabel.core.repository.ContactRepository;
 import de.qabel.core.repository.DropStateRepository;
 import de.qabel.core.repository.IdentityRepository;
@@ -70,9 +71,9 @@ public class ApplicationModule extends ContextModule {
     @Provides
     ChatService providesChatService(IdentityRepository identityRepository, ContactRepository contactRepository,
                                     DropStateRepository dropStateRepository, SharingService sharingService,
-                                    ChatDropMessageRepository chatDropMessageRepository) {
+                                    ChatDropMessageRepository chatDropMessageRepository, BoxSchedulers boxSchedulers) {
         return new MainChatService(new MainDropConnector(new MainDropServer()), identityRepository,
-                contactRepository, chatDropMessageRepository, dropStateRepository, sharingService);
+                contactRepository, chatDropMessageRepository, dropStateRepository, sharingService, boxSchedulers.getIo());
     }
 
     @Singleton

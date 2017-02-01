@@ -5,34 +5,16 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.provider.OpenableColumns
-import de.qabel.box.storage.BoxFile
-import de.qabel.box.storage.BoxFolder
-import de.qabel.box.storage.BoxObject
-import de.qabel.box.storage.dto.BoxPath
 import de.qabel.qabelbox.R
-import de.qabel.qabelbox.box.dto.BrowserEntry
-import de.qabel.qabelbox.box.dto.DownloadSource
-import java.io.ByteArrayInputStream
 import java.net.URLConnection
-import java.util.*
-
-
-fun ByteArray.toDownloadSource(entry: BrowserEntry.File)
-        = DownloadSource(entry, ByteArrayInputStream(this))
 
 fun ContentResolver.queryNameAndSize(uri: Uri): Pair<String, Long> =
-            query(uri,
-                  arrayOf(OpenableColumns.DISPLAY_NAME, OpenableColumns.SIZE),
-                  null, null, null).use {
-                it.moveToFirst()
-                Pair(it.getString(0), it.getLong(1))
-            }
-
-fun BoxObject.toEntry() = when (this) {
-    is BoxFile -> BrowserEntry.File(this.name, this.size, Date(this.mtime))
-    is BoxFolder -> BrowserEntry.Folder(this.name)
-    else -> null
-}
+        query(uri,
+                arrayOf(OpenableColumns.DISPLAY_NAME, OpenableColumns.SIZE),
+                null, null, null).use {
+            it.moveToFirst()
+            Pair(it.getString(0), it.getLong(1))
+        }
 
 fun Uri.mimeType(): String {
     return URLConnection.guessContentTypeFromName(this.toString()) ?: "application/octet-stream"
@@ -41,8 +23,7 @@ fun Uri.mimeType(): String {
 fun Uri.openIntent(context: Context) {
     val uri = this
     val shareIntent = Intent(Intent.ACTION_SEND).apply {
-        data = uri
-        type = uri.mimeType()
+        setDataAndType(uri , uri.mimeType())
         putExtra(Intent.EXTRA_SUBJECT, R.string.share_subject)
         putExtra(Intent.EXTRA_TITLE, R.string.share_subject)
         putExtra(Intent.EXTRA_TEXT, context.getString(R.string.share_text))

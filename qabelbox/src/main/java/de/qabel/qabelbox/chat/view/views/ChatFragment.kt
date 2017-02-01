@@ -224,7 +224,9 @@ class ChatFragment : ChatView, BaseFragment(), AnkoLogger {
     }
 
     override fun refreshItem(msg: ChatMessage) =
-            adapter.notifyViewItem(msg)
+            runOnUiThread {
+                adapter.notifyViewItem(msg)
+            }
 
     override fun handleLoadError(throwable: Throwable) = showError(throwable)
 

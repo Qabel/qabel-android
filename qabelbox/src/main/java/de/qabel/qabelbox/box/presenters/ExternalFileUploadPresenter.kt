@@ -1,8 +1,8 @@
 package de.qabel.qabelbox.box.presenters
 
 import de.qabel.box.storage.dto.BoxPath
+import de.qabel.client.box.documentId.DocumentId
 import de.qabel.core.config.Prefix
-import de.qabel.qabelbox.box.provider.DocumentId
 import de.qabel.qabelbox.box.views.FileUploadView
 import de.qabel.qabelbox.contacts.dto.EntitySelection
 import de.qabel.qabelbox.identity.interactor.ReadOnlyIdentityInteractor

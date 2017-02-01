@@ -4,9 +4,9 @@ import com.nhaarman.mockito_kotlin.mock
 import com.nhaarman.mockito_kotlin.verify
 import com.nhaarman.mockito_kotlin.whenever
 import de.qabel.box.storage.dto.BoxPath
-import de.qabel.qabelbox.box.dto.BrowserEntry
-import de.qabel.qabelbox.box.interactor.ReadFileBrowser
-import de.qabel.qabelbox.box.provider.DocumentId
+import de.qabel.client.box.documentId.DocumentId
+import de.qabel.client.box.interactor.BrowserEntry
+import de.qabel.client.box.interactor.ReadFileBrowser
 import de.qabel.qabelbox.box.views.FolderChooserView
 import de.qabel.qabelbox.eq
 import org.junit.Before

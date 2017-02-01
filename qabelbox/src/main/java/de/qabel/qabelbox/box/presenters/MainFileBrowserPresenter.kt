@@ -1,15 +1,15 @@
 package de.qabel.qabelbox.box.presenters
 
 import android.net.Uri
+import de.qabel.client.box.documentId.DocumentId
+import de.qabel.client.box.interactor.BrowserEntry
+import de.qabel.client.box.interactor.BrowserEntry.File
+import de.qabel.client.box.interactor.BrowserEntry.Folder
+import de.qabel.client.box.interactor.ReadFileBrowser
+import de.qabel.client.box.interactor.Sharer
 import de.qabel.core.config.Contact
 import de.qabel.core.config.Identity
-import de.qabel.qabelbox.box.dto.BrowserEntry
-import de.qabel.qabelbox.box.dto.BrowserEntry.File
-import de.qabel.qabelbox.box.dto.BrowserEntry.Folder
 import de.qabel.qabelbox.box.interactor.BoxServiceStarter
-import de.qabel.qabelbox.box.interactor.ReadFileBrowser
-import de.qabel.qabelbox.box.interactor.Sharer
-import de.qabel.qabelbox.box.provider.DocumentId
 import de.qabel.qabelbox.box.views.FileBrowserView
 import de.qabel.qabelbox.navigation.Navigator
 import javax.inject.Inject

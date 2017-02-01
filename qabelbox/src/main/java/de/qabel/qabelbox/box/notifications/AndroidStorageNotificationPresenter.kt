@@ -11,7 +11,6 @@ import de.qabel.qabelbox.R
 import de.qabel.qabelbox.base.ACTIVE_IDENTITY
 import de.qabel.qabelbox.base.MainActivity
 import de.qabel.qabelbox.box.AndroidBoxService
-import de.qabel.qabelbox.box.provider.DocumentId
 import de.qabel.qabelbox.notifications.QblNotificationPresenter
 import org.apache.commons.io.FileUtils
 

@@ -14,12 +14,12 @@ import com.nhaarman.mockito_kotlin.mock
 import com.nhaarman.mockito_kotlin.notNull
 import com.nhaarman.mockito_kotlin.spy
 import com.nhaarman.mockito_kotlin.verify
+import de.qabel.client.box.interactor.BrowserEntry
 import de.qabel.qabelbox.BuildConfig
 import de.qabel.qabelbox.R
 import de.qabel.qabelbox.SimpleApplication
 import de.qabel.qabelbox.box.adapters.FileAdapter
 import de.qabel.qabelbox.box.adapters.FileViewHolder
-import de.qabel.qabelbox.box.dto.BrowserEntry
 import de.qabel.qabelbox.helper.FontHelper
 import de.qabel.qabelbox.test.shadows.TextViewFontShadow
 import kotlinx.android.synthetic.main.item_contacts.view.*
@@ -55,6 +55,7 @@ class FileAdapterTest {
     fun setUp() {
         FontHelper.disable = true
         ShadowSystemClock.setCurrentTimeMillis(Date().time)
+        Locale.setDefault(Locale.ENGLISH)
     }
 
     @Test

@@ -35,11 +35,11 @@ class ImageViewerFragment : Fragment() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.action_imageviewer_edit -> {
-                ExternalApps.openExternApp(activity, uri, type, Intent.ACTION_EDIT)
+                ExternalApps.openInExternalApp(activity, uri, type, Intent.ACTION_EDIT)
                 return true
             }
             R.id.action_imageviewer_open -> {
-                ExternalApps.openExternApp(activity, uri, type, Intent.ACTION_VIEW)
+                ExternalApps.openInExternalApp(activity, uri, type, Intent.ACTION_VIEW)
                 return true
             }
             else -> return super.onOptionsItemSelected(item)
@@ -48,7 +48,6 @@ class ImageViewerFragment : Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.fragment_imageviewer, container, false)
-        setClickListener(view)
         runOnUiThread {
             loadImage(view)
         }
@@ -56,10 +55,13 @@ class ImageViewerFragment : Fragment() {
     }
 
     private fun loadImage(view: View) {
-        Picasso.with(activity).load(uri).error(R.drawable.message_alert_white)
+        view.pb_loading.setVisibleOrGone(true)
+        Picasso.with(activity)
+                .load(uri)
                 .resize(4096, 4096)
                 .onlyScaleDown()
                 .centerInside()
+                .error(R.drawable.message_alert_white)
                 .into(view.image, object : Callback {
                     override fun onSuccess() {
                         view.pb_loading.setVisibleOrGone(false)
@@ -69,10 +71,6 @@ class ImageViewerFragment : Fragment() {
                         view.pb_loading.setVisibleOrGone(false)
                     }
                 })
-    }
-
-    private fun setClickListener(view: View) {
-        view.setOnClickListener { activity.onBackPressed() }
     }
 
     companion object {

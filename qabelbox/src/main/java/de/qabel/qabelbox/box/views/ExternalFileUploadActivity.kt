@@ -11,6 +11,8 @@ import android.widget.AdapterView
 import android.widget.TextView
 import com.squareup.picasso.Picasso
 import de.qabel.box.storage.dto.BoxPath
+import de.qabel.client.box.documentId.DocumentId
+import de.qabel.client.box.documentId.DocumentIdParser
 import de.qabel.core.logging.QabelLog
 import de.qabel.qabelbox.R
 import de.qabel.qabelbox.adapter.EntitySelectionAdapter
@@ -18,8 +20,6 @@ import de.qabel.qabelbox.base.ACTIVE_IDENTITY
 import de.qabel.qabelbox.base.CrashReportingActivity
 import de.qabel.qabelbox.box.interactor.BoxServiceStarter
 import de.qabel.qabelbox.box.presenters.FileUploadPresenter
-import de.qabel.qabelbox.box.provider.DocumentId
-import de.qabel.qabelbox.box.provider.DocumentIdParser
 import de.qabel.qabelbox.box.queryNameAndSize
 import de.qabel.qabelbox.contacts.dto.EntitySelection
 import de.qabel.qabelbox.dagger.modules.ActivityModule
@@ -66,7 +66,7 @@ class ExternalFileUploadActivity : FileUploadView, CrashReportingActivity(), Qab
                     return
                 }
                 if (id.path is BoxPath.FolderLike) {
-                    path = id.path
+                    path = id.path as BoxPath.FolderLike
                     folderName.text = id.path.toString()
                 }
             }

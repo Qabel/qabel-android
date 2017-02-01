@@ -29,7 +29,7 @@ infix fun <T> Observable<T>.matches(matcher: Matcher<T>) {
 infix fun <T> Observable<T>.errorsWith(error: Throwable) {
     var e : Throwable? = null
     this.defaultTimeout().toBlocking().subscribe({}, { e = it})
-    e eq error
+    try { e eq error } catch (ex : AssertionError) { e?.printStackTrace(); throw ex }
 }
 
 fun <T> stubMethod(methodCall: T, result: T)

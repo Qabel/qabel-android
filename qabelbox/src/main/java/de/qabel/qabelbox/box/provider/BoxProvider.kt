@@ -17,11 +17,16 @@ import android.provider.MediaStore.Video.Media
 import android.util.Log
 import de.qabel.box.storage.exceptions.QblStorageException
 import de.qabel.box.storage.exceptions.QblStorageNotFound
+import de.qabel.client.box.documentId.DocumentId
+import de.qabel.client.box.documentId.toDocumentId
+import de.qabel.client.box.interactor.BrowserEntry
+import de.qabel.client.box.interactor.FileOperationState
 import de.qabel.core.event.EventSink
+import de.qabel.core.extensions.letApply
+import de.qabel.core.repository.exception.EntityNotFoundException
 import de.qabel.qabelbox.BuildConfig
 import de.qabel.qabelbox.QblBroadcastConstants
 import de.qabel.qabelbox.R
-import de.qabel.qabelbox.box.dto.BrowserEntry
 import de.qabel.qabelbox.box.events.FileDownloadEvent
 import de.qabel.qabelbox.box.events.FileUploadEvent
 import de.qabel.qabelbox.box.interactor.DocumentIdAdapter
@@ -105,13 +110,30 @@ open class BoxProvider : DocumentsProvider(), AnkoLogger {
 
         val supported = supportedProjection.toHashSet()
         return projection.filter { it in supported }.let {
-            if (it.size == 0) listOf(Document.COLUMN_DOCUMENT_ID)
+            if (it.isEmpty()) listOf(Document.COLUMN_DOCUMENT_ID)
             else it
         }.toTypedArray()
     }
 
     @Throws(FileNotFoundException::class)
     override fun queryDocument(documentIdString: String, projection: Array<String>?): Cursor? {
+        if (documentIdString.isShareId()) {
+            try {
+                val shareId = ShareId.parse(documentIdString)
+                val shareEntry = useCase.listShare(shareId).toBlocking().value()
+                return createCursor(projection ?: DEFAULT_DOCUMENT_PROJECTION, false).letApply {
+                    when (shareEntry) {
+                        is BrowserEntry.File -> insertFile(it, documentIdString, shareEntry)
+                    }
+                }
+            } catch (ex: Exception) {
+                when (ex) {
+                    is EntityNotFoundException,
+                    is QblStorageException -> throw FileNotFoundException("Share not found")
+                    else -> throw ex
+                }
+            }
+        }
         val id = try {
             documentIdString.toDocumentId()
         } catch (e: QblStorageException) {
@@ -131,6 +153,12 @@ open class BoxProvider : DocumentsProvider(), AnkoLogger {
 
     @Throws(FileNotFoundException::class)
     override fun queryChildDocuments(parentDocumentId: String, projection: Array<String>?, sortOrder: String?): Cursor {
+
+        if (parentDocumentId.isShareId()) {
+            //No childs
+            return createCursor(projection ?: DEFAULT_DOCUMENT_PROJECTION, false)
+        }
+
         val id = try {
             parentDocumentId.toDocumentId()
         } catch (e: QblStorageException) {
@@ -157,17 +185,20 @@ open class BoxProvider : DocumentsProvider(), AnkoLogger {
         }
     }
 
-    private fun insertFile(cursor: MatrixCursor, documentId: DocumentId, file: BrowserEntry.File) {
+    private fun insertFile(cursor: MatrixCursor, documentId: DocumentId, file: BrowserEntry.File) =
+            insertFile(cursor, documentId.toString(), file)
+
+    private fun insertFile(cursor: MatrixCursor, documentId: String, file: BrowserEntry.File) {
         info("Inserting file into cursor: $documentId - $file")
         val mimeType = URLConnection.guessContentTypeFromName(file.name) ?: "application/octet-stream"
         with(cursor.newRow()) {
-            add(Document.COLUMN_DOCUMENT_ID, documentId.toString())
+            add(Document.COLUMN_DOCUMENT_ID, documentId)
             add(Document.COLUMN_DISPLAY_NAME, file.name)
             add(Document.COLUMN_SUMMARY, null)
             add(Document.COLUMN_FLAGS, Document.FLAG_SUPPORTS_WRITE)
             add(Document.COLUMN_MIME_TYPE, mimeType)
             add(Document.COLUMN_SIZE, file.size)
-            add(Media.DATA, documentId.toString())
+            add(Media.DATA, documentId)
         }
     }
 
@@ -183,7 +214,7 @@ open class BoxProvider : DocumentsProvider(), AnkoLogger {
     }
 
     protected open fun createTmpFile(): File = File.createTempFile("boxOpen", "tmp", context.externalCacheDir)
-
+    private fun String.isShareId(): Boolean = startsWith(ShareId.PREFIX)
     @Throws(FileNotFoundException::class)
     override fun openDocument(documentId: String,
                               mode: String, signal: CancellationSignal?): ParcelFileDescriptor {
@@ -192,14 +223,15 @@ open class BoxProvider : DocumentsProvider(), AnkoLogger {
             val isWrite = mode.indexOf('w') != -1
             val isRead = mode.indexOf('r') != -1
             val isShare = documentId.startsWith(ShareId.PREFIX)
-            val file = createTmpFile()
             val parsedMode = ParcelFileDescriptor.parseMode(mode)
 
-            if (isShare) {
+            val file: File = if (isShare) {
                 val shareId = ShareId.parse(documentId)
                 debug("Open share $shareId")
                 try {
-                    useCase.download(shareId, file).toBlocking().value()
+                    useCase.download(shareId).toBlocking().value().letApply {
+                        debug("downloaded share $shareId ${it.absolutePath}")
+                    }
                 } catch (ex: RuntimeException) {
                     error("Error loading share", ex)
                     ex.cause?.let {
@@ -209,62 +241,63 @@ open class BoxProvider : DocumentsProvider(), AnkoLogger {
                     }
                     throw ex
                 }
-                debug("downloaded share ${file.absolutePath}")
+
             } else {
-                val id = documentId.toDocumentId()
-                if (isRead) {
-                    try {
-                        val (operation, observable) = useCase.downloadFile(id, file)
-                        observable.doOnCompleted {
-                            notificationManager.updateDownloadNotification(operation)
-                            context.runOnUiThread {
-                                longToast(ctx.getString(R.string.download_complete_msg, operation.entryName))
-                            }
-                            eventSink.push(FileDownloadEvent(operation))
-                        }.sample(150L, TimeUnit.MILLISECONDS)
-                                .doOnNext {
-                                    notificationManager.updateDownloadNotification(operation)
-                                    eventSink.push(FileDownloadEvent(it))
-                                }
-                                .doOnError {
-                                    error("Error downloading File ${id.path} to $file", it)
-                                    eventSink.push(FileDownloadEvent(operation))
-                                }.toBlocking().subscribe()
-                    } catch (e: QblStorageException) {
-                        throw FileNotFoundException("Download failed")
+                createTmpFile().letApply {
+                    val id = documentId.toDocumentId()
+                    if (isRead) {
+                        try {
+                            val (operation, observable) = useCase.downloadFile(id, it)
+                            observable.doOnCompleted {
+                                operation.status = FileOperationState.Status.HIDDEN
+                                notificationManager.updateDownloadNotification(operation)
+                                eventSink.push(FileDownloadEvent(operation))
+                            }.sample(150L, TimeUnit.MILLISECONDS)
+                                    .doOnNext {
+                                        notificationManager.updateDownloadNotification(operation)
+                                        eventSink.push(FileDownloadEvent(it))
+                                    }
+                                    .doOnError { error ->
+                                        error("Error downloading File ${id.path} to $it", error)
+                                        eventSink.push(FileDownloadEvent(operation))
+                                    }.toBlocking().subscribe()
+                        } catch (e: QblStorageException) {
+                            throw FileNotFoundException("Download failed")
+                        }
                     }
                 }
-                if (isWrite) {
-                    return ParcelFileDescriptor.open(file, parsedMode, handler,
-                            ParcelFileDescriptor.OnCloseListener { e ->
-                                if (e != null) {
-                                    Log.e(TAG, "IOException in onClose", e)
-                                    return@OnCloseListener
-                                }
-                                Log.i(TAG, "Uploading saved file")
-                                try {
-                                    val (operation, observable) = useCase.uploadFile(file, id)
-                                    observable
-                                            .doOnCompleted {
-                                                notificationManager.updateUploadNotification(operation)
-                                                context.runOnUiThread {
-                                                    longToast(ctx.getString(R.string.upload_complete_msg, operation.entryName))
-                                                }
-                                                eventSink.push(FileUploadEvent(operation))
+            }
+            if (!isShare && isWrite) {
+                val id = documentId.toDocumentId()
+                return ParcelFileDescriptor.open(file, parsedMode, handler,
+                        ParcelFileDescriptor.OnCloseListener { e ->
+                            if (e != null) {
+                                Log.e(TAG, "IOException in onClose", e)
+                                return@OnCloseListener
+                            }
+                            Log.i(TAG, "Uploading saved file")
+                            try {
+                                val (operation, observable) = useCase.uploadFile(file, id)
+                                observable
+                                        .doOnCompleted {
+                                            notificationManager.updateUploadNotification(operation)
+                                            context.runOnUiThread {
+                                                longToast(ctx.getString(R.string.upload_complete_msg, operation.entryName))
                                             }
-                                            .sample(150L, TimeUnit.MILLISECONDS).toBlocking()
-                                            .subscribe({
-                                                notificationManager.updateUploadNotification(it)
-                                                eventSink.push(FileUploadEvent(it))
-                                            }, {
-                                                error("Error uploading File $file to ${id.path}", it)
-                                                eventSink.push(FileUploadEvent(operation))
-                                            })
-                                } catch (e: QblStorageException) {
-                                    throw FileNotFoundException("Upload failed")
-                                }
-                            })
-                }
+                                            eventSink.push(FileUploadEvent(operation))
+                                        }
+                                        .sample(150L, TimeUnit.MILLISECONDS).toBlocking()
+                                        .subscribe({
+                                            notificationManager.updateUploadNotification(it)
+                                            eventSink.push(FileUploadEvent(it))
+                                        }, {
+                                            error("Error uploading File $file to ${id.path}", it)
+                                            eventSink.push(FileUploadEvent(operation))
+                                        })
+                            } catch (e: QblStorageException) {
+                                throw FileNotFoundException("Upload failed")
+                            }
+                        })
             }
             return ParcelFileDescriptor.open(file, parsedMode)
         } catch (ex: Throwable) {
@@ -300,8 +333,6 @@ open class BoxProvider : DocumentsProvider(), AnkoLogger {
 
         @JvmField
         val AUTHORITY = ".box.provider.documents"
-        @JvmField
-        val PATH_SEP = "/"
         @JvmField
         val DOCID_SEPARATOR = "::::"
     }

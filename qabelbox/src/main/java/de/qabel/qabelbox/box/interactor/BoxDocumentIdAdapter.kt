@@ -6,25 +6,30 @@ import de.qabel.box.storage.exceptions.QblStorageException
 import de.qabel.chat.repository.ChatShareRepository
 import de.qabel.chat.repository.entities.ShareStatus
 import de.qabel.chat.service.SharingService
+import de.qabel.client.box.documentId.DocumentId
+import de.qabel.client.box.interactor.BrowserEntry
+import de.qabel.client.box.interactor.FileOperationState
+import de.qabel.client.box.interactor.VolumeManager
+import de.qabel.client.box.interactor.VolumeRoot
+import de.qabel.client.box.storage.LocalStorage
+import de.qabel.core.extensions.letApply
 import de.qabel.qabelbox.box.backends.BoxHttpStorageBackend
-import de.qabel.qabelbox.box.dto.BrowserEntry
-import de.qabel.qabelbox.box.dto.FileOperationState
 import de.qabel.qabelbox.box.dto.ProviderEntry
-import de.qabel.qabelbox.box.dto.VolumeRoot
-import de.qabel.qabelbox.box.provider.DocumentId
 import de.qabel.qabelbox.box.provider.ShareId
 import de.qabel.qabelbox.storage.server.BlockServer
 import rx.Observable
 import rx.lang.kotlin.single
 import rx.lang.kotlin.toSingletonObservable
 import java.io.File
+import java.util.*
 import javax.inject.Inject
 
 class BoxDocumentIdAdapter @Inject constructor(context: Context,
                                                volumeManager: VolumeManager,
                                                private val shareRepo: ChatShareRepository,
                                                private val blockServer: BlockServer,
-                                               private val sharingService: SharingService
+                                               private val sharingService: SharingService,
+                                               private val localStorage: LocalStorage
 ) : BoxDocumentIdInteractor(context, volumeManager), DocumentIdAdapter {
 
     override fun query(documentId: DocumentId): Observable<BrowserEntry> {
@@ -41,10 +46,11 @@ class BoxDocumentIdAdapter @Inject constructor(context: Context,
         when (documentId.path) {
             is BoxPath.File -> return emptyList<ProviderEntry>().toSingletonObservable()
             is BoxPath.FolderLike -> {
+                val path = documentId.path as BoxPath.FolderLike
                 val listing: Observable<List<BrowserEntry>> =
-                        browserByDocumentId(documentId).list(documentId.path)
+                        browserByDocumentId(documentId).list(path)
                 return listing.map { entries ->
-                    transformToProviderEntries(entries, documentId.path, documentId)
+                    transformToProviderEntries(entries, path, documentId)
                 }
             }
         }
@@ -67,13 +73,26 @@ class BoxDocumentIdAdapter @Inject constructor(context: Context,
         }
     }
 
-    override fun download(shareId: ShareId, target: File) = single<Unit> { single ->
+    override fun download(shareId: ShareId) = single<File> { single ->
         val share = shareRepo.findById(shareId.boxShareId)
         if (!listOf(ShareStatus.ACCEPTED, ShareStatus.CREATED).contains(share.status)) {
             throw QblStorageException("Invalid ShareStatus for download")
         }
-        sharingService.downloadShare(share, target, BoxHttpStorageBackend(blockServer, share.prefix!!))
-        single.onSuccess(Unit)
+        val storageBackend = BoxHttpStorageBackend(blockServer, share.prefix!!)
+        val externalBoxFile = sharingService.getBoxExternalFile(share, storageBackend)
+        val sharePath = BoxPath.Root * (externalBoxFile.prefix + externalBoxFile.name)
+        val resultFile = localStorage.getBoxFile(sharePath, externalBoxFile) ?: createTempFile().letApply {
+            sharingService.downloadShare(share, it, storageBackend)
+            localStorage.storeFile(it.inputStream(), externalBoxFile, sharePath)
+        }
+        single.onSuccess(resultFile)
+    }
+
+    override fun listShare(shareId : ShareId) = single<BrowserEntry.File> {
+        val entry = shareRepo.findById(shareId.boxShareId).let {
+            BrowserEntry.File(it.name, it.size, Date(it.modifiedOn))
+        }
+        it.onSuccess(entry)
     }
 
     override fun refreshShare(shareId: ShareId) = single<Unit> { single ->

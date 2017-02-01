@@ -6,6 +6,8 @@ import de.qabel.chat.repository.ChatDropMessageRepository
 import de.qabel.chat.repository.ChatShareRepository
 import de.qabel.chat.repository.sqlite.SqliteChatDropMessageRepository
 import de.qabel.chat.repository.sqlite.SqliteChatShareRepository
+import de.qabel.client.box.storage.repository.BoxLocalStorageRepository
+import de.qabel.client.box.storage.repository.LocalStorageRepository
 import de.qabel.core.repositories.AndroidClientDatabase
 import de.qabel.core.repositories.AndroidFakeEntityManager
 import de.qabel.core.repository.*
@@ -117,5 +119,8 @@ class RepositoryFactory(private val context: Context) {
 
     fun getChatShareRepository() : ChatShareRepository =
             SqliteChatShareRepository(getAndroidClientDatabase(), entityManager)
+
+    fun getLocalStorageRepository() : LocalStorageRepository =
+            BoxLocalStorageRepository(getAndroidClientDatabase(), entityManager)
 
 }

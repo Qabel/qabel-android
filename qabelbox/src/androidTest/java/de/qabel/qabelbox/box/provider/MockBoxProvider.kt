@@ -6,6 +6,7 @@ import android.content.pm.ProviderInfo
 import de.qabel.qabelbox.BuildConfig
 import de.qabel.qabelbox.TestConstants
 import de.qabel.box.storage.dto.BoxPath
+import de.qabel.client.box.documentId.DocumentId
 import de.qabel.qabelbox.box.interactor.DocumentIdAdapter
 import java.io.File
 

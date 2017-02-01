@@ -22,14 +22,14 @@ public class ExternalApps {
     public static void share(Activity activity, Uri uri, String type) {
 
         Intent shareIntent = new Intent(Intent.ACTION_SEND);
-        shareIntent.setData(uri);
         if (type != null) {
-            shareIntent.setType(type);
+            shareIntent.setDataAndType(uri, type);
+        } else {
+            shareIntent.setData(uri);
         }
         shareIntent.putExtra(Intent.EXTRA_SUBJECT, R.string.share_subject);
         shareIntent.putExtra(Intent.EXTRA_TITLE, R.string.share_subject);
         shareIntent.putExtra(Intent.EXTRA_TEXT, activity.getString(R.string.share_text));
-        shareIntent.putExtra(Intent.EXTRA_STREAM, uri);
         shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
         activity.startActivityForResult(Intent.createChooser(shareIntent, activity.getString(R.string.share_via)), MainActivity.REQUEST_EXTERN_SHARE_APP);
     }
@@ -42,8 +42,7 @@ public class ExternalApps {
      * @param type     mimetype
      * @param action   send action, e.g. ACTION_VIEW, ACTION_EDIT
      */
-    public static void openExternApp(Activity activity, Uri uri, String type, String action) {
-
+    public static void openInExternalApp(Activity activity, Uri uri, String type, String action) {
         Intent viewIntent = new Intent();
         viewIntent.setDataAndType(uri, type);
         viewIntent.setAction(action);

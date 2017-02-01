@@ -3,10 +3,10 @@ package de.qabel.qabelbox.box.notifications
 import android.app.NotificationManager
 import android.content.Context
 import de.qabel.box.storage.dto.BoxPath
+import de.qabel.client.box.interactor.BoxReadFileBrowser
+import de.qabel.client.box.interactor.FileOperationState
 import de.qabel.qabelbox.BuildConfig
 import de.qabel.qabelbox.SimpleApplication
-import de.qabel.qabelbox.box.dto.FileOperationState
-import de.qabel.qabelbox.box.interactor.BoxReadFileBrowser
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith

@@ -5,21 +5,26 @@ import com.natpryce.hamkrest.equalTo
 import com.natpryce.hamkrest.hasSize
 import com.natpryce.hamkrest.should.shouldMatch
 import com.nhaarman.mockito_kotlin.*
+import de.qabel.box.storage.BoxExternalFile
+import de.qabel.box.storage.Hash
 import de.qabel.box.storage.dto.BoxPath
 import de.qabel.chat.repository.ChatShareRepository
 import de.qabel.chat.repository.entities.BoxFileChatShare
 import de.qabel.chat.repository.entities.ShareStatus
 import de.qabel.chat.repository.inmemory.InMemoryChatShareRepository
 import de.qabel.chat.service.SharingService
+import de.qabel.client.box.documentId.DocumentId
+import de.qabel.client.box.documentId.toDocumentId
+import de.qabel.client.box.interactor.*
+import de.qabel.client.box.storage.LocalStorage
+import de.qabel.client.isEqual
+import de.qabel.client.stubMethod
 import de.qabel.core.config.SymmetricKey
 import de.qabel.core.extensions.assertThrows
 import de.qabel.qabelbox.BuildConfig
 import de.qabel.qabelbox.SimpleApplication
-import de.qabel.qabelbox.box.dto.*
-import de.qabel.qabelbox.box.provider.DocumentId
+import de.qabel.qabelbox.box.dto.ProviderEntry
 import de.qabel.qabelbox.box.provider.ShareId
-import de.qabel.qabelbox.box.provider.toDocumentId
-import de.qabel.qabelbox.isEqual
 import de.qabel.qabelbox.util.waitFor
 import org.junit.Before
 import org.junit.Test
@@ -48,6 +53,7 @@ class BoxDocumentIdAdapterTest {
 
     lateinit var shareRepo: ChatShareRepository
     lateinit var sharingService: SharingService
+    lateinit var localStorage: LocalStorage
 
     @Before
     fun setUp() {
@@ -55,6 +61,8 @@ class BoxDocumentIdAdapterTest {
         sharingService = mock()
         operationFileBrowser = mock()
         readFileBrowser = operationFileBrowser
+        localStorage = mock()
+        stubMethod(localStorage.getBoxFile(any(), any()), null)
         useCase = BoxDocumentIdAdapter(RuntimeEnvironment.application,
                 object : VolumeManager {
                     override val roots: List<VolumeRoot>
@@ -62,7 +70,7 @@ class BoxDocumentIdAdapterTest {
 
                     override fun readFileBrowser(rootID: String) = readFileBrowser
                     override fun operationFileBrowser(rootID: String) = operationFileBrowser
-                }, shareRepo, mock(), sharingService)
+                }, shareRepo, mock(), sharingService, localStorage)
     }
 
     @Test
@@ -124,19 +132,24 @@ class BoxDocumentIdAdapterTest {
 
     @Test
     fun testDownloadShareFail() {
-        val share = BoxFileChatShare(ShareStatus.NEW, "", 0L, SymmetricKey(emptyList()), "")
+        val share = BoxFileChatShare(ShareStatus.NEW, "name", 1L, SymmetricKey(emptyList()), "url",
+                Hash("test".toByteArray(), "test"),
+                "prefix")
         shareRepo.persist(share)
         assertThrows(RuntimeException::class) {
-            useCase.download(ShareId.create(share), mock()).toBlocking().value()
+            useCase.download(ShareId.create(share)).toBlocking().value()
         }
     }
 
     @Test
     fun testDownloadShare() {
-        val share = BoxFileChatShare(ShareStatus.ACCEPTED, "", 0L, SymmetricKey(emptyList()), "")
-        share.prefix = "prefix"
+        val share = BoxFileChatShare(ShareStatus.ACCEPTED, "name", 1L, SymmetricKey(emptyList()), "url",
+                Hash("test".toByteArray(), "test"),
+                "prefix", 0L, SymmetricKey(emptyList()))
         shareRepo.persist(share)
-        useCase.download(ShareId.create(share), mock()).toBlocking().value()
+        stub(sharingService.getBoxExternalFile(any(), any(), any())).toReturn(BoxExternalFile(mock(), share.prefix!!,
+                "block", share.name, share.size, share.modifiedOn, share.key!!.toByteArray(), share.hashed))
+        useCase.download(ShareId.create(share)).toBlocking().value()
         verify(sharingService).downloadShare(eq(share), any(), any())
     }
 
@@ -147,6 +160,18 @@ class BoxDocumentIdAdapterTest {
         shareRepo.persist(share)
         useCase.refreshShare(ShareId.create(share)).toBlocking().value()
         verify(sharingService).updateShare(eq(share), any())
+    }
+
+    @Test
+    fun listShare(){
+        val share = BoxFileChatShare(ShareStatus.ACCEPTED, "", 128L, SymmetricKey(emptyList()), "")
+        share.prefix = "prefix"
+        shareRepo.persist(share)
+        val value = useCase.listShare(ShareId.create(share)).toBlocking().value()
+        value.name isEqual  share.name
+        value.mTime.time isEqual share.modifiedOn
+        value.size isEqual share.size
+        value.sharedTo.size isEqual 0
     }
 
 }

@@ -1,7 +1,7 @@
 package de.qabel.qabelbox.box.notifications
 
-import de.qabel.qabelbox.box.dto.FileOperationState
-import de.qabel.qabelbox.box.dto.FileOperationState.Status
+import de.qabel.client.box.interactor.FileOperationState
+import de.qabel.client.box.interactor.FileOperationState.Status
 import javax.inject.Inject
 
 class AndroidStorageNotificationManager
@@ -15,6 +15,7 @@ class AndroidStorageNotificationManager
             Status.COMPLETING -> presenter.showUploadProgressNotification(info)
             Status.COMPLETE -> presenter.showUploadCompletedNotification(info)
             Status.ERROR -> presenter.showUploadFailedNotification(info)
+            Status.HIDDEN,
             Status.CANCELED -> presenter.cancelNotification(info)
         }
     }
@@ -27,6 +28,7 @@ class AndroidStorageNotificationManager
             Status.COMPLETING -> presenter.showDecryptingDownloadNotification(info)
             Status.COMPLETE -> presenter.showDownloadCompletedNotification(info)
             Status.ERROR -> presenter.showDownloadFailedNotification(info)
+            Status.HIDDEN,
             Status.CANCELED -> presenter.cancelNotification(info)
         }
     }

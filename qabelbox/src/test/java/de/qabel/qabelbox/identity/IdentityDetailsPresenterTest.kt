@@ -35,7 +35,7 @@ class IdentityDetailsPresenterTest() : CoreTestCase {
     }
 
     val useCase: IdentityInteractor = mock<IdentityInteractor>().apply {
-        stub(getIdentity(identity.keyIdentifier)).toReturn(identity.toSingletonObservable().toSingle())
+        stub(getIdentity(identity.keyIdentifier)).toReturn(identity)
         stub(saveIdentity(identity)).toReturn(singleOf(identity))
     }
 

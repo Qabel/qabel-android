@@ -4,18 +4,18 @@ import android.app.Service
 import android.content.Intent
 import android.net.Uri
 import android.os.IBinder
+import de.qabel.client.box.documentId.DocumentId
+import de.qabel.client.box.documentId.toDocumentId
+import de.qabel.client.box.interactor.FileOperationState
 import de.qabel.core.event.EventSink
 import de.qabel.core.logging.QabelLog
 import de.qabel.qabelbox.QabelBoxApplication
 import de.qabel.qabelbox.R
-import de.qabel.qabelbox.box.dto.FileOperationState
 import de.qabel.qabelbox.box.events.BoxPathEvent
 import de.qabel.qabelbox.box.events.FileDownloadEvent
 import de.qabel.qabelbox.box.events.FileUploadEvent
 import de.qabel.qabelbox.box.interactor.DocumentIdInteractor
 import de.qabel.qabelbox.box.notifications.StorageNotificationManager
-import de.qabel.qabelbox.box.provider.DocumentId
-import de.qabel.qabelbox.box.provider.toDocumentId
 import de.qabel.qabelbox.reporter.CrashSubmitter
 import org.jetbrains.anko.ctx
 import org.jetbrains.anko.longToast
@@ -185,6 +185,9 @@ class AndroidBoxService : Service(), QabelLog {
                 pendingMap.put(documentId, Pair(observable, it))
             }
         }
+
+
+
     }
 
     private fun notifyForDownload(operation: FileOperationState) {

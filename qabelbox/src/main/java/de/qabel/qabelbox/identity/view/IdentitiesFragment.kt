@@ -108,9 +108,7 @@ class IdentitiesFragment : BaseFragment(showFAButton = true) {
     }
 
     private fun reload() {
-        identityInteractor.getIdentities().subscribe({
-            identityListAdapter.init(it.identities.toList())
-        })
+        identityListAdapter.init(identityInteractor.getIdentities().identities.toList())
     }
 
     private fun exportIdentity(identity: Identity) {

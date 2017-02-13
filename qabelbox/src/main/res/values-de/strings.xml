@@ -34,7 +34,7 @@
     <string name="Rename">Umbenennen</string>
     <string name="alias_cannot_be_empty">Alias darf nicht leer sein</string>
     <string name="identity">Identität</string>
-    <string name="boxaccount">Ein Qabelaccount</string>
+    <string name="boxaccount">Ein Qabel-Account</string>
     <string name="rename_identity">Umbenennen von %s</string>
     <string name="new_identity_name">Identitätsalias</string>
     <string name="confirm_delete_identity_header">Identität löschen?</string>
@@ -80,29 +80,29 @@
     <string name="create_account_password1_hint">Passwort</string>
     <string name="create_account_password2_hint">Passwort wiederholen</string>
     <string name="create_account_password_infos">Passwort eingeben</string>
-    <string name="create_box_account">Registrieren Sie einen Qabelaccount</string>
+    <string name="create_box_account">Registrieren Sie einen Qabel-Account</string>
     <string name="login">Login</string>
     <string name="loggedInAs">Angemeldet als %s</string>
     <string name="create_account_username_hint">Nutzername</string>
-    <string name="create_account_login_infos">Bitte loggen Sie sich in Ihren Qabelaccount ein</string>
-    <string name="create_account_enter_name_infos">Bitte geben Sie einen Nutzernamen für Ihren Qabelaccount an. Ihr Nutzername kann bis zu 30 Zeichen lang sein.</string>
+    <string name="create_account_login_infos">Bitte loggen Sie sich in Ihren Qabel-Account ein.</string>
+    <string name="create_account_enter_name_infos">Bitte geben Sie einen Nutzernamen für Ihren Qabel-Account an. Ihr Nutzername kann bis zu 30 Zeichen lang sein.</string>
     <string name="create_account_name_hint">Nutzername</string>
     <string name="create_account_enter_all_data">Bitte geben Sie alle Daten ein, um fortzufahren</string>
     <string name="create_account_maximum_32_chars">Die maximale Länge des Accountnamens </string>
     <string name="create_account_email">Bitte geben Sie Ihre E-Mail an. Mit dieser Adresse können Sie Ihren Account zurücksetzen</string>
     <string name="email_hint">Ihre E-Mail</string>
     <string name="create_account_passwords_dont_match">Die eingegebenen Passwörter stimmen nicht überein.</string>
-    <string name="create_account_final">Ihr Qabelaccount ist jetzt verfügbar</string>
+    <string name="create_account_final">Ihr Qabel-Account ist jetzt verfügbar</string>
     <string name="create_identity_final_text">Bitte beachten Sie, dass Ihre Identität aktuell nur auf diesem Gerät zur Verfügung steht. Qabel oder Dritte haben keine Kopien auf ihren Servern.  Exportieren Sie zur Sicherheit als Backup Ihre Identität als .qid und bewahren Sie diese sicher auf. Die Identität mit der Endung .qid enthält den privaten Schlüssel Ihrer Identität, den Sie nicht preisgeben dürfen.</string>
     <string name="filebrowser">Dateien</string>
-    <string name="settings_headline_boxaccount">Qabelaccount</string>
+    <string name="settings_headline_boxaccount">Qabel-Account</string>
     <string name="headline_settings">Einstellungen</string>
     <string name="settings_change_account_password">Passwort ändern</string>
-    <string name="settings_change_account_password_summary">Passwort des Qabelaccounts ändern</string>
-    <string name="change_boxaccount_password_message">Bitte geben Sie ein neues Passwort ein, welches das Passwort Ihres Qabel Accounts ersetzt</string>
+    <string name="settings_change_account_password_summary">Passwort des Qabel-Accounts ändern</string>
+    <string name="change_boxaccount_password_message">Bitte geben Sie ein neues Passwort ein, welches das Passwort Ihres Qabel-Accounts ersetzt</string>
     <string name="dialog_headline_please_wait">Bitte warten</string>
     <string name="dialog_message_server_communication_is_running">Kommunikation mit dem Server läuft</string>
-    <string name="headline_create_box_account">Erstellen des Qabelaccounts</string>
+    <string name="headline_create_box_account">Erstellen des Qabel-Accounts</string>
     <string name="server_access_not_successfully_retry_question">Zugriff auf den Server ist fehlgeschlagen. Erneut versuchen?</string>
     <string name="no">Nein</string>
     <string name="yes">Ja</string>
@@ -117,7 +117,7 @@
     <string name="email_address_invalid">Ihre E-Mail-Adresse ist ungültig. Bitte prüfen Sie die E-Mail-Adresse und versuchen Sie es erneut.</string>
     <string name="phone_number_invalid">Ihre Telefonnummer ist ungültig. Bitte prüfen Sie sie und versuchen Sie es erneut.</string>
     <string name="btn_create_identity">Identität erstellen</string>
-    <string name="create_account_final_headline">Qabelaccount registriert</string>
+    <string name="create_account_final_headline">Qabel-Account registriert</string>
     <string name="change_account_password_oldpassword_hint">Aktuelles Passwort</string>
     <string name="change_account_password_newpassword1_hint">Passwort</string>
     <string name="change_account_password_newpassword2_hint">Passwort wiederholen</string>
@@ -202,7 +202,7 @@
     <string name="please_wait_attach_external_file">Bitte warten. Externe Datei wird zum Account hinzugefügt</string>
     <string name="upload_complete_title">Hochladen abgeschlossen</string>
     <string name="upload_complete_msg">%s komplett hochgeladen</string>
-    <string name="upload_in_progress_notification_content">Hochladen … %s</string>
+    <string name="upload_in_progress_notification_content">Hochladen ... %s</string>
     <string name="message_file_cant_upload">Datei konnte nicht hochgeladen werden</string>
     <string name="share_error_on_sending">Freigabe wurde nicht gesendet</string>
     <string name="filebrowser_file_is_shared_to">Geteilt an </string>
@@ -216,10 +216,8 @@
     <string name="message_revoke_share">Freigabe wird entzogen</string>
     <string name="message_chat_message_not_sent">Nachricht wurde nicht gesendet</string>
     <string name="create_idenity_cant_get_prefix">Keinen Prefix vom Server erhalten</string>
-    <plurals name="uploadsNotificationTitle">
-        <item quantity="one"></item>
-        <item quantity="other"></item>
-    </plurals>
+    <string name="uploading">Hochladen %s</string>
+    <string name="encrypting">Datei verschlüsseln…</string>
     <string name="hockeyapp_feedback_response_button_text">Neue Nachricht senden</string>
 
     <string name="licence.header.intro">Qabel ist unter QaPL veröffentlicht</string>
@@ -279,7 +277,6 @@
     <string name="about.licences.item.show.btn">Lizenz anzeigen</string>
 
 
-
     <string name="help_main_headline_tou">AGB</string>
     <string name="help_main_headline_data_policy">Datenschutzerklärung</string>
     <string name="help_main_headline_about_us">Impressum</string>
@@ -317,7 +314,7 @@
     <string name="btn_welcome_accept">Akzeptieren</string>
     <string name="message_welcome_qabel_big">QABEL</string>
     <string name="headline_welcome_screen1">Willkommen bei\u0020</string>
-    <string name="empty_text" translatable="false"/>
+    <string name="empty_text" translatable="false" />
     <string name="headline_welcome_screen2">\u0020Funktionen\n</string>
     <string name="headline_welcome_screen3">\u0020Identitäten\n</string>
     <string name="headline_welcome_screen4">\u0020Account\n</string>
@@ -358,11 +355,11 @@ Mehr Infos finden Sie unter https://qabel.de
 
     <string name="downloading">Herunterladen %s ...</string>
     <string name="download_complete">Herunterladen abgeschlossen</string>
+    <string name="download_complete_msg">Hochladen %s abgeschlossen</string>
 
     <string name="settings_title_box_quota">Speicher</string>
     <string name="used_storage">%1$s von %2$s belegt</string>
     <string name="unlimited_storage">unbegrenzter Speicher, %1$s belegt</string>
-    <string name="download_complete_msg">Hochladen %s abgeschlossen</string>
     <string name="currently_not_available">currently not available</string>
     <string name="permanently_unavailable">nicht mehr verfügbar</string>
     <string name="search">Suche</string>
@@ -401,13 +398,9 @@ Mehr Infos finden Sie unter https://qabel.de
     <string name="moments_ago">gerade eben</string>
     <string name="markAsRead">Als gelesen markieren</string>
     <string name="emoji">Emojis</string>
-    <string name="uploading">Hochladen %s</string>
     <string name="decrypting">Datei entschlüsseln…</string>
-    <string name="encrypting">Datei verschlüsseln…</string>
     <string name="upload_failed_msg">Hochladen fehlgeschlagen</string>
-    <string name="download_failed">Herunterladen fehlgeschlagen</string>
-    <string name="download_failed_msg">%s konnte nicht heruntergeladen werden</string>
     <string name="external_file_save">In Qabel speichern</string>
-    <string name="filename">Dateiname</string>
-    <string name="folder">Ordner</string>
+    <string name="received_message_label">Nachricht</string>
+    <string name="title_activity_text_share_receiver">Mit Qabel versenden</string>
 </resources>

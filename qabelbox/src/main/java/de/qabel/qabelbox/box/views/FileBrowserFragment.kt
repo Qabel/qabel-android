@@ -10,6 +10,10 @@ import android.view.*
 import com.cocosw.bottomsheet.BottomSheet
 import de.qabel.box.storage.dto.BoxPath
 import de.qabel.box.storage.exceptions.QblStorageException
+import de.qabel.client.box.documentId.DocumentId
+import de.qabel.client.box.documentId.toDocumentId
+import de.qabel.client.box.interactor.BrowserEntry
+import de.qabel.client.box.interactor.FileOperationState.Status
 import de.qabel.core.config.Identity
 import de.qabel.core.event.EventDispatcher
 import de.qabel.core.repository.ContactRepository
@@ -18,8 +22,6 @@ import de.qabel.qabelbox.BuildConfig
 import de.qabel.qabelbox.R
 import de.qabel.qabelbox.base.BaseFragment
 import de.qabel.qabelbox.box.adapters.FileAdapter
-import de.qabel.qabelbox.box.dto.BrowserEntry
-import de.qabel.qabelbox.box.dto.FileOperationState.Status
 import de.qabel.qabelbox.box.events.BoxBackgroundEvent
 import de.qabel.qabelbox.box.events.BoxPathEvent
 import de.qabel.qabelbox.box.events.FileUploadEvent
@@ -27,18 +29,16 @@ import de.qabel.qabelbox.box.mimeType
 import de.qabel.qabelbox.box.openIntent
 import de.qabel.qabelbox.box.presenters.FileBrowserPresenter
 import de.qabel.qabelbox.box.provider.BoxProvider
-import de.qabel.qabelbox.box.provider.DocumentId
-import de.qabel.qabelbox.box.provider.toDocumentId
 import de.qabel.qabelbox.box.queryNameAndSize
 import de.qabel.qabelbox.dagger.components.ActiveIdentityComponent
 import de.qabel.qabelbox.dagger.modules.FileBrowserViewModule
 import de.qabel.qabelbox.ui.extensions.showEnterTextDialog
 import de.qabel.qabelbox.viewer.ImageViewerActivity
 import kotlinx.android.synthetic.main.fragment_files.*
+import kotlinx.android.synthetic.main.background_progress_bar.*
 import org.jetbrains.anko.*
 import rx.Subscription
 import java.io.FileNotFoundException
-import java.net.URLConnection
 import java.util.*
 import javax.inject.Inject
 
@@ -95,27 +95,28 @@ class FileBrowserFragment : FileBrowserView, FileListingView,
         files_list.layoutManager = LinearLayoutManager(ctx)
         files_list.adapter = adapter
         swipeRefresh.isEnabled = false
+
+        if (!(mActivity?.TEST ?: false)) {
+            presenter.onRefresh()
+        }
     }
 
     override fun onResume() {
         super.onResume()
-        if (!(mActivity?.TEST ?: false)) {
-            presenter.onRefresh()
-        }
         subscription = eventDispatcher.events(BoxBackgroundEvent::class.java).subscribe {
             when (it) {
                 is FileUploadEvent -> {
                     if (listOf(Status.COMPLETE, Status.ERROR).contains(it.operation.status)) {
-                        presenter.onRefresh()
                         backgroundRefreshDone()
+                        presenter.onRefresh()
                     } else {
                         backgroundRefreshStart()
                     }
                 }
                 is BoxPathEvent -> {
                     if (it.complete) {
-                        presenter.onRefresh()
                         backgroundRefreshDone()
+                        presenter.onRefresh()
                     } else {
                         backgroundRefreshStart()
                     }
@@ -251,13 +252,13 @@ class FileBrowserFragment : FileBrowserView, FileListingView,
         }
     }
 
-    fun backgroundRefreshStart() {
+    override fun backgroundRefreshStart() {
         runOnUiThread {
             background_progress_bar?.visibility = View.VISIBLE
         }
     }
 
-    fun backgroundRefreshDone() {
+    override fun backgroundRefreshDone() {
         runOnUiThread {
             background_progress_bar?.visibility = View.INVISIBLE
         }
@@ -295,8 +296,7 @@ class FileBrowserFragment : FileBrowserView, FileListingView,
 
     private fun startViewIntent(mimeType: String, uri: Uri?) {
         val intent = Intent(Intent.ACTION_VIEW).apply {
-            data = uri
-            type = mimeType
+            setDataAndType(uri, mimeType)
             addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
             addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
         }
@@ -324,8 +324,7 @@ class FileBrowserFragment : FileBrowserView, FileListingView,
             val uri = uriFromDocumentId(documentId)
             val mimeType = uri.mimeType()
             val createDocument = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
-                data = uri
-                type = mimeType
+                setDataAndType(uri, mimeType)
                 putExtra(Intent.EXTRA_TITLE, documentId.path.name)
                 addCategory(Intent.CATEGORY_OPENABLE)
                 addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)

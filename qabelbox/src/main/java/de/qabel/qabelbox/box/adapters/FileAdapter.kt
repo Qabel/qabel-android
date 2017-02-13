@@ -3,8 +3,8 @@ package de.qabel.qabelbox.box.adapters
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import de.qabel.client.box.interactor.BrowserEntry
 import de.qabel.qabelbox.R
-import de.qabel.qabelbox.box.dto.BrowserEntry
 
 open class FileAdapter(var entries: MutableList<BrowserEntry>,
                        val click: (BrowserEntry) -> Unit = {},

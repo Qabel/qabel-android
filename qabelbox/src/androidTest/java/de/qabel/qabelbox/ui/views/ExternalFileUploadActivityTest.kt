@@ -4,6 +4,7 @@ import android.app.Activity
 import android.app.Instrumentation
 import android.content.Intent
 import android.net.Uri
+import android.os.PowerManager
 import android.support.test.InstrumentationRegistry
 import android.support.test.espresso.Espresso.onData
 import android.support.test.espresso.Espresso.onView
@@ -19,19 +20,24 @@ import android.support.test.espresso.matcher.ViewMatchers.withText
 import com.natpryce.hamkrest.equalTo
 import com.natpryce.hamkrest.should.shouldMatch
 import de.qabel.box.storage.dto.BoxPath
+import de.qabel.client.box.documentId.DocumentId
+import de.qabel.client.box.interactor.BrowserEntry
 import de.qabel.core.config.Identity
 import de.qabel.core.config.Prefix
 import de.qabel.qabelbox.R
 import de.qabel.qabelbox.base.ACTIVE_IDENTITY
-import de.qabel.qabelbox.box.dto.BrowserEntry
 import de.qabel.qabelbox.box.interactor.BoxServiceStarter
+import de.qabel.qabelbox.contacts.dto.EntitySelection
 import de.qabel.qabelbox.box.presenters.FileUploadPresenter
-import de.qabel.qabelbox.box.provider.DocumentId
 import de.qabel.qabelbox.box.views.ExternalFileUploadActivity
 import de.qabel.qabelbox.box.views.FolderChooserActivity
+import de.qabel.qabelbox.ui.helper.SystemAnimations
+import de.qabel.qabelbox.ui.helper.UIActionHelper
 import de.qabel.qabelbox.ui.helper.UIBoxHelper
+import de.qabel.qabelbox.ui.helper.UITestHelper
 import org.hamcrest.CoreMatchers
 import org.hamcrest.Matchers
+import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -47,10 +53,13 @@ class ExternalFileUploadActivityTest {
     val activity: ExternalFileUploadActivity
         get() = activityTestRule.activity
 
+    private var wakeLock: PowerManager.WakeLock? = null
+    private var mSystemAnimations: SystemAnimations? = null
+
     lateinit var identity: Identity
     lateinit var secondIdentity: Identity
 
-    lateinit var identities: List<FileUploadPresenter.IdentitySelection>
+    lateinit var identities: List<EntitySelection>
     val folder = BrowserEntry.Folder("folder")
 
     val uri: Uri = Uri.fromFile(createTempFile())
@@ -63,7 +72,7 @@ class ExternalFileUploadActivityTest {
             }
         }
 
-    open class Presenter(override val availableIdentities: List<FileUploadPresenter.IdentitySelection>)
+    open class Presenter(override val availableIdentities: List<EntitySelection>)
     : FileUploadPresenter {
         var confirmed = false
         override val defaultPath: BoxPath = BoxPath.Root * "public"
@@ -86,21 +95,30 @@ class ExternalFileUploadActivityTest {
         identity = mBoxHelper.addIdentity("spoon123")
         secondIdentity = mBoxHelper.addIdentity("second")
         identities = listOf(
-            FileUploadPresenter.IdentitySelection(secondIdentity),
-            FileUploadPresenter.IdentitySelection(identity))
+                EntitySelection(secondIdentity),
+                EntitySelection(identity))
     }
 
-    fun launch(identities: List<FileUploadPresenter.IdentitySelection>? = null): Presenter {
+    fun launch(identities: List<EntitySelection>? = null): Presenter {
         activityTestRule.launchActivity(defaultIntent)
         presenter = Presenter(identities ?: listOf())
         activity.presenter = presenter
         activity.boxServiceStarter = boxServiceStarter
+        wakeLock = UIActionHelper.wakeupDevice(activity)
+        mSystemAnimations = SystemAnimations(activity)
+        mSystemAnimations?.disableAll()
         return presenter
+    }
+
+    @After
+    fun cleanUp() {
+        wakeLock?.release()
+        mSystemAnimations?.enableAll()
     }
 
     @Test
     fun finishesWithoutIdentities() {
-        // the startup sequenze doesn't use the mocked presenter
+        // the startup sequence doesn't use the mocked presenter
         mBoxHelper.removeAllIdentities()
         launch(listOf())
         assert(activity.isFinishing)
@@ -195,7 +213,7 @@ class ExternalFileUploadActivityTest {
 
         fun selectIdentity(identity: Identity) {
             identitySpinner.perform(click())
-            onData(CoreMatchers.equalTo(FileUploadPresenter.IdentitySelection(identity))).perform(click())
+            onData(CoreMatchers.equalTo(EntitySelection(identity))).perform(click())
             identitySpinner.check(matches(ViewMatchers.withSpinnerText(
                     Matchers.containsString(identity.alias))))
         }
@@ -206,7 +224,7 @@ class ExternalFileUploadActivityTest {
         val folderName: ViewInteraction
             get() = onView(withId(R.id.folderName))
 
-        fun folderSelectIntentMatcher(identity: FileUploadPresenter.IdentitySelection) = Matchers.allOf(
+        fun folderSelectIntentMatcher(identity: EntitySelection) = Matchers.allOf(
                     IntentMatchers.toPackage("de.qabel.qabel.debug"),
                     IntentMatchers.hasExtra(ACTIVE_IDENTITY, identity.keyId))
 

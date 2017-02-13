@@ -2,9 +2,9 @@ package de.qabel.qabelbox.box.adapters
 
 import android.support.v7.widget.RecyclerView
 import android.view.View
+import de.qabel.client.box.interactor.BrowserEntry
 import de.qabel.core.ui.displayName
 import de.qabel.qabelbox.R
-import de.qabel.qabelbox.box.dto.BrowserEntry
 import de.qabel.qabelbox.helper.Formatter
 import de.qabel.qabelbox.ui.extensions.setOrGone
 import de.qabel.qabelbox.ui.extensions.setVisibleOrGone

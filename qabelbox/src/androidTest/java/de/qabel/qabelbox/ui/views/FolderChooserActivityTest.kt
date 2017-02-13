@@ -9,11 +9,11 @@ import android.support.test.rule.ActivityTestRule
 import de.qabel.core.config.Identity
 import de.qabel.qabelbox.R
 import de.qabel.qabelbox.base.ACTIVE_IDENTITY
-import de.qabel.qabelbox.box.dto.BrowserEntry
 import de.qabel.qabelbox.box.presenters.FolderChooserPresenter
 import de.qabel.qabelbox.box.views.FolderChooserActivity
 import de.qabel.qabelbox.ui.helper.UIBoxHelper
 import android.support.test.espresso.assertion.ViewAssertions.matches
+import de.qabel.client.box.interactor.BrowserEntry
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test

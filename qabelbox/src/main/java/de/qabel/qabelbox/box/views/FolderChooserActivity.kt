@@ -7,22 +7,24 @@ import android.support.v7.widget.LinearLayoutManager
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import de.qabel.client.box.documentId.DocumentId
+import de.qabel.client.box.interactor.BrowserEntry
 import de.qabel.core.logging.QabelLog
 import de.qabel.qabelbox.R
 import de.qabel.qabelbox.base.ACTIVE_IDENTITY
 import de.qabel.qabelbox.base.ActiveIdentityActivity
 import de.qabel.qabelbox.base.CrashReportingActivity
 import de.qabel.qabelbox.box.adapters.FileAdapter
-import de.qabel.qabelbox.box.dto.BrowserEntry
 import de.qabel.qabelbox.box.presenters.FolderChooserPresenter
-import de.qabel.qabelbox.box.provider.DocumentId
 import de.qabel.qabelbox.dagger.modules.ActiveIdentityModule
 import de.qabel.qabelbox.dagger.modules.ActivityModule
 import de.qabel.qabelbox.dagger.modules.FolderChooserModule
 import kotlinx.android.synthetic.main.activity_folder_chooser.*
+import kotlinx.android.synthetic.main.background_progress_bar.*
 import kotlinx.android.synthetic.main.fragment_files.*
 import org.jetbrains.anko.ctx
 import org.jetbrains.anko.longToast
+import org.jetbrains.anko.runOnUiThread
 import javax.inject.Inject
 
 class FolderChooserActivity: CrashReportingActivity(), FolderChooserView, ActiveIdentityActivity,
@@ -101,6 +103,18 @@ QabelLog {
             if (!swipeRefresh.isRefreshing) {
                 swipeRefresh.isRefreshing = true
             }
+        }
+    }
+
+    override fun backgroundRefreshStart() {
+        runOnUiThread {
+            background_progress_bar?.visibility = View.VISIBLE
+        }
+    }
+
+    override fun backgroundRefreshDone() {
+        runOnUiThread {
+            background_progress_bar?.visibility = View.INVISIBLE
         }
     }
 

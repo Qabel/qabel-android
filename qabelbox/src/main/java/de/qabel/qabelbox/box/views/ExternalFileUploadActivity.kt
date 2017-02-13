@@ -7,29 +7,25 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
-import android.view.ViewGroup
 import android.widget.AdapterView
-import android.widget.ArrayAdapter
 import android.widget.TextView
 import com.squareup.picasso.Picasso
 import de.qabel.box.storage.dto.BoxPath
+import de.qabel.client.box.documentId.DocumentId
+import de.qabel.client.box.documentId.DocumentIdParser
 import de.qabel.core.logging.QabelLog
 import de.qabel.qabelbox.R
+import de.qabel.qabelbox.adapter.EntitySelectionAdapter
 import de.qabel.qabelbox.base.ACTIVE_IDENTITY
 import de.qabel.qabelbox.base.CrashReportingActivity
 import de.qabel.qabelbox.box.interactor.BoxServiceStarter
 import de.qabel.qabelbox.box.presenters.FileUploadPresenter
-import de.qabel.qabelbox.box.provider.DocumentId
-import de.qabel.qabelbox.box.provider.DocumentIdParser
 import de.qabel.qabelbox.box.queryNameAndSize
-import de.qabel.qabelbox.contacts.extensions.colorForKeyIdentitfier
-import de.qabel.qabelbox.contacts.view.widgets.IdentityIconDrawable
+import de.qabel.qabelbox.contacts.dto.EntitySelection
 import de.qabel.qabelbox.dagger.modules.ActivityModule
 import de.qabel.qabelbox.dagger.modules.ExternalFileUploadModule
 import kotlinx.android.synthetic.main.activity_external_upload.*
-import kotlinx.android.synthetic.main.item_identities.view.*
 import org.jetbrains.anko.ctx
-import org.jetbrains.anko.layoutInflater
 import org.jetbrains.anko.onClick
 import org.jetbrains.anko.startActivityForResult
 import java.io.FileNotFoundException
@@ -37,9 +33,9 @@ import javax.inject.Inject
 import kotlin.properties.Delegates
 import kotlin.reflect.KProperty
 
-class ExternalFileUploadActivity() : FileUploadView, CrashReportingActivity(), QabelLog {
+class ExternalFileUploadActivity : FileUploadView, CrashReportingActivity(), QabelLog {
 
-    override lateinit var identity: FileUploadPresenter.IdentitySelection
+    override lateinit var identity: EntitySelection
     override var path: BoxPath.FolderLike = BoxPath.Root / "Upload"
     override var filename: String by Delegates.observable("") {
         kProperty: KProperty<*>, old: String, new: String ->
@@ -70,7 +66,7 @@ class ExternalFileUploadActivity() : FileUploadView, CrashReportingActivity(), Q
                     return
                 }
                 if (id.path is BoxPath.FolderLike) {
-                    path = id.path
+                    path = id.path as BoxPath.FolderLike
                     folderName.text = id.path.toString()
                 }
             }
@@ -127,35 +123,9 @@ class ExternalFileUploadActivity() : FileUploadView, CrashReportingActivity(), Q
 
         }
     }
-    private val splitRegex: Regex by lazy { " ".toRegex() }
-    private fun String.toInitials(): String = split(splitRegex).filter {
-        it.isNotEmpty() && it.first().isLetterOrDigit()
-    }.take(2).map {
-        it.take(1).toUpperCase()
-    }.joinToString("")
-
     private fun populateSpinner() {
         val identities = presenter.availableIdentities
-        val iconSize = ctx.resources.
-                getDimension(R.dimen.material_drawer_item_profile_icon_width).toInt()
-
-        val adapter = object: ArrayAdapter<FileUploadPresenter.IdentitySelection>(
-                this, R.layout.item_identity_for_chooser,R.id.item_name , identities) {
-            override fun getDropDownView(position: Int, convertView: View?, parent: ViewGroup?): View {
-                return getView(position, convertView, parent)
-            }
-            override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
-                val view = convertView ?: ctx.layoutInflater.inflate(R.layout.item_identity_for_chooser, parent, false)
-                val item = getItem(position)
-                view.item_name.text = item.alias
-                view.item_icon.background = IdentityIconDrawable(
-                        width = iconSize,
-                        height = iconSize,
-                        text = item.alias.toInitials(),
-                        color = colorForKeyIdentitfier(item.keyId, 0, ctx))
-                return view
-            }
-        }
+        val adapter = EntitySelectionAdapter(ctx, identities)
         identitySelect.adapter = adapter
         identitySelect.setSelection(0)
         identitySelect.onItemSelectedListener = object: AdapterView.OnItemSelectedListener {

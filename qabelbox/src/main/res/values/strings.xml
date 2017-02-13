@@ -200,7 +200,9 @@
     <string name="cant_import_shared_file">Can\'t import shared file</string>
     <string name="shared_file_imported">Shared file imported</string>
     <string name="please_wait_attach_external_file">Please wait. Attaching external file to account</string>
-
+    <string name="upload_complete_title">Upload complete</string>
+    <string name="upload_complete_msg">%s completely uploaded</string>
+    <string name="upload_in_progress_notification_content">Upload %s completed</string>
     <string name="message_file_cant_upload">File could not be uploaded</string>
     <string name="share_error_on_sending">Share not sent</string>
     <string name="filebrowser_file_is_shared_to">Shared to</string>
@@ -214,6 +216,8 @@
     <string name="message_revoke_share">Revoking share</string>
     <string name="message_chat_message_not_sent">Message not sent</string>
     <string name="create_idenity_cant_get_prefix">Could not retrieve a prefix from the server</string>
+    <string name="uploading">Uploading %s …</string>
+    <string name="encrypting">Encrypting %s …</string>
     <string name="hockeyapp_feedback_response_button_text"> Send a message</string>
 
     <string name="licence.header.intro">Qabel is published under the QaPL</string>
@@ -278,7 +282,6 @@
     <string name="about.licences.item.show.btn">Show Licence</string>
 
 
-
     <string name="help_main_headline_tou">Terms of use</string>
     <string name="help_main_headline_data_policy">Data policy</string>
     <string name="help_main_headline_about_us">Imprint</string>
@@ -316,7 +319,7 @@
     <string name="btn_welcome_accept">Accept</string>
     <string name="message_welcome_qabel_big">QABEL </string>
     <string name="headline_welcome_screen1">Welcome to\u0020</string>
-    <string name="empty_text" translatable="false"/>
+    <string name="empty_text" translatable="false" />
     <string name="headline_welcome_screen2">\u0020Features\n</string>
     <string name="headline_welcome_screen3">\u0020Identities\n</string>
     <string name="headline_welcome_screen4">\u0020Account\n</string>
@@ -355,11 +358,8 @@ You can find more information on https://qabel.de/en
 
 
     <string name="downloading">Downloading %s …</string>
-    <string name="decrypting">Decrypting file …</string>
     <string name="download_complete">Download complete</string>
-    <string name="download_complete_msg">%s completely downloaded.</string>
-    <string name="download_failed">Download failed</string>
-    <string name="download_failed_msg">Failed to download %s</string>
+    <string name="download_complete_msg">Download %s completed</string>
 
     <string name="settings_title_box_quota">Storage</string>
     <string name="used_storage">%1$s of %2$s in use </string>
@@ -369,6 +369,7 @@ You can find more information on https://qabel.de/en
     <string name="search">Search</string>
     <string name="inbox">Inbox</string>
     <string name="qapl" translatable="false">QaPL</string>
+    <string name="upload_failed_title">Could not open the file</string>
     <string name="filebrowser_up">Navigate up</string>
     <string name="export_complete">Export complete</string>
     <string name="export_aborted">Export failed</string>
@@ -394,21 +395,16 @@ You can find more information on https://qabel.de/en
     <string name="private_identity">Private</string>
     <string name="private_identity_text">Tag an identity as private to prevent that any information about your identity is published on the Qabel Index. Qabel Index is the public contact directory for Qabel users. Note: If you tag your identity as private, other Qabel users cannot find your contact details via your phone number or your e-mail address.  To confirm your e-mail address/telephone number, we will send you an e-mail/text message to the respective address/number.</string>
     <string name="conversations_empty">no recent conversations</string>
-    <string name="unknown">unknown</string>
+    <string name="unknown">unkown</string>
     <string name="index_search">Search for contacts</string>
     <string name="index_search_hint">Phone or email</string>
     <string name="upgrade">Get more space</string>
     <string name="moments_ago">moments ago</string>
     <string name="markAsRead">Mark as read</string>
     <string name="emoji">Emojis</string>
-
-    <string name="encrypting">Encrypting file …</string>
-    <string name="uploading">Uploading %s …</string>
-    <string name="upload_complete_title">Upload complete</string>
-    <string name="upload_complete_msg">%s completely uploaded</string>
-    <string name="upload_failed_title">Upload failed</string>
+    <string name="decrypting">Decrypting file …</string>
     <string name="upload_failed_msg">Failed to upload %s</string>
     <string name="external_file_save">Save to Qabel</string>
-    <string name="filename">Filename</string>
-    <string name="folder">Folder</string>
+    <string name="received_message_label">Message</string>
+    <string name="title_activity_text_share_receiver">Send with Qabel</string>
 </resources>

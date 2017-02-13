@@ -3,8 +3,8 @@ package de.qabel.qabelbox.box.interactor
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import de.qabel.client.box.documentId.DocumentId
 import de.qabel.qabelbox.box.AndroidBoxService
-import de.qabel.qabelbox.box.provider.DocumentId
 import javax.inject.Inject
 
 class AndroidBoxServiceStarter @Inject constructor(private val context: Context) : BoxServiceStarter {
